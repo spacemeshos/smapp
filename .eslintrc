@@ -1,0 +1,58 @@
+{
+  "extends": ["airbnb", "plugin:flowtype/recommended", "plugin:react/recommended", "prettier", "prettier/flowtype", "prettier/react"],
+  "plugins": ["react", "react-native", "prettier", "flowtype", "jest"],
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jest": true
+  },
+  "globals": {
+    "navigator": true,
+    "device": false,
+    "element": false,
+    "by": false,
+    "waitFor": false
+  },
+  "rules": {
+    "func-names": ["error", "never"],
+    "class-methods-use-this": 0,
+    "comma-dangle": ["error", "never"],
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "max-len": ["error", 180],
+    "no-class-assign": 0,
+    "no-else-return": 0,
+    "no-shadow": 0,
+    "no-underscore-dangle": 0,
+    "no-unused-expressions": [2, { "allowShortCircuit": true, "allowTernary": true }],
+    "no-use-before-define": 0,
+    "import/no-absolute-path": 0,
+    "import/extensions": 0,
+    "import/no-unresolved": 0,
+    "react/forbid-prop-types": [2, { "forbid": ["any"] }],
+    "react/prefer-stateless-function": 0,
+    "react-native/no-unused-styles": 2,
+    "react/require-default-props": 0,
+    "react/sort-comp": [
+      1,
+      {
+        "order": ["state", "constructor", "static-methods", "render", "lifecycle", "everything-else"]
+      }
+    ],
+    "react-native/split-platform-components": 2,
+    "react-native/no-inline-styles": 2,
+    "react-native/no-color-literals": 2,
+    "arrow-parens": 0,
+    "react/jsx-curly-brace-presence": 0,
+    "prefer-destructuring": 1,
+    "object-curly-newline": 0,
+    "jsx-a11y/anchor-is-valid": 0,
+    "prettier/prettier": "error",
+    "flowtype/no-types-missing-file-annotation": 0
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "jsx": true,
+    "sourceType": "module"
+  }
+}
