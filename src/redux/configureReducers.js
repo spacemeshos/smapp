@@ -8,6 +8,7 @@ const reduceReducers = (...reducers) => (previous, action) => reducers.reduce((c
 const configureReducer = ({ initialState }: { initialState: Object }) => {
   // $FlowFixMe
   const appReducer = reduceReducers(
+    // $FlowFixMe
     combineReducers({
       auth
     })

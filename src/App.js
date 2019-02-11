@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { AppTopNavigation } from '/navigators';
 import { navigationService } from '/infra/navigation';
 

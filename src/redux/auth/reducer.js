@@ -2,10 +2,14 @@ import * as actions from './actions';
 
 const initialState = {};
 
-const reducer = (state = initialState, action) => {
+type State = {};
+type Action = {
+  type: string
+};
+
+const reducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
     case actions.SIGN_UP_SUCCESS: {
-      const { aa } = action;
       return state;
     }
     case actions.SIGN_IN_SUCCESS: {

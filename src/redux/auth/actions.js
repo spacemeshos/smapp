@@ -11,7 +11,7 @@ export const SIGN_UP_BEGIN = 'AUTH/SIGN_UP_BEGIN';
 export const SIGN_UP_SUCCESS = 'AUTH/SIGN_UP_SUCCESS';
 export const SIGN_UP_FAILURE = 'AUTH/SIGN_UP_FAILURE';
 
-export const signIn = () => (dispatch) => {
+export const signIn = () => (dispatch: Function) => {
   dispatch({ type: SIGN_IN_BEGIN });
   try {
     // sign in func calls
@@ -21,7 +21,7 @@ export const signIn = () => (dispatch) => {
   }
 };
 
-export const logOut = () => (dispatch) => {
+export const logOut = () => (dispatch: Function) => {
   dispatch({ type: LOGOUT_BEGIN });
   try {
     // sign in func calls
@@ -31,7 +31,7 @@ export const logOut = () => (dispatch) => {
   }
 };
 
-export const signUp = () => (dispatch) => {
+export const signUp = () => (dispatch: Function) => {
   dispatch({ type: SIGN_UP_BEGIN });
   try {
     // sign up func calls
