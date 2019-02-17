@@ -27,6 +27,5 @@ dll/
 flow-typed/
 
 ct-libc/
-
-!/node_modules/
 /dll/
+/node_modules/
