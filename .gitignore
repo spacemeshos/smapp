@@ -23,3 +23,10 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea/
+dll/
+flow-typed/
+
+ct-libc/
+
+!/node_modules/
+/dll/

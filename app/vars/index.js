@@ -1,0 +1,1 @@
+import { smColors } from './colors';
