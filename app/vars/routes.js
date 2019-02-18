@@ -4,4 +4,4 @@ const routes = {
   "COUNTER": "/counter"
 };
 
-export default { routes }; // eslint-disable-line import/prefer-default-export
+export default routes;
