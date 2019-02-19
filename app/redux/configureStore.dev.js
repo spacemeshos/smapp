@@ -4,7 +4,6 @@ import createRootReducer from './configReducers';
 import * as counterActions from './counter/actions';
 import type { counterStateType } from './types';
 
-
 const rootReducer = createRootReducer();
 
 const configureStore = (initialState?: counterStateType) => {

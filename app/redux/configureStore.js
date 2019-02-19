@@ -2,9 +2,6 @@
 import configureStoreDev from './configureStore.dev';
 import configureStoreProd from './configureStore.prod';
 
-const selectedConfigureStore =
-  process.env.NODE_ENV === 'production'
-    ? configureStoreProd
-    : configureStoreDev;
+const selectedConfigureStore = process.env.NODE_ENV === 'production' ? configureStoreProd : configureStoreDev;
 
-export const { configureStore } = selectedConfigureStore;
+export const { configureStore } = selectedConfigureStore; // eslint-disable-line import/prefer-default-export

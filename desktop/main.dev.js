@@ -30,10 +30,7 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-if (
-  process.env.NODE_ENV === 'development' ||
-  process.env.DEBUG_PROD === 'true'
-) {
+if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')();
 }
 
@@ -42,9 +39,7 @@ const installExtensions = async () => {
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload))
-  ).catch(console.log);
+  return Promise.all(extensions.map((name) => installer.default(installer[name], forceDownload))).catch(console.error); // eslint-disable-line no-console
 };
 
 /**
@@ -60,33 +55,27 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', async () => {
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.DEBUG_PROD === 'true'
-  ) {
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
   }
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728
+    width: 1280,
+    height: 860,
+    minWidth: 1024,
+    minHeight: 728,
+    center: true
   });
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
+  mainWindow.once('ready-to-show', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
+    mainWindow.show();
+    mainWindow.focus();
   });
 
   mainWindow.on('closed', () => {
