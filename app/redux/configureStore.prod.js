@@ -7,7 +7,7 @@ import type { counterStateType } from './types';
 const rootReducer = createRootReducer();
 const enhancer = applyMiddleware(thunk);
 
-function configureStore(initialState?: counterStateType) {
+function configureStore(initialState?: counterStateType): any {
   return createStore(rootReducer, initialState, enhancer);
 }
 
