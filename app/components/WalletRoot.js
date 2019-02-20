@@ -9,6 +9,8 @@ import SendReceiveButton from './baseComponents/SendReceiveButton/SendReceiveBut
 import SmInput from './baseComponents/SmInput/SmInput';
 import SmRadioButtons from './baseComponents/SmRadioButtons/SmRadioButtons';
 import type { RadioEntry } from './baseComponents/SmRadioButtons/SmRadioButtons';
+import SmDropdown from './baseComponents/SmDropdown/SmDropdown';
+import type { DropdownEntry } from './baseComponents/SmDropdown/SmDropdown';
 
 type HomeProps = {};
 type HomeState = {
@@ -71,6 +73,38 @@ export default class WalletRoot extends Component<HomeProps, HomeState> {
       }
     ];
 
+    const dropdownList: DropdownEntry[] = [
+      {
+        id: 1,
+        label: 'When I was 17'
+      },
+      {
+        id: 2,
+        label: 'It was a very good year'
+      },
+      {
+        id: 3,
+        label: 'It was a very good year For small town girls',
+        disabled: true
+      },
+      {
+        id: 4,
+        label: 'And soft summer nights'
+      },
+      {
+        id: 5,
+        label: "We'd hide from the light"
+      },
+      {
+        id: 6,
+        label: 'Under the village green'
+      },
+      {
+        id: 7,
+        label: 'When I was 17'
+      }
+    ];
+
     const loadingEntry: LoadingEntry = { id: 1, isLoading: fullNodeLoading };
 
     return (
@@ -84,6 +118,7 @@ export default class WalletRoot extends Component<HomeProps, HomeState> {
             <div style={styles.row}>
               <SmInput onChangeText={this.handleChangeText} disabled={disableButtons} />
               <SmRadioButtons data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
+              <SmDropdown data={dropdownList} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
             </div>
             <div style={styles.row}>
               <SendReceiveButton disabled={disableButtons} title="Send coins" onPress={() => this.handleSendReceiveButtonPress('send')} />
@@ -147,6 +182,12 @@ export default class WalletRoot extends Component<HomeProps, HomeState> {
   };
 
   handleRadioSelect = (selection: RadioEntry) => {
+    this.setState({
+      message: `Radio[${selection.id}]: ${selection.label} selected`
+    });
+  };
+
+  handleDropdownSelection = (selection: DropdownEntry) => {
     this.setState({
       message: `Radio[${selection.id}]: ${selection.label} selected`
     });
