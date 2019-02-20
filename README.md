@@ -1,5 +1,14 @@
-# smapp
-Spacemesh App (Full Node + Wallet)
+<h1 align="center">
+  <a href="https://spacemesh.io"><img width="400" src="https://spacemesh.io/content/images/2018/05/logo-black-on-white-trimmed.png" alt="Spacemesh logo" /></a>
+  <p align="center">Smapp - the Spacemesh App 🏦📊</p>
+  <p align="center">Full Node UI + Wallet </p>
+</h1>
+
+<p align="center">
+<a href="https://gitcoin.co/profile/spacemeshos" title="Push Open Source Forward">
+    <img src="https://gitcoin.co/static/v2/images/promo_buttons/slice_02.png" width="267px" height="52px" alt="Browse Gitcoin Bounties"/>
+</a>
+</p>
 
 ![](https://raw.githubusercontent.com/spacemeshos/smapp/master/mocks/desktop_look.jpg)
 
