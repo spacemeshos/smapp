@@ -2,10 +2,10 @@
 import * as React from 'react';
 import Colors from '../../../vars/colors';
 import Fonts from '../../../vars/fonts';
-import * as sendImageSource from './assets/send@2x.png';
-import * as receiveImageSource from './assets/receive@2x.png';
-import * as sendImageSourceDisabled from './assets/send@2x_disabled.png';
-import * as receiveImageSourceDisabled from './assets/receive@2x_disabled.png';
+import * as sendImageSource from '../../../assets/images/send@2x.png';
+import * as receiveImageSource from '../../../assets/images/receive@2x.png';
+import * as sendImageSourceDisabled from '../../../assets/images/send@2x_disabled.png';
+import * as receiveImageSourceDisabled from '../../../assets/images/receive@2x_disabled.png';
 
 type SendReceiveButtonProps = {
   title: 'Send coins' | 'Receive coins',

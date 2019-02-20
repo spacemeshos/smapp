@@ -4,13 +4,13 @@ import React from 'react';
 import Colors from '../../../vars/colors';
 import Fonts from '../../../vars/fonts';
 import SmallLoader from '../SmallLoader/SmallLoader';
-import * as menu1 from './assets/menu_1@2x.png';
-import * as menu2 from './assets/menu_2@2x.png';
-import * as menu3 from './assets/menu_3@2x.png';
-import * as menu4 from './assets/menu_4@2x.png';
-import * as menu5 from './assets/menu_5@2x.png';
-import * as menu6 from './assets/menu_6@2x.png';
-import * as openIcon from './assets/open@2x.png';
+import * as menu1 from '../../../assets/images/menu_1@2x.png';
+import * as menu2 from '../../../assets/images/menu_2@2x.png';
+import * as menu3 from '../../../assets/images/menu_3@2x.png';
+import * as menu4 from '../../../assets/images/menu_4@2x.png';
+import * as menu5 from '../../../assets/images/menu_5@2x.png';
+import * as menu6 from '../../../assets/images/menu_6@2x.png';
+import * as openIcon from '../../../assets/images/open@2x.png';
 
 const ENTRY_HEIGHT = 54;
 const ENTRY_WIDTH = 172;
@@ -33,7 +33,7 @@ type InlineStyle = { [key: string]: string | number };
 type SideMenuProps = {
   openOnInit?: boolean,
   loadingEntry?: LoadingEntry,
-  onPress: (e: any) => void
+  onPress: (entry: SideMenuEntry) => void
 };
 
 type SideMenuState = {

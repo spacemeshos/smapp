@@ -3,19 +3,7 @@
 type Font = {
   fontFamily: string,
   fontSize: number,
-  fontWeight:
-    | 'bold'
-    | 'normal'
-    | '100'
-    | '200'
-    | '300'
-    | '400'
-    | '500'
-    | '600'
-    | '700'
-    | '800'
-    | '900'
-    | string
+  fontWeight: 'bold' | 'normal' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | string
 };
 
 const fontFamilies = {

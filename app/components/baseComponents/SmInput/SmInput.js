@@ -92,9 +92,9 @@ export default class SmInput extends React.Component<SmInputProps, SmInputState>
     this.setState({ inFocus: false });
   };
 
-  handleChangeText = (e: any) => {
+  handleChangeText = (e: Event) => {
     const { onChangeText } = this.props;
-    if (onChangeText) {
+    if (e.target instanceof HTMLInputElement && onChangeText) {
       onChangeText(e.target.value);
     }
   };

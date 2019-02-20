@@ -7,7 +7,9 @@ class App extends React.Component {
     return (
       <Router>
         <Switch>
-          {Object.keys(routes).map(routeKey => <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component}/>)}
+          {Object.keys(routes).map((routeKey) => (
+            <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+          ))}
         </Switch>
       </Router>
     );

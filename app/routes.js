@@ -7,11 +7,11 @@ const routes = {
   HOME: {
     path: '/',
     component: HomePage
-    },
+  },
   COUNTER: {
     path: '/counter',
     component: CounterPage
-    },
+  },
   ROOT: {
     path: '/root',
     component: RootPage

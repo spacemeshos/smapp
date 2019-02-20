@@ -1,8 +1,9 @@
-/* eslint-disable react/require-default-props */
-/* eslint-disable global-require */
 // @flow
 import * as React from 'react';
 import styles from './SmallLoader.css';
+import * as LoadingImageSource from '../../../assets/images/loading@2x.png';
+import * as VImageSource from '../../../assets/images/v@2x.png';
+import * as VWhiteImageSource from '../../../assets/images/v_white@2x.png';
 
 type SmallLoaderProps = {
   isLoading: boolean,
@@ -13,18 +14,14 @@ export default class SmallLoader extends React.Component<SmallLoaderProps> {
   render() {
     const { isLoading, mode } = this.props;
 
-    const LoadingImageSource = require('./assets/loading@2x.png');
-    const VImageSource =
-      mode && mode === 'white'
-        ? require('./assets/v_white@2x.png')
-        : require('./assets/v@2x.png');
+    const VImgSource = mode && mode === 'white' ? VWhiteImageSource : VImageSource;
 
     const loadingStyle = {
       position: 'absolute',
       top: 18,
       left: 8,
       height: 18,
-      width: 18,
+      width: 18
     };
 
     const doneStyle = {
@@ -32,17 +29,18 @@ export default class SmallLoader extends React.Component<SmallLoaderProps> {
       top: 20,
       left: 8,
       height: 12,
-      width: 12,
+      width: 12
     };
 
     return (
       <div>
         <img
-            src={isLoading? LoadingImageSource: VImageSource}
-            style={isLoading? loadingStyle: doneStyle}
-            className={isLoading? styles.rotate: ''} data-tid="rotate"
-            alt="Icon missing"
-          />
+          src={isLoading ? LoadingImageSource : VImgSource}
+          style={isLoading ? loadingStyle : doneStyle}
+          className={isLoading ? styles.rotate : ''}
+          data-tid="rotate"
+          alt="Icon missing"
+        />
       </div>
     );
   }
