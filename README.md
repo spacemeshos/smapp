@@ -1,6 +1,8 @@
 # smapp
 Spacemesh App (Full Node + Wallet)
 
+![](https://raw.githubusercontent.com/spacemeshos/smapp/master/mocks/desktop_look.jpg)
+
 # MVP1 Milestone
 - [Desktop Specs and Visual Design Guide](https://docs.google.com/presentation/d/1G20T3KSt3iVmTqPJ7x9bljBA--PrPUNOpRNA9klVRSk/edit?usp=sharing)
 - [Assets](https://drive.google.com/drive/folders/1OHXb15_5uKHsGGMlm0zQ8LSIMRz9C2E7)
