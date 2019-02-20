@@ -56,3 +56,5 @@ package.json
 .travis.yml
 /node_modules/
 /dll/
+/babel.config.js
+/configs/
