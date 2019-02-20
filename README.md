@@ -3,6 +3,8 @@ Spacemesh App (Full Node + Wallet)
 
 # MVP1 Milestone
 - [Desktop Specs and Visual Design Guide](https://docs.google.com/presentation/d/1G20T3KSt3iVmTqPJ7x9bljBA--PrPUNOpRNA9klVRSk/edit?usp=sharing)
+- [Assets](https://drive.google.com/drive/folders/1OHXb15_5uKHsGGMlm0zQ8LSIMRz9C2E7)
+- [Screens Specs](https://xd.adobe.com/spec/82a02ed8-aecc-466a-4107-10c94808ade3-f491/)
 
 # Signatures
 - [ed25591](https://ed25519.cr.yp.to/) via [tweet-nacl.js](https://github.com/dchest/tweetnacl-js). https://tweetnacl.js.org
