@@ -6,6 +6,7 @@ Spacemesh App (Full Node + Wallet)
 
 # Signatures
 - [ed25591](https://ed25519.cr.yp.to/) via [tweet-nacl.js](https://github.com/dchest/tweetnacl-js). https://tweetnacl.js.org
+- hd key deriviation - BIP32 extension for ed25591 (homebrew)
 
 # Terminology
 
