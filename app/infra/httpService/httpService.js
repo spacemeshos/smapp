@@ -4,7 +4,7 @@ import uuid4 from 'uuid4';
 import { ipcConsts } from '../../vars';
 
 class HttpService {
-  static sendRequest({ url, params }: { url: string, params: Object | null }) {
+  static sendRequest({ url, params }: { url: string, params?: Object }) {
     const uuid = uuid4();
     ipcRenderer.send(ipcConsts.SEND_REQUEST, { url, params, uuid });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
