@@ -10,10 +10,12 @@
  *
  * @flow
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+import FileDialog from './fileDialog';
+import { ipcConsts } from '../app/vars';
 
 export default class AppUpdater {
   constructor() {
@@ -35,6 +37,9 @@ if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true')
 }
 
 const installExtensions = async () => {
+  const devtron = require('devtron');
+  devtron.install();
+
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
@@ -45,6 +50,17 @@ const installExtensions = async () => {
 /**
  * Add event listeners...
  */
+ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
+  FileDialog.openReadFileDialog({ browserWindow: mainWindow, event, defaultPath: request.defaultFilePath });
+});
+
+ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
+  FileDialog.openSaveFileDialog({ browserWindow: mainWindow, event, fileContent: request.fileContent, defaultPath: request.defaultFilePath });
+});
+
+ipcMain.on(ipcConsts.SEND_REQUEST, async () => {
+  // NetService.sendRequest({ url: request.url, params: request.params, uuid: request.uuid });
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even

@@ -198,8 +198,8 @@
     "devtron": "^1.4.0",
     "electron": "^4.0.5",
     "electron-builder": "^20.38.5",
-    "electron-devtools-installer": "^2.2.4",
     "electron-debug": "^2.1.0",
+    "electron-devtools-installer": "^2.2.4",
     "electron-log": "^3.0.1",
     "electron-updater": "^4.0.6",
     "react": "^16.6.3",
@@ -210,7 +210,8 @@
     "react-router-dom": "^4.3.1",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "source-map-support": "^0.5.10"
+    "source-map-support": "^0.5.10",
+    "uuid4": "^1.1.4"
   },
   "browserslist": "electron 1.6"
 }
