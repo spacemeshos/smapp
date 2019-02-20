@@ -1,9 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Route, Switch } from 'react-router-dom';
-import routes from '../app/routes';
-import HomePage from './screens/HomePage';
-import CounterPage from './screens/CounterPage';
-import RootPage from './screens/RootPage';
+import routes from './routes';
 
 class App extends React.Component {
   render() {

@@ -7,9 +7,8 @@ type SmButtonProps = {
   title: string,
   theme: 'green' | 'orange',
   disabled?: boolean,
-  widthLimit?: number | string,
   font?: 'font1' | 'font2' | 'font3' | 'font4',
-  onPress: (e: any) => void
+  onPress: () => void
 };
 
 type SmButtonState = {
@@ -17,10 +16,7 @@ type SmButtonState = {
   clicked: boolean
 };
 
-export default class SmButton extends React.Component<
-  SmButtonProps,
-  SmButtonState
-> {
+export default class SmButton extends React.Component<SmButtonProps, SmButtonState> {
   constructor(props: SmButtonProps) {
     super(props);
     this.state = {
@@ -29,39 +25,19 @@ export default class SmButton extends React.Component<
     };
   }
 
-  handleMouseEnter = () => {
-    this.setState({ hovered: true });
-  };
-
-  handleMouseLeave = () => {
-    this.setState({ hovered: false });
-  };
-
-  handlePressIn = () => {
-    this.setState({ clicked: true });
-  };
-
-  handlePressOut = () => {
-    this.setState({ clicked: false });
-  };
-
   render() {
     const { disabled, theme, title, onPress, font } = this.props;
     const { clicked, hovered } = this.state;
+    const fontByTheme: string = theme === 'green' ? 'font3' : 'font4';
     const styles = {
       root: {
         backgroundColor: theme === 'green' ? Colors.white : Colors.orange,
-        border: `1px solid ${
-          theme === 'green' ? Colors.borderGray : Colors.orange
-        }`,
+        border: `1px solid ${theme === 'green' ? Colors.borderGray : Colors.orange}`,
         borderRadius: 0,
         cursor: 'pointer'
       },
       hovered: {
-        backgroundColor:
-          theme === 'green'
-            ? `rgba(${Colors.greenRgb}, 0.1)`
-            : `rgba(${Colors.orangeRgb}, 0.71)`
+        backgroundColor: theme === 'green' ? `rgba(${Colors.greenRgb}, 0.1)` : `rgba(${Colors.orangeRgb}, 0.71)`
       },
       disabled: {
         backgroundColor: theme === 'green' ? Colors.white : Colors.borderGray,
@@ -85,10 +61,10 @@ export default class SmButton extends React.Component<
       buttonText: {
         color: theme === 'green' ? Colors.darkGreen : Colors.white,
         textAlign: 'center',
-        ...Fonts[font ? font : theme === 'green' ? 'font3' : 'font4']
+        ...Fonts[font !== undefined ? font : fontByTheme]
       },
       disabledText: {
-        color: this.props.theme === 'green' ? Colors.borderGray : Colors.white
+        color: theme === 'green' ? Colors.borderGray : Colors.white
       }
     };
 
@@ -100,14 +76,8 @@ export default class SmButton extends React.Component<
     };
 
     const smButtonElem = () => (
-      <div
-        style={styles.button}
-        onMouseEnter={this.handleMouseEnter}
-        onMouseLeave={this.handleMouseLeave}
-      >
-        <span style={{ ...styles.buttonText, ...smButtonStyle() }}>
-          {title}
-        </span>
+      <div style={styles.button} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+        <span style={{ ...styles.buttonText, ...smButtonStyle() }}>{title}</span>
       </div>
     );
 
@@ -126,15 +96,26 @@ export default class SmButton extends React.Component<
 
     return (
       <div style={{ ...styles.root, ...rootStyles() }}>
-        <div
-          style={styles.buttonWrapper}
-          onClick={disabled? undefined: onPress}
-          onMouseDown={this.handlePressIn}
-          onMouseUp={this.handlePressOut}
-        >
+        <div style={styles.buttonWrapper} onClick={disabled ? undefined : onPress} onMouseDown={this.handlePressIn} onMouseUp={this.handlePressOut}>
           {smButtonElem()}
         </div>
       </div>
     );
   }
+
+  handleMouseEnter = () => {
+    this.setState({ hovered: true });
+  };
+
+  handleMouseLeave = () => {
+    this.setState({ hovered: false });
+  };
+
+  handlePressIn = () => {
+    this.setState({ clicked: true });
+  };
+
+  handlePressOut = () => {
+    this.setState({ clicked: false });
+  };
 }

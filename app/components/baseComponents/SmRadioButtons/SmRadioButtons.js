@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 // @flow
 import * as React from 'react';
 import Fonts from '../../../vars/fonts';
@@ -14,7 +12,6 @@ export type RadioEntry = {
 type SmRadioButtonProps = {
   onPress: (selection: RadioEntry) => void,
   data: RadioEntry[],
-  // eslint-disable-next-line react/require-default-props
   disabled?: boolean
 };
 
@@ -31,32 +28,6 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
       hovered: -1
     };
   }
-
-  radioClick(id: number | string) {
-    const { data, onPress } = this.props;
-    const entry: ?RadioEntry = data.find((radioEntry: RadioEntry) => radioEntry.id === id);
-
-    let label: string = '';
-    if (entry) {
-      // eslint-disable-next-line prefer-destructuring
-      label = entry.label;
-    }
-    this.setState(
-      {
-        radioSelected: id,
-        hovered: id
-      },
-      () => onPress({ id, label })
-    );
-  }
-
-  handleMouseEnter = (id: number | string) => {
-    this.setState({ hovered: id });
-  };
-
-  handleMouseLeave = () => {
-    this.setState({ hovered: undefined });
-  };
 
   render() {
     const { data, disabled } = this.props;
@@ -107,7 +78,7 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
         height: 10,
         width: 10,
         borderRadius: 6,
-        backgroundColor: `rgba(${Colors.greenRgb}, 0.2)`,
+        backgroundColor: `rgba(${Colors.greenRgb}, 0.2)`
       },
       labelWrapper: {
         paddingLeft: 8
@@ -174,6 +145,31 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
           </div>
         ))}
       </div>
+    );
+  }
+
+  handleMouseEnter = (id: number | string) => {
+    this.setState({ hovered: id });
+  };
+
+  handleMouseLeave = () => {
+    this.setState({ hovered: undefined });
+  };
+
+  radioClick(id: number | string) {
+    const { data, onPress } = this.props;
+    const entry: ?RadioEntry = data.find((radioEntry: RadioEntry) => radioEntry.id === id);
+
+    let label: string = '';
+    if (entry) {
+      label = entry.label;
+    }
+    this.setState(
+      {
+        radioSelected: id,
+        hovered: id
+      },
+      () => onPress({ id, label })
     );
   }
 }

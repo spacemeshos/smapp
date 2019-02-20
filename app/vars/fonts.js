@@ -15,7 +15,7 @@ type Font = {
     | '700'
     | '800'
     | '900'
-    | any
+    | string
 };
 
 const fontFamilies = {

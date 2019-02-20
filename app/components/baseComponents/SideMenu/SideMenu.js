@@ -1,12 +1,16 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable global-require */
-/* eslint-disable react/require-default-props */
 // @flow
+
 import React from 'react';
 import Colors from '../../../vars/colors';
 import Fonts from '../../../vars/fonts';
 import SmallLoader from '../SmallLoader/SmallLoader';
+import * as menu1 from './assets/menu_1@2x.png';
+import * as menu2 from './assets/menu_2@2x.png';
+import * as menu3 from './assets/menu_3@2x.png';
+import * as menu4 from './assets/menu_4@2x.png';
+import * as menu5 from './assets/menu_5@2x.png';
+import * as menu6 from './assets/menu_6@2x.png';
+import * as openIcon from './assets/open@2x.png';
 
 const ENTRY_HEIGHT = 54;
 const ENTRY_WIDTH = 172;
@@ -23,6 +27,8 @@ export type SideMenuEntry = {
   iconSrc: any,
   disabled?: boolean
 };
+
+type InlineStyle = { [key: string]: string | number };
 
 type SideMenuProps = {
   openOnInit?: boolean,
@@ -43,43 +49,40 @@ const menuEntries: { top: SideMenuEntry[], bottom: SideMenuEntry[] } = {
     {
       id: 1,
       label: 'Full Node',
-      iconSrc: require('./assets/menu_1@2x.png'),
+      iconSrc: menu1,
       disabled: true
     },
     {
       id: 2,
       label: 'Wallet',
-      iconSrc: require('./assets/menu_2@2x.png')
+      iconSrc: menu2
     },
     {
       id: 3,
       label: 'Transaction',
-      iconSrc: require('./assets/menu_3@2x.png')
+      iconSrc: menu3
     },
     {
       id: 4,
       label: 'Contacts',
-      iconSrc: require('./assets/menu_4@2x.png')
+      iconSrc: menu4
     }
   ],
   bottom: [
     {
       id: 5,
       label: 'Settings',
-      iconSrc: require('./assets/menu_5@2x.png')
+      iconSrc: menu5
     },
     {
       id: 6,
       label: 'Network',
-      iconSrc: require('./assets/menu_6@2x.png')
+      iconSrc: menu6
     }
   ]
 };
 
-export default class SideMenu extends React.Component<
-  SideMenuProps,
-  SideMenuState
-> {
+export default class SideMenu extends React.Component<SideMenuProps, SideMenuState> {
   constructor(props: SideMenuProps) {
     super(props);
     this.state = {
@@ -90,36 +93,6 @@ export default class SideMenu extends React.Component<
       width: props.openOnInit ? ENTRY_WIDTH : ENTRY_WIDTH_CLOSED
     };
   }
-
-  handleEntryMouseEnter = (id: number) => {
-    this.setState({ hoveredId: id });
-  };
-
-  handleEntryMouseLeave = () => {
-    this.setState({ hoveredId: undefined });
-  };
-
-  handleSelectEntry = (entry: SideMenuEntry) => {
-    const { onPress } = this.props;
-    if (!entry.disabled) {
-      this.setState({ selectedId: entry.id });
-      onPress(entry);
-    }
-  };
-
-  handleSideMenuToggle = () => {
-    const { isOpen } = this.state;
-    const endWidth = isOpen ? ENTRY_WIDTH_CLOSED : ENTRY_WIDTH;
-    this.setState({ isOpen: !isOpen, width: endWidth });
-  };
-
-  handleToggleMouseEnter = () => {
-    this.setState({ hovered: true });
-  };
-
-  handleToggleMouseLeave = () => {
-    this.setState({ hovered: false });
-  };
 
   render() {
     const { width, selectedId, hoveredId, isOpen } = this.state;
@@ -166,10 +139,10 @@ export default class SideMenu extends React.Component<
       toggle: {
         position: 'absolute',
         top: 12,
-        left: isOpen? width - 48 : 24,
+        left: isOpen ? width - 48 : 24,
         height: 22,
         width: 12,
-        transform: `rotate(${isOpen? '180': '0'}deg)`,
+        transform: `rotate(${isOpen ? '180' : '0'}deg)`,
         transition: 'all .2s linear'
       },
       top: {},
@@ -193,15 +166,9 @@ export default class SideMenu extends React.Component<
       }
     };
 
-    const selectedEntryStyle = (entryId: number): { [key: string]: any } =>
-      entryId === selectedId
-        ? { backgroundColor: Colors.green }
-        : { backgroundColor: Colors.white };
+    const selectedEntryStyle = (entryId: number): InlineStyle => (entryId === selectedId ? { backgroundColor: Colors.green } : { backgroundColor: Colors.white });
 
-    const entryStyle = (
-      entryId: number,
-      isEntryDisabled: boolean
-    ): { [key: string]: any } => {
+    const entryStyle = (entryId: number, isEntryDisabled: boolean): InlineStyle => {
       if (isEntryDisabled) {
         return { cursor: 'default', opacity: 0.5 };
       }
@@ -214,45 +181,32 @@ export default class SideMenu extends React.Component<
       return {};
     };
 
-    const toggleStyle = (): { [key: string]: any } => {
+    const toggleStyle = (): InlineStyle => {
       const { hovered } = this.state;
       return hovered ? { opacity: 0.7 } : {};
     };
 
     const menuEntryInnerElem = (entry: SideMenuEntry) => (
-      <div
-        style={{ ...styles.entry, ...entryStyle(entry.id, !!entry.disabled) }}
-      >
+      <div style={{ ...styles.entry, ...entryStyle(entry.id, !!entry.disabled) }}>
         <div style={{ ...styles.selector, ...selectedEntryStyle(entry.id) }} />
         <div style={styles.iconWrapper}>
           <img src={entry.iconSrc} style={styles.icon} alt="Icon missing" />
         </div>
         <span style={styles.entryText}>{entry.label}</span>
-        <div style={styles.loadingIconWrapper}>
-          {loadingEntry && loadingEntry.id === entry.id && (
-            <SmallLoader isLoading={loadingEntry.isLoading} />
-          )}
-        </div>
+        <div style={styles.loadingIconWrapper}>{loadingEntry && loadingEntry.id === entry.id && <SmallLoader isLoading={loadingEntry.isLoading} />}</div>
       </div>
     );
 
     const menuEntryElem = (entry: SideMenuEntry) => (
       <div key={entry.id} onClick={this.handleSelectEntry.bind(this, entry)}>
-        <div
-          onMouseEnter={this.handleEntryMouseEnter.bind(this, entry.id)}
-          onMouseLeave={this.handleEntryMouseLeave}
-        >
+        <div onMouseEnter={this.handleEntryMouseEnter.bind(this, entry.id)} onMouseLeave={this.handleEntryMouseLeave}>
           {menuEntryInnerElem(entry)}
         </div>
       </div>
     );
 
     const topOrBottomElem = (topOrBottom: 'top' | 'bottom') => (
-      <div style={styles[topOrBottom]}>
-        {menuEntries[topOrBottom].map((entry: SideMenuEntry) =>
-          menuEntryElem(entry)
-        )}
-      </div>
+      <div style={styles[topOrBottom]}>{menuEntries[topOrBottom].map((entry: SideMenuEntry) => menuEntryElem(entry))}</div>
     );
 
     const menuElem = () => (
@@ -261,8 +215,6 @@ export default class SideMenu extends React.Component<
         {topOrBottomElem('bottom')}
       </div>
     );
-
-    const openIcon = require('./assets/open@2x.png');
 
     const toggleElem = () => (
       <div style={{ ...styles.toggleOuter, ...toggleStyle() }}>
@@ -274,16 +226,41 @@ export default class SideMenu extends React.Component<
 
     return (
       <div style={rootStyle}>
-        <div
-          style={styles.entry}
-          onClick={this.handleSideMenuToggle}
-          onMouseEnter={this.handleToggleMouseEnter}
-          onMouseLeave={this.handleToggleMouseLeave}
-        >
+        <div style={styles.entry} onClick={this.handleSideMenuToggle} onMouseEnter={this.handleToggleMouseEnter} onMouseLeave={this.handleToggleMouseLeave}>
           {toggleElem()}
         </div>
         {menuElem()}
       </div>
     );
   }
+
+  handleEntryMouseEnter = (id: number) => {
+    this.setState({ hoveredId: id });
+  };
+
+  handleEntryMouseLeave = () => {
+    this.setState({ hoveredId: undefined });
+  };
+
+  handleSelectEntry = (entry: SideMenuEntry) => {
+    const { onPress } = this.props;
+    if (!entry.disabled) {
+      this.setState({ selectedId: entry.id });
+      onPress(entry);
+    }
+  };
+
+  handleSideMenuToggle = () => {
+    const { isOpen } = this.state;
+    const endWidth = isOpen ? ENTRY_WIDTH_CLOSED : ENTRY_WIDTH;
+    this.setState({ isOpen: !isOpen, width: endWidth });
+  };
+
+  handleToggleMouseEnter = () => {
+    this.setState({ hovered: true });
+  };
+
+  handleToggleMouseLeave = () => {
+    this.setState({ hovered: false });
+  };
 }
