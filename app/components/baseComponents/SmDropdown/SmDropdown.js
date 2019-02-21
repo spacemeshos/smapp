@@ -116,7 +116,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
         right: 12,
         height: 6,
         width: 10,
-        transform: `rotate(${isOpen ? '180' : '0'}deg)`,
+        transform: `rotate(${itemsHeight === ROW_HEIGHT ? '0' : '180'}deg)`,
         transition: 'transform .2s linear',
         zIndex: 999
       }
@@ -309,7 +309,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
     this.setState({ isOpen: true, itemsHeight: 0 }, () => {
       setTimeout(() => {
         this.setState({ itemsHeight: maxItemsHeight || DEFAULT_MAX_ITEMS_HEIGHT });
-      }, 200);
+      });
     });
   };
 }

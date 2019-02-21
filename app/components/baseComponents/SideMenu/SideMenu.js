@@ -193,7 +193,11 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
           <img src={entry.iconSrc} style={styles.icon} alt="Icon missing" />
         </div>
         <span style={styles.entryText}>{entry.label}</span>
-        <div style={styles.loadingIconWrapper}>{loadingEntry && loadingEntry.id === entry.id && <SmallLoader isLoading={loadingEntry.isLoading} loadingLeft={isOpen ? 8 : -96} loadingSize={isOpen ? 18 : 25} loadingTop={isOpen ? 18 : 14}/>}</div>
+        <div style={styles.loadingIconWrapper}>
+          {loadingEntry && loadingEntry.id === entry.id && (
+            <SmallLoader isLoading={loadingEntry.isLoading} loadingLeft={isOpen ? 8 : -96} loadingSize={isOpen ? 18 : 25} loadingTop={isOpen ? 18 : 14} />
+          )}
+        </div>
       </div>
     );
 
