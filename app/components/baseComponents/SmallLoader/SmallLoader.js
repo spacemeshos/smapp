@@ -1,9 +1,7 @@
 // @flow
-import * as React from 'react';
+import React from 'react';
 import styles from './SmallLoader.css';
-import * as LoadingImageSource from '../../../assets/images/loading@2x.png';
-import * as VImageSource from '../../../assets/images/v@2x.png';
-import * as VWhiteImageSource from '../../../assets/images/v_white@2x.png';
+import { LoadingImageSource, VImageSource, VWhiteImageSource } from '../../../assets/images';
 
 type SmallLoaderProps = {
   isLoading: boolean,

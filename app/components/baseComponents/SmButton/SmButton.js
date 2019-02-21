@@ -1,7 +1,6 @@
 // @flow
-import * as React from 'react';
-import Colors from '../../../vars/colors';
-import Fonts from '../../../vars/fonts';
+import React from 'react';
+import { smColors as Colors, smFonts as Fonts } from '../../../vars';
 
 type SmButtonProps = {
   title: string,
@@ -14,6 +13,30 @@ type SmButtonProps = {
 type SmButtonState = {
   hovered: boolean,
   clicked: boolean
+};
+
+const styles = {
+  root: {
+    borderRadius: 0,
+    cursor: 'pointer'
+  },
+  disabled: {
+    border: `1px solid ${Colors.borderGray}`,
+    cursor: 'default'
+  },
+  buttonWrapper: {
+    height: '100%',
+    width: '100%'
+  },
+  button: {
+    overflow: 'hidden',
+    padding: 10,
+    paddingTop: 6,
+    userSelect: 'none'
+  },
+  buttonText: {
+    textAlign: 'center'
+  }
 };
 
 export default class SmButton extends React.Component<SmButtonProps, SmButtonState> {
@@ -29,73 +52,60 @@ export default class SmButton extends React.Component<SmButtonProps, SmButtonSta
     const { disabled, theme, title, onPress, font } = this.props;
     const { clicked, hovered } = this.state;
     const fontByTheme: string = theme === 'green' ? 'font3' : 'font4';
-    const styles = {
-      root: {
+
+    const rootThemeStyle = () => {
+      return {
         backgroundColor: theme === 'green' ? Colors.white : Colors.orange,
-        border: `1px solid ${theme === 'green' ? Colors.borderGray : Colors.orange}`,
-        borderRadius: 0,
-        cursor: 'pointer'
-      },
-      hovered: {
-        backgroundColor: theme === 'green' ? `rgba(${Colors.greenRgb}, 0.1)` : `rgba(${Colors.orangeRgb}, 0.71)`
-      },
-      disabled: {
-        backgroundColor: theme === 'green' ? Colors.white : Colors.borderGray,
-        border: `1px solid ${Colors.borderGray}`,
-        cursor: 'default'
-      },
-      clicked: {
-        backgroundColor: theme === 'green' ? Colors.white : Colors.darkOrange,
-        border: `1px solid ${theme === 'green' ? Colors.green : Colors.orange}`
-      },
-      buttonWrapper: {
-        height: '100%',
-        width: '100%'
-      },
-      button: {
-        overflow: 'hidden',
-        padding: 10,
-        paddingTop: 6,
-        userSelect: 'none'
-      },
-      buttonText: {
-        color: theme === 'green' ? Colors.darkGreen : Colors.white,
-        textAlign: 'center',
-        ...Fonts[font !== undefined ? font : fontByTheme]
-      },
-      disabledText: {
-        color: theme === 'green' ? Colors.borderGray : Colors.white
-      }
+        border: `1px solid ${theme === 'green' ? Colors.borderGray : Colors.orange}`
+      };
     };
 
-    const smButtonStyle = () => {
-      if (disabled) {
-        return styles.disabledText;
-      }
-      return {};
+    const hoveredThemeStyle = () => {
+      return {
+        backgroundColor: theme === 'green' ? `rgba(${Colors.greenRgb}, 0.1)` : `rgba(${Colors.orangeRgb}, 0.71)`
+      };
+    };
+
+    const disabledThemeStyle = () => {
+      return { backgroundColor: theme === 'green' ? Colors.white : Colors.borderGray };
+    };
+
+    const clickedThemeStyle = () => {
+      return { backgroundColor: theme === 'green' ? Colors.white : Colors.darkOrange, border: `1px solid ${theme === 'green' ? Colors.green : Colors.orange}` };
+    };
+
+    const buttonTextThemeStyle = () => {
+      return {
+        color: theme === 'green' ? Colors.darkGreen : Colors.white,
+        ...Fonts[font !== undefined ? font : fontByTheme]
+      };
+    };
+
+    const disabledTextThemeStyle = () => {
+      return disabled ? { color: theme === 'green' ? Colors.borderGray : Colors.white } : {};
     };
 
     const smButtonElem = () => (
       <div style={styles.button} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-        <span style={{ ...styles.buttonText, ...smButtonStyle() }}>{title}</span>
+        <span style={{ ...styles.buttonText, ...buttonTextThemeStyle(), ...disabledTextThemeStyle() }}>{title}</span>
       </div>
     );
 
     const rootStyles = () => {
       if (disabled) {
-        return styles.disabled;
+        return { ...styles.disabled, ...disabledThemeStyle() };
       }
       if (clicked) {
-        return styles.clicked;
+        return clickedThemeStyle();
       }
       if (hovered) {
-        return styles.hovered;
+        return hoveredThemeStyle();
       }
       return {};
     };
 
     return (
-      <div style={{ ...styles.root, ...rootStyles() }}>
+      <div style={{ ...styles.root, ...rootThemeStyle(), ...rootStyles() }}>
         <div style={styles.buttonWrapper} onClick={disabled ? undefined : onPress} onMouseDown={this.handlePressIn} onMouseUp={this.handlePressOut}>
           {smButtonElem()}
         </div>

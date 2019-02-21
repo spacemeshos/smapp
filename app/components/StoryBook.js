@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import Fonts from '../vars/fonts';
+import { smFonts } from '../vars';
 import SmButton from './baseComponents/SmButton/SmButton';
 import SendReceiveButton from './baseComponents/SendReceiveButton/SendReceiveButton';
 import SmInput from './baseComponents/SmInput/SmInput';
@@ -10,14 +10,97 @@ import type { RadioEntry } from './baseComponents/SmRadioButtons/SmRadioButtons'
 import SmDropdown from './baseComponents/SmDropdown/SmDropdown';
 import type { DropdownEntry } from './baseComponents/SmDropdown/SmDropdown';
 
-type StoryBookProps = {
-  /* eslint-disable */
-  message?: string
-};
+type StoryBookProps = {};
 type StoryBookState = {
   message: string,
   disableButtons: boolean
 };
+
+const styles = {
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    alignContent: 'space-between',
+    width: '100%',
+    ...smFonts.font1
+  },
+  row: {
+    paddingTop: 16,
+    minHeight: 54,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignContent: 'space-around'
+  }
+};
+
+const radioButtons: RadioEntry[] = [
+  {
+    id: 1,
+    label: '1.0 GB'
+  },
+  {
+    id: 2,
+    label: '2.0 GB'
+  }
+];
+
+const dropdownList1: DropdownEntry[] = [
+  {
+    id: 1,
+    label: 'When I was 17'
+  },
+  {
+    id: 2,
+    label: 'It was a very good year'
+  },
+  {
+    id: 3,
+    label: 'It was a very good year For small town girls',
+    disabled: true
+  },
+  {
+    id: 4,
+    label: 'And soft summer nights'
+  },
+  {
+    id: 5,
+    label: "We'd hide from the light"
+  },
+  {
+    id: 6,
+    label: 'Under the village green'
+  },
+  {
+    id: 7,
+    label: 'When I was 17'
+  }
+];
+
+const dropdownList2: DropdownEntry[] = [
+  {
+    id: 1,
+    label: 'At last my love has come along'
+  },
+  {
+    id: 2,
+    label: 'My lonely days are over'
+  },
+  {
+    id: 3,
+    label: 'and life is like a song'
+  },
+  {
+    id: 4,
+    label: 'Oh, yeah yeah... ',
+    disabled: true
+  },
+  {
+    id: 5,
+    label: 'At last, the skies above are blue'
+  }
+];
 
 export default class WalletRoot extends Component<StoryBookProps, StoryBookState> {
   props: StoryBookProps;
@@ -29,91 +112,6 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
 
   render() {
     const { message, disableButtons } = this.state;
-    const styles = {
-      content: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        alignContent: 'space-between',
-        width: '100%',
-        ...Fonts.font1
-      },
-      row: {
-        paddingTop: 16,
-        minHeight: 54,
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignContent: 'space-around'
-      }
-    };
-
-    const radioButtons: RadioEntry[] = [
-      {
-        id: 1,
-        label: '1.0 GB'
-      },
-      {
-        id: 2,
-        label: '2.0 GB'
-      }
-    ];
-
-    const dropdownList1: DropdownEntry[] = [
-      {
-        id: 1,
-        label: 'When I was 17'
-      },
-      {
-        id: 2,
-        label: 'It was a very good year'
-      },
-      {
-        id: 3,
-        label: 'It was a very good year For small town girls',
-        disabled: true
-      },
-      {
-        id: 4,
-        label: 'And soft summer nights'
-      },
-      {
-        id: 5,
-        label: "We'd hide from the light"
-      },
-      {
-        id: 6,
-        label: 'Under the village green'
-      },
-      {
-        id: 7,
-        label: 'When I was 17'
-      }
-    ];
-
-    const dropdownList2: DropdownEntry[] = [
-      {
-        id: 1,
-        label: 'At last my love has come along'
-      },
-      {
-        id: 2,
-        label: 'My lonely days are over'
-      },
-      {
-        id: 3,
-        label: 'and life is like a song'
-      },
-      {
-        id: 4,
-        label: 'Oh, yeah yeah... ',
-        disabled: true
-      },
-      {
-        id: 5,
-        label: 'At last, the skies above are blue'
-      }
-    ];
 
     return (
       <div style={styles.content}>
@@ -140,10 +138,6 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
         </div>
       </div>
     );
-  }
-
-  static getDerivedStateFromProps(nextProps: StoryBookProps, prevState: StoryBookState) {
-    return nextProps.message !== prevState.message ? { message: nextProps.message } : null;
   }
 
   handleButtonPress = (val: string) => {

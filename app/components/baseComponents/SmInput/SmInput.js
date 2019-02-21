@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
-import Colors from '../../../vars/colors';
-import Fonts from '../../../vars/fonts';
+import { smFonts as Fonts, smColors as Colors } from '../../../vars';
 import styles from './SmInput.css';
 
 const INPUT_PLACEHOLDER = 'Type here';
@@ -43,26 +42,15 @@ type SmInputState = {
 };
 
 export default class SmInput extends React.Component<SmInputProps, SmInputState> {
-  constructor(props: SmInputProps) {
-    super(props);
-    this.state = {
-      inFocus: false
-    };
-  }
+  state = {
+    inFocus: false
+  };
 
   render() {
     const { placeholder, disabled } = this.props;
     const { inFocus } = this.state;
-
-    const additionalStyle = () => {
-      if (disabled) {
-        return inlineStyles.disabled;
-      }
-      if (inFocus) {
-        return inlineStyles.focused;
-      }
-      return {};
-    };
+    const focusedStyle = () => (inFocus ? inlineStyles.focused : {});
+    const disabledStyle = () => (disabled ? inlineStyles.disabled : {});
 
     const textInputElem = () => (
       <input
@@ -73,15 +61,11 @@ export default class SmInput extends React.Component<SmInputProps, SmInputState>
         className={styles.noOutline}
         placeholder={placeholder || INPUT_PLACEHOLDER}
         data-tid="noOutline"
-        style={{ ...inlineStyles.normal, ...additionalStyle() }}
+        style={{ ...inlineStyles.normal, ...focusedStyle(), ...disabledStyle() }}
       />
     );
 
-    return (
-      <div>
-        <div>{textInputElem()}</div>
-      </div>
-    );
+    return <div>{textInputElem()}</div>;
   }
 
   handleFocus = () => {

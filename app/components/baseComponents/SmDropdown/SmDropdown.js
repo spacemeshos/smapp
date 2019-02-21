@@ -1,9 +1,7 @@
 // @flow
-import * as React from 'react';
-import Fonts from '../../../vars/fonts';
-import Colors from '../../../vars/colors';
-import * as openDDIcon from '../../../assets/images/open_dd@2x.png';
-import * as openDDIconDisabled from '../../../assets/images/open_dd@2x_disabled.png';
+import React from 'react';
+import { smFonts as Fonts, smColors as Colors } from '../../../vars';
+import { openDDIcon, openDDIconDisabled } from '../../../assets/images';
 
 const DEFAULT_PLACEHOLDER: string = 'Please Select...';
 const ROW_HEIGHT: number = 44;
@@ -122,12 +120,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
       }
     };
 
-    const outerStyle = (isFirst: boolean) => {
-      if (!isFirst) {
-        return { borderTop: `1px solid ${Colors.borderGray}` };
-      }
-      return {};
-    };
+    const outerStyle = (isFirst: boolean) => (!isFirst ? { borderTop: `1px solid ${Colors.borderGray}` } : {});
 
     const labelWrapperStyle = (val: DropdownEntry, isFirst: boolean) => {
       if (!val.disabled && hovered === val.id) {
@@ -153,12 +146,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
       return { borderColor: Colors.borderGray, backgroundColor: Colors.white };
     };
 
-    const textLabelDisabledStyle = (val?: DropdownEntry) => {
-      if (disabled || (!!val && val.disabled)) {
-        return styles.disabledLabelText;
-      }
-      return {};
-    };
+    const textLabelDisabledStyle = (val?: DropdownEntry) => (disabled || (!!val && val.disabled) ? styles.disabledLabelText : {});
 
     const dropdownEntryElem = (val: DropdownEntry, isFirst?: boolean) => (
       <div style={{ ...styles.entryOuter, ...outerStyle(!!isFirst) }}>
@@ -230,15 +218,14 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
   };
 
   handleMouseLeave = () => {
-    this.setState({ hovered: undefined });
+    this.setState({ hovered: -1 });
   };
 
   handleHeaderEnter = () => {
     const { disabled } = this.props;
-    if (disabled) {
-      return;
+    if (!disabled) {
+      this.setState({ hoveredHeader: true });
     }
-    this.setState({ hoveredHeader: true });
   };
 
   handleHeaderLeave = () => {
@@ -286,7 +273,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
   _getWidth = (): number | string => {
     const { width, data } = this.props;
     const LETTER_WIDTH = 10;
-    if (width === undefined) {
+    if (!width) {
       const maxLength = data.reduce((max, entry: DropdownEntry) => {
         return Math.max(max, entry.label.length);
       }, 0);

@@ -6,20 +6,18 @@ import type { SideMenuEntry, LoadingEntry } from './baseComponents/SideMenu/Side
 
 type WalletRootProps = {};
 type WalletRootState = {
-  fullNodeLoading: boolean,
-  message: string
+  fullNodeLoading: boolean
 };
 
 export default class WalletRoot extends Component<WalletRootProps, WalletRootState> {
   props: WalletRootProps;
 
   state: WalletRootState = {
-    fullNodeLoading: true,
-    message: ''
+    fullNodeLoading: true
   };
 
   render() {
-    const { fullNodeLoading, message } = this.state;
+    const { fullNodeLoading } = this.state;
     const styles = {
       container: {
         display: 'flex',
@@ -42,7 +40,7 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
       <div style={styles.container}>
         <SideMenu onPress={this.handleSideMenuPress} loadingEntry={loadingEntry} />
         <div style={styles.mainContent}>
-          <StoryBook message={message} />
+          <StoryBook />
         </div>
       </div>
     );
@@ -57,6 +55,7 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
   }
 
   handleSideMenuPress = (selection: SideMenuEntry) => {
-    this.setState({ message: `${selection.id}: ${selection.label}` });
+    /* eslint-disable no-console */
+    console.warn(`${selection.id}: ${selection.label}`);
   };
 }

@@ -1,11 +1,8 @@
 // @flow
-import * as React from 'react';
+import React from 'react';
 import Colors from '../../../vars/colors';
 import Fonts from '../../../vars/fonts';
-import * as sendImageSource from '../../../assets/images/send@2x.png';
-import * as receiveImageSource from '../../../assets/images/receive@2x.png';
-import * as sendImageSourceDisabled from '../../../assets/images/send@2x_disabled.png';
-import * as receiveImageSourceDisabled from '../../../assets/images/receive@2x_disabled.png';
+import { sendImageSource, receiveImageSource, sendImageSourceDisabled, receiveImageSourceDisabled } from '../../../assets/images';
 
 type SendReceiveButtonProps = {
   title: 'Send coins' | 'Receive coins',
@@ -17,56 +14,54 @@ type SendReceiveButtonState = {
   hovered: boolean
 };
 
-export default class SendReceiveButton extends React.Component<SendReceiveButtonProps, SendReceiveButtonState> {
-  constructor(props: SendReceiveButtonProps) {
-    super(props);
-    this.state = {
-      hovered: false
-    };
+const styles = {
+  root: {
+    height: 90,
+    width: 244,
+    border: `1px solid ${Colors.green}`,
+    borderRadius: 2,
+    cursor: 'pointer'
+  },
+  buttonWrapper: {
+    height: 'inherit',
+    width: 'inherit',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  },
+  button: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    userSelect: 'none'
+  },
+  buttonText: {
+    ...Fonts.font2,
+    color: Colors.black
+  },
+  buttonTextContainer: {
+    margin: 10
+  },
+  hovered: {
+    backgroundColor: `rgba(${Colors.greenRgb}, 0.1)`
+  },
+  disabled: {
+    border: `1px solid ${Colors.borderGray}`,
+    cursor: 'default'
+  },
+  disabledText: {
+    color: Colors.borderGray
   }
+};
+
+export default class SendReceiveButton extends React.Component<SendReceiveButtonProps, SendReceiveButtonState> {
+  state = {
+    hovered: false
+  };
 
   render() {
     const { disabled, onPress, title } = this.props;
     const { hovered } = this.state;
-    const styles = {
-      root: {
-        height: 90,
-        width: 244,
-        border: `1px solid ${Colors.green}`,
-        borderRadius: 2,
-        cursor: 'pointer'
-      },
-      buttonWrapper: {
-        height: 'inherit',
-        width: 'inherit',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center'
-      },
-      button: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        userSelect: 'none'
-      },
-      buttonText: {
-        ...Fonts.font2,
-        color: Colors.black
-      },
-      buttonTextContainer: {
-        margin: 10
-      },
-      hovered: {
-        backgroundColor: `rgba(${Colors.greenRgb}, 0.1)`
-      },
-      disabled: {
-        border: `1px solid ${Colors.borderGray}`,
-        cursor: 'default'
-      },
-      disabledText: {
-        color: Colors.borderGray
-      }
-    };
 
     const imageStyle = { height: 40, width: 40 };
 
@@ -78,12 +73,7 @@ export default class SendReceiveButton extends React.Component<SendReceiveButton
       }
     };
 
-    const sendReceiveButtonDisabledStyle = () => {
-      if (disabled) {
-        return styles.disabledText;
-      }
-      return {};
-    };
+    const sendReceiveButtonDisabledStyle = () => (disabled ? styles.disabledText : {});
 
     const sendReceiveButtonElem = () => (
       <div style={styles.button}>

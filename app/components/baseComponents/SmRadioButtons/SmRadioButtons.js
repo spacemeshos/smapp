@@ -1,7 +1,6 @@
 // @flow
 import * as React from 'react';
-import Fonts from '../../../vars/fonts';
-import Colors from '../../../vars/colors';
+import { smFonts as Fonts, smColors as Colors } from '../../../vars';
 
 export type RadioEntry = {
   id: number | string,
@@ -20,77 +19,74 @@ type SmRadioButtonState = {
   hovered: number | string
 };
 
-export default class SmRadioButtons extends React.Component<SmRadioButtonProps, SmRadioButtonState> {
-  constructor(props: SmRadioButtonProps) {
-    super(props);
-    this.state = {
-      radioSelected: -1,
-      hovered: -1
-    };
+const styles = {
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    height: 'inherit',
+    cursor: 'pointer',
+    userSelect: 'none'
+  },
+  radioOuter: {
+    display: 'flex',
+    flexDirection: 'row',
+    border: `1px solid ${Colors.borderGray}`,
+    borderRadius: 2,
+    padding: 6,
+    paddingTop: 12
+  },
+  radioInner: {
+    position: 'relative',
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    border: `1px solid ${Colors.borderGray}`
+  },
+  disabled: {
+    opacity: 0.4,
+    cursor: 'default'
+  },
+  selected: {
+    position: 'absolute',
+    top: 1,
+    left: 1,
+    height: 16,
+    width: 16,
+    borderRadius: 10,
+    backgroundColor: Colors.green,
+    transition: 'all .2s linear'
+  },
+  hoveredCenter: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    height: 10,
+    width: 10,
+    borderRadius: 6,
+    backgroundColor: `rgba(${Colors.greenRgb}, 0.2)`
+  },
+  labelWrapper: {
+    paddingLeft: 8
+  },
+  labelText: {
+    ...Fonts.font2,
+    color: Colors.black
+  },
+  disabledLabelText: {
+    color: Colors.textGray
   }
+};
+
+export default class SmRadioButtons extends React.Component<SmRadioButtonProps, SmRadioButtonState> {
+  state = {
+    radioSelected: -1,
+    hovered: -1
+  };
 
   render() {
     const { data, disabled } = this.props;
     const { radioSelected, hovered } = this.state;
-
-    const styles = {
-      root: {
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        height: 'inherit',
-        cursor: 'pointer',
-        userSelect: 'none'
-      },
-      radioOuter: {
-        display: 'flex',
-        flexDirection: 'row',
-        border: `1px solid ${Colors.borderGray}`,
-        borderRadius: 2,
-        padding: 6,
-        paddingTop: 12
-      },
-      radioInner: {
-        position: 'relative',
-        height: 20,
-        width: 20,
-        borderRadius: 10,
-        border: `1px solid ${Colors.borderGray}`
-      },
-      disabled: {
-        opacity: 0.4,
-        cursor: 'default'
-      },
-      selected: {
-        position: 'absolute',
-        top: 1,
-        left: 1,
-        height: 16,
-        width: 16,
-        borderRadius: 10,
-        backgroundColor: Colors.green,
-        transition: 'all .2s linear'
-      },
-      hoveredCenter: {
-        position: 'absolute',
-        top: 4,
-        left: 4,
-        height: 10,
-        width: 10,
-        borderRadius: 6,
-        backgroundColor: `rgba(${Colors.greenRgb}, 0.2)`
-      },
-      labelWrapper: {
-        paddingLeft: 8
-      },
-      labelText: {
-        ...Fonts.font2,
-        color: Colors.black
-      },
-      disabledLabelText: {
-        color: Colors.textGray
-      }
-    };
 
     const outerStyle = (val) => {
       if (!val.disabled && radioSelected === val.id) {
@@ -109,12 +105,7 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
       return { borderColor: Colors.borderGray, backgroundColor: Colors.white };
     };
 
-    const textLabelDisabledStyle = (val: RadioEntry) => {
-      if (disabled || val.disabled) {
-        return styles.disabledLabelText;
-      }
-      return {};
-    };
+    const textLabelDisabledStyle = (val: RadioEntry) => (disabled || val.disabled ? styles.disabledLabelText : {});
 
     const radioButtonElem = (val: RadioEntry) => (
       <div style={{ ...styles.radioOuter, ...outerStyle(val) }}>
