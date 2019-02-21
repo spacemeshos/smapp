@@ -88,6 +88,9 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
       },
+      labelTextDisabled: {
+        color: Colors.textGray
+      },
       disabledLabelText: {
         color: Colors.textGray
       },
@@ -150,8 +153,8 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
       return { borderColor: Colors.borderGray, backgroundColor: Colors.white };
     };
 
-    const textLabelDisabledStyle = (val: DropdownEntry) => {
-      if (disabled || val.disabled) {
+    const textLabelDisabledStyle = (val?: DropdownEntry) => {
+      if (disabled || (!!val && val.disabled)) {
         return styles.disabledLabelText;
       }
       return {};
@@ -185,7 +188,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
           <div style={styles.iconWrapper}>
             <img src={isOpen || hoveredHeader ? openDDIcon : openDDIconDisabled} style={styles.icon} alt="Icon missing" />
           </div>
-          <span style={styles.labelText}>{selectedEntry ? selectedEntry.label : placeholder || DEFAULT_PLACEHOLDER}</span>
+          <span style={{ ...styles.labelText, ...textLabelDisabledStyle() }}>{selectedEntry ? selectedEntry.label : placeholder || DEFAULT_PLACEHOLDER}</span>
         </div>
         {isOpen && (
           <div style={styles.itemsWrapper}>
@@ -231,6 +234,10 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
   };
 
   handleHeaderEnter = () => {
+    const { disabled } = this.props;
+    if (disabled) {
+      return;
+    }
     this.setState({ hoveredHeader: true });
   };
 
@@ -248,26 +255,27 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
     this.setState(
       {
         selectedEntryId: id,
-        hovered: id,
-        isOpen: false
+        hovered: id
       },
-      () => onPress({ id, label })
+      () => {
+        onPress({ id, label });
+        this.closeDropdown();
+      }
     );
   }
 
   handleToggle = () => {
-    const { maxItemsHeight } = this.props;
-    this.setState(
-      (prevState: SmDropdownState) => {
-        const isOpen = !prevState.isOpen;
-        return { isOpen, itemsHeight: ROW_HEIGHT };
-      },
-      () => {
-        setTimeout(() => {
-          this.setState({ itemsHeight: maxItemsHeight || DEFAULT_MAX_ITEMS_HEIGHT });
-        });
-      }
-    );
+    const { isOpen } = this.state;
+    const { disabled } = this.props;
+    if (disabled) {
+      return;
+    }
+
+    if (isOpen) {
+      this.closeDropdown();
+    } else {
+      this.openDropdown();
+    }
   };
 
   _getEntryByID = (id: string | number): ?DropdownEntry => {
@@ -289,6 +297,19 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
   };
 
   closeDropdown = () => {
-    this.setState({ isOpen: false });
+    this.setState({ itemsHeight: ROW_HEIGHT }, () => {
+      setTimeout(() => {
+        this.setState({ isOpen: false });
+      }, 200);
+    });
+  };
+
+  openDropdown = () => {
+    const { maxItemsHeight } = this.props;
+    this.setState({ isOpen: true, itemsHeight: 0 }, () => {
+      setTimeout(() => {
+        this.setState({ itemsHeight: maxItemsHeight || DEFAULT_MAX_ITEMS_HEIGHT });
+      }, 200);
+    });
   };
 }

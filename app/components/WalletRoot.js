@@ -73,7 +73,7 @@ export default class WalletRoot extends Component<HomeProps, HomeState> {
       }
     ];
 
-    const dropdownList: DropdownEntry[] = [
+    const dropdownList1: DropdownEntry[] = [
       {
         id: 1,
         label: 'When I was 17'
@@ -105,6 +105,30 @@ export default class WalletRoot extends Component<HomeProps, HomeState> {
       }
     ];
 
+    const dropdownList2: DropdownEntry[] = [
+      {
+        id: 1,
+        label: 'At last my love has come along'
+      },
+      {
+        id: 2,
+        label: 'My lonely days are over'
+      },
+      {
+        id: 3,
+        label: 'and life is like a song'
+      },
+      {
+        id: 4,
+        label: 'Oh, yeah yeah... ',
+        disabled: true
+      },
+      {
+        id: 5,
+        label: 'At last, the skies above are blue'
+      }
+    ];
+
     const loadingEntry: LoadingEntry = { id: 1, isLoading: fullNodeLoading };
 
     return (
@@ -118,7 +142,8 @@ export default class WalletRoot extends Component<HomeProps, HomeState> {
             <div style={styles.row}>
               <SmInput onChangeText={this.handleChangeText} disabled={disableButtons} />
               <SmRadioButtons data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
-              <SmDropdown data={dropdownList} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
+              <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
+              <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
             </div>
             <div style={styles.row}>
               <SendReceiveButton disabled={disableButtons} title="Send coins" onPress={() => this.handleSendReceiveButtonPress('send')} />
