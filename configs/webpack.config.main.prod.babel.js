@@ -39,8 +39,7 @@ export default merge.smart(baseConfig, {
 
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode:
-        process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
       openAnalyzer: process.env.OPEN_ANALYZER === 'true'
     }),
 
@@ -55,8 +54,7 @@ export default merge.smart(baseConfig, {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
-      DEBUG_PROD: false,
-      START_MINIMIZED: false
+      DEBUG_PROD: false
     })
   ],
 

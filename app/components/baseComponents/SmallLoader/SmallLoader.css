@@ -1,7 +1,7 @@
 .rotate {
   position: absolute;
-  top: 18;
-  left: 8;
+  top: 18px;
+  left: 8px;
   animation: rotation 3s infinite linear;
   -webkit-animation: rotation 3s infinite linear;
 }
