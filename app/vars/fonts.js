@@ -1,5 +1,4 @@
 // @flow
-
 type Font = {
   fontFamily: string,
   fontSize: number,
@@ -11,32 +10,32 @@ const fontFamilies = {
 };
 
 const Fonts: { [key: string]: Font } = {
-  font1: {
+  fontLight24: {
     fontFamily: fontFamilies.openSans,
     fontSize: 24,
     fontWeight: '100'
   },
-  font2: {
+  fontNormal16: {
     fontFamily: fontFamilies.openSans,
     fontSize: 16,
     fontWeight: 'normal'
   },
-  font3: {
+  fontNormal14: {
     fontFamily: fontFamilies.openSans,
     fontSize: 14,
     fontWeight: 'normal'
   },
-  font4: {
+  fontBold14: {
     fontFamily: fontFamilies.openSans,
     fontSize: 14,
     fontWeight: '400'
   },
-  font5: {
+  fontNormal18: {
     fontFamily: fontFamilies.openSans,
     fontSize: 18,
     fontWeight: 'normal'
   },
-  font6: {
+  fontLight12: {
     fontFamily: fontFamilies.openSans,
     fontSize: 12,
     fontWeight: '100'

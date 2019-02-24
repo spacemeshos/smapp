@@ -23,7 +23,7 @@ const styles = {
     justifyContent: 'space-between',
     alignContent: 'space-between',
     width: '100%',
-    ...smFonts.font1
+    ...smFonts.fontLight24
   },
   row: {
     paddingTop: 16,

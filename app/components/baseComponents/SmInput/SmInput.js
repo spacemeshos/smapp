@@ -1,13 +1,13 @@
 // @flow
 import React from 'react';
-import { smFonts as Fonts, smColors as Colors } from '../../../vars';
+import { smFonts, smColors } from '../../../vars';
 import styles from './SmInput.css';
 
 const INPUT_PLACEHOLDER = 'Type here';
 
 const inlineStyles = {
   wrapper: {
-    border: `1px solid ${Colors.green}`
+    border: `1px solid ${smColors.green}`
   },
   row: {
     display: 'flex',
@@ -19,12 +19,12 @@ const inlineStyles = {
     height: 44,
     paddingLeft: 8,
     borderRadius: 2,
-    color: Colors.black,
-    ...Fonts.font2,
-    border: `1px solid ${Colors.borderGray}`
+    color: smColors.black,
+    ...smFonts.fontNormal16,
+    border: `1px solid ${smColors.borderGray}`
   },
   focused: {
-    border: `1px solid ${Colors.green}`
+    border: `1px solid ${smColors.green}`
   },
   disabled: {
     opacity: 0.4
@@ -48,9 +48,6 @@ export default class SmInput extends React.Component<SmInputProps, SmInputState>
 
   render() {
     const { placeholder, disabled } = this.props;
-    const { inFocus } = this.state;
-    const focusedStyle = () => (inFocus ? inlineStyles.focused : {});
-    const disabledStyle = () => (disabled ? inlineStyles.disabled : {});
 
     const textInputElem = () => (
       <input
@@ -61,7 +58,7 @@ export default class SmInput extends React.Component<SmInputProps, SmInputState>
         className={styles.noOutline}
         placeholder={placeholder || INPUT_PLACEHOLDER}
         data-tid="noOutline"
-        style={{ ...inlineStyles.normal, ...disabledStyle(), ...focusedStyle() }}
+        style={{ ...inlineStyles.normal, ...this.disabledStyle(), ...this.focusedStyle() }}
       />
     );
 
@@ -81,5 +78,15 @@ export default class SmInput extends React.Component<SmInputProps, SmInputState>
     if (e.target instanceof HTMLInputElement && onChangeText) {
       onChangeText(e.target.value);
     }
+  };
+
+  focusedStyle = () => {
+    const { inFocus } = this.state;
+    return inFocus ? inlineStyles.focused : {};
+  };
+
+  disabledStyle = () => {
+    const { disabled } = this.props;
+    return disabled ? inlineStyles.disabled : {};
   };
 }

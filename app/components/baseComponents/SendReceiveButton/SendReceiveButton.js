@@ -36,7 +36,7 @@ const styles = {
     userSelect: 'none'
   },
   buttonText: {
-    ...Fonts.font2,
+    ...Fonts.fontNormal16,
     color: Colors.black
   },
   buttonTextContainer: {
@@ -54,56 +54,47 @@ const styles = {
   }
 };
 
+const imageStyle = { height: 40, width: 40 };
+
 export default class SendReceiveButton extends React.Component<SendReceiveButtonProps, SendReceiveButtonState> {
   state = {
     hovered: false
   };
 
   render() {
-    const { disabled, onPress, title } = this.props;
-    const { hovered } = this.state;
-
-    const imageStyle = { height: 40, width: 40 };
-
-    const getImageSource = () => {
-      if (disabled) {
-        return title === 'Send coins' ? sendImageSourceDisabled : receiveImageSourceDisabled;
-      } else {
-        return title === 'Send coins' ? sendImageSource : receiveImageSource;
-      }
-    };
-
-    const sendReceiveButtonDisabledStyle = () => (disabled ? styles.disabledText : {});
-
-    const sendReceiveButtonElem = () => (
-      <div style={styles.button}>
-        <img src={getImageSource()} style={imageStyle} alt="Missing icon" />
-        <div style={styles.buttonTextContainer}>
-          <span style={{ ...styles.buttonText, ...sendReceiveButtonDisabledStyle() }}>{title}</span>
-        </div>
-      </div>
-    );
-
-    const rootStyles = () => {
-      if (disabled) {
-        return styles.disabled;
-      }
-      if (hovered) {
-        return styles.hovered;
-      }
-      return {};
-    };
+    const { disabled, onPress } = this.props;
 
     return (
-      <div style={{ ...styles.root, ...rootStyles() }}>
+      <div style={{ ...styles.root, ...this.rootStyles() }}>
         <div style={styles.buttonWrapper} onClick={disabled ? undefined : onPress}>
           <div onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-            {sendReceiveButtonElem()}
+            {this.renderReceiveButtonElem()}
           </div>
         </div>
       </div>
     );
   }
+
+  renderReceiveButtonElem = () => {
+    const { title } = this.props;
+    return (
+      <div style={styles.button}>
+        <img src={this.getImageSource()} style={imageStyle} alt="Missing icon" />
+        <div style={styles.buttonTextContainer}>
+          <span style={{ ...styles.buttonText, ...this.sendReceiveButtonDisabledStyle() }}>{title}</span>
+        </div>
+      </div>
+    );
+  };
+
+  getImageSource = () => {
+    const { disabled, title } = this.props;
+    if (disabled) {
+      return title === 'Send coins' ? sendImageSourceDisabled : receiveImageSourceDisabled;
+    } else {
+      return title === 'Send coins' ? sendImageSource : receiveImageSource;
+    }
+  };
 
   handleMouseEnter = () => {
     this.setState({ hovered: true });
@@ -111,5 +102,22 @@ export default class SendReceiveButton extends React.Component<SendReceiveButton
 
   handleMouseLeave = () => {
     this.setState({ hovered: false });
+  };
+
+  sendReceiveButtonDisabledStyle = () => {
+    const { disabled } = this.props;
+    return disabled ? styles.disabledText : {};
+  };
+
+  rootStyles = () => {
+    const { disabled } = this.props;
+    const { hovered } = this.state;
+    if (disabled) {
+      return styles.disabled;
+    }
+    if (hovered) {
+      return styles.hovered;
+    }
+    return {};
   };
 }

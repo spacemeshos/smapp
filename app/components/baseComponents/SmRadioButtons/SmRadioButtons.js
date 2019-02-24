@@ -1,6 +1,6 @@
 // @flow
-import * as React from 'react';
-import { smFonts as Fonts, smColors as Colors } from '../../../vars';
+import React from 'react';
+import { smFonts, smColors } from '../../../vars';
 
 export type RadioEntry = {
   id: number | string,
@@ -31,7 +31,7 @@ const styles = {
   radioOuter: {
     display: 'flex',
     flexDirection: 'row',
-    border: `1px solid ${Colors.borderGray}`,
+    border: `1px solid ${smColors.borderGray}`,
     borderRadius: 2,
     padding: 6,
     paddingTop: 12
@@ -41,7 +41,7 @@ const styles = {
     height: 20,
     width: 20,
     borderRadius: 10,
-    border: `1px solid ${Colors.borderGray}`
+    border: `1px solid ${smColors.borderGray}`
   },
   disabled: {
     opacity: 0.4,
@@ -54,7 +54,7 @@ const styles = {
     height: 16,
     width: 16,
     borderRadius: 10,
-    backgroundColor: Colors.green,
+    backgroundColor: smColors.green,
     transition: 'all .2s linear'
   },
   hoveredCenter: {
@@ -64,17 +64,17 @@ const styles = {
     height: 10,
     width: 10,
     borderRadius: 6,
-    backgroundColor: `rgba(${Colors.greenRgb}, 0.2)`
+    backgroundColor: `rgba(${smColors.greenRgb}, 0.2)`
   },
   labelWrapper: {
     paddingLeft: 8
   },
   labelText: {
-    ...Fonts.font2,
-    color: Colors.black
+    ...smFonts.fontNormal16,
+    color: smColors.black
   },
   disabledLabelText: {
-    color: Colors.textGray
+    color: smColors.textGray
   }
 };
 
@@ -86,52 +86,13 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
 
   render() {
     const { data, disabled } = this.props;
-    const { radioSelected, hovered } = this.state;
-
-    const outerStyle = (val) => {
-      if (!val.disabled && radioSelected === val.id) {
-        return {
-          borderColor: Colors.green,
-          backgroundColor: `rgba(${Colors.greenRgb}, 0.1)`
-        };
-      }
-      if (val.disabled) {
-        return {
-          borderColor: Colors.borderGray,
-          backgroundColor: Colors.white,
-          cursor: 'default'
-        };
-      }
-      return { borderColor: Colors.borderGray, backgroundColor: Colors.white };
-    };
-
-    const textLabelDisabledStyle = (val: RadioEntry) => (disabled || val.disabled ? styles.disabledLabelText : {});
-
-    const radioButtonElem = (val: RadioEntry) => (
-      <div style={{ ...styles.radioOuter, ...outerStyle(val) }}>
-        <div style={styles.radioInner}>
-          {!val.disabled && val.id === radioSelected ? <div style={styles.selected} /> : null}
-          {!disabled && !val.disabled && val.id !== radioSelected && val.id === hovered ? <div style={styles.hoveredCenter} /> : null}
-        </div>
-        <div style={styles.labelWrapper}>
-          <span style={{ ...styles.labelText, ...textLabelDisabledStyle(val) }}>{val.label}</span>
-        </div>
-      </div>
-    );
-
-    const rootDisabledStyle = () => {
-      if (disabled) {
-        return styles.disabled;
-      }
-      return {};
-    };
 
     return (
-      <div style={{ ...styles.root, ...rootDisabledStyle() }}>
+      <div style={{ ...styles.root, ...this.rootDisabledStyle() }}>
         {data.map((val) => (
           <div key={val.id} onClick={disabled || val.disabled ? undefined : this.radioClick.bind(this, val.id)}>
             <div onMouseEnter={this.handleMouseEnter.bind(this, val.id)} onMouseLeave={this.handleMouseLeave}>
-              {radioButtonElem(val)}
+              {this.renderRadioButtonElem(val)}
             </div>
           </div>
         ))}
@@ -139,12 +100,51 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
     );
   }
 
+  renderRadioButtonElem = (val: RadioEntry) => {
+    const { disabled } = this.props;
+    const { radioSelected, hovered } = this.state;
+    return (
+      <div style={{ ...styles.radioOuter, ...this.outerStyle(val) }}>
+        <div style={styles.radioInner}>
+          {!val.disabled && val.id === radioSelected ? <div style={styles.selected} /> : null}
+          {!disabled && !val.disabled && val.id !== radioSelected && val.id === hovered ? <div style={styles.hoveredCenter} /> : null}
+        </div>
+        <div style={styles.labelWrapper}>
+          <span style={{ ...styles.labelText, ...this.textLabelDisabledStyle(val) }}>{val.label}</span>
+        </div>
+      </div>
+    );
+  };
+
   handleMouseEnter = (id: number | string) => {
     this.setState({ hovered: id });
   };
 
   handleMouseLeave = () => {
     this.setState({ hovered: undefined });
+  };
+
+  outerStyle = (val: RadioEntry) => {
+    const { radioSelected } = this.state;
+    if (!val.disabled && radioSelected === val.id) {
+      return {
+        borderColor: smColors.green,
+        backgroundColor: `rgba(${smColors.greenRgb}, 0.1)`
+      };
+    }
+    if (val.disabled) {
+      return {
+        borderColor: smColors.borderGray,
+        backgroundColor: smColors.white,
+        cursor: 'default'
+      };
+    }
+    return { borderColor: smColors.borderGray, backgroundColor: smColors.white };
+  };
+
+  rootDisabledStyle = () => {
+    const { disabled } = this.props;
+    return disabled ? styles.disabled : {};
   };
 
   radioClick(id: number | string) {
@@ -164,4 +164,9 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
       () => onPress({ id, label })
     );
   }
+
+  textLabelDisabledStyle = (val: RadioEntry) => {
+    const { disabled } = this.props;
+    return disabled || val.disabled ? styles.disabledLabelText : {};
+  };
 }

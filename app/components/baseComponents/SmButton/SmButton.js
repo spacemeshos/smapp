@@ -1,12 +1,12 @@
 // @flow
 import React from 'react';
-import { smColors as Colors, smFonts as Fonts } from '../../../vars';
+import { smColors, smFonts } from '../../../vars';
 
 type SmButtonProps = {
   title: string,
   theme: 'green' | 'orange',
   disabled?: boolean,
-  font?: 'font1' | 'font2' | 'font3' | 'font4',
+  font?: 'fontLight24' | 'fontNormal16' | 'fontNormal14' | 'fontBold14',
   onPress: () => void
 };
 
@@ -21,7 +21,7 @@ const styles = {
     cursor: 'pointer'
   },
   disabled: {
-    border: `1px solid ${Colors.borderGray}`,
+    border: `1px solid ${smColors.borderGray}`,
     cursor: 'default'
   },
   buttonWrapper: {
@@ -49,69 +49,25 @@ export default class SmButton extends React.Component<SmButtonProps, SmButtonSta
   }
 
   render() {
-    const { disabled, theme, title, onPress, font } = this.props;
-    const { clicked, hovered } = this.state;
-    const fontByTheme: string = theme === 'green' ? 'font3' : 'font4';
-
-    const rootThemeStyle = () => {
-      return {
-        backgroundColor: theme === 'green' ? Colors.white : Colors.orange,
-        border: `1px solid ${theme === 'green' ? Colors.borderGray : Colors.orange}`
-      };
-    };
-
-    const hoveredThemeStyle = () => {
-      return {
-        backgroundColor: theme === 'green' ? `rgba(${Colors.greenRgb}, 0.1)` : `rgba(${Colors.orangeRgb}, 0.71)`
-      };
-    };
-
-    const disabledThemeStyle = () => {
-      return { backgroundColor: theme === 'green' ? Colors.white : Colors.borderGray };
-    };
-
-    const clickedThemeStyle = () => {
-      return { backgroundColor: theme === 'green' ? Colors.white : Colors.darkOrange, border: `1px solid ${theme === 'green' ? Colors.green : Colors.orange}` };
-    };
-
-    const buttonTextThemeStyle = () => {
-      return {
-        color: theme === 'green' ? Colors.darkGreen : Colors.white,
-        ...Fonts[font !== undefined ? font : fontByTheme]
-      };
-    };
-
-    const disabledTextThemeStyle = () => {
-      return disabled ? { color: theme === 'green' ? Colors.borderGray : Colors.white } : {};
-    };
-
-    const smButtonElem = () => (
-      <div style={styles.button} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
-        <span style={{ ...styles.buttonText, ...buttonTextThemeStyle(), ...disabledTextThemeStyle() }}>{title}</span>
-      </div>
-    );
-
-    const rootStyles = () => {
-      if (disabled) {
-        return { ...styles.disabled, ...disabledThemeStyle() };
-      }
-      if (clicked) {
-        return clickedThemeStyle();
-      }
-      if (hovered) {
-        return hoveredThemeStyle();
-      }
-      return {};
-    };
+    const { disabled, onPress } = this.props;
 
     return (
-      <div style={{ ...styles.root, ...rootThemeStyle(), ...rootStyles() }}>
+      <div style={{ ...styles.root, ...this.rootThemeStyle(), ...this.rootStyles() }}>
         <div style={styles.buttonWrapper} onClick={disabled ? undefined : onPress} onMouseDown={this.handlePressIn} onMouseUp={this.handlePressOut}>
-          {smButtonElem()}
+          {this.renderRmButtonElem()}
         </div>
       </div>
     );
   }
+
+  renderRmButtonElem = () => {
+    const { title } = this.props;
+    return (
+      <div style={styles.button} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave}>
+        <span style={{ ...styles.buttonText, ...this.buttonTextThemeStyle(), ...this.disabledTextThemeStyle() }}>{title}</span>
+      </div>
+    );
+  };
 
   handleMouseEnter = () => {
     this.setState({ hovered: true });
@@ -127,5 +83,59 @@ export default class SmButton extends React.Component<SmButtonProps, SmButtonSta
 
   handlePressOut = () => {
     this.setState({ clicked: false });
+  };
+
+  buttonTextThemeStyle = () => {
+    const { theme, font } = this.props;
+    const fontByTheme: string = theme === 'green' ? 'fontNormal14' : 'fontBold14';
+    return {
+      color: theme === 'green' ? smColors.darkGreen : smColors.white,
+      ...smFonts[font !== undefined ? font : fontByTheme]
+    };
+  };
+
+  disabledTextThemeStyle = () => {
+    const { theme, disabled } = this.props;
+    return disabled ? { color: theme === 'green' ? smColors.borderGray : smColors.white } : {};
+  };
+
+  hoveredThemeStyle = () => {
+    const { theme } = this.props;
+    return {
+      backgroundColor: theme === 'green' ? `rgba(${smColors.greenRgb}, 0.1)` : `rgba(${smColors.orangeRgb}, 0.71)`
+    };
+  };
+
+  disabledThemeStyle = () => {
+    const { theme } = this.props;
+    return { backgroundColor: theme === 'green' ? smColors.white : smColors.borderGray };
+  };
+
+  clickedThemeStyle = () => {
+    const { theme } = this.props;
+    return { backgroundColor: theme === 'green' ? smColors.white : smColors.darkOrange, border: `1px solid ${theme === 'green' ? smColors.green : smColors.orange}` };
+  };
+
+  rootThemeStyle = () => {
+    const { theme } = this.props;
+    return {
+      backgroundColor: theme === 'green' ? smColors.white : smColors.orange,
+      border: `1px solid ${theme === 'green' ? smColors.borderGray : smColors.orange}`
+    };
+  };
+
+  rootStyles = () => {
+    const { disabled } = this.props;
+    const { clicked, hovered } = this.state;
+    if (disabled) {
+      return { ...styles.disabled, ...this.disabledThemeStyle() };
+    }
+    if (clicked) {
+      return this.clickedThemeStyle();
+    }
+    if (hovered) {
+      return this.hoveredThemeStyle();
+    }
+    return {};
   };
 }
