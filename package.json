@@ -202,6 +202,7 @@
     "electron-devtools-installer": "^2.2.4",
     "electron-log": "^3.0.1",
     "electron-updater": "^4.0.6",
+    "grpc": "^1.18.0",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-hot-loader": "^4.6.5",
