@@ -5,7 +5,7 @@ import RootPage from './screens/RootPage';
 
 const routes = {
   HOME: {
-    path: '/',
+    path: '/home',
     component: HomePage
   },
   COUNTER: {

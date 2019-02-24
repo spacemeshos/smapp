@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Route, Switch } from 'react-router-dom';
+import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import routes from './routes';
 
 class App extends React.Component {
@@ -8,8 +8,9 @@ class App extends React.Component {
       <Router>
         <Switch>
           {Object.keys(routes).map((routeKey) => (
-            <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+            <Route key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
           ))}
+          <Redirect to="/home" />
         </Switch>
       </Router>
     );

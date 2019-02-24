@@ -16,6 +16,7 @@ export type LoadingEntry = {
 export type SideMenuEntry = {
   id: number,
   label: string,
+  /* eslint-disable-next-line flowtype/no-weak-types */
   iconSrc: any,
   disabled?: boolean
 };

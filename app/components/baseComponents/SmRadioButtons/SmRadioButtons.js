@@ -153,6 +153,7 @@ export default class SmRadioButtons extends React.Component<SmRadioButtonProps, 
 
     let label: string = '';
     if (entry) {
+      /* eslint-disable-next-line prefer-destructuring */
       label = entry.label;
     }
     this.setState(

@@ -27,7 +27,7 @@ const inlineStyles = {
     border: `1px solid ${Colors.green}`
   },
   disabled: {
-    color: Colors.textGray
+    opacity: 0.4
   }
 };
 
@@ -61,7 +61,7 @@ export default class SmInput extends React.Component<SmInputProps, SmInputState>
         className={styles.noOutline}
         placeholder={placeholder || INPUT_PLACEHOLDER}
         data-tid="noOutline"
-        style={{ ...inlineStyles.normal, ...focusedStyle(), ...disabledStyle() }}
+        style={{ ...inlineStyles.normal, ...disabledStyle(), ...focusedStyle() }}
       />
     );
 

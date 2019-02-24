@@ -237,6 +237,7 @@ export default class SmDropdown extends React.Component<SmDropdownProps, SmDropd
     const entry: ?DropdownEntry = this._getEntryByID(id);
     let label: string = '';
     if (entry) {
+      /* eslint-disable-next-line prefer-destructuring */
       label = entry.label;
     }
     this.setState(
