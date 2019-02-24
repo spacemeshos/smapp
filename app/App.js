@@ -1,16 +1,16 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import { routes } from './vars';
-import HomePage from './screens/HomePage';
-import CounterPage from './screens/CounterPage';
+import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import routes from './routes';
 
 class App extends React.Component {
   render() {
     return (
       <Router>
         <Switch>
-          <Route path={routes.COUNTER} component={CounterPage} />
-          <Route path={routes.HOME} component={HomePage} />
+          {Object.keys(routes).map((routeKey) => (
+            <Route key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+          ))}
+          <Redirect to="/home" />
         </Switch>
       </Router>
     );

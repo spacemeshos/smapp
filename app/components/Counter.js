@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Counter.css';
-import { routes } from '../vars';
+import routes from '../routes';
 
 type Props = {
   increment: () => void,
@@ -16,54 +16,26 @@ export default class Counter extends Component<Props> {
   props: Props;
 
   render() {
-    const {
-      increment,
-      incrementIfOdd,
-      incrementAsync,
-      decrement,
-      counter
-    } = this.props;
+    const { increment, incrementIfOdd, incrementAsync, decrement, counter } = this.props;
     return (
       <div>
         <div className={styles.backButton} data-tid="backButton">
-          <Link to={routes.HOME}>
-            <i className="fa fa-arrow-left fa-3x" />
-          </Link>
+          <Link to={routes.HOME.path}>Back</Link>
         </div>
         <div className={`counter ${styles.counter}`} data-tid="counter">
           {counter}
         </div>
         <div className={styles.btnGroup}>
-          <button
-            className={styles.btn}
-            onClick={increment}
-            data-tclass="btn"
-            type="button"
-          >
+          <button className={styles.btn} onClick={increment} data-tclass="btn" type="button">
             <i className="fa fa-plus" />
           </button>
-          <button
-            className={styles.btn}
-            onClick={decrement}
-            data-tclass="btn"
-            type="button"
-          >
+          <button className={styles.btn} onClick={decrement} data-tclass="btn" type="button">
             <i className="fa fa-minus" />
           </button>
-          <button
-            className={styles.btn}
-            onClick={incrementIfOdd}
-            data-tclass="btn"
-            type="button"
-          >
+          <button className={styles.btn} onClick={incrementIfOdd} data-tclass="btn" type="button">
             odd
           </button>
-          <button
-            className={styles.btn}
-            onClick={() => incrementAsync()}
-            data-tclass="btn"
-            type="button"
-          >
+          <button className={styles.btn} onClick={() => incrementAsync()} data-tclass="btn" type="button">
             async
           </button>
         </div>
