@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { smFonts, smColors } from '../../../vars';
+import { smFonts, smColors } from '/vars';
 import styles from './SmInput.css';
 
 const INPUT_PLACEHOLDER = 'Type here';

@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
-import { smFonts, smColors } from '../../../vars';
-import { openDDIcon, openDDIconDisabled } from '../../../assets/images';
+import { smFonts, smColors } from '/vars';
+import { openDDIcon, openDDIconDisabled } from '/assets/images';
 
 const DEFAULT_PLACEHOLDER: string = 'Please Select...';
 const ROW_HEIGHT: number = 44;

@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { smFonts, smColors } from '../../../vars';
+import { smFonts, smColors } from '/vars';
 
 export type RadioEntry = {
   id: number | string,

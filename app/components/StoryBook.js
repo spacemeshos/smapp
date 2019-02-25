@@ -2,13 +2,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { smFonts } from '../vars';
-import SmButton from './baseComponents/SmButton/SmButton';
-import SendReceiveButton from './baseComponents/SendReceiveButton/SendReceiveButton';
-import SmInput from './baseComponents/SmInput/SmInput';
-import SmRadioButtons from './baseComponents/SmRadioButtons/SmRadioButtons';
-import type { RadioEntry } from './baseComponents/SmRadioButtons/SmRadioButtons';
-import SmDropdown from './baseComponents/SmDropdown/SmDropdown';
-import type { DropdownEntry } from './baseComponents/SmDropdown/SmDropdown';
+import SmButton from '../baseComponents/SmButton/SmButton';
+import SendReceiveButton from '../baseComponents/SendReceiveButton/SendReceiveButton';
+import SmInput from '../baseComponents/SmInput/SmInput';
+import SmRadioButtons from '../baseComponents/SmRadioButtons/SmRadioButtons';
+import type { RadioEntry } from '../baseComponents/SmRadioButtons/SmRadioButtons';
+import SmDropdown from '../baseComponents/SmDropdown/SmDropdown';
+import type { DropdownEntry } from '../baseComponents/SmDropdown/SmDropdown';
 
 type StoryBookProps = {};
 type StoryBookState = {
