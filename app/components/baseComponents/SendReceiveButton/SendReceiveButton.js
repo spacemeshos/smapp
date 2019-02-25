@@ -1,8 +1,7 @@
 // @flow
 import React from 'react';
-import Colors from '../../../vars/colors';
-import Fonts from '../../../vars/fonts';
-import { sendImageSource, receiveImageSource, sendImageSourceDisabled, receiveImageSourceDisabled } from '../../../assets/images';
+import { smColors, smFonts } from '/vars';
+import { sendImageSource, receiveImageSource, sendImageSourceDisabled, receiveImageSourceDisabled } from '/assets/images';
 
 type SendReceiveButtonProps = {
   title: 'Send coins' | 'Receive coins',
@@ -18,7 +17,7 @@ const styles = {
   root: {
     height: 90,
     width: 244,
-    border: `1px solid ${Colors.green}`,
+    border: `1px solid ${smColors.green}`,
     borderRadius: 2,
     cursor: 'pointer'
   },
@@ -36,21 +35,21 @@ const styles = {
     userSelect: 'none'
   },
   buttonText: {
-    ...Fonts.fontNormal16,
-    color: Colors.black
+    ...smFonts.fontNormal16,
+    color: smColors.black
   },
   buttonTextContainer: {
     margin: 10
   },
   hovered: {
-    backgroundColor: `rgba(${Colors.greenRgb}, 0.1)`
+    backgroundColor: `rgba(${smColors.greenRgb}, 0.1)`
   },
   disabled: {
-    border: `1px solid ${Colors.borderGray}`,
+    border: `1px solid ${smColors.borderGray}`,
     cursor: 'default'
   },
   disabledText: {
-    color: Colors.borderGray
+    color: smColors.borderGray
   }
 };
 

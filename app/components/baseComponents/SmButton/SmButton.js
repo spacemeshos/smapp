@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
-import { smColors, smFonts } from '../../../vars';
+import styled from 'styled-components';
+import { smColors, smFonts } from '/vars';
 
 type SmButtonProps = {
   title: string,
@@ -39,6 +40,14 @@ const styles = {
   }
 };
 
+// $FlowStyledIssue
+const Container = styled.div`
+  cursor: pointer;
+  border-radius: 0;
+  background-color: ${({ theme }) => (theme === 'green' ? smColors.white : smColors.orange)};
+  border: 1px solid ${({ theme }) => (theme === 'green' ? smColors.borderGray : smColors.orange)};
+`;
+
 export default class SmButton extends React.Component<SmButtonProps, SmButtonState> {
   constructor(props: SmButtonProps) {
     super(props);
@@ -49,14 +58,14 @@ export default class SmButton extends React.Component<SmButtonProps, SmButtonSta
   }
 
   render() {
-    const { disabled, onPress } = this.props;
+    const { disabled, onPress, theme } = this.props;
 
     return (
-      <div style={{ ...styles.root, ...this.rootThemeStyle(), ...this.rootStyles() }}>
+      <Container theme={theme}>
         <div style={styles.buttonWrapper} onClick={disabled ? undefined : onPress} onMouseDown={this.handlePressIn} onMouseUp={this.handlePressOut}>
           {this.renderRmButtonElem()}
         </div>
-      </div>
+      </Container>
     );
   }
 
@@ -114,14 +123,6 @@ export default class SmButton extends React.Component<SmButtonProps, SmButtonSta
   clickedThemeStyle = () => {
     const { theme } = this.props;
     return { backgroundColor: theme === 'green' ? smColors.white : smColors.darkOrange, border: `1px solid ${theme === 'green' ? smColors.green : smColors.orange}` };
-  };
-
-  rootThemeStyle = () => {
-    const { theme } = this.props;
-    return {
-      backgroundColor: theme === 'green' ? smColors.white : smColors.orange,
-      border: `1px solid ${theme === 'green' ? smColors.borderGray : smColors.orange}`
-    };
   };
 
   rootStyles = () => {
