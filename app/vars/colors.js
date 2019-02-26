@@ -4,6 +4,8 @@ const smColors = {
   white: '#FFFFFF',
   green: '#00C28C',
   greenRgb: '0,194,140',
+  hoverLightGreen: '#E6F9F4',
+  actionLightGreen: '#CCF3E8',
   darkGreen: '#03946B',
   black: '#000000',
   orange: '#FFA000',

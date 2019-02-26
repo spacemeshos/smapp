@@ -11,22 +11,6 @@ type SmButtonProps = {
   onPress: () => void
 };
 
-const styles = {
-  disabled: {
-    border: `1px solid ${smColors.borderGray}`,
-    cursor: 'default'
-  },
-  button: {
-    overflow: 'hidden',
-    padding: 10,
-    paddingTop: 6,
-    userSelect: 'none'
-  },
-  buttonText: {
-    textAlign: 'center'
-  }
-};
-
 // $FlowStyledIssue
 const StyledRoot = styled.div`
   cursor: pointer;
@@ -67,17 +51,17 @@ const StyledLabel = styled.span`
 
 const SmButton = (props: SmButtonProps) => {
   const { disabled, onPress, theme, font, title } = props;
-    const fontByTheme: string = theme === 'green' ? 'fontNormal14' : 'fontBold14';
+  const fontByTheme: string = theme === 'green' ? 'fontNormal14' : 'fontBold14';
 
-    return (
-      <StyledRoot theme={theme} onClick={disabled ? undefined : onPress} disabled={disabled}>
-        <StyledButton>
-          <StyledLabel theme={theme} font={font !== undefined ? font : fontByTheme}>
-            {title}
-          </StyledLabel>
-        </StyledButton>
-      </StyledRoot>
-    );
-}
+  return (
+    <StyledRoot theme={theme} onClick={disabled ? undefined : onPress} disabled={disabled}>
+      <StyledButton>
+        <StyledLabel theme={theme} font={font !== undefined ? font : fontByTheme}>
+          {title}
+        </StyledLabel>
+      </StyledButton>
+    </StyledRoot>
+  );
+};
 
-export default SmButton
+export default SmButton;

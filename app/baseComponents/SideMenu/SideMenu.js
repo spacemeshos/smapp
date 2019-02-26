@@ -219,17 +219,15 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
     );
   };
 
-  renderTopOrBottomElem = (topOrBottom: 'top' | 'bottom') => {
-    return (
-      <StyledTopOrBottomWrapper topOrBottom={topOrBottom}>
-        {menuEntries[topOrBottom].map((entry: SideMenuEntry) => (
-          <StyledMenuEntryWrapper key={entry.id} onClick={() => this.handleSelectEntry(entry)} disabled={!!entry.disabled}>
-            {this.renderMenuEntryInnerElem(entry)}
-          </StyledMenuEntryWrapper>
-        ))}
-      </StyledTopOrBottomWrapper>
-    );
-  };
+  renderTopOrBottomElem = (topOrBottom: 'top' | 'bottom') => (
+    <StyledTopOrBottomWrapper topOrBottom={topOrBottom}>
+      {menuEntries[topOrBottom].map((entry: SideMenuEntry) => (
+        <StyledMenuEntryWrapper key={entry.id} onClick={() => this.handleSelectEntry(entry)} disabled={!!entry.disabled}>
+          {this.renderMenuEntryInnerElem(entry)}
+        </StyledMenuEntryWrapper>
+      ))}
+    </StyledTopOrBottomWrapper>
+  );
 
   renderMenuElem = () => (
     <StyledMenuWrapper>

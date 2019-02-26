@@ -27,11 +27,11 @@ const StyledMovement = keyframes`
 // $FlowStyledIssue
 const StyledIcon = styled.img`
   position: absolute;
-  top: ${({ isLoading, loadingTop, doneTop }) => (isLoading ? (loadingTop || 14) : (doneTop || 18))}px;
-  left: ${({ isLoading, loadingLeft, doneLeft }) => (isLoading ? (loadingLeft || 8) : (doneLeft || 8))}px;
-  height: ${({ isLoading, loadingSize, doneSize }) => (isLoading ? (loadingSize || 20) : (doneSize || 12))}px;
-  width: ${({ isLoading, loadingSize, doneSize }) => (isLoading ? (loadingSize || 20) : (doneSize || 12))}px;
-  transition: 'all .2s linear;
+  top: ${({ isLoading, loadingTop, doneTop }) => (isLoading ? loadingTop || 14 : doneTop || 18)}px;
+  left: ${({ isLoading, loadingLeft, doneLeft }) => (isLoading ? loadingLeft || 8 : doneLeft || 8)}px;
+  height: ${({ isLoading, loadingSize, doneSize }) => (isLoading ? loadingSize || 20 : doneSize || 12)}px;
+  width: ${({ isLoading, loadingSize, doneSize }) => (isLoading ? loadingSize || 20 : doneSize || 12)}px;
+  transition: all 0.2s linear;
 `;
 
 const AnimatedIcon = styled(StyledIcon)`
