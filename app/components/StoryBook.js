@@ -2,13 +2,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { smFonts } from '../vars';
-import SmButton from './baseComponents/SmButton/SmButton';
-import SendReceiveButton from './baseComponents/SendReceiveButton/SendReceiveButton';
-import SmInput from './baseComponents/SmInput/SmInput';
-import SmRadioButtons from './baseComponents/SmRadioButtons/SmRadioButtons';
-import type { RadioEntry } from './baseComponents/SmRadioButtons/SmRadioButtons';
-import SmDropdown from './baseComponents/SmDropdown/SmDropdown';
-import type { DropdownEntry } from './baseComponents/SmDropdown/SmDropdown';
+import SmButton from '../baseComponents/SmButton/SmButton';
+import SendReceiveButton from '../baseComponents/SendReceiveButton/SendReceiveButton';
+import SmInput from '../baseComponents/SmInput/SmInput';
+import SmRadioButtons from '../baseComponents/SmRadioGroup/SmRadioGroup';
+import type { RadioEntry } from '../baseComponents/SmRadioButton/SmRadioButton';
+import SmDropdown from '../baseComponents/SmDropdown/SmDropdown';
+import type { DropdownEntry } from '../baseComponents/SmDropdown/SmDropdown';
 
 type StoryBookProps = {};
 type StoryBookState = {
@@ -43,6 +43,11 @@ const radioButtons: RadioEntry[] = [
   {
     id: 2,
     label: '2.0 GB'
+  },
+  {
+    id: 3,
+    label: '4.0 GB',
+    disabled: true
   }
 ];
 
@@ -119,7 +124,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <span>{message}</span>
         </div>
         <div style={styles.row}>
-          <SmInput onChangeText={this.handleChangeText} disabled={disableButtons} />
+          <SmInput onChange={this.handleChangeText} disabled={disableButtons} />
           <SmRadioButtons data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
           <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
           <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
@@ -155,16 +160,20 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     });
   };
 
-  handleChangeText = (val: string) => {
-    this.setState({
-      message: `Typed: ${val}`
-    });
+  handleChangeText = (e: any) => {
+    if (e.target instanceof HTMLInputElement) {
+      this.setState({
+        message: `Typed: ${e.target.value}`
+      });
+    }
   };
 
   handleRadioSelect = (selection: RadioEntry) => {
-    this.setState({
-      message: `Radio[${selection.id}]: ${selection.label} selected`
-    });
+    if (selection) {
+      this.setState({
+        message: `Radio[${selection.id}]: ${selection.label} selected`
+      });
+    }
   };
 
   handleDropdownSelection = (selection: DropdownEntry) => {

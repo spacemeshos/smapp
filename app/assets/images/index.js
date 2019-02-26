@@ -14,3 +14,7 @@ export { default as sendImageSourceDisabled } from './send@2x_disabled.png';
 export { default as receiveImageSourceDisabled } from './receive@2x_disabled.png';
 export { default as openDDIcon } from './open_dd@2x.png';
 export { default as openDDIconDisabled } from './open_dd@2x_disabled.png';
+export { default as background1 } from './bg1@2x.png';
+export { default as background2 } from './bg2@2x.png';
+export { default as background3 } from './bg3@2x.png';
+export { default as onboardingLogo } from './SM_Logo_onboarding_white@2x.png';
