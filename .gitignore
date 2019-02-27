@@ -18,7 +18,6 @@
 .env.test.local
 .env.production.local
 .eslintcache
-package-lock.json
 
 npm-debug.log*
 yarn-debug.log*
