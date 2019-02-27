@@ -10,7 +10,6 @@
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
-import chalk from 'chalk';
 import merge from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
 import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
@@ -30,12 +29,9 @@ const requiredByDLLConfig = module.parent.filename.includes(
  * Warn if the DLL is not built
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log(
-    chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "yarn build-dll"'
-    )
+  console.log('The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
   );
-  execSync('yarn build-dll');
+  execSync('npm run build-dll');
 }
 
 export default merge.smart(baseConfig, {

@@ -9,21 +9,23 @@ export default class MenuBuilder {
   }
 
   buildMenu() {
-    const template = process.platform === 'darwin' ? this.buildDarwinTemplate() : this.buildDefaultTemplate();
+    // const template = process.platform === 'darwin' ? this.buildDarwinTemplate() : this.buildDefaultTemplate();
 
     // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     //   template.unshift(this.getInspectElementMenu());
     // }
 
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
+    // const menu = Menu.buildFromTemplate(template);
+    // Menu.setApplicationMenu(menu);
+    //
+    // this.mainWindow.webContents.on('context-menu', (e) => {
+    //   e.preventDefault();
+    //   menu.popup(this.mainWindow);
+    // });
+    //
+    // return menu;
 
-    this.mainWindow.webContents.on('context-menu', (e) => {
-      e.preventDefault();
-      menu.popup(this.mainWindow);
-    });
-
-    return menu;
+    this.getInspectElementMenu();
   }
 
   getInspectElementMenu() {
