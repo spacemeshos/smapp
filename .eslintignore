@@ -58,3 +58,4 @@ package.json
 /dll/
 /babel.config.js
 /configs/
+/proto/
