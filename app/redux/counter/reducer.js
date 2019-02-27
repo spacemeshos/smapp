@@ -1,6 +1,6 @@
 // @flow
-import { INCREMENT_COUNTER, DECREMENT_COUNTER } from './actions';
 import type { Action } from '../types';
+import { INCREMENT_COUNTER, DECREMENT_COUNTER } from './actions';
 
 export default function reducer(state: number = 0, action: Action) {
   switch (action.type) {

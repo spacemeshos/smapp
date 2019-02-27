@@ -1,5 +1,5 @@
 // @flow
-import detectPort from 'detect-port'; // eslint-disable-line import/no-extraneous-dependencies
+import detectPort from 'detect-port';
 
 // eslint-disable-next-line func-names
 (function CheckPortInUse() {

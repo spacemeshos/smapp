@@ -13,10 +13,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import FileDialog from './fileDialog';
 // import netService from './netService';
-import { ipcConsts } from '../app/vars';
 
 export default class AppUpdater {
   constructor() {
