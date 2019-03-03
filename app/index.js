@@ -3,7 +3,6 @@ import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
 import Root from './Root';
 import { configureStore } from './redux/configureStore';
-import './app.global.css';
 
 const store = configureStore();
 

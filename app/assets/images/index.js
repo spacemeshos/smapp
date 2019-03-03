@@ -18,3 +18,5 @@ export { default as background1 } from './bg1@2x.png';
 export { default as background2 } from './bg2@2x.png';
 export { default as background3 } from './bg3@2x.png';
 export { default as onboardingLogo } from './SM_Logo_onboarding_white@2x.png';
+export { default as smcCoin } from './SMC_Coin@2x.png';
+export { default as steam } from './steam@2x.png';

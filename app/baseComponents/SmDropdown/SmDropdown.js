@@ -30,7 +30,6 @@ type SmDropdownState = {
   itemsHeight: number
 };
 
-// $FlowStyledIssue
 const StyledAction = styled.div`
   &:hover {
     background-color: ${smColors.hoverLightGreen};
@@ -38,6 +37,7 @@ const StyledAction = styled.div`
   &:active {
     background-color: ${smColors.actionLightGreen};
   }
+  transition: all 0.1s linear;
 `;
 
 // $FlowStyledIssue
@@ -66,8 +66,9 @@ const StyledHeaderWrapper = styled(StyledAction)`
   z-index: 0;
   overflow: hidden;
   padding-left: 20px;
-  height: ${ROW_HEIGHT}px;
   padding-top: 4px;
+  padding-bottom: 10px;
+  max-height: ${ROW_HEIGHT}px;
   border: 1px solid ${smColors.borderGray};
   border-radius: 2px;
   ${({ isOpen }) =>
@@ -75,7 +76,7 @@ const StyledHeaderWrapper = styled(StyledAction)`
     `
     border: 1px solid ${smColors.darkGreen};
     border-radius: 2px 2px 0 0;
-    box-shadow: 1px 2px 9px ${smColors.textGray};
+    box-shadow: 0 3px 6px rgba(${smColors.blackRgb}, 0.16);
   `}
 `;
 
@@ -98,25 +99,25 @@ const StyledIcon = styled.img`
 // $FlowStyledIssue
 const StyledItemsWrapper = styled.div`
   position: absolute;
-  top: ${ROW_HEIGHT - 2}px;
+  top: ${ROW_HEIGHT - 1}px;
   z-index: 100;
   overflow: hidden;
   border: 1px solid ${smColors.darkGreen};
   border-top: 1px solid ${smColors.borderGray};
   transition: all 0.2s linear;
   overflow-y: scroll;
-  width: ${({ width }) => width}px;
+  width: ${({ width }) => width - 2}px;
   max-height: ${({ height }) => height}px;
   border-radius: 0 0 2px 2px;
   cursor: auto;
-  box-shadow: 1px 2px 9px ${smColors.textGray};
+  box-shadow: 0 3px 6px rgba(${smColors.blackRgb}, 0.16);
 `;
 
 const StyledBaseLabelText = styled.span`
   font-family: ${smFonts.fontNormal16.fontFamily};
   font-size: ${smFonts.fontNormal16.fontSize}px;
   font-weight: ${smFonts.fontNormal16.fontWeight};
-  color: smColors.black;
+  color: ${smColors.black};
   text-overflow: ellipsis;
   white-space: nowrap;
 `;

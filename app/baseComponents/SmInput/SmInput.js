@@ -20,6 +20,7 @@ const StyledSmInput = styled.input`
     outline: none;
     border: 1px solid ${smColors.green};
   }
+  transition: all 0.15s linear;
 `;
 
 const SmInput = (props: any) => {

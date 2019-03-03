@@ -14,6 +14,7 @@ type SmButtonProps = {
 // $FlowStyledIssue
 const StyledRoot = styled.div`
   cursor: pointer;
+  height: 48px;
   border-radius: 0;
   background-color: ${({ theme }) => (theme === 'green' ? smColors.white : smColors.orange)};
   border: 1px solid ${({ theme }) => (theme === 'green' ? smColors.borderGray : smColors.orange)};
@@ -31,17 +32,22 @@ const StyledRoot = styled.div`
     background-color: ${({ theme }) => (theme === 'green' ? smColors.white : smColors.darkOrange)};
     border: 1px solid ${({ theme }) => (theme === 'green' ? smColors.green : smColors.orange)};
   }
+  transition: background-color 0.16s linear;
 `;
 
 const StyledButton = styled.div`
   overflow: hidden;
-  padding: 10px;
-  padding-top: 6px;
+  height: inherit;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 `;
 
 // $FlowStyledIssue
 const StyledLabel = styled.span`
+  padding-left: 12px;
+  padding-right: 12px;
   textalign: 'center';
   color: ${({ theme }) => (theme === 'green' ? smColors.darkGreen : smColors.white)};
   font-family: ${({ font }) => smFonts[font].fontFamily};

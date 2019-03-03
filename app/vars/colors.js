@@ -8,6 +8,7 @@ const smColors = {
   actionLightGreen: '#CCF3E8',
   darkGreen: '#03946B',
   black: '#000000',
+  blackRgb: '0,0,0',
   orange: '#FFA000',
   orangeRgb: '255,160,0',
   darkOrange: '#E69000',
