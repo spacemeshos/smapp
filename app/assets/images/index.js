@@ -20,6 +20,9 @@ export { default as background3 } from './bg3@2x.png';
 export { default as onboardingLogo } from './SM_Logo_onboarding_white@2x.png';
 export { default as smcCoin } from './SMC_Coin@2x.png';
 export { default as steam } from './steam@2x.png';
+<<<<<<< HEAD
 export { default as minerSmall } from './miner_small@2x.png';
 export { default as miner } from './miner@2x.png';
 export { default as welcomeBack } from './welcome_back@2x.png';
+=======
+>>>>>>> 93a590db399bbd92e3aa661415d8b3522193e7a0

@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors, smFonts } from '/vars';
-import SmallLoader from '../SmallLoader/SmallLoader';
+import SmallLoader from '/baseComponents/SmallLoader/SmallLoader';
 import { menu1, menu2, menu3, menu4, menu5, menu6, openIcon } from '/assets/images';
 
 const ENTRY_HEIGHT = 54;
