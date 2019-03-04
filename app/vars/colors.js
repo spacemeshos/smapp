@@ -15,7 +15,8 @@ const smColors = {
   textGray: '#B0B2B5',
   borderGray: '#DBDBDE',
   darkGrayText: '#425062',
-  lightGray: '#F7F7F8'
+  lightGray: '#F7F7F8',
+  red: '#FF3506'
 };
 
 export default smColors;

@@ -21,11 +21,16 @@ const StyledSmInput = styled.input`
     border: 1px solid ${smColors.green};
   }
   transition: all 0.15s linear;
+  ${({ hasError }) =>
+    hasError &&
+    `
+    border: 1px solid ${smColors.red};
+  `}
 `;
 
 const SmInput = (props: any) => {
-  const { disabled, placeholder } = props;
-  return <StyledSmInput {...props} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} />;
+  const { disabled, placeholder, hasError } = props;
+  return <StyledSmInput {...props} hasError={hasError} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} />;
 };
 
 export default SmInput;

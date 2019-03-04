@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { smColors } from '/vars';
+import { smColors, utils } from '/vars';
 
 const DEFAULT_WIDTH = 340;
 
@@ -73,6 +73,28 @@ class SmCarousel extends Component<SmCarouselProps, SmCarouselState> {
     fragment: 0
   };
 
+  render() {
+    const { children, width } = this.props;
+    const { fragment } = this.state;
+
+    return (
+      <StyledCarouselWrapper>
+        <StyledCarousel width={width || DEFAULT_WIDTH} numOfChildren={children.length} fragment={fragment}>
+          {children.map((child, index) => (
+            <StyledFragment key={utils.genId(child)} width={width || DEFAULT_WIDTH}>
+              {children[index]}
+            </StyledFragment>
+          ))}
+        </StyledCarousel>
+        <StyledSelectorsWrapper>
+          {children.map((child, index) => (
+            <StyledSelecor key={utils.genId(child)} index={index} selected={fragment} onClick={() => this.handleItemSelect(index)} />
+          ))}
+        </StyledSelectorsWrapper>
+      </StyledCarouselWrapper>
+    );
+  }
+
   componentDidMount() {
     const defaultTimout: number = 3000;
     const { children, timeout, disableAutoPlay } = this.props;
@@ -94,28 +116,6 @@ class SmCarousel extends Component<SmCarouselProps, SmCarouselState> {
   handleItemSelect = (index: numnber) => {
     this.setState({ fragment: index });
   };
-
-  render() {
-    const { children, width } = this.props;
-    const { fragment } = this.state;
-
-    return (
-      <StyledCarouselWrapper>
-        <StyledCarousel width={width || DEFAULT_WIDTH} numOfChildren={children.length} fragment={fragment}>
-          {children.map((child, index) => (
-            <StyledFragment key={index} width={width || DEFAULT_WIDTH}>
-              {children[index]}
-            </StyledFragment>
-          ))}
-        </StyledCarousel>
-        <StyledSelectorsWrapper>
-          {children.map((child, index) => (
-            <StyledSelecor key={index} index={index} selected={fragment} onClick={() => this.handleItemSelect(index)} />
-          ))}
-        </StyledSelectorsWrapper>
-      </StyledCarouselWrapper>
-    );
-  }
 }
 
 export default SmCarousel;

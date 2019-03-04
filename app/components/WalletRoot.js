@@ -36,6 +36,8 @@ const routes = {
 export default class WalletRoot extends Component<WalletRootProps, WalletRootState> {
   props: WalletRootProps;
 
+  timer: any;
+
   state: WalletRootState = {
     fullNodeLoading: true
   };
@@ -61,11 +63,15 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
   }
 
   componentDidMount() {
-    setTimeout(() => {
+    this.timer = setTimeout(() => {
       this.setState({
         fullNodeLoading: false
       });
     }, 8000);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timer);
   }
 
   handleSideMenuPress = (selection: SideMenuEntry) => {

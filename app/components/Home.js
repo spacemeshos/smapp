@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
-import CenterCard from './CenterCard.js';
+import CenterCard from './CenterCard';
+import type { WelcomeActions } from './CenterCard';
 import { Link } from 'react-router-dom';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
@@ -76,8 +77,8 @@ class Home extends Component<HomeProps, HomeState> {
     return <div>{renderHomeComponent()}</div>;
   }
 
-  handleCardAction = (action: string) => {
-    switch (action) {
+  handleCardAction = (action: WelcomeActions) => {
+    switch (action.type) {
       case 'create':
         this.setState({ page: 2 });
         break;

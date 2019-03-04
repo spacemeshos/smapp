@@ -7,9 +7,19 @@ import SmCarousel from '../baseComponents/SmCarousel/SmCarousel';
 import SmInput from '../baseComponents/SmInput/SmInput';
 import { steam, smcCoin, onboardingLogo } from '/assets/images';
 
+export type WelcomeActions = {
+  type: 'create' | 'restore' | 'next' | 'setup full node' | 'later',
+  payload?: ?string
+};
+
 type Props = {
   page: 1 | 2 | 3,
-  onPress: (action: string) => void
+  onPress: (action: WelcomeActions) => void
+};
+
+type State = {
+  password: ?string,
+  verifyPassword: ?string
 };
 
 const HEADER_HEIGHT = 132;
@@ -147,8 +157,25 @@ const StyledLink = styled(StyledBodyTextEncrypt)`
   ${StyledAction}
 `;
 
-class CenterCard extends Component<Props> {
+class CenterCard extends Component<Props, State> {
   props: Props;
+
+  state = {
+    password: undefined,
+    verifyPassword: undefined
+  };
+
+  handlePasswordTyping = (e: any) => {
+    if (e.target instanceof HTMLInputElement) {
+      this.setState({ password: e.target.value });
+    }
+  };
+
+  handlePasswordVerifyTyping = (e: any) => {
+    if (e.target instanceof HTMLInputElement) {
+      this.setState({ verifyPassword: e.target.value });
+    }
+  };
 
   render() {
     const { page } = this.props;
@@ -167,6 +194,10 @@ class CenterCard extends Component<Props> {
 
   renderCardBody = (page: number) => {
     const { onPress } = this.props;
+    const { password, verifyPassword } = this.state;
+    const canEncrypt = !!password && password === verifyPassword;
+    const hasError = password !== verifyPassword || (!!password && password.length < 8);
+
     switch (page) {
       case 1:
         return (
@@ -209,10 +240,10 @@ class CenterCard extends Component<Props> {
             </StyledCBodyContent>
             <StyledButtonsContainer>
               <StyledButtonWrapper>
-                <SmButton title="Create Wallet" theme="orange" onPress={() => onPress('create')} />
+                <SmButton title="Create Wallet" theme="orange" onPress={() => onPress({ type: 'create' })} />
               </StyledButtonWrapper>
               <StyledButtonWrapper>
-                <SmButton title="Restore Wallet" theme="green" onPress={() => onPress('restore')} />
+                <SmButton title="Restore Wallet" theme="green" onPress={() => onPress({ type: 'restore' })} />
               </StyledButtonWrapper>
             </StyledButtonsContainer>
           </StyledBody>
@@ -228,8 +259,8 @@ class CenterCard extends Component<Props> {
                 <StyledEncryptTextWrapper>
                   <StyledBodyTextEncrypt>Must be at least 8 characters</StyledBodyTextEncrypt>
                 </StyledEncryptTextWrapper>
-                <SmInput type="password" placeholder="Type password" />
-                <SmInput type="password" placeholder="Verify password" />
+                <SmInput type="password" placeholder="Type password" hasError={hasError} onChange={this.handlePasswordTyping} />
+                <SmInput type="password" placeholder="Verify password" hasError={hasError} onChange={this.handlePasswordVerifyTyping} />
                 <StyledEncryptTextWrapper>
                   <StyledBodyTextEncrypt>
                     Your Wallet file is encrypted and saved on your computer. <StyledLink>Show me the file</StyledLink>
@@ -239,7 +270,7 @@ class CenterCard extends Component<Props> {
             </StyledCBodyContent>
             <StyledButtonsContainer>
               <StyledButtonWrapper>
-                <SmButton title="Next" theme="orange" onPress={() => onPress('next')} />
+                <SmButton title="Next" disabled={!canEncrypt} theme="orange" onPress={() => onPress({ type: 'next', payload: password })} />
               </StyledButtonWrapper>
             </StyledButtonsContainer>
           </StyledBody>
@@ -256,10 +287,10 @@ class CenterCard extends Component<Props> {
             </StyledCBodyContent>
             <StyledButtonsContainer>
               <StyledButtonWrapper>
-                <SmButton title="Yes, Setup Full Node" theme="orange" onPress={() => onPress('setup full node')} />
+                <SmButton title="Yes, Setup Full Node" theme="orange" onPress={() => onPress({ type: 'setup full node' })} />
               </StyledButtonWrapper>
               <StyledButtonWrapper>
-                <SmButton title="Maybe Later" theme="green" onPress={() => onPress('later')} />
+                <SmButton title="Maybe Later" theme="green" onPress={() => onPress({ type: 'later' })} />
               </StyledButtonWrapper>
             </StyledButtonsContainer>
           </StyledBody>
