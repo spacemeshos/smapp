@@ -30,7 +30,6 @@ type SmDropdownState = {
   itemsHeight: number
 };
 
-
 const StyledAction = styled.div`
   &:hover {
     background-color: ${smColors.hoverLightGreen};

@@ -1,9 +1,10 @@
 const PROTO_PATH = './proto/api.proto';
 const grpc = require('grpc');
 
-const SpacemeshService = grpc.load(PROTO_PATH).pb.SpacemeshService; // eslint-disable-line prefer-destructuring
+const spacemeshProto = grpc.load(PROTO_PATH); // eslint-disable-line prefer-destructuring
 
 const defaultUrl = 'localhost:9091';
+const { SpacemeshService } = spacemeshProto.pb;
 const netService = new SpacemeshService(defaultUrl, grpc.credentials.createInsecure());
 
 netService.echo({ value: 'Hello World!' }, (error, response) => {

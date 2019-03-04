@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from 'react';
-import SideMenu from '../baseComponents/SideMenu/SideMenu';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import SideMenu from '../baseComponents/SideMenu/SideMenu';
 import type { SideMenuEntry, LoadingEntry } from '../baseComponents/SideMenu/SideMenu';
@@ -23,7 +22,7 @@ const styles = {
     justifyContent: 'center',
     alignContent: 'center',
     width: '100%',
-    heighy: '100%'
+    height: '100%'
   }
 };
 

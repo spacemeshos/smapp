@@ -1,11 +1,11 @@
 // @flow
 import React, { Component } from 'react';
-import CenterCard from './CenterCard';
-import type { WelcomeActions } from './CenterCard';
 import { Link } from 'react-router-dom';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
 import styled from 'styled-components';
+import CenterCard from './CenterCard';
+import type { WelcomeActions } from './CenterCard';
 
 type HomeProps = {};
 type HomeState = {
