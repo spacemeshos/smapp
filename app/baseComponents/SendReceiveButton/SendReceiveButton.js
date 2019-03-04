@@ -28,6 +28,7 @@ const StyledRootButton = styled.div`
   &:active {
     opacity: 0.8;
   }
+  transition: background-color 0.2s linear;
 `;
 
 const StyledButton = styled.div`

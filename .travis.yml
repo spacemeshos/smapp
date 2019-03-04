@@ -1,17 +1,15 @@
+language: node_js
+node_js:
+  - node
+
 matrix:
   include:
     - os: osx
-      language: node_js
-      node_js:
-        - node
       env:
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
     - os: linux
-      language: node_js
-      node_js:
-        - node
 
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine

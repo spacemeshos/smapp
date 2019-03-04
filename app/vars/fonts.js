@@ -15,6 +15,11 @@ const Fonts: { [key: string]: Font } = {
     fontSize: 24,
     fontWeight: '100'
   },
+  fontNormal24: {
+    fontFamily: fontFamilies.openSans,
+    fontSize: 24,
+    fontWeight: 'normal'
+  },
   fontNormal16: {
     fontFamily: fontFamilies.openSans,
     fontSize: 16,

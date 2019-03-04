@@ -18,8 +18,8 @@ type SmRadioButtonProps = {
 const StyledHoveredCenter = styled.div`
   display: none;
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 5px;
+  left: 5px;
   height: 10px;
   width: 10px;
   border-radius: 6px;
@@ -64,10 +64,10 @@ const StyledRadioWrapper = styled(StyledAction)`
 // $FlowStyledIssue
 const StyledRadioInner = styled.div`
   position: absolute;
-  top: 12px;
+  top: 10px;
   height: 20px;
   width: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
   margin-left: 12px;
   border: 1px solid ${smColors.borderGray};
   ${({ selected }) =>
