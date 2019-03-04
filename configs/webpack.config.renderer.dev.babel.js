@@ -10,7 +10,6 @@
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
-import chalk from 'chalk';
 import merge from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
 import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
@@ -30,12 +29,9 @@ const requiredByDLLConfig = module.parent.filename.includes(
  * Warn if the DLL is not built
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log(
-    chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "yarn build-dll"'
-    )
+  console.log('The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
   );
-  execSync('yarn build-dll');
+  execSync('npm run build-dll');
 }
 
 export default merge.smart(baseConfig, {
@@ -97,45 +93,6 @@ export default merge.smart(baseConfig, {
               importLoaders: 1,
               localIdentName: '[name]__[local]__[hash:base64:5]'
             }
-          }
-        ]
-      },
-      // SASS support - compile all .global.scss files and pipe it to style.css
-      {
-        test: /\.global\.(scss|sass)$/,
-        use: [
-          {
-            loader: 'style-loader'
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true
-            }
-          },
-          {
-            loader: 'sass-loader'
-          }
-        ]
-      },
-      // SASS support - compile all other .scss files and pipe it to style.css
-      {
-        test: /^((?!\.global).)*\.(scss|sass)$/,
-        use: [
-          {
-            loader: 'style-loader'
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              sourceMap: true,
-              importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]'
-            }
-          },
-          {
-            loader: 'sass-loader'
           }
         ]
       },

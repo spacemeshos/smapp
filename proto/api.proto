@@ -1,0 +1,63 @@
+syntax = "proto3";
+package pb;
+
+import "google/api/annotations.proto";
+
+message SimpleMessage {
+    string value = 1;
+}
+
+message AccountId {
+    string address =1;
+}
+
+message TransferFunds {
+    AccountId sender =1;
+    AccountId receiver =2;
+    uint64 Nonce =3;
+    uint64 Amount =4;
+}
+
+message SignedTransaction {
+    string srcAddress   = 1;
+    string dstAddress   = 2;
+    string amount       = 3;
+    string nonce        = 4;
+}
+
+message BroadcastMessage {
+    string Data = 1;
+}
+
+service SpacemeshService {
+    rpc Echo(SimpleMessage) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/example/echo"
+          body: "*"
+        };
+    }
+    rpc GetNonce(AccountId) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/nonce"
+          body: "*"
+        };
+    }
+    rpc GetBalance(AccountId) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/balance"
+          body: "*"
+        };
+    }
+    rpc SubmitTransaction(SignedTransaction) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/submittransaction"
+          body: "*"
+        };
+    }
+    rpc Broadcast(BroadcastMessage) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/broadcast"
+          body: "*"
+        };
+    }
+}

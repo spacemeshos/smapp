@@ -13,9 +13,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import FileDialog from './fileDialog';
-import { ipcConsts } from '../app/vars';
+// import netService from './netService';
 
 export default class AppUpdater {
   constructor() {
@@ -37,9 +38,6 @@ if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true')
 }
 
 const installExtensions = async () => {
-  const devtron = require('devtron');
-  devtron.install();
-
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
