@@ -1,15 +1,18 @@
 // @flow
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import CenterCard from './CenterCard';
 import type { WelcomeActions } from './CenterCard';
-import { Link } from 'react-router-dom';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
-import styled from 'styled-components';
 
-type HomeProps = {};
+type HomeProps = {
+  history: any
+};
+
 type HomeState = {
-  page: 1 | 2 | 3
+  page: 1 | 2 | 3 | 4
 };
 
 // $FlowStyledIssue
@@ -88,6 +91,7 @@ class Home extends Component<HomeProps, HomeState> {
         backgroundImage = background2;
         break;
       case 3:
+      case 4:
         backgroundImage = background3;
         break;
       default:
@@ -97,14 +101,22 @@ class Home extends Component<HomeProps, HomeState> {
   };
 
   handleCardAction = (action: WelcomeActions) => {
+    const { history } = this.props;
     switch (action.type) {
       case 'create':
         this.setState({ page: 2 });
         break;
-      case 'restore':
+      case 'to login page':
+        this.setState({ page: 4 });
         break;
       case 'next':
         this.setState({ page: 3 });
+        break;
+      case 'setup full node':
+        history.push('/root');
+        break;
+      case 'later':
+        history.push('/root');
         break;
       default:
         break;

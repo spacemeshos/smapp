@@ -1,8 +1,8 @@
 import { ipcConsts } from '../app/vars';
 
-const electron = require('electron');
 const fs = require('fs');
 const util = require('util');
+const electron = require('electron');
 
 const { dialog } = electron;
 

@@ -5,15 +5,22 @@ import { smColors, smFonts } from '/vars';
 import SmButton from '../baseComponents/SmButton/Smbutton';
 import SmCarousel from '../baseComponents/SmCarousel/SmCarousel';
 import SmInput from '../baseComponents/SmInput/SmInput';
-import { steam, smcCoin, onboardingLogo } from '/assets/images';
+import { steam, smcCoin, onboardingLogo, miner, welcomeBack } from '/assets/images';
 
 export type WelcomeActions = {
-  type: 'create' | 'restore' | 'next' | 'setup full node' | 'later',
+  type: 'create' | 'login' | 'to login page' | 'next' | 'setup full node' | 'later' | 'restore',
   payload?: ?string
 };
 
+type CarouselItemProps = {
+  /* eslint react/no-unused-prop-types: off */
+  id: number,
+  source: any,
+  text: string
+};
+
 type Props = {
-  page: 1 | 2 | 3,
+  page: 1 | 2 | 3 | 4,
   onPress: (action: WelcomeActions) => void
 };
 
@@ -23,6 +30,29 @@ type State = {
 };
 
 const HEADER_HEIGHT = 132;
+
+const carouselItems: CarouselItemProps[] = [
+  {
+    id: 1,
+    text: 'Setup a full node on your computer and stard earning spacemesh coins',
+    source: smcCoin
+  },
+  {
+    id: 2,
+    text: 'Spacemesh Coins can be used to purchase Steam games and Steam game items',
+    source: steam
+  },
+  {
+    id: 3,
+    text: 'Use your wallet to send and receive Spacemesh Coins',
+    source: smcCoin
+  },
+  {
+    id: 4,
+    text: 'Your wallet can hold multiple accounts',
+    source: smcCoin
+  }
+];
 
 const StyledAction = css`
   &:hover {
@@ -81,7 +111,7 @@ const StyledBody = styled.div`
   display: flex;
   flex-direction: column;
   text-align: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 30px;
 `;
 
@@ -102,6 +132,9 @@ const StyledButtonWrapper = styled.div`
 const StyledCBodyContent = styled.div`
   height: inherit;
   width: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 `;
 
 const StyledCarouselItem = styled.div`
@@ -110,7 +143,6 @@ const StyledCarouselItem = styled.div`
   justify-content: space-around;
   width: 100%;
   height: 100%;
-  margin;: 30px;
 `;
 
 const StyledBodyLogoWrapper = styled.div`
@@ -120,9 +152,10 @@ const StyledBodyLogoWrapper = styled.div`
   width: 100%;
 `;
 
+// $FlowStyledIssue
 const StyledBodyLogo = styled.img`
-  width: 82px;
-  height: 82px;
+  width: ${({ width }) => width || 82}px;
+  height: ${({ height }) => height || 82}px;
 `;
 
 const StyledBodyTextWrapper = styled.div``;
@@ -157,6 +190,36 @@ const StyledLink = styled(StyledBodyTextEncrypt)`
   ${StyledAction}
 `;
 
+const StyledSmallLink = styled.span`
+  font-family: ${smFonts.fontNormal14.fontFamily};
+  font-size: ${smFonts.fontNormal14.fontSize}px;
+  font-weight: ${smFonts.fontNormal14.fontWeight};
+  user-select: none;
+  color: ${smColors.green};
+  cursor: pointer;
+  ${StyledAction}
+`;
+
+const StyledLinksWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const CarouselItem = (props: CarouselItemProps) => {
+  const { source, text } = props;
+  return (
+    <StyledCarouselItem>
+      <StyledBodyLogoWrapper>
+        <StyledBodyLogo src={source} />
+      </StyledBodyLogoWrapper>
+      <StyledBodyTextWrapper>
+        <StyledBodyText>{text}</StyledBodyText>
+      </StyledBodyTextWrapper>
+    </StyledCarouselItem>
+  );
+};
+
 class CenterCard extends Component<Props, State> {
   props: Props;
 
@@ -184,7 +247,7 @@ class CenterCard extends Component<Props, State> {
         <StyledCard>
           <StyledHeader>
             <StyledLogo src={onboardingLogo} />
-            <StyledHeaderText>Welcome to Spacemesh</StyledHeaderText>
+            <StyledHeaderText>{`${page === 4 ? 'Welcome Back' : 'Welome to Spacemesh'}`}</StyledHeaderText>
           </StyledHeader>
           {this.renderCardBody(page)}
         </StyledCard>
@@ -198,38 +261,9 @@ class CenterCard extends Component<Props, State> {
       <StyledBody>
         <StyledCBodyContent>
           <SmCarousel>
-            <StyledCarouselItem>
-              <StyledBodyLogoWrapper>
-                <StyledBodyLogo src={smcCoin} />
-              </StyledBodyLogoWrapper>
-              <StyledBodyTextWrapper>
-                <StyledBodyText>Setup a full node on your computer and stard earning spacemesh coins</StyledBodyText>
-              </StyledBodyTextWrapper>
-            </StyledCarouselItem>
-            <StyledCarouselItem>
-              <StyledBodyLogoWrapper>
-                <StyledBodyLogo src={steam} />
-              </StyledBodyLogoWrapper>
-              <StyledBodyTextWrapper>
-                <StyledBodyText>Spacemesh Coins can be used to purchase Steam games and Steam game items</StyledBodyText>
-              </StyledBodyTextWrapper>
-            </StyledCarouselItem>
-            <StyledCarouselItem>
-              <StyledBodyLogoWrapper>
-                <StyledBodyLogo src={smcCoin} />
-              </StyledBodyLogoWrapper>
-              <StyledBodyTextWrapper>
-                <StyledBodyText>Use your wallet to send and receive Spacemesh Coins</StyledBodyText>
-              </StyledBodyTextWrapper>
-            </StyledCarouselItem>
-            <StyledCarouselItem>
-              <StyledBodyLogoWrapper>
-                <StyledBodyLogo src={smcCoin} />
-              </StyledBodyLogoWrapper>
-              <StyledBodyTextWrapper>
-                <StyledBodyText>Your wallet can hold multiple accounts</StyledBodyText>
-              </StyledBodyTextWrapper>
-            </StyledCarouselItem>
+            {carouselItems.map((item) => (
+              <CarouselItem {...item} />
+            ))}
           </SmCarousel>
         </StyledCBodyContent>
         <StyledButtonsContainer>
@@ -237,7 +271,7 @@ class CenterCard extends Component<Props, State> {
             <SmButton title="Create Wallet" theme="orange" onPress={() => onPress({ type: 'create' })} />
           </StyledButtonWrapper>
           <StyledButtonWrapper>
-            <SmButton title="Restore Wallet" theme="green" onPress={() => onPress({ type: 'restore' })} />
+            <SmButton title="Login to Wallet" theme="green" onPress={() => onPress({ type: 'to login page' })} />
           </StyledButtonWrapper>
         </StyledButtonsContainer>
       </StyledBody>
@@ -247,8 +281,8 @@ class CenterCard extends Component<Props, State> {
   renderPage2 = () => {
     const { onPress } = this.props;
     const { password, verifyPassword } = this.state;
-    const canEncrypt = !!password && password === verifyPassword;
     const hasError = password !== verifyPassword || (!!password && password.length < 8);
+    const canEncrypt = !!password && !hasError;
 
     return (
       <StyledBody>
@@ -285,8 +319,12 @@ class CenterCard extends Component<Props, State> {
         <StyledCBodyContent>
           <StyledCarouselItem>
             <StyledBodyTextWrapper>
-              <StyledSubHeaderText>Test</StyledSubHeaderText>
+              <StyledSubHeaderText>Setup a Spacemesh Full Node and start earning Spacemesh Coins?</StyledSubHeaderText>
             </StyledBodyTextWrapper>
+            <StyledBodyLogoWrapper>
+              <StyledBodyLogo src={miner} width={104} height={74} />
+            </StyledBodyLogoWrapper>
+            <StyledLink>Learn more about Spacemesh full nodes.</StyledLink>
           </StyledCarouselItem>
         </StyledCBodyContent>
         <StyledButtonsContainer>
@@ -301,6 +339,38 @@ class CenterCard extends Component<Props, State> {
     );
   };
 
+  renderPage4 = () => {
+    const { onPress } = this.props;
+    const { password } = this.state;
+    const hasError = !!password && password.length < 8;
+    return (
+      <StyledBody>
+        <StyledCBodyContent>
+          <StyledCarouselItem>
+            <StyledBodyLogoWrapper>
+              <StyledBodyLogo src={welcomeBack} width={76} height={92} />
+            </StyledBodyLogoWrapper>
+            <StyledBodyTextWrapper>
+              <StyledSubHeaderText>Enter PIN to access wallet</StyledSubHeaderText>
+            </StyledBodyTextWrapper>
+            <SmInput type="password" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
+          </StyledCarouselItem>
+        </StyledCBodyContent>
+        <StyledButtonsContainer>
+          <StyledButtonWrapper>
+            <SmButton title="Login" disabled={!password || hasError} theme="orange" onPress={() => onPress({ type: 'login', payload: password })} />
+          </StyledButtonWrapper>
+          <StyledButtonWrapper>
+            <StyledLinksWrapper>
+              <StyledSmallLink onClick={() => onPress({ type: 'create' })}>Create a new wallet</StyledSmallLink>
+              <StyledSmallLink onClick={() => onPress({ type: 'restore' })}>Restore wallet</StyledSmallLink>
+            </StyledLinksWrapper>
+          </StyledButtonWrapper>
+        </StyledButtonsContainer>
+      </StyledBody>
+    );
+  };
+
   renderCardBody = (page: number) => {
     switch (page) {
       case 1:
@@ -309,6 +379,8 @@ class CenterCard extends Component<Props, State> {
         return this.renderPage2();
       case 3:
         return this.renderPage3();
+      case 4:
+        return this.renderPage4();
       default:
         return null;
     }

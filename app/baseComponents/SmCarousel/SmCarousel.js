@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { smColors, utils } from '/vars';
+import { smColors } from '/vars';
 
 const DEFAULT_WIDTH = 340;
 
@@ -41,7 +41,7 @@ const StyledCarousel = styled.div`
 `;
 
 // $FlowStyledIssue
-const StyledFragment = styled(StyledAction)`
+const StyledFragment = styled.div`
   width: ${({ width }) => width}px;
   height: inherit;
 `;
@@ -80,15 +80,15 @@ class SmCarousel extends Component<SmCarouselProps, SmCarouselState> {
     return (
       <StyledCarouselWrapper>
         <StyledCarousel width={width || DEFAULT_WIDTH} numOfChildren={children.length} fragment={fragment}>
-          {children.map((child, index) => (
-            <StyledFragment key={utils.genId(child)} width={width || DEFAULT_WIDTH}>
-              {children[index]}
+          {children.map((child) => (
+            <StyledFragment key={child.props.id} width={width || DEFAULT_WIDTH}>
+              {child}
             </StyledFragment>
           ))}
         </StyledCarousel>
         <StyledSelectorsWrapper>
           {children.map((child, index) => (
-            <StyledSelecor key={utils.genId(child)} index={index} selected={fragment} onClick={() => this.handleItemSelect(index)} />
+            <StyledSelecor key={child.props.id} index={index} selected={fragment} onClick={() => this.handleItemSelect(index)} />
           ))}
         </StyledSelectorsWrapper>
       </StyledCarouselWrapper>
