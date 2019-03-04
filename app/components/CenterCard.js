@@ -161,8 +161,8 @@ class CenterCard extends Component<Props, State> {
   props: Props;
 
   state = {
-    password: undefined,
-    verifyPassword: undefined
+    password: null,
+    verifyPassword: null
   };
 
   handlePasswordTyping = (e: any) => {
@@ -192,109 +192,123 @@ class CenterCard extends Component<Props, State> {
     );
   }
 
-  renderCardBody = (page: number) => {
+  renderPage1 = () => {
+    const { onPress } = this.props;
+    return (
+      <StyledBody>
+        <StyledCBodyContent>
+          <SmCarousel>
+            <StyledCarouselItem>
+              <StyledBodyLogoWrapper>
+                <StyledBodyLogo src={smcCoin} />
+              </StyledBodyLogoWrapper>
+              <StyledBodyTextWrapper>
+                <StyledBodyText>Setup a full node on your computer and stard earning spacemesh coins</StyledBodyText>
+              </StyledBodyTextWrapper>
+            </StyledCarouselItem>
+            <StyledCarouselItem>
+              <StyledBodyLogoWrapper>
+                <StyledBodyLogo src={steam} />
+              </StyledBodyLogoWrapper>
+              <StyledBodyTextWrapper>
+                <StyledBodyText>Spacemesh Coins can be used to purchase Steam games and Steam game items</StyledBodyText>
+              </StyledBodyTextWrapper>
+            </StyledCarouselItem>
+            <StyledCarouselItem>
+              <StyledBodyLogoWrapper>
+                <StyledBodyLogo src={smcCoin} />
+              </StyledBodyLogoWrapper>
+              <StyledBodyTextWrapper>
+                <StyledBodyText>Use your wallet to send and receive Spacemesh Coins</StyledBodyText>
+              </StyledBodyTextWrapper>
+            </StyledCarouselItem>
+            <StyledCarouselItem>
+              <StyledBodyLogoWrapper>
+                <StyledBodyLogo src={smcCoin} />
+              </StyledBodyLogoWrapper>
+              <StyledBodyTextWrapper>
+                <StyledBodyText>Your wallet can hold multiple accounts</StyledBodyText>
+              </StyledBodyTextWrapper>
+            </StyledCarouselItem>
+          </SmCarousel>
+        </StyledCBodyContent>
+        <StyledButtonsContainer>
+          <StyledButtonWrapper>
+            <SmButton title="Create Wallet" theme="orange" onPress={() => onPress({ type: 'create' })} />
+          </StyledButtonWrapper>
+          <StyledButtonWrapper>
+            <SmButton title="Restore Wallet" theme="green" onPress={() => onPress({ type: 'restore' })} />
+          </StyledButtonWrapper>
+        </StyledButtonsContainer>
+      </StyledBody>
+    );
+  };
+
+  renderPage2 = () => {
     const { onPress } = this.props;
     const { password, verifyPassword } = this.state;
     const canEncrypt = !!password && password === verifyPassword;
     const hasError = password !== verifyPassword || (!!password && password.length < 8);
 
+    return (
+      <StyledBody>
+        <StyledCBodyContent>
+          <StyledCarouselItem>
+            <StyledEncryptTextWrapper>
+              <StyledSubHeaderText>Encrypt your Wallet</StyledSubHeaderText>
+            </StyledEncryptTextWrapper>
+            <StyledEncryptTextWrapper>
+              <StyledBodyTextEncrypt>Must be at least 8 characters</StyledBodyTextEncrypt>
+            </StyledEncryptTextWrapper>
+            <SmInput type="password" placeholder="Type password" hasError={hasError} onChange={this.handlePasswordTyping} />
+            <SmInput type="password" placeholder="Verify password" hasError={hasError} onChange={this.handlePasswordVerifyTyping} />
+            <StyledEncryptTextWrapper>
+              <StyledBodyTextEncrypt>
+                Your Wallet file is encrypted and saved on your computer. <StyledLink>Show me the file</StyledLink>
+              </StyledBodyTextEncrypt>
+            </StyledEncryptTextWrapper>
+          </StyledCarouselItem>
+        </StyledCBodyContent>
+        <StyledButtonsContainer>
+          <StyledButtonWrapper>
+            <SmButton title="Next" disabled={!canEncrypt} theme="orange" onPress={() => onPress({ type: 'next', payload: password })} />
+          </StyledButtonWrapper>
+        </StyledButtonsContainer>
+      </StyledBody>
+    );
+  };
+
+  renderPage3 = () => {
+    const { onPress } = this.props;
+    return (
+      <StyledBody>
+        <StyledCBodyContent>
+          <StyledCarouselItem>
+            <StyledBodyTextWrapper>
+              <StyledSubHeaderText>Test</StyledSubHeaderText>
+            </StyledBodyTextWrapper>
+          </StyledCarouselItem>
+        </StyledCBodyContent>
+        <StyledButtonsContainer>
+          <StyledButtonWrapper>
+            <SmButton title="Yes, Setup Full Node" theme="orange" onPress={() => onPress({ type: 'setup full node' })} />
+          </StyledButtonWrapper>
+          <StyledButtonWrapper>
+            <SmButton title="Maybe Later" theme="green" onPress={() => onPress({ type: 'later' })} />
+          </StyledButtonWrapper>
+        </StyledButtonsContainer>
+      </StyledBody>
+    );
+  };
+
+  renderCardBody = (page: number) => {
     switch (page) {
       case 1:
-        return (
-          <StyledBody>
-            <StyledCBodyContent>
-              <SmCarousel>
-                <StyledCarouselItem>
-                  <StyledBodyLogoWrapper>
-                    <StyledBodyLogo src={smcCoin} />
-                  </StyledBodyLogoWrapper>
-                  <StyledBodyTextWrapper>
-                    <StyledBodyText>Setup a full node on your computer and stard earning spacemesh coins</StyledBodyText>
-                  </StyledBodyTextWrapper>
-                </StyledCarouselItem>
-                <StyledCarouselItem>
-                  <StyledBodyLogoWrapper>
-                    <StyledBodyLogo src={steam} />
-                  </StyledBodyLogoWrapper>
-                  <StyledBodyTextWrapper>
-                    <StyledBodyText>Spacemesh Coins can be used to purchase Steam games and Steam game items</StyledBodyText>
-                  </StyledBodyTextWrapper>
-                </StyledCarouselItem>
-                <StyledCarouselItem>
-                  <StyledBodyLogoWrapper>
-                    <StyledBodyLogo src={smcCoin} />
-                  </StyledBodyLogoWrapper>
-                  <StyledBodyTextWrapper>
-                    <StyledBodyText>Use your wallet to send and receive Spacemesh Coins</StyledBodyText>
-                  </StyledBodyTextWrapper>
-                </StyledCarouselItem>
-                <StyledCarouselItem>
-                  <StyledBodyLogoWrapper>
-                    <StyledBodyLogo src={smcCoin} />
-                  </StyledBodyLogoWrapper>
-                  <StyledBodyTextWrapper>
-                    <StyledBodyText>Your wallet can hold multiple accounts</StyledBodyText>
-                  </StyledBodyTextWrapper>
-                </StyledCarouselItem>
-              </SmCarousel>
-            </StyledCBodyContent>
-            <StyledButtonsContainer>
-              <StyledButtonWrapper>
-                <SmButton title="Create Wallet" theme="orange" onPress={() => onPress({ type: 'create' })} />
-              </StyledButtonWrapper>
-              <StyledButtonWrapper>
-                <SmButton title="Restore Wallet" theme="green" onPress={() => onPress({ type: 'restore' })} />
-              </StyledButtonWrapper>
-            </StyledButtonsContainer>
-          </StyledBody>
-        );
+        return this.renderPage1();
       case 2:
-        return (
-          <StyledBody>
-            <StyledCBodyContent>
-              <StyledCarouselItem>
-                <StyledEncryptTextWrapper>
-                  <StyledSubHeaderText>Encrypt your Wallet</StyledSubHeaderText>
-                </StyledEncryptTextWrapper>
-                <StyledEncryptTextWrapper>
-                  <StyledBodyTextEncrypt>Must be at least 8 characters</StyledBodyTextEncrypt>
-                </StyledEncryptTextWrapper>
-                <SmInput type="password" placeholder="Type password" hasError={hasError} onChange={this.handlePasswordTyping} />
-                <SmInput type="password" placeholder="Verify password" hasError={hasError} onChange={this.handlePasswordVerifyTyping} />
-                <StyledEncryptTextWrapper>
-                  <StyledBodyTextEncrypt>
-                    Your Wallet file is encrypted and saved on your computer. <StyledLink>Show me the file</StyledLink>
-                  </StyledBodyTextEncrypt>
-                </StyledEncryptTextWrapper>
-              </StyledCarouselItem>
-            </StyledCBodyContent>
-            <StyledButtonsContainer>
-              <StyledButtonWrapper>
-                <SmButton title="Next" disabled={!canEncrypt} theme="orange" onPress={() => onPress({ type: 'next', payload: password })} />
-              </StyledButtonWrapper>
-            </StyledButtonsContainer>
-          </StyledBody>
-        );
+        return this.renderPage2();
       case 3:
-        return (
-          <StyledBody>
-            <StyledCBodyContent>
-              <StyledCarouselItem>
-                <StyledBodyTextWrapper>
-                  <StyledSubHeaderText>Test</StyledSubHeaderText>
-                </StyledBodyTextWrapper>
-              </StyledCarouselItem>
-            </StyledCBodyContent>
-            <StyledButtonsContainer>
-              <StyledButtonWrapper>
-                <SmButton title="Yes, Setup Full Node" theme="orange" onPress={() => onPress({ type: 'setup full node' })} />
-              </StyledButtonWrapper>
-              <StyledButtonWrapper>
-                <SmButton title="Maybe Later" theme="green" onPress={() => onPress({ type: 'later' })} />
-              </StyledButtonWrapper>
-            </StyledButtonsContainer>
-          </StyledBody>
-        );
+        return this.renderPage3();
       default:
         return null;
     }

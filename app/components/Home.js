@@ -77,21 +77,6 @@ class Home extends Component<HomeProps, HomeState> {
     return <div>{renderHomeComponent()}</div>;
   }
 
-  handleCardAction = (action: WelcomeActions) => {
-    switch (action.type) {
-      case 'create':
-        this.setState({ page: 2 });
-        break;
-      case 'restore':
-        break;
-      case 'next':
-        this.setState({ page: 3 });
-        break;
-      default:
-        break;
-    }
-  };
-
   getBackgroundImage = () => {
     const { page } = this.state;
     let backgroundImage;
@@ -109,6 +94,21 @@ class Home extends Component<HomeProps, HomeState> {
         return null;
     }
     return backgroundImage;
+  };
+
+  handleCardAction = (action: WelcomeActions) => {
+    switch (action.type) {
+      case 'create':
+        this.setState({ page: 2 });
+        break;
+      case 'restore':
+        break;
+      case 'next':
+        this.setState({ page: 3 });
+        break;
+      default:
+        break;
+    }
   };
 }
 
