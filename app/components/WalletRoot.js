@@ -88,7 +88,8 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
 
   handleSideMenuPress = (selection: SideMenuEntry) => {
     const { history } = this.props;
-    if (selection.path) {
+    const isSameLocation = selection.path && location.hash.endsWith(selection.path);
+    if (!isSameLocation && selection.path) {
       history.push(selection.path);
     }
   };
