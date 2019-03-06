@@ -11,7 +11,7 @@ type WalletRootProps = {
   wallet: { wallet: any, setupFullNode: boolean }
 };
 type WalletRootState = {
-  fullNodeLoading: boolean
+  isFullNodeLoading: boolean
 };
 
 const styles = {
@@ -47,12 +47,12 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
   timer: any;
 
   state: WalletRootState = {
-    fullNodeLoading: false
+    isFullNodeLoading: false
   };
 
   render() {
-    const { fullNodeLoading } = this.state;
-    const loadingEntry: LoadingEntry = { id: 1, isLoading: fullNodeLoading };
+    const { isFullNodeLoading } = this.state;
+    const loadingEntry: LoadingEntry = { id: 1, isLoading: isFullNodeLoading };
 
     return (
       <div style={styles.container}>
@@ -72,10 +72,10 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
   componentDidMount() {
     const { wallet } = this.props;
     if (wallet.setupFullNode) {
-      this.setState({ fullNodeLoading: true }, () => {
+      this.setState({ isFullNodeLoading: true }, () => {
         this.timer = setTimeout(() => {
           this.setState({
-            fullNodeLoading: false
+            isFullNodeLoading: false
           });
         }, 8000);
       });
@@ -88,7 +88,7 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
 
   handleSideMenuPress = (selection: SideMenuEntry) => {
     const { history } = this.props;
-    const isSameLocation = selection.path && location.hash.endsWith(selection.path);
+    const isSameLocation = selection.path && window.location.hash.endsWith(selection.path);
     if (!isSameLocation && selection.path) {
       history.push(selection.path);
     }

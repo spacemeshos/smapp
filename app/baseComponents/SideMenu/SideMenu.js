@@ -24,8 +24,8 @@ export type SideMenuEntry = {
 };
 
 type SideMenuProps = {
-  openOnInit?: boolean,
-  onInitSelectedId?: number,
+  isOpenOnInit?: boolean,
+  initialSelectedId?: number,
   loadingEntry?: LoadingEntry,
   onPress: (entry: SideMenuEntry) => void
 };
@@ -42,8 +42,7 @@ const menuEntries: { top: SideMenuEntry[], bottom: SideMenuEntry[] } = {
       id: 1,
       label: 'Full Node',
       path: null,
-      iconSrc: menu1,
-      disabled: true
+      iconSrc: menu1
     },
     {
       id: 2,
@@ -188,18 +187,10 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
   constructor(props: SideMenuProps) {
     super(props);
     this.state = {
-      isOpen: !!props.openOnInit,
+      isOpen: !!props.isOpenOnInit,
       selectedId: -1,
-      width: props.openOnInit ? ENTRY_WIDTH : ENTRY_WIDTH_CLOSED
+      width: props.isOpenOnInit ? ENTRY_WIDTH : ENTRY_WIDTH_CLOSED
     };
-  }
-
-  componentDidMount() {
-    const { onInitSelectedId } = this.props;
-    if (typeof onInitSelectedId === 'number') {
-      const entry = menuEntries.top.find((menuEntry: SideMenuEntry) => onInitSelectedId === menuEntry.id);
-      entry && this.handleSelectEntry(entry);
-    }
   }
 
   render() {
@@ -229,7 +220,7 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
         </StyledLabelWrapper>
         <StyledLoadingIconWrapper>
           {loadingEntry && loadingEntry.id === entry.id && (
-            <SmallLoader isLoading={loadingEntry.isLoading} loadingLeft={isOpen ? 8 : -96} loadingSize={isOpen ? 18 : 25} loadingTop={isOpen ? 18 : 14} />
+            <SmallLoader isLoading={loadingEntry.isLoading} loadingLeft={isOpen ? 8 : -96} loadingSize={isOpen ? 18 : 25} loadingTop={isOpen ? 16 : 14} />
           )}
         </StyledLoadingIconWrapper>
       </StyledMenuEntry>
@@ -252,6 +243,14 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
       {this.renderTopOrBottomElem('bottom')}
     </StyledMenuWrapper>
   );
+
+  componentDidMount() {
+    const { initialSelectedId } = this.props;
+    if (typeof initialSelectedId === 'number') {
+      const entry = menuEntries.top.find((menuEntry: SideMenuEntry) => initialSelectedId === menuEntry.id);
+      entry && this.handleSelectEntry(entry);
+    }
+  }
 
   handleSelectEntry = (entry: SideMenuEntry) => {
     const { onPress } = this.props;

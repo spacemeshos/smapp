@@ -1,13 +1,12 @@
 // @flow
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CenterCard from './CenterCard';
 import type { WelcomeActions } from './CenterCard';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
 import type { Wallet } from '/vars/globalTypes';
-import localStorageService from '/infra/localStorageService/localStorageService';
+import walletStorageService from '/infra/localStorageService/walletStorageService';
 
 type AuthProps = {
   history: any,
@@ -38,29 +37,6 @@ const StyledImageFilter = styled.div`
   width: inherit;
 `;
 
-/** TEST ONLY */
-const TestRoutingComponentToBeRemoved = () => (
-  <div
-    style={{
-      position: 'absolute',
-      width: 200,
-      height: 100,
-      backgroundColor: 'lightBlue',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-around',
-      textAlign: 'center'
-    }}
-  >
-    <div>
-      <h3>TEST</h3>
-    </div>
-    <div>
-      <Link to="/root">to ROOT</Link>
-    </div>
-  </div>
-);
-
 class Auth extends Component<AuthProps, AuthState> {
   state = {
     page: 1
@@ -70,7 +46,6 @@ class Auth extends Component<AuthProps, AuthState> {
     const { page } = this.state;
     return (
       <StyledAuth showImage backgroundImage={this.getBackgroundImage()}>
-        <TestRoutingComponentToBeRemoved />
         <StyledImageFilter>
           <CenterCard page={page} onPress={this.handleCardAction} />
         </StyledImageFilter>
@@ -79,7 +54,7 @@ class Auth extends Component<AuthProps, AuthState> {
   }
 
   componentDidMount() {
-    const wallet = localStorageService.getFromLocalStorage('wallet');
+    const wallet = walletStorageService.getWallet();
     if (wallet) {
       this.setState({ page: 4 });
     }
@@ -141,13 +116,13 @@ class Auth extends Component<AuthProps, AuthState> {
         this.setState({ page: 3 });
         break;
       case 'setup full node':
-        localStorageService.saveToLocalStorage('wallet', wallet);
+        walletStorageService.saveWallet(wallet);
         setAuthenticated({ wallet, setupFullNode: true });
         history.push('/root');
         break;
       case 'login':
       case 'later':
-        localStorageService.saveToLocalStorage('wallet', wallet);
+        walletStorageService.saveWallet(wallet);
         setAuthenticated({ wallet, setupFullNode: false });
         history.push('/root');
         break;
