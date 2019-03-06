@@ -4,10 +4,14 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import SideMenu from '../baseComponents/SideMenu/SideMenu';
 import type { SideMenuEntry, LoadingEntry } from '../baseComponents/SideMenu/SideMenu';
 import StoryBook from './StoryBook';
+import Wallet from './Wallet/Wallet';
 
-type WalletRootProps = {};
+type WalletRootProps = {
+  history: any,
+  wallet: { wallet: any, setupFullNode: boolean }
+};
 type WalletRootState = {
-  fullNodeLoading: boolean
+  isFullNodeLoading: boolean
 };
 
 const styles = {
@@ -30,6 +34,10 @@ const routes = {
   STORYBOOK: {
     path: '/root/story-book',
     component: StoryBook
+  },
+  WALLET: {
+    path: '/root/wallet',
+    component: Wallet
   }
 };
 
@@ -39,23 +47,22 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
   timer: any;
 
   state: WalletRootState = {
-    fullNodeLoading: true
+    isFullNodeLoading: false
   };
 
   render() {
-    const { fullNodeLoading } = this.state;
-
-    const loadingEntry: LoadingEntry = { id: 1, isLoading: fullNodeLoading };
+    const { isFullNodeLoading } = this.state;
+    const loadingEntry: LoadingEntry = { id: 1, isLoading: isFullNodeLoading };
 
     return (
       <div style={styles.container}>
-        <SideMenu onPress={this.handleSideMenuPress} loadingEntry={loadingEntry} />
+        <SideMenu onInitSelectedId={2} onPress={this.handleSideMenuPress} loadingEntry={loadingEntry} />
         <div style={styles.mainContent}>
           <Switch>
             {Object.keys(routes).map((routeKey) => (
               <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
             ))}
-            <Redirect to="/root/story-book" />
+            <Redirect to="/root/wallet" />
           </Switch>
         </div>
       </div>
@@ -63,19 +70,27 @@ export default class WalletRoot extends Component<WalletRootProps, WalletRootSta
   }
 
   componentDidMount() {
-    this.timer = setTimeout(() => {
-      this.setState({
-        fullNodeLoading: false
+    const { wallet } = this.props;
+    if (wallet.setupFullNode) {
+      this.setState({ isFullNodeLoading: true }, () => {
+        this.timer = setTimeout(() => {
+          this.setState({
+            isFullNodeLoading: false
+          });
+        }, 8000);
       });
-    }, 8000);
+    }
   }
 
   componentWillUnmount() {
-    clearTimeout(this.timer);
+    !!this.timer && clearTimeout(this.timer);
   }
 
   handleSideMenuPress = (selection: SideMenuEntry) => {
-    /* eslint-disable no-console */
-    console.warn(`${selection.id}: ${selection.label}`); // TODO: TEST - remove this
+    const { history } = this.props;
+    const isSameLocation = selection.path && window.location.hash.endsWith(selection.path);
+    if (!isSameLocation && selection.path) {
+      history.push(selection.path);
+    }
   };
 }

@@ -10,7 +10,7 @@ class App extends React.Component {
           {Object.keys(routes).map((routeKey) => (
             <Route key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
           ))}
-          <Redirect to="/home" />
+          <Redirect to="/auth" />
         </Switch>
       </Router>
     );

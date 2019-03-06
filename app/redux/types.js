@@ -1,7 +1,7 @@
 import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
 
-export type counterStateType = {
-  +counter: number
+export type storeStateType = {
+  +wallet: any
 };
 
 export type Action = {
@@ -9,7 +9,7 @@ export type Action = {
   payload?: any
 };
 
-export type GetState = () => counterStateType;
+export type GetState = () => storeStateType;
 
 export type Dispatch = ReduxDispatch<Action>;
 

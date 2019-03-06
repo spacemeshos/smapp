@@ -19,11 +19,13 @@ export type SideMenuEntry = {
   label: string,
   /* eslint-disable-next-line flowtype/no-weak-types */
   iconSrc: any,
+  path: ?string,
   disabled?: boolean
 };
 
 type SideMenuProps = {
-  openOnInit?: boolean,
+  isOpenOnInit?: boolean,
+  initialSelectedId?: number,
   loadingEntry?: LoadingEntry,
   onPress: (entry: SideMenuEntry) => void
 };
@@ -39,22 +41,25 @@ const menuEntries: { top: SideMenuEntry[], bottom: SideMenuEntry[] } = {
     {
       id: 1,
       label: 'Full Node',
-      iconSrc: menu1,
-      disabled: true
+      path: null,
+      iconSrc: menu1
     },
     {
       id: 2,
       label: 'Wallet',
+      path: '/root/wallet',
       iconSrc: menu2
     },
     {
       id: 3,
       label: 'Transaction',
+      path: null,
       iconSrc: menu3
     },
     {
       id: 4,
       label: 'Contacts',
+      path: null,
       iconSrc: menu4
     }
   ],
@@ -62,11 +67,13 @@ const menuEntries: { top: SideMenuEntry[], bottom: SideMenuEntry[] } = {
     {
       id: 5,
       label: 'Settings',
+      path: null,
       iconSrc: menu5
     },
     {
       id: 6,
       label: 'Network',
+      path: '/root/story-book',
       iconSrc: menu6
     }
   ]
@@ -142,6 +149,7 @@ const StyledMenuEntry = styled.div`
   div :first-child {
     width: 12px;
     background-color: ${({ isSelected }) => (isSelected ? smColors.green : smColors.white)};
+    transition: all 0.2s linear;
   }
 `;
 
@@ -179,9 +187,9 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
   constructor(props: SideMenuProps) {
     super(props);
     this.state = {
-      isOpen: !!props.openOnInit,
+      isOpen: !!props.isOpenOnInit,
       selectedId: -1,
-      width: props.openOnInit ? ENTRY_WIDTH : ENTRY_WIDTH_CLOSED
+      width: props.isOpenOnInit ? ENTRY_WIDTH : ENTRY_WIDTH_CLOSED
     };
   }
 
@@ -212,7 +220,7 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
         </StyledLabelWrapper>
         <StyledLoadingIconWrapper>
           {loadingEntry && loadingEntry.id === entry.id && (
-            <SmallLoader isLoading={loadingEntry.isLoading} loadingLeft={isOpen ? 8 : -96} loadingSize={isOpen ? 18 : 25} loadingTop={isOpen ? 18 : 14} />
+            <SmallLoader isLoading={loadingEntry.isLoading} loadingLeft={isOpen ? 8 : -96} loadingSize={isOpen ? 18 : 25} loadingTop={isOpen ? 16 : 14} />
           )}
         </StyledLoadingIconWrapper>
       </StyledMenuEntry>
@@ -235,6 +243,14 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
       {this.renderTopOrBottomElem('bottom')}
     </StyledMenuWrapper>
   );
+
+  componentDidMount() {
+    const { initialSelectedId } = this.props;
+    if (typeof initialSelectedId === 'number') {
+      const entry = menuEntries.top.find((menuEntry: SideMenuEntry) => initialSelectedId === menuEntry.id);
+      entry && this.handleSelectEntry(entry);
+    }
+  }
 
   handleSelectEntry = (entry: SideMenuEntry) => {
     const { onPress } = this.props;

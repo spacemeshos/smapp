@@ -58,7 +58,7 @@ const StyledRadioWrapper = styled(StyledAction)`
     border: 1px solid ${smColors.green};
     background-color: rgba(${smColors.greenRgb}, 0.1);
   `};
-  transition: all 0.1s linear;
+  transition: all 0.12s linear;
 `;
 
 // $FlowStyledIssue
