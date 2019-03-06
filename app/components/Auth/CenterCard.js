@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import { smColors, smFonts } from '/vars';
-import SmButton from '../baseComponents/SmButton/Smbutton';
-import SmCarousel from '../baseComponents/SmCarousel/SmCarousel';
-import SmInput from '../baseComponents/SmInput/SmInput';
+import SmButton from '/baseComponents/SmButton/Smbutton';
+import SmCarousel from '/baseComponents/SmCarousel/SmCarousel';
+import SmInput from '/baseComponents/SmInput/SmInput';
 import { steam, smcCoin, onboardingLogo, miner, welcomeBack } from '/assets/images';
 
 export type WelcomeActions = {
@@ -262,7 +262,7 @@ class CenterCard extends Component<Props, State> {
         <StyledCBodyContent>
           <SmCarousel>
             {carouselItems.map((item) => (
-              <CarouselItem {...item} />
+              <CarouselItem key={item.id} {...item} />
             ))}
           </SmCarousel>
         </StyledCBodyContent>

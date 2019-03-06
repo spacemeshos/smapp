@@ -1,8 +1,8 @@
 // @flow
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import WalletRoot from '../components/WalletRoot';
-import * as WalletActions from '../redux/wallet/actions';
+import Auth from '/components/Auth/Auth';
+import * as AuthActions from '../redux/auth/actions';
 
 const mapStateToProps = (state) => {
   return {
@@ -11,10 +11,10 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators(WalletActions, dispatch);
+  return bindActionCreators(AuthActions, dispatch);
 };
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(WalletRoot);
+)(Auth);

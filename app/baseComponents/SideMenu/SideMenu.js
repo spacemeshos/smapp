@@ -19,11 +19,13 @@ export type SideMenuEntry = {
   label: string,
   /* eslint-disable-next-line flowtype/no-weak-types */
   iconSrc: any,
+  path: ?string,
   disabled?: boolean
 };
 
 type SideMenuProps = {
   openOnInit?: boolean,
+  onInitSelectedId?: number,
   loadingEntry?: LoadingEntry,
   onPress: (entry: SideMenuEntry) => void
 };
@@ -39,22 +41,26 @@ const menuEntries: { top: SideMenuEntry[], bottom: SideMenuEntry[] } = {
     {
       id: 1,
       label: 'Full Node',
+      path: null,
       iconSrc: menu1,
       disabled: true
     },
     {
       id: 2,
       label: 'Wallet',
+      path: '/root/wallet',
       iconSrc: menu2
     },
     {
       id: 3,
       label: 'Transaction',
+      path: null,
       iconSrc: menu3
     },
     {
       id: 4,
       label: 'Contacts',
+      path: null,
       iconSrc: menu4
     }
   ],
@@ -62,11 +68,13 @@ const menuEntries: { top: SideMenuEntry[], bottom: SideMenuEntry[] } = {
     {
       id: 5,
       label: 'Settings',
+      path: null,
       iconSrc: menu5
     },
     {
       id: 6,
       label: 'Network',
+      path: '/root/story-book',
       iconSrc: menu6
     }
   ]
@@ -142,6 +150,7 @@ const StyledMenuEntry = styled.div`
   div :first-child {
     width: 12px;
     background-color: ${({ isSelected }) => (isSelected ? smColors.green : smColors.white)};
+    transition: all 0.2s linear;
   }
 `;
 
@@ -183,6 +192,14 @@ export default class SideMenu extends React.Component<SideMenuProps, SideMenuSta
       selectedId: -1,
       width: props.openOnInit ? ENTRY_WIDTH : ENTRY_WIDTH_CLOSED
     };
+  }
+
+  componentDidMount() {
+    const { onInitSelectedId } = this.props;
+    if (typeof onInitSelectedId === 'number') {
+      const entry = menuEntries.top.find((menuEntry: SideMenuEntry) => onInitSelectedId === menuEntry.id);
+      entry && this.handleSelectEntry(entry);
+    }
   }
 
   render() {

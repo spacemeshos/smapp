@@ -7,16 +7,17 @@ import type { WelcomeActions } from './CenterCard';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
 
-type HomeProps = {
-  history: any
+type AuthProps = {
+  history: any,
+  setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
 };
 
-type HomeState = {
+type AuthState = {
   page: 1 | 2 | 3 | 4
 };
 
 // $FlowStyledIssue
-const StyledHome = styled.div`
+const StyledAuth = styled.div`
   ${({ showImage, backgroundImage }) =>
     showImage &&
     `
@@ -53,31 +54,26 @@ const TestRoutingComponentToBeRemoved = () => (
       <h3>TEST</h3>
     </div>
     <div>
-      <Link to="/counter">to Counter</Link>
-    </div>
-    <div>
       <Link to="/root">to ROOT</Link>
     </div>
   </div>
 );
 
-class Home extends Component<HomeProps, HomeState> {
+class Auth extends Component<AuthProps, AuthState> {
   state = {
     page: 1
   };
 
   render() {
     const { page } = this.state;
-    const renderHomeComponent = () => (
-      <StyledHome showImage backgroundImage={this.getBackgroundImage()}>
+    return (
+      <StyledAuth showImage backgroundImage={this.getBackgroundImage()}>
         <TestRoutingComponentToBeRemoved />
         <StyledImageFilter>
           <CenterCard page={page} onPress={this.handleCardAction} />
         </StyledImageFilter>
-      </StyledHome>
+      </StyledAuth>
     );
-
-    return <div>{renderHomeComponent()}</div>;
   }
 
   getBackgroundImage = () => {
@@ -101,7 +97,7 @@ class Home extends Component<HomeProps, HomeState> {
   };
 
   handleCardAction = (action: WelcomeActions) => {
-    const { history } = this.props;
+    const { history, setAuthenticated } = this.props;
     switch (action.type) {
       case 'create':
         this.setState({ page: 2 });
@@ -113,9 +109,12 @@ class Home extends Component<HomeProps, HomeState> {
         this.setState({ page: 3 });
         break;
       case 'setup full node':
+        setAuthenticated({ wallet: { walletField1: true, walletField2: 2 }, setupFullNode: true });
         history.push('/root');
         break;
+      case 'login':
       case 'later':
+        setAuthenticated({ wallet: { walletField1: true, walletField2: 2 }, setupFullNode: false });
         history.push('/root');
         break;
       default:
@@ -124,4 +123,4 @@ class Home extends Component<HomeProps, HomeState> {
   };
 }
 
-export default Home;
+export default Auth;
