@@ -118,7 +118,14 @@ export default merge.smart(baseConfig, {
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
         use: 'url-loader'
+      },
+      {
+        test: /[\\\/]tweetnacl[\\\/]/,
+        loader: 'exports-loader?window.nacl!imports-loader?this=>window,module=>{},require=>false'
       }
+    ],
+    noParse: [
+      /[\\\/]tweetnacl[\\\/]/
     ]
   },
 
