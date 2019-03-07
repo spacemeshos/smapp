@@ -7,21 +7,6 @@ import { steam, smcCoin, onboardingLogo, miner, welcomeBack } from '/assets/imag
 import Slide from './Slide';
 import type { SlideProps } from './Slide';
 
-export type WelcomeActions = {
-  type: 'create' | 'login' | 'to login page' | 'next' | 'setup full node' | 'later' | 'restore',
-  payload?: ?string
-};
-
-type Props = {
-  page: 1 | 2 | 3 | 4,
-  onPress: (action: WelcomeActions) => void
-};
-
-type State = {
-  password: ?string,
-  verifiedPassword: ?string
-};
-
 const carouselItems: SlideProps[] = [
   {
     id: 1,
@@ -160,29 +145,41 @@ const LinksWrapper = styled.div`
   margin-top: 20px;
 `;
 
-class CenterCard extends Component<Props, State> {
-  props: Props;
+type Props = {
+  card: number,
+  setCreationMode: Function,
+  setLoginMode: Function,
+  handleWalletCreation: Function,
+  navigateToFullNodeSetup: Function,
+  navigateToWallet: Function
+};
 
+type State = {
+  password: ?string,
+  verifiedPassword: ?string
+};
+
+class CenterCard extends Component<Props, State> {
   state = {
     password: null,
     verifiedPassword: null
   };
 
   render() {
-    const { page } = this.props;
+    const { card } = this.props;
     return (
       <Wrapper>
         <Header>
           <Logo src={onboardingLogo} />
-          <HeaderText>{`${page === 4 ? 'Welcome Back' : 'Welcome to Spacemesh'}`}</HeaderText>
+          <HeaderText>{`${card === 4 ? 'Welcome Back' : 'Welcome to Spacemesh'}`}</HeaderText>
         </Header>
-        {this.renderCardBody(page)}
+        {this.renderCardBody(card)}
       </Wrapper>
     );
   }
 
-  renderCardBody = (page: number) => {
-    switch (page) {
+  renderCardBody = (card: number) => {
+    switch (card) {
       case 1:
         return this.renderCard1();
       case 2:
@@ -197,7 +194,7 @@ class CenterCard extends Component<Props, State> {
   };
 
   renderCard1 = () => {
-    const { onPress } = this.props;
+    const { setCreationMode, setLoginMode } = this.props;
     return (
       <InnerWrapper>
         <SmCarousel disableAutoPlay>
@@ -206,15 +203,15 @@ class CenterCard extends Component<Props, State> {
           ))}
         </SmCarousel>
         <BottomPart>
-          <SmButton title="Create Wallet" theme="orange" center onPress={() => onPress({ type: 'create' })} style={{ marginTop: 20 }} />
-          <SmButton title="Login to Wallet" theme="green" center onPress={() => onPress({ type: 'to login page' })} style={{ marginTop: 20 }} />
+          <SmButton title="Create Wallet" theme="orange" center onPress={setCreationMode} style={{ marginTop: 20 }} />
+          <SmButton title="Login to Wallet" theme="green" center onPress={setLoginMode} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>
     );
   };
 
   renderCard2 = () => {
-    const { onPress } = this.props;
+    const { handleWalletCreation } = this.props;
     const { password, verifiedPassword } = this.state;
     const hasPasswordError = (!password && password !== null) || (!!password && password.length < 8);
     const hasVerifyPasswordError = !verifiedPassword && verifiedPassword !== null && password !== verifiedPassword;
@@ -232,14 +229,14 @@ class CenterCard extends Component<Props, State> {
           </GrayText>
         </UpperPart>
         <BottomPart>
-          <SmButton title="Next" disabled={!canProceed} theme="orange" onPress={() => onPress({ type: 'next', payload: password })} style={{ marginTop: 20 }} />
+          <SmButton title="Next" disabled={!canProceed} theme="orange" onPress={() => handleWalletCreation({ password })} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>
     );
   };
 
   renderCard3 = () => {
-    const { onPress } = this.props;
+    const { navigateToFullNodeSetup, navigateToWallet } = this.props;
     return (
       <InnerWrapper>
         <UpperPart>
@@ -250,15 +247,15 @@ class CenterCard extends Component<Props, State> {
           <Link>Learn more about Spacemesh full nodes.</Link>
         </UpperPart>
         <BottomPart>
-          <SmButton title="Yes, Setup Full Node" theme="orange" onPress={() => onPress({ type: 'setup full node' })} style={{ marginTop: 20 }} />
-          <SmButton title="Maybe Later" theme="green" onPress={() => onPress({ type: 'later' })} style={{ marginTop: 20 }} />
+          <SmButton title="Yes, Setup Full Node" theme="orange" onPress={navigateToFullNodeSetup} style={{ marginTop: 20 }} />
+          <SmButton title="Maybe Later" theme="green" onPress={navigateToWallet} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>
     );
   };
 
   renderCard4 = () => {
-    const { onPress } = this.props;
+    const { setCreationMode, navigateToWallet } = this.props;
     const { password } = this.state;
     const hasError = !!password && password.length < 8;
     return (
@@ -271,10 +268,10 @@ class CenterCard extends Component<Props, State> {
           <SmInput type="password" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
-          <SmButton title="Login" disabled={!password || hasError} theme="orange" onPress={() => onPress({ type: 'login', payload: password })} style={{ marginTop: 20 }} />
+          <SmButton title="Login" disabled={!password || hasError} theme="orange" onPress={() => navigateToWallet({ password })} style={{ marginTop: 20 }} />
           <LinksWrapper>
-            <SmallLink onClick={() => onPress({ type: 'create' })}>Create a new wallet</SmallLink>
-            <SmallLink onClick={() => onPress({ type: 'restore' })}>Restore wallet</SmallLink>
+            <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
+            <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
           </LinksWrapper>
         </BottomPart>
       </InnerWrapper>

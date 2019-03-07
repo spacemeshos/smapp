@@ -9,7 +9,7 @@ const DEFAULT_DEBOUNCE_TIME = 500;
 // $FlowStyledIssue
 const Input = styled.input`
   height: 44px;
-  padding-left: 8px;
+  padding: 0 10px;
   border-radius: 2px;
   color: ${({ disabled }) => (disabled ? smColors.textGray : smColors.black)};
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
@@ -37,7 +37,7 @@ type Props = {
   hasError?: boolean,
   hasDebounce?: boolean,
   debounceTime?: number
-}
+};
 
 class SmInput extends PureComponent<Props> {
   debounce: any;
@@ -48,7 +48,8 @@ class SmInput extends PureComponent<Props> {
   }
 
   componentWillUnmount(): void {
-    this.props.hasDebounce && clearTimeout(this.debounce);
+    const { hasDebounce } = this.props;
+    hasDebounce && clearTimeout(this.debounce);
   }
 
   onChange = ({ target }: { target: Object }) => {
@@ -57,7 +58,7 @@ class SmInput extends PureComponent<Props> {
       clearTimeout(this.debounce);
       this.debounce = setTimeout(() => onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
     } else {
-      onChange({ value: target.value })
+      onChange({ value: target.value });
     }
   };
 }

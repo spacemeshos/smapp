@@ -10,6 +10,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  padding: 0 20px;
   cursor: pointer;
   background-color: ${({ theme }) => (theme === 'green' ? smColors.white : smColors.orange)};
   border: 1px solid ${({ theme }) => (theme === 'green' ? smColors.borderGray : smColors.orange)};
