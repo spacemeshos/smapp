@@ -1,14 +1,10 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { smFonts } from '../vars';
-import SmButton from '../baseComponents/SmButton/SmButton';
-import SendReceiveButton from '../baseComponents/SendReceiveButton/SendReceiveButton';
-import SmInput from '../baseComponents/SmInput/SmInput';
-import SmRadioButtons from '../baseComponents/SmRadioGroup/SmRadioGroup';
-import type { RadioEntry } from '../baseComponents/SmRadioButton/SmRadioButton';
-import SmDropdown from '../baseComponents/SmDropdown/SmDropdown';
-import type { DropdownEntry } from '../baseComponents/SmDropdown/SmDropdown';
+import { smFonts } from '/vars';
+import { SmButton, SendReceiveButton, SmInput, SmRadioGroup, SmDropdown } from '/basicComponents';
+import type { RadioEntry, DropdownEntry } from '/basicComponents';
+import { localStorageService } from '/infra/localStorageService';
 
 type StoryBookProps = {};
 type StoryBookState = {
@@ -125,7 +121,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
         </div>
         <div style={styles.row}>
           <SmInput onChange={this.handleChangeText} disabled={disableButtons} />
-          <SmRadioButtons data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
+          <SmRadioGroup data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
           <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
           <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
         </div>
@@ -134,6 +130,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <SendReceiveButton disabled={disableButtons} title="Receive coins" onPress={() => this.handleSendReceiveButtonPress('receive')} />
         </div>
         <div style={styles.row}>
+          <SmButton title="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
           <SmButton title="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
           <SmButton title="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
           <SmButton title={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
@@ -148,6 +145,9 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
   handleButtonPress = (val: string) => {
     const { disableButtons } = this.state;
     const disable = val === 'disable' && !disableButtons;
+    if (val === 'clearStorage') {
+      localStorageService.clearLocalStorage();
+    }
     this.setState({
       message: `Pressed ${val} button`,
       disableButtons: disable

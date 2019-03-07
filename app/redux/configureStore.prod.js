@@ -2,12 +2,12 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import createRootReducer from './configReducers';
-import type { counterStateType } from './types';
+import type { storeStateType } from './types';
 
 const rootReducer = createRootReducer();
 const enhancer = applyMiddleware(thunk);
 
-function configureStore(initialState?: counterStateType): any {
+function configureStore(initialState?: storeStateType): any {
   return createStore(rootReducer, initialState, enhancer);
 }
 

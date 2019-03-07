@@ -1,20 +1,15 @@
 // @flow
-import HomePage from './screens/HomePage';
-import CounterPage from './screens/CounterPage';
-import RootPage from './screens/RootPage';
+import { Auth } from './screens';
+import Root from './screens/Root';
 
 const routes = {
   HOME: {
-    path: '/home',
-    component: HomePage
-  },
-  COUNTER: {
-    path: '/counter',
-    component: CounterPage
+    path: '/auth',
+    component: Auth
   },
   ROOT: {
     path: '/root',
-    component: RootPage
+    component: Root
   }
 };
 

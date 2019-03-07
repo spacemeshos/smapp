@@ -64,7 +64,7 @@
       }
     ],
     "react/sort-comp": [
-      1,
+      2,
       {
         "order": [
           "type-annotations",
