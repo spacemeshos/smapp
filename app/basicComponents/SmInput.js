@@ -1,12 +1,13 @@
 // @flow
-import React from 'react';
+import React, { PureComponent } from 'react';
 import { smFonts, smColors } from '/vars';
 import styled from 'styled-components';
 
 const INPUT_PLACEHOLDER = 'Type here';
+const DEFAULT_DEBOUNCE_TIME = 500;
 
 // $FlowStyledIssue
-const StyledSmInput = styled.input`
+const Input = styled.input`
   height: 44px;
   padding-left: 8px;
   border-radius: 2px;
@@ -29,9 +30,36 @@ const StyledSmInput = styled.input`
   outline: none;
 `;
 
-const SmInput = (props: any) => {
-  const { disabled, placeholder, hasError } = props;
-  return <StyledSmInput {...props} hasError={hasError} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} />;
-};
+type Props = {
+  onChange: Function,
+  disabled?: boolean,
+  placeholder?: string,
+  hasError?: boolean,
+  hasDebounce?: boolean,
+  debounceTime?: number
+}
+
+class SmInput extends PureComponent<Props> {
+  debounce: any;
+
+  render() {
+    const { disabled, placeholder, hasError } = this.props;
+    return <Input hasError={hasError} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} />;
+  }
+
+  componentWillUnmount(): void {
+    this.props.hasDebounce && clearTimeout(this.debounce);
+  }
+
+  onChange = ({ target }: { target: Object }) => {
+    const { hasDebounce, debounceTime, onChange } = this.props;
+    if (hasDebounce) {
+      clearTimeout(this.debounce);
+      this.debounce = setTimeout(() => onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
+    } else {
+      onChange({ value: target.value })
+    }
+  };
+}
 
 export default SmInput;

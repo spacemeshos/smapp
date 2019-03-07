@@ -19,7 +19,7 @@ type Props = {
 
 type State = {
   password: ?string,
-  verifyPassword: ?string
+  verifiedPassword: ?string
 };
 
 const carouselItems: SlideProps[] = [
@@ -165,7 +165,7 @@ class CenterCard extends Component<Props, State> {
 
   state = {
     password: null,
-    verifyPassword: null
+    verifiedPassword: null
   };
 
   render() {
@@ -215,23 +215,24 @@ class CenterCard extends Component<Props, State> {
 
   renderCard2 = () => {
     const { onPress } = this.props;
-    const { password, verifyPassword } = this.state;
-    const hasError = password !== verifyPassword || (!!password && password.length < 8);
-    const canEncrypt = !!password && !hasError;
+    const { password, verifiedPassword } = this.state;
+    const hasPasswordError = (!password && password !== null) || (!!password && password.length < 8);
+    const hasVerifyPasswordError = !verifiedPassword && verifiedPassword !== null && password !== verifiedPassword;
+    const canProceed = !hasPasswordError && !hasVerifyPasswordError && !!password && !!verifiedPassword;
 
     return (
       <InnerWrapper>
         <UpperPart>
           <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
           <GrayText>Must be at least 8 characters</GrayText>
-          <SmInput type="password" placeholder="Type password" hasError={hasError} onChange={this.handlePasswordTyping} />
-          <SmInput type="password" placeholder="Verify password" hasError={hasError} onChange={this.handlePasswordVerifyTyping} />
+          <SmInput type="password" placeholder="Type password" hasError={hasPasswordError} onChange={this.handlePasswordTyping} hasDebounce />
+          <SmInput type="password" placeholder="Verify password" hasError={hasVerifyPasswordError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
           <GrayText>
             Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
           </GrayText>
         </UpperPart>
         <BottomPart>
-          <SmButton title="Next" disabled={!canEncrypt} theme="orange" onPress={() => onPress({ type: 'next', payload: password })} style={{ marginTop: 20 }} />
+          <SmButton title="Next" disabled={!canProceed} theme="orange" onPress={() => onPress({ type: 'next', payload: password })} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>
     );
@@ -280,16 +281,12 @@ class CenterCard extends Component<Props, State> {
     );
   };
 
-  handlePasswordTyping = (e: any) => {
-    if (e.target instanceof HTMLInputElement) {
-      this.setState({ password: e.target.value });
-    }
+  handlePasswordTyping = ({ value }: { value: string }) => {
+    this.setState({ password: value });
   };
 
-  handlePasswordVerifyTyping = (e: any) => {
-    if (e.target instanceof HTMLInputElement) {
-      this.setState({ verifyPassword: e.target.value });
-    }
+  handlePasswordVerifyTyping = ({ value }: { value: string }) => {
+    this.setState({ verifiedPassword: value });
   };
 }
 

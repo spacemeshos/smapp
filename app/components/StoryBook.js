@@ -160,12 +160,10 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     });
   };
 
-  handleChangeText = (e: any) => {
-    if (e.target instanceof HTMLInputElement) {
-      this.setState({
-        message: `Typed: ${e.target.value}`
-      });
-    }
+  handleChangeText = ({ value }: { value: string }) => {
+    this.setState({
+      message: `Typed: ${value}`
+    });
   };
 
   handleRadioSelect = (selection: RadioEntry) => {
