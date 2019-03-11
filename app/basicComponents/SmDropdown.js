@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import styled from 'styled-components';
-import { smFonts, smColors } from '/vars';
+import { smColors } from '/vars';
 import { openDDIcon, openDDIconDisabled } from '/assets/images';
 
 const DEFAULT_PLACEHOLDER: string = 'Please Select...';
@@ -114,9 +114,7 @@ const StyledItemsWrapper = styled.div`
 `;
 
 const StyledBaseLabelText = styled.span`
-  font-family: ${smFonts.fontNormal16.fontFamily};
-  font-size: ${smFonts.fontNormal16.fontSize}px;
-  font-weight: ${smFonts.fontNormal16.fontWeight};
+  font-size: 16px;
   color: ${smColors.black};
   text-overflow: ellipsis;
   white-space: nowrap;

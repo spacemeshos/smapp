@@ -1,6 +1,7 @@
 // @flow
 import { combineReducers } from 'redux';
-import { auth, wallet } from './reducers';
+import auth from './auth/reducer';
+import wallet from './wallet/reducer';
 
 export default function createRootReducer(): any {
   return combineReducers({

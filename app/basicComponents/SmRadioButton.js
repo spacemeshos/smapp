@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import styled from 'styled-components';
-import { smFonts, smColors } from '/vars';
+import { smColors } from '/vars';
 
 export type RadioEntry = {
   id: number | string,
@@ -15,7 +15,7 @@ type SmRadioButtonProps = {
   radioSelected: number | string
 };
 
-const StyledHoveredCenter = styled.div`
+const HoveredCenter = styled.div`
   display: none;
   position: absolute;
   top: 5px;
@@ -26,20 +26,8 @@ const StyledHoveredCenter = styled.div`
   background-color: ${smColors.green30alpha};
 `;
 
-const StyledAction = styled.div`
-  &:hover {
-    background-color: ${smColors.hoverLightGreen};
-  }
-  &:hover ${StyledHoveredCenter} {
-    display: block;
-  }
-  &:active {
-    background-color: ${smColors.actionLightGreen};
-  }
-`;
-
 // $FlowStyledIssue
-const StyledRadioWrapper = styled(StyledAction)`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   position: relative;
@@ -59,10 +47,19 @@ const StyledRadioWrapper = styled(StyledAction)`
     background-color: ${smColors.green10alpha};
   `};
   transition: all 0.12s linear;
+  &:hover {
+    background-color: ${smColors.hoverLightGreen};
+  }
+  &:hover ${HoveredCenter} {
+    display: block;
+  }
+  &:active {
+    background-color: ${smColors.actionLightGreen};
+  }
 `;
 
 // $FlowStyledIssue
-const StyledRadioInner = styled.div`
+const RadioInner = styled.div`
   position: absolute;
   top: 10px;
   height: 20px;
@@ -79,17 +76,15 @@ const StyledRadioInner = styled.div`
   transition: all 0.3s linear;
 `;
 
-const StyledLabelWrapper = styled.div`
+const LabelWrapper = styled.div`
   padding-left: 40px;
   padding-right: 12px;
   height: 44px;
 `;
 
 // $FlowStyledIssue
-const StyledLabelText = styled.span`
-  font-family: ${smFonts.fontNormal16.fontFamily};
-  font-size: ${smFonts.fontNormal16.fontSize}px;
-  font-weight: ${smFonts.fontNormal16.fontWeight};
+const LabelText = styled.span`
+  font-size: 16px;
   color: ${smColors.black};
   line-height: 44px;
   ${({ disabled }) =>
@@ -102,14 +97,14 @@ const StyledLabelText = styled.span`
 const SmRadioButton = (props: SmRadioButtonProps) => {
   const { disabled, radioSelected, id, label, onSelect } = props;
   return (
-    <StyledRadioWrapper onClick={() => (disabled ? undefined : onSelect({ id, label }))} disabled={disabled} selected={id === radioSelected}>
-      <StyledRadioInner selected={id === radioSelected}>
-        <StyledHoveredCenter />
-      </StyledRadioInner>
-      <StyledLabelWrapper>
-        <StyledLabelText disabled={disabled}>{label}</StyledLabelText>
-      </StyledLabelWrapper>
-    </StyledRadioWrapper>
+    <Wrapper onClick={() => (disabled ? undefined : onSelect({ id, label }))} disabled={disabled} selected={id === radioSelected}>
+      <RadioInner selected={id === radioSelected}>
+        <HoveredCenter />
+      </RadioInner>
+      <LabelWrapper>
+        <LabelText disabled={disabled}>{label}</LabelText>
+      </LabelWrapper>
+    </Wrapper>
   );
 };
 

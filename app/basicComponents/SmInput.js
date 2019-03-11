@@ -1,6 +1,6 @@
 // @flow
 import React, { PureComponent } from 'react';
-import { smFonts, smColors } from '/vars';
+import { smColors } from '/vars';
 import styled from 'styled-components';
 
 const INPUT_PLACEHOLDER = 'Type here';
@@ -14,9 +14,7 @@ const Input = styled.input`
   color: ${({ disabled }) => (disabled ? smColors.textGray : smColors.black)};
   opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
   border: 1px solid ${smColors.borderGray};
-  font-family: ${smFonts.fontNormal16.fontFamily};
-  font-size: ${smFonts.fontNormal16.fontSize}px;
-  font-weight: ${smFonts.fontNormal16.fontWeight};
+  font-size: 16px;
   &:focus {
     outline: none;
     border: 1px solid ${smColors.green};

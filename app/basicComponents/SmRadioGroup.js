@@ -4,18 +4,8 @@ import styled from 'styled-components';
 import { SmRadioButton } from '/basicComponents';
 import type { RadioEntry } from './SmRadioButton';
 
-type SmRadioGroupProps = {
-  onPress: (selection: RadioEntry) => void,
-  data: RadioEntry[],
-  disabled?: boolean
-};
-
-type SmRadioGroupState = {
-  radioSelected: number | string
-};
-
 // $FlowStyledIssue
-const StyledRoot = styled.div`
+const Root = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -29,7 +19,17 @@ const StyledRoot = styled.div`
   `};
 `;
 
-class SmRadioGroup extends React.Component<SmRadioGroupProps, SmRadioGroupState> {
+type Props = {
+  onPress: (selection: RadioEntry) => void,
+  data: RadioEntry[],
+  disabled?: boolean
+};
+
+type State = {
+  radioSelected: number | string
+};
+
+class SmRadioGroup extends React.Component<Props, State> {
   state = {
     radioSelected: -1
   };
@@ -38,11 +38,11 @@ class SmRadioGroup extends React.Component<SmRadioGroupProps, SmRadioGroupState>
     const { data, disabled } = this.props;
     const { radioSelected } = this.state;
     return (
-      <StyledRoot disabled={disabled}>
+      <Root disabled={disabled}>
         {data.map((val) => (
           <SmRadioButton key={val.id} {...val} radioSelected={radioSelected} onSelect={this.handleSelect} />
         ))}
-      </StyledRoot>
+      </Root>
     );
   }
 

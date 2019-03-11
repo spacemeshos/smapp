@@ -1,23 +1,23 @@
+// @flow
 import * as pbkdf2 from 'pbkdf2';
 import * as aes from 'aes-js';
-import cryptoConsts from '../../vars/cryptoConsts';
 
 class StringCryptoService {
   /**
    * Derives encryption key using provided pin code and salt.
    * @param pinCode - at least 8 digits/chars combo string.
-   * @param salt - (optional) - nonce used for encryption.
-   * @return {string} derived key.
+   * @param salt - nonce used for encryption.
+   * @param callBack - callback for async key derivation func.
+   * @return {{string, string}} derived key.
    * @throws error if pin code missing or empty string.
    */
-  static createEncryptionKey = ({ pinCode, salt }) => {
+  static createEncryptionKey = ({ pinCode, salt }: { pinCode: string, salt: string }) => {
     if (!pinCode || !pinCode.length) {
       throw new Error('missing pin code');
     }
     // Derive a 32 bytes (256 bits) AES sym enc/dec key from the user provided pin
-    const finalSalt = salt || cryptoConsts.DEFAULT_SALT;
-    const derivedKey = pbkdf2.pbkdf2Sync(pinCode, finalSalt, 1000000, 32, 'sha512');
-    return derivedKey;
+    const key = pbkdf2.pbkdf2Sync(pinCode, salt, 1000000, 32, 'sha512');
+    return key.toString('hex');
   };
 
   /**
@@ -27,7 +27,7 @@ class StringCryptoService {
    * @return {string} encrypted string.
    * @throws error if one of params is invalid.
    */
-  static encryptData = ({ data, key }) => {
+  static encryptData = ({ data, key }: { data: string, key: string }) => {
     if (!data || !data.length) {
       throw new Error('missing data to encrypt');
     }
@@ -48,7 +48,7 @@ class StringCryptoService {
    * @return {string} decrypted string.
    * @throws error if one of params is invalid.
    */
-  static decryptData = ({ data, key }) => {
+  static decryptData = ({ data, key }: { data: string, key: string }) => {
     if (!data || !data.length) {
       throw new Error('missing data to decrypt');
     }

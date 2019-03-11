@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { smColors, smFonts } from '/vars';
+import { smColors } from '/vars';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -20,6 +20,7 @@ const Wrapper = styled.div`
     border: 1px solid ${smColors.borderGray};
     background-color: ${theme === 'green' ? smColors.white : smColors.borderGray};
     pointer-events: none;
+    cursor: default;
     `}
   &:hover {
     background-color: ${({ theme }) => (theme === 'green' ? `${smColors.green10alpha}` : `${smColors.orange70alpha}`)};
@@ -32,32 +33,27 @@ const Wrapper = styled.div`
 `;
 
 // $FlowStyledIssue
-const Label = styled.span`
+const Text = styled.span`
   color: ${({ theme }) => (theme === 'green' ? smColors.darkGreen : smColors.white)};
-  font-family: ${({ font }) => smFonts[font].fontFamily};
-  font-size: ${({ font }) => smFonts[font].fontSize}px;
-  font-weight: ${({ font }) => smFonts[font].fontWeight};
+  font-size: 14px;
+  font-weight: ${({ theme }) => (theme === 'green' ? 'normal' : 'bold')};
+  cursor: inherit;
 `;
 
 type Props = {
-  title: string,
+  text: string,
   theme: 'green' | 'orange',
   disabled?: boolean,
-  font?: 'fontLight24' | 'fontNormal16' | 'fontNormal14' | 'fontBold14',
   onPress: () => void,
   style?: Object
 };
 
 class SmButton extends PureComponent<Props> {
   render() {
-    const { disabled, onPress, theme, font, title, style } = this.props;
-    const fontByTheme: string = theme === 'green' ? 'fontNormal14' : 'fontBold14';
-
+    const { disabled, onPress, theme, text, style } = this.props;
     return (
       <Wrapper theme={theme} onClick={disabled ? null : onPress} disabled={disabled} style={style}>
-        <Label theme={theme} font={font || fontByTheme}>
-          {title}
-        </Label>
+        <Text theme={theme}>{text}</Text>
       </Wrapper>
     );
   }

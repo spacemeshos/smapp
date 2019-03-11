@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { smColors, smFonts } from '/vars';
+import { smColors } from '/vars';
 import { sendImageSource, receiveImageSource, sendImageSourceDisabled, receiveImageSourceDisabled } from '/assets/images';
 
 // $FlowStyledIssue
@@ -33,9 +33,7 @@ const BtnImage = styled.img`
 // $FlowStyledIssue
 const Label = styled.div`
   margin: 10px;
-  font-family: ${smFonts.fontNormal16.fontFamily};
-  font-size: ${smFonts.fontNormal16.fontSize};
-  font-weight: ${smFonts.fontNormal16.fontWeight};
+  font-size: 16px;
   color: ${({ disabled }) => (disabled ? smColors.borderGray : smColors.black)};
 `;
 

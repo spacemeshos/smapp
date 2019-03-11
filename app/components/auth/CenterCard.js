@@ -1,11 +1,13 @@
 // @flow
-import React, { Component } from 'react';
-import styled, { css } from 'styled-components';
-import { smColors, smFonts } from '/vars';
-import { SmButton, SmCarousel, SmInput } from '/basicComponents';
-import { steam, smcCoin, onboardingLogo, miner, welcomeBack } from '/assets/images';
+import React, { PureComponent } from 'react';
+import styled from 'styled-components';
+import { smColors } from '/vars';
+import { SmButton, SmCarousel } from '/basicComponents';
+import { steam, smcCoin, onboardingLogo, miner } from '/assets/images';
 import Slide from './Slide';
 import type { SlideProps } from './Slide';
+import EncryptWalletCard from './EncryptWalletCard';
+import DecryptWalletCard from './DecryptWalletCard';
 
 const carouselItems: SlideProps[] = [
   {
@@ -55,14 +57,8 @@ const Logo = styled.img`
   height: 24px;
 `;
 
-const HeaderTextBase = styled.span`
-  font-family: ${smFonts.fontNormal24.fontFamily};
-  font-size: ${smFonts.fontNormal24.fontSize}px;
-  font-weight: ${smFonts.fontNormal24.fontWeight};
-  user-select: none;
-`;
-
-const HeaderText = styled(HeaderTextBase)`
+const HeaderText = styled.span`
+  font-size: 24px;
   color: ${smColors.white};
 `;
 
@@ -88,32 +84,27 @@ const BottomPart = styled.div`
 
 const ImageWrapper = styled.div`
   display: flex;
-  flex-direction: row;
   justify-content: center;
+  align-items: center;
   width: 100%;
 `;
 
-// $FlowStyledIssue
 const Image = styled.img`
-  width: ${({ width }) => width || 82}px;
-  height: ${({ height }) => height || 82}px;
+  max-width: 100%;
+  max-height: 100%;
 `;
 
-const GrayText = styled.span`
-  font-family: ${smFonts.fontNormal16.fontFamily};
-  font-size: ${smFonts.fontNormal16.fontSize}px;
-  font-weight: ${smFonts.fontNormal16.fontWeight};
-  color: ${smColors.black};
-  text-align: left;
-  color: ${smColors.textGray};
-`;
-
-const UpperPartHeader = styled(HeaderTextBase)`
+const UpperPartHeader = styled.span`
+  font-size: 24px;
   text-align: left;
   color: ${smColors.black};
 `;
 
-const StyledAction = css`
+const Link = styled.span`
+  font-size: 16px;
+  text-align: left;
+  color: ${smColors.green};
+  cursor: pointer;
   &:hover {
     opacity: 0.8;
   }
@@ -122,64 +113,31 @@ const StyledAction = css`
   }
 `;
 
-const Link = styled(GrayText)`
-  color: ${smColors.green};
-  cursor: pointer;
-  ${StyledAction}
-`;
-
-const SmallLink = styled.span`
-  font-family: ${smFonts.fontNormal14.fontFamily};
-  font-size: ${smFonts.fontNormal14.fontSize}px;
-  font-weight: ${smFonts.fontNormal14.fontWeight};
-  user-select: none;
-  color: ${smColors.green};
-  cursor: pointer;
-  ${StyledAction}
-`;
-
-const LinksWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 20px;
-`;
-
 type Props = {
-  card: number,
+  step: number,
   setCreationMode: Function,
   setLoginMode: Function,
-  handleWalletCreation: Function,
+  proceedToStep3: Function,
   navigateToFullNodeSetup: Function,
   navigateToWallet: Function
 };
 
-type State = {
-  password: ?string,
-  verifiedPassword: ?string
-};
-
-class CenterCard extends Component<Props, State> {
-  state = {
-    password: null,
-    verifiedPassword: null
-  };
-
+class CenterCard extends PureComponent<Props> {
   render() {
-    const { card } = this.props;
+    const { step } = this.props;
     return (
       <Wrapper>
         <Header>
           <Logo src={onboardingLogo} />
-          <HeaderText>{`${card === 4 ? 'Welcome Back' : 'Welcome to Spacemesh'}`}</HeaderText>
+          <HeaderText>{`${step === 4 ? 'Welcome Back' : 'Welcome to Spacemesh'}`}</HeaderText>
         </Header>
-        {this.renderCardBody(card)}
+        {this.renderCardBody(step)}
       </Wrapper>
     );
   }
 
-  renderCardBody = (card: number) => {
-    switch (card) {
+  renderCardBody = (step: number) => {
+    switch (step) {
       case 1:
         return this.renderCard1();
       case 2:
@@ -203,36 +161,16 @@ class CenterCard extends Component<Props, State> {
           ))}
         </SmCarousel>
         <BottomPart>
-          <SmButton title="Create Wallet" theme="orange" center onPress={setCreationMode} style={{ marginTop: 20 }} />
-          <SmButton title="Login to Wallet" theme="green" center onPress={setLoginMode} style={{ marginTop: 20 }} />
+          <SmButton text="Create Wallet" theme="orange" center onPress={setCreationMode} style={{ marginTop: 20 }} />
+          <SmButton text="Login to Wallet" theme="green" center onPress={setLoginMode} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>
     );
   };
 
   renderCard2 = () => {
-    const { handleWalletCreation } = this.props;
-    const { password, verifiedPassword } = this.state;
-    const hasPasswordError = (!password && password !== null) || (!!password && password.length < 8);
-    const hasVerifyPasswordError = !verifiedPassword && verifiedPassword !== null && password !== verifiedPassword;
-    const canProceed = !hasPasswordError && !hasVerifyPasswordError && !!password && !!verifiedPassword;
-
-    return (
-      <InnerWrapper>
-        <UpperPart>
-          <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
-          <GrayText>Must be at least 8 characters</GrayText>
-          <SmInput type="password" placeholder="Type password" hasError={hasPasswordError} onChange={this.handlePasswordTyping} hasDebounce />
-          <SmInput type="password" placeholder="Verify password" hasError={hasVerifyPasswordError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
-          <GrayText>
-            Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
-          </GrayText>
-        </UpperPart>
-        <BottomPart>
-          <SmButton title="Next" disabled={!canProceed} theme="orange" onPress={() => handleWalletCreation({ password })} style={{ marginTop: 20 }} />
-        </BottomPart>
-      </InnerWrapper>
-    );
+    const { proceedToStep3 } = this.props;
+    return <EncryptWalletCard proceedToStep3={proceedToStep3} />;
   };
 
   renderCard3 = () => {
@@ -242,13 +180,13 @@ class CenterCard extends Component<Props, State> {
         <UpperPart>
           <UpperPartHeader>Setup a Spacemesh Full Node and start earning Spacemesh Coins?</UpperPartHeader>
           <ImageWrapper>
-            <Image src={miner} width={104} height={74} />
+            <Image src={miner} />
           </ImageWrapper>
           <Link>Learn more about Spacemesh full nodes.</Link>
         </UpperPart>
         <BottomPart>
-          <SmButton title="Yes, Setup Full Node" theme="orange" onPress={navigateToFullNodeSetup} style={{ marginTop: 20 }} />
-          <SmButton title="Maybe Later" theme="green" onPress={navigateToWallet} style={{ marginTop: 20 }} />
+          <SmButton text="Yes, Setup Full Node" theme="orange" onPress={navigateToFullNodeSetup} style={{ marginTop: 20 }} />
+          <SmButton text="Maybe Later" theme="green" onPress={navigateToWallet} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>
     );
@@ -256,34 +194,7 @@ class CenterCard extends Component<Props, State> {
 
   renderCard4 = () => {
     const { setCreationMode, navigateToWallet } = this.props;
-    const { password } = this.state;
-    const hasError = !!password && password.length < 8;
-    return (
-      <InnerWrapper>
-        <UpperPart>
-          <ImageWrapper>
-            <Image src={welcomeBack} width={76} height={92} />
-          </ImageWrapper>
-          <UpperPartHeader>Enter PIN to access wallet</UpperPartHeader>
-          <SmInput type="password" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
-        </UpperPart>
-        <BottomPart>
-          <SmButton title="Login" disabled={!password || hasError} theme="orange" onPress={() => navigateToWallet({ password })} style={{ marginTop: 20 }} />
-          <LinksWrapper>
-            <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
-            <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
-          </LinksWrapper>
-        </BottomPart>
-      </InnerWrapper>
-    );
-  };
-
-  handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ password: value });
-  };
-
-  handlePasswordVerifyTyping = ({ value }: { value: string }) => {
-    this.setState({ verifiedPassword: value });
+    return <DecryptWalletCard setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
   };
 }
 

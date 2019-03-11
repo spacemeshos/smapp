@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { smColors, smFonts } from '/vars';
+import { smColors } from '/vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,21 +16,20 @@ const ImageWrapper = styled.div`
   flex: 1;
   flex-direction: row;
   justify-content: center;
+  margin-bottom: 30px;
 `;
 
 // $FlowStyledIssue
 const Image = styled.img`
   max-width: 100px;
   max-height: 100px;
-  margin-bottom: 30px;
 `;
 
 const Text = styled.span`
+  line-height: 26px;
   text-align: center;
   color: ${smColors.black};
-  font-family: ${smFonts.fontNormal16.fontFamily};
-  font-size: ${smFonts.fontNormal16.fontSize}px;
-  font-weight: ${smFonts.fontNormal16.fontWeight};
+  font-size: 16px;
   user-select: none;
 `;
 

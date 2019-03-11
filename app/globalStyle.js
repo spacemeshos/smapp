@@ -25,6 +25,7 @@ const GlobalStyle = createGlobalStyle`
       padding: 0;
       box-sizing: border-box;
       cursor: default;
+      font-family: sans-serif;
     }
 
     article, aside, details, figcaption, figure,
@@ -42,6 +43,11 @@ const GlobalStyle = createGlobalStyle`
 
     ol, ul {
       list-style: none;
+    }
+    
+    input {
+      font-family: sans-serif;
+      font-weight: normal;
     }
 `;
 

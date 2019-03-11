@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
-const DEFAULT_WIDTH = 340;
+const DEFAULT_WIDTH = 300;
 
 const StyledAction = styled.div`
   &:hover {
@@ -17,6 +17,7 @@ const Wrapper = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  margin: 0 20px;
 `;
 
 const SlidesWrapper = styled.div`

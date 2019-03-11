@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setAuthenticated } from '/redux/auth/actions';
 import { CenterCard } from '/components/auth';
-import { walletStorageService } from '/infra/localStorageService';
+// import { walletStorageService } from '/infra/storageServices';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
-import type { Wallet } from '/vars/globalTypes';
+// import type { Wallet } from '/vars/globalTypes';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -28,52 +28,30 @@ const InnerWrapper = styled.div`
   background-color: ${smColors.green30alpha};
 `;
 
-// TODO: remove stub
-const wallet: Wallet = {
-  displayName: 'Default Wallet',
-  created: 'unix-epoch-timestamp',
-  displayColor: 'rgb-value',
-  path: 'm/44/[netId]/0/0/',
-  crypto: {
-    cipher: 'AES-128-CTR',
-    cipherText: '8662bcdb82f8a38f2d4c3a1b6d848fbb19f03d02388aca9442d5e4cc7b5c70aff02c452b',
-    cipherIv: '106c11fa110e99fdcbc5b4a29ddbff7d',
-    mac: '7c5df1ef3bde5e2642931298a9b00fe4375e8722f32e879a155e0d031dd39cf1'
-  },
-  kd: {
-    n: 262144,
-    r: 8,
-    p: 1,
-    saltLen: 16,
-    dkLen: 32,
-    salt: '48464c24034c1e706c82336172b67156'
-  }
-};
-
 type Props = {
-  history: any,
-  setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
+  history: any
+  // setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
 };
 
 type State = {
-  card: number
+  step: number
 };
 
 class Auth extends Component<Props, State> {
   state = {
-    card: 1
+    step: 1
   };
 
   render() {
-    const { card } = this.state;
+    const { step } = this.state;
     return (
       <Wrapper showImage backgroundImage={this.getBackgroundImage()}>
         <InnerWrapper>
           <CenterCard
-            card={card}
+            step={step}
             setCreationMode={this.setCreationMode}
             setLoginMode={this.setLoginMode}
-            handleWalletCreation={this.handleWalletCreation}
+            proceedToStep3={this.proceedToStep3}
             navigateToFullNodeSetup={this.navigateToFullNodeSetup}
             navigateToWallet={this.navigateToWallet}
           />
@@ -83,15 +61,15 @@ class Auth extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const wallet = walletStorageService.getWallet();
-    if (wallet) {
-      this.setState({ card: 4 });
-    }
+    // const wallet = walletStorageService.getWallet();
+    // if (wallet) {
+    //   this.setState({ step: 4 });
+    // }
   }
 
   getBackgroundImage = () => {
-    const { card } = this.state;
-    switch (card) {
+    const { step } = this.state;
+    switch (step) {
       case 1:
         return background1;
       case 2:
@@ -104,25 +82,23 @@ class Auth extends Component<Props, State> {
     }
   };
 
-  setCreationMode = () => this.setState({ card: 2 });
+  setCreationMode = () => this.setState({ step: 2 });
 
-  setLoginMode = () => this.setState({ card: 4 });
+  setLoginMode = () => this.setState({ step: 4 });
 
-  handleWalletCreation = () => {
-    this.setState({ card: 3 });
-  };
+  proceedToStep3 = () => this.setState({ step: 3 });
 
   navigateToFullNodeSetup = () => {
-    const { history, setAuthenticated } = this.props;
-    walletStorageService.saveWallet(wallet);
-    setAuthenticated({ wallet, setupFullNode: true });
+    const { history } = this.props;
+    // walletStorageService.saveWallet(wallet);
+    // setAuthenticated({ wallet, setupFullNode: true });
     history.push('/root');
   };
 
   navigateToWallet = () => {
-    const { history, setAuthenticated } = this.props;
-    walletStorageService.saveWallet(wallet);
-    setAuthenticated({ wallet, setupFullNode: true });
+    const { history } = this.props;
+    // walletStorageService.saveWallet(wallet);
+    // setAuthenticated({ wallet, setupFullNode: true });
     history.push('/root');
   };
 }

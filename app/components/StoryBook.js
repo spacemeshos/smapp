@@ -1,10 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { smFonts } from '/vars';
 import { SmButton, SendReceiveButton, SmInput, SmRadioGroup, SmDropdown } from '/basicComponents';
 import type { RadioEntry, DropdownEntry } from '/basicComponents';
-import { localStorageService } from '/infra/localStorageService';
+import { localStorageService } from '../infra/storageServices';
 
 type StoryBookProps = {};
 type StoryBookState = {
@@ -19,7 +18,8 @@ const styles = {
     justifyContent: 'space-between',
     alignContent: 'space-between',
     width: '100%',
-    ...smFonts.fontLight24
+    fontSize: 24,
+    fontFamily: 'sans-serif'
   },
   row: {
     paddingTop: 16,
@@ -130,10 +130,10 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <SendReceiveButton disabled={disableButtons} title="Receive coins" onPress={() => this.handleSendReceiveButtonPress('receive')} />
         </div>
         <div style={styles.row}>
-          <SmButton title="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
-          <SmButton title="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
-          <SmButton title="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
-          <SmButton title={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
+          <SmButton text="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
+          <SmButton text="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
+          <SmButton text="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
+          <SmButton text={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
         </div>
         <div style={styles.row}>
           <Link to="/">Back</Link>
