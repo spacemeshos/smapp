@@ -1,15 +1,15 @@
 // @flow
-import AuthPage from './screens/AuthPage';
-import RootPage from './screens/RootPage';
+import { Auth } from './screens';
+import Root from './screens/Root';
 
 const routes = {
   HOME: {
     path: '/auth',
-    component: AuthPage
+    component: Auth
   },
   ROOT: {
     path: '/root',
-    component: RootPage
+    component: Root
   }
 };
 

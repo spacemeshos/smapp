@@ -6,41 +6,17 @@
 <PROJECT_ROOT>/node_modules/webpack-cli
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/dll/.*
-<PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/git/.*
 
 [include]
 
 [libs]
+flow-typed
 
 [options]
-emoji=true
-
-module.system=haste
-
-munge_underscores=true
-
-esproposal.class_static_fields=enable
-esproposal.class_instance_fields=enable
-esproposal.export_star_as=enable
-
-module.file_ext=.js
-module.file_ext=.jsx
-module.file_ext=.json
-
-module.name_mapper.extension='(css|styl|scss)' -> '<PROJECT_ROOT>/internals/flow/CSSModule.js.flow'
-module.name_mapper.extension='(png|jpg)' -> '<PROJECT_ROOT>/internals/flow/WebpackAsset.js.flow'
-
-module.system.node.resolve_dirname=node_modules
-module.system.node.resolve_dirname=app
 
 module.name_mapper='^/\(.*\)' -> '<PROJECT_ROOT>/app/\1'
 suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
-
-suppress_type=$FlowIssue
-suppress_type=$FlowFixMe
-suppress_type=$FlowFixMeProps
-suppress_type=$FlowFixMeState
 
 [version]
 ^0.93.0

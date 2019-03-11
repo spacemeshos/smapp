@@ -1,15 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { smFonts } from '../vars';
-import SmButton from '../baseComponents/SmButton/SmButton';
-import SendReceiveButton from '../baseComponents/SendReceiveButton/SendReceiveButton';
-import SmInput from '../baseComponents/SmInput/SmInput';
-import SmRadioButtons from '../baseComponents/SmRadioGroup/SmRadioGroup';
-import type { RadioEntry } from '../baseComponents/SmRadioButton/SmRadioButton';
-import SmDropdown from '../baseComponents/SmDropdown/SmDropdown';
-import type { DropdownEntry } from '../baseComponents/SmDropdown/SmDropdown';
-import localStorageService from '/infra/localStorageService/localStorageService';
+import { SmButton, SendReceiveButton, SmInput, SmRadioGroup, SmDropdown } from '/basicComponents';
+import type { RadioEntry, DropdownEntry } from '/basicComponents';
+import { localStorageService } from '../infra/storageServices';
 
 type StoryBookProps = {};
 type StoryBookState = {
@@ -24,7 +18,8 @@ const styles = {
     justifyContent: 'space-between',
     alignContent: 'space-between',
     width: '100%',
-    ...smFonts.fontLight24
+    fontSize: 24,
+    fontFamily: 'sans-serif'
   },
   row: {
     paddingTop: 16,
@@ -126,7 +121,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
         </div>
         <div style={styles.row}>
           <SmInput onChange={this.handleChangeText} disabled={disableButtons} />
-          <SmRadioButtons data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
+          <SmRadioGroup data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
           <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
           <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
         </div>
@@ -135,10 +130,10 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <SendReceiveButton disabled={disableButtons} title="Receive coins" onPress={() => this.handleSendReceiveButtonPress('receive')} />
         </div>
         <div style={styles.row}>
-          <SmButton title="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
-          <SmButton title="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
-          <SmButton title="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
-          <SmButton title={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
+          <SmButton text="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
+          <SmButton text="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
+          <SmButton text="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
+          <SmButton text={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
         </div>
         <div style={styles.row}>
           <Link to="/">Back</Link>
@@ -165,12 +160,10 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     });
   };
 
-  handleChangeText = (e: any) => {
-    if (e.target instanceof HTMLInputElement) {
-      this.setState({
-        message: `Typed: ${e.target.value}`
-      });
-    }
+  handleChangeText = ({ value }: { value: string }) => {
+    this.setState({
+      message: `Typed: ${value}`
+    });
   };
 
   handleRadioSelect = (selection: RadioEntry) => {

@@ -1,6 +1,5 @@
 // @flow
 import { ipcRenderer } from 'electron';
-// eslint-disable-next-line
 import uuid4 from 'uuid4';
 import { ipcConsts } from '../../vars';
 
