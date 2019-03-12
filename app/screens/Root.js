@@ -3,8 +3,7 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { setLogout } from '/redux/wallet/actions';
-import StoryBook from '/components/StoryBook';
-import { Wallet } from '/screens';
+import routes from '/routes';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
@@ -37,23 +36,11 @@ const styles = {
   }
 };
 
-const routes = {
-  STORYBOOK: {
-    path: '/root/story-book',
-    component: StoryBook
-  },
-  WALLET: {
-    path: '/root/wallet',
-    component: Wallet
-  }
-};
-
 const sideMenuItems: SideMenuItem[] = [
   {
     text: 'Full Node',
-    path: null,
-    icon: menu1,
-    disabled: true
+    path: '/root/full-node',
+    icon: menu1
   },
   {
     text: 'Wallet',
@@ -95,11 +82,11 @@ class Root extends Component<Props, State> {
 
     return (
       <div style={styles.container}>
-        <SideMenu items={sideMenuItems} initialTab={2} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
+        <SideMenu items={sideMenuItems} initialItemIndex={-1} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
         <div style={styles.mainContent}>
           <Switch>
-            {Object.keys(routes).map((routeKey) => (
-              <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+            {Object.keys(routes.root).map((routeKey) => (
+              <Route key={routeKey} path={routes.root[routeKey].path} component={routes.root[routeKey].component} />
             ))}
             <Redirect to="/root/wallet" />
           </Switch>

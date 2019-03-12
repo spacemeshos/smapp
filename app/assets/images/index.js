@@ -23,3 +23,7 @@ export { default as steam } from './steam@2x.png';
 export { default as minerSmall } from './miner_small@2x.png';
 export { default as miner } from './miner@2x.png';
 export { default as welcomeBack } from './welcome_back@2x.png';
+export { default as thinking } from './thinking@2x.png';
+export { default as noLaptop } from './no_laptop@2x.png';
+export { default as time } from './time@2x.png';
+export { default as coin } from './coin@2x.png';
