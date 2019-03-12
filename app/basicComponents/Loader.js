@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
-import { loader } from '/assets/images';
 import styled, { keyframes } from 'styled-components';
+import { loader } from '/assets/images';
 
 // $FlowStyledIssue
 const Animation = keyframes`

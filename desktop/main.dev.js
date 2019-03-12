@@ -5,17 +5,15 @@
  * electron renderer process from here and communicate with the other processes
  * through IPC.
  *
- * When running `yarn build` or `yarn build-main`, this file is compiled to
+ * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
- *
- * @flow
  */
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import FileDialog from './fileDialog';
+import FileManager from './fileManager';
 // import netService from './netService';
 
 export default class AppUpdater {
@@ -46,14 +44,14 @@ const installExtensions = async () => {
 };
 
 /**
- * Add event listeners...
+ * Add event listeners.
  */
 ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
-  FileDialog.openReadFileDialog({ browserWindow: mainWindow, event, defaultPath: request.defaultFilePath });
+  FileManager.readFile({ browserWindow: mainWindow, event, ...request });
 });
 
 ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
-  FileDialog.openSaveFileDialog({ browserWindow: mainWindow, event, fileContent: request.fileContent, defaultPath: request.defaultFilePath });
+  FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
 });
 
 ipcMain.on(ipcConsts.SEND_REQUEST, async () => {

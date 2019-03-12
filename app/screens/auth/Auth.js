@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setAuthenticated } from '/redux/auth/actions';
+import { setAuthenticated, logout } from '/redux/auth/actions';
 import { CenterCard } from '/components/auth';
 // import { walletStorageService } from '/infra/storageServices';
 import { background1, background2, background3 } from '/assets/images';
@@ -29,7 +29,8 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
-  history: any
+  history: any,
+  logout: Function
   // setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
 };
 
@@ -65,6 +66,11 @@ class Auth extends Component<Props, State> {
     // if (wallet) {
     //   this.setState({ step: 4 });
     // }
+  }
+
+  componentWillUnmount(): void {
+    const { logout } = this.props;
+    logout();
   }
 
   getBackgroundImage = () => {
@@ -108,6 +114,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  logout,
   setAuthenticated
 };
 

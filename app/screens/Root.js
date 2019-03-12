@@ -15,6 +15,7 @@ type Props = {
 };
 
 type State = {
+  selectedItemIndex: number,
   loadingItemIndex: number
 };
 
@@ -87,15 +88,16 @@ class Root extends Component<Props, State> {
   timer: any;
 
   state: State = {
+    selectedItemIndex: 2,
     loadingItemIndex: -1
   };
 
   render() {
-    const { loadingItemIndex } = this.state;
+    const { selectedItemIndex, loadingItemIndex } = this.state;
 
     return (
       <div style={styles.container}>
-        <SideMenu items={sideMenuItems} initialTab={2} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
+        <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
         <div style={styles.mainContent}>
           <Switch>
             {Object.keys(routes).map((routeKey) => (
@@ -130,6 +132,7 @@ class Root extends Component<Props, State> {
     const newPath = sideMenuItems[index].path;
     const isSameLocation = !!newPath && window.location.hash.endsWith(newPath);
     if (!isSameLocation && newPath) {
+      this.setState({ selectedItemIndex: index });
       history.push(newPath);
     }
   };

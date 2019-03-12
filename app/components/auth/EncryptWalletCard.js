@@ -133,7 +133,7 @@ class EncryptWalletCard extends Component<Props, State> {
       setTimeout(() => {
         createFileEncryptionKey({ pinCode });
         proceedToStep3();
-      }, 1000);
+      }, 500);
     }
   };
 }

@@ -90,7 +90,7 @@ const ImageWrapper = styled.div`
 `;
 
 const Image = styled.img`
-  max-width: 100%;
+  max-width: 120px;
   max-height: 100%;
 `;
 

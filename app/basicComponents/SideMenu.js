@@ -9,27 +9,6 @@ const ENTRY_HEIGHT = 55;
 const ENTRY_WIDTH = 165;
 const ENTRY_WIDTH_CLOSED = 60;
 
-export type SideMenuItem = {
-  text: string,
-  path: string | null,
-  icon?: any,
-  disabled?: boolean,
-  hasSeparator?: boolean
-};
-
-type Props = {
-  items: SideMenuItem[],
-  initialItemIndex?: number,
-  loadingItemIndex?: number,
-  onMenuItemPress: Function
-};
-
-type State = {
-  isExpanded: boolean,
-  selectedItemIndex: number,
-  width: number
-};
-
 // $FlowStyledIssue
 const Wrapper = styled.div`
   height: 100%;
@@ -126,15 +105,31 @@ const Separator = styled.div`
   border-bottom: 1px solid ${smColors.borderGray};
 `;
 
+export type SideMenuItem = {
+  text: string,
+  path: string | null,
+  icon?: any,
+  disabled?: boolean,
+  hasSeparator?: boolean
+};
+
+type Props = {
+  items: SideMenuItem[],
+  selectedItemIndex?: number,
+  loadingItemIndex?: number,
+  onMenuItemPress: Function
+};
+
+type State = {
+  isExpanded: boolean,
+  width: number
+};
+
 class SideMenu extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      isExpanded: true,
-      selectedItemIndex: props.initialItemIndex || -1,
-      width: ENTRY_WIDTH
-    };
-  }
+  state = {
+    isExpanded: true,
+    width: ENTRY_WIDTH
+  };
 
   render() {
     const { items } = this.props;
@@ -151,8 +146,7 @@ class SideMenu extends React.Component<Props, State> {
   }
 
   renderMenuElement = (item: SideMenuItem, index: number) => {
-    const { loadingItemIndex } = this.props;
-    const { selectedItemIndex } = this.state;
+    const { selectedItemIndex, loadingItemIndex } = this.props;
     return [
       item.hasSeparator && <Separator key="separator" />,
       <MenuItemWrapper key={item.text} onClick={item.disabled ? null : () => this.handleSelectEntry({ index })} disabled={!!item.disabled}>
@@ -161,14 +155,13 @@ class SideMenu extends React.Component<Props, State> {
           <MenuItemIcon src={item.icon} alt="Icon missing" />
         </MenuItemIconWrapper>
         <MenuLabel>{item.text}</MenuLabel>
-        {loadingItemIndex === index && <Loader />}
+        {index === loadingItemIndex && <Loader />}
       </MenuItemWrapper>
     ];
   };
 
   handleSelectEntry = ({ index }: { index: number }) => {
     const { onMenuItemPress } = this.props;
-    this.setState({ selectedItemIndex: index });
     onMenuItemPress({ index });
   };
 

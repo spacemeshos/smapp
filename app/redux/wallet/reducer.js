@@ -1,9 +1,10 @@
 // @flow
 import type { Action } from '/redux/types';
-import { SAVE_FILE_ENCRYPTION_KEY, SET_LOGOUT } from './actions';
+import { SAVE_FILE_ENCRYPTION_KEY, LOGOUT } from './actions';
 
 const initialState = {
   walletNumber: -1,
+  accountNumber: -1,
   data: null,
   fileKey: null
 };
@@ -16,8 +17,9 @@ const reducer = (state: any = initialState, action: Action) => {
       } = action;
       return { ...state, fileKey: key };
     }
-    case SET_LOGOUT:
+    case LOGOUT: {
       return initialState;
+    }
     default:
       return state;
   }
