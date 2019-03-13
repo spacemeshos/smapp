@@ -1,5 +1,5 @@
 // @flow
-import type { Action } from '../types';
+import type { Action } from '/types';
 import { SET_AUTHENTICATED, LOGOUT } from './actions';
 
 const initialState = {};

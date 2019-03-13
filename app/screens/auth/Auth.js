@@ -7,7 +7,6 @@ import { CenterCard } from '/components/auth';
 // import { walletStorageService } from '/infra/storageServices';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
-// import type { Wallet } from '/vars/globalTypes';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`

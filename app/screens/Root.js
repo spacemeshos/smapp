@@ -89,7 +89,7 @@ class Root extends Component<Props, State> {
   timer: any;
 
   state: State = {
-    selectedItemIndex: 2,
+    selectedItemIndex: 1,
     loadingItemIndex: -1
   };
 
