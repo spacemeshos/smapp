@@ -1,5 +1,3 @@
-/* eslint global-require: off, import/no-dynamic-require: off */
-
 /**
  * Build config for development electron renderer process that uses
  * Hot-Module-Replacement
@@ -12,10 +10,10 @@ import fs from 'fs';
 import webpack from 'webpack';
 import merge from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
-import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
+import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
 
-CheckNodeEnv('development');
+checkNodeEnv('development');
 
 const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;

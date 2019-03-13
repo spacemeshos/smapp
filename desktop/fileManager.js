@@ -14,7 +14,7 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileManager {
-  static readFile = async ({ browserWindow, event, showDialog }) => {
+  static readFile = async ({ browserWindow, event, filePath, showDialog }) => {
     if (showDialog) {
       const options = {
         title: 'Load Wallet Backup File',
@@ -29,7 +29,7 @@ class FileManager {
         }
       });
     } else {
-      await FileManager._readFile({ event, path: appFilesDirPath });
+      await FileManager._readFile({ event, path: filePath });
     }
   };
 

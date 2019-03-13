@@ -14,7 +14,7 @@ export const createFileEncryptionKey = ({ pinCode }: { pinCode: string }) => (di
   const key = cryptoService.createEncryptionKey({ pinCode, salt: cryptoConsts.DEFAULT_SALT });
   dispatch({ type: SAVE_FILE_ENCRYPTION_KEY, payload: { key } });
   dispatch(saveNewWallet({ key, salt: cryptoConsts.DEFAULT_SALT }));
-  walletStorageService.saveWalletFileKey(key);
+  walletStorageService.saveFileKey({ key });
 };
 
 export const saveNewWallet = ({ key, salt }: { key: Buffer, salt: string }) => (dispatch: Function, getState: Function) => {
@@ -30,7 +30,6 @@ export const saveNewWallet = ({ key, salt }: { key: Buffer, salt: string }) => (
     cipher: 'AES-128-CTR',
     cipherText: encryptedWalletData
   };
-  // walletStorageService.saveWalletData(walletData);
   const file = {
     displayName: `my_wallet_${walletState.walletNumber}`,
     created: unixEpochTimestamp,
@@ -41,9 +40,10 @@ export const saveNewWallet = ({ key, salt }: { key: Buffer, salt: string }) => (
     }
   };
   try {
-    const fileName = `my_wallet_${walletState.walletNumber}-${unixEpochTimestamp}`;
+    const fileName = `my_wallet_${walletState.walletNumber}-${unixEpochTimestamp}.json`;
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(file), showDialog: false });
     dispatch({ type: SAVE_NEW_WALLET, payload: {} });
+    walletStorageService.addWalletFilePath({ fileName });
   } catch (err) {
     throw new Error(err);
   }
