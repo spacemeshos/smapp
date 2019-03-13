@@ -69,18 +69,19 @@ type Props = {
 };
 
 type State = {
-  password: string
+  password: string,
+  hasError: false
 };
 
 class DecryptWalletCard extends Component<Props, State> {
   state = {
-    password: ''
+    password: '',
+    hasError: false
   };
 
   render() {
     const { setCreationMode, navigateToWallet } = this.props;
-    const { password } = this.state;
-    const hasError = !!password && password.length < 8;
+    const { password, hasError } = this.state;
     return (
       <Wrapper>
         <UpperPart>
@@ -88,7 +89,7 @@ class DecryptWalletCard extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter PIN to access wallet</UpperPartHeader>
-          <SmInput type="password" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
+          <SmInput type="password" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} hasDebounce />
         </UpperPart>
         <BottomPart>
           <SmButton text="Login" disabled={!password || hasError} theme="orange" onPress={() => navigateToWallet({ password })} style={{ marginTop: 20 }} />

@@ -1,3 +1,3 @@
 export { Auth } from './auth';
+export { Main } from './main';
 export { Wallet } from './wallet';
-export { default as Root } from './Root';

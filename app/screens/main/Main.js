@@ -41,11 +41,11 @@ const styles = {
 
 const routes = {
   STORYBOOK: {
-    path: '/root/story-book',
+    path: '/main/story-book',
     component: StoryBook
   },
   WALLET: {
-    path: '/root/wallet',
+    path: '/main/wallet',
     component: Wallet
   }
 };
@@ -59,7 +59,7 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Wallet',
-    path: '/root/wallet',
+    path: '/main/wallet',
     icon: menu2
   },
   {
@@ -80,12 +80,12 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Network',
-    path: '/root/story-book',
+    path: '/main/story-book',
     icon: menu6
   }
 ];
 
-class Root extends Component<Props, State> {
+class Main extends Component<Props, State> {
   timer: any;
 
   state: State = {
@@ -104,24 +104,11 @@ class Root extends Component<Props, State> {
             {Object.keys(routes).map((routeKey) => (
               <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
             ))}
-            <Redirect to="/root/wallet" />
+            <Redirect to="/main/wallet" />
           </Switch>
         </div>
       </div>
     );
-  }
-
-  componentDidMount() {
-    const { wallet } = this.props;
-    if (wallet.setupFullNode) {
-      this.setState({ loadingItemIndex: 1 }, () => {
-        this.timer = setTimeout(() => {
-          this.setState({
-            loadingItemIndex: -1
-          });
-        }, 8000);
-      });
-    }
   }
 
   componentWillUnmount() {
@@ -141,17 +128,13 @@ class Root extends Component<Props, State> {
   };
 }
 
-const mapStateToProps = (state) => ({
-  wallet: state.wallet
-});
-
 const mapDispatchToProps = {
   logout
 };
 
-Root = connect(
-  mapStateToProps,
+Main = connect(
+  null,
   mapDispatchToProps
-)(Root);
+)(Main);
 
-export default Root;
+export default Main;
