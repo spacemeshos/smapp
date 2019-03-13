@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { setLogout } from '/redux/wallet/actions';
+import { logout } from '/redux/wallet/actions';
 import StoryBook from '/components/StoryBook';
 import { Wallet } from '/screens';
 import { SideMenu } from '/basicComponents';
@@ -11,6 +11,7 @@ import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
 
 type Props = {
   history: any,
+  logout: Function,
   wallet: { wallet: any, setupFullNode: boolean }
 };
 
@@ -124,6 +125,8 @@ class Root extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    const { logout } = this.props;
+    logout();
     !!this.timer && clearTimeout(this.timer);
   }
 
@@ -143,7 +146,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  setLogout
+  logout
 };
 
 Root = connect(
