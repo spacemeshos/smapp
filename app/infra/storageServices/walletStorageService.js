@@ -2,26 +2,34 @@
 import localStorageService from './localStorageService';
 
 class WalletStorageService {
-  static saveWalletData(data: Object) {
-    localStorageService.saveToLocalStorage('wallet', data);
-  }
+  static addWalletFilePath = ({ filePath }: { filePath: string }) => {
+    const data = localStorageService.get('wallet') || {};
+    if (!data.files) {
+      data.files = [];
+    }
+    data.files.push(filePath);
+    localStorageService.set('wallet', data);
+  };
 
-  static getWalletData() {
-    return localStorageService.getFromLocalStorage('wallet');
-  }
+  static getWalletFilesPath = () => {
+    const data = localStorageService.get('wallet');
+    return data && data.files ? data.files : [];
+  };
 
-  static saveWalletFileKey(key: string) {
-    localStorageService.saveToLocalStorage('walletKey', key);
-  }
+  static saveFileKey = ({ key }: { key: string }) => {
+    const data = localStorageService.get('wallet') || {};
+    data.key = key;
+    localStorageService.set('wallet', data);
+  };
 
-  static getWalletFileKey() {
-    return localStorageService.getFromLocalStorage('walletKey');
-  }
+  static getFileKey = () => {
+    const data = localStorageService.get('wallet');
+    return data ? data.key : null;
+  };
 
-  static clearWalletStorage() {
-    localStorageService.removeFromLocalStorage('wallet');
-    localStorageService.removeFromLocalStorage('walletKey');
-  }
+  static clear = () => {
+    localStorageService.clearByKey('wallet');
+  };
 }
 
 export default WalletStorageService;

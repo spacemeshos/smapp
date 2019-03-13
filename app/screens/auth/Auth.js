@@ -2,12 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setAuthenticated } from '/redux/auth/actions';
+import { setAuthenticated, logout } from '/redux/auth/actions';
 import { CenterCard } from '/components/auth';
-// import { walletStorageService } from '/infra/storageServices';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors } from '/vars';
-// import type { Wallet } from '/vars/globalTypes';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -29,7 +27,8 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
-  history: any
+  history: any,
+  logout: Function
   // setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
 };
 
@@ -45,14 +44,13 @@ class Auth extends Component<Props, State> {
   render() {
     const { step } = this.state;
     return (
-      <Wrapper showImage backgroundImage={this.getBackgroundImage()}>
+      <Wrapper backgroundImage={this.getBackgroundImage()}>
         <InnerWrapper>
           <CenterCard
             step={step}
             setCreationMode={this.setCreationMode}
             setLoginMode={this.setLoginMode}
-            proceedToStep3={this.proceedToStep3}
-            navigateToFullNodeSetup={this.navigateToFullNodeSetup}
+            navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
             navigateToWallet={this.navigateToWallet}
           />
         </InnerWrapper>
@@ -60,11 +58,9 @@ class Auth extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    // const wallet = walletStorageService.getWallet();
-    // if (wallet) {
-    //   this.setState({ step: 4 });
-    // }
+  componentWillUnmount(): void {
+    const { logout } = this.props;
+    logout();
   }
 
   getBackgroundImage = () => {
@@ -75,7 +71,6 @@ class Auth extends Component<Props, State> {
       case 2:
         return background2;
       case 3:
-      case 4:
         return background3;
       default:
         return background1;
@@ -84,22 +79,16 @@ class Auth extends Component<Props, State> {
 
   setCreationMode = () => this.setState({ step: 2 });
 
-  setLoginMode = () => this.setState({ step: 4 });
+  setLoginMode = () => this.setState({ step: 3 });
 
-  proceedToStep3 = () => this.setState({ step: 3 });
-
-  navigateToFullNodeSetup = () => {
+  navigateToLocalNodeSetup = () => {
     const { history } = this.props;
-    // walletStorageService.saveWallet(wallet);
-    // setAuthenticated({ wallet, setupFullNode: true });
-    history.push('/root');
+    history.push('/main');
   };
 
   navigateToWallet = () => {
     const { history } = this.props;
-    // walletStorageService.saveWallet(wallet);
-    // setAuthenticated({ wallet, setupFullNode: true });
-    history.push('/root');
+    history.push('/main/wallet');
   };
 }
 
@@ -108,6 +97,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  logout,
   setAuthenticated
 };
 

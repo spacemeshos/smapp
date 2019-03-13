@@ -8,7 +8,7 @@ class StringCryptoService {
    * @param pinCode - at least 8 digits/chars combo string.
    * @param salt - nonce used for encryption.
    * @param callBack - callback for async key derivation func.
-   * @return {{string, string}} derived key.
+   * @return {Buffer} derived key.
    * @throws error if pin code missing or empty string.
    */
   static createEncryptionKey = ({ pinCode, salt }: { pinCode: string, salt: string }) => {
@@ -17,17 +17,17 @@ class StringCryptoService {
     }
     // Derive a 32 bytes (256 bits) AES sym enc/dec key from the user provided pin
     const key = pbkdf2.pbkdf2Sync(pinCode, salt, 1000000, 32, 'sha512');
-    return key.toString('hex');
+    return key;
   };
 
   /**
    * AES encrypt of provided string.
    * @param data - string representation of data to be encrypted.
-   * @param key - string used to encrypt data.
+   * @param key - Buffer used to encrypt data.
    * @return {string} encrypted string.
    * @throws error if one of params is invalid.
    */
-  static encryptData = ({ data, key }: { data: string, key: string }) => {
+  static encryptData = ({ data, key }: { data: string, key: Buffer }) => {
     if (!data || !data.length) {
       throw new Error('missing data to encrypt');
     }

@@ -1,6 +1,5 @@
 // @flow
-import { Auth } from './screens';
-import Root from './screens/Root';
+import { Auth, Main } from './screens';
 
 const routes = {
   HOME: {
@@ -8,8 +7,8 @@ const routes = {
     component: Auth
   },
   ROOT: {
-    path: '/root',
-    component: Root
+    path: '/main',
+    component: Main
   }
 };
 

@@ -1,19 +1,19 @@
 // @flow
 class LocalStorageService {
-  static saveToLocalStorage(key: string, data: any) {
+  static set(key: string, data: any) {
     window.localStorage.setItem(key, JSON.stringify(data));
   }
 
-  static getFromLocalStorage(key: string) {
+  static get(key: string) {
     const storageItem = window.localStorage.getItem(key);
     return storageItem ? JSON.parse(storageItem) : null;
   }
 
-  static removeFromLocalStorage(key: string) {
+  static clearByKey(key: string) {
     window.localStorage.removeItem(key);
   }
 
-  static clearLocalStorage() {
+  static clear() {
     window.localStorage.clear();
   }
 }

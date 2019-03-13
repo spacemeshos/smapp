@@ -35,7 +35,7 @@ const Text = styled.span`
 
 export type SlideProps = {
   id: number, // eslint-disable-line react/no-unused-prop-types
-  source: any,
+  source: string,
   text: string
 };
 
