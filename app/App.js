@@ -11,8 +11,8 @@ const App = ({ store }: { store: Store }) => (
     <Provider store={store}>
       <Router>
         <Switch>
-          {Object.keys(routes.app).map((routeKey) => (
-            <Route key={routeKey} path={routes.app[routeKey].path} component={routes.app[routeKey].component} />
+          {routes.app.map((route) => (
+            <Route key={route.path} path={route.path} component={route.component} />
           ))}
           <Redirect to="/auth" />
         </Switch>

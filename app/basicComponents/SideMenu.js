@@ -34,10 +34,11 @@ type State = {
 const Wrapper = styled.div`
   height: 100%;
   width: ${({ width }) => width}px;
+  min-width: ${({ width }) => width}px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid ${smColors.borderGray};
-  transition: width 0.2s linear;
+  transition: all 0.2s linear;
   overflow-x: hidden;
 `;
 

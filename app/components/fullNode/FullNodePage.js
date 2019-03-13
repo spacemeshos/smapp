@@ -2,23 +2,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-  PageWrapper,
-  LeftPane,
-  RightPane,
   RightHeaderText,
   BaseImage,
   RightPaneInner,
   LeftPaneInner,
   ActionLink,
-  RightHeaderWrapper,
-  LoadingRow,
+  BottomPaddedRow,
   ImageWrapper,
   ItemTextWrapperUniformPadding,
   LinkTextWrapper,
   BottomLinksWrapper,
   CenterTextWrapper,
-  ItemText,
-  FullNodeHeaderText
+  ItemText
 } from './FullNodeJointStyles';
 import { miner } from '/assets/images';
 import LoadingBar from './LoadingBar';
@@ -26,6 +21,7 @@ import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
 import FullNodeLog from './FullNodeLog';
 import FullNodeStatus from './FullNodeStatus';
+import FullNodeBase from './FullNodeBase';
 
 type Props = {
   history: any,
@@ -52,26 +48,16 @@ const readyInformationText = 'To run Spacemesh p2p network and get awarded for y
 
 class FullNodePage extends Component<Props, State> {
   render() {
-    return [
-      <div>
-        <FullNodeHeaderText>Full Node</FullNodeHeaderText>
-      </div>,
-      <PageWrapper>
-        <LeftPane>{this.renderLeftPane()}</LeftPane>
-        <RightPane>{this.renderRightPane()}</RightPane>
-      </PageWrapper>
-    ];
+    return <FullNodeBase header="Full Node" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
   renderRightPane = () => (
     <RightPaneInner>
-      <ImageWrapper>
-        <BaseImage src={miner} width={190} height={136} />
+      <ImageWrapper maxHeight={270}>
+        <BaseImage src={miner} />
       </ImageWrapper>
       <CenterTextWrapper>
-        <RightHeaderWrapper>
-          <RightHeaderText>Full Node Setup Information</RightHeaderText>
-        </RightHeaderWrapper>
+        <RightHeaderText>Spacemesh Tips and Information</RightHeaderText>
         <ItemTextWrapperUniformPadding>
           <ItemText>{readyInformationText}</ItemText>
         </ItemTextWrapperUniformPadding>
@@ -92,10 +78,10 @@ class FullNodePage extends Component<Props, State> {
 
     return (
       <LeftPaneInner>
-        <LoadingRow>
+        <BottomPaddedRow>
           <LoadingBar isLoading={false} capacity={(capacity && capacity.label) || ''} status="Active and Connected" />
           <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
-        </LoadingRow>
+        </BottomPaddedRow>
         <FullNodeStatus />
         <FullNodeLog />
       </LeftPaneInner>

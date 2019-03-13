@@ -15,10 +15,10 @@ const LoadingBarContainer = styled.div`
   border: 1px solid ${smColors.green};
   height: 44px;
   display: flex;
+  flex: 1;
   flex-direction: row;
   justify-content: space-between;
   background-color: ${({ isReady }) => (isReady ? smColors.green : smColors.hoverLightGreen)};
-  flex: 1;
 `;
 
 const CapacityWrapper = styled.div`
@@ -28,6 +28,7 @@ const CapacityWrapper = styled.div`
 const LabelWrapper = styled.div`
   text-align: left;
   padding: 14px 30px;
+  flex: 1;
 `;
 const LoadingSpinnerWrapper = styled.div`
   position: relative;

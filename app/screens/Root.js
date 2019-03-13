@@ -85,8 +85,8 @@ class Root extends Component<Props, State> {
         <SideMenu items={sideMenuItems} initialItemIndex={-1} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
         <div style={styles.mainContent}>
           <Switch>
-            {Object.keys(routes.root).map((routeKey) => (
-              <Route key={routeKey} path={routes.root[routeKey].path} component={routes.root[routeKey].component} />
+            {routes.main.map((route) => (
+              <Route key={route.path} path={route.path} component={route.component} />
             ))}
             <Redirect to="/root/wallet" />
           </Switch>

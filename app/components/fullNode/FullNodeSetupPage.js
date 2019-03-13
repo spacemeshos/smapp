@@ -4,9 +4,6 @@ import { connect } from 'react-redux';
 import { setFullNodeStorage } from '/redux/fullNode/actions';
 import styled from 'styled-components';
 import {
-  PageWrapper,
-  LeftPane,
-  RightPane,
   RightHeaderText,
   BaseText,
   BoldText,
@@ -14,7 +11,6 @@ import {
   RightPaneInner,
   LeftPaneInner,
   ActionLink,
-  RightHeaderWrapper,
   LeftHeaderWrapper,
   BorderlessLeftPaneRow,
   SideLabelWrapper,
@@ -22,12 +18,12 @@ import {
   GrayText,
   ItemTextWrapper,
   LinkTextWrapper,
-  ItemText,
-  FullNodeHeaderText
+  ItemText
 } from './FullNodeJointStyles';
 import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
+import FullNodeBase from './FullNodeBase';
 
 type SeupPageProps = {
   history: any,
@@ -146,6 +142,15 @@ const SettingModeListItem = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  flex: 1;
+  min-width: 260px;
+`;
+
+const ItemImageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: 12px;
 `;
 
 class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
@@ -155,25 +160,17 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
   };
 
   render() {
-    return [
-      <div>
-        <FullNodeHeaderText>Full Node Setup</FullNodeHeaderText>
-      </div>,
-      <PageWrapper>
-        <LeftPane>{this.renderLeftPane()}</LeftPane>
-        <RightPane>{this.renderRightPane()}</RightPane>
-      </PageWrapper>
-    ];
+    return <FullNodeBase header="Full Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
   renderRightPane = () => (
     <RightPaneInner>
-      <RightHeaderWrapper>
-        <RightHeaderText>Full Node Setup Instructions</RightHeaderText>
-      </RightHeaderWrapper>
+      <RightHeaderText>Full Node Setup Instructions</RightHeaderText>
       {rightPaneSetupModeList.map((setupListItem) => (
         <SettingModeListItem key={setupListItem.id}>
-          <BaseImage src={setupListItem.iconSrc} />
+          <ItemImageWrapper>
+            <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
+          </ItemImageWrapper>
           <ItemTextWrapper>
             <ItemText>{setupListItem.text}</ItemText>
           </ItemTextWrapper>
@@ -198,7 +195,6 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
           <SmDropdown data={selectDriveDropdownList} selectedId={drive && drive.id} onPress={(selection: DropdownEntry) => this.handleSelectDrive(selection)} />
           {drive && (
             <SideLabelWrapper>
-              {' '}
               <BaseText>You have {getFreeSpace(drive.id)} free on your drive</BaseText>
             </SideLabelWrapper>
           )}
@@ -210,8 +206,9 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
           <SmDropdown data={capacityDropdownList} selectedId={capacity && capacity.id} onPress={(selection: DropdownEntry) => this.handleSelectCapacity(selection)} />
           {capacity && (
             <SideLabelWrapper>
-              <BaseText>earn ~ {getProjectedSmcEarnings(capacity.id)} SMC each week*</BaseText>
-              <GrayText> = {getFiatCurrencyEquivalent(capacity.id)} USD*</GrayText>
+              <BaseText>
+                earn ~ {getProjectedSmcEarnings(capacity.id)} SMC each week* <GrayText> = {getFiatCurrencyEquivalent(capacity.id)} USD*</GrayText>
+              </BaseText>
             </SideLabelWrapper>
           )}
         </BorderlessLeftPaneRow>

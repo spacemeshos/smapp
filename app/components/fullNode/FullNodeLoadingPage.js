@@ -3,23 +3,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { resetNodeSettings } from '/redux/fullNode/actions';
 import {
-  PageWrapper,
-  LeftPane,
-  RightPane,
   RightHeaderText,
   BaseImage,
   RightPaneInner,
   LeftPaneInner,
   ActionLink,
-  RightHeaderWrapper,
   ImageWrapper,
-  LoadingRow,
+  BottomPaddedRow,
   ItemTextWrapperUniformPadding,
   BottomLinksWrapper,
   CenterTextWrapper,
   LinkTextWrapper,
-  ItemText,
-  FullNodeHeaderText
+  ItemText
 } from './FullNodeJointStyles';
 import { thinking } from '/assets/images';
 import LoadingBar from './LoadingBar';
@@ -27,6 +22,7 @@ import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
 import FullNodeLog from './FullNodeLog';
 import FullNodeStatus from './FullNodeStatus';
+import FullNodeBase from './FullNodeBase';
 
 type SeupPageProps = {
   history: any,
@@ -53,26 +49,17 @@ const loadingInformationText = "Full node setup may take up to 48 hours. you can
 
 class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   render() {
-    return [
-      <div>
-        <FullNodeHeaderText>Full Node Setup</FullNodeHeaderText>
-      </div>,
-      <PageWrapper>
-        <LeftPane>{this.renderLeftPane()}</LeftPane>
-        <RightPane>{this.renderRightPane()}</RightPane>
-      </PageWrapper>
-    ];
+    return <FullNodeBase header="Full Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
   renderRightPane = () => (
     <RightPaneInner>
-      <ImageWrapper>
-        <BaseImage src={thinking} width={132} height={152} />
+      <ImageWrapper maxHeight={264}>
+        <BaseImage src={thinking} />
       </ImageWrapper>
       <CenterTextWrapper>
-        <RightHeaderWrapper>
-          <RightHeaderText>Full Node Setup Information</RightHeaderText>
-        </RightHeaderWrapper>
+        <RightHeaderText>Full Node Setup Information</RightHeaderText>
+
         <ItemTextWrapperUniformPadding>
           <ItemText>{loadingInformationText}</ItemText>
         </ItemTextWrapperUniformPadding>
@@ -92,10 +79,10 @@ class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
     const { capacity } = fullNode;
     return (
       <LeftPaneInner>
-        <LoadingRow>
+        <BottomPaddedRow>
           <LoadingBar isLoading capacity={(capacity && capacity.label) || ''} status="Connetcing" />
           <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
-        </LoadingRow>
+        </BottomPaddedRow>
         <FullNodeStatus />
         <FullNodeLog />
       </LeftPaneInner>
@@ -107,7 +94,7 @@ class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   //   const { history } = this.props;
   //   setTimeout(() => {
   //     history.push('/root/full-node/full-node-ready');
-  //   }, 8000);
+  //   }, 10000);
   // }
 
   handleStopSetup = () => {

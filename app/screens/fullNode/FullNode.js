@@ -3,9 +3,7 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import FullNodeSetupPage from '/components/fullNode/FullNodeSetupPage';
-import FullNodeLoadingPage from '/components/fullNode/FullNodeLoadingPage';
-import FullNodePage from '/components/fullNode/FullNodePage';
+import routes from '/routes';
 
 type FullNodeProps = {
   wallet: any,
@@ -20,23 +18,6 @@ const Container = styled.div`
   height: inherit;
 `;
 
-const routes = {
-  fullNode: {
-    SETUP: {
-      path: '/root/full-node/full-node-setup',
-      component: FullNodeSetupPage
-    },
-    LOADING: {
-      path: '/root/full-node/full-node-loading',
-      component: FullNodeLoadingPage
-    },
-    READY: {
-      path: '/root/full-node/full-node-ready',
-      component: FullNodePage
-    }
-  }
-};
-
 class FullNode extends Component<FullNodeProps, FullNodeState> {
   render() {
     const { wallet, fullNode } = this.props;
@@ -48,8 +29,8 @@ class FullNode extends Component<FullNodeProps, FullNodeState> {
     return (
       <Container>
         <Switch>
-          {Object.keys(routes.fullNode).map((routeKey) => (
-            <Route key={routeKey} path={routes.fullNode[routeKey].path} component={routes.fullNode[routeKey].component} />
+          {routes.localNode.map((route) => (
+            <Route key={route.path} path={route.path} component={route.component} />
           ))}
           <Redirect to={initialPath} />
         </Switch>
