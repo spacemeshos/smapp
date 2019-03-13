@@ -88,7 +88,7 @@ class Auth extends Component<Props, State> {
 
   navigateToWallet = () => {
     const { history } = this.props;
-    history.push('/main');
+    history.push('/main/wallet');
   };
 }
 
