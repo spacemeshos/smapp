@@ -33,13 +33,12 @@ const Text = styled.span`
   user-select: none;
 `;
 
-export type SlideProps = {
-  id: number, // eslint-disable-line react/no-unused-prop-types
+type Props = {
   source: string,
   text: string
 };
 
-class Slide extends PureComponent<SlideProps> {
+class Slide extends PureComponent<Props> {
   render() {
     const { source, text } = this.props;
     return (

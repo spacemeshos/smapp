@@ -50,6 +50,10 @@ ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
   FileManager.readFile({ browserWindow: mainWindow, event, ...request });
 });
 
+ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
+  FileManager.readDirectory({ browserWindow: mainWindow, event });
+});
+
 ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
   FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
 });

@@ -22,7 +22,7 @@ const AnimatedIcon = styled.img`
 `;
 
 type Props = {
-  size?: string
+  size?: number
 };
 
 class Loader extends PureComponent<Props> {
@@ -34,7 +34,7 @@ class Loader extends PureComponent<Props> {
 
   render() {
     const { size } = this.props;
-    return <AnimatedIcon size={size ? Loader.sizes[size] : Loader.sizes.SMALL} src={loader} alt="Loading" />;
+    return <AnimatedIcon size={size || Loader.sizes.SMALL} src={loader} alt="Loading" />;
   }
 }
 

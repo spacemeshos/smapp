@@ -2,10 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setAuthenticated, logout } from '/redux/auth/actions';
-import { CenterCard } from '/components/auth';
+import { StepsContainer } from '/components/auth';
+import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
-import { smColors } from '/vars';
+import { smColors, authModes } from '/vars';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -27,59 +27,69 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
-  history: any,
-  logout: Function
-  // setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
+  history: Object,
+  walletFiles: Array<string>
 };
 
 type State = {
-  step: number
+  mode: number
 };
 
 class Auth extends Component<Props, State> {
-  state = {
-    step: 1
-  };
+  constructor(props) {
+    super(props);
+    const { walletFiles } = props;
+    this.state = {
+      mode: walletFiles && walletFiles.length ? authModes.UNLOCK : authModes.WELCOME
+    };
+  }
 
   render() {
-    const { step } = this.state;
+    const { walletFiles } = this.props;
+    const { mode } = this.state;
     return (
       <Wrapper backgroundImage={this.getBackgroundImage()}>
         <InnerWrapper>
-          <CenterCard
-            step={step}
-            setCreationMode={this.setCreationMode}
-            setLoginMode={this.setLoginMode}
-            navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
-            navigateToWallet={this.navigateToWallet}
-          />
+          {walletFiles ? (
+            <StepsContainer
+              mode={mode}
+              setCreationMode={this.setCreationMode}
+              setUnlockMode={this.setUnlockMode}
+              navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
+              navigateToWallet={this.navigateToWallet}
+            />
+          ) : (
+            <Loader size={Loader.sizes.BIG} />
+          )}
         </InnerWrapper>
       </Wrapper>
     );
   }
 
-  componentWillUnmount(): void {
-    const { logout } = this.props;
-    logout();
+  static getDerivedStateFromProps(props) {
+    if (props.walletFiles && props.walletFiles.length) {
+      return { mode: authModes.UNLOCK };
+    }
+    return null;
   }
 
   getBackgroundImage = () => {
-    const { step } = this.state;
-    switch (step) {
-      case 1:
+    const { mode } = this.state;
+    switch (mode) {
+      case authModes.WELCOME:
         return background1;
-      case 2:
+      case authModes.UNLOCK:
         return background2;
-      case 3:
+      case authModes.CREATE:
         return background3;
       default:
         return background1;
     }
   };
 
-  setCreationMode = () => this.setState({ step: 2 });
+  setCreationMode = () => this.setState({ mode: authModes.CREATE });
 
-  setLoginMode = () => this.setState({ step: 3 });
+  setUnlockMode = () => this.setState({ mode: authModes.UNLOCK });
 
   navigateToLocalNodeSetup = () => {
     const { history } = this.props;
@@ -88,22 +98,14 @@ class Auth extends Component<Props, State> {
 
   navigateToWallet = () => {
     const { history } = this.props;
-    history.push('/main/wallet');
+    history.push('/main');
   };
 }
 
 const mapStateToProps = (state) => ({
-  wallet: state.wallet
+  walletFiles: state.auth.walletFiles
 });
 
-const mapDispatchToProps = {
-  logout,
-  setAuthenticated
-};
-
-Auth = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Auth);
+Auth = connect(mapStateToProps)(Auth);
 
 export default Auth;

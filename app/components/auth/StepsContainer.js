@@ -1,11 +1,11 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { smColors } from '/vars';
+import { smColors, authModes } from '/vars';
 import { onboardingLogo } from '/assets/images';
-import InitialCard from './InitialCard';
+import Welcome from './Welcome';
 import CreateWallet from './CreateWallet';
-import DecryptWalletCard from './DecryptWalletCard';
+import UnlockWallet from './UnlockWallet';
 
 const Wrapper = styled.div`
   background-color: ${smColors.white};
@@ -38,40 +38,41 @@ const HeaderText = styled.span`
 `;
 
 type Props = {
-  step: number,
+  mode: number,
   setCreationMode: Function,
-  setLoginMode: Function,
+  setUnlockMode: Function,
   navigateToLocalNodeSetup: Function,
   navigateToWallet: Function
 };
 
-class CenterCard extends PureComponent<Props> {
+class StepsContainer extends PureComponent<Props> {
   render() {
-    const { step } = this.props;
+    const { mode } = this.props;
+    const header = mode === authModes.UNLOCK ? 'Welcome Back' : 'Welcome to Spacemesh';
     return (
       <Wrapper>
         <Header>
           <Logo src={onboardingLogo} />
-          <HeaderText>{`${step === 3 ? 'Welcome Back' : 'Welcome to Spacemesh'}`}</HeaderText>
+          <HeaderText>{header}</HeaderText>
         </Header>
-        {this.renderCardBody(step)}
+        {this.renderMode(mode)}
       </Wrapper>
     );
   }
 
-  renderCardBody = (step: number) => {
-    const { setCreationMode, setLoginMode, navigateToWallet, navigateToLocalNodeSetup } = this.props;
-    switch (step) {
-      case 1:
-        return <InitialCard setCreationMode={setCreationMode} setLoginMode={setLoginMode} />;
-      case 2:
+  renderMode = (mode: number) => {
+    const { setCreationMode, setUnlockMode, navigateToWallet, navigateToLocalNodeSetup } = this.props;
+    switch (mode) {
+      case authModes.WELCOME:
+        return <Welcome setCreationMode={setCreationMode} setUnlockMode={setUnlockMode} />;
+      case authModes.UNLOCK:
+        return <UnlockWallet setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
+      case authModes.CREATE:
         return <CreateWallet navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
-      case 3:
-        return <DecryptWalletCard setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
       default:
         return null;
     }
   };
 }
 
-export default CenterCard;
+export default StepsContainer;

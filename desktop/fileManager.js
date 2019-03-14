@@ -5,6 +5,7 @@ import { app, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
 
 const readFileAsync = util.promisify(fs.readFile);
+const readDirectoryAsync = util.promisify(fs.readdir);
 const writeFileAsync = util.promisify(fs.writeFile);
 
 // Linux: ~/.config/<App Name>
@@ -14,7 +15,7 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileManager {
-  static readFile = async ({ browserWindow, event, filePath, showDialog }) => {
+  static readFile = async ({ browserWindow, event, fileName, showDialog }) => {
     if (showDialog) {
       const options = {
         title: 'Load Wallet Backup File',
@@ -29,7 +30,18 @@ class FileManager {
         }
       });
     } else {
-      await FileManager._readFile({ event, path: filePath });
+      await FileManager._readFile({ event, path: path.join(appFilesDirPath, fileName) });
+    }
+  };
+
+  static readDirectory = async ({ event }) => {
+    try {
+      const files = await readDirectoryAsync(appFilesDirPath);
+      const regex = new RegExp('.*.(json)', 'ig');
+      const filteredFiles = files.filter((file) => file.match(regex));
+      event.sender.send(ipcConsts.READ_DIRECTORY_SUCCESS, filteredFiles);
+    } catch (error) {
+      event.sender.send(ipcConsts.READ_DIRECTORY_FAILURE, error.message);
     }
   };
 

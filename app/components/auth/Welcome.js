@@ -1,12 +1,16 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { SmCarousel, SmButton } from '/basicComponents';
+import { SmCarousel, SmButton, Slide } from '/basicComponents';
 import { steam, smcCoin } from '/assets/images';
-import Slide from './Slide';
-import type { SlideProps } from './Slide';
 
-const carouselItems: SlideProps[] = [
+type CarouselItem = {
+  id: number,
+  text: string,
+  source: string
+};
+
+const carouselItems: Array<CarouselItem> = [
   {
     id: 1,
     text: 'Setup a full node on your computer and stard earning spacemesh coins',
@@ -43,13 +47,12 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  setCreationMode: Function,
-  setLoginMode: Function
+  setCreationMode: Function
 };
 
-class InitialCard extends Component<Props> {
+class Welcome extends Component<Props> {
   render() {
-    const { setCreationMode, setLoginMode } = this.props;
+    const { setCreationMode } = this.props;
     return (
       <Wrapper>
         <SmCarousel>
@@ -59,11 +62,11 @@ class InitialCard extends Component<Props> {
         </SmCarousel>
         <BottomPart>
           <SmButton text="Create Wallet" theme="orange" center onPress={setCreationMode} style={{ marginTop: 20 }} />
-          <SmButton text="Login to Wallet" theme="green" center onPress={setLoginMode} style={{ marginTop: 20 }} />
+          <SmButton text="Restore Wallet" theme="green" center onPress={() => {}} style={{ marginTop: 20 }} />
         </BottomPart>
       </Wrapper>
     );
   }
 }
 
-export default InitialCard;
+export default Welcome;
