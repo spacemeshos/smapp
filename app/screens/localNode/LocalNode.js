@@ -5,12 +5,12 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import routes from '/routes';
 
-type FullNodeProps = {
+type LocalNodeProps = {
   wallet: any,
-  fullNode: any
+  localNode: any
 };
 
-type FullNodeState = {};
+type LocalNodeState = {};
 
 const Container = styled.div`
   padding: 58px 90px;
@@ -18,14 +18,14 @@ const Container = styled.div`
   height: inherit;
 `;
 
-class FullNode extends Component<FullNodeProps, FullNodeState> {
+class LocalNode extends Component<LocalNodeProps, LocalNodeState> {
   render() {
-    const { wallet, fullNode } = this.props;
-    // TODO: set full node statup status
-    const mode: 'setup' | 'ready' = 'setup';
-    const initialPath = `/root/full-node/full-node${mode === 'setup' ? '-setup' : '-ready'}`;
+    const { wallet, localNode } = this.props;
+    // TODO: set local node statup status
+    const mode: 'setup' | 'ready' = 'ready';
+    const initialPath = `/root/local-node/local-node${mode === 'setup' ? '-setup' : '-ready'}`;
     // eslint-disable-next-line no-console
-    console.log('mode', mode, 'initial', initialPath, 'wallet', wallet, 'fullNode', fullNode);
+    console.log('mode', mode, 'initial', initialPath, 'wallet', wallet, 'localNode', localNode);
     return (
       <Container>
         <Switch>
@@ -41,9 +41,9 @@ class FullNode extends Component<FullNodeProps, FullNodeState> {
 
 const mapStateToProps = (state) => ({
   wallet: state.wallet,
-  fullNode: state.fullNode
+  localNode: state.localNode
 });
 
-FullNode = connect(mapStateToProps)(FullNode);
+LocalNode = connect(mapStateToProps)(LocalNode);
 
-export default FullNode;
+export default LocalNode;

@@ -10,7 +10,7 @@ import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
 
 type Props = {
   history: any,
-  wallet: { wallet: any, setupFullNode: boolean }
+  wallet: { wallet: any, setupLocalNode: boolean }
 };
 
 type State = {
@@ -38,8 +38,8 @@ const styles = {
 
 const sideMenuItems: SideMenuItem[] = [
   {
-    text: 'Full Node',
-    path: '/root/full-node',
+    text: 'Local Node',
+    path: '/root/local-node',
     icon: menu1
   },
   {
@@ -97,7 +97,7 @@ class Root extends Component<Props, State> {
 
   componentDidMount() {
     const { wallet } = this.props;
-    if (wallet.setupFullNode) {
+    if (wallet.setupLocalNode) {
       this.setState({ loadingItemIndex: 1 }, () => {
         this.timer = setTimeout(() => {
           this.setState({

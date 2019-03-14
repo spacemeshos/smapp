@@ -11,11 +11,6 @@ const Actionable = css`
   }
 `;
 
-export const FullNodePageBodyWrapper = styled.div`
-  display: flex;
-  height: 100%;
-`;
-
 export const RightPaneInner = styled.div`
   display: flex;
   flex-direction: column;
@@ -28,11 +23,6 @@ export const LeftPaneInner = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
-`;
-
-export const LeftHeaderWrapper = styled.div`
-  padding: 12px 0;
-  margin-top: 12px;
 `;
 
 export const RightHeaderText = styled.span`
@@ -53,11 +43,6 @@ export const GrayText = styled(BaseText)`
 export const BoldText = styled.span`
   font-size: 16px;
   font-weight: bold;
-`;
-
-export const SemiBoldText = styled.span`
-  font-size: 16px;
-  font-weight: 600;
 `;
 
 export const ActionLink = styled(BaseText)`
@@ -116,83 +101,12 @@ export const LeftPaneRow = styled.div`
   height: 62px;
 `;
 
-export const BorderlessLeftPaneRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  padding: 12px 0;
-`;
-
-export const LogRow = styled(LeftPaneRow)`
-  border-bottom: none;
-  height: 100%;
-  max-height: 200px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-`;
-
-export const LogRowInner = styled.div`
-  height: 100%;
-  width: 100%;
-`;
-
 export const BottomPaddedRow = styled(LeftPaneRow)`
   padding-top: 0;
-  margin-bottom: 54px;
   padding-bottom: 72px;
 `;
 
-export const StatusSection = styled.div`
-  margin-bottom: 54px;
-  height: 100%;
-`;
-
-export const LogSection = styled.div`
-  height: 100%;
-`;
-
-export const StatusRowSection = styled.div`
-  width: 50%;
-`;
-
-export const LogRowSection = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 100%;
-`;
-
-export const LogEntryWrapper = styled.div`
-  height: 44px;
-  line-height: 44px;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-// $FlowStyledIssue
-export const LogEntry = styled(BaseText)`
-  color: ${({ reward }) => (reward ? smColors.green : smColors.black)};
-`;
-
-export const SideLabelWrapper = styled.div`
-  height: 44px;
-  padding-left: 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-export const GrayTextWrapper = styled.div`
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
-
 export const ItemTextWrapper = styled.div`
-  /* padding: 10px 30px; */
   display: flex;
   flex-direction: column;
   align-self: center;

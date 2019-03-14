@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setFullNodeStorage } from '/redux/fullNode/actions';
+import { setLocalNodeStorage } from '/redux/localNode/actions';
 import styled from 'styled-components';
 import {
   RightHeaderText,
@@ -11,23 +11,19 @@ import {
   RightPaneInner,
   LeftPaneInner,
   ActionLink,
-  LeftHeaderWrapper,
-  BorderlessLeftPaneRow,
-  SideLabelWrapper,
-  GrayTextWrapper,
   GrayText,
   ItemTextWrapper,
   LinkTextWrapper,
   ItemText
-} from './FullNodeJointStyles';
+} from './LocalNodeJointStyles';
 import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-import FullNodeBase from './FullNodeBase';
+import LocalNodeBase from './LocalNodeBase';
 
 type SeupPageProps = {
   history: any,
-  setFullNodeStorage: Function
+  setLocalNodeStorage: Function
 };
 type SetupPageState = {
   drive: ?DropdownEntry,
@@ -106,11 +102,11 @@ const rightPaneSetupModeList = [
 const rightPaneSetupModeLinks = [
   {
     id: 'learnMore',
-    text: 'Learn more about Spacemesh Full Node'
+    text: 'Learn more about Spacemesh Local Node'
   },
   {
-    id: 'changeFullNodeAddress',
-    text: 'Change your awards full node address'
+    id: 'changeLocalNodeAddress',
+    text: 'Change your awards Local Node address'
   },
   {
     id: 'showComputerEffort',
@@ -153,19 +149,46 @@ const ItemImageWrapper = styled.div`
   padding-right: 12px;
 `;
 
-class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
+const LeftHeaderWrapper = styled.div`
+  padding: 12px 0;
+  margin-top: 12px;
+`;
+
+const BorderlessLeftPaneRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 12px 0;
+`;
+
+const SideLabelWrapper = styled.div`
+  height: 44px;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const GrayTextWrapper = styled.div`
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+class LocalNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
   state = {
     capacity: null,
     drive: null
   };
 
   render() {
-    return <FullNodeBase header="Full Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
   renderRightPane = () => (
     <RightPaneInner>
-      <RightHeaderText>Full Node Setup Instructions</RightHeaderText>
+      <RightHeaderText>Local Node Setup Instructions</RightHeaderText>
       {rightPaneSetupModeList.map((setupListItem) => (
         <SettingModeListItem key={setupListItem.id}>
           <ItemImageWrapper>
@@ -200,7 +223,7 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
           )}
         </BorderlessLeftPaneRow>
         <LeftHeaderWrapper>
-          <BoldText>Choose how much storage to allocate for the full node</BoldText>
+          <BoldText>Choose how much storage to allocate for the local node</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
           <SmDropdown data={capacityDropdownList} selectedId={capacity && capacity.id} onPress={(selection: DropdownEntry) => this.handleSelectCapacity(selection)} />
@@ -231,10 +254,10 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
   };
 
   handleStartSetup = () => {
-    const { setFullNodeStorage, history } = this.props;
+    const { setLocalNodeStorage, history } = this.props;
     const { capacity, drive } = this.state;
-    setFullNodeStorage({ capacity, drive });
-    history.push('/root/full-node/full-node-loading');
+    setLocalNodeStorage({ capacity, drive });
+    history.push('/root/local-node/local-node-loading');
   };
 
   handleSelectDrive = (selection: DropdownEntry) => {
@@ -245,11 +268,11 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
     this.setState({ capacity: selection });
   };
 
-  handleLinkClick = (linkId: 'learnMore' | 'changeFullNodeAddress' | 'showComputerEffort') => {
+  handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {
     switch (linkId) {
       case 'learnMore':
         break;
-      case 'changeFullNodeAddress':
+      case 'changeLocalNodeAddress':
         break;
       case 'showComputerEffort':
         break;
@@ -260,12 +283,12 @@ class FullNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
 }
 
 const mapDispatchToProps = {
-  setFullNodeStorage
+  setLocalNodeStorage
 };
 
-FullNodeSetupPage = connect(
+LocalNodeSetupPage = connect(
   null,
   mapDispatchToProps
-)(FullNodeSetupPage);
+)(LocalNodeSetupPage);
 
-export default FullNodeSetupPage;
+export default LocalNodeSetupPage;

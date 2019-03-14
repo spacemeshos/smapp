@@ -1,10 +1,10 @@
 // @flow
-import { Auth, Wallet, FullNode } from './screens';
+import { Auth, Wallet, LocalNode } from './screens';
 import Root from './screens/Root';
 import StoryBook from './components/StoryBook';
-import FullNodeSetupPage from '/components/fullNode/FullNodeSetupPage';
-import FullNodeLoadingPage from '/components/fullNode/FullNodeLoadingPage';
-import FullNodePage from '/components/fullNode/FullNodePage';
+import LocalNodeSetupPage from '/components/localNode/LocalNodeSetupPage';
+import LocalNodeLoadingPage from '/components/localNode/LocalNodeLoadingPage';
+import LocalNodePage from '/components/localNode/LocalNodePage';
 
 const app = [
   {
@@ -27,23 +27,23 @@ const main = [
     component: Wallet
   },
   {
-    path: '/root/full-node',
-    component: FullNode
+    path: '/root/local-node',
+    component: LocalNode
   }
 ];
 
 const localNode = [
   {
-    path: '/root/full-node/full-node-setup',
-    component: FullNodeSetupPage
+    path: '/root/local-node/local-node-setup',
+    component: LocalNodeSetupPage
   },
   {
-    path: '/root/full-node/full-node-loading',
-    component: FullNodeLoadingPage
+    path: '/root/local-node/local-node-loading',
+    component: LocalNodeLoadingPage
   },
   {
-    path: '/root/full-node/full-node-ready',
-    component: FullNodePage
+    path: '/root/local-node/local-node-ready',
+    component: LocalNodePage
   }
 ];
 

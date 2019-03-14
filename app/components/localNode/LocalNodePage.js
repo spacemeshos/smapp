@@ -14,41 +14,41 @@ import {
   BottomLinksWrapper,
   CenterTextWrapper,
   ItemText
-} from './FullNodeJointStyles';
+} from './LocalNodeJointStyles';
 import { miner } from '/assets/images';
 import LoadingBar from './LoadingBar';
 import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-import FullNodeLog from './FullNodeLog';
-import FullNodeStatus from './FullNodeStatus';
-import FullNodeBase from './FullNodeBase';
+import LocalNodeLog from './LocalNodeLog';
+import LocalNodeStatus from './LocalNodeStatus';
+import LocalNodeBase from './LocalNodeBase';
 
 type Props = {
   history: any,
-  fullNode: any
+  localNode: any
 };
 type State = {};
 
 const rightPaneLinks = [
   {
     id: 'learnMore',
-    text: 'Learn more about Spacemesh Full Node'
+    text: 'Learn more about Spacemesh Local Node'
   },
   {
     id: 'showComputerEffort',
     text: 'Show computer effort'
   },
   {
-    id: 'changeFullNodeSettings',
-    text: 'Change Full Node Settings'
+    id: 'changeLocalNodeSettings',
+    text: 'Change Local Node Settings'
   }
 ];
 
 const readyInformationText = 'To run Spacemesh p2p network and get awarded for your contribution, you need to keep your computer running 24/7.';
 
-class FullNodePage extends Component<Props, State> {
+class LocalNodePage extends Component<Props, State> {
   render() {
-    return <FullNodeBase header="Full Node" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
   renderRightPane = () => (
@@ -63,7 +63,7 @@ class FullNodePage extends Component<Props, State> {
         </ItemTextWrapperUniformPadding>
       </CenterTextWrapper>
       <BottomLinksWrapper>
-        {rightPaneLinks.map((loadingLink: { id: 'learnMore' | 'showComputerEffort' | 'changeFullNodeSettings', text: string }) => (
+        {rightPaneLinks.map((loadingLink: { id: 'learnMore' | 'showComputerEffort' | 'changeLocalNodeSettings', text: string }) => (
           <LinkTextWrapper key={loadingLink.id} onClick={() => this.handleLinkClick(loadingLink.id)}>
             <ActionLink>{loadingLink.text}</ActionLink>
           </LinkTextWrapper>
@@ -73,8 +73,8 @@ class FullNodePage extends Component<Props, State> {
   );
 
   renderLeftPane = () => {
-    const { fullNode } = this.props;
-    const { capacity }: { capacity: DropdownEntry } = fullNode;
+    const { localNode } = this.props;
+    const { capacity }: { capacity: DropdownEntry } = localNode;
 
     return (
       <LeftPaneInner>
@@ -82,24 +82,24 @@ class FullNodePage extends Component<Props, State> {
           <LoadingBar isLoading={false} capacity={(capacity && capacity.label) || ''} status="Active and Connected" />
           <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
         </BottomPaddedRow>
-        <FullNodeStatus />
-        <FullNodeLog />
+        <LocalNodeStatus />
+        <LocalNodeLog />
       </LeftPaneInner>
     );
   };
 
   handleStopSetup = () => {
     const { history } = this.props;
-    history.push('/root/full-node/full-node-setup');
+    history.push('/root/local-node/local-node-setup');
   };
 
-  handleLinkClick = (linkId: 'learnMore' | 'changeFullNodeSettings' | 'showComputerEffort') => {
+  handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeSettings' | 'showComputerEffort') => {
     const { history } = this.props;
     switch (linkId) {
       case 'learnMore':
         break;
-      case 'changeFullNodeSettings':
-        history.push('/root/full-node/full-node-setup');
+      case 'changeLocalNodeSettings':
+        history.push('/root/local-node/local-node-setup');
         break;
       case 'showComputerEffort':
         break;
@@ -110,9 +110,9 @@ class FullNodePage extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  fullNode: state.fullNode
+  localNode: state.localNode
 });
 
-FullNodePage = connect(mapStateToProps)(FullNodePage);
+LocalNodePage = connect(mapStateToProps)(LocalNodePage);
 
-export default FullNodePage;
+export default LocalNodePage;

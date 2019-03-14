@@ -12,7 +12,7 @@ import DecryptWalletCard from './DecryptWalletCard';
 const carouselItems: SlideProps[] = [
   {
     id: 1,
-    text: 'Setup a full node on your computer and stard earning spacemesh coins',
+    text: 'Setup a local node on your computer and start earning spacemesh coins',
     source: smcCoin
   },
   {
@@ -118,7 +118,7 @@ type Props = {
   setCreationMode: Function,
   setLoginMode: Function,
   proceedToStep3: Function,
-  navigateToFullNodeSetup: Function,
+  navigateToLocalNodeSetup: Function,
   navigateToWallet: Function
 };
 
@@ -174,18 +174,18 @@ class CenterCard extends PureComponent<Props> {
   };
 
   renderCard3 = () => {
-    const { navigateToFullNodeSetup, navigateToWallet } = this.props;
+    const { navigateToLocalNodeSetup, navigateToWallet } = this.props;
     return (
       <InnerWrapper>
         <UpperPart>
-          <UpperPartHeader>Setup a Spacemesh Full Node and start earning Spacemesh Coins?</UpperPartHeader>
+          <UpperPartHeader>Setup a Spacemesh Local Node and start earning Spacemesh Coins?</UpperPartHeader>
           <ImageWrapper>
             <Image src={miner} />
           </ImageWrapper>
-          <Link>Learn more about Spacemesh full nodes.</Link>
+          <Link>Learn more about Spacemesh local nodes.</Link>
         </UpperPart>
         <BottomPart>
-          <SmButton text="Yes, Setup Full Node" theme="orange" onPress={navigateToFullNodeSetup} style={{ marginTop: 20 }} />
+          <SmButton text="Yes, Setup Local Node" theme="orange" onPress={navigateToLocalNodeSetup} style={{ marginTop: 20 }} />
           <SmButton text="Maybe Later" theme="green" onPress={navigateToWallet} style={{ marginTop: 20 }} />
         </BottomPart>
       </InnerWrapper>

@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import createRootReducer from './configReducers';
 import * as authActions from './auth/actions';
 import * as walletActions from './wallet/actions';
-import * as fullNodeActions from './fullNode/actions';
+import * as localNodeActions from './localNode/actions';
 import type { storeStateType } from './types';
 
 const rootReducer = createRootReducer();
@@ -20,7 +20,7 @@ const configureStore = (initialState?: storeStateType) => {
   const actionCreators = {
     ...authActions,
     ...walletActions,
-    ...fullNodeActions
+    ...localNodeActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

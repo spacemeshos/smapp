@@ -1,5 +1,17 @@
 import React from 'react';
-import { BaseText, BoldText, StatusSection, StatusRowSection, LeftPaneRow } from './FullNodeJointStyles';
+import styled from 'styled-components';
+import { BaseText, BoldText, LeftPaneRow } from './LocalNodeJointStyles';
+
+const StatusSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+`;
+
+const StatusRowSection = styled.div`
+  width: 50%;
+`;
 
 // Test stub
 const getTotalTimeRunning = () => {
@@ -16,7 +28,7 @@ const getUpcomingEarnings = () => {
   return '3 Spacemesh coins (due in 2 days)';
 };
 
-const FullNodeStatus = () => {
+const LocalNodeStatus = () => {
   return (
     <StatusSection>
       <LeftPaneRow>
@@ -47,4 +59,4 @@ const FullNodeStatus = () => {
   );
 };
 
-export default FullNodeStatus;
+export default LocalNodeStatus;

@@ -30,7 +30,7 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: any
-  // setAuthenticated: (payload?: { wallet: any, setupFullNode: boolean }) => void
+  // setAuthenticated: (payload?: { wallet: any, setupLocalNode: boolean }) => void
 };
 
 type State = {
@@ -52,7 +52,7 @@ class Auth extends Component<Props, State> {
             setCreationMode={this.setCreationMode}
             setLoginMode={this.setLoginMode}
             proceedToStep3={this.proceedToStep3}
-            navigateToFullNodeSetup={this.navigateToFullNodeSetup}
+            navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
             navigateToWallet={this.navigateToWallet}
           />
         </InnerWrapper>
@@ -88,17 +88,17 @@ class Auth extends Component<Props, State> {
 
   proceedToStep3 = () => this.setState({ step: 3 });
 
-  navigateToFullNodeSetup = () => {
+  navigateToLocalNodeSetup = () => {
     const { history } = this.props;
     // walletStorageService.saveWallet(wallet);
-    // setAuthenticated({ wallet, setupFullNode: true });
+    // setAuthenticated({ wallet, setupLocalNode: true });
     history.push('/root');
   };
 
   navigateToWallet = () => {
     const { history } = this.props;
     // walletStorageService.saveWallet(wallet);
-    // setAuthenticated({ wallet, setupFullNode: true });
+    // setAuthenticated({ wallet, setupLocalNode: true });
     history.push('/root');
   };
 }

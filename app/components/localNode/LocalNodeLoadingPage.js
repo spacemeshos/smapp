@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { resetNodeSettings } from '/redux/fullNode/actions';
+import { resetNodeSettings } from '/redux/localNode/actions';
 import {
   RightHeaderText,
   BaseImage,
@@ -15,19 +15,19 @@ import {
   CenterTextWrapper,
   LinkTextWrapper,
   ItemText
-} from './FullNodeJointStyles';
+} from './LocalNodeJointStyles';
 import { thinking } from '/assets/images';
 import LoadingBar from './LoadingBar';
 import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-import FullNodeLog from './FullNodeLog';
-import FullNodeStatus from './FullNodeStatus';
-import FullNodeBase from './FullNodeBase';
+import LocalNodeLog from './LocalNodeLog';
+import LocalNodeStatus from './LocalNodeStatus';
+import LocalNodeBase from './LocalNodeBase';
 
 type SeupPageProps = {
   history: any,
   resetNodeSettings: Function,
-  fullNode: any
+  localNode: any
 };
 type SetupPageState = {
   drive: ?DropdownEntry,
@@ -37,7 +37,7 @@ type SetupPageState = {
 const rightPaneLoadingModeLinks = [
   {
     id: 'learnMore',
-    text: 'Learn more about Spacemesh Full Node'
+    text: 'Learn more about Spacemesh Local Node'
   },
   {
     id: 'showComputerEffort',
@@ -45,11 +45,11 @@ const rightPaneLoadingModeLinks = [
   }
 ];
 
-const loadingInformationText = "Full node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
+const loadingInformationText = "Local node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
 
-class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
+class LocalNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   render() {
-    return <FullNodeBase header="Full Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
   renderRightPane = () => (
@@ -58,7 +58,7 @@ class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
         <BaseImage src={thinking} />
       </ImageWrapper>
       <CenterTextWrapper>
-        <RightHeaderText>Full Node Setup Information</RightHeaderText>
+        <RightHeaderText>Local Node Setup Information</RightHeaderText>
 
         <ItemTextWrapperUniformPadding>
           <ItemText>{loadingInformationText}</ItemText>
@@ -75,16 +75,16 @@ class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   );
 
   renderLeftPane = () => {
-    const { fullNode } = this.props;
-    const { capacity } = fullNode;
+    const { localNode } = this.props;
+    const { capacity } = localNode;
     return (
       <LeftPaneInner>
         <BottomPaddedRow>
           <LoadingBar isLoading capacity={(capacity && capacity.label) || ''} status="Connetcing" />
           <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
         </BottomPaddedRow>
-        <FullNodeStatus />
-        <FullNodeLog />
+        <LocalNodeStatus />
+        <LocalNodeLog />
       </LeftPaneInner>
     );
   };
@@ -93,21 +93,21 @@ class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   // componentDidMount() {
   //   const { history } = this.props;
   //   setTimeout(() => {
-  //     history.push('/root/full-node/full-node-ready');
+  //     history.push('/root/local-node/local-node-ready');
   //   }, 10000);
   // }
 
   handleStopSetup = () => {
     const { resetNodeSettings, history } = this.props;
     resetNodeSettings();
-    history.push('/root/full-node/full-node-setup');
+    history.push('/root/local-node/local-node-setup');
   };
 
-  handleLinkClick = (linkId: 'learnMore' | 'changeFullNodeAddress' | 'showComputerEffort') => {
+  handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {
     switch (linkId) {
       case 'learnMore':
         break;
-      case 'changeFullNodeAddress':
+      case 'changeLocalNodeAddress':
         break;
       case 'showComputerEffort':
         break;
@@ -118,16 +118,16 @@ class FullNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
 }
 
 const mapStateToProps = (state) => ({
-  fullNode: state.fullNode
+  localNode: state.localNode
 });
 
 const mapDispatchToProps = {
   resetNodeSettings
 };
 
-FullNodeLoadingPage = connect(
+LocalNodeLoadingPage = connect(
   mapStateToProps,
   mapDispatchToProps
-)(FullNodeLoadingPage);
+)(LocalNodeLoadingPage);
 
-export default FullNodeLoadingPage;
+export default LocalNodeLoadingPage;
