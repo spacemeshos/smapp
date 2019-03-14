@@ -146,7 +146,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     const { disableButtons } = this.state;
     const disable = val === 'disable' && !disableButtons;
     if (val === 'clearStorage') {
-      localStorageService.clearLocalStorage();
+      localStorageService.clear();
     }
     this.setState({
       message: `Pressed ${val} button`,

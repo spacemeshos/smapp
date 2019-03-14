@@ -1,2 +1,1 @@
-export { default as localStorageService } from './localStorageService';
-export { default as walletStorageService } from './walletStorageService';
+export { default as localStorageService } from './localStorageService'; // eslint-disable-line import/prefer-default-export

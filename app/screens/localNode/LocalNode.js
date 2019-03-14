@@ -23,7 +23,7 @@ class LocalNode extends Component<LocalNodeProps, LocalNodeState> {
     const { wallet, localNode } = this.props;
     // TODO: set local node statup status
     const mode: 'setup' | 'ready' = 'ready';
-    const initialPath = `/root/local-node/local-node${mode === 'setup' ? '-setup' : '-ready'}`;
+    const initialPath = `/main/local-node/local-node${mode === 'setup' ? '-setup' : '-ready'}`;
     // eslint-disable-next-line no-console
     console.log('mode', mode, 'initial', initialPath, 'wallet', wallet, 'localNode', localNode);
     return (

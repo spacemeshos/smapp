@@ -93,14 +93,14 @@ class LocalNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   // componentDidMount() {
   //   const { history } = this.props;
   //   setTimeout(() => {
-  //     history.push('/root/local-node/local-node-ready');
+  //     history.push('/main/local-node/local-node-ready');
   //   }, 10000);
   // }
 
   handleStopSetup = () => {
     const { resetNodeSettings, history } = this.props;
     resetNodeSettings();
-    history.push('/root/local-node/local-node-setup');
+    history.push('/main/local-node/local-node-setup');
   };
 
   handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {

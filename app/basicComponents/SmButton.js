@@ -34,9 +34,15 @@ const Wrapper = styled.div`
 
 // $FlowStyledIssue
 const Text = styled.span`
-  color: ${({ theme }) => (theme === 'green' ? smColors.darkGreen : smColors.white)};
+  color: ${({ theme, disabled }) => {
+    if (disabled) {
+      return theme === 'green' ? smColors.textGray : smColors.white;
+    }
+    return theme === 'green' ? smColors.darkGreen : smColors.white;
+  }};
   font-size: 14px;
   font-weight: ${({ theme }) => (theme === 'green' ? 'normal' : 'bold')};
+  line-height: 19px;
   cursor: inherit;
 `;
 
@@ -53,7 +59,9 @@ class SmButton extends PureComponent<Props> {
     const { disabled, onPress, theme, text, style } = this.props;
     return (
       <Wrapper theme={theme} onClick={disabled ? null : onPress} disabled={disabled} style={style}>
-        <Text theme={theme}>{text}</Text>
+        <Text theme={theme} disabled={disabled}>
+          {text}
+        </Text>
       </Wrapper>
     );
   }

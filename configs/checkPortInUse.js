@@ -2,7 +2,7 @@
 import detectPort from 'detect-port';
 
 // eslint-disable-next-line func-names
-(function CheckPortInUse() {
+(function checkPortInUse() {
   const port: string = process.env.PORT || '1212';
 
   detectPort(port, (err: ?Error, availablePort: number) => {

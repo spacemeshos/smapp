@@ -2,9 +2,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { createFileEncryptionKey } from '/redux/wallet/actions';
+import { createFileEncryptionKey, saveNewWallet } from '/redux/auth/actions';
 import { SmButton, SmInput, Loader } from '/basicComponents';
+import { miner } from '/assets/images';
 import { smColors } from '/vars';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -51,6 +53,18 @@ const Link = styled(GrayText)`
   }
 `;
 
+const ImageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const Image = styled.img`
+  max-width: 120px;
+  max-height: 100%;
+`;
+
 const LoaderWrapper = styled.div`
   height: 100%;
   width: 100%;
@@ -60,21 +74,25 @@ const LoaderWrapper = styled.div`
 `;
 
 type Props = {
-  proceedToStep3: Function,
-  createFileEncryptionKey: Function
+  createFileEncryptionKey: Action,
+  saveNewWallet: Action,
+  navigateToLocalNodeSetup: Function,
+  navigateToWallet: Function
 };
 
 type State = {
-  pinCode: string,
+  subMode: 1 | 2,
+  passphrase: string,
   verifiedPinCode: string,
   hasPinCodeError: boolean,
   hasVerifyPinCodeError: boolean,
   isLoaderVisible: boolean
 };
 
-class EncryptWalletCard extends Component<Props, State> {
+class CreateWallet extends Component<Props, State> {
   state = {
-    pinCode: '',
+    subMode: 1,
+    passphrase: '',
     verifiedPinCode: '',
     hasPinCodeError: false,
     hasVerifyPinCodeError: false,
@@ -82,14 +100,19 @@ class EncryptWalletCard extends Component<Props, State> {
   };
 
   render() {
-    const { hasPinCodeError, hasVerifyPinCodeError, isLoaderVisible } = this.state;
+    const { isLoaderVisible, subMode } = this.state;
     if (isLoaderVisible) {
       return (
         <LoaderWrapper>
-          <Loader size="BIG" />
+          <Loader size={Loader.sizes.BIG} />
         </LoaderWrapper>
       );
     }
+    return subMode === 1 ? this.renderSubStep1() : this.renderSubStep2();
+  }
+
+  renderSubStep1 = () => {
+    const { hasPinCodeError, hasVerifyPinCodeError } = this.state;
     return (
       <Wrapper>
         <UpperPart>
@@ -106,10 +129,29 @@ class EncryptWalletCard extends Component<Props, State> {
         </BottomPart>
       </Wrapper>
     );
-  }
+  };
+
+  renderSubStep2 = () => {
+    const { navigateToLocalNodeSetup, navigateToWallet } = this.props;
+    return (
+      <Wrapper>
+        <UpperPart>
+          <UpperPartHeader>Setup a Spacemesh Full Node and start earning Spacemesh Coins?</UpperPartHeader>
+          <ImageWrapper>
+            <Image src={miner} />
+          </ImageWrapper>
+          <Link>Learn more about Spacemesh full nodes.</Link>
+        </UpperPart>
+        <BottomPart>
+          <SmButton text="Yes, Setup Full Node" theme="orange" onPress={navigateToLocalNodeSetup} style={{ marginTop: 20 }} />
+          <SmButton text="Maybe Later" theme="green" onPress={navigateToWallet} style={{ marginTop: 20 }} />
+        </BottomPart>
+      </Wrapper>
+    );
+  };
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ pinCode: value, hasPinCodeError: false });
+    this.setState({ passphrase: value, hasPinCodeError: false });
   };
 
   handlePasswordVerifyTyping = ({ value }: { value: string }) => {
@@ -117,33 +159,36 @@ class EncryptWalletCard extends Component<Props, State> {
   };
 
   validate = () => {
-    const { pinCode, verifiedPinCode } = this.state;
-    const hasPinCodeError = !pinCode || (!!pinCode && pinCode.length < 8);
-    const hasVerifyPinCodeError = !verifiedPinCode || pinCode !== verifiedPinCode;
+    const { passphrase, verifiedPinCode } = this.state;
+    const hasPinCodeError = !passphrase || (!!passphrase && passphrase.length < 8);
+    const hasVerifyPinCodeError = !verifiedPinCode || passphrase !== verifiedPinCode;
     this.setState({ hasPinCodeError, hasVerifyPinCodeError });
     return !hasPinCodeError && !hasVerifyPinCodeError;
   };
 
   createWallet = () => {
-    const { createFileEncryptionKey, proceedToStep3 } = this.props;
-    const { pinCode, isLoaderVisible } = this.state;
+    const { createFileEncryptionKey, saveNewWallet } = this.props;
+    const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       setTimeout(() => {
-        createFileEncryptionKey({ pinCode });
-        proceedToStep3();
-      }, 1000);
+        createFileEncryptionKey({ passphrase });
+        saveNewWallet({});
+        this.setState({ isLoaderVisible: false, subMode: 2 });
+      }, 500);
     }
   };
 }
 
 const mapDispatchToProps = {
-  createFileEncryptionKey
+  createFileEncryptionKey,
+  saveNewWallet
 };
 
-EncryptWalletCard = connect(
+CreateWallet = connect(
   null,
   mapDispatchToProps
-)(EncryptWalletCard);
-export default EncryptWalletCard;
+)(CreateWallet);
+
+export default CreateWallet;

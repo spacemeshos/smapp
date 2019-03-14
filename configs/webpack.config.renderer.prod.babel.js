@@ -4,15 +4,14 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
-import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
+import checkNodeEnv from './checkNodeEnv';
 
-CheckNodeEnv('production');
+checkNodeEnv('production');
+
 export default merge.smart(baseConfig, {
   devtool: 'source-map',
 
@@ -102,14 +101,6 @@ export default merge.smart(baseConfig, {
             parallel: true,
             sourceMap: true,
             cache: true
-          }),
-          new OptimizeCSSAssetsPlugin({
-            cssProcessorOptions: {
-              map: {
-                inline: false,
-                annotation: true
-              }
-            }
           })
         ]
   },
@@ -126,10 +117,6 @@ export default merge.smart(baseConfig, {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'
-    }),
-
-    new MiniCssExtractPlugin({
-      filename: 'style.css'
     }),
 
     new BundleAnalyzerPlugin({

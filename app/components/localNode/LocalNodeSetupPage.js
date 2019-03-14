@@ -257,7 +257,7 @@ class LocalNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
     const { setLocalNodeStorage, history } = this.props;
     const { capacity, drive } = this.state;
     setLocalNodeStorage({ capacity, drive });
-    history.push('/root/local-node/local-node-loading');
+    history.push('/main/local-node/local-node-loading');
   };
 
   handleSelectDrive = (selection: DropdownEntry) => {
