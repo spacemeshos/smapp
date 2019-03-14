@@ -54,20 +54,8 @@ export const ActionLink = styled(BaseText)`
 
 // $FlowStyledIssue
 export const BaseImage = styled.img`
-  height: 100%;
-  width: 100%;
-  ${({ height }) =>
-    height &&
-    `
-  height: ${height}px;
-
-  `}
-  ${({ width }) =>
-    width &&
-    `
-  width: ${width}px;
-
-  `}
+  height: ${({ height }) => (height ? `${height}px` : '100%')};
+  width: ${({ width }) => (width ? `${width}px` : '100%')};
 `;
 
 // $FlowStyledIssue
