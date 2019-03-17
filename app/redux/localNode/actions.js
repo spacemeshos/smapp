@@ -8,7 +8,6 @@ export const setLocalNodeStorage = ({ capacity, drive }: { capacity: ?number, dr
 
 export const resetNodeSettings = () => {
   return {
-    type: RESET_NODE_SETTINGS,
-    payload: null
+    type: RESET_NODE_SETTINGS
   };
 };

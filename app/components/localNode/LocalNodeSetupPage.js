@@ -3,23 +3,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage } from '/redux/localNode/actions';
 import styled from 'styled-components';
-import {
-  RightHeaderText,
-  BaseText,
-  BoldText,
-  BaseImage,
-  RightPaneInner,
-  LeftPaneInner,
-  ActionLink,
-  GrayText,
-  ItemTextWrapper,
-  LinkTextWrapper,
-  ItemText
-} from './LocalNodeJointStyles';
+import { BaseText, BoldText, LeftPaneInner, GrayText } from './LocalNodeJointStyles';
 import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
 import LocalNodeBase from './LocalNodeBase';
+import RightPaneSetup from './RightPaneSetup';
 
 type SeupPageProps = {
   history: any,
@@ -133,22 +122,6 @@ const getFiatCurrencyEquivalent = (capacity: number | string) => {
   return (getProjectedSmcEarnings(capacity) * 6).toFixed(2);
 };
 
-const SettingModeListItem = styled.div`
-  padding: 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  flex: 1;
-  min-width: 260px;
-`;
-
-const ItemImageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-right: 12px;
-`;
-
 const LeftHeaderWrapper = styled.div`
   padding: 12px 0;
   margin-top: 12px;
@@ -186,26 +159,7 @@ class LocalNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
 
-  renderRightPane = () => (
-    <RightPaneInner>
-      <RightHeaderText>Local Node Setup Instructions</RightHeaderText>
-      {rightPaneSetupModeList.map((setupListItem) => (
-        <SettingModeListItem key={setupListItem.id}>
-          <ItemImageWrapper>
-            <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
-          </ItemImageWrapper>
-          <ItemTextWrapper>
-            <ItemText>{setupListItem.text}</ItemText>
-          </ItemTextWrapper>
-        </SettingModeListItem>
-      ))}
-      {rightPaneSetupModeLinks.map((setupLink) => (
-        <LinkTextWrapper key={setupLink.id} onClick={() => this.handleLinkClick(setupLink.id)}>
-          <ActionLink>{setupLink.text}</ActionLink>
-        </LinkTextWrapper>
-      ))}
-    </RightPaneInner>
-  );
+  renderRightPane = () => <RightPaneSetup itemsList={rightPaneSetupModeList} linksList={rightPaneSetupModeLinks} handleLinkClick={this.handleLinkClick} />;
 
   renderLeftPane = () => {
     const { drive, capacity } = this.state;
