@@ -6,10 +6,10 @@ import webpack from 'webpack';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
+import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
 
-CheckNodeEnv('production');
+checkNodeEnv('production');
 
 export default merge.smart(baseConfig, {
   devtool: 'source-map',

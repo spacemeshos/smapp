@@ -1,9 +1,12 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { smColors } from '/vars';
+import { connect } from 'react-redux';
+import { createFileEncryptionKey, reopenWallet } from '/redux/auth/actions';
 import { SmButton, SmInput } from '/basicComponents';
 import { welcomeBack } from '/assets/images';
+import { smColors } from '/vars';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,22 +68,25 @@ const LinksWrapper = styled.div`
 
 type Props = {
   setCreationMode: Function,
-  navigateToWallet: Function
+  navigateToWallet: Function,
+  createFileEncryptionKey: Action,
+  reopenWallet: Action
 };
 
 type State = {
-  password: string
+  passphrase: string,
+  hasError: boolean
 };
 
-class DecryptWalletCard extends Component<Props, State> {
+class UnlockWallet extends Component<Props, State> {
   state = {
-    password: ''
+    passphrase: '',
+    hasError: false
   };
 
   render() {
-    const { setCreationMode, navigateToWallet } = this.props;
-    const { password } = this.state;
-    const hasError = !!password && password.length < 8;
+    const { setCreationMode } = this.props;
+    const { passphrase, hasError } = this.state;
     return (
       <Wrapper>
         <UpperPart>
@@ -88,10 +94,10 @@ class DecryptWalletCard extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter PIN to access wallet</UpperPartHeader>
-          <SmInput type="password" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
+          <SmInput type="passphrase" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} hasDebounce />
         </UpperPart>
         <BottomPart>
-          <SmButton text="Login" disabled={!password || hasError} theme="orange" onPress={() => navigateToWallet({ password })} style={{ marginTop: 20 }} />
+          <SmButton text="Login" disabled={!passphrase || hasError} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
           <LinksWrapper>
             <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
             <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
@@ -102,8 +108,34 @@ class DecryptWalletCard extends Component<Props, State> {
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ password: value });
+    this.setState({ passphrase: value, hasError: false });
+  };
+
+  decryptWallet = () => {
+    const { createFileEncryptionKey, reopenWallet, navigateToWallet } = this.props;
+    const { passphrase } = this.state;
+    if (passphrase.trim().length > 8) {
+      try {
+        createFileEncryptionKey({ passphrase });
+        reopenWallet({ isLoggingIn: true });
+        navigateToWallet();
+      } catch {
+        this.setState({ hasError: true });
+      }
+    } else {
+      this.setState({ hasError: true });
+    }
   };
 }
 
-export default DecryptWalletCard;
+const mapDispatchToProps = {
+  createFileEncryptionKey,
+  reopenWallet
+};
+
+UnlockWallet = connect(
+  null,
+  mapDispatchToProps
+)(UnlockWallet);
+
+export default UnlockWallet;

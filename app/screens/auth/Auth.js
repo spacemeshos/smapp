@@ -2,12 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setAuthenticated } from '/redux/auth/actions';
-import { CenterCard } from '/components/auth';
-// import { walletStorageService } from '/infra/storageServices';
+import { StepsContainer } from '/components/auth';
+import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
-import { smColors } from '/vars';
-// import type { Wallet } from '/vars/globalTypes';
+import { smColors, authModes } from '/vars';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -29,91 +27,85 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
-  history: any
-  // setAuthenticated: (payload?: { wallet: any, setupLocalNode: boolean }) => void
+  history: Object,
+  walletFiles: Array<string>
 };
 
 type State = {
-  step: number
+  mode: number
 };
 
 class Auth extends Component<Props, State> {
-  state = {
-    step: 1
-  };
+  constructor(props) {
+    super(props);
+    const { walletFiles } = props;
+    this.state = {
+      mode: walletFiles && walletFiles.length ? authModes.UNLOCK : authModes.WELCOME
+    };
+  }
 
   render() {
-    const { step } = this.state;
+    const { walletFiles } = this.props;
+    const { mode } = this.state;
     return (
-      <Wrapper showImage backgroundImage={this.getBackgroundImage()}>
+      <Wrapper backgroundImage={this.getBackgroundImage()}>
         <InnerWrapper>
-          <CenterCard
-            step={step}
-            setCreationMode={this.setCreationMode}
-            setLoginMode={this.setLoginMode}
-            proceedToStep3={this.proceedToStep3}
-            navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
-            navigateToWallet={this.navigateToWallet}
-          />
+          {walletFiles ? (
+            <StepsContainer
+              mode={mode}
+              setCreationMode={this.setCreationMode}
+              setUnlockMode={this.setUnlockMode}
+              navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
+              navigateToWallet={this.navigateToWallet}
+            />
+          ) : (
+            <Loader size={Loader.sizes.BIG} />
+          )}
         </InnerWrapper>
       </Wrapper>
     );
   }
 
-  componentDidMount() {
-    // const wallet = walletStorageService.getWallet();
-    // if (wallet) {
-    //   this.setState({ step: 4 });
-    // }
+  static getDerivedStateFromProps(props) {
+    if (props.walletFiles && props.walletFiles.length) {
+      return { mode: authModes.UNLOCK };
+    }
+    return null;
   }
 
   getBackgroundImage = () => {
-    const { step } = this.state;
-    switch (step) {
-      case 1:
+    const { mode } = this.state;
+    switch (mode) {
+      case authModes.WELCOME:
         return background1;
-      case 2:
+      case authModes.UNLOCK:
         return background2;
-      case 3:
-      case 4:
+      case authModes.CREATE:
         return background3;
       default:
         return background1;
     }
   };
 
-  setCreationMode = () => this.setState({ step: 2 });
+  setCreationMode = () => this.setState({ mode: authModes.CREATE });
 
-  setLoginMode = () => this.setState({ step: 4 });
-
-  proceedToStep3 = () => this.setState({ step: 3 });
+  setUnlockMode = () => this.setState({ mode: authModes.UNLOCK });
 
   navigateToLocalNodeSetup = () => {
     const { history } = this.props;
-    // walletStorageService.saveWallet(wallet);
-    // setAuthenticated({ wallet, setupLocalNode: true });
-    history.push('/root');
+    history.push('/main');
   };
 
   navigateToWallet = () => {
     const { history } = this.props;
-    // walletStorageService.saveWallet(wallet);
-    // setAuthenticated({ wallet, setupLocalNode: true });
-    history.push('/root');
+    history.push('/main');
   };
 }
 
 const mapStateToProps = (state) => ({
-  wallet: state.wallet
+  walletFiles: state.auth.walletFiles
 });
 
-const mapDispatchToProps = {
-  setAuthenticated
-};
-
-Auth = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Auth);
+Auth = connect(mapStateToProps)(Auth);
 
 export default Auth;

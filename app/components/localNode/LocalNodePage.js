@@ -90,7 +90,7 @@ class LocalNodePage extends Component<Props, State> {
 
   handleStopSetup = () => {
     const { history } = this.props;
-    history.push('/root/local-node/local-node-setup');
+    history.push('/main/local-node/local-node-setup');
   };
 
   handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeSettings' | 'showComputerEffort') => {
@@ -99,7 +99,7 @@ class LocalNodePage extends Component<Props, State> {
       case 'learnMore':
         break;
       case 'changeLocalNodeSettings':
-        history.push('/root/local-node/local-node-setup');
+        history.push('/main/local-node/local-node-setup');
         break;
       case 'showComputerEffort':
         break;

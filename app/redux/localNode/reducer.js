@@ -1,5 +1,5 @@
 // @flow
-import type { Action } from '/redux/types';
+import type { Action } from '/types';
 import { SET_CAPACITY, RESET_NODE_SETTINGS } from './actions';
 
 const initialState = {

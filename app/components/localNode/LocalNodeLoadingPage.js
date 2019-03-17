@@ -90,17 +90,17 @@ class LocalNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
   };
 
   // Test: enable to switch to ready page
-  // componentDidMount() {
-  //   const { history } = this.props;
-  //   setTimeout(() => {
-  //     history.push('/root/local-node/local-node-ready');
-  //   }, 10000);
-  // }
+  componentDidMount() {
+    const { history } = this.props;
+    setTimeout(() => {
+      history.push('/main/local-node/local-node-ready');
+    }, 10000);
+  }
 
   handleStopSetup = () => {
     const { resetNodeSettings, history } = this.props;
     resetNodeSettings();
-    history.push('/root/local-node/local-node-setup');
+    history.push('/main/local-node/local-node-setup');
   };
 
   handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {

@@ -1,14 +1,14 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
+import type { StoreStateType } from '/types';
 import createRootReducer from './configReducers';
 import * as authActions from './auth/actions';
 import * as walletActions from './wallet/actions';
 import * as localNodeActions from './localNode/actions';
-import type { storeStateType } from './types';
 
 const rootReducer = createRootReducer();
 
-const configureStore = (initialState?: storeStateType) => {
+const configureStore = (initialState?: StoreStateType) => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
