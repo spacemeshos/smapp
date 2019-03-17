@@ -4,7 +4,6 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { logout } from '/redux/wallet/actions';
-import StoryBook from '/components/StoryBook';
 import { Wallet } from '/screens';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
