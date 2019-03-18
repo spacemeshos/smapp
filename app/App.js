@@ -19,8 +19,8 @@ class App extends React.Component<Props> {
         <Provider store={store}>
           <Router>
             <Switch>
-              {Object.keys(routes).map((routeKey) => (
-                <Route key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+              {routes.app.map((route) => (
+                <Route key={route.path} path={route.path} component={route.component} />
               ))}
               <Redirect to="/auth" />
             </Switch>

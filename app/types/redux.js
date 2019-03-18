@@ -1,7 +1,8 @@
 import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
 
 export type StoreStateType = {
-  +wallet: any
+  +wallet: any,
+  +localNode: any
 };
 
 export type Action = {

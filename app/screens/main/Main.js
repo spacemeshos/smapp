@@ -2,12 +2,13 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
+import styled from 'styled-components';
 import { logout } from '/redux/wallet/actions';
-import StoryBook from '/components/StoryBook';
 import { Wallet } from '/screens';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
+import routes from '/routes';
 
 type Props = {
   history: any,
@@ -20,42 +21,11 @@ type State = {
   loadingItemIndex: number
 };
 
-const styles = {
-  container: {
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    flex: 1
-  },
-  mainContent: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
-    width: '100%',
-    height: '100%',
-    flex: 1
-  }
-};
-
-const routes = {
-  STORYBOOK: {
-    path: '/main/story-book',
-    component: StoryBook
-  },
-  WALLET: {
-    path: '/main/wallet',
-    component: Wallet
-  }
-};
-
 const sideMenuItems: SideMenuItem[] = [
   {
-    text: 'Full Node',
-    path: null,
-    icon: menu1,
-    disabled: true
+    text: 'Local Node',
+    path: '/main/local-node',
+    icon: menu1
   },
   {
     text: 'Wallet',
@@ -85,6 +55,26 @@ const sideMenuItems: SideMenuItem[] = [
   }
 ];
 
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+`;
+
+const MainContentWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    overflow: scroll;
+`;
+
 class Main extends Component<Props, State> {
   timer: any;
 
@@ -97,17 +87,17 @@ class Main extends Component<Props, State> {
     const { selectedItemIndex, loadingItemIndex } = this.state;
 
     return (
-      <div style={styles.container}>
+      <Container>
         <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
-        <div style={styles.mainContent}>
+        <MainContentWrapper>
           <Switch>
-            {Object.keys(routes).map((routeKey) => (
-              <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+            {routes.main.map((route) => (
+              <Route key={route.path} path={route.path} component={route.component} />
             ))}
             <Redirect to="/main/wallet" />
           </Switch>
-        </div>
-      </div>
+        </MainContentWrapper>
+      </Container>
     );
   }
 
