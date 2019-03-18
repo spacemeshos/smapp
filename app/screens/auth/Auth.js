@@ -2,10 +2,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import { readWalletFiles } from '/redux/wallet/actions';
 import { StepsContainer } from '/components/auth';
 import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
+import type { Action } from '/types';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -28,6 +30,7 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: Object,
+  readWalletFiles: Action,
   walletFiles: Array<string>
 };
 
@@ -38,7 +41,8 @@ type State = {
 class Auth extends Component<Props, State> {
   constructor(props) {
     super(props);
-    const { walletFiles } = props;
+    const { walletFiles, readWalletFiles } = props;
+    readWalletFiles();
     this.state = {
       mode: walletFiles && walletFiles.length ? authModes.UNLOCK : authModes.WELCOME
     };
@@ -73,6 +77,11 @@ class Auth extends Component<Props, State> {
     return null;
   }
 
+  componentDidMount(): void {
+    const { readWalletFiles } = this.props;
+    readWalletFiles();
+  }
+
   getBackgroundImage = () => {
     const { mode } = this.state;
     switch (mode) {
@@ -103,9 +112,16 @@ class Auth extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  walletFiles: state.auth.walletFiles
+  walletFiles: state.wallet.walletFiles
 });
 
-Auth = connect(mapStateToProps)(Auth);
+const mapDispatchToProps = {
+  readWalletFiles
+};
+
+Auth = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Auth);
 
 export default Auth;

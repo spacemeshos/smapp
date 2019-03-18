@@ -1,8 +1,17 @@
 import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
+import type { Wallet, Account } from './wallet';
 
 export type StoreStateType = {
-  +wallet: any,
-  +localNode: any
+  +localNode: any,
+  +wallet: {
+    walletNumber: number,
+    accountNumber: number,
+    fileKey?: Buffer | null,
+    salt: string,
+    wallet: Wallet,
+    accounts: Account[],
+    transactions: []
+  }
 };
 
 export type Action = {

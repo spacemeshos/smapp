@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { createFileEncryptionKey, reopenWallet } from '/redux/auth/actions';
+import { deriveEncryptionKey, unlockWallet } from '/redux/wallet/actions';
 import { SmButton, SmInput } from '/basicComponents';
 import { welcomeBack } from '/assets/images';
 import { smColors } from '/vars';
@@ -69,8 +69,8 @@ const LinksWrapper = styled.div`
 type Props = {
   setCreationMode: Function,
   navigateToWallet: Function,
-  createFileEncryptionKey: Action,
-  reopenWallet: Action
+  deriveEncryptionKey: Action,
+  unlockWallet: Action
 };
 
 type State = {
@@ -94,7 +94,7 @@ class UnlockWallet extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter PIN to access wallet</UpperPartHeader>
-          <SmInput type="passphrase" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} hasDebounce />
+          <SmInput type="passphrase" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
           <SmButton text="Login" disabled={!passphrase || hasError} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
@@ -112,12 +112,12 @@ class UnlockWallet extends Component<Props, State> {
   };
 
   decryptWallet = () => {
-    const { createFileEncryptionKey, reopenWallet, navigateToWallet } = this.props;
+    const { deriveEncryptionKey, unlockWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
     if (passphrase.trim().length > 8) {
       try {
-        createFileEncryptionKey({ passphrase });
-        reopenWallet({ isLoggingIn: true });
+        deriveEncryptionKey({ passphrase });
+        unlockWallet({ shouldPromtUser: true });
         navigateToWallet();
       } catch {
         this.setState({ hasError: true });
@@ -129,8 +129,8 @@ class UnlockWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  createFileEncryptionKey,
-  reopenWallet
+  deriveEncryptionKey,
+  unlockWallet
 };
 
 UnlockWallet = connect(
