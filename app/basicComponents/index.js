@@ -1,5 +1,6 @@
 // @flow
 export { default as Loader } from './Loader';
+export { default as CheckDone } from './CheckDone';
 export { default as SendReceiveButton } from './SendReceiveButton';
 export { default as SideMenu } from './SideMenu';
 export { default as Slide } from './Slide';

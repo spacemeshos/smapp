@@ -136,14 +136,14 @@ class CreateWallet extends Component<Props, State> {
     return (
       <Wrapper>
         <UpperPart>
-          <UpperPartHeader>Setup a Spacemesh Full Node and start earning Spacemesh Coins?</UpperPartHeader>
+          <UpperPartHeader>Setup a Spacemesh Local Node and start earning Spacemesh Coins?</UpperPartHeader>
           <ImageWrapper>
             <Image src={miner} />
           </ImageWrapper>
-          <Link>Learn more about Spacemesh full nodes.</Link>
+          <Link>Learn more about Spacemesh local nodes.</Link>
         </UpperPart>
         <BottomPart>
-          <SmButton text="Yes, Setup Full Node" theme="orange" onPress={navigateToLocalNodeSetup} style={{ marginTop: 20 }} />
+          <SmButton text="Yes, Setup Local Node" theme="orange" onPress={navigateToLocalNodeSetup} style={{ marginTop: 20 }} />
           <SmButton text="Maybe Later" theme="green" onPress={navigateToWallet} style={{ marginTop: 20 }} />
         </BottomPart>
       </Wrapper>

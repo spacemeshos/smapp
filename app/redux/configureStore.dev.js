@@ -4,6 +4,7 @@ import type { StoreStateType } from '/types';
 import createRootReducer from './configReducers';
 import * as authActions from './auth/actions';
 import * as walletActions from './wallet/actions';
+import * as localNodeActions from './localNode/actions';
 
 const rootReducer = createRootReducer();
 
@@ -18,7 +19,8 @@ const configureStore = (initialState?: StoreStateType) => {
   // Redux DevTools Configuration
   const actionCreators = {
     ...authActions,
-    ...walletActions
+    ...walletActions,
+    ...localNodeActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

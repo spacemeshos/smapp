@@ -13,7 +13,7 @@ type CarouselItem = {
 const carouselItems: Array<CarouselItem> = [
   {
     id: 1,
-    text: 'Setup a full node on your computer and stard earning spacemesh coins',
+    text: 'Setup a local node on your computer and start earning spacemesh coins',
     source: smcCoin
   },
   {

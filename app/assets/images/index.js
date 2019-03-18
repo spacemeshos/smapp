@@ -28,3 +28,7 @@ export { default as shieldIconWhite } from './security_logo_white@2x.png';
 export { default as arrowRightWhite } from './arrowRightWhite.png';
 export { default as walletBg } from './wallet_bg@2x.png';
 export { default as backup } from './backup.gif';
+export { default as thinking } from './thinking.gif';
+export { default as noLaptop } from './no_laptop@2x.png';
+export { default as time } from './time@2x.png';
+export { default as coin } from './coin@2x.png';

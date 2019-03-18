@@ -104,5 +104,3 @@ export const updateAccountData = ({ accountNumber, data }: { accountNumber: numb
   type: UPDATE_ACCOUNT_DATA,
   payload: { accountNumber, data }
 });
-
-// adafssdafadfad

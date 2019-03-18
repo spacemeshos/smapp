@@ -2,6 +2,7 @@ import type { Dispatch as ReduxDispatch, Store as ReduxStore } from 'redux';
 import type { Wallet, Account } from './wallet';
 
 export type StoreStateType = {
+  +localNode: any,
   +wallet: {
     walletNumber: number,
     accountNumber: number,

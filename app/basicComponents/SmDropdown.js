@@ -41,12 +41,12 @@ const StyledAction = styled.div`
 `;
 
 // $FlowStyledIssue
-const StyledRoot = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: inherit;
-  width: ${({ width }) => width}px;
+  min-width: ${({ width }) => width}px;
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -62,13 +62,12 @@ const StyledRoot = styled.div`
 `;
 
 // $FlowStyledIssue
-const StyledHeaderWrapper = styled(StyledAction)`
+const HeaderWrapper = styled(StyledAction)`
   z-index: 0;
   overflow: hidden;
   padding-left: 20px;
-  padding-top: 4px;
-  padding-bottom: 10px;
-  max-height: ${ROW_HEIGHT}px;
+  height: ${ROW_HEIGHT}px;
+  line-height: ${ROW_HEIGHT}px;
   border: 1px solid ${smColors.borderGray};
   border-radius: 2px;
   ${({ isOpen }) =>
@@ -80,14 +79,14 @@ const StyledHeaderWrapper = styled(StyledAction)`
   `}
 `;
 
-const StyledIconWrapper = styled.div`
+const IconWrapper = styled.div`
   position: relative;
 `;
 
 // $FlowStyledIssue
-const StyledIcon = styled.img`
+const Icon = styled.img`
   position: absolute;
-  top: 16px;
+  top: 20px;
   right: 20px;
   height: 6px;
   width: 10px;
@@ -97,23 +96,23 @@ const StyledIcon = styled.img`
 `;
 
 // $FlowStyledIssue
-const StyledItemsWrapper = styled.div`
+const ItemsWrapper = styled.div`
   position: absolute;
   top: ${ROW_HEIGHT - 1}px;
-  z-index: 100;
+  z-index: 1;
   overflow: hidden;
   border: 1px solid ${smColors.darkGreen};
   border-top: 1px solid ${smColors.borderGray};
   transition: all 0.2s linear;
   overflow-y: scroll;
-  width: ${({ width }) => width - 2}px;
+  min-width: ${({ width }) => width}px;
   max-height: ${({ height }) => height}px;
   border-radius: 0 0 2px 2px;
   cursor: auto;
   box-shadow: 0 3px 6px ${smColors.black20alpha};
 `;
 
-const StyledBaseLabelText = styled.span`
+const BaseLabelText = styled.span`
   font-size: 16px;
   color: ${smColors.black};
   text-overflow: ellipsis;
@@ -121,7 +120,7 @@ const StyledBaseLabelText = styled.span`
 `;
 
 // $FlowStyledIssue
-const StyledHeaderText = styled(StyledBaseLabelText)`
+const HeaderText = styled(BaseLabelText)`
   ${({ disabled }) =>
     disabled &&
     `
@@ -135,9 +134,9 @@ const StyledDropdownEntry = styled(StyledAction)`
   border-top: 1px solid ${smColors.borderGray};
   padding-left: 20px;
   height: ${ROW_HEIGHT}px;
+  line-height: ${ROW_HEIGHT}px;
   background-color: ${smColors.white};
   opacity: 1;
-  padding-top: 4px;
   cursor: pointer;
   ${({ disabled }) =>
     disabled &&
@@ -148,7 +147,8 @@ const StyledDropdownEntry = styled(StyledAction)`
 `;
 
 // $FlowStyledIssue
-const StyledDropdownEntryText = styled(StyledBaseLabelText)`
+const StyledDropdownEntryText = styled(BaseLabelText)`
+  cursor: pointer;
   ${({ disabled }) =>
     disabled &&
     `
@@ -171,19 +171,19 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
     const actualWidth = this._getWidth();
 
     return (
-      <StyledRoot disabled={disabled} width={actualWidth}>
-        <StyledHeaderWrapper isOpen={isOpen} onClick={this.handleToggle}>
-          <StyledIconWrapper>
-            <StyledIcon isOpen={itemsHeight === ROW_HEIGHT} src={isOpen || hoveredHeader ? openDDIcon : openDDIconDisabled} alt="Icon missing" />
-          </StyledIconWrapper>
-          <StyledHeaderText disabled={disabled}>{selectedEntry ? selectedEntry.label : placeholder || DEFAULT_PLACEHOLDER}</StyledHeaderText>
-        </StyledHeaderWrapper>
+      <Container disabled={disabled} width={actualWidth}>
+        <HeaderWrapper isOpen={isOpen} onClick={this.handleToggle}>
+          <IconWrapper>
+            <Icon isOpen={itemsHeight === ROW_HEIGHT} src={isOpen || hoveredHeader ? openDDIcon : openDDIconDisabled} alt="Icon missing" />
+          </IconWrapper>
+          <HeaderText disabled={disabled}>{selectedEntry ? selectedEntry.label : placeholder || DEFAULT_PLACEHOLDER}</HeaderText>
+        </HeaderWrapper>
         {isOpen && (
-          <StyledItemsWrapper width={actualWidth} height={itemsHeight}>
+          <ItemsWrapper width={actualWidth} height={itemsHeight}>
             {data.map((val) => this.renderDropdownEntryElem(val, disabled))}
-          </StyledItemsWrapper>
+          </ItemsWrapper>
         )}
-      </StyledRoot>
+      </Container>
     );
   }
 
@@ -255,13 +255,14 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
   };
 
   _getWidth = (): number | string => {
-    const { width, data } = this.props;
+    const { width, data, placeholder } = this.props;
     const LETTER_WIDTH = 10;
+    const WIDTH_PADDING = 24;
     if (!width) {
       const maxLength = data.reduce((max, entry: DropdownEntry) => {
         return Math.max(max, entry.label.length);
       }, 0);
-      return maxLength * LETTER_WIDTH;
+      return Math.max((placeholder && placeholder.length) || DEFAULT_PLACEHOLDER.length, maxLength) * LETTER_WIDTH + WIDTH_PADDING;
     } else {
       return width;
     }

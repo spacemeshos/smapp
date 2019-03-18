@@ -3,10 +3,11 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Wallet, Overview } from '/screens';
+import styled from 'styled-components';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
-import routes from '/routes';
 import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
+import routes from '/routes';
 
 type Props = {
   history: any,
@@ -39,10 +40,9 @@ const styles = {
 
 const sideMenuItems: SideMenuItem[] = [
   {
-    text: 'Full Node',
-    path: null,
-    icon: menu1,
-    disabled: true
+    text: 'Local Node',
+    path: '/main/local-node',
+    icon: menu1
   },
   {
     text: 'Wallet',
@@ -72,6 +72,24 @@ const sideMenuItems: SideMenuItem[] = [
   }
 ];
 
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+`;
+
+const MainContentWrapper = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    justify-content: center;
+    align-content: center;
+`;
+
 class Main extends Component<Props, State> {
   timer: any;
 
@@ -89,7 +107,7 @@ class Main extends Component<Props, State> {
         <div style={styles.mainContent}>
           <Switch>
             {routes.main.map((route) => (
-              <Route exact key={route.path} path={route.path} component={route.component} />
+              <Route key={route.path} path={route.path} component={route.component} />
             ))}
             <Redirect to="/main/wallet" />
           </Switch>
