@@ -2,16 +2,14 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { logout } from '/redux/wallet/actions';
-import StoryBook from '/components/StoryBook';
-import { Wallet } from '/screens';
+import { Wallet, Overview } from '/screens';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
+import routes from '/routes';
 import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
 
 type Props = {
   history: any,
-  logout: Function,
   wallet: { wallet: any, setupFullNode: boolean }
 };
 
@@ -36,17 +34,6 @@ const styles = {
     width: '100%',
     height: '100%',
     flex: 1
-  }
-};
-
-const routes = {
-  STORYBOOK: {
-    path: '/main/story-book',
-    component: StoryBook
-  },
-  WALLET: {
-    path: '/main/wallet',
-    component: Wallet
   }
 };
 
@@ -101,8 +88,8 @@ class Main extends Component<Props, State> {
         <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
         <div style={styles.mainContent}>
           <Switch>
-            {Object.keys(routes).map((routeKey) => (
-              <Route exact key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+            {routes.main.map((route) => (
+              <Route exact key={route.path} path={route.path} component={route.component} />
             ))}
             <Redirect to="/main/wallet" />
           </Switch>
@@ -112,8 +99,6 @@ class Main extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    const { logout } = this.props;
-    logout();
     !!this.timer && clearTimeout(this.timer);
   }
 
@@ -127,14 +112,5 @@ class Main extends Component<Props, State> {
     }
   };
 }
-
-const mapDispatchToProps = {
-  logout
-};
-
-Main = connect(
-  null,
-  mapDispatchToProps
-)(Main);
 
 export default Main;

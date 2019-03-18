@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import { readWalletFiles, logout } from '/redux/auth/actions';
+import { logout } from '/redux/auth/actions';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
@@ -19,8 +19,8 @@ class App extends React.Component<Props> {
         <Provider store={store}>
           <Router>
             <Switch>
-              {Object.keys(routes).map((routeKey) => (
-                <Route key={routeKey} path={routes[routeKey].path} component={routes[routeKey].component} />
+              {routes.app.map((route) => (
+                <Route key={route.path} path={route.path} component={route.component} />
               ))}
               <Redirect to="/auth" />
             </Switch>
@@ -28,11 +28,6 @@ class App extends React.Component<Props> {
         </Provider>
       </React.Fragment>
     );
-  }
-
-  componentDidMount(): void {
-    const { store } = this.props;
-    store.dispatch(readWalletFiles());
   }
 
   componentWillUnmount(): void {
