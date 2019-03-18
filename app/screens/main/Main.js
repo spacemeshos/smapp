@@ -2,41 +2,12 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Wallet, Overview } from '/screens';
 import styled from 'styled-components';
+import { Wallet, Overview } from '/screens';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
 import routes from '/routes';
-
-type Props = {
-  history: any,
-  wallet: { wallet: any, setupFullNode: boolean }
-};
-
-type State = {
-  selectedItemIndex: number,
-  loadingItemIndex: number
-};
-
-const styles = {
-  container: {
-    height: '100%',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    flex: 1
-  },
-  mainContent: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
-    width: '100%',
-    height: '100%',
-    flex: 1
-  }
-};
 
 const sideMenuItems: SideMenuItem[] = [
   {
@@ -72,7 +43,7 @@ const sideMenuItems: SideMenuItem[] = [
   }
 ];
 
-const Container = styled.div`
+const Wrapper = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
@@ -80,7 +51,7 @@ const Container = styled.div`
   flex: 1;
 `;
 
-const MainContentWrapper = styled.div`
+const InnerWrapper = styled.div`
     width: 100%;
     height: 100%;
     display: flex;
@@ -90,9 +61,17 @@ const MainContentWrapper = styled.div`
     align-content: center;
 `;
 
-class Main extends Component<Props, State> {
-  timer: any;
+type Props = {
+  history: any,
+  wallet: { wallet: any, setupFullNode: boolean }
+};
 
+type State = {
+  selectedItemIndex: number,
+  loadingItemIndex: number
+};
+
+class Main extends Component<Props, State> {
   state: State = {
     selectedItemIndex: 1,
     loadingItemIndex: -1
@@ -102,22 +81,18 @@ class Main extends Component<Props, State> {
     const { selectedItemIndex, loadingItemIndex } = this.state;
 
     return (
-      <div style={styles.container}>
+      <Wrapper>
         <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
-        <div style={styles.mainContent}>
+        <InnerWrapper>
           <Switch>
             {routes.main.map((route) => (
               <Route key={route.path} path={route.path} component={route.component} />
             ))}
             <Redirect to="/main/wallet" />
           </Switch>
-        </div>
-      </div>
+        </InnerWrapper>
+      </Wrapper>
     );
-  }
-
-  componentWillUnmount() {
-    !!this.timer && clearTimeout(this.timer);
   }
 
   handleSideMenuPress = ({ index }: { index: number }) => {
