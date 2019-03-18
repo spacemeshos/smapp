@@ -24,7 +24,7 @@
 # Terminology
 
 ## Wallet
-- Has a user renambalbe friendly name
+- Has a user re-nameable friendly name
 - Includes one main address by default
 - Password protected, can be backed up and restored by users from backup
 - Has a distinct encrypted data file in local app store
@@ -41,11 +41,11 @@
 
 ## Full Node
 - A spacemesh full p2p node running the Spacemesh blockmesh protocol. Working title for lack of a better agreed name by the team.
-Coinbase Address
+- Coinbase Address
 - The user configured address for receiving validations awards in a full node
 Validator
 - The main full node role. Validators are responsible for both creating blocks and agreeing on blocks. Validators are spacemesh miners
-Dashboard
+- Dashboard
 - The app section where users manage a locally running full node
 
 ## Spacemesh Coin
