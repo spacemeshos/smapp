@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { readWalletFiles } from '/redux/auth/actions';
+import { readWalletFiles } from '/redux/wallet/actions';
 import type { Action } from '/types';
 import { StepsContainer } from '/components/auth';
 import { Loader } from '/basicComponents';
@@ -41,7 +41,8 @@ type State = {
 class Auth extends Component<Props, State> {
   constructor(props) {
     super(props);
-    const { walletFiles } = props;
+    const { walletFiles, readWalletFiles } = props;
+    readWalletFiles();
     this.state = {
       mode: walletFiles && walletFiles.length ? authModes.UNLOCK : authModes.WELCOME
     };
@@ -76,7 +77,7 @@ class Auth extends Component<Props, State> {
     return null;
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     const { readWalletFiles } = this.props;
     readWalletFiles();
   }
@@ -115,7 +116,7 @@ const mapDispatchToProps = {
 };
 
 const mapStateToProps = (state) => ({
-  walletFiles: state.auth.walletFiles
+  walletFiles: state.wallet.walletFiles
 });
 
 Auth = connect(

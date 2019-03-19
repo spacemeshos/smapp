@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { createFileEncryptionKey, saveNewWallet } from '/redux/auth/actions';
+import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { SmButton, SmInput, Loader } from '/basicComponents';
 import { miner } from '/assets/images';
 import { smColors } from '/vars';
@@ -74,7 +74,7 @@ const LoaderWrapper = styled.div`
 `;
 
 type Props = {
-  createFileEncryptionKey: Action,
+  deriveEncryptionKey: Action,
   saveNewWallet: Action,
   navigateToLocalNodeSetup: Function,
   navigateToWallet: Function
@@ -169,13 +169,13 @@ class CreateWallet extends Component<Props, State> {
   };
 
   createWallet = () => {
-    const { createFileEncryptionKey, saveNewWallet } = this.props;
+    const { deriveEncryptionKey, saveNewWallet } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       setTimeout(() => {
-        createFileEncryptionKey({ passphrase });
+        deriveEncryptionKey({ passphrase });
         saveNewWallet({});
         this.setState({ isLoaderVisible: false, subMode: 2 });
       }, 500);
@@ -184,7 +184,7 @@ class CreateWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  createFileEncryptionKey,
+  deriveEncryptionKey,
   saveNewWallet
 };
 

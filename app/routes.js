@@ -1,5 +1,5 @@
 // @flow
-import { Auth, Wallet, LocalNode, Main } from './screens';
+import { Auth, Main, LocalNode, Wallet, Overview } from '/screens';
 import StoryBook from './components/StoryBook';
 import LocalNodeSetupPage from '/components/localNode/LocalNodeSetupPage';
 import LocalNodeLoadingPage from '/components/localNode/LocalNodeLoadingPage';
@@ -46,10 +46,18 @@ const localNode = [
   }
 ];
 
+const wallet = [
+  {
+    path: '/main/wallet/overview',
+    component: Overview
+  }
+];
+
 const routes = {
   app,
   main,
-  localNode
+  localNode,
+  wallet
 };
 
 export default routes;
