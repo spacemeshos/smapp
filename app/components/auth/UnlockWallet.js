@@ -75,29 +75,29 @@ type Props = {
 
 type State = {
   passphrase: string,
-  hasError: boolean
+  errorMessage: ?string
 };
 
 class UnlockWallet extends Component<Props, State> {
   state = {
     passphrase: '',
-    hasError: false
+    errorMessage: null
   };
 
   render() {
     const { setCreationMode } = this.props;
-    const { passphrase, hasError } = this.state;
+    const { passphrase, errorMessage } = this.state;
     return (
       <Wrapper>
         <UpperPart>
           <ImageWrapper>
             <Image src={welcomeBack} />
           </ImageWrapper>
-          <UpperPartHeader>Enter PIN to access wallet</UpperPartHeader>
-          <SmInput type="passphrase" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} hasDebounce />
+          <UpperPartHeader>Enter passphrase to access wallet</UpperPartHeader>
+          <SmInput type="passphrase" placeholder="Type passphrase" errorMessage={errorMessage} onChange={this.handlePasswordTyping} hasDebounce />
         </UpperPart>
         <BottomPart>
-          <SmButton text="Login" disabled={!passphrase || hasError} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
+          <SmButton text="Login" disabled={!passphrase || !!errorMessage} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
           <LinksWrapper>
             <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
             <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
@@ -108,22 +108,22 @@ class UnlockWallet extends Component<Props, State> {
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, hasError: false });
+    this.setState({ passphrase: value, errorMessage: null });
   };
 
   decryptWallet = () => {
     const { createFileEncryptionKey, reopenWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
-    if (passphrase.trim().length > 8) {
+    if (passphrase.trim().length >= 8) {
       try {
         createFileEncryptionKey({ passphrase });
         reopenWallet({ isLoggingIn: true });
         navigateToWallet();
       } catch {
-        this.setState({ hasError: true });
+        this.setState({ errorMessage: 'Error. Passphrase Incorrect.' });
       }
     } else {
-      this.setState({ hasError: true });
+      this.setState({ errorMessage: 'Error. Passphrase cannot be less than 8 characters.' });
     }
   };
 }

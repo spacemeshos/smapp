@@ -18,8 +18,8 @@ type SmRadioButtonProps = {
 const HoveredCenter = styled.div`
   display: none;
   position: absolute;
-  top: 5px;
-  left: 5px;
+  top: 4px;
+  left: 4px;
   height: 10px;
   width: 10px;
   border-radius: 6px;
@@ -77,6 +77,10 @@ const RadioInner = styled.div`
 `;
 
 const LabelWrapper = styled.div`
+  clear: both;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
   padding-left: 40px;
   padding-right: 12px;
   height: 44px;
