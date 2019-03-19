@@ -94,7 +94,7 @@ class UnlockWallet extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter passphrase to access wallet</UpperPartHeader>
-          <SmInput type="passphrase" placeholder="Type passphrase" errorMessage={errorMessage} onChange={this.handlePasswordTyping} hasDebounce />
+          <SmInput type="passphrase" placeholder="Type passphrase" errorMessage={errorMessage} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
           <SmButton text="Login" disabled={!passphrase || !!errorMessage} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />

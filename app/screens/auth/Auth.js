@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { readWalletFiles } from '/redux/wallet/actions';
-import type { Action } from '/types';
 import { StepsContainer } from '/components/auth';
 import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
+import type { Action } from '/types';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -111,13 +111,13 @@ class Auth extends Component<Props, State> {
   };
 }
 
-const mapDispatchToProps = {
-  readWalletFiles
-};
-
 const mapStateToProps = (state) => ({
   walletFiles: state.wallet.walletFiles
 });
+
+const mapDispatchToProps = {
+  readWalletFiles
+};
 
 Auth = connect(
   mapStateToProps,
