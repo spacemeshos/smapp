@@ -38,9 +38,6 @@ const Input = styled.input`
 const ErrorsSection = styled.div`
   position: relative;
   height: 20px;
-`;
-
-const ErrorMessageWrapper = styled.div`
   line-height: 20px;
 `;
 
@@ -65,14 +62,8 @@ class SmInput extends PureComponent<Props> {
     const { disabled, placeholder, errorMessage } = this.props;
     return (
       <Wrapper>
-        <Input key="input-elem" hasError={errorMessage} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} />
-        <ErrorsSection key="error-elem">
-          {errorMessage && (
-            <ErrorMessageWrapper>
-              <ErrorMessage>{errorMessage}</ErrorMessage>
-            </ErrorMessageWrapper>
-          )}
-        </ErrorsSection>
+        <Input hasError={errorMessage} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} />
+        <ErrorsSection>{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}</ErrorsSection>
       </Wrapper>
     );
   }

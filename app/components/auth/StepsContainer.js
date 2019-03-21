@@ -1,6 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors, authModes } from '/vars';
 import { onboardingLogo, xWhite } from '/assets/images';
@@ -42,6 +41,7 @@ const Logo = styled.img`
 const XIcon = styled.img`
   width: 20px;
   height: 20px;
+  cursor: pointer;
 `;
 
 const HeaderText = styled.span`
@@ -58,30 +58,25 @@ type Props = {
 };
 
 type State = {
-  redirectToLocalNode: boolean,
-  allowClose: boolean
+  isCloseBtnVisible: boolean
 };
 
-class StepsContainer extends PureComponent<Props, State> {
+class StepsContainer extends Component<Props, State> {
   state = {
-    redirectToLocalNode: false,
-    allowClose: true
+    isCloseBtnVisible: true
   };
 
   render() {
-    const { mode } = this.props;
-    const { redirectToLocalNode, allowClose } = this.state;
+    const { mode, navigateToLocalNodeSetup } = this.props;
+    const { isCloseBtnVisible } = this.state;
     const header = mode === authModes.UNLOCK ? 'Welcome Back' : 'Welcome to Spacemesh';
-    if (redirectToLocalNode) {
-      return <Redirect to="/main/local-node" />;
-    }
 
     return (
       <Wrapper>
         <Header>
           <TopRowContainer>
             <Logo src={onboardingLogo} />
-            {allowClose && <XIcon onClick={this.handleClose} src={xWhite} />}
+            {isCloseBtnVisible && <XIcon onClick={navigateToLocalNodeSetup} src={xWhite} />}
           </TopRowContainer>
           <HeaderText>{header}</HeaderText>
         </Header>
@@ -98,18 +93,14 @@ class StepsContainer extends PureComponent<Props, State> {
       case authModes.UNLOCK:
         return <UnlockWallet setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
       case authModes.CREATE:
-        return <CreateWallet onSubModeChange={this.handleSubModeChange} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
+        return <CreateWallet onSubModeChange={this.handleCloseButtonVisibility} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
       default:
         return null;
     }
   };
 
-  handleClose = () => {
-    this.setState({ redirectToLocalNode: true });
-  };
-
-  handleSubModeChange = (subMode: 1 | 2) => {
-    this.setState({ allowClose: subMode === 1 });
+  handleCloseButtonVisibility = (subMode: 1 | 2) => {
+    this.setState({ isCloseBtnVisible: subMode === 1 });
   };
 }
 
