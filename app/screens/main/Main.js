@@ -52,18 +52,18 @@ const Wrapper = styled.div`
 `;
 
 const InnerWrapper = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    justify-content: center;
-    align-content: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
 `;
 
 type Props = {
   history: any,
-  wallet: { wallet: any, setupFullNode: boolean }
+  walletFiles: string[]
 };
 
 type State = {
@@ -73,13 +73,12 @@ type State = {
 
 class Main extends Component<Props, State> {
   state: State = {
-    selectedItemIndex: 1,
+    selectedItemIndex: -1,
     loadingItemIndex: -1
   };
 
   render() {
     const { selectedItemIndex, loadingItemIndex } = this.state;
-
     return (
       <Wrapper>
         <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
@@ -88,11 +87,16 @@ class Main extends Component<Props, State> {
             {routes.main.map((route) => (
               <Route key={route.path} path={route.path} component={route.component} />
             ))}
-            <Redirect to="/main/wallet" />
           </Switch>
         </InnerWrapper>
       </Wrapper>
     );
+  }
+
+  componentDidMount() {
+    const isWalletLocation = window.location.hash.includes('/wallet');
+    const index = isWalletLocation ? 1 : 0;
+    this.setState({ selectedItemIndex: index });
   }
 
   handleSideMenuPress = ({ index }: { index: number }) => {

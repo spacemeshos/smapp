@@ -76,6 +76,7 @@ const LoaderWrapper = styled.div`
 type Props = {
   deriveEncryptionKey: Action,
   saveNewWallet: Action,
+  onSubModeChange: Function,
   navigateToLocalNodeSetup: Function,
   navigateToWallet: Function
 };
@@ -169,7 +170,7 @@ class CreateWallet extends Component<Props, State> {
   };
 
   createWallet = () => {
-    const { deriveEncryptionKey, saveNewWallet } = this.props;
+    const { deriveEncryptionKey, saveNewWallet, onSubModeChange } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
@@ -177,7 +178,7 @@ class CreateWallet extends Component<Props, State> {
       setTimeout(() => {
         deriveEncryptionKey({ passphrase });
         saveNewWallet({});
-        this.setState({ isLoaderVisible: false, subMode: 2 });
+        this.setState({ isLoaderVisible: false, subMode: 2 }, () => onSubModeChange(2));
       }, 500);
     }
   };
