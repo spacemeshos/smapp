@@ -14,17 +14,17 @@ import {
   BottomLinksWrapper,
   CenterTextWrapper,
   LinkTextWrapper,
-  ItemText
-} from './LocalNodeJointStyles';
+  ItemText,
+  LoadingBar,
+  LocalNodeLog,
+  LocalNodeStatus,
+  LocalNodeBase
+} from '/components/localNode';
 import { thinking } from '/assets/images';
-import LoadingBar from './LoadingBar';
 import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-import LocalNodeLog from './LocalNodeLog';
-import LocalNodeStatus from './LocalNodeStatus';
-import LocalNodeBase from './LocalNodeBase';
 
-type SeupPageProps = {
+type SetupPageProps = {
   history: any,
   resetNodeSettings: Function,
   localNode: any
@@ -47,7 +47,7 @@ const rightPaneLoadingModeLinks = [
 
 const loadingInformationText = "Local node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
 
-class LocalNodeLoadingPage extends Component<SeupPageProps, SetupPageState> {
+class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
   render() {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }

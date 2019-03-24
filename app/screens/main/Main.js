@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { Wallet, Overview } from '/screens';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
@@ -52,13 +51,13 @@ const Wrapper = styled.div`
 `;
 
 const InnerWrapper = styled.div`
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    justify-content: center;
-    align-content: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
 `;
 
 type Props = {

@@ -1,8 +1,10 @@
+// @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { shieldIconGreen, shieldIconWhite, arrowRightWhite } from '/assets/images';
 import { smColors } from '/vars';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   width: 100%;
   height: 50px;
@@ -21,11 +23,12 @@ const ShieldIcon = styled.img`
   cursor: inherit;
 `;
 
+// $FlowStyledIssue
 const Text = styled.div`
   font-size: 15px;
   line-height: 20px;
   font-weight: ${({ hasBackup }) => (hasBackup ? 'normal' : 'bold')};
-  color: ${({ hasBackup }) => (hasBackup ? smColors.darkGrayText : smColors.white)};
+  color: ${({ hasBackup }) => (hasBackup ? smColors.darkGray : smColors.white)};
   cursor: inherit;
 `;
 

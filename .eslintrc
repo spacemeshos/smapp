@@ -109,6 +109,7 @@
     "flowtype/semi": ["error", "always"],
     "flowtype/use-flow-type": "error",
     "flowtype/valid-syntax": "error",
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "react/no-array-index-key": 0
   }
 }

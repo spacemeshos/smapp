@@ -1,2 +1,3 @@
-export { default as Wallet } from './Wallet'; // eslint-disable-line import/prefer-default-export
-export { default as Overview } from './Overview'; // eslint-disable-line import/prefer-default-export
+export { default as Wallet } from './Wallet';
+export { default as Overview } from './Overview';
+export { default as SendCoins } from './SendCoins';
