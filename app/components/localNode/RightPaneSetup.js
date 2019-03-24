@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { RightHeaderText, BaseImage, RightPaneInner, ActionLink, ItemTextWrapper, LinkTextWrapper, ItemText } from './LocalNodeJointStyles';
+import { RightHeaderText, BaseImage, RightPaneInner, ActionLink, ItemTextWrapper, LinkTextWrapper, ItemText } from './LocalNodeCommonComponents';
 
 type Props = {
   itemsList: {

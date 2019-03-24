@@ -4,58 +4,34 @@ import styled from 'styled-components';
 import { SmRadioButton } from '/basicComponents';
 import type { RadioEntry } from './SmRadioButton';
 
-// $FlowStyledIssue
-const Root = styled.div`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: inherit;
-  user-select: none;
-  ${({ disabled }) =>
-    disabled &&
-    `
-      pointer-events: none;
-      opacity: 0.4;
-  `};
 `;
 
 type Props = {
-  onPress: (selection: RadioEntry) => void,
-  data: RadioEntry[],
-  disabled?: boolean
+  onPress?: () => { index: number },
+  selectedIndex: number,
+  data: RadioEntry[]
 };
 
-type State = {
-  radioSelected: number | string
-};
-
-class SmRadioGroup extends React.Component<Props, State> {
-  state = {
-    radioSelected: -1
-  };
-
+class SmRadioGroup extends React.Component<Props> {
   render() {
-    const { data, disabled } = this.props;
-    const { radioSelected } = this.state;
+    const { data, selectedIndex, onPress } = this.props;
     return (
-      <Root disabled={disabled}>
-        {data.map((val) => (
-          <SmRadioButton key={val.id} {...val} radioSelected={radioSelected} onSelect={this.handleSelect} />
+      <Wrapper>
+        {data.map((btn, index) => (
+          <SmRadioButton
+            key={`${btn.label}${index}`}
+            isSelected={selectedIndex === index}
+            isDisabled={btn.isDisabled}
+            onSelect={btn.isDisabled ? null : () => onPress({ index })}
+          />
         ))}
-      </Root>
+      </Wrapper>
     );
   }
-
-  handleSelect = (selection: RadioEntry) => {
-    const { onPress } = this.props;
-    const { id, label } = selection;
-    this.setState(
-      {
-        radioSelected: selection.id
-      },
-      () => onPress({ id, label })
-    );
-  };
 }
 
 export default SmRadioGroup;

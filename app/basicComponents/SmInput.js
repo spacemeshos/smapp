@@ -8,11 +8,12 @@ const DEFAULT_DEBOUNCE_TIME = 500;
 
 // $FlowStyledIssue
 const Input = styled.input`
+  width: 100%;
   height: 44px;
   padding: 0 10px;
   border-radius: 2px;
-  color: ${({ disabled }) => (disabled ? smColors.textGray : smColors.black)};
-  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
+  color: ${({ isDisabled }) => (isDisabled ? smColors.gray : smColors.black)};
+  opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
   border: 1px solid ${smColors.borderGray};
   font-size: 16px;
   &:focus {
@@ -29,20 +30,21 @@ const Input = styled.input`
 `;
 
 type Props = {
-  onChange: Function,
-  disabled?: boolean,
+  onChange: () => { value: string },
+  isDisabled?: boolean,
   placeholder?: string,
   hasError?: boolean,
   hasDebounce?: boolean,
-  debounceTime?: number
+  debounceTime?: number,
+  style: Object
 };
 
 class SmInput extends PureComponent<Props> {
   debounce: any;
 
   render() {
-    const { disabled, placeholder, hasError } = this.props;
-    return <Input hasError={hasError} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} />;
+    const { isDisabled, placeholder, hasError, style } = this.props;
+    return <Input hasError={hasError} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />;
   }
 
   componentWillUnmount(): void {

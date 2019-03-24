@@ -13,15 +13,15 @@ import {
   LinkTextWrapper,
   BottomLinksWrapper,
   CenterTextWrapper,
-  ItemText
-} from './LocalNodeJointStyles';
-import { miner } from '/assets/images';
-import LoadingBar from './LoadingBar';
+  ItemText,
+  LoadingBar,
+  LocalNodeLog,
+  LocalNodeStatus,
+  LocalNodeBase
+} from '/components/localNode';
 import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-import LocalNodeLog from './LocalNodeLog';
-import LocalNodeStatus from './LocalNodeStatus';
-import LocalNodeBase from './LocalNodeBase';
+import { miner } from '/assets/images';
 
 type Props = {
   history: any,

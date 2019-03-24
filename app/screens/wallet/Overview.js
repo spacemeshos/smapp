@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -48,7 +49,8 @@ const RightSection = styled.div`
 type Props = {
   accounts: Account[],
   transactions: [],
-  fiatRate: number
+  fiatRate: number,
+  history: { push: () => void }
 };
 
 type State = {
@@ -69,15 +71,21 @@ class Overview extends Component<Props, State> {
           {accounts && <AccountCard account={accounts[currentAccount]} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
           <BackupReminder style={{ marginBottom: 20 }} />
           <ButtonsWrapper>
-            <SendReceiveButton title={SendReceiveButton.titles.SEND} />
+            <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
             <ButtonsSeparator />
-            <SendReceiveButton title={SendReceiveButton.titles.RECEIVE} />
+            <SendReceiveButton title={SendReceiveButton.titles.RECEIVE} onPress={() => {}} />
           </ButtonsWrapper>
         </LeftSection>
         <RightSection>{transactions.length > 0 ? <div>transactions list</div> : <InitialLeftPane />}</RightSection>
       </Wrapper>
     );
   }
+
+  navigateToSendCoins = () => {
+    const { history, accounts } = this.props;
+    const { currentAccount } = this.state;
+    history.push('/main/wallet/sendCoins', { account: accounts[currentAccount] });
+  };
 }
 
 const mapStateToProps = (state) => ({

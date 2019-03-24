@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { BoldText, LeftPaneRow, ActionLink, BaseText } from './LocalNodeJointStyles';
+import { BoldText, LeftPaneRow, ActionLink, BaseText } from './LocalNodeCommonComponents';
 
 export type LogRecord = {
   id: any,

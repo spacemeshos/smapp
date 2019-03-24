@@ -70,11 +70,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('ready', async () => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    await installExtensions();
-  }
-
+const createWindow = () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 1280,
@@ -83,6 +79,14 @@ app.on('ready', async () => {
     minHeight: 728,
     center: true
   });
+};
+
+app.on('ready', async () => {
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    await installExtensions();
+  }
+
+  createWindow();
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
@@ -104,4 +108,10 @@ app.on('ready', async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+});
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
 });
