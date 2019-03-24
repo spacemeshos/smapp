@@ -5,7 +5,9 @@ import { SmButton, SendReceiveButton, SmInput, SmRadioGroup, SmDropdown } from '
 import type { RadioEntry, DropdownEntry } from '/basicComponents';
 import { localStorageService } from '../infra/storageServices';
 
-type StoryBookProps = {};
+type StoryBookProps = {
+  history: any
+};
 type StoryBookState = {
   message: string,
   disableButtons: boolean
@@ -42,7 +44,7 @@ const radioButtons: RadioEntry[] = [
   },
   {
     id: 3,
-    label: '4.0 GB',
+    label: '4.0 GB test test test test',
     isDisabled: true
   }
 ];
@@ -136,7 +138,8 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <SmButton text={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
         </div>
         <div style={styles.row}>
-          <Link to="/">Back</Link>
+          <Link to="/auth">Back</Link>
+          <SmButton text="Logout" theme="green" onPress={this.handleLogout} />
         </div>
       </div>
     );
@@ -176,5 +179,10 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     this.setState({
       message: `Radio[${selection.id}]: ${selection.label} selected`
     });
+  };
+
+  handleLogout = () => {
+    const { history } = this.props;
+    history.push('/');
   };
 }

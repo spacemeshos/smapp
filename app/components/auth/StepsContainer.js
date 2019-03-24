@@ -1,8 +1,8 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors, authModes } from '/vars';
-import { onboardingLogo } from '/assets/images';
+import { onboardingLogo, xWhite } from '/assets/images';
 import Welcome from './Welcome';
 import CreateWallet from './CreateWallet';
 import UnlockWallet from './UnlockWallet';
@@ -16,6 +16,12 @@ const Wrapper = styled.div`
   align-self: center;
   position: relative;
   box-shadow: 0 3px 6px ${smColors.black20alpha};
+`;
+
+const TopRowContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 const Header = styled.div`
@@ -32,6 +38,12 @@ const Logo = styled.img`
   height: 24px;
 `;
 
+const XIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+`;
+
 const HeaderText = styled.span`
   font-size: 24px;
   color: ${smColors.white};
@@ -45,14 +57,27 @@ type Props = {
   navigateToWallet: Function
 };
 
-class StepsContainer extends PureComponent<Props> {
+type State = {
+  isCloseBtnVisible: boolean
+};
+
+class StepsContainer extends Component<Props, State> {
+  state = {
+    isCloseBtnVisible: true
+  };
+
   render() {
-    const { mode } = this.props;
+    const { mode, navigateToLocalNodeSetup } = this.props;
+    const { isCloseBtnVisible } = this.state;
     const header = mode === authModes.UNLOCK ? 'Welcome Back' : 'Welcome to Spacemesh';
+
     return (
       <Wrapper>
         <Header>
-          <Logo src={onboardingLogo} />
+          <TopRowContainer>
+            <Logo src={onboardingLogo} />
+            {isCloseBtnVisible && <XIcon onClick={navigateToLocalNodeSetup} src={xWhite} />}
+          </TopRowContainer>
           <HeaderText>{header}</HeaderText>
         </Header>
         {this.renderMode(mode)}
@@ -68,11 +93,13 @@ class StepsContainer extends PureComponent<Props> {
       case authModes.UNLOCK:
         return <UnlockWallet setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
       case authModes.CREATE:
-        return <CreateWallet navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
+        return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
       default:
         return null;
     }
   };
+
+  hideCloseBtn = () => this.setState({ isCloseBtnVisible: false });
 }
 
 export default StepsContainer;

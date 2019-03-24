@@ -62,7 +62,8 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: any,
-  wallet: { wallet: any, setupFullNode: boolean }
+  walletFiles: string[],
+  location: any
 };
 
 type State = {
@@ -71,14 +72,19 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
-  state: State = {
-    selectedItemIndex: 1,
-    loadingItemIndex: -1
-  };
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    const isWalletLocation = location.pathname.includes('/wallet');
+    const selectedItemIndex = isWalletLocation ? 1 : 0;
+    this.state = {
+      selectedItemIndex,
+      loadingItemIndex: -1
+    };
+  }
 
   render() {
     const { selectedItemIndex, loadingItemIndex } = this.state;
-
     return (
       <Wrapper>
         <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
@@ -87,7 +93,6 @@ class Main extends Component<Props, State> {
             {routes.main.map((route) => (
               <Route key={route.path} path={route.path} component={route.component} />
             ))}
-            <Redirect to="/main/wallet" />
           </Switch>
         </InnerWrapper>
       </Wrapper>

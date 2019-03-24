@@ -6,6 +6,13 @@ import styled from 'styled-components';
 const INPUT_PLACEHOLDER = 'Type here';
 const DEFAULT_DEBOUNCE_TIME = 500;
 
+const Wrapper = styled.div`
+  height: 64px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
 // $FlowStyledIssue
 const Input = styled.input`
   width: 100%;
@@ -29,11 +36,18 @@ const Input = styled.input`
   outline: none;
 `;
 
+const ErrorMsg = styled.div`
+  height: 20px;
+  line-height: 20px;
+  color: ${smColors.red};
+  font-size: 14px;
+`;
+
 type Props = {
   onChange?: ({ value: string }) => void,
   isDisabled?: boolean,
   placeholder?: string,
-  hasError?: boolean,
+  errorMsg?: ?string,
   hasDebounce?: boolean,
   debounceTime?: number,
   style?: Object
@@ -43,8 +57,13 @@ class SmInput extends PureComponent<Props> {
   debounce: any;
 
   render() {
-    const { isDisabled, placeholder, hasError, style } = this.props;
-    return <Input hasError={hasError} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />;
+    const { isDisabled, placeholder, errorMsg, style } = this.props;
+    return (
+      <Wrapper>
+        <Input hasError={errorMsg} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
+        <ErrorMsg>{errorMsg || ''}</ErrorMsg>
+      </Wrapper>
+    );
   }
 
   componentWillUnmount(): void {

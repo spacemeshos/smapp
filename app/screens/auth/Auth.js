@@ -102,12 +102,12 @@ class Auth extends Component<Props, State> {
 
   navigateToLocalNodeSetup = () => {
     const { history } = this.props;
-    history.push('/main');
+    history.push('/main/local-node');
   };
 
   navigateToWallet = () => {
     const { history } = this.props;
-    history.push('/main');
+    history.push('/main/wallet');
   };
 }
 

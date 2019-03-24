@@ -75,29 +75,29 @@ type Props = {
 
 type State = {
   passphrase: string,
-  hasError: boolean
+  errorMsg: ?string
 };
 
 class UnlockWallet extends Component<Props, State> {
   state = {
     passphrase: '',
-    hasError: false
+    errorMsg: null
   };
 
   render() {
     const { setCreationMode } = this.props;
-    const { passphrase, hasError } = this.state;
+    const { passphrase, errorMsg } = this.state;
     return (
       <Wrapper>
         <UpperPart>
           <ImageWrapper>
             <Image src={welcomeBack} />
           </ImageWrapper>
-          <UpperPartHeader>Enter PIN to access wallet</UpperPartHeader>
-          <SmInput type="passphrase" placeholder="Type PIN" hasError={hasError} onChange={this.handlePasswordTyping} />
+          <UpperPartHeader>Enter passphrase to access wallet</UpperPartHeader>
+          <SmInput type="passphrase" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
-          <SmButton text="Login" disabled={!passphrase || hasError} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
+          <SmButton text="Login" disabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
           <LinksWrapper>
             <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
             <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
@@ -108,22 +108,22 @@ class UnlockWallet extends Component<Props, State> {
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, hasError: false });
+    this.setState({ passphrase: value, errorMsg: null });
   };
 
   decryptWallet = () => {
     const { deriveEncryptionKey, unlockWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
-    if (passphrase.trim().length > 8) {
+    if (passphrase.trim().length >= 8) {
       try {
         deriveEncryptionKey({ passphrase });
         unlockWallet({ shouldPromtUser: true });
         navigateToWallet();
       } catch {
-        this.setState({ hasError: true });
+        this.setState({ errorMsg: 'Passphrase Incorrect.' });
       }
     } else {
-      this.setState({ hasError: true });
+      this.setState({ errorMsg: 'Passphrase cannot be less than 8 characters.' });
     }
   };
 }

@@ -76,6 +76,7 @@ const LoaderWrapper = styled.div`
 type Props = {
   deriveEncryptionKey: Action,
   saveNewWallet: Action,
+  hideCloseBtn: () => void,
   navigateToLocalNodeSetup: Function,
   navigateToWallet: Function
 };
@@ -83,9 +84,9 @@ type Props = {
 type State = {
   subMode: 1 | 2,
   passphrase: string,
-  verifiedPinCode: string,
-  hasPinCodeError: boolean,
-  hasVerifyPinCodeError: boolean,
+  verifiedPassphrase: string,
+  passphraseError: ?string,
+  verifyPassphraseError: ?string,
   isLoaderVisible: boolean
 };
 
@@ -93,9 +94,9 @@ class CreateWallet extends Component<Props, State> {
   state = {
     subMode: 1,
     passphrase: '',
-    verifiedPinCode: '',
-    hasPinCodeError: false,
-    hasVerifyPinCodeError: false,
+    verifiedPassphrase: '',
+    passphraseError: null,
+    verifyPassphraseError: null,
     isLoaderVisible: false
   };
 
@@ -112,14 +113,14 @@ class CreateWallet extends Component<Props, State> {
   }
 
   renderSubStep1 = () => {
-    const { hasPinCodeError, hasVerifyPinCodeError } = this.state;
+    const { passphraseError, verifyPassphraseError } = this.state;
     return (
       <Wrapper>
         <UpperPart>
           <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
           <GrayText>Must be at least 8 characters</GrayText>
-          <SmInput type="password" placeholder="Type password" hasError={hasPinCodeError} onChange={this.handlePasswordTyping} hasDebounce />
-          <SmInput type="password" placeholder="Verify password" hasError={hasVerifyPinCodeError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
+          <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePasswordTyping} hasDebounce />
+          <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
           <GrayText>
             Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
           </GrayText>
@@ -151,23 +152,25 @@ class CreateWallet extends Component<Props, State> {
   };
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, hasPinCodeError: false });
+    this.setState({ passphrase: value, passphraseError: null });
   };
 
   handlePasswordVerifyTyping = ({ value }: { value: string }) => {
-    this.setState({ verifiedPinCode: value, hasVerifyPinCodeError: false });
+    this.setState({ verifiedPassphrase: value, verifyPassphraseError: null });
   };
 
   validate = () => {
-    const { passphrase, verifiedPinCode } = this.state;
-    const hasPinCodeError = !passphrase || (!!passphrase && passphrase.length < 8);
-    const hasVerifyPinCodeError = !verifiedPinCode || passphrase !== verifiedPinCode;
-    this.setState({ hasPinCodeError, hasVerifyPinCodeError });
-    return !hasPinCodeError && !hasVerifyPinCodeError;
+    const { passphrase, verifiedPassphrase } = this.state;
+    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < 8);
+    const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
+    const passphraseError = hasPassphraseError ? 'Passphrase has to be 8 characters or more.' : null;
+    const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match.' : null;
+    this.setState({ passphraseError, verifyPassphraseError });
+    return !passphraseError && !verifyPassphraseError;
   };
 
   createWallet = () => {
-    const { deriveEncryptionKey, saveNewWallet } = this.props;
+    const { deriveEncryptionKey, saveNewWallet, hideCloseBtn } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
@@ -175,7 +178,7 @@ class CreateWallet extends Component<Props, State> {
       setTimeout(() => {
         deriveEncryptionKey({ passphrase });
         saveNewWallet({});
-        this.setState({ isLoaderVisible: false, subMode: 2 });
+        this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
       }, 500);
     }
   };
