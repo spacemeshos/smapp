@@ -2,12 +2,15 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { logout } from '/redux/auth/actions';
 import styled from 'styled-components';
 import { Wallet, Overview } from '/screens';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
-import { menu1, menu2, menu3, menu4, menu5, menu6 } from '/assets/images';
+import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
 import routes from '/routes';
+import get from 'lodash.get';
+import type { Account } from '/types';
 
 const sideMenuItems: SideMenuItem[] = [
   {
@@ -40,6 +43,11 @@ const sideMenuItems: SideMenuItem[] = [
     text: 'Network',
     path: '/main/story-book',
     icon: menu6
+  },
+  {
+    text: 'Logout',
+    path: '/',
+    icon: menu7
   }
 ];
 
@@ -62,9 +70,11 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
+  accounts: Account[],
   history: any,
   walletFiles: string[],
-  location: any
+  location: any,
+  logout: Function
 };
 
 type State = {
@@ -100,15 +110,46 @@ class Main extends Component<Props, State> {
     );
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { accounts } = this.props;
+    if (prevProps.accounts && !accounts) {
+      this.logoutToAuth();
+    }
+  }
+
   handleSideMenuPress = ({ index }: { index: number }) => {
-    const { history } = this.props;
-    const newPath = sideMenuItems[index].path;
+    const { history, accounts } = this.props;
+    const newPath: ?string = sideMenuItems[index].path;
+    const isLocationLocalNode = newPath && newPath.includes('/local-node');
+    if (!(accounts || isLocationLocalNode) || newPath === '/') {
+      this.logoutToAuth();
+      return;
+    }
     const isSameLocation = !!newPath && window.location.hash.endsWith(newPath);
     if (!isSameLocation && newPath) {
       this.setState({ selectedItemIndex: index });
       history.push(newPath);
     }
   };
+
+  logoutToAuth = () => {
+    const { history, logout } = this.props;
+    logout();
+    history.push('/');
+  };
 }
+
+const mapStateToProps = (state) => ({
+  accounts: get(state.wallet.wallet, 'crypto.cipherText.accounts', null)
+});
+
+const mapDispatchToProps = {
+  logout
+};
+
+Main = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Main);
 
 export default Main;
