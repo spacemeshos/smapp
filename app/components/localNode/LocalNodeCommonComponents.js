@@ -37,7 +37,7 @@ export const BaseText = styled.span`
 `;
 
 export const GrayText = styled(BaseText)`
-  color: ${smColors.textGray};
+  color: ${smColors.gray};
 `;
 
 export const BoldText = styled.span`

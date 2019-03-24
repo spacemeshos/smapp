@@ -1,3 +1,4 @@
+// @flow
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -5,6 +6,7 @@ import { walletBg, checkWhite, copyIcon } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
+// $FlowStyledIssue
 const PublicAddressInnerWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -146,6 +148,8 @@ type State = {
 };
 
 class AccountCard extends Component<Props, State> {
+  copiedTimeout: Object;
+
   state = {
     copied: false
   };

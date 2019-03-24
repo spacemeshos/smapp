@@ -18,8 +18,8 @@ const Input = styled.input`
   height: 44px;
   padding: 0 10px;
   border-radius: 2px;
-  color: ${({ disabled }) => (disabled ? smColors.textGray : smColors.black)};
-  opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
+  color: ${({ isDisabled }) => (isDisabled ? smColors.gray : smColors.black)};
+  opacity: ${({ isDisabled }) => (isDisabled ? 0.6 : 1)};
   border: 1px solid ${smColors.borderGray};
   font-size: 16px;
   &:focus {
@@ -47,22 +47,23 @@ const ErrorMessage = styled.div`
 `;
 
 type Props = {
-  onChange: Function,
-  disabled?: boolean,
+  onChange?: ({ value: string }) => void,
+  isDisabled?: boolean,
   placeholder?: string,
   errorMessage?: ?string,
   hasDebounce?: boolean,
-  debounceTime?: number
+  debounceTime?: number,
+  style?: Object
 };
 
 class SmInput extends PureComponent<Props> {
   debounce: any;
 
   render() {
-    const { disabled, placeholder, errorMessage } = this.props;
+    const { isDisabled, placeholder, errorMessage, style } = this.props;
     return (
       <Wrapper>
-        <Input hasError={errorMessage} disabled={!!disabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} />
+        <Input hasError={errorMessage} isDisabled={!!isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
         <ErrorsSection>{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}</ErrorsSection>
       </Wrapper>
     );
@@ -73,13 +74,13 @@ class SmInput extends PureComponent<Props> {
     hasDebounce && clearTimeout(this.debounce);
   }
 
-  onChange = ({ target }: { target: Object }) => {
+  onChange = ({ target }: { target: { value: string } }) => {
     const { hasDebounce, debounceTime, onChange } = this.props;
     if (hasDebounce) {
       clearTimeout(this.debounce);
-      this.debounce = setTimeout(() => onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
+      this.debounce = setTimeout(() => onChange && onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
     } else {
-      onChange({ value: target.value });
+      onChange && onChange({ value: target.value });
     }
   };
 }

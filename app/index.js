@@ -6,22 +6,21 @@ import { configureStore } from './redux/configureStore';
 
 const store = configureStore();
 
-render(
-  <AppContainer>
-    <App store={store} />
-  </AppContainer>,
-  document.getElementById('root')
-);
+const renderWrapper = (Component) => {
+  render(
+    <AppContainer>
+      <Component store={store} />
+    </AppContainer>,
+    document.getElementById('root')
+  );
+};
+
+renderWrapper(App);
 
 if (module.hot) {
   module.hot.accept('./App', () => {
     // eslint-disable-next-line global-require
     const NextApp = require('./App').default;
-    render(
-      <AppContainer>
-        <NextApp store={store} />
-      </AppContainer>,
-      document.getElementById('root')
-    );
+    renderWrapper(NextApp);
   });
 }

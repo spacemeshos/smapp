@@ -124,7 +124,7 @@ const HeaderText = styled(BaseLabelText)`
   ${({ disabled }) =>
     disabled &&
     `
-    color: ${smColors.textGray};
+    color: ${smColors.gray};
     pointer-events: none;
   `};
 `;
@@ -152,7 +152,7 @@ const StyledDropdownEntryText = styled(BaseLabelText)`
   ${({ disabled }) =>
     disabled &&
     `
-    color: ${smColors.textGray};
+    color: ${smColors.gray};
   `};
 `;
 

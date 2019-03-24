@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { BaseText, BoldText, LeftPaneRow } from './LocalNodeJointStyles';
+import { BaseText, BoldText, LeftPaneRow } from './LocalNodeCommonComponents';
 
 const StatusSection = styled.div`
   display: flex;

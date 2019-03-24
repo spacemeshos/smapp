@@ -31,7 +31,7 @@ const BottomPart = styled.div`
 const GrayText = styled.span`
   font-size: 16px;
   text-align: left;
-  color: ${smColors.textGray};
+  color: ${smColors.gray};
 `;
 
 const UpperPartHeader = styled.span`
