@@ -1,8 +1,8 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
+import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
-import { SmButton } from '../../../basicComponents';
 
 const Wrapper = styled.div`
   width: 100%;
