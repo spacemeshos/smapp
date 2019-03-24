@@ -11,14 +11,14 @@ const Wrapper = styled.div`
 `;
 
 type Props = {
-  onPress?: () => { index: number },
-  selectedIndex: number,
+  onSelect?: ({ index: number }) => void,
+  selectedIndex?: number,
   data: RadioEntry[]
 };
 
 class SmRadioGroup extends React.Component<Props> {
   render() {
-    const { data, selectedIndex, onPress } = this.props;
+    const { data, selectedIndex, onSelect } = this.props;
     return (
       <Wrapper>
         {data.map((btn, index) => (
@@ -26,7 +26,7 @@ class SmRadioGroup extends React.Component<Props> {
             key={`${btn.label}${index}`}
             isSelected={selectedIndex === index}
             isDisabled={btn.isDisabled}
-            onSelect={btn.isDisabled ? null : () => onPress({ index })}
+            onSelect={btn.isDisabled ? null : () => onSelect && onSelect({ index })}
           />
         ))}
       </Wrapper>

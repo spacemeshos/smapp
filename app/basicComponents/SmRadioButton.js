@@ -15,6 +15,7 @@ const HoveredCenter = styled.div`
   cursor: inherit;
 `;
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -34,6 +35,7 @@ const Wrapper = styled.div`
   }
 `;
 
+// $FlowStyledIssue
 const RadioInner = styled.div`
   position: relative;
   height: 20px;
@@ -46,6 +48,7 @@ const RadioInner = styled.div`
   cursor: inherit;
 `;
 
+// $FlowStyledIssue
 const SelectedCircle = styled.div`
   display: ${({ isSelected }) => (isSelected ? 'block' : 'none')};
   position: absolute;
@@ -57,6 +60,7 @@ const SelectedCircle = styled.div`
   background-color: ${smColors.white};
 `;
 
+// $FlowStyledIssue
 const LabelText = styled.span`
   font-size: 16px;
   color: ${({ isDisabled }) => (isDisabled ? smColors.gray : smColors.darkGray)};
@@ -76,9 +80,9 @@ export type RadioEntry = {
 
 type Props = {
   ...RadioEntry,
-  onSelect?: () => void,
+  onSelect?: ({ index: number }) => void,
   isSelected: boolean,
-  style: Object
+  style?: Object
 };
 
 class SmRadioButton extends PureComponent<Props> {

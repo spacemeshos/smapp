@@ -45,17 +45,17 @@ type Props = {
       account: Account
     }
   },
-  history: { push: () => void },
+  history: { push: (string, Object) => void },
   fiatRate: number
 };
 
 type State = {
   address: string,
-  amount: string,
+  amount: number,
   note: string,
   addressErrorMsg?: string,
   amountErrorMsg?: string,
-  fee: number
+  feeIndex: number
 };
 
 class SendCoins extends Component<Props, State> {

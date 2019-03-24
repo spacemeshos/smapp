@@ -10,8 +10,8 @@ const Wrapper = styled.div`
 `;
 
 type Props = {
-  fees: Array<{ fee: number, fiatFee: string, label: string }>,
-  onSelect: () => { index: number },
+  fees: Array<Object>,
+  onSelect: ({ index: number }) => void,
   selectedFeeIndex: number
 };
 

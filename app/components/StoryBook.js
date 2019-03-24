@@ -121,7 +121,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
         </div>
         <div style={styles.row}>
           <SmInput onChange={this.handleChangeText} isDisabled={disableButtons} />
-          <SmRadioGroup data={radioButtons} onPress={this.handleRadioSelect} />
+          <SmRadioGroup data={radioButtons} onSelect={this.handleRadioSelect} />
           <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
           <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
         </div>
@@ -168,7 +168,7 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
 
   handleRadioSelect = ({ index }: { index: number }) => {
     this.setState({
-      message: `Radio[${radioButtons[index].id}]: ${radioButtons[index].label} selected`
+      message: `Radio [${radioButtons[index].label}] selected`
     });
   };
 

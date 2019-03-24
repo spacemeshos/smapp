@@ -50,7 +50,7 @@ type Props = {
   accounts: Account[],
   transactions: [],
   fiatRate: number,
-  history: { push: () => void }
+  history: { push: (string, Object) => void }
 };
 
 type State = {

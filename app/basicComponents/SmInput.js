@@ -30,13 +30,13 @@ const Input = styled.input`
 `;
 
 type Props = {
-  onChange: () => { value: string },
+  onChange?: ({ value: string }) => void,
   isDisabled?: boolean,
   placeholder?: string,
   hasError?: boolean,
   hasDebounce?: boolean,
   debounceTime?: number,
-  style: Object
+  style?: Object
 };
 
 class SmInput extends PureComponent<Props> {
@@ -52,13 +52,13 @@ class SmInput extends PureComponent<Props> {
     hasDebounce && clearTimeout(this.debounce);
   }
 
-  onChange = ({ target }: { target: Object }) => {
+  onChange = ({ target }: { target: { value: string } }) => {
     const { hasDebounce, debounceTime, onChange } = this.props;
     if (hasDebounce) {
       clearTimeout(this.debounce);
-      this.debounce = setTimeout(() => onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
+      this.debounce = setTimeout(() => onChange && onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
     } else {
-      onChange({ value: target.value });
+      onChange && onChange({ value: target.value });
     }
   };
 }

@@ -97,13 +97,13 @@ const EstimatedFee = styled.span`
 const inputStyle = { border: '1px solid transparent' };
 
 type Props = {
-  updateTxAddress: () => void,
-  updateTxAmount: () => void,
-  updateTxNote: () => void,
-  updateFee: () => void,
+  updateTxAddress: ({ value: string }) => void,
+  updateTxAmount: ({ value: string }) => void,
+  updateTxNote: ({ value: string }) => void,
+  updateFee: ({ index: number }) => void,
   addressErrorMsg?: string,
   amountErrorMsg?: string,
-  fees: { fee: number, label: string, additionalText: string },
+  fees: Array<Object>,
   feeIndex: number
 };
 
