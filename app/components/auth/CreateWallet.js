@@ -76,7 +76,7 @@ const LoaderWrapper = styled.div`
 type Props = {
   deriveEncryptionKey: Action,
   saveNewWallet: Action,
-  onSubModeChange: Function,
+  hideCloseBtn: () => void,
   navigateToLocalNodeSetup: Function,
   navigateToWallet: Function
 };
@@ -119,8 +119,8 @@ class CreateWallet extends Component<Props, State> {
         <UpperPart>
           <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
           <GrayText>Must be at least 8 characters</GrayText>
-          <SmInput type="password" placeholder="Type passphrase" errorMessage={passphraseError} onChange={this.handlePasswordTyping} hasDebounce />
-          <SmInput type="password" placeholder="Verify passphrase" errorMessage={verifyPassphraseError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
+          <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePasswordTyping} hasDebounce />
+          <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
           <GrayText>
             Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
           </GrayText>
@@ -163,14 +163,14 @@ class CreateWallet extends Component<Props, State> {
     const { passphrase, verifiedPassphrase } = this.state;
     const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < 8);
     const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? 'Error. Passphrase has to be 8 characters or more.' : null;
-    const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match' : null;
+    const passphraseError = hasPassphraseError ? 'Passphrase has to be 8 characters or more.' : null;
+    const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match.' : null;
     this.setState({ passphraseError, verifyPassphraseError });
     return !passphraseError && !verifyPassphraseError;
   };
 
   createWallet = () => {
-    const { deriveEncryptionKey, saveNewWallet, onSubModeChange } = this.props;
+    const { deriveEncryptionKey, saveNewWallet, hideCloseBtn } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
@@ -178,7 +178,7 @@ class CreateWallet extends Component<Props, State> {
       setTimeout(() => {
         deriveEncryptionKey({ passphrase });
         saveNewWallet({});
-        this.setState({ isLoaderVisible: false, subMode: 2 }, () => onSubModeChange(2));
+        this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
       }, 500);
     }
   };

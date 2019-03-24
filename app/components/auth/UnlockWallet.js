@@ -75,18 +75,18 @@ type Props = {
 
 type State = {
   passphrase: string,
-  errorMessage: ?string
+  errorMsg: ?string
 };
 
 class UnlockWallet extends Component<Props, State> {
   state = {
     passphrase: '',
-    errorMessage: null
+    errorMsg: null
   };
 
   render() {
     const { setCreationMode } = this.props;
-    const { passphrase, errorMessage } = this.state;
+    const { passphrase, errorMsg } = this.state;
     return (
       <Wrapper>
         <UpperPart>
@@ -94,10 +94,10 @@ class UnlockWallet extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter passphrase to access wallet</UpperPartHeader>
-          <SmInput type="passphrase" placeholder="Type passphrase" errorMessage={errorMessage} onChange={this.handlePasswordTyping} />
+          <SmInput type="passphrase" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
-          <SmButton text="Login" disabled={!passphrase || !!errorMessage} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
+          <SmButton text="Login" disabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
           <LinksWrapper>
             <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
             <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
@@ -108,7 +108,7 @@ class UnlockWallet extends Component<Props, State> {
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, errorMessage: null });
+    this.setState({ passphrase: value, errorMsg: null });
   };
 
   decryptWallet = () => {
@@ -120,10 +120,10 @@ class UnlockWallet extends Component<Props, State> {
         unlockWallet({ shouldPromtUser: true });
         navigateToWallet();
       } catch {
-        this.setState({ errorMessage: 'Error. Passphrase Incorrect.' });
+        this.setState({ errorMsg: 'Passphrase Incorrect.' });
       }
     } else {
-      this.setState({ errorMessage: 'Error. Passphrase cannot be less than 8 characters.' });
+      this.setState({ errorMsg: 'Passphrase cannot be less than 8 characters.' });
     }
   };
 }

@@ -46,6 +46,7 @@ const GlobalStyle = createGlobalStyle`
     }
     
     input {
+      box-sizing: border-box;
       font-family: sans-serif;
       font-weight: normal;
     }

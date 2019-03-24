@@ -44,7 +44,7 @@ const radioButtons: RadioEntry[] = [
   },
   {
     id: 3,
-    label: '4.0 GB',
+    label: '4.0 GB test test test test',
     isDisabled: true
   }
 ];

@@ -35,13 +35,9 @@ const Input = styled.input`
   outline: none;
 `;
 
-const ErrorsSection = styled.div`
-  position: relative;
+const ErrorMsg = styled.div`
   height: 20px;
   line-height: 20px;
-`;
-
-const ErrorMessage = styled.div`
   color: ${smColors.red};
   font-size: 14px;
 `;
@@ -50,7 +46,7 @@ type Props = {
   onChange?: ({ value: string }) => void,
   isDisabled?: boolean,
   placeholder?: string,
-  errorMessage?: ?string,
+  errorMsg?: ?string,
   hasDebounce?: boolean,
   debounceTime?: number,
   style?: Object
@@ -60,11 +56,11 @@ class SmInput extends PureComponent<Props> {
   debounce: any;
 
   render() {
-    const { isDisabled, placeholder, errorMessage, style } = this.props;
+    const { isDisabled, placeholder, errorMsg, style } = this.props;
     return (
       <Wrapper>
-        <Input hasError={errorMessage} isDisabled={!!isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
-        <ErrorsSection>{errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}</ErrorsSection>
+        <Input hasError={errorMsg} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
+        <ErrorMsg>{errorMsg || ''}</ErrorMsg>
       </Wrapper>
     );
   }
