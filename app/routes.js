@@ -1,9 +1,6 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview } from '/screens';
+import { Auth, Main, LocalNode, LocalNodeSetupPage, LocalNodeLoadingPage, LocalNodePage, Wallet, Overview, SendCoins } from '/screens';
 import StoryBook from './components/StoryBook';
-import LocalNodeSetupPage from '/components/localNode/LocalNodeSetupPage';
-import LocalNodeLoadingPage from '/components/localNode/LocalNodeLoadingPage';
-import LocalNodePage from '/components/localNode/LocalNodePage';
 
 const app = [
   {
@@ -50,6 +47,10 @@ const wallet = [
   {
     path: '/main/wallet/overview',
     component: Overview
+  },
+  {
+    path: '/main/wallet/sendCoins',
+    component: SendCoins
   }
 ];
 

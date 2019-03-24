@@ -11,7 +11,7 @@ const LocalNodePageBodyWrapper = styled.div`
 const LocalNodeHeaderText = styled.span`
   font-size: 31px;
   font-weight: bold;
-  color: ${smColors.darkGrayText};
+  color: ${smColors.darkGray};
 `;
 
 const LeftPane = styled.div`

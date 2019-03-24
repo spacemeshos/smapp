@@ -1,3 +1,2 @@
-export { default as AccountCard } from './AccountCard';
-export { default as BackupReminder } from './BackupReminder';
-export { default as InitialLeftPane } from './InitialLeftPane';
+export { AccountCard, BackupReminder, InitialLeftPane } from './overview';
+export { SendCoinsHeader, TxParams, TxFeeSelector, TxTotal } from './sendCoins';

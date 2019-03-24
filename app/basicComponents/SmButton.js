@@ -36,7 +36,7 @@ const Wrapper = styled.div`
 const Text = styled.span`
   color: ${({ theme, disabled }) => {
     if (disabled) {
-      return theme === 'green' ? smColors.textGray : smColors.white;
+      return theme === 'green' ? smColors.gray : smColors.white;
     }
     return theme === 'green' ? smColors.darkGreen : smColors.white;
   }};

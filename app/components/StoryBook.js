@@ -45,7 +45,7 @@ const radioButtons: RadioEntry[] = [
   {
     id: 3,
     label: '4.0 GB test test test test',
-    disabled: true
+    isDisabled: true
   }
 ];
 
@@ -122,10 +122,8 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <span>{message}</span>
         </div>
         <div style={styles.row}>
-          <SmInput onChange={this.handleChangeText} disabled={disableButtons} />
-          <SmRadioGroup data={radioButtons} onPress={this.handleRadioSelect} disabled={disableButtons} />
-        </div>
-        <div style={styles.row}>
+          <SmInput onChange={this.handleChangeText} isDisabled={disableButtons} />
+          <SmRadioGroup data={radioButtons} onSelect={this.handleRadioSelect} />
           <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
           <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
         </div>
@@ -171,12 +169,10 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     });
   };
 
-  handleRadioSelect = (selection: RadioEntry) => {
-    if (selection) {
-      this.setState({
-        message: `Radio[${selection.id}]: ${selection.label} selected`
-      });
-    }
+  handleRadioSelect = ({ index }: { index: number }) => {
+    this.setState({
+      message: `Radio [${radioButtons[index].label}] selected`
+    });
   };
 
   handleDropdownSelection = (selection: DropdownEntry) => {

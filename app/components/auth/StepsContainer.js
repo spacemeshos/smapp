@@ -93,15 +93,13 @@ class StepsContainer extends Component<Props, State> {
       case authModes.UNLOCK:
         return <UnlockWallet setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
       case authModes.CREATE:
-        return <CreateWallet onSubModeChange={this.handleCloseButtonVisibility} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
+        return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
       default:
         return null;
     }
   };
 
-  handleCloseButtonVisibility = (subMode: 1 | 2) => {
-    this.setState({ isCloseBtnVisible: subMode === 1 });
-  };
+  hideCloseBtn = () => this.setState({ isCloseBtnVisible: false });
 }
 
 export default StepsContainer;

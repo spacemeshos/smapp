@@ -3,14 +3,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage } from '/redux/localNode/actions';
 import styled from 'styled-components';
-import { BaseText, BoldText, LeftPaneInner, GrayText } from './LocalNodeJointStyles';
+import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
 import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-import LocalNodeBase from './LocalNodeBase';
-import RightPaneSetup from './RightPaneSetup';
 
-type SeupPageProps = {
+type SetupPageProps = {
   history: any,
   setLocalNodeStorage: Function
 };
@@ -149,7 +147,7 @@ const GrayTextWrapper = styled.div`
   justify-content: space-between;
 `;
 
-class LocalNodeSetupPage extends Component<SeupPageProps, SetupPageState> {
+class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   state = {
     capacity: null,
     drive: null

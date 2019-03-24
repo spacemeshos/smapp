@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { BoldText, BaseText } from './LocalNodeJointStyles';
+import { BoldText, BaseText } from './LocalNodeCommonComponents';
 import { Loader, CheckDone } from '/basicComponents';
 
 type LoadingBarProps = {

@@ -3,8 +3,7 @@ import { Action, Dispatch, GetState, Wallet, Account } from '/types';
 import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
-import { smColors } from '/vars';
-import cryptoConsts from '/vars/cryptoConsts';
+import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
