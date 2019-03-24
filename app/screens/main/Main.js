@@ -63,7 +63,8 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: any,
-  walletFiles: string[]
+  walletFiles: string[],
+  location: any
 };
 
 type State = {
@@ -72,10 +73,16 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
-  state: State = {
-    selectedItemIndex: -1,
-    loadingItemIndex: -1
-  };
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    const isWalletLocation = location.pathname.includes('/wallet');
+    const selectedItemIndex = isWalletLocation ? 1 : 0;
+    this.state = {
+      selectedItemIndex,
+      loadingItemIndex: -1
+    };
+  }
 
   render() {
     const { selectedItemIndex, loadingItemIndex } = this.state;
@@ -91,12 +98,6 @@ class Main extends Component<Props, State> {
         </InnerWrapper>
       </Wrapper>
     );
-  }
-
-  componentDidMount() {
-    const isWalletLocation = window.location.hash.includes('/wallet');
-    const index = isWalletLocation ? 1 : 0;
-    this.setState({ selectedItemIndex: index });
   }
 
   handleSideMenuPress = ({ index }: { index: number }) => {
