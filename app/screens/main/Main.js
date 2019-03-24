@@ -112,7 +112,7 @@ class Main extends Component<Props, State> {
   componentDidUpdate(prevProps, prevState) {
     const { accounts } = this.props;
     if (prevProps.accounts && !accounts) {
-      this.logoutToAuth();
+      this.navToAuthAndLogout();
     }
   }
 
@@ -121,7 +121,7 @@ class Main extends Component<Props, State> {
     const newPath: ?string = sideMenuItems[index].path;
     const isLocationLocalNode = newPath && newPath.includes('/local-node');
     if (!(accounts || isLocationLocalNode) || newPath === '/') {
-      this.logoutToAuth();
+      this.navToAuthAndLogout();
       return;
     }
     const isSameLocation = !!newPath && window.location.hash.endsWith(newPath);
@@ -131,10 +131,10 @@ class Main extends Component<Props, State> {
     }
   };
 
-  logoutToAuth = () => {
+  navToAuthAndLogout = () => {
     const { history, logout } = this.props;
-    logout();
     history.push('/');
+    logout();
   };
 }
 
