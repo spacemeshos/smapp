@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { SendCoinsHeader, TxParams, TxTotal } from '/components/wallet';
-import get from 'lodash.get';
 import { cryptoConsts } from '/vars';
 import type { Account } from '/types';
 
@@ -48,7 +47,6 @@ type Props = {
   },
   history: { push: () => void },
   fiatRate: number
-  // accounts: Account[]
 };
 
 type State = {
@@ -77,13 +75,8 @@ class SendCoins extends Component<Props, State> {
           account: { balance }
         }
       },
-      // accounts,
       fiatRate
     } = this.props;
-    // if (!accounts) {
-    //   return null;
-    // }
-    // const { balance } = accounts[0];
     const { amount, addressErrorMsg, amountErrorMsg, feeIndex } = this.state;
     return (
       <Wrapper>
@@ -149,7 +142,6 @@ class SendCoins extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: get(state.wallet.wallet, 'crypto.cipherText.accounts', null),
   fiatRate: state.wallet.fiatRate
 });
 
