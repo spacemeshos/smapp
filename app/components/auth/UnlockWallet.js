@@ -120,10 +120,10 @@ class UnlockWallet extends Component<Props, State> {
         unlockWallet({ shouldPromtUser: true });
         navigateToWallet();
       } catch {
-        this.setState({ errorMsg: 'Error. Passphrase Incorrect.' });
+        this.setState({ errorMsg: 'Passphrase Incorrect.' });
       }
     } else {
-      this.setState({ errorMsg: 'Error. Passphrase cannot be less than 8 characters.' });
+      this.setState({ errorMsg: 'Passphrase cannot be less than 8 characters.' });
     }
   };
 }

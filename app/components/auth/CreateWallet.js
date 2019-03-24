@@ -163,8 +163,8 @@ class CreateWallet extends Component<Props, State> {
     const { passphrase, verifiedPassphrase } = this.state;
     const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < 8);
     const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? 'Error. Passphrase has to be 8 characters or more.' : null;
-    const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match' : null;
+    const passphraseError = hasPassphraseError ? 'Passphrase has to be 8 characters or more.' : null;
+    const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match.' : null;
     this.setState({ passphraseError, verifyPassphraseError });
     return !passphraseError && !verifyPassphraseError;
   };
