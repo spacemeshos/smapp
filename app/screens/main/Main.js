@@ -117,13 +117,13 @@ class Main extends Component<Props, State> {
   }
 
   handleSideMenuPress = ({ index }: { index: number }) => {
-    const { history, accounts } = this.props;
+    const { history, accounts, location } = this.props;
     const newPath: ?string = sideMenuItems[index].path;
     const isNavigatingToLocalNode = newPath && newPath.includes('/local-node');
     if ((!accounts && !isNavigatingToLocalNode) || newPath === '/') {
       this.navToAuthAndLogout();
     } else {
-      const isSameLocation = !!newPath && window.location.hash.endsWith(newPath);
+      const isSameLocation = !!newPath && location.hash.endsWith(newPath);
       if (!isSameLocation && newPath) {
         this.setState({ selectedItemIndex: index });
         history.push(newPath);
