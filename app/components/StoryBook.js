@@ -132,9 +132,9 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
           <SendReceiveButton disabled={disableButtons} title="Receive coins" onPress={() => this.handleSendReceiveButtonPress('receive')} />
         </div>
         <div style={styles.row}>
-          <SmButton text="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
-          <SmButton text="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
-          <SmButton text="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
+          <SmButton text="Clear Local Storage" theme="green" isDisabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
+          <SmButton text="test" theme="green" isDisabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
+          <SmButton text="test" theme="orange" isDisabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
           <SmButton text={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
         </div>
         <div style={styles.row}>

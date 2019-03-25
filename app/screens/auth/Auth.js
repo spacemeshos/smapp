@@ -29,7 +29,7 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
-  history: Object,
+  history: { push: (string) => void },
   readWalletFiles: Action,
   walletFiles: Array<string>
 };
@@ -39,14 +39,9 @@ type State = {
 };
 
 class Auth extends Component<Props, State> {
-  constructor(props) {
-    super(props);
-    const { walletFiles, readWalletFiles } = props;
-    readWalletFiles();
-    this.state = {
-      mode: walletFiles && walletFiles.length ? authModes.UNLOCK : authModes.WELCOME
-    };
-  }
+  state = {
+    mode: -1
+  };
 
   render() {
     const { walletFiles } = this.props;
@@ -70,9 +65,9 @@ class Auth extends Component<Props, State> {
     );
   }
 
-  static getDerivedStateFromProps(props) {
-    if (props.walletFiles && props.walletFiles.length) {
-      return { mode: authModes.UNLOCK };
+  static getDerivedStateFromProps(props, prevState) {
+    if (props.walletFiles && prevState.mode === -1) {
+      return { mode: props.walletFiles.length ? authModes.UNLOCK : authModes.WELCOME };
     }
     return null;
   }

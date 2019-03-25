@@ -51,10 +51,10 @@ const HeaderText = styled.span`
 
 type Props = {
   mode: number,
-  setCreationMode: Function,
-  setUnlockMode: Function,
-  navigateToLocalNodeSetup: Function,
-  navigateToWallet: Function
+  setCreationMode: () => void,
+  setUnlockMode: () => void,
+  navigateToLocalNodeSetup: () => void,
+  navigateToWallet: () => void
 };
 
 type State = {

@@ -67,8 +67,8 @@ const LinksWrapper = styled.div`
 `;
 
 type Props = {
-  setCreationMode: Function,
-  navigateToWallet: Function,
+  setCreationMode: () => void,
+  navigateToWallet: () => void,
   deriveEncryptionKey: Action,
   unlockWallet: Action
 };
@@ -97,7 +97,7 @@ class UnlockWallet extends Component<Props, State> {
           <SmInput type="passphrase" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
-          <SmButton text="Login" disabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
+          <SmButton text="Login" isDisabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
           <LinksWrapper>
             <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
             <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>

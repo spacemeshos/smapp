@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import styled from 'styled-components';
@@ -9,7 +9,7 @@ import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
 import routes from '/routes';
 import get from 'lodash.get';
-import type { Account } from '/types';
+import type { Account, Action } from '/types';
 
 const sideMenuItems: SideMenuItem[] = [
   {
@@ -69,11 +69,11 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
+  history: { push: (string) => void },
+  walletFiles: Array<string>,
+  location: { pathname: string, hash: string },
   accounts: Account[],
-  history: any,
-  walletFiles: string[],
-  location: any,
-  logout: Function
+  logout: Action
 };
 
 type State = {

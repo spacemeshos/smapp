@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { SendCoinsHeader, TxParams, TxTotal } from '/components/wallet';
+import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
 import type { Account } from '/types';
 
@@ -25,17 +25,17 @@ const fees = [
   {
     fee: 0.001,
     label: '~ 10 min',
-    additionalText: 'fee 0.001 SMC = 0.01 USD'
+    additionalText: 'fee 0.001 SMC = '
   },
   {
     fee: 0.003,
     label: '~ 5 min',
-    additionalText: 'fee 0.003 SMC = 0.02 USD'
+    additionalText: 'fee 0.003 SMC = '
   },
   {
     fee: 0.005,
     label: '~ 1 min',
-    additionalText: 'fee 0.005 SMC = 0.03 USD'
+    additionalText: 'fee 0.005 SMC = '
   }
 ];
 
@@ -55,7 +55,8 @@ type State = {
   note: string,
   addressErrorMsg?: string,
   amountErrorMsg?: string,
-  feeIndex: number
+  feeIndex: number,
+  shouldShowModal: boolean
 };
 
 class SendCoins extends Component<Props, State> {
@@ -65,7 +66,8 @@ class SendCoins extends Component<Props, State> {
     amount: 0,
     amountErrorMsg: '',
     note: '',
-    feeIndex: 0
+    feeIndex: 0,
+    shouldShowModal: false
   };
 
   render() {
@@ -77,25 +79,41 @@ class SendCoins extends Component<Props, State> {
       },
       fiatRate
     } = this.props;
-    const { amount, addressErrorMsg, amountErrorMsg, feeIndex } = this.state;
-    return (
-      <Wrapper>
+    const { address, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal } = this.state;
+    return [
+      <Wrapper key="main">
         <SendCoinsHeader fiatRate={fiatRate} balance={balance} navigateToTxExplanation={this.navigateToTxExplanation} />
         <MainContainer>
           <TxParams
             updateTxAddress={this.updateTxAddress}
             updateTxAmount={this.updateTxAmount}
-            updateTransactionNote={this.updateTransactionNote}
+            updateTxNote={this.updateTxNote}
             updateFee={this.updateFee}
             addressErrorMsg={addressErrorMsg}
             amountErrorMsg={amountErrorMsg}
             fees={fees}
             feeIndex={feeIndex}
+            fiatRate={fiatRate}
           />
-          <TxTotal amount={amount} fee={fees[feeIndex]} fiatRate={1} sendTransaction={this.sendTransaction} />
+          <TxTotal amount={amount} fee={fees[feeIndex]} fiatRate={1} sendTransaction={this.sendTransaction} canSendTx={address && amount} />
         </MainContainer>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && (
+        <TxConfirmation
+          key="modal"
+          address={address}
+          amount={amount}
+          fee={fees[feeIndex].fee}
+          note={note}
+          confirmationTime={fees[feeIndex].label}
+          fiatRate={fiatRate}
+          navigateToExplanation={() => {}}
+          closeModal={this.cancelTxProcess}
+          sendTransaction={() => {}}
+          editTransaction={() => this.setState({ shouldShowModal: false })}
+        />
+      )
+    ];
   }
 
   navigateToTxExplanation = () => {};
@@ -122,7 +140,7 @@ class SendCoins extends Component<Props, State> {
     this.setState({ amountErrorMsg: '' });
     if (value) {
       const integerValue = parseInt(value);
-      if (integerValue < balance) {
+      if (integerValue <= balance) {
         this.setState({ amount: integerValue });
       } else {
         this.setState({ amountErrorMsg: 'Amount exceeds available balance' });
@@ -130,15 +148,16 @@ class SendCoins extends Component<Props, State> {
     }
   };
 
-  updateTransactionNote = ({ value }: { value: string }) => this.setState({ note: value });
+  updateTxNote = ({ value }: { value: string }) => this.setState({ note: value });
 
   updateFee = ({ index }: { index: number }) => this.setState({ feeIndex: index });
 
-  sendTransaction = () => {
+  cancelTxProcess = () => {
     const { history } = this.props;
-    const { address, amount, note, feeIndex } = this.state;
-    history.push('/txSummary', { address, amount, note, feeIndex });
+    history.push('/main/wallet');
   };
+
+  sendTransaction = () => this.setState({ shouldShowModal: true });
 }
 
 const mapStateToProps = (state) => ({
