@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { BoldText, LeftPaneRow, ActionLink, BaseText } from './LocalNodeCommonComponents';
 
-export type LogRecord = {
+type LogRecord = {
   id: any,
   text: string,
   isReward: boolean
 };
 
-const getRandomNumber = (maxValue: numbner) => Math.floor(Math.random() * Math.floor(maxValue));
+const getRandomNumber = (maxValue: number) => Math.floor(Math.random() * Math.floor(maxValue));
 const getTimestamp = () => new Date().toUTCString();
 const generateLogEntry = (i: number) => {
   return { id: i, text: `${i} - ${getRandomNumber(i * 100)} - ${getTimestamp()} - Test log entry`, isReward: i % getRandomNumber(5) === 0 };
@@ -88,6 +88,16 @@ class LocalNodeLog extends Component<{}, { log: LogRecord[] }> {
     );
   }
 
+  componentDidMount() {
+    this.generateLog(); // TODO: remove stab
+  }
+
+  componentWillUnmount() {
+    if (this.timer) {
+      clearInterval(this.timer); // TODO: remove stab
+    }
+  }
+
   renderLog = (log: LogRecord[]) => (
     <LogRow>
       <LogRowInner>
@@ -100,17 +110,7 @@ class LocalNodeLog extends Component<{}, { log: LogRecord[] }> {
     </LogRow>
   );
 
-  componentDidMount() {
-    this.generateLog();
-  }
-
-  componentWillUnmount() {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-  }
-
-  // Test stub
+  // TODO: remove stab
   generateLog = () => {
     let i = 0;
     this.timer = setInterval(() => {
