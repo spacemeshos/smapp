@@ -32,5 +32,6 @@ export { default as thinking } from './thinking.gif';
 export { default as noLaptop } from './no_laptop@2x.png';
 export { default as time } from './time@2x.png';
 export { default as coin } from './coin@2x.png';
-export { default as contactIcon } from './contact@2x.png';
 export { default as xWhite } from './x_white@2x.png';
+export { default as menu7 } from './logout@2x.png';
+export { default as contactIcon } from './contact@2x.png';

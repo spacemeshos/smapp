@@ -8,7 +8,6 @@ const DEFAULT_DEBOUNCE_TIME = 500;
 
 const Wrapper = styled.div`
   height: 64px;
-  width: 100%;
   display: flex;
   flex-direction: column;
 `;
