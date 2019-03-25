@@ -8,13 +8,13 @@ const DEFAULT_DEBOUNCE_TIME = 500;
 
 const Wrapper = styled.div`
   height: 64px;
-  width: 100%;
   display: flex;
   flex-direction: column;
 `;
 
 // $FlowStyledIssue
 const Input = styled.input`
+  width: 100%;
   height: 44px;
   padding: 0 10px;
   border-radius: 2px;

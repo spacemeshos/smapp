@@ -109,13 +109,6 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { accounts } = this.props;
-    if (prevProps.accounts && !accounts) {
-      this.navToAuthAndLogout();
-    }
-  }
-
   handleSideMenuPress = ({ index }: { index: number }) => {
     const { history, accounts, location } = this.props;
     const newPath: ?string = sideMenuItems[index].path;
