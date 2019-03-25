@@ -187,24 +187,6 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
     );
   }
 
-  renderDropdownEntryElem = (val: DropdownEntry, disabled?: boolean) => {
-    return (
-      <StyledDropdownEntry
-        disabled={!!val.disabled}
-        key={val.id}
-        onClick={(e: Event) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (!(disabled || val.disabled)) {
-            this.handleSelect(val.id);
-          }
-        }}
-      >
-        <StyledDropdownEntryText disabled={val.disabled}>{val.label}</StyledDropdownEntryText>
-      </StyledDropdownEntry>
-    );
-  };
-
   componentDidUpdate() {
     const { isOpen } = this.state;
     setTimeout(() => {
@@ -215,6 +197,22 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
       }
     }, 0);
   }
+
+  renderDropdownEntryElem = (val: DropdownEntry, disabled?: boolean) => (
+    <StyledDropdownEntry
+      disabled={!!val.disabled}
+      key={val.id}
+      onClick={(e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!(disabled || val.disabled)) {
+          this.handleSelect(val.id);
+        }
+      }}
+    >
+      <StyledDropdownEntryText disabled={val.disabled}>{val.label}</StyledDropdownEntryText>
+    </StyledDropdownEntry>
+  );
 
   handleSelect(id: number | string) {
     const { onPress } = this.props;

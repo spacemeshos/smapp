@@ -20,19 +20,10 @@ import {
   LocalNodeStatus,
   LocalNodeBase
 } from '/components/localNode';
-import { thinking } from '/assets/images';
 import { SmButton } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
-
-type SetupPageProps = {
-  history: any,
-  resetNodeSettings: Function,
-  localNode: any
-};
-type SetupPageState = {
-  drive: ?DropdownEntry,
-  capacity: ?DropdownEntry
-};
+import { thinking } from '/assets/images';
+import type { Action } from '/types';
 
 const rightPaneLoadingModeLinks = [
   {
@@ -45,11 +36,27 @@ const rightPaneLoadingModeLinks = [
   }
 ];
 
-const loadingInformationText = "Local node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
+type Props = {
+  history: { push: (string) => void },
+  resetNodeSettings: Action,
+  localNode: any
+};
+type State = {
+  drive: ?DropdownEntry,
+  capacity: ?DropdownEntry
+};
 
-class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
+class LocalNodeLoadingPage extends Component<Props, State> {
   render() {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+  }
+
+  // Test: enable to switch to ready page
+  componentDidMount() {
+    const { history } = this.props;
+    setTimeout(() => {
+      history.push('/main/local-node/local-node-ready');
+    }, 10000);
   }
 
   renderRightPane = () => (
@@ -59,9 +66,8 @@ class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
       </ImageWrapper>
       <CenterTextWrapper>
         <RightHeaderText>Local Node Setup Information</RightHeaderText>
-
         <ItemTextWrapperUniformPadding>
-          <ItemText>{loadingInformationText}</ItemText>
+          <ItemText>Local node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don&#96;t turn it off.</ItemText>
         </ItemTextWrapperUniformPadding>
       </CenterTextWrapper>
       <BottomLinksWrapper>
@@ -80,7 +86,7 @@ class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
     return (
       <LeftPaneInner>
         <BottomPaddedRow>
-          <LoadingBar isLoading capacity={(capacity && capacity.label) || ''} status="Connetcing" />
+          <LoadingBar isLoading capacity={(capacity && capacity.label) || ''} status="Connecting" />
           <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
         </BottomPaddedRow>
         <LocalNodeStatus />
@@ -88,14 +94,6 @@ class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
       </LeftPaneInner>
     );
   };
-
-  // Test: enable to switch to ready page
-  componentDidMount() {
-    const { history } = this.props;
-    setTimeout(() => {
-      history.push('/main/local-node/local-node-ready');
-    }, 10000);
-  }
 
   handleStopSetup = () => {
     const { resetNodeSettings, history } = this.props;

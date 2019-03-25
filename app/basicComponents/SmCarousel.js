@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
-const DEFAULT_WIDTH = 300;
-
 const StyledAction = styled.div`
   &:hover {
     opacity: 0.8;
@@ -32,7 +30,7 @@ const SlidesInnerWrapper = styled.div`
   height: 100%;
   display: flex;
   flex-direction: row;
-  margin-left: ${({ width, fragment }) => -1 * width * fragment}px;
+  margin-left: ${({ width, slide }) => -1 * width * slide}px;
   transition: all 0.3s ease-in-out;
 `;
 
@@ -62,30 +60,37 @@ const Selector = styled(StyledAction)`
   transition: all 0.3s ease-in-out;
 `;
 
+const DEFAULT_WIDTH = 300;
+const DEFAULT_TIMEOUT = 3000;
+
 type Props = {
   children: any,
   width: number,
   timeout?: number,
-  disableAutoPlay?: boolean
+  isAutoPlayEnabled?: boolean
 };
 
 type State = {
-  fragment: number
+  slide: number
 };
 
 class SmCarousel extends Component<Props, State> {
   state = {
-    fragment: 0
+    slide: 0
+  };
+
+  static defaultProps = {
+    isAutoPlayEnabled: true
   };
 
   render() {
     const { children, width } = this.props;
-    const { fragment } = this.state;
+    const { slide } = this.state;
 
     return (
       <Wrapper>
         <SlidesWrapper>
-          <SlidesInnerWrapper width={width || DEFAULT_WIDTH} numOfChildren={children.length} fragment={fragment}>
+          <SlidesInnerWrapper width={width || DEFAULT_WIDTH} numOfChildren={children.length} slide={slide}>
             {children.map((child) => (
               <StyledFragment key={child.props.id} width={width || DEFAULT_WIDTH}>
                 {child}
@@ -95,7 +100,7 @@ class SmCarousel extends Component<Props, State> {
         </SlidesWrapper>
         <SelectorsWrapper>
           {children.map((child, index) => (
-            <Selector key={child.props.id} index={index} selected={fragment} onClick={() => this.handleItemSelect(index)} />
+            <Selector key={child.props.id} index={index} selected={slide} onClick={() => this.setState({ slide: index })} />
           ))}
         </SelectorsWrapper>
       </Wrapper>
@@ -103,26 +108,18 @@ class SmCarousel extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const defaultTimout: number = 3000;
-    const { children, timeout, disableAutoPlay } = this.props;
-    if (!disableAutoPlay) {
+    const { children, timeout, isAutoPlayEnabled } = this.props;
+    const { slide } = this.state;
+    if (isAutoPlayEnabled) {
       this.timer = setInterval(() => {
-        this.setState((prevState: SmCarouselState) => {
-          return {
-            fragment: (prevState.fragment + 1) % children.length
-          };
-        });
-      }, timeout || defaultTimout);
+        this.setState({ slide: (slide + 1) % children.length });
+      }, timeout || DEFAULT_TIMEOUT);
     }
   }
 
   componentWillUnmount() {
     clearTimeout(this.timer);
   }
-
-  handleItemSelect = (index: number) => {
-    this.setState({ fragment: index });
-  };
 }
 
 export default SmCarousel;
