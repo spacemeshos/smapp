@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { AccountCard, BackupReminder, InitialLeftPane } from '/components/wallet';
+import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { SendReceiveButton } from '/basicComponents';
 import get from 'lodash.get';
 import type { Account } from '/types';
@@ -54,31 +54,34 @@ type Props = {
 };
 
 type State = {
-  currentAccount: number
+  currentAccount: number,
+  shouldShowModal: boolean
 };
 
 class Overview extends Component<Props, State> {
   state = {
-    currentAccount: 0
+    currentAccount: 0,
+    shouldShowModal: false
   };
 
   render() {
     const { accounts, transactions, fiatRate } = this.props;
-    const { currentAccount } = this.state;
-    return (
-      <Wrapper>
+    const { currentAccount, shouldShowModal } = this.state;
+    return [
+      <Wrapper key="main">
         <LeftSection>
           {accounts && <AccountCard account={accounts[currentAccount]} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
           <BackupReminder style={{ marginBottom: 20 }} />
           <ButtonsWrapper>
             <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
             <ButtonsSeparator />
-            <SendReceiveButton title={SendReceiveButton.titles.RECEIVE} onPress={() => {}} />
+            <SendReceiveButton title={SendReceiveButton.titles.RECEIVE} onPress={() => this.setState({ shouldShowModal: true })} />
           </ButtonsWrapper>
         </LeftSection>
         <RightSection>{transactions.length > 0 ? <div>transactions list</div> : <InitialLeftPane />}</RightSection>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && <ReceiveCoins key="modal" address={accounts[currentAccount].pk} closeModal={() => this.setState({ shouldShowModal: false })} />
+    ];
   }
 
   navigateToSendCoins = () => {
@@ -86,6 +89,8 @@ class Overview extends Component<Props, State> {
     const { currentAccount } = this.state;
     history.push('/main/wallet/sendCoins', { account: accounts[currentAccount] });
   };
+
+  openReceiveCoinsModal = () => this.setState({ shouldShowModal: true });
 }
 
 const mapStateToProps = (state) => ({
