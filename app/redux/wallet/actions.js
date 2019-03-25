@@ -38,7 +38,7 @@ export const saveNewWallet = ({ salt = cryptoConsts.DEFAULT_SALT }: { salt: stri
             created: unixEpochTimestamp,
             displayColor: smColors.darkGreen,
             path: '0/0/1',
-            balance: 0,
+            balance: 100,
             pk: publicKey.toString(),
             sk: secretKey.toString()
           }

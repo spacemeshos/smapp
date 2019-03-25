@@ -47,7 +47,7 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  setCreationMode: Function
+  setCreationMode: () => void
 };
 
 class Welcome extends Component<Props> {

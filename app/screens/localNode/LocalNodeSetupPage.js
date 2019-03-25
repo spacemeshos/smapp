@@ -198,7 +198,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
             <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
           </BorderlessLeftPaneRow>
           <BorderlessLeftPaneRow>
-            <SmButton text="Start Setup" theme="orange" disabled={!(capacity && drive)} onPress={this.handleStartSetup} />
+            <SmButton text="Start Setup" theme="orange" isDisabled={!(capacity && drive)} onPress={this.handleStartSetup} />
           </BorderlessLeftPaneRow>
         </GrayTextWrapper>
       </LeftPaneInner>

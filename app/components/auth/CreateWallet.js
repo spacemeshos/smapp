@@ -77,8 +77,8 @@ type Props = {
   deriveEncryptionKey: Action,
   saveNewWallet: Action,
   hideCloseBtn: () => void,
-  navigateToLocalNodeSetup: Function,
-  navigateToWallet: Function
+  navigateToLocalNodeSetup: () => void,
+  navigateToWallet: () => void
 };
 
 type State = {
