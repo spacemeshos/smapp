@@ -134,5 +134,3 @@ export const sendTransaction = ({
     throw new Error(error);
   }
 };
-
-// adfadfadgfdgs
