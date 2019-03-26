@@ -3,14 +3,22 @@ import { Action, Dispatch, GetState, Wallet, Account } from '/types';
 import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
+import { httpService } from '/infra/httpService';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
+
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
+
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
+
 export const UPDATE_WALLET_DATA: string = 'UPDATE_WALLET_DATA';
 export const UPDATE_ACCOUNT_DATA: string = 'UPDATE_ACCOUNT_DATA';
+
+export const GET_BALANCE: string = 'GET_BALANCE';
+
+export const SEND_TX: string = 'SEND_TX';
 
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => (dispatch: Dispatch): Dispatch => {
   const salt = cryptoConsts.DEFAULT_SALT;
@@ -53,11 +61,8 @@ export const saveNewWallet = ({ salt = cryptoConsts.DEFAULT_SALT }: { salt: stri
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
   const encryptedWallet = { ...wallet, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
   try {
-    fileSystemService.saveFile({
-      fileName,
-      fileContent: JSON.stringify(encryptedWallet),
-      showDialog: false
-    });
+    fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), showDialog: false });
+    httpService.sendTx({ srcAddress: '1', dstAddress: publicKey.toString(), amount: 100 }); // TODO: remove before TEST NET
     dispatch(updateWalletData({ wallet }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
@@ -94,6 +99,11 @@ export const unlockWallet = ({ shouldPromtUser }: { shouldPromtUser?: boolean })
   }
 };
 
+export const getBalance = ({ address, accountIndex }: { address: string, accountIndex: number }): Action => async (dispatch: Dispatch): Dispatch => {
+  const balance = await httpService.getBalance({ address });
+  dispatch({ type: GET_BALANCE, payload: { balance, accountIndex } });
+};
+
 export const updateWalletData = ({ wallet }: { wallet: Wallet }): Action => ({
   type: UPDATE_WALLET_DATA,
   payload: wallet
@@ -103,3 +113,24 @@ export const updateAccountData = ({ accountNumber, data }: { accountNumber: numb
   type: UPDATE_ACCOUNT_DATA,
   payload: { accountNumber, data }
 });
+
+export const sendTransaction = ({
+  srcAddress,
+  dstAddress,
+  amount,
+  fee,
+  note // eslint-disable-line no-unused-vars
+}: {
+  srcAddress: string,
+  dstAddress: string,
+  amount: number,
+  fee: number,
+  note: string
+}): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await httpService.sendTx({ srcAddress, dstAddress, amount: amount + fee });
+    dispatch({ type: SEND_TX, payload: amount + fee });
+  } catch (error) {
+    throw new Error(error);
+  }
+};

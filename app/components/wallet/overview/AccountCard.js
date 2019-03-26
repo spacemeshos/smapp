@@ -168,7 +168,7 @@ class AccountCard extends Component<Props, State> {
           <SubHeader>Public address</SubHeader>
           <PublicAddressWrapper>
             <PublicAddressInnerWrapper copied={copied}>
-              <PublicAddress>{pk}</PublicAddress>
+              <PublicAddress>{pk.substring(0, 20)}</PublicAddress>
               <CopyIconWrapper>
                 <CopyIcon src={copyIcon} />
               </CopyIconWrapper>

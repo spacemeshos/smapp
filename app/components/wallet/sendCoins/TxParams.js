@@ -42,6 +42,15 @@ const AmountSection = styled.div`
   justify-content: center;
 `;
 
+// $FlowStyledIssue
+const FiatValue = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding-left: 10px;
+  color: ${({ hasValue }) => (hasValue ? smColors.lighterBlack : smColors.gray)};
+`;
+
 const MyContactsSection = styled.div`
   width: 160px;
   display: flex;
@@ -107,6 +116,7 @@ const inputStyle = { border: '1px solid transparent' };
 type Props = {
   updateTxAddress: ({ value: string }) => void,
   updateTxAmount: ({ value: string }) => void,
+  amount: number,
   updateTxNote: ({ value: string }) => void,
   updateFee: ({ index: number }) => void,
   addressErrorMsg?: string,
@@ -126,14 +136,14 @@ class TxParams extends Component<Props, State> {
   };
 
   render() {
-    const { updateTxAddress, updateTxAmount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate } = this.props;
+    const { updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate } = this.props;
     const { isFeeSelectorVisible } = this.state;
     return (
       <Wrapper>
         <SectionWrapper>
           <Label>Send to</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} hasDebounce style={inputStyle} isErrorMsgEnabled={false} />
+            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} style={inputStyle} isErrorMsgEnabled={false} />
             <MyContactsSection>
               <MyContactsText>My contacts</MyContactsText>
               <MyContactsIcon src={contactIcon} />
@@ -145,12 +155,12 @@ class TxParams extends Component<Props, State> {
           <Label>Amount to send</Label>
           <AmountSection>
             <InputSection>
-              <SmInput type="tel" placeholder="Type amount" onChange={updateTxAmount} hasDebounce style={inputStyle} isErrorMsgEnabled={false} />
+              <SmInput type="tel" placeholder="Type amount" onChange={updateTxAmount} style={inputStyle} isErrorMsgEnabled={false} />
               <CurrencyText>SMC</CurrencyText>
             </InputSection>
             <CurrencyText> = </CurrencyText>
             <InputSection>
-              <SmInput type="tel" placeholder="Fiat value" disabled value={10} style={inputStyle} isErrorMsgEnabled={false} />
+              <FiatValue hasValue={!!amount}>{amount ? amount * fiatRate : 'Fiat value'}</FiatValue>
               <CurrencyText>USD</CurrencyText>
             </InputSection>
           </AmountSection>
@@ -159,7 +169,7 @@ class TxParams extends Component<Props, State> {
         <SectionWrapper>
           <Label>Note (optional)</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Add a short note (optional)" onChange={updateTxNote} hasDebounce style={inputStyle} isErrorMsgEnabled={false} />
+            <SmInput type="text" placeholder="Add a short note (optional)" onChange={updateTxNote} style={inputStyle} isErrorMsgEnabled={false} />
           </InputSection>
         </SectionWrapper>
         <EstimationSection onClick={() => this.setState({ isFeeSelectorVisible: !isFeeSelectorVisible })}>

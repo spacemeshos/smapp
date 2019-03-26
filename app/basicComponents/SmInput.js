@@ -66,7 +66,7 @@ class SmInput extends PureComponent<Props> {
     const { isDisabled, placeholder, errorMsg, isErrorMsgEnabled, style } = this.props;
     return (
       <Wrapper isErrorMsgEnabled={isErrorMsgEnabled}>
-        <Input hasError={errorMsg} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
+        <Input hasError={errorMsg} readOnly={isDisabled} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
         {isErrorMsgEnabled && <ErrorMsg>{errorMsg || ''}</ErrorMsg>}
       </Wrapper>
     );

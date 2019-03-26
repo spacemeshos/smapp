@@ -99,7 +99,15 @@ type Props = {
 
 class ReceiveCoins extends PureComponent<Props> {
   render() {
-    return <Modal header="Confirm Transaction" onQuestionMarkClick={this.onQuestionMarkClick} onCloseClick={this.onCloseClick} content={this.renderModalBody()} />;
+    return (
+      <Modal
+        header="Confirm Transaction"
+        onQuestionMarkClick={this.onQuestionMarkClick}
+        onCancelBtnClick={this.onCloseClick}
+        onCloseClick={this.onCloseClick}
+        content={this.renderModalBody()}
+      />
+    );
   }
 
   componentDidMount(): void {
@@ -115,7 +123,7 @@ class ReceiveCoins extends PureComponent<Props> {
           <Header>Your wallet public address has been copied to clipboard</Header>
           <LeftPartInner>
             <AddressWrapper onClick={this.copyPublicAddress}>
-              <Address>{address}</Address>
+              <Address>{address.substring(0, 30)}</Address>
               <CopyIcon src={copyIcon} />
             </AddressWrapper>
             <Text>

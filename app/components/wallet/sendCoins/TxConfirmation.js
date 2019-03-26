@@ -73,17 +73,27 @@ type Props = {
   confirmationTime: string,
   navigateToExplanation: () => void,
   closeModal: () => void,
+  onCancelBtnClick: () => void,
   sendTransaction: () => void,
   editTransaction: () => void
 };
 
 class TxConfirmation extends PureComponent<Props> {
   render() {
-    return <Modal header="Confirm Transaction" onQuestionMarkClick={this.onQuestionMarkClick} onCloseClick={this.onCloseClick} content={this.renderModalBody()} />;
+    const { navigateToExplanation, onCancelBtnClick, closeModal } = this.props;
+    return (
+      <Modal
+        header="Confirm Transaction"
+        onQuestionMarkClick={navigateToExplanation}
+        onCancelBtnClick={onCancelBtnClick}
+        onCloseClick={closeModal}
+        content={this.renderModalBody()}
+      />
+    );
   }
 
   renderModalBody = () => {
-    const { address, amount, fee, note, fiatRate, confirmationTime } = this.props;
+    const { address, amount, fee, note, fiatRate, confirmationTime, editTransaction, sendTransaction } = this.props;
     return (
       <Wrapper>
         <Row>
@@ -113,31 +123,11 @@ class TxConfirmation extends PureComponent<Props> {
         </Row>
         <EstimatedTime>Estimated confirmation time {confirmationTime}</EstimatedTime>
         <BottomSection>
-          <EditTxButton onClick={this.editTransaction}>Edit Transaction</EditTxButton>
-          <SmButton text="Confirm" theme="orange" onPress={this.sendTransaction} />
+          <EditTxButton onClick={editTransaction}>Edit Transaction</EditTxButton>
+          <SmButton text="Confirm" theme="orange" onPress={sendTransaction} />
         </BottomSection>
       </Wrapper>
     );
-  };
-
-  onQuestionMarkClick = () => {
-    const { navigateToExplanation } = this.props;
-    navigateToExplanation();
-  };
-
-  onCloseClick = () => {
-    const { closeModal } = this.props;
-    closeModal();
-  };
-
-  editTransaction = () => {
-    const { editTransaction } = this.props;
-    editTransaction();
-  };
-
-  sendTransaction = () => {
-    const { sendTransaction } = this.props;
-    sendTransaction();
   };
 }
 
