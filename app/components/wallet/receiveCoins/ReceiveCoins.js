@@ -99,7 +99,15 @@ type Props = {
 
 class ReceiveCoins extends PureComponent<Props> {
   render() {
-    return <Modal header="Confirm Transaction" onQuestionMarkClick={this.onQuestionMarkClick} onCloseClick={this.onCloseClick} content={this.renderModalBody()} />;
+    return (
+      <Modal
+        header="Confirm Transaction"
+        onQuestionMarkClick={this.onQuestionMarkClick}
+        onCancelBtnClick={this.onCloseClick}
+        onCloseClick={this.onCloseClick}
+        content={this.renderModalBody()}
+      />
+    );
   }
 
   componentDidMount(): void {

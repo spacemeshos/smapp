@@ -102,7 +102,7 @@ export const unlockWallet = ({ shouldPromtUser }: { shouldPromtUser?: boolean })
   }
 };
 
-export const getBalance = ({ address, accountIndex }): Action => async (dispatch: Dispatch): Dispatch => {
+export const getBalance = ({ address, accountIndex }: { address: string, accountIndex: number }): Action => async (dispatch: Dispatch): Dispatch => {
   const balance = await httpService.getBalance({ address });
   dispatch({ type: GET_BALANCE, payload: { balance, accountIndex } });
 };
@@ -117,8 +117,19 @@ export const updateAccountData = ({ accountNumber, data }: { accountNumber: numb
   payload: { accountNumber, data }
 });
 
-// eslint-disable-next-line no-unused-vars
-export const sendTransaction = ({ srcAddress, dstAddress, amount, fee, note }): Action => async (dispatch: Dispatch): Dispatch => {
+export const sendTransaction = ({
+  srcAddress,
+  dstAddress,
+  amount,
+  fee,
+  note // eslint-disable-line no-unused-vars
+}: {
+  srcAddress: string,
+  dstAddress: string,
+  amount: number,
+  fee: number,
+  note: string
+}): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     await httpService.sendTx({ srcAddress, dstAddress, amount: amount + fee });
     dispatch({ type: SEND_TX, payload: amount + fee });
