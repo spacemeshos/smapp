@@ -14,7 +14,7 @@ import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import FileManager from './fileManager';
-// import netService from './netService';
+import netService from './netService';
 
 export default class AppUpdater {
   constructor() {
@@ -58,8 +58,12 @@ ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
   FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
 });
 
-ipcMain.on(ipcConsts.SEND_REQUEST, async () => {
-  // NetService.sendRequest({ url: request.url, params: request.params, uuid: request.uuid });
+ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
+  netService.getBalance({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
+  netService.sendTx({ event, ...request });
 });
 
 app.on('window-all-closed', () => {

@@ -73,13 +73,22 @@ type Props = {
   confirmationTime: string,
   navigateToExplanation: () => void,
   closeModal: () => void,
+  onCancelBtnClick: () => void,
   sendTransaction: () => void,
   editTransaction: () => void
 };
 
 class TxConfirmation extends PureComponent<Props> {
   render() {
-    return <Modal header="Confirm Transaction" onQuestionMarkClick={this.onQuestionMarkClick} onCloseClick={this.onCloseClick} content={this.renderModalBody()} />;
+    return (
+      <Modal
+        header="Confirm Transaction"
+        onQuestionMarkClick={this.onQuestionMarkClick}
+        onCancelBtnClick={this.onCancelBtnClick}
+        onCloseClick={this.onCloseClick}
+        content={this.renderModalBody()}
+      />
+    );
   }
 
   renderModalBody = () => {
@@ -123,6 +132,11 @@ class TxConfirmation extends PureComponent<Props> {
   onQuestionMarkClick = () => {
     const { navigateToExplanation } = this.props;
     navigateToExplanation();
+  };
+
+  onCancelBtnClick = () => {
+    const { onCancelBtnClick } = this.props;
+    onCancelBtnClick();
   };
 
   onCloseClick = () => {

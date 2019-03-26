@@ -2,9 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import { sendTransaction } from '/redux/wallet/actions';
 import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
-import type { Account } from '/types';
+import type { Account, Action } from '/types';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -46,7 +47,8 @@ type Props = {
     }
   },
   history: { push: (string, Object) => void },
-  fiatRate: number
+  fiatRate: number,
+  sendTransaction: Action
 };
 
 type State = {
@@ -95,7 +97,13 @@ class SendCoins extends Component<Props, State> {
             feeIndex={feeIndex}
             fiatRate={fiatRate}
           />
-          <TxTotal amount={amount} fee={fees[feeIndex]} fiatRate={1} proceedToTxConfirmation={this.proceedToTxConfirmation} canSendTx={address && amount} />
+          <TxTotal
+            amount={amount}
+            fee={fees[feeIndex]}
+            fiatRate={1}
+            proceedToTxConfirmation={this.proceedToTxConfirmation}
+            canSendTx={address && amount && !addressErrorMsg && !amountErrorMsg}
+          />
         </MainContainer>
       </Wrapper>,
       shouldShowModal && (
@@ -108,7 +116,8 @@ class SendCoins extends Component<Props, State> {
           confirmationTime={fees[feeIndex].label}
           fiatRate={fiatRate}
           navigateToExplanation={() => {}}
-          closeModal={this.cancelTxProcess}
+          onCancelBtnClick={this.cancelTxProcess}
+          closeModal={() => this.setState({ shouldShowModal: false })}
           sendTransaction={this.sendTransaction}
           editTransaction={() => this.setState({ shouldShowModal: false })}
         />
@@ -159,13 +168,33 @@ class SendCoins extends Component<Props, State> {
 
   proceedToTxConfirmation = () => this.setState({ shouldShowModal: true });
 
-  sendTransaction = () => {};
+  sendTransaction = async () => {
+    const {
+      sendTransaction,
+      history,
+      location: {
+        state: {
+          account: { pk }
+        }
+      }
+    } = this.props;
+    const { address, amount, feeIndex, note } = this.state;
+    await sendTransaction({ srcAddress: pk, dstAddress: address, amount, fee: fees[feeIndex].fee, note });
+    history.push('/main/wallet');
+  };
 }
 
 const mapStateToProps = (state) => ({
   fiatRate: state.wallet.fiatRate
 });
 
-SendCoins = connect(mapStateToProps)(SendCoins);
+const mapDispatchToProps = {
+  sendTransaction
+};
+
+SendCoins = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SendCoins);
 
 export default SendCoins;

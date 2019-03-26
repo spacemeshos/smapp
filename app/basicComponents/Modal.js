@@ -64,13 +64,14 @@ const BodyWrapper = styled.div`
 type Props = {
   header: string,
   onQuestionMarkClick: () => void,
+  onCancelBtnClick: () => void,
   onCloseClick: () => void,
   content: Object
 };
 
 class Modal extends Component<Props> {
   render() {
-    const { header, onQuestionMarkClick, onCloseClick, content } = this.props;
+    const { header, onQuestionMarkClick, onCancelBtnClick, onCloseClick, content } = this.props;
     return (
       <OuterWrapper onClick={onCloseClick}>
         <Wrapper onClick={(event) => event.stopPropagation()}>
@@ -78,7 +79,7 @@ class Modal extends Component<Props> {
             <div>{header}</div>
             <HeaderButtons>
               <HeaderButton onClick={onQuestionMarkClick}>?</HeaderButton>
-              <CloseButton onClick={onCloseClick}>+</CloseButton>
+              <CloseButton onClick={onCancelBtnClick}>+</CloseButton>
             </HeaderButtons>
           </HeaderWrapper>
           <BodyWrapper>{content}</BodyWrapper>

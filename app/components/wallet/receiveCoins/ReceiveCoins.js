@@ -115,7 +115,7 @@ class ReceiveCoins extends PureComponent<Props> {
           <Header>Your wallet public address has been copied to clipboard</Header>
           <LeftPartInner>
             <AddressWrapper onClick={this.copyPublicAddress}>
-              <Address>{address}</Address>
+              <Address>{address.substring(0, 30)}</Address>
               <CopyIcon src={copyIcon} />
             </AddressWrapper>
             <Text>

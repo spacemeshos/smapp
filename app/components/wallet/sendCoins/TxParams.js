@@ -133,7 +133,7 @@ class TxParams extends Component<Props, State> {
         <SectionWrapper>
           <Label>Send to</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} hasDebounce style={inputStyle} isErrorMsgEnabled={false} />
+            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} style={inputStyle} isErrorMsgEnabled={false} />
             <MyContactsSection>
               <MyContactsText>My contacts</MyContactsText>
               <MyContactsIcon src={contactIcon} />
@@ -145,7 +145,7 @@ class TxParams extends Component<Props, State> {
           <Label>Amount to send</Label>
           <AmountSection>
             <InputSection>
-              <SmInput type="tel" placeholder="Type amount" onChange={updateTxAmount} hasDebounce style={inputStyle} isErrorMsgEnabled={false} />
+              <SmInput type="tel" placeholder="Type amount" onChange={updateTxAmount} style={inputStyle} isErrorMsgEnabled={false} />
               <CurrencyText>SMC</CurrencyText>
             </InputSection>
             <CurrencyText> = </CurrencyText>
@@ -159,7 +159,7 @@ class TxParams extends Component<Props, State> {
         <SectionWrapper>
           <Label>Note (optional)</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Add a short note (optional)" onChange={updateTxNote} hasDebounce style={inputStyle} isErrorMsgEnabled={false} />
+            <SmInput type="text" placeholder="Add a short note (optional)" onChange={updateTxNote} style={inputStyle} isErrorMsgEnabled={false} />
           </InputSection>
         </SectionWrapper>
         <EstimationSection onClick={() => this.setState({ isFeeSelectorVisible: !isFeeSelectorVisible })}>
