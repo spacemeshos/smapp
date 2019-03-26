@@ -42,6 +42,15 @@ const AmountSection = styled.div`
   justify-content: center;
 `;
 
+// $FlowStyledIssue
+const FiatValue = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding-left: 10px;
+  color: ${({ hasValue }) => (hasValue ? smColors.lighterBlack : smColors.gray)};
+`;
+
 const MyContactsSection = styled.div`
   width: 160px;
   display: flex;
@@ -107,6 +116,7 @@ const inputStyle = { border: '1px solid transparent' };
 type Props = {
   updateTxAddress: ({ value: string }) => void,
   updateTxAmount: ({ value: string }) => void,
+  amount: number,
   updateTxNote: ({ value: string }) => void,
   updateFee: ({ index: number }) => void,
   addressErrorMsg?: string,
@@ -126,7 +136,7 @@ class TxParams extends Component<Props, State> {
   };
 
   render() {
-    const { updateTxAddress, updateTxAmount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate } = this.props;
+    const { updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate } = this.props;
     const { isFeeSelectorVisible } = this.state;
     return (
       <Wrapper>
@@ -150,7 +160,7 @@ class TxParams extends Component<Props, State> {
             </InputSection>
             <CurrencyText> = </CurrencyText>
             <InputSection>
-              <SmInput type="tel" placeholder="Fiat value" disabled value={10} style={inputStyle} isErrorMsgEnabled={false} />
+              <FiatValue hasValue={!!amount}>{amount ? amount * fiatRate : 'Fiat value'}</FiatValue>
               <CurrencyText>USD</CurrencyText>
             </InputSection>
           </AmountSection>

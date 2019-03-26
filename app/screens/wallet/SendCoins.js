@@ -89,6 +89,7 @@ class SendCoins extends Component<Props, State> {
           <TxParams
             updateTxAddress={this.updateTxAddress}
             updateTxAmount={this.updateTxAmount}
+            amount={amount}
             updateTxNote={this.updateTxNote}
             updateFee={this.updateFee}
             addressErrorMsg={addressErrorMsg}

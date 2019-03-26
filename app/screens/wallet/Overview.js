@@ -87,13 +87,13 @@ class Overview extends Component<Props, State> {
   }
 
   componentDidMount(): void {
-    this.getBalance();
+    // this.getBalance();
   }
 
-  getBalance = () => {
+  getBalance = async () => {
     const { accounts, getBalance } = this.props;
     const { currentAccountIndex } = this.state;
-    getBalance({ address: accounts[currentAccountIndex].pk, accountIndex: currentAccountIndex });
+    await getBalance({ address: accounts[currentAccountIndex].pk, accountIndex: currentAccountIndex });
   };
 
   navigateToSendCoins = () => {

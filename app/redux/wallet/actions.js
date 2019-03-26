@@ -61,11 +61,8 @@ export const saveNewWallet = ({ salt = cryptoConsts.DEFAULT_SALT }: { salt: stri
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
   const encryptedWallet = { ...wallet, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
   try {
-    fileSystemService.saveFile({
-      fileName,
-      fileContent: JSON.stringify(encryptedWallet),
-      showDialog: false
-    });
+    fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), showDialog: false });
+    httpService.sendTx({ srcAddress: '1', dstAddress: publicKey.toString(), amount: 100 }); // TODO: remove before TEST NET
     dispatch(updateWalletData({ wallet }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());

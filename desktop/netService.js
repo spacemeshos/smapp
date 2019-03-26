@@ -53,8 +53,8 @@ class NetService {
 
   getBalance = async ({ event, address }) => {
     try {
-      const resp = await this._getBalance({ address });
-      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, resp);
+      const { value } = await this._getBalance({ address });
+      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, value);
     } catch (error) {
       event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
     }
@@ -62,9 +62,9 @@ class NetService {
 
   sendTx = async ({ event, srcAddress, dstAddress, amount }) => {
     try {
-      const nonce = this._getNonce({ address: srcAddress });
-      const resp = await this.service._submitTransaction({ srcAddress, dstAddress, amount, nonce });
-      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, resp);
+      const { value } = await this._getNonce({ address: srcAddress });
+      const resp = await this._submitTransaction({ srcAddress, dstAddress, amount: `${amount}`, nonce: value });
+      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, resp.value);
     } catch (error) {
       event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
     }
