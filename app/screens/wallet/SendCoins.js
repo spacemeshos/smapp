@@ -95,7 +95,7 @@ class SendCoins extends Component<Props, State> {
             feeIndex={feeIndex}
             fiatRate={fiatRate}
           />
-          <TxTotal amount={amount} fee={fees[feeIndex]} fiatRate={1} sendTransaction={this.sendTransaction} canSendTx={address && amount} />
+          <TxTotal amount={amount} fee={fees[feeIndex]} fiatRate={1} proceedToTxConfirmation={this.proceedToTxConfirmation} canSendTx={address && amount} />
         </MainContainer>
       </Wrapper>,
       shouldShowModal && (
@@ -109,7 +109,7 @@ class SendCoins extends Component<Props, State> {
           fiatRate={fiatRate}
           navigateToExplanation={() => {}}
           closeModal={this.cancelTxProcess}
-          sendTransaction={() => {}}
+          sendTransaction={this.sendTransaction}
           editTransaction={() => this.setState({ shouldShowModal: false })}
         />
       )
@@ -157,7 +157,9 @@ class SendCoins extends Component<Props, State> {
     history.push('/main/wallet');
   };
 
-  sendTransaction = () => this.setState({ shouldShowModal: true });
+  proceedToTxConfirmation = () => this.setState({ shouldShowModal: true });
+
+  sendTransaction = () => {};
 }
 
 const mapStateToProps = (state) => ({

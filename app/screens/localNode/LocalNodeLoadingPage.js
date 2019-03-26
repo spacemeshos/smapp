@@ -48,10 +48,10 @@ type State = {
 
 class LocalNodeLoadingPage extends Component<Props, State> {
   render() {
-    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
   }
 
-  // Test: enable to switch to ready page
+  // TODO: remove Test: enable to switch to ready page
   componentDidMount() {
     const { history } = this.props;
     setTimeout(() => {

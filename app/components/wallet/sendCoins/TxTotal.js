@@ -55,13 +55,13 @@ type Props = {
   amount: number,
   fee: { fee: number },
   fiatRate: number,
-  sendTransaction: () => void,
+  proceedToTxConfirmation: () => void,
   canSendTx: boolean
 };
 
 class TxTotal extends PureComponent<Props> {
   render() {
-    const { amount, fee, fiatRate, sendTransaction, canSendTx } = this.props;
+    const { amount, fee, fiatRate, proceedToTxConfirmation, canSendTx } = this.props;
     return (
       <Wrapper>
         <Header>Total</Header>
@@ -75,7 +75,7 @@ class TxTotal extends PureComponent<Props> {
             <TotalAmountInFiat>= {(amount + fee.fee) * fiatRate} USD</TotalAmountInFiat>
           </div>
         </InnerWrapper>
-        <SmButton text="Send" theme="orange" onPress={sendTransaction} isDisabled={!canSendTx} />
+        <SmButton text="Send" theme="orange" onPress={proceedToTxConfirmation} isDisabled={!canSendTx} />
       </Wrapper>
     );
   }

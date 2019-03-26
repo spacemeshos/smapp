@@ -111,13 +111,13 @@ class UnlockWallet extends Component<Props, State> {
     this.setState({ passphrase: value, errorMsg: null });
   };
 
-  decryptWallet = () => {
+  decryptWallet = async () => {
     const { deriveEncryptionKey, unlockWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
     if (passphrase.trim().length >= 8) {
       try {
         deriveEncryptionKey({ passphrase });
-        unlockWallet({ shouldPromtUser: true });
+        await unlockWallet({ shouldPromtUser: true });
         navigateToWallet();
       } catch {
         this.setState({ errorMsg: 'Passphrase Incorrect.' });

@@ -29,8 +29,8 @@ const RightPane = styled.div`
 `;
 
 type Props = {
-  rightPane: any,
-  leftPane: any,
+  rightPane: Object,
+  leftPane: Object,
   header: string
 };
 
@@ -39,8 +39,8 @@ const LocalNodeBase = (props: Props) => {
   return [
     <LocalNodeHeaderText key="local-node-header">{header}</LocalNodeHeaderText>,
     <LocalNodePageBodyWrapper key="local-node-body">
-      <LeftPane>{leftPane()}</LeftPane>
-      <RightPane>{rightPane()}</RightPane>
+      <LeftPane>{leftPane}</LeftPane>
+      <RightPane>{rightPane}</RightPane>
     </LocalNodePageBodyWrapper>
   ];
 };

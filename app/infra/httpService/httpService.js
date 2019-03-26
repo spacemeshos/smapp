@@ -1,7 +1,7 @@
 // @flow
 import { ipcRenderer } from 'electron';
 import uuid4 from 'uuid4';
-import { ipcConsts } from '../../vars';
+import { ipcConsts } from '/vars';
 
 class HttpService {
   static sendRequest({ url, params }: { url: string, params?: Object }) {

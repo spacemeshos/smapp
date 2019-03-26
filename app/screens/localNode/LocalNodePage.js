@@ -48,7 +48,7 @@ const readyInformationText = 'To run Spacemesh p2p network and get awarded for y
 
 class LocalNodePage extends Component<Props, State> {
   render() {
-    return <LocalNodeBase header="Local Node" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
   }
 
   renderRightPane = () => (

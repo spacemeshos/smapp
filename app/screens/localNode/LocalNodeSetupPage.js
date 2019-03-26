@@ -1,23 +1,15 @@
 // @flow
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage } from '/redux/localNode/actions';
-import styled from 'styled-components';
 import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
-import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
+import type { Action } from '/types';
 
-type SetupPageProps = {
-  history: any,
-  setLocalNodeStorage: Function
-};
-type SetupPageState = {
-  drive: ?DropdownEntry,
-  capacity: ?DropdownEntry
-};
-
-const selectDriveDropdownList: DropdownEntry[] = [
+// TODO: Remove test stub
+const drivesDDList: DropdownEntry[] = [
   {
     id: 'c',
     label: 'c:\\'
@@ -40,7 +32,8 @@ const selectDriveDropdownList: DropdownEntry[] = [
   }
 ];
 
-const capacityDropdownList: DropdownEntry[] = [
+// TODO: Remove test stub
+const capacityDDList: DropdownEntry[] = [
   {
     id: 2,
     label: '2.0 GB'
@@ -63,50 +56,10 @@ const capacityDropdownList: DropdownEntry[] = [
   }
 ];
 
-const rightPaneSetupModeList = [
-  {
-    id: 1,
-    iconSrc: coin,
-    text: 'Join the Spacemesh p2p network and get awarded'
-  },
-  {
-    id: 2,
-    iconSrc: time,
-    text: 'Leave your desktop computer on 24/7'
-  },
-  {
-    id: 3,
-    iconSrc: noLaptop,
-    text: 'Do not use a laptop. Only desktop'
-  },
-  {
-    id: 4,
-    iconSrc: time,
-    text: 'On the Spacemesh network, storage replaces "Proof of Work"'
-  }
-];
+// TODO: Remove test stub
+const getFreeSpace = (drive: number | string) => (drive && '500 GB') || '';
 
-const rightPaneSetupModeLinks = [
-  {
-    id: 'learnMore',
-    text: 'Learn more about Spacemesh Local Node'
-  },
-  {
-    id: 'changeLocalNodeAddress',
-    text: 'Change your awards Local Node address'
-  },
-  {
-    id: 'showComputerEffort',
-    text: 'Show computer effort'
-  }
-];
-
-// Test stub
-const getFreeSpace = (drive: number | string) => {
-  return (drive && '500 GB') || '';
-};
-
-// Test stub
+// TODO: Remove test stub
 const getProjectedSmcEarnings = (capacity: number | string) => {
   if (typeof capacity === 'string') {
     return 4;
@@ -115,29 +68,26 @@ const getProjectedSmcEarnings = (capacity: number | string) => {
   }
 };
 
-// Test stub
-const getFiatCurrencyEquivalent = (capacity: number | string) => {
-  return (getProjectedSmcEarnings(capacity) * 6).toFixed(2);
-};
+// TODO: Remove test stub
+const getFiatCurrencyEquivalent = (capacity: number | string) => (getProjectedSmcEarnings(capacity) * 6).toFixed(2);
 
 const LeftHeaderWrapper = styled.div`
-  padding: 12px 0;
-  margin-top: 12px;
+  margin-bottom: 20px;
 `;
 
 const BorderlessLeftPaneRow = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding: 12px 0;
+  margin-bottom: 40px;
 `;
 
 const SideLabelWrapper = styled.div`
-  height: 44px;
-  padding-left: 24px;
   display: flex;
   flex-direction: column;
+  flex: 2;
   justify-content: center;
+  margin-left: 20px;
 `;
 
 const GrayTextWrapper = styled.div`
@@ -147,45 +97,69 @@ const GrayTextWrapper = styled.div`
   justify-content: space-between;
 `;
 
-class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
+type Props = {
+  history: { push: (string) => void },
+  setLocalNodeStorage: Action
+};
+
+type State = {
+  selectedDriveIndex: number,
+  selectedCapacityIndex: number
+};
+
+class LocalNodeSetupPage extends Component<Props, State> {
   state = {
-    capacity: null,
-    drive: null
+    selectedDriveIndex: -1,
+    selectedCapacityIndex: -1
   };
 
   render() {
-    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
   }
 
-  renderRightPane = () => <RightPaneSetup itemsList={rightPaneSetupModeList} linksList={rightPaneSetupModeLinks} handleLinkClick={this.handleLinkClick} />;
+  renderRightPane = () => {
+    const links = [
+      {
+        text: 'Learn more about Spacemesh Local Node',
+        onClick: this.navigateToExplanation
+      },
+      {
+        text: 'Change your awards Local Node address',
+        onCLick: this.changeLocalNodeRewardAddress
+      },
+      {
+        text: 'Show computer effort',
+        onClick: this.showComputationEffort
+      }
+    ];
+    return <RightPaneSetup links={links} />;
+  };
 
   renderLeftPane = () => {
-    const { drive, capacity } = this.state;
+    const { selectedDriveIndex, selectedCapacityIndex } = this.state;
+    const drive = selectedDriveIndex !== -1 ? drivesDDList[selectedDriveIndex] : null;
+    const capacity = selectedCapacityIndex !== -1 ? capacityDDList[selectedCapacityIndex] : null;
     return (
       <LeftPaneInner>
         <LeftHeaderWrapper>
           <BoldText>Select Drive</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={selectDriveDropdownList} selectedId={drive && drive.id} onPress={(selection: DropdownEntry) => this.handleSelectDrive(selection)} />
-          {drive && (
-            <SideLabelWrapper>
-              <BaseText>You have {getFreeSpace(drive.id)} free on your drive</BaseText>
-            </SideLabelWrapper>
-          )}
+          <SmDropdown data={drivesDDList} selectedItemIndex={selectedDriveIndex} onPress={({ index }: { index: number }) => this.handleSelectDrive({ index })} />
+          <SideLabelWrapper>{drive && <BaseText>You have {getFreeSpace(drive.id)} free on your drive</BaseText>}</SideLabelWrapper>
         </BorderlessLeftPaneRow>
         <LeftHeaderWrapper>
           <BoldText>Choose how much storage to allocate for the local node</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={capacityDropdownList} selectedId={capacity && capacity.id} onPress={(selection: DropdownEntry) => this.handleSelectCapacity(selection)} />
-          {capacity && (
-            <SideLabelWrapper>
+          <SmDropdown data={capacityDDList} selectedItemIndex={selectedCapacityIndex} onPress={({ index }: { index: number }) => this.handleSelectCapacity({ index })} />
+          <SideLabelWrapper>
+            {capacity && (
               <BaseText>
                 earn ~ {getProjectedSmcEarnings(capacity.id)} SMC each week* <GrayText> = {getFiatCurrencyEquivalent(capacity.id)} USD*</GrayText>
               </BaseText>
-            </SideLabelWrapper>
-          )}
+            )}
+          </SideLabelWrapper>
         </BorderlessLeftPaneRow>
         <GrayTextWrapper>
           <BorderlessLeftPaneRow>
@@ -198,7 +172,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
             <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
           </BorderlessLeftPaneRow>
           <BorderlessLeftPaneRow>
-            <SmButton text="Start Setup" theme="orange" isDisabled={!(capacity && drive)} onPress={this.handleStartSetup} />
+            <SmButton text="Start Setup" theme="orange" isDisabled={!capacity || !drive} onPress={this.handleStartSetup} />
           </BorderlessLeftPaneRow>
         </GrayTextWrapper>
       </LeftPaneInner>
@@ -207,31 +181,20 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
 
   handleStartSetup = () => {
     const { setLocalNodeStorage, history } = this.props;
-    const { capacity, drive } = this.state;
-    setLocalNodeStorage({ capacity, drive });
+    const { selectedDriveIndex, selectedCapacityIndex } = this.state;
+    setLocalNodeStorage({ drive: drivesDDList[selectedDriveIndex].label, capacity: capacityDDList[selectedCapacityIndex].label });
     history.push('/main/local-node/local-node-loading');
   };
 
-  handleSelectDrive = (selection: DropdownEntry) => {
-    this.setState({ drive: selection });
-  };
+  handleSelectDrive = ({ index }: { index: number }) => this.setState({ selectedDriveIndex: index });
 
-  handleSelectCapacity = (selection: DropdownEntry) => {
-    this.setState({ capacity: selection });
-  };
+  handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
 
-  handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {
-    switch (linkId) {
-      case 'learnMore':
-        break;
-      case 'changeLocalNodeAddress':
-        break;
-      case 'showComputerEffort':
-        break;
-      default:
-        break;
-    }
-  };
+  navigateToExplanation = () => {};
+
+  changeLocalNodeRewardAddress = () => {};
+
+  showComputationEffort = () => {};
 }
 
 const mapDispatchToProps = {
