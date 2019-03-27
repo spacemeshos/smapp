@@ -51,7 +51,6 @@ const UpperPartHeader = styled.span`
 
 const SmallLink = styled.span`
   font-size: 14px;
-  user-select: none;
   color: ${smColors.green};
   cursor: pointer;
   &:hover {
