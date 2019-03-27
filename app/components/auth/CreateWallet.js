@@ -32,6 +32,7 @@ const GrayText = styled.span`
   font-size: 16px;
   text-align: left;
   color: ${smColors.gray};
+  line-height: 29px;
 `;
 
 const UpperPartHeader = styled.span`
@@ -78,7 +79,8 @@ type Props = {
   saveNewWallet: Action,
   hideCloseBtn: () => void,
   navigateToLocalNodeSetup: () => void,
-  navigateToWallet: () => void
+  navigateToWallet: () => void,
+  mnemonic: string
 };
 
 type State = {
@@ -170,14 +172,14 @@ class CreateWallet extends Component<Props, State> {
   };
 
   createWallet = async () => {
-    const { deriveEncryptionKey, saveNewWallet, hideCloseBtn } = this.props;
+    const { deriveEncryptionKey, saveNewWallet, hideCloseBtn, mnemonic } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       await setTimeout(async () => {
         await deriveEncryptionKey({ passphrase });
-        saveNewWallet({});
+        saveNewWallet({ mnemonic });
         this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
       }, 500);
     }

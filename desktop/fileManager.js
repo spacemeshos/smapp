@@ -15,23 +15,23 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileManager {
-  static readFile = async ({ browserWindow, event, fileName, showDialog }) => {
-    if (showDialog) {
-      const options = {
-        title: 'Load Wallet Backup File',
-        defaultPath: documentsDirPath,
-        buttonLabel: 'Load',
-        filters: [{ name: 'Backup Files', extensions: ['json'] }],
-        properties: ['openFile']
-      };
-      dialog.showOpenDialog(browserWindow, options, async (filePaths) => {
-        if (filePaths && filePaths[0]) {
-          await FileManager._readFile({ event, path: filePaths[0] });
-        }
-      });
-    } else {
-      await FileManager._readFile({ event, path: path.join(appFilesDirPath, fileName) });
-    }
+  static getFileName = ({ browserWindow, event }) => {
+    const options = {
+      title: 'Load Wallet Backup File',
+      defaultPath: documentsDirPath,
+      buttonLabel: 'Load',
+      filters: [{ name: 'Backup Files', extensions: ['json'] }],
+      properties: ['openFile']
+    };
+    dialog.showOpenDialog(browserWindow, options, async (filePaths) => {
+      if (filePaths && filePaths[0]) {
+        event.sender.send(ipcConsts.GET_FILE_NAME_SUCCESS, filePaths[0]);
+      }
+    });
+  };
+
+  static readFile = async ({ event, filePath }) => {
+    await FileManager._readFile({ event, filePath });
   };
 
   static readDirectory = async ({ event }) => {
@@ -39,7 +39,8 @@ class FileManager {
       const files = await readDirectoryAsync(appFilesDirPath);
       const regex = new RegExp('.*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
-      event.sender.send(ipcConsts.READ_DIRECTORY_SUCCESS, filteredFiles);
+      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
+      event.sender.send(ipcConsts.READ_DIRECTORY_SUCCESS, filesWithPath);
     } catch (error) {
       event.sender.send(ipcConsts.READ_DIRECTORY_FAILURE, error.message);
     }
@@ -64,9 +65,9 @@ class FileManager {
     }
   };
 
-  static _readFile = async ({ event, path }) => {
+  static _readFile = async ({ event, filePath }) => {
     try {
-      const fileContent = await readFileAsync(path);
+      const fileContent = await readFileAsync(filePath);
       event.sender.send(ipcConsts.READ_FILE_SUCCESS, JSON.parse(fileContent));
     } catch (error) {
       event.sender.send(ipcConsts.READ_FILE_FAILURE, error.message);

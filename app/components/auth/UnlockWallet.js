@@ -26,6 +26,7 @@ const UpperPart = styled.div`
 const BottomPart = styled.div`
   display: flex;
   flex-direction: column;
+  padding-top: 10px;
 `;
 
 const ImageWrapper = styled.div`
@@ -42,13 +43,14 @@ const Image = styled.img`
 
 const UpperPartHeader = styled.span`
   font-size: 24px;
-  text-align: left;
-  color: ${smColors.black};
+  text-align: center;
+  color: ${smColors.lighterBlack};
+  line-height: 33px;
+  margin-bottom: 5px;
 `;
 
 const SmallLink = styled.span`
   font-size: 14px;
-  user-select: none;
   color: ${smColors.green};
   cursor: pointer;
   &:hover {
@@ -68,6 +70,7 @@ const LinksWrapper = styled.div`
 
 type Props = {
   setCreationMode: () => void,
+  setRestoreMode: () => void,
   navigateToWallet: () => void,
   deriveEncryptionKey: Action,
   unlockWallet: Action
@@ -85,7 +88,7 @@ class UnlockWallet extends Component<Props, State> {
   };
 
   render() {
-    const { setCreationMode } = this.props;
+    const { setCreationMode, setRestoreMode } = this.props;
     const { passphrase, errorMsg } = this.state;
     return (
       <Wrapper>
@@ -93,14 +96,14 @@ class UnlockWallet extends Component<Props, State> {
           <ImageWrapper>
             <Image src={welcomeBack} />
           </ImageWrapper>
-          <UpperPartHeader>Enter passphrase to access wallet</UpperPartHeader>
-          <SmInput type="passphrase" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
+          <UpperPartHeader>Enter your wallet passphrase</UpperPartHeader>
+          <SmInput type="password" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
-          <SmButton text="Login" isDisabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} style={{ marginTop: 20 }} />
+          <SmButton text="Unlock" isDisabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} />
           <LinksWrapper>
             <SmallLink onClick={setCreationMode}>Create a new wallet</SmallLink>
-            <SmallLink onClick={setCreationMode}>Restore wallet</SmallLink>
+            <SmallLink onClick={setRestoreMode}>Restore wallet</SmallLink>
           </LinksWrapper>
         </BottomPart>
       </Wrapper>
@@ -117,7 +120,7 @@ class UnlockWallet extends Component<Props, State> {
     if (passphrase.trim().length >= 8) {
       try {
         deriveEncryptionKey({ passphrase });
-        await unlockWallet({ shouldPromtUser: true });
+        await unlockWallet();
         navigateToWallet();
       } catch {
         this.setState({ errorMsg: 'Passphrase Incorrect.' });
