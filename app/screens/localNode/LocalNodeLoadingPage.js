@@ -56,7 +56,7 @@ class LocalNodeLoadingPage extends Component<Props, State> {
   // TODO: remove Test: enable to switch to ready page
   componentDidMount() {
     const { history } = this.props;
-    setTimeout(() => {
+    this.timer = setTimeout(() => {
       history.push('/main/local-node/local-node-ready');
     }, 10000);
   }

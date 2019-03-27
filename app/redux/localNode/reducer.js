@@ -24,9 +24,9 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case GET_AVAILABLE_DISK_SPACE: {
       const {
-        payload: { availableDiskSpace }
+        payload: { availableDiskSpace, capacities }
       } = action;
-      return { ...state, availableDiskSpace };
+      return { ...state, availableDiskSpace, capacities };
     }
     case RESET_NODE_SETTINGS:
       return initialState;
