@@ -1,67 +1,33 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setLocalNodeStorage } from '/redux/localNode/actions';
+import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
 import styled from 'styled-components';
 import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
 import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
+import type { Action } from '/types';
+// import diskStorageService from '/infra/diskStorageService';
 
 type SetupPageProps = {
   history: any,
-  setLocalNodeStorage: Function
+  // eslint-disable-next-line react/no-unused-prop-types
+  drives: any[],
+  capacity: any,
+  drive: any,
+  // eslint-disable-next-line react/no-unused-prop-types
+  availableDiskSpace: any,
+  setLocalNodeStorage: Action,
+  getDrivesList: Action,
+  getAvailableSpace: Action
 };
 type SetupPageState = {
-  drive: ?DropdownEntry,
-  capacity: ?DropdownEntry
+  drivesList: DropdownEntry[],
+  allocatedSpaceList: DropdownEntry[],
+  selectedDrive: ?DropdownEntry,
+  selectedCapacity: ?DropdownEntry
 };
-
-const selectDriveDropdownList: DropdownEntry[] = [
-  {
-    id: 'c',
-    label: 'c:\\'
-  },
-  {
-    id: 'd',
-    label: 'd:\\'
-  },
-  {
-    id: 'e',
-    label: 'e:\\'
-  },
-  {
-    id: 'f',
-    label: 'f:\\'
-  },
-  {
-    id: 'g',
-    label: 'g:\\'
-  }
-];
-
-const capacityDropdownList: DropdownEntry[] = [
-  {
-    id: 2,
-    label: '2.0 GB'
-  },
-  {
-    id: 4,
-    label: '4.0 GB'
-  },
-  {
-    id: 100,
-    label: '100.0 GB '
-  },
-  {
-    id: 1000,
-    label: '1.0 TB'
-  },
-  {
-    id: 2000,
-    label: '2.0 TB'
-  }
-];
 
 const rightPaneSetupModeList = [
   {
@@ -102,22 +68,18 @@ const rightPaneSetupModeLinks = [
 ];
 
 // Test stub
-const getFreeSpace = (drive: number | string) => {
-  return (drive && '500 GB') || '';
-};
-
-// Test stub
 const getProjectedSmcEarnings = (capacity: number | string) => {
   if (typeof capacity === 'string') {
     return 4;
   } else {
-    return +(capacity * 0.2).toFixed(2);
+    return +(capacity * 0.00000001).toFixed(2);
   }
 };
 
 // Test stub
 const getFiatCurrencyEquivalent = (capacity: number | string) => {
-  return (getProjectedSmcEarnings(capacity) * 6).toFixed(2);
+  const SMC_TO_USD_RATIO = 0.2;
+  return (getProjectedSmcEarnings(capacity) * SMC_TO_USD_RATIO).toFixed(2);
 };
 
 const LeftHeaderWrapper = styled.div`
@@ -147,10 +109,34 @@ const GrayTextWrapper = styled.div`
   justify-content: space-between;
 `;
 
+const getReadableSpace = (spaceInBytes: number) => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (spaceInBytes === 0) return '0 Byte';
+  const i = parseInt(Math.floor(Math.log(spaceInBytes) / Math.log(1024)));
+  return `${Math.round(spaceInBytes / 1024 ** i)} ${sizes[i]}`;
+};
+
+const getBytesfromGb = (Gb: number) => Gb * 1073741824;
+
+const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesfromGb(150)) => {
+  const allocatedSpaceList = [];
+  if (availableDiskSpace) {
+    for (let i = increment; i < availableDiskSpace; i += increment) {
+      allocatedSpaceList.push({
+        id: i,
+        label: getReadableSpace(i)
+      });
+    }
+  }
+  return allocatedSpaceList;
+};
+
 class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   state = {
-    capacity: null,
-    drive: null
+    selectedCapacity: null,
+    selectedDrive: null,
+    drivesList: [],
+    allocatedSpaceList: []
   };
 
   render() {
@@ -160,17 +146,19 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   renderRightPane = () => <RightPaneSetup itemsList={rightPaneSetupModeList} linksList={rightPaneSetupModeLinks} handleLinkClick={this.handleLinkClick} />;
 
   renderLeftPane = () => {
-    const { drive, capacity } = this.state;
+    const { drivesList, allocatedSpaceList, selectedCapacity, selectedDrive } = this.state;
+    const { drive, capacity } = this.props;
+    const { availableDiskSpace } = this.props;
     return (
       <LeftPaneInner>
         <LeftHeaderWrapper>
           <BoldText>Select Drive</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={selectDriveDropdownList} selectedId={drive && drive.id} onPress={(selection: DropdownEntry) => this.handleSelectDrive(selection)} />
-          {drive && (
+          <SmDropdown data={drivesList} selectedId={drive && drive.id} onPress={(selection: DropdownEntry) => this.handleSelectDrive(selection)} />
+          {selectedDrive && (
             <SideLabelWrapper>
-              <BaseText>You have {getFreeSpace(drive.id)} free on your drive</BaseText>
+              <BaseText>You have {getReadableSpace(availableDiskSpace)} free on your drive</BaseText>
             </SideLabelWrapper>
           )}
         </BorderlessLeftPaneRow>
@@ -178,7 +166,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
           <BoldText>Choose how much storage to allocate for the local node</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={capacityDropdownList} selectedId={capacity && capacity.id} onPress={(selection: DropdownEntry) => this.handleSelectCapacity(selection)} />
+          <SmDropdown data={allocatedSpaceList} selectedId={capacity && capacity.id} onPress={(selection: DropdownEntry) => this.handleSelectCapacity(selection)} />
           {capacity && (
             <SideLabelWrapper>
               <BaseText>
@@ -198,26 +186,45 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
             <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
           </BorderlessLeftPaneRow>
           <BorderlessLeftPaneRow>
-            <SmButton text="Start Setup" theme="orange" disabled={!(capacity && drive)} onPress={this.handleStartSetup} />
+            <SmButton text="Start Setup" theme="orange" disabled={!(selectedCapacity && selectedDrive)} onPress={this.handleStartSetup} />
           </BorderlessLeftPaneRow>
         </GrayTextWrapper>
       </LeftPaneInner>
     );
   };
 
+  componentDidMount() {
+    const { getDrivesList, capacity, drive } = this.props;
+    this.handleSelectDrive(drive);
+    this.handleSelectCapacity(capacity);
+    getDrivesList();
+  }
+
+  static getDerivedStateFromProps(props: SetupPageProps) {
+    const { drives, availableDiskSpace } = props;
+    if (drives && drives.length) {
+      return { drivesList: drives, allocatedSpaceList: getAllocatedSpaceList(availableDiskSpace) };
+    }
+    return {};
+  }
+
   handleStartSetup = () => {
     const { setLocalNodeStorage, history } = this.props;
-    const { capacity, drive } = this.state;
-    setLocalNodeStorage({ capacity, drive });
+    const { selectedCapacity, selectedDrive } = this.state;
+    setLocalNodeStorage({ capacity: selectedCapacity, drive: selectedDrive });
     history.push('/main/local-node/local-node-loading');
   };
 
   handleSelectDrive = (selection: DropdownEntry) => {
-    this.setState({ drive: selection });
+    const { getAvailableSpace } = this.props;
+    const { drivesList } = this.state;
+    const drive: any = selection && drivesList && drivesList.find((drive) => drive.id === selection.id);
+    drive && getAvailableSpace(drive.mountPoint);
+    this.setState({ selectedDrive: selection });
   };
 
   handleSelectCapacity = (selection: DropdownEntry) => {
-    this.setState({ capacity: selection });
+    this.setState({ selectedCapacity: selection });
   };
 
   handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {
@@ -234,12 +241,21 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  capacity: state.localNode.capacity,
+  drive: state.localNode.drive,
+  drives: state.localNode.drives,
+  availableDiskSpace: state.localNode.availableDiskSpace
+});
+
 const mapDispatchToProps = {
-  setLocalNodeStorage
+  setLocalNodeStorage,
+  getDrivesList,
+  getAvailableSpace
 };
 
 LocalNodeSetupPage = connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(LocalNodeSetupPage);
 

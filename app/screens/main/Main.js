@@ -3,13 +3,14 @@ import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
+import { resetNodeSettings } from '/redux/localNode/actions';
 import styled from 'styled-components';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
 import routes from '/routes';
 import get from 'lodash.get';
-import type { Account } from '/types';
+import type { Account, Action } from '/types';
 
 const sideMenuItems: SideMenuItem[] = [
   {
@@ -73,7 +74,8 @@ type Props = {
   history: any,
   walletFiles: string[],
   location: any,
-  logout: Function
+  logout: Action,
+  resetNodeSettings: Action
 };
 
 type State = {
@@ -125,8 +127,9 @@ class Main extends Component<Props, State> {
   };
 
   navToAuthAndLogout = () => {
-    const { history, logout } = this.props;
+    const { history, logout, resetNodeSettings } = this.props;
     history.push('/');
+    resetNodeSettings();
     logout();
   };
 }
@@ -136,6 +139,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  resetNodeSettings,
   logout
 };
 

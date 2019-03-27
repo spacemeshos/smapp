@@ -48,6 +48,8 @@ const rightPaneLoadingModeLinks = [
 const loadingInformationText = "Local node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
 
 class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
+  timer: any;
+
   render() {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
   }
@@ -92,9 +94,13 @@ class LocalNodeLoadingPage extends Component<SetupPageProps, SetupPageState> {
   // Test: enable to switch to ready page
   componentDidMount() {
     const { history } = this.props;
-    setTimeout(() => {
+    this.timer = setTimeout(() => {
       history.push('/main/local-node/local-node-ready');
     }, 10000);
+  }
+
+  componentWillUnmount() {
+    this.timer && clearTimeout(this.timer);
   }
 
   handleStopSetup = () => {

@@ -17,6 +17,7 @@ export type DropdownEntry = {
 type SmDropdownProps = {
   onPress: (selection: DropdownEntry) => void,
   data: DropdownEntry[],
+  selectedId?: ?number | string,
   disabled?: boolean,
   placeholder?: string,
   width?: number | string,
@@ -204,6 +205,13 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
       </StyledDropdownEntry>
     );
   };
+
+  componentDidMount() {
+    const { selectedId } = this.props;
+    if (selectedId !== null) {
+      this.setState({ selectedEntryId: selectedId });
+    }
+  }
 
   componentDidUpdate() {
     const { isOpen } = this.state;

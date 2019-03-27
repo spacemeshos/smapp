@@ -161,6 +161,8 @@
   },
   "dependencies": {
     "bip39": "^2.5.0",
+    "diskusage": "^1.0.0",
+    "drivelist": "^6.4.6",
     "grpc": "^1.18.0",
     "lodash.get": "^4.4.2",
     "pbkdf2": "^3.0.17",

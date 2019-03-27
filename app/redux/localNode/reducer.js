@@ -1,18 +1,32 @@
 // @flow
 import type { Action } from '/types';
-import { SET_CAPACITY, RESET_NODE_SETTINGS } from './actions';
+import { SET_ALLOCATION, RESET_NODE_SETTINGS, GET_DRIVES_LIST, GET_AVAILABLE_DISK_SPACE } from './actions';
 
 const initialState = {
-  capacity: null
+  capacity: null,
+  drives: [],
+  availableDiskSpace: null
 };
 
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
-    case SET_CAPACITY: {
+    case SET_ALLOCATION: {
       const {
-        payload: { capacity }
+        payload: { capacity, drive }
       } = action;
-      return { ...state, capacity };
+      return { ...state, capacity, drive };
+    }
+    case GET_DRIVES_LIST: {
+      const {
+        payload: { drives }
+      } = action;
+      return { ...state, drives };
+    }
+    case GET_AVAILABLE_DISK_SPACE: {
+      const {
+        payload: { availableDiskSpace }
+      } = action;
+      return { ...state, availableDiskSpace };
     }
     case RESET_NODE_SETTINGS:
       return initialState;
