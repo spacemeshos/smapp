@@ -91,7 +91,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
   try {
     const walletState = getState().wallet;
     const { walletFiles, fileKey } = walletState;
-    const file = await fileSystemService.readFile({ filePath: walletFiles[0], showDialog: false });
+    const file = await fileSystemService.readFile({ filePath: walletFiles[0] });
     const decryptedAccountsJSON = cryptoService.decryptData({ data: file.crypto.cipherText, key: fileKey });
     file.crypto.cipherText = JSON.parse(decryptedAccountsJSON);
     dispatch(updateWalletData({ wallet: file }));
@@ -144,4 +144,4 @@ export const sendTransaction = ({
   } catch (error) {
     throw new Error(error);
   }
-}; // adfdsgdsgsdgsdg
+};
