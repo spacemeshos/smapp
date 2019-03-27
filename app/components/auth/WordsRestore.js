@@ -3,10 +3,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { deriveEncryptionKey } from '/redux/wallet/actions';
-import { SmInput, SmButton } from '/basicComponents';
+import { SmButton } from '/basicComponents';
 import { keyGenService } from '/infra/keyGenService';
 import { xWhite } from '/assets/images';
 import { smColors } from '/vars';
+import InputsTable from './InputsTable';
 
 const Wrapper = styled.div`
   position: relative;
@@ -53,39 +54,10 @@ const SubHeader = styled.div`
   margin-bottom: 55px;
 `;
 
-const Table = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 30px;
-  padding: 30px 30px 15px 30px;
-  border: 1px solid ${smColors.darkGreen};
-`;
-
-const TableColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-right: 50px;
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 15px;
-`;
-
-const InputCounter = styled.div`
-  width: 25px;
-  font-size: 18px;
-  line-height: 22px;
-  color: ${smColors.darkGray50Alpha};
-  margin-right: 10px;
-`;
-
 const ErrorMsg = styled.div`
   width: 100%;
   height: 20px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 20px;
   color: ${smColors.red};
 `;
@@ -103,21 +75,27 @@ const Link = styled.div`
   color: ${smColors.darkGreen};
 `;
 
-const inputStyle = { border: `1px solid ${smColors.darkGreen}` };
-
 type Props = {
-  proceedWithRestore: () => void,
+  proceedWithRestore: ({ mnemonic: string }) => void,
   toggleRestoreWith12Words: () => void
 };
 
 type State = {
-  words: Array<string>,
+  words: Object,
   errorMsg: string
+};
+
+const createObjectWithEmptyStrings = () => {
+  const obj = {};
+  for (let i = 0; i < 12; i += 1) {
+    obj[`${i}`] = '';
+  }
+  return obj;
 };
 
 class WordsRestore extends Component<Props, State> {
   state = {
-    words: [...Array(12)].map(() => ''),
+    words: createObjectWithEmptyStrings(),
     errorMsg: ''
   };
 
@@ -132,11 +110,7 @@ class WordsRestore extends Component<Props, State> {
         <CloseBtnWrapper onClick={toggleRestoreWith12Words}>
           <CloseButton src={xWhite} />
         </CloseBtnWrapper>
-        <Table>
-          <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>
-          <TableColumn>{this.renderInputs({ start: 4 })}</TableColumn>
-          <TableColumn>{this.renderInputs({ start: 8 })}</TableColumn>
-        </Table>
+        <InputsTable onInputChange={this.handleInputChange} />
         <ErrorMsg>{errorMsg}</ErrorMsg>
         <BottomSection>
           <Link>Learn more about 12 words wallet backup</Link>
@@ -146,36 +120,24 @@ class WordsRestore extends Component<Props, State> {
     );
   }
 
-  renderInputs = ({ start }) => {
-    const res = [];
-    for (let index = start; index < start + 3; index += 1) {
-      res.push(
-        <InputWrapper key={`input${index}`}>
-          <InputCounter>{index + 1}</InputCounter>
-          <SmInput type="text" placeholder=" " onChange={this.handleInputChange({ index })} isErrorMsgEnabled={false} style={inputStyle} />
-        </InputWrapper>
-      );
-    }
-    return res;
-  };
-
-  handleInputChange = ({ index }) => ({ value }) => {
+  handleInputChange = ({ value, index }) => {
     const { words } = this.state;
-    this.setState({ words: [...words.slice(0, index), value, ...words.slice(index)], errorMsg: '' });
+    this.setState({ words: { ...words, [`${index}`]: value }, errorMsg: '' });
   };
 
   isDoneEnabled = () => {
     const { words } = this.state;
-    return words.every((word) => !!words && word.length > 0);
+    return Object.keys(words).every((key) => !!words[key] && words[key].length > 0);
   };
 
   restoreWith12Words = () => {
     const { proceedWithRestore } = this.props;
     const { words } = this.state;
-    if (keyGenService.validateMnemonic(words)) {
-      proceedWithRestore();
+    const mnemonic = Object.values(words).join(' ');
+    if (keyGenService.validateMnemonic({ mnemonic })) {
+      proceedWithRestore({ mnemonic });
     } else {
-      this.setState({ errorMsg: 'Invalid 12 words' });
+      this.setState({ errorMsg: 'Invalid Words' });
     }
   };
 }

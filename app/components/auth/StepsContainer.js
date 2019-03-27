@@ -58,7 +58,8 @@ type Props = {
   setRestoreMode: () => void,
   navigateToLocalNodeSetup: () => void,
   navigateToWallet: () => void,
-  toggleRestoreWith12Words: () => void
+  toggleRestoreWith12Words: () => void,
+  mnemonic: string
 };
 
 type State = {
@@ -88,14 +89,14 @@ class StepsContainer extends Component<Props, State> {
   }
 
   renderMode = (mode: number) => {
-    const { setCreationMode, setUnlockMode, setRestoreMode, navigateToWallet, navigateToLocalNodeSetup, toggleRestoreWith12Words } = this.props;
+    const { setCreationMode, setUnlockMode, setRestoreMode, navigateToWallet, navigateToLocalNodeSetup, toggleRestoreWith12Words, mnemonic } = this.props;
     switch (mode) {
       case authModes.WELCOME:
         return <Welcome setCreationMode={setCreationMode} setRestoreMode={setRestoreMode} setUnlockMode={setUnlockMode} />;
       case authModes.UNLOCK:
         return <UnlockWallet setCreationMode={setCreationMode} setRestoreMode={setRestoreMode} navigateToWallet={navigateToWallet} />;
       case authModes.CREATE:
-        return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
+        return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} mnemonic={mnemonic} />;
       case authModes.RESTORE:
         return <RestoreWallet setUnlockMode={setUnlockMode} toggleRestoreWith12Words={toggleRestoreWith12Words} />;
       default:

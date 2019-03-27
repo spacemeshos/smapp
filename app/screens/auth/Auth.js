@@ -36,13 +36,15 @@ type Props = {
 
 type State = {
   mode: number,
-  isRestoreWith12WordsMode: boolean
+  isRestoreWith12WordsMode: boolean,
+  mnemonic: string
 };
 
 class Auth extends Component<Props, State> {
   state = {
     mode: -1,
-    isRestoreWith12WordsMode: false
+    isRestoreWith12WordsMode: false,
+    mnemonic: ''
   };
 
   render() {
@@ -67,7 +69,7 @@ class Auth extends Component<Props, State> {
   }
 
   renderBody = () => {
-    const { mode, isRestoreWith12WordsMode } = this.state;
+    const { mode, isRestoreWith12WordsMode, mnemonic } = this.state;
     return isRestoreWith12WordsMode ? (
       <WordsRestore toggleRestoreWith12Words={this.toggleRestoreWith12Words} proceedWithRestore={this.proceedWithRestore} />
     ) : (
@@ -79,6 +81,7 @@ class Auth extends Component<Props, State> {
         navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
         navigateToWallet={this.navigateToWallet}
         toggleRestoreWith12Words={this.toggleRestoreWith12Words}
+        mnemonic={mnemonic}
       />
     );
   };
@@ -120,7 +123,9 @@ class Auth extends Component<Props, State> {
     this.setState({ isRestoreWith12WordsMode: !isRestoreWith12WordsMode });
   };
 
-  proceedWithRestore = () => {};
+  proceedWithRestore = ({ mnemonic }) => {
+    this.setState({ isRestoreWith12WordsMode: false, mode: authModes.CREATE, mnemonic });
+  };
 }
 
 const mapStateToProps = (state) => ({

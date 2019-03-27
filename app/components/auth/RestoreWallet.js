@@ -30,14 +30,14 @@ const BottomPart = styled.div`
 
 const ImageWrapper = styled.div`
   display: flex;
+  flex: 1;
   justify-content: center;
   align-items: center;
   width: 100%;
 `;
 
 const Image = styled.img`
-  max-width: 100%;
-  height: 100%;
+  height: 140px;
 `;
 
 const ErrorMsg = styled.div`
