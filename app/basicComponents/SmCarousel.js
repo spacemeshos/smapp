@@ -109,9 +109,9 @@ class SmCarousel extends Component<Props, State> {
 
   componentDidMount() {
     const { children, timeout, isAutoPlayEnabled } = this.props;
-    const { slide } = this.state;
     if (isAutoPlayEnabled) {
       this.timer = setInterval(() => {
+        const { slide } = this.state;
         this.setState({ slide: (slide + 1) % children.length });
       }, timeout || DEFAULT_TIMEOUT);
     }

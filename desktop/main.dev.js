@@ -47,7 +47,11 @@ const installExtensions = async () => {
  * Add event listeners.
  */
 ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
-  FileManager.readFile({ browserWindow: mainWindow, event, ...request });
+  FileManager.readFile({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.GET_FILE_NAME, async (event, request) => {
+  FileManager.getFileName({ browserWindow: mainWindow, event, ...request });
 });
 
 ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {

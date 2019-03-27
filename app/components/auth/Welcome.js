@@ -47,12 +47,13 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  setCreationMode: () => void
+  setCreationMode: () => void,
+  setRestoreMode: () => void
 };
 
 class Welcome extends Component<Props> {
   render() {
-    const { setCreationMode } = this.props;
+    const { setCreationMode, setRestoreMode } = this.props;
     return (
       <Wrapper>
         <SmCarousel>
@@ -62,7 +63,7 @@ class Welcome extends Component<Props> {
         </SmCarousel>
         <BottomPart>
           <SmButton text="Create Wallet" theme="orange" center onPress={setCreationMode} style={{ marginTop: 20 }} />
-          <SmButton text="Restore Wallet" theme="green" center onPress={() => {}} style={{ marginTop: 20 }} />
+          <SmButton text="Restore Wallet" theme="green" center onPress={setRestoreMode} style={{ marginTop: 20 }} />
         </BottomPart>
       </Wrapper>
     );

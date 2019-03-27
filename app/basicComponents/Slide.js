@@ -26,11 +26,10 @@ const Image = styled.img`
 `;
 
 const Text = styled.span`
-  line-height: 26px;
-  text-align: center;
-  color: ${smColors.black};
   font-size: 16px;
-  user-select: none;
+  text-align: center;
+  color: ${smColors.lighterBlack};
+  line-height: 28px;
 `;
 
 type Props = {

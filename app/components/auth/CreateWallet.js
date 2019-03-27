@@ -32,6 +32,7 @@ const GrayText = styled.span`
   font-size: 16px;
   text-align: left;
   color: ${smColors.gray};
+  line-height: 29px;
 `;
 
 const UpperPartHeader = styled.span`

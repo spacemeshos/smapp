@@ -62,7 +62,6 @@ export const saveNewWallet = ({ salt = cryptoConsts.DEFAULT_SALT }: { salt: stri
   const encryptedWallet = { ...wallet, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), showDialog: false });
-    httpService.sendTx({ srcAddress: '1', dstAddress: publicKey.toString(), amount: 100 }); // TODO: remove before TEST NET
     dispatch(updateWalletData({ wallet }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
@@ -85,16 +84,25 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
   }
 };
 
-export const unlockWallet = ({ shouldPromtUser }: { shouldPromtUser?: boolean }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const walletState = getState().wallet;
     const { walletFiles, fileKey } = walletState;
-    const fileName = shouldPromtUser ? walletFiles[0] : '';
-    const file = await fileSystemService.readFile({ fileName, showDialog: !shouldPromtUser });
+    const file = await fileSystemService.readFile({ filePath: walletFiles[0], showDialog: false });
     const decryptedAccountsJSON = cryptoService.decryptData({ data: file.crypto.cipherText, key: fileKey });
     file.crypto.cipherText = JSON.parse(decryptedAccountsJSON);
     dispatch(updateWalletData({ wallet: file }));
   } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const fileName = await fileSystemService.getFileName();
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [fileName] } });
+  } catch (err) {
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
     throw new Error(err);
   }
 };
@@ -133,4 +141,4 @@ export const sendTransaction = ({
   } catch (error) {
     throw new Error(error);
   }
-};
+}; // adfdsgdsgsdgsdg

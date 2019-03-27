@@ -52,7 +52,8 @@ type Props = {
   errorMsg?: ?string,
   hasDebounce?: boolean,
   debounceTime?: number,
-  style?: Object
+  style?: Object,
+  type?: string
 };
 
 class SmInput extends PureComponent<Props> {
@@ -63,10 +64,18 @@ class SmInput extends PureComponent<Props> {
   };
 
   render() {
-    const { isDisabled, placeholder, errorMsg, isErrorMsgEnabled, style } = this.props;
+    const { isDisabled, placeholder, errorMsg, isErrorMsgEnabled, style, type } = this.props;
     return (
       <Wrapper isErrorMsgEnabled={isErrorMsgEnabled}>
-        <Input hasError={errorMsg} readOnly={isDisabled} isDisabled={isDisabled} placeholder={placeholder || INPUT_PLACEHOLDER} onChange={this.onChange} style={style} />
+        <Input
+          hasError={errorMsg}
+          readOnly={isDisabled}
+          isDisabled={isDisabled}
+          placeholder={placeholder || INPUT_PLACEHOLDER}
+          onChange={this.onChange}
+          style={style}
+          type={type}
+        />
         {isErrorMsgEnabled && <ErrorMsg>{errorMsg || ''}</ErrorMsg>}
       </Wrapper>
     );

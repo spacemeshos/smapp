@@ -35,32 +35,21 @@ type Props = {
 };
 
 type State = {
-  mode: number
+  mode: number,
+  isRestoreWith12WordsMode: boolean
 };
 
 class Auth extends Component<Props, State> {
   state = {
-    mode: -1
+    mode: -1,
+    isRestoreWith12WordsMode: false
   };
 
   render() {
     const { walletFiles } = this.props;
-    const { mode } = this.state;
     return (
       <Wrapper backgroundImage={this.getBackgroundImage()}>
-        <InnerWrapper>
-          {walletFiles ? (
-            <StepsContainer
-              mode={mode}
-              setCreationMode={this.setCreationMode}
-              setUnlockMode={this.setUnlockMode}
-              navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
-              navigateToWallet={this.navigateToWallet}
-            />
-          ) : (
-            <Loader size={Loader.sizes.BIG} />
-          )}
-        </InnerWrapper>
+        <InnerWrapper>{walletFiles ? this.renderBody() : <Loader size={Loader.sizes.BIG} />}</InnerWrapper>
       </Wrapper>
     );
   }
@@ -77,6 +66,22 @@ class Auth extends Component<Props, State> {
     readWalletFiles();
   }
 
+  renderBody = () => {
+    const { mode, isRestoreWith12WordsMode } = this.state;
+    return isRestoreWith12WordsMode ? (
+      <div />
+    ) : (
+      <StepsContainer
+        mode={mode}
+        setCreationMode={this.setCreationMode}
+        setUnlockMode={this.setUnlockMode}
+        setRestoreMode={this.setRestoreMode}
+        navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
+        navigateToWallet={this.navigateToWallet}
+      />
+    );
+  };
+
   getBackgroundImage = () => {
     const { mode } = this.state;
     switch (mode) {
@@ -85,6 +90,8 @@ class Auth extends Component<Props, State> {
       case authModes.UNLOCK:
         return background2;
       case authModes.CREATE:
+        return background3;
+      case authModes.RESTORE:
         return background3;
       default:
         return background1;
@@ -95,12 +102,19 @@ class Auth extends Component<Props, State> {
 
   setUnlockMode = () => this.setState({ mode: authModes.UNLOCK });
 
+  setRestoreMode = () => this.setState({ mode: authModes.RESTORE });
+
   navigateToLocalNodeSetup = () => {
     const { history } = this.props;
     history.push('/main/local-node');
   };
 
   navigateToWallet = () => {
+    const { history } = this.props;
+    history.push('/main/wallet');
+  };
+
+  navigateToRestoreWith12Words = () => {
     const { history } = this.props;
     history.push('/main/wallet');
   };
