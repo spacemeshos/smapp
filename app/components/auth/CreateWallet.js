@@ -77,8 +77,8 @@ type Props = {
   deriveEncryptionKey: Action,
   saveNewWallet: Action,
   hideCloseBtn: () => void,
-  navigateToLocalNodeSetup: Function,
-  navigateToWallet: Function
+  navigateToLocalNodeSetup: () => void,
+  navigateToWallet: () => void
 };
 
 type State = {
@@ -169,14 +169,14 @@ class CreateWallet extends Component<Props, State> {
     return !passphraseError && !verifyPassphraseError;
   };
 
-  createWallet = () => {
+  createWallet = async () => {
     const { deriveEncryptionKey, saveNewWallet, hideCloseBtn } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
-      setTimeout(() => {
-        deriveEncryptionKey({ passphrase });
+      await setTimeout(async () => {
+        await deriveEncryptionKey({ passphrase });
         saveNewWallet({});
         this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
       }, 500);

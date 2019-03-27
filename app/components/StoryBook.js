@@ -10,7 +10,9 @@ type StoryBookProps = {
 };
 type StoryBookState = {
   message: string,
-  disableButtons: boolean
+  disableButtons: boolean,
+  index1: number,
+  index2: number
 };
 
 const styles = {
@@ -110,11 +112,13 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
 
   state: StoryBookState = {
     message: '',
+    index1: -1,
+    index2: -1,
     disableButtons: false
   };
 
   render() {
-    const { message, disableButtons } = this.state;
+    const { message, disableButtons, index1, index2 } = this.state;
 
     return (
       <div style={styles.content}>
@@ -124,17 +128,17 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
         <div style={styles.row}>
           <SmInput onChange={this.handleChangeText} isDisabled={disableButtons} />
           <SmRadioGroup data={radioButtons} onSelect={this.handleRadioSelect} />
-          <SmDropdown disabled={disableButtons} data={dropdownList1} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
-          <SmDropdown disabled={disableButtons} data={dropdownList2} onPress={(e: DropdownEntry) => this.handleDropdownSelection(e)} />
+          <SmDropdown isDisabled={disableButtons} data={dropdownList1} selectedItemIndex={index1} onPress={this.handleDropdownSelection} />
+          <SmDropdown isDisabled={disableButtons} data={dropdownList1} selectedItemIndex={index2} onPress={this.handleDropdownSelection1} />
         </div>
         <div style={styles.row}>
           <SendReceiveButton disabled={disableButtons} title="Send coins" onPress={() => this.handleSendReceiveButtonPress('send')} />
           <SendReceiveButton disabled={disableButtons} title="Receive coins" onPress={() => this.handleSendReceiveButtonPress('receive')} />
         </div>
         <div style={styles.row}>
-          <SmButton text="Clear Local Storage" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
-          <SmButton text="test" theme="green" disabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
-          <SmButton text="test" theme="orange" disabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
+          <SmButton text="Clear Local Storage" theme="green" isDisabled={disableButtons} onPress={() => this.handleButtonPress('clearStorage')} />
+          <SmButton text="test" theme="green" isDisabled={disableButtons} onPress={() => this.handleButtonPress('green')} />
+          <SmButton text="test" theme="orange" isDisabled={disableButtons} onPress={() => this.handleButtonPress('orange')} />
           <SmButton text={disableButtons ? 'enable' : 'disable'} theme="green" onPress={() => this.handleButtonPress(disableButtons ? 'enable' : 'disable')} />
         </div>
         <div style={styles.row}>
@@ -175,9 +179,17 @@ export default class WalletRoot extends Component<StoryBookProps, StoryBookState
     });
   };
 
-  handleDropdownSelection = (selection: DropdownEntry) => {
+  handleDropdownSelection = ({ index }: { index: number }) => {
     this.setState({
-      message: `Radio[${selection.id}]: ${selection.label} selected`
+      message: `Radio[${dropdownList1[index].id}]: ${dropdownList1[index].label} selected`,
+      index1: index
+    });
+  };
+
+  handleDropdownSelection1 = ({ index }: { index: number }) => {
+    this.setState({
+      message: `Radio[${dropdownList2[index].id}]: ${dropdownList2[index].label} selected`,
+      index2: index
     });
   };
 

@@ -14,8 +14,8 @@ const Wrapper = styled.div`
   cursor: pointer;
   background-color: ${({ theme }) => (theme === 'green' ? smColors.white : smColors.orange)};
   border: 1px solid ${({ theme }) => (theme === 'green' ? smColors.borderGray : smColors.orange)};
-  ${({ disabled, theme }) =>
-    disabled &&
+  ${({ isDisabled, theme }) =>
+    isDisabled &&
     `
     border: 1px solid ${smColors.borderGray};
     background-color: ${theme === 'green' ? smColors.white : smColors.borderGray};
@@ -34,8 +34,8 @@ const Wrapper = styled.div`
 
 // $FlowStyledIssue
 const Text = styled.span`
-  color: ${({ theme, disabled }) => {
-    if (disabled) {
+  color: ${({ theme, isDisabled }) => {
+    if (isDisabled) {
       return theme === 'green' ? smColors.gray : smColors.white;
     }
     return theme === 'green' ? smColors.darkGreen : smColors.white;
@@ -49,17 +49,17 @@ const Text = styled.span`
 type Props = {
   text: string,
   theme: 'green' | 'orange',
-  disabled?: boolean,
-  onPress: () => void,
+  isDisabled?: boolean,
+  onPress: Function,
   style?: Object
 };
 
 class SmButton extends PureComponent<Props> {
   render() {
-    const { disabled, onPress, theme, text, style } = this.props;
+    const { isDisabled, onPress, theme, text, style } = this.props;
     return (
-      <Wrapper theme={theme} onClick={disabled ? null : onPress} disabled={disabled} style={style}>
-        <Text theme={theme} disabled={disabled}>
+      <Wrapper theme={theme} onClick={isDisabled ? null : onPress} isDisabled={isDisabled} style={style}>
+        <Text theme={theme} isDisabled={isDisabled}>
           {text}
         </Text>
       </Wrapper>

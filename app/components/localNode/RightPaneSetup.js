@@ -1,18 +1,32 @@
 import React from 'react';
 import styled from 'styled-components';
 import { RightHeaderText, BaseImage, RightPaneInner, ActionLink, ItemTextWrapper, LinkTextWrapper, ItemText } from './LocalNodeCommonComponents';
+import { time, coin, noLaptop } from '/assets/images';
+
+const items = [
+  {
+    iconSrc: coin,
+    text: 'Join the Spacemesh p2p network and get awarded'
+  },
+  {
+    iconSrc: time,
+    text: 'Leave your desktop computer on 24/7'
+  },
+  {
+    iconSrc: noLaptop,
+    text: 'Do not use a laptop. Only desktop'
+  },
+  {
+    iconSrc: time,
+    text: 'On the Spacemesh network, storage replaces "Proof of Work"'
+  }
+];
 
 type Props = {
-  itemsList: {
-    id: number,
-    iconSrc: any,
-    text: string
-  }[],
-  linksList: {
-    id: string,
-    text: string
-  },
-  handleLinkClick: Function
+  links: {
+    text: string,
+    onClick: () => void
+  }
 };
 
 const SettingModeListItem = styled.div`
@@ -28,16 +42,16 @@ const ItemImageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-right: 12px;
+  margin-right: 20px;
 `;
 
 const RightPaneSetup = (props: Props) => {
-  const { itemsList, linksList, handleLinkClick } = props;
+  const { links } = props;
   return (
     <RightPaneInner>
       <RightHeaderText>Local Node Setup Instructions</RightHeaderText>
-      {itemsList.map((setupListItem) => (
-        <SettingModeListItem key={setupListItem.id}>
+      {items.map((setupListItem) => (
+        <SettingModeListItem key={setupListItem.text}>
           <ItemImageWrapper>
             <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
           </ItemImageWrapper>
@@ -46,8 +60,8 @@ const RightPaneSetup = (props: Props) => {
           </ItemTextWrapper>
         </SettingModeListItem>
       ))}
-      {linksList.map((setupLink) => (
-        <LinkTextWrapper key={setupLink.id} onClick={() => handleLinkClick(setupLink.id)}>
+      {links.map((setupLink) => (
+        <LinkTextWrapper key={setupLink.label} onClick={setupLink.onClick}>
           <ActionLink>{setupLink.text}</ActionLink>
         </LinkTextWrapper>
       ))}

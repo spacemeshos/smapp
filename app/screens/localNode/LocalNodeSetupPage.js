@@ -1,10 +1,9 @@
 // @flow
 import React, { Component } from 'react';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
-import styled from 'styled-components';
 import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
-import { time, coin, noLaptop } from '/assets/images';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { DropdownEntry } from '/basicComponents';
 import type { Action } from '/types';
@@ -16,7 +15,6 @@ type SetupPageProps = {
   drives: any[],
   capacity: any,
   drive: any,
-  // eslint-disable-next-line react/no-unused-prop-types
   availableDiskSpace: any,
   setLocalNodeStorage: Action,
   getDrivesList: Action,
@@ -28,44 +26,6 @@ type SetupPageState = {
   selectedDrive: ?DropdownEntry,
   selectedCapacity: ?DropdownEntry
 };
-
-const rightPaneSetupModeList = [
-  {
-    id: 1,
-    iconSrc: coin,
-    text: 'Join the Spacemesh p2p network and get awarded'
-  },
-  {
-    id: 2,
-    iconSrc: time,
-    text: 'Leave your desktop computer on 24/7'
-  },
-  {
-    id: 3,
-    iconSrc: noLaptop,
-    text: 'Do not use a laptop. Only desktop'
-  },
-  {
-    id: 4,
-    iconSrc: time,
-    text: 'On the Spacemesh network, storage replaces "Proof of Work"'
-  }
-];
-
-const rightPaneSetupModeLinks = [
-  {
-    id: 'learnMore',
-    text: 'Learn more about Spacemesh Local Node'
-  },
-  {
-    id: 'changeLocalNodeAddress',
-    text: 'Change your awards Local Node address'
-  },
-  {
-    id: 'showComputerEffort',
-    text: 'Show computer effort'
-  }
-];
 
 // Test stub
 const getProjectedSmcEarnings = (capacity: number | string) => {
@@ -82,24 +42,25 @@ const getFiatCurrencyEquivalent = (capacity: number | string) => {
   return (getProjectedSmcEarnings(capacity) * SMC_TO_USD_RATIO).toFixed(2);
 };
 
+const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
+
 const LeftHeaderWrapper = styled.div`
-  padding: 12px 0;
-  margin-top: 12px;
+  margin-bottom: 20px;
 `;
 
 const BorderlessLeftPaneRow = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  padding: 12px 0;
+  margin-bottom: 40px;
 `;
 
 const SideLabelWrapper = styled.div`
-  height: 44px;
-  padding-left: 24px;
   display: flex;
   flex-direction: column;
+  flex: 2;
   justify-content: center;
+  margin-left: 20px;
 `;
 
 const GrayTextWrapper = styled.div`
@@ -140,22 +101,49 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   };
 
   render() {
-    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane} rightPane={this.renderRightPane} />;
+    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
   }
 
-  renderRightPane = () => <RightPaneSetup itemsList={rightPaneSetupModeList} linksList={rightPaneSetupModeLinks} handleLinkClick={this.handleLinkClick} />;
+  componentDidMount() {
+    const { getDrivesList, capacity, drive } = this.props;
+    const { allocatedSpaceList, drivesList } = this.state;
+    const selectedCapacityIndex = getElementIndex(allocatedSpaceList, capacity);
+    const selectedDriveIndex = getElementIndex(drivesList, drive);
+    this.handleSelectDrive({ index: selectedDriveIndex });
+    this.handleSelectCapacity({ index: selectedCapacityIndex });
+    getDrivesList();
+  }
+
+  renderRightPane = () => {
+    const links = [
+      {
+        text: 'Learn more about Spacemesh Local Node',
+        onClick: this.navigateToExplanation
+      },
+      {
+        text: 'Change your awards Local Node address',
+        onCLick: this.changeLocalNodeRewardAddress
+      },
+      {
+        text: 'Show computer effort',
+        onClick: this.showComputationEffort
+      }
+    ];
+    return <RightPaneSetup links={links} />;
+  };
 
   renderLeftPane = () => {
     const { drivesList, allocatedSpaceList, selectedCapacity, selectedDrive } = this.state;
-    const { drive, capacity } = this.props;
     const { availableDiskSpace } = this.props;
+    const selectedCapacityIndex = getElementIndex(allocatedSpaceList, selectedCapacity);
+    const selectedDriveIndex = getElementIndex(drivesList, selectedDrive);
     return (
       <LeftPaneInner>
         <LeftHeaderWrapper>
           <BoldText>Select Drive</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={drivesList} selectedId={drive && drive.id} onPress={(selection: DropdownEntry) => this.handleSelectDrive(selection)} />
+          <SmDropdown data={drivesList} selectedItemIndex={selectedDriveIndex} onPress={this.handleSelectDrive} />
           {selectedDrive && (
             <SideLabelWrapper>
               <BaseText>You have {getReadableSpace(availableDiskSpace)} free on your drive</BaseText>
@@ -166,11 +154,11 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
           <BoldText>Choose how much storage to allocate for the local node</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={allocatedSpaceList} selectedId={capacity && capacity.id} onPress={(selection: DropdownEntry) => this.handleSelectCapacity(selection)} />
-          {capacity && (
+          <SmDropdown data={allocatedSpaceList} selectedItemIndex={selectedCapacityIndex} onPress={this.handleSelectCapacity} />
+          {selectedCapacity && (
             <SideLabelWrapper>
               <BaseText>
-                earn ~ {getProjectedSmcEarnings(capacity.id)} SMC each week* <GrayText> = {getFiatCurrencyEquivalent(capacity.id)} USD*</GrayText>
+                earn ~ {getProjectedSmcEarnings(selectedCapacity.id)} SMC each week* <GrayText> = {getFiatCurrencyEquivalent(selectedCapacity.id)} USD*</GrayText>
               </BaseText>
             </SideLabelWrapper>
           )}
@@ -193,13 +181,6 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
     );
   };
 
-  componentDidMount() {
-    const { getDrivesList, capacity, drive } = this.props;
-    this.handleSelectDrive(drive);
-    this.handleSelectCapacity(capacity);
-    getDrivesList();
-  }
-
   static getDerivedStateFromProps(props: SetupPageProps) {
     const { drives, availableDiskSpace } = props;
     if (drives && drives.length) {
@@ -215,30 +196,25 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
     history.push('/main/local-node/local-node-loading');
   };
 
-  handleSelectDrive = (selection: DropdownEntry) => {
+  handleSelectDrive = ({ index }: { index: number }) => {
     const { getAvailableSpace } = this.props;
     const { drivesList } = this.state;
-    const drive: any = selection && drivesList && drivesList.find((drive) => drive.id === selection.id);
+    const drive: any = drivesList && drivesList[index];
     drive && getAvailableSpace(drive.mountPoint);
-    this.setState({ selectedDrive: selection });
+    this.setState({ selectedDrive: drive });
   };
 
-  handleSelectCapacity = (selection: DropdownEntry) => {
-    this.setState({ selectedCapacity: selection });
+  handleSelectCapacity = ({ index }: { index: number }) => {
+    const { allocatedSpaceList } = this.state;
+    const capacity = allocatedSpaceList && allocatedSpaceList[index];
+    this.setState({ selectedCapacity: capacity });
   };
 
-  handleLinkClick = (linkId: 'learnMore' | 'changeLocalNodeAddress' | 'showComputerEffort') => {
-    switch (linkId) {
-      case 'learnMore':
-        break;
-      case 'changeLocalNodeAddress':
-        break;
-      case 'showComputerEffort':
-        break;
-      default:
-        break;
-    }
-  };
+  navigateToExplanation = () => {};
+
+  changeLocalNodeRewardAddress = () => {};
+
+  showComputationEffort = () => {};
 }
 
 const mapStateToProps = (state) => ({

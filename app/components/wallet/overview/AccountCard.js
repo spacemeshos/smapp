@@ -168,7 +168,7 @@ class AccountCard extends Component<Props, State> {
           <SubHeader>Public address</SubHeader>
           <PublicAddressWrapper>
             <PublicAddressInnerWrapper copied={copied}>
-              <PublicAddress>{pk}</PublicAddress>
+              <PublicAddress>{pk.substring(0, 20)}</PublicAddress>
               <CopyIconWrapper>
                 <CopyIcon src={copyIcon} />
               </CopyIconWrapper>
@@ -180,7 +180,7 @@ class AccountCard extends Component<Props, State> {
           </PublicAddressWrapper>
         </UpperSection>
         <LowerSection>
-          <FiatBalance>{fiatRate * balance}$</FiatBalance>
+          <FiatBalance>{fiatRate * balance} $</FiatBalance>
           <Balance>{balance} SMC</Balance>
         </LowerSection>
       </Wrapper>
@@ -195,6 +195,7 @@ class AccountCard extends Component<Props, State> {
     const {
       account: { pk }
     } = this.props;
+    clearTimeout(this.copiedTimeout);
     clipboard.writeText(pk);
     this.copiedTimeout = setTimeout(() => this.setState({ copied: false }), 3000);
     this.setState({ copied: true });

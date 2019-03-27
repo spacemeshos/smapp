@@ -4,9 +4,8 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import routes from '/routes';
 
 type Props = {};
-type State = {};
 
-class Wallet extends Component<Props, State> {
+class Wallet extends Component<Props> {
   render() {
     return (
       <Switch>

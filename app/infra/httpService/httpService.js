@@ -1,15 +1,25 @@
 // @flow
 import { ipcRenderer } from 'electron';
-import uuid4 from 'uuid4';
-import { ipcConsts } from '../../vars';
+import { ipcConsts } from '/vars';
 
 class HttpService {
-  static sendRequest({ url, params }: { url: string, params?: Object }) {
-    const uuid = uuid4();
-    ipcRenderer.send(ipcConsts.SEND_REQUEST, { url, params, uuid });
+  static getBalance({ address }: { address: string }) {
+    ipcRenderer.send(ipcConsts.GET_BALANCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(`ipcConsts.REQUEST_RESPONSE_SUCCESS-${uuid}`, () => {});
-      ipcRenderer.once(`ipcConsts.REQUEST_RESPONSE_FAILURE-${uuid}`, (event, args) => {
+      ipcRenderer.once(ipcConsts.GET_BALANCE_SUCCESS, (response) => {
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_BALANCE_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
+
+  static sendTx({ srcAddress, dstAddress, amount }: { srcAddress: string, dstAddress: string, amount: number }) {
+    ipcRenderer.send(ipcConsts.SEND_TX, { srcAddress, dstAddress, amount });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SEND_TX_SUCCESS, () => {});
+      ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
         reject(args);
       });
     });

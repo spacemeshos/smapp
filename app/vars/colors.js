@@ -4,6 +4,7 @@ const smColors = {
   green10alpha: 'rgba(0, 194, 140, 0.1)',
   white: '#FFFFFF',
   white70Alpha: 'rgba(255, 255, 255, 0.7)',
+  white50Alpha: 'rgba(255, 255, 255, 0.5)',
   green: '#00C28C',
   hoverLightGreen: '#E6F9F4',
   actionLightGreen: '#CCF3E8',

@@ -12,12 +12,13 @@ const Wrapper = styled.div`
 type Props = {
   fees: Array<Object>,
   onSelect: ({ index: number }) => void,
-  selectedFeeIndex: number
+  selectedFeeIndex: number,
+  fiatRate: number
 };
 
 class TxFeeSelector extends PureComponent<Props> {
   render() {
-    const { fees, onSelect, selectedFeeIndex } = this.props;
+    const { fees, onSelect, selectedFeeIndex, fiatRate } = this.props;
     return (
       <Wrapper>
         {fees.map((feeItem, index) => (
@@ -25,7 +26,7 @@ class TxFeeSelector extends PureComponent<Props> {
             key={feeItem.label}
             onSelect={() => onSelect({ index })}
             label={feeItem.label}
-            additionalText={feeItem.additionalText}
+            additionalText={`${feeItem.additionalText}${feeItem.fee * fiatRate} USD`}
             isSelected={selectedFeeIndex === index}
             style={{ marginBottom: 15 }}
           />

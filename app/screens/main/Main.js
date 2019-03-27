@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { resetNodeSettings } from '/redux/localNode/actions';
@@ -70,12 +70,12 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
+  history: { push: (string) => void },
+  walletFiles: Array<string>,
+  location: { pathname: string, hash: string },
   accounts: Account[],
-  history: any,
-  walletFiles: string[],
-  location: any,
-  logout: Action,
-  resetNodeSettings: Action
+  resetNodeSettings: Action,
+  logout: Action
 };
 
 type State = {

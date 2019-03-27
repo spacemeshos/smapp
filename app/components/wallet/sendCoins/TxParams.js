@@ -42,6 +42,15 @@ const AmountSection = styled.div`
   justify-content: center;
 `;
 
+// $FlowStyledIssue
+const FiatValue = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding-left: 10px;
+  color: ${({ hasValue }) => (hasValue ? smColors.lighterBlack : smColors.gray)};
+`;
+
 const MyContactsSection = styled.div`
   width: 160px;
   display: flex;
@@ -94,17 +103,27 @@ const EstimatedFee = styled.span`
   cursor: inherit;
 `;
 
+const ErrorMsg = styled.div`
+  width: 100%;
+  height: 20px;
+  font-size: 14px;
+  line-height: 20px;
+  color: ${smColors.red};
+`;
+
 const inputStyle = { border: '1px solid transparent' };
 
 type Props = {
   updateTxAddress: ({ value: string }) => void,
   updateTxAmount: ({ value: string }) => void,
+  amount: number,
   updateTxNote: ({ value: string }) => void,
   updateFee: ({ index: number }) => void,
   addressErrorMsg?: string,
   amountErrorMsg?: string,
   fees: Array<Object>,
-  feeIndex: number
+  feeIndex: number,
+  fiatRate: number
 };
 
 type State = {
@@ -117,46 +136,50 @@ class TxParams extends Component<Props, State> {
   };
 
   render() {
-    const { updateTxAddress, updateTxAmount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex } = this.props;
+    const { updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate } = this.props;
     const { isFeeSelectorVisible } = this.state;
     return (
       <Wrapper>
         <SectionWrapper>
           <Label>Send to</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} hasDebounce errorMsg={addressErrorMsg} style={inputStyle} />
+            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} style={inputStyle} isErrorMsgEnabled={false} />
             <MyContactsSection>
               <MyContactsText>My contacts</MyContactsText>
               <MyContactsIcon src={contactIcon} />
             </MyContactsSection>
           </InputSection>
+          <ErrorMsg>{addressErrorMsg}</ErrorMsg>
         </SectionWrapper>
         <SectionWrapper>
           <Label>Amount to send</Label>
           <AmountSection>
             <InputSection>
-              <SmInput type="tel" placeholder="Type amount" onChange={updateTxAmount} hasDebounce errorMsg={amountErrorMsg} style={inputStyle} />
+              <SmInput type="tel" placeholder="Type amount" onChange={updateTxAmount} style={inputStyle} isErrorMsgEnabled={false} />
               <CurrencyText>SMC</CurrencyText>
             </InputSection>
             <CurrencyText> = </CurrencyText>
             <InputSection>
-              <SmInput type="tel" placeholder="Fiat value" disabled value={10} style={inputStyle} />
+              <FiatValue hasValue={!!amount}>{amount ? amount * fiatRate : 'Fiat value'}</FiatValue>
               <CurrencyText>USD</CurrencyText>
             </InputSection>
           </AmountSection>
+          <ErrorMsg>{amountErrorMsg}</ErrorMsg>
         </SectionWrapper>
         <SectionWrapper>
           <Label>Note (optional)</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Add a short note (optional)" onChange={updateTxNote} hasDebounce style={inputStyle} />
+            <SmInput type="text" placeholder="Add a short note (optional)" onChange={updateTxNote} style={inputStyle} isErrorMsgEnabled={false} />
           </InputSection>
         </SectionWrapper>
         <EstimationSection onClick={() => this.setState({ isFeeSelectorVisible: !isFeeSelectorVisible })}>
           <Label style={{ marginBottom: 0 }}>Estimated confirmation time</Label>
-          <EstimatedTime>&nbsp;~1 min&nbsp;</EstimatedTime>
-          <EstimatedFee>(fee 0.005 SMC = 0.03 USD)</EstimatedFee>
+          <EstimatedTime>&nbsp;{fees[feeIndex].label}&nbsp;</EstimatedTime>
+          <EstimatedFee>
+            (fee {fees[feeIndex].fee} SMC = {fees[feeIndex].fee * fiatRate} USD)
+          </EstimatedFee>
         </EstimationSection>
-        {isFeeSelectorVisible && <TxFeeSelector fees={fees} onSelect={updateFee} selectedFeeIndex={feeIndex} />}
+        {isFeeSelectorVisible && <TxFeeSelector fees={fees} onSelect={updateFee} selectedFeeIndex={feeIndex} fiatRate={fiatRate} />}
       </Wrapper>
     );
   }
