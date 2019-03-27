@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { readWalletFiles } from '/redux/wallet/actions';
-import { StepsContainer } from '/components/auth';
+import { StepsContainer, WordsRestore } from '/components/auth';
 import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
@@ -69,7 +69,7 @@ class Auth extends Component<Props, State> {
   renderBody = () => {
     const { mode, isRestoreWith12WordsMode } = this.state;
     return isRestoreWith12WordsMode ? (
-      <div />
+      <WordsRestore toggleRestoreWith12Words={this.toggleRestoreWith12Words} proceedWithRestore={this.proceedWithRestore} />
     ) : (
       <StepsContainer
         mode={mode}
@@ -78,6 +78,7 @@ class Auth extends Component<Props, State> {
         setRestoreMode={this.setRestoreMode}
         navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
         navigateToWallet={this.navigateToWallet}
+        toggleRestoreWith12Words={this.toggleRestoreWith12Words}
       />
     );
   };
@@ -114,10 +115,12 @@ class Auth extends Component<Props, State> {
     history.push('/main/wallet');
   };
 
-  navigateToRestoreWith12Words = () => {
-    const { history } = this.props;
-    history.push('/main/wallet');
+  toggleRestoreWith12Words = () => {
+    const { isRestoreWith12WordsMode } = this.state;
+    this.setState({ isRestoreWith12WordsMode: !isRestoreWith12WordsMode });
   };
+
+  proceedWithRestore = () => {};
 }
 
 const mapStateToProps = (state) => ({

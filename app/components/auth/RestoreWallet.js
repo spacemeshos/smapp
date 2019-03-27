@@ -50,7 +50,7 @@ const ErrorMsg = styled.div`
 
 type Props = {
   setUnlockMode: () => void,
-  navigateToRestoreWith12Words: () => void,
+  toggleRestoreWith12Words: () => void,
   readFileName: Action
 };
 
@@ -64,7 +64,7 @@ class RestoreWallet extends Component<Props, State> {
   };
 
   render() {
-    const { navigateToRestoreWith12Words } = this.props;
+    const { toggleRestoreWith12Words } = this.props;
     const { errorMsg } = this.state;
     return (
       <Wrapper>
@@ -76,7 +76,7 @@ class RestoreWallet extends Component<Props, State> {
         <BottomPart>
           <ErrorMsg>{errorMsg}</ErrorMsg>
           <SmButton text="Restore From File" theme="orange" onPress={this.openWalletFile} style={{ marginBottom: 20 }} />
-          <SmButton text="Restore With 12 Words" theme="orange" onPress={navigateToRestoreWith12Words} />
+          <SmButton text="Restore With 12 Words" theme="orange" onPress={toggleRestoreWith12Words} />
         </BottomPart>
       </Wrapper>
     );

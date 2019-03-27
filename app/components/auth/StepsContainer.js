@@ -58,7 +58,7 @@ type Props = {
   setRestoreMode: () => void,
   navigateToLocalNodeSetup: () => void,
   navigateToWallet: () => void,
-  navigateToRestoreWith12Words: () => void
+  toggleRestoreWith12Words: () => void
 };
 
 type State = {
@@ -88,7 +88,7 @@ class StepsContainer extends Component<Props, State> {
   }
 
   renderMode = (mode: number) => {
-    const { setCreationMode, setUnlockMode, setRestoreMode, navigateToWallet, navigateToLocalNodeSetup, navigateToRestoreWith12Words } = this.props;
+    const { setCreationMode, setUnlockMode, setRestoreMode, navigateToWallet, navigateToLocalNodeSetup, toggleRestoreWith12Words } = this.props;
     switch (mode) {
       case authModes.WELCOME:
         return <Welcome setCreationMode={setCreationMode} setRestoreMode={setRestoreMode} setUnlockMode={setUnlockMode} />;
@@ -97,7 +97,7 @@ class StepsContainer extends Component<Props, State> {
       case authModes.CREATE:
         return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
       case authModes.RESTORE:
-        return <RestoreWallet setUnlockMode={setUnlockMode} navigateToRestoreWith12Words={navigateToRestoreWith12Words} />;
+        return <RestoreWallet setUnlockMode={setUnlockMode} toggleRestoreWith12Words={toggleRestoreWith12Words} />;
       default:
         return null;
     }
