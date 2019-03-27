@@ -5,6 +5,7 @@ import { SET_ALLOCATION, RESET_NODE_SETTINGS, GET_DRIVES_LIST, GET_AVAILABLE_DIS
 const initialState = {
   capacity: null,
   drives: [],
+  capacityAllocationsList: [],
   availableDiskSpace: null
 };
 
@@ -24,9 +25,9 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case GET_AVAILABLE_DISK_SPACE: {
       const {
-        payload: { availableDiskSpace, capacities }
+        payload: { availableDiskSpace, capacityAllocationsList }
       } = action;
-      return { ...state, availableDiskSpace, capacities };
+      return { ...state, availableDiskSpace, capacityAllocationsList };
     }
     case RESET_NODE_SETTINGS:
       return initialState;

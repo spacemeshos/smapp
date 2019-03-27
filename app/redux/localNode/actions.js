@@ -48,7 +48,10 @@ export const getAvailableSpace = (path: string): Action => async (dispatch: Disp
     const availableDiskSpace = await diskStorageService.getAvailableDiskSpace({ path });
     dispatch({
       type: GET_AVAILABLE_DISK_SPACE,
-      payload: { availableDiskSpace: { bytes: availableDiskSpace, readable: getReadableSpace(availableDiskSpace) }, capacities: getAllocatedSpaceList(availableDiskSpace) }
+      payload: {
+        availableDiskSpace: { bytes: availableDiskSpace, readable: getReadableSpace(availableDiskSpace) },
+        capacityAllocationsList: getAllocatedSpaceList(availableDiskSpace)
+      }
     });
   } catch (err) {
     dispatch({ type: GET_AVAILABLE_DISK_SPACE, payload: { availableDiskSpace: null } });

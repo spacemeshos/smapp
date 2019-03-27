@@ -11,7 +11,7 @@ type SetupPageProps = {
   history: any,
   drives: any[],
   capacity: any,
-  capacities: any[],
+  capacityAllocationsList: any[],
   drive: any,
   availableDiskSpace: { bytes: number, readable: string },
   setLocalNodeStorage: Action,
@@ -68,24 +68,20 @@ const GrayTextWrapper = styled.div`
 `;
 
 class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
-  state = {
-    selectedCapacityIndex: -1,
-    selectedDriveIndex: -1
-  };
+  constructor(props: SetupPageProps) {
+    super(props);
+    const { getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
+    const selectedDriveIndex = getElementIndex(drives, drive);
+    const selectedCapacityIndex = getElementIndex(capacityAllocationsList, capacity);
+    this.state = {
+      selectedCapacityIndex,
+      selectedDriveIndex
+    };
+    getDrivesList();
+  }
 
   render() {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
-  }
-
-  componentDidMount() {
-    const { getDrivesList, drive, capacity, drives, capacities } = this.props;
-    getDrivesList();
-    const timer = setTimeout(() => {
-      const selectedDriveIndex = getElementIndex(drives, drive);
-      const selectedCapacityIndex = getElementIndex(capacities, capacity);
-      this.setState({ selectedCapacityIndex, selectedDriveIndex });
-      clearTimeout(timer);
-    }, 10);
   }
 
   renderRightPane = () => {
@@ -107,10 +103,10 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   };
 
   renderLeftPane = () => {
-    const { drives, capacities, availableDiskSpace } = this.props;
+    const { drives, capacityAllocationsList, availableDiskSpace } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
     const selectedDrive = drives && drives[selectedDriveIndex];
-    const selectedCapacity = capacities && capacities[selectedCapacityIndex];
+    const selectedCapacity = capacityAllocationsList && capacityAllocationsList[selectedCapacityIndex];
 
     return (
       <LeftPaneInner>
@@ -129,7 +125,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
           <BoldText>Choose how much storage to allocate for the local node</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={capacities} selectedItemIndex={selectedCapacityIndex} onPress={this.handleSelectCapacity} />
+          <SmDropdown data={capacityAllocationsList} selectedItemIndex={selectedCapacityIndex} onPress={this.handleSelectCapacity} />
           {selectedCapacityIndex !== -1 && (
             <SideLabelWrapper>
               <BaseText>
@@ -157,22 +153,20 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   };
 
   handleStartSetup = () => {
-    const { setLocalNodeStorage, history, drives, capacities } = this.props;
+    const { setLocalNodeStorage, history, drives, capacityAllocationsList } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
-    setLocalNodeStorage({ capacity: capacities[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
+    setLocalNodeStorage({ capacity: capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
     history.push('/main/local-node/local-node-loading');
   };
 
   handleSelectDrive = ({ index }: { index: number }) => {
     const { getAvailableSpace, drives } = this.props;
-    const drive: any = drives && drives[index];
-    drive && getAvailableSpace(drive.mountPoint);
+    const drive: any = drives[index];
+    getAvailableSpace(drive.mountPoint);
     this.setState({ selectedDriveIndex: index });
   };
 
-  handleSelectCapacity = ({ index }: { index: number }) => {
-    this.setState({ selectedCapacityIndex: index });
-  };
+  handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
 
   navigateToExplanation = () => {};
 
@@ -183,7 +177,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
 
 const mapStateToProps = (state) => ({
   capacity: state.localNode.capacity,
-  capacities: state.localNode.capacities,
+  capacityAllocationsList: state.localNode.capacityAllocationsList,
   drive: state.localNode.drive,
   drives: state.localNode.drives,
   availableDiskSpace: state.localNode.availableDiskSpace
