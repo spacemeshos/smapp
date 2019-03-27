@@ -18,7 +18,7 @@ type Drive = {
 };
 
 class DiskStorageManager {
-  static getDriveList = async ({ event }: { event: any }) => {
+  static getDriveList = ({ event }: { event: any }) => {
     drivelist.list((error, drives) => {
       if (error) {
         event.sender.send(ipcConsts.GET_DRIVE_LIST_FAILURE, error.message);

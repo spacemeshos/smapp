@@ -14,7 +14,7 @@ import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import FileManager from './fileManager';
-import DiskStorageManager from './DiskstorageManager';
+import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
 
 export default class AppUpdater {
@@ -59,7 +59,7 @@ ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
   FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
 });
 
-ipcMain.on(ipcConsts.GET_DRIVE_LIST, async (event) => {
+ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
   DiskStorageManager.getDriveList({ event });
 });
 
