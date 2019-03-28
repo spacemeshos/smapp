@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
+import { resetNodeSettings } from '/redux/localNode/actions';
 import styled from 'styled-components';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
@@ -73,6 +74,7 @@ type Props = {
   walletFiles: Array<string>,
   location: { pathname: string, hash: string },
   accounts: Account[],
+  resetNodeSettings: Action,
   logout: Action
 };
 
@@ -125,8 +127,9 @@ class Main extends Component<Props, State> {
   };
 
   navToAuthAndLogout = () => {
-    const { history, logout } = this.props;
+    const { history, logout, resetNodeSettings } = this.props;
     history.push('/');
+    resetNodeSettings();
     logout();
   };
 }
@@ -136,6 +139,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  resetNodeSettings,
   logout
 };
 

@@ -122,7 +122,7 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
   };
 
   static defaultProps = {
-    placeholder: 'Please Select...'
+    placeholder: 'Please Select... '
   };
 
   render() {
@@ -135,7 +135,7 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
           <Text isDisabled={isDisabled}>{selectedItemIndex !== -1 ? data[selectedItemIndex].label : placeholder}</Text>
           <Icon isOpened={isOpened} src={isOpened ? openDDIcon : openDDIconDisabled} />
         </HeaderWrapper>
-        {isOpened && <ItemsWrapper>{data.map((item, index) => this.renderDropdownEntryElem({ label: item.label, isDisabled: item.isDisabled, index }))}</ItemsWrapper>}
+        {isOpened && data && <ItemsWrapper>{data.map((item, index) => this.renderDropdownEntryElem({ label: item.label, isDisabled: item.isDisabled, index }))}</ItemsWrapper>}
       </Wrapper>
     );
   }

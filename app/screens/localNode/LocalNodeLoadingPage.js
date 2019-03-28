@@ -47,6 +47,8 @@ type State = {
 };
 
 class LocalNodeLoadingPage extends Component<Props, State> {
+  timer: any;
+
   render() {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
   }
@@ -54,9 +56,13 @@ class LocalNodeLoadingPage extends Component<Props, State> {
   // TODO: remove Test: enable to switch to ready page
   componentDidMount() {
     const { history } = this.props;
-    setTimeout(() => {
+    this.timer = setTimeout(() => {
       history.push('/main/local-node/local-node-ready');
     }, 10000);
+  }
+
+  componentWillUnmount() {
+    this.timer && clearTimeout(this.timer);
   }
 
   renderRightPane = () => (

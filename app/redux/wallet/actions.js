@@ -16,6 +16,8 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 export const UPDATE_WALLET_DATA: string = 'UPDATE_WALLET_DATA';
 export const UPDATE_ACCOUNT_DATA: string = 'UPDATE_ACCOUNT_DATA';
 
+export const GET_FIAT_RATE: string = 'GET_FIAT_RATE';
+
 export const GET_BALANCE: string = 'GET_BALANCE';
 
 export const SEND_TX: string = 'SEND_TX';
@@ -99,6 +101,8 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     throw new Error(err);
   }
 };
+
+export const getFiatRate = (): Action => ({ type: GET_FIAT_RATE });
 
 export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {

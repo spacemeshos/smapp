@@ -2,74 +2,22 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setLocalNodeStorage } from '/redux/localNode/actions';
+import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
+import { getFiatRate } from '/redux/wallet/actions';
 import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
 import { SmButton, SmDropdown } from '/basicComponents';
-import type { DropdownEntry } from '/basicComponents';
 import type { Action } from '/types';
 
-// TODO: Remove test stub
-const drivesDDList: DropdownEntry[] = [
-  {
-    id: 'c',
-    label: 'c:\\'
-  },
-  {
-    id: 'd',
-    label: 'd:\\'
-  },
-  {
-    id: 'e',
-    label: 'e:\\'
-  },
-  {
-    id: 'f',
-    label: 'f:\\'
-  },
-  {
-    id: 'g',
-    label: 'g:\\'
-  }
-];
-
-// TODO: Remove test stub
-const capacityDDList: DropdownEntry[] = [
-  {
-    id: 2,
-    label: '2.0 GB'
-  },
-  {
-    id: 4,
-    label: '4.0 GB'
-  },
-  {
-    id: 100,
-    label: '100.0 GB '
-  },
-  {
-    id: 1000,
-    label: '1.0 TB'
-  },
-  {
-    id: 2000,
-    label: '2.0 TB'
-  }
-];
-
-// TODO: Remove test stub
-const getFreeSpace = (drive: number | string) => (drive && '500 GB') || '';
-
-// TODO: Remove test stub
+// Test stub
 const getProjectedSmcEarnings = (capacity: number | string) => {
   if (typeof capacity === 'string') {
     return 4;
   } else {
-    return +(capacity * 0.2).toFixed(2);
+    return +(capacity * 0.00000001).toFixed(2);
   }
 };
 
-// TODO: Remove test stub
-const getFiatCurrencyEquivalent = (capacity: number | string) => (getProjectedSmcEarnings(capacity) * 6).toFixed(2);
+const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
 
 const LeftHeaderWrapper = styled.div`
   margin-bottom: 20px;
@@ -98,8 +46,17 @@ const GrayTextWrapper = styled.div`
 `;
 
 type Props = {
-  history: { push: (string) => void },
-  setLocalNodeStorage: Action
+  history: any,
+  drives: any[],
+  capacity: any,
+  capacityAllocationsList: any[],
+  drive: any,
+  availableDiskSpace: { bytes: number, readable: string },
+  setLocalNodeStorage: Action,
+  getDrivesList: Action,
+  getFiatRate: Action,
+  getAvailableSpace: Action,
+  fiatRate: number
 };
 
 type State = {
@@ -108,10 +65,18 @@ type State = {
 };
 
 class LocalNodeSetupPage extends Component<Props, State> {
-  state = {
-    selectedDriveIndex: -1,
-    selectedCapacityIndex: -1
-  };
+  constructor(props: Props) {
+    super(props);
+    const { getFiatRate, getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
+    const selectedDriveIndex = getElementIndex(drives, drive);
+    const selectedCapacityIndex = getElementIndex(capacityAllocationsList, capacity);
+    this.state = {
+      selectedCapacityIndex,
+      selectedDriveIndex
+    };
+    getDrivesList();
+    getFiatRate();
+  }
 
   render() {
     return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
@@ -136,30 +101,35 @@ class LocalNodeSetupPage extends Component<Props, State> {
   };
 
   renderLeftPane = () => {
-    const { selectedDriveIndex, selectedCapacityIndex } = this.state;
-    const drive = selectedDriveIndex !== -1 ? drivesDDList[selectedDriveIndex] : null;
-    const capacity = selectedCapacityIndex !== -1 ? capacityDDList[selectedCapacityIndex] : null;
+    const { drives, capacityAllocationsList, availableDiskSpace, fiatRate } = this.props;
+    const { selectedCapacityIndex, selectedDriveIndex } = this.state;
+
     return (
       <LeftPaneInner>
         <LeftHeaderWrapper>
           <BoldText>Select Drive</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={drivesDDList} selectedItemIndex={selectedDriveIndex} onPress={({ index }: { index: number }) => this.handleSelectDrive({ index })} />
-          <SideLabelWrapper>{drive && <BaseText>You have {getFreeSpace(drive.id)} free on your drive</BaseText>}</SideLabelWrapper>
+          <SmDropdown data={drives} selectedItemIndex={selectedDriveIndex} onPress={this.handleSelectDrive} />
+          {selectedDriveIndex !== -1 && (
+            <SideLabelWrapper>
+              <BaseText>You have {availableDiskSpace && availableDiskSpace.readable} free on your drive</BaseText>
+            </SideLabelWrapper>
+          )}
         </BorderlessLeftPaneRow>
         <LeftHeaderWrapper>
           <BoldText>Choose how much storage to allocate for the local node</BoldText>
         </LeftHeaderWrapper>
         <BorderlessLeftPaneRow>
-          <SmDropdown data={capacityDDList} selectedItemIndex={selectedCapacityIndex} onPress={({ index }: { index: number }) => this.handleSelectCapacity({ index })} />
-          <SideLabelWrapper>
-            {capacity && (
+          <SmDropdown data={capacityAllocationsList} selectedItemIndex={selectedCapacityIndex} onPress={this.handleSelectCapacity} />
+          {selectedCapacityIndex !== -1 && (
+            <SideLabelWrapper>
               <BaseText>
-                earn ~ {getProjectedSmcEarnings(capacity.id)} SMC each week* <GrayText> = {getFiatCurrencyEquivalent(capacity.id)} USD*</GrayText>
+                earn ~ {getProjectedSmcEarnings(capacityAllocationsList[selectedCapacityIndex].id)} SMC each week*{' '}
+                <GrayText> = {fiatRate * capacityAllocationsList[selectedCapacityIndex].id} USD*</GrayText>
               </BaseText>
-            )}
-          </SideLabelWrapper>
+            </SideLabelWrapper>
+          )}
         </BorderlessLeftPaneRow>
         <GrayTextWrapper>
           <BorderlessLeftPaneRow>
@@ -172,7 +142,7 @@ class LocalNodeSetupPage extends Component<Props, State> {
             <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
           </BorderlessLeftPaneRow>
           <BorderlessLeftPaneRow>
-            <SmButton text="Start Setup" theme="orange" isDisabled={!capacity || !drive} onPress={this.handleStartSetup} />
+            <SmButton text="Start Setup" theme="orange" isDisabled={!(selectedCapacityIndex !== -1 && selectedDriveIndex !== -1)} onPress={this.handleStartSetup} />
           </BorderlessLeftPaneRow>
         </GrayTextWrapper>
       </LeftPaneInner>
@@ -180,13 +150,18 @@ class LocalNodeSetupPage extends Component<Props, State> {
   };
 
   handleStartSetup = () => {
-    const { setLocalNodeStorage, history } = this.props;
-    const { selectedDriveIndex, selectedCapacityIndex } = this.state;
-    setLocalNodeStorage({ drive: drivesDDList[selectedDriveIndex].label, capacity: capacityDDList[selectedCapacityIndex].label });
+    const { setLocalNodeStorage, history, drives, capacityAllocationsList } = this.props;
+    const { selectedCapacityIndex, selectedDriveIndex } = this.state;
+    setLocalNodeStorage({ capacity: capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
     history.push('/main/local-node/local-node-loading');
   };
 
-  handleSelectDrive = ({ index }: { index: number }) => this.setState({ selectedDriveIndex: index });
+  handleSelectDrive = ({ index }: { index: number }) => {
+    const { getAvailableSpace, drives } = this.props;
+    const drive: any = drives[index];
+    getAvailableSpace(drive.mountPoint);
+    this.setState({ selectedDriveIndex: index });
+  };
 
   handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
 
@@ -197,12 +172,24 @@ class LocalNodeSetupPage extends Component<Props, State> {
   showComputationEffort = () => {};
 }
 
+const mapStateToProps = (state) => ({
+  capacity: state.localNode.capacity,
+  capacityAllocationsList: state.localNode.capacityAllocationsList,
+  drive: state.localNode.drive,
+  drives: state.localNode.drives,
+  availableDiskSpace: state.localNode.availableDiskSpace,
+  fiatRate: state.wallet.fiatRate
+});
+
 const mapDispatchToProps = {
-  setLocalNodeStorage
+  setLocalNodeStorage,
+  getDrivesList,
+  getAvailableSpace,
+  getFiatRate
 };
 
 LocalNodeSetupPage = connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(LocalNodeSetupPage);
 
