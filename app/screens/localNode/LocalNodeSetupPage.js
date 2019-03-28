@@ -3,26 +3,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
+import { getFiatRate } from '/redux/wallet/actions';
 import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
-
-type SetupPageProps = {
-  history: any,
-  drives: any[],
-  capacity: any,
-  capacityAllocationsList: any[],
-  drive: any,
-  availableDiskSpace: { bytes: number, readable: string },
-  setLocalNodeStorage: Action,
-  getDrivesList: Action,
-  getAvailableSpace: Action
-};
-
-type SetupPageState = {
-  selectedDriveIndex: number,
-  selectedCapacityIndex: number
-};
 
 // Test stub
 const getProjectedSmcEarnings = (capacity: number | string) => {
@@ -31,12 +15,6 @@ const getProjectedSmcEarnings = (capacity: number | string) => {
   } else {
     return +(capacity * 0.00000001).toFixed(2);
   }
-};
-
-// Test stub
-const getFiatCurrencyEquivalent = (capacity: number | string) => {
-  const SMC_TO_USD_RATIO = 0.2;
-  return (getProjectedSmcEarnings(capacity) * SMC_TO_USD_RATIO).toFixed(2);
 };
 
 const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
@@ -67,10 +45,29 @@ const GrayTextWrapper = styled.div`
   justify-content: space-between;
 `;
 
-class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
-  constructor(props: SetupPageProps) {
+type Props = {
+  history: any,
+  drives: any[],
+  capacity: any,
+  capacityAllocationsList: any[],
+  drive: any,
+  availableDiskSpace: { bytes: number, readable: string },
+  setLocalNodeStorage: Action,
+  getDrivesList: Action,
+  getFiatRate: Action,
+  getAvailableSpace: Action,
+  fiatRate: number
+};
+
+type State = {
+  selectedDriveIndex: number,
+  selectedCapacityIndex: number
+};
+
+class LocalNodeSetupPage extends Component<Props, State> {
+  constructor(props: Props) {
     super(props);
-    const { getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
+    const { getFiatRate, getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
     const selectedDriveIndex = getElementIndex(drives, drive);
     const selectedCapacityIndex = getElementIndex(capacityAllocationsList, capacity);
     this.state = {
@@ -78,6 +75,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
       selectedDriveIndex
     };
     getDrivesList();
+    getFiatRate();
   }
 
   render() {
@@ -103,10 +101,8 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
   };
 
   renderLeftPane = () => {
-    const { drives, capacityAllocationsList, availableDiskSpace } = this.props;
+    const { drives, capacityAllocationsList, availableDiskSpace, fiatRate } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
-    const selectedDrive = drives && drives[selectedDriveIndex];
-    const selectedCapacity = capacityAllocationsList && capacityAllocationsList[selectedCapacityIndex];
 
     return (
       <LeftPaneInner>
@@ -129,7 +125,8 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
           {selectedCapacityIndex !== -1 && (
             <SideLabelWrapper>
               <BaseText>
-                earn ~ {getProjectedSmcEarnings(selectedCapacity.id)} SMC each week* <GrayText> = {getFiatCurrencyEquivalent(selectedCapacity.id)} USD*</GrayText>
+                earn ~ {getProjectedSmcEarnings(capacityAllocationsList[selectedCapacityIndex].id)} SMC each week*{' '}
+                <GrayText> = {fiatRate * capacityAllocationsList[selectedCapacityIndex].id} USD*</GrayText>
               </BaseText>
             </SideLabelWrapper>
           )}
@@ -145,7 +142,7 @@ class LocalNodeSetupPage extends Component<SetupPageProps, SetupPageState> {
             <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
           </BorderlessLeftPaneRow>
           <BorderlessLeftPaneRow>
-            <SmButton text="Start Setup" theme="orange" isDisabled={!(selectedCapacity && selectedDrive)} onPress={this.handleStartSetup} />
+            <SmButton text="Start Setup" theme="orange" isDisabled={!(selectedCapacityIndex !== -1 && selectedDriveIndex !== -1)} onPress={this.handleStartSetup} />
           </BorderlessLeftPaneRow>
         </GrayTextWrapper>
       </LeftPaneInner>
@@ -180,13 +177,15 @@ const mapStateToProps = (state) => ({
   capacityAllocationsList: state.localNode.capacityAllocationsList,
   drive: state.localNode.drive,
   drives: state.localNode.drives,
-  availableDiskSpace: state.localNode.availableDiskSpace
+  availableDiskSpace: state.localNode.availableDiskSpace,
+  fiatRate: state.wallet.fiatRate
 });
 
 const mapDispatchToProps = {
   setLocalNodeStorage,
   getDrivesList,
-  getAvailableSpace
+  getAvailableSpace,
+  getFiatRate
 };
 
 LocalNodeSetupPage = connect(

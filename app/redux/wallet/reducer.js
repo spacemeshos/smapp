@@ -1,7 +1,7 @@
 // @flow
 import type { Action, StoreStateType } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { SAVE_WALLET_FILES, DERIVE_ENCRYPTION_KEY, INCREMENT_WALLET_NUMBER, INCREMENT_ACCOUNT_NUMBER, UPDATE_WALLET_DATA, GET_BALANCE } from './actions';
+import { SAVE_WALLET_FILES, DERIVE_ENCRYPTION_KEY, INCREMENT_WALLET_NUMBER, INCREMENT_ACCOUNT_NUMBER, UPDATE_WALLET_DATA, GET_BALANCE, GET_FIAT_RATE } from './actions';
 
 const initialState = {
   walletNumber: 0,
@@ -54,6 +54,10 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
           }
         }
       };
+    }
+    case GET_FIAT_RATE: {
+      // TODO: need to get actual fiat rate
+      return { ...state, fiatRate: initialState.fiatRate };
     }
     case LOGOUT: {
       return initialState;

@@ -3,6 +3,7 @@ import type { Action } from '/types';
 import { SET_ALLOCATION, RESET_NODE_SETTINGS, GET_DRIVES_LIST, GET_AVAILABLE_DISK_SPACE } from './actions';
 
 const initialState = {
+  drive: null,
   capacity: null,
   drives: [],
   capacityAllocationsList: [],
