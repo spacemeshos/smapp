@@ -3,8 +3,20 @@ import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 
 class FsService {
-  static readFile = ({ fileName, showDialog }: { fileName: string, showDialog: string }) => {
-    ipcRenderer.send(ipcConsts.READ_FILE, { fileName, showDialog });
+  static getFileName = () => {
+    ipcRenderer.send(ipcConsts.GET_FILE_NAME);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_FILE_NAME_SUCCESS, (event, xml) => {
+        resolve(xml);
+      });
+      ipcRenderer.once(ipcConsts.GET_FILE_NAME_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  };
+
+  static readFile = ({ filePath }: { filePath: string }) => {
+    ipcRenderer.send(ipcConsts.READ_FILE, { filePath });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.READ_FILE_SUCCESS, (event, xml) => {
         resolve(xml);

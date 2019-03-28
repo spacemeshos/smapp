@@ -61,7 +61,7 @@ const RightPaneSetup = (props: Props) => {
         </SettingModeListItem>
       ))}
       {links.map((setupLink) => (
-        <LinkTextWrapper key={setupLink.label} onClick={setupLink.onClick}>
+        <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
           <ActionLink>{setupLink.text}</ActionLink>
         </LinkTextWrapper>
       ))}

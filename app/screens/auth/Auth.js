@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { readWalletFiles } from '/redux/wallet/actions';
-import { StepsContainer } from '/components/auth';
+import { StepsContainer, WordsRestore } from '/components/auth';
 import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
@@ -35,32 +35,23 @@ type Props = {
 };
 
 type State = {
-  mode: number
+  mode: number,
+  isRestoreWith12WordsMode: boolean,
+  mnemonic: string
 };
 
 class Auth extends Component<Props, State> {
   state = {
-    mode: -1
+    mode: -1,
+    isRestoreWith12WordsMode: false,
+    mnemonic: ''
   };
 
   render() {
     const { walletFiles } = this.props;
-    const { mode } = this.state;
     return (
       <Wrapper backgroundImage={this.getBackgroundImage()}>
-        <InnerWrapper>
-          {walletFiles ? (
-            <StepsContainer
-              mode={mode}
-              setCreationMode={this.setCreationMode}
-              setUnlockMode={this.setUnlockMode}
-              navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
-              navigateToWallet={this.navigateToWallet}
-            />
-          ) : (
-            <Loader size={Loader.sizes.BIG} />
-          )}
-        </InnerWrapper>
+        <InnerWrapper>{walletFiles ? this.renderBody() : <Loader size={Loader.sizes.BIG} />}</InnerWrapper>
       </Wrapper>
     );
   }
@@ -77,6 +68,24 @@ class Auth extends Component<Props, State> {
     readWalletFiles();
   }
 
+  renderBody = () => {
+    const { mode, isRestoreWith12WordsMode, mnemonic } = this.state;
+    return isRestoreWith12WordsMode ? (
+      <WordsRestore toggleRestoreWith12Words={this.toggleRestoreWith12Words} proceedWithRestore={this.proceedWithRestore} />
+    ) : (
+      <StepsContainer
+        mode={mode}
+        setCreationMode={this.setCreationMode}
+        setUnlockMode={this.setUnlockMode}
+        setRestoreMode={this.setRestoreMode}
+        navigateToLocalNodeSetup={this.navigateToLocalNodeSetup}
+        navigateToWallet={this.navigateToWallet}
+        toggleRestoreWith12Words={this.toggleRestoreWith12Words}
+        mnemonic={mnemonic}
+      />
+    );
+  };
+
   getBackgroundImage = () => {
     const { mode } = this.state;
     switch (mode) {
@@ -85,6 +94,8 @@ class Auth extends Component<Props, State> {
       case authModes.UNLOCK:
         return background2;
       case authModes.CREATE:
+        return background3;
+      case authModes.RESTORE:
         return background3;
       default:
         return background1;
@@ -95,6 +106,8 @@ class Auth extends Component<Props, State> {
 
   setUnlockMode = () => this.setState({ mode: authModes.UNLOCK });
 
+  setRestoreMode = () => this.setState({ mode: authModes.RESTORE });
+
   navigateToLocalNodeSetup = () => {
     const { history } = this.props;
     history.push('/main/local-node');
@@ -103,6 +116,15 @@ class Auth extends Component<Props, State> {
   navigateToWallet = () => {
     const { history } = this.props;
     history.push('/main/wallet');
+  };
+
+  toggleRestoreWith12Words = () => {
+    const { isRestoreWith12WordsMode } = this.state;
+    this.setState({ isRestoreWith12WordsMode: !isRestoreWith12WordsMode });
+  };
+
+  proceedWithRestore = ({ mnemonic }) => {
+    this.setState({ isRestoreWith12WordsMode: false, mode: authModes.CREATE, mnemonic });
   };
 }
 

@@ -2,10 +2,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors, authModes } from '/vars';
-import { onboardingLogo, xWhite } from '/assets/images';
+import { smLogoWhite, xWhite } from '/assets/images';
 import Welcome from './Welcome';
 import CreateWallet from './CreateWallet';
 import UnlockWallet from './UnlockWallet';
+import RestoreWallet from './RestoreWallet';
 
 const Wrapper = styled.div`
   background-color: ${smColors.white};
@@ -47,14 +48,18 @@ const XIcon = styled.img`
 const HeaderText = styled.span`
   font-size: 24px;
   color: ${smColors.white};
+  line-height: 33px;
 `;
 
 type Props = {
   mode: number,
   setCreationMode: () => void,
   setUnlockMode: () => void,
+  setRestoreMode: () => void,
   navigateToLocalNodeSetup: () => void,
-  navigateToWallet: () => void
+  navigateToWallet: () => void,
+  toggleRestoreWith12Words: () => void,
+  mnemonic: string
 };
 
 type State = {
@@ -69,16 +74,14 @@ class StepsContainer extends Component<Props, State> {
   render() {
     const { mode, navigateToLocalNodeSetup } = this.props;
     const { isCloseBtnVisible } = this.state;
-    const header = mode === authModes.UNLOCK ? 'Welcome Back' : 'Welcome to Spacemesh';
-
     return (
       <Wrapper>
         <Header>
           <TopRowContainer>
-            <Logo src={onboardingLogo} />
+            <Logo src={smLogoWhite} />
             {isCloseBtnVisible && <XIcon onClick={navigateToLocalNodeSetup} src={xWhite} />}
           </TopRowContainer>
-          <HeaderText>{header}</HeaderText>
+          <HeaderText>{this.getHeaderText({ mode })}</HeaderText>
         </Header>
         {this.renderMode(mode)}
       </Wrapper>
@@ -86,16 +89,36 @@ class StepsContainer extends Component<Props, State> {
   }
 
   renderMode = (mode: number) => {
-    const { setCreationMode, setUnlockMode, navigateToWallet, navigateToLocalNodeSetup } = this.props;
+    const { setCreationMode, setUnlockMode, setRestoreMode, navigateToWallet, navigateToLocalNodeSetup, toggleRestoreWith12Words, mnemonic } = this.props;
     switch (mode) {
       case authModes.WELCOME:
-        return <Welcome setCreationMode={setCreationMode} setUnlockMode={setUnlockMode} />;
+        return <Welcome setCreationMode={setCreationMode} setRestoreMode={setRestoreMode} setUnlockMode={setUnlockMode} />;
       case authModes.UNLOCK:
-        return <UnlockWallet setCreationMode={setCreationMode} navigateToWallet={navigateToWallet} />;
+        return <UnlockWallet setCreationMode={setCreationMode} setRestoreMode={setRestoreMode} navigateToWallet={navigateToWallet} />;
       case authModes.CREATE:
-        return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} />;
+        return <CreateWallet hideCloseBtn={this.hideCloseBtn} navigateToWallet={navigateToWallet} navigateToLocalNodeSetup={navigateToLocalNodeSetup} mnemonic={mnemonic} />;
+      case authModes.RESTORE:
+        return <RestoreWallet setUnlockMode={setUnlockMode} toggleRestoreWith12Words={toggleRestoreWith12Words} />;
       default:
         return null;
+    }
+  };
+
+  getHeaderText = ({ mode }: { mode: number }) => {
+    switch (mode) {
+      case authModes.WELCOME:
+      case authModes.CREATE: {
+        return 'Welcome to Spacemesh';
+      }
+      case authModes.UNLOCK: {
+        return 'Welcome Back';
+      }
+      case authModes.RESTORE: {
+        return 'Restore Wallet';
+      }
+      default: {
+        return '';
+      }
     }
   };
 

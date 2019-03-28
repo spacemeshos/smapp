@@ -28,11 +28,14 @@ export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Act
   dispatch({ type: DERIVE_ENCRYPTION_KEY, payload: { key, salt } });
 };
 
-export const saveNewWallet = ({ salt = cryptoConsts.DEFAULT_SALT }: { salt: string }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => (
+  dispatch: Dispatch,
+  getState: GetState
+): Dispatch => {
   const walletState = getState().wallet;
   const { accountNumber, walletNumber, fileKey } = walletState;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const { publicKey, secretKey, seed } = keyGenService.generateKeyPair();
+  const { publicKey, secretKey, seed } = keyGenService.generateKeyPair({ mnemonic });
   const wallet = {
     displayName: `my_wallet_${walletNumber}`,
     created: unixEpochTimestamp,
@@ -64,7 +67,6 @@ export const saveNewWallet = ({ salt = cryptoConsts.DEFAULT_SALT }: { salt: stri
   const encryptedWallet = { ...wallet, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), showDialog: false });
-    httpService.sendTx({ srcAddress: '1', dstAddress: publicKey.toString(), amount: 100 }); // TODO: remove before TEST NET
     dispatch(updateWalletData({ wallet }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
@@ -87,12 +89,11 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
   }
 };
 
-export const unlockWallet = ({ shouldPromtUser }: { shouldPromtUser?: boolean }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const walletState = getState().wallet;
     const { walletFiles, fileKey } = walletState;
-    const fileName = shouldPromtUser ? walletFiles[0] : '';
-    const file = await fileSystemService.readFile({ fileName, showDialog: !shouldPromtUser });
+    const file = await fileSystemService.readFile({ filePath: walletFiles[0] });
     const decryptedAccountsJSON = cryptoService.decryptData({ data: file.crypto.cipherText, key: fileKey });
     file.crypto.cipherText = JSON.parse(decryptedAccountsJSON);
     dispatch(updateWalletData({ wallet: file }));
@@ -102,6 +103,16 @@ export const unlockWallet = ({ shouldPromtUser }: { shouldPromtUser?: boolean })
 };
 
 export const getFiatRate = (): Action => ({ type: GET_FIAT_RATE });
+
+export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const fileName = await fileSystemService.getFileName();
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [fileName] } });
+  } catch (err) {
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
+    throw new Error(err);
+  }
+};
 
 export const getBalance = ({ address, accountIndex }: { address: string, accountIndex: number }): Action => async (dispatch: Dispatch): Dispatch => {
   const balance = await httpService.getBalance({ address });

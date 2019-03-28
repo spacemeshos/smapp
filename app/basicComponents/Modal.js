@@ -1,6 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { xWhite } from '/assets/images';
 import { smColors } from '/vars';
 
 const OuterWrapper = styled.div`
@@ -44,17 +45,20 @@ const HeaderWrapper = styled.div`
 const HeaderButtons = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
 `;
 
-const HeaderButton = styled.div`
+const ExplanationButton = styled.div`
   padding: 0 5px;
   margin: 0 5px;
   cursor: pointer;
 `;
 
-const CloseButton = styled(HeaderButton)`
-  transform: rotate(45deg);
-  font-size: 46px;
+const CloseButton = styled.img`
+  width: 20px;
+  height: 20px;
+  margin: 0 5px;
+  cursor: pointer;
 `;
 
 const BodyWrapper = styled.div`
@@ -78,8 +82,8 @@ class Modal extends Component<Props> {
           <HeaderWrapper>
             <div>{header}</div>
             <HeaderButtons>
-              <HeaderButton onClick={onQuestionMarkClick}>?</HeaderButton>
-              <CloseButton onClick={onCancelBtnClick}>+</CloseButton>
+              <ExplanationButton onClick={onQuestionMarkClick}>?</ExplanationButton>
+              <CloseButton onClick={onCancelBtnClick} src={xWhite} />
             </HeaderButtons>
           </HeaderWrapper>
           <BodyWrapper>{content}</BodyWrapper>
