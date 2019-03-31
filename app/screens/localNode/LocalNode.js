@@ -5,8 +5,7 @@ import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/lo
 import { getFiatRate } from '/redux/wallet/actions';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { RightPane } from '/components/LocalNode';
-import { LeftPaneSetup } from '/components/localNode';
+import { LeftPaneSetup, RightPane } from '/components/localNode';
 import type { Action } from '/types';
 
 const Container = styled.div`
