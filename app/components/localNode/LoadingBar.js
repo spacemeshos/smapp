@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { BoldText, BaseText } from './LocalNodeCommonComponents';
 import { Loader, CheckDone } from '/basicComponents';
 
 type LoadingBarProps = {
@@ -9,6 +8,16 @@ type LoadingBarProps = {
   capacity: string,
   status: string
 };
+
+const BaseText = styled.span`
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 22px;
+`;
+
+const BoldText = styled(BaseText)`
+  font-weight: bold;
+`;
 
 // $FlowStyledIssue
 const LoadingBarContainer = styled.div`

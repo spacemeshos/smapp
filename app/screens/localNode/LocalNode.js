@@ -1,11 +1,11 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
+import { setLocalNodeStorage, getDrivesList, getAvailableSpace, resetNodeSettings } from '/redux/localNode/actions';
 import { getFiatRate } from '/redux/wallet/actions';
 import styled from 'styled-components';
 import { smColors, localNodeModes } from '/vars';
-import { LeftPaneSetup, RightPane } from '/components/localNode';
+import { LeftPaneSetup, LeftPane, RightPane } from '/components/localNode';
 import type { Action } from '/types';
 
 const Container = styled.div`
@@ -41,6 +41,7 @@ type Props = {
   availableDiskSpace: { bytes: number, readable: string },
   setLocalNodeStorage: Action,
   getDrivesList: Action,
+  resetNodeSettings: Action,
   getFiatRate: Action,
   getAvailableSpace: Action,
   fiatRate: number
@@ -74,9 +75,9 @@ class LocalNode extends Component<Props, State> {
       case localNodeModes.SETUP:
         return <LeftPaneSetup toMode={this.handleModeChange} {...this.props} />;
       case localNodeModes.PROGRESS:
-        return <div>{mode} mode test</div>;
+        return <LeftPane inProgress toMode={this.handleModeChange} {...this.props} />;
       case localNodeModes.OVERVIEW:
-        return <div>{mode} mode test</div>;
+        return <LeftPane inProgress={false} toMode={this.handleModeChange} {...this.props} />;
       default:
         return null;
     }
@@ -100,7 +101,8 @@ const mapDispatchToProps = {
   setLocalNodeStorage,
   getDrivesList,
   getAvailableSpace,
-  getFiatRate
+  getFiatRate,
+  resetNodeSettings
 };
 
 LocalNode = connect(

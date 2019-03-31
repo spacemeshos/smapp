@@ -17,8 +17,7 @@ const LeftPaneInner = styled.div`
   height: 100%;
 `;
 
-const BoldText = styled.span`
-  font-size: 16px;
+const BoldText = styled(BaseText)`
   font-weight: bold;
 `;
 
@@ -64,7 +63,6 @@ const getProjectedSmcEarnings = (capacity: number | string) => {
 const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
 
 type Props = {
-  // history: any,
   toMode: Funtion,
   drives: any[],
   capacity: any,

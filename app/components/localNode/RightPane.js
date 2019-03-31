@@ -67,13 +67,13 @@ const Actionable = css`
 `;
 
 // $FlowStyledIssue
-export const BaseImage = styled.img`
+const BaseImage = styled.img`
   height: ${({ height }) => (height ? `${height}px` : '100%')};
   width: ${({ width }) => (width ? `${width}px` : '100%')};
 `;
 
 // $FlowStyledIssue
-export const ImageWrapper = styled.div`
+const ImageWrapper = styled.div`
   ${({ maxHeight }) =>
     maxHeight &&
     `
@@ -93,13 +93,13 @@ export const ImageWrapper = styled.div`
   padding: 12px;
 `;
 
-export const ItemTextWrapper = styled.div`
+const ItemTextWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-self: center;
 `;
 
-export const RightPaneInner = styled.div`
+const RightPaneInner = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -110,22 +110,22 @@ export const RightPaneInner = styled.div`
   min-width: 388px;
 `;
 
-export const RightHeaderText = styled.span`
+const RightHeaderText = styled.span`
   font-size: 14px;
   font-weight: bold;
   padding: 0 12px 12px 12px;
   line-height: 22px;
 `;
 
-export const ItemText = styled(BaseText)`
+const ItemText = styled(BaseText)`
   color: ${smColors.black};
 `;
 
-export const LinkTextWrapper = styled.div`
+const LinkTextWrapper = styled.div`
   padding: 10px;
 `;
 
-export const ActionLink = styled(BaseText)`
+const ActionLink = styled(BaseText)`
   user-select: none;
   color: ${smColors.green};
   cursor: pointer;
