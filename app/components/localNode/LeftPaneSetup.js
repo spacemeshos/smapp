@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { smColors } from '/vars';
+import { smColors, localNodeModes } from '/vars';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
 
 const BaseText = styled.span`
   font-size: 16px;
   font-weight: normal;
+  line-height: 22px;
 `;
 
 const LeftPaneInner = styled.div`
@@ -149,7 +150,7 @@ class LeftPaneSetup extends Component<Props, State> {
     const { setLocalNodeStorage, drives, capacityAllocationsList, toMode } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
     setLocalNodeStorage({ capacity: capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
-    toMode('progress');
+    toMode(localNodeModes.PROGRESS);
   };
 
   handleSelectDrive = ({ index }: { index: number }) => {

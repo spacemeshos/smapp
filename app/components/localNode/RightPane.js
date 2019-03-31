@@ -1,15 +1,7 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import styled, { css } from 'styled-components';
 import { time, coin, noLaptop, miner, thinking } from '/assets/images';
-import { smColors } from '/vars';
-
-const navigateToExplanation = () => {};
-
-const changeLocalNodeRewardAddress = () => {};
-
-const showComputationEffort = () => {};
-
-const changeLocalNodeSettings = () => {};
+import { smColors, localNodeModes } from '/vars';
 
 const items = [
   {
@@ -30,55 +22,23 @@ const items = [
   }
 ];
 
-const progressLinks = [
-  {
-    text: 'Learn more about Spacemesh Local Node',
-    onClick: navigateToExplanation
-  },
-  {
-    text: 'Show computer effort',
-    onClick: showComputationEffort
-  }
-];
-
-const setupLinks = [
-  ...progressLinks,
-  {
-    text: 'Change your awards Local Node address',
-    onCLick: changeLocalNodeRewardAddress
-  }
-];
-
-const overviewLinks = [
-  ...progressLinks,
-  {
-    text: 'Change Local Node Settings',
-    onCLick: changeLocalNodeSettings
-  }
-];
-
-const links = {
-  setup: setupLinks,
-  progress: progressLinks,
-  overview: overviewLinks
-};
-
-const getHeader = (mode: Mode): string => {
+const getHeader = (mode: number): string => {
   switch (mode) {
-    case 'setup':
+    case localNodeModes.SETUP:
       return 'Full Node Setup instructions';
-    case 'progress':
+    case localNodeModes.PROGRESS:
       return 'Full Node Setup information';
-    case 'overview':
+    case localNodeModes.OVERVIEW:
       return 'Spacemesh Tips and Information';
     default:
       return '';
   }
 };
 
-export const BaseText = styled.span`
+const BaseText = styled.span`
   font-size: 16px;
   font-weight: normal;
+  line-height: 22px;
 `;
 
 const SettingModeListItem = styled.div`
@@ -144,12 +104,17 @@ export const RightPaneInner = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  flex: 1;
+  padding: 30px;
+  border: 1px solid ${smColors.borderGray};
+  min-width: 388px;
 `;
 
 export const RightHeaderText = styled.span`
   font-size: 14px;
   font-weight: bold;
   padding: 0 12px 12px 12px;
+  line-height: 22px;
 `;
 
 export const ItemText = styled(BaseText)`
@@ -167,77 +132,141 @@ export const ActionLink = styled(BaseText)`
   ${Actionable}
 `;
 
-type Mode = 'setup' | 'progress' | 'overview';
-
 type Props = {
-  mode: Mode
+  mode: number
 };
 
-const renderSetupItems = () => (
-  <React.Fragment>
-    {items.map((setupListItem) => (
-      <SettingModeListItem key={setupListItem.text}>
-        <ItemImageWrapper>
-          <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
-        </ItemImageWrapper>
-        <ItemTextWrapper>
-          <ItemText>{setupListItem.text}</ItemText>
-        </ItemTextWrapper>
-      </SettingModeListItem>
-    ))}
-  </React.Fragment>
-);
-
-const renderTopImage = (mode: Mode) => {
-  switch (mode) {
-    case 'progress':
-      return (
-        <ImageWrapper maxHeight={264}>
-          <BaseImage src={thinking} />
-        </ImageWrapper>
-      );
-    case 'overview':
-      return (
-        <ImageWrapper maxHeight={270}>
-          <BaseImage src={miner} />
-        </ImageWrapper>
-      );
-    default:
-      return null;
+class RightPane extends PureComponent<Props> {
+  render() {
+    const { mode } = this.props;
+    return (
+      <RightPaneInner>
+        {this.renderTopImage(mode)}
+        <RightHeaderText>{getHeader(mode)}</RightHeaderText>
+        {this.renderCenterContent(mode)}
+        {this.links(mode).map((setupLink) => (
+          <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
+            <ActionLink>{setupLink.text}</ActionLink>
+          </LinkTextWrapper>
+        ))}
+      </RightPaneInner>
+    );
   }
-};
 
-const renderCenterContent = (mode: Mode) => {
-  switch (mode) {
-    case 'setup':
-      return renderSetupItems();
-    case 'progress': {
-      const progressCenterText = "Full node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
-      return <BaseText>{progressCenterText}</BaseText>;
+  renderTopImage = (mode: number) => {
+    switch (mode) {
+      case localNodeModes.PROGRESS:
+        return (
+          <ImageWrapper maxHeight={264}>
+            <BaseImage src={thinking} />
+          </ImageWrapper>
+        );
+      case localNodeModes.OVERVIEW:
+        return (
+          <ImageWrapper maxHeight={270}>
+            <BaseImage src={miner} />
+          </ImageWrapper>
+        );
+      default:
+        return null;
     }
-    case 'overview': {
-      const overviewCenterText = 'To run Spacemesh p2p network and get awarded for your contribution, you need to keep your computer running 24/7.';
-      return <BaseText>{overviewCenterText}</BaseText>;
-    }
-    default:
-      return null;
-  }
-};
+  };
 
-const RightPane = (props: Props) => {
-  const { mode } = props;
-  return (
-    <RightPaneInner>
-      {renderTopImage(mode)}
-      <RightHeaderText>{getHeader(mode)}</RightHeaderText>
-      {renderCenterContent(mode)}
-      {links[mode].map((setupLink) => (
-        <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
-          <ActionLink>{setupLink.text}</ActionLink>
-        </LinkTextWrapper>
+  renderSetupItems = () => (
+    <React.Fragment>
+      {items.map((setupListItem) => (
+        <SettingModeListItem key={setupListItem.text}>
+          <ItemImageWrapper>
+            <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
+          </ItemImageWrapper>
+          <ItemTextWrapper>
+            <ItemText>{setupListItem.text}</ItemText>
+          </ItemTextWrapper>
+        </SettingModeListItem>
       ))}
-    </RightPaneInner>
+    </React.Fragment>
   );
-};
+
+  renderCenterContent = (mode: number) => {
+    switch (mode) {
+      case localNodeModes.SETUP:
+        return this.renderSetupItems();
+      case localNodeModes.PROGRESS: {
+        const progressCenterText = "Full node setup may take up to 48 hours. you can leave it running and continue using your device as usual, just don't turn it off.";
+        return <BaseText>{progressCenterText}</BaseText>;
+      }
+      case localNodeModes.OVERVIEW: {
+        const overviewCenterText = 'To run Spacemesh p2p network and get awarded for your contribution, you need to keep your computer running 24/7.';
+        return <BaseText>{overviewCenterText}</BaseText>;
+      }
+      default:
+        return null;
+    }
+  };
+
+  setupLinks = [
+    {
+      text: 'Learn more about Spacemesh Local Node',
+      onClick: this.navigateToExplanation
+    },
+    {
+      text: 'Show computer effort',
+      onClick: this.showComputationEffort
+    },
+    {
+      text: 'Change your awards Local Node address',
+      onCLick: this.changeLocalNodeRewardAddress
+    }
+  ];
+
+  progressLinks = [
+    {
+      text: 'Learn more about Spacemesh Local Node',
+      onClick: this.navigateToExplanation
+    },
+    {
+      text: 'Show computer effort',
+      onClick: this.showComputationEffort
+    }
+  ];
+
+  overviewLinks = [
+    {
+      text: 'Learn more about Spacemesh Local Node',
+      onClick: this.navigateToExplanation
+    },
+    {
+      text: 'Show computer effort',
+      onClick: this.showComputationEffort
+    },
+    {
+      text: 'Change Local Node Settings',
+      onCLick: this.changeLocalNodeSettings
+    }
+  ];
+
+  links = (mode: number) => {
+    switch (mode) {
+      case localNodeModes.SETUP:
+        return this.setupLinks;
+      case localNodeModes.PROGRESS: {
+        return this.progressLinks;
+      }
+      case localNodeModes.OVERVIEW: {
+        return this.overviewLinks;
+      }
+      default:
+        return null;
+    }
+  };
+
+  navigateToExplanation = () => {};
+
+  changeLocalNodeRewardAddress = () => {};
+
+  showComputationEffort = () => {};
+
+  changeLocalNodeSettings = () => {};
+}
 
 export default RightPane;

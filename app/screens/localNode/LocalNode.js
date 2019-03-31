@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
 import { getFiatRate } from '/redux/wallet/actions';
 import styled from 'styled-components';
-import { smColors } from '/vars';
+import { smColors, localNodeModes } from '/vars';
 import { LeftPaneSetup, RightPane } from '/components/localNode';
 import type { Action } from '/types';
 
@@ -23,6 +23,7 @@ const Header = styled.span`
   font-size: 31px;
   font-weight: bold;
   color: ${smColors.darkGray};
+  line-height: 42px;
 `;
 
 const LeftPaneWrapper = styled.div`
@@ -31,15 +32,6 @@ const LeftPaneWrapper = styled.div`
   padding: 24px 0;
   margin-right: 32px;
 `;
-
-const RightPaneWrapper = styled.div`
-  flex: 1;
-  background-color: white;
-  padding: 30px;
-  border: 1px solid ${smColors.borderGray};
-`;
-
-type Mode = 'setup' | 'progress' | 'overview';
 
 type Props = {
   drives: any[],
@@ -55,44 +47,42 @@ type Props = {
 };
 
 type State = {
-  mode: Mode
+  mode: number
 };
 
 class LocalNode extends Component<Props, State> {
   state = {
-    mode: 'setup'
+    mode: localNodeModes.SETUP
   };
 
   render() {
     const { mode } = this.state;
-    const header = `Local Node${mode !== 'overview' ? ' Setup' : ''}`;
+    const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
     return (
       <Container>
         <Header>{header}</Header>
         <BodyWrapper>
           <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-          <RightPaneWrapper>
-            <RightPane mode={mode} />
-          </RightPaneWrapper>
+          <RightPane mode={mode} />
         </BodyWrapper>
       </Container>
     );
   }
 
-  renderLeftPane = (mode: Mode) => {
+  renderLeftPane = (mode: number) => {
     switch (mode) {
-      case 'setup':
+      case localNodeModes.SETUP:
         return <LeftPaneSetup toMode={this.handleModeChange} {...this.props} />;
-      case 'progress':
+      case localNodeModes.PROGRESS:
         return <div>{mode} mode test</div>;
-      case 'overview':
+      case localNodeModes.OVERVIEW:
         return <div>{mode} mode test</div>;
       default:
         return null;
     }
   };
 
-  handleModeChange = (mode: Mode) => {
+  handleModeChange = (mode: number) => {
     this.setState({ mode });
   };
 }
