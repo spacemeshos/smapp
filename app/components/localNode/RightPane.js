@@ -67,13 +67,13 @@ const Actionable = css`
 `;
 
 // $FlowStyledIssue
-export const BaseImage = styled.img`
+const BaseImage = styled.img`
   height: ${({ height }) => (height ? `${height}px` : '100%')};
   width: ${({ width }) => (width ? `${width}px` : '100%')};
 `;
 
 // $FlowStyledIssue
-export const ImageWrapper = styled.div`
+const ImageWrapper = styled.div`
   ${({ maxHeight }) =>
     maxHeight &&
     `
@@ -93,13 +93,13 @@ export const ImageWrapper = styled.div`
   padding: 12px;
 `;
 
-export const ItemTextWrapper = styled.div`
+const ItemTextWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-self: center;
 `;
 
-export const RightPaneInner = styled.div`
+const RightPaneInner = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -110,26 +110,30 @@ export const RightPaneInner = styled.div`
   min-width: 388px;
 `;
 
-export const RightHeaderText = styled.span`
+const RightHeaderText = styled.span`
   font-size: 14px;
   font-weight: bold;
   padding: 0 12px 12px 12px;
   line-height: 22px;
 `;
 
-export const ItemText = styled(BaseText)`
+const ItemText = styled(BaseText)`
   color: ${smColors.black};
 `;
 
-export const LinkTextWrapper = styled.div`
+const LinkTextWrapper = styled.div`
   padding: 10px;
 `;
 
-export const ActionLink = styled(BaseText)`
+const ActionLink = styled(BaseText)`
   user-select: none;
   color: ${smColors.green};
   cursor: pointer;
   ${Actionable}
+`;
+
+const LinksWrapper = styled.div`
+  max-height: 126px;
 `;
 
 type Props = {
@@ -144,11 +148,13 @@ class RightPane extends PureComponent<Props> {
         {this.renderTopImage(mode)}
         <RightHeaderText>{getHeader(mode)}</RightHeaderText>
         {this.renderCenterContent(mode)}
-        {this.links(mode).map((setupLink) => (
-          <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
-            <ActionLink>{setupLink.text}</ActionLink>
-          </LinkTextWrapper>
-        ))}
+        <LinksWrapper>
+          {this.generateLinks(mode).map((setupLink) => (
+            <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
+              <ActionLink>{setupLink.text}</ActionLink>
+            </LinkTextWrapper>
+          ))}
+        </LinksWrapper>
       </RightPaneInner>
     );
   }
@@ -172,20 +178,17 @@ class RightPane extends PureComponent<Props> {
     }
   };
 
-  renderSetupItems = () => (
-    <React.Fragment>
-      {items.map((setupListItem) => (
-        <SettingModeListItem key={setupListItem.text}>
-          <ItemImageWrapper>
-            <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
-          </ItemImageWrapper>
-          <ItemTextWrapper>
-            <ItemText>{setupListItem.text}</ItemText>
-          </ItemTextWrapper>
-        </SettingModeListItem>
-      ))}
-    </React.Fragment>
-  );
+  renderSetupItems = () =>
+    items.map((setupListItem) => (
+      <SettingModeListItem key={setupListItem.text}>
+        <ItemImageWrapper>
+          <BaseImage src={setupListItem.iconSrc} width={42} height={42} />
+        </ItemImageWrapper>
+        <ItemTextWrapper>
+          <ItemText>{setupListItem.text}</ItemText>
+        </ItemTextWrapper>
+      </SettingModeListItem>
+    ));
 
   renderCenterContent = (mode: number) => {
     switch (mode) {
@@ -204,62 +207,6 @@ class RightPane extends PureComponent<Props> {
     }
   };
 
-  setupLinks = [
-    {
-      text: 'Learn more about Spacemesh Local Node',
-      onClick: this.navigateToExplanation
-    },
-    {
-      text: 'Show computer effort',
-      onClick: this.showComputationEffort
-    },
-    {
-      text: 'Change your awards Local Node address',
-      onCLick: this.changeLocalNodeRewardAddress
-    }
-  ];
-
-  progressLinks = [
-    {
-      text: 'Learn more about Spacemesh Local Node',
-      onClick: this.navigateToExplanation
-    },
-    {
-      text: 'Show computer effort',
-      onClick: this.showComputationEffort
-    }
-  ];
-
-  overviewLinks = [
-    {
-      text: 'Learn more about Spacemesh Local Node',
-      onClick: this.navigateToExplanation
-    },
-    {
-      text: 'Show computer effort',
-      onClick: this.showComputationEffort
-    },
-    {
-      text: 'Change Local Node Settings',
-      onCLick: this.changeLocalNodeSettings
-    }
-  ];
-
-  links = (mode: number) => {
-    switch (mode) {
-      case localNodeModes.SETUP:
-        return this.setupLinks;
-      case localNodeModes.PROGRESS: {
-        return this.progressLinks;
-      }
-      case localNodeModes.OVERVIEW: {
-        return this.overviewLinks;
-      }
-      default:
-        return null;
-    }
-  };
-
   navigateToExplanation = () => {};
 
   changeLocalNodeRewardAddress = () => {};
@@ -267,6 +214,56 @@ class RightPane extends PureComponent<Props> {
   showComputationEffort = () => {};
 
   changeLocalNodeSettings = () => {};
+
+  generateLinks = (mode: number) => {
+    switch (mode) {
+      case localNodeModes.SETUP:
+        return [
+          {
+            text: 'Learn more about Spacemesh Local Node',
+            onClick: this.navigateToExplanation
+          },
+          {
+            text: 'Show computer effort',
+            onClick: this.showComputationEffort
+          },
+          {
+            text: 'Change your awards Local Node address',
+            onCLick: this.changeLocalNodeRewardAddress
+          }
+        ];
+      case localNodeModes.PROGRESS: {
+        return [
+          {
+            text: 'Learn more about Spacemesh Local Node',
+            onClick: this.navigateToExplanation
+          },
+          {
+            text: 'Show computer effort',
+            onClick: this.showComputationEffort
+          }
+        ];
+      }
+      case localNodeModes.OVERVIEW: {
+        return [
+          {
+            text: 'Learn more about Spacemesh Local Node',
+            onClick: this.navigateToExplanation
+          },
+          {
+            text: 'Show computer effort',
+            onClick: this.showComputationEffort
+          },
+          {
+            text: 'Change Local Node Settings',
+            onCLick: this.changeLocalNodeSettings
+          }
+        ];
+      }
+      default:
+        return [];
+    }
+  };
 }
 
 export default RightPane;
