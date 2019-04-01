@@ -132,6 +132,10 @@ const ActionLink = styled(BaseText)`
   ${Actionable}
 `;
 
+const LinksWrapper = styled.div`
+  max-height: 126px;
+`;
+
 type Props = {
   mode: number
 };
@@ -144,11 +148,13 @@ class RightPane extends PureComponent<Props> {
         {this.renderTopImage(mode)}
         <RightHeaderText>{getHeader(mode)}</RightHeaderText>
         {this.renderCenterContent(mode)}
-        {this.links(mode).map((setupLink) => (
-          <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
-            <ActionLink>{setupLink.text}</ActionLink>
-          </LinkTextWrapper>
-        ))}
+        <LinksWrapper>
+          {this.links(mode).map((setupLink) => (
+            <LinkTextWrapper key={setupLink.text} onClick={setupLink.onClick}>
+              <ActionLink>{setupLink.text}</ActionLink>
+            </LinkTextWrapper>
+          ))}
+        </LinksWrapper>
       </RightPaneInner>
     );
   }
