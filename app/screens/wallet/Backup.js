@@ -1,17 +1,8 @@
 // @flow
 import React, { Component } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
-
-const Actionable = css`
-  &:hover {
-    opacity: 0.8;
-  }
-  &:active {
-    opacity: 0.6;
-  }
-`;
 
 const Wrapper = styled.div`
   width: 100%;
@@ -19,7 +10,6 @@ const Wrapper = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  justify-content: space-between;
   padding: 50px;
 `;
 
@@ -38,8 +28,17 @@ const BaseText = styled.span`
   color: ${smColors.lighterBlack};
 `;
 
-const BoldText = styled(BaseText)`
+const TextContentSection = styled(BaseText)`
+  margin-bottom: 42px;
+`;
+
+const SubHeader = styled(BaseText)`
+  margin-bottom: 24px;
+`;
+
+const BoldBackupOptiosHeader = styled(BaseText)`
   font-weight: bold;
+  margin-bottom: 24px;
 `;
 
 const GrayText = styled(BaseText)`
@@ -48,22 +47,27 @@ const GrayText = styled(BaseText)`
 
 const Separator = styled.div`
   border-bottom: 1px solid ${smColors.borderGray};
-  margin: 12px 0;
+  margin-bottom: 24px;
 `;
 
 const BackupBoxesWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin: 12px 0;
+  margin-bottom: 24px;
 `;
 
 // $FlowStyledIssue
 const ActionLink = styled(BaseText)`
   user-select: none;
-  color: ${({ theme }) => (theme === 'orange' ? smColors.orange : smColors.green)};
+  color: ${({ color }) => color};
   cursor: pointer;
-  ${Actionable}
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
 `;
 
 // $FlowStyledIssue
@@ -71,14 +75,7 @@ const BackupBox = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  ${({ borderColor }) =>
-    borderColor &&
-    `
-    border: 1px solid ${borderColor};
-    
-    `}
-  /* max-width: 468px; */
-  height: 384px;
+  border: 1px solid ${({ borderColor }) => borderColor};
   flex: 1;
   &:first-child {
     margin-right: 16px;
@@ -91,6 +88,7 @@ const BackupTopWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  margin-bottom: 40px;
 `;
 
 const SecurityLogo = styled.img`
@@ -117,6 +115,15 @@ const Recommended = styled.div`
   padding-left: 24px;
 `;
 
+const bodyText = {
+  file: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
+  mnemonic: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.'
+};
+const noteText = {
+  file: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
+  mnemonic: 'NOTE: Works even if you lost your passphrase or wallet backup file'
+};
+
 type Props = {};
 
 class Backup extends Component<Props> {
@@ -124,38 +131,30 @@ class Backup extends Component<Props> {
     return (
       <Wrapper>
         <Header>Wallet Backup</Header>
-        <BaseText>Your wallet file is encrypted with your passphrase on your computer, but We recommend that you’ll backup your wallet for additional security.</BaseText>
+        <SubHeader>Your wallet file is encrypted with your passphrase on your computer, but We recommend that you’ll backup your wallet for additional security.</SubHeader>
         <Separator />
-        <BoldText>How would you like to backup your wallet?</BoldText>
+        <BoldBackupOptiosHeader>How would you like to backup your wallet?</BoldBackupOptiosHeader>
         <BackupBoxesWrapper>
           {this.renderBackupBox('file')}
           {this.renderBackupBox('mnemonic')}
         </BackupBoxesWrapper>
-        <ActionLink onClick={this.learnMoreAboutSecurity}>Learn more about wallet security and backup</ActionLink>
+        <ActionLink onClick={this.learnMoreAboutSecurity} color={smColors.green}>
+          Learn more about wallet security and backup
+        </ActionLink>
       </Wrapper>
     );
   }
 
   renderBackupBox = (mode: 'file' | 'mnemonic') => {
-    const shieldLogo = mode === 'file' ? shieldIconGreenOne : shieldIconOrangeTwo;
-    const securityLevel = `${mode === 'file' ? 'Basic' : 'Enhanced'} Security`;
-    const backupMode = `${mode === 'file' ? 'File' : '12 Words'} Backup`;
-    const bodyText = {
-      file: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
-      mnemonic: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.'
-    };
-    const noteText = {
-      file: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
-      mnemonic: 'NOTE: Works even if you lost your passphrase or wallet backup file'
-    };
-    const linkText = mode === 'file' ? 'Show me the wallet file' : 'Create a paper backup';
-    const linkActions = {
-      file: this.showWalletFile,
-      mnemonic: this.createPaperBackup
-    };
+    const isFileMode = mode === 'file';
+    const shieldLogo = isFileMode ? shieldIconGreenOne : shieldIconOrangeTwo;
+    const securityLevel = `${isFileMode ? 'Basic' : 'Enhanced'} Security`;
+    const backupMode = `${isFileMode ? 'File' : '12 Words'} Backup`;
+    const linkText = isFileMode ? 'Show me the wallet file' : 'Create a paper backup';
+    const linkAction = isFileMode ? this.showWalletFile : this.createPaperBackup;
 
     return (
-      <BackupBox borderColor={mode === 'file' ? smColors.green : smColors.orange}>
+      <BackupBox borderColor={isFileMode ? smColors.green : smColors.orange}>
         <BackupTopWrapper>
           <SecurityLogo src={shieldLogo} />
           <BackupTitleWrapper>
@@ -168,9 +167,9 @@ class Backup extends Component<Props> {
             </Recommended>
           )}
         </BackupTopWrapper>
-        <BaseText>{bodyText[mode]}</BaseText>
-        <BaseText>{noteText[mode]}</BaseText>
-        <ActionLink onClick={linkActions[mode]} theme={mode === 'file' ? 'green' : 'orange'}>
+        <TextContentSection>{bodyText[mode]}</TextContentSection>
+        <TextContentSection>{noteText[mode]}</TextContentSection>
+        <ActionLink onClick={linkAction} color={isFileMode ? smColors.green : smColors.orange}>
           {linkText}
         </ActionLink>
       </BackupBox>
