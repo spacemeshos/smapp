@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { time, coin, noLaptop, miner, thinking } from '/assets/images';
+import { time, coin, noLaptop, miner, thinking, hardDriveIcon } from '/assets/images';
 import { smColors, localNodeModes } from '/vars';
 
 const items = [
@@ -17,7 +17,7 @@ const items = [
     text: 'Do not use a laptop. Only desktop'
   },
   {
-    iconSrc: time,
+    iconSrc: hardDriveIcon,
     text: 'On the Spacemesh network, storage replaces "Proof of Work"'
   }
 ];

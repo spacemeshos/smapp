@@ -35,3 +35,4 @@ export { default as time } from './time@2x.png';
 export { default as coin } from './coin@2x.png';
 export { default as xWhite } from './x_white@2x.png';
 export { default as contactIcon } from './contact@2x.png';
+export { default as hardDriveIcon } from './hardrive_icon@2x.png';
