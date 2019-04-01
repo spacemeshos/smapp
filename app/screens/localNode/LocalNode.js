@@ -1,8 +1,8 @@
 // @flow
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
 import styled from 'styled-components';
-import routes from '/routes';
+import { smColors, localNodeModes } from '/vars';
+import { LeftPaneSetup, LeftPane, RightPane } from '/components/localNode';
 
 const Container = styled.div`
   width: 100%;
@@ -10,22 +10,66 @@ const Container = styled.div`
   padding: 60px 90px;
 `;
 
-class LocalNode extends Component<{}> {
+const BodyWrapper = styled.div`
+  display: flex;
+  height: 100%;
+`;
+
+const Header = styled.span`
+  font-size: 31px;
+  font-weight: bold;
+  color: ${smColors.darkGray};
+  line-height: 42px;
+`;
+
+const LeftPaneWrapper = styled.div`
+  text-align: left;
+  flex: 2;
+  padding: 24px 0;
+  margin-right: 32px;
+`;
+
+type Props = {};
+
+type State = {
+  mode: number
+};
+
+class LocalNode extends Component<Props, State> {
+  state = {
+    mode: localNodeModes.SETUP
+  };
+
   render() {
-    // TODO: set local node startup status
-    const mode: 'setup' | 'ready' = 'setup';
-    const initialPath = `/main/local-node/local-node${mode === 'setup' ? '-setup' : '-ready'}`;
+    const { mode } = this.state;
+    const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
     return (
       <Container>
-        <Switch>
-          {routes.localNode.map((route) => (
-            <Route key={route.path} path={route.path} component={route.component} />
-          ))}
-          <Redirect to={initialPath} />
-        </Switch>
+        <Header>{header}</Header>
+        <BodyWrapper>
+          <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
+          <RightPane mode={mode} />
+        </BodyWrapper>
       </Container>
     );
   }
+
+  renderLeftPane = (mode: number) => {
+    switch (mode) {
+      case localNodeModes.SETUP:
+        return <LeftPaneSetup switchMode={this.handleModeChange} />;
+      case localNodeModes.PROGRESS:
+        return <LeftPane isInProgress switchMode={this.handleModeChange} />;
+      case localNodeModes.OVERVIEW:
+        return <LeftPane isInProgress={false} switchMode={this.handleModeChange} />;
+      default:
+        return null;
+    }
+  };
+
+  handleModeChange = (mode: number) => {
+    this.setState({ mode });
+  };
 }
 
 export default LocalNode;

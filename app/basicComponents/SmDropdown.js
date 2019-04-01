@@ -58,6 +58,7 @@ const HeaderWrapper = styled(StyledAction)`
 const Icon = styled.img`
   height: 6px;
   width: 10px;
+  margin-left: 4px;
   transform: rotate(${({ isOpened }) => (isOpened ? '0' : '180')}deg);
   transition: transform 0.2s linear;
 `;
