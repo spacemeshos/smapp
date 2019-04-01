@@ -28,7 +28,7 @@ const Header = styled.span`
   font-weight: bold;
   line-height: 42px;
   color: ${smColors.lighterBlack};
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 `;
 
 const BaseText = styled.span`
@@ -49,7 +49,7 @@ const Separator = styled.div`
 const BackupBoxesWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
   margin: 12px 0;
 `;
 
@@ -72,14 +72,14 @@ const BackupBox = styled.div`
     border: 1px solid ${borderColor};
     
     `}
-  max-width: 468px;
+  /* max-width: 468px; */
   height: 384px;
   flex: 1;
   &:first-child {
     margin-right: 16px;
   }
   border-radius: 2px;
-  padding: 20px;
+  padding: 24px 18px;
 `;
 
 const BackupTopWrapper = styled.div`
