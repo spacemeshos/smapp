@@ -6,51 +6,49 @@ import { smColors, localNodeModes } from '/vars';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
 
-const BaseText = styled.span`
-  font-size: 16px;
-  font-weight: normal;
-  line-height: 22px;
-`;
-
-const LeftPaneInner = styled.div`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
 `;
 
-const BoldText = styled(BaseText)`
+const SubHeader = styled.div`
+  font-size: 16px;
+  line-height: 22px;
   font-weight: bold;
-`;
-
-const LeftHeaderWrapper = styled.div`
+  color: ${smColors.lighterBlack};
   margin-bottom: 20px;
 `;
 
-const GrayTextWrapper = styled.div`
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
-
-const GrayText = styled(BaseText)`
-  color: ${smColors.gray};
-`;
-
-const BorderlessLeftPaneRow = styled.div`
+const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   margin-bottom: 40px;
 `;
 
-const SideLabelWrapper = styled.div`
+const LabelWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 2;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 20px;
+  font-size: 16px;
+  color: ${smColors.lighterBlack};
+`;
+
+const BottomWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 2;
-  justify-content: center;
-  margin-left: 20px;
+`;
+
+const GrayText = styled.div`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.lighterBlack50Alpha};
+  margin-bottom: 20px;
 `;
 
 // TODO: Test stub
@@ -100,47 +98,37 @@ class LeftPaneSetup extends Component<Props, State> {
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
 
     return (
-      <LeftPaneInner>
-        <LeftHeaderWrapper>
-          <BoldText>Select Drive</BoldText>
-        </LeftHeaderWrapper>
-        <BorderlessLeftPaneRow>
+      <Wrapper>
+        <SubHeader>Select Drive</SubHeader>
+        <Row>
           <SmDropdown data={drives} selectedItemIndex={selectedDriveIndex} onPress={this.handleSelectDrive} />
-          {selectedDriveIndex !== -1 && (
-            <SideLabelWrapper>
-              <BaseText>You have {availableDiskSpace && availableDiskSpace.readable} free on your drive</BaseText>
-            </SideLabelWrapper>
-          )}
-        </BorderlessLeftPaneRow>
-        <LeftHeaderWrapper>
-          <BoldText>Choose how much storage to allocate for the local node</BoldText>
-        </LeftHeaderWrapper>
-        <BorderlessLeftPaneRow>
+          <LabelWrapper>{selectedDriveIndex !== -1 && `You have ${availableDiskSpace && availableDiskSpace.readable} free on your drive`}</LabelWrapper>
+        </Row>
+        <SubHeader>Choose how much storage to allocate for the local node</SubHeader>
+        <Row>
           <SmDropdown data={capacityAllocationsList} selectedItemIndex={selectedCapacityIndex} onPress={this.handleSelectCapacity} />
-          {selectedCapacityIndex !== -1 && (
-            <SideLabelWrapper>
-              <BaseText>
+          <LabelWrapper>
+            {selectedCapacityIndex !== -1 && (
+              <React.Fragment>
                 earn ~ {getProjectedSmcEarnings(capacityAllocationsList[selectedCapacityIndex].id)} SMC each week*{' '}
                 <GrayText> = {fiatRate * capacityAllocationsList[selectedCapacityIndex].id} USD*</GrayText>
-              </BaseText>
-            </SideLabelWrapper>
-          )}
-        </BorderlessLeftPaneRow>
-        <GrayTextWrapper>
-          <BorderlessLeftPaneRow>
-            <GrayText>* estimated SMC may change based on how many nodes join the network with storage commitment.</GrayText>
-          </BorderlessLeftPaneRow>
-          <BorderlessLeftPaneRow>
-            <GrayText>- You can always commit more storage at a later time</GrayText>
-          </BorderlessLeftPaneRow>
-          <BorderlessLeftPaneRow>
-            <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
-          </BorderlessLeftPaneRow>
-          <BorderlessLeftPaneRow>
-            <SmButton text="Start Setup" theme="orange" isDisabled={!(selectedCapacityIndex !== -1 && selectedDriveIndex !== -1)} onPress={this.handleStartSetup} />
-          </BorderlessLeftPaneRow>
-        </GrayTextWrapper>
-      </LeftPaneInner>
+              </React.Fragment>
+            )}
+          </LabelWrapper>
+        </Row>
+        <BottomWrapper>
+          <GrayText>* estimated SMC may change based on how many nodes join the network with storage commitment.</GrayText>
+          <GrayText>- You can always commit more storage at a later time</GrayText>
+          <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
+          <SmButton
+            text="Start Setup"
+            theme="orange"
+            isDisabled={!(selectedCapacityIndex !== -1 && selectedDriveIndex !== -1)}
+            onPress={this.handleStartSetup}
+            style={{ width: 170, marginTop: 50 }}
+          />
+        </BottomWrapper>
+      </Wrapper>
     );
   }
 

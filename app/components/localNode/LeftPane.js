@@ -4,29 +4,20 @@ import { connect } from 'react-redux';
 import { resetNodeSettings } from '/redux/localNode/actions';
 import { LoadingBar, LocalNodeLog, LocalNodeStatus } from '/components/localNode';
 import { SmButton } from '/basicComponents';
-import { smColors, localNodeModes } from '/vars';
+import { localNodeModes } from '/vars';
 import type { Action } from '/types';
 
-const LeftPaneInner = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+const Wrapper = styled.div`
   height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 `;
 
-const LeftPaneRow = styled.div`
+const Header = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
-  padding: 22px 0;
-  border-bottom: 1px solid ${smColors.borderGray};
-  width: inherit;
-  height: 62px;
-`;
-
-const BottomPaddedRow = styled(LeftPaneRow)`
-  padding-top: 0;
-  padding-bottom: 72px;
+  margin-bottom: 30px;
 `;
 
 type Props = {
@@ -43,14 +34,14 @@ class LeftPane extends Component<Props> {
     const { capacity, isInProgress } = this.props;
     const status = isInProgress ? 'Connecting' : 'Active and Connected';
     return (
-      <LeftPaneInner>
-        <BottomPaddedRow>
+      <Wrapper>
+        <Header>
           <LoadingBar isLoading={isInProgress} capacity={(capacity && capacity.label) || ''} status={status} />
-          <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
-        </BottomPaddedRow>
+          <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ marginLeft: 20 }} />
+        </Header>
         <LocalNodeStatus />
         <LocalNodeLog />
-      </LeftPaneInner>
+      </Wrapper>
     );
   }
 

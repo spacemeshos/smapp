@@ -58,7 +58,6 @@ const HeaderWrapper = styled(StyledAction)`
 const Icon = styled.img`
   height: 6px;
   width: 10px;
-  margin-left: 4px;
   transform: rotate(${({ isOpened }) => (isOpened ? '0' : '180')}deg);
   transition: transform 0.2s linear;
 `;
@@ -88,6 +87,7 @@ const Text = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: inherit;
+  margin-right: 10px;
 `;
 
 // $FlowStyledIssue
@@ -129,10 +129,10 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
   render() {
     const { data, selectedItemIndex, isDisabled, placeholder } = this.props;
     const { isOpened } = this.state;
-
+    const isDisabledComputed = isDisabled || !data || !data.length;
     return (
-      <Wrapper isDisabled={isDisabled}>
-        <HeaderWrapper isOpened={isOpened} onClick={isDisabled ? null : this.handleToggle}>
+      <Wrapper isDisabled={isDisabledComputed}>
+        <HeaderWrapper isOpened={isOpened} onClick={isDisabledComputed ? null : this.handleToggle}>
           <Text isDisabled={isDisabled}>{selectedItemIndex !== -1 ? data[selectedItemIndex].label : placeholder}</Text>
           <Icon isOpened={isOpened} src={isOpened ? openDDIcon : openDDIconDisabled} />
         </HeaderWrapper>

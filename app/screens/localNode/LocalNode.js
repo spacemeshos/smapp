@@ -12,21 +12,21 @@ const Container = styled.div`
 
 const BodyWrapper = styled.div`
   display: flex;
-  height: 100%;
+  flex-direction: row;
 `;
 
-const Header = styled.span`
+const Header = styled.div`
   font-size: 31px;
   font-weight: bold;
-  color: ${smColors.darkGray};
+  color: ${smColors.lighterBlack};
   line-height: 42px;
 `;
 
 const LeftPaneWrapper = styled.div`
   text-align: left;
   flex: 2;
-  padding: 24px 0;
-  margin-right: 32px;
+  padding: 30px 0;
+  margin-right: 30px;
 `;
 
 type Props = {};

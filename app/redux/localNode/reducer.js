@@ -1,5 +1,6 @@
 // @flow
 import type { Action } from '/types';
+import { LOGOUT } from '/redux/auth/actions';
 import { SET_ALLOCATION, RESET_NODE_SETTINGS, GET_DRIVES_LIST, GET_AVAILABLE_DISK_SPACE } from './actions';
 
 const initialState = {
@@ -30,6 +31,7 @@ const reducer = (state: any = initialState, action: Action) => {
       } = action;
       return { ...state, availableDiskSpace, capacityAllocationsList };
     }
+    case LOGOUT:
     case RESET_NODE_SETTINGS:
       return initialState;
     default:
