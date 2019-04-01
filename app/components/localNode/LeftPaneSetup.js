@@ -1,26 +1,41 @@
-// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
-import { getFiatRate } from '/redux/wallet/actions';
-import { BaseText, BoldText, LeftPaneInner, GrayText, LocalNodeBase, RightPaneSetup } from '/components/localNode';
+import { smColors, localNodeModes } from '/vars';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
 
-// Test stub
-const getProjectedSmcEarnings = (capacity: number | string) => {
-  if (typeof capacity === 'string') {
-    return 4;
-  } else {
-    return +(capacity * 0.00000001).toFixed(2);
-  }
-};
+const BaseText = styled.span`
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 22px;
+`;
 
-const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
+const LeftPaneInner = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+`;
+
+const BoldText = styled(BaseText)`
+  font-weight: bold;
+`;
 
 const LeftHeaderWrapper = styled.div`
   margin-bottom: 20px;
+`;
+
+const GrayTextWrapper = styled.div`
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const GrayText = styled(BaseText)`
+  color: ${smColors.gray};
 `;
 
 const BorderlessLeftPaneRow = styled.div`
@@ -38,15 +53,19 @@ const SideLabelWrapper = styled.div`
   margin-left: 20px;
 `;
 
-const GrayTextWrapper = styled.div`
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-`;
+// TODO: Test stub
+const getProjectedSmcEarnings = (capacity: number | string) => {
+  if (typeof capacity === 'string') {
+    return 4;
+  } else {
+    return +(capacity * 0.00000001).toFixed(2);
+  }
+};
+
+const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
 
 type Props = {
-  history: any,
+  switchMode: (mode: number) => void,
   drives: any[],
   capacity: any,
   capacityAllocationsList: any[],
@@ -54,7 +73,6 @@ type Props = {
   availableDiskSpace: { bytes: number, readable: string },
   setLocalNodeStorage: Action,
   getDrivesList: Action,
-  getFiatRate: Action,
   getAvailableSpace: Action,
   fiatRate: number
 };
@@ -64,10 +82,10 @@ type State = {
   selectedCapacityIndex: number
 };
 
-class LocalNodeSetupPage extends Component<Props, State> {
+class LeftPaneSetup extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { getFiatRate, getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
+    const { getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
     const selectedDriveIndex = getElementIndex(drives, drive);
     const selectedCapacityIndex = getElementIndex(capacityAllocationsList, capacity);
     this.state = {
@@ -75,32 +93,9 @@ class LocalNodeSetupPage extends Component<Props, State> {
       selectedDriveIndex
     };
     getDrivesList();
-    getFiatRate();
   }
 
   render() {
-    return <LocalNodeBase header="Local Node Setup" leftPane={this.renderLeftPane()} rightPane={this.renderRightPane()} />;
-  }
-
-  renderRightPane = () => {
-    const links = [
-      {
-        text: 'Learn more about Spacemesh Local Node',
-        onClick: this.navigateToExplanation
-      },
-      {
-        text: 'Change your awards Local Node address',
-        onCLick: this.changeLocalNodeRewardAddress
-      },
-      {
-        text: 'Show computer effort',
-        onClick: this.showComputationEffort
-      }
-    ];
-    return <RightPaneSetup links={links} />;
-  };
-
-  renderLeftPane = () => {
     const { drives, capacityAllocationsList, availableDiskSpace, fiatRate } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
 
@@ -147,13 +142,13 @@ class LocalNodeSetupPage extends Component<Props, State> {
         </GrayTextWrapper>
       </LeftPaneInner>
     );
-  };
+  }
 
   handleStartSetup = () => {
-    const { setLocalNodeStorage, history, drives, capacityAllocationsList } = this.props;
+    const { setLocalNodeStorage, drives, capacityAllocationsList, switchMode } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
     setLocalNodeStorage({ capacity: capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
-    history.push('/main/local-node/local-node-loading');
+    switchMode(localNodeModes.PROGRESS);
   };
 
   handleSelectDrive = ({ index }: { index: number }) => {
@@ -164,12 +159,6 @@ class LocalNodeSetupPage extends Component<Props, State> {
   };
 
   handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
-
-  navigateToExplanation = () => {};
-
-  changeLocalNodeRewardAddress = () => {};
-
-  showComputationEffort = () => {};
 }
 
 const mapStateToProps = (state) => ({
@@ -184,13 +173,12 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   setLocalNodeStorage,
   getDrivesList,
-  getAvailableSpace,
-  getFiatRate
+  getAvailableSpace
 };
 
-LocalNodeSetupPage = connect(
+LeftPaneSetup = connect(
   mapStateToProps,
   mapDispatchToProps
-)(LocalNodeSetupPage);
+)(LeftPaneSetup);
 
-export default LocalNodeSetupPage;
+export default LeftPaneSetup;

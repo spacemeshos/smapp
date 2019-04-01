@@ -1,6 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
-import { BaseText, BoldText, LeftPaneRow } from './LocalNodeCommonComponents';
+import { smColors } from '/vars';
+
+const LeftPaneRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 22px 0;
+  border-bottom: 1px solid ${smColors.borderGray};
+  width: inherit;
+  height: 62px;
+`;
+
+const BaseText = styled.span`
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 22px;
+`;
+
+const BoldText = styled(BaseText)`
+  font-weight: bold;
+`;
 
 const StatusSection = styled.div`
   display: flex;

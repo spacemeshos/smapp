@@ -7,4 +7,10 @@ const authModes = {
   RESTORE: 4
 };
 
-export { authModes };
+const localNodeModes = {
+  SETUP: 1,
+  PROGRESS: 2,
+  OVERVIEW: 3
+};
+
+export { authModes, localNodeModes };
