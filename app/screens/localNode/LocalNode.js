@@ -1,12 +1,8 @@
 // @flow
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { setLocalNodeStorage, getDrivesList, getAvailableSpace, resetNodeSettings } from '/redux/localNode/actions';
-import { getFiatRate } from '/redux/wallet/actions';
 import styled from 'styled-components';
 import { smColors, localNodeModes } from '/vars';
 import { LeftPaneSetup, LeftPane, RightPane } from '/components/localNode';
-import type { Action } from '/types';
 
 const Container = styled.div`
   width: 100%;
@@ -33,19 +29,7 @@ const LeftPaneWrapper = styled.div`
   margin-right: 32px;
 `;
 
-type Props = {
-  drives: any[],
-  capacity: any,
-  capacityAllocationsList: any[],
-  drive: any,
-  availableDiskSpace: { bytes: number, readable: string },
-  setLocalNodeStorage: Action,
-  getDrivesList: Action,
-  resetNodeSettings: Action,
-  getFiatRate: Action,
-  getAvailableSpace: Action,
-  fiatRate: number
-};
+type Props = {};
 
 type State = {
   mode: number
@@ -73,11 +57,11 @@ class LocalNode extends Component<Props, State> {
   renderLeftPane = (mode: number) => {
     switch (mode) {
       case localNodeModes.SETUP:
-        return <LeftPaneSetup toMode={this.handleModeChange} {...this.props} />;
+        return <LeftPaneSetup switchMode={this.handleModeChange} />;
       case localNodeModes.PROGRESS:
-        return <LeftPane inProgress toMode={this.handleModeChange} {...this.props} />;
+        return <LeftPane isInProgress switchMode={this.handleModeChange} />;
       case localNodeModes.OVERVIEW:
-        return <LeftPane inProgress={false} toMode={this.handleModeChange} {...this.props} />;
+        return <LeftPane isInProgress={false} switchMode={this.handleModeChange} />;
       default:
         return null;
     }
@@ -87,27 +71,5 @@ class LocalNode extends Component<Props, State> {
     this.setState({ mode });
   };
 }
-
-const mapStateToProps = (state) => ({
-  capacity: state.localNode.capacity,
-  capacityAllocationsList: state.localNode.capacityAllocationsList,
-  drive: state.localNode.drive,
-  drives: state.localNode.drives,
-  availableDiskSpace: state.localNode.availableDiskSpace,
-  fiatRate: state.wallet.fiatRate
-});
-
-const mapDispatchToProps = {
-  setLocalNodeStorage,
-  getDrivesList,
-  getAvailableSpace,
-  getFiatRate,
-  resetNodeSettings
-};
-
-LocalNode = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LocalNode);
 
 export default LocalNode;

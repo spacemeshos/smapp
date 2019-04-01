@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { smColors, localNodeModes } from '/vars';
-import { SmButton } from '/basicComponents';
+import { connect } from 'react-redux';
+import { resetNodeSettings } from '/redux/localNode/actions';
 import { LoadingBar, LocalNodeLog, LocalNodeStatus } from '/components/localNode';
+import { SmButton } from '/basicComponents';
+import { smColors, localNodeModes } from '/vars';
 import type { Action } from '/types';
 
 const LeftPaneInner = styled.div`
@@ -28,8 +30,8 @@ const BottomPaddedRow = styled(LeftPaneRow)`
 `;
 
 type Props = {
-  inProgress: boolean,
-  toMode: Funtion,
+  isInProgress: boolean,
+  switchMode: (mode: number) => void,
   capacity: any,
   resetNodeSettings: Action
 };
@@ -38,12 +40,12 @@ class LeftPane extends Component<Props> {
   timer: any;
 
   render() {
-    const { capacity, inProgress } = this.props;
-    const status = inProgress ? 'Connecting' : 'Active and Connected';
+    const { capacity, isInProgress } = this.props;
+    const status = isInProgress ? 'Connecting' : 'Active and Connected';
     return (
       <LeftPaneInner>
         <BottomPaddedRow>
-          <LoadingBar isLoading={inProgress} capacity={(capacity && capacity.label) || ''} status={status} />
+          <LoadingBar isLoading={isInProgress} capacity={(capacity && capacity.label) || ''} status={status} />
           <SmButton theme="green" text="Stop" onPress={this.handleStopSetup} style={{ height: 44, marginLeft: 32 }} />
         </BottomPaddedRow>
         <LocalNodeStatus />
@@ -52,24 +54,36 @@ class LeftPane extends Component<Props> {
     );
   }
 
-  // Test
+  // TODO: Test
   componentDidMount() {
-    const { toMode } = this.props;
+    const { switchMode } = this.props;
     this.timer = setTimeout(() => {
-      toMode(localNodeModes.OVERVIEW);
+      switchMode(localNodeModes.OVERVIEW);
     }, 8000);
   }
 
   componentWillUnmount() {
     this.timer && clearTimeout(this.timer);
   }
-  // end test
 
   handleStopSetup = () => {
-    const { resetNodeSettings, toMode, inProgress } = this.props;
-    inProgress && resetNodeSettings();
-    toMode(localNodeModes.SETUP);
+    const { resetNodeSettings, switchMode, isInProgress } = this.props;
+    isInProgress && resetNodeSettings();
+    switchMode(localNodeModes.SETUP);
   };
 }
+
+const mapStateToProps = (state) => ({
+  capacity: state.localNode.capacity
+});
+
+const mapDispatchToProps = {
+  resetNodeSettings
+};
+
+LeftPane = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LeftPane);
 
 export default LeftPane;

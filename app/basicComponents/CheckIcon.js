@@ -13,8 +13,8 @@ type Props = {
   mode?: 'white' | 'green'
 };
 
-const CheckDone = ({ mode }: { mode?: 'white' | 'green' }) => {
-  return <Icon src={mode === 'white' ? checkWhite : checkGreen} alt="done" />;
+const CheckIcon = ({ mode }: { mode?: 'white' | 'green' }) => {
+  return <Icon src={mode === 'white' ? checkWhite : checkGreen} />;
 };
 
-export default memo<Props>(CheckDone);
+export default memo<Props>(CheckIcon);

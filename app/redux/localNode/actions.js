@@ -7,7 +7,7 @@ export const GET_DRIVES_LIST: string = 'GET_DRIVES_LIST';
 export const GET_AVAILABLE_DISK_SPACE: string = 'GET_AVAILABLE_DISK_SPACE';
 export const RESET_NODE_SETTINGS: string = 'RESET_NODE_SETTINGS';
 
-const getBytesfromGb = (Gb: number) => Gb * 1073741824;
+const getBytesFromGb = (Gb: number) => Gb * 1073741824;
 
 const getReadableSpace = (spaceInBytes: number) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -16,7 +16,7 @@ const getReadableSpace = (spaceInBytes: number) => {
   return `${Math.round(spaceInBytes / 1024 ** i)} ${sizes[i]}`;
 };
 
-const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesfromGb(150)) => {
+const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesFromGb(150)): Action => {
   const allocatedSpaceList = [];
   if (availableDiskSpace) {
     for (let i = increment; i < availableDiskSpace; i += increment) {
@@ -29,9 +29,7 @@ const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = 
   return allocatedSpaceList;
 };
 
-export const setLocalNodeStorage = ({ capacity, drive }: { capacity: ?number, drive: ?string }) => {
-  return { type: SET_ALLOCATION, payload: { capacity, drive } };
-};
+export const setLocalNodeStorage = ({ capacity, drive }: { capacity: ?number, drive: ?string }): Action => ({ type: SET_ALLOCATION, payload: { capacity, drive } });
 
 export const getDrivesList = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -59,8 +57,4 @@ export const getAvailableSpace = (path: string): Action => async (dispatch: Disp
   }
 };
 
-export const resetNodeSettings = () => {
-  return {
-    type: RESET_NODE_SETTINGS
-  };
-};
+export const resetNodeSettings = (): Action => ({ type: RESET_NODE_SETTINGS });

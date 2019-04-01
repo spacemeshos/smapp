@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
 import { smColors, localNodeModes } from '/vars';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
@@ -51,7 +53,7 @@ const SideLabelWrapper = styled.div`
   margin-left: 20px;
 `;
 
-// Test stub
+// TODO: Test stub
 const getProjectedSmcEarnings = (capacity: number | string) => {
   if (typeof capacity === 'string') {
     return 4;
@@ -63,7 +65,7 @@ const getProjectedSmcEarnings = (capacity: number | string) => {
 const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
 
 type Props = {
-  toMode: Funtion,
+  switchMode: (mode: number) => void,
   drives: any[],
   capacity: any,
   capacityAllocationsList: any[],
@@ -71,7 +73,6 @@ type Props = {
   availableDiskSpace: { bytes: number, readable: string },
   setLocalNodeStorage: Action,
   getDrivesList: Action,
-  getFiatRate: Action,
   getAvailableSpace: Action,
   fiatRate: number
 };
@@ -84,7 +85,7 @@ type State = {
 class LeftPaneSetup extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { getFiatRate, getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
+    const { getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
     const selectedDriveIndex = getElementIndex(drives, drive);
     const selectedCapacityIndex = getElementIndex(capacityAllocationsList, capacity);
     this.state = {
@@ -92,7 +93,6 @@ class LeftPaneSetup extends Component<Props, State> {
       selectedDriveIndex
     };
     getDrivesList();
-    getFiatRate();
   }
 
   render() {
@@ -145,10 +145,10 @@ class LeftPaneSetup extends Component<Props, State> {
   }
 
   handleStartSetup = () => {
-    const { setLocalNodeStorage, drives, capacityAllocationsList, toMode } = this.props;
+    const { setLocalNodeStorage, drives, capacityAllocationsList, switchMode } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
     setLocalNodeStorage({ capacity: capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
-    toMode(localNodeModes.PROGRESS);
+    switchMode(localNodeModes.PROGRESS);
   };
 
   handleSelectDrive = ({ index }: { index: number }) => {
@@ -160,5 +160,25 @@ class LeftPaneSetup extends Component<Props, State> {
 
   handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
 }
+
+const mapStateToProps = (state) => ({
+  capacity: state.localNode.capacity,
+  capacityAllocationsList: state.localNode.capacityAllocationsList,
+  drive: state.localNode.drive,
+  drives: state.localNode.drives,
+  availableDiskSpace: state.localNode.availableDiskSpace,
+  fiatRate: state.wallet.fiatRate
+});
+
+const mapDispatchToProps = {
+  setLocalNodeStorage,
+  getDrivesList,
+  getAvailableSpace
+};
+
+LeftPaneSetup = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LeftPaneSetup);
 
 export default LeftPaneSetup;

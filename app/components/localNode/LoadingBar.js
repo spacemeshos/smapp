@@ -1,13 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { Loader, CheckDone } from '/basicComponents';
-
-type LoadingBarProps = {
-  isLoading: boolean,
-  capacity: string,
-  status: string
-};
+import { Loader, CheckIcon } from '/basicComponents';
 
 const BaseText = styled.span`
   font-size: 16px;
@@ -34,13 +28,14 @@ const CapacityWrapper = styled.div`
   border-right: 1px solid ${smColors.borderGray};
   padding: 14px;
 `;
+
 const LabelWrapper = styled.div`
   text-align: left;
   padding: 14px 30px;
   flex: 1;
 `;
+
 const LoadingSpinnerWrapper = styled.div`
-  position: relative;
   padding: 8px;
 `;
 
@@ -58,6 +53,12 @@ const StatusText = styled(BaseText)`
   color: ${({ isReady }) => (isReady ? smColors.white : smColors.green)};
 `;
 
+type LoadingBarProps = {
+  isLoading: boolean,
+  capacity: string,
+  status: string
+};
+
 const LoadingBar = (props: LoadingBarProps) => {
   const { capacity, status, isLoading } = props;
   return (
@@ -68,14 +69,13 @@ const LoadingBar = (props: LoadingBarProps) => {
       <LabelWrapper isReady={!isLoading}>
         <StatusText>{status}</StatusText>
       </LabelWrapper>
-      {isLoading && (
+      {isLoading ? (
         <LoadingSpinnerWrapper>
-          <Loader isLoading />
+          <Loader />
         </LoadingSpinnerWrapper>
-      )}
-      {!isLoading && (
+      ) : (
         <CheckDoneWrapper>
-          <CheckDone mode="white" />
+          <CheckIcon mode="white" />
         </CheckDoneWrapper>
       )}
     </LoadingBarContainer>
