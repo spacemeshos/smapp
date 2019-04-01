@@ -35,10 +35,15 @@ const BaseText = styled.span`
   font-size: 16px;
   font-weight: normal;
   line-height: 22px;
+  color: ${smColors.lighterBlack};
 `;
 
 const BoldText = styled(BaseText)`
   font-weight: bold;
+`;
+
+const GrayText = styled(BaseText)`
+  color: ${smColors.darkGray};
 `;
 
 const Separator = styled.div`
@@ -98,7 +103,7 @@ const BackupHeader = styled.span`
   font-size: 24px;
   font-weight: bold;
   line-height: 33px;
-  color: ${smColors.lighterBlack};
+  color: ${smColors.darkGray};
 `;
 
 const BackupTitleWrapper = styled.div`
@@ -154,12 +159,12 @@ class Backup extends Component<Props> {
         <BackupTopWrapper>
           <SecurityLogo src={shieldLogo} />
           <BackupTitleWrapper>
-            <BaseText>{securityLevel}</BaseText>
+            <GrayText>{securityLevel}</GrayText>
             <BackupHeader>{backupMode}</BackupHeader>
           </BackupTitleWrapper>
           {mode === 'mnemonic' && (
             <Recommended>
-              <BaseText>recommended</BaseText>
+              <GrayText>Recommended</GrayText>
             </Recommended>
           )}
         </BackupTopWrapper>
