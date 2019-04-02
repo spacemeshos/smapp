@@ -1,10 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { cryptoService } from '/infra/cryptoService';
-import { fileSystemService } from '/infra/fileSystemService';
-import type { Wallet } from '/types';
+import { backupWallet } from '/redux/wallet/actions';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
 
@@ -148,8 +147,8 @@ const content = {
 };
 
 type Props = {
-  wallet: Wallet,
-  fileKey: string
+  backupWallet: Function,
+  history: RouterHistory
 };
 
 class Backup extends Component<Props> {
@@ -174,7 +173,7 @@ class Backup extends Component<Props> {
   }
 
   renderBackupBox = (mode: 'file' | '12words') => {
-    const linkAction = mode === 'file' ? this.backupWalletToFile : this.navigateTo12WordsBackup;
+    const linkAction = mode === 'file' ? this.backupWallet : this.navigateTo12WordsBackup;
     return (
       <BackupBox borderColor={content[mode].color}>
         <BackupTopWrapper>
@@ -196,26 +195,26 @@ class Backup extends Component<Props> {
 
   navigateTo12WordsBackup = () => {};
 
-  backupWalletToFile = () => {
-    const { wallet, fileKey } = this.props;
-    const walletCopy = Object.assign({}, wallet);
-    const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(walletCopy.crypto.cipherText), key: fileKey });
-    const encryptedWallet = { ...walletCopy, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
+  backupWallet = async () => {
+    const { backupWallet, history } = this.props;
     try {
-      fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
-    } catch (err) {
-      throw new Error(err);
+      await backupWallet();
+      history.goBack();
+    } catch (error) {
+      throw new Error(error);
     }
   };
 
   learnMoreAboutSecurity = () => {};
 }
 
-const mapStateToProps = (state) => ({
-  wallet: state.wallet.wallet,
-  fileKey: state.wallet.fileKey
-});
+const mapDispatchToProps = {
+  backupWallet
+};
 
-Backup = connect(mapStateToProps)(Backup);
+Backup = connect(
+  null,
+  mapDispatchToProps
+)(Backup);
 
 export default Backup;
