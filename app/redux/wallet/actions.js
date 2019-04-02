@@ -73,19 +73,6 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
   }
 };
 
-export const saveCurrentWallet = (): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const walletState = getState().wallet;
-  const { wallet, fileKey } = walletState;
-  const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(wallet.crypto.cipherText), key: fileKey });
-  const encryptedWallet = { ...wallet, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
-  try {
-    fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
-    dispatch(updateWalletData({ wallet }));
-  } catch (err) {
-    throw new Error(err);
-  }
-};
-
 export const incrementWalletNumber = (): Action => ({ type: INCREMENT_WALLET_NUMBER });
 
 export const incrementAccountNumber = (): Action => ({ type: INCREMENT_ACCOUNT_NUMBER });

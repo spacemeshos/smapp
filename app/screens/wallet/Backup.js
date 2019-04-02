@@ -2,8 +2,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { saveCurrentWallet } from '/redux/wallet/actions';
-import type { Action } from '/types';
+import { cryptoService } from '/infra/cryptoService';
+import { fileSystemService } from '/infra/fileSystemService';
+import type { Wallet } from '/types';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
 
@@ -146,7 +147,8 @@ const backupBoxContent = {
 };
 
 type Props = {
-  saveCurrentWallet: Action
+  wallet: Wallet,
+  fileKey: string
 };
 
 class Backup extends Component<Props> {
@@ -170,7 +172,7 @@ class Backup extends Component<Props> {
 
   renderBackupBox = (mode: 'file' | 'mnemonic') => {
     const isFileMode = mode === 'file';
-    const linkAction = isFileMode ? this.showWalletFile : this.createPaperBackup;
+    const linkAction = isFileMode ? this.backupWalletToFile : this.createPaperBackup;
 
     return (
       <BackupBox borderColor={isFileMode ? smColors.green : smColors.orange}>
@@ -197,21 +199,26 @@ class Backup extends Component<Props> {
 
   createPaperBackup = () => {};
 
-  showWalletFile = () => {
-    const { saveCurrentWallet } = this.props;
-    saveCurrentWallet();
+  backupWalletToFile = () => {
+    const { wallet, fileKey } = this.props;
+    const walletCopy = Object.assign({}, wallet);
+    const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(walletCopy.crypto.cipherText), key: fileKey });
+    const encryptedWallet = { ...walletCopy, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
+    try {
+      fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
+    } catch (err) {
+      throw new Error(err);
+    }
   };
 
   learnMoreAboutSecurity = () => {};
 }
 
-const mapDispatchToProps = {
-  saveCurrentWallet
-};
+const mapStateToProps = (state) => ({
+  wallet: state.wallet.wallet,
+  fileKey: state.wallet.fileKey
+});
 
-Backup = connect(
-  null,
-  mapDispatchToProps
-)(Backup);
+Backup = connect(mapStateToProps)(Backup);
 
 export default Backup;
