@@ -1,6 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { saveCurrentWallet } from '/redux/wallet/actions';
+import type { Action } from '/types';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
 
@@ -142,7 +145,9 @@ const backupBoxContent = {
   }
 };
 
-type Props = {};
+type Props = {
+  saveCurrentWallet: Action
+};
 
 class Backup extends Component<Props> {
   render() {
@@ -192,9 +197,21 @@ class Backup extends Component<Props> {
 
   createPaperBackup = () => {};
 
-  showWalletFile = () => {};
+  showWalletFile = () => {
+    const { saveCurrentWallet } = this.props;
+    saveCurrentWallet();
+  };
 
   learnMoreAboutSecurity = () => {};
 }
+
+const mapDispatchToProps = {
+  saveCurrentWallet
+};
+
+Backup = connect(
+  null,
+  mapDispatchToProps
+)(Backup);
 
 export default Backup;
