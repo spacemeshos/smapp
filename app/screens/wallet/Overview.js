@@ -73,7 +73,7 @@ class Overview extends Component<Props, State> {
       <Wrapper key="main">
         <LeftSection>
           {accounts && <AccountCard account={accounts[currentAccountIndex]} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
-          <BackupReminder style={{ marginBottom: 20 }} />
+          <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} />
           <ButtonsWrapper>
             <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
             <ButtonsSeparator />

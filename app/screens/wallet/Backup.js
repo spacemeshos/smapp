@@ -115,13 +115,31 @@ const Recommended = styled.div`
   padding-left: 24px;
 `;
 
-const bodyText = {
-  file: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
-  mnemonic: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.'
-};
-const noteText = {
-  file: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
-  mnemonic: 'NOTE: Works even if you lost your passphrase or wallet backup file'
+const backupBoxContent = {
+  bodyText: {
+    file: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
+    mnemonic: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.'
+  },
+  noteText: {
+    file: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
+    mnemonic: 'NOTE: Works even if you lost your passphrase or wallet backup file'
+  },
+  shieldLogo: {
+    file: shieldIconGreenOne,
+    mnemonic: shieldIconOrangeTwo
+  },
+  securityLevel: {
+    file: 'Basic Security',
+    mnemonic: 'Enhanced Security'
+  },
+  backupMode: {
+    file: 'File Backup',
+    mnemonic: '12 Words Backup'
+  },
+  linkText: {
+    file: 'Show me the wallet file',
+    mnemonic: 'Create a paper backup'
+  }
 };
 
 type Props = {};
@@ -147,19 +165,15 @@ class Backup extends Component<Props> {
 
   renderBackupBox = (mode: 'file' | 'mnemonic') => {
     const isFileMode = mode === 'file';
-    const shieldLogo = isFileMode ? shieldIconGreenOne : shieldIconOrangeTwo;
-    const securityLevel = `${isFileMode ? 'Basic' : 'Enhanced'} Security`;
-    const backupMode = `${isFileMode ? 'File' : '12 Words'} Backup`;
-    const linkText = isFileMode ? 'Show me the wallet file' : 'Create a paper backup';
     const linkAction = isFileMode ? this.showWalletFile : this.createPaperBackup;
 
     return (
       <BackupBox borderColor={isFileMode ? smColors.green : smColors.orange}>
         <BackupTopWrapper>
-          <SecurityLogo src={shieldLogo} />
+          <SecurityLogo src={backupBoxContent.shieldLogo[mode]} />
           <BackupTitleWrapper>
-            <GrayText>{securityLevel}</GrayText>
-            <BackupHeader>{backupMode}</BackupHeader>
+            <GrayText>{backupBoxContent.securityLevel[mode]}</GrayText>
+            <BackupHeader>{backupBoxContent.backupMode[mode]}</BackupHeader>
           </BackupTitleWrapper>
           {mode === 'mnemonic' && (
             <Recommended>
@@ -167,10 +181,10 @@ class Backup extends Component<Props> {
             </Recommended>
           )}
         </BackupTopWrapper>
-        <TextContentSection>{bodyText[mode]}</TextContentSection>
-        <TextContentSection>{noteText[mode]}</TextContentSection>
+        <TextContentSection>{backupBoxContent.bodyText[mode]}</TextContentSection>
+        <TextContentSection>{backupBoxContent.noteText[mode]}</TextContentSection>
         <ActionLink onClick={linkAction} color={isFileMode ? smColors.green : smColors.orange}>
-          {linkText}
+          {backupBoxContent.linkText[mode]}
         </ActionLink>
       </BackupBox>
     );
