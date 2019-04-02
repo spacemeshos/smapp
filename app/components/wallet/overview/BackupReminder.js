@@ -39,15 +39,16 @@ const ArrowRight = styled.img`
 `;
 
 type Props = {
+  navigateToBackup: Function,
   hasBackup: boolean,
   style: Object
 };
 
 class BackupReminder extends PureComponent<Props> {
   render() {
-    const { hasBackup, style } = this.props;
+    const { hasBackup, style, navigateToBackup } = this.props;
     return (
-      <Wrapper hasBackup={hasBackup} style={style}>
+      <Wrapper hasBackup={hasBackup} style={style} onClick={hasBackup ? null : navigateToBackup}>
         <ShieldIcon src={hasBackup ? shieldIconGreen : shieldIconWhite} />
         <Text hasBackup={hasBackup}>{this.getText()}</Text>
         {!hasBackup && <ArrowRight src={arrowRightWhite} />}

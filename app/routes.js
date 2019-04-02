@@ -1,5 +1,5 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview, SendCoins } from '/screens';
+import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup } from '/screens';
 import StoryBook from './components/StoryBook';
 
 const app = [
@@ -36,6 +36,10 @@ const wallet = [
   {
     path: '/main/wallet/sendCoins',
     component: SendCoins
+  },
+  {
+    path: '/main/wallet/backup',
+    component: Backup
   }
 ];
 

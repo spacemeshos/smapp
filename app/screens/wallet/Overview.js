@@ -73,14 +73,14 @@ class Overview extends Component<Props, State> {
       <Wrapper key="main">
         <LeftSection>
           {accounts && <AccountCard account={accounts[currentAccountIndex]} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
-          <BackupReminder style={{ marginBottom: 20 }} />
+          <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} />
           <ButtonsWrapper>
             <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
             <ButtonsSeparator />
             <SendReceiveButton title={SendReceiveButton.titles.RECEIVE} onPress={() => this.setState({ shouldShowModal: true })} />
           </ButtonsWrapper>
         </LeftSection>
-        <RightSection>{transactions.length > 0 ? <div>transactions list</div> : <InitialLeftPane />}</RightSection>
+        <RightSection>{transactions.length > 0 ? <div>transactions list</div> : <InitialLeftPane navigateToBackup={this.navigateToBackup} />}</RightSection>
       </Wrapper>,
       shouldShowModal && <ReceiveCoins key="modal" address={accounts[currentAccountIndex].pk} closeModal={() => this.setState({ shouldShowModal: false })} />
     ];
@@ -100,6 +100,11 @@ class Overview extends Component<Props, State> {
     const { history, accounts } = this.props;
     const { currentAccountIndex } = this.state;
     history.push('/main/wallet/sendCoins', { account: accounts[currentAccountIndex] });
+  };
+
+  navigateToBackup = () => {
+    const { history } = this.props;
+    history.push('/main/wallet/backup');
   };
 }
 

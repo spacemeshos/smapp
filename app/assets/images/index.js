@@ -25,6 +25,8 @@ export { default as miner } from './mining.gif';
 export { default as welcomeBack } from './welcome_back@2x.png';
 export { default as copyIcon } from './copy_green@2x.png';
 export { default as shieldIconGreen } from './security_logo_green@2x.png';
+export { default as shieldIconGreenOne } from './security_logo_green_one@2x.png';
+export { default as shieldIconOrangeTwo } from './security_logo_orange_two@2x.png';
 export { default as shieldIconWhite } from './security_logo_white@2x.png';
 export { default as arrowRightWhite } from './arrowRightWhite.png';
 export { default as walletBg } from './wallet_bg@2x.png';
