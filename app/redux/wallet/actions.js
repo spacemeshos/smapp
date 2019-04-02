@@ -145,3 +145,17 @@ export const sendTransaction = ({
     throw new Error(error);
   }
 };
+
+export const backupWallet = () => async (dispatch: Dispatch, getState: GetState) => {
+  try {
+    const walletState = getState().wallet;
+    const { wallet, fileKey } = walletState;
+    const walletCopy = Object.assign({}, wallet);
+    const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(walletCopy.crypto.cipherText), key: fileKey });
+    const encryptedWallet = { ...walletCopy, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } };
+    await fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
+    return true;
+  } catch (err) {
+    throw new Error(err);
+  }
+};
