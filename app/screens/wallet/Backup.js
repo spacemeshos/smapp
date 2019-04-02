@@ -25,53 +25,31 @@ const Header = styled.span`
   margin-bottom: 20px;
 `;
 
-const BaseText = styled.span`
+const HeaderExplanation = styled.div`
   font-size: 16px;
-  font-weight: normal;
-  line-height: 22px;
   color: ${smColors.lighterBlack};
-`;
-
-const TextContentSection = styled(BaseText)`
-  margin-bottom: 42px;
-`;
-
-const SubHeader = styled(BaseText)`
-  margin-bottom: 24px;
-`;
-
-const BoldBackupOptiosHeader = styled(BaseText)`
-  font-weight: bold;
-  margin-bottom: 24px;
-`;
-
-const GrayText = styled(BaseText)`
-  color: ${smColors.darkGray};
+  line-height: 30px;
+  margin-bottom: 25px;
 `;
 
 const Separator = styled.div`
   border-bottom: 1px solid ${smColors.borderGray};
-  margin-bottom: 24px;
+  margin-bottom: 25px;
+`;
+
+const SubHeader = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 30px;
+  color: ${smColors.lighterBlack};
+  margin-bottom: 25px;
 `;
 
 const BackupBoxesWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 24px;
-`;
-
-// $FlowStyledIssue
-const ActionLink = styled(BaseText)`
-  user-select: none;
-  color: ${({ color }) => color};
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-  &:active {
-    opacity: 0.6;
-  }
+  margin-bottom: 25px;
 `;
 
 // $FlowStyledIssue
@@ -91,7 +69,7 @@ const BackupBox = styled.div`
 const BackupTopWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  align-items: flex-end;
   margin-bottom: 40px;
 `;
 
@@ -101,6 +79,22 @@ const SecurityLogo = styled.img`
   margin-right: 30px;
 `;
 
+const BackupTitleWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const BaseText = styled.span`
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 22px;
+  color: ${smColors.lighterBlack};
+`;
+
+const GrayText = styled(BaseText)`
+  color: ${smColors.darkGray};
+`;
+
 const BackupHeader = styled.span`
   font-size: 24px;
   font-weight: bold;
@@ -108,41 +102,48 @@ const BackupHeader = styled.span`
   color: ${smColors.darkGray};
 `;
 
-const BackupTitleWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+const RecommendedText = styled.div`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.darkGray50Alpha};
+  margin-left: 25px;
 `;
 
-const Recommended = styled.div`
-  align-self: flex-end;
-  padding-left: 24px;
+const TextContentSection = styled(BaseText)`
+  margin-bottom: 40px;
 `;
 
-const backupBoxContent = {
-  bodyText: {
-    file: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
-    mnemonic: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.'
+// $FlowStyledIssue
+const ActionLink = styled(BaseText)`
+  user-select: none;
+  color: ${({ color }) => color};
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
+`;
+
+const content = {
+  file: {
+    text: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
+    note: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
+    icon: shieldIconGreenOne,
+    securityLevel: 'Basic Security',
+    backup: 'File Backup',
+    actionText: 'Show me the wallet file',
+    color: smColors.green
   },
-  noteText: {
-    file: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
-    mnemonic: 'NOTE: Works even if you lost your passphrase or wallet backup file'
-  },
-  shieldLogo: {
-    file: shieldIconGreenOne,
-    mnemonic: shieldIconOrangeTwo
-  },
-  securityLevel: {
-    file: 'Basic Security',
-    mnemonic: 'Enhanced Security'
-  },
-  backupMode: {
-    file: 'File Backup',
-    mnemonic: '12 Words Backup'
-  },
-  linkText: {
-    file: 'Show me the wallet file',
-    mnemonic: 'Create a paper backup'
+  '12words': {
+    text: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.',
+    note: 'NOTE: Works even if you lost your passphrase or wallet backup file',
+    icon: shieldIconOrangeTwo,
+    securityLevel: 'Enhanced Security',
+    backup: '12 Words Backup',
+    actionText: 'Create a paper backup',
+    color: smColors.orange
   }
 };
 
@@ -156,12 +157,14 @@ class Backup extends Component<Props> {
     return (
       <Wrapper>
         <Header>Wallet Backup</Header>
-        <SubHeader>Your wallet file is encrypted with your passphrase on your computer, but We recommend that you’ll backup your wallet for additional security.</SubHeader>
+        <HeaderExplanation>
+          Your wallet file is encrypted with your passphrase on your computer, but We recommend that you’ll backup your wallet for additional security.
+        </HeaderExplanation>
         <Separator />
-        <BoldBackupOptiosHeader>How would you like to backup your wallet?</BoldBackupOptiosHeader>
+        <SubHeader>How would you like to backup your wallet?</SubHeader>
         <BackupBoxesWrapper>
           {this.renderBackupBox('file')}
-          {this.renderBackupBox('mnemonic')}
+          {this.renderBackupBox('12words')}
         </BackupBoxesWrapper>
         <ActionLink onClick={this.learnMoreAboutSecurity} color={smColors.green}>
           Learn more about wallet security and backup
@@ -170,34 +173,28 @@ class Backup extends Component<Props> {
     );
   }
 
-  renderBackupBox = (mode: 'file' | 'mnemonic') => {
-    const isFileMode = mode === 'file';
-    const linkAction = isFileMode ? this.backupWalletToFile : this.createPaperBackup;
-
+  renderBackupBox = (mode: 'file' | '12words') => {
+    const linkAction = mode === 'file' ? this.backupWalletToFile : this.navigateTo12WordsBackup;
     return (
-      <BackupBox borderColor={isFileMode ? smColors.green : smColors.orange}>
+      <BackupBox borderColor={content[mode].color}>
         <BackupTopWrapper>
-          <SecurityLogo src={backupBoxContent.shieldLogo[mode]} />
+          <SecurityLogo src={content[mode].icon} />
           <BackupTitleWrapper>
-            <GrayText>{backupBoxContent.securityLevel[mode]}</GrayText>
-            <BackupHeader>{backupBoxContent.backupMode[mode]}</BackupHeader>
+            <GrayText>{content[mode].securityLevel}</GrayText>
+            <BackupHeader>{content[mode].backup}</BackupHeader>
           </BackupTitleWrapper>
-          {mode === 'mnemonic' && (
-            <Recommended>
-              <GrayText>Recommended</GrayText>
-            </Recommended>
-          )}
+          {mode === '12words' && <RecommendedText>Recommended</RecommendedText>}
         </BackupTopWrapper>
-        <TextContentSection>{backupBoxContent.bodyText[mode]}</TextContentSection>
-        <TextContentSection>{backupBoxContent.noteText[mode]}</TextContentSection>
-        <ActionLink onClick={linkAction} color={isFileMode ? smColors.green : smColors.orange}>
-          {backupBoxContent.linkText[mode]}
+        <TextContentSection>{content[mode].text}</TextContentSection>
+        <TextContentSection>{content[mode].note}</TextContentSection>
+        <ActionLink onClick={linkAction} color={content[mode].color}>
+          {content[mode].actionText}
         </ActionLink>
       </BackupBox>
     );
   };
 
-  createPaperBackup = () => {};
+  navigateTo12WordsBackup = () => {};
 
   backupWalletToFile = () => {
     const { wallet, fileKey } = this.props;
