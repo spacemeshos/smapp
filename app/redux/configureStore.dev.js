@@ -1,13 +1,14 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
+import type { StoreStateType } from '/types';
 import createRootReducer from './configReducers';
-import * as counterActions from './counter/actions';
-import type { counterStateType } from './types';
-
+import * as authActions from './auth/actions';
+import * as walletActions from './wallet/actions';
+import * as localNodeActions from './localNode/actions';
 
 const rootReducer = createRootReducer();
 
-const configureStore = (initialState?: counterStateType) => {
+const configureStore = (initialState?: StoreStateType) => {
   // Redux Configuration
   const middleware = [];
   const enhancers = [];
@@ -17,7 +18,9 @@ const configureStore = (initialState?: counterStateType) => {
 
   // Redux DevTools Configuration
   const actionCreators = {
-    ...counterActions
+    ...authActions,
+    ...walletActions,
+    ...localNodeActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

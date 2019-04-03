@@ -1,2 +1,4 @@
 export { default as smColors } from './colors';
-export { default as routes } from './routes';
+export { default as ipcConsts } from './ipcConsts';
+export { authModes, localNodeModes } from './enums';
+export { default as cryptoConsts } from './cryptoConsts';

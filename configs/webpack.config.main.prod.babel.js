@@ -6,10 +6,10 @@ import webpack from 'webpack';
 import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import CheckNodeEnv from '../internals/scripts/CheckNodeEnv';
+import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
 
-CheckNodeEnv('production');
+checkNodeEnv('production');
 
 export default merge.smart(baseConfig, {
   devtool: 'source-map',
@@ -39,8 +39,7 @@ export default merge.smart(baseConfig, {
 
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode:
-        process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
       openAnalyzer: process.env.OPEN_ANALYZER === 'true'
     }),
 
@@ -55,8 +54,7 @@ export default merge.smart(baseConfig, {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
-      DEBUG_PROD: false,
-      START_MINIMIZED: false
+      DEBUG_PROD: false
     })
   ],
 

@@ -1,9 +1,13 @@
 // @flow
 import { combineReducers } from 'redux';
-import counter from './counter/reducer';
+import auth from './auth/reducer';
+import wallet from './wallet/reducer';
+import localNode from './localNode/reducer';
 
-export default function createRootReducer() {
+export default function createRootReducer(): any {
   return combineReducers({
-    counter
+    auth,
+    wallet,
+    localNode
   });
 }

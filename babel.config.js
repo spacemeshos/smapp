@@ -2,7 +2,7 @@
 
 const developmentEnvironments = ['development', 'test'];
 
-const developmentPlugins = [require('react-hot-loader/babel')];
+const developmentPlugins = [require('react-hot-loader/babel'), require('babel-plugin-styled-components')];
 
 const productionPlugins = [
   require('babel-plugin-dev-expression'),
@@ -23,14 +23,14 @@ module.exports = api => {
       [
         require('@babel/preset-env'),
         {
-          targets: { electron: require('electron/package.json').version },
-          useBuiltIns: 'usage'
+          targets: { electron: require('electron/package.json').version }
         }
       ],
       require('@babel/preset-flow'),
       [require('@babel/preset-react'), { development }]
     ],
     plugins: [
+      [require('babel-root-slash-import'), { rootPathSuffix: 'app' }],
       // Stage 0
       require('@babel/plugin-proposal-function-bind'),
 

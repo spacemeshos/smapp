@@ -5,15 +5,17 @@
  * electron renderer process from here and communicate with the other processes
  * through IPC.
  *
- * When running `yarn build` or `yarn build-main`, this file is compiled to
+ * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
- *
- * @flow
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
+import FileManager from './fileManager';
+import DiskStorageManager from './diskStorageManager';
+import netService from './netService';
 
 export default class AppUpdater {
   constructor() {
@@ -30,10 +32,7 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-if (
-  process.env.NODE_ENV === 'development' ||
-  process.env.DEBUG_PROD === 'true'
-) {
+if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')();
 }
 
@@ -42,14 +41,43 @@ const installExtensions = async () => {
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
 
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload))
-  ).catch(console.log);
+  return Promise.all(extensions.map((name) => installer.default(installer[name], forceDownload))).catch(console.error); // eslint-disable-line no-console
 };
 
 /**
- * Add event listeners...
+ * Add event listeners.
  */
+ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
+  FileManager.readFile({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.GET_FILE_NAME, async (event, request) => {
+  FileManager.getFileName({ browserWindow: mainWindow, event, ...request });
+});
+
+ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
+  FileManager.readDirectory({ browserWindow: mainWindow, event });
+});
+
+ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
+  FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
+});
+
+ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
+  DiskStorageManager.getDriveList({ event });
+});
+
+ipcMain.on(ipcConsts.GET_AVAILABLE_DISK_SPACE, async (event, request) => {
+  DiskStorageManager.getAvailableSpace({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
+  netService.getBalance({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
+  netService.sendTx({ event, ...request });
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -59,34 +87,32 @@ app.on('window-all-closed', () => {
   }
 });
 
+const createWindow = () => {
+  mainWindow = new BrowserWindow({
+    show: false,
+    width: 1280,
+    height: 860,
+    minWidth: 1024,
+    minHeight: 728,
+    center: true
+  });
+};
+
 app.on('ready', async () => {
-  if (
-    process.env.NODE_ENV === 'development' ||
-    process.env.DEBUG_PROD === 'true'
-  ) {
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
   }
 
-  mainWindow = new BrowserWindow({
-    show: false,
-    width: 1024,
-    height: 728
-  });
+  createWindow();
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
+  mainWindow.once('ready-to-show', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
+    mainWindow.show();
+    mainWindow.focus();
   });
 
   mainWindow.on('closed', () => {
@@ -99,4 +125,10 @@ app.on('ready', async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+});
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
 });
