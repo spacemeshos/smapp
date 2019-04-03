@@ -193,7 +193,10 @@ class Backup extends Component<Props> {
     );
   };
 
-  navigateTo12WordsBackup = () => {};
+  navigateTo12WordsBackup = () => {
+    const { history } = this.props;
+    history.push('/main/wallet/twelve-words-backup');
+  };
 
   backupWallet = async () => {
     const { backupWallet, history } = this.props;
