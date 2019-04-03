@@ -13,9 +13,9 @@ const Wrapper = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border: 1px solid ${({ disabled }) => (disabled ? smColors.borderGray : smColors.green)};
+  border: 1px solid ${({ isDisabled }) => (isDisabled ? smColors.borderGray : smColors.green)};
   border-radius: 2px;
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
   background-color: ${smColors.white};
   &:hover {
     background-color: ${smColors.green10alpha};
@@ -37,13 +37,13 @@ const Image = styled.img`
 const Label = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ disabled }) => (disabled ? smColors.borderGray : smColors.black)};
+  color: ${({ isDisabled }) => (isDisabled ? smColors.borderGray : smColors.black)};
   cursor: inherit;
 `;
 
 type Props = {
   title: string,
-  disabled?: boolean,
+  isDisabled?: boolean,
   onPress: () => void
 };
 
@@ -54,18 +54,18 @@ class SendReceiveButton extends PureComponent<Props> {
   };
 
   render() {
-    const { disabled, onPress, title } = this.props;
+    const { isDisabled, onPress, title } = this.props;
     return (
-      <Wrapper disabled={disabled} onClick={disabled ? null : onPress}>
+      <Wrapper isDisabled={isDisabled} onClick={isDisabled ? null : onPress}>
         <Image src={this.getImageSource()} alt="Sm button icon" />
-        <Label disabled={disabled}>{title}</Label>
+        <Label isDisabled={isDisabled}>{title}</Label>
       </Wrapper>
     );
   }
 
   getImageSource = () => {
-    const { disabled, title } = this.props;
-    if (disabled) {
+    const { isDisabled, title } = this.props;
+    if (isDisabled) {
       return title === 'Send coins' ? arrowUpGrey : arrowDownGrey;
     } else {
       return title === 'Send coins' ? arrowUpGreen : arrowDownGreen;
