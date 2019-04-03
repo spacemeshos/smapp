@@ -26,14 +26,14 @@ export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Act
   dispatch({ type: DERIVE_ENCRYPTION_KEY, payload: { key, salt } });
 };
 
-export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => (
+export const saveNewWallet = ({ mnemonicParam, salt = cryptoConsts.DEFAULT_SALT }: { mnemonicParam?: string, salt: string }): Action => (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   const walletState = getState().wallet;
   const { accountNumber, walletNumber, fileKey } = walletState;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const { publicKey, secretKey, seed, resolvedMnemonic } = keyGenService.generateKeyPair({ mnemonic });
+  const { publicKey, secretKey, seed, mnemonic } = keyGenService.generateKeyPair({ mnemonicParam });
   const wallet = {
     displayName: `my_wallet_${walletNumber}`,
     created: unixEpochTimestamp,
@@ -43,7 +43,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
       cipher: 'AES-128-CTR',
       cipherText: {
         seed,
-        mnemonic: resolvedMnemonic,
+        mnemonic,
         accounts: [
           {
             displayName: `My Account ${accountNumber}`,

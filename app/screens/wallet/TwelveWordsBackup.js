@@ -84,7 +84,7 @@ const WordWrapper = styled.div`
 const NotificationSection = styled.div`
   display: flex;
   flex-direction: column;
-  height: 48px;
+  height: 50px;
   margin-bottom: 22px;
 `;
 

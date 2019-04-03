@@ -14,7 +14,7 @@ class KeyGeneratorService {
     const seedAsUint8Array = Buffer.from(seed, 'hex');
     const left32BitsOfSeed = seedAsUint8Array.slice(0, nacl.sign.seedLength);
     const { publicKey, secretKey } = nacl.sign.keyPair.fromSeed(left32BitsOfSeed);
-    return { publicKey: Buffer.from(publicKey).toString('hex'), secretKey: Buffer.from(secretKey).toString('hex'), seed, resolvedMnemonic };
+    return { publicKey: Buffer.from(publicKey).toString('hex'), secretKey: Buffer.from(secretKey).toString('hex'), seed, mnemonic: resolvedMnemonic };
   };
 
   /**
