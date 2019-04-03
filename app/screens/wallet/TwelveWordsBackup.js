@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-// import { backupWallet } from '/redux/wallet/actions';
 import get from 'lodash.get';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
@@ -31,7 +30,7 @@ const HeaderExplanation = styled.div`
   font-size: 16px;
   color: ${smColors.lighterBlack};
   line-height: 30px;
-  margin-bottom: 22px;
+  margin-bottom: 30px;
 `;
 
 const BaseText = styled.span`
@@ -56,12 +55,17 @@ const ActionLink = styled(BaseText)`
 const Text = styled.span`
   font-size: 18px;
   color: ${smColors.darkGray};
-  line-height: 24px;
+  line-height: 48px;
 `;
 
-const Indices = styled(Text)`
-  color: ${smColors.darkGray50Alpha};
+const IndexWrapper = styled.div`
+  width: 28px;
   margin-right: 50px;
+  text-align: right;
+`;
+
+const Index = styled(Text)`
+  color: ${smColors.darkGray50Alpha};
 `;
 
 const TwelveWordsContainer = styled.div`
@@ -74,6 +78,7 @@ const TwelveWordsContainer = styled.div`
 const WordWrapper = styled.div`
   height: 50px;
   line-height: 50px;
+  display: flex;
 `;
 
 const NotificationSection = styled.div`
@@ -84,7 +89,7 @@ const NotificationSection = styled.div`
 `;
 
 const Notification = styled(BaseText)`
-  line-height: 22px;
+  line-height: 30px;
   color: ${smColors.darkGreen};
 `;
 
@@ -92,7 +97,7 @@ const ButtonsRow = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 22px;
+  margin-bottom: 30px;
 `;
 
 const LeftButtonsContainer = styled.div`
@@ -105,21 +110,21 @@ type Props = {
 };
 
 type State = {
-  twelveWords: string[],
-  twelveWordsCopied: boolean
+  isTwelveWordsCopied: boolean
 };
 
 class TwelveWordsBackup extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      twelveWords: props.mnemonic ? props.mnemonic.split(' ') : [],
-      twelveWordsCopied: false
+      isTwelveWordsCopied: false
     };
   }
 
   render() {
-    const { twelveWords, twelveWordsCopied } = this.state;
+    const { isTwelveWordsCopied } = this.state;
+    const { mnemonic } = this.props;
+    const twelveWords = mnemonic.split(' ');
 
     return (
       <Wrapper>
@@ -131,13 +136,15 @@ class TwelveWordsBackup extends Component<Props, State> {
         <TwelveWordsContainer>
           {twelveWords.map((word: string, index: number) => (
             <WordWrapper key={word}>
-              <Indices>{`${index + 1}`}</Indices>
+              <IndexWrapper>
+                <Index>{`${index + 1}`}</Index>
+              </IndexWrapper>
               <Text>{word}</Text>
             </WordWrapper>
           ))}
         </TwelveWordsContainer>
         <NotificationSection>
-          {twelveWordsCopied && (
+          {isTwelveWordsCopied && (
             <React.Fragment>
               <Notification>The list has been copied to your clipboard. Paste it into your password manager.</Notification>
               <Notification>Next step, we will test you with a small little game.</Notification>
@@ -164,7 +171,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   copy12Words = () => {
     const { mnemonic } = this.props;
     clipboard.writeText(mnemonic);
-    this.setState({ twelveWordsCopied: true });
+    this.setState({ isTwelveWordsCopied: true });
   };
 
   print12Words = () => {};
@@ -172,7 +179,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   learnMoreAboutPaperBackup = () => {};
 }
 const mapStateToProps = (state) => ({
-  mnemonic: get(state.wallet.wallet, 'crypto.cipherText.mnemonic', null)
+  mnemonic: get(state.wallet.wallet, 'crypto.cipherText.mnemonic', '')
 });
 
 TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
