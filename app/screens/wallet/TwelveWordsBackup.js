@@ -1,4 +1,5 @@
 // @flow
+import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
@@ -75,9 +76,16 @@ const WordWrapper = styled.div`
   line-height: 50px;
 `;
 
-const Notification = styled.span`
-  line-height: 22px;
+const NotificationSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 48px;
   margin-bottom: 22px;
+`;
+
+const Notification = styled(BaseText)`
+  line-height: 22px;
+  color: ${smColors.darkGreen};
 `;
 
 const ButtonsRow = styled.div`
@@ -97,19 +105,21 @@ type Props = {
 };
 
 type State = {
-  twelveWords: string[]
+  twelveWords: string[],
+  twelveWordsCopied: boolean
 };
 
 class TwelveWordsBackup extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      twelveWords: props.mnemonic ? props.mnemonic.split(' ') : []
+      twelveWords: props.mnemonic ? props.mnemonic.split(' ') : [],
+      twelveWordsCopied: false
     };
   }
 
   render() {
-    const { twelveWords } = this.state;
+    const { twelveWords, twelveWordsCopied } = this.state;
 
     return (
       <Wrapper>
@@ -126,7 +136,14 @@ class TwelveWordsBackup extends Component<Props, State> {
             </WordWrapper>
           ))}
         </TwelveWordsContainer>
-        <Notification>The list has been copied to your clipboard. Paste it into your password manager. Next step, we will test you with a small little game.</Notification>
+        <NotificationSection>
+          {twelveWordsCopied && (
+            <React.Fragment>
+              <Notification>The list has been copied to your clipboard. Paste it into your password manager.</Notification>
+              <Notification>Next step, we will test you with a small little game.</Notification>
+            </React.Fragment>
+          )}
+        </NotificationSection>
         <ButtonsRow>
           <LeftButtonsContainer>
             <SmButton text="Print" theme="green" onPress={this.print12Words} style={{ width: 144, marginRight: 18 }} />
@@ -144,7 +161,11 @@ class TwelveWordsBackup extends Component<Props, State> {
     history.push('/main/wallet/test-twelve-words-backup'); // TODO: impelment this nav and component
   };
 
-  copy12Words = () => {};
+  copy12Words = () => {
+    const { mnemonic } = this.props;
+    clipboard.writeText(mnemonic);
+    this.setState({ twelveWordsCopied: true });
+  };
 
   print12Words = () => {};
 
