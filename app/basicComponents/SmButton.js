@@ -56,7 +56,7 @@ type Props = {
   text: string,
   theme: 'green' | 'orange',
   isDisabled?: boolean,
-  isActive: boolean,
+  isActive?: boolean,
   onPress: Function,
   style?: Object
 };
