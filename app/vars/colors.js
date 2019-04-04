@@ -22,6 +22,7 @@ const smColors = {
   darkGray: '#425062',
   darkGray50Alpha: 'rgba(66, 80, 98, 0.5)',
   lightGray: '#F7F7F8',
+  mediumGray: '#95989A',
   red: '#FF3506'
 };
 

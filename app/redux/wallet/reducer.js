@@ -9,7 +9,98 @@ const initialState = {
   fileKey: null,
   walletFiles: null,
   wallet: {},
-  transactions: [], // TODO: clear on switching account
+  transactions: [
+    // TODO: remove stab
+    {
+      isSent: true,
+      isPending: true,
+      amount: 3.0002,
+      address: '214w...qVt0',
+      date: 'on 13 apr 2017 12:51'
+    },
+    {
+      isSent: false,
+      isPending: true,
+      amount: 10.0,
+      address: 'Full Node Mining Award',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      amount: 3.001,
+      address: 'Mom',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      amount: 16564,
+      address: 'MDMA dealer',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: false,
+      isRejected: true,
+      amount: 254,
+      address: 'Stranger form the club',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      isRejected: true,
+      amount: 54894,
+      address: 'Hitman',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      isPending: true,
+      amount: 3.0002,
+      address: '214w...qVt0',
+      date: 'on 13 apr 2017 12:51'
+    },
+    {
+      isSent: false,
+      isPending: true,
+      amount: 10.0,
+      address: 'Full Node Mining Award',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      amount: 3.001,
+      address: 'Mom',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      amount: 16564,
+      address: 'MDMA dealer',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: false,
+      amount: 254,
+      address: 'Stranger form the club',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    },
+    {
+      isSent: true,
+      isRejected: true,
+      amount: 54894,
+      address: 'Hitman',
+      date: 'on 13 apr 2017 12:51',
+      isSavedContact: true
+    }
+  ], // TODO: clear on switching account
   fiatRate: 1
 };
 

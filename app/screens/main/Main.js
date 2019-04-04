@@ -25,24 +25,27 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Transaction',
-    path: null,
+    path: '/main/transactions',
     icon: menu3
   },
   {
     text: 'Contacts',
     path: null,
-    icon: menu4
+    icon: menu4,
+    isDisabled: true
   },
   {
     text: 'Settings',
     path: null,
     icon: menu5,
-    hasSeparator: true
+    hasSeparator: true,
+    isDisabled: true
   },
   {
     text: 'Network',
-    path: '/main/story-book',
-    icon: menu6
+    path: null,
+    icon: menu6,
+    isDisabled: true
   },
   {
     text: 'Logout',
