@@ -212,6 +212,4 @@ class Transaction extends PureComponent<Props> {
   };
 }
 
-// zfadfadfadfadfgadgf    cigar original dial portion under coffee hamster creek parent box cupboard space
-
 export default Transaction;
