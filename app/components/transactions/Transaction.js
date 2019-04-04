@@ -1,15 +1,14 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { SmButton } from '/basicComponents';
-import { arrowDownGreen, arrowDownOrange, arrowUpGreen, arrowUpOrange, arrowUpRed, arrowDownRed } from '/assets/images';
+import { arrowDownGreen, arrowDownOrange, arrowUpGreen, arrowUpOrange, arrowUpRed, arrowDownRed, addToContactsIcon } from '/assets/images';
 import { smColors } from '/vars';
 import type { Tx } from '/types';
 
 const Wrapper = styled.div`
   height: 90px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding: 10px 20px;
   border-bottom: 1px solid ${smColors.borderGray};
   &: first-child {
@@ -21,6 +20,7 @@ const FirstSection = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  justify-content: space-between;
   margin-right: 30px;
 `;
 
@@ -31,7 +31,7 @@ const Icon = styled.img`
 
 const FirstSectionText = styled.div`
   font-size: 9px;
-  font-weight: light;
+  font-weight: 300;
   line-height: 13px;
   color: ${smColors.mediumGray};
 `;
@@ -40,6 +40,7 @@ const SecondSection = styled.div`
   display: flex;
   flex-direction: column;
   flex: 2;
+  justify-content: space-between;
   margin-right: 30px;
 `;
 
@@ -77,7 +78,7 @@ const Amount = styled.div`
 
 const Address = styled.div`
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${smColors.lighterBlack};
   line-height: 17px;
 `;
@@ -86,6 +87,7 @@ const ThirdSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: flex-end;
   flex: 3;
 `;
 
@@ -94,24 +96,71 @@ const AddToContactsBtnWrapper = styled.div`
   height: 26px;
 `;
 
+const AddToContactsBtn = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: ${smColors.orange};
+  border-radius: 2px;
+  cursor: pointer;
+`;
+
+const AddToContactsText = styled.div`
+  font-size: 12px;
+  color: ${smColors.white};
+  line-height: 17px;
+  margin-right: 10px;
+  cursor: inherit;
+`;
+
+const AddToContactsImage = styled.img`
+  width: 15px;
+  height: 14px;
+  cursor: inherit;
+`;
+
 const Date = styled.div`
   font-size: 10px;
-  font-weight: light;
+  font-weight: 300;
   color: ${smColors.mediumGray};
-  line-height: 14px;
+  line-height: 13px;
+  margin-top: auto;
 `;
 
 type Props = {
   transaction: Tx,
-  addToContacts: ({ address: string }) => void
+  addToContacts: ({ address: string }) => void,
+  isSentDisplayed: boolean,
+  isReceivedDisplayed: boolean,
+  isPendingDisplayed: boolean,
+  isRejectedDisplayed: boolean
 };
 
 class Transaction extends PureComponent<Props> {
   render() {
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date },
-      addToContacts
+      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact },
+      addToContacts,
+      isSentDisplayed,
+      isReceivedDisplayed,
+      isPendingDisplayed,
+      isRejectedDisplayed
     } = this.props;
+    if (!isSentDisplayed && isSent) {
+      return null;
+    }
+    if (!isReceivedDisplayed && !isSent) {
+      return null;
+    }
+    if (!isPendingDisplayed && isPending) {
+      return null;
+    }
+    if (!isRejectedDisplayed && isRejected) {
+      return null;
+    }
     const color = this.getColor({ isPending, isRejected });
     return (
       <Wrapper>
@@ -123,16 +172,21 @@ class Transaction extends PureComponent<Props> {
         <SecondSection>
           <SentReceivedTextWrapper>
             <SentReceivedText color={color}>{isSent ? 'Sent' : 'Received'}</SentReceivedText>
-            {isPending && <PendingText>( Pending )</PendingText>}
-            {isRejected && <RejectedText>( Rejected )</RejectedText>}
+            {isPending && <PendingText>&nbsp;&nbsp;( Pending )</PendingText>}
+            {isRejected && <RejectedText>&nbsp;&nbsp;( Rejected )</RejectedText>}
           </SentReceivedTextWrapper>
           <Amount>{amount}</Amount>
           <Address>{address}</Address>
         </SecondSection>
         <ThirdSection>
-          <AddToContactsBtnWrapper>
-            <SmButton text="Add to my contacts" theme="orange" center onPress={addToContacts} />
-          </AddToContactsBtnWrapper>
+          {!isSavedContact && (
+            <AddToContactsBtnWrapper>
+              <AddToContactsBtn onClick={addToContacts}>
+                <AddToContactsText>Add to my contacts</AddToContactsText>
+                <AddToContactsImage src={addToContactsIcon} />
+              </AddToContactsBtn>
+            </AddToContactsBtnWrapper>
+          )}
           <Date>{date}</Date>
         </ThirdSection>
       </Wrapper>
@@ -158,6 +212,6 @@ class Transaction extends PureComponent<Props> {
   };
 }
 
-// zfadfadfadfadfgadgf    find road toast okay alley language artwork jazz dry liberty learn alien
+// zfadfadfadfadfgadgf    cigar original dial portion under coffee hamster creek parent box cupboard space
 
 export default Transaction;

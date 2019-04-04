@@ -29,6 +29,12 @@ const Wrapper = styled.div`
     background-color: ${({ theme }) => (theme === 'green' ? smColors.white : smColors.darkOrange)};
     border: 1px solid ${({ theme }) => (theme === 'green' ? smColors.green : smColors.orange)};
   }
+  ${({ isActive, theme }) =>
+    isActive &&
+    `
+    background-color: ${theme === 'green' ? smColors.white : smColors.darkOrange};
+    border: 1px solid ${theme === 'green' ? smColors.green : smColors.orange};
+  `}
   transition: background-color 0.16s linear;
 `;
 
@@ -50,15 +56,16 @@ type Props = {
   text: string,
   theme: 'green' | 'orange',
   isDisabled?: boolean,
+  isActive: boolean,
   onPress: Function,
   style?: Object
 };
 
 class SmButton extends PureComponent<Props> {
   render() {
-    const { isDisabled, onPress, theme, text, style } = this.props;
+    const { isDisabled, isActive, onPress, theme, text, style } = this.props;
     return (
-      <Wrapper theme={theme} onClick={isDisabled ? null : onPress} isDisabled={isDisabled} style={style}>
+      <Wrapper theme={theme} onClick={isDisabled ? null : onPress} isDisabled={isDisabled} isActive={isActive} style={style}>
         <Text theme={theme} isDisabled={isDisabled}>
           {text}
         </Text>
