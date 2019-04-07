@@ -1,5 +1,5 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, Transactions } from '/screens';
+import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, TwelveWordsBackup, Transactions } from '/screens';
 
 const app = [
   {
@@ -39,6 +39,10 @@ const wallet = [
   {
     path: '/main/wallet/backup',
     component: Backup
+  },
+  {
+    path: '/main/wallet/twelve-words-backup',
+    component: TwelveWordsBackup
   }
 ];
 

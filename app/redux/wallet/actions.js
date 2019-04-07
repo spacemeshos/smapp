@@ -1,11 +1,10 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList } from '/types';
 import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
 import { smColors, cryptoConsts } from '/vars';
-import type { TxList } from '../../types';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 
