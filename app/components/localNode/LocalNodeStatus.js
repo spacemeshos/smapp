@@ -14,10 +14,9 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   border-bottom: 1px solid ${smColors.borderGray};
-`;
-
-const FirstRow = styled(Row)`
-  border-top: 1px solid ${smColors.borderGray};
+  &: first-child {
+    border-top: 1px solid ${smColors.borderGray};
+  }
 `;
 
 const Text = styled.div`
@@ -34,10 +33,10 @@ const LeftText = styled(Text)`
 const LocalNodeStatus = () => {
   return (
     <Wrapper>
-      <FirstRow>
+      <Row>
         <LeftText>Total Time Running</LeftText>
         <Text>{'0 days, 0 hours, 1 minutes'}</Text>
-      </FirstRow>
+      </Row>
       <Row>
         <LeftText>Total earnings</LeftText>
         <Text>{'0 Spacemesh coins'}</Text>

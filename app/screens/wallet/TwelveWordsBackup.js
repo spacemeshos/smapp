@@ -2,9 +2,8 @@
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import get from 'lodash.get';
+import type { RouterHistory } from 'react-router-dom';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
 
@@ -114,16 +113,13 @@ type State = {
 };
 
 class TwelveWordsBackup extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      isTwelveWordsCopied: false
-    };
-  }
+  state = {
+    isTwelveWordsCopied: false
+  };
 
   render() {
-    const { isTwelveWordsCopied } = this.state;
     const { mnemonic } = this.props;
+    const { isTwelveWordsCopied } = this.state;
     const twelveWords = mnemonic.split(' ');
 
     return (
@@ -165,7 +161,7 @@ class TwelveWordsBackup extends Component<Props, State> {
 
   navigateToTestMe = () => {
     const { history } = this.props;
-    history.push('/main/wallet/test-twelve-words-backup'); // TODO: impelment this nav and component
+    history.push('/main/wallet/test-twelve-words-backup'); // TODO: implement this nav and component
   };
 
   copy12Words = () => {
@@ -179,7 +175,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   learnMoreAboutPaperBackup = () => {};
 }
 const mapStateToProps = (state) => ({
-  mnemonic: get(state.wallet.wallet, 'crypto.cipherText.mnemonic', '')
+  mnemonic: state.wallet.mnemonic
 });
 
 TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
