@@ -177,7 +177,7 @@ class Transactions extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  transactions: state.wallet.transactions
+  transactions: state.wallet.currentAccTransactions
 });
 
 Transactions = connect(mapStateToProps)(Transactions);

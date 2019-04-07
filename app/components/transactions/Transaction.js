@@ -21,7 +21,7 @@ const FirstSection = styled.div`
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
-  margin-right: 30px;
+  margin-right: 20px;
 `;
 
 const Icon = styled.img`
@@ -41,7 +41,10 @@ const SecondSection = styled.div`
   flex-direction: column;
   flex: 2;
   justify-content: space-between;
-  margin-right: 30px;
+  margin-right: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SentReceivedTextWrapper = styled.div`
@@ -88,7 +91,7 @@ const ThirdSection = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-end;
-  flex: 3;
+  flex: 2;
 `;
 
 const AddToContactsBtnWrapper = styled.div`
@@ -133,13 +136,20 @@ const Date = styled.div`
 type Props = {
   transaction: Tx,
   addToContacts: ({ address: string }) => void,
-  isSentDisplayed: boolean,
-  isReceivedDisplayed: boolean,
-  isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean
+  isSentDisplayed?: boolean,
+  isReceivedDisplayed?: boolean,
+  isPendingDisplayed?: boolean,
+  isRejectedDisplayed?: boolean
 };
 
 class Transaction extends PureComponent<Props> {
+  static defaultProps = {
+    isSentDisplayed: true,
+    isReceivedDisplayed: true,
+    isPendingDisplayed: true,
+    isRejectedDisplayed: true
+  };
+
   render() {
     const {
       transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact },
@@ -161,7 +171,7 @@ class Transaction extends PureComponent<Props> {
     if (!isRejectedDisplayed && isRejected) {
       return null;
     }
-    const color = this.getColor({ isPending, isRejected });
+    const color = this.getColor({ isSent, isPending, isRejected });
     return (
       <Wrapper>
         <FirstSection>
@@ -172,8 +182,8 @@ class Transaction extends PureComponent<Props> {
         <SecondSection>
           <SentReceivedTextWrapper>
             <SentReceivedText color={color}>{isSent ? 'Sent' : 'Received'}</SentReceivedText>
-            {isPending && <PendingText>&nbsp;&nbsp;( Pending )</PendingText>}
-            {isRejected && <RejectedText>&nbsp;&nbsp;( Rejected )</RejectedText>}
+            {isPending && <PendingText>&nbsp;(Pending)</PendingText>}
+            {isRejected && <RejectedText>&nbsp;(Rejected)</RejectedText>}
           </SentReceivedTextWrapper>
           <Amount>{amount}</Amount>
           <Address>{address}</Address>
@@ -193,13 +203,13 @@ class Transaction extends PureComponent<Props> {
     );
   }
 
-  getColor = ({ isPending, isRejected }: { isPending: boolean, isRejected: boolean }) => {
+  getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPending: boolean, isRejected: boolean }) => {
     if (isPending) {
       return smColors.orange;
     } else if (isRejected) {
       return smColors.red;
     }
-    return smColors.darkGreen;
+    return isSent ? smColors.blue : smColors.darkGreen;
   };
 
   getIcon = ({ isSent, isPending, isRejected }: { isSent: boolean, isPending: boolean, isRejected: boolean }) => {

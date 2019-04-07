@@ -1,1 +1,2 @@
-export { default as Transaction } from './Transaction'; // eslint-disable-line import/prefer-default-export
+export { default as Transaction } from './Transaction';
+export { default as LatestTransactions } from './LatestTransactions';
