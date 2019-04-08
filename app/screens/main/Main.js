@@ -74,7 +74,6 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: { push: (string) => void },
-  walletFiles: Array<string>,
   location: { pathname: string, hash: string },
   accounts: Account[],
   resetNodeSettings: Action,

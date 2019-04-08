@@ -11,7 +11,7 @@ import {
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
-  SET_CURRENT_ACCOUNT
+  SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
 
 const initialState = {
@@ -22,9 +22,8 @@ const initialState = {
   meta: {},
   mnemonic: null,
   accounts: [],
-  currentAccount: 0,
+  currentAccountIndex: 0,
   transactions: {},
-  currentAccTransactions: [],
   contacts: [],
   fiatRate: 1
 };
@@ -69,23 +68,20 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       const { transactions } = action.payload;
       return { ...state, transactions };
     }
-    case SET_CURRENT_ACCOUNT: {
-      const {
-        payload: { accountIndex }
-      } = action;
-      if (accountIndex < state.accounts.length && accountIndex >= 0) {
-        return { ...state, currentAccount: state.accounts[accountIndex], currentAccTransactions: state.transactions[accountIndex] };
+    case SET_CURRENT_ACCOUNT_INDEX: {
+      const { index } = action.payload;
+      if (index < state.accounts.length && index >= 0) {
+        return { ...state, currentAccountIndex: index };
       }
       return state;
     }
     case GET_BALANCE: {
       const { balance } = action.payload;
-      const accountToUpdate = state.currentAccount;
-      const accountIndex = 0; // TODO find account to update
+      const accountToUpdate = state.accounts[state.currentAccountIndex];
       accountToUpdate.balance = balance;
       return {
         ...state,
-        accounts: [...state.accounts.slice(0, accountIndex), accountToUpdate, ...state.accounts.slice(accountIndex + 1)]
+        accounts: [...state.accounts.slice(0, state.currentAccountIndex), accountToUpdate, ...state.accounts.slice(state.currentAccountIndex + 1)]
       };
     }
     case LOGOUT: {

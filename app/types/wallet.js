@@ -2,9 +2,12 @@
 
 export type Account = {
   displayName: string,
-  created: string,
+  created: number,
   displayColor: string,
-  path: string
+  path: string,
+  balance: number,
+  pk: string,
+  sk: string
 };
 
 export type WalletMeta = {

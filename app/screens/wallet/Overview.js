@@ -99,8 +99,8 @@ class Overview extends Component<Props, State> {
   }
 
   getBalance = async () => {
-    const { currentAccount, getBalance } = this.props;
-    await getBalance({ address: currentAccount.pk });
+    const { getBalance } = this.props;
+    await getBalance();
   };
 
   navigateToSendCoins = () => {
@@ -120,8 +120,8 @@ class Overview extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  currentAccount: state.wallet.currentAccount,
-  currentAccTransactions: state.wallet.currentAccTransactions,
+  currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
+  currentAccTransactions: state.wallet.transactions[state.wallet.currentAccountIndex],
   fiatRate: state.wallet.fiatRate
 });
 

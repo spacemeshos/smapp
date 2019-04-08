@@ -63,6 +63,10 @@ ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
   FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
 });
 
+ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
+  FileManager.updateFile({ event, ...request });
+});
+
 ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
   DiskStorageManager.getDriveList({ event });
 });
