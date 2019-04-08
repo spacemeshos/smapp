@@ -50,6 +50,18 @@ class FsService {
       });
     });
   };
+
+  static updateFile = ({ fileName, fieldName, data }: { fileName: string, fieldName: string, data: string }) => {
+    ipcRenderer.send(ipcConsts.UPDATE_FILE, { fileName, fieldName, data });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.UPDATE_FILE_SUCCESS, () => {
+        resolve();
+      });
+      ipcRenderer.once(ipcConsts.UPDATE_FILE_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  };
 }
 
 export default FsService;

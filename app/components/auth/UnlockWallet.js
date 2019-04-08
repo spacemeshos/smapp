@@ -122,7 +122,7 @@ class UnlockWallet extends Component<Props, State> {
         deriveEncryptionKey({ passphrase });
         await unlockWallet();
         navigateToWallet();
-      } catch {
+      } catch (error) {
         this.setState({ errorMsg: 'Passphrase Incorrect.' });
       }
     } else {

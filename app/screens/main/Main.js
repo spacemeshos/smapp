@@ -25,24 +25,27 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Transaction',
-    path: null,
+    path: '/main/transactions',
     icon: menu3
   },
   {
     text: 'Contacts',
     path: null,
-    icon: menu4
+    icon: menu4,
+    isDisabled: true
   },
   {
     text: 'Settings',
     path: null,
     icon: menu5,
-    hasSeparator: true
+    hasSeparator: true,
+    isDisabled: true
   },
   {
     text: 'Network',
-    path: '/main/story-book',
-    icon: menu6
+    path: null,
+    icon: menu6,
+    isDisabled: true
   },
   {
     text: 'Logout',
@@ -71,7 +74,6 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: { push: (string) => void },
-  walletFiles: Array<string>,
   location: { pathname: string, hash: string },
   accounts: Account[],
   resetNodeSettings: Action,
@@ -115,7 +117,7 @@ class Main extends Component<Props, State> {
     const { history, accounts, location } = this.props;
     const newPath: ?string = sideMenuItems[index].path;
     const isNavigatingToLocalNode = newPath && newPath.includes('/local-node');
-    if ((!accounts && !isNavigatingToLocalNode) || newPath === '/') {
+    if ((!accounts.length && !isNavigatingToLocalNode) || newPath === '/') {
       this.navToAuthAndLogout();
     } else {
       const isSameLocation = !!newPath && location.hash.endsWith(newPath);
@@ -135,7 +137,7 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: get(state.wallet.wallet, 'crypto.cipherText.accounts', null)
+  accounts: state.wallet.accounts
 });
 
 const mapDispatchToProps = {

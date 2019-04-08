@@ -65,6 +65,19 @@ class FileManager {
     }
   };
 
+  static updateFile = async ({ event, fileName, fieldName, data }) => {
+    try {
+      const filePath = path.isAbsolute(fileName) ? fileName : path.join(appFilesDirPath, fileName);
+      const fileContent = await readFileAsync(filePath);
+      const file = JSON.parse(fileContent);
+      file[fieldName] = data;
+      await writeFileAsync(filePath, JSON.stringify(file));
+      event.sender.send(ipcConsts.UPDATE_FILE_SUCCESS);
+    } catch (error) {
+      event.sender.send(ipcConsts.UPDATE_FILE_FAILURE, error.message);
+    }
+  };
+
   static _readFile = async ({ event, filePath }) => {
     try {
       const fileContent = await readFileAsync(filePath);

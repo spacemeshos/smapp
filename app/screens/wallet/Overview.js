@@ -2,11 +2,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance } from '/redux/wallet/actions';
+import { getBalance, addToContacts } from '/redux/wallet/actions';
 import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
+import { LatestTransactions } from '/components/transactions';
 import { SendReceiveButton } from '/basicComponents';
-import get from 'lodash.get';
-import type { Account, Action } from '/types';
+import type { Account, Action, TxList } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -25,7 +26,7 @@ const LeftSection = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  margin-right: 100px;
+  margin-right: 50px;
 `;
 
 const ButtonsWrapper = styled.div`
@@ -45,34 +46,35 @@ const RightSection = styled.div`
   height: 100%;
   display: flex;
   flex: 1;
+  flex-direction: column;
 `;
 
 type Props = {
-  accounts: Account[],
-  transactions: [],
+  currentAccount: Account,
+  currentAccTransactions: TxList,
   getBalance: Action,
+  addToContacts: Action,
   fiatRate: number,
-  history: { push: (string, Object) => void }
+  history: RouterHistory
 };
 
 type State = {
-  currentAccountIndex: number,
   shouldShowModal: boolean
 };
 
 class Overview extends Component<Props, State> {
   state = {
-    currentAccountIndex: 0,
     shouldShowModal: false
   };
 
   render() {
-    const { accounts, transactions, fiatRate } = this.props;
-    const { currentAccountIndex, shouldShowModal } = this.state;
+    const { currentAccount, currentAccTransactions, fiatRate, addToContacts } = this.props;
+    const { shouldShowModal } = this.state;
+    const latestTransactions = currentAccTransactions && currentAccTransactions.length > 0 ? currentAccTransactions.slice(0, 3) : null;
     return [
       <Wrapper key="main">
         <LeftSection>
-          {accounts && <AccountCard account={accounts[currentAccountIndex]} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
+          {currentAccount && <AccountCard account={currentAccount} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
           <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} />
           <ButtonsWrapper>
             <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
@@ -80,9 +82,15 @@ class Overview extends Component<Props, State> {
             <SendReceiveButton title={SendReceiveButton.titles.RECEIVE} onPress={() => this.setState({ shouldShowModal: true })} />
           </ButtonsWrapper>
         </LeftSection>
-        <RightSection>{transactions.length > 0 ? <div>transactions list</div> : <InitialLeftPane navigateToBackup={this.navigateToBackup} />}</RightSection>
+        <RightSection>
+          {latestTransactions ? (
+            <LatestTransactions transactions={latestTransactions} addToContacts={addToContacts} navigateToAllTransactions={this.navigateToAllTransactions} />
+          ) : (
+            <InitialLeftPane navigateToBackup={this.navigateToBackup} />
+          )}
+        </RightSection>
       </Wrapper>,
-      shouldShowModal && <ReceiveCoins key="modal" address={accounts[currentAccountIndex].pk} closeModal={() => this.setState({ shouldShowModal: false })} />
+      shouldShowModal && <ReceiveCoins key="modal" address={currentAccount.pk} closeModal={() => this.setState({ shouldShowModal: false })} />
     ];
   }
 
@@ -91,31 +99,35 @@ class Overview extends Component<Props, State> {
   }
 
   getBalance = async () => {
-    const { accounts, getBalance } = this.props;
-    const { currentAccountIndex } = this.state;
-    await getBalance({ address: accounts[currentAccountIndex].pk, accountIndex: currentAccountIndex });
+    const { getBalance } = this.props;
+    await getBalance();
   };
 
   navigateToSendCoins = () => {
-    const { history, accounts } = this.props;
-    const { currentAccountIndex } = this.state;
-    history.push('/main/wallet/sendCoins', { account: accounts[currentAccountIndex] });
+    const { history } = this.props;
+    history.push('/main/wallet/sendCoins');
   };
 
   navigateToBackup = () => {
     const { history } = this.props;
     history.push('/main/wallet/backup');
   };
+
+  navigateToAllTransactions = () => {
+    const { history } = this.props;
+    history.push('/main/transactions');
+  };
 }
 
 const mapStateToProps = (state) => ({
-  accounts: get(state.wallet.wallet, 'crypto.cipherText.accounts', null),
-  transactions: state.wallet.transactions,
+  currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
+  currentAccTransactions: state.wallet.transactions[state.wallet.currentAccountIndex],
   fiatRate: state.wallet.fiatRate
 });
 
 const mapDispatchToProps = {
-  getBalance
+  getBalance,
+  addToContacts
 };
 
 Overview = connect(
