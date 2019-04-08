@@ -33,7 +33,7 @@ export const saveNewWallet = ({ mnemonicParam, salt = cryptoConsts.DEFAULT_SALT 
   const walletState = getState().wallet;
   const { accountNumber, walletNumber, fileKey } = walletState;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const { publicKey, secretKey, seed, mnemonic } = keyGenService.generateKeyPair({ mnemonicParam });
+  const { publicKey, secretKey, seed, mnemonic: returnedMnemonic } = keyGenService.generateKeyPair({ mnemonicParam });
   const wallet = {
     displayName: `my_wallet_${walletNumber}`,
     created: unixEpochTimestamp,
@@ -43,7 +43,7 @@ export const saveNewWallet = ({ mnemonicParam, salt = cryptoConsts.DEFAULT_SALT 
       cipher: 'AES-128-CTR',
       cipherText: {
         seed,
-        mnemonic,
+        mnemonic: returnedMnemonic,
         accounts: [
           {
             displayName: `My Account ${accountNumber}`,

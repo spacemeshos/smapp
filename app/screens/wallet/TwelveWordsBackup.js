@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import get from 'lodash.get';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
+import { printService } from '/infra/printService';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -104,6 +105,16 @@ const LeftButtonsContainer = styled.div`
   display: flex;
 `;
 
+const getMnemonicForPrint = (mnemonic: string): string => {
+  const mnemonicArray = mnemonic.split(' ');
+  let mnemonicForPrint = '<div>';
+  mnemonicArray.forEach((word: string, index: number) => {
+    mnemonicForPrint += `<h2>${index + 1} ${word}</h2>`;
+  });
+  mnemonicForPrint += '</div>';
+  return mnemonicForPrint;
+};
+
 type Props = {
   history: RouterHistory,
   mnemonic: string
@@ -174,7 +185,10 @@ class TwelveWordsBackup extends Component<Props, State> {
     this.setState({ isTwelveWordsCopied: true });
   };
 
-  print12Words = () => {};
+  print12Words = () => {
+    const { mnemonic } = this.props;
+    printService.print({ content: getMnemonicForPrint(mnemonic) });
+  };
 
   learnMoreAboutPaperBackup = () => {};
 }

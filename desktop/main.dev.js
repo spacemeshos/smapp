@@ -16,6 +16,7 @@ import MenuBuilder from './menu';
 import FileManager from './fileManager';
 import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
+import printManager from './printManager';
 
 export default class AppUpdater {
   constructor() {
@@ -26,6 +27,7 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
+let printerWindow = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -79,6 +81,14 @@ ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
   netService.sendTx({ event, ...request });
 });
 
+ipcMain.on(ipcConsts.PRINT, async (event: any, content: any) => {
+  printerWindow.webContents.send(ipcConsts.PRINT, { content });
+});
+
+ipcMain.on(ipcConsts.READY_TO_PRINT, async (event: any) => {
+  printManager.readyToPrint({ printerWindow, event });
+});
+
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -98,12 +108,22 @@ const createWindow = () => {
   });
 };
 
+const createPrinterWindow = async () => {
+  printerWindow = new BrowserWindow({ show: false });
+  printerWindow.loadURL(`file://${__dirname}/printer.html`);
+  printerWindow.webContents.openDevTools();
+  printerWindow.on('closed', () => {
+    printerWindow = null;
+  });
+};
+
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
   }
 
   createWindow();
+  createPrinterWindow();
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
