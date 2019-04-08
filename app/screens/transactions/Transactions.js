@@ -144,17 +144,21 @@ class Transactions extends Component<Props, State> {
               />
             </ButtonsWrapper>
             <TransactionsListWrapper>
-              {transactions.map((tx, index) => (
-                <Transaction
-                  key={index}
-                  transaction={tx}
-                  addToContacts={() => {}}
-                  isSentDisplayed={isSentDisplayed}
-                  isReceivedDisplayed={isReceivedDisplayed}
-                  isPendingDisplayed={isPendingDisplayed}
-                  isRejectedDisplayed={isRejectedDisplayed}
-                />
-              ))}
+              {transactions ? (
+                transactions.map((tx, index) => (
+                  <Transaction
+                    key={index}
+                    transaction={tx}
+                    addToContacts={() => {}}
+                    isSentDisplayed={isSentDisplayed}
+                    isReceivedDisplayed={isReceivedDisplayed}
+                    isPendingDisplayed={isPendingDisplayed}
+                    isRejectedDisplayed={isRejectedDisplayed}
+                  />
+                ))
+              ) : (
+                <RightSectionText>No transactions executed yet</RightSectionText>
+              )}
             </TransactionsListWrapper>
           </LeftSection>
           <RightSection>
@@ -177,7 +181,7 @@ class Transactions extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  transactions: state.wallet.currentAccTransactions
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
 Transactions = connect(mapStateToProps)(Transactions);

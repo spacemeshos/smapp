@@ -1,5 +1,5 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx } from '/types';
 import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -10,7 +10,7 @@ export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 
 export const SET_WALLET_META: string = 'SET_WALLET_META';
 export const SET_ACCOUNTS: string = 'UPDATE_ACCOUNT_DATA';
-export const SET_CURRENT_ACCOUNT: string = 'SET_CURRENT_ACCOUNT';
+export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
 
@@ -126,8 +126,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const walletState = getState().wallet;
-  const { accountNumber, walletNumber, fileKey } = walletState;
+  const { accountNumber, walletNumber, fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
   const resolvedMnemonic = mnemonic || keyGenService.generateMnemonic();
   const { publicKey, secretKey } = keyGenService.generateKeyPair({ mnemonic: resolvedMnemonic });
@@ -164,10 +163,11 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    dispatch(setCurrentAccount({ accountIndex: 0 }));
+    dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
   } catch (err) {
     throw new Error(err);
   }
@@ -183,9 +183,9 @@ export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({
   payload: { accounts }
 });
 
-export const setCurrentAccount = ({ accountIndex }: { accountIndex: number }): Action => ({
-  type: SET_CURRENT_ACCOUNT,
-  payload: { accountIndex }
+export const setCurrentAccount = ({ index }: { index: number }): Action => ({
+  type: SET_CURRENT_ACCOUNT_INDEX,
+  payload: { index }
 });
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({
@@ -207,7 +207,7 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
     const files = await fileSystemService.readDirectory();
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
   } catch (err) {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
     throw new Error(err);
   }
 };
@@ -223,7 +223,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
-    dispatch(setCurrentAccount({ accountIndex: 0 }));
+    dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
     throw new Error(err);
   }
@@ -239,27 +239,22 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
   }
 };
 
-export const getBalance = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  const balance = await httpService.getBalance({ address });
+export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { accounts, currentAccountIndex } = getState().wallet;
+  const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].pk });
   dispatch({ type: GET_BALANCE, payload: { balance } });
 };
 
-export const sendTransaction = ({
-  srcAddress,
-  dstAddress,
-  amount,
-  fee,
-  note // eslint-disable-line no-unused-vars
-}: {
-  srcAddress: string,
-  dstAddress: string,
-  amount: number,
-  fee: number,
-  note: string
-}): Action => async (dispatch: Dispatch): Dispatch => {
+// eslint-disable-next-line no-unused-vars
+export const sendTransaction = ({ dstAddress, amount, fee, note }: { dstAddress: string, amount: number, fee: number, note: string }): Action => async (
+  dispatch: Dispatch,
+  getState: GetState
+): Dispatch => {
   try {
-    await httpService.sendTx({ srcAddress, dstAddress, amount: amount + fee });
+    const { accounts, currentAccountIndex } = getState.wallet;
+    await httpService.sendTx({ srcAddress: accounts[currentAccountIndex].pk, dstAddress, amount: amount + fee });
     dispatch({ type: SEND_TX, payload: amount + fee });
+    dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: dstAddress, date: new Date(), amount: amount + fee } }));
   } catch (error) {
     throw new Error(error);
   }
@@ -276,6 +271,18 @@ export const backupWallet = () => async (dispatch: Dispatch, getState: GetState)
     return true;
   } catch (err) {
     throw new Error(err);
+  }
+};
+
+export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
+    const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
+    const updatedTransactions = { ...transactions, [index]: [tx, ...transactions[index]] };
+    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
+    dispatch(setTransactions({ transactions: updatedTransactions }));
+  } catch (error) {
+    throw new Error(error);
   }
 };
 
