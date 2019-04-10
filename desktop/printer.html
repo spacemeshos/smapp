@@ -3,12 +3,13 @@
   <head></head>
   <body>
     <script>
-        const ipcRenderer = require("electron").ipcRenderer;
-
-        ipcRenderer.on('PRINT', (event, content) => {
-            document.body.innerHTML = content.content.content;
-            ipcRenderer.send('READY_TO_PRINT');
-        });
+      const ipcRenderer = require('electron').ipcRenderer;
+      const remote = require('electron').remote;
+      ipcRenderer.on('LOAD_CONTENT_AND_PRINT', async (event, { content }) => {
+          document.body.innerHTML = content;
+          await window.print();
+          remote.getCurrentWindow().close();
+      });
     </script>
   </body>
 </html>

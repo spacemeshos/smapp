@@ -104,16 +104,6 @@ const LeftButtonsContainer = styled.div`
   display: flex;
 `;
 
-const getMnemonicForPrint = (mnemonic: string): string => {
-  const mnemonicArray = mnemonic.split(' ');
-  let mnemonicForPrint = '<div>';
-  mnemonicArray.forEach((word: string, index: number) => {
-    mnemonicForPrint += `<h2>${index + 1} ${word}</h2>`;
-  });
-  mnemonicForPrint += '</div>';
-  return mnemonicForPrint;
-};
-
 type Props = {
   history: RouterHistory,
   mnemonic: string
@@ -183,7 +173,13 @@ class TwelveWordsBackup extends Component<Props, State> {
 
   print12Words = () => {
     const { mnemonic } = this.props;
-    printService.print({ content: getMnemonicForPrint(mnemonic) });
+    const mnemonicArray = mnemonic.split(' ');
+    let content = '<div>';
+    mnemonicArray.forEach((word: string, index: number) => {
+      content += `<h2>${index + 1} ${word}</h2>`;
+    });
+    content += '</div>';
+    printService.print({ content });
   };
 
   learnMoreAboutPaperBackup = () => {};
@@ -192,6 +188,6 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
+TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup); // adfsdgdfhdsgsrdf
 
 export default TwelveWordsBackup;

@@ -16,7 +16,6 @@ import MenuBuilder from './menu';
 import FileManager from './fileManager';
 import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
-import printManager from './printManager';
 
 export default class AppUpdater {
   constructor() {
@@ -27,7 +26,6 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
-let printerWindow = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -85,12 +83,12 @@ ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
   netService.sendTx({ event, ...request });
 });
 
-ipcMain.on(ipcConsts.PRINT, async (event: any, content: any) => {
-  printerWindow.webContents.send(ipcConsts.PRINT, { content });
-});
-
-ipcMain.on(ipcConsts.READY_TO_PRINT, async (event: any) => {
-  printManager.readyToPrint({ printerWindow, event });
+ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
+  const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
+  printerWindow.loadURL(`file://${__dirname}/printer.html`);
+  printerWindow.webContents.on('did-finish-load', () => {
+    printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
+  });
 });
 
 app.on('window-all-closed', () => {
@@ -112,22 +110,12 @@ const createWindow = () => {
   });
 };
 
-const createPrinterWindow = async () => {
-  printerWindow = new BrowserWindow({ show: false });
-  printerWindow.loadURL(`file://${__dirname}/printer.html`);
-  printerWindow.webContents.openDevTools();
-  printerWindow.on('closed', () => {
-    printerWindow = null;
-  });
-};
-
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     await installExtensions();
   }
 
   createWindow();
-  createPrinterWindow();
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
