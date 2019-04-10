@@ -56,10 +56,12 @@ const ActionLink = styled(BaseText)`
 const Text = styled.span`
   font-size: 18px;
   color: ${smColors.darkGray};
-  line-height: 48px;
+  line-height: 32px;
 `;
 
 const IndexWrapper = styled.div`
+  height: 32px;
+  line-height: 32px;
   width: 28px;
   margin-right: 50px;
   text-align: right;
@@ -100,7 +102,7 @@ const WordOptionsContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  margin-bottom: 30px;
+  margin-bottom: 42px;
 `;
 
 const ButtonsRow = styled.div`

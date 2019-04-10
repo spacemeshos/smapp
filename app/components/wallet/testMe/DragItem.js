@@ -7,8 +7,8 @@ import { smColors } from '/vars';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
-  height: 44px;
-  line-height: 44px;
+  height: 32px;
+  line-height: 32px;
   text-align: center;
   width: 140px;
   border-radius: 2px;
