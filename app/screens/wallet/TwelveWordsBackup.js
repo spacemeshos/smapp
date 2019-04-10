@@ -114,15 +114,26 @@ type State = {
 };
 
 class TwelveWordsBackup extends Component<Props, State> {
-  state = {
-    isTwelveWordsCopied: false
-  };
+  twelveWords: Array<string>;
+
+  twelveWordsPrint: string;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      isTwelveWordsCopied: false
+    };
+    const { mnemonic } = props;
+    this.twelveWords = mnemonic.split(' ');
+    this.twelveWordsPrint = '<div>';
+    this.twelveWords.forEach((word: string, index: number) => {
+      this.twelveWordsPrint += `<h2>${index + 1} ${word}</h2>`;
+    });
+    this.twelveWordsPrint += '</div>';
+  }
 
   render() {
-    const { mnemonic } = this.props;
     const { isTwelveWordsCopied } = this.state;
-    const twelveWords = mnemonic.split(' ');
-
     return (
       <Wrapper>
         <Header>Create a 12 Words Backup</Header>
@@ -131,7 +142,7 @@ class TwelveWordsBackup extends Component<Props, State> {
           paper and store the paper in a safe place. Alternatively, print it, or copy & paste it into your password manager.
         </HeaderExplanation>
         <TwelveWordsContainer>
-          {twelveWords.map((word: string, index: number) => (
+          {this.twelveWords.map((word: string, index: number) => (
             <WordWrapper key={word}>
               <IndexWrapper>
                 <Index>{`${index + 1}`}</Index>
@@ -150,10 +161,10 @@ class TwelveWordsBackup extends Component<Props, State> {
         </NotificationSection>
         <ButtonsRow>
           <LeftButtonsContainer>
-            <SmButton text="Print" theme="green" onPress={this.print12Words} style={{ width: 144, marginRight: 18 }} />
-            <SmButton text="Copy" theme="green" onPress={this.copy12Words} style={{ width: 144 }} />
+            <SmButton text="Print" theme="green" onPress={this.print12Words} style={{ width: 150, marginRight: 20 }} />
+            <SmButton text="Copy" theme="green" onPress={this.copy12Words} style={{ width: 150 }} />
           </LeftButtonsContainer>
-          <SmButton text="Test Me" theme="orange" onPress={this.navigateToTestMe} style={{ width: 144 }} />
+          <SmButton text="Test Me" theme="orange" onPress={this.navigateToTestMe} style={{ width: 150 }} />
         </ButtonsRow>
         <ActionLink onClick={this.learnMoreAboutPaperBackup}>Learn more about paper backup</ActionLink>
       </Wrapper>
@@ -171,23 +182,14 @@ class TwelveWordsBackup extends Component<Props, State> {
     this.setState({ isTwelveWordsCopied: true });
   };
 
-  print12Words = () => {
-    const { mnemonic } = this.props;
-    const mnemonicArray = mnemonic.split(' ');
-    let content = '<div>';
-    mnemonicArray.forEach((word: string, index: number) => {
-      content += `<h2>${index + 1} ${word}</h2>`;
-    });
-    content += '</div>';
-    printService.print({ content });
-  };
+  print12Words = () => printService.print({ content: this.twelveWordsPrint });
 
   learnMoreAboutPaperBackup = () => {};
 }
+
 const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
 TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
-
 export default TwelveWordsBackup;
