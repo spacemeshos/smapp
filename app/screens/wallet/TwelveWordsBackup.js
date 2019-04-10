@@ -188,6 +188,6 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup); // adfsdgdfhdsgsrdf
+TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
 
 export default TwelveWordsBackup;
