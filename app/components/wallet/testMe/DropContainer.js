@@ -11,7 +11,7 @@ const Item = styled.div`
   line-height: 44px;
   text-align: center;
   width: 140px;
-  border: 1px solid ${smColors.green}
+  border: 1px solid ${smColors.green};
   border-radius: 2px;
   background-color: ${({ backgroundColor }) => backgroundColor};
   transition: background-color 0.1s linear;
