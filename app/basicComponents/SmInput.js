@@ -11,6 +11,7 @@ const Wrapper = styled.div`
   width: 100%;
   height: ${({ isErrorMsgEnabled }) => (isErrorMsgEnabled ? '64' : '44')}px;
   display: flex;
+  flex: 1;
   flex-direction: column;
 `;
 
@@ -46,12 +47,14 @@ const ErrorMsg = styled.div`
 
 type Props = {
   onChange?: ({ value: string }) => void,
+  defaultValue?: string,
   isDisabled?: boolean,
   placeholder?: string,
   isErrorMsgEnabled?: boolean,
   errorMsg?: ?string,
   hasDebounce?: boolean,
   debounceTime?: number,
+  wrapperStyle?: Object,
   style?: Object,
   type?: string
 };
@@ -64,13 +67,13 @@ class SmInput extends PureComponent<Props> {
   };
 
   render() {
-    const { isDisabled, placeholder, errorMsg, isErrorMsgEnabled, style, type } = this.props;
+    const { defaultValue, isDisabled, placeholder, errorMsg, isErrorMsgEnabled, wrapperStyle, style, type } = this.props;
     return (
-      <Wrapper isErrorMsgEnabled={isErrorMsgEnabled}>
+      <Wrapper isErrorMsgEnabled={isErrorMsgEnabled} style={wrapperStyle}>
         <Input
+          defaultValue={defaultValue}
           hasError={errorMsg}
           readOnly={isDisabled}
-          isDisabled={isDisabled}
           placeholder={placeholder || INPUT_PLACEHOLDER}
           onChange={this.onChange}
           style={style}

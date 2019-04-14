@@ -2,7 +2,7 @@
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { walletBg, checkWhite, copyIcon } from '/assets/images';
+import { checkWhite, copyIcon } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -18,18 +18,18 @@ const PublicAddressInnerWrapper = styled.div`
   cursor: inherit;
 `;
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   width: 100%;
   height: 300px;
   display: flex;
   flex-direction: column;
   padding: 30px;
-  background: url(${walletBg}) no-repeat;
-  background-size: 100% 100%;
+  background-color: ${({ displayColor }) => displayColor};
   cursor: pointer;
   &: hover ${PublicAddressInnerWrapper} {
     border: 1px solid ${smColors.white};
-    background-color: ${smColors.green};
+    opacity: ${smColors.green};
   }
 `;
 
