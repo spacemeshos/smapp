@@ -9,7 +9,7 @@ import { smColors, cryptoConsts } from '/vars';
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 
 export const SET_WALLET_META: string = 'SET_WALLET_META';
-export const SET_ACCOUNTS: string = 'UPDATE_ACCOUNT_DATA';
+export const SET_ACCOUNTS: string = 'SET_ACCOUNTS';
 export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
@@ -287,3 +287,32 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
 };
 
 export const addToContacts = () => ({});
+
+export const updateWalletMeta = ({ metaFieldName, data }: { metaFieldName: string, data: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { meta, walletFiles } = getState().wallet;
+    const updatedMeta = { ...meta, [metaFieldName]: data };
+    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'meta', data: updatedMeta });
+    dispatch(setWalletMeta({ meta: updatedMeta }));
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const updateAccount = ({ accountIndex, fieldName, data }: { accountIndex: number, fieldName: string, data: any }): Action => async (
+  dispatch: Dispatch,
+  getState: GetState
+): Dispatch => {
+  const { accounts } = getState().wallet;
+  const updatedAccount = { ...accounts[accountIndex], [fieldName]: data };
+  const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
+  await dispatch(updateAccountsInFile({ accounts: updatedAccounts }));
+  dispatch(setAccounts({ accounts: updatedAccounts }));
+};
+
+const updateAccountsInFile = ({ accounts }: { accounts: Account[] }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { fileKey, mnemonic, walletFiles } = getState().wallet;
+  const cipherText = { mnemonic, accounts };
+  const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
+  await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
+};
