@@ -23,8 +23,6 @@ export const GET_BALANCE: string = 'GET_BALANCE';
 
 export const SEND_TX: string = 'SEND_TX';
 
-export const UPDATE_ACCOUNT: string = 'UPDATE_ACCOUNT';
-
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => (dispatch: Dispatch): Dispatch => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = cryptoService.createEncryptionKey({ passphrase, salt });

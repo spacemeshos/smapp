@@ -29,7 +29,7 @@ const Wrapper = styled.div`
   cursor: pointer;
   &: hover ${PublicAddressInnerWrapper} {
     border: 1px solid ${smColors.white};
-    opacity: ${smColors.green};
+    background-color: ${smColors.green};
   }
 `;
 
