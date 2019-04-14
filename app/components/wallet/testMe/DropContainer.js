@@ -1,8 +1,7 @@
 // @flow
-import React, { useState, useImperativeHandle, useEffect } from 'react';
+import React from 'react';
 import { DropTarget } from 'react-dnd';
 import styled from 'styled-components';
-import DnDTypes from './DnDTypes';
 import { smColors } from '/vars';
 
 // $FlowStyledIssue
@@ -14,62 +13,42 @@ const Item = styled.div`
   border: 1px solid ${smColors.green};
   border-radius: 2px;
   background-color: ${({ backgroundColor }) => backgroundColor};
-  transition: background-color 0.1s linear;
-`;
-
-const Word = styled.span`
   color: white;
 `;
 
-const DropContainer = React.forwardRef(
-  ({ canDrop, isOver, connectDropTarget, resetContainer }: { canDrop: boolean, isOver: boolean, connectDropTarget: any, resetContainer: boolean }, ref) => {
-    const [droppedWord, setDroppedWord] = useState(null);
+type Props = {
+  canDrop: boolean,
+  isOver: boolean,
+  connectDropTarget: any,
+  droppedWord: string
+};
 
-    useEffect(() => {
-      if (resetContainer) {
-        setDroppedWord(null);
-      }
-    });
+const DropContainer = (props: Props) => {
+  const { canDrop, isOver, droppedWord, connectDropTarget } = props;
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        onDrop: ({ itemWord }) => {
-          setDroppedWord(itemWord);
-        }
-      }),
-      []
-    );
+  const isActive = canDrop && isOver;
+  let backgroundColor = smColors.white;
 
-    const isActive = canDrop && isOver;
-    const isDropped = !!droppedWord;
-    let backgroundColor = smColors.white;
-    if (isDropped) {
-      backgroundColor = smColors.green;
-    } else if (isActive) {
-      backgroundColor = smColors.green30alpha;
-    } else if (canDrop) {
-      backgroundColor = smColors.green10alpha;
-    }
-    return (
-      <Item ref={connectDropTarget} backgroundColor={backgroundColor}>
-        {droppedWord && <Word>{droppedWord}</Word>}
-      </Item>
-    );
+  if (droppedWord) {
+    backgroundColor = smColors.green;
+  } else if (isActive) {
+    backgroundColor = smColors.green30alpha;
+  } else if (canDrop) {
+    backgroundColor = smColors.green10alpha;
   }
-);
+  return (
+    <Item ref={connectDropTarget} backgroundColor={backgroundColor}>
+      {droppedWord}
+    </Item>
+  );
+};
 
 export default DropTarget(
-  DnDTypes.ITEM,
+  'item',
   {
-    drop(props, monitor, component) {
-      if (!component) {
-        return;
-      }
+    drop: (props, monitor) => {
       const item = monitor.getItem();
-      const hasDropped = monitor.didDrop();
-      props.match(item.word === props.word);
-      component.onDrop({ itemWord: item.word, expectedWord: props.word, hasDropped });
+      props.onDrop({ word: props.word, droppedWord: item.word });
     }
   },
   (connect, monitor) => ({

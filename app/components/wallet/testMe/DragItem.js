@@ -2,7 +2,6 @@
 import React from 'react';
 import { DragSource } from 'react-dnd';
 import styled from 'styled-components';
-import DnDTypes from './DnDTypes';
 import { smColors } from '/vars';
 
 // $FlowStyledIssue
@@ -16,9 +15,18 @@ const Wrapper = styled.div`
   margin-right: 12px;
   color: ${smColors.white};
   opacity: ${({ isDragging }) => (isDragging ? 0.4 : 1)};
+  cursor: pointer;
 `;
 
-const DragItem = ({ word, isDropped, isDragging, connectDragSource }: { word: string, isDropped: boolean, isDragging: boolean, connectDragSource: any }) => {
+type Props = {
+  word: string,
+  isDropped: boolean,
+  isDragging: boolean,
+  connectDragSource: any
+};
+
+const DragItem = (props: Props) => {
+  const { word, isDropped, isDragging, connectDragSource } = props;
   return (
     <Wrapper ref={connectDragSource} isDragging={isDragging} isDropped={isDropped}>
       {!isDropped ? word : ''}
@@ -26,17 +34,9 @@ const DragItem = ({ word, isDropped, isDragging, connectDragSource }: { word: st
   );
 };
 export default DragSource(
-  DnDTypes.ITEM,
+  'item',
   {
-    beginDrag: (props) => ({ word: props.word }),
-    canDrag: (props) => !props.isDropped,
-    endDrag(props, monitor) {
-      const item = monitor.getItem();
-      const dropResult = monitor.getDropResult();
-      if (dropResult) {
-        props.drop(item.word);
-      }
-    }
+    beginDrag: (props: Props) => ({ word: props.word })
   },
   (connect, monitor) => ({
     connectDragSource: connect.dragSource(),

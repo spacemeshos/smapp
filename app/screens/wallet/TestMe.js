@@ -116,20 +116,17 @@ const LeftButtonsContainer = styled.div`
   display: flex;
 `;
 
-const getRandomNumber = (): number => Math.floor(Math.random() * 12);
-
-const getFourRandomIndices = () => {
-  const indices: number[] = [];
-  while (indices.length < 4) {
-    const idx = getRandomNumber();
-    if (!indices.includes(idx)) {
-      indices.push(idx);
-    }
-  }
-  return indices;
-};
-
 const getTestWords = (mnemonic: string) => {
+  const getFourRandomIndices = () => {
+    const indices: number[] = [];
+    while (indices.length < 4) {
+      const idx = Math.floor(Math.random() * 12);
+      if (!indices.includes(idx)) {
+        indices.push(idx);
+      }
+    }
+    return indices;
+  };
   const twelveWords = mnemonic.split(' ');
   const indices = getFourRandomIndices();
   const testWords: string[] = [];
@@ -139,35 +136,44 @@ const getTestWords = (mnemonic: string) => {
   return testWords;
 };
 
+const getTwelveWords = (mnemonic: string) => {
+  const twelveWords = mnemonic.split(' ');
+  return twelveWords.map((word: string) => ({
+    word,
+    droppedWord: null
+  }));
+};
+
+type WordItem = {
+  word: string,
+  droppedWord: ?string
+};
+
 type Props = {
   history: RouterHistory,
   mnemonic: string
 };
 
 type State = {
-  matching: number,
   testWords: string[],
-  droppedWords: string[],
-  resetContainer: boolean
+  twelveWords: WordItem[]
 };
 
 class TestMe extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      matching: 0,
       testWords: getTestWords(props.mnemonic),
-      droppedWords: [],
-      resetContainer: false
+      twelveWords: getTwelveWords(props.mnemonic)
     };
   }
 
   render() {
-    const { mnemonic } = this.props;
-    const { matching, testWords, droppedWords, resetContainer } = this.state;
-    const twelveWords = mnemonic.split(' ');
-    const isMatching = matching === 4 && droppedWords.length === 4;
-    const isNotMatching = matching < 4 && droppedWords.length === 4;
+    const { testWords, twelveWords } = this.state;
+    const isFourWordsDropped = this.getDroppedWordsLength() === 4;
+    const matching = this.getNumberOfMatches();
+    const isMatching = matching === 4 && isFourWordsDropped;
+    const isNotMatching = matching < 4 && isFourWordsDropped;
     return (
       <Wrapper>
         <DragDropContextProvider backend={HTML5Backend}>
@@ -175,16 +181,16 @@ class TestMe extends Component<Props, State> {
           <HeaderExplanation>Drag each of the 4 words below to its matching number in your paper backup words list.</HeaderExplanation>
           <WordOptionsContainer>
             {testWords.map((word: string) => (
-              <DragItem key={word} word={word} isDropped={droppedWords.includes(word)} drop={this.handleDrop} />
+              <DragItem key={word} word={word} isDropped={this.isWordDropped(word)} />
             ))}
           </WordOptionsContainer>
           <TwelveWordsContainer>
-            {twelveWords.map((word: string, index: number) => (
+            {twelveWords.map(({ word, droppedWord }: { word: string, droppedWord: ?string }, index: number) => (
               <WordWrapper key={word}>
                 <IndexWrapper>
                   <Index>{`${index + 1}`}</Index>
                 </IndexWrapper>
-                <DropContainer match={this.handleMatch} drop={this.handleDrop} word={word} resetContainer={resetContainer} />
+                <DropContainer word={word} droppedWord={droppedWord} onDrop={this.handleDrop} />
               </WordWrapper>
             ))}
           </TwelveWordsContainer>
@@ -205,17 +211,27 @@ class TestMe extends Component<Props, State> {
     );
   }
 
-  handleDrop = (word: string) => {
-    const { droppedWords } = this.state;
-    this.setState({ droppedWords: [...droppedWords, word] });
+  getDroppedWordsLength = (): number => {
+    const { twelveWords } = this.state;
+    const droppedWords = twelveWords.filter((wordItem: WordItem) => !!wordItem.droppedWord);
+    return droppedWords.length;
   };
 
-  handleMatch = (isMatching: boolean) => {
-    if (isMatching) {
-      this.setState((prevState: State) => {
-        return { matching: prevState.matching + 1 };
-      });
-    }
+  getNumberOfMatches = (): number => {
+    const { twelveWords } = this.state;
+    let matches = 0;
+    twelveWords.forEach((wordItem: WordItem) => {
+      matches += wordItem.droppedWord === wordItem.word ? 1 : 0;
+    });
+    return matches;
+  };
+
+  handleDrop = ({ word, droppedWord }: { word: string, droppedWord: string }) => {
+    const { twelveWords } = this.state;
+    const updatedIndex = twelveWords.findIndex((wordItem: WordItem) => word === wordItem.word);
+    const twelveWordsCopy = [...twelveWords];
+    twelveWordsCopy[updatedIndex].droppedWord = droppedWord;
+    this.setState({ twelveWords: twelveWordsCopy });
   };
 
   goBackToTwelveWordsBackup = () => {
@@ -224,24 +240,26 @@ class TestMe extends Component<Props, State> {
   };
 
   tryAgain = () => {
-    this.setState(
-      (prevState) => {
-        return {
-          matching: 0,
-          testWords: [...prevState.testWords],
-          droppedWords: [],
-          resetContainer: true
-        };
-      },
-      () => {
-        this.setState({ resetContainer: false });
-      }
-    );
+    const { twelveWords, testWords } = this.state;
+    const initializedTwelveWords: WordItem[] = twelveWords.map((wordItem: WordItem) => ({
+      word: wordItem.word,
+      droppedWord: null
+    }));
+    this.setState({
+      testWords: [...testWords],
+      twelveWords: initializedTwelveWords
+    });
   };
 
   navigateToWallet = () => {
     const { history } = this.props;
     history.push('/main/wallet/overview');
+  };
+
+  isWordDropped = (word: string): boolean => {
+    const { twelveWords } = this.state;
+    const match = twelveWords.find((wordItem: WordItem) => wordItem.droppedWord === word);
+    return !!match;
   };
 }
 const mapStateToProps = (state) => ({
