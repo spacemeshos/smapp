@@ -345,4 +345,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(Settings);
-// adfsdgdfhdsgsrdf
