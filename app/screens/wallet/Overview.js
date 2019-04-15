@@ -6,6 +6,7 @@ import { getBalance, addToContacts } from '/redux/wallet/actions';
 import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { LatestTransactions } from '/components/transactions';
 import { SendReceiveButton } from '/basicComponents';
+import { localStorageService } from '/infra/storageServices';
 import type { Account, Action, TxList } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -55,6 +56,7 @@ type Props = {
   getBalance: Action,
   addToContacts: Action,
   fiatRate: number,
+  hasBackup: boolean,
   history: RouterHistory
 };
 
@@ -68,14 +70,14 @@ class Overview extends Component<Props, State> {
   };
 
   render() {
-    const { currentAccount, currentAccTransactions, fiatRate, addToContacts } = this.props;
+    const { currentAccount, currentAccTransactions, fiatRate, addToContacts, hasBackup } = this.props;
     const { shouldShowModal } = this.state;
     const latestTransactions = currentAccTransactions && currentAccTransactions.length > 0 ? currentAccTransactions.slice(0, 3) : null;
     return [
       <Wrapper key="main">
         <LeftSection>
           {currentAccount && <AccountCard account={currentAccount} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
-          <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} />
+          <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} hasBackup={hasBackup} />
           <ButtonsWrapper>
             <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
             <ButtonsSeparator />
@@ -122,7 +124,8 @@ class Overview extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   currentAccTransactions: state.wallet.transactions[state.wallet.currentAccountIndex],
-  fiatRate: state.wallet.fiatRate
+  fiatRate: state.wallet.fiatRate,
+  hasBackup: localStorageService.get('hasBackup')
 });
 
 const mapDispatchToProps = {

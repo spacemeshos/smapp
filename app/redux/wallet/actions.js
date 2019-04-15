@@ -4,6 +4,7 @@ import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
+import { localStorageService } from '/infra/storageServices';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
@@ -23,10 +24,10 @@ export const GET_BALANCE: string = 'GET_BALANCE';
 
 export const SEND_TX: string = 'SEND_TX';
 
-export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => (dispatch: Dispatch): Dispatch => {
+export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = cryptoService.createEncryptionKey({ passphrase, salt });
-  dispatch({ type: DERIVE_ENCRYPTION_KEY, payload: { key, salt } });
+  return { type: DERIVE_ENCRYPTION_KEY, payload: { key } };
 };
 
 // TODO: remove stab
@@ -268,7 +269,7 @@ export const backupWallet = () => async (dispatch: Dispatch, getState: GetState)
     const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify({ mnemonic, accounts: copiedAccounts }), key: fileKey });
     const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
     await fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
-    return true;
+    localStorageService.set('hasBackup', true);
   } catch (err) {
     throw new Error(err);
   }
@@ -310,7 +311,7 @@ export const updateAccount = ({ accountIndex, fieldName, data }: { accountIndex:
   dispatch(setAccounts({ accounts: updatedAccounts }));
 };
 
-const updateAccountsInFile = ({ accounts }: { accounts: Account[] }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { fileKey, mnemonic, walletFiles } = getState().wallet;
   const cipherText = { mnemonic, accounts };
   const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
