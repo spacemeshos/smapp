@@ -11,7 +11,6 @@ const Wrapper = styled.div`
   width: 100%;
   height: ${({ isErrorMsgEnabled }) => (isErrorMsgEnabled ? '64' : '44')}px;
   display: flex;
-  flex: 1;
   flex-direction: column;
 `;
 

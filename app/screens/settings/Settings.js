@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount } from '/redux/wallet/actions';
+import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import type { WalletMeta, Account, Action } from '/types';
 import smColors from '/vars/colors';
@@ -114,25 +116,6 @@ const AddAccountBtnWrapper = styled.div`
   margin-bottom: 40px;
 `;
 
-// $FlowStyledIssue
-const SettingsRowWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${({ marginBottom }) => (marginBottom ? `${marginBottom}` : 0)}px;
-  padding: 20px 0;
-  border-bottom: 1px solid ${smColors.borderGray};
-  ${({ withTopBorder }) => withTopBorder && `border-top: 1px solid ${smColors.borderGray};`}
-`;
-
-const TextWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 10px;
-`;
-
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
@@ -158,25 +141,28 @@ type Props = {
   meta: WalletMeta,
   accounts: Account[],
   updateWalletMeta: Action,
-  updateAccount: Action
+  updateAccount: Action,
+  history: RouterHistory
 };
 
 type State = {
-  hasChanges: boolean,
-  walletName: string,
-  walletColor: string,
-  accountNames: Array<string>,
-  hasAccountNameChanged: Array<boolean>
+  shouldShowChangePassphrase: false,
+  shouldShowRestoreWallet: false
 };
 
 class Settings extends Component<Props, State> {
+  state = {
+    shouldShowChangePassphrase: false
+  };
+
   render() {
     const {
       meta: { displayName, displayColor },
       accounts
     } = this.props;
-    return (
-      <Wrapper>
+    const { shouldShowChangePassphrase } = this.state;
+    return [
+      <Wrapper key="main">
         <HeaderWrapper>
           <HeaderText>Settings</HeaderText>
           <WalletName>{displayName}</WalletName>
@@ -185,7 +171,15 @@ class Settings extends Component<Props, State> {
           <div>
             <MetaWrapper>
               <SettingsFieldName>Wallet name</SettingsFieldName>
-              <SmInput type="text" placeholder="Type wallet name" defaultValue={displayName} onChange={this.updateWalletName} hasDebounce isErrorMsgEnabled={false} />
+              <SmInput
+                type="text"
+                placeholder="Type wallet name"
+                defaultValue={displayName}
+                onChange={this.updateWalletName}
+                hasDebounce
+                isErrorMsgEnabled={false}
+                wrapperStyle={{ flex: 1 }}
+              />
               <MetaPlaceholder />
             </MetaWrapper>
             <MetaWrapper>
@@ -230,58 +224,45 @@ class Settings extends Component<Props, State> {
             <AddAccountBtnWrapper>
               <SmButton text="+ add another account" theme="green" onPress={this.addAccount} isDisabled style={buttonStyle} />
             </AddAccountBtnWrapper>
-            <SettingsRowWrapper withTopBorder>
-              <SettingsFieldName>Wallet Passphrase</SettingsFieldName>
-              <SmButton text="Change Passphrase" onPress={this.changePassphrase} style={buttonStyle} />
-            </SettingsRowWrapper>
-            <SettingsRowWrapper>
-              <SettingsFieldName>Wallet Language</SettingsFieldName>
-              <SmDropdown data={languages} selectedItemIndex={0} onPress={() => {}} isDisabled style={dropDownStyle} />
-              <MetaPlaceholder />
-            </SettingsRowWrapper>
-            <SettingsRowWrapper>
-              <SettingsFieldName>Local Currency</SettingsFieldName>
-              <SmDropdown data={currencies} selectedItemIndex={0} onPress={() => {}} isDisabled style={dropDownStyle} />
-              <MetaPlaceholder />
-            </SettingsRowWrapper>
-            <SettingsRowWrapper>
-              <SettingsFieldName>Wallet Backup</SettingsFieldName>
-              <SmButton text="Backup Wallet" onPress={this.navigateToWalletBackup} style={buttonStyle} />
-            </SettingsRowWrapper>
-            <SettingsRowWrapper>
-              <SettingsFieldName>Restore Wallet</SettingsFieldName>
-              <SmButton text="Restore Wallet" onPress={this.navigateToWalletRestore} style={buttonStyle} />
-            </SettingsRowWrapper>
-            <SettingsRowWrapper>
-              <div>
-                <SettingsFieldName>Terms of Service & Privacy Policy</SettingsFieldName>
-                <TextWrapper>
-                  <Text>Read about the&nbsp;</Text>
-                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })}>privacy</Link>
-                  <Text>&nbsp;and&nbsp;</Text>
-                  <Link onClick={() => this.externalNavigation({ to: 'security' })}>security</Link>
-                  <Text>&nbsp;of your personal information, our&nbsp;</Text>
-                  <Link onClick={() => this.externalNavigation({ to: 'terms' })}>terms</Link>
-                  <Text>&nbsp;and&nbsp;</Text>
-                  <Link onClick={() => this.externalNavigation({ to: 'serviceAgreement' })}>service agreement</Link>
-                </TextWrapper>
-              </div>
-            </SettingsRowWrapper>
-            <SettingsRowWrapper>
-              <div>
-                <SettingsFieldName>Wallets</SettingsFieldName>
-                <Text>You have one wallet</Text>
-              </div>
-              <SmButton text="Create a new wallet" onClick={this.createNewWallet} isDisabled style={buttonStyle} />
-            </SettingsRowWrapper>
-            <SettingsRowWrapper marginBottom={30}>
-              <SettingsFieldName>Learn more in our extensive user guide</SettingsFieldName>
-              <SmButton text="Visit the user guide" onPress={() => this.externalNavigation({ to: 'userGuide' })} style={buttonStyle} />
-            </SettingsRowWrapper>
+            <SettingsRow text="Wallet Passphrase" action={() => this.setState({ shouldShowChangePassphrase: true })} actionText="Change Passphrase" withTopBorder />
+            <SettingsRow
+              text="Wallet Language"
+              customAction={[<SmDropdown data={languages} selectedItemIndex={0} onPress={() => {}} isDisabled style={dropDownStyle} key="1" />, <MetaPlaceholder key="2" />]}
+            />
+            <SettingsRow
+              text="Local Currency"
+              customAction={[<SmDropdown data={currencies} selectedItemIndex={0} onPress={() => {}} isDisabled style={dropDownStyle} key="1" />, <MetaPlaceholder key="2" />]}
+            />
+            <SettingsRow text="Wallet Backup" action={this.navigateToWalletBackup} actionText="Backup Wallet" />
+            <SettingsRow text="Wallet Restore" action={() => {}} actionText="Restore Wallet" />
+            <SettingsRow
+              text="Terms of Service & Privacy Policy"
+              customSubText={[
+                <Text key="1">Read about the&nbsp;</Text>,
+                <Link onClick={() => this.externalNavigation({ to: 'privacy' })} key="2">
+                  privacy
+                </Link>,
+                <Text key="3">&nbsp;and&nbsp;</Text>,
+                <Link onClick={() => this.externalNavigation({ to: 'security' })} key="4">
+                  security
+                </Link>,
+                <Text key="5">&nbsp;of your personal information, our&nbsp;</Text>,
+                <Link onClick={() => this.externalNavigation({ to: 'terms' })} key="6">
+                  terms
+                </Link>,
+                <Text key="7">&nbsp;and&nbsp;</Text>,
+                <Link onClick={() => this.externalNavigation({ to: 'serviceAgreement' })} key="8">
+                  service agreement
+                </Link>
+              ]}
+            />
+            <SettingsRow text="Wallets" subText="You have one wallet" action={this.createNewWallet} actionText="Create a new wallet" isDisabled />
+            <SettingsRow text="Learn more in our extensive user guide" action={() => this.externalNavigation({ to: 'userGuide' })} actionText="Visit the user guide" />
           </div>
         </InnerWrapper>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowChangePassphrase && <ChangePassphrase goBack={() => this.setState({ shouldShowChangePassphrase: false })} key="modal1" />
+    ];
   }
 
   updateWalletName = async ({ value }: { value: string }) => {
@@ -320,11 +301,10 @@ class Settings extends Component<Props, State> {
 
   addAccount = () => {};
 
-  changePassphrase = () => {};
-
-  navigateToWalletBackup = () => {};
-
-  navigateToWalletRestore = () => {};
+  navigateToWalletBackup = () => {
+    const { history } = this.props;
+    history.push('/main/wallet/backup');
+  };
 
   createNewWallet = () => {};
 
