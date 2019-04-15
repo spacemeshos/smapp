@@ -168,6 +168,8 @@
     "pbkdf2": "^3.0.17",
     "qrcode.react": "^0.9.3",
     "react": "^16.6.3",
+    "react-dnd": "^7.4.5",
+    "react-dnd-html5-backend": "^7.4.4",
     "react-dom": "^16.6.3",
     "react-hot-loader": "^4.6.5",
     "react-redux": "^6.0.0",
