@@ -1,8 +1,6 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { deriveEncryptionKey } from '/redux/wallet/actions';
 import { SmButton } from '/basicComponents';
 import { keyGenService } from '/infra/keyGenService';
 import { xWhite } from '/assets/images';
@@ -77,8 +75,7 @@ const Link = styled.div`
 
 type Props = {
   proceedWithRestore: ({ mnemonic: string }) => void,
-  toggleRestoreWith12Words: () => void,
-  hasCloseBtn?: boolean
+  toggleRestoreWith12Words: () => void
 };
 
 type State = {
@@ -100,23 +97,17 @@ class WordsRestore extends Component<Props, State> {
     errorMsg: ''
   };
 
-  static defaultProps = {
-    hasCloseBtn: true
-  };
-
   render() {
-    const { toggleRestoreWith12Words, hasCloseBtn } = this.props;
+    const { toggleRestoreWith12Words } = this.props;
     const { errorMsg } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
       <Wrapper>
         <Header>Restore with 12 words</Header>
         <SubHeader>Please enter the 12 words in the right order</SubHeader>
-        {hasCloseBtn && (
-          <CloseBtnWrapper onClick={toggleRestoreWith12Words}>
-            <CloseButton src={xWhite} />
-          </CloseBtnWrapper>
-        )}
+        <CloseBtnWrapper onClick={toggleRestoreWith12Words}>
+          <CloseButton src={xWhite} />
+        </CloseBtnWrapper>
         <InputsTable onInputChange={this.handleInputChange} />
         <ErrorMsg>{errorMsg}</ErrorMsg>
         <BottomSection>
@@ -127,7 +118,7 @@ class WordsRestore extends Component<Props, State> {
     );
   }
 
-  handleInputChange = ({ value, index }) => {
+  handleInputChange = ({ value, index }: { value: string, index: number }) => {
     const { words } = this.state;
     this.setState({ words: { ...words, [`${index}`]: value }, errorMsg: '' });
   };
@@ -148,14 +139,5 @@ class WordsRestore extends Component<Props, State> {
     }
   };
 }
-
-const mapDispatchToProps = {
-  deriveEncryptionKey
-};
-
-WordsRestore = connect(
-  null,
-  mapDispatchToProps
-)(WordsRestore);
 
 export default WordsRestore;
