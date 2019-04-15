@@ -54,7 +54,7 @@ const Text = styled.span`
 
 type Props = {
   text: string,
-  theme: 'green' | 'orange',
+  theme?: 'green' | 'orange',
   isDisabled?: boolean,
   isActive?: boolean,
   onPress: Function,
@@ -62,6 +62,10 @@ type Props = {
 };
 
 class SmButton extends PureComponent<Props> {
+  static defaultProps = {
+    theme: 'green'
+  };
+
   render() {
     const { isDisabled, isActive, onPress, theme, text, style } = this.props;
     return (

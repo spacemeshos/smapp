@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   align-items: center;
   padding: 0 20px;
   background-color: ${({ hasBackup }) => (hasBackup ? smColors.white : smColors.red)};
-  cursor: pointer;
+  cursor: ${({ hasBackup }) => (hasBackup ? 'default' : 'pointer')};
 `;
 
 const ShieldIcon = styled.img`
@@ -36,12 +36,13 @@ const ArrowRight = styled.img`
   width: 19px;
   height: 18px;
   margin-left: auto;
+  cursor: inherit;
 `;
 
 type Props = {
-  navigateToBackup: Function,
+  navigateToBackup: () => void,
   hasBackup: boolean,
-  style: Object
+  style?: Object
 };
 
 class BackupReminder extends PureComponent<Props> {

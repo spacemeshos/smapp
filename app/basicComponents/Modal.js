@@ -16,15 +16,12 @@ const OuterWrapper = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 100%;
-  max-width: 900px;
-  height: 100%;
-  max-height: 500px;
+  max-width: 950px;
+  max-height: 650px;
   display: flex;
   flex-direction: column;
-  margin: 50px auto;
-  border-bottom: 1px solid ${smColors.borderGray};
   box-shadow: 0 3px 6px ${smColors.black20alpha};
+  background-color: ${smColors.white};
 `;
 
 const HeaderWrapper = styled.div`
@@ -46,6 +43,7 @@ const HeaderButtons = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-left: 30px;
 `;
 
 const ExplanationButton = styled.div`
@@ -61,13 +59,9 @@ const CloseButton = styled.img`
   cursor: pointer;
 `;
 
-const BodyWrapper = styled.div`
-  background-color: ${smColors.white};
-`;
-
 type Props = {
   header: string,
-  onQuestionMarkClick: () => void,
+  onQuestionMarkClick?: () => void,
   onCancelBtnClick: () => void,
   onCloseClick: () => void,
   content: Object
@@ -82,11 +76,11 @@ class Modal extends Component<Props> {
           <HeaderWrapper>
             <div>{header}</div>
             <HeaderButtons>
-              <ExplanationButton onClick={onQuestionMarkClick}>?</ExplanationButton>
+              {onQuestionMarkClick && <ExplanationButton onClick={onQuestionMarkClick}>?</ExplanationButton>}
               <CloseButton onClick={onCancelBtnClick} src={xWhite} />
             </HeaderButtons>
           </HeaderWrapper>
-          <BodyWrapper>{content}</BodyWrapper>
+          {content}
         </Wrapper>
       </OuterWrapper>
     );

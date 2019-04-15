@@ -148,9 +148,10 @@ class SideMenu extends React.Component<Props, State> {
 
   renderMenuElement = (item: SideMenuItem, index: number) => {
     const { selectedItemIndex, loadingItemIndex } = this.props;
+    const isDisabled = !item.path;
     return [
       item.hasSeparator && <Separator key="separator" />,
-      <MenuItemWrapper key={item.text} onClick={item.isDisabled ? null : () => this.handleSelectEntry({ index })} isDisabled={!!item.isDisabled}>
+      <MenuItemWrapper key={item.text} onClick={isDisabled ? null : () => this.handleSelectEntry({ index })} isDisabled={isDisabled}>
         {index === selectedItemIndex && <SelectedMenuItemBorder />}
         <MenuItemIconWrapper>
           <MenuItemIcon src={item.icon} alt="Icon missing" />
