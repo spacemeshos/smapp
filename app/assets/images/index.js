@@ -29,7 +29,6 @@ export { default as shieldIconGreenOne } from './security_logo_green_one@2x.png'
 export { default as shieldIconOrangeTwo } from './security_logo_orange_two@2x.png';
 export { default as shieldIconWhite } from './security_logo_white@2x.png';
 export { default as arrowRightWhite } from './arrowRightWhite.png';
-export { default as walletBg } from './wallet_bg@2x.png';
 export { default as backup } from './backup.gif';
 export { default as thinking } from './thinking.gif';
 export { default as noLaptop } from './no_laptop@2x.png';

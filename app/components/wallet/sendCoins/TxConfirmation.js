@@ -21,7 +21,8 @@ const Row = styled.div`
 `;
 
 const RowName = styled.div`
-  flex: 1;
+  width: 100px;
+  margin-right: 20px;
   font-size: 18px;
   font-weight: bold;
   line-height: 24px;
@@ -40,6 +41,7 @@ const RowRight = styled.div`
   font-size: 16px;
   line-height: 24px;
   color: ${smColors.darkGray50Alpha};
+  text-align: right;
 `;
 
 const EstimatedTime = styled.div`

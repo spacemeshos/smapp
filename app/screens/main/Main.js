@@ -9,7 +9,6 @@ import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
 import routes from '/routes';
-import get from 'lodash.get';
 import type { Account, Action } from '/types';
 
 const sideMenuItems: SideMenuItem[] = [
@@ -31,20 +30,18 @@ const sideMenuItems: SideMenuItem[] = [
   {
     text: 'Contacts',
     path: '/main/contacts',
-    icon: menu4,
+    icon: menu4
   },
   {
     text: 'Settings',
-    path: null,
+    path: '/main/settings',
     icon: menu5,
-    hasSeparator: true,
-    isDisabled: true
+    hasSeparator: true
   },
   {
     text: 'Network',
     path: null,
-    icon: menu6,
-    isDisabled: true
+    icon: menu6
   },
   {
     text: 'Logout',

@@ -64,8 +64,7 @@ type Props = {
   onSave: (entry: Contact) => {}
 };
 
-const SearchableList = (props: Props) => {
-  const { searchPhrase, list, title, onSave } = props;
+const SearchableList = ({ searchPhrase, list, title, onSave }: Props) => {
   const filteredList = list.filter((listItem: Contact) => {
     const nicknameMatch = listItem.nickname && listItem.nickname.toLowerCase().includes(searchPhrase.toLowerCase());
     const addressMatch = listItem.publicWalletAddress && listItem.publicWalletAddress.toLowerCase().includes(searchPhrase.toLowerCase());

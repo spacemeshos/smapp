@@ -78,14 +78,13 @@ class Contacts extends Component<Props, State> {
   render() {
     const { contacts, lastUsedAddresses } = this.props;
     const { searchPhrase } = this.state;
-
     return (
       <Wrapper>
         <Header>My Contacts</Header>
         <BodyWrapper>
           <LeftPane>
             <SearchRow>
-              <SmInput type="text" placeholder="Search..." errorMsg={null} onChange={this.handleSearchTyping} hasDebounce />
+              <SmInput type="text" placeholder="Search..." onChange={this.handleSearchTyping} hasDebounce />
               <IconWrapper>
                 <Icon src={search} />
               </IconWrapper>

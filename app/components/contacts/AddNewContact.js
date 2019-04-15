@@ -40,7 +40,8 @@ const initialState = {
   email: '',
   addressErrorMsg: null,
   nicknameErrorMsg: null,
-  emailErrorMsg: null
+  emailErrorMsg: null,
+  renderKey: 0
 };
 
 // $FlowStyledIssue
@@ -85,7 +86,6 @@ const ButtonWrapper = styled.div`
 
 type Field = {
   title: string,
-  value?: string,
   placeholder: string,
   fieldName: string,
   errorFieldName: string,
@@ -106,11 +106,11 @@ type State = {
   email?: string,
   addressErrorMsg: ?string,
   nicknameErrorMsg: ?string,
-  emailErrorMsg: ?string
+  emailErrorMsg: ?string,
+  renderKey: number
 };
 
 class AddNewContact extends Component<Props, State> {
-  // state = { ...initialState };
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -123,10 +123,10 @@ class AddNewContact extends Component<Props, State> {
 
   render() {
     const { modalMode } = this.props;
-    const { publicWalletAddress, nickname, addressErrorMsg, nicknameErrorMsg, emailErrorMsg } = this.state;
+    const { publicWalletAddress, nickname, addressErrorMsg, nicknameErrorMsg, emailErrorMsg, renderKey } = this.state;
     const isSaveButtonDisabled = !publicWalletAddress || !nickname || !!addressErrorMsg || !!nicknameErrorMsg || !!emailErrorMsg;
     return (
-      <Wrapper showBorder={!modalMode}>
+      <Wrapper showBorder={!modalMode} key={`render_key_${renderKey}`}>
         {!modalMode && (
           <TitleWrapper>
             <Title>Add New Contact</Title>
@@ -141,11 +141,10 @@ class AddNewContact extends Component<Props, State> {
   }
 
   renderFields = () => {
-    const { publicWalletAddress, nickname, email, addressErrorMsg, nicknameErrorMsg, emailErrorMsg } = this.state;
+    const { addressErrorMsg, nicknameErrorMsg, emailErrorMsg } = this.state;
     const fields: Field[] = [
       {
         title: 'Public wallet address',
-        value: publicWalletAddress,
         placeholder: 'Type public wallet address',
         fieldName: 'publicWalletAddress',
         errorFieldName: 'addressErrorMsg',
@@ -153,7 +152,6 @@ class AddNewContact extends Component<Props, State> {
       },
       {
         title: 'Nickname',
-        value: nickname,
         placeholder: 'Type nickname',
         fieldName: 'nickname',
         errorFieldName: 'nicknameErrorMsg',
@@ -161,7 +159,6 @@ class AddNewContact extends Component<Props, State> {
       },
       {
         title: 'Email (optional)',
-        value: email,
         placeholder: 'Type email',
         fieldName: 'email',
         errorFieldName: 'emailErrorMsg',
@@ -171,13 +168,13 @@ class AddNewContact extends Component<Props, State> {
     return <React.Fragment>{fields.map((field: Field) => this.renderSingleField(field))}</React.Fragment>;
   };
 
-  renderSingleField = ({ title, value, placeholder, fieldName, errorFieldName, errorMsg }: Field) => {
+  renderSingleField = ({ title, placeholder, fieldName, errorFieldName, errorMsg }: Field) => {
     return (
       <FieldWrapper key={fieldName}>
         <TextWrapper>
           <BoldText>{title}</BoldText>
         </TextWrapper>
-        <SmInput type="text" placeholder={placeholder} value={value} errorMsg={errorMsg} onChange={({ value }) => this.handleTyping({ value, fieldName, errorFieldName })} />
+        <SmInput type="text" placeholder={placeholder} errorMsg={errorMsg} onChange={({ value }) => this.handleTyping({ value, fieldName, errorFieldName })} />
       </FieldWrapper>
     );
   };
@@ -188,9 +185,9 @@ class AddNewContact extends Component<Props, State> {
 
   handleSave = () => {
     const { onSave } = this.props;
-    const { publicWalletAddress, nickname, email } = this.state;
+    const { publicWalletAddress, nickname, email, renderKey } = this.state;
     onSave({ publicWalletAddress, nickname, email });
-    this.setState({ ...initialState });
+    this.setState({ ...initialState, renderKey: renderKey + 1 });
   };
 }
 
