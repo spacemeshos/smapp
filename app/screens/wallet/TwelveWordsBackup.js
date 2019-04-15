@@ -7,6 +7,7 @@ import type { RouterHistory } from 'react-router-dom';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
 import { printService } from '/infra/printService';
+import { localStorageService } from '../../infra/storageServices';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -174,15 +175,20 @@ class TwelveWordsBackup extends Component<Props, State> {
   navigateToTestMe = () => {
     const { history } = this.props;
     history.push('/main/wallet/test-twelve-words-backup'); // TODO: implement this nav and component
+    localStorageService.set('hasBackup', true);
   };
 
   copy12Words = () => {
     const { mnemonic } = this.props;
     clipboard.writeText(mnemonic);
+    localStorageService.set('hasBackup', true);
     this.setState({ isTwelveWordsCopied: true });
   };
 
-  print12Words = () => printService.print({ content: this.twelveWordsPrint });
+  print12Words = () => {
+    printService.print({ content: this.twelveWordsPrint });
+    localStorageService.set('hasBackup', true);
+  };
 
   learnMoreAboutPaperBackup = () => {};
 }

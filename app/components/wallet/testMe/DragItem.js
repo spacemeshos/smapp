@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   width: 140px;
   border-radius: 2px;
   background-color: ${({ isDropped }) => (isDropped ? smColors.borderGray : smColors.green)};
-  margin-right: 12px;
+  margin-right: 10px;
   color: ${smColors.white};
   opacity: ${({ isDragging }) => (isDragging ? 0.4 : 1)};
   cursor: pointer;
@@ -29,7 +29,7 @@ const DragItem = (props: Props) => {
   const { word, isDropped, isDragging, connectDragSource } = props;
   return (
     <Wrapper ref={connectDragSource} isDragging={isDragging} isDropped={isDropped}>
-      {!isDropped ? word : ''}
+      {isDropped ? '' : word}
     </Wrapper>
   );
 };

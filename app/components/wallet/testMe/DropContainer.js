@@ -48,7 +48,7 @@ export default DropTarget(
   {
     drop: (props, monitor) => {
       const item = monitor.getItem();
-      props.onDrop({ word: props.word, droppedWord: item.word });
+      props.onDrop({ droppedWord: item.word });
     }
   },
   (connect, monitor) => ({
