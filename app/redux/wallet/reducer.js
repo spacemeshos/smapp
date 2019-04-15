@@ -11,6 +11,8 @@ import {
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
+  SET_CONTACTS,
+  SET_LAST_USED_ADDRESSES,
   SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
 
@@ -83,6 +85,14 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         ...state,
         accounts: [...state.accounts.slice(0, state.currentAccountIndex), accountToUpdate, ...state.accounts.slice(state.currentAccountIndex + 1)]
       };
+    }
+    case SET_CONTACTS: {
+      const { contacts } = action.payload;
+      return { ...state, contacts };
+    }
+    case SET_LAST_USED_ADDRESSES: {
+      const { lastUsedAddresses } = action.payload;
+      return { ...state, lastUsedAddresses };
     }
     case LOGOUT: {
       return initialState;

@@ -25,3 +25,9 @@ export type WalletMeta = {
     }
   }
 };
+
+export type Contact = {
+  publicWalletAddress: string,
+  nickname: ?string,
+  email?: string
+};

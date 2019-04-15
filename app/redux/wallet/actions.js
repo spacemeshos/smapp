@@ -1,5 +1,5 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } from '/types';
 import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -13,6 +13,8 @@ export const SET_ACCOUNTS: string = 'UPDATE_ACCOUNT_DATA';
 export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
+export const SET_CONTACTS: string = 'SET_CONTACTS';
+export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
 
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
@@ -20,6 +22,7 @@ export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const GET_BALANCE: string = 'GET_BALANCE';
+export const GET_CONTACTS: string = 'GET_CONTACTS';
 
 export const SEND_TX: string = 'SEND_TX';
 
@@ -122,6 +125,51 @@ const transactionsStab = [
   }
 ];
 
+const lastUsedAddressesStub: Contact[] = [
+  {
+    nickname: 'Frank Sinatra',
+    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0',
+    email: 'testemail@testing.com'
+  },
+  {
+    nickname: null,
+    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0'
+  },
+  {
+    nickname: 'Etta James',
+    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0'
+  }
+];
+
+// TODO: remove stub
+const contactsListStub: Contact[] = [
+  {
+    nickname: 'Frank Sinatra',
+    publicWalletAddress: '214wh43loivqm069vm3598mv0qvt0'
+  },
+  {
+    nickname: 'Nat King Cole',
+    publicWalletAddress: '214wh43254oivqm069vmq0umv0qvt0'
+  },
+  {
+    nickname: 'Etta James',
+    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0'
+  },
+  {
+    nickname: 'Mikael Barishnikov',
+    publicWalletAddress: '214wh43loivqm069vmq30u333qvt0'
+  },
+  {
+    nickname: 'Miles Davis',
+    publicWalletAddress: '214wh43loivqm111vmq30umv0qvt0',
+    email: 'miles@milesdavis.com'
+  },
+  {
+    nickname: 'Amy Winehouse',
+    publicWalletAddress: '2142343loivqm069vmq30umv0qvt0'
+  }
+];
+
 export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => (
   dispatch: Dispatch,
   getState: GetState
@@ -154,10 +202,12 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     ]
   };
   const transactions = { '0': transactionsStab }; // TODO: change to empty array after complete transaction flow is ready
-  const contacts = [];
+  const contacts = contactsListStub; // TODO: change to empty array when flow is complete
   const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
   const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
+  // eslint-disable-next-line no-console
+  console.warn('contacts save file >>>', contacts);
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush), showDialog: false });
     dispatch(setWalletMeta({ meta }));
@@ -165,6 +215,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions }));
+    dispatch(setContacts({ contacts }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
@@ -198,6 +249,16 @@ export const setTransactions = ({ transactions }: { transactions: TxList }): Act
   payload: { transactions }
 });
 
+export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({
+  type: SET_CONTACTS,
+  payload: { contacts }
+});
+
+export const setLastUsedAddresses = ({ lastUsedAddresses }: { lastUsedAddresses: Contact[] }): Action => ({
+  type: SET_LAST_USED_ADDRESSES,
+  payload: { lastUsedAddresses }
+});
+
 export const incrementWalletNumber = (): Action => ({ type: INCREMENT_WALLET_NUMBER });
 
 export const incrementAccountNumber = (): Action => ({ type: INCREMENT_ACCOUNT_NUMBER });
@@ -223,6 +284,8 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
+    dispatch(setContacts({ contacts: file.contacts }));
+    dispatch(setLastUsedAddresses({ lastUsedAddresses: lastUsedAddressesStub }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
     throw new Error(err);
@@ -286,4 +349,15 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   }
 };
 
-export const addToContacts = () => ({});
+// export const addToContacts = () => ({});
+
+export const addToContacts = ({ contact }: Contact): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { contacts, walletFiles } = getState().wallet;
+    const updatedContacts = [contact, ...contacts];
+    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'contacts', data: updatedContacts });
+    dispatch(setContacts({ contacts: updatedContacts }));
+  } catch (error) {
+    throw new Error(error);
+  }
+};

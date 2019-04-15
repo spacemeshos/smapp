@@ -44,3 +44,4 @@ export { default as arrowUpOrange } from './arrow_up_orange@2x.png';
 export { default as arrowUpRed } from './arrow_up_red@2x.png';
 export { default as arrowDownRed } from './arrow_down_red@2x.png';
 export { default as addToContactsIcon } from './add_contact@2x.png';
+export { default as search } from './search_icon@2x.png';
