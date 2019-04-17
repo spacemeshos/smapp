@@ -14,7 +14,7 @@ type Props = {
   publicWalletAddress: string,
   closeModal: () => void,
   navigateToExplanation: () => void,
-  onSave: Function
+  resolve: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
 };
 
 class AddNewContactModal extends PureComponent<Props> {
@@ -31,10 +31,10 @@ class AddNewContactModal extends PureComponent<Props> {
   }
 
   renderModalBody = () => {
-    const { onSave, publicWalletAddress } = this.props;
+    const { resolve, publicWalletAddress } = this.props;
     return (
       <Wrapper>
-        <AddNewContact onSave={onSave} publicWalletAddress={publicWalletAddress} modalMode />
+        <AddNewContact resolve={resolve} publicWalletAddress={publicWalletAddress} modalMode />
       </Wrapper>
     );
   };

@@ -1,38 +1,11 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { addToContacts } from '/redux/wallet/actions';
 import styled from 'styled-components';
 import { SmButton, SmInput } from '/basicComponents';
 import { smColors } from '/vars';
-
-const validateEmail = (email = '') => {
-  // eslint-disable-next-line no-useless-escape
-  const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return !email || emailRegex.test(email);
-};
-
-const validateAddress = (publicWalletAddress: string) => {
-  const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
-  return addressRegex.test(publicWalletAddress);
-};
-
-const validateNickname = (nickname: string) => {
-  const nicknameRegex = /^([a-zA-Z0-9_-]){1,50}$/;
-  return nicknameRegex.test(nickname);
-};
-
-const getErrorMessage = ({ fieldName, value }: { fieldName: string, value: string }) => {
-  const errorMessages = {
-    publicWalletAddress: 'Address is invalid',
-    nickname: 'Nickname is required',
-    email: 'Must enter a valid email'
-  };
-  const validators = {
-    publicWalletAddress: validateAddress,
-    nickname: validateNickname,
-    email: validateEmail
-  };
-  return validators[fieldName](value) ? null : errorMessages[fieldName];
-};
+import type { Action, Contact } from '/types';
 
 const initialState = {
   publicWalletAddress: '',
@@ -41,9 +14,29 @@ const initialState = {
   addressErrorMsg: null,
   nicknameErrorMsg: null,
   emailErrorMsg: null,
-  renderKey: 0,
-  isPublicAddressReadOnly: false
+  renderKey: 0
 };
+
+const fields: Field[] = [
+  {
+    title: 'Public wallet address',
+    placeholder: 'Type public wallet address',
+    fieldName: 'publicWalletAddress',
+    errorFieldName: 'addressErrorMsg'
+  },
+  {
+    title: 'Nickname',
+    placeholder: 'Type nickname',
+    fieldName: 'nickname',
+    errorFieldName: 'nicknameErrorMsg'
+  },
+  {
+    title: 'Email (optional)',
+    placeholder: 'Type email',
+    fieldName: 'email',
+    errorFieldName: 'emailErrorMsg'
+  }
+];
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -90,16 +83,14 @@ type Field = {
   title: string,
   placeholder: string,
   fieldName: string,
-  errorFieldName: string,
-  defaultValue?: string,
-  errorMsg: ?string,
-  isDisabled?: boolean
+  errorFieldName: string
 };
 
 type Props = {
   modalMode?: boolean,
+  addToContacts: Action,
   publicWalletAddress?: string,
-  onSave: Function
+  resolve: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
 };
 
 type State = {
@@ -109,18 +100,17 @@ type State = {
   addressErrorMsg: ?string,
   nicknameErrorMsg: ?string,
   emailErrorMsg: ?string,
-  renderKey: number,
-  isPublicAddressReadOnly: boolean
+  renderKey: number
 };
 
 class AddNewContact extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      ...initialState,
-      publicWalletAddress: props.publicWalletAddress,
-      isPublicAddressReadOnly: !!props.publicWalletAddress
-    };
+  state = { ...initialState };
+
+  static getDerivedStateFromProps(props, prevState) {
+    if (props.publicWalletAddress && !prevState.publicWalletAddress) {
+      return { publicWalletAddress: props.publicWalletAddress };
+    }
+    return null;
   }
 
   render() {
@@ -143,36 +133,18 @@ class AddNewContact extends Component<Props, State> {
   }
 
   renderFields = () => {
-    const { publicWalletAddress, addressErrorMsg, nicknameErrorMsg, emailErrorMsg, isPublicAddressReadOnly } = this.state;
-    const fields: Field[] = [
-      {
-        title: 'Public wallet address',
-        placeholder: 'Type public wallet address',
-        fieldName: 'publicWalletAddress',
-        errorFieldName: 'addressErrorMsg',
-        defaultValue: publicWalletAddress,
-        errorMsg: addressErrorMsg,
-        isDisabled: isPublicAddressReadOnly
-      },
-      {
-        title: 'Nickname',
-        placeholder: 'Type nickname',
-        fieldName: 'nickname',
-        errorFieldName: 'nicknameErrorMsg',
-        errorMsg: nicknameErrorMsg
-      },
-      {
-        title: 'Email (optional)',
-        placeholder: 'Type email',
-        fieldName: 'email',
-        errorFieldName: 'emailErrorMsg',
-        errorMsg: emailErrorMsg
-      }
-    ];
     return <React.Fragment>{fields.map((field: Field) => this.renderSingleField(field))}</React.Fragment>;
   };
 
-  renderSingleField = ({ title, placeholder, fieldName, errorFieldName, errorMsg, defaultValue, isDisabled }: Field) => {
+  renderSingleField = ({ title, placeholder, fieldName, errorFieldName }: Field) => {
+    const { publicWalletAddress } = this.props;
+    const { addressErrorMsg, nicknameErrorMsg, emailErrorMsg } = this.state;
+    const isPublicAddressFromProps = fieldName === 'publicWalletAddress' && !!publicWalletAddress;
+    const errorMessages = {
+      publicWalletAddress: addressErrorMsg,
+      nickname: nicknameErrorMsg,
+      email: emailErrorMsg
+    };
     return (
       <FieldWrapper key={fieldName}>
         <TextWrapper>
@@ -180,26 +152,71 @@ class AddNewContact extends Component<Props, State> {
         </TextWrapper>
         <SmInput
           type="text"
-          isDisabled={isDisabled}
+          isDisabled={isPublicAddressFromProps}
           placeholder={placeholder}
-          defaultValue={defaultValue}
-          errorMsg={errorMsg}
+          defaultValue={isPublicAddressFromProps ? publicWalletAddress : ''}
+          errorMsg={errorMessages[fieldName]}
           onChange={({ value }) => this.handleTyping({ value, fieldName, errorFieldName })}
         />
       </FieldWrapper>
     );
   };
 
+  getErrorMessage = ({ fieldName, value }: { fieldName: string, value: string }) => {
+    const errorMessages = {
+      publicWalletAddress: 'Address is invalid',
+      nickname: 'Nickname is required',
+      email: 'Must enter a valid email'
+    };
+    const validators = {
+      publicWalletAddress: this.validateAddress,
+      nickname: this.validateNickname,
+      email: this.validateEmail
+    };
+    return validators[fieldName](value) ? null : errorMessages[fieldName];
+  };
+
   handleTyping = ({ value, fieldName, errorFieldName }: { value: string, fieldName: string, errorFieldName: string }) => {
-    this.setState({ [fieldName]: value, [errorFieldName]: getErrorMessage({ fieldName, value }) });
+    this.setState({ [fieldName]: value, [errorFieldName]: this.getErrorMessage({ fieldName, value }) });
   };
 
   handleSave = () => {
-    const { onSave } = this.props;
+    const { addToContacts, resolve } = this.props;
     const { publicWalletAddress, nickname, email, renderKey } = this.state;
-    onSave({ publicWalletAddress, nickname, email });
+    const contact: Contact = {
+      publicWalletAddress,
+      nickname,
+      email
+    };
+    addToContacts({ contact });
     this.setState({ ...initialState, renderKey: renderKey + 1 });
+    resolve && resolve({ publicWalletAddress, nickname, email });
+  };
+
+  validateEmail = (email: string = '') => {
+    // eslint-disable-next-line no-useless-escape
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return !email || emailRegex.test(email);
+  };
+
+  validateAddress = (publicWalletAddress: string) => {
+    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+    return addressRegex.test(publicWalletAddress);
+  };
+
+  validateNickname = (nickname: string) => {
+    const nicknameRegex = /^([a-zA-Z0-9_-]){1,50}$/;
+    return nicknameRegex.test(nickname);
   };
 }
+
+const mapDispatchToProps = {
+  addToContacts
+};
+
+AddNewContact = connect(
+  null,
+  mapDispatchToProps
+)(AddNewContact);
 
 export default AddNewContact;
