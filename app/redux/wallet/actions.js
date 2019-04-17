@@ -129,16 +129,16 @@ const transactionsStab = [
 const lastUsedAddressesStub: Contact[] = [
   {
     nickname: 'Frank Sinatra',
-    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0',
+    publicWalletAddress: 'dkwhkjhfhekk3876582909876ehgh7yfbhuy7y74hyu7fhhhhhfghjkjhgfghjk8',
     email: 'testemail@testing.com'
   },
   {
     nickname: null,
-    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0'
+    publicWalletAddress: 'sdadadasdadeqrf3456t543sdfghgfdsdfgh7654rfgvbhtresdxfgytredcvgyu'
   },
   {
     nickname: 'Etta James',
-    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0'
+    publicWalletAddress: '111223344554323sfxddfdghjksmnbvbnmsnbvbnsmsdhgjbmmdsds9993fdsocc'
   }
 ];
 
@@ -146,28 +146,28 @@ const lastUsedAddressesStub: Contact[] = [
 const contactsListStub: Contact[] = [
   {
     nickname: 'Frank Sinatra',
-    publicWalletAddress: '214wh43loivqm069vm3598mv0qvt0'
+    publicWalletAddress: '11mxxzzkkdhhnwkkvjhhvgspacemeshflkjlkvkjkfnnn2nifjfj94kjbnkjrgkj'
   },
   {
     nickname: 'Nat King Cole',
-    publicWalletAddress: '214wh43254oivqm069vmq0umv0qvt0'
+    publicWalletAddress: 'spacemesh1spacemesh1spacemesh1spacemesh1spacemesh1spacemesh1spac'
   },
   {
     nickname: 'Etta James',
-    publicWalletAddress: '214wh43loivqm069vmq30umv0qvt0'
+    publicWalletAddress: 'spacemesh1spacemesh2spacemesh2spacemesh2spacemesh2spacemesh1spac'
   },
   {
     nickname: 'Mikael Barishnikov',
-    publicWalletAddress: '214wh43loivqm069vmq30u333qvt0'
+    publicWalletAddress: 'spacemesh3spacemesh3spacemesh3spacemesh3spacemesh3spacemesh1spac'
   },
   {
     nickname: 'Miles Davis',
-    publicWalletAddress: '214wh43loivqm111vmq30umv0qvt0',
+    publicWalletAddress: 'spacemesh4spacemesh4spacemesh4spacemesh4spacemesh4spacemesh4spac',
     email: 'miles@milesdavis.com'
   },
   {
     nickname: 'Amy Winehouse',
-    publicWalletAddress: '2142343loivqm069vmq30umv0qvt0'
+    publicWalletAddress: 'spacemesh5spacemesh5spacemesh5spacemesh5spacemesh5spacemesh5spac'
   }
 ];
 
@@ -215,7 +215,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions }));
     dispatch(setContacts({ contacts }));
-    dispatch(setLastUsedAddresses({ lastUsedAddresses: lastUsedAddressesStub })); // TODO: to be replaced with actual data
+    dispatch(setLastUsedAddresses({ lastUsedAddresses: lastUsedAddressesStub })); // TODO: to be replaced with empty array on file creation
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
@@ -254,6 +254,7 @@ export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({
   payload: { contacts }
 });
 
+// TODO: this should be changed to addLastUsedAddress when we can retrieve this data
 export const setLastUsedAddresses = ({ lastUsedAddresses }: { lastUsedAddresses: Contact[] }): Action => ({
   type: SET_LAST_USED_ADDRESSES,
   payload: { lastUsedAddresses }
@@ -285,7 +286,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
     dispatch(setContacts({ contacts: file.contacts }));
-    dispatch(setLastUsedAddresses({ lastUsedAddresses: lastUsedAddressesStub }));
+    dispatch(setLastUsedAddresses({ lastUsedAddresses: lastUsedAddressesStub })); // TODO: actual last used list needs to be set here
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
     throw new Error(err);

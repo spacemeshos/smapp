@@ -41,11 +41,13 @@ const initialState = {
   addressErrorMsg: null,
   nicknameErrorMsg: null,
   emailErrorMsg: null,
-  renderKey: 0
+  renderKey: 0,
+  isPublicAddressReadOnly: false
 };
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
+  width: 100%;
   ${({ showBorder }) =>
     showBorder &&
     `
@@ -89,14 +91,14 @@ type Field = {
   placeholder: string,
   fieldName: string,
   errorFieldName: string,
-  errorMsg: ?string
+  defaultValue?: string,
+  errorMsg: ?string,
+  isDisabled?: boolean
 };
 
 type Props = {
   modalMode?: boolean,
   publicWalletAddress?: string,
-  nickname?: string,
-  email?: string,
   onSave: Function
 };
 
@@ -107,7 +109,8 @@ type State = {
   addressErrorMsg: ?string,
   nicknameErrorMsg: ?string,
   emailErrorMsg: ?string,
-  renderKey: number
+  renderKey: number,
+  isPublicAddressReadOnly: boolean
 };
 
 class AddNewContact extends Component<Props, State> {
@@ -116,8 +119,7 @@ class AddNewContact extends Component<Props, State> {
     this.state = {
       ...initialState,
       publicWalletAddress: props.publicWalletAddress,
-      nickname: props.nickname,
-      email: props.email
+      isPublicAddressReadOnly: !!props.publicWalletAddress
     };
   }
 
@@ -141,14 +143,16 @@ class AddNewContact extends Component<Props, State> {
   }
 
   renderFields = () => {
-    const { addressErrorMsg, nicknameErrorMsg, emailErrorMsg } = this.state;
+    const { publicWalletAddress, addressErrorMsg, nicknameErrorMsg, emailErrorMsg, isPublicAddressReadOnly } = this.state;
     const fields: Field[] = [
       {
         title: 'Public wallet address',
         placeholder: 'Type public wallet address',
         fieldName: 'publicWalletAddress',
         errorFieldName: 'addressErrorMsg',
-        errorMsg: addressErrorMsg
+        defaultValue: publicWalletAddress,
+        errorMsg: addressErrorMsg,
+        isDisabled: isPublicAddressReadOnly
       },
       {
         title: 'Nickname',
@@ -168,13 +172,20 @@ class AddNewContact extends Component<Props, State> {
     return <React.Fragment>{fields.map((field: Field) => this.renderSingleField(field))}</React.Fragment>;
   };
 
-  renderSingleField = ({ title, placeholder, fieldName, errorFieldName, errorMsg }: Field) => {
+  renderSingleField = ({ title, placeholder, fieldName, errorFieldName, errorMsg, defaultValue, isDisabled }: Field) => {
     return (
       <FieldWrapper key={fieldName}>
         <TextWrapper>
           <BoldText>{title}</BoldText>
         </TextWrapper>
-        <SmInput type="text" placeholder={placeholder} errorMsg={errorMsg} onChange={({ value }) => this.handleTyping({ value, fieldName, errorFieldName })} />
+        <SmInput
+          type="text"
+          isDisabled={isDisabled}
+          placeholder={placeholder}
+          defaultValue={defaultValue}
+          errorMsg={errorMsg}
+          onChange={({ value }) => this.handleTyping({ value, fieldName, errorFieldName })}
+        />
       </FieldWrapper>
     );
   };

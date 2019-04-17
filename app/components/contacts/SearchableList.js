@@ -25,6 +25,7 @@ const Text = styled.span`
 
 const BoldText = styled(Text)`
   font-weight: bold;
+  margin-bottom: 6px;
 `;
 
 const Title = styled.span`
@@ -61,16 +62,16 @@ type Props = {
   title: string,
   searchPhrase: string,
   list: Contact[],
-  onSave: (entry: Contact) => {}
+  onSave: ({ publicWalletAddress: string }) => {}
 };
 
 const SearchableList = ({ searchPhrase, list, title, onSave }: Props) => {
-  const filteredList = list.filter((listItem: Contact) => {
+  const isMatchingSearch = (listItem: Contact) => {
     const nicknameMatch = listItem.nickname && listItem.nickname.toLowerCase().includes(searchPhrase.toLowerCase());
     const addressMatch = listItem.publicWalletAddress && listItem.publicWalletAddress.toLowerCase().includes(searchPhrase.toLowerCase());
     const emailMatch = listItem.email && listItem.email.includes(searchPhrase);
     return nicknameMatch || addressMatch || emailMatch;
-  });
+  };
 
   return (
     <Wrapper>
@@ -78,19 +79,17 @@ const SearchableList = ({ searchPhrase, list, title, onSave }: Props) => {
         <Title>{title}</Title>
       </TitleWrapper>
       <ItemsContainer>
-        {filteredList.map((listItem) => (
-          <AddressRow key={`${listItem.nickname}_${listItem.publicWalletAddress}`}>
-            <BoldText>
-              {listItem.nickname || 'Unknown'}
-              {!listItem.nickname && (
-                <ActionLink onClick={() => onSave({ publicWalletAddress: listItem.publicWalletAddress, nickname: listItem.nickname, email: listItem.email })}>
-                  Save to contacts
-                </ActionLink>
-              )}
-            </BoldText>
-            <Text>{listItem.publicWalletAddress}</Text>
-          </AddressRow>
-        ))}
+        {list.map((listItem) =>
+          isMatchingSearch(listItem) ? (
+            <AddressRow key={`${listItem.nickname}_${listItem.publicWalletAddress}`}>
+              <BoldText>
+                {listItem.nickname || 'Unknown'}
+                {!listItem.nickname && <ActionLink onClick={() => onSave({ publicWalletAddress: listItem.publicWalletAddress })}>Save to contacts</ActionLink>}
+              </BoldText>
+              <Text>{listItem.publicWalletAddress}</Text>
+            </AddressRow>
+          ) : null
+        )}
       </ItemsContainer>
     </Wrapper>
   );

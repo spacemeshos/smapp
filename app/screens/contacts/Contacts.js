@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { addToContacts } from '/redux/wallet/actions';
+import { addToContacts, setLastUsedAddresses } from '/redux/wallet/actions';
 import { SmInput } from '/basicComponents';
-import { SearchableList, AddNewContact } from '/components/contacts';
+import { SearchableList, AddNewContact, AddNewContactModal } from '/components/contacts';
 import { search } from '/assets/images';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
@@ -30,11 +30,11 @@ const BodyWrapper = styled.div`
 `;
 
 const LeftPane = styled.div`
-  flex: 1;
+  flex: 1.5;
   margin-right: 100px;
 `;
 const RightPane = styled.div`
-  min-width: 388px;
+  flex: 1;
 `;
 
 const SearchRow = styled.div`
@@ -62,24 +62,29 @@ const Icon = styled.img`
 type Props = {
   history: { push: (string) => void },
   addToContacts: Action,
+  setLastUsedAddresses: Action,
   contacts: Contact[],
   lastUsedAddresses: Contact[]
 };
 
 type State = {
-  searchPhrase: string
+  searchPhrase: string,
+  shouldShowModal: boolean,
+  publicWalletAddress: ?string
 };
 
 class Contacts extends Component<Props, State> {
   state = {
-    searchPhrase: ''
+    searchPhrase: '',
+    shouldShowModal: false,
+    publicWalletAddress: null
   };
 
   render() {
     const { contacts, lastUsedAddresses } = this.props;
-    const { searchPhrase } = this.state;
-    return (
-      <Wrapper>
+    const { searchPhrase, shouldShowModal, publicWalletAddress } = this.state;
+    return [
+      <Wrapper key="wrapper">
         <Header>My Contacts</Header>
         <BodyWrapper>
           <LeftPane>
@@ -89,15 +94,28 @@ class Contacts extends Component<Props, State> {
                 <Icon src={search} />
               </IconWrapper>
             </SearchRow>
-            <SearchableList onSave={this.handleSaveFromLastUsed} title="Last used addresses" list={lastUsedAddresses} searchPhrase={searchPhrase} />
-            <SearchableList onSave={this.handleSaveFromLastUsed} title="Contacts" list={contacts} searchPhrase={searchPhrase} />
+            <SearchableList
+              onSave={({ publicWalletAddress }) => this.setState({ shouldShowModal: true, publicWalletAddress })}
+              title="Last used addresses"
+              list={lastUsedAddresses}
+              searchPhrase={searchPhrase}
+            />
+            <SearchableList title="Contacts" list={contacts} searchPhrase={searchPhrase} />
           </LeftPane>
           <RightPane>
             <AddNewContact onSave={this.handleSave} />
           </RightPane>
         </BodyWrapper>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && (
+        <AddNewContactModal
+          key="modal"
+          onSave={this.handleSaveAndCloseModal}
+          publicWalletAddress={publicWalletAddress} // TODO: send public address onSave in SearchableList and connect here
+          closeModal={() => this.setState({ shouldShowModal: false, publicWalletAddress: null })}
+        />
+      )
+    ];
   }
 
   handleSearchTyping = ({ value }: { value: string }) => {
@@ -114,10 +132,14 @@ class Contacts extends Component<Props, State> {
     addToContacts({ contact });
   };
 
-  handleSaveFromLastUsed = ({ publicWalletAddress, nickname, email }: Contact) => {
-    // TODO: implement this when modal save to contacts is ready
-    // eslint-disable-next-line no-console
-    console.warn('Handle Save from last used', publicWalletAddress, nickname, email);
+  handleSaveAndCloseModal = ({ publicWalletAddress, nickname, email }: Contact) => {
+    const { setLastUsedAddresses, lastUsedAddresses } = this.props;
+    const updatedIndex = lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.publicWalletAddress === publicWalletAddress);
+    const updatedLastUsedAddresses = [...lastUsedAddresses];
+    updatedLastUsedAddresses[updatedIndex] = { publicWalletAddress, nickname, email };
+    setLastUsedAddresses({ lastUsedAddresses: updatedLastUsedAddresses });
+    this.handleSave({ publicWalletAddress, nickname, email });
+    this.setState({ shouldShowModal: false, publicWalletAddress: null });
   };
 }
 
@@ -128,7 +150,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  addToContacts
+  addToContacts,
+  setLastUsedAddresses
 };
 
 Contacts = connect(
