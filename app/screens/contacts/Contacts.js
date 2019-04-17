@@ -110,7 +110,7 @@ class Contacts extends Component<Props, State> {
       shouldShowModal && (
         <AddNewContactModal
           key="modal"
-          onSave={this.handleSaveAndCloseModal}
+          onSave={this.handleSaveLastUsedAddress}
           publicWalletAddress={publicWalletAddress} // TODO: send public address onSave in SearchableList and connect here
           closeModal={() => this.setState({ shouldShowModal: false, publicWalletAddress: null })}
         />
@@ -132,7 +132,7 @@ class Contacts extends Component<Props, State> {
     addToContacts({ contact });
   };
 
-  handleSaveAndCloseModal = ({ publicWalletAddress, nickname, email }: Contact) => {
+  handleSaveLastUsedAddress = ({ publicWalletAddress, nickname, email }: Contact) => {
     const { setLastUsedAddresses, lastUsedAddresses } = this.props;
     const updatedIndex = lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.publicWalletAddress === publicWalletAddress);
     const updatedLastUsedAddresses = [...lastUsedAddresses];

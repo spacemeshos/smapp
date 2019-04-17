@@ -27,6 +27,7 @@ const initialState = {
   currentAccountIndex: 0,
   transactions: {},
   contacts: [],
+  lastUsedAddresses: [],
   fiatRate: 1
 };
 
