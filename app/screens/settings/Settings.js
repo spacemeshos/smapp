@@ -1,3 +1,4 @@
+import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
@@ -5,8 +6,8 @@ import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount } from '/redux/wallet/actions';
 import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
+import { smColors, authModes } from '/vars';
 import type { WalletMeta, Account, Action } from '/types';
-import smColors from '/vars/colors';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -234,7 +235,7 @@ class Settings extends Component<Props, State> {
               customAction={[<SmDropdown data={currencies} selectedItemIndex={0} onPress={() => {}} isDisabled style={dropDownStyle} key="1" />, <MetaPlaceholder key="2" />]}
             />
             <SettingsRow text="Wallet Backup" action={this.navigateToWalletBackup} actionText="Backup Wallet" />
-            <SettingsRow text="Wallet Restore" action={() => {}} actionText="Restore Wallet" />
+            <SettingsRow text="Wallet Restore" action={this.navigateToWalletRestore} actionText="Restore Wallet" />
             <SettingsRow
               text="Terms of Service & Privacy Policy"
               customSubText={[
@@ -308,7 +309,21 @@ class Settings extends Component<Props, State> {
 
   createNewWallet = () => {};
 
-  externalNavigation = () => {};
+  navigateToWalletRestore = () => {
+    const { history } = this.props;
+    history.push('/auth', { presetMode: authModes.RESTORE });
+  };
+
+  externalNavigation = ({ to }: { to: string }) => {
+    switch (to) {
+      case 'userGuide': {
+        shell.openExternal('https://testnet.spacemesh.io');
+        break;
+      }
+      default:
+        break;
+    }
+  };
 }
 
 const mapStateToProps = (state) => ({

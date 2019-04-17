@@ -31,7 +31,8 @@ const InnerWrapper = styled.div`
 type Props = {
   history: { push: (string) => void },
   readWalletFiles: Action,
-  walletFiles: Array<string>
+  walletFiles: Array<string>,
+  location: { state?: { presetMode: number } }
 };
 
 type State = {
@@ -42,7 +43,7 @@ type State = {
 
 class Auth extends Component<Props, State> {
   state = {
-    mode: -1,
+    mode: this.props.location.state ? this.props.location.state.presetMode : -1, // eslint-disable-line react/destructuring-assignment
     isRestoreWith12WordsMode: false,
     mnemonic: ''
   };
