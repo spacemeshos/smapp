@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
+import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
@@ -106,7 +107,9 @@ type State = {
   isSentDisplayed: boolean,
   isReceivedDisplayed: boolean,
   isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean
+  isRejectedDisplayed: boolean,
+  publicWalletAddress: ?string,
+  shouldShowModal: boolean
 };
 
 class Transactions extends Component<Props, State> {
@@ -114,14 +117,16 @@ class Transactions extends Component<Props, State> {
     isSentDisplayed: true,
     isReceivedDisplayed: true,
     isPendingDisplayed: true,
-    isRejectedDisplayed: true
+    isRejectedDisplayed: true,
+    publicWalletAddress: null,
+    shouldShowModal: false
   };
 
   render() {
     const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed } = this.state;
-    return (
-      <Wrapper>
+    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, publicWalletAddress, shouldShowModal } = this.state;
+    return [
+      <Wrapper key="wrapper">
         <Header>Transaction Log</Header>
         <InnerWrapper>
           <LeftSection>
@@ -149,7 +154,7 @@ class Transactions extends Component<Props, State> {
                   <Transaction
                     key={index}
                     transaction={tx}
-                    addToContacts={() => {}}
+                    addToContacts={({ address }) => this.setState({ publicWalletAddress: address, shouldShowModal: true })}
                     isSentDisplayed={isSentDisplayed}
                     isReceivedDisplayed={isReceivedDisplayed}
                     isPendingDisplayed={isPendingDisplayed}
@@ -173,8 +178,16 @@ class Transactions extends Component<Props, State> {
             <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
           </RightSection>
         </InnerWrapper>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && (
+        <AddNewContactModal
+          key="modal"
+          publicWalletAddress={publicWalletAddress}
+          resolve={() => this.setState({ shouldShowModal: false, publicWalletAddress: null })}
+          closeModal={() => this.setState({ shouldShowModal: false, publicWalletAddress: null })}
+        />
+      )
+    ];
   }
 
   navigateToExplanation = () => {};

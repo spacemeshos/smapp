@@ -123,7 +123,8 @@ type Props = {
   amountErrorMsg?: string,
   fees: Array<Object>,
   feeIndex: number,
-  fiatRate: number
+  fiatRate: number,
+  openSearchContactsModal: () => void
 };
 
 type State = {
@@ -136,7 +137,7 @@ class TxParams extends Component<Props, State> {
   };
 
   render() {
-    const { updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate } = this.props;
+    const { updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate, openSearchContactsModal } = this.props;
     const { isFeeSelectorVisible } = this.state;
     return (
       <Wrapper>
@@ -144,7 +145,7 @@ class TxParams extends Component<Props, State> {
           <Label>Send to</Label>
           <InputSection>
             <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} style={inputStyle} isErrorMsgEnabled={false} />
-            <MyContactsSection>
+            <MyContactsSection onClick={openSearchContactsModal}>
               <MyContactsText>My contacts</MyContactsText>
               <MyContactsIcon src={contactIcon} />
             </MyContactsSection>

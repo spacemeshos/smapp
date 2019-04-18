@@ -34,7 +34,8 @@ type Props = {
   showLastUsedAddresses: boolean,
   contacts: Contact[],
   lastUsedAddresses: Contact[],
-  onSave: ({ publicWalletAddress: string }) => void
+  onSave: ({ publicWalletAddress: string }) => void,
+  onSelect: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
 };
 
 type State = {
@@ -47,7 +48,7 @@ class SearchContacts extends Component<Props, State> {
   };
 
   render() {
-    const { contacts, lastUsedAddresses, onSave, showLastUsedAddresses } = this.props;
+    const { contacts, lastUsedAddresses, onSave, showLastUsedAddresses, onSelect } = this.props;
     const { searchPhrase } = this.state;
     return (
       <React.Fragment>
@@ -58,7 +59,7 @@ class SearchContacts extends Component<Props, State> {
           </IconWrapper>
         </SearchRow>
         {showLastUsedAddresses && <SearchableList onSave={onSave} title="Last used addresses" list={lastUsedAddresses} searchPhrase={searchPhrase} />}
-        <SearchableList title="Contacts" list={contacts} searchPhrase={searchPhrase} />
+        <SearchableList title="Contacts" onSelect={onSelect} list={contacts} searchPhrase={searchPhrase} />
       </React.Fragment>
     );
   }

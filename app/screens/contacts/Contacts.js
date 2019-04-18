@@ -52,7 +52,7 @@ class Contacts extends Component<Props, State> {
   render() {
     const { publicWalletAddress } = this.state;
     return (
-      <Wrapper key="wrapper">
+      <Wrapper>
         <Header>My Contacts</Header>
         <BodyWrapper>
           <LeftPane>

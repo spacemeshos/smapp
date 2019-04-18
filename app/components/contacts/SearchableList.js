@@ -62,11 +62,15 @@ type Props = {
   title: string,
   searchPhrase: string,
   list: Contact[],
-  onSave: ({ publicWalletAddress: string }) => {}
+  onSave: ({ publicWalletAddress: string }) => {},
+  onSelect: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
 };
 
-const SearchableList = ({ searchPhrase, list, title, onSave }: Props) => {
+const SearchableList = ({ searchPhrase, list, title, onSave, onSelect }: Props) => {
   const isMatchingSearch = (listItem: Contact) => {
+    if (!listItem) {
+      return false;
+    }
     const nicknameMatch = listItem.nickname && listItem.nickname.toLowerCase().includes(searchPhrase.toLowerCase());
     const addressMatch = listItem.publicWalletAddress && listItem.publicWalletAddress.toLowerCase().includes(searchPhrase.toLowerCase());
     const emailMatch = listItem.email && listItem.email.includes(searchPhrase);
@@ -81,7 +85,7 @@ const SearchableList = ({ searchPhrase, list, title, onSave }: Props) => {
       <ItemsContainer>
         {list.map((listItem) =>
           isMatchingSearch(listItem) ? (
-            <AddressRow key={`${listItem.nickname}_${listItem.publicWalletAddress}`}>
+            <AddressRow key={`${listItem.nickname}_${listItem.publicWalletAddress}`} onClick={() => onSelect && onSelect({ ...listItem })}>
               <BoldText>
                 {listItem.nickname || 'Unknown'}
                 {!listItem.nickname && <ActionLink onClick={() => onSave({ publicWalletAddress: listItem.publicWalletAddress })}>Save to contacts</ActionLink>}

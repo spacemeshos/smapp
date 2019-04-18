@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
+import { SearchContactsModal } from '/components/contacts';
 import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
@@ -55,7 +56,8 @@ type State = {
   addressErrorMsg?: string,
   amountErrorMsg?: string,
   feeIndex: number,
-  shouldShowModal: boolean
+  shouldShowModal: boolean,
+  shouldShowSelectContactModal: boolean
 };
 
 class SendCoins extends Component<Props, State> {
@@ -66,7 +68,8 @@ class SendCoins extends Component<Props, State> {
     amountErrorMsg: '',
     note: '',
     feeIndex: 0,
-    shouldShowModal: false
+    shouldShowModal: false,
+    shouldShowSelectContactModal: false
   };
 
   render() {
@@ -74,7 +77,7 @@ class SendCoins extends Component<Props, State> {
       currentAccount: { balance },
       fiatRate
     } = this.props;
-    const { address, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal } = this.state;
+    const { address, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowSelectContactModal } = this.state;
     return [
       <Wrapper key="main">
         <SendCoinsHeader fiatRate={fiatRate} balance={balance} navigateToTxExplanation={this.navigateToTxExplanation} />
@@ -90,6 +93,7 @@ class SendCoins extends Component<Props, State> {
             fees={fees}
             feeIndex={feeIndex}
             fiatRate={fiatRate}
+            openSearchContactsModal={() => this.setState({ shouldShowSelectContactModal: true })}
           />
           <TxTotal
             amount={amount}
@@ -114,6 +118,18 @@ class SendCoins extends Component<Props, State> {
           closeModal={() => this.setState({ shouldShowModal: false })}
           sendTransaction={this.sendTransaction}
           editTransaction={() => this.setState({ shouldShowModal: false })}
+        />
+      ),
+      shouldShowSelectContactModal && (
+        <SearchContactsModal
+          key="add_contact_modal"
+          resolve={({ publicWalletAddress, nickname, email }) => {
+            // TODO: remove console log, connect selection
+            // eslint-disable-next-line no-console
+            console.warn('selected contact', publicWalletAddress, nickname, email);
+            this.setState({ shouldShowSelectContactModal: false });
+          }}
+          closeModal={() => this.setState({ shouldShowSelectContactModal: false })}
         />
       )
     ];
