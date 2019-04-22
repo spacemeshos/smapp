@@ -13,6 +13,7 @@ import {
   SET_TRANSACTIONS,
   SET_CONTACTS,
   SET_LAST_USED_ADDRESSES,
+  ADD_LAST_USED_ADDRESS,
   SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
 
@@ -94,6 +95,20 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_LAST_USED_ADDRESSES: {
       const { lastUsedAddresses } = action.payload;
       return { ...state, lastUsedAddresses };
+    }
+    case ADD_LAST_USED_ADDRESS: {
+      const { lastUsedAddresses, publicWalletAddress, nickname, email } = action.payload;
+      const updatedIndex = lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.publicWalletAddress === publicWalletAddress);
+      let updatedLastUsedAddresses;
+      if (updatedIndex < 0) {
+        updatedLastUsedAddresses = [{ publicWalletAddress, nickname, email }, ...lastUsedAddresses];
+      } else {
+        updatedLastUsedAddresses = [...lastUsedAddresses];
+        updatedLastUsedAddresses[updatedIndex] = { publicWalletAddress, nickname, email };
+      }
+      // eslint-disable-next-line no-console
+      console.warn('last used', updatedLastUsedAddresses.slice(0, 3));
+      return { ...state, lastUsedAddresses: updatedLastUsedAddresses.slice(0, 3) };
     }
     case LOGOUT: {
       return initialState;

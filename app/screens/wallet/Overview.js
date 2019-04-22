@@ -55,7 +55,6 @@ type Props = {
   currentAccount: Account,
   currentAccTransactions: TxList,
   getBalance: Action,
-  // addToContacts: Action,
   fiatRate: number,
   hasBackup: boolean,
   history: RouterHistory
@@ -63,20 +62,20 @@ type Props = {
 
 type State = {
   shouldShowReceiveCoinsModal: boolean,
-  publicWalletAddress: ?string,
+  address?: string,
   shouldShowAddContactModal: boolean
 };
 
 class Overview extends Component<Props, State> {
   state = {
     shouldShowReceiveCoinsModal: false,
-    publicWalletAddress: null,
+    address: '',
     shouldShowAddContactModal: false
   };
 
   render() {
     const { currentAccount, currentAccTransactions, fiatRate, hasBackup } = this.props;
-    const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, publicWalletAddress } = this.state;
+    const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, address } = this.state;
     const latestTransactions = currentAccTransactions && currentAccTransactions.length > 0 ? currentAccTransactions.slice(0, 3) : null;
     return [
       <Wrapper key="main">
@@ -93,7 +92,7 @@ class Overview extends Component<Props, State> {
           {latestTransactions ? (
             <LatestTransactions
               transactions={latestTransactions}
-              addToContacts={({ address }) => this.setState({ publicWalletAddress: address, shouldShowAddContactModal: true })}
+              addToContacts={({ address }) => this.setState({ address, shouldShowAddContactModal: true })}
               navigateToAllTransactions={this.navigateToAllTransactions}
             />
           ) : (
@@ -107,9 +106,9 @@ class Overview extends Component<Props, State> {
       shouldShowAddContactModal && (
         <AddNewContactModal
           key="add_contact_modal"
-          publicWalletAddress={publicWalletAddress}
-          resolve={() => this.setState({ shouldShowAddContactModal: false, publicWalletAddress: null })}
-          closeModal={() => this.setState({ shouldShowAddContactModal: false, publicWalletAddress: null })}
+          publicWalletAddress={address}
+          onSave={() => this.setState({ shouldShowAddContactModal: false })}
+          closeModal={() => this.setState({ shouldShowAddContactModal: false })}
         />
       )
     ];

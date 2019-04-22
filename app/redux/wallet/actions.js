@@ -16,6 +16,7 @@ export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
 export const SET_CONTACTS: string = 'SET_CONTACTS';
 export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
+export const ADD_LAST_USED_ADDRESS: string = 'ADD_LAST_USED_ADDRESS';
 
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
@@ -259,6 +260,18 @@ export const setLastUsedAddresses = ({ lastUsedAddresses }: { lastUsedAddresses:
   type: SET_LAST_USED_ADDRESSES,
   payload: { lastUsedAddresses }
 });
+
+export const addLastUsedAddress = ({ publicWalletAddress, nickname, email }: Contact): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { lastUsedAddresses } = getState().wallet;
+    // eslint-disable-next-line no-console
+    console.warn('last used addresses actions', lastUsedAddresses);
+    dispatch({ type: ADD_LAST_USED_ADDRESS, payload: { publicWalletAddress, nickname, email, lastUsedAddresses } });
+  } catch (err) {
+    dispatch({ type: ADD_LAST_USED_ADDRESS, payload: { publicWalletAddress: null, nickname: null, email: null } });
+    throw new Error(err);
+  }
+};
 
 export const incrementWalletNumber = (): Action => ({ type: INCREMENT_WALLET_NUMBER });
 

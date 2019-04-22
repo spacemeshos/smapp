@@ -14,39 +14,24 @@ type Props = {
   publicWalletAddress: string,
   closeModal: () => void,
   navigateToExplanation: () => void,
-  resolve: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
+  onSave: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
 };
 
 class AddNewContactModal extends PureComponent<Props> {
   render() {
+    const { navigateToExplanation, closeModal } = this.props;
     return (
-      <Modal
-        header="Create New Contact"
-        onQuestionMarkClick={this.onQuestionMarkClick}
-        onCancelBtnClick={this.onCloseClick}
-        onCloseClick={this.onCloseClick}
-        content={this.renderModalBody()}
-      />
+      <Modal header="Create New Contact" onQuestionMarkClick={navigateToExplanation} onCancelBtnClick={closeModal} onCloseClick={closeModal} content={this.renderModalBody()} />
     );
   }
 
   renderModalBody = () => {
-    const { resolve, publicWalletAddress } = this.props;
+    const { onSave, publicWalletAddress } = this.props;
     return (
       <Wrapper>
-        <AddNewContact resolve={resolve} publicWalletAddress={publicWalletAddress} modalMode />
+        <AddNewContact onSave={onSave} publicWalletAddress={publicWalletAddress} modalMode />
       </Wrapper>
     );
-  };
-
-  onQuestionMarkClick = () => {
-    const { navigateToExplanation } = this.props;
-    navigateToExplanation();
-  };
-
-  onCloseClick = () => {
-    const { closeModal } = this.props;
-    closeModal();
   };
 }
 

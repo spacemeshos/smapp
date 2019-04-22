@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setLastUsedAddresses } from '/redux/wallet/actions';
+import { addLastUsedAddress } from '/redux/wallet/actions';
 import { AddNewContact, SearchContacts } from '/components/contacts';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
@@ -36,8 +36,7 @@ const RightPane = styled.div`
 `;
 
 type Props = {
-  setLastUsedAddresses: Action,
-  lastUsedAddresses: Contact[]
+  addLastUsedAddress: Action
 };
 
 type State = {
@@ -59,7 +58,7 @@ class Contacts extends Component<Props, State> {
             <SearchContacts onSave={({ publicWalletAddress }) => this.setState({ publicWalletAddress })} showLastUsedAddresses />
           </LeftPane>
           <RightPane>
-            <AddNewContact publicWalletAddress={publicWalletAddress} resolve={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />
+            <AddNewContact publicWalletAddress={publicWalletAddress} onSave={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />
           </RightPane>
         </BodyWrapper>
       </Wrapper>
@@ -67,25 +66,18 @@ class Contacts extends Component<Props, State> {
   }
 
   handleSaveLastUsedAddress = ({ publicWalletAddress, nickname, email }: Contact) => {
-    const { setLastUsedAddresses, lastUsedAddresses } = this.props;
-    const updatedIndex = lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.publicWalletAddress === publicWalletAddress);
-    const updatedLastUsedAddresses = [...lastUsedAddresses];
-    updatedLastUsedAddresses[updatedIndex] = { publicWalletAddress, nickname, email };
-    setLastUsedAddresses({ lastUsedAddresses: updatedLastUsedAddresses });
+    const { addLastUsedAddress } = this.props;
+    addLastUsedAddress({ publicWalletAddress, nickname, email });
     this.setState({ publicWalletAddress: null });
   };
 }
 
-const mapStateToProps = (state) => ({
-  lastUsedAddresses: state.wallet.lastUsedAddresses
-});
-
 const mapDispatchToProps = {
-  setLastUsedAddresses
+  addLastUsedAddress
 };
 
 Contacts = connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(Contacts);
 

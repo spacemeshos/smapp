@@ -17,6 +17,12 @@ const initialState = {
   renderKey: 0
 };
 
+const errorMessages = {
+  publicWalletAddress: 'Address is invalid',
+  nickname: 'Nickname is required',
+  email: 'Must enter a valid email'
+};
+
 const fields: Field[] = [
   {
     title: 'Public wallet address',
@@ -90,7 +96,7 @@ type Props = {
   modalMode?: boolean,
   addToContacts: Action,
   publicWalletAddress?: string,
-  resolve: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
+  onSave: ({ publicWalletAddress: string, nickname: string, email?: string }) => void
 };
 
 type State = {
@@ -124,7 +130,7 @@ class AddNewContact extends Component<Props, State> {
             <Title>Add New Contact</Title>
           </TitleWrapper>
         )}
-        {this.renderFields()}
+        <React.Fragment>{fields.map((field: Field) => this.renderSingleField(field))}</React.Fragment>
         <ButtonWrapper alignment={modalMode ? 'right' : 'left'}>
           <SmButton text="Save to contacts" isDisabled={isSaveButtonDisabled} theme="orange" onPress={this.handleSave} style={{ width: 164 }} />
         </ButtonWrapper>
@@ -132,19 +138,9 @@ class AddNewContact extends Component<Props, State> {
     );
   }
 
-  renderFields = () => {
-    return <React.Fragment>{fields.map((field: Field) => this.renderSingleField(field))}</React.Fragment>;
-  };
-
   renderSingleField = ({ title, placeholder, fieldName, errorFieldName }: Field) => {
     const { publicWalletAddress } = this.props;
-    const { addressErrorMsg, nicknameErrorMsg, emailErrorMsg } = this.state;
-    const isPublicAddressFromProps = fieldName === 'publicWalletAddress' && !!publicWalletAddress;
-    const errorMessages = {
-      publicWalletAddress: addressErrorMsg,
-      nickname: nicknameErrorMsg,
-      email: emailErrorMsg
-    };
+    const isAddToContactsMode = fieldName === 'publicWalletAddress' && !!publicWalletAddress;
     return (
       <FieldWrapper key={fieldName}>
         <TextWrapper>
@@ -152,36 +148,25 @@ class AddNewContact extends Component<Props, State> {
         </TextWrapper>
         <SmInput
           type="text"
-          isDisabled={isPublicAddressFromProps}
+          isDisabled={isAddToContactsMode}
           placeholder={placeholder}
-          defaultValue={isPublicAddressFromProps ? publicWalletAddress : ''}
-          errorMsg={errorMessages[fieldName]}
+          defaultValue={isAddToContactsMode ? publicWalletAddress : ''}
+          // eslint-disable-next-line react/destructuring-assignment
+          errorMsg={this.state[errorFieldName]}
           onChange={({ value }) => this.handleTyping({ value, fieldName, errorFieldName })}
         />
       </FieldWrapper>
     );
   };
 
-  getErrorMessage = ({ fieldName, value }: { fieldName: string, value: string }) => {
-    const errorMessages = {
-      publicWalletAddress: 'Address is invalid',
-      nickname: 'Nickname is required',
-      email: 'Must enter a valid email'
-    };
-    const validators = {
-      publicWalletAddress: this.validateAddress,
-      nickname: this.validateNickname,
-      email: this.validateEmail
-    };
-    return validators[fieldName](value) ? null : errorMessages[fieldName];
-  };
+  getErrorMessage = ({ fieldName, value }: { fieldName: string, value: string }): ?string => (this.validators({ fieldName, value }) ? null : errorMessages[fieldName]);
 
   handleTyping = ({ value, fieldName, errorFieldName }: { value: string, fieldName: string, errorFieldName: string }) => {
     this.setState({ [fieldName]: value, [errorFieldName]: this.getErrorMessage({ fieldName, value }) });
   };
 
   handleSave = () => {
-    const { addToContacts, resolve } = this.props;
+    const { addToContacts, onSave } = this.props;
     const { publicWalletAddress, nickname, email, renderKey } = this.state;
     const contact: Contact = {
       publicWalletAddress,
@@ -190,23 +175,27 @@ class AddNewContact extends Component<Props, State> {
     };
     addToContacts({ contact });
     this.setState({ ...initialState, renderKey: renderKey + 1 });
-    resolve && resolve({ publicWalletAddress, nickname, email });
+    onSave && onSave({ publicWalletAddress, nickname, email });
   };
 
-  validateEmail = (email: string = '') => {
-    // eslint-disable-next-line no-useless-escape
-    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return !email || emailRegex.test(email);
-  };
-
-  validateAddress = (publicWalletAddress: string) => {
-    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
-    return addressRegex.test(publicWalletAddress);
-  };
-
-  validateNickname = (nickname: string) => {
-    const nicknameRegex = /^([a-zA-Z0-9_-]){1,50}$/;
-    return nicknameRegex.test(nickname);
+  validators = ({ fieldName, value }: { fieldName: string, value: string }) => {
+    switch (fieldName) {
+      case 'publicWalletAddress': {
+        const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+        return addressRegex.test(value);
+      }
+      case 'nickname': {
+        const nicknameRegex = /^([a-zA-Z0-9_-]){1,50}$/;
+        return nicknameRegex.test(value);
+      }
+      case 'email': {
+        // eslint-disable-next-line no-useless-escape
+        const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return !value || emailRegex.test(value);
+      }
+      default:
+        return false;
+    }
   };
 }
 
