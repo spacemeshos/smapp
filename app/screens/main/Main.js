@@ -9,7 +9,6 @@ import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
 import routes from '/routes';
-import get from 'lodash.get';
 import type { Account, Action } from '/types';
 
 const sideMenuItems: SideMenuItem[] = [
@@ -25,7 +24,7 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Transaction',
-    path: null,
+    path: '/main/transactions',
     icon: menu3
   },
   {
@@ -35,13 +34,13 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Settings',
-    path: null,
+    path: '/main/settings',
     icon: menu5,
     hasSeparator: true
   },
   {
     text: 'Network',
-    path: '/main/story-book',
+    path: null,
     icon: menu6
   },
   {
@@ -71,7 +70,6 @@ const InnerWrapper = styled.div`
 
 type Props = {
   history: { push: (string) => void },
-  walletFiles: Array<string>,
   location: { pathname: string, hash: string },
   accounts: Account[],
   resetNodeSettings: Action,
@@ -115,7 +113,7 @@ class Main extends Component<Props, State> {
     const { history, accounts, location } = this.props;
     const newPath: ?string = sideMenuItems[index].path;
     const isNavigatingToLocalNode = newPath && newPath.includes('/local-node');
-    if ((!accounts && !isNavigatingToLocalNode) || newPath === '/') {
+    if ((!accounts.length && !isNavigatingToLocalNode) || newPath === '/') {
       this.navToAuthAndLogout();
     } else {
       const isSameLocation = !!newPath && location.hash.endsWith(newPath);
@@ -135,7 +133,7 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: get(state.wallet.wallet, 'crypto.cipherText.accounts', null)
+  accounts: state.wallet.accounts
 });
 
 const mapDispatchToProps = {

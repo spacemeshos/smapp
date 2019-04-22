@@ -1,6 +1,5 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup } from '/screens';
-import StoryBook from './components/StoryBook';
+import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, TwelveWordsBackup, Transactions, TestMe, Settings } from '/screens';
 
 const app = [
   {
@@ -15,16 +14,20 @@ const app = [
 
 const main = [
   {
-    path: '/main/story-book',
-    component: StoryBook
-  },
-  {
     path: '/main/wallet',
     component: Wallet
   },
   {
     path: '/main/local-node',
     component: LocalNode
+  },
+  {
+    path: '/main/transactions',
+    component: Transactions
+  },
+  {
+    path: '/main/settings',
+    component: Settings
   }
 ];
 
@@ -40,6 +43,14 @@ const wallet = [
   {
     path: '/main/wallet/backup',
     component: Backup
+  },
+  {
+    path: '/main/wallet/twelve-words-backup',
+    component: TwelveWordsBackup
+  },
+  {
+    path: '/main/wallet/test-twelve-words-backup',
+    component: TestMe
   }
 ];
 

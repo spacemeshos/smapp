@@ -109,8 +109,10 @@ type SmDropdownProps = {
   onPress: ({ index: number }) => void,
   data: DropdownEntry[],
   selectedItemIndex: number,
+  CustomElement?: Object,
   isDisabled?: boolean,
-  placeholder?: string
+  placeholder?: string,
+  style?: Object
 };
 
 type SmDropdownState = {
@@ -127,16 +129,17 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
   };
 
   render() {
-    const { data, selectedItemIndex, isDisabled, placeholder } = this.props;
+    const { data, CustomElement, selectedItemIndex, isDisabled, placeholder, style } = this.props;
     const { isOpened } = this.state;
     const isDisabledComputed = isDisabled || !data || !data.length;
+    const label = selectedItemIndex !== -1 ? data[selectedItemIndex].label : placeholder;
     return (
-      <Wrapper isDisabled={isDisabledComputed}>
+      <Wrapper isDisabled={isDisabledComputed} style={style}>
         <HeaderWrapper isOpened={isOpened} onClick={isDisabledComputed ? null : this.handleToggle}>
-          <Text isDisabled={isDisabled}>{selectedItemIndex !== -1 ? data[selectedItemIndex].label : placeholder}</Text>
+          {CustomElement ? <CustomElement isDisabled={isDisabled} label={label} /> : <Text isDisabled={isDisabled}>{label}</Text>}
           <Icon isOpened={isOpened} src={isOpened ? openDDIcon : openDDIconDisabled} />
         </HeaderWrapper>
-        {isOpened && data && <ItemsWrapper>{data.map((item, index) => this.renderDropdownEntryElem({ label: item.label, isDisabled: item.isDisabled, index }))}</ItemsWrapper>}
+        {isOpened && data && <ItemsWrapper>{data.map((item, index) => this.renderRow({ label: item.label, isDisabled: item.isDisabled, index }))}</ItemsWrapper>}
       </Wrapper>
     );
   }
@@ -152,12 +155,12 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
     }, 0);
   }
 
-  renderDropdownEntryElem = ({ label, isDisabled, index }: { label: string, isDisabled?: boolean, index: number }) => {
-    const { onPress } = this.props;
+  renderRow = ({ label, isDisabled, index }: { label: string, isDisabled?: boolean, index: number }) => {
+    const { onPress, CustomElement } = this.props;
     return (
       <DropdownRow
         isDisabled={isDisabled}
-        key={label}
+        key={`${label}${index}`}
         onClick={
           isDisabled
             ? null
@@ -169,7 +172,7 @@ class SmDropdown extends React.Component<SmDropdownProps, SmDropdownState> {
               }
         }
       >
-        <Text isDisabled={isDisabled}>{label}</Text>
+        {CustomElement ? <CustomElement isDisabled={isDisabled} label={label} /> : <Text isDisabled={isDisabled}>{label}</Text>}
       </DropdownRow>
     );
   };

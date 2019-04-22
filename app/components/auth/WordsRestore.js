@@ -1,8 +1,6 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { deriveEncryptionKey } from '/redux/wallet/actions';
 import { SmButton } from '/basicComponents';
 import { keyGenService } from '/infra/keyGenService';
 import { xWhite } from '/assets/images';
@@ -120,7 +118,7 @@ class WordsRestore extends Component<Props, State> {
     );
   }
 
-  handleInputChange = ({ value, index }) => {
+  handleInputChange = ({ value, index }: { value: string, index: number }) => {
     const { words } = this.state;
     this.setState({ words: { ...words, [`${index}`]: value }, errorMsg: '' });
   };
@@ -141,14 +139,5 @@ class WordsRestore extends Component<Props, State> {
     }
   };
 }
-
-const mapDispatchToProps = {
-  deriveEncryptionKey
-};
-
-WordsRestore = connect(
-  null,
-  mapDispatchToProps
-)(WordsRestore);
 
 export default WordsRestore;

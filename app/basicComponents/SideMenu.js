@@ -56,8 +56,8 @@ const MenuItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  opacity: ${({ isDisabled }) => (isDisabled ? 0.5 : 1)};
   &:hover {
     background-color: ${smColors.lightGray};
   }
@@ -109,8 +109,8 @@ const Separator = styled.div`
 export type SideMenuItem = {
   text: string,
   path: string | null,
-  icon?: any,
-  disabled?: boolean,
+  icon?: string,
+  isDisabled?: boolean,
   hasSeparator?: boolean
 };
 
@@ -118,7 +118,7 @@ type Props = {
   items: SideMenuItem[],
   selectedItemIndex?: number,
   loadingItemIndex?: number,
-  onMenuItemPress: Function
+  onMenuItemPress: ({ index: number }) => void
 };
 
 type State = {
@@ -148,9 +148,10 @@ class SideMenu extends React.Component<Props, State> {
 
   renderMenuElement = (item: SideMenuItem, index: number) => {
     const { selectedItemIndex, loadingItemIndex } = this.props;
+    const isDisabled = !item.path;
     return [
       item.hasSeparator && <Separator key="separator" />,
-      <MenuItemWrapper key={item.text} onClick={item.disabled ? null : () => this.handleSelectEntry({ index })} disabled={!!item.disabled}>
+      <MenuItemWrapper key={item.text} onClick={isDisabled ? null : () => this.handleSelectEntry({ index })} isDisabled={isDisabled}>
         {index === selectedItemIndex && <SelectedMenuItemBorder />}
         <MenuItemIconWrapper>
           <MenuItemIcon src={item.icon} alt="Icon missing" />

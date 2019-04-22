@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
 import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
+import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 
 const Wrapper = styled.div`
@@ -41,12 +42,8 @@ const fees = [
 ];
 
 type Props = {
-  location: {
-    state: {
-      account: Account
-    }
-  },
-  history: { push: (string, Object) => void },
+  currentAccount: Account,
+  history: RouterHistory,
   fiatRate: number,
   sendTransaction: Action
 };
@@ -74,11 +71,7 @@ class SendCoins extends Component<Props, State> {
 
   render() {
     const {
-      location: {
-        state: {
-          account: { balance }
-        }
-      },
+      currentAccount: { balance },
       fiatRate
     } = this.props;
     const { address, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal } = this.state;
@@ -141,11 +134,7 @@ class SendCoins extends Component<Props, State> {
 
   updateTxAmount = ({ value }: { value: string }) => {
     const {
-      location: {
-        state: {
-          account: { balance }
-        }
-      }
+      currentAccount: { balance }
     } = this.props;
     this.setState({ amountErrorMsg: '' });
     if (value) {
@@ -170,22 +159,15 @@ class SendCoins extends Component<Props, State> {
   proceedToTxConfirmation = () => this.setState({ shouldShowModal: true });
 
   sendTransaction = async () => {
-    const {
-      sendTransaction,
-      history,
-      location: {
-        state: {
-          account: { pk }
-        }
-      }
-    } = this.props;
+    const { sendTransaction, history } = this.props;
     const { address, amount, feeIndex, note } = this.state;
-    await sendTransaction({ srcAddress: pk, dstAddress: address, amount, fee: fees[feeIndex].fee, note });
+    await sendTransaction({ dstAddress: address, amount, fee: fees[feeIndex].fee, note });
     history.push('/main/wallet');
   };
 }
 
 const mapStateToProps = (state) => ({
+  currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   fiatRate: state.wallet.fiatRate
 });
 

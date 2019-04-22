@@ -63,6 +63,10 @@ ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
   FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
 });
 
+ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
+  FileManager.updateFile({ event, ...request });
+});
+
 ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
   DiskStorageManager.getDriveList({ event });
 });
@@ -77,6 +81,14 @@ ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
 
 ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
   netService.sendTx({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
+  const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
+  printerWindow.loadURL(`file://${__dirname}/printer.html`);
+  printerWindow.webContents.on('did-finish-load', () => {
+    printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
+  });
 });
 
 app.on('window-all-closed', () => {
