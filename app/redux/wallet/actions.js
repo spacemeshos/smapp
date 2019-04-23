@@ -264,8 +264,6 @@ export const setLastUsedAddresses = ({ lastUsedAddresses }: { lastUsedAddresses:
 export const addLastUsedAddress = ({ publicWalletAddress, nickname, email }: Contact): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { lastUsedAddresses } = getState().wallet;
-    // eslint-disable-next-line no-console
-    console.warn('last used addresses actions', lastUsedAddresses);
     dispatch({ type: ADD_LAST_USED_ADDRESS, payload: { publicWalletAddress, nickname, email, lastUsedAddresses } });
   } catch (err) {
     dispatch({ type: ADD_LAST_USED_ADDRESS, payload: { publicWalletAddress: null, nickname: null, email: null } });

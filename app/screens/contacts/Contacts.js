@@ -58,7 +58,8 @@ class Contacts extends Component<Props, State> {
             <SearchContacts onSave={({ publicWalletAddress }) => this.setState({ publicWalletAddress })} showLastUsedAddresses />
           </LeftPane>
           <RightPane>
-            <AddNewContact publicWalletAddress={publicWalletAddress} onSave={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />
+            {publicWalletAddress && <AddNewContact publicWalletAddress={publicWalletAddress} onSave={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />}
+            {!publicWalletAddress && <AddNewContact publicWalletAddress={publicWalletAddress} onSave={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />}
           </RightPane>
         </BodyWrapper>
       </Wrapper>

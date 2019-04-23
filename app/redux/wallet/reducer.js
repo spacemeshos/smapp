@@ -106,8 +106,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         updatedLastUsedAddresses = [...lastUsedAddresses];
         updatedLastUsedAddresses[updatedIndex] = { publicWalletAddress, nickname, email };
       }
-      // eslint-disable-next-line no-console
-      console.warn('last used', updatedLastUsedAddresses.slice(0, 3));
       return { ...state, lastUsedAddresses: updatedLastUsedAddresses.slice(0, 3) };
     }
     case LOGOUT: {
