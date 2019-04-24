@@ -1,14 +1,25 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { SET_ALLOCATION, RESET_NODE_SETTINGS, GET_DRIVES_LIST, GET_AVAILABLE_DISK_SPACE } from './actions';
+import {
+  SET_ALLOCATION,
+  RESET_NODE_SETTINGS,
+  GET_DRIVES_LIST,
+  GET_AVAILABLE_DISK_SPACE,
+  GET_LOCAL_NODE_SETUP_PROGRESS,
+  GET_TOTAL_EARNINGS,
+  GET_UPCOMING_EARNINGS
+} from './actions';
 
 const initialState = {
   drive: null,
   capacity: null,
   drives: [],
   capacityAllocationsList: [],
-  availableDiskSpace: null
+  availableDiskSpace: null,
+  progress: null,
+  totalEarnings: null,
+  upcomingEarnings: null
 };
 
 const reducer = (state: any = initialState, action: Action) => {
@@ -34,6 +45,24 @@ const reducer = (state: any = initialState, action: Action) => {
     case LOGOUT:
     case RESET_NODE_SETTINGS:
       return initialState;
+    case GET_LOCAL_NODE_SETUP_PROGRESS: {
+      const {
+        payload: { progress }
+      } = action;
+      return { ...state, progress: +progress };
+    }
+    case GET_TOTAL_EARNINGS: {
+      const {
+        payload: { totalEarnings }
+      } = action;
+      return { ...state, totalEarnings };
+    }
+    case GET_UPCOMING_EARNINGS: {
+      const {
+        payload: { upcomingEarnings }
+      } = action;
+      return { ...state, upcomingEarnings };
+    }
     default:
       return state;
   }

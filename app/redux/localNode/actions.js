@@ -1,11 +1,15 @@
 // @flow
 import { diskStorageService } from '/infra/diskStorageService';
+import { httpService } from '/infra/httpService';
 import { Action, Dispatch } from '/types';
 
 export const SET_ALLOCATION: string = 'SET_ALLOCATION';
 export const GET_DRIVES_LIST: string = 'GET_DRIVES_LIST';
 export const GET_AVAILABLE_DISK_SPACE: string = 'GET_AVAILABLE_DISK_SPACE';
 export const RESET_NODE_SETTINGS: string = 'RESET_NODE_SETTINGS';
+export const GET_LOCAL_NODE_SETUP_PROGRESS: string = 'GET_LOCAL_NODE_SETUP_PROGRESS';
+export const GET_TOTAL_EARNINGS: string = 'GET_TOTAL_EARNINGS';
+export const GET_UPCOMING_EARNINGS: string = 'GET_UPCOMING_EARNINGS';
 
 const getBytesFromGb = (Gb: number) => Gb * 1073741824;
 
@@ -58,3 +62,33 @@ export const getAvailableSpace = (path: string): Action => async (dispatch: Disp
 };
 
 export const resetNodeSettings = (): Action => ({ type: RESET_NODE_SETTINGS });
+
+export const getLocalNodeSetupProgress = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const progress = await httpService.getLocalNodeSetupProgress();
+    dispatch({ type: GET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress } });
+  } catch (err) {
+    dispatch({ type: GET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress: null } });
+    throw err;
+  }
+};
+
+export const getTotalEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const totalEarnings = await httpService.getTotalEarnings();
+    dispatch({ type: GET_TOTAL_EARNINGS, payload: { totalEarnings } });
+  } catch (err) {
+    dispatch({ type: GET_TOTAL_EARNINGS, payload: { progress: null } });
+    throw err;
+  }
+};
+
+export const getUpcomingEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const upcomingEarnings = await httpService.getUpcomingEarnings();
+    dispatch({ type: GET_UPCOMING_EARNINGS, payload: { upcomingEarnings } });
+  } catch (err) {
+    dispatch({ type: GET_UPCOMING_EARNINGS, payload: { progress: null } });
+    throw err;
+  }
+};

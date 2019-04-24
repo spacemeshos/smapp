@@ -24,6 +24,42 @@ class HttpService {
       });
     });
   }
+
+  static getLocalNodeSetupProgress() {
+    ipcRenderer.send(ipcConsts.GET_INIT_PROGRESS);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_INIT_PROGRESS_SUCCESS, (event, response) => {
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_INIT_PROGRESS_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
+
+  static getTotalEarnings() {
+    ipcRenderer.send(ipcConsts.GET_TOTAL_EARNINGS);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, (event, response) => {
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_TOTAL_EARNINGS_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
+
+  static getUpcomingEarnings() {
+    ipcRenderer.send(ipcConsts.GET_UPCOMING_EARNINGS);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, (event, response) => {
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_EARNINGS_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
 }
 
 export default HttpService;
