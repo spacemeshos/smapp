@@ -106,7 +106,7 @@ class Overview extends Component<Props, State> {
       shouldShowAddContactModal && (
         <AddNewContactModal
           key="add_contact_modal"
-          publicWalletAddress={address}
+          addressToAdd={address}
           onSave={() => this.setState({ shouldShowAddContactModal: false })}
           closeModal={() => this.setState({ shouldShowAddContactModal: false })}
         />

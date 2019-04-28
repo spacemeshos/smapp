@@ -51,6 +51,7 @@ const FiatValue = styled.div`
   color: ${({ hasValue }) => (hasValue ? smColors.lighterBlack : smColors.gray)};
 `;
 
+// $FlowStyledIssue
 const MyContactsSection = styled.div`
   width: 160px;
   display: flex;
@@ -58,18 +59,23 @@ const MyContactsSection = styled.div`
   align-items: center;
   padding: 0 10px;
   border-left: 1px solid ${smColors.borderGray};
+  background-color: ${({ hasContacts }) => (hasContacts ? smColors.orange : 'transparent')};
+  cursor: ${({ hasContacts }) => (hasContacts ? 'pointer' : 'default')};
 `;
 
+// $FlowStyledIssue
 const MyContactsText = styled.div`
   font-size: 14px;
   line-height: 19px;
-  color: ${smColors.borderGray};
+  color: ${({ hasContacts }) => (hasContacts ? smColors.white : smColors.borderGray)};
   margin-right: 10px;
+  cursor: inherit;
 `;
 
 const MyContactsIcon = styled.img`
   width: 11px;
   height: 14px;
+  cursor: inherit;
 `;
 
 const CurrencyText = styled.span`
@@ -114,6 +120,7 @@ const ErrorMsg = styled.div`
 const inputStyle = { border: '1px solid transparent' };
 
 type Props = {
+  defaultAddress?: string,
   updateTxAddress: ({ value: string }) => void,
   updateTxAmount: ({ value: string }) => void,
   amount: number,
@@ -124,7 +131,7 @@ type Props = {
   fees: Array<Object>,
   feeIndex: number,
   fiatRate: number,
-  openSearchContactsModal: () => void
+  openModal: () => void
 };
 
 type State = {
@@ -137,16 +144,16 @@ class TxParams extends Component<Props, State> {
   };
 
   render() {
-    const { updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate, openSearchContactsModal } = this.props;
+    const { defaultAddress, updateTxAddress, updateTxAmount, amount, updateTxNote, updateFee, addressErrorMsg, amountErrorMsg, fees, feeIndex, fiatRate, openModal } = this.props;
     const { isFeeSelectorVisible } = this.state;
     return (
       <Wrapper>
         <SectionWrapper>
           <Label>Send to</Label>
           <InputSection>
-            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} style={inputStyle} isErrorMsgEnabled={false} />
-            <MyContactsSection onClick={openSearchContactsModal}>
-              <MyContactsText>My contacts</MyContactsText>
+            <SmInput type="text" placeholder="Type address" onChange={updateTxAddress} style={inputStyle} isErrorMsgEnabled={false} defaultValue={defaultAddress} />
+            <MyContactsSection onClick={openModal} hasContacts={!!openModal}>
+              <MyContactsText hasContacts={!!openModal}>My contacts</MyContactsText>
               <MyContactsIcon src={contactIcon} />
             </MyContactsSection>
           </InputSection>

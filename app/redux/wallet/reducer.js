@@ -12,7 +12,6 @@ import {
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
-  SET_LAST_USED_ADDRESSES,
   ADD_LAST_USED_ADDRESS,
   SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
@@ -28,7 +27,22 @@ const initialState = {
   currentAccountIndex: 0,
   transactions: {},
   contacts: [],
-  lastUsedAddresses: [],
+  lastUsedAddresses: [
+    // TODO: remove after sending transaction is fully functional
+    {
+      nickname: 'Frank Sinatra',
+      address: 'dkwhkjhfhekk3876582909876ehgh7yfbhuy7y74hyu7fhhhhhfghjkjhgfghjk8',
+      email: 'testemail@testing.com'
+    },
+    {
+      nickname: null,
+      address: 'sdadadasdadeqrf3456t543sdfghgfdsdfgh7654rfgvbhtresdxfgytredcvgyu'
+    },
+    {
+      nickname: 'Etta James',
+      address: '111223344554323sfxddfdghjksmnbvbnmsnbvbnsmsdhgjbmmdsds9993fdsocc'
+    }
+  ],
   fiatRate: 1
 };
 
@@ -92,19 +106,15 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       const { contacts } = action.payload;
       return { ...state, contacts };
     }
-    case SET_LAST_USED_ADDRESSES: {
-      const { lastUsedAddresses } = action.payload;
-      return { ...state, lastUsedAddresses };
-    }
     case ADD_LAST_USED_ADDRESS: {
-      const { lastUsedAddresses, publicWalletAddress, nickname, email } = action.payload;
-      const updatedIndex = lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.publicWalletAddress === publicWalletAddress);
+      const { contact } = action.payload;
+      const { address } = contact;
+      const updatedIndex = state.lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.address === address);
       let updatedLastUsedAddresses;
       if (updatedIndex < 0) {
-        updatedLastUsedAddresses = [{ publicWalletAddress, nickname, email }, ...lastUsedAddresses];
+        updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses];
       } else {
-        updatedLastUsedAddresses = [...lastUsedAddresses];
-        updatedLastUsedAddresses[updatedIndex] = { publicWalletAddress, nickname, email };
+        updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses.slice(0, updatedIndex), ...state.lastUsedAddresses.slice(updatedIndex + 1)];
       }
       return { ...state, lastUsedAddresses: updatedLastUsedAddresses.slice(0, 3) };
     }

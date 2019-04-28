@@ -1,5 +1,4 @@
-export { default as SearchableList } from './SearchableList';
 export { default as AddNewContact } from './AddNewContact';
 export { default as AddNewContactModal } from './AddNewContactModal';
-export { default as SearchContacts } from './SearchContacts';
-export { default as SearchContactsModal } from './SearchContactsModal';
+export { default as AllContacts } from './AllContacts';
+export { default as AllContactsModal } from './AllContactsModal';

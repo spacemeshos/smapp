@@ -182,7 +182,7 @@ class Transactions extends Component<Props, State> {
       shouldShowModal && (
         <AddNewContactModal
           key="modal"
-          publicWalletAddress={address}
+          addressToAdd={address}
           onSave={() => this.setState({ shouldShowModal: false })}
           closeModal={() => this.setState({ shouldShowModal: false })}
         />

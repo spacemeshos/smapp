@@ -27,7 +27,7 @@ export type WalletMeta = {
 };
 
 export type Contact = {
-  publicWalletAddress: string,
+  address: string,
   nickname: string,
   email?: string
 };

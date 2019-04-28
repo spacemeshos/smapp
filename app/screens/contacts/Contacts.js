@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { addLastUsedAddress } from '/redux/wallet/actions';
-import { AddNewContact, SearchContacts } from '/components/contacts';
+import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
 
@@ -31,45 +31,39 @@ const LeftPane = styled.div`
   flex: 1.5;
   margin-right: 100px;
 `;
-const RightPane = styled.div`
-  flex: 1;
-`;
 
 type Props = {
   addLastUsedAddress: Action
 };
 
 type State = {
-  publicWalletAddress: ?string
+  addressToAdd?: string
 };
 
 class Contacts extends Component<Props, State> {
   state = {
-    publicWalletAddress: null
+    addressToAdd: ''
   };
 
   render() {
-    const { publicWalletAddress } = this.state;
+    const { addressToAdd } = this.state;
     return (
       <Wrapper>
         <Header>My Contacts</Header>
         <BodyWrapper>
           <LeftPane>
-            <SearchContacts onSave={({ publicWalletAddress }) => this.setState({ publicWalletAddress })} showLastUsedAddresses />
+            <AllContacts addContact={({ address }) => this.setState({ addressToAdd: address })} />
           </LeftPane>
-          <RightPane>
-            {publicWalletAddress && <AddNewContact publicWalletAddress={publicWalletAddress} onSave={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />}
-            {!publicWalletAddress && <AddNewContact publicWalletAddress={publicWalletAddress} onSave={publicWalletAddress ? this.handleSaveLastUsedAddress : null} />}
-          </RightPane>
+          <AddNewContact defaultAddress={addressToAdd} onSave={this.handleSaveLastUsedAddress} />
         </BodyWrapper>
       </Wrapper>
     );
   }
 
-  handleSaveLastUsedAddress = ({ publicWalletAddress, nickname, email }: Contact) => {
+  handleSaveLastUsedAddress = ({ address, nickname, email }: Contact) => {
     const { addLastUsedAddress } = this.props;
-    addLastUsedAddress({ publicWalletAddress, nickname, email });
-    this.setState({ publicWalletAddress: null });
+    addLastUsedAddress({ contact: { address, nickname, email } });
+    this.setState({ addressToAdd: '' });
   };
 }
 

@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
-import { SearchContactsModal } from '/components/contacts';
+import { AllContactsModal } from '/components/contacts';
 import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, Action } from '/types';
+import type { Account, Action, Contact } from '/types';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -46,43 +46,50 @@ type Props = {
   currentAccount: Account,
   history: RouterHistory,
   fiatRate: number,
-  sendTransaction: Action
+  sendTransaction: Action,
+  contacts: Contact[],
+  lastUsedAddresses: Contact[]
 };
 
 type State = {
   address: string,
+  defaultAddress?: string,
   amount: number,
   note: string,
   addressErrorMsg?: string,
   amountErrorMsg?: string,
   feeIndex: number,
   shouldShowModal: boolean,
-  shouldShowSelectContactModal: boolean
+  shouldShowContactsModal: boolean
 };
 
 class SendCoins extends Component<Props, State> {
   state = {
     address: '',
+    defaultAddress: '',
     addressErrorMsg: '',
     amount: 0,
     amountErrorMsg: '',
     note: '',
     feeIndex: 0,
     shouldShowModal: false,
-    shouldShowSelectContactModal: false
+    shouldShowContactsModal: false
   };
 
   render() {
     const {
       currentAccount: { balance },
-      fiatRate
+      fiatRate,
+      contacts,
+      lastUsedAddresses
     } = this.props;
-    const { address, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowSelectContactModal } = this.state;
+    const { address, defaultAddress, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowContactsModal } = this.state;
     return [
       <Wrapper key="main">
         <SendCoinsHeader fiatRate={fiatRate} balance={balance} navigateToTxExplanation={this.navigateToTxExplanation} />
         <MainContainer>
           <TxParams
+            defaultAddress={defaultAddress}
             updateTxAddress={this.updateTxAddress}
             updateTxAmount={this.updateTxAmount}
             amount={amount}
@@ -93,7 +100,7 @@ class SendCoins extends Component<Props, State> {
             fees={fees}
             feeIndex={feeIndex}
             fiatRate={fiatRate}
-            openSearchContactsModal={() => this.setState({ shouldShowSelectContactModal: true })}
+            openModal={contacts.length || lastUsedAddresses.length ? () => this.setState({ shouldShowContactsModal: true }) : null}
           />
           <TxTotal
             amount={amount}
@@ -106,7 +113,7 @@ class SendCoins extends Component<Props, State> {
       </Wrapper>,
       shouldShowModal && (
         <TxConfirmation
-          key="modal"
+          key="modal1"
           address={address}
           amount={amount}
           fee={fees[feeIndex].fee}
@@ -120,22 +127,16 @@ class SendCoins extends Component<Props, State> {
           editTransaction={() => this.setState({ shouldShowModal: false })}
         />
       ),
-      shouldShowSelectContactModal && (
-        <SearchContactsModal
-          key="add_contact_modal"
-          onSave={({ publicWalletAddress, nickname, email }) => {
-            // TODO: remove console log, connect selection
-            // eslint-disable-next-line no-console
-            console.warn('selected contact', publicWalletAddress, nickname, email);
-            this.setState({ shouldShowSelectContactModal: false });
-          }}
-          closeModal={() => this.setState({ shouldShowSelectContactModal: false })}
-        />
-      )
+      shouldShowContactsModal && <AllContactsModal key="modal2" selectContact={this.selectContactFromModal} closeModal={() => this.setState({ shouldShowContactsModal: false })} />
     ];
   }
 
   navigateToTxExplanation = () => {};
+
+  selectContactFromModal = ({ contact }: { contact: Contact }) => {
+    const { address } = contact;
+    this.setState({ address, defaultAddress: address, shouldShowContactsModal: false });
+  };
 
   updateTxAddress = ({ value }: { value: string }) => {
     this.setState({ addressErrorMsg: '' });
@@ -184,7 +185,9 @@ class SendCoins extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
-  fiatRate: state.wallet.fiatRate
+  fiatRate: state.wallet.fiatRate,
+  contacts: state.wallet.contacts,
+  lastUsedAddresses: state.wallet.lastUsedAddresses
 });
 
 const mapDispatchToProps = {

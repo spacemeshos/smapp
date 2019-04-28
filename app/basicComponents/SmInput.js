@@ -62,6 +62,7 @@ class SmInput extends PureComponent<Props> {
   debounce: any;
 
   static defaultProps = {
+    type: 'text',
     isErrorMsgEnabled: true
   };
 
