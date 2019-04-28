@@ -6,9 +6,9 @@ import {
   RESET_NODE_SETTINGS,
   GET_DRIVES_LIST,
   GET_AVAILABLE_DISK_SPACE,
-  GET_LOCAL_NODE_SETUP_PROGRESS,
-  GET_TOTAL_EARNINGS,
-  GET_UPCOMING_EARNINGS
+  SET_LOCAL_NODE_SETUP_PROGRESS,
+  SET_TOTAL_EARNINGS,
+  SET_UPCOMING_EARNINGS
 } from './actions';
 
 const initialState = {
@@ -45,19 +45,19 @@ const reducer = (state: any = initialState, action: Action) => {
     case LOGOUT:
     case RESET_NODE_SETTINGS:
       return initialState;
-    case GET_LOCAL_NODE_SETUP_PROGRESS: {
+    case SET_LOCAL_NODE_SETUP_PROGRESS: {
       const {
         payload: { progress }
       } = action;
       return { ...state, progress: +progress };
     }
-    case GET_TOTAL_EARNINGS: {
+    case SET_TOTAL_EARNINGS: {
       const {
         payload: { totalEarnings }
       } = action;
       return { ...state, totalEarnings };
     }
-    case GET_UPCOMING_EARNINGS: {
+    case SET_UPCOMING_EARNINGS: {
       const {
         payload: { upcomingEarnings }
       } = action;

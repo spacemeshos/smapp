@@ -7,9 +7,9 @@ export const SET_ALLOCATION: string = 'SET_ALLOCATION';
 export const GET_DRIVES_LIST: string = 'GET_DRIVES_LIST';
 export const GET_AVAILABLE_DISK_SPACE: string = 'GET_AVAILABLE_DISK_SPACE';
 export const RESET_NODE_SETTINGS: string = 'RESET_NODE_SETTINGS';
-export const GET_LOCAL_NODE_SETUP_PROGRESS: string = 'GET_LOCAL_NODE_SETUP_PROGRESS';
-export const GET_TOTAL_EARNINGS: string = 'GET_TOTAL_EARNINGS';
-export const GET_UPCOMING_EARNINGS: string = 'GET_UPCOMING_EARNINGS';
+export const SET_LOCAL_NODE_SETUP_PROGRESS: string = 'SET_LOCAL_NODE_SETUP_PROGRESS';
+export const SET_TOTAL_EARNINGS: string = 'SET_TOTAL_EARNINGS';
+export const SET_UPCOMING_EARNINGS: string = 'SET_UPCOMING_EARNINGS';
 
 const getBytesFromGb = (Gb: number) => Gb * 1073741824;
 
@@ -66,9 +66,9 @@ export const resetNodeSettings = (): Action => ({ type: RESET_NODE_SETTINGS });
 export const getLocalNodeSetupProgress = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const progress = await httpService.getLocalNodeSetupProgress();
-    dispatch({ type: GET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress } });
+    dispatch({ type: SET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress } });
   } catch (err) {
-    dispatch({ type: GET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress: null } });
+    dispatch({ type: SET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress: null } });
     throw err;
   }
 };
@@ -76,9 +76,9 @@ export const getLocalNodeSetupProgress = (): Action => async (dispatch: Dispatch
 export const getTotalEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const totalEarnings = await httpService.getTotalEarnings();
-    dispatch({ type: GET_TOTAL_EARNINGS, payload: { totalEarnings } });
+    dispatch({ type: SET_TOTAL_EARNINGS, payload: { totalEarnings } });
   } catch (err) {
-    dispatch({ type: GET_TOTAL_EARNINGS, payload: { progress: null } });
+    dispatch({ type: SET_TOTAL_EARNINGS, payload: { progress: null } });
     throw err;
   }
 };
@@ -86,9 +86,9 @@ export const getTotalEarnings = (): Action => async (dispatch: Dispatch): Dispat
 export const getUpcomingEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const upcomingEarnings = await httpService.getUpcomingEarnings();
-    dispatch({ type: GET_UPCOMING_EARNINGS, payload: { upcomingEarnings } });
+    dispatch({ type: SET_UPCOMING_EARNINGS, payload: { upcomingEarnings } });
   } catch (err) {
-    dispatch({ type: GET_UPCOMING_EARNINGS, payload: { progress: null } });
+    dispatch({ type: SET_UPCOMING_EARNINGS, payload: { progress: null } });
     throw err;
   }
 };
