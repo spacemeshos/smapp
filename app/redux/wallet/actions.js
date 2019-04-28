@@ -1,5 +1,5 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } from '/types';
 import { cryptoService } from '/infra/cryptoService';
 import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -14,6 +14,8 @@ export const SET_ACCOUNTS: string = 'SET_ACCOUNTS';
 export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
+export const SET_CONTACTS: string = 'SET_CONTACTS';
+export const ADD_LAST_USED_ADDRESS: string = 'ADD_LAST_USED_ADDRESS';
 
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
@@ -21,6 +23,7 @@ export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const GET_BALANCE: string = 'GET_BALANCE';
+export const GET_CONTACTS: string = 'GET_CONTACTS';
 
 export const SEND_TX: string = 'SEND_TX';
 
@@ -123,6 +126,35 @@ const transactionsStab = [
   }
 ];
 
+// TODO: remove test stub
+const contactsListStub = [
+  {
+    nickname: 'Frank Sinatra',
+    address: '11mxxzzkkdhhnwkkvjhhvgspacemeshflkjlkvkjkfnnn2nifjfj94kjbnkjrgkj'
+  },
+  {
+    nickname: 'Nat King Cole',
+    address: 'spacemesh1spacemesh1spacemesh1spacemesh1spacemesh1spacemesh1spac'
+  },
+  {
+    nickname: 'Etta James',
+    address: 'spacemesh1spacemesh2spacemesh2spacemesh2spacemesh2spacemesh1spac'
+  },
+  {
+    nickname: 'Mikael Barishnikov',
+    address: 'spacemesh3spacemesh3spacemesh3spacemesh3spacemesh3spacemesh1spac'
+  },
+  {
+    nickname: 'Miles Davis',
+    address: 'spacemesh4spacemesh4spacemesh4spacemesh4spacemesh4spacemesh4spac',
+    email: 'miles@milesdavis.com'
+  },
+  {
+    nickname: 'Amy Winehouse',
+    address: 'spacemesh5spacemesh5spacemesh5spacemesh5spacemesh5spacemesh5spac'
+  }
+];
+
 export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => (
   dispatch: Dispatch,
   getState: GetState
@@ -155,10 +187,9 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     ]
   };
   const transactions = { '0': transactionsStab }; // TODO: change to empty array after complete transaction flow is ready
-  const contacts = [];
   const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
-  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
+  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts: contactsListStub };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush), showDialog: false });
     dispatch(setWalletMeta({ meta }));
@@ -166,6 +197,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions }));
+    dispatch(setContacts({ contacts: contactsListStub }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
@@ -199,6 +231,10 @@ export const setTransactions = ({ transactions }: { transactions: TxList }): Act
   payload: { transactions }
 });
 
+export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
+
+export const addLastUsedAddress = ({ contact }: { contact: Contact }): Action => ({ type: ADD_LAST_USED_ADDRESS, payload: { contact } });
+
 export const incrementWalletNumber = (): Action => ({ type: INCREMENT_WALLET_NUMBER });
 
 export const incrementAccountNumber = (): Action => ({ type: INCREMENT_ACCOUNT_NUMBER });
@@ -224,6 +260,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
+    dispatch(setContacts({ contacts: contactsListStub })); // TODO change to file.contacts after removing test stab
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
     throw new Error(err);
@@ -287,7 +324,16 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   }
 };
 
-export const addToContacts = () => ({});
+export const addToContacts = ({ contact }: Contact): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { contacts, walletFiles } = getState().wallet;
+    const updatedContacts = [contact, ...contacts];
+    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'contacts', data: updatedContacts });
+    dispatch(setContacts({ contacts: updatedContacts }));
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 
 export const updateWalletMeta = ({ metaFieldName, data }: { metaFieldName: string, data: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {

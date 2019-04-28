@@ -29,7 +29,7 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Contacts',
-    path: null,
+    path: '/main/contacts',
     icon: menu4
   },
   {

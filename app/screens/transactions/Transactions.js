@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
+import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
@@ -106,7 +107,9 @@ type State = {
   isSentDisplayed: boolean,
   isReceivedDisplayed: boolean,
   isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean
+  isRejectedDisplayed: boolean,
+  address: ?string,
+  shouldShowModal: boolean
 };
 
 class Transactions extends Component<Props, State> {
@@ -114,14 +117,16 @@ class Transactions extends Component<Props, State> {
     isSentDisplayed: true,
     isReceivedDisplayed: true,
     isPendingDisplayed: true,
-    isRejectedDisplayed: true
+    isRejectedDisplayed: true,
+    address: null,
+    shouldShowModal: false
   };
 
   render() {
     const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed } = this.state;
-    return (
-      <Wrapper>
+    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, address, shouldShowModal } = this.state;
+    return [
+      <Wrapper key="wrapper">
         <Header>Transaction Log</Header>
         <InnerWrapper>
           <LeftSection>
@@ -149,7 +154,7 @@ class Transactions extends Component<Props, State> {
                   <Transaction
                     key={index}
                     transaction={tx}
-                    addToContacts={() => {}}
+                    addToContacts={({ address }) => this.setState({ address, shouldShowModal: true })}
                     isSentDisplayed={isSentDisplayed}
                     isReceivedDisplayed={isReceivedDisplayed}
                     isPendingDisplayed={isPendingDisplayed}
@@ -173,8 +178,16 @@ class Transactions extends Component<Props, State> {
             <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
           </RightSection>
         </InnerWrapper>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && (
+        <AddNewContactModal
+          key="modal"
+          addressToAdd={address}
+          onSave={() => this.setState({ shouldShowModal: false })}
+          closeModal={() => this.setState({ shouldShowModal: false })}
+        />
+      )
+    ];
   }
 
   navigateToExplanation = () => {};
