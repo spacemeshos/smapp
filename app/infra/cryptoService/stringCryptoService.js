@@ -2,6 +2,23 @@
 import * as pbkdf2 from 'pbkdf2';
 import * as aes from 'aes-js';
 
+require('./wasm_exec');
+
+const run = async (fileUrl) => {
+  try {
+    const file = await fetch(fileUrl);
+    const buffer = await file.arrayBuffer();
+    const go = new Go(); // eslint-disable-line no-undef
+    console.log(WebAssembly.validate(buffer)); // eslint-disable-line no-console
+    const { instance } = await WebAssembly.instantiate(buffer, go.importObject);
+    go.run(instance);
+  } catch (err) {
+    console.error(err); // eslint-disable-line no-console
+  }
+};
+
+run('../app/infra/cryptoService/ed.wasm');
+
 class StringCryptoService {
   /**
    * Derives encryption key using provided pin code and salt.
