@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { resetNodeSettings } from '/redux/localNode/actions';
+import { resetNodeSettings, getLocalNodeSetupProgress } from '/redux/localNode/actions';
 import { LoadingBar, LocalNodeLog, LocalNodeStatus } from '/components/localNode';
 import { SmButton } from '/basicComponents';
 import { localNodeModes } from '/vars';
 import type { Action } from '/types';
+
+const completeValue = 80; // TODO: change to actual complete value
 
 const Wrapper = styled.div`
   height: 100%;
@@ -24,7 +26,9 @@ type Props = {
   isInProgress: boolean,
   switchMode: (mode: number) => void,
   capacity: any,
-  resetNodeSettings: Action
+  progress: number,
+  resetNodeSettings: Action,
+  getLocalNodeSetupProgress: Action
 };
 
 class LeftPane extends Component<Props> {
@@ -45,16 +49,20 @@ class LeftPane extends Component<Props> {
     );
   }
 
-  // TODO: Test
   componentDidMount() {
-    const { switchMode } = this.props;
-    this.timer = setTimeout(() => {
-      switchMode(localNodeModes.OVERVIEW);
-    }, 8000);
+    const { getLocalNodeSetupProgress } = this.props;
+    this.checkInitStatus();
+    this.timer = setInterval(() => {
+      getLocalNodeSetupProgress();
+    }, 10000);
+  }
+
+  componentDidUpdate() {
+    this.checkInitStatus();
   }
 
   componentWillUnmount() {
-    this.timer && clearTimeout(this.timer);
+    this.timer && clearInterval(this.timer);
   }
 
   handleStopSetup = () => {
@@ -62,14 +70,23 @@ class LeftPane extends Component<Props> {
     isInProgress && resetNodeSettings();
     switchMode(localNodeModes.SETUP);
   };
+
+  checkInitStatus = () => {
+    const { switchMode, progress } = this.props;
+    if (progress === completeValue) {
+      switchMode(localNodeModes.OVERVIEW);
+    }
+  };
 }
 
 const mapStateToProps = (state) => ({
-  capacity: state.localNode.capacity
+  capacity: state.localNode.capacity,
+  progress: state.localNode.progress
 });
 
 const mapDispatchToProps = {
-  resetNodeSettings
+  resetNodeSettings,
+  getLocalNodeSetupProgress
 };
 
 LeftPane = connect(

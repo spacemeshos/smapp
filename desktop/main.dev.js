@@ -91,6 +91,18 @@ ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
   });
 });
 
+ipcMain.on(ipcConsts.GET_INIT_PROGRESS, async (event) => {
+  netService.getLocalNodeSetupProgress({ event });
+});
+
+ipcMain.on(ipcConsts.GET_TOTAL_EARNINGS, async (event) => {
+  netService.getTotalEarnings({ event });
+});
+
+ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
+  netService.getUpcomingEarnings({ event });
+});
+
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed

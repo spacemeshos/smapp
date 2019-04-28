@@ -51,6 +51,36 @@ class NetService {
       });
     });
 
+  _getLocalNodeSetupProgress = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetInitProgress({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _getTotalEarnings = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetTotalAwards({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _getUpcomingEarnings = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetUpcomingAwards({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   getBalance = async ({ event, address }) => {
     try {
       const { value } = await this._getBalance({ address });
@@ -67,6 +97,33 @@ class NetService {
       event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, resp.value);
     } catch (error) {
       event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
+    }
+  };
+
+  getLocalNodeSetupProgress = async ({ event }) => {
+    try {
+      const { value } = await this._getLocalNodeSetupProgress();
+      event.sender.send(ipcConsts.GET_INIT_PROGRESS_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_INIT_PROGRESS_FAILURE, error.message);
+    }
+  };
+
+  getTotalEarnings = async ({ event }) => {
+    try {
+      const { value } = await this._getTotalEarnings();
+      event.sender.send(ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_TOTAL_EARNINGS_FAILURE, error.message);
+    }
+  };
+
+  getUpcomingEarnings = async ({ event }) => {
+    try {
+      const { value } = await this._getUpcomingEarnings();
+      event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_FAILURE, error.message);
     }
   };
 }
