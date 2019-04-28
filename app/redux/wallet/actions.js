@@ -231,10 +231,7 @@ export const setTransactions = ({ transactions }: { transactions: TxList }): Act
   payload: { transactions }
 });
 
-export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({
-  type: SET_CONTACTS,
-  payload: { contacts }
-});
+export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
 
 export const addLastUsedAddress = ({ contact }: { contact: Contact }): Action => ({ type: ADD_LAST_USED_ADDRESS, payload: { contact } });
 
