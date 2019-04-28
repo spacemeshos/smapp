@@ -23,6 +23,7 @@ const IconWrapper = styled.div`
   align-items: center;
   border: 1px solid ${smColors.borderGray};
   border-radius: 0 2px 2px 0;
+  border-left: none;
 `;
 
 const Icon = styled.img`

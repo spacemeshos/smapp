@@ -108,7 +108,7 @@ type State = {
   isReceivedDisplayed: boolean,
   isPendingDisplayed: boolean,
   isRejectedDisplayed: boolean,
-  publicWalletAddress: ?string,
+  address: ?string,
   shouldShowModal: boolean
 };
 
@@ -118,13 +118,13 @@ class Transactions extends Component<Props, State> {
     isReceivedDisplayed: true,
     isPendingDisplayed: true,
     isRejectedDisplayed: true,
-    publicWalletAddress: null,
+    address: null,
     shouldShowModal: false
   };
 
   render() {
     const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, publicWalletAddress, shouldShowModal } = this.state;
+    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, address, shouldShowModal } = this.state;
     return [
       <Wrapper key="wrapper">
         <Header>Transaction Log</Header>
@@ -154,7 +154,7 @@ class Transactions extends Component<Props, State> {
                   <Transaction
                     key={index}
                     transaction={tx}
-                    addToContacts={({ address }) => this.setState({ publicWalletAddress: address, shouldShowModal: true })}
+                    addToContacts={({ address }) => this.setState({ address, shouldShowModal: true })}
                     isSentDisplayed={isSentDisplayed}
                     isReceivedDisplayed={isReceivedDisplayed}
                     isPendingDisplayed={isPendingDisplayed}
@@ -182,9 +182,9 @@ class Transactions extends Component<Props, State> {
       shouldShowModal && (
         <AddNewContactModal
           key="modal"
-          publicWalletAddress={publicWalletAddress}
-          resolve={() => this.setState({ shouldShowModal: false, publicWalletAddress: null })}
-          closeModal={() => this.setState({ shouldShowModal: false, publicWalletAddress: null })}
+          publicWalletAddress={address}
+          onSave={() => this.setState({ shouldShowModal: false })}
+          closeModal={() => this.setState({ shouldShowModal: false })}
         />
       )
     ];

@@ -123,7 +123,7 @@ class SendCoins extends Component<Props, State> {
       shouldShowSelectContactModal && (
         <SearchContactsModal
           key="add_contact_modal"
-          resolve={({ publicWalletAddress, nickname, email }) => {
+          onSave={({ publicWalletAddress, nickname, email }) => {
             // TODO: remove console log, connect selection
             // eslint-disable-next-line no-console
             console.warn('selected contact', publicWalletAddress, nickname, email);
