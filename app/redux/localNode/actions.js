@@ -10,6 +10,7 @@ export const RESET_NODE_SETTINGS: string = 'RESET_NODE_SETTINGS';
 export const SET_LOCAL_NODE_SETUP_PROGRESS: string = 'SET_LOCAL_NODE_SETUP_PROGRESS';
 export const SET_TOTAL_EARNINGS: string = 'SET_TOTAL_EARNINGS';
 export const SET_UPCOMING_EARNINGS: string = 'SET_UPCOMING_EARNINGS';
+export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
 
 const getBytesFromGb = (Gb: number) => Gb * 1073741824;
 
@@ -32,8 +33,6 @@ const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = 
   }
   return allocatedSpaceList;
 };
-
-export const setLocalNodeStorage = ({ capacity, drive }: { capacity: ?number, drive: ?string }): Action => ({ type: SET_ALLOCATION, payload: { capacity, drive } });
 
 export const getDrivesList = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -89,6 +88,31 @@ export const getUpcomingEarnings = (): Action => async (dispatch: Dispatch): Dis
     dispatch({ type: SET_UPCOMING_EARNINGS, payload: { upcomingEarnings } });
   } catch (err) {
     dispatch({ type: SET_UPCOMING_EARNINGS, payload: { progress: null } });
+    throw err;
+  }
+};
+
+export const setLocalNodeStorage = ({ capacity, drive }: { capacity: { id: number, label: string }, drive: { id: number, label: string } }): Action => async (
+  dispatch: Dispatch
+): Dispatch => {
+  try {
+    const commitmentSize = Math.floor(capacity.id / 1048576); // Bytes to MB
+    const logicalDrive = drive.label;
+    await httpService.setCommitmentSize({ commitmentSize });
+    await httpService.setLogicalDrive({ logicalDrive });
+    dispatch({ type: SET_ALLOCATION, payload: { capacity, drive } });
+  } catch (err) {
+    dispatch({ type: SET_ALLOCATION, payload: { capacity: null, drive: null } });
+    throw err;
+  }
+};
+
+export const setAwardsAddress = ({ awardsAddress }: { awardsAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await httpService.setAwardsAddress({ awardsAddress });
+    dispatch({ type: SET_AWARDS_ADDRESS, payload: { awardsAddress } });
+  } catch (err) {
+    dispatch({ type: SET_AWARDS_ADDRESS, payload: { awardsAddress: null } });
     throw err;
   }
 };

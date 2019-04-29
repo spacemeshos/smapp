@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors, localNodeModes } from '/vars';
-import { LeftPaneSetup, LeftPane, RightPane } from '/components/localNode';
+import { LeftPaneSetup, LeftPane, RightPane, SetAwardsAddress } from '/components/localNode';
 
-const Container = styled.div`
+const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 60px 90px;
@@ -32,26 +32,29 @@ const LeftPaneWrapper = styled.div`
 type Props = {};
 
 type State = {
-  mode: number
+  mode: number,
+  shouldShowModal: boolean
 };
 
 class LocalNode extends Component<Props, State> {
   state = {
-    mode: localNodeModes.SETUP
+    mode: localNodeModes.SETUP,
+    shouldShowModal: false
   };
 
   render() {
-    const { mode } = this.state;
+    const { mode, shouldShowModal } = this.state;
     const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
-    return (
-      <Container>
+    return [
+      <Wrapper key="wrapper">
         <Header>{header}</Header>
         <BodyWrapper>
           <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-          <RightPane mode={mode} />
+          <RightPane mode={mode} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
         </BodyWrapper>
-      </Container>
-    );
+      </Wrapper>,
+      shouldShowModal && <SetAwardsAddress key="modal" onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />
+    ];
   }
 
   renderLeftPane = (mode: number) => {
