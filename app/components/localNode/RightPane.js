@@ -104,15 +104,11 @@ type Props = {
   openSetAwardsAddressModal: () => void
 };
 
-type State = {
-  shouldShowModal: boolean
-};
-
-class RightPane extends PureComponent<Props, State> {
+class RightPane extends PureComponent<Props> {
   render() {
     const { mode } = this.props;
     return (
-      <Wrapper key="wrapper">
+      <Wrapper>
         {this.renderTopImage(mode)}
         <Header>{this.getHeaderText(mode)}</Header>
         {this.renderCenterContent(mode)}
