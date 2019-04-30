@@ -3,6 +3,19 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors, localNodeModes } from '/vars';
 import { LeftPaneSetup, LeftPane, RightPane, SetAwardsAddress } from '/components/localNode';
+import { connect } from 'react-redux';
+import { getLocalNodeSetupProgress } from '/redux/localNode/actions';
+
+const completeValue = 80; // TODO: change to actual complete value
+
+const getStatupMode = ({ drive, capacity, progress }: { drive: any, capacity: any, progress: number }) => {
+  if (progress === completeValue) {
+    return localNodeModes.OVERVIEW;
+  } else if (drive || capacity) {
+    return localNodeModes.PROGRESS;
+  }
+  return localNodeModes.SETUP;
+};
 
 const Wrapper = styled.div`
   width: 100%;
@@ -29,7 +42,11 @@ const LeftPaneWrapper = styled.div`
   margin-right: 30px;
 `;
 
-type Props = {};
+type Props = {
+  progress: number,
+  capacity: any,
+  drive: any
+};
 
 type State = {
   mode: number,
@@ -37,10 +54,15 @@ type State = {
 };
 
 class LocalNode extends Component<Props, State> {
-  state = {
-    mode: localNodeModes.SETUP,
-    shouldShowModal: false
-  };
+  constructor(props: Props) {
+    super(props);
+    const { drive, capacity, progress } = props;
+    getLocalNodeSetupProgress();
+    this.state = {
+      mode: getStatupMode({ drive, capacity, progress }),
+      shouldShowModal: false
+    };
+  }
 
   render() {
     const { mode, shouldShowModal } = this.state;
@@ -74,5 +96,20 @@ class LocalNode extends Component<Props, State> {
     this.setState({ mode });
   };
 }
+
+const mapStateToProps = (state) => ({
+  capacity: state.localNode.capacity,
+  drive: state.localNode.drive,
+  progress: state.localNode.progress
+});
+
+const mapDispatchToProps = {
+  getLocalNodeSetupProgress
+};
+
+LocalNode = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LocalNode);
 
 export default LocalNode;

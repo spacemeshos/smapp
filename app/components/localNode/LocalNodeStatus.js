@@ -14,13 +14,6 @@ const formatNumber = (num?: number) => {
   return formatter.format(num);
 };
 
-const getCounterText = (counter: number) => {
-  const days = Math.floor(counter / 1440);
-  const hours = Math.floor(counter / 60) % 24;
-  const minutes = counter % 60;
-  return `${days} days, ${hours} hours, ${minutes} minutes`;
-};
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -50,7 +43,6 @@ const LeftText = styled(Text)`
 `;
 
 type Props = {
-  minutesRunning: number, // TODO: connect this with actual logic for time passed
   awardsDueIn: number, // TODO: connect this with actual logic for next reward layer time - genesis time
   getTotalEarnings: Action,
   getUpcomingEarnings: Action,
@@ -60,14 +52,10 @@ type Props = {
 
 class LocalNodeStatus extends Component<Props> {
   render() {
-    const { totalEarnings, upcomingEarnings, minutesRunning, awardsDueIn } = this.props;
+    const { totalEarnings, upcomingEarnings, awardsDueIn } = this.props;
 
     return (
       <Wrapper>
-        <Row>
-          <LeftText>Total Time Running</LeftText>
-          <Text>{getCounterText(minutesRunning || 0)}</Text>
-        </Row>
         <Row>
           <LeftText>Total earnings</LeftText>
           <Text>{`${formatNumber(totalEarnings)} Spacemesh coins`}</Text>
