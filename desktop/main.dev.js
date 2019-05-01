@@ -103,6 +103,10 @@ ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
   netService.getUpcomingEarnings({ event });
 });
 
+ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event) => {
+  FileManager.openWalletBackupDirectory({ browserWindow: mainWindow, event });
+});
+
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed

@@ -30,6 +30,19 @@ class FileManager {
     });
   };
 
+  static openWalletBackupDirectory = ({ browserWindow, event }) => {
+    const options = {
+      title: 'Wallet File Location',
+      defaultPath: appFilesDirPath,
+      buttonLabel: 'OK',
+      filters: [{ name: 'Backup Files', extensions: ['json'] }],
+      properties: ['openFile']
+    };
+    dialog.showOpenDialog(browserWindow, options, async () => {
+      event.sender.send(ipcConsts.OPEN_DIRECTORY_SUCCESS);
+    });
+  };
+
   static readFile = async ({ event, filePath }) => {
     await FileManager._readFile({ event, filePath });
   };

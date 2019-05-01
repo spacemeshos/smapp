@@ -48,7 +48,7 @@ class LocalNode extends Component<Props, State> {
         <Header>{header}</Header>
         <BodyWrapper>
           <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-          <RightPane mode={mode} />
+          <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} />
         </BodyWrapper>
       </Container>
     );
