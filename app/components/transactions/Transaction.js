@@ -191,7 +191,7 @@ class Transaction extends PureComponent<Props> {
         <ThirdSection>
           {!isSavedContact && (
             <AddToContactsBtnWrapper>
-              <AddToContactsBtn onClick={addToContacts}>
+              <AddToContactsBtn onClick={() => addToContacts({ address })}>
                 <AddToContactsText>Add to my contacts</AddToContactsText>
                 <AddToContactsImage src={addToContactsIcon} />
               </AddToContactsBtn>
