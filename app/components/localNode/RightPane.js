@@ -102,7 +102,8 @@ const ActionLink = styled.div`
 
 type Props = {
   mode: number,
-  switchMode: (mode: number) => void
+  switchMode: (mode: number) => void,
+  openSetAwardsAddressModal: () => void
 };
 
 class RightPane extends PureComponent<Props> {
@@ -183,7 +184,10 @@ class RightPane extends PureComponent<Props> {
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
-  changeLocalNodeRewardAddress = () => {};
+  changeLocalNodeRewardAddress = () => {
+    const { openSetAwardsAddressModal } = this.props;
+    openSetAwardsAddressModal();
+  };
 
   showComputationEffort = () => {};
 

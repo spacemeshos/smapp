@@ -2,9 +2,22 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors, localNodeModes } from '/vars';
-import { LeftPaneSetup, LeftPane, RightPane } from '/components/localNode';
+import { LeftPaneSetup, LeftPane, RightPane, SetAwardsAddress } from '/components/localNode';
+import { connect } from 'react-redux';
+import { getLocalNodeSetupProgress } from '/redux/localNode/actions';
 
-const Container = styled.div`
+const completeValue = 80; // TODO: change to actual complete value
+
+const getStatupMode = ({ drive, capacity, progress }: { drive: any, capacity: any, progress: number }) => {
+  if (progress === completeValue) {
+    return localNodeModes.OVERVIEW;
+  } else if (drive || capacity) {
+    return localNodeModes.PROGRESS;
+  }
+  return localNodeModes.SETUP;
+};
+
+const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 60px 90px;
@@ -29,29 +42,41 @@ const LeftPaneWrapper = styled.div`
   margin-right: 30px;
 `;
 
-type Props = {};
+type Props = {
+  progress: number,
+  capacity: any,
+  drive: any
+};
 
 type State = {
-  mode: number
+  mode: number,
+  shouldShowModal: boolean
 };
 
 class LocalNode extends Component<Props, State> {
-  state = {
-    mode: localNodeModes.SETUP
-  };
+  constructor(props: Props) {
+    super(props);
+    const { drive, capacity, progress } = props;
+    getLocalNodeSetupProgress();
+    this.state = {
+      mode: getStatupMode({ drive, capacity, progress }),
+      shouldShowModal: false
+    };
+  }
 
   render() {
-    const { mode } = this.state;
+    const { mode, shouldShowModal } = this.state;
     const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
-    return (
-      <Container>
+    return [
+      <Wrapper key="wrapper">
         <Header>{header}</Header>
         <BodyWrapper>
           <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-          <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} />
+          <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
         </BodyWrapper>
-      </Container>
-    );
+      </Wrapper>,
+      shouldShowModal && <SetAwardsAddress key="modal" onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />
+    ];
   }
 
   renderLeftPane = (mode: number) => {
@@ -71,5 +96,20 @@ class LocalNode extends Component<Props, State> {
     this.setState({ mode });
   };
 }
+
+const mapStateToProps = (state) => ({
+  capacity: state.localNode.capacity,
+  drive: state.localNode.drive,
+  progress: state.localNode.progress
+});
+
+const mapDispatchToProps = {
+  getLocalNodeSetupProgress
+};
+
+LocalNode = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LocalNode);
 
 export default LocalNode;

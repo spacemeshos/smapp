@@ -8,7 +8,8 @@ import {
   GET_AVAILABLE_DISK_SPACE,
   SET_LOCAL_NODE_SETUP_PROGRESS,
   SET_TOTAL_EARNINGS,
-  SET_UPCOMING_EARNINGS
+  SET_UPCOMING_EARNINGS,
+  SET_AWARDS_ADDRESS
 } from './actions';
 
 const initialState = {
@@ -19,7 +20,8 @@ const initialState = {
   availableDiskSpace: null,
   progress: null,
   totalEarnings: null,
-  upcomingEarnings: null
+  upcomingEarnings: null,
+  awardsAddress: null
 };
 
 const reducer = (state: any = initialState, action: Action) => {
@@ -62,6 +64,12 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { upcomingEarnings }
       } = action;
       return { ...state, upcomingEarnings };
+    }
+    case SET_AWARDS_ADDRESS: {
+      const {
+        payload: { awardsAddress }
+      } = action;
+      return { ...state, awardsAddress };
     }
     default:
       return state;

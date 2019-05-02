@@ -44,20 +44,30 @@ const BottomWrapper = styled.div`
   flex-direction: column;
 `;
 
-const GrayText = styled.div`
+const GrayText = styled.span`
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.lighterBlack50Alpha};
   margin-bottom: 20px;
 `;
 
+const FiatRateEstimation = styled(GrayText)`
+  margin-bottom: 0;
+  margin-left: 4px;
+`;
+
 // TODO: Test stub
-const getProjectedSmcEarnings = (capacity: number | string) => {
-  if (typeof capacity === 'string') {
-    return 4;
-  } else {
-    return +(capacity * 0.00000001).toFixed(2);
+const getProjectedSmcEarnings = (capacity: number) => {
+  const smcPerByte = 0.0000000001; // arbitrary for test only
+  return formatNumber(capacity * smcPerByte);
+};
+
+const formatNumber = (num?: number) => {
+  if (!num) {
+    return 0;
   }
+  const formatter = new Intl.NumberFormat();
+  return formatter.format(num.toFixed(2));
 };
 
 const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
@@ -111,7 +121,7 @@ class LeftPaneSetup extends Component<Props, State> {
             {selectedCapacityIndex !== -1 && (
               <React.Fragment>
                 earn ~ {getProjectedSmcEarnings(capacityAllocationsList[selectedCapacityIndex].id)} SMC each week*{' '}
-                <GrayText> = {fiatRate * capacityAllocationsList[selectedCapacityIndex].id} USD*</GrayText>
+                <FiatRateEstimation> = {getProjectedSmcEarnings(fiatRate * capacityAllocationsList[selectedCapacityIndex].id)} USD*</FiatRateEstimation>
               </React.Fragment>
             )}
           </LabelWrapper>
