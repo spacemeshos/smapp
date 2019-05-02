@@ -100,7 +100,8 @@ const ActionLink = styled.div`
 `;
 
 type Props = {
-  mode: number
+  mode: number,
+  openSetAwardsAddressModal: () => void
 };
 
 class RightPane extends PureComponent<Props> {
@@ -181,7 +182,10 @@ class RightPane extends PureComponent<Props> {
 
   navigateToExplanation = () => {};
 
-  changeLocalNodeRewardAddress = () => {};
+  changeLocalNodeRewardAddress = () => {
+    const { openSetAwardsAddressModal } = this.props;
+    openSetAwardsAddressModal();
+  };
 
   showComputationEffort = () => {};
 
@@ -194,9 +198,9 @@ class RightPane extends PureComponent<Props> {
       { text: 'Show computation effort', onClick: this.showComputationEffort }
     ];
     if (mode === localNodeModes.SETUP) {
-      links.push({ text: 'Change your awards Local Node address', onCLick: this.changeLocalNodeRewardAddress });
+      links.push({ text: 'Change your awards Local Node address', onClick: this.changeLocalNodeRewardAddress });
     } else if (mode === localNodeModes.OVERVIEW) {
-      links.push({ text: 'Change Local Node Settings', onCLick: this.changeLocalNodeSettings });
+      links.push({ text: 'Change Local Node Settings', onClick: this.changeLocalNodeSettings });
     }
     return links;
   };
