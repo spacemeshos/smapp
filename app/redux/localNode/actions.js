@@ -102,7 +102,6 @@ export const setLocalNodeStorage = ({ capacity, drive }: { capacity: { id: numbe
     await httpService.setLogicalDrive({ logicalDrive });
     dispatch({ type: SET_ALLOCATION, payload: { capacity, drive } });
   } catch (err) {
-    dispatch({ type: SET_ALLOCATION, payload: { capacity: null, drive: null } });
     throw err;
   }
 };
@@ -112,7 +111,6 @@ export const setAwardsAddress = ({ awardsAddress }: { awardsAddress: string }): 
     await httpService.setAwardsAddress({ awardsAddress });
     dispatch({ type: SET_AWARDS_ADDRESS, payload: { awardsAddress } });
   } catch (err) {
-    dispatch({ type: SET_AWARDS_ADDRESS, payload: { awardsAddress: null } });
     throw err;
   }
 };
