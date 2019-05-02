@@ -1,7 +1,7 @@
 import fs from 'fs';
 import util from 'util';
 import path from 'path';
-import { app, dialog } from 'electron';
+import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
 const readFileAsync = util.promisify(fs.readFile);
@@ -30,17 +30,21 @@ class FileManager {
     });
   };
 
-  static openWalletBackupDirectory = ({ browserWindow, event }) => {
-    const options = {
-      title: 'Wallet File Location',
-      defaultPath: appFilesDirPath,
-      buttonLabel: 'OK',
-      filters: [{ name: 'Backup Files', extensions: ['json'] }],
-      properties: ['openFile']
-    };
-    dialog.showOpenDialog(browserWindow, options, async () => {
-      event.sender.send(ipcConsts.OPEN_DIRECTORY_SUCCESS);
-    });
+  static openWalletBackupDirectory = async ({ event }) => {
+    try {
+      const files = await readDirectoryAsync(appFilesDirPath);
+      const regex = new RegExp('.*.(json)', 'ig');
+      const filteredFiles = files.filter((file) => file.match(regex));
+      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
+      if (filesWithPath && filesWithPath[0]) {
+        shell.showItemInFolder(filesWithPath[0]);
+        event.sender.send(ipcConsts.OPEN_DIRECTORY_SUCCESS);
+      } else {
+        throw new Error('Wallet backup file not found');
+      }
+    } catch (error) {
+      event.sender.send(ipcConsts.OPEN_DIRECTORY_FAILURE, error.message);
+    }
   };
 
   static readFile = async ({ event, filePath }) => {

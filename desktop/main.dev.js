@@ -104,7 +104,7 @@ ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
 });
 
 ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event) => {
-  FileManager.openWalletBackupDirectory({ browserWindow: mainWindow, event });
+  FileManager.openWalletBackupDirectory({ event });
 });
 
 app.on('window-all-closed', () => {
