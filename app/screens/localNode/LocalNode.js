@@ -72,7 +72,7 @@ class LocalNode extends Component<Props, State> {
         <Header>{header}</Header>
         <BodyWrapper>
           <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-          <RightPane mode={mode} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
+          <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
         </BodyWrapper>
       </Wrapper>,
       shouldShowModal && <SetAwardsAddress key="modal" onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />

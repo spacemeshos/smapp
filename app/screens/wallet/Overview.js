@@ -10,6 +10,7 @@ import { SendReceiveButton } from '/basicComponents';
 import { localStorageService } from '/infra/storageServices';
 import type { Account, Action, TxList } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -101,12 +102,18 @@ class Overview extends Component<Props, State> {
         </RightSection>
       </Wrapper>,
       shouldShowReceiveCoinsModal && (
-        <ReceiveCoins key="receive_coins_modal" address={currentAccount.pk} closeModal={() => this.setState({ shouldShowReceiveCoinsModal: false })} />
+        <ReceiveCoins
+          key="receive_coins_modal"
+          address={currentAccount.pk}
+          navigateToExplanation={this.navigateToReceiveCoinsExplanation}
+          closeModal={() => this.setState({ shouldShowReceiveCoinsModal: false })}
+        />
       ),
       shouldShowAddContactModal && (
         <AddNewContactModal
           key="add_contact_modal"
           addressToAdd={address}
+          navigateToExplanation={this.navigateToContactsExplanation}
           onSave={() => this.setState({ shouldShowAddContactModal: false })}
           closeModal={() => this.setState({ shouldShowAddContactModal: false })}
         />
@@ -137,6 +144,10 @@ class Overview extends Component<Props, State> {
     const { history } = this.props;
     history.push('/main/transactions');
   };
+
+  navigateToContactsExplanation = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
+
+  navigateToReceiveCoinsExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');
 }
 
 const mapStateToProps = (state) => ({

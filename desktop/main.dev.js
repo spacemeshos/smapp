@@ -103,6 +103,10 @@ ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
   netService.getUpcomingEarnings({ event });
 });
 
+ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event) => {
+  FileManager.openWalletBackupDirectory({ event });
+});
+
 ipcMain.on(ipcConsts.SET_COMMITMENT_SIZE, async (event, request) => {
   netService.setCommitmentSize({ event, ...request });
 });
