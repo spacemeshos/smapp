@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { time, coin, noLaptop, miner, thinking, hardDriveIcon } from '/assets/images';
 import { smColors, localNodeModes } from '/vars';
+import { shell } from 'electron';
 
 const items = [
   {
@@ -100,7 +101,9 @@ const ActionLink = styled.div`
 `;
 
 type Props = {
-  mode: number
+  mode: number,
+  switchMode: (mode: number) => void,
+  openSetAwardsAddressModal: () => void
 };
 
 class RightPane extends PureComponent<Props> {
@@ -179,13 +182,19 @@ class RightPane extends PureComponent<Props> {
     }
   };
 
-  navigateToExplanation = () => {};
+  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
-  changeLocalNodeRewardAddress = () => {};
+  changeLocalNodeRewardAddress = () => {
+    const { openSetAwardsAddressModal } = this.props;
+    openSetAwardsAddressModal();
+  };
 
   showComputationEffort = () => {};
 
-  changeLocalNodeSettings = () => {};
+  changeLocalNodeSettings = () => {
+    const { switchMode } = this.props;
+    switchMode(localNodeModes.SETUP);
+  };
 
   generateLinks = () => {
     const { mode } = this.props;
@@ -194,9 +203,9 @@ class RightPane extends PureComponent<Props> {
       { text: 'Show computation effort', onClick: this.showComputationEffort }
     ];
     if (mode === localNodeModes.SETUP) {
-      links.push({ text: 'Change your awards Local Node address', onCLick: this.changeLocalNodeRewardAddress });
+      links.push({ text: 'Change your awards Local Node address', onClick: this.changeLocalNodeRewardAddress });
     } else if (mode === localNodeModes.OVERVIEW) {
-      links.push({ text: 'Change Local Node Settings', onCLick: this.changeLocalNodeSettings });
+      links.push({ text: 'Change Local Node Settings', onClick: this.changeLocalNodeSettings });
     }
     return links;
   };

@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
+import { deriveEncryptionKey, updateAccountsInFile, openWalletBackupDirectory } from '/redux/wallet/actions';
 import { Modal, SmButton, SmInput, Loader } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action, Account } from '/types';
@@ -65,6 +65,7 @@ type Props = {
   deriveEncryptionKey: Action,
   updateAccountsInFile: Action,
   accounts: Account[],
+  openWalletBackupDirectory: Action,
   goBack: () => void
 };
 
@@ -91,6 +92,7 @@ class ChangePassphrase extends Component<Props, State> {
   }
 
   renderModalBody = () => {
+    const { openWalletBackupDirectory } = this.props;
     const { isLoaderVisible, passphraseError, verifyPassphraseError } = this.state;
     if (isLoaderVisible) {
       return (
@@ -107,7 +109,7 @@ class ChangePassphrase extends Component<Props, State> {
           <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePassphraseTyping} hasDebounce />
           <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePassphraseVerifyTyping} hasDebounce />
           <GrayText>
-            Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
+            Your Wallet file is encrypted and saved on your computer. <Link onClick={openWalletBackupDirectory}>Show me the file</Link>
           </GrayText>
         </UpperPart>
         <BottomPart>
@@ -156,7 +158,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   deriveEncryptionKey,
-  updateAccountsInFile
+  updateAccountsInFile,
+  openWalletBackupDirectory
 };
 
 ChangePassphrase = connect(

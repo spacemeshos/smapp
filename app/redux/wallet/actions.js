@@ -27,6 +27,8 @@ export const GET_CONTACTS: string = 'GET_CONTACTS';
 
 export const SEND_TX: string = 'SEND_TX';
 
+export const OPEN_WALLET_BACKUP_DIRECTORY: string = 'OPEN_WALLET_BACKUP_DIRECTORY';
+
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = cryptoService.createEncryptionKey({ passphrase, salt });
@@ -362,4 +364,14 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
   const cipherText = { mnemonic, accounts };
   const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
+};
+
+export const openWalletBackupDirectory = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await fileSystemService.openWalletBackupDirectory();
+    dispatch({ type: OPEN_WALLET_BACKUP_DIRECTORY });
+  } catch (err) {
+    dispatch({ type: OPEN_WALLET_BACKUP_DIRECTORY });
+    throw new Error(err);
+  }
 };

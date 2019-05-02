@@ -103,6 +103,22 @@ ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
   netService.getUpcomingEarnings({ event });
 });
 
+ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event) => {
+  FileManager.openWalletBackupDirectory({ event });
+});
+
+ipcMain.on(ipcConsts.SET_COMMITMENT_SIZE, async (event, request) => {
+  netService.setCommitmentSize({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.SET_LOGICAL_DRIVE, async (event, request) => {
+  netService.setLogicalDrive({ event, ...request });
+});
+
+ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
+  netService.setAwardsAddress({ event, ...request });
+});
+
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed

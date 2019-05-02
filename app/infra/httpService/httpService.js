@@ -60,6 +60,36 @@ class HttpService {
       });
     });
   }
+
+  static setCommitmentSize({ commitmentSize }: { commitmentSize: number }) {
+    ipcRenderer.send(ipcConsts.SET_COMMITMENT_SIZE, { commitmentSize });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SET_COMMITMENT_SIZE_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_COMMITMENT_SIZE_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
+
+  static setLogicalDrive({ logicalDrive }: { logicalDrive: string }) {
+    ipcRenderer.send(ipcConsts.SET_LOGICAL_DRIVE, { logicalDrive });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SET_LOGICAL_DRIVE_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_LOGICAL_DRIVE_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
+
+  static setAwardsAddress({ awardsAddress }: { awardsAddress: string }) {
+    ipcRenderer.send(ipcConsts.SET_AWARDS_ADDRESS, { awardsAddress });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
 }
 
 export default HttpService;

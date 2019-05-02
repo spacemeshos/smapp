@@ -8,6 +8,7 @@ import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action, Contact } from '/types';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -120,7 +121,7 @@ class SendCoins extends Component<Props, State> {
           note={note}
           confirmationTime={fees[feeIndex].label}
           fiatRate={fiatRate}
-          navigateToExplanation={() => {}}
+          navigateToExplanation={this.navigateToTxExplanation}
           onCancelBtnClick={this.cancelTxProcess}
           closeModal={() => this.setState({ shouldShowModal: false })}
           sendTransaction={this.sendTransaction}
@@ -131,7 +132,7 @@ class SendCoins extends Component<Props, State> {
     ];
   }
 
-  navigateToTxExplanation = () => {};
+  navigateToTxExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/send_coin');
 
   selectContactFromModal = ({ contact }: { contact: Contact }) => {
     const { address } = contact;

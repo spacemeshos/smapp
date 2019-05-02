@@ -8,6 +8,7 @@ import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -95,6 +96,13 @@ const RightSectionLink = styled.div`
   color: ${smColors.darkGreen};
   line-height: 30px;
   padding: 5px 0;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
 `;
 
 const btnStyle = { height: 26, marginRight: 15 };
@@ -183,6 +191,7 @@ class Transactions extends Component<Props, State> {
         <AddNewContactModal
           key="modal"
           addressToAdd={address}
+          navigateToExplanation={this.navigateToContactsExplanation}
           onSave={() => this.setState({ shouldShowModal: false })}
           closeModal={() => this.setState({ shouldShowModal: false })}
         />
@@ -190,7 +199,9 @@ class Transactions extends Component<Props, State> {
     ];
   }
 
-  navigateToExplanation = () => {};
+  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
+
+  navigateToContactsExplanation = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
 }
 
 const mapStateToProps = (state) => ({

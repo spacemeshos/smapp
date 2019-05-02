@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { backupWallet } from '/redux/wallet/actions';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -208,7 +209,7 @@ class Backup extends Component<Props> {
     }
   };
 
-  learnMoreAboutSecurity = () => {};
+  learnMoreAboutSecurity = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
 }
 
 const mapDispatchToProps = {

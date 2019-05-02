@@ -81,6 +81,36 @@ class NetService {
       });
     });
 
+  _setCommitmentSize = ({ commitmentSize }) =>
+    new Promise((resolve, reject) => {
+      this.service.SetCommitmentSize({ commitmentSize }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _setLogicalDrive = ({ logicalDrive }) =>
+    new Promise((resolve, reject) => {
+      this.service.SetLogicalDrive({ logicalDrive }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _setAwardsAddress = ({ address }) =>
+    new Promise((resolve, reject) => {
+      this.service.SetAwardsAddress({ address }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   getBalance = async ({ event, address }) => {
     try {
       const { value } = await this._getBalance({ address });
@@ -124,6 +154,33 @@ class NetService {
       event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, value);
     } catch (error) {
       event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_FAILURE, error.message);
+    }
+  };
+
+  setCommitmentSize = async ({ event, commitmentSize }) => {
+    try {
+      const { value } = await this._setCommitmentSize({ mbCommitted: commitmentSize });
+      event.sender.send(ipcConsts.SET_COMMITMENT_SIZE_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_COMMITMENT_SIZE_FAILURE, error.message);
+    }
+  };
+
+  setLogicalDrive = async ({ event, logicalDrive }) => {
+    try {
+      const { value } = await this._setLogicalDrive({ logicalDrive });
+      event.sender.send(ipcConsts.SET_LOGICAL_DRIVE_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_LOGICAL_DRIVE_FAILURE, error.message);
+    }
+  };
+
+  setAwardsAddress = async ({ event, awardsAddress }) => {
+    try {
+      const { value } = await this._setAwardsAddress({ awardsAddress });
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
     }
   };
 }
