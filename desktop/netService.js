@@ -111,6 +111,16 @@ class NetService {
       });
     });
 
+  _checkNetworkConnection = () =>
+    new Promise((resolve, reject) => {
+      this.service.Echo({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   getBalance = async ({ event, address }) => {
     try {
       const { value } = await this._getBalance({ address });
@@ -181,6 +191,15 @@ class NetService {
       event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
     } catch (error) {
       event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
+    }
+  };
+
+  checkNetworkConnection = async ({ event }) => {
+    try {
+      const { value } = await this._checkNetworkConnection();
+      event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_FAILURE, error.message);
     }
   };
 }

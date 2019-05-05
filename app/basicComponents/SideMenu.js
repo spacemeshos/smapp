@@ -82,6 +82,7 @@ const MenuItemIconWrapper = styled.div`
   align-items: center;
   margin: 0 20px;
   cursor: inherit;
+  position: relative;
 `;
 
 const MenuItemIcon = styled.img`
@@ -106,6 +107,14 @@ const Separator = styled.div`
   border-bottom: 1px solid ${smColors.borderGray};
 `;
 
+const NetworkDisconnected = styled.div`
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 12px;
+  background-color: ${smColors.red};
+`;
+
 export type SideMenuItem = {
   text: string,
   path: string | null,
@@ -118,6 +127,7 @@ type Props = {
   items: SideMenuItem[],
   selectedItemIndex?: number,
   loadingItemIndex?: number,
+  networkDisconnectedIndex?: number,
   onMenuItemPress: ({ index: number }) => void
 };
 
@@ -147,13 +157,14 @@ class SideMenu extends React.Component<Props, State> {
   }
 
   renderMenuElement = (item: SideMenuItem, index: number) => {
-    const { selectedItemIndex, loadingItemIndex } = this.props;
+    const { selectedItemIndex, loadingItemIndex, networkDisconnectedIndex } = this.props;
     const isDisabled = !item.path;
     return [
       item.hasSeparator && <Separator key="separator" />,
       <MenuItemWrapper key={item.text} onClick={isDisabled ? null : () => this.handleSelectEntry({ index })} isDisabled={isDisabled}>
         {index === selectedItemIndex && <SelectedMenuItemBorder />}
         <MenuItemIconWrapper>
+          {networkDisconnectedIndex === index && <NetworkDisconnected />}
           <MenuItemIcon src={item.icon} alt="Icon missing" />
         </MenuItemIconWrapper>
         <MenuLabel>{item.text}</MenuLabel>

@@ -90,6 +90,16 @@ class HttpService {
       });
     });
   }
+
+  static checkNetworkConnection() {
+    ipcRenderer.send(ipcConsts.CHECK_NETWORK_CONNECTION);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.CHECK_NETWORK_CONNECTION_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.CHECK_NETWORK_CONNECTION_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
 }
 
 export default HttpService;
