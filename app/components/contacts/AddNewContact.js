@@ -150,7 +150,7 @@ class AddNewContact extends Component<Props, State> {
   validate = ({ fieldName, value }: { fieldName: string, value: string }) => {
     switch (fieldName) {
       case 'address': {
-        const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+        const addressRegex = /\b[a-zA-Z0-9]{32}\b/;
         return addressRegex.test(value) ? '' : 'Address is invalid';
       }
       case 'nickname': {
