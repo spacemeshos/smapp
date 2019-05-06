@@ -7,9 +7,9 @@ export const CHECK_NETWORK_CONNECTION: string = 'CHECK_NETWORK_CONNECTION';
 export const checkNetworkConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     await httpService.checkNetworkConnection();
-    dispatch({ type: CHECK_NETWORK_CONNECTION, payload: { isNetworkConnected: true } });
+    dispatch({ type: CHECK_NETWORK_CONNECTION, payload: { isConnected: true } });
   } catch (err) {
-    dispatch({ type: CHECK_NETWORK_CONNECTION, payload: { isNetworkConnected: false } });
+    dispatch({ type: CHECK_NETWORK_CONNECTION, payload: { isConnected: false } });
     throw err;
   }
 };

@@ -10,13 +10,6 @@ const Text = styled.span`
 `;
 
 // $FlowStyledIssue
-// const ExplanationWrapper = styled.div`
-//   height: ${({ isExpanded }) => (isExpanded ? '44' : '0')}px;
-//   opacity: ${({ isExpanded }) => (isExpanded ? 1 : 0)};
-//   transition: all 0.2s linear;
-// `;
-
-// $FlowStyledIssue
 const NetworkEntryWrapper = styled.div`
   padding: 0 12px;
   border-bottom: 1px solid ${smColors.borderGray};
@@ -26,11 +19,6 @@ const NetworkEntryWrapper = styled.div`
   display: flex;
   flex-direction: row;
   background-color: ${({ isConnected }) => (isConnected ? smColors.green10alpha : smColors.white)};
-`;
-
-const Separator = styled.div`
-  margin-top: 20px;
-  border-bottom: 1px solid ${smColors.borderGray};
 `;
 
 // $FlowStyledIssue
@@ -73,51 +61,35 @@ const LoaderIcon = styled.img`
   margin-top: 32px;
 `;
 
-type NetworkEntry = {
+export type NetworkEntryType = {
   name: string,
-  status: ?'loading' | 'connected',
+  status: 'loading' | 'connected' | null,
   color: string
 };
 
 type Props = {
   connectToNetwork: ({ networkName: string }) => void,
-  isNetworkConnected: boolean,
-  networks: NetworkEntry[]
+  isConnected: boolean,
+  networkEntry: NetworkEntryType
 };
 
-class NetworkList extends PureComponent<Props> {
+class NetworkEntry extends PureComponent<Props> {
   render() {
-    const { isNetworkConnected, networks } = this.props;
-    return (
-      <React.Fragment>
-        <Separator />
-        {networks && networks.map((networkEntry: NetworkEntry) => this.renderNetworkEntry({ networkEntry, isNetworkConnected }))}
-      </React.Fragment>
-    );
-  }
-
-  renderNetworkEntry = ({ networkEntry, isNetworkConnected }: { networkEntry: NetworkEntry, isNetworkConnected: boolean }) => {
-    const { connectToNetwork } = this.props;
-    const isConnected = isNetworkConnected && networkEntry.status === 'connected';
+    const { connectToNetwork, isConnected, networkEntry } = this.props;
+    const isNetworkConnected = isConnected && networkEntry.status === 'connected';
     const isLoading = networkEntry.status === 'loading';
     return (
-      <NetworkEntryWrapper key={networkEntry.name} isConnected={isConnected} onClick={() => connectToNetwork({ networkName: networkEntry.name })}>
+      <NetworkEntryWrapper isConnected={isNetworkConnected} onClick={() => (isConnected ? connectToNetwork({ networkName: networkEntry.name }) : null)}>
         <NetworkIdentifier color={networkEntry.color} />
-        <NetworkName isConnected={isConnected}>{networkEntry.name}</NetworkName>
-        <ConnectionStatus>{isConnected ? 'Connected' : 'Connect'}</ConnectionStatus>
+        <NetworkName isConnected={isNetworkConnected}>{networkEntry.name}</NetworkName>
+        <ConnectionStatus>{isNetworkConnected ? 'Connected' : 'Connect'}</ConnectionStatus>
         <ConnectionStatusIconWrapper>
-          {isConnected && <ConnectedIcon src={checkGreen} />}
+          {isNetworkConnected && <ConnectedIcon src={checkGreen} />}
           {isLoading && <LoaderIcon src={loader} />}
         </ConnectionStatusIconWrapper>
       </NetworkEntryWrapper>
     );
-  };
-
-  toggleNoNetworkExplanation = () => {
-    this.setState((prevState) => {
-      return { showNoNetworkExplanation: !prevState.showNoNetworkExplanation };
-    });
-  };
+  }
 }
 
-export default NetworkList;
+export default NetworkEntry;

@@ -3,16 +3,16 @@ import type { Action } from '/types';
 import { CHECK_NETWORK_CONNECTION } from './actions';
 
 const initialState = {
-  isNetworkConnected: true
+  isConnected: true
 };
 
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
     case CHECK_NETWORK_CONNECTION: {
       const {
-        payload: { isNetworkConnected }
+        payload: { isConnected }
       } = action;
-      return { ...state, isNetworkConnected };
+      return { ...state, isConnected };
     }
     default:
       return state;

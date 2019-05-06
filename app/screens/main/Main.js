@@ -72,7 +72,6 @@ type Props = {
   history: { push: (string) => void },
   location: { pathname: string, hash: string },
   accounts: Account[],
-  isNetworkConnected: boolean,
   resetNodeSettings: Action,
   logout: Action
 };
@@ -95,17 +94,10 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isNetworkConnected } = this.props;
     const { selectedItemIndex, loadingItemIndex } = this.state;
     return (
       <Wrapper>
-        <SideMenu
-          items={sideMenuItems}
-          networkDisconnectedIndex={isNetworkConnected ? -1 : 5}
-          selectedItemIndex={selectedItemIndex}
-          onMenuItemPress={this.handleSideMenuPress}
-          loadingItemIndex={loadingItemIndex}
-        />
+        <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
         <InnerWrapper>
           <Switch>
             {routes.main.map((route) => (
@@ -141,8 +133,7 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: state.wallet.accounts,
-  isNetworkConnected: state.network.isNetworkConnected
+  accounts: state.wallet.accounts
 });
 
 const mapDispatchToProps = {

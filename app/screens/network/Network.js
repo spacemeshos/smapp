@@ -8,25 +8,8 @@ import { smColors } from '/vars';
 import type { Action } from '/types';
 import { communication } from '/assets/images';
 import { shell } from 'electron';
-import { NoNetworkSection, NetworkList } from '/components/network';
-
-const networks: NetworkEntry[] = [
-  {
-    name: 'Test net',
-    color: smColors.orange,
-    status: 'connected'
-  },
-  {
-    name: 'Private net',
-    color: smColors.red,
-    status: null
-  },
-  {
-    name: 'Sky net',
-    color: smColors.lighterBlack,
-    status: null
-  }
-];
+import { NoNetworkSection, NetworkEntry } from '/components/network';
+import type { NetworkEntryType } from '/components/network';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -107,38 +90,56 @@ const ActionLink = styled(Text)`
   }
 `;
 
-type NetworkEntry = {
-  name: string,
-  status: ?'loading' | 'connected',
-  color: string
-};
+const Separator = styled.div`
+  margin-top: 20px;
+  border-bottom: 1px solid ${smColors.borderGray};
+`;
 
 type Props = {
   checkNetworkConnection: Action,
-  isNetworkConnected: boolean
+  isConnected: boolean
 };
 
 type State = {
-  networks: NetworkEntry[]
+  networks: NetworkEntryType[]
 };
 
 class Network extends Component<Props, State> {
   timer: any;
 
   state = {
-    networks: [...networks]
+    networks: [
+      {
+        name: 'Test net',
+        color: smColors.orange,
+        status: 'connected'
+      },
+      {
+        name: 'Private net',
+        color: smColors.red,
+        status: null
+      },
+      {
+        name: 'Sky net',
+        color: smColors.lighterBlack,
+        status: null
+      }
+    ]
   };
 
   render() {
-    const { isNetworkConnected } = this.props;
+    const { isConnected } = this.props;
     const { networks } = this.state;
     return (
       <Wrapper>
         <Header>Network</Header>
         <BodyWrapper>
           <LeftPaneWrapper>
-            {!isNetworkConnected && <NoNetworkSection />}
-            <NetworkList networks={networks} isNetworkConnected={isNetworkConnected} connectToNetwork={this.connectToNetwork} />
+            {!isConnected && <NoNetworkSection />}
+            <Separator />
+            {networks.map((networkEntry: NetworkEntryType) => (
+              <NetworkEntry key={networkEntry.name} connectToNetwork={this.connectToNetwork} networkEntry={networkEntry} isConnected={isConnected} />
+            ))}
             <SmButton text="Create a new network" theme="green" onPress={() => {}} isDisabled style={{ width: 222, marginTop: 30 }} />
           </LeftPaneWrapper>
           {this.renderRightPane()}
@@ -177,19 +178,20 @@ class Network extends Component<Props, State> {
   connectToNetwork = ({ networkName }: { networkName: string }) => {
     // TODO: connect to actual connect to network action
     const { networks } = this.state;
-    const networksCopy = [...networks];
-    const connectedNetworkIndex = networksCopy.findIndex((networkEntry: NetworkEntry) => networkEntry.name === networkName);
-    for (let i = 0; i < networksCopy.length; i += 1) {
-      networksCopy[i].status = connectedNetworkIndex === i ? 'connected' : null;
-    }
-    this.setState({ networks: networksCopy });
+    const connectedNetworkIndex = networks.findIndex((networkEntry: NetworkEntryType) => networkEntry.name === networkName);
+    this.setState({
+      networks: networks.map((networkEntry: NetworkEntryType, index: number) => ({
+        ...networkEntry,
+        status: connectedNetworkIndex === index ? 'connected' : null
+      }))
+    });
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/'); // TODO: connect to actual link for network connect info
 }
 
 const mapStateToProps = (state) => ({
-  isNetworkConnected: state.network.isNetworkConnected
+  isConnected: state.network.isConnected
 });
 
 const mapDispatchToProps = {
