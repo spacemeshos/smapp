@@ -8,7 +8,7 @@ import { smColors } from '/vars';
 import type { Action } from '/types';
 import { communication } from '/assets/images';
 import { shell } from 'electron';
-import { NoNetworkSection, NetworkEntry } from '/components/network';
+import { NoNetworkSection, NetworkEntry, SetNodeIP } from '/components/network';
 import type { NetworkEntryType } from '/components/network';
 
 const Wrapper = styled.div`
@@ -95,13 +95,19 @@ const Separator = styled.div`
   border-bottom: 1px solid ${smColors.borderGray};
 `;
 
+const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 type Props = {
   checkNetworkConnection: Action,
   isConnected: boolean
 };
 
 type State = {
-  networks: NetworkEntryType[]
+  networks: NetworkEntryType[],
+  shouldShowModal: boolean
 };
 
 class Network extends Component<Props, State> {
@@ -124,14 +130,15 @@ class Network extends Component<Props, State> {
         color: smColors.lighterBlack,
         status: null
       }
-    ]
+    ],
+    shouldShowModal: false
   };
 
   render() {
     const { isConnected } = this.props;
-    const { networks } = this.state;
-    return (
-      <Wrapper>
+    const { networks, shouldShowModal } = this.state;
+    return [
+      <Wrapper key="wrapper">
         <Header>Network</Header>
         <BodyWrapper>
           <LeftPaneWrapper>
@@ -140,12 +147,16 @@ class Network extends Component<Props, State> {
             {networks.map((networkEntry: NetworkEntryType) => (
               <NetworkEntry key={networkEntry.name} connectToNetwork={this.connectToNetwork} networkEntry={networkEntry} isConnected={isConnected} />
             ))}
-            <SmButton text="Create a new network" theme="green" onPress={() => {}} isDisabled style={{ width: 222, marginTop: 30 }} />
+            <ButtonsWrapper>
+              <SmButton text="Create a new network" theme="green" onPress={() => {}} isDisabled style={{ width: 222, marginTop: 30, marginRight: 20 }} />
+              <SmButton text="Set Node IP" theme="orange" onPress={() => this.setState({ shouldShowModal: true })} style={{ width: 222, marginTop: 30 }} />
+            </ButtonsWrapper>
           </LeftPaneWrapper>
           {this.renderRightPane()}
         </BodyWrapper>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && <SetNodeIP key="modal" closeModal={this.handleCloseModal} />
+    ];
   }
 
   componentDidMount() {
@@ -174,6 +185,12 @@ class Network extends Component<Props, State> {
       <ActionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Network</ActionLink>
     </RightPaneWrapper>
   );
+
+  handleCloseModal = () => {
+    const { checkNetworkConnection } = this.props;
+    this.setState({ shouldShowModal: false });
+    checkNetworkConnection();
+  };
 
   connectToNetwork = ({ networkName }: { networkName: string }) => {
     // TODO: connect to actual connect to network action

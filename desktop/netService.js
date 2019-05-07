@@ -202,6 +202,15 @@ class NetService {
       event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_FAILURE, error.message);
     }
   };
+
+  setNodeIpAddress = ({ event, nodeIpAddress }) => {
+    try {
+      this.service = new SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
+      event.sender.send(ipcConsts.SET_NODE_IP_SUCCESS, nodeIpAddress);
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, error.message);
+    }
+  };
 }
 
 export default new NetService();

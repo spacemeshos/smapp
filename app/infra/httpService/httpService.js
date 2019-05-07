@@ -100,6 +100,16 @@ class HttpService {
       });
     });
   }
+
+  static setNodeIpAddress({ nodeIpAddress }: { nodeIpAddress: string }) {
+    ipcRenderer.send(ipcConsts.SET_NODE_IP, { nodeIpAddress });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SET_NODE_IP_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_NODE_IP_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
 }
 
 export default HttpService;
