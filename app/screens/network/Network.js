@@ -51,9 +51,11 @@ const BodyWrapper = styled.div`
 const RightPaneWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   padding: 20px;
   flex: 1;
   border: 1px solid ${smColors.borderGray};
+  overflow-y: scroll;
 `;
 
 const LeftPaneWrapper = styled.div`
@@ -67,6 +69,7 @@ const LeftPaneWrapper = styled.div`
 const ImageWrapper = styled.div`
   width: 100%;
   max-height: 270px;
+  min-height: 90px;
   display: flex;
   justify-content: center;
   align-items: center;
