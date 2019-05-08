@@ -95,8 +95,10 @@ class AddNewContact extends Component<Props, State> {
   state = { ...this.initialState };
 
   static getDerivedStateFromProps(props, prevState) {
-    if (props.defaultAddress && !prevState.defaultAddress) {
-      return { address: props.defaultAddress };
+    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+    const isAddressValid = addressRegex.test(prevState.address);
+    if (props.defaultAddress && !isAddressValid) {
+      return { address: props.defaultAddress, renderKey: prevState.renderKey + 1, addressErrorMsg: '' };
     }
     return null;
   }
