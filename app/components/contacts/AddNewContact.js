@@ -95,8 +95,8 @@ class AddNewContact extends Component<Props, State> {
   state = { ...this.initialState };
 
   static getDerivedStateFromProps(props, prevState) {
-    if (props.defaultAddress && !prevState.defaultAddress) {
-      return { address: props.defaultAddress };
+    if (props.defaultAddress && props.defaultAddress !== prevState.address) {
+      return { address: props.defaultAddress, renderKey: prevState.renderKey + 1, addressErrorMsg: '' };
     }
     return null;
   }
