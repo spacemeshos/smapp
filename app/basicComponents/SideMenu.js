@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
 import { smColors } from '/vars';
 import { Loader } from '/basicComponents';
 import { openIcon } from '/assets/images';
@@ -82,6 +83,7 @@ const MenuItemIconWrapper = styled.div`
   align-items: center;
   margin: 0 20px;
   cursor: inherit;
+  position: relative;
 `;
 
 const MenuItemIcon = styled.img`
@@ -106,6 +108,14 @@ const Separator = styled.div`
   border-bottom: 1px solid ${smColors.borderGray};
 `;
 
+const NetworkDisconnected = styled.div`
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 12px;
+  background-color: ${smColors.red};
+`;
+
 export type SideMenuItem = {
   text: string,
   path: string | null,
@@ -116,6 +126,7 @@ export type SideMenuItem = {
 
 type Props = {
   items: SideMenuItem[],
+  isConnected: boolean,
   selectedItemIndex?: number,
   loadingItemIndex?: number,
   onMenuItemPress: ({ index: number }) => void
@@ -147,13 +158,26 @@ class SideMenu extends React.Component<Props, State> {
   }
 
   renderMenuElement = (item: SideMenuItem, index: number) => {
-    const { selectedItemIndex, loadingItemIndex } = this.props;
+    const { selectedItemIndex, loadingItemIndex, isConnected } = this.props;
     const isDisabled = !item.path;
+    const networkIndex = 5;
     return [
       item.hasSeparator && <Separator key="separator" />,
-      <MenuItemWrapper key={item.text} onClick={isDisabled ? null : () => this.handleSelectEntry({ index })} isDisabled={isDisabled}>
+      <MenuItemWrapper
+        key={item.text}
+        onClick={
+          isDisabled
+            ? null
+            : () => {
+                this.handleSelectEntry({ index });
+              }
+        }
+        isDisabled={isDisabled}
+      >
         {index === selectedItemIndex && <SelectedMenuItemBorder />}
         <MenuItemIconWrapper>
+          {/** when network is disconnected, showing an indication on top of the network icon */}
+          {!isConnected && networkIndex === index && <NetworkDisconnected />}
           <MenuItemIcon src={item.icon} alt="Icon missing" />
         </MenuItemIconWrapper>
         <MenuLabel>{item.text}</MenuLabel>
@@ -173,5 +197,11 @@ class SideMenu extends React.Component<Props, State> {
     this.setState({ isExpanded: !isExpanded, width: finalWidth });
   };
 }
+
+const mapStateToProps = (state) => ({
+  isConnected: state.network.isConnected
+});
+
+SideMenu = connect(mapStateToProps)(SideMenu);
 
 export default SideMenu;

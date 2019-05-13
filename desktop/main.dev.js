@@ -119,6 +119,14 @@ ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
   netService.setAwardsAddress({ event, ...request });
 });
 
+ipcMain.on(ipcConsts.CHECK_NETWORK_CONNECTION, async (event) => {
+  netService.checkNetworkConnection({ event });
+});
+
+ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
+  netService.setNodeIpAddress({ event, ...request });
+});
+
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed

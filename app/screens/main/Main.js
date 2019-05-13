@@ -40,7 +40,7 @@ const sideMenuItems: SideMenuItem[] = [
   },
   {
     text: 'Network',
-    path: null,
+    path: '/main/network',
     icon: menu6
   },
   {
