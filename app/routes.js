@@ -1,5 +1,5 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, TwelveWordsBackup, Transactions, Settings, Contacts, TestMe } from '/screens';
+import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, TwelveWordsBackup, Transactions, Settings, Contacts, TestMe, Network } from '/screens';
 
 const app = [
   {
@@ -32,6 +32,10 @@ const main = [
   {
     path: '/main/settings',
     component: Settings
+  },
+  {
+    path: '/main/network',
+    component: Network
   }
 ];
 
