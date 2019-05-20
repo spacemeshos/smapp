@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { SmButton } from '/basicComponents';
-import { keyGenService } from '/infra/keyGenService';
+import { cryptoService } from '/infra/cryptoService';
 import { xWhite } from '/assets/images';
 import { smColors } from '/vars';
 import { shell } from 'electron';
@@ -140,7 +140,7 @@ class WordsRestore extends Component<Props, State> {
     const { proceedWithRestore } = this.props;
     const { words } = this.state;
     const mnemonic = Object.values(words).join(' ');
-    if (keyGenService.validateMnemonic({ mnemonic })) {
+    if (cryptoService.validateMnemonic({ mnemonic })) {
       proceedWithRestore({ mnemonic });
     } else {
       this.setState({ errorMsg: 'Invalid Words' });

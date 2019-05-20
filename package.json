@@ -135,8 +135,7 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.10",
-    "styled-components": "^4.1.3",
-    "tweetnacl": "^1.0.1"
+    "styled-components": "^4.1.3"
   },
   "browserslist": "electron 1.6"
 }
