@@ -78,7 +78,7 @@ class SetAwardsAddress extends Component<Props, State> {
   };
 
   validateAddress = ({ value }: { value: string }) => {
-    const addressRegex = /\b[a-zA-Z0-9]{32}\b/;
+    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
     return addressRegex.test(value) ? '' : 'Address is invalid';
   };
 }
