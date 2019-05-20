@@ -1,10 +1,9 @@
 // @flow
 import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } from '/types';
+import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
-import { keyGenService } from '/infra/keyGenService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
-import { localStorageService } from '/infra/storageServices';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
@@ -27,11 +26,9 @@ export const GET_CONTACTS: string = 'GET_CONTACTS';
 
 export const SEND_TX: string = 'SEND_TX';
 
-export const OPEN_WALLET_BACKUP_DIRECTORY: string = 'OPEN_WALLET_BACKUP_DIRECTORY';
-
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
-  const key = cryptoService.createEncryptionKey({ passphrase, salt });
+  const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
   return { type: DERIVE_ENCRYPTION_KEY, payload: { key } };
 };
 
@@ -157,14 +154,14 @@ const contactsListStub = [
   }
 ];
 
-export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => (
+export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   const { accountNumber, walletNumber, fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const resolvedMnemonic = mnemonic || keyGenService.generateMnemonic();
-  const { publicKey, secretKey } = keyGenService.generateKeyPair({ mnemonic: resolvedMnemonic });
+  const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
+  const { publicKey, secretKey } = await cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
   const meta = {
     displayName: `my_wallet_${walletNumber}`,
     created: unixEpochTimestamp,
@@ -183,13 +180,13 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
         displayColor: smColors.darkGreen,
         path: '0/0/1',
         balance: 100,
-        pk: publicKey.toString(),
-        sk: secretKey.toString()
+        pk: publicKey,
+        sk: secretKey
       }
     ]
   };
   const transactions = { '0': transactionsStab }; // TODO: change to empty array after complete transaction flow is ready
-  const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
+  const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
   const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts: contactsListStub };
   try {
@@ -208,30 +205,15 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
   }
 };
 
-export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({
-  type: SET_WALLET_META,
-  payload: { meta }
-});
+export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({ type: SET_WALLET_META, payload: { meta } });
 
-export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({
-  type: SET_ACCOUNTS,
-  payload: { accounts }
-});
+export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({ type: SET_ACCOUNTS, payload: { accounts } });
 
-export const setCurrentAccount = ({ index }: { index: number }): Action => ({
-  type: SET_CURRENT_ACCOUNT_INDEX,
-  payload: { index }
-});
+export const setCurrentAccount = ({ index }: { index: number }): Action => ({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
 
-export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({
-  type: SET_MNEMONIC,
-  payload: { mnemonic }
-});
+export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
-export const setTransactions = ({ transactions }: { transactions: TxList }): Action => ({
-  type: SET_TRANSACTIONS,
-  payload: { transactions }
-});
+export const setTransactions = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_TRANSACTIONS, payload: { transactions } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
 
@@ -256,13 +238,13 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     const walletState = getState().wallet;
     const { walletFiles, fileKey } = walletState;
     const file = await fileSystemService.readFile({ filePath: walletFiles[0] });
-    const decryptedDataJSON = cryptoService.decryptData({ data: file.crypto.cipherText, key: fileKey });
+    const decryptedDataJSON = fileEncryptionService.decryptData({ data: file.crypto.cipherText, key: fileKey });
     file.crypto.cipherText = JSON.parse(decryptedDataJSON);
     dispatch(setWalletMeta({ meta: file.meta }));
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
-    dispatch(setContacts({ contacts: contactsListStub })); // TODO change to file.contacts after removing test stab
+    dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
     throw new Error(err);
@@ -285,32 +267,21 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
   dispatch({ type: GET_BALANCE, payload: { balance } });
 };
 
-// eslint-disable-next-line no-unused-vars
 export const sendTransaction = ({ dstAddress, amount, fee, note }: { dstAddress: string, amount: number, fee: number, note: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   try {
-    const { accounts, currentAccountIndex } = getState.wallet;
-    await httpService.sendTx({ srcAddress: accounts[currentAccountIndex].pk, dstAddress, amount: amount + fee });
+    const { accounts, currentAccountIndex } = getState().wallet;
+    const signature = await cryptoService.signTransaction({
+      message: JSON.stringify({ dstAddress, amount: amount + fee, note }),
+      secretKey: accounts[currentAccountIndex].sk
+    });
+    await httpService.sendTx({ srcAddress: accounts[currentAccountIndex].pk, dstAddress, amount: amount + fee, note, signature });
     dispatch({ type: SEND_TX, payload: amount + fee });
     dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: dstAddress, date: new Date(), amount: amount + fee } }));
   } catch (error) {
     throw new Error(error);
-  }
-};
-
-export const backupWallet = () => async (dispatch: Dispatch, getState: GetState) => {
-  try {
-    const walletState = getState().wallet;
-    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = walletState;
-    const copiedAccounts = [...accounts];
-    const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify({ mnemonic, accounts: copiedAccounts }), key: fileKey });
-    const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-    await fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
-    localStorageService.set('hasBackup', true);
-  } catch (err) {
-    throw new Error(err);
   }
 };
 
@@ -362,16 +333,6 @@ export const updateAccount = ({ accountIndex, fieldName, data }: { accountIndex:
 export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { fileKey, mnemonic, walletFiles } = getState().wallet;
   const cipherText = { mnemonic, accounts };
-  const encryptedAccountsData = cryptoService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
+  const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
-};
-
-export const openWalletBackupDirectory = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await fileSystemService.openWalletBackupDirectory();
-    dispatch({ type: OPEN_WALLET_BACKUP_DIRECTORY });
-  } catch (err) {
-    dispatch({ type: OPEN_WALLET_BACKUP_DIRECTORY });
-    throw new Error(err);
-  }
 };

@@ -2,8 +2,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, saveNewWallet, openWalletBackupDirectory } from '/redux/wallet/actions';
+import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { SmButton, SmInput, Loader } from '/basicComponents';
+import { fileSystemService } from '/infra/fileSystemService';
 import { miner } from '/assets/images';
 import { smColors } from '/vars';
 import type { Action } from '/types';
@@ -81,8 +82,7 @@ type Props = {
   hideCloseBtn: () => void,
   navigateToLocalNodeSetup: () => void,
   navigateToWallet: () => void,
-  mnemonic: string,
-  openWalletBackupDirectory: Action
+  mnemonic: string
 };
 
 type State = {
@@ -117,7 +117,6 @@ class CreateWallet extends Component<Props, State> {
   }
 
   renderSubStep1 = () => {
-    const { openWalletBackupDirectory } = this.props;
     const { passphraseError, verifyPassphraseError } = this.state;
     return (
       <Wrapper>
@@ -127,7 +126,7 @@ class CreateWallet extends Component<Props, State> {
           <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePasswordTyping} hasDebounce />
           <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
           <GrayText>
-            Your Wallet file is encrypted and saved on your computer. <Link onClick={openWalletBackupDirectory}>Show me the file</Link>
+            Your Wallet file is encrypted and saved on your computer. <Link onClick={this.openWalletBackupDirectory}>Show me the file</Link>
           </GrayText>
         </UpperPart>
         <BottomPart>
@@ -189,12 +188,15 @@ class CreateWallet extends Component<Props, State> {
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+
+  openWalletBackupDirectory = async () => {
+    await fileSystemService.openWalletBackupDirectory();
+  };
 }
 
 const mapDispatchToProps = {
   deriveEncryptionKey,
-  saveNewWallet,
-  openWalletBackupDirectory
+  saveNewWallet
 };
 
 CreateWallet = connect(

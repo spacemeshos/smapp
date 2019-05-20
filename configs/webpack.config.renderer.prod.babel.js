@@ -35,17 +35,9 @@ export default merge.smart(baseConfig, {
         use: 'url-loader'
       },
       {
-        test: /[\\\/]tweetnacl[\\\/]/,
-        loader: 'exports-loader?window.nacl!imports-loader?this=>window,module=>{},require=>false'
-      },
-      {
         test: /\.wasm$/,
         type: "javascript/auto"
       }
-    ],
-    noParse: [
-      /[\\\/]tweetnacl[\\\/]/,
-      /\.wasm$/
     ]
   },
 

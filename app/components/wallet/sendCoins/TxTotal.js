@@ -15,7 +15,7 @@ const Header = styled.div`
   font-size: 14px;
   font-weight: bold;
   color: ${smColors.darkGray};
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 `;
 
 const InnerWrapper = styled.div`

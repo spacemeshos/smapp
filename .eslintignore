@@ -59,4 +59,4 @@ package.json
 /babel.config.js
 /configs/
 /proto/
-/app/infra/cryptoService/wasm_exec.js
+/desktop/wasm_exec.js

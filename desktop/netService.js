@@ -130,10 +130,10 @@ class NetService {
     }
   };
 
-  sendTx = async ({ event, srcAddress, dstAddress, amount }) => {
+  sendTx = async ({ event, srcAddress, dstAddress, amount, note, signature }) => {
     try {
       const { value } = await this._getNonce({ address: srcAddress });
-      const resp = await this._submitTransaction({ srcAddress, dstAddress, amount: `${amount}`, nonce: value });
+      const resp = await this._submitTransaction({ signature, dstAddress, amount: `${amount}`, nonce: value, note });
       event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, resp.value);
     } catch (error) {
       event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
