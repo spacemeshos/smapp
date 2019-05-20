@@ -30,3 +30,5 @@ flow-typed/
 ct-libc/
 /dll/
 /node_modules/
+/release-builds
+/release-installers

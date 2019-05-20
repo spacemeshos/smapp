@@ -1,6 +1,9 @@
+import path from 'path';
 import { ipcConsts } from '../app/vars';
 
-const PROTO_PATH = './proto/api.proto';
+const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
+// const PROTO_PATH = './proto/api.proto';
+
 const grpc = require('grpc');
 
 const spacemeshProto = grpc.load(PROTO_PATH); // eslint-disable-line prefer-destructuring

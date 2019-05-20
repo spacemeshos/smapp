@@ -142,7 +142,10 @@ const createWindow = () => {
     height: 860,
     minWidth: 1024,
     minHeight: 728,
-    center: true
+    center: true,
+    webPreferences: {
+      devTools: process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true'
+    }
   });
 };
 
