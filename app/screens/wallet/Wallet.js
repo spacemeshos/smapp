@@ -19,5 +19,3 @@ class Wallet extends Component<Props> {
 }
 
 export default Wallet;
-
-// asfasdfadgsdgsdgsdg
