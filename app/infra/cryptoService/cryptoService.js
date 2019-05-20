@@ -1,4 +1,3 @@
-// @flow
 import * as bip39 from 'bip39';
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
