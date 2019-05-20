@@ -2,7 +2,7 @@
 import * as pbkdf2 from 'pbkdf2';
 import * as aes from 'aes-js';
 
-class StringCryptoService {
+class FileEncryptionService {
   /**
    * Derives encryption key using provided pin code and salt.
    * @param passphrase - at least 8 digits/chars combo string.
@@ -66,4 +66,4 @@ class StringCryptoService {
   };
 }
 
-export default StringCryptoService;
+export default FileEncryptionService;

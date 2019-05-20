@@ -59,3 +59,4 @@ package.json
 /babel.config.js
 /configs/
 /proto/
+/desktop/wasm_exec.js

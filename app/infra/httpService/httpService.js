@@ -15,8 +15,8 @@ class HttpService {
     });
   }
 
-  static sendTx({ srcAddress, dstAddress, amount }: { srcAddress: string, dstAddress: string, amount: number }) {
-    ipcRenderer.send(ipcConsts.SEND_TX, { srcAddress, dstAddress, amount });
+  static sendTx({ srcAddress, dstAddress, amount, note, signature }: { srcAddress: string, dstAddress: string, amount: number, note: string, signature: string }) {
+    ipcRenderer.send(ipcConsts.SEND_TX, { srcAddress, dstAddress, amount, note, signature });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SEND_TX_SUCCESS, () => {});
       ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
