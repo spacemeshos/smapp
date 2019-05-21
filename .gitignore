@@ -32,3 +32,5 @@ ct-libc/
 /node_modules/
 /release-builds
 /release-installers
+/desktop/dist/
+/desktop/main.prod.js
