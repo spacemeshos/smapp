@@ -33,3 +33,4 @@ ct-libc/
 /release-builds
 /release-installers
 /desktop/dist/
+/desktop/main.prod.js
