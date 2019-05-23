@@ -30,7 +30,7 @@ class NotificationsService {
     ipcRenderer.send(ipcConsts.CAN_NOTIFY);
     return new Promise((resolve, reject) => {
       ipcRenderer.once(ipcConsts.CAN_NOTIFY_SUCCESS, (event, isVisible) => {
-        resolve({ isNotificationAllowed: isPermitted && isVisible });
+        resolve({ isNotificationAllowed: isPermitted && !isVisible });
       });
       ipcRenderer.once(ipcConsts.CAN_NOTIFY_FAILURE, (event, args) => {
         reject(args);
