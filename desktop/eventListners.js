@@ -3,6 +3,7 @@ import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
 import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
+import notificationsManager from './notificationsManager';
 
 const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
@@ -83,6 +84,14 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
     netService.setNodeIpAddress({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, async (event) => {
+    notificationsManager.showAppOnNotificationClick({ browserWindow: mainWindow, event });
+  });
+
+  ipcMain.on(ipcConsts.CAN_NOTIFY, async (event) => {
+    notificationsManager.isAppVisible({ browserWindow: mainWindow, event });
   });
 };
 

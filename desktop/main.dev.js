@@ -8,7 +8,7 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -41,9 +41,6 @@ const installExtensions = async () => {
   return Promise.all(extensions.map((name) => installer.default(installer[name], forceDownload))).catch(console.error); // eslint-disable-line no-console
 };
 
-// Add event listeners.
-subscribeToEventListeners({ mainWindow });
-
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
@@ -64,6 +61,8 @@ const createWindow = () => {
       nodeIntegration: true
     }
   });
+  // Add event listeners.
+  subscribeToEventListeners({ mainWindow });
 };
 
 app.on('ready', async () => {
@@ -83,8 +82,25 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  mainWindow.on('close', (event) => {
+    event.preventDefault();
+    const options = {
+      title: 'Spacemesh',
+      message: 'Quit app or keep in background?',
+      buttons: ['Keep running in background', 'Quit']
+    };
+    dialog.showMessageBox(mainWindow, options, (response) => {
+      if (response === 0) {
+        mainWindow.hide();
+      }
+      if (response === 1) {
+        mainWindow.destroy();
+        mainWindow = null;
+      }
+      if (process.platform !== 'darwin') {
+        app.dock.hide();
+      }
+    });
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
@@ -98,5 +114,8 @@ app.on('ready', async () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
+  } else if (mainWindow) {
+    mainWindow.show();
+    mainWindow.focus();
   }
 });
