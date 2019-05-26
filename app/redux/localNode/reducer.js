@@ -9,7 +9,8 @@ import {
   SET_LOCAL_NODE_SETUP_PROGRESS,
   SET_TOTAL_EARNINGS,
   SET_UPCOMING_EARNINGS,
-  SET_AWARDS_ADDRESS
+  SET_AWARDS_ADDRESS,
+  NAV_TO_LOCAL_NODE
 } from './actions';
 
 const initialState = {
@@ -71,6 +72,12 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { awardsAddress }
       } = action;
       return { ...state, awardsAddress };
+    }
+    case NAV_TO_LOCAL_NODE: {
+      const {
+        payload: { pathToLocalNode }
+      } = action;
+      return { ...state, pathToLocalNode };
     }
     default:
       return state;

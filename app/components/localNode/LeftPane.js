@@ -6,7 +6,6 @@ import { LoadingBar, LocalNodeLog, LocalNodeStatus } from '/components/localNode
 import { SmButton } from '/basicComponents';
 import { localNodeModes } from '/vars';
 import type { Action } from '/types';
-import { notificationsService } from '/infra/notificationsService';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -53,9 +52,10 @@ class LeftPane extends Component<Props> {
   componentDidMount() {
     const { getLocalNodeSetupProgress } = this.props;
     this.checkInitStatus();
+    getLocalNodeSetupProgress();
     this.timer = setInterval(() => {
       getLocalNodeSetupProgress();
-    }, 10000);
+    }, 30000);
   }
 
   componentDidUpdate() {
@@ -72,20 +72,9 @@ class LeftPane extends Component<Props> {
     switchMode(localNodeModes.SETUP);
   };
 
-  handleNotificationClick = ({ isClicked }: { isClicked: boolean }) => {
-    // TODO: this need to be implemented to navigate to local node page when there are real status updates
-    // eslint-disable-next-line no-console
-    console.warn('notification clicked', isClicked);
-  };
-
   checkInitStatus = () => {
     const { switchMode, progress } = this.props;
     if (progress === completeValue) {
-      notificationsService.notify({
-        title: 'Local Node',
-        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network!',
-        callback: this.handleNotificationClick
-      });
       switchMode(localNodeModes.OVERVIEW);
     }
   };
