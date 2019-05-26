@@ -12,10 +12,10 @@ class NotificationsManager {
     }
   };
 
-  static isAppVisible = async ({ browserWindow, event }: { browserWindow: any, event: any }) => {
+  static isAppInFocus = async ({ browserWindow, event }: { browserWindow: any, event: any }) => {
     try {
-      const isVisible = browserWindow.isVisible();
-      event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isVisible);
+      const isInFocus = browserWindow.isFocused();
+      event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
     } catch (error) {
       event.sender.send(ipcConsts.CAN_NOTIFY_FAILURE, error.message);
     }

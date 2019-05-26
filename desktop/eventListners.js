@@ -91,7 +91,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.CAN_NOTIFY, async (event) => {
-    notificationsManager.isAppVisible({ browserWindow: mainWindow, event });
+    notificationsManager.isAppInFocus({ browserWindow: mainWindow, event });
   });
 };
 
