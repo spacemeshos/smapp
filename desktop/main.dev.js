@@ -96,6 +96,7 @@ app.on('ready', async () => {
       if (response === 1) {
         mainWindow.destroy();
         mainWindow = null;
+        app.quit();
       }
       if (process.platform !== 'darwin') {
         app.dock.hide();
