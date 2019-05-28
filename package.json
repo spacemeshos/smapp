@@ -25,7 +25,6 @@
     "package-win": "npm run build && electron-builder build -w",
     "package-linux": "npm run build && electron-builder build -l",
     "package-ci": "npm run build && electron-builder --publish always",
-    "postinstall": "npm run flow-typed && electron-builder install-app-deps package.json && npm run build-dll",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./desktop/main.prod.js",
     "start-main-dev": "cross-env HOT=1 NODE_ENV=development electron -r @babel/register ./desktop/main.dev.js",
