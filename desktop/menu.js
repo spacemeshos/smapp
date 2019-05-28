@@ -1,7 +1,6 @@
-// @flow
-import { Menu, BrowserWindow } from 'electron';
+import { app, Menu, BrowserWindow, shell } from 'electron';
 
-export default class MenuBuilder {
+class MenuBuilder {
   mainWindow: BrowserWindow;
 
   constructor(mainWindow: BrowserWindow) {
@@ -9,26 +8,15 @@ export default class MenuBuilder {
   }
 
   buildMenu() {
-    // const template = process.platform === 'darwin' ? this.buildDarwinTemplate() : this.buildDefaultTemplate();
-
-    // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    //   template.unshift(this.getInspectElementMenu());
-    // }
-
-    // const menu = Menu.buildFromTemplate(template);
-    // Menu.setApplicationMenu(menu);
-    //
-    // this.mainWindow.webContents.on('context-menu', (e) => {
-    //   e.preventDefault();
-    //   menu.popup(this.mainWindow);
-    // });
-    //
-    // return menu;
-
-    this.getInspectElementMenu();
+    if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
+      this.addInspectElementMenu();
+    }
+    const template = this.buildMenuTemplate();
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
   }
 
-  getInspectElementMenu() {
+  addInspectElementMenu() {
     this.mainWindow.openDevTools();
     this.mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
@@ -47,6 +35,19 @@ export default class MenuBuilder {
   buildDarwinTemplate() {
     return [
       {
+        label: app.getName(),
+        submenu: [
+          {
+            label: 'About',
+            click: () => {
+              shell.openExternal('https://testnet.spacemesh.io/');
+            }
+          },
+          { type: 'separator' },
+          { role: 'quit' }
+        ]
+      },
+      {
         label: 'Edit',
         submenu: [
           { label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
@@ -55,58 +56,20 @@ export default class MenuBuilder {
           { label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
           { label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
           { label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
-          {
-            label: 'Select All',
-            accelerator: 'Command+A',
-            selector: 'selectAll:'
-          }
+          { label: 'Select All', accelerator: 'Command+A', selector: 'selectAll:' }
         ]
       },
       {
         label: 'View',
         submenu:
           process.env.NODE_ENV === 'development'
-            ? [
-                {
-                  label: 'Reload',
-                  accelerator: 'Command+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  }
-                },
-                {
-                  label: 'Toggle Full Screen',
-                  accelerator: 'Ctrl+Command+F',
-                  click: () => {
-                    this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-                  }
-                },
-                {
-                  label: 'Toggle Developer Tools',
-                  accelerator: 'Alt+Command+I',
-                  click: () => {
-                    this.mainWindow.toggleDevTools();
-                  }
-                }
-              ]
-            : [
-                {
-                  label: 'Toggle Full Screen',
-                  accelerator: 'Ctrl+Command+F',
-                  click: () => {
-                    this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-                  }
-                }
-              ]
+            ? [{ role: 'reload' }, { role: 'forcereload' }, { type: 'separator' }, { role: 'toggledevtools' }, { type: 'separator' }, { role: 'togglefullscreen' }]
+            : [{ role: 'togglefullscreen' }]
       },
       {
         label: 'Window',
         submenu: [
-          {
-            label: 'Minimize',
-            accelerator: 'Command+M',
-            selector: 'performMiniaturize:'
-          },
+          { label: 'Minimize', accelerator: 'Command+M', selector: 'performMiniaturize:' },
           { label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
           { type: 'separator' },
           { label: 'Bring All to Front', selector: 'arrangeInFront:' }
@@ -121,55 +84,80 @@ export default class MenuBuilder {
         label: '&File',
         submenu: [
           {
-            label: '&Open',
-            accelerator: 'Ctrl+O'
-          },
-          {
-            label: '&Close',
-            accelerator: 'Ctrl+W',
+            label: 'About',
             click: () => {
-              this.mainWindow.close();
+              shell.openExternal('https://testnet.spacemesh.io/');
             }
-          }
+          },
+          { type: 'separator' },
+          { role: 'quit' }
         ]
       },
       {
         label: '&View',
         submenu:
           process.env.NODE_ENV === 'development'
-            ? [
-                {
-                  label: '&Reload',
-                  accelerator: 'Ctrl+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  }
-                },
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-                  }
-                },
-                {
-                  label: 'Toggle &Developer Tools',
-                  accelerator: 'Alt+Ctrl+I',
-                  click: () => {
-                    this.mainWindow.toggleDevTools();
-                  }
+            ? [{ role: 'reload' }, { role: 'forcereload' }, { type: 'separator' }, { role: 'toggledevtools' }, { type: 'separator' }, { role: 'togglefullscreen' }]
+            : [{ role: 'togglefullscreen' }]
+      }
+    ];
+  }
+
+  buildMenuTemplate() {
+    const isMac = process.platform === 'darwin';
+    return [
+      isMac
+        ? {
+            label: isMac ? app.getName() : '&File',
+            submenu: [
+              {
+                label: 'About',
+                click: () => {
+                  shell.openExternal('https://testnet.spacemesh.io/');
                 }
-              ]
-            : [
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(!this.mainWindow.isFullScreen());
-                  }
+              },
+              { type: 'separator' },
+              { role: 'quit' }
+            ]
+          }
+        : {
+            label: '&File',
+            submenu: [
+              {
+                label: 'About',
+                click: () => {
+                  shell.openExternal('https://testnet.spacemesh.io/');
                 }
-              ]
+              },
+              { type: 'separator' },
+              { role: 'quit' }
+            ]
+          },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
+        ]
+      },
+      {
+        label: 'View',
+        submenu:
+          process.env.NODE_ENV === 'development'
+            ? [{ role: 'reload' }, { role: 'forcereload' }, { type: 'separator' }, { role: 'toggledevtools' }, { type: 'separator' }, { role: 'togglefullscreen' }]
+            : [{ role: 'togglefullscreen' }]
+      },
+      {
+        label: 'Window',
+        submenu: [{ role: 'minimize' }, { role: 'zoom' }, ...(isMac ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }] : [{ role: 'close' }])]
       }
     ];
   }
 }
+
+export default MenuBuilder;

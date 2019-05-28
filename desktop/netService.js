@@ -1,27 +1,19 @@
 import path from 'path';
 import { ipcConsts } from '../app/vars';
 
-const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
-// const PROTO_PATH = './proto/api.proto';
+const protoLoader = require('@grpc/proto-loader');
 
 const grpc = require('grpc');
 
-const spacemeshProto = grpc.load(PROTO_PATH); // eslint-disable-line prefer-destructuring
+const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
+const packageDefinition = protoLoader.loadSync(PROTO_PATH);
+const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
 const DEFAULT_URL = 'localhost:9091';
-const { SpacemeshService } = spacemeshProto.pb;
-
-// netService.echo({ value: 'Hello World!' }, (error, response) => {
-//   if (error) {
-//     console.log('request failed'); // eslint-disable-line no-console
-//   } else {
-//     console.log(response); // eslint-disable-line no-console
-//   }
-// });
 
 class NetService {
-  constructor() {
-    this.service = new SpacemeshService(DEFAULT_URL, grpc.credentials.createInsecure());
+  constructor(url = DEFAULT_URL) {
+    this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
   _getNonce = ({ address }) =>
@@ -208,7 +200,7 @@ class NetService {
 
   setNodeIpAddress = ({ event, nodeIpAddress }) => {
     try {
-      this.service = new SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
+      this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
       event.sender.send(ipcConsts.SET_NODE_IP_SUCCESS, nodeIpAddress);
     } catch (error) {
       event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, error.message);
