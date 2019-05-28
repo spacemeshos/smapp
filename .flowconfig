@@ -7,7 +7,7 @@
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/dll/.*
 <PROJECT_ROOT>/git/.*
-<PROJECT_ROOT>/node_modules/electron-packager/test/fixtures/infer-malformed-json/package.json
+<PROJECT_ROOT>/node_modules/
 
 [include]
 
@@ -18,6 +18,9 @@ flow-typed
 
 module.name_mapper='^/\(.*\)' -> '<PROJECT_ROOT>/app/\1'
 suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
+
+[lints]
+deprecated-utility=off
 
 [version]
 ^0.98.1
