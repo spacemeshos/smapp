@@ -46,6 +46,8 @@ dist
 dll
 main.js
 main.js.map
+/release-builds/*
+/release-installers/*
 
 .idea
 npm-debug.log.*
@@ -59,3 +61,4 @@ package.json
 /babel.config.js
 /configs/
 /proto/
+/desktop/wasm_exec.js

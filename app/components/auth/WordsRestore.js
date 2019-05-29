@@ -2,9 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { SmButton } from '/basicComponents';
-import { keyGenService } from '/infra/keyGenService';
+import { cryptoService } from '/infra/cryptoService';
 import { xWhite } from '/assets/images';
 import { smColors } from '/vars';
+import { shell } from 'electron';
 import InputsTable from './InputsTable';
 
 const Wrapper = styled.div`
@@ -71,6 +72,13 @@ const Link = styled.div`
   font-size: 16px;
   line-height: 30px;
   color: ${smColors.darkGreen};
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
 `;
 
 type Props = {
@@ -111,7 +119,7 @@ class WordsRestore extends Component<Props, State> {
         <InputsTable onInputChange={this.handleInputChange} />
         <ErrorMsg>{errorMsg}</ErrorMsg>
         <BottomSection>
-          <Link>Learn more about 12 words wallet backup</Link>
+          <Link onClick={this.learnMoreAboutPaperBackup}>Learn more about 12 words wallet backup</Link>
           <SmButton text="Done" theme="orange" center isDisabled={isDoneDisabled} onPress={this.restoreWith12Words} style={{ width: 150 }} />
         </BottomSection>
       </Wrapper>
@@ -132,12 +140,14 @@ class WordsRestore extends Component<Props, State> {
     const { proceedWithRestore } = this.props;
     const { words } = this.state;
     const mnemonic = Object.values(words).join(' ');
-    if (keyGenService.validateMnemonic({ mnemonic })) {
+    if (cryptoService.validateMnemonic({ mnemonic })) {
       proceedWithRestore({ mnemonic });
     } else {
       this.setState({ errorMsg: 'Invalid Words' });
     }
   };
+
+  learnMoreAboutPaperBackup = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
 }
 
 export default WordsRestore;

@@ -8,14 +8,11 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import FileManager from './fileManager';
-import DiskStorageManager from './diskStorageManager';
-import netService from './netService';
+import { subscribeToEventListeners } from './eventListners';
 
 export default class AppUpdater {
   constructor() {
@@ -44,52 +41,8 @@ const installExtensions = async () => {
   return Promise.all(extensions.map((name) => installer.default(installer[name], forceDownload))).catch(console.error); // eslint-disable-line no-console
 };
 
-/**
- * Add event listeners.
- */
-ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
-  FileManager.readFile({ event, ...request });
-});
-
-ipcMain.on(ipcConsts.GET_FILE_NAME, async (event, request) => {
-  FileManager.getFileName({ browserWindow: mainWindow, event, ...request });
-});
-
-ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
-  FileManager.readDirectory({ browserWindow: mainWindow, event });
-});
-
-ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
-  FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
-});
-
-ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
-  FileManager.updateFile({ event, ...request });
-});
-
-ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
-  DiskStorageManager.getDriveList({ event });
-});
-
-ipcMain.on(ipcConsts.GET_AVAILABLE_DISK_SPACE, async (event, request) => {
-  DiskStorageManager.getAvailableSpace({ event, ...request });
-});
-
-ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
-  netService.getBalance({ event, ...request });
-});
-
-ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
-  netService.sendTx({ event, ...request });
-});
-
-ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
-  const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
-  printerWindow.loadURL(`file://${__dirname}/printer.html`);
-  printerWindow.webContents.on('did-finish-load', () => {
-    printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
-  });
-});
+// Add event listeners.
+subscribeToEventListeners({ mainWindow });
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -106,7 +59,10 @@ const createWindow = () => {
     height: 860,
     minWidth: 1024,
     minHeight: 728,
-    center: true
+    center: true,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 };
 

@@ -3,10 +3,12 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
+import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -94,6 +96,13 @@ const RightSectionLink = styled.div`
   color: ${smColors.darkGreen};
   line-height: 30px;
   padding: 5px 0;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
 `;
 
 const btnStyle = { height: 26, marginRight: 15 };
@@ -106,7 +115,9 @@ type State = {
   isSentDisplayed: boolean,
   isReceivedDisplayed: boolean,
   isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean
+  isRejectedDisplayed: boolean,
+  address: ?string,
+  shouldShowModal: boolean
 };
 
 class Transactions extends Component<Props, State> {
@@ -114,14 +125,16 @@ class Transactions extends Component<Props, State> {
     isSentDisplayed: true,
     isReceivedDisplayed: true,
     isPendingDisplayed: true,
-    isRejectedDisplayed: true
+    isRejectedDisplayed: true,
+    address: null,
+    shouldShowModal: false
   };
 
   render() {
     const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed } = this.state;
-    return (
-      <Wrapper>
+    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, address, shouldShowModal } = this.state;
+    return [
+      <Wrapper key="wrapper">
         <Header>Transaction Log</Header>
         <InnerWrapper>
           <LeftSection>
@@ -149,7 +162,7 @@ class Transactions extends Component<Props, State> {
                   <Transaction
                     key={index}
                     transaction={tx}
-                    addToContacts={() => {}}
+                    addToContacts={({ address }) => this.setState({ address, shouldShowModal: true })}
                     isSentDisplayed={isSentDisplayed}
                     isReceivedDisplayed={isReceivedDisplayed}
                     isPendingDisplayed={isPendingDisplayed}
@@ -173,11 +186,22 @@ class Transactions extends Component<Props, State> {
             <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
           </RightSection>
         </InnerWrapper>
-      </Wrapper>
-    );
+      </Wrapper>,
+      shouldShowModal && (
+        <AddNewContactModal
+          key="modal"
+          addressToAdd={address}
+          navigateToExplanation={this.navigateToContactsExplanation}
+          onSave={() => this.setState({ shouldShowModal: false })}
+          closeModal={() => this.setState({ shouldShowModal: false })}
+        />
+      )
+    ];
   }
 
-  navigateToExplanation = () => {};
+  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
+
+  navigateToContactsExplanation = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
 }
 
 const mapStateToProps = (state) => ({

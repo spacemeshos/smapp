@@ -1,5 +1,5 @@
 // @flow
-import { clipboard } from 'electron';
+import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -190,7 +190,7 @@ class TwelveWordsBackup extends Component<Props, State> {
     localStorageService.set('hasBackup', true);
   };
 
-  learnMoreAboutPaperBackup = () => {};
+  learnMoreAboutPaperBackup = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
 }
 
 const mapStateToProps = (state) => ({

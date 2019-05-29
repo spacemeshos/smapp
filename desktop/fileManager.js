@@ -1,7 +1,7 @@
 import fs from 'fs';
 import util from 'util';
 import path from 'path';
-import { app, dialog } from 'electron';
+import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
 const readFileAsync = util.promisify(fs.readFile);
@@ -28,6 +28,23 @@ class FileManager {
         event.sender.send(ipcConsts.GET_FILE_NAME_SUCCESS, filePaths[0]);
       }
     });
+  };
+
+  static openWalletBackupDirectory = async ({ event }) => {
+    try {
+      const files = await readDirectoryAsync(appFilesDirPath);
+      const regex = new RegExp('.*.(json)', 'ig');
+      const filteredFiles = files.filter((file) => file.match(regex));
+      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
+      if (filesWithPath && filesWithPath[0]) {
+        shell.showItemInFolder(filesWithPath[0]);
+      } else {
+        shell.openItem(appFilesDirPath);
+      }
+      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS);
+    } catch (error) {
+      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, error.message);
+    }
   };
 
   static readFile = async ({ event, filePath }) => {

@@ -4,9 +4,11 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { SmButton, SmInput, Loader } from '/basicComponents';
+import { fileSystemService } from '/infra/fileSystemService';
 import { miner } from '/assets/images';
 import { smColors } from '/vars';
 import type { Action } from '/types';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   display: flex;
@@ -124,7 +126,7 @@ class CreateWallet extends Component<Props, State> {
           <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePasswordTyping} hasDebounce />
           <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
           <GrayText>
-            Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
+            Your Wallet file is encrypted and saved on your computer. <Link onClick={this.openWalletBackupDirectory}>Show me the file</Link>
           </GrayText>
         </UpperPart>
         <BottomPart>
@@ -143,7 +145,7 @@ class CreateWallet extends Component<Props, State> {
           <ImageWrapper>
             <Image src={miner} />
           </ImageWrapper>
-          <Link>Learn more about Spacemesh local nodes.</Link>
+          <Link onClick={this.navigateToExplanation}>Learn more about Spacemesh local nodes.</Link>
         </UpperPart>
         <BottomPart>
           <SmButton text="Yes, Setup Local Node" theme="orange" onPress={navigateToLocalNodeSetup} style={{ marginTop: 20 }} />
@@ -183,6 +185,12 @@ class CreateWallet extends Component<Props, State> {
         this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
       }, 500);
     }
+  };
+
+  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+
+  openWalletBackupDirectory = async () => {
+    await fileSystemService.openWalletBackupDirectory();
   };
 }
 

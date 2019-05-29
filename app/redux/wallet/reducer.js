@@ -11,6 +11,8 @@ import {
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
+  SET_CONTACTS,
+  ADD_LAST_USED_ADDRESS,
   SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
 
@@ -25,6 +27,22 @@ const initialState = {
   currentAccountIndex: 0,
   transactions: {},
   contacts: [],
+  lastUsedAddresses: [
+    // TODO: remove after sending transaction is fully functional
+    {
+      nickname: 'Frank Sinatra',
+      address: 'dkwhkjhfhekk3876582909876ehgh7yfbhuy7y74hyu7fhhhhhfghjkjhgfghjk8',
+      email: 'testemail@testing.com'
+    },
+    {
+      nickname: null,
+      address: 'sdadadasdadeqrf3456t543sdfghgfdsdfgh7654rfgvbhtresdxfgytredcvgyu'
+    },
+    {
+      nickname: 'Etta James',
+      address: '111223344554323sfxddfdghjksmnbvbnmsnbvbnsmsdhgjbmmdsds9993fdsocc'
+    }
+  ],
   fiatRate: 1
 };
 
@@ -83,6 +101,22 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         ...state,
         accounts: [...state.accounts.slice(0, state.currentAccountIndex), accountToUpdate, ...state.accounts.slice(state.currentAccountIndex + 1)]
       };
+    }
+    case SET_CONTACTS: {
+      const { contacts } = action.payload;
+      return { ...state, contacts };
+    }
+    case ADD_LAST_USED_ADDRESS: {
+      const { contact } = action.payload;
+      const { address } = contact;
+      const updatedIndex = state.lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.address === address);
+      let updatedLastUsedAddresses;
+      if (updatedIndex < 0) {
+        updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses];
+      } else {
+        updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses.slice(0, updatedIndex), ...state.lastUsedAddresses.slice(updatedIndex + 1)];
+      }
+      return { ...state, lastUsedAddresses: updatedLastUsedAddresses.slice(0, 3) };
     }
     case LOGOUT: {
       return initialState;

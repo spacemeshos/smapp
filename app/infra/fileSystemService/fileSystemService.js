@@ -62,6 +62,18 @@ class FsService {
       });
     });
   };
+
+  static openWalletBackupDirectory = () => {
+    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, () => {
+        resolve();
+      });
+      ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  };
 }
 
 export default FsService;

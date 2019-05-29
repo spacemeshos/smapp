@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { deriveEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
 import { Modal, SmButton, SmInput, Loader } from '/basicComponents';
+import { fileSystemService } from '/infra/fileSystemService';
 import { smColors } from '/vars';
 import type { Action, Account } from '/types';
 
@@ -107,7 +108,7 @@ class ChangePassphrase extends Component<Props, State> {
           <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePassphraseTyping} hasDebounce />
           <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePassphraseVerifyTyping} hasDebounce />
           <GrayText>
-            Your Wallet file is encrypted and saved on your computer. <Link>Show me the file</Link>
+            Your Wallet file is encrypted and saved on your computer. <Link onClick={this.openWalletBackupDirectory}>Show me the file</Link>
           </GrayText>
         </UpperPart>
         <BottomPart>
@@ -147,6 +148,10 @@ class ChangePassphrase extends Component<Props, State> {
         goBack();
       }, 500);
     }
+  };
+
+  openWalletBackupDirectory = async () => {
+    await fileSystemService.openWalletBackupDirectory();
   };
 }
 

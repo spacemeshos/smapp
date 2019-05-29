@@ -1,6 +1,18 @@
-import React from 'react';
+// @flow
+import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { getTotalEarnings, getUpcomingEarnings } from '/redux/localNode/actions';
 import { smColors } from '/vars';
+import type { Action } from '/types';
+
+const formatNumber = (num?: number) => {
+  if (!num) {
+    return 0;
+  }
+  const formatter = new Intl.NumberFormat();
+  return formatter.format(num);
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,23 +42,52 @@ const LeftText = styled(Text)`
   font-weight: bold;
 `;
 
-const LocalNodeStatus = () => {
-  return (
-    <Wrapper>
-      <Row>
-        <LeftText>Total Time Running</LeftText>
-        <Text>{'0 days, 0 hours, 1 minutes'}</Text>
-      </Row>
-      <Row>
-        <LeftText>Total earnings</LeftText>
-        <Text>{'0 Spacemesh coins'}</Text>
-      </Row>
-      <Row>
-        <LeftText>Upcoming earnings</LeftText>
-        <Text>3 Spacemesh coins (due in 2 days)</Text>
-      </Row>
-    </Wrapper>
-  );
+type Props = {
+  awardsDueIn: number, // TODO: connect this with actual logic for next reward layer time - genesis time
+  getTotalEarnings: Action,
+  getUpcomingEarnings: Action,
+  totalEarnings: number,
+  upcomingEarnings: number
 };
+
+class LocalNodeStatus extends Component<Props> {
+  render() {
+    const { totalEarnings, upcomingEarnings, awardsDueIn } = this.props;
+
+    return (
+      <Wrapper>
+        <Row>
+          <LeftText>Total earnings</LeftText>
+          <Text>{`${formatNumber(totalEarnings)} Spacemesh coins`}</Text>
+        </Row>
+        <Row>
+          <LeftText>Upcoming earnings</LeftText>
+          <Text>{`${formatNumber(upcomingEarnings)} Spacemesh coins${awardsDueIn ? ` (due in ${awardsDueIn} days)` : ''}`}</Text>
+        </Row>
+      </Wrapper>
+    );
+  }
+
+  componentDidMount() {
+    const { getTotalEarnings, getUpcomingEarnings } = this.props;
+    getTotalEarnings();
+    getUpcomingEarnings();
+  }
+}
+
+const mapStateToProps = (state) => ({
+  totalEarnings: state.localNode.totalEarnings,
+  upcomingEarnings: state.localNode.upcomingEarnings
+});
+
+const mapDispatchToProps = {
+  getTotalEarnings,
+  getUpcomingEarnings
+};
+
+LocalNodeStatus = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LocalNodeStatus);
 
 export default LocalNodeStatus;
