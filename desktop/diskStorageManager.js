@@ -1,8 +1,9 @@
 // @flow
 import os from 'os';
-import disk from 'diskusage';
 import drivelist from 'drivelist';
 import { ipcConsts } from '../app/vars';
+
+const checkDiskSpace = require('check-disk-space');
 
 const getMountPoint = (drive: any): string => {
   if (drive.mountpoints && drive.mountpoints.length) {
@@ -36,13 +37,10 @@ class DiskStorageManager {
     });
   };
 
-  static getAvailableSpace = async ({ event, path }: { event: any, path: string }) => {
-    try {
-      const { available } = await disk.check(path);
-      event.sender.send(ipcConsts.GET_AVAILABLE_DISK_SPACE_SUCCESS, available);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_AVAILABLE_DISK_SPACE_FAILURE, error.message);
-    }
+  static getAvailableSpace = ({ event, path }: { event: any, path: string }) => {
+    checkDiskSpace(path).then((diskSpace) => {
+      event.sender.send(ipcConsts.GET_AVAILABLE_DISK_SPACE_SUCCESS, diskSpace.free);
+    });
   };
 }
 

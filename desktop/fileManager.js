@@ -38,12 +38,12 @@ class FileManager {
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
       if (filesWithPath && filesWithPath[0]) {
         shell.showItemInFolder(filesWithPath[0]);
-        event.sender.send(ipcConsts.OPEN_DIRECTORY_SUCCESS);
       } else {
-        throw new Error('Wallet backup file not found');
+        shell.openItem(appFilesDirPath);
       }
+      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS);
     } catch (error) {
-      event.sender.send(ipcConsts.OPEN_DIRECTORY_FAILURE, error.message);
+      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, error.message);
     }
   };
 
