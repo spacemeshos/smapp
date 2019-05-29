@@ -5,6 +5,14 @@ import { arrowDownGreen, arrowDownOrange, arrowUpGreen, arrowUpOrange, arrowUpRe
 import { smColors } from '/vars';
 import type { Tx } from '/types';
 
+const getDateText = (date: string) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const dateObj = new Date(date);
+  return `${dateObj.toLocaleDateString('en-US', options)} ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
+};
+
+const getAbbreviatedAddressText = (address: string, tailSize: number = 4) => `${address.substring(0, tailSize)}....${address.substring(address.length - tailSize, address.length)}`;
+
 const Wrapper = styled.div`
   height: 90px;
   display: flex;
@@ -125,7 +133,7 @@ const AddToContactsImage = styled.img`
   cursor: inherit;
 `;
 
-const Date = styled.div`
+const DateWrapper = styled.div`
   font-size: 10px;
   font-weight: 300;
   color: ${smColors.mediumGray};
@@ -152,7 +160,7 @@ class Transaction extends PureComponent<Props> {
 
   render() {
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact },
+      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
       addToContacts,
       isSentDisplayed,
       isReceivedDisplayed,
@@ -186,7 +194,7 @@ class Transaction extends PureComponent<Props> {
             {isRejected && <RejectedText>&nbsp;(Rejected)</RejectedText>}
           </SentReceivedTextWrapper>
           <Amount>{amount}</Amount>
-          <Address>{address}</Address>
+          <Address>{isSavedContact ? nickname : getAbbreviatedAddressText(address)}</Address>
         </SecondSection>
         <ThirdSection>
           {!isSavedContact && (
@@ -197,7 +205,7 @@ class Transaction extends PureComponent<Props> {
               </AddToContactsBtn>
             </AddToContactsBtnWrapper>
           )}
-          <Date>{date}</Date>
+          <DateWrapper>{`on ${getDateText(date)}`}</DateWrapper>
         </ThirdSection>
       </Wrapper>
     );

@@ -32,125 +32,104 @@ export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Act
   return { type: DERIVE_ENCRYPTION_KEY, payload: { key } };
 };
 
-// TODO: remove stab
-const transactionsStab = [
-  {
-    isSent: true,
-    isPending: true,
-    amount: 3.0002,
-    address: '214w...qVt0',
-    date: 'on 13 apr 2017 12:51'
-  },
-  {
-    isSent: false,
-    isPending: true,
-    amount: 10.0,
-    address: 'Full Node Mining Award',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    amount: 3.001,
-    address: 'Mom',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    amount: 16564,
-    address: 'MDMA dealer',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: false,
-    isRejected: true,
-    amount: 254,
-    address: 'Stranger form the club',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    isRejected: true,
-    amount: 54894,
-    address: 'Hitman',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    isPending: true,
-    amount: 3.0002,
-    address: '214w...qVt0',
-    date: 'on 13 apr 2017 12:51'
-  },
-  {
-    isSent: false,
-    isPending: true,
-    amount: 10.0,
-    address: 'Full Node Mining Award',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    amount: 3.001,
-    address: 'Mom',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    amount: 16564,
-    address: 'MDMA dealer',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: false,
-    amount: 254,
-    address: 'Stranger form the club',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
-  },
-  {
-    isSent: true,
-    isRejected: true,
-    amount: 54894,
-    address: 'Hitman',
-    date: 'on 13 apr 2017 12:51',
-    isSavedContact: true
+// TODO: remove stub
+const generateRandomAddress = () => {
+  const length = 64;
+  let result = '';
+  const charOptions = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i += 1) {
+    result += charOptions.charAt(Math.floor(Math.random() * charOptions.length));
   }
-];
+  return result;
+};
 
-// TODO: remove test stub
-const contactsListStub = [
+// TODO: remove stub
+const generateRandomDate = () => {
+  const fromDate = new Date('December 17, 2018 03:24:00'); // arbitrary start date
+  const toDate = new Date();
+  return new Date(fromDate.getTime() + Math.random() * (toDate.getTime() - fromDate.getTime()));
+};
+
+// TODO: remove stub
+const transactionsStub: TxList = [
   {
-    nickname: 'Frank Sinatra',
-    address: '11mxxzzkkdhhnwkkvjhhvgspacemeshflkjlkvkjkfnnn2nifjfj94kjbnkjrgkj'
+    isSent: true,
+    isPending: true,
+    amount: 4.0002,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
   },
   {
-    nickname: 'Nat King Cole',
-    address: 'spacemesh1spacemesh1spacemesh1spacemesh1spacemesh1spacemesh1spac'
+    isSent: false,
+    isPending: true,
+    amount: 10.5,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
   },
   {
-    nickname: 'Etta James',
-    address: 'spacemesh1spacemesh2spacemesh2spacemesh2spacemesh2spacemesh1spac'
+    isSent: true,
+    amount: 3.001,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
   },
   {
-    nickname: 'Mikael Barishnikov',
-    address: 'spacemesh3spacemesh3spacemesh3spacemesh3spacemesh3spacemesh1spac'
+    isSent: true,
+    amount: 26564.22,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
   },
   {
-    nickname: 'Miles Davis',
-    address: 'spacemesh4spacemesh4spacemesh4spacemesh4spacemesh4spacemesh4spac',
-    email: 'miles@milesdavis.com'
+    isSent: false,
+    isRejected: true,
+    amount: 122,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
   },
   {
-    nickname: 'Amy Winehouse',
-    address: 'spacemesh5spacemesh5spacemesh5spacemesh5spacemesh5spacemesh5spac'
+    isSent: true,
+    isRejected: true,
+    amount: 54894,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
+  },
+  {
+    isSent: true,
+    isPending: true,
+    amount: 3.0002,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
+  },
+  {
+    isSent: false,
+    isPending: true,
+    amount: 10.0,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
+  },
+  {
+    isSent: true,
+    amount: 99.001,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
+  },
+  {
+    isSent: true,
+    amount: 16564,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
+  },
+  {
+    isSent: false,
+    amount: 254,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
+  },
+  {
+    isSent: true,
+    isRejected: true,
+    amount: 4.0034,
+    address: generateRandomAddress(),
+    date: generateRandomDate()
   }
 ];
 
@@ -185,10 +164,10 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
       }
     ]
   };
-  const transactions = { '0': transactionsStab }; // TODO: change to empty array after complete transaction flow is ready
+  const transactions = { '0': transactionsStub }; // TODO: change to empty array after complete transaction flow is ready
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
-  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts: contactsListStub };
+  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts: [] };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush), showDialog: false });
     dispatch(setWalletMeta({ meta }));
@@ -196,7 +175,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions }));
-    dispatch(setContacts({ contacts: contactsListStub }));
+    dispatch(setContacts({ contacts: [] }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
@@ -213,7 +192,13 @@ export const setCurrentAccount = ({ index }: { index: number }): Action => ({ ty
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
-export const setTransactions = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_TRANSACTIONS, payload: { transactions } });
+export const setTransactions = ({ transactions }: { transactions: TxList }): Action => {
+  const sortedTransactions = {};
+  Object.keys(transactions).forEach((walletKey: string) => {
+    sortedTransactions[walletKey] = transactions[walletKey].sort((tx1: Tx, tx2: Tx) => new Date(tx2.date) - new Date(tx1.date));
+  });
+  return { type: SET_TRANSACTIONS, payload: { transactions: sortedTransactions } };
+};
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
 
@@ -285,23 +270,37 @@ export const sendTransaction = ({ dstAddress, amount, fee, note }: { dstAddress:
   }
 };
 
-export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
     const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
     const updatedTransactions = { ...transactions, [index]: [tx, ...transactions[index]] };
-    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
+    await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
     throw new Error(error);
   }
 };
 
-export const addToContacts = ({ contact }: Contact): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
+    const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
+    const txIndex = transactions[index].findIndex((transaction: Tx) => tx.address === transaction.address);
+    const transactionsArray = transactions[index].map((transaction: Tx, idx: number) => (idx === txIndex ? { ...tx } : { ...transaction }));
+    const updatedTransactions = { ...transactions, [index]: [...transactionsArray] };
+    await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
+    dispatch(setTransactions({ transactions: updatedTransactions }));
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const addToContacts = ({ contact }: Contact): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { contacts, walletFiles } = getState().wallet;
     const updatedContacts = [contact, ...contacts];
-    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'contacts', data: updatedContacts });
+    await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'contacts', data: updatedContacts });
     dispatch(setContacts({ contacts: updatedContacts }));
   } catch (error) {
     throw new Error(error);
@@ -312,7 +311,7 @@ export const updateWalletMeta = ({ metaFieldName, data }: { metaFieldName: strin
   try {
     const { meta, walletFiles } = getState().wallet;
     const updatedMeta = { ...meta, [metaFieldName]: data };
-    fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'meta', data: updatedMeta });
+    await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'meta', data: updatedMeta });
     dispatch(setWalletMeta({ meta: updatedMeta }));
   } catch (error) {
     throw new Error(error);

@@ -1,5 +1,5 @@
 // @flow
-import type { Action, StoreStateType } from '/types';
+import type { Action, StoreStateType, Contact } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
@@ -27,22 +27,7 @@ const initialState = {
   currentAccountIndex: 0,
   transactions: {},
   contacts: [],
-  lastUsedAddresses: [
-    // TODO: remove after sending transaction is fully functional
-    {
-      nickname: 'Frank Sinatra',
-      address: 'dkwhkjhfhekk3876582909876ehgh7yfbhuy7y74hyu7fhhhhhfghjkjhgfghjk8',
-      email: 'testemail@testing.com'
-    },
-    {
-      nickname: null,
-      address: 'sdadadasdadeqrf3456t543sdfghgfdsdfgh7654rfgvbhtresdxfgytredcvgyu'
-    },
-    {
-      nickname: 'Etta James',
-      address: '111223344554323sfxddfdghjksmnbvbnmsnbvbnsmsdhgjbmmdsds9993fdsocc'
-    }
-  ],
+  lastUsedAddresses: [],
   fiatRate: 1
 };
 
@@ -109,7 +94,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case ADD_LAST_USED_ADDRESS: {
       const { contact } = action.payload;
       const { address } = contact;
-      const updatedIndex = state.lastUsedAddresses.findIndex((lastUsedAddress) => lastUsedAddress.address === address);
+      const updatedIndex = state.lastUsedAddresses.findIndex((lastUsedAddress: Contact) => lastUsedAddress.address === address);
       let updatedLastUsedAddresses;
       if (updatedIndex < 0) {
         updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses];

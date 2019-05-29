@@ -165,6 +165,7 @@
     "drivelist": "^6.4.6",
     "grpc": "^1.18.0",
     "lodash.get": "^4.4.2",
+    "lodash.uniqby": "^4.7.0",
     "pbkdf2": "^3.0.17",
     "qrcode.react": "^0.9.3",
     "react": "^16.6.3",
