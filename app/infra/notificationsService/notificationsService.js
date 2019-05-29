@@ -4,7 +4,7 @@ import { ipcConsts } from '/vars';
 
 // @flow
 class NotificationsService {
-  static notify = ({ title, notification, callback }: { title: string, notification: string, callback: ({ isClicked: boolean }) => void }) => {
+  static notify = ({ title, notification, callback }: { title: string, notification: string, callback: () => void }) => {
     NotificationsService.isNotificationPermitted().then(({ isNotificationAllowed }: { isNotificationAllowed: boolean }) => {
       if (isNotificationAllowed) {
         const notificationOptions: any = {
@@ -15,11 +15,9 @@ class NotificationsService {
         desktopNotification.onclick = () => {
           ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
           ipcRenderer.once(ipcConsts.NOTIFICATION_CLICK_SUCCESS, () => {
-            callback && callback({ isClicked: true });
+            callback && callback();
           });
-          ipcRenderer.once(ipcConsts.NOTIFICATION_CLICK_FAILURE, () => {
-            callback && callback({ isClicked: false });
-          });
+          ipcRenderer.once(ipcConsts.NOTIFICATION_CLICK_FAILURE, () => {});
         };
       }
     });

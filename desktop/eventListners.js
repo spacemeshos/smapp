@@ -86,11 +86,11 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.setNodeIpAddress({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, async (event) => {
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, (event) => {
     notificationsManager.showAppOnNotificationClick({ browserWindow: mainWindow, event });
   });
 
-  ipcMain.on(ipcConsts.CAN_NOTIFY, async (event) => {
+  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
     notificationsManager.isAppInFocus({ browserWindow: mainWindow, event });
   });
 };

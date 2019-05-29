@@ -2,7 +2,7 @@ import { ipcConsts } from '/vars';
 
 // @flow
 class NotificationsManager {
-  static showAppOnNotificationClick = async ({ browserWindow, event }: { browserWindow: any, event: any }) => {
+  static showAppOnNotificationClick = ({ browserWindow, event }: { browserWindow: any, event: any }) => {
     try {
       browserWindow.show();
       browserWindow.focus();
@@ -12,7 +12,7 @@ class NotificationsManager {
     }
   };
 
-  static isAppInFocus = async ({ browserWindow, event }: { browserWindow: any, event: any }) => {
+  static isAppInFocus = ({ browserWindow, event }: { browserWindow: any, event: any }) => {
     try {
       const isInFocus = browserWindow.isFocused();
       event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
