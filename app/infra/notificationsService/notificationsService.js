@@ -14,10 +14,7 @@ class NotificationsService {
         const desktopNotification = new Notification(title || 'Alert', notificationOptions);
         desktopNotification.onclick = () => {
           ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
-          ipcRenderer.once(ipcConsts.NOTIFICATION_CLICK_SUCCESS, () => {
-            callback && callback();
-          });
-          ipcRenderer.once(ipcConsts.NOTIFICATION_CLICK_FAILURE, () => {});
+          callback && callback();
         };
       }
     });
