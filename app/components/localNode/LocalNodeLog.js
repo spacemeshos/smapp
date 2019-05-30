@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
-// TODO: remove stab
+// TODO: remove stub
 const getRandomNumber = (maxValue: number) => Math.floor(Math.random() * Math.floor(maxValue));
 const getTimestamp = () => new Date().toUTCString();
 const generateLogEntry = (i: number) => {
@@ -56,6 +56,7 @@ const LogRow = styled.div`
   align-items: center;
 `;
 
+// $FlowStyledIssue
 const LogEntry = styled.div`
   font-size: 16px;
   line-height: 30px;
@@ -87,12 +88,12 @@ class LocalNodeLog extends Component<{}, { log: LogRecord[] }> {
     );
   }
 
-  // TODO: remove stab
+  // TODO: remove stub
   componentDidMount() {
     this.generateLog();
   }
 
-  // TODO: remove stab
+  // TODO: remove stub
   componentWillUnmount() {
     this.timer && clearInterval(this.timer);
   }
@@ -104,7 +105,7 @@ class LocalNodeLog extends Component<{}, { log: LogRecord[] }> {
       </LogRow>
     ));
 
-  // TODO: remove stab
+  // TODO: remove stub
   generateLog = () => {
     let i = 0;
     this.timer = setInterval(() => {

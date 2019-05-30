@@ -52,9 +52,10 @@ class LeftPane extends Component<Props> {
   componentDidMount() {
     const { getLocalNodeSetupProgress } = this.props;
     this.checkInitStatus();
+    getLocalNodeSetupProgress();
     this.timer = setInterval(() => {
       getLocalNodeSetupProgress();
-    }, 10000);
+    }, 30000);
   }
 
   componentDidUpdate() {
