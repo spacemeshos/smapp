@@ -10,6 +10,9 @@ import type { SideMenuItem } from '/basicComponents';
 import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
 import routes from '/routes';
 import type { Account, Action } from '/types';
+import { notificationsService } from '/infra/notificationsService';
+
+const completeValue = 80; // TODO: change to actual complete value
 
 const sideMenuItems: SideMenuItem[] = [
   {
@@ -73,7 +76,9 @@ type Props = {
   location: { pathname: string, hash: string },
   accounts: Account[],
   resetNodeSettings: Action,
-  logout: Action
+  logout: Action,
+  // pathToLocalNode: string,
+  progress: number
 };
 
 type State = {
@@ -109,6 +114,17 @@ class Main extends Component<Props, State> {
     );
   }
 
+  componentDidUpdate(prevProps: Props) {
+    const { progress, history } = this.props;
+    if (prevProps.progress !== progress && progress === completeValue) {
+      notificationsService.notify({
+        title: 'Local Node',
+        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network!',
+        callback: () => this.handleSideMenuPress({ index: 0 })
+      });
+    }
+  }
+
   handleSideMenuPress = ({ index }: { index: number }) => {
     const { history, accounts, location } = this.props;
     const newPath: ?string = sideMenuItems[index].path;
@@ -133,7 +149,8 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: state.wallet.accounts
+  accounts: state.wallet.accounts,
+  progress: state.localNode.progress
 });
 
 const mapDispatchToProps = {

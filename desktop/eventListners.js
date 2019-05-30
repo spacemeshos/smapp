@@ -84,6 +84,16 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
     netService.setNodeIpAddress({ event, ...request });
   });
+
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
+    const isInFocus = mainWindow.isFocused();
+    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
+  });
 };
 
 export { subscribeToEventListeners }; // eslint-disable-line import/prefer-default-export

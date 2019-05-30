@@ -29,7 +29,10 @@ class HttpService {
     ipcRenderer.send(ipcConsts.GET_INIT_PROGRESS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_INIT_PROGRESS_SUCCESS, (event, response) => {
-        resolve(response);
+        const timer = setTimeout(() => {
+          resolve(response);
+          clearTimeout(timer);
+        }, 10000);
       });
       ipcRenderer.once(ipcConsts.GET_INIT_PROGRESS_FAILURE, (event, args) => {
         reject(args);

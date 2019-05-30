@@ -21,7 +21,8 @@ const initialState = {
   progress: null,
   totalEarnings: null,
   upcomingEarnings: null,
-  awardsAddress: null
+  awardsAddress: null,
+  pathToLocalNode: null
 };
 
 const reducer = (state: any = initialState, action: Action) => {
