@@ -11,7 +11,6 @@ export const SET_LOCAL_NODE_SETUP_PROGRESS: string = 'SET_LOCAL_NODE_SETUP_PROGR
 export const SET_TOTAL_EARNINGS: string = 'SET_TOTAL_EARNINGS';
 export const SET_UPCOMING_EARNINGS: string = 'SET_UPCOMING_EARNINGS';
 export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
-export const NAV_TO_LOCAL_NODE: string = 'NAV_TO_LOCAL_NODE';
 
 const getBytesFromGb = (Gb: number) => Gb * 1073741824;
 

@@ -91,12 +91,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
-    try {
-      const isInFocus = mainWindow.isFocused();
-      event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
-    } catch (error) {
-      event.sender.send(ipcConsts.CAN_NOTIFY_FAILURE, error.message);
-    }
+    const isInFocus = mainWindow.isFocused();
+    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
   });
 };
 
