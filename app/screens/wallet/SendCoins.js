@@ -7,8 +7,9 @@ import { AllContactsModal } from '/components/contacts';
 import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, Action, Contact } from '/types';
+import type { Account, Action, Contact, TxList } from '/types';
 import { shell } from 'electron';
+import uniqBy from 'lodash.uniqby';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -49,7 +50,7 @@ type Props = {
   fiatRate: number,
   sendTransaction: Action,
   contacts: Contact[],
-  lastUsedAddresses: Contact[]
+  transactions: TxList
 };
 
 type State = {
@@ -82,9 +83,11 @@ class SendCoins extends Component<Props, State> {
       currentAccount: { balance },
       fiatRate,
       contacts,
-      lastUsedAddresses
+      transactions
     } = this.props;
     const { address, defaultAddress, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowContactsModal } = this.state;
+    const lastUsedAddresses: TxList = uniqBy(transactions, 'address').slice(0, 3);
+
     return [
       <Wrapper key="main">
         <SendCoinsHeader fiatRate={fiatRate} balance={balance} navigateToTxExplanation={this.navigateToTxExplanation} />
@@ -188,7 +191,7 @@ const mapStateToProps = (state) => ({
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   fiatRate: state.wallet.fiatRate,
   contacts: state.wallet.contacts,
-  lastUsedAddresses: state.wallet.lastUsedAddresses
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
 const mapDispatchToProps = {

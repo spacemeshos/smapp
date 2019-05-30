@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 import { SmInput } from '/basicComponents';
 import { search } from '/assets/images';
 import { smColors } from '/vars';
-import type { Contact } from '/types';
+import type { Contact, TxList } from '/types';
+import uniqBy from 'lodash.uniqby';
 import ContactsList from './ContactsList';
 
 const SearchRow = styled.div`
@@ -41,7 +42,7 @@ const ListsWrapper = styled.div`
 
 type Props = {
   contacts: Contact[],
-  lastUsedAddresses: Contact[],
+  transactions: TxList,
   addContact: ({ address: string }) => void,
   selectContact: ({ contact: Contact }) => void,
   isModalMode?: boolean
@@ -57,8 +58,10 @@ class AllContacts extends Component<Props, State> {
   };
 
   render() {
-    const { contacts, lastUsedAddresses, addContact, selectContact, isModalMode } = this.props;
+    const { contacts, transactions, addContact, selectContact, isModalMode } = this.props;
     const { searchTerm } = this.state;
+    const lastUsedAddresses: TxList = uniqBy(transactions, 'address').slice(0, 3);
+
     return (
       <div>
         <SearchRow>
@@ -93,7 +96,7 @@ class AllContacts extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   contacts: state.wallet.contacts,
-  lastUsedAddresses: state.wallet.lastUsedAddresses
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
 AllContacts = connect(mapStateToProps)(AllContacts);

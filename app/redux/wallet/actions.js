@@ -14,7 +14,7 @@ export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
 export const SET_CONTACTS: string = 'SET_CONTACTS';
-export const ADD_LAST_USED_ADDRESS: string = 'ADD_LAST_USED_ADDRESS';
+// export const ADD_LAST_USED_ADDRESS: string = 'ADD_LAST_USED_ADDRESS';
 
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
@@ -33,103 +33,85 @@ export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Act
 };
 
 // TODO: remove stub
-const generateRandomAddress = () => {
-  const length = 64;
-  let result = '';
-  const charOptions = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < length; i += 1) {
-    result += charOptions.charAt(Math.floor(Math.random() * charOptions.length));
-  }
-  return result;
-};
-
-// TODO: remove stub
-const generateRandomDate = () => {
-  const fromDate = new Date('December 17, 2018 03:24:00'); // arbitrary start date
-  const toDate = new Date();
-  return new Date(fromDate.getTime() + Math.random() * (toDate.getTime() - fromDate.getTime()));
-};
-
-// TODO: remove stub
 const transactionsStub: TxList = [
   {
     isSent: true,
     isPending: true,
     amount: 4.0002,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'HZp1AH1b2xO6ZBZhvNQVHLrn8FXFzZtLlWWqnZE4FU0sNzpkOCSVq9idVO9uDtJg',
+    date: new Date('May 29, 2019 03:24:00')
   },
   {
     isSent: false,
     isPending: true,
     amount: 10.5,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'e6xPhtekueVw9OLG1mE8PAdw4V6fOpr9xpWIV5nsAklJ1wHgrdFfP2rqXxh3zL1e',
+    date: new Date('May 22, 2019 12:21:00')
   },
   {
     isSent: true,
     amount: 3.001,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'n86xGNbMdVHI4gRGeVFsv0JmcXCX0SXLO7RkK42BjjaSZhkrZGYChfkDm7ZwC7h4',
+    date: new Date('May 3, 2019 00:24:00')
   },
   {
     isSent: true,
     amount: 26564.22,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'HZp1AH1b2xO6ZBZhvNQVHLrn8FXFzZtLlWWqnZE4FU0sNzpkOCSVq9idVO9uDtJg',
+    date: new Date('April 29, 2019 02:54:00')
   },
   {
     isSent: false,
     isRejected: true,
     amount: 122,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'HZp1AH1b2xO6ZBZhvNQVHLrn8FXFzZtLlWWqnZE4FU0sNzpkOCSVq9idVO9uDtJg',
+    date: new Date('March 9, 2019 03:26:10')
   },
   {
     isSent: true,
     isRejected: true,
     amount: 54894,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: '3n8NVi91qt6xNJyDnTyz8MZGATWN95id6nGvifvt5sY914AKoDL1oXR96IKmR2Fp',
+    date: new Date('February 27, 2019 12:44:02')
   },
   {
     isSent: true,
     isPending: true,
     amount: 3.0002,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'r5SYTyA81QyqqMy0vH1ynxeRbZ4C3w2qPswCqRUjreHtMJQr3XuE5ijwjyBMvZop',
+    date: new Date('February 19, 2019 05:54:44')
   },
   {
     isSent: false,
     isPending: true,
     amount: 10.0,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: '3n8NVi91qt6xNJyDnTyz8MZGATWN95id6nGvifvt5sY914AKoDL1oXR96IKmR2Fp',
+    date: new Date('February 18, 2019 03:21:05')
   },
   {
     isSent: true,
     amount: 99.001,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'y6qG3W2uzXzLeIo4bgFy6vpUWBEnaVsnb4uvOI7AOAjdpRjPrgzsrCWVBrVXSD5C',
+    date: new Date('February 13, 2019 03:23:00')
   },
   {
     isSent: true,
     amount: 16564,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'I3ppGfy6xxnaH88mDyuvGWAKwzqX2HXz4RNPloTEqiHiPXXHz8zBHkMISApaQ34p',
+    date: new Date('February 13, 2019 02:23:30')
   },
   {
     isSent: false,
     amount: 254,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: 'odrJYaU03w8dR0bo0jA0DtU5JW4Lie9fwXpMLRjdSBqePGsB7pYq8BMz56DPdOGE',
+    date: new Date('January 10, 2019 01:14:50')
   },
   {
     isSent: true,
     isRejected: true,
     amount: 4.0034,
-    address: generateRandomAddress(),
-    date: generateRandomDate()
+    address: '96p8s1L01JlpR9keU8j01urd6Wn1MHGCcFuP5yN6iiGrE4wmoim0kk8cCHB2BpQf',
+    date: new Date('December 24, 2019 06:34:46')
   }
 ];
 
@@ -192,17 +174,9 @@ export const setCurrentAccount = ({ index }: { index: number }): Action => ({ ty
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
-export const setTransactions = ({ transactions }: { transactions: TxList }): Action => {
-  const sortedTransactions = {};
-  Object.keys(transactions).forEach((walletKey: string) => {
-    sortedTransactions[walletKey] = transactions[walletKey].sort((tx1: Tx, tx2: Tx) => new Date(tx2.date) - new Date(tx1.date));
-  });
-  return { type: SET_TRANSACTIONS, payload: { transactions: sortedTransactions } };
-};
+export const setTransactions = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_TRANSACTIONS, payload: { transactions } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
-
-export const addLastUsedAddress = ({ contact }: { contact: Contact }): Action => ({ type: ADD_LAST_USED_ADDRESS, payload: { contact } });
 
 export const incrementWalletNumber = (): Action => ({ type: INCREMENT_WALLET_NUMBER });
 
@@ -282,13 +256,12 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   }
 };
 
-export const updateTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateTransactions = ({ txMeta, accountPK }: { txMeta: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
     const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
-    const txIndex = transactions[index].findIndex((transaction: Tx) => tx.address === transaction.address);
-    const transactionsArray = transactions[index].map((transaction: Tx, idx: number) => (idx === txIndex ? { ...tx } : { ...transaction }));
-    const updatedTransactions = { ...transactions, [index]: [...transactionsArray] };
+    const transactionsArray = transactions[index].map((transaction: Tx) => (transaction.address === txMeta.address ? { ...transaction, ...txMeta } : transaction));
+    const updatedTransactions = { ...transactions, [index]: transactionsArray };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {

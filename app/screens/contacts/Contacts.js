@@ -2,11 +2,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { addLastUsedAddress, updateTransaction } from '/redux/wallet/actions';
+import { updateTransactions } from '/redux/wallet/actions';
 import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
-import type { Action, Contact, TxList, Tx } from '/types';
-import uniqBy from 'lodash.uniqby';
+import type { Action, Contact } from '/types';
+// import uniqBy from 'lodash.uniqby';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -34,11 +34,7 @@ const LeftPane = styled.div`
 `;
 
 type Props = {
-  updateTransaction: Action,
-  addLastUsedAddress: Action,
-  transactions: TxList,
-  contacts: Contact[],
-  lastUsedAddresses: Contact[]
+  updateTransactions: Action
 };
 
 type State = {
@@ -65,47 +61,18 @@ class Contacts extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    this.generateLastUsedListFromTransactions();
-  }
-
-  handleSaveLastUsedAddress = ({ address, nickname, email }: Contact) => {
-    const { addLastUsedAddress, transactions, updateTransaction, lastUsedAddresses } = this.props;
-    const lastUsedTransaction: Tx = transactions.find((transaction: Tx) => transaction.address === address);
-    const isInLastUsedList = !!lastUsedAddresses.find((lastUsed: Contact) => lastUsed.address === address);
+  handleSaveLastUsedAddress = async ({ address, nickname }: Contact) => {
+    const { updateTransactions } = this.props;
     this.setState({ addressToAdd: '' });
-    updateTransaction({ tx: { ...lastUsedTransaction, address, nickname, isSavedContact: true } });
-    if (isInLastUsedList) {
-      addLastUsedAddress({ contact: { address, nickname, email } });
-    }
-  };
-
-  generateLastUsedListFromTransactions = () => {
-    const { transactions, addLastUsedAddress, contacts } = this.props;
-    const recentSentTransactions: TxList = uniqBy(transactions, 'address')
-      .filter((transaction: Tx) => transaction.isSent)
-      .slice(0, 3)
-      .reverse();
-    recentSentTransactions.forEach((transaction: Tx) => {
-      const indexInContacts = contacts.findIndex((contact: Contact) => contact.address === transaction.address);
-      if (indexInContacts < 0) {
-        addLastUsedAddress({ contact: { address: transaction.address, nickname: null, email: null } });
-      } else {
-        const contact = { ...contacts[indexInContacts] };
-        addLastUsedAddress({ contact });
-      }
-    });
+    await updateTransactions({ txMeta: { address, nickname, isSavedContact: true } });
   };
 }
 const mapStateToProps = (state) => ({
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex],
-  contacts: state.wallet.contacts,
-  lastUsedAddresses: state.wallet.lastUsedAddresses
+  contacts: state.wallet.contacts
 });
 
 const mapDispatchToProps = {
-  updateTransaction,
-  addLastUsedAddress
+  updateTransactions
 };
 
 Contacts = connect(

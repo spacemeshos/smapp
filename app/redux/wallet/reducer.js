@@ -1,5 +1,5 @@
 // @flow
-import type { Action, StoreStateType, Contact } from '/types';
+import type { Action, StoreStateType } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
@@ -12,7 +12,7 @@ import {
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
-  ADD_LAST_USED_ADDRESS,
+  // ADD_LAST_USED_ADDRESS,
   SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
 
@@ -27,7 +27,6 @@ const initialState = {
   currentAccountIndex: 0,
   transactions: {},
   contacts: [],
-  lastUsedAddresses: [],
   fiatRate: 1
 };
 
@@ -90,18 +89,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_CONTACTS: {
       const { contacts } = action.payload;
       return { ...state, contacts };
-    }
-    case ADD_LAST_USED_ADDRESS: {
-      const { contact } = action.payload;
-      const { address } = contact;
-      const updatedIndex = state.lastUsedAddresses.findIndex((lastUsedAddress: Contact) => lastUsedAddress.address === address);
-      let updatedLastUsedAddresses;
-      if (updatedIndex < 0) {
-        updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses];
-      } else {
-        updatedLastUsedAddresses = [contact, ...state.lastUsedAddresses.slice(0, updatedIndex), ...state.lastUsedAddresses.slice(updatedIndex + 1)];
-      }
-      return { ...state, lastUsedAddresses: updatedLastUsedAddresses.slice(0, 3) };
     }
     case LOGOUT: {
       return initialState;

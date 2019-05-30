@@ -2,13 +2,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, updateTransaction } from '/redux/wallet/actions';
+import { getBalance, updateTransactions } from '/redux/wallet/actions';
 import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { LatestTransactions } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SendReceiveButton } from '/basicComponents';
 import { localStorageService } from '/infra/storageServices';
-import type { Account, Action, TxList, Contact, Tx } from '/types';
+import type { Account, Action, TxList, Contact } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 import { shell } from 'electron';
 
@@ -55,7 +55,7 @@ const RightSection = styled.div`
 type Props = {
   currentAccount: Account,
   currentAccTransactions: TxList,
-  updateTransaction: Action,
+  updateTransactions: Action,
   getBalance: Action,
   fiatRate: number,
   hasBackup: boolean,
@@ -132,12 +132,9 @@ class Overview extends Component<Props, State> {
   };
 
   handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
-    const { currentAccTransactions, updateTransaction } = this.props;
-    const tx = currentAccTransactions.find((transaction: Tx) => transaction.address === address);
+    const { updateTransactions } = this.props;
     this.setState({ address: '', shouldShowAddContactModal: false });
-    if (tx) {
-      await updateTransaction({ tx: { ...tx, address, nickname, isSavedContact: true } });
-    }
+    await updateTransactions({ txMeta: { address, nickname, isSavedContact: true } });
   };
 
   navigateToSendCoins = () => {
@@ -169,7 +166,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getBalance,
-  updateTransaction
+  updateTransactions
 };
 
 Overview = connect(
