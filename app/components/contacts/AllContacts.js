@@ -8,19 +8,6 @@ import { smColors } from '/vars';
 import type { Contact, TxList } from '/types';
 import ContactsList from './ContactsList';
 
-const getFirstUniqueTransactions = (txList: TxList, n: number = 3): TxList => {
-  const unique = new Set();
-  for (let i = 0; i < txList.length; i += 1) {
-    if (!unique.has(txList[i])) {
-      unique.add(txList[i]);
-    }
-    if (unique.size === n) {
-      break;
-    }
-  }
-  return Array.from(unique);
-};
-
 const SearchRow = styled.div`
   height: 44px;
   display: flex;
@@ -54,7 +41,7 @@ const ListsWrapper = styled.div`
 
 type Props = {
   contacts: Contact[],
-  transactions: TxList,
+  lastUsedAddresses: TxList,
   addContact: ({ address: string }) => void,
   selectContact: ({ contact: Contact }) => void,
   isModalMode?: boolean
@@ -70,9 +57,8 @@ class AllContacts extends Component<Props, State> {
   };
 
   render() {
-    const { contacts, transactions, addContact, selectContact, isModalMode } = this.props;
+    const { contacts, lastUsedAddresses, addContact, selectContact, isModalMode } = this.props;
     const { searchTerm } = this.state;
-    const lastUsedAddresses: TxList = getFirstUniqueTransactions(transactions);
 
     return (
       <div>
@@ -108,7 +94,7 @@ class AllContacts extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   contacts: state.wallet.contacts,
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
+  lastUsedAddresses: state.wallet.lastUsedAddresses
 });
 
 AllContacts = connect(mapStateToProps)(AllContacts);

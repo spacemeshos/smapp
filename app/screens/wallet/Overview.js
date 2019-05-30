@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, updateTransactions } from '/redux/wallet/actions';
+import { getBalance, updateTransaction } from '/redux/wallet/actions';
 import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { LatestTransactions } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
@@ -55,7 +55,7 @@ const RightSection = styled.div`
 type Props = {
   currentAccount: Account,
   currentAccTransactions: TxList,
-  updateTransactions: Action,
+  updateTransaction: Action,
   getBalance: Action,
   fiatRate: number,
   hasBackup: boolean,
@@ -132,9 +132,9 @@ class Overview extends Component<Props, State> {
   };
 
   handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
-    const { updateTransactions } = this.props;
+    const { updateTransaction } = this.props;
     this.setState({ address: '', shouldShowAddContactModal: false });
-    await updateTransactions({ txMeta: { address, nickname, isSavedContact: true } });
+    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
   };
 
   navigateToSendCoins = () => {
@@ -166,7 +166,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getBalance,
-  updateTransactions
+  updateTransaction
 };
 
 Overview = connect(

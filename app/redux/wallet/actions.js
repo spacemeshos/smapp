@@ -255,11 +255,20 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   }
 };
 
-export const updateTransactions = ({ txMeta, accountPK }: { txMeta: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, updateAll: boolean, accountPK?: string }): Action => async (
+  dispatch: Dispatch,
+  getState: GetState
+): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
     const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
-    const transactionsArray = transactions[index].map((transaction: Tx) => (transaction.address === txMeta.address ? { ...transaction, ...txMeta } : transaction));
+    let transactionsArray: TxList = [];
+    if (updateAll) {
+      transactionsArray = transactions[index].map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));
+    } else {
+      const txIndex = transactions.findIndex((transaction: Tx) => transaction.address === tx.address);
+      transactionsArray = [...transactions[index].slice(0, txIndex), tx, ...transactions[index].slice(txIndex + 1)];
+    }
     const updatedTransactions = { ...transactions, [index]: transactionsArray };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));

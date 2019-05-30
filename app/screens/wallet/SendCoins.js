@@ -10,19 +10,6 @@ import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action, Contact, TxList } from '/types';
 import { shell } from 'electron';
 
-const getFirstUniqueTransactions = (txList: TxList, n: number = 3): TxList => {
-  const unique = new Set();
-  for (let i = 0; i < txList.length; i += 1) {
-    if (!unique.has(txList[i])) {
-      unique.add(txList[i]);
-    }
-    if (unique.size === n) {
-      break;
-    }
-  }
-  return Array.from(unique);
-};
-
 const Wrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -62,7 +49,7 @@ type Props = {
   fiatRate: number,
   sendTransaction: Action,
   contacts: Contact[],
-  transactions: TxList
+  lastUsedAddresses: TxList
 };
 
 type State = {
@@ -95,10 +82,9 @@ class SendCoins extends Component<Props, State> {
       currentAccount: { balance },
       fiatRate,
       contacts,
-      transactions
+      lastUsedAddresses
     } = this.props;
     const { address, defaultAddress, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowContactsModal } = this.state;
-    const lastUsedAddresses: TxList = getFirstUniqueTransactions(transactions);
 
     return [
       <Wrapper key="main">
@@ -203,7 +189,7 @@ const mapStateToProps = (state) => ({
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   fiatRate: state.wallet.fiatRate,
   contacts: state.wallet.contacts,
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
+  lastUsedAddresses: state.wallet.lastUsedAddresses
 });
 
 const mapDispatchToProps = {

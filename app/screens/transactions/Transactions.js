@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateTransactions } from '/redux/wallet/actions';
+import { updateTransaction } from '/redux/wallet/actions';
 import { Transaction } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
@@ -110,7 +110,7 @@ const btnStyle = { height: 26, marginRight: 15 };
 
 type Props = {
   transactions: TxList,
-  updateTransactions: Action
+  updateTransaction: Action
 };
 
 type State = {
@@ -202,9 +202,9 @@ class Transactions extends Component<Props, State> {
   }
 
   handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
-    const { updateTransactions } = this.props;
+    const { updateTransaction } = this.props;
     this.setState({ address: '', shouldShowModal: false });
-    await updateTransactions({ txMeta: { address, nickname, isSavedContact: true } });
+    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
@@ -217,7 +217,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  updateTransactions
+  updateTransaction
 };
 
 Transactions = connect(
