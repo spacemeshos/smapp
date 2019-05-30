@@ -173,7 +173,6 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "lodash.uniqby": "^4.7.0",
     "@grpc/proto-loader": "^0.5.1",
     "bip39": "^3.0.2",
     "check-disk-space": "^1.5.0",

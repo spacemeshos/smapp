@@ -6,8 +6,20 @@ import { SmInput } from '/basicComponents';
 import { search } from '/assets/images';
 import { smColors } from '/vars';
 import type { Contact, TxList } from '/types';
-import uniqBy from 'lodash.uniqby';
 import ContactsList from './ContactsList';
+
+const getFirstUniqueTransactions = (txList: TxList, n: number = 3): TxList => {
+  const unique = new Set();
+  for (let i = 0; i < txList.length; i += 1) {
+    if (!unique.has(txList[i])) {
+      unique.add(txList[i]);
+    }
+    if (unique.size === n) {
+      break;
+    }
+  }
+  return Array.from(unique);
+};
 
 const SearchRow = styled.div`
   height: 44px;
@@ -60,7 +72,7 @@ class AllContacts extends Component<Props, State> {
   render() {
     const { contacts, transactions, addContact, selectContact, isModalMode } = this.props;
     const { searchTerm } = this.state;
-    const lastUsedAddresses: TxList = uniqBy(transactions, 'address').slice(0, 3);
+    const lastUsedAddresses: TxList = getFirstUniqueTransactions(transactions);
 
     return (
       <div>

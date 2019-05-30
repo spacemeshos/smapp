@@ -6,7 +6,6 @@ import { updateTransactions } from '/redux/wallet/actions';
 import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
-// import uniqBy from 'lodash.uniqby';
 
 const Wrapper = styled.div`
   width: 100%;

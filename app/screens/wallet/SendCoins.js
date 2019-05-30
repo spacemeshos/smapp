@@ -9,7 +9,19 @@ import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action, Contact, TxList } from '/types';
 import { shell } from 'electron';
-import uniqBy from 'lodash.uniqby';
+
+const getFirstUniqueTransactions = (txList: TxList, n: number = 3): TxList => {
+  const unique = new Set();
+  for (let i = 0; i < txList.length; i += 1) {
+    if (!unique.has(txList[i])) {
+      unique.add(txList[i]);
+    }
+    if (unique.size === n) {
+      break;
+    }
+  }
+  return Array.from(unique);
+};
 
 const Wrapper = styled.div`
   width: 100%;
@@ -86,7 +98,7 @@ class SendCoins extends Component<Props, State> {
       transactions
     } = this.props;
     const { address, defaultAddress, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowContactsModal } = this.state;
-    const lastUsedAddresses: TxList = uniqBy(transactions, 'address').slice(0, 3);
+    const lastUsedAddresses: TxList = getFirstUniqueTransactions(transactions);
 
     return [
       <Wrapper key="main">
