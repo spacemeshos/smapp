@@ -14,6 +14,7 @@ export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
 export const SET_CONTACTS: string = 'SET_CONTACTS';
+export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
 
 export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
@@ -156,6 +157,7 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions }));
+    dispatch(setLastUsedAddresses({ transactions }));
     dispatch(setContacts({ contacts: [] }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
@@ -174,6 +176,8 @@ export const setCurrentAccount = ({ index }: { index: number }): Action => ({ ty
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
 export const setTransactions = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_TRANSACTIONS, payload: { transactions } });
+
+export const setLastUsedAddresses = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_LAST_USED_ADDRESSES, payload: { transactions } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
 
@@ -202,6 +206,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
+    dispatch(setLastUsedAddresses({ transactions: file.transactions }));
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
@@ -272,6 +277,7 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
     const updatedTransactions = { ...transactions, [index]: transactionsArray };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
+    dispatch(setLastUsedAddresses({ transactions: updatedTransactions }));
   } catch (error) {
     throw new Error(error);
   }

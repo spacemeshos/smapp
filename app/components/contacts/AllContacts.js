@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { SmInput } from '/basicComponents';
 import { search } from '/assets/images';
 import { smColors } from '/vars';
-import type { Contact, TxList } from '/types';
+import type { Contact } from '/types';
 import ContactsList from './ContactsList';
 
 const SearchRow = styled.div`
@@ -41,7 +41,7 @@ const ListsWrapper = styled.div`
 
 type Props = {
   contacts: Contact[],
-  lastUsedAddresses: TxList,
+  lastUsedAddresses: Contact[],
   addContact: ({ address: string }) => void,
   selectContact: ({ contact: Contact }) => void,
   isModalMode?: boolean

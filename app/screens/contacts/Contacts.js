@@ -66,16 +66,13 @@ class Contacts extends Component<Props, State> {
     await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
   };
 }
-const mapStateToProps = (state) => ({
-  contacts: state.wallet.contacts
-});
 
 const mapDispatchToProps = {
   updateTransaction
 };
 
 Contacts = connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(Contacts);
 
