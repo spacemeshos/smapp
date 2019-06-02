@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { updateWalletMeta, updateAccount } from '/redux/wallet/actions';
+import { updateWalletMeta, updateAccount, deleteWalletFile } from '/redux/wallet/actions';
 import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import { smColors, authModes } from '/vars';
@@ -141,6 +141,7 @@ const currencies = [{ label: 'USD' }];
 type Props = {
   meta: WalletMeta,
   accounts: Account[],
+  deleteWalletFile: Action,
   updateWalletMeta: Action,
   updateAccount: Action,
   history: RouterHistory
@@ -259,6 +260,7 @@ class Settings extends Component<Props, State> {
             />
             <SettingsRow text="Wallets" subText="You have one wallet" action={this.createNewWallet} actionText="Create a new wallet" isDisabled />
             <SettingsRow text="Learn more in our extensive user guide" action={() => this.externalNavigation({ to: 'userGuide' })} actionText="Visit the user guide" />
+            <SettingsRow text="Reset wallet data. Use at your own risk!" action={this.resetWalletData} actionText="Reset wallet data" />
           </div>
         </InnerWrapper>
       </Wrapper>,
@@ -274,6 +276,12 @@ class Settings extends Component<Props, State> {
     if (!!value && !!value.trim() && value !== displayName) {
       await updateWalletMeta({ metaFieldName: 'displayName', data: value });
     }
+  };
+
+  resetWalletData = async () => {
+    const { deleteWalletFile, history } = this.props;
+    await deleteWalletFile();
+    history.push('/auth');
   };
 
   changeWalletColor = async ({ index }: { index: number }) => {
@@ -333,6 +341,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   updateWalletMeta,
+  deleteWalletFile,
   updateAccount
 };
 

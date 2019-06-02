@@ -74,6 +74,18 @@ class FsService {
       });
     });
   };
+
+  static deleteFile = ({ fileName }: { fileName: string }) => {
+    ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.DELETE_FILE_SUCCESS, () => {
+        resolve();
+      });
+      ipcRenderer.once(ipcConsts.DELETE_FILE_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  };
 }
 
 export default FsService;

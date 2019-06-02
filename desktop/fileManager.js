@@ -95,6 +95,36 @@ class FileManager {
     }
   };
 
+  static deleteFile = async ({ browserWindow, event, fileName }) => {
+    try {
+      const filePath = path.isAbsolute(fileName) ? fileName : path.join(appFilesDirPath, fileName);
+      if (fs.existsSync(filePath)) {
+        const options = {
+          title: 'Delete File',
+          message: 'Are You Sure?',
+          buttons: ['Delete File', 'Cancel']
+        };
+        dialog.showMessageBox(browserWindow, options, (response) => {
+          if (response === 0) {
+            fs.unlink(filePath, (err) => {
+              if (err) {
+                throw err;
+              }
+              event.sender.send(ipcConsts.DELETE_FILE_SUCCESS);
+            });
+          }
+          if (response === 1) {
+            event.sender.send(ipcConsts.DELETE_FILE_FAILURE, 'User canceled action.');
+          }
+        });
+      } else {
+        event.sender.send(ipcConsts.DELETE_FILE_FAILURE, 'File Doe Not Exist. Cannot be deleted.');
+      }
+    } catch (error) {
+      event.sender.send(ipcConsts.DELETE_FILE_FAILURE, error.message);
+    }
+  };
+
   static _readFile = async ({ event, filePath }) => {
     try {
       const fileContent = await readFileAsync(filePath);
