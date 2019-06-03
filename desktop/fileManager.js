@@ -95,36 +95,27 @@ class FileManager {
     }
   };
 
-  static deleteFile = async ({ browserWindow, event, fileName, options, reloadOnDelete }) => {
+  static deleteWalletFile = ({ browserWindow, fileName }) => {
     try {
       const filePath = path.isAbsolute(fileName) ? fileName : path.join(appFilesDirPath, fileName);
-      if (fs.existsSync(filePath)) {
-        const defaultOptions = {
-          title: 'Delete File',
-          message: 'Are You Sure?',
-          buttons: ['Delete File', 'Cancel']
-        };
-        dialog.showMessageBox(browserWindow, options || defaultOptions, (response) => {
-          if (response === 0) {
-            fs.unlink(filePath, (err) => {
-              if (err) {
-                throw err;
-              }
-              event.sender.send(ipcConsts.DELETE_FILE_SUCCESS);
-            });
-            if (reloadOnDelete) {
-              browserWindow.reload();
+      const options = {
+        title: 'Delete File',
+        message: 'All wallet data will be lost. Are You Sure?',
+        buttons: ['Delete Wallet File', 'Cancel']
+      };
+      dialog.showMessageBox(browserWindow, options, (response) => {
+        if (response === 0) {
+          fs.unlink(filePath, (err) => {
+            if (err) {
+              throw err;
             }
-          }
-          if (response === 1) {
-            event.sender.send(ipcConsts.DELETE_FILE_FAILURE, 'User canceled action.');
-          }
-        });
-      } else {
-        event.sender.send(ipcConsts.DELETE_FILE_FAILURE, 'File Doe Not Exist. Cannot be deleted.');
-      }
+          });
+          browserWindow.reload();
+        }
+      });
     } catch (error) {
-      event.sender.send(ipcConsts.DELETE_FILE_FAILURE, error.message);
+      // eslint-disable-next-line no-console
+      console.error('Error deleting wallet file');
     }
   };
 

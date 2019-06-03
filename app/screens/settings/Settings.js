@@ -3,11 +3,12 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { updateWalletMeta, updateAccount, deleteWalletFile } from '/redux/wallet/actions';
+import { updateWalletMeta, updateAccount } from '/redux/wallet/actions';
 import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import { smColors, authModes } from '/vars';
 import type { WalletMeta, Account, Action } from '/types';
+import { fileSystemService } from '/infra/fileSystemService';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -141,7 +142,7 @@ const currencies = [{ label: 'USD' }];
 type Props = {
   meta: WalletMeta,
   accounts: Account[],
-  deleteWalletFile: Action,
+  walletFiles: Array<string>,
   updateWalletMeta: Action,
   updateAccount: Action,
   history: RouterHistory
@@ -160,7 +161,8 @@ class Settings extends Component<Props, State> {
   render() {
     const {
       meta: { displayName, displayColor },
-      accounts
+      accounts,
+      walletFiles
     } = this.props;
     const { shouldShowChangePassphrase } = this.state;
     return [
@@ -260,7 +262,12 @@ class Settings extends Component<Props, State> {
             />
             <SettingsRow text="Wallets" subText="You have one wallet" action={this.createNewWallet} actionText="Create a new wallet" isDisabled />
             <SettingsRow text="Learn more in our extensive user guide" action={() => this.externalNavigation({ to: 'userGuide' })} actionText="Visit the user guide" />
-            <SettingsRow text="Delete wallet file and Logout. Use at your own risk!" action={this.resetWalletData} actionText="Reset wallet data" />
+            <SettingsRow
+              text="Delete wallet file and Logout. Use at your own risk!"
+              action={this.resetWalletData}
+              actionText="Reset wallet data"
+              isDisabled={!(walletFiles && !!walletFiles.length)}
+            />
           </div>
         </InnerWrapper>
       </Wrapper>,
@@ -279,8 +286,8 @@ class Settings extends Component<Props, State> {
   };
 
   resetWalletData = async () => {
-    const { deleteWalletFile } = this.props;
-    await deleteWalletFile();
+    const { walletFiles } = this.props;
+    fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
   };
 
   changeWalletColor = async ({ index }: { index: number }) => {
@@ -335,12 +342,12 @@ class Settings extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   meta: state.wallet.meta,
-  accounts: state.wallet.accounts
+  accounts: state.wallet.accounts,
+  walletFiles: state.wallet.walletFiles
 });
 
 const mapDispatchToProps = {
   updateWalletMeta,
-  deleteWalletFile,
   updateAccount
 };
 

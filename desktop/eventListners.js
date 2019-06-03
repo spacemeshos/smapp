@@ -96,7 +96,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
-    FileManager.deleteFile({ browserWindow: mainWindow, event, ...request });
+    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
   });
 };
 

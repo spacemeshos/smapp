@@ -339,16 +339,11 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
 };
 
 // TODO: This is a test function
-export const deleteWalletFile = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const deleteWalletFile = (): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { walletFiles } = getState().wallet;
-    const options = {
-      title: 'Delete File',
-      message: 'All wallet data will be lost. Are You Sure?',
-      buttons: ['Delete Wallet File', 'Cancel']
-    };
-    await fileSystemService.deleteFile({ fileName: walletFiles[0], options, reloadOnDelete: true });
-    dispatch({ type: DELETE_WALLET_FILE });
+    fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
+    // dispatch({ type: DELETE_WALLET_FILE });
   } catch (err) {
     throw new Error(err);
   }
