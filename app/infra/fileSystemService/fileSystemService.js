@@ -75,8 +75,8 @@ class FsService {
     });
   };
 
-  static deleteFile = ({ fileName }: { fileName: string }) => {
-    ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
+  static deleteFile = ({ fileName, options, reloadOnDelete }: { fileName: string, options?: { title: string, message: string, buttons: string[] }, reloadOnDelete?: boolean }) => {
+    ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName, options, reloadOnDelete });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.DELETE_FILE_SUCCESS, () => {
         resolve();

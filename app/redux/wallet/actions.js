@@ -3,6 +3,7 @@ import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } 
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
+import { localStorageService } from '/infra/storageServices';
 import { httpService } from '/infra/httpService';
 import { smColors, cryptoConsts } from '/vars';
 
@@ -342,7 +343,12 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
 export const deleteWalletFile = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { walletFiles } = getState().wallet;
-    await fileSystemService.deleteFile({ fileName: walletFiles[0] });
+    const options = {
+      title: 'Delete File',
+      message: 'All wallet data will be lost. Are You Sure?',
+      buttons: ['Delete Wallet File', 'Cancel']
+    };
+    await fileSystemService.deleteFile({ fileName: walletFiles[0], options, reloadOnDelete: true });
     dispatch({ type: DELETE_WALLET_FILE });
   } catch (err) {
     throw new Error(err);

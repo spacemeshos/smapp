@@ -95,16 +95,16 @@ class FileManager {
     }
   };
 
-  static deleteFile = async ({ browserWindow, event, fileName }) => {
+  static deleteFile = async ({ browserWindow, event, fileName, options, reloadOnDelete }) => {
     try {
       const filePath = path.isAbsolute(fileName) ? fileName : path.join(appFilesDirPath, fileName);
       if (fs.existsSync(filePath)) {
-        const options = {
+        const defaultOptions = {
           title: 'Delete File',
           message: 'Are You Sure?',
           buttons: ['Delete File', 'Cancel']
         };
-        dialog.showMessageBox(browserWindow, options, (response) => {
+        dialog.showMessageBox(browserWindow, options || defaultOptions, (response) => {
           if (response === 0) {
             fs.unlink(filePath, (err) => {
               if (err) {
@@ -112,6 +112,9 @@ class FileManager {
               }
               event.sender.send(ipcConsts.DELETE_FILE_SUCCESS);
             });
+            if (reloadOnDelete) {
+              browserWindow.reload();
+            }
           }
           if (response === 1) {
             event.sender.send(ipcConsts.DELETE_FILE_FAILURE, 'User canceled action.');
