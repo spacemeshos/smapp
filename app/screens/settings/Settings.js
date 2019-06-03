@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, deleteWalletFile } from '/redux/wallet/actions';
-import { logout } from '/redux/auth/actions';
 import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import { smColors, authModes } from '/vars';
@@ -144,7 +143,6 @@ type Props = {
   accounts: Account[],
   deleteWalletFile: Action,
   updateWalletMeta: Action,
-  logout: Action,
   updateAccount: Action,
   history: RouterHistory
 };
@@ -283,8 +281,6 @@ class Settings extends Component<Props, State> {
   resetWalletData = async () => {
     const { deleteWalletFile } = this.props;
     await deleteWalletFile();
-    // logout();
-    // history.push('/auth');
   };
 
   changeWalletColor = async ({ index }: { index: number }) => {
@@ -345,7 +341,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   updateWalletMeta,
   deleteWalletFile,
-  logout,
   updateAccount
 };
 

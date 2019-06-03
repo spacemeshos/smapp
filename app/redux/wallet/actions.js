@@ -3,7 +3,6 @@ import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } 
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
-import { localStorageService } from '/infra/storageServices';
 import { httpService } from '/infra/httpService';
 import { smColors, cryptoConsts } from '/vars';
 
