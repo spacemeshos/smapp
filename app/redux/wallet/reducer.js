@@ -1,5 +1,5 @@
 // @flow
-import type { Action, StoreStateType, TxList, Contact } from '/types';
+import type { Action, StoreStateType, TxList, Tx, Contact } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
@@ -75,15 +75,12 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       const { transactions } = action.payload;
       const getFirstUniqueTransactions = (txList: TxList, n: number = 3): Contact[] => {
         const unique = new Set();
-        for (let i = 0; i < txList.length; i += 1) {
+        for (let i = 0; i < txList.length && i < n; i += 1) {
           if (!unique.has(txList[i])) {
             unique.add(txList[i]);
           }
-          if (unique.size === n) {
-            break;
-          }
         }
-        return Array.from(unique);
+        return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname }));
       };
       return { ...state, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex]) };
     }
