@@ -176,7 +176,7 @@
     "@grpc/proto-loader": "^0.5.1",
     "bip39": "^3.0.2",
     "check-disk-space": "^1.5.0",
-    "drivelist": "6.4.6",
+    "drivelist": "8.0.6",
     "grpc": "^1.21.1",
     "pbkdf2": "^3.0.17",
     "qrcode.react": "^0.9.3",

@@ -1,40 +1,36 @@
 // @flow
-import os from 'os';
-import drivelist from 'drivelist';
 import { ipcConsts } from '../app/vars';
 
+const drivelist = require('drivelist');
 const checkDiskSpace = require('check-disk-space');
 
-const getMountPoint = (drive: any): string => {
-  if (drive.mountpoints && drive.mountpoints.length) {
-    return `${drive.mountpoints[0].path}${os.type() === 'win32' ? '\\' : ''}`;
-  }
-  return '/';
-};
-
-type Drive = {
+type Volume = {
   id: string,
   mountPoint: string,
   label: string
 };
 
 class DiskStorageManager {
-  static getDriveList = ({ event }: { event: any }) => {
-    drivelist.list((error, drives) => {
-      if (error) {
-        event.sender.send(ipcConsts.GET_DRIVE_LIST_FAILURE, error.message);
-      } else {
-        const filteredDrives = drives.filter((drive: any) => drive.mountpoints && drive.mountpoints.length);
-        const mappedDrives: Drive[] = filteredDrives.map((drive: any) => {
-          return {
-            id: drive.raw,
-            mountPoint: getMountPoint(drive),
-            label: drive.device
-          };
+  static getDriveList = async ({ event }: { event: any }) => {
+    try {
+      const drives = await drivelist.list();
+      const mountedDrives = drives.filter((drive: any) => drive.mountpoints && drive.mountpoints.length);
+      const mappedDrives = mountedDrives.reduce((volumes: Volume[], drive) => {
+        drive.mountpoints.forEach((mountPoint) => {
+          if (!mountPoint.path.includes('private')) {
+            volumes.push({
+              id: mountPoint.path,
+              mountPoint: mountPoint.path,
+              label: mountPoint.label
+            });
+          }
         });
-        event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
-      }
-    });
+        return volumes;
+      }, []);
+      event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_DRIVE_LIST_FAILURE, error.message);
+    }
   };
 
   static getAvailableSpace = ({ event, path }: { event: any, path: string }) => {

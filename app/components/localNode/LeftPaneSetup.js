@@ -70,11 +70,17 @@ const formatNumber = (num?: number) => {
   return formatter.format(num.toFixed(2));
 };
 
-const getElementIndex = (elementsList: any[], element: any) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
+const getElementIndex = (elementsList: Volume[], element: Volume) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
+
+type Volume = {
+  id: string,
+  mountPoint: string,
+  label: string
+};
 
 type Props = {
   switchMode: (mode: number) => void,
-  drives: any[],
+  drives: Volume[],
   capacity: any,
   capacityAllocationsList: any[],
   drive: any,
@@ -151,7 +157,7 @@ class LeftPaneSetup extends Component<Props, State> {
 
   handleSelectDrive = ({ index }: { index: number }) => {
     const { getAvailableSpace, drives } = this.props;
-    const drive: any = drives[index];
+    const drive: Volume = drives[index];
     getAvailableSpace(drive.mountPoint);
     this.setState({ selectedDriveIndex: index });
   };
