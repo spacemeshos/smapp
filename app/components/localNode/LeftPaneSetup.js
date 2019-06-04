@@ -72,6 +72,11 @@ const formatNumber = (num?: number) => {
 
 const getElementIndex = (elementsList: Volume[], element: Volume) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
 
+type CapacityAllocation = {
+  id: number,
+  label: string
+};
+
 type Volume = {
   id: string,
   mountPoint: string,
@@ -81,9 +86,9 @@ type Volume = {
 type Props = {
   switchMode: (mode: number) => void,
   drives: Volume[],
-  capacity: any,
-  capacityAllocationsList: any[],
-  drive: any,
+  capacity: CapacityAllocation,
+  capacityAllocationsList: CapacityAllocation[],
+  drive: Volume,
   availableDiskSpace: { bytes: number, readable: string },
   setLocalNodeStorage: Action,
   getDrivesList: Action,

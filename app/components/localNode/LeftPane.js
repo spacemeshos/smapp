@@ -22,10 +22,15 @@ const Header = styled.div`
   margin-bottom: 30px;
 `;
 
+type CapacityAllocation = {
+  id: number,
+  label: string
+};
+
 type Props = {
   isInProgress: boolean,
   switchMode: (mode: number) => void,
-  capacity: any,
+  capacity: CapacityAllocation,
   progress: number,
   resetNodeSettings: Action,
   getLocalNodeSetupProgress: Action
