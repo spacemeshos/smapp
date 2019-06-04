@@ -74,6 +74,10 @@ class FsService {
       });
     });
   };
+
+  static deleteWalletFile = ({ fileName }: { fileName: string }) => {
+    ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
+  };
 }
 
 export default FsService;

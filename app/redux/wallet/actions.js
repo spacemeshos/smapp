@@ -20,6 +20,7 @@ export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
 export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
 
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
+export const DELETE_WALLET_FILE = 'DELETE_WALLET_FILE';
 
 export const GET_BALANCE: string = 'GET_BALANCE';
 export const GET_CONTACTS: string = 'GET_CONTACTS';
@@ -335,4 +336,15 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
   const cipherText = { mnemonic, accounts };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
+};
+
+// TODO: This is a test function
+export const deleteWalletFile = (): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { walletFiles } = getState().wallet;
+    fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
+    // dispatch({ type: DELETE_WALLET_FILE });
+  } catch (err) {
+    throw new Error(err);
+  }
 };

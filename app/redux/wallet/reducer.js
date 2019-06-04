@@ -3,6 +3,7 @@ import type { Action, StoreStateType } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
+  DELETE_WALLET_FILE,
   DERIVE_ENCRYPTION_KEY,
   INCREMENT_WALLET_NUMBER,
   INCREMENT_ACCOUNT_NUMBER,
@@ -118,6 +119,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       }
       return { ...state, lastUsedAddresses: updatedLastUsedAddresses.slice(0, 3) };
     }
+    case DELETE_WALLET_FILE:
     case LOGOUT: {
       return initialState;
     }
