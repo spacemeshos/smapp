@@ -4,6 +4,7 @@ import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
+import { getWalletAddress } from '/infra/utils';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
@@ -264,23 +265,27 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;
-  const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].pk });
+  const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
   dispatch({ type: GET_BALANCE, payload: { balance } });
 };
 
-export const sendTransaction = ({ dstAddress, amount, fee, note }: { dstAddress: string, amount: number, fee: number, note: string }): Action => async (
+export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const signature = await cryptoService.signTransaction({
-      message: JSON.stringify({ dstAddress, amount: amount + fee, note }),
-      secretKey: accounts[currentAccountIndex].sk
+    // const accountNonce = await httpService.getNonce({ address: '7be017a967db77fd10ac7c891b3d6d946dea7e3e14756e2f0f9e09b9663f0d9c' });
+    const message = await cryptoService.signTransaction({
+      accountNonce: parseInt('0'),
+      recipient,
+      price,
+      amount,
+      secretKey: '81c90dd832e18d1cf9758254327cb3135961af6688ac9c2a8c5d71f73acc5ce57be017a967db77fd10ac7c891b3d6d946dea7e3e14756e2f0f9e09b9663f0d9c'
     });
-    await httpService.sendTx({ srcAddress: accounts[currentAccountIndex].pk, dstAddress, amount: amount + fee, note, signature });
-    dispatch({ type: SEND_TX, payload: amount + fee });
-    dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: dstAddress, date: new Date(), amount: amount + fee } }));
+    await httpService.sendTx({ message });
+    dispatch({ type: SEND_TX, payload: amount + price });
+    dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {
     throw new Error(error);
   }

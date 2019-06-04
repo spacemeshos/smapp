@@ -179,7 +179,7 @@ class SendCoins extends Component<Props, State> {
   sendTransaction = async () => {
     const { sendTransaction, history } = this.props;
     const { address, amount, feeIndex, note } = this.state;
-    await sendTransaction({ dstAddress: address, amount, fee: fees[feeIndex].fee, note });
+    await sendTransaction({ recipient: address, amount: amount * 10000, price: fees[feeIndex].fee * 10000, note });
     history.push('/main/wallet');
   };
 }
