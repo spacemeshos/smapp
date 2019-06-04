@@ -7,7 +7,7 @@ import { AllContactsModal } from '/components/contacts';
 import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, Action, Contact, TxList } from '/types';
+import type { Account, Action, Contact } from '/types';
 import { shell } from 'electron';
 
 const Wrapper = styled.div`
@@ -49,7 +49,7 @@ type Props = {
   fiatRate: number,
   sendTransaction: Action,
   contacts: Contact[],
-  lastUsedAddresses: TxList
+  lastUsedAddresses: Contact[]
 };
 
 type State = {
@@ -85,7 +85,6 @@ class SendCoins extends Component<Props, State> {
       lastUsedAddresses
     } = this.props;
     const { address, defaultAddress, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowContactsModal } = this.state;
-
     return [
       <Wrapper key="main">
         <SendCoinsHeader fiatRate={fiatRate} balance={balance} navigateToTxExplanation={this.navigateToTxExplanation} />
