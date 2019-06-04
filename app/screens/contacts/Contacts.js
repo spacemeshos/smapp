@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { addLastUsedAddress } from '/redux/wallet/actions';
+import { updateTransaction } from '/redux/wallet/actions';
 import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
@@ -33,7 +33,7 @@ const LeftPane = styled.div`
 `;
 
 type Props = {
-  addLastUsedAddress: Action
+  updateTransaction: Action
 };
 
 type State = {
@@ -60,15 +60,15 @@ class Contacts extends Component<Props, State> {
     );
   }
 
-  handleSaveLastUsedAddress = ({ address, nickname, email }: Contact) => {
-    const { addLastUsedAddress } = this.props;
-    addLastUsedAddress({ contact: { address, nickname, email } });
+  handleSaveLastUsedAddress = async ({ address, nickname }: Contact) => {
+    const { updateTransaction } = this.props;
     this.setState({ addressToAdd: '' });
+    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
   };
 }
 
 const mapDispatchToProps = {
-  addLastUsedAddress
+  updateTransaction
 };
 
 Contacts = connect(

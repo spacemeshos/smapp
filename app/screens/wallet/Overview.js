@@ -2,13 +2,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance } from '/redux/wallet/actions';
+import { getBalance, updateTransaction } from '/redux/wallet/actions';
 import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { LatestTransactions } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SendReceiveButton } from '/basicComponents';
 import { localStorageService } from '/infra/storageServices';
-import type { Account, Action, TxList } from '/types';
+import type { Account, Action, TxList, Contact } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 import { shell } from 'electron';
 
@@ -55,6 +55,7 @@ const RightSection = styled.div`
 type Props = {
   currentAccount: Account,
   currentAccTransactions: TxList,
+  updateTransaction: Action,
   getBalance: Action,
   fiatRate: number,
   hasBackup: boolean,
@@ -114,7 +115,7 @@ class Overview extends Component<Props, State> {
           key="add_contact_modal"
           addressToAdd={address}
           navigateToExplanation={this.navigateToContactsExplanation}
-          onSave={() => this.setState({ shouldShowAddContactModal: false })}
+          onSave={this.handleTransactionUpdateOnContactSave}
           closeModal={() => this.setState({ shouldShowAddContactModal: false })}
         />
       )
@@ -128,6 +129,12 @@ class Overview extends Component<Props, State> {
   getBalance = async () => {
     const { getBalance } = this.props;
     await getBalance();
+  };
+
+  handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
+    const { updateTransaction } = this.props;
+    this.setState({ address: '', shouldShowAddContactModal: false });
+    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
   };
 
   navigateToSendCoins = () => {
@@ -158,7 +165,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  getBalance
+  getBalance,
+  updateTransaction
 };
 
 Overview = connect(
