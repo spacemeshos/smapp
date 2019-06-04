@@ -2,12 +2,13 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import { updateTransaction } from '/redux/wallet/actions';
 import { Transaction } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
-import type { TxList } from '/types';
+import type { TxList, Action, Contact } from '/types';
 import { shell } from 'electron';
 
 const Wrapper = styled.div`
@@ -108,7 +109,8 @@ const RightSectionLink = styled.div`
 const btnStyle = { height: 26, marginRight: 15 };
 
 type Props = {
-  transactions: TxList
+  transactions: TxList,
+  updateTransaction: Action
 };
 
 type State = {
@@ -192,12 +194,18 @@ class Transactions extends Component<Props, State> {
           key="modal"
           addressToAdd={address}
           navigateToExplanation={this.navigateToContactsExplanation}
-          onSave={() => this.setState({ shouldShowModal: false })}
+          onSave={this.handleTransactionUpdateOnContactSave}
           closeModal={() => this.setState({ shouldShowModal: false })}
         />
       )
     ];
   }
+
+  handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
+    const { updateTransaction } = this.props;
+    this.setState({ address: '', shouldShowModal: false });
+    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
+  };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
 
@@ -208,6 +216,13 @@ const mapStateToProps = (state) => ({
   transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
-Transactions = connect(mapStateToProps)(Transactions);
+const mapDispatchToProps = {
+  updateTransaction
+};
+
+Transactions = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Transactions);
 
 export default Transactions;

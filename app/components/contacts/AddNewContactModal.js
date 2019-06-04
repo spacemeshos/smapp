@@ -4,7 +4,7 @@ import { Modal } from '/basicComponents';
 import AddNewContact from './AddNewContact';
 
 type Props = {
-  address: string,
+  addressToAdd: string,
   closeModal: () => void,
   navigateToExplanation: () => void,
   onSave: ({ address: string, nickname: string, email?: string }) => void
@@ -12,14 +12,14 @@ type Props = {
 
 class AddNewContactModal extends PureComponent<Props> {
   render() {
-    const { navigateToExplanation, closeModal, onSave, address } = this.props;
+    const { navigateToExplanation, closeModal, onSave, addressToAdd } = this.props;
     return (
       <Modal
         header="Create New Contact"
         onQuestionMarkClick={navigateToExplanation}
         onCancelBtnClick={closeModal}
         onCloseClick={closeModal}
-        content={<AddNewContact onSave={onSave} defaultAddress={address} isModalMode />}
+        content={<AddNewContact onSave={onSave} defaultAddress={addressToAdd} isModalMode />}
       />
     );
   }
