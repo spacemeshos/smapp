@@ -94,6 +94,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     const isInFocus = mainWindow.isFocused();
     event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
   });
+
+  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
+    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+  });
 };
 
 export { subscribeToEventListeners }; // eslint-disable-line import/prefer-default-export
