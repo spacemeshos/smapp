@@ -117,7 +117,9 @@ class UnlockWallet extends Component<Props, State> {
   decryptWallet = async () => {
     const { deriveEncryptionKey, unlockWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
-    if (passphrase.trim().length >= 8) {
+    // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
+    const passwordMinimumLentgth = 1;
+    if (passphrase.trim().length >= passwordMinimumLentgth) {
       try {
         deriveEncryptionKey({ passphrase });
         await unlockWallet();
