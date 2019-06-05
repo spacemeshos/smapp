@@ -178,6 +178,7 @@
     "check-disk-space": "^1.5.0",
     "drivelist": "6.4.6",
     "grpc": "^1.21.1",
+    "js-xdr": "^1.1.2",
     "pbkdf2": "^3.0.17",
     "qrcode.react": "^0.9.3",
     "react": "^16.8.6",

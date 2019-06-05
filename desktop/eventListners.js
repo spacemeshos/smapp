@@ -37,6 +37,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getBalance({ event, ...request });
   });
 
+  ipcMain.on(ipcConsts.GET_NONCE, async (event, request) => {
+    netService.getNonce({ event, ...request });
+  });
+
   ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
     netService.sendTx({ event, ...request });
   });

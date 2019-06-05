@@ -695,10 +695,7 @@ proto.pb.SignedTransaction.prototype.toObject = function(opt_includeInstance) {
  */
 proto.pb.SignedTransaction.toObject = function(includeInstance, msg) {
   var obj = {
-    srcaddress: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    dstaddress: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    amount: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    nonce: jspb.Message.getFieldWithDefault(msg, 4, "")
+    tx: msg.getTx_asB64()
   };
 
   if (includeInstance) {
@@ -736,20 +733,8 @@ proto.pb.SignedTransaction.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setSrcaddress(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setDstaddress(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setAmount(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setNonce(value);
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setTx(value);
       break;
     default:
       reader.skipField();
@@ -780,94 +765,52 @@ proto.pb.SignedTransaction.prototype.serializeBinary = function() {
  */
 proto.pb.SignedTransaction.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSrcaddress();
+  f = message.getTx_asU8();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeBytes(
       1,
       f
     );
   }
-  f = message.getDstaddress();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-  f = message.getAmount();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-  f = message.getNonce();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
 };
 
 
 /**
- * optional string srcAddress = 1;
- * @return {string}
+ * optional bytes tx = 1;
+ * @return {!(string|Uint8Array)}
  */
-proto.pb.SignedTransaction.prototype.getSrcaddress = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/** @param {string} value */
-proto.pb.SignedTransaction.prototype.setSrcaddress = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
+proto.pb.SignedTransaction.prototype.getTx = function() {
+  return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * optional string dstAddress = 2;
+ * optional bytes tx = 1;
+ * This is a type-conversion wrapper around `getTx()`
  * @return {string}
  */
-proto.pb.SignedTransaction.prototype.getDstaddress = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/** @param {string} value */
-proto.pb.SignedTransaction.prototype.setDstaddress = function(value) {
-  jspb.Message.setProto3StringField(this, 2, value);
+proto.pb.SignedTransaction.prototype.getTx_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getTx()));
 };
 
 
 /**
- * optional string amount = 3;
- * @return {string}
+ * optional bytes tx = 1;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getTx()`
+ * @return {!Uint8Array}
  */
-proto.pb.SignedTransaction.prototype.getAmount = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+proto.pb.SignedTransaction.prototype.getTx_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getTx()));
 };
 
 
-/** @param {string} value */
-proto.pb.SignedTransaction.prototype.setAmount = function(value) {
-  jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
-/**
- * optional string nonce = 4;
- * @return {string}
- */
-proto.pb.SignedTransaction.prototype.getNonce = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/** @param {string} value */
-proto.pb.SignedTransaction.prototype.setNonce = function(value) {
-  jspb.Message.setProto3StringField(this, 4, value);
+/** @param {!(string|Uint8Array)} value */
+proto.pb.SignedTransaction.prototype.setTx = function(value) {
+  jspb.Message.setProto3BytesField(this, 1, value);
 };
 
 

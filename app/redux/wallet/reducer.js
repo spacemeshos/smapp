@@ -31,6 +31,16 @@ const initialState = {
   fiatRate: 1
 };
 
+const getFirstUniqueTransactions = (txList: TxList, n: number = 3): Contact[] => {
+  const unique = new Set();
+  for (let i = 0; i < txList.length && i < n; i += 1) {
+    if (!unique.has(txList[i])) {
+      unique.add(txList[i]);
+    }
+  }
+  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname }));
+};
+
 const reducer = (state: StoreStateType = initialState, action: Action) => {
   switch (action.type) {
     case SAVE_WALLET_FILES: {
@@ -73,15 +83,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_LAST_USED_ADDRESSES: {
       const { transactions } = action.payload;
-      const getFirstUniqueTransactions = (txList: TxList, n: number = 3): Contact[] => {
-        const unique = new Set();
-        for (let i = 0; i < txList.length && i < n; i += 1) {
-          if (!unique.has(txList[i])) {
-            unique.add(txList[i]);
-          }
-        }
-        return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname }));
-      };
       return { ...state, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex]) };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {

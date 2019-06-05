@@ -4,6 +4,7 @@ import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
+import { getWalletAddress } from '/infra/utils';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
@@ -23,96 +24,11 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const GET_BALANCE: string = 'GET_BALANCE';
 
-export const SEND_TX: string = 'SEND_TX';
-
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
   return { type: DERIVE_ENCRYPTION_KEY, payload: { key } };
 };
-
-// TODO: remove stub
-const transactionsStub: TxList = [
-  {
-    isSent: true,
-    isPending: true,
-    amount: 4.0002,
-    address: 'HZp1AH1b2xO6ZBZhvNQVHLrn8FXFzZtLlWWqnZE4FU0sNzpkOCSVq9idVO9uDtJg',
-    date: new Date('May 29, 2019 03:24:00')
-  },
-  {
-    isSent: false,
-    isPending: true,
-    amount: 10.5,
-    address: 'e6xPhtekueVw9OLG1mE8PAdw4V6fOpr9xpWIV5nsAklJ1wHgrdFfP2rqXxh3zL1e',
-    date: new Date('May 22, 2019 12:21:00')
-  },
-  {
-    isSent: true,
-    amount: 3.001,
-    address: 'n86xGNbMdVHI4gRGeVFsv0JmcXCX0SXLO7RkK42BjjaSZhkrZGYChfkDm7ZwC7h4',
-    date: new Date('May 3, 2019 00:24:00')
-  },
-  {
-    isSent: true,
-    amount: 26564.22,
-    address: 'HZp1AH1b2xO6ZBZhvNQVHLrn8FXFzZtLlWWqnZE4FU0sNzpkOCSVq9idVO9uDtJg',
-    date: new Date('April 29, 2019 02:54:00')
-  },
-  {
-    isSent: false,
-    isRejected: true,
-    amount: 122,
-    address: 'HZp1AH1b2xO6ZBZhvNQVHLrn8FXFzZtLlWWqnZE4FU0sNzpkOCSVq9idVO9uDtJg',
-    date: new Date('March 9, 2019 03:26:10')
-  },
-  {
-    isSent: true,
-    isRejected: true,
-    amount: 54894,
-    address: '3n8NVi91qt6xNJyDnTyz8MZGATWN95id6nGvifvt5sY914AKoDL1oXR96IKmR2Fp',
-    date: new Date('February 27, 2019 12:44:02')
-  },
-  {
-    isSent: true,
-    isPending: true,
-    amount: 3.0002,
-    address: 'r5SYTyA81QyqqMy0vH1ynxeRbZ4C3w2qPswCqRUjreHtMJQr3XuE5ijwjyBMvZop',
-    date: new Date('February 19, 2019 05:54:44')
-  },
-  {
-    isSent: false,
-    isPending: true,
-    amount: 10.0,
-    address: '3n8NVi91qt6xNJyDnTyz8MZGATWN95id6nGvifvt5sY914AKoDL1oXR96IKmR2Fp',
-    date: new Date('February 18, 2019 03:21:05')
-  },
-  {
-    isSent: true,
-    amount: 99.001,
-    address: 'y6qG3W2uzXzLeIo4bgFy6vpUWBEnaVsnb4uvOI7AOAjdpRjPrgzsrCWVBrVXSD5C',
-    date: new Date('February 13, 2019 03:23:00')
-  },
-  {
-    isSent: true,
-    amount: 16564,
-    address: 'I3ppGfy6xxnaH88mDyuvGWAKwzqX2HXz4RNPloTEqiHiPXXHz8zBHkMISApaQ34p',
-    date: new Date('February 13, 2019 02:23:30')
-  },
-  {
-    isSent: false,
-    amount: 254,
-    address: 'odrJYaU03w8dR0bo0jA0DtU5JW4Lie9fwXpMLRjdSBqePGsB7pYq8BMz56DPdOGE',
-    date: new Date('January 10, 2019 01:14:50')
-  },
-  {
-    isSent: true,
-    isRejected: true,
-    amount: 4.0034,
-    address: '96p8s1L01JlpR9keU8j01urd6Wn1MHGCcFuP5yN6iiGrE4wmoim0kk8cCHB2BpQf',
-    date: new Date('December 24, 2019 06:34:46')
-  }
-];
 
 export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => async (
   dispatch: Dispatch,
@@ -145,18 +61,16 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
       }
     ]
   };
-  const transactions = { '0': transactionsStub }; // TODO: change to empty array after complete transaction flow is ready
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
-  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts: [] };
+  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': [] }, contacts: [] };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush), showDialog: false });
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
-    dispatch(setTransactions({ transactions }));
-    dispatch(setLastUsedAddresses({ transactions }));
+    dispatch(setTransactions({ transactions: { '0': [] } }));
     dispatch(setContacts({ contacts: [] }));
     dispatch(incrementWalletNumber());
     dispatch(incrementAccountNumber());
@@ -205,7 +119,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
-    dispatch(setLastUsedAddresses({ transactions: file.transactions }));
+    dispatch(setLastUsedAddresses({ transactions: file.transactions[0] }));
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
@@ -225,23 +139,26 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;
-  const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].pk });
+  const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
   dispatch({ type: GET_BALANCE, payload: { balance } });
 };
 
-export const sendTransaction = ({ dstAddress, amount, fee, note }: { dstAddress: string, amount: number, fee: number, note: string }): Action => async (
+export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const signature = await cryptoService.signTransaction({
-      message: JSON.stringify({ dstAddress, amount: amount + fee, note }),
+    const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
+    const tx = await cryptoService.signTransaction({
+      accountNonce,
+      recipient,
+      price,
+      amount,
       secretKey: accounts[currentAccountIndex].sk
     });
-    await httpService.sendTx({ srcAddress: accounts[currentAccountIndex].pk, dstAddress, amount: amount + fee, note, signature });
-    dispatch({ type: SEND_TX, payload: amount + fee });
-    dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: dstAddress, date: new Date(), amount: amount + fee } }));
+    await httpService.sendTx({ tx });
+    dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {
     throw new Error(error);
   }
@@ -320,14 +237,4 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
   const cipherText = { mnemonic, accounts };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
-};
-
-// TODO: This is a test function
-export const deleteWalletFile = (): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const { walletFiles } = getState().wallet;
-    fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
-  } catch (err) {
-    throw new Error(err);
-  }
 };
