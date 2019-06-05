@@ -94,6 +94,12 @@ const Address = styled.div`
   line-height: 17px;
 `;
 
+const NoteSection = styled.div`
+  font-size: 12px;
+  color: ${smColors.lighterBlack};
+  line-height: 17px;
+`;
+
 const ThirdSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -160,23 +166,14 @@ class Transaction extends PureComponent<Props> {
 
   render() {
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
+      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname, note },
       addToContacts,
       isSentDisplayed,
       isReceivedDisplayed,
       isPendingDisplayed,
       isRejectedDisplayed
     } = this.props;
-    if (!isSentDisplayed && isSent) {
-      return null;
-    }
-    if (!isReceivedDisplayed && !isSent) {
-      return null;
-    }
-    if (!isPendingDisplayed && isPending) {
-      return null;
-    }
-    if (!isRejectedDisplayed && isRejected) {
+    if ((!isSentDisplayed && isSent) || (!isReceivedDisplayed && !isSent) || (!isPendingDisplayed && isPending) || (!isRejectedDisplayed && isRejected)) {
       return null;
     }
     const color = this.getColor({ isSent, isPending, isRejected });
@@ -186,6 +183,7 @@ class Transaction extends PureComponent<Props> {
           <Icon src={this.getIcon({ isSent, isPending, isRejected })} />
           <FirstSectionText>Amount</FirstSectionText>
           <FirstSectionText>{isSent ? 'To' : 'From'}</FirstSectionText>
+          {!!note && <FirstSectionText>Note:&nbsp;</FirstSectionText>}
         </FirstSection>
         <SecondSection>
           <SentReceivedTextWrapper>
@@ -195,6 +193,7 @@ class Transaction extends PureComponent<Props> {
           </SentReceivedTextWrapper>
           <Amount>{amount}</Amount>
           <Address>{isSavedContact ? nickname : getAbbreviatedAddressText(address)}</Address>
+          {!!note && <NoteSection>{note}</NoteSection>}
         </SecondSection>
         <ThirdSection>
           {!isSavedContact && (

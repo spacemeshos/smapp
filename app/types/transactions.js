@@ -8,7 +8,8 @@ export type Tx = {
   address: string,
   nickname?: string,
   date: string,
-  isSavedContact: boolean
+  isSavedContact: boolean,
+  note?: string
 };
 
 export type TxList = Tx[];

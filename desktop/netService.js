@@ -36,9 +36,9 @@ class NetService {
       });
     });
 
-  _submitTransaction = ({ message }) =>
+  _submitTransaction = ({ tx }) =>
     new Promise((resolve, reject) => {
-      this.service.SubmitTransaction({ message }, (error, response) => {
+      this.service.SubmitTransaction({ tx }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -134,12 +134,12 @@ class NetService {
     }
   };
 
-  sendTx = async ({ event, message }) => {
+  sendTx = async ({ event, tx }) => {
     try {
-      const { value } = await this._submitTransaction({ message });
-      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, value);
+      const { value } = await this._submitTransaction({ tx });
+      event.sender.send(ipcConsts.SEND_TX_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
+      event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
     }
   };
 

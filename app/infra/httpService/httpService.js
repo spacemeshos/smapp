@@ -27,8 +27,8 @@ class HttpService {
     });
   }
 
-  static sendTx({ message }: { message: Uint8Array }) {
-    ipcRenderer.send(ipcConsts.SEND_TX, { message });
+  static sendTx({ tx }: { tx: Buffer }) {
+    ipcRenderer.send(ipcConsts.SEND_TX, { tx });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SEND_TX_SUCCESS, (event, response) => {
         resolve(response);

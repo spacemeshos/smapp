@@ -48,26 +48,21 @@ class CryptoService {
     const sk = fromHexString(secretKey);
     const types = xdr.config((xdr1) => {
       xdr1.struct('InnerSerializableSignedTransaction', [
-        ['AccountNonce', xdr1.int()],
+        ['AccountNonce', xdr1.uhyper()],
         ['Recipient', xdr1.opaque(20)],
-        ['GasLimit', xdr1.int()],
-        ['Price', xdr1.opaque(8)],
-        ['Amount', xdr1.opaque(8)]
+        ['GasLimit', xdr1.uhyper()],
+        ['Price', xdr1.uhyper()],
+        ['Amount', xdr1.uhyper()]
       ]);
       xdr1.struct('SerializableSignedTransaction', [['InnerSerializableSignedTransaction', xdr1.lookup('InnerSerializableSignedTransaction')], ['Signature', xdr1.opaque(64)]]);
-      xdr1.struct('XdrTest', [['AccountNonce', xdr1.int()]]);
     });
-    const aa = new Uint8Array(8);
     const message = new types.InnerSerializableSignedTransaction({
-      AccountNonce: accountNonce,
+      AccountNonce: xdr.UnsignedHyper.fromString(accountNonce),
       Recipient: Buffer.from(getWalletAddress(recipient)),
-      GasLimit: 5,
-      Price: Buffer.from(aa),
-      Amount: Buffer.from(aa)
+      GasLimit: xdr.UnsignedHyper.fromString('5'),
+      Price: xdr.UnsignedHyper.fromString(`${price}`),
+      Amount: xdr.UnsignedHyper.fromString(`${amount}`)
     });
-    const tmp1 = message.toXDR();
-    const tmp2 = toHexString(new Uint8Array(tmp1));
-    console.log(tmp2);
     const bufMessage = message.toXDR();
     return new Promise((resolve) => {
       const bufMessageAsUint8Array = new Uint8Array(bufMessage);

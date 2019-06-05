@@ -264,8 +264,8 @@ class Settings extends Component<Props, State> {
             <SettingsRow text="Learn more in our extensive user guide" action={() => this.externalNavigation({ to: 'userGuide' })} actionText="Visit the user guide" />
             <SettingsRow
               text="Delete wallet file and Logout. Use at your own risk!"
-              action={this.resetWalletData}
-              actionText="Reset wallet data"
+              action={this.deleteWalletData}
+              actionText="Delete Wallet File"
               isDisabled={!(walletFiles && !!walletFiles.length)}
             />
           </div>
@@ -285,7 +285,7 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  resetWalletData = async () => {
+  deleteWalletData = async () => {
     const { walletFiles } = this.props;
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
   };
