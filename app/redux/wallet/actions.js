@@ -20,7 +20,7 @@ export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
 
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
-export const GET_BALANCE: string = 'GET_BALANCE';
+export const SET_BALANCE: string = 'SET_BALANCE';
 
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
@@ -136,7 +136,7 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;
   const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
-  dispatch({ type: GET_BALANCE, payload: { balance } });
+  dispatch({ type: SET_BALANCE, payload: { balance } });
 };
 
 export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (
