@@ -7,4 +7,8 @@ const getWalletAddress = (address: string) => {
   return addressUint8Array.slice(0, 20);
 };
 
-export { fromHexString, toHexString, getWalletAddress };
+const getWalletName = ({ walletNumber }) => (walletNumber > 0 ? `Wallet ${walletNumber}` : 'Main Wallet');
+
+const getAccountName = ({ accountNumber }) => (accountNumber > 0 ? `Account ${accountNumber}` : 'Main Account');
+
+export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName };

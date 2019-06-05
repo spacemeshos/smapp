@@ -4,10 +4,8 @@ import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
   DERIVE_ENCRYPTION_KEY,
-  INCREMENT_WALLET_NUMBER,
-  INCREMENT_ACCOUNT_NUMBER,
   SET_WALLET_META,
-  GET_BALANCE,
+  SET_BALANCE,
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
@@ -17,8 +15,6 @@ import {
 } from './actions';
 
 const initialState = {
-  walletNumber: 0,
-  accountNumber: 0,
   fileKey: null,
   walletFiles: null,
   meta: {},
@@ -55,12 +51,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       } = action;
       return { ...state, fileKey: key };
     }
-    case INCREMENT_WALLET_NUMBER: {
-      return { ...state, walletNumber: state.walletNumber + 1 };
-    }
-    case INCREMENT_ACCOUNT_NUMBER: {
-      return { ...state, accountNumber: state.accountNumber + 1 };
-    }
     case SET_WALLET_META: {
       const {
         payload: { meta }
@@ -92,7 +82,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       }
       return state;
     }
-    case GET_BALANCE: {
+    case SET_BALANCE: {
       const { balance } = action.payload;
       const accountToUpdate = state.accounts[state.currentAccountIndex];
       accountToUpdate.balance = balance;

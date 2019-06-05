@@ -7,7 +7,7 @@ import type { RouterHistory } from 'react-router-dom';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
 import { printService } from '/infra/printService';
-import { localStorageService } from '../../infra/storageServices';
+import { localStorageService } from '/infra/storageService';
 
 const Wrapper = styled.div`
   width: 100%;

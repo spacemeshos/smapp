@@ -6,7 +6,7 @@ import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { fileSystemService } from '/infra/fileSystemService';
-import { localStorageService } from '/infra/storageServices';
+import { localStorageService } from '/infra/storageService';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
 import type { WalletMeta } from '/types';
