@@ -4,8 +4,6 @@ import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
   DERIVE_ENCRYPTION_KEY,
-  INCREMENT_WALLET_NUMBER,
-  INCREMENT_ACCOUNT_NUMBER,
   SET_WALLET_META,
   GET_BALANCE,
   SET_ACCOUNTS,
@@ -54,12 +52,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         payload: { key }
       } = action;
       return { ...state, fileKey: key };
-    }
-    case INCREMENT_WALLET_NUMBER: {
-      return { ...state, walletNumber: state.walletNumber + 1 };
-    }
-    case INCREMENT_ACCOUNT_NUMBER: {
-      return { ...state, accountNumber: state.accountNumber + 1 };
     }
     case SET_WALLET_META: {
       const {

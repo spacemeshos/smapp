@@ -4,7 +4,8 @@ import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
-import { getWalletAddress } from '/infra/utils';
+import { localStorageService } from '/infra/storageService';
+import { getWalletName, getAccountName, getWalletAddress } from '/infra/utils';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
@@ -16,9 +17,6 @@ export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
 export const SET_CONTACTS: string = 'SET_CONTACTS';
 export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
-
-export const INCREMENT_WALLET_NUMBER: string = 'INCREMENT_WALLET_NUMBER';
-export const INCREMENT_ACCOUNT_NUMBER: string = 'INCREMENT_ACCOUNT_NUMBER';
 
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
@@ -34,12 +32,14 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const { accountNumber, walletNumber, fileKey, walletFiles } = getState().wallet;
+  const { fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
+  const walletNumber = localStorageService.get('walletNumber');
+  const accountNumber = localStorageService.get('accountNumber');
   const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
   const { publicKey, secretKey } = await cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
   const meta = {
-    displayName: `my_wallet_${walletNumber}`,
+    displayName: getWalletName({ walletNumber }),
     created: unixEpochTimestamp,
     displayColor: smColors.green,
     netId: 0,
@@ -51,11 +51,11 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     mnemonic: resolvedMnemonic,
     accounts: [
       {
-        displayName: `My Account ${accountNumber}`,
+        displayName: getAccountName({ accountNumber }),
         created: unixEpochTimestamp,
         displayColor: smColors.darkGreen,
         path: '0/0/1',
-        balance: 100,
+        balance: 100, // TODO: remove after full integration
         pk: publicKey,
         sk: secretKey
       }
@@ -72,8 +72,8 @@ export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { 
     dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions: { '0': [] } }));
     dispatch(setContacts({ contacts: [] }));
-    dispatch(incrementWalletNumber());
-    dispatch(incrementAccountNumber());
+    localStorageService.set('walletNumber', walletNumber + 1);
+    localStorageService.set('accountNumber', accountNumber + 1);
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
   } catch (err) {
     throw new Error(err);
@@ -93,10 +93,6 @@ export const setTransactions = ({ transactions }: { transactions: TxList }): Act
 export const setLastUsedAddresses = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_LAST_USED_ADDRESSES, payload: { transactions } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
-
-export const incrementWalletNumber = (): Action => ({ type: INCREMENT_WALLET_NUMBER });
-
-export const incrementAccountNumber = (): Action => ({ type: INCREMENT_ACCOUNT_NUMBER });
 
 export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
