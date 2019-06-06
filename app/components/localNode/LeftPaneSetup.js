@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setLocalNodeStorage, getDrivesList, getAvailableSpace } from '/redux/localNode/actions';
+import { setLocalNodeStorage, getDrivesList } from '/redux/localNode/actions';
 import { smColors, localNodeModes } from '/vars';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
@@ -80,19 +80,18 @@ type CapacityAllocation = {
 type Volume = {
   id: string,
   mountPoint: string,
-  label: string
+  label: string,
+  availableDiskSpace: { bytes: number, readable: string },
+  capacityAllocationsList: CapacityAllocation[]
 };
 
 type Props = {
   switchMode: (mode: number) => void,
   drives: Volume[],
   capacity: CapacityAllocation,
-  capacityAllocationsList: CapacityAllocation[],
   drive: Volume,
-  availableDiskSpace: { bytes: number, readable: string },
   setLocalNodeStorage: Action,
   getDrivesList: Action,
-  getAvailableSpace: Action,
   fiatRate: number
 };
 
@@ -104,9 +103,9 @@ type State = {
 class LeftPaneSetup extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { getDrivesList, drive, capacity, drives, capacityAllocationsList } = this.props;
+    const { getDrivesList, drive, capacity, drives } = this.props;
     const selectedDriveIndex = getElementIndex(drives, drive);
-    const selectedCapacityIndex = getElementIndex(capacityAllocationsList, capacity);
+    const selectedCapacityIndex = drive ? getElementIndex(drive.capacityAllocationsList, capacity) : -1;
     this.state = {
       selectedCapacityIndex,
       selectedDriveIndex
@@ -115,7 +114,7 @@ class LeftPaneSetup extends Component<Props, State> {
   }
 
   render() {
-    const { drives, capacityAllocationsList, availableDiskSpace, fiatRate } = this.props;
+    const { drives, fiatRate } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
 
     return (
@@ -123,16 +122,20 @@ class LeftPaneSetup extends Component<Props, State> {
         <SubHeader>Select Drive</SubHeader>
         <Row>
           <SmDropdown data={drives} selectedItemIndex={selectedDriveIndex} onPress={this.handleSelectDrive} />
-          <LabelWrapper>{selectedDriveIndex !== -1 && `You have ${availableDiskSpace && availableDiskSpace.readable} free on your drive`}</LabelWrapper>
+          <LabelWrapper>{selectedDriveIndex !== -1 && `You have ${drives[selectedDriveIndex].availableDiskSpace.readable} free on your drive`}</LabelWrapper>
         </Row>
         <SubHeader>Choose how much storage to allocate for the local node</SubHeader>
         <Row>
-          <SmDropdown data={capacityAllocationsList} selectedItemIndex={selectedCapacityIndex} onPress={this.handleSelectCapacity} />
+          <SmDropdown
+            data={selectedDriveIndex !== -1 && drives[selectedDriveIndex].capacityAllocationsList}
+            selectedItemIndex={selectedCapacityIndex}
+            onPress={this.handleSelectCapacity}
+          />
           <LabelWrapper>
             {selectedCapacityIndex !== -1 && (
               <React.Fragment>
-                earn ~ {getProjectedSmcEarnings(capacityAllocationsList[selectedCapacityIndex].id)} SMC each week*{' '}
-                <FiatRateEstimation> = {getProjectedSmcEarnings(fiatRate * capacityAllocationsList[selectedCapacityIndex].id)} USD*</FiatRateEstimation>
+                earn ~ {getProjectedSmcEarnings(drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex].id)} SMC each week*{' '}
+                <FiatRateEstimation> = {getProjectedSmcEarnings(fiatRate * drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex].id)} USD*</FiatRateEstimation>
               </React.Fragment>
             )}
           </LabelWrapper>
@@ -154,17 +157,14 @@ class LeftPaneSetup extends Component<Props, State> {
   }
 
   handleStartSetup = () => {
-    const { setLocalNodeStorage, drives, capacityAllocationsList, switchMode } = this.props;
+    const { setLocalNodeStorage, drives, switchMode } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
-    setLocalNodeStorage({ capacity: capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
+    setLocalNodeStorage({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
     switchMode(localNodeModes.PROGRESS);
   };
 
   handleSelectDrive = ({ index }: { index: number }) => {
-    const { getAvailableSpace, drives } = this.props;
-    const drive: Volume = drives[index];
-    getAvailableSpace(drive.mountPoint);
-    this.setState({ selectedDriveIndex: index });
+    this.setState({ selectedDriveIndex: index, selectedCapacityIndex: -1 });
   };
 
   handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
@@ -172,17 +172,14 @@ class LeftPaneSetup extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   capacity: state.localNode.capacity,
-  capacityAllocationsList: state.localNode.capacityAllocationsList,
   drive: state.localNode.drive,
   drives: state.localNode.drives,
-  availableDiskSpace: state.localNode.availableDiskSpace,
   fiatRate: state.wallet.fiatRate
 });
 
 const mapDispatchToProps = {
   setLocalNodeStorage,
-  getDrivesList,
-  getAvailableSpace
+  getDrivesList
 };
 
 LeftPaneSetup = connect(

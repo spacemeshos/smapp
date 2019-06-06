@@ -5,7 +5,7 @@ import {
   SET_ALLOCATION,
   RESET_NODE_SETTINGS,
   GET_DRIVES_LIST,
-  GET_AVAILABLE_DISK_SPACE,
+  // GET_AVAILABLE_DISK_SPACE,
   SET_LOCAL_NODE_SETUP_PROGRESS,
   SET_TOTAL_EARNINGS,
   SET_UPCOMING_EARNINGS,
@@ -16,8 +16,8 @@ const initialState = {
   drive: null,
   capacity: null,
   drives: [],
-  capacityAllocationsList: [],
-  availableDiskSpace: null,
+  // capacityAllocationsList: [],
+  // availableDiskSpace: null,
   progress: null,
   totalEarnings: null,
   upcomingEarnings: null,
@@ -39,12 +39,12 @@ const reducer = (state: any = initialState, action: Action) => {
       } = action;
       return { ...state, drives };
     }
-    case GET_AVAILABLE_DISK_SPACE: {
-      const {
-        payload: { availableDiskSpace, capacityAllocationsList }
-      } = action;
-      return { ...state, availableDiskSpace, capacityAllocationsList };
-    }
+    // case GET_AVAILABLE_DISK_SPACE: {
+    //   const {
+    //     payload: { availableDiskSpace, capacityAllocationsList }
+    //   } = action;
+    //   return { ...state, availableDiskSpace, capacityAllocationsList };
+    // }
     case LOGOUT:
     case RESET_NODE_SETTINGS:
       return initialState;

@@ -29,10 +29,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     DiskStorageManager.getDriveList({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_AVAILABLE_DISK_SPACE, async (event, request) => {
-    DiskStorageManager.getAvailableSpace({ event, ...request });
-  });
-
   ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
     netService.getBalance({ event, ...request });
   });
