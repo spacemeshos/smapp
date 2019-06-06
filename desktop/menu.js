@@ -11,6 +11,7 @@ class MenuBuilder {
     if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
       this.addInspectElementMenu();
     }
+
     const template = this.buildMenuTemplate();
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
