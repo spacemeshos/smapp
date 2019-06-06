@@ -34,4 +34,3 @@ ct-libc/
 /release-installers
 /desktop/dist/
 /desktop/main.prod.js
-/desktop/main.prod.js.map
