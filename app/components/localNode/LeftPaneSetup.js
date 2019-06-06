@@ -163,9 +163,7 @@ class LeftPaneSetup extends Component<Props, State> {
     switchMode(localNodeModes.PROGRESS);
   };
 
-  handleSelectDrive = ({ index }: { index: number }) => {
-    this.setState({ selectedDriveIndex: index, selectedCapacityIndex: -1 });
-  };
+  handleSelectDrive = ({ index }: { index: number }) => this.setState({ selectedDriveIndex: index, selectedCapacityIndex: -1 });
 
   handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
 }
