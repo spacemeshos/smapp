@@ -2,6 +2,7 @@
 import { diskStorageService } from '/infra/diskStorageService';
 import { httpService } from '/infra/httpService';
 import { Action, Dispatch } from '/types';
+import { localNodeConsts } from '/vars';
 
 export const SET_ALLOCATION: string = 'SET_ALLOCATION';
 export const GET_DRIVES_LIST: string = 'GET_DRIVES_LIST';
@@ -21,7 +22,7 @@ const getReadableSpace = (spaceInBytes: number) => {
   return `${Math.round(spaceInBytes / 1024 ** i)} ${sizes[i]}`;
 };
 
-const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesFromGb(150)): Action => {
+const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesFromGb(localNodeConsts.COMMITMENT_DEFAULT_SIZE)): Action => {
   const allocatedSpaceList = [];
   if (availableDiskSpace) {
     for (let i = increment; i < availableDiskSpace; i += increment) {
@@ -55,7 +56,7 @@ export const getAvailableSpace = (path: string): Action => async (dispatch: Disp
       }
     });
   } catch (err) {
-    dispatch({ type: GET_AVAILABLE_DISK_SPACE, payload: { availableDiskSpace: null } });
+    dispatch({ type: GET_AVAILABLE_DISK_SPACE, payload: { availableDiskSpace: null, capacityAllocationsList: [] } });
     throw err;
   }
 };

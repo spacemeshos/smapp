@@ -1,41 +1,31 @@
-// @flow
+import os from 'os';
 import { ipcConsts } from '../app/vars';
 
-const drivelist = require('drivelist');
-const checkDiskSpace = require('check-disk-space');
-
-type Volume = {
-  id: string,
-  mountPoint: string,
-  label: string
-};
+const si = require('systeminformation');
 
 class DiskStorageManager {
   static getDriveList = async ({ event }: { event: any }) => {
-    try {
-      const drives = await drivelist.list();
-      const mountedDrives = drives.filter((drive: any) => drive.mountpoints && drive.mountpoints.length);
-      const mappedDrives = mountedDrives.reduce((volumes: Volume[], drive) => {
-        drive.mountpoints.forEach((mountPoint) => {
-          if (!mountPoint.path.includes('private')) {
-            volumes.push({
-              id: mountPoint.path,
-              mountPoint: mountPoint.path,
-              label: mountPoint.label
-            });
-          }
-        });
-        return volumes;
-      }, []);
-      event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_DRIVE_LIST_FAILURE, error.message);
-    }
+    si.blockDevices()
+      .then((mountpoints) => {
+        const mountedDrives = mountpoints.filter((mountPoint) => !!mountPoint.mount && !mountPoint.mount.includes('private'));
+        const mappedDrives = mountedDrives.map((mountPoint) => ({
+          id: mountPoint.name,
+          mountPoint: mountPoint.mount,
+          label: (os.type() === 'Darwin' || os.type() === 'Linux') && !!mountPoint.label ? mountPoint.label : mountPoint.name
+        }));
+        event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
+      })
+      .catch((error) => {
+        event.sender.send(ipcConsts.GET_DRIVE_LIST_FAILURE, error.message);
+      });
   };
 
   static getAvailableSpace = ({ event, path }: { event: any, path: string }) => {
-    checkDiskSpace(path).then((diskSpace) => {
-      event.sender.send(ipcConsts.GET_AVAILABLE_DISK_SPACE_SUCCESS, diskSpace.free);
+    si.fsSize().then((mountpoints) => {
+      const validVolumes = mountpoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
+      const volume = validVolumes.find((validVolume) => validVolume.mount === path);
+      const availableSpace = volume ? volume.size - volume.used : 0;
+      event.sender.send(ipcConsts.GET_AVAILABLE_DISK_SPACE_SUCCESS, availableSpace);
     });
   };
 }

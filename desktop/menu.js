@@ -8,9 +8,11 @@ class MenuBuilder {
   }
 
   buildMenu() {
-    if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
-      this.addInspectElementMenu();
-    }
+    // if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
+    //   this.addInspectElementMenu();
+    // }
+    this.addInspectElementMenu();
+
     const template = this.buildMenuTemplate();
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
