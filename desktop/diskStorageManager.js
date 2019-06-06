@@ -1,5 +1,5 @@
 import os from 'os';
-import { ipcConsts, localNodeConsts } from '../app/vars';
+import { ipcConsts } from '../app/vars';
 
 const si = require('systeminformation');
 
@@ -12,7 +12,10 @@ const getReadableSpace = (spaceInBytes: number) => {
   return `${Math.round(spaceInBytes / 1024 ** i)} ${sizes[i]}`;
 };
 
-const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesfromGb(localNodeConsts.COMMITMENT_DEFAULT_SIZE)): { id: number, label: string }[] => {
+const COMMITMENT_DEFAULT_SIZE = 200; // GB
+const DRIVE_SPACE_BUFFER = 50; // GB
+
+const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesfromGb(COMMITMENT_DEFAULT_SIZE)): { id: number, label: string }[] => {
   const allocatedSpaceList = [];
   if (availableDiskSpace) {
     for (let i = increment; i < availableDiskSpace; i += increment) {
@@ -33,7 +36,7 @@ class DiskStorageManager {
         const validSizeMountpoints = sizeMountpoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
         const mappedDrives = mountedDrives.map((mountPoint) => {
           const volume = validSizeMountpoints.find((validVolume) => validVolume.mount === mountPoint.mount);
-          const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesfromGb(localNodeConsts.DRIVE_SPACE_BUFFER)) : 0;
+          const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesfromGb(DRIVE_SPACE_BUFFER)) : 0;
           return {
             id: mountPoint.name,
             mountPoint: mountPoint.mount,
