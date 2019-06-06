@@ -7,7 +7,7 @@ import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/com
 import { LatestTransactions } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SendReceiveButton } from '/basicComponents';
-import { localStorageService } from '/infra/storageServices';
+import { localStorageService } from '/infra/storageService';
 import type { Account, Action, TxList, Contact } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 import { shell } from 'electron';

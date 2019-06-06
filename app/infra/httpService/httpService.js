@@ -6,7 +6,7 @@ class HttpService {
   static getBalance({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.GET_BALANCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_BALANCE_SUCCESS, (response) => {
+      ipcRenderer.once(ipcConsts.GET_BALANCE_SUCCESS, (event, response) => {
         resolve(response);
       });
       ipcRenderer.once(ipcConsts.GET_BALANCE_FAILURE, (event, args) => {
@@ -15,10 +15,24 @@ class HttpService {
     });
   }
 
-  static sendTx({ srcAddress, dstAddress, amount, note, signature }: { srcAddress: string, dstAddress: string, amount: number, note: string, signature: string }) {
-    ipcRenderer.send(ipcConsts.SEND_TX, { srcAddress, dstAddress, amount, note, signature });
+  static getNonce({ address }: { address: string }) {
+    ipcRenderer.send(ipcConsts.GET_NONCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SEND_TX_SUCCESS, () => {});
+      ipcRenderer.once(ipcConsts.GET_NONCE_SUCCESS, (event, response) => {
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_NONCE_FAILURE, (event, args) => {
+        reject(args);
+      });
+    });
+  }
+
+  static sendTx({ tx }: { tx: Buffer }) {
+    ipcRenderer.send(ipcConsts.SEND_TX, { tx });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SEND_TX_SUCCESS, (event, response) => {
+        resolve(response);
+      });
       ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
         reject(args);
       });
@@ -67,7 +81,7 @@ class HttpService {
   static setCommitmentSize({ commitmentSize }: { commitmentSize: number }) {
     ipcRenderer.send(ipcConsts.SET_COMMITMENT_SIZE, { commitmentSize });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_COMMITMENT_SIZE_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_COMMITMENT_SIZE_SUCCESS, resolve);
       ipcRenderer.once(ipcConsts.SET_COMMITMENT_SIZE_FAILURE, (event, args) => {
         reject(args);
       });
@@ -77,7 +91,7 @@ class HttpService {
   static setLogicalDrive({ logicalDrive }: { logicalDrive: string }) {
     ipcRenderer.send(ipcConsts.SET_LOGICAL_DRIVE, { logicalDrive });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_LOGICAL_DRIVE_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_LOGICAL_DRIVE_SUCCESS, resolve);
       ipcRenderer.once(ipcConsts.SET_LOGICAL_DRIVE_FAILURE, (event, args) => {
         reject(args);
       });
@@ -87,7 +101,7 @@ class HttpService {
   static setAwardsAddress({ awardsAddress }: { awardsAddress: string }) {
     ipcRenderer.send(ipcConsts.SET_AWARDS_ADDRESS, { awardsAddress });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, resolve);
       ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, (event, args) => {
         reject(args);
       });
@@ -97,7 +111,7 @@ class HttpService {
   static checkNetworkConnection() {
     ipcRenderer.send(ipcConsts.CHECK_NETWORK_CONNECTION);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.CHECK_NETWORK_CONNECTION_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.CHECK_NETWORK_CONNECTION_SUCCESS, resolve);
       ipcRenderer.once(ipcConsts.CHECK_NETWORK_CONNECTION_FAILURE, (event, args) => {
         reject(args);
       });
@@ -107,7 +121,7 @@ class HttpService {
   static setNodeIpAddress({ nodeIpAddress }: { nodeIpAddress: string }) {
     ipcRenderer.send(ipcConsts.SET_NODE_IP, { nodeIpAddress });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_NODE_IP_SUCCESS, () => resolve());
+      ipcRenderer.once(ipcConsts.SET_NODE_IP_SUCCESS, resolve);
       ipcRenderer.once(ipcConsts.SET_NODE_IP_FAILURE, (event, args) => {
         reject(args);
       });

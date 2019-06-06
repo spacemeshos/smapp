@@ -4,10 +4,8 @@ import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
   DERIVE_ENCRYPTION_KEY,
-  INCREMENT_WALLET_NUMBER,
-  INCREMENT_ACCOUNT_NUMBER,
   SET_WALLET_META,
-  GET_BALANCE,
+  SET_BALANCE,
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
@@ -17,8 +15,6 @@ import {
 } from './actions';
 
 const initialState = {
-  walletNumber: 0,
-  accountNumber: 0,
   fileKey: null,
   walletFiles: null,
   meta: {},
@@ -29,6 +25,16 @@ const initialState = {
   lastUsedAddresses: [],
   contacts: [],
   fiatRate: 1
+};
+
+const getFirstUniqueTransactions = (txList: TxList, n: number = 3): Contact[] => {
+  const unique = new Set();
+  for (let i = 0; i < txList.length && i < n; i += 1) {
+    if (!unique.has(txList[i])) {
+      unique.add(txList[i]);
+    }
+  }
+  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname }));
 };
 
 const reducer = (state: StoreStateType = initialState, action: Action) => {
@@ -44,12 +50,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         payload: { key }
       } = action;
       return { ...state, fileKey: key };
-    }
-    case INCREMENT_WALLET_NUMBER: {
-      return { ...state, walletNumber: state.walletNumber + 1 };
-    }
-    case INCREMENT_ACCOUNT_NUMBER: {
-      return { ...state, accountNumber: state.accountNumber + 1 };
     }
     case SET_WALLET_META: {
       const {
@@ -73,15 +73,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_LAST_USED_ADDRESSES: {
       const { transactions } = action.payload;
-      const getFirstUniqueTransactions = (txList: TxList, n: number = 3): Contact[] => {
-        const unique = new Set();
-        for (let i = 0; i < txList.length && i < n; i += 1) {
-          if (!unique.has(txList[i])) {
-            unique.add(txList[i]);
-          }
-        }
-        return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname }));
-      };
       return { ...state, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex]) };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
@@ -91,7 +82,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       }
       return state;
     }
-    case GET_BALANCE: {
+    case SET_BALANCE: {
       const { balance } = action.payload;
       const accountToUpdate = state.accounts[state.currentAccountIndex];
       accountToUpdate.balance = balance;
