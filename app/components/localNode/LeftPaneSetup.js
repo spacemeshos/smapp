@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setLocalNodeStorage, getDrivesList } from '/redux/localNode/actions';
-import { smColors, localNodeModes } from '/vars';
+import { smColors, localNodeModes, localNodeConsts } from '/vars';
 import { SmButton, SmDropdown } from '/basicComponents';
 import type { Action } from '/types';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
   display: flex;
@@ -51,6 +52,20 @@ const GrayText = styled.span`
   margin-bottom: 20px;
 `;
 
+const StatusMessage = styled(GrayText)`
+  color: ${smColors.orange};
+`;
+
+const StyledAction = styled(StatusMessage)`
+  cursor: pointer;
+  &:hover {
+    opacity: 0.8;
+  }
+  &:active {
+    opacity: 0.6;
+  }
+`;
+
 const FiatRateEstimation = styled(GrayText)`
   margin-bottom: 0;
   margin-left: 4px;
@@ -82,7 +97,8 @@ type Volume = {
   mountPoint: string,
   label: string,
   availableDiskSpace: { bytes: number, readable: string },
-  capacityAllocationsList: CapacityAllocation[]
+  capacityAllocationsList: CapacityAllocation[],
+  isInsufficientSpace: boolean
 };
 
 type Props = {
@@ -141,6 +157,15 @@ class LeftPaneSetup extends Component<Props, State> {
           </LabelWrapper>
         </Row>
         <BottomWrapper>
+          {selectedDriveIndex !== -1 && drives[selectedDriveIndex].isInsufficientSpace && (
+            <React.Fragment>
+              <StatusMessage>{`Not enough free disk space. Spacemesh requires a minimum ${localNodeConsts.COMMITMENT_SIZE}GB of free disk space.`}</StatusMessage>
+              <StatusMessage>
+                {`You have only ${drives[selectedDriveIndex].availableDiskSpace.readable} of free disk space on volume name. `}
+                <StyledAction onClick={this.navigateToExplanation}>More info...</StyledAction>
+              </StatusMessage>
+            </React.Fragment>
+          )}
           <GrayText>* estimated SMC may change based on how many nodes join the network with storage commitment.</GrayText>
           <GrayText>- You can always commit more storage at a later time</GrayText>
           <GrayText>- Setup will use the GPU and may take up to 48 hours</GrayText>
@@ -166,6 +191,8 @@ class LeftPaneSetup extends Component<Props, State> {
   handleSelectDrive = ({ index }: { index: number }) => this.setState({ selectedDriveIndex: index, selectedCapacityIndex: -1 });
 
   handleSelectCapacity = ({ index }: { index: number }) => this.setState({ selectedCapacityIndex: index });
+
+  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 }
 
 const mapStateToProps = (state) => ({
