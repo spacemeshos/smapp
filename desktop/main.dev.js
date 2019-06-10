@@ -98,7 +98,7 @@ app.on('ready', async () => {
         mainWindow = null;
         app.quit();
       }
-      if (process.platform !== 'darwin') {
+      if (process.platform === 'darwin') {
         app.dock.hide();
       }
     });
