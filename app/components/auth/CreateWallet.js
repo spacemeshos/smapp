@@ -10,6 +10,9 @@ import { smColors } from '/vars';
 import type { Action } from '/types';
 import { shell } from 'electron';
 
+// TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
+const passwordMinimumLentgth = 1;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -122,9 +125,16 @@ class CreateWallet extends Component<Props, State> {
       <Wrapper>
         <UpperPart>
           <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
-          <GrayText>Must be at least 8 characters</GrayText>
-          <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePasswordTyping} hasDebounce />
-          <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePasswordVerifyTyping} hasDebounce />
+          <GrayText>{`Must be at least ${passwordMinimumLentgth} character${passwordMinimumLentgth > 1 ? 's' : ''}`}</GrayText>
+          <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} hasDebounce />
+          <SmInput
+            type="password"
+            placeholder="Verify passphrase"
+            errorMsg={verifyPassphraseError}
+            onEnterPress={this.handleEnterPress}
+            onChange={this.handlePasswordVerifyTyping}
+            hasDebounce
+          />
           <GrayText>
             Your Wallet file is encrypted and saved on your computer. <Link onClick={this.openWalletBackupDirectory}>Show me the file</Link>
           </GrayText>
@@ -155,6 +165,13 @@ class CreateWallet extends Component<Props, State> {
     );
   };
 
+  handleEnterPress = () => {
+    const { passphrase, verifiedPassphrase, passphraseError, verifyPassphraseError } = this.state;
+    if (!!passphrase || !!verifiedPassphrase || !passphraseError || !verifyPassphraseError) {
+      this.createWallet();
+    }
+  };
+
   handlePasswordTyping = ({ value }: { value: string }) => {
     this.setState({ passphrase: value, passphraseError: null });
   };
@@ -165,11 +182,9 @@ class CreateWallet extends Component<Props, State> {
 
   validate = () => {
     const { passphrase, verifiedPassphrase } = this.state;
-    // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
-    const passwordMinimumLentgth = 1;
     const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < passwordMinimumLentgth);
     const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? 'Passphrase has to be 8 characters or more.' : null;
+    const passphraseError = hasPassphraseError ? `Passphrase has to be ${passwordMinimumLentgth} characters or more.` : null;
     const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match.' : null;
     this.setState({ passphraseError, verifyPassphraseError });
     return !passphraseError && !verifyPassphraseError;
