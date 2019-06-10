@@ -115,7 +115,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
-    dispatch(setLastUsedAddresses({ transactions: file.transactions[0] }));
+    dispatch(setLastUsedAddresses({ transactions: file.transactions }));
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
