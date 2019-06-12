@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { updateWalletMeta, updateAccount } from '/redux/wallet/actions';
+import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import { smColors, authModes } from '/vars';
@@ -145,6 +145,7 @@ type Props = {
   walletFiles: Array<string>,
   updateWalletMeta: Action,
   updateAccount: Action,
+  createNewAccount: Action,
   history: RouterHistory
 };
 
@@ -162,7 +163,8 @@ class Settings extends Component<Props, State> {
     const {
       meta: { displayName, displayColor },
       accounts,
-      walletFiles
+      walletFiles,
+      createNewAccount
     } = this.props;
     const { shouldShowChangePassphrase } = this.state;
     return [
@@ -226,7 +228,7 @@ class Settings extends Component<Props, State> {
               ))}
             </Accounts>
             <AddAccountBtnWrapper>
-              <SmButton text="+ add another account" theme="green" onPress={this.addAccount} isDisabled style={buttonStyle} />
+              <SmButton text="+ add another account" theme="green" onPress={createNewAccount} style={buttonStyle} />
             </AddAccountBtnWrapper>
             <SettingsRow text="Wallet Passphrase" action={() => this.setState({ shouldShowChangePassphrase: true })} actionText="Change Passphrase" withTopBorder />
             <SettingsRow
@@ -348,7 +350,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   updateWalletMeta,
-  updateAccount
+  updateAccount,
+  createNewAccount
 };
 
 export default connect(

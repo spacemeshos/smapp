@@ -1,16 +1,16 @@
+// @flow
 import path from 'path';
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 
-// @flow
 class NotificationsService {
   static notify = ({ title, notification, callback }: { title: string, notification: string, callback: () => void }) => {
     NotificationsService.getNotificationAllowedStatus().then(({ isNotificationAllowed }: { isNotificationAllowed: boolean }) => {
       if (isNotificationAllowed) {
         const notificationOptions: any = {
           body: notification,
-          icon: path.join(__dirname, '..', 'app', 'assets', 'icons', 'app_icon.png')
+          icon: path.join(__dirname, '..', 'resources', 'icon.png')
         };
         const desktopNotification = new Notification(title || 'Alert', notificationOptions);
         desktopNotification.onclick = () => {

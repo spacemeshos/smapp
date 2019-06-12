@@ -117,14 +117,14 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    const { checkNetworkConnection } = this.props;
-    const networkCheckInterval = 30000;
-    checkNetworkConnection();
-    this.timer = setInterval(() => {
-      checkNetworkConnection();
-    }, networkCheckInterval);
-  }
+  // componentDidMount() {
+  //   const { checkNetworkConnection } = this.props;
+  //   const networkCheckInterval = 30000;
+  //   checkNetworkConnection();
+  //   this.timer = setInterval(() => {
+  //     checkNetworkConnection();
+  //   }, networkCheckInterval);
+  // }
 
   componentWillUnmount() {
     this.timer && clearInterval(this.timer);

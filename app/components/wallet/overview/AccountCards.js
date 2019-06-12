@@ -1,19 +1,20 @@
 // @flow
-import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { checkWhite, copyIcon } from '/assets/images';
+import { SimpleDropdown } from '/basicComponents';
+import { checkWhite, copyIconWhite } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
 // $FlowStyledIssue
 const PublicAddressInnerWrapper = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 0 10px;
-  border: 1px solid ${({ copied }) => (copied ? smColors.white : 'transparent')};
+  border: 1px solid ${({ isCopied }) => (isCopied ? smColors.white : 'transparent')};
   border-radius: 2px;
   cursor: inherit;
 `;
@@ -24,6 +25,7 @@ const Wrapper = styled.div`
   height: 300px;
   display: flex;
   flex-direction: column;
+  margin-bottom: 20px;
   padding: 30px;
   background-color: ${({ displayColor }) => displayColor};
   cursor: pointer;
@@ -68,6 +70,14 @@ const PublicAddressWrapper = styled.div`
   flex: 1;
   flex-direction: column;
   cursor: inherit;
+`;
+
+const SimpleDropdownStyled = styled(SimpleDropdown)`
+  background-color: ${({ displayColor }) => displayColor};
+  &: hover ${PublicAddressInnerWrapper} {
+    border: 1px solid ${smColors.white};
+    background-color: ${smColors.green};
+  }
 `;
 
 const PublicAddress = styled.div`
@@ -138,44 +148,37 @@ const Balance = styled.div`
 `;
 
 type Props = {
-  account: Account,
+  accounts: Account[],
+  currentAccountIndex: number,
   fiatRate: number,
-  style?: Object
+  clickHandler: () => void,
+  switchAccount: ({ index: number }) => void,
+  isCopied: boolean
 };
 
-type State = {
-  copied: boolean
-};
-
-class AccountCard extends Component<Props, State> {
-  copiedTimeout: Object;
-
-  state = {
-    copied: false
-  };
-
+class AccountCards extends Component<Props> {
   render() {
-    const {
-      account: { displayName, displayColor, pk, balance },
-      fiatRate,
-      style
-    } = this.props;
-    const { copied } = this.state;
+    const { accounts, currentAccountIndex, switchAccount, fiatRate, clickHandler, isCopied } = this.props;
+    const { displayName, displayColor, pk, balance } = accounts[currentAccountIndex];
     return (
-      <Wrapper displayColor={displayColor} style={style} onClick={this.copyPublicAddress}>
+      <Wrapper displayColor={displayColor} onClick={clickHandler}>
         <UpperSection>
           <Header>{displayName}</Header>
           <SubHeader>Public address</SubHeader>
           <PublicAddressWrapper>
-            <PublicAddressInnerWrapper copied={copied}>
-              <PublicAddress>{pk.substring(0, 32)}</PublicAddress>
-              <CopyIconWrapper>
-                <CopyIcon src={copyIcon} />
-              </CopyIconWrapper>
-            </PublicAddressInnerWrapper>
+            {accounts.length > 1 ? (
+              <SimpleDropdownStyled
+                data={accounts}
+                DdElement={({ pk }) => this.renderPublicAddressRow({ isCopied, pk })}
+                onPress={switchAccount}
+                selectedItemIndex={currentAccountIndex}
+              />
+            ) : (
+              this.renderPublicAddressRow({ isCopied, pk })
+            )}
             <CopiedWrapper>
-              {copied && <CopiedIcon src={checkWhite} />}
-              <CopiedText>{copied ? 'Address had been copied to clipboard' : ''}</CopiedText>
+              {isCopied && <CopiedIcon src={checkWhite} />}
+              <CopiedText>{isCopied ? 'Address had been copied to clipboard' : ''}</CopiedText>
             </CopiedWrapper>
           </PublicAddressWrapper>
         </UpperSection>
@@ -187,19 +190,14 @@ class AccountCard extends Component<Props, State> {
     );
   }
 
-  componentWillUnmount(): void {
-    clearTimeout(this.copiedTimeout);
-  }
-
-  copyPublicAddress = () => {
-    const {
-      account: { pk }
-    } = this.props;
-    clearTimeout(this.copiedTimeout);
-    clipboard.writeText(pk);
-    this.copiedTimeout = setTimeout(() => this.setState({ copied: false }), 3000);
-    this.setState({ copied: true });
-  };
+  renderPublicAddressRow = ({ isCopied, pk }) => (
+    <PublicAddressInnerWrapper isCopied={isCopied} key={pk}>
+      <PublicAddress>{pk.substring(0, 32)}</PublicAddress>
+      <CopyIconWrapper>
+        <CopyIcon src={copyIconWhite} />
+      </CopyIconWrapper>
+    </PublicAddressInnerWrapper>
+  );
 }
 
-export default AccountCard;
+export default AccountCards;
