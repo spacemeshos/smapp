@@ -46,6 +46,7 @@ const ErrorMsg = styled.div`
 
 type Props = {
   onChange?: ({ value: string }) => void,
+  onEnterPress?: () => void,
   defaultValue?: string,
   isDisabled?: boolean,
   placeholder?: string,
@@ -75,6 +76,7 @@ class SmInput extends PureComponent<Props> {
           hasError={errorMsg}
           readOnly={isDisabled}
           placeholder={placeholder || INPUT_PLACEHOLDER}
+          onKeyPress={this.onEnterPress}
           onChange={this.onChange}
           style={style}
           type={type}
@@ -88,6 +90,13 @@ class SmInput extends PureComponent<Props> {
     const { hasDebounce } = this.props;
     hasDebounce && clearTimeout(this.debounce);
   }
+
+  onEnterPress = ({ key }: { key: string }) => {
+    const { onEnterPress } = this.props;
+    if (key === 'Enter' && !!onEnterPress) {
+      onEnterPress();
+    }
+  };
 
   onChange = ({ target }: { target: { value: string } }) => {
     const { hasDebounce, debounceTime, onChange } = this.props;

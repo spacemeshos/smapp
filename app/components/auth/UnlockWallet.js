@@ -97,7 +97,7 @@ class UnlockWallet extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter your wallet passphrase</UpperPartHeader>
-          <SmInput type="password" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
+          <SmInput type="password" placeholder="Type passphrase" errorMsg={errorMsg} onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
           <SmButton text="Unlock" isDisabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} />
@@ -109,6 +109,13 @@ class UnlockWallet extends Component<Props, State> {
       </Wrapper>
     );
   }
+
+  handleEnterPress = () => {
+    const { passphrase, errorMsg } = this.state;
+    if (!!passphrase || !errorMsg) {
+      this.decryptWallet();
+    }
+  };
 
   handlePasswordTyping = ({ value }: { value: string }) => {
     this.setState({ passphrase: value, errorMsg: null });
@@ -128,7 +135,7 @@ class UnlockWallet extends Component<Props, State> {
         this.setState({ errorMsg: 'Passphrase Incorrect.' });
       }
     } else {
-      this.setState({ errorMsg: 'Passphrase cannot be less than 8 characters.' });
+      this.setState({ errorMsg: `Passphrase cannot be less than ${passwordMinimumLentgth} character${passwordMinimumLentgth > 1 ? 's' : ''}.` });
     }
   };
 }
