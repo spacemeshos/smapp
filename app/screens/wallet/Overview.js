@@ -66,10 +66,13 @@ type Props = {
 type State = {
   shouldShowReceiveCoinsModal: boolean,
   address?: string,
-  shouldShowAddContactModal: boolean
+  shouldShowAddContactModal: boolean,
+  isCopied: boolean
 };
 
 class Overview extends Component<Props, State> {
+  copiedTimeout: any;
+
   state = {
     shouldShowReceiveCoinsModal: false,
     address: '',
@@ -79,7 +82,7 @@ class Overview extends Component<Props, State> {
 
   render() {
     const { accounts, currentAccountIndex, transactions, fiatRate, hasBackup, setCurrentAccount } = this.props;
-    const { currentAccount, shouldShowReceiveCoinsModal, shouldShowAddContactModal, address, isCopied } = this.state;
+    const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, address, isCopied } = this.state;
     const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].length > 0 ? transactions[currentAccountIndex].slice(0, 3) : null;
     return [
       <Wrapper key="main">
@@ -114,7 +117,7 @@ class Overview extends Component<Props, State> {
       shouldShowReceiveCoinsModal && (
         <ReceiveCoins
           key="receive_coins_modal"
-          address={currentAccount.pk}
+          address={accounts[currentAccountIndex].pk}
           navigateToExplanation={this.navigateToReceiveCoinsExplanation}
           closeModal={() => this.setState({ shouldShowReceiveCoinsModal: false })}
         />

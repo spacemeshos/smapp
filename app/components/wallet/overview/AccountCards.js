@@ -72,6 +72,7 @@ const PublicAddressWrapper = styled.div`
   cursor: inherit;
 `;
 
+// $FlowStyledIssue
 const SimpleDropdownStyled = styled(SimpleDropdown)`
   background-color: ${({ displayColor }) => displayColor};
   &: hover ${PublicAddressInnerWrapper} {
@@ -190,7 +191,7 @@ class AccountCards extends Component<Props> {
     );
   }
 
-  renderPublicAddressRow = ({ isCopied, pk }) => (
+  renderPublicAddressRow = ({ isCopied, pk }: { isCopied: boolean, pk: string }) => (
     <PublicAddressInnerWrapper isCopied={isCopied} key={pk}>
       <PublicAddress>{pk.substring(0, 32)}</PublicAddress>
       <CopyIconWrapper>

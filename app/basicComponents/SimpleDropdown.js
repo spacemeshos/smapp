@@ -48,7 +48,6 @@ const Icon = styled.img`
   transition: transform 0.2s linear;
 `;
 
-// $FlowStyledIssue
 const ItemsWrapper = styled.div`
   position: absolute;
   top: ${ROW_HEIGHT - 1}px;
