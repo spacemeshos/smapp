@@ -10,8 +10,7 @@ const initialState = {
   progress: null,
   totalEarnings: null,
   upcomingEarnings: null,
-  awardsAddress: null,
-  pathToLocalNode: null
+  awardsAddress: null
 };
 
 const reducer = (state: any = initialState, action: Action) => {

@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { resetNodeSettings } from '/redux/localNode/actions';
+import { checkNetworkConnection } from '/redux/network/actions';
 import styled from 'styled-components';
 import { SideMenu } from '/basicComponents';
 import type { SideMenuItem } from '/basicComponents';
@@ -77,7 +78,7 @@ type Props = {
   accounts: Account[],
   resetNodeSettings: Action,
   logout: Action,
-  // pathToLocalNode: string,
+  checkNetworkConnection: Action,
   progress: number
 };
 
@@ -87,6 +88,8 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
+  timer: any;
+
   constructor(props: Props) {
     super(props);
     const { location } = props;
@@ -112,6 +115,19 @@ class Main extends Component<Props, State> {
         </InnerWrapper>
       </Wrapper>
     );
+  }
+
+  componentDidMount() {
+    const { checkNetworkConnection } = this.props;
+    const networkCheckInterval = 30000;
+    checkNetworkConnection();
+    this.timer = setInterval(() => {
+      checkNetworkConnection();
+    }, networkCheckInterval);
+  }
+
+  componentWillUnmount() {
+    this.timer && clearInterval(this.timer);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -154,6 +170,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  checkNetworkConnection,
   resetNodeSettings,
   logout
 };
