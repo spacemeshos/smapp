@@ -8,7 +8,7 @@ import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
-import type { TxList, Action, Contact } from '/types';
+import type { TxList } from '/types';
 import { shell } from 'electron';
 
 const Wrapper = styled.div`
@@ -109,8 +109,7 @@ const RightSectionLink = styled.div`
 const btnStyle = { height: 26, marginRight: 15 };
 
 type Props = {
-  transactions: TxList,
-  updateTransaction: Action
+  transactions: TxList
 };
 
 type State = {
@@ -194,18 +193,12 @@ class Transactions extends Component<Props, State> {
           key="modal"
           addressToAdd={address}
           navigateToExplanation={this.navigateToContactsExplanation}
-          onSave={this.handleTransactionUpdateOnContactSave}
+          onSave={() => this.setState({ address: '', shouldShowModal: false })}
           closeModal={() => this.setState({ shouldShowModal: false })}
         />
       )
     ];
   }
-
-  handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
-    const { updateTransaction } = this.props;
-    this.setState({ address: '', shouldShowModal: false });
-    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
-  };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
 

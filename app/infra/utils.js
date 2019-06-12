@@ -4,7 +4,7 @@ const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(1
 
 const getWalletAddress = (address: string) => {
   const addressUint8Array = fromHexString(address);
-  return addressUint8Array.slice(0, 20);
+  return addressUint8Array.slice(12);
 };
 
 const getWalletName = ({ walletNumber }) => (walletNumber > 0 ? `Wallet ${walletNumber}` : 'Main Wallet');

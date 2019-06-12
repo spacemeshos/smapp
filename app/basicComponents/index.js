@@ -11,6 +11,7 @@ export { default as SmInput } from './SmInput';
 export { default as SmRadioButton } from './SmRadioButton';
 export { default as SmRadioGroup } from './SmRadioGroup';
 export { default as Modal } from './Modal';
+export { default as SimpleDropdown } from './SimpleDropdown';
 export type { RadioEntry } from './SmRadioButton';
 export type { DropdownEntry } from './SmDropdown';
 export type { SideMenuItem } from './SideMenu';

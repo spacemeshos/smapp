@@ -14,7 +14,7 @@ class CryptoService {
    * Inside call to function "generateKeyPair" is made - it's exposed from compiled WASM and generates keys following ed25519 protocol
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
-  generateKeyPair = async ({ mnemonic }: { mnemonic: string }) => {
+  generateKeyPair = ({ mnemonic }: { mnemonic: string }) => {
     // eslint-disable-next-line no-undef
     if (!__generateKeyPair) {
       sleep();
@@ -32,6 +32,31 @@ class CryptoService {
       secretKey = sk;
     };
     __generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
+    return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
+  };
+
+  /**
+   *
+   * @param mnemonic {string}
+   * @param index {integer}
+   * @param salt {string}
+   * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
+   */
+  deriveNewKeyPair = ({ mnemonic, index, salt }: { mnemonic: string }) => {
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
+    let publicKey = new Uint8Array(32);
+    let secretKey = new Uint8Array(64);
+    const enc = new TextEncoder();
+    const saltAsUint8Array = enc.encode(salt);
+    const saveKeys = (pk, sk) => {
+      if (pk === null || sk === null) {
+        this.stopAndCleanUp();
+        throw new Error('key generation failed');
+      }
+      publicKey = pk;
+      secretKey = sk;
+    };
+    __deriveNewKeyPair(seed.slice(32), index, saltAsUint8Array, saveKeys); // eslint-disable-line no-undef
     return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
   };
 
