@@ -114,8 +114,6 @@ type State = {
 };
 
 class Network extends Component<Props, State> {
-  timer: any;
-
   state = {
     networks: [
       {
@@ -160,19 +158,6 @@ class Network extends Component<Props, State> {
       </Wrapper>,
       shouldShowModal && <SetNodeIP key="modal" closeModal={this.handleCloseModal} />
     ];
-  }
-
-  componentDidMount() {
-    const { checkNetworkConnection } = this.props;
-    const networkCheckInterval = 30000;
-    checkNetworkConnection();
-    this.timer = setInterval(() => {
-      checkNetworkConnection();
-    }, networkCheckInterval);
-  }
-
-  componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
   }
 
   renderRightPane = () => (

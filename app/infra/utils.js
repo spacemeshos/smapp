@@ -11,4 +11,12 @@ const getWalletName = ({ walletNumber }) => (walletNumber > 0 ? `Wallet ${wallet
 
 const getAccountName = ({ accountNumber }) => (accountNumber > 0 ? `Account ${accountNumber}` : 'Main Account');
 
-export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName };
+const listenerCleanup = ({ ipcRenderer, channels }) => {
+  if (channels && channels.length) {
+    channels.forEach((channel) => {
+      ipcRenderer.removeAllListeners(channel);
+    });
+  }
+};
+
+export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup };

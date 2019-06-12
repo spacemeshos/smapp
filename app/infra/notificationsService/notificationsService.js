@@ -1,6 +1,7 @@
 import path from 'path';
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
+import { listenerCleanup } from '/infra/utils';
 
 // @flow
 class NotificationsService {
@@ -25,6 +26,7 @@ class NotificationsService {
     ipcRenderer.send(ipcConsts.CAN_NOTIFY);
     return new Promise((resolve) => {
       ipcRenderer.once(ipcConsts.CAN_NOTIFY_SUCCESS, (event, isInFocus) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.CAN_NOTIFY_SUCCESS] });
         resolve({ isNotificationAllowed: isPermitted && !isInFocus });
       });
     });
