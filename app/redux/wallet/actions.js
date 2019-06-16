@@ -28,23 +28,20 @@ export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Act
   return { type: DERIVE_ENCRYPTION_KEY, payload: { key } };
 };
 
-export const saveNewWallet = ({ mnemonic, salt = cryptoConsts.DEFAULT_SALT }: { mnemonic?: string, salt: string }): Action => async (
-  dispatch: Dispatch,
-  getState: GetState
-): Dispatch => {
+export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
   const walletNumber = localStorageService.get('walletNumber');
   const accountNumber = localStorageService.get('accountNumber');
   const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
-  const { publicKey, secretKey } = await cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
+  const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
   const meta = {
     displayName: getWalletName({ walletNumber }),
     created: unixEpochTimestamp,
     displayColor: smColors.green,
     netId: 0,
     meta: {
-      salt
+      salt: cryptoConsts.DEFAULT_SALT
     }
   };
   const cipherText = {
@@ -118,6 +115,30 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setLastUsedAddresses({ transactions: file.transactions }));
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const createNewAccount = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { mnemonic, accounts } = getState().wallet;
+    const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length, salt: cryptoConsts.DEFAULT_SALT });
+    const unixEpochTimestamp = Math.floor(new Date() / 1000);
+    const accountNumber = localStorageService.get('accountNumber');
+    const newAccount = {
+      displayName: getAccountName({ accountNumber }),
+      created: unixEpochTimestamp,
+      displayColor: smColors.darkGreen,
+      path: '0/0/1',
+      balance: 100, // TODO: remove after full integration
+      pk: publicKey,
+      sk: secretKey
+    };
+    const updatedAccounts = [...accounts, newAccount];
+    await dispatch(updateAccountsInFile({ accounts: updatedAccounts }));
+    dispatch(setAccounts({ accounts: updatedAccounts }));
+    localStorageService.set('accountNumber', accountNumber + 1);
   } catch (err) {
     throw new Error(err);
   }

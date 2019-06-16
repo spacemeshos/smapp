@@ -1,16 +1,16 @@
 // @flow
+import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, updateTransaction } from '/redux/wallet/actions';
-import { AccountCard, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
+import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import { AccountCards, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { LatestTransactions } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SendReceiveButton } from '/basicComponents';
 import { localStorageService } from '/infra/storageService';
-import type { Account, Action, TxList, Contact } from '/types';
+import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import { shell } from 'electron';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -53,10 +53,11 @@ const RightSection = styled.div`
 `;
 
 type Props = {
-  currentAccount: Account,
-  currentAccTransactions: TxList,
-  updateTransaction: Action,
+  accounts: Account[],
+  currentAccountIndex: number,
+  transactions: Object,
   getBalance: Action,
+  setCurrentAccount: Action,
   fiatRate: number,
   hasBackup: boolean,
   history: RouterHistory
@@ -65,24 +66,35 @@ type Props = {
 type State = {
   shouldShowReceiveCoinsModal: boolean,
   address?: string,
-  shouldShowAddContactModal: boolean
+  shouldShowAddContactModal: boolean,
+  isCopied: boolean
 };
 
 class Overview extends Component<Props, State> {
+  copiedTimeout: any;
+
   state = {
     shouldShowReceiveCoinsModal: false,
     address: '',
-    shouldShowAddContactModal: false
+    shouldShowAddContactModal: false,
+    isCopied: false
   };
 
   render() {
-    const { currentAccount, currentAccTransactions, fiatRate, hasBackup } = this.props;
-    const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, address } = this.state;
-    const latestTransactions = currentAccTransactions && currentAccTransactions.length > 0 ? currentAccTransactions.slice(0, 3) : null;
+    const { accounts, currentAccountIndex, transactions, fiatRate, hasBackup, setCurrentAccount } = this.props;
+    const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, address, isCopied } = this.state;
+    const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].length > 0 ? transactions[currentAccountIndex].slice(0, 3) : null;
     return [
       <Wrapper key="main">
         <LeftSection>
-          {currentAccount && <AccountCard account={currentAccount} fiatRate={fiatRate} style={{ marginBottom: 20 }} />}
+          <AccountCards
+            accounts={accounts}
+            fiatRate={fiatRate}
+            isCopied={isCopied}
+            clickHandler={this.copyPublicAddress}
+            currentAccountIndex={currentAccountIndex}
+            switchAccount={setCurrentAccount}
+          />
           <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} hasBackup={hasBackup} />
           <ButtonsWrapper>
             <SendReceiveButton title={SendReceiveButton.titles.SEND} onPress={this.navigateToSendCoins} />
@@ -105,7 +117,7 @@ class Overview extends Component<Props, State> {
       shouldShowReceiveCoinsModal && (
         <ReceiveCoins
           key="receive_coins_modal"
-          address={currentAccount.pk}
+          address={accounts[currentAccountIndex].pk}
           navigateToExplanation={this.navigateToReceiveCoinsExplanation}
           closeModal={() => this.setState({ shouldShowReceiveCoinsModal: false })}
         />
@@ -115,7 +127,7 @@ class Overview extends Component<Props, State> {
           key="add_contact_modal"
           addressToAdd={address}
           navigateToExplanation={this.navigateToContactsExplanation}
-          onSave={this.handleTransactionUpdateOnContactSave}
+          onSave={() => this.setState({ address: '', shouldShowAddContactModal: false })}
           closeModal={() => this.setState({ shouldShowAddContactModal: false })}
         />
       )
@@ -126,15 +138,21 @@ class Overview extends Component<Props, State> {
     // this.getBalance();
   }
 
+  componentWillUnmount(): void {
+    clearTimeout(this.copiedTimeout);
+  }
+
   getBalance = async () => {
     const { getBalance } = this.props;
     await getBalance();
   };
 
-  handleTransactionUpdateOnContactSave = async ({ address, nickname }: Contact) => {
-    const { updateTransaction } = this.props;
-    this.setState({ address: '', shouldShowAddContactModal: false });
-    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
+  copyPublicAddress = () => {
+    const { accounts, currentAccountIndex } = this.props;
+    clearTimeout(this.copiedTimeout);
+    clipboard.writeText(accounts[currentAccountIndex].pk);
+    this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
+    this.setState({ isCopied: true });
   };
 
   navigateToSendCoins = () => {
@@ -158,15 +176,16 @@ class Overview extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
-  currentAccTransactions: state.wallet.transactions[state.wallet.currentAccountIndex],
+  accounts: state.wallet.accounts,
+  currentAccountIndex: state.wallet.currentAccountIndex,
+  transactions: state.wallet.transactions,
   fiatRate: state.wallet.fiatRate,
   hasBackup: localStorageService.get('hasBackup')
 });
 
 const mapDispatchToProps = {
   getBalance,
-  updateTransaction
+  setCurrentAccount
 };
 
 Overview = connect(

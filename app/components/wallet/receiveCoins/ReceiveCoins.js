@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import QRCode from 'qrcode.react';
 import { Modal } from '/basicComponents';
-import { copyIcon } from '/assets/images';
+import { copyIconGreen } from '/assets/images';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -124,7 +124,7 @@ class ReceiveCoins extends PureComponent<Props> {
           <LeftPartInner>
             <AddressWrapper onClick={this.copyPublicAddress}>
               <Address>{address.substring(0, 30)}</Address>
-              <CopyIcon src={copyIcon} />
+              <CopyIcon src={copyIconGreen} />
             </AddressWrapper>
             <Text>
               This address is public and safe to share.
