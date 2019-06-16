@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { Modal, SmButton } from '/basicComponents';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
 import type { ErrorBoundaryMode } from '/components/errorHandler';
 import { smColors } from '/vars';
 
@@ -126,6 +125,4 @@ class ErrorHandlerModal extends Component<Props, State> {
   };
 }
 
-// export default ErrorHandlerModal;
-ErrorHandlerModal = connect()(ErrorHandlerModal);
 export default ErrorHandlerModal;
