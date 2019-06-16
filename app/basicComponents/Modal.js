@@ -24,6 +24,7 @@ const Wrapper = styled.div`
   background-color: ${smColors.white};
 `;
 
+// $FlowStyledIssue
 const HeaderWrapper = styled.div`
   width: 100%;
   height: 90px;
@@ -36,7 +37,7 @@ const HeaderWrapper = styled.div`
   font-weight: bold;
   line-height: 41px;
   color: ${smColors.white};
-  background-color: ${smColors.green};
+  background-color: ${({ isErrorAlert }) => (isErrorAlert ? smColors.red : smColors.green)};
 `;
 
 const HeaderButtons = styled.div`
@@ -61,6 +62,7 @@ const CloseButton = styled.img`
 
 type Props = {
   header: string,
+  isErrorAlert?: boolean,
   onQuestionMarkClick?: () => void,
   onCancelBtnClick: () => void,
   onCloseClick: () => void,
@@ -69,11 +71,11 @@ type Props = {
 
 class Modal extends Component<Props> {
   render() {
-    const { header, onQuestionMarkClick, onCancelBtnClick, onCloseClick, content } = this.props;
+    const { header, onQuestionMarkClick, onCancelBtnClick, onCloseClick, content, isErrorAlert } = this.props;
     return (
       <OuterWrapper onClick={onCloseClick}>
         <Wrapper onClick={(event) => event.stopPropagation()}>
-          <HeaderWrapper>
+          <HeaderWrapper isErrorAlert={isErrorAlert}>
             <div>{header}</div>
             <HeaderButtons>
               {onQuestionMarkClick && <ExplanationButton onClick={onQuestionMarkClick}>?</ExplanationButton>}
