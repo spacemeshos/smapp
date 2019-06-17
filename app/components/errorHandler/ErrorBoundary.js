@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
 import type { ComponentType } from 'react';
-import ErrorFallback from './ErrorFallback';
-
-export type ErrorBoundaryMode = {
-  canRefresh?: boolean,
-  canRetry?: boolean,
-  canGoBack?: boolean
-};
+import { ErrorHandlerModal, ErrorFallback } from '/components/errorHandler';
 
 type ErrorInfo = {
   componentStack: string
@@ -14,10 +8,7 @@ type ErrorInfo = {
 
 type Props = {
   children?: any,
-  FallbackComponent?: ComponentType<any>,
-  onError?: ({ error: Error, componentStack: string, afterErrorAction: 'refresh' | 'retry' | 'go back' }) => void,
-  onButtonPress: ({ action: 'refresh' | 'go back' | 'retry' | 'cancel' }) => void,
-  mode: { canRefresh: boolean }
+  isModal: boolean
 };
 
 type State = {
@@ -26,11 +17,6 @@ type State = {
 };
 
 class ErrorBoundary extends Component<Props, State> {
-  static defaultProps = {
-    // eslint-disable-next-line react/default-props-match-prop-types
-    FallbackComponent: ErrorFallback
-  };
-
   state = {
     error: null,
     info: null
@@ -38,38 +24,25 @@ class ErrorBoundary extends Component<Props, State> {
 
   render() {
     const { error, info } = this.state;
-    const { children, FallbackComponent, mode, onButtonPress } = this.props;
+    const { children, isModal } = this.props;
+    const FallbackComponent = isModal ? ErrorHandlerModal : ErrorFallback;
 
-    if (error !== null) {
-      return <FallbackComponent componentStack={info ? info.componentStack : ''} error={error} mode={mode} onButtonPress={onButtonPress} />;
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error(error.message);
+      return <FallbackComponent componentStack={info ? info.componentStack : ''} error={error} onRefresh={() => this.setState({ error: null, info: null })} />;
     }
-    return children || null;
+    return children;
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    const { onError } = this.props;
-
-    if (typeof onError === 'function') {
-      try {
-        onError.call(this, error, info ? info.componentStack : '');
-      } catch (ignoredError) {
-        // ignore this error
-      }
-    }
-
     this.setState({ error, info });
   }
 }
 
-export const withErrorBoundary = (
-  Component: ComponentType<any>,
-  FallbackComponent: ComponentType<any>,
-  onError: Function,
-  onButtonPress: Function,
-  mode: ErrorBoundaryMode
-): Function => {
+export const withErrorBoundary = (Component: ComponentType<any>, isModal = true): Function => {
   const Wrapped = (props) => (
-    <ErrorBoundary FallbackComponent={FallbackComponent} onError={onError} mode={mode} onButtonPress={onButtonPress}>
+    <ErrorBoundary isModal={isModal}>
       <Component {...props} />
     </ErrorBoundary>
   );

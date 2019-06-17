@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { Modal, SmButton } from '/basicComponents';
 import styled from 'styled-components';
-import type { ErrorBoundaryMode } from '/components/errorHandler';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -31,8 +30,7 @@ type ModalButton = {
 type Props = {
   componentStack: string,
   error: Error,
-  mode: ErrorBoundaryMode,
-  onButtonPress: ({ action: 'refresh' | 'go back' | 'retry' | 'cancel' }) => void
+  onRefresh: () => void
 };
 
 type State = {
@@ -60,8 +58,19 @@ class ErrorHandlerModal extends Component<Props, State> {
   }
 
   renderModalBody = () => {
-    const { error, componentStack } = this.props;
-    const buttons: ModalButton[] = this.getButtons();
+    const { error, componentStack, onRefresh } = this.props;
+    const buttons: ModalButton[] = [
+      {
+        text: 'Refresh',
+        clickAction: (e) => {
+          if (e && e.stopPropagation) {
+            e.stopPropagation();
+          }
+          onRefresh && onRefresh();
+        }
+      }
+    ];
+
     return (
       <Wrapper>
         <Text>{error.message || 'Error'}</Text>
@@ -75,53 +84,6 @@ class ErrorHandlerModal extends Component<Props, State> {
         ) : null}
       </Wrapper>
     );
-  };
-
-  getButtons = (): ModalButton[] => {
-    const { mode, onButtonPress } = this.props;
-    const buttons: ModalButton[] = [];
-    buttons.push({
-      text: 'Cancel',
-      theme: 'green',
-      clickAction: (e) => {
-        if (e && e.stopPropagation) {
-          e.stopPropagation();
-        }
-        onButtonPress && onButtonPress({ action: 'cancel' });
-        this.setState({ shouldShowModal: false });
-      }
-    });
-    mode.canRefresh &&
-      buttons.push({
-        text: 'Refresh',
-        clickAction: (e) => {
-          if (e && e.stopPropagation) {
-            e.stopPropagation();
-          }
-          onButtonPress && onButtonPress({ action: 'refresh' });
-        }
-      });
-    mode.canRetry &&
-      buttons.push({
-        text: 'Retry',
-        clickAction: (e) => {
-          if (e && e.stopPropagation) {
-            e.stopPropagation();
-          }
-          onButtonPress && onButtonPress({ action: 'retry' });
-        }
-      });
-    mode.canGoBack &&
-      buttons.push({
-        text: 'Go Back',
-        clickAction: (e) => {
-          if (e && e.stopPropagation) {
-            e.stopPropagation();
-          }
-          onButtonPress && onButtonPress({ action: 'go back' });
-        }
-      });
-    return buttons;
   };
 }
 

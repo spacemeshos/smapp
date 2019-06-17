@@ -5,7 +5,7 @@ import { smColors, localNodeModes } from '/vars';
 import { LeftPaneSetup, LeftPane, RightPane, SetAwardsAddress } from '/components/localNode';
 import { connect } from 'react-redux';
 import { getLocalNodeSetupProgress } from '/redux/localNode/actions';
-import { withErrorBoundary, ErrorHandlerModal } from '/components/errorHandler';
+import { ErrorBoundary } from '/components/errorHandler';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -68,22 +68,19 @@ class LocalNode extends Component<Props, State> {
   render() {
     const { mode, shouldShowModal } = this.state;
     const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
-    return [
-      <Wrapper key="wrapper">
-        <Header>{header}</Header>
-        <BodyWrapper>
-          <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-          <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
-        </BodyWrapper>
-      </Wrapper>,
-      shouldShowModal && <SetAwardsAddress key="modal" onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />
-    ];
+    return (
+      <ErrorBoundary isModal>
+        <Wrapper key="wrapper">
+          <Header>{header}</Header>
+          <BodyWrapper>
+            <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
+            <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
+          </BodyWrapper>
+        </Wrapper>
+        {shouldShowModal && <SetAwardsAddress key="modal" onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />}
+      </ErrorBoundary>
+    );
   }
-
-  // TODO: Test - uncomment the following componentDidMount to trigger error with error handling infra
-  // componentDidMount() {
-  //   throw new Error('ERROR !!!!');
-  // }
 
   renderLeftPane = (mode: number) => {
     switch (mode) {
@@ -118,30 +115,4 @@ LocalNode = connect(
   mapDispatchToProps
 )(LocalNode);
 
-export default withErrorBoundary(
-  LocalNode,
-  ErrorHandlerModal,
-  (error, componentStack) => {
-    // TODO: Test onError
-    // eslint-disable-next-line no-console
-    console.warn('error', error, 'component stack', componentStack);
-  },
-  ({ action }: { action: 'refresh' | 'go back' | 'retry' | 'cancel' }) => {
-    // TODO: trigger actions - find a way to statically route / other solution
-    // eslint-disable-next-line no-console
-    console.warn('action', action);
-    switch (action) {
-      case 'refresh':
-        break;
-      case 'go back':
-        break;
-      case 'retry':
-        break;
-      case 'cancel':
-        break;
-      default:
-        break;
-    }
-  },
-  { canRefresh: true, canRetry: true, canGoBack: true }
-);
+export default LocalNode;
