@@ -64,7 +64,7 @@ type Props = {
   header: string,
   isErrorAlert?: boolean,
   onQuestionMarkClick?: () => void,
-  onCancelBtnClick: () => void,
+  onCancelBtnClick?: () => void,
   onCloseClick: () => void,
   content: Object
 };
@@ -79,7 +79,7 @@ class Modal extends Component<Props> {
             <div>{header}</div>
             <HeaderButtons>
               {onQuestionMarkClick && <ExplanationButton onClick={onQuestionMarkClick}>?</ExplanationButton>}
-              <CloseButton onClick={onCancelBtnClick} src={xWhite} />
+              {onCancelBtnClick && <CloseButton onClick={onCancelBtnClick} src={xWhite} />}
             </HeaderButtons>
           </HeaderWrapper>
           {content}

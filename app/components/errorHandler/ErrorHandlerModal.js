@@ -46,15 +46,7 @@ class ErrorHandlerModal extends Component<Props, State> {
     const { error } = this.props;
     const { shouldShowModal } = this.state;
 
-    return shouldShowModal ? (
-      <Modal
-        header={error.message || 'Error!'}
-        isErrorAlert
-        onCancelBtnClick={() => this.setState({ shouldShowModal: false })}
-        onCloseClick={() => this.setState({ shouldShowModal: false })}
-        content={this.renderModalBody()}
-      />
-    ) : null;
+    return shouldShowModal ? <Modal header={error.message || 'Error!'} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} /> : null;
   }
 
   renderModalBody = () => {
