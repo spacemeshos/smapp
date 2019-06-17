@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Modal, SmButton } from '/basicComponents';
 import styled from 'styled-components';
 import { smColors } from '/vars';
@@ -21,6 +21,16 @@ const ButtonsWrapper = styled.div`
   margin-top: 20px;
 `;
 
+const ShowHideDetails = styled.div`
+  height: 200px;
+  overflow-y: scroll;
+`;
+
+const DetailsText = styled(Text)`
+  font-size: 14px;
+  line-height: 22px;
+`;
+
 type ModalButton = {
   text: string,
   clickAction: () => void,
@@ -33,20 +43,10 @@ type Props = {
   onRefresh: () => void
 };
 
-type State = {
-  shouldShowModal: boolean
-};
-
-class ErrorHandlerModal extends Component<Props, State> {
-  state = {
-    shouldShowModal: true
-  };
-
+class ErrorHandlerModal extends PureComponent<Props> {
   render() {
     const { error } = this.props;
-    const { shouldShowModal } = this.state;
-
-    return shouldShowModal ? <Modal header={error.message || 'Error!'} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} /> : null;
+    return <Modal header={error.message || 'Error!'} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
   }
 
   renderModalBody = () => {
@@ -66,7 +66,9 @@ class ErrorHandlerModal extends Component<Props, State> {
     return (
       <Wrapper>
         <Text>{error.message || 'Error'}</Text>
-        <div>{componentStack}</div>
+        <ShowHideDetails>
+          <DetailsText>{componentStack}</DetailsText>
+        </ShowHideDetails>
         {buttons.length ? (
           <ButtonsWrapper>
             {buttons.map((button: ModalButton) => (
