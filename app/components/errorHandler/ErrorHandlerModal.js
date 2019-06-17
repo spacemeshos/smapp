@@ -21,7 +21,7 @@ const ButtonsWrapper = styled.div`
   margin-top: 20px;
 `;
 
-const ShowHideDetails = styled.div`
+const ErrorDetails = styled.div`
   height: 200px;
   overflow-y: scroll;
 `;
@@ -66,9 +66,9 @@ class ErrorHandlerModal extends PureComponent<Props> {
     return (
       <Wrapper>
         <Text>{error.message || 'Error'}</Text>
-        <ShowHideDetails>
+        <ErrorDetails>
           <DetailsText>{componentStack}</DetailsText>
-        </ShowHideDetails>
+        </ErrorDetails>
         {buttons.length ? (
           <ButtonsWrapper>
             {buttons.map((button: ModalButton) => (
