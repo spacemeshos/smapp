@@ -59,7 +59,7 @@ class ErrorHandlerModal extends PureComponent<Props> {
     );
   };
 
-  handleRefresh = (e: SyntheticEvent<any>) => {
+  handleRefresh = (e: { stopPropagation?: () => void }) => {
     const { onRefresh } = this.props;
 
     if (e && e.stopPropagation) {
