@@ -44,7 +44,7 @@ class ErrorHandlerModal extends PureComponent<Props> {
   }
 
   renderModalBody = () => {
-    const { error, componentStack, onRefresh } = this.props;
+    const { error, componentStack } = this.props;
 
     return (
       <Wrapper>
@@ -53,20 +53,19 @@ class ErrorHandlerModal extends PureComponent<Props> {
           <DetailsText>{componentStack}</DetailsText>
         </ErrorDetails>
         <ButtonsWrapper>
-          <SmButton
-            text="Refresh"
-            theme="orange"
-            onPress={(e) => {
-              if (e && e.stopPropagation) {
-                e.stopPropagation();
-              }
-              onRefresh && onRefresh();
-            }}
-            style={{ marginRight: 20, minWidth: 150 }}
-          />
+          <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
         </ButtonsWrapper>
       </Wrapper>
     );
+  };
+
+  handleRefresh = (e: SyntheticEvent<any>) => {
+    const { onRefresh } = this.props;
+
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
+    onRefresh && onRefresh();
   };
 }
 
