@@ -69,7 +69,7 @@ class LocalNode extends Component<Props, State> {
     const { mode, shouldShowModal } = this.state;
     const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
     return (
-      <ErrorBoundary isModal>
+      <ErrorBoundary>
         <Wrapper>
           <Header>{header}</Header>
           <BodyWrapper>

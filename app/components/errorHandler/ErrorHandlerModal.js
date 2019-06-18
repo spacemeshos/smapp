@@ -31,12 +31,6 @@ const DetailsText = styled(Text)`
   line-height: 22px;
 `;
 
-type ModalButton = {
-  text: string,
-  clickAction: () => void,
-  theme?: 'orange' | 'green'
-};
-
 type Props = {
   componentStack: string,
   error: Error,
@@ -51,17 +45,6 @@ class ErrorHandlerModal extends PureComponent<Props> {
 
   renderModalBody = () => {
     const { error, componentStack, onRefresh } = this.props;
-    const buttons: ModalButton[] = [
-      {
-        text: 'Refresh',
-        clickAction: (e) => {
-          if (e && e.stopPropagation) {
-            e.stopPropagation();
-          }
-          onRefresh && onRefresh();
-        }
-      }
-    ];
 
     return (
       <Wrapper>
@@ -69,13 +52,19 @@ class ErrorHandlerModal extends PureComponent<Props> {
         <ErrorDetails>
           <DetailsText>{componentStack}</DetailsText>
         </ErrorDetails>
-        {buttons.length ? (
-          <ButtonsWrapper>
-            {buttons.map((button: ModalButton) => (
-              <SmButton key={button.text} text={button.text} theme={button.theme || 'orange'} onPress={button.clickAction} style={{ marginRight: 20, minWidth: 150 }} />
-            ))}
-          </ButtonsWrapper>
-        ) : null}
+        <ButtonsWrapper>
+          <SmButton
+            text="Refresh"
+            theme="orange"
+            onPress={(e) => {
+              if (e && e.stopPropagation) {
+                e.stopPropagation();
+              }
+              onRefresh && onRefresh();
+            }}
+            style={{ marginRight: 20, minWidth: 150 }}
+          />
+        </ButtonsWrapper>
       </Wrapper>
     );
   };

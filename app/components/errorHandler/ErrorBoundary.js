@@ -1,19 +1,13 @@
 import React, { Component } from 'react';
-import type { ComponentType } from 'react';
-import { ErrorHandlerModal, ErrorFallback } from '/components/errorHandler';
-
-type ErrorInfo = {
-  componentStack: string
-};
+import { ErrorHandlerModal } from '/components/errorHandler';
 
 type Props = {
-  children?: any,
-  isModal: boolean
+  children?: any
 };
 
 type State = {
   error: ?Error,
-  info: ?ErrorInfo
+  info: ?{ componentStack: string }
 };
 
 class ErrorBoundary extends Component<Props, State> {
@@ -24,34 +18,19 @@ class ErrorBoundary extends Component<Props, State> {
 
   render() {
     const { error, info } = this.state;
-    const { children, isModal } = this.props;
-    const FallbackComponent = isModal ? ErrorHandlerModal : ErrorFallback;
+    const { children } = this.props;
 
     if (error) {
-      // eslint-disable-next-line no-console
-      console.error(error.message);
-      return <FallbackComponent componentStack={info ? info.componentStack : ''} error={error} onRefresh={() => this.setState({ error: null, info: null })} />;
+      return <ErrorHandlerModal componentStack={info ? info.componentStack : ''} error={error} onRefresh={() => this.setState({ error: null, info: null })} />;
     }
     return children;
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  componentDidCatch(error: Error, info: { componentStack: string }) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
     this.setState({ error, info });
   }
 }
-
-export const withErrorBoundary = (Component: ComponentType<any>, isModal = true): Function => {
-  const Wrapped = (props) => (
-    <ErrorBoundary isModal={isModal}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-
-  // Format for DevTools
-  const name = Component.displayName || Component.name;
-  Wrapped.displayName = name ? `WithErrorBoundary(${name})` : 'WithErrorBoundary';
-
-  return Wrapped;
-};
 
 export default ErrorBoundary;
