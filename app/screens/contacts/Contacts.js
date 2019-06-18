@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
+import { ErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -41,15 +42,17 @@ class Contacts extends Component<{}, State> {
   render() {
     const { addressToAdd } = this.state;
     return (
-      <Wrapper>
-        <Header>My Contacts</Header>
-        <BodyWrapper>
-          <LeftPane>
-            <AllContacts addContact={({ address }) => this.setState({ addressToAdd: address })} />
-          </LeftPane>
-          <AddNewContact defaultAddress={addressToAdd} onSave={() => this.setState({ addressToAdd: '' })} />
-        </BodyWrapper>
-      </Wrapper>
+      <ErrorBoundary>
+        <Wrapper>
+          <Header>My Contacts</Header>
+          <BodyWrapper>
+            <LeftPane>
+              <AllContacts addContact={({ address }) => this.setState({ addressToAdd: address })} />
+            </LeftPane>
+            <AddNewContact defaultAddress={addressToAdd} onSave={() => this.setState({ addressToAdd: '' })} />
+          </BodyWrapper>
+        </Wrapper>
+      </ErrorBoundary>
     );
   }
 }

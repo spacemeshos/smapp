@@ -10,6 +10,7 @@ import { communication } from '/assets/images';
 import { shell } from 'electron';
 import { NoNetworkSection, NetworkEntry, SetNodeIP } from '/components/network';
 import type { NetworkEntryType } from '/components/network';
+import { ErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -138,26 +139,28 @@ class Network extends Component<Props, State> {
   render() {
     const { isConnected } = this.props;
     const { networks, shouldShowModal } = this.state;
-    return [
-      <Wrapper key="wrapper">
-        <Header>Network</Header>
-        <BodyWrapper>
-          <LeftPaneWrapper>
-            {!isConnected && <NoNetworkSection />}
-            <Separator />
-            {networks.map((networkEntry: NetworkEntryType) => (
-              <NetworkEntry key={networkEntry.name} connectToNetwork={this.connectToNetwork} networkEntry={networkEntry} isConnected={isConnected} />
-            ))}
-            <ButtonsWrapper>
-              <SmButton text="Create a new network" theme="green" onPress={() => {}} isDisabled style={{ width: 222, marginTop: 30, marginRight: 20 }} />
-              <SmButton text="Set Node IP" theme="orange" onPress={() => this.setState({ shouldShowModal: true })} style={{ width: 222, marginTop: 30 }} />
-            </ButtonsWrapper>
-          </LeftPaneWrapper>
-          {this.renderRightPane()}
-        </BodyWrapper>
-      </Wrapper>,
-      shouldShowModal && <SetNodeIP key="modal" closeModal={this.handleCloseModal} />
-    ];
+    return (
+      <ErrorBoundary>
+        <Wrapper>
+          <Header>Network</Header>
+          <BodyWrapper>
+            <LeftPaneWrapper>
+              {!isConnected && <NoNetworkSection />}
+              <Separator />
+              {networks.map((networkEntry: NetworkEntryType) => (
+                <NetworkEntry key={networkEntry.name} connectToNetwork={this.connectToNetwork} networkEntry={networkEntry} isConnected={isConnected} />
+              ))}
+              <ButtonsWrapper>
+                <SmButton text="Create a new network" theme="green" onPress={() => {}} isDisabled style={{ width: 222, marginTop: 30, marginRight: 20 }} />
+                <SmButton text="Set Node IP" theme="orange" onPress={() => this.setState({ shouldShowModal: true })} style={{ width: 222, marginTop: 30 }} />
+              </ButtonsWrapper>
+            </LeftPaneWrapper>
+            {this.renderRightPane()}
+          </BodyWrapper>
+        </Wrapper>
+        {shouldShowModal && <SetNodeIP closeModal={this.handleCloseModal} />}
+      </ErrorBoundary>
+    );
   }
 
   renderRightPane = () => (
