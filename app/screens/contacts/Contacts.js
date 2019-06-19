@@ -55,4 +55,5 @@ class Contacts extends Component<{}, State> {
   }
 }
 
-export default ScreenErrorBoundary(Contacts);
+Contacts = ScreenErrorBoundary(Contacts);
+export default Contacts;

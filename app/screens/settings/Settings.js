@@ -360,4 +360,5 @@ Settings = connect(
   mapDispatchToProps
 )(Settings);
 
-export default ScreenErrorBoundary(Settings);
+Settings = ScreenErrorBoundary(Settings);
+export default Settings;

@@ -113,4 +113,5 @@ LocalNode = connect(
   mapDispatchToProps
 )(LocalNode);
 
-export default ScreenErrorBoundary(LocalNode);
+LocalNode = ScreenErrorBoundary(LocalNode);
+export default LocalNode;

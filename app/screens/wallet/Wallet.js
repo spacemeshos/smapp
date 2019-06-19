@@ -19,4 +19,5 @@ class Wallet extends Component<Props> {
   }
 }
 
-export default ScreenErrorBoundary(Wallet);
+Wallet = ScreenErrorBoundary(Wallet);
+export default Wallet;

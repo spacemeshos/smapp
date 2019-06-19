@@ -209,4 +209,5 @@ Network = connect(
   mapDispatchToProps
 )(Network);
 
-export default ScreenErrorBoundary(Network);
+Network = ScreenErrorBoundary(Network);
+export default Network;

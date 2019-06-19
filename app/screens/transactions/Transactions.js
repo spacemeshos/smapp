@@ -219,4 +219,5 @@ Transactions = connect(
   mapDispatchToProps
 )(Transactions);
 
-export default ScreenErrorBoundary(Transactions);
+Transactions = ScreenErrorBoundary(Transactions);
+export default Transactions;
