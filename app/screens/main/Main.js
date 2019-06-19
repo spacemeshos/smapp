@@ -12,6 +12,7 @@ import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images'
 import routes from '/routes';
 import type { Account, Action } from '/types';
 import { notificationsService } from '/infra/notificationsService';
+import { ErrorBoundary } from '/components/errorHandler';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -107,16 +108,18 @@ class Main extends Component<Props, State> {
   render() {
     const { selectedItemIndex, loadingItemIndex, shouldShowModal } = this.state;
     return (
-      <Wrapper>
-        <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
-        <InnerWrapper>
-          <Switch>
-            {routes.main.map((route) => (
-              <Route key={route.path} path={route.path} component={route.component} />
-            ))}
-          </Switch>
-        </InnerWrapper>
-      </Wrapper>
+      <ErrorBoundary isFullWidth>
+        <Wrapper>
+          <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
+          <InnerWrapper>
+            <Switch>
+              {routes.main.map((route) => (
+                <Route key={route.path} path={route.path} component={route.component} />
+              ))}
+            </Switch>
+          </InnerWrapper>
+        </Wrapper>
+      </ErrorBoundary>
     );
   }
 

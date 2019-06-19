@@ -8,6 +8,7 @@ import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
 import type { Action } from '/types';
+import { ErrorBoundary } from '/components/errorHandler';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -51,9 +52,11 @@ class Auth extends Component<Props, State> {
   render() {
     const { walletFiles } = this.props;
     return (
-      <Wrapper backgroundImage={this.getBackgroundImage()}>
-        <InnerWrapper>{walletFiles ? this.renderBody() : <Loader size={Loader.sizes.BIG} />}</InnerWrapper>
-      </Wrapper>
+      <ErrorBoundary isFullWidth>
+        <Wrapper backgroundImage={this.getBackgroundImage()}>
+          <InnerWrapper>{walletFiles ? this.renderBody() : <Loader size={Loader.sizes.BIG} />}</InnerWrapper>
+        </Wrapper>
+      </ErrorBoundary>
     );
   }
 

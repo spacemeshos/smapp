@@ -6,6 +6,8 @@ import { smColors } from '/vars';
 
 const Wrapper = styled.div`
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Text = styled.span`
@@ -22,7 +24,7 @@ const ButtonsWrapper = styled.div`
 `;
 
 const ErrorDetails = styled.div`
-  height: 200px;
+  max-height: 200px;
   overflow-y: scroll;
 `;
 
@@ -34,21 +36,22 @@ const DetailsText = styled(Text)`
 type Props = {
   componentStack: string,
   error: Error,
-  onRefresh: () => void
+  onRefresh: () => void,
+  isFullWidth?: boolean
 };
 
 class ErrorHandlerModal extends PureComponent<Props> {
   render() {
-    const { error } = this.props;
-    return <Modal header={error.message || 'Error!'} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
+    const { error, isFullWidth } = this.props;
+    return <Modal header={error.message || 'Error!'} isErrorAlert isFullWidth={isFullWidth} onCloseClick={() => {}} content={this.renderModalBody()} />;
   }
 
   renderModalBody = () => {
-    const { error, componentStack } = this.props;
+    const { componentStack } = this.props;
 
     return (
       <Wrapper>
-        <Text>{error.message || 'Error'}</Text>
+        <Text>Error Details</Text>
         <ErrorDetails>
           <DetailsText>{componentStack}</DetailsText>
         </ErrorDetails>
