@@ -48,9 +48,9 @@ class ErrorHandlerModal extends PureComponent<Props> {
 
     return (
       <Wrapper>
-        <Text>{error.message || 'Error'}</Text>
+        <Text>Error Details</Text>
         <ErrorDetails>
-          <DetailsText>{componentStack}</DetailsText>
+          <DetailsText>{`${error.message || 'Error'} ${componentStack}`}</DetailsText>
         </ErrorDetails>
         <ButtonsWrapper>
           <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
