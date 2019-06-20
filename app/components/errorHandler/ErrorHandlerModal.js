@@ -35,7 +35,7 @@ type Props = {
   componentStack: string,
   error: Error,
   onRefresh: () => void,
-  isFullScreen: boolean
+  isFullScreen?: boolean
 };
 
 class ErrorHandlerModal extends PureComponent<Props> {

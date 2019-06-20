@@ -68,7 +68,7 @@ type Props = {
   onCancelBtnClick?: () => void,
   onCloseClick: () => void,
   content: Object,
-  isFullScreen: boolean
+  isFullScreen?: boolean
 };
 
 class Modal extends Component<Props> {
