@@ -6,12 +6,15 @@ import { smColors } from '/vars';
 
 const Wrapper = styled.div`
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Text = styled.span`
   font-size: 16px;
   color: ${smColors.lighterBlack};
   line-height: 28px;
+  margin-bottom: 12px;
 `;
 
 const ButtonsWrapper = styled.div`
@@ -21,44 +24,24 @@ const ButtonsWrapper = styled.div`
   margin-top: 20px;
 `;
 
-const ErrorDetails = styled.div`
-  max-height: 200px;
-  overflow-y: scroll;
-`;
-
-const DetailsText = styled(Text)`
-  font-size: 14px;
-  line-height: 22px;
-`;
-
 type Props = {
-  componentStack: string,
-  error: Error,
-  onRefresh: () => void,
-  isFullScreen?: boolean
+  onRefresh: () => void
 };
 
 class ErrorHandlerModal extends PureComponent<Props> {
   render() {
-    const { error, isFullScreen } = this.props;
-    return <Modal header={error.message || 'Error!'} isFullScreen={isFullScreen} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
+    return <Modal header="Oops!" isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
   }
 
-  renderModalBody = () => {
-    const { error, componentStack } = this.props;
-
-    return (
-      <Wrapper>
-        <Text>Error Details</Text>
-        <ErrorDetails>
-          <DetailsText>{`${error.message || 'Error'} ${componentStack}`}</DetailsText>
-        </ErrorDetails>
-        <ButtonsWrapper>
-          <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
-        </ButtonsWrapper>
-      </Wrapper>
-    );
-  };
+  renderModalBody = () => (
+    <Wrapper>
+      <Text>Something went wrong.</Text>
+      <Text>Try to refresh page</Text>
+      <ButtonsWrapper>
+        <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
+      </ButtonsWrapper>
+    </Wrapper>
+  );
 
   handleRefresh = (e: { stopPropagation?: () => void }) => {
     const { onRefresh } = this.props;
