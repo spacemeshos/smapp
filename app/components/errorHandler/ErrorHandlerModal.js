@@ -22,7 +22,7 @@ const ButtonsWrapper = styled.div`
 `;
 
 const ErrorDetails = styled.div`
-  height: 200px;
+  max-height: 200px;
   overflow-y: scroll;
 `;
 
@@ -34,13 +34,14 @@ const DetailsText = styled(Text)`
 type Props = {
   componentStack: string,
   error: Error,
-  onRefresh: () => void
+  onRefresh: () => void,
+  isFullScreen: boolean
 };
 
 class ErrorHandlerModal extends PureComponent<Props> {
   render() {
-    const { error } = this.props;
-    return <Modal header={error.message || 'Error!'} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
+    const { error, isFullScreen } = this.props;
+    return <Modal header={error.message || 'Error!'} isFullScreen={isFullScreen} isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
   }
 
   renderModalBody = () => {

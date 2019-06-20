@@ -4,10 +4,11 @@ import styled from 'styled-components';
 import { xWhite } from '/assets/images';
 import { smColors } from '/vars';
 
+// $FlowStyledIssue
 const OuterWrapper = styled.div`
   position: fixed;
   z-index: 10;
-  width: 130%;
+  width: ${({ isFullScreen }) => (isFullScreen ? 100 : 130)}%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -66,14 +67,15 @@ type Props = {
   onQuestionMarkClick?: () => void,
   onCancelBtnClick?: () => void,
   onCloseClick: () => void,
-  content: Object
+  content: Object,
+  isFullScreen: boolean
 };
 
 class Modal extends Component<Props> {
   render() {
-    const { header, onQuestionMarkClick, onCancelBtnClick, onCloseClick, content, isErrorAlert } = this.props;
+    const { header, onQuestionMarkClick, onCancelBtnClick, onCloseClick, content, isErrorAlert, isFullScreen } = this.props;
     return (
-      <OuterWrapper onClick={onCloseClick}>
+      <OuterWrapper onClick={onCloseClick} isFullScreen={isFullScreen}>
         <Wrapper onClick={(event) => event.stopPropagation()}>
           <HeaderWrapper isErrorAlert={isErrorAlert}>
             <div>{header}</div>

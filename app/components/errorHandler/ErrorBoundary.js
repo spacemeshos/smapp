@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { ErrorHandlerModal } from '/components/errorHandler';
 
 type Props = {
-  children?: any
+  children?: any,
+  isFullScreen: boolean
 };
 
 type State = {
@@ -18,10 +19,17 @@ class ErrorBoundary extends Component<Props, State> {
 
   render() {
     const { error, info } = this.state;
-    const { children } = this.props;
+    const { children, isFullScreen } = this.props;
 
     if (error) {
-      return <ErrorHandlerModal componentStack={info ? info.componentStack : ''} error={error} onRefresh={() => this.setState({ error: null, info: null })} />;
+      return (
+        <ErrorHandlerModal
+          componentStack={info ? info.componentStack : ''}
+          error={error}
+          isFullScreen={isFullScreen}
+          onRefresh={() => this.setState({ error: null, info: null })}
+        />
+      );
     }
     return children;
   }

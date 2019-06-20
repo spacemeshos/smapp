@@ -8,6 +8,7 @@ import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
 import type { Action } from '/types';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -142,4 +143,5 @@ Auth = connect(
   mapDispatchToProps
 )(Auth);
 
+Auth = ScreenErrorBoundary(Auth, true);
 export default Auth;

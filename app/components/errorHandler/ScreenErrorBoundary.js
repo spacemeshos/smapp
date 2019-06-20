@@ -2,10 +2,10 @@ import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
 import { ErrorBoundary } from '/components/errorHandler';
 
-const ScreenErrorBoundry = (WrappedComponent) =>
+const ScreenErrorBoundry = (WrappedComponent, isFullScreen) =>
   hoistStatics(
     ({ ...props }) => (
-      <ErrorBoundary>
+      <ErrorBoundary isFullScreen={isFullScreen}>
         <WrappedComponent {...props} />
       </ErrorBoundary>
     ),
