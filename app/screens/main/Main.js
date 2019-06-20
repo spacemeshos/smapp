@@ -12,6 +12,7 @@ import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images'
 import routes from '/routes';
 import type { Account, Action } from '/types';
 import { notificationsService } from '/infra/notificationsService';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -187,4 +188,5 @@ Main = connect(
   mapDispatchToProps
 )(Main);
 
+Main = ScreenErrorBoundary(Main, true);
 export default Main;

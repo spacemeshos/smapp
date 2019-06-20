@@ -10,7 +10,7 @@ import { communication } from '/assets/images';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 import { shell } from 'electron';
-import { ErrorBoundary } from '/components/errorHandler';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -135,71 +135,70 @@ class Transactions extends Component<Props, State> {
   render() {
     const { transactions } = this.props;
     const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, address, shouldShowModal } = this.state;
-    return (
-      <ErrorBoundary>
-        <Wrapper>
-          <Header>Transaction Log</Header>
-          <InnerWrapper>
-            <LeftSection>
-              <ButtonsWrapper>
-                <SmButton text="Sent" theme="green" onPress={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
-                <SmButton
-                  text="Received"
-                  theme="green"
-                  onPress={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })}
-                  isActive={isReceivedDisplayed}
-                  style={btnStyle}
-                />
-                <SmButton text="Pending" theme="green" onPress={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
-                <SmButton
-                  text="Rejected"
-                  theme="green"
-                  onPress={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })}
-                  isActive={isRejectedDisplayed}
-                  style={btnStyle}
-                />
-              </ButtonsWrapper>
-              <TransactionsListWrapper>
-                {transactions ? (
-                  transactions.map((tx, index) => (
-                    <Transaction
-                      key={index}
-                      transaction={tx}
-                      addToContacts={({ address }) => this.setState({ address, shouldShowModal: true })}
-                      isSentDisplayed={isSentDisplayed}
-                      isReceivedDisplayed={isReceivedDisplayed}
-                      isPendingDisplayed={isPendingDisplayed}
-                      isRejectedDisplayed={isRejectedDisplayed}
-                    />
-                  ))
-                ) : (
-                  <RightSectionText>No transactions executed yet</RightSectionText>
-                )}
-              </TransactionsListWrapper>
-            </LeftSection>
-            <RightSection>
-              <ImageWrapper>
-                <Image src={communication} />
-              </ImageWrapper>
-              <RightSectionSubHeader>Crypto Transactions</RightSectionSubHeader>
-              <RightSectionText>
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero
-                eos et accusam et justo duo dolores et ea.
-              </RightSectionText>
-              <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
-            </RightSection>
-          </InnerWrapper>
-        </Wrapper>
-        {shouldShowModal && (
-          <AddNewContactModal
-            addressToAdd={address}
-            navigateToExplanation={this.navigateToContactsExplanation}
-            onSave={() => this.setState({ address: '', shouldShowModal: false })}
-            closeModal={() => this.setState({ shouldShowModal: false })}
-          />
-        )}
-      </ErrorBoundary>
-    );
+    return [
+      <Wrapper key="wrapper">
+        <Header>Transaction Log</Header>
+        <InnerWrapper>
+          <LeftSection>
+            <ButtonsWrapper>
+              <SmButton text="Sent" theme="green" onPress={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
+              <SmButton
+                text="Received"
+                theme="green"
+                onPress={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })}
+                isActive={isReceivedDisplayed}
+                style={btnStyle}
+              />
+              <SmButton text="Pending" theme="green" onPress={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
+              <SmButton
+                text="Rejected"
+                theme="green"
+                onPress={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })}
+                isActive={isRejectedDisplayed}
+                style={btnStyle}
+              />
+            </ButtonsWrapper>
+            <TransactionsListWrapper>
+              {transactions ? (
+                transactions.map((tx, index) => (
+                  <Transaction
+                    key={index}
+                    transaction={tx}
+                    addToContacts={({ address }) => this.setState({ address, shouldShowModal: true })}
+                    isSentDisplayed={isSentDisplayed}
+                    isReceivedDisplayed={isReceivedDisplayed}
+                    isPendingDisplayed={isPendingDisplayed}
+                    isRejectedDisplayed={isRejectedDisplayed}
+                  />
+                ))
+              ) : (
+                <RightSectionText>No transactions executed yet</RightSectionText>
+              )}
+            </TransactionsListWrapper>
+          </LeftSection>
+          <RightSection>
+            <ImageWrapper>
+              <Image src={communication} />
+            </ImageWrapper>
+            <RightSectionSubHeader>Crypto Transactions</RightSectionSubHeader>
+            <RightSectionText>
+              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero
+              eos et accusam et justo duo dolores et ea.
+            </RightSectionText>
+            <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
+          </RightSection>
+        </InnerWrapper>
+      </Wrapper>,
+      shouldShowModal && (
+        <AddNewContactModal
+          key="modal"
+          addressToAdd={address}
+          navigateToExplanation={this.navigateToContactsExplanation}
+          onSave={() => this.setState({ address: '', shouldShowModal: false })}
+          closeModal={() => this.setState({ shouldShowModal: false })}
+        />
+      )
+    ];
   }
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
@@ -220,4 +219,5 @@ Transactions = connect(
   mapDispatchToProps
 )(Transactions);
 
+Transactions = ScreenErrorBoundary(Transactions);
 export default Transactions;

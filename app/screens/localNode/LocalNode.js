@@ -5,7 +5,7 @@ import { smColors, localNodeModes } from '/vars';
 import { LeftPaneSetup, LeftPane, RightPane, SetAwardsAddress } from '/components/localNode';
 import { connect } from 'react-redux';
 import { getLocalNodeSetupProgress } from '/redux/localNode/actions';
-import { ErrorBoundary } from '/components/errorHandler';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -68,18 +68,16 @@ class LocalNode extends Component<Props, State> {
   render() {
     const { mode, shouldShowModal } = this.state;
     const header = `Local Node${mode !== localNodeModes.OVERVIEW ? ' Setup' : ''}`;
-    return (
-      <ErrorBoundary>
-        <Wrapper>
-          <Header>{header}</Header>
-          <BodyWrapper>
-            <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
-            <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
-          </BodyWrapper>
-        </Wrapper>
-        {shouldShowModal && <SetAwardsAddress onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />}
-      </ErrorBoundary>
-    );
+    return [
+      <Wrapper key="Wrapper">
+        <Header>{header}</Header>
+        <BodyWrapper>
+          <LeftPaneWrapper>{this.renderLeftPane(mode)}</LeftPaneWrapper>
+          <RightPane mode={mode} switchMode={(mode: number) => this.setState({ mode })} openSetAwardsAddressModal={() => this.setState({ shouldShowModal: true })} />
+        </BodyWrapper>
+      </Wrapper>,
+      shouldShowModal && <SetAwardsAddress key="modal" onSave={() => this.setState({ shouldShowModal: false })} closeModal={() => this.setState({ shouldShowModal: false })} />
+    ];
   }
 
   renderLeftPane = (mode: number) => {
@@ -115,4 +113,5 @@ LocalNode = connect(
   mapDispatchToProps
 )(LocalNode);
 
+LocalNode = ScreenErrorBoundary(LocalNode);
 export default LocalNode;

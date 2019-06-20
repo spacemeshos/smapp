@@ -6,8 +6,9 @@ import { smColors } from '/vars';
 
 const OuterWrapper = styled.div`
   position: fixed;
+  left: 0;
   z-index: 10;
-  width: 130%;
+  width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
