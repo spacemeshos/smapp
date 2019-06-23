@@ -8,6 +8,8 @@ import { localStorageService } from '/infra/storageService';
 import { getWalletName, getAccountName, getWalletAddress } from '/infra/utils';
 import { smColors, cryptoConsts } from '/vars';
 
+import { SET_GRPC_ERROR } from '/redux/errorHandler/actions';
+
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 
 export const SET_WALLET_META: string = 'SET_WALLET_META';
@@ -155,9 +157,16 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
 };
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { accounts, currentAccountIndex } = getState().wallet;
-  const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
-  dispatch({ type: SET_BALANCE, payload: { balance } });
+  try {
+    dispatch({ type: SET_GRPC_ERROR, payload: { grpcError: null } });
+    const { accounts, currentAccountIndex } = getState().wallet;
+    const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
+    dispatch({ type: SET_BALANCE, payload: { balance } });
+  } catch (error) {
+    const grpcError: any = new Error(error);
+    grpcError.retryFunction = getBalance;
+    dispatch({ type: SET_GRPC_ERROR, payload: { grpcError } });
+  }
 };
 
 export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (

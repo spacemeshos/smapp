@@ -25,7 +25,9 @@ const ButtonsWrapper = styled.div`
 `;
 
 type Props = {
-  onRefresh: () => void
+  onRefresh: () => void,
+  onRetry: () => void,
+  explanationText?: string
 };
 
 class ErrorHandlerModal extends PureComponent<Props> {
@@ -33,15 +35,28 @@ class ErrorHandlerModal extends PureComponent<Props> {
     return <Modal header="Oops!" isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
   }
 
-  renderModalBody = () => (
-    <Wrapper>
-      <Text>Something went wrong.</Text>
-      <Text>Try to refresh page</Text>
-      <ButtonsWrapper>
-        <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
-      </ButtonsWrapper>
-    </Wrapper>
-  );
+  renderModalBody = () => {
+    const { onRetry, explanationText } = this.props;
+    return (
+      <Wrapper>
+        <Text>Something went wrong.</Text>
+        {explanationText && <Text>{explanationText}</Text>}
+        <ButtonsWrapper>
+          <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
+          {onRetry && <SmButton text="Retry" theme="orange" onPress={this.handleRetry} style={{ marginRight: 20, minWidth: 150 }} />}
+        </ButtonsWrapper>
+      </Wrapper>
+    );
+  };
+
+  handleRetry = (e: { stopPropagation?: () => void }) => {
+    const { onRetry } = this.props;
+
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
+    onRetry();
+  };
 
   handleRefresh = (e: { stopPropagation?: () => void }) => {
     const { onRefresh } = this.props;

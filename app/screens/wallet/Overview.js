@@ -56,6 +56,7 @@ type Props = {
   accounts: Account[],
   currentAccountIndex: number,
   transactions: Object,
+  grpcError: ?Error,
   getBalance: Action,
   setCurrentAccount: Action,
   fiatRate: number,
@@ -135,7 +136,14 @@ class Overview extends Component<Props, State> {
   }
 
   componentDidMount(): void {
-    // this.getBalance();
+    this.getBalance();
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { grpcError } = this.props;
+    if (grpcError && grpcError !== prevProps.grpcError) {
+      throw grpcError;
+    }
   }
 
   componentWillUnmount(): void {
@@ -180,7 +188,8 @@ const mapStateToProps = (state) => ({
   currentAccountIndex: state.wallet.currentAccountIndex,
   transactions: state.wallet.transactions,
   fiatRate: state.wallet.fiatRate,
-  hasBackup: localStorageService.get('hasBackup')
+  hasBackup: localStorageService.get('hasBackup'),
+  grpcError: state.errorHandler.grpcError
 });
 
 const mapDispatchToProps = {
