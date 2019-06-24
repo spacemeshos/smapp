@@ -56,7 +56,6 @@ type Props = {
   accounts: Account[],
   currentAccountIndex: number,
   transactions: Object,
-  grpcError: ?Error,
   getBalance: Action,
   setCurrentAccount: Action,
   fiatRate: number,
@@ -139,20 +138,19 @@ class Overview extends Component<Props, State> {
     this.getBalance();
   }
 
-  componentDidUpdate(prevProps: Props) {
-    const { grpcError } = this.props;
-    if (grpcError && grpcError !== prevProps.grpcError) {
-      throw grpcError;
-    }
-  }
-
   componentWillUnmount(): void {
     clearTimeout(this.copiedTimeout);
   }
 
   getBalance = async () => {
     const { getBalance } = this.props;
-    await getBalance();
+    try {
+      await getBalance();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   };
 
   copyPublicAddress = () => {
@@ -188,8 +186,7 @@ const mapStateToProps = (state) => ({
   currentAccountIndex: state.wallet.currentAccountIndex,
   transactions: state.wallet.transactions,
   fiatRate: state.wallet.fiatRate,
-  hasBackup: localStorageService.get('hasBackup'),
-  grpcError: state.errorHandler.grpcError
+  hasBackup: localStorageService.get('hasBackup')
 });
 
 const mapDispatchToProps = {

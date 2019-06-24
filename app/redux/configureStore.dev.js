@@ -6,7 +6,6 @@ import * as authActions from './auth/actions';
 import * as walletActions from './wallet/actions';
 import * as localNodeActions from './localNode/actions';
 import * as networkActions from './network/actions';
-import * as errorHandlerActions from './errorHandler/actions';
 
 const rootReducer = createRootReducer();
 
@@ -23,8 +22,7 @@ const configureStore = (initialState?: StoreStateType) => {
     ...authActions,
     ...walletActions,
     ...localNodeActions,
-    ...networkActions,
-    ...errorHandlerActions
+    ...networkActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

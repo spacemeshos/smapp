@@ -1,5 +1,5 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact, GrpcError } from '/types';
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -7,8 +7,6 @@ import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
 import { getWalletName, getAccountName, getWalletAddress } from '/infra/utils';
 import { smColors, cryptoConsts } from '/vars';
-
-import { SET_GRPC_ERROR } from '/redux/errorHandler/actions';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 
@@ -158,14 +156,15 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    dispatch({ type: SET_GRPC_ERROR, payload: { grpcError: null } });
     const { accounts, currentAccountIndex } = getState().wallet;
     const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    const grpcError: any = new Error(error);
-    grpcError.retryFunction = getBalance;
-    dispatch({ type: SET_GRPC_ERROR, payload: { grpcError } });
+    const grpcError: GrpcError = {
+      message: 'Error getting balance!',
+      retryFunction: getBalance
+    };
+    throw grpcError;
   }
 };
 
