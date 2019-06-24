@@ -97,7 +97,7 @@ class UnlockWallet extends Component<Props, State> {
             <Image src={welcomeBack} />
           </ImageWrapper>
           <UpperPartHeader>Enter your wallet passphrase</UpperPartHeader>
-          <SmInput type="password" placeholder="Type passphrase" errorMsg={errorMsg} onChange={this.handlePasswordTyping} />
+          <SmInput type="password" placeholder="Type passphrase" errorMsg={errorMsg} onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
         </UpperPart>
         <BottomPart>
           <SmButton text="Unlock" isDisabled={!passphrase || !!errorMsg} theme="orange" onPress={this.decryptWallet} />
@@ -110,6 +110,13 @@ class UnlockWallet extends Component<Props, State> {
     );
   }
 
+  handleEnterPress = () => {
+    const { passphrase, errorMsg } = this.state;
+    if (!!passphrase || !errorMsg) {
+      this.decryptWallet();
+    }
+  };
+
   handlePasswordTyping = ({ value }: { value: string }) => {
     this.setState({ passphrase: value, errorMsg: null });
   };
@@ -117,7 +124,9 @@ class UnlockWallet extends Component<Props, State> {
   decryptWallet = async () => {
     const { deriveEncryptionKey, unlockWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
-    if (passphrase.trim().length >= 8) {
+    // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
+    const passwordMinimumLentgth = 1;
+    if (passphrase.trim().length >= passwordMinimumLentgth) {
       try {
         deriveEncryptionKey({ passphrase });
         await unlockWallet();
@@ -126,7 +135,7 @@ class UnlockWallet extends Component<Props, State> {
         this.setState({ errorMsg: 'Passphrase Incorrect.' });
       }
     } else {
-      this.setState({ errorMsg: 'Passphrase cannot be less than 8 characters.' });
+      this.setState({ errorMsg: `Passphrase cannot be less than ${passwordMinimumLentgth} character${passwordMinimumLentgth > 1 ? 's' : ''}.` });
     }
   };
 }

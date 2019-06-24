@@ -175,9 +175,8 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.5.1",
     "bip39": "^3.0.2",
-    "check-disk-space": "^1.5.0",
-    "drivelist": "6.4.6",
     "grpc": "^1.21.1",
+    "js-xdr": "^1.1.2",
     "pbkdf2": "^3.0.17",
     "qrcode.react": "^0.9.3",
     "react": "^16.8.6",
@@ -191,6 +190,7 @@
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.12",
-    "styled-components": "^4.2.0"
+    "styled-components": "^4.2.0",
+    "systeminformation": "^4.9.0"
   }
 }

@@ -22,10 +22,15 @@ const Header = styled.div`
   margin-bottom: 30px;
 `;
 
+type CapacityAllocation = {
+  id: number,
+  label: string
+};
+
 type Props = {
   isInProgress: boolean,
   switchMode: (mode: number) => void,
-  capacity: any,
+  capacity: CapacityAllocation,
   progress: number,
   resetNodeSettings: Action,
   getLocalNodeSetupProgress: Action
@@ -52,9 +57,10 @@ class LeftPane extends Component<Props> {
   componentDidMount() {
     const { getLocalNodeSetupProgress } = this.props;
     this.checkInitStatus();
+    getLocalNodeSetupProgress();
     this.timer = setInterval(() => {
       getLocalNodeSetupProgress();
-    }, 10000);
+    }, 30000);
   }
 
   componentDidUpdate() {

@@ -29,12 +29,12 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     DiskStorageManager.getDriveList({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_AVAILABLE_DISK_SPACE, async (event, request) => {
-    DiskStorageManager.getAvailableSpace({ event, ...request });
-  });
-
   ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
     netService.getBalance({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.GET_NONCE, async (event, request) => {
+    netService.getNonce({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
@@ -83,6 +83,20 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
     netService.setNodeIpAddress({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
+    const isInFocus = mainWindow.isFocused();
+    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
+  });
+
+  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
+    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
   });
 };
 

@@ -110,9 +110,9 @@ const Separator = styled.div`
 
 const NetworkDisconnected = styled.div`
   position: absolute;
-  width: 22px;
-  height: 22px;
-  border-radius: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
   background-color: ${smColors.red};
 `;
 

@@ -59,6 +59,7 @@ class AllContacts extends Component<Props, State> {
   render() {
     const { contacts, lastUsedAddresses, addContact, selectContact, isModalMode } = this.props;
     const { searchTerm } = this.state;
+
     return (
       <div>
         <SearchRow>
@@ -69,7 +70,7 @@ class AllContacts extends Component<Props, State> {
         </SearchRow>
         <ListsWrapper isModalMode={isModalMode}>
           <div>
-            {lastUsedAddresses && lastUsedAddresses.length && (
+            {lastUsedAddresses && lastUsedAddresses.length ? (
               <ContactsList
                 title="Last used addresses"
                 emptyText="No last used addresses"
@@ -78,7 +79,7 @@ class AllContacts extends Component<Props, State> {
                 list={lastUsedAddresses}
                 searchTerm={searchTerm}
               />
-            )}
+            ) : null}
             <ContactsList title="Contacts" emptyText="No contact" selectContact={selectContact} list={contacts} searchTerm={searchTerm} />
           </div>
         </ListsWrapper>

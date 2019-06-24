@@ -5,6 +5,14 @@ import { arrowDownGreen, arrowDownOrange, arrowUpGreen, arrowUpOrange, arrowUpRe
 import { smColors } from '/vars';
 import type { Tx } from '/types';
 
+const getDateText = (date: string) => {
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const dateObj = new Date(date);
+  return `${dateObj.toLocaleDateString('en-US', options)} ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
+};
+
+const getAbbreviatedAddressText = (address: string, tailSize: number = 4) => `${address.substring(0, tailSize)}....${address.substring(address.length - tailSize, address.length)}`;
+
 const Wrapper = styled.div`
   height: 90px;
   display: flex;
@@ -86,6 +94,12 @@ const Address = styled.div`
   line-height: 17px;
 `;
 
+const NoteSection = styled.div`
+  font-size: 12px;
+  color: ${smColors.lighterBlack};
+  line-height: 17px;
+`;
+
 const ThirdSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -125,7 +139,7 @@ const AddToContactsImage = styled.img`
   cursor: inherit;
 `;
 
-const Date = styled.div`
+const DateWrapper = styled.div`
   font-size: 10px;
   font-weight: 300;
   color: ${smColors.mediumGray};
@@ -152,23 +166,14 @@ class Transaction extends PureComponent<Props> {
 
   render() {
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact },
+      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname, note },
       addToContacts,
       isSentDisplayed,
       isReceivedDisplayed,
       isPendingDisplayed,
       isRejectedDisplayed
     } = this.props;
-    if (!isSentDisplayed && isSent) {
-      return null;
-    }
-    if (!isReceivedDisplayed && !isSent) {
-      return null;
-    }
-    if (!isPendingDisplayed && isPending) {
-      return null;
-    }
-    if (!isRejectedDisplayed && isRejected) {
+    if ((!isSentDisplayed && isSent) || (!isReceivedDisplayed && !isSent) || (!isPendingDisplayed && isPending) || (!isRejectedDisplayed && isRejected)) {
       return null;
     }
     const color = this.getColor({ isSent, isPending, isRejected });
@@ -178,6 +183,7 @@ class Transaction extends PureComponent<Props> {
           <Icon src={this.getIcon({ isSent, isPending, isRejected })} />
           <FirstSectionText>Amount</FirstSectionText>
           <FirstSectionText>{isSent ? 'To' : 'From'}</FirstSectionText>
+          {!!note && <FirstSectionText>Note:&nbsp;</FirstSectionText>}
         </FirstSection>
         <SecondSection>
           <SentReceivedTextWrapper>
@@ -186,7 +192,8 @@ class Transaction extends PureComponent<Props> {
             {isRejected && <RejectedText>&nbsp;(Rejected)</RejectedText>}
           </SentReceivedTextWrapper>
           <Amount>{amount}</Amount>
-          <Address>{address}</Address>
+          <Address>{isSavedContact ? nickname : getAbbreviatedAddressText(address)}</Address>
+          {!!note && <NoteSection>{note}</NoteSection>}
         </SecondSection>
         <ThirdSection>
           {!isSavedContact && (
@@ -197,7 +204,7 @@ class Transaction extends PureComponent<Props> {
               </AddToContactsBtn>
             </AddToContactsBtnWrapper>
           )}
-          <Date>{date}</Date>
+          <DateWrapper>{`on ${getDateText(date)}`}</DateWrapper>
         </ThirdSection>
       </Wrapper>
     );

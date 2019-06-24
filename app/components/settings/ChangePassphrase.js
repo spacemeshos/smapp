@@ -8,6 +8,9 @@ import { fileSystemService } from '/infra/fileSystemService';
 import { smColors } from '/vars';
 import type { Action, Account } from '/types';
 
+// TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
+const passwordMinimumLentgth = 1;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -104,9 +107,23 @@ class ChangePassphrase extends Component<Props, State> {
       <Wrapper>
         <UpperPart>
           <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
-          <GrayText>Must be at least 8 characters</GrayText>
-          <SmInput type="password" placeholder="Type passphrase" errorMsg={passphraseError} onChange={this.handlePassphraseTyping} hasDebounce />
-          <SmInput type="password" placeholder="Verify passphrase" errorMsg={verifyPassphraseError} onChange={this.handlePassphraseVerifyTyping} hasDebounce />
+          <GrayText>{`Must be at least ${passwordMinimumLentgth} character${passwordMinimumLentgth > 1 ? 's' : ''}`}</GrayText>
+          <SmInput
+            type="password"
+            placeholder="Type passphrase"
+            errorMsg={passphraseError}
+            onEnterPress={this.handleEnterPress}
+            onChange={this.handlePassphraseTyping}
+            hasDebounce
+          />
+          <SmInput
+            type="password"
+            placeholder="Verify passphrase"
+            errorMsg={verifyPassphraseError}
+            onEnterPress={this.handleEnterPress}
+            onChange={this.handlePassphraseVerifyTyping}
+            hasDebounce
+          />
           <GrayText>
             Your Wallet file is encrypted and saved on your computer. <Link onClick={this.openWalletBackupDirectory}>Show me the file</Link>
           </GrayText>
@@ -116,6 +133,13 @@ class ChangePassphrase extends Component<Props, State> {
         </BottomPart>
       </Wrapper>
     );
+  };
+
+  handleEnterPress = () => {
+    const { passphrase, verifiedPassphrase, passphraseError, verifyPassphraseError } = this.state;
+    if (!!passphrase || !!verifiedPassphrase || !passphraseError || !verifyPassphraseError) {
+      this.updatePassphrase();
+    }
   };
 
   handlePassphraseTyping = ({ value }: { value: string }) => {
@@ -128,9 +152,9 @@ class ChangePassphrase extends Component<Props, State> {
 
   validate = () => {
     const { passphrase, verifiedPassphrase } = this.state;
-    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < 8);
+    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < passwordMinimumLentgth);
     const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? 'Passphrase has to be 8 characters or more.' : null;
+    const passphraseError = hasPassphraseError ? `Passphrase has to be ${passwordMinimumLentgth} characters or more.` : null;
     const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match.' : null;
     this.setState({ passphraseError, verifyPassphraseError });
     return !passphraseError && !verifyPassphraseError;

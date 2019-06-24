@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import { updateTransaction } from '/redux/wallet/actions';
 import { Transaction } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
@@ -192,7 +193,7 @@ class Transactions extends Component<Props, State> {
           key="modal"
           addressToAdd={address}
           navigateToExplanation={this.navigateToContactsExplanation}
-          onSave={() => this.setState({ shouldShowModal: false })}
+          onSave={() => this.setState({ address: '', shouldShowModal: false })}
           closeModal={() => this.setState({ shouldShowModal: false })}
         />
       )
@@ -208,6 +209,13 @@ const mapStateToProps = (state) => ({
   transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
-Transactions = connect(mapStateToProps)(Transactions);
+const mapDispatchToProps = {
+  updateTransaction
+};
+
+Transactions = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Transactions);
 
 export default Transactions;

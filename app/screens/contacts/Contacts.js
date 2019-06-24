@@ -1,11 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { addLastUsedAddress } from '/redux/wallet/actions';
 import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
-import type { Action, Contact } from '/types';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -32,15 +29,11 @@ const LeftPane = styled.div`
   margin-right: 100px;
 `;
 
-type Props = {
-  addLastUsedAddress: Action
-};
-
 type State = {
   addressToAdd?: string
 };
 
-class Contacts extends Component<Props, State> {
+class Contacts extends Component<{}, State> {
   state = {
     addressToAdd: ''
   };
@@ -54,26 +47,11 @@ class Contacts extends Component<Props, State> {
           <LeftPane>
             <AllContacts addContact={({ address }) => this.setState({ addressToAdd: address })} />
           </LeftPane>
-          <AddNewContact defaultAddress={addressToAdd} onSave={this.handleSaveLastUsedAddress} />
+          <AddNewContact defaultAddress={addressToAdd} onSave={() => this.setState({ addressToAdd: '' })} />
         </BodyWrapper>
       </Wrapper>
     );
   }
-
-  handleSaveLastUsedAddress = ({ address, nickname, email }: Contact) => {
-    const { addLastUsedAddress } = this.props;
-    addLastUsedAddress({ contact: { address, nickname, email } });
-    this.setState({ addressToAdd: '' });
-  };
 }
-
-const mapDispatchToProps = {
-  addLastUsedAddress
-};
-
-Contacts = connect(
-  null,
-  mapDispatchToProps
-)(Contacts);
 
 export default Contacts;

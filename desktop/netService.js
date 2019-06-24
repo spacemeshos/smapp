@@ -9,6 +9,7 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
+// const DEFAULT_URL = '192.168.30.233:9091';
 const DEFAULT_URL = 'localhost:9091';
 
 class NetService {
@@ -36,9 +37,9 @@ class NetService {
       });
     });
 
-  _submitTransaction = ({ srcAddress, dstAddress, amount, nonce }) =>
+  _submitTransaction = ({ tx }) =>
     new Promise((resolve, reject) => {
-      this.service.SubmitTransaction({ srcAddress, dstAddress, amount, nonce }, (error, response) => {
+      this.service.SubmitTransaction({ tx }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -125,13 +126,21 @@ class NetService {
     }
   };
 
-  sendTx = async ({ event, srcAddress, dstAddress, amount, note, signature }) => {
+  getNonce = async ({ event, address }) => {
     try {
-      const { value } = await this._getNonce({ address: srcAddress });
-      const resp = await this._submitTransaction({ signature, dstAddress, amount: `${amount}`, nonce: value, note });
-      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, resp.value);
+      const { value } = await this._getNonce({ address });
+      event.sender.send(ipcConsts.GET_NONCE_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_NONCE_FAILURE, error.message);
+    }
+  };
+
+  sendTx = async ({ event, tx }) => {
+    try {
+      const { value } = await this._submitTransaction({ tx });
+      event.sender.send(ipcConsts.SEND_TX_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
     }
   };
 

@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addToContacts } from '/redux/wallet/actions';
+import { addToContacts, updateTransaction } from '/redux/wallet/actions';
 import styled from 'styled-components';
 import { SmButton, SmInput } from '/basicComponents';
 import { smColors } from '/vars';
@@ -45,8 +45,9 @@ const ButtonWrapper = styled.div`
 type Props = {
   isModalMode?: boolean,
   addToContacts: Action,
+  updateTransaction: Action,
   defaultAddress?: string,
-  onSave: ({ address: string, nickname: string, email?: string }) => void
+  onSave: () => void
 };
 
 type State = {
@@ -59,29 +60,29 @@ type State = {
   renderKey: number
 };
 
+const fields = [
+  {
+    title: 'Public wallet address',
+    placeholder: 'Type public wallet address',
+    fieldName: 'address',
+    errorFieldName: 'addressErrorMsg'
+  },
+  {
+    title: 'Nickname',
+    placeholder: 'Type nickname',
+    fieldName: 'nickname',
+    errorFieldName: 'nicknameErrorMsg'
+  },
+  {
+    title: 'Email (optional)',
+    placeholder: 'Type email',
+    fieldName: 'email',
+    errorFieldName: 'emailErrorMsg'
+  }
+];
+
 class AddNewContact extends Component<Props, State> {
   // eslint-disable-next-line react/sort-comp
-  fields = [
-    {
-      title: 'Public wallet address',
-      placeholder: 'Type public wallet address',
-      fieldName: 'address',
-      errorFieldName: 'addressErrorMsg'
-    },
-    {
-      title: 'Nickname',
-      placeholder: 'Type nickname',
-      fieldName: 'nickname',
-      errorFieldName: 'nicknameErrorMsg'
-    },
-    {
-      title: 'Email (optional)',
-      placeholder: 'Type email',
-      fieldName: 'email',
-      errorFieldName: 'emailErrorMsg'
-    }
-  ];
-
   initialState = {
     address: '',
     nickname: '',
@@ -118,7 +119,7 @@ class AddNewContact extends Component<Props, State> {
 
   renderFields = () => {
     const { defaultAddress } = this.props;
-    return this.fields.map(({ title, placeholder, fieldName, errorFieldName }) => {
+    return fields.map(({ title, placeholder, fieldName, errorFieldName }) => {
       const isAddToContactsMode = fieldName === 'address' && !!defaultAddress;
       return (
         <FieldWrapper key={fieldName}>
@@ -139,12 +140,13 @@ class AddNewContact extends Component<Props, State> {
     this.setState({ [fieldName]: value, [errorFieldName]: this.validate({ fieldName, value }) });
   };
 
-  handleSave = () => {
-    const { addToContacts, onSave } = this.props;
+  handleSave = async () => {
+    const { addToContacts, onSave, updateTransaction } = this.props;
     const { address, nickname, email, renderKey } = this.state;
-    addToContacts({ contact: { address, nickname, email } });
+    await addToContacts({ contact: { address, nickname, email } });
+    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
+    onSave && onSave();
     this.setState({ ...this.initialState, renderKey: renderKey + 1 });
-    onSave && onSave({ address, nickname, email });
   };
 
   validate = ({ fieldName, value }: { fieldName: string, value: string }) => {
@@ -169,7 +171,8 @@ class AddNewContact extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  addToContacts
+  addToContacts,
+  updateTransaction
 };
 
 AddNewContact = connect(
