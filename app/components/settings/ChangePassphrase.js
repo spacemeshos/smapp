@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
+import { generateEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
 import { Modal, SmButton, SmInput, Loader } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
 import { smColors } from '/vars';
@@ -66,7 +66,7 @@ const LoaderWrapper = styled.div`
 `;
 
 type Props = {
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   updateAccountsInFile: Action,
   accounts: Account[],
   goBack: () => void
@@ -161,13 +161,13 @@ class ChangePassphrase extends Component<Props, State> {
   };
 
   updatePassphrase = async () => {
-    const { deriveEncryptionKey, updateAccountsInFile, accounts, goBack } = this.props;
+    const { generateEncryptionKey, updateAccountsInFile, accounts, goBack } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       await setTimeout(async () => {
-        deriveEncryptionKey({ passphrase });
+        generateEncryptionKey({ passphrase });
         await updateAccountsInFile({ accounts });
         goBack();
       }, 500);
@@ -184,7 +184,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   updateAccountsInFile
 };
 

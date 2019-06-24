@@ -316,8 +316,6 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  addAccount = () => {};
-
   navigateToWalletBackup = () => {
     const { history } = this.props;
     history.push('/main/wallet/backup');

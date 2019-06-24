@@ -4,7 +4,7 @@ import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 
 class HttpService {
-  static getBalance({ address }: { address: string }) {
+  static getBalance({ address }: { address: Uint8Array }) {
     ipcRenderer.send(ipcConsts.GET_BALANCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_BALANCE_SUCCESS, (event, response) => {
@@ -18,7 +18,7 @@ class HttpService {
     });
   }
 
-  static getNonce({ address }: { address: string }) {
+  static getNonce({ address }: { address: Uint8Array }) {
     ipcRenderer.send(ipcConsts.GET_NONCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_NONCE_SUCCESS, (event, response) => {
@@ -27,6 +27,34 @@ class HttpService {
       });
       ipcRenderer.once(ipcConsts.GET_NONCE_FAILURE, (event, args) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_NONCE_SUCCESS, ipcConsts.GET_NONCE_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static getLatestValidLayerId() {
+    ipcRenderer.send(ipcConsts.GET_LATEST_VALID_LAYER_ID);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_LATEST_VALID_LAYER_ID_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_LATEST_VALID_LAYER_ID_SUCCESS, ipcConsts.GET_LATEST_VALID_LAYER_ID_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_LATEST_VALID_LAYER_ID_SUCCESS, ipcConsts.GET_LATEST_VALID_LAYER_ID_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static getTxList({ address, layerId }: { address: Uint8Array, layerId: number }) {
+    ipcRenderer.send(ipcConsts.GET_TX_LIST, { address, layerId });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_TX_LIST_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_LIST_SUCCESS, ipcConsts.GET_TX_LIST_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_LIST_SUCCESS, ipcConsts.GET_TX_LIST_FAILURE] });
         reject(args);
       });
     });

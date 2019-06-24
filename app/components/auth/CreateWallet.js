@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
+import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { SmButton, SmInput, Loader } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
 import { miner } from '/assets/images';
@@ -80,7 +80,7 @@ const LoaderWrapper = styled.div`
 `;
 
 type Props = {
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   saveNewWallet: Action,
   hideCloseBtn: () => void,
   navigateToLocalNodeSetup: () => void,
@@ -191,13 +191,13 @@ class CreateWallet extends Component<Props, State> {
   };
 
   createWallet = async () => {
-    const { deriveEncryptionKey, saveNewWallet, hideCloseBtn, mnemonic } = this.props;
+    const { generateEncryptionKey, saveNewWallet, hideCloseBtn, mnemonic } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       await setTimeout(async () => {
-        await deriveEncryptionKey({ passphrase });
+        await generateEncryptionKey({ passphrase });
         saveNewWallet({ mnemonic });
         this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
       }, 500);
@@ -212,7 +212,7 @@ class CreateWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   saveNewWallet
 };
 

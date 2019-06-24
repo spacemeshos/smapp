@@ -9,18 +9,33 @@ message SimpleMessage {
 }
 
 message AccountId {
-    string address =1;
+    bytes address =1;
 }
 
-message TransferFunds {
-    AccountId sender =1;
-    AccountId receiver =2;
-    uint64 nonce =3;
-    uint64 amount =4;
+message TxId {
+    bytes id = 1;
 }
 
 message SignedTransaction {
-    bytes tx = 1; // serialized with XDR
+    bytes tx = 1;
+}
+
+message LayerId {
+    uint64 layerId = 1;
+}
+
+message TxStatusRequest {
+    AccountId address = 1;
+    uint64 layerId    = 2;
+}
+
+message Tx {
+    bytes id          = 1;
+    uint64 amount     = 2;
+    AccountId address = 3;
+    bool isApproved   = 4;
+    bool isPending    = 5;
+    bool isRejected   = 6;
 }
 
 message BroadcastMessage {
@@ -54,9 +69,21 @@ service SpacemeshService {
           body: "*"
         };
     }
-    rpc SubmitTransaction(SignedTransaction) returns (SimpleMessage) {
+    rpc SubmitTransaction(SignedTransaction) returns (TxId) {
         option (google.api.http) = {
           post: "/v1/submittransaction"
+          body: "*"
+        };
+    }
+    rpc GetLatestValidLayerId(google.protobuf.Empty) returns (LayerId) {
+        option (google.api.http) = {
+          post: "/v1/getlatestvalidlayerid"
+          body: "*"
+        };
+    }
+    rpc GetTxList(TxStatusRequest) returns (stream Tx) {
+        option (google.api.http) = {
+          post: "/v1/gettxlist"
           body: "*"
         };
     }

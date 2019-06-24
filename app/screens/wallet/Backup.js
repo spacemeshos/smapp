@@ -4,12 +4,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { fileEncryptionService } from '/infra/fileEncryptionService';
-import { fileSystemService } from '/infra/fileSystemService';
+import { backupWallet } from '/redux/wallet/actions';
 import { localStorageService } from '/infra/storageService';
 import { smColors } from '/vars';
 import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
-import type { WalletMeta } from '/types';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -151,7 +150,7 @@ const content = {
 };
 
 type Props = {
-  wallet: WalletMeta,
+  backupWallet: Action,
   history: RouterHistory
 };
 
@@ -203,17 +202,10 @@ class Backup extends Component<Props> {
   };
 
   backupWallet = async () => {
-    const { wallet, history } = this.props;
-    try {
-      const { meta, accounts, mnemonic, transactions, contacts, fileKey } = wallet;
-      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
-      const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-      await fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
-      localStorageService.set('hasBackup', true);
-      history.goBack();
-    } catch (error) {
-      throw new Error(error);
-    }
+    const { backupWallet, history } = this.props;
+    await backupWallet();
+    localStorageService.set('hasBackup', true);
+    history.goBack();
   };
 
   learnMoreAboutSecurity = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
@@ -223,6 +215,13 @@ const mapStateToProps = (state) => ({
   wallet: state.wallet
 });
 
-Backup = connect(mapStateToProps)(Backup);
+const mapDispatchToProps = {
+  backupWallet
+};
+
+Backup = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Backup);
 
 export default Backup;

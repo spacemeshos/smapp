@@ -83,7 +83,7 @@ class Overview extends Component<Props, State> {
   render() {
     const { accounts, currentAccountIndex, transactions, fiatRate, hasBackup, setCurrentAccount } = this.props;
     const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, address, isCopied } = this.state;
-    const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].length > 0 ? transactions[currentAccountIndex].slice(0, 3) : null;
+    const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3) : null;
     return [
       <Wrapper key="main">
         <LeftSection>

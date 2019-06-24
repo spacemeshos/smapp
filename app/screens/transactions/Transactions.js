@@ -206,7 +206,7 @@ class Transactions extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex].data
 });
 
 const mapDispatchToProps = {

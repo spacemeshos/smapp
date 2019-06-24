@@ -7,7 +7,8 @@ export type Account = {
   path: string,
   balance: number,
   pk: string,
-  sk: string
+  sk: string,
+  layerId: number
 };
 
 export type WalletMeta = {

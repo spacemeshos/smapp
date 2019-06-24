@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, unlockWallet } from '/redux/wallet/actions';
+import { generateEncryptionKey, unlockWallet } from '/redux/wallet/actions';
 import { SmButton, SmInput } from '/basicComponents';
 import { welcomeBack } from '/assets/images';
 import { smColors } from '/vars';
@@ -72,7 +72,7 @@ type Props = {
   setCreationMode: () => void,
   setRestoreMode: () => void,
   navigateToWallet: () => void,
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   unlockWallet: Action
 };
 
@@ -122,13 +122,13 @@ class UnlockWallet extends Component<Props, State> {
   };
 
   decryptWallet = async () => {
-    const { deriveEncryptionKey, unlockWallet, navigateToWallet } = this.props;
+    const { generateEncryptionKey, unlockWallet, navigateToWallet } = this.props;
     const { passphrase } = this.state;
     // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     const passwordMinimumLentgth = 1;
     if (passphrase.trim().length >= passwordMinimumLentgth) {
       try {
-        deriveEncryptionKey({ passphrase });
+        generateEncryptionKey({ passphrase });
         await unlockWallet();
         navigateToWallet();
       } catch (error) {
@@ -141,7 +141,7 @@ class UnlockWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   unlockWallet
 };
 
