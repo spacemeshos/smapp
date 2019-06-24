@@ -49,21 +49,13 @@ class ErrorHandlerModal extends PureComponent<Props> {
     );
   };
 
-  handleRetry = (e: { stopPropagation?: () => void }) => {
+  handleRetry = () => {
     const { onRetry } = this.props;
-
-    if (e && e.stopPropagation) {
-      e.stopPropagation();
-    }
     onRetry();
   };
 
-  handleRefresh = (e: { stopPropagation?: () => void }) => {
+  handleRefresh = () => {
     const { onRefresh } = this.props;
-
-    if (e && e.stopPropagation) {
-      e.stopPropagation();
-    }
     onRefresh && onRefresh();
   };
 }
