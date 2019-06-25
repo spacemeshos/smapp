@@ -135,7 +135,7 @@ class Overview extends Component<Props, State> {
   }
 
   componentDidMount(): void {
-    this.getBalance();
+    // this.getBalance();
   }
 
   componentWillUnmount(): void {

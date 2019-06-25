@@ -1,5 +1,5 @@
 // @flow
-export type GrpcError = {
+export type CustomError = {
   message: string,
   retryFunction: Function
 };

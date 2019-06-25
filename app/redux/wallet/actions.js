@@ -1,5 +1,5 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact, GrpcError } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact, CustomError } from '/types';
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -97,7 +97,11 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
   } catch (err) {
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
-    throw new Error(err);
+    const fileError: CustomError = {
+      message: 'Error reading wallet files.',
+      retryFunction: readWalletFiles
+    };
+    throw fileError;
   }
 };
 
@@ -160,7 +164,7 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    const grpcError: GrpcError = {
+    const grpcError: CustomError = {
       message: 'Error getting balance!',
       retryFunction: getBalance
     };
