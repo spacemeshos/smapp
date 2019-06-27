@@ -20,10 +20,10 @@
     "lint": "cross-env NODE_ENV=development eslint --format=pretty .",
     "lint-ci": "npm run flow && npm run lint",
     "package": "npm run build && electron-builder build --publish never",
-    "package-all": "npm run build && electron-builder build -mwl",
-    "package-mac": "npm run build && electron-builder build -m",
-    "package-win": "npm run build && electron-builder build -w",
-    "package-linux": "npm run build && electron-builder build -l",
+    "package-all": "npm run package-mac && npm run package-win && npm run package-linux",
+    "package-mac": "npm run build && electron-builder build --config ./configs/macPackageConfig.json -m",
+    "package-win": "npm run build && electron-builder build --config ./configs/windowsPackageConfig.json -w",
+    "package-linux": "npm run build && electron-builder build --config ./configs/linuxPackageConfig.json -l",
     "package-ci": "npm run build && electron-builder --publish always",
     "postinstall": "npm run flow-typed && electron-builder install-app-deps package.json && npm run build-dll",
     "prestart": "npm run build",
@@ -32,63 +32,6 @@
     "start-renderer-dev": "cross-env NODE_ENV=development webpack-dev-server --config configs/webpack.config.renderer.dev.babel.js"
   },
   "main": "./desktop/main.prod.js",
-  "build": {
-    "appId": "com.spacemesh.wallet",
-    "productName": "Spacemesh Wallet",
-    "files": [
-      "desktop/dist/",
-      "desktop/app.html",
-      "desktop/main.prod.js",
-      "desktop/main.prod.js.map",
-      "desktop/wasm_exec.js",
-      "desktop/ed25519.wasm",
-      "package.json",
-      "node_modules/",
-      "proto/"
-    ],
-    "directories": {
-      "buildResources": "resources",
-      "output": "release"
-    },
-    "dmg": {
-      "window": {
-        "width": "500",
-        "height": "300"
-      },
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ],
-      "title": "Spacemesh Wallet"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "linux": {
-      "target": [
-        "deb",
-        "snap",
-        "AppImage"
-      ],
-      "category": "Utility",
-      "icon": "resources/icons"
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "smapp",
-      "repo": "smapp",
-      "private": false
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/spacemeshos/smapp.git"

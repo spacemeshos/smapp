@@ -1,0 +1,39 @@
+{
+    "appId": "com.spacemesh.wallet",
+    "productName": "Spacemesh Wallet",
+    "files": [
+      "desktop/dist/",
+      "desktop/app.html",
+      "desktop/main.prod.js",
+      "desktop/main.prod.js.map",
+      "desktop/wasm_exec.js",
+      "desktop/ed25519.wasm",
+      "package.json",
+      "node_modules/",
+      "proto/"
+    ],
+    "extraFiles": [
+      { "from": "node/windows/miniMesh.sh", "to": "node/windows_miniMesh.sh" }
+    ],
+    "directories": {
+      "buildResources": "resources",
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "smapp",
+      "repo": "smapp",
+      "private": false
+    }
+  }
+  
