@@ -9,8 +9,8 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
-// const DEFAULT_URL = '192.168.30.233:9091';
-const DEFAULT_URL = 'localhost:9091';
+const DEFAULT_URL = '192.168.30.233:9091';
+// const DEFAULT_URL = 'localhost:9091';
 
 class NetService {
   constructor(url = DEFAULT_URL) {
@@ -47,20 +47,10 @@ class NetService {
       });
     });
 
-  _getLatestValidLayerId = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetLatestValidLayerId(null, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
-
-  _getTxList = ({ address, layerId }) =>
+  _getTxList = ({ transactionIds, layerId }) =>
     new Promise((resolve, reject) => {
       let transactions = [];
-      const stream = this.service.GetTxList({ address, layerId });
+      const stream = this.service.GetTxList({ transactionIds, layerId });
       stream.on('data', (data) => {
         transactions = transactions.concat(data);
       });
@@ -169,18 +159,9 @@ class NetService {
     }
   };
 
-  getLatestValidLayerId = async ({ event }) => {
+  getTxList = async ({ event, transactionIds, layerId }) => {
     try {
-      const { layerId } = await this._getLatestValidLayerId();
-      event.sender.send(ipcConsts.GET_LATEST_VALID_LAYER_ID_SUCCESS, layerId);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_LATEST_VALID_LAYER_ID_FAILURE, error.message);
-    }
-  };
-
-  getTxList = async ({ event, address, layerId }) => {
-    try {
-      const { transactions } = await this._getTxList({ address, layerId });
+      const { transactions } = await this._getTxList({ transactionIds, layerId });
       event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, transactions);
     } catch (error) {
       event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);

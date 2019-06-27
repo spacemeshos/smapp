@@ -46,8 +46,8 @@ class HttpService {
     });
   }
 
-  static getTxList({ address, layerId }: { address: Uint8Array, layerId: number }) {
-    ipcRenderer.send(ipcConsts.GET_TX_LIST, { address, layerId });
+  static getTxList({ transactionIds, layerId }: { transactionIds: Array<Uint8Array>, layerId: number }) {
+    ipcRenderer.send(ipcConsts.GET_TX_LIST, { transactionIds, layerId });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_TX_LIST_SUCCESS, (event, response) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_LIST_SUCCESS, ipcConsts.GET_TX_LIST_FAILURE] });
