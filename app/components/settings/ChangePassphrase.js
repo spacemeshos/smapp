@@ -166,11 +166,17 @@ class ChangePassphrase extends Component<Props, State> {
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
-      await setTimeout(async () => {
-        deriveEncryptionKey({ passphrase });
-        await updateAccountsInFile({ accounts });
-        goBack();
-      }, 500);
+      try {
+        await setTimeout(async () => {
+          deriveEncryptionKey({ passphrase });
+          await updateAccountsInFile({ accounts });
+          goBack();
+        }, 500);
+      } catch (error) {
+        this.setState(() => {
+          throw error;
+        });
+      }
     }
   };
 

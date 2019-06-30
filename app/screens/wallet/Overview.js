@@ -134,17 +134,23 @@ class Overview extends Component<Props, State> {
     ];
   }
 
-  componentDidMount(): void {
+  componentDidMount() {
     // this.getBalance();
   }
 
-  componentWillUnmount(): void {
+  componentWillUnmount() {
     clearTimeout(this.copiedTimeout);
   }
 
   getBalance = async () => {
     const { getBalance } = this.props;
-    await getBalance();
+    try {
+      await getBalance();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   };
 
   copyPublicAddress = () => {

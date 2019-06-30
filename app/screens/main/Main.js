@@ -12,6 +12,7 @@ import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images'
 import routes from '/routes';
 import type { Account, Action } from '/types';
 import { notificationsService } from '/infra/notificationsService';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -79,12 +80,14 @@ type Props = {
   resetNodeSettings: Action,
   logout: Action,
   checkNetworkConnection: Action,
-  progress: number
+  progress: number,
+  isConnected: boolean
 };
 
 type State = {
   selectedItemIndex: number,
-  loadingItemIndex: number
+  loadingItemIndex: number,
+  shouldShowModal: boolean
 };
 
 class Main extends Component<Props, State> {
@@ -97,12 +100,13 @@ class Main extends Component<Props, State> {
     const selectedItemIndex = isWalletLocation ? 1 : 0;
     this.state = {
       selectedItemIndex,
-      loadingItemIndex: -1
+      loadingItemIndex: -1,
+      shouldShowModal: false
     };
   }
 
   render() {
-    const { selectedItemIndex, loadingItemIndex } = this.state;
+    const { selectedItemIndex, loadingItemIndex, shouldShowModal } = this.state;
     return (
       <Wrapper>
         <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
@@ -131,7 +135,10 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { progress, history } = this.props;
+    const { progress, history, isConnected } = this.props;
+    if (prevProps.isConnected && !isConnected) {
+      // TODO: Connect to error handler service / modal to indicate a disconnect.
+    }
     if (prevProps.progress !== progress && progress === completeValue) {
       notificationsService.notify({
         title: 'Local Node',
@@ -166,7 +173,8 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   accounts: state.wallet.accounts,
-  progress: state.localNode.progress
+  progress: state.localNode.progress,
+  isConnected: state.network.isConnected
 });
 
 const mapDispatchToProps = {
@@ -180,4 +188,5 @@ Main = connect(
   mapDispatchToProps
 )(Main);
 
+Main = ScreenErrorBoundary(Main, true);
 export default Main;

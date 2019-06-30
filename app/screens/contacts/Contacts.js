@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { AddNewContact, AllContacts } from '/components/contacts';
 import { smColors } from '/vars';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -54,4 +55,5 @@ class Contacts extends Component<{}, State> {
   }
 }
 
+Contacts = ScreenErrorBoundary(Contacts);
 export default Contacts;

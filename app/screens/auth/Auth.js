@@ -10,6 +10,7 @@ import { smColors, authModes } from '/vars';
 import type { Action } from '/types';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -66,10 +67,16 @@ class Auth extends Component<Props, State> {
     return null;
   }
 
-  componentDidMount(): void {
+  async componentDidMount() {
     const { readWalletFiles } = this.props;
-    readWalletFiles();
-    this.checkLocalNode();
+    try {
+      await readWalletFiles();
+      await this.checkLocalNode();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   }
 
   renderBody = () => {
@@ -164,4 +171,5 @@ Auth = connect(
   mapDispatchToProps
 )(Auth);
 
+Auth = ScreenErrorBoundary(Auth, true);
 export default Auth;

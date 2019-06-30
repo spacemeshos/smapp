@@ -10,6 +10,7 @@ import { communication } from '/assets/images';
 import { shell } from 'electron';
 import { NoNetworkSection, NetworkEntry, SetNodeIP } from '/components/network';
 import type { NetworkEntryType } from '/components/network';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -208,4 +209,5 @@ Network = connect(
   mapDispatchToProps
 )(Network);
 
+Network = ScreenErrorBoundary(Network);
 export default Network;
