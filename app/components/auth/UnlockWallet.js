@@ -132,7 +132,13 @@ class UnlockWallet extends Component<Props, State> {
         await unlockWallet();
         navigateToWallet();
       } catch (error) {
-        this.setState({ errorMsg: 'Passphrase Incorrect.' });
+        if (error.message.indexOf('Unexpected token') === 0) {
+          this.setState({ errorMsg: 'Passphrase Incorrect.' });
+        } else {
+          this.setState(() => {
+            throw error;
+          });
+        }
       }
     } else {
       this.setState({ errorMsg: `Passphrase cannot be less than ${passwordMinimumLentgth} character${passwordMinimumLentgth > 1 ? 's' : ''}.` });

@@ -19,4 +19,9 @@ const listenerCleanup = ({ ipcRenderer, channels }) => {
   }
 };
 
-export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup };
+const createError = (message, func) => ({
+  message,
+  retryFunction: func
+});
+
+export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError };

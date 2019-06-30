@@ -196,11 +196,17 @@ class CreateWallet extends Component<Props, State> {
     const canProceed = this.validate();
     if (canProceed && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
-      await setTimeout(async () => {
-        await deriveEncryptionKey({ passphrase });
-        saveNewWallet({ mnemonic });
-        this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
-      }, 500);
+      try {
+        await setTimeout(async () => {
+          await deriveEncryptionKey({ passphrase });
+          saveNewWallet({ mnemonic });
+          this.setState({ isLoaderVisible: false, subMode: 2 }, hideCloseBtn);
+        }, 500);
+      } catch (err) {
+        this.setState(() => {
+          throw err;
+        });
+      }
     }
   };
 

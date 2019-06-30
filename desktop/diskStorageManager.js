@@ -27,27 +27,23 @@ const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = 
 
 class DiskStorageManager {
   static getDriveList = async ({ event }: { event: any }) => {
-    Promise.all([si.blockDevices(), si.fsSize()])
-      .then(([mountpoints, sizeMountpoints]) => {
-        const mountedDrives = mountpoints.filter((mountPoint) => !!mountPoint.mount && !mountPoint.mount.includes('private')); // yields only mounted and non VM
-        const validSizeMountpoints = sizeMountpoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
-        const mappedDrives = mountedDrives.map((mountPoint) => {
-          const volume = validSizeMountpoints.find((validVolume) => validVolume.mount === mountPoint.mount);
-          const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesfromGb(localNodeConsts.DRIVE_SPACE_BUFFER)) : 0;
-          return {
-            id: mountPoint.name,
-            mountPoint: mountPoint.mount,
-            label: (os.type() === 'Darwin' || os.type() === 'Linux') && !!mountPoint.label ? mountPoint.label : mountPoint.name,
-            availableDiskSpace: { bytes: availableSpace, readable: getReadableSpace(availableSpace) },
-            capacityAllocationsList: getAllocatedSpaceList(availableSpace),
-            isInsufficientSpace: availableSpace < getBytesfromGb(localNodeConsts.COMMITMENT_SIZE)
-          };
-        });
-        event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
-      })
-      .catch((error) => {
-        event.sender.send(ipcConsts.GET_DRIVE_LIST_FAILURE, error.message);
+    Promise.all([si.blockDevices(), si.fsSize()]).then(([mountpoints, sizeMountpoints]) => {
+      const mountedDrives = mountpoints.filter((mountPoint) => !!mountPoint.mount && !mountPoint.mount.includes('private')); // yields only mounted and non VM
+      const validSizeMountpoints = sizeMountpoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
+      const mappedDrives = mountedDrives.map((mountPoint) => {
+        const volume = validSizeMountpoints.find((validVolume) => validVolume.mount === mountPoint.mount);
+        const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesfromGb(localNodeConsts.DRIVE_SPACE_BUFFER)) : 0;
+        return {
+          id: mountPoint.name,
+          mountPoint: mountPoint.mount,
+          label: (os.type() === 'Darwin' || os.type() === 'Linux') && !!mountPoint.label ? mountPoint.label : mountPoint.name,
+          availableDiskSpace: { bytes: availableSpace, readable: getReadableSpace(availableSpace) },
+          capacityAllocationsList: getAllocatedSpaceList(availableSpace),
+          isInsufficientSpace: availableSpace < getBytesfromGb(localNodeConsts.COMMITMENT_SIZE)
+        };
       });
+      event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
+    });
   };
 }
 
