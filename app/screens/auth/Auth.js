@@ -71,12 +71,12 @@ class Auth extends Component<Props, State> {
     const { readWalletFiles } = this.props;
     try {
       await readWalletFiles();
-      await this.checkLocalNode();
     } catch (error) {
       this.setState(() => {
         throw error;
       });
     }
+    await this.checkLocalNode();
   }
 
   renderBody = () => {
