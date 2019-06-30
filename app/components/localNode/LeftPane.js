@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { resetNodeSettings, getLocalNodeSetupProgress } from '/redux/localNode/actions';
+import { resetNodeSettings } from '/redux/localNode/actions';
 import { LoadingBar, LocalNodeLog, LocalNodeStatus } from '/components/localNode';
 import { SmButton } from '/basicComponents';
 import { localNodeModes } from '/vars';
@@ -32,8 +32,7 @@ type Props = {
   switchMode: (mode: number) => void,
   capacity: CapacityAllocation,
   progress: number,
-  resetNodeSettings: Action,
-  getLocalNodeSetupProgress: Action
+  resetNodeSettings: Action
 };
 
 class LeftPane extends Component<Props> {
@@ -55,12 +54,7 @@ class LeftPane extends Component<Props> {
   }
 
   componentDidMount() {
-    const { getLocalNodeSetupProgress } = this.props;
     this.checkInitStatus();
-    getLocalNodeSetupProgress();
-    this.timer = setInterval(() => {
-      getLocalNodeSetupProgress();
-    }, 30000);
   }
 
   componentDidUpdate() {
@@ -91,8 +85,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  resetNodeSettings,
-  getLocalNodeSetupProgress
+  resetNodeSettings
 };
 
 LeftPane = connect(

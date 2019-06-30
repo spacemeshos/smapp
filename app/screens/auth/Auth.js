@@ -65,9 +65,15 @@ class Auth extends Component<Props, State> {
     return null;
   }
 
-  componentDidMount(): void {
+  async componentDidMount() {
     const { readWalletFiles } = this.props;
-    readWalletFiles();
+    try {
+      await readWalletFiles();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   }
 
   renderBody = () => {

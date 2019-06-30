@@ -181,11 +181,17 @@ class LeftPaneSetup extends Component<Props, State> {
     );
   }
 
-  handleStartSetup = () => {
+  handleStartSetup = async () => {
     const { setLocalNodeStorage, drives, switchMode } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
-    setLocalNodeStorage({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
-    switchMode(localNodeModes.PROGRESS);
+    try {
+      await setLocalNodeStorage({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
+      switchMode(localNodeModes.PROGRESS);
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   };
 
   handleSelectDrive = ({ index }: { index: number }) => this.setState({ selectedDriveIndex: index, selectedCapacityIndex: -1 });

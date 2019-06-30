@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateTransaction } from '/redux/wallet/actions';
 import { Transaction } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
@@ -210,14 +209,7 @@ const mapStateToProps = (state) => ({
   transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
-const mapDispatchToProps = {
-  updateTransaction
-};
-
-Transactions = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Transactions);
+Transactions = connect(mapStateToProps)(Transactions);
 
 Transactions = ScreenErrorBoundary(Transactions);
 export default Transactions;

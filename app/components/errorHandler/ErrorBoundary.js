@@ -7,7 +7,7 @@ type Props = {
 
 type State = {
   error: ?Error,
-  info: ?{ componentStack: string }
+  info?: Object
 };
 
 class ErrorBoundary extends Component<Props, State> {
@@ -21,16 +21,30 @@ class ErrorBoundary extends Component<Props, State> {
     const { children } = this.props;
 
     if (error) {
-      return <ErrorHandlerModal componentStack={info ? info.componentStack : ''} error={error} onRefresh={() => this.setState({ error: null, info: null })} />;
+      const { retryFunction } = error;
+      return (
+        <ErrorHandlerModal
+          componentStack={info ? info.componentStack : ''}
+          explanationText={`${retryFunction ? 'Retry failed action or refresh page' : 'Try to refresh page'}`}
+          error={error}
+          onRetry={retryFunction ? () => this.handleRetry(retryFunction) : null}
+          onRefresh={() => this.setState({ error: null, info: null })}
+        />
+      );
     }
     return children;
   }
 
-  componentDidCatch(error: Error, info: { componentStack: string }) {
+  componentDidCatch(error, info) {
     // eslint-disable-next-line no-console
-    console.error(`${error.message} ${info.componentStack}`);
+    console.log(`${error.message} ${info.componentStack}`);
     this.setState({ error, info });
   }
+
+  handleRetry = (retryFunction) => {
+    this.setState({ error: null, info: null });
+    retryFunction();
+  };
 }
 
 export default ErrorBoundary;
