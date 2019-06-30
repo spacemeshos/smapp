@@ -13,7 +13,7 @@
     "proto/"
   ],
   "extraFiles": [
-    { "from": "node/mac/miniMesh.sh", "to": "node/mac_miniMesh.sh" }
+    { "from": "node/mac/demoNodeExec", "to": "node/demoNodeExec" }
   ],
   "directories": {
     "buildResources": "resources",

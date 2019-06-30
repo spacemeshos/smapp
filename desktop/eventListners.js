@@ -98,6 +98,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
     FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
   });
+
+  ipcMain.on(ipcConsts.RUN_EXEC_FILE, async (event, request) => {
+    FileManager.runLocalNode({ event, ...request });
+  });
 };
 
 export { subscribeToEventListeners }; // eslint-disable-line import/prefer-default-export

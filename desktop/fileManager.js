@@ -1,8 +1,11 @@
 import fs from 'fs';
+import os from 'os';
 import util from 'util';
 import path from 'path';
 import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
+
+const child = require('child_process').execFile;
 
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
@@ -116,6 +119,38 @@ class FileManager {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error deleting wallet file');
+    }
+  };
+
+  static runLocalNode = async ({ event }) => {
+    const isDevMode = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+    const getOsTarget = (): 'mac' | 'linux' | 'windows' => {
+      switch (os.type()) {
+        case 'Darwin':
+          return 'mac';
+        case 'Linux':
+          return 'linux';
+        case 'Windows_NT':
+          return 'windows';
+        default:
+          throw new Error('Could not get OS target name.');
+      }
+    };
+
+    try {
+      const osTarget = getOsTarget();
+      const devPath = './miniMesh.sh';
+      // TODO: should change to actual executable file path in prod.
+      const prodPath = path.resolve(`${process.resourcesPath}/../node/demoNodeExec${osTarget === 'windows' ? '.exe' : ''}`);
+      const executablePath = isDevMode ? devPath : prodPath;
+      child(executablePath, (err) => {
+        if (err) {
+          throw err;
+        }
+        event.sender.send(ipcConsts.RUN_EXEC_FILE_SUCCESS);
+      });
+    } catch (error) {
+      event.sender.send(ipcConsts.RUN_EXEC_FILE_FAILURE, error.message);
     }
   };
 
