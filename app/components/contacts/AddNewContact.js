@@ -143,10 +143,16 @@ class AddNewContact extends Component<Props, State> {
   handleSave = async () => {
     const { addToContacts, onSave, updateTransaction } = this.props;
     const { address, nickname, email, renderKey } = this.state;
-    await addToContacts({ contact: { address, nickname, email } });
-    await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
-    onSave && onSave();
-    this.setState({ ...this.initialState, renderKey: renderKey + 1 });
+    try {
+      await addToContacts({ contact: { address, nickname, email } });
+      await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
+      onSave && onSave();
+      this.setState({ ...this.initialState, renderKey: renderKey + 1 });
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   };
 
   validate = ({ fieldName, value }: { fieldName: string, value: string }) => {

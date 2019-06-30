@@ -1,11 +1,11 @@
 // @flow
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact, GrpcError } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } from '/types';
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
-import { getWalletName, getAccountName, getWalletAddress } from '/infra/utils';
+import { getWalletName, getAccountName, getWalletAddress, createError } from '/infra/utils';
 import { smColors, cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
@@ -73,7 +73,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     localStorageService.set('accountNumber', accountNumber + 1);
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
   } catch (err) {
-    throw new Error(err);
+    throw createError('Error saving new wallet!', () => saveNewWallet({ mnemonic }));
   }
 };
 
@@ -97,7 +97,7 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
   } catch (err) {
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
-    throw new Error(err);
+    throw createError('Error reading wallet files!', readFileName);
   }
 };
 
@@ -116,7 +116,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
-    throw new Error(err);
+    throw createError(err.message, readFileName);
   }
 };
 
@@ -140,18 +140,13 @@ export const createNewAccount = (): Action => async (dispatch: Dispatch, getStat
     dispatch(setAccounts({ accounts: updatedAccounts }));
     localStorageService.set('accountNumber', accountNumber + 1);
   } catch (err) {
-    throw new Error(err);
+    throw createError('Error creating new account!', readFileName);
   }
 };
 
 export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const fileName = await fileSystemService.getFileName();
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [fileName] } });
-  } catch (err) {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
-    throw new Error(err);
-  }
+  const fileName = await fileSystemService.getFileName();
+  dispatch({ type: SAVE_WALLET_FILES, payload: { files: [fileName] } });
 };
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
@@ -160,11 +155,7 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    const grpcError: GrpcError = {
-      message: 'Error getting balance!',
-      retryFunction: getBalance
-    };
-    throw grpcError;
+    throw createError('Error getting balance!', getBalance);
   }
 };
 
@@ -185,7 +176,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
     await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {
-    throw new Error(error);
+    throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
   }
 };
 
@@ -197,7 +188,7 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
-    throw new Error(error);
+    throw createError(error.message, () => addTransaction({ tx, accountPK }));
   }
 };
 
@@ -220,7 +211,7 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
     dispatch(setTransactions({ transactions: updatedTransactions }));
     dispatch(setLastUsedAddresses({ transactions: updatedTransactions }));
   } catch (error) {
-    throw new Error(error);
+    throw createError(error.message, () => updateTransaction({ tx, updateAll, accountPK }));
   }
 };
 
@@ -231,7 +222,7 @@ export const addToContacts = ({ contact }: Contact): Action => async (dispatch: 
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'contacts', data: updatedContacts });
     dispatch(setContacts({ contacts: updatedContacts }));
   } catch (error) {
-    throw new Error(error);
+    throw createError(error.message, () => addToContacts({ contact }));
   }
 };
 
@@ -242,7 +233,7 @@ export const updateWalletMeta = ({ metaFieldName, data }: { metaFieldName: strin
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'meta', data: updatedMeta });
     dispatch(setWalletMeta({ meta: updatedMeta }));
   } catch (error) {
-    throw new Error(error);
+    throw createError(error.message, () => updateWalletMeta({ metaFieldName, data }));
   }
 };
 
@@ -250,11 +241,15 @@ export const updateAccount = ({ accountIndex, fieldName, data }: { accountIndex:
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const { accounts } = getState().wallet;
-  const updatedAccount = { ...accounts[accountIndex], [fieldName]: data };
-  const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
-  await dispatch(updateAccountsInFile({ accounts: updatedAccounts }));
-  dispatch(setAccounts({ accounts: updatedAccounts }));
+  try {
+    const { accounts } = getState().wallet;
+    const updatedAccount = { ...accounts[accountIndex], [fieldName]: data };
+    const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
+    await dispatch(updateAccountsInFile({ accounts: updatedAccounts }));
+    dispatch(setAccounts({ accounts: updatedAccounts }));
+  } catch (error) {
+    throw createError(error.message, () => updateAccount({ accountIndex, fieldName, data }));
+  }
 };
 
 export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {

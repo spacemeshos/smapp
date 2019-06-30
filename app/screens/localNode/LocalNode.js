@@ -4,12 +4,11 @@ import styled from 'styled-components';
 import { smColors, localNodeModes } from '/vars';
 import { LeftPaneSetup, LeftPane, RightPane, SetAwardsAddress } from '/components/localNode';
 import { connect } from 'react-redux';
-import { getLocalNodeSetupProgress } from '/redux/localNode/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const completeValue = 80; // TODO: change to actual complete value
 
-const getStatupMode = ({ drive, capacity, progress }: { drive: any, capacity: any, progress: number }) => {
+const getStartUpMode = ({ drive, capacity, progress }: { drive: any, capacity: any, progress: number }) => {
   if (progress === completeValue) {
     return localNodeModes.OVERVIEW;
   } else if (drive || capacity) {
@@ -58,9 +57,8 @@ class LocalNode extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const { drive, capacity, progress } = props;
-    getLocalNodeSetupProgress();
     this.state = {
-      mode: getStatupMode({ drive, capacity, progress }),
+      mode: getStartUpMode({ drive, capacity, progress }),
       shouldShowModal: false
     };
   }
@@ -104,14 +102,7 @@ const mapStateToProps = (state) => ({
   progress: state.localNode.progress
 });
 
-const mapDispatchToProps = {
-  getLocalNodeSetupProgress
-};
-
-LocalNode = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LocalNode);
+LocalNode = connect(mapStateToProps)(LocalNode);
 
 LocalNode = ScreenErrorBoundary(LocalNode);
 export default LocalNode;

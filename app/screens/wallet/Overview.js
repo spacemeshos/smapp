@@ -134,11 +134,11 @@ class Overview extends Component<Props, State> {
     ];
   }
 
-  componentDidMount(): void {
-    this.getBalance();
+  componentDidMount() {
+    // this.getBalance();
   }
 
-  componentWillUnmount(): void {
+  componentWillUnmount() {
     clearTimeout(this.copiedTimeout);
   }
 

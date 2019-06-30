@@ -36,27 +36,17 @@ class ErrorHandlerModal extends PureComponent<Props> {
   }
 
   renderModalBody = () => {
-    const { onRetry, explanationText } = this.props;
+    const { onRetry, onRefresh, explanationText } = this.props;
     return (
       <Wrapper>
         <Text>Something went wrong.</Text>
         {explanationText && <Text>{explanationText}</Text>}
         <ButtonsWrapper>
-          <SmButton text="Refresh" theme="orange" onPress={this.handleRefresh} style={{ marginRight: 20, minWidth: 150 }} />
-          {onRetry && <SmButton text="Retry" theme="orange" onPress={this.handleRetry} style={{ marginRight: 20, minWidth: 150 }} />}
+          <SmButton text="Refresh" theme="orange" onPress={onRefresh} style={{ marginRight: 20, minWidth: 150 }} />
+          {onRetry && <SmButton text="Retry" theme="orange" onPress={onRetry} style={{ marginRight: 20, minWidth: 150 }} />}
         </ButtonsWrapper>
       </Wrapper>
     );
-  };
-
-  handleRetry = () => {
-    const { onRetry } = this.props;
-    onRetry();
-  };
-
-  handleRefresh = () => {
-    const { onRefresh } = this.props;
-    onRefresh && onRefresh();
   };
 }
 

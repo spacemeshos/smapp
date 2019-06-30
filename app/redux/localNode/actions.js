@@ -1,12 +1,12 @@
 // @flow
 import { diskStorageService } from '/infra/diskStorageService';
 import { httpService } from '/infra/httpService';
+import { createError } from '/infra/utils';
 import { Action, Dispatch } from '/types';
 
 export const SET_ALLOCATION: string = 'SET_ALLOCATION';
 export const GET_DRIVES_LIST: string = 'GET_DRIVES_LIST';
 export const RESET_NODE_SETTINGS: string = 'RESET_NODE_SETTINGS';
-export const SET_LOCAL_NODE_SETUP_PROGRESS: string = 'SET_LOCAL_NODE_SETUP_PROGRESS';
 export const SET_TOTAL_EARNINGS: string = 'SET_TOTAL_EARNINGS';
 export const SET_UPCOMING_EARNINGS: string = 'SET_UPCOMING_EARNINGS';
 export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
@@ -17,21 +17,11 @@ export const getDrivesList = (): Action => async (dispatch: Dispatch): Dispatch 
     dispatch({ type: GET_DRIVES_LIST, payload: { drives } });
   } catch (err) {
     dispatch({ type: GET_DRIVES_LIST, payload: { drives: [] } });
-    throw err;
+    throw createError(err.message, getDrivesList);
   }
 };
 
 export const resetNodeSettings = (): Action => ({ type: RESET_NODE_SETTINGS });
-
-export const getLocalNodeSetupProgress = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const progress = await httpService.getLocalNodeSetupProgress();
-    dispatch({ type: SET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress } });
-  } catch (err) {
-    dispatch({ type: SET_LOCAL_NODE_SETUP_PROGRESS, payload: { progress: null } });
-    throw err;
-  }
-};
 
 export const getTotalEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -39,7 +29,7 @@ export const getTotalEarnings = (): Action => async (dispatch: Dispatch): Dispat
     dispatch({ type: SET_TOTAL_EARNINGS, payload: { totalEarnings } });
   } catch (err) {
     dispatch({ type: SET_TOTAL_EARNINGS, payload: { progress: null } });
-    throw err;
+    throw createError('Error retrieving total rewards', getTotalEarnings);
   }
 };
 
@@ -49,7 +39,7 @@ export const getUpcomingEarnings = (): Action => async (dispatch: Dispatch): Dis
     dispatch({ type: SET_UPCOMING_EARNINGS, payload: { upcomingEarnings } });
   } catch (err) {
     dispatch({ type: SET_UPCOMING_EARNINGS, payload: { progress: null } });
-    throw err;
+    throw createError('Error retrieving upcoming rewards', getUpcomingEarnings);
   }
 };
 
@@ -63,7 +53,7 @@ export const setLocalNodeStorage = ({ capacity, drive }: { capacity: { id: numbe
     await httpService.setLogicalDrive({ logicalDrive });
     dispatch({ type: SET_ALLOCATION, payload: { capacity, drive } });
   } catch (err) {
-    throw err;
+    throw createError('Error setting node storage', () => setLocalNodeStorage({ capacity, drive }));
   }
 };
 
@@ -72,6 +62,6 @@ export const setAwardsAddress = ({ awardsAddress }: { awardsAddress: string }): 
     await httpService.setAwardsAddress({ awardsAddress });
     dispatch({ type: SET_AWARDS_ADDRESS, payload: { awardsAddress } });
   } catch (err) {
-    throw err;
+    throw createError('Error setting awards address', () => setAwardsAddress({ awardsAddress }));
   }
 };

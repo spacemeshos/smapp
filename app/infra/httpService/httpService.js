@@ -46,23 +46,6 @@ class HttpService {
     });
   }
 
-  static getLocalNodeSetupProgress() {
-    ipcRenderer.send(ipcConsts.GET_INIT_PROGRESS);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_INIT_PROGRESS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_INIT_PROGRESS_SUCCESS, ipcConsts.GET_INIT_PROGRESS_FAILURE] });
-        const timer = setTimeout(() => {
-          resolve(response);
-          clearTimeout(timer);
-        }, 10000);
-      });
-      ipcRenderer.once(ipcConsts.GET_INIT_PROGRESS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_INIT_PROGRESS_SUCCESS, ipcConsts.GET_INIT_PROGRESS_FAILURE] });
-        reject(args);
-      });
-    });
-  }
-
   static getTotalEarnings() {
     ipcRenderer.send(ipcConsts.GET_TOTAL_EARNINGS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {

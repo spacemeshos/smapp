@@ -7,7 +7,7 @@ type Props = {
 
 type State = {
   error: ?Error,
-  info: ?{ componentStack: string }
+  info?: Object
 };
 
 class ErrorBoundary extends Component<Props, State> {
@@ -21,12 +21,13 @@ class ErrorBoundary extends Component<Props, State> {
     const { children } = this.props;
 
     if (error) {
+      const { retryFunction } = error;
       return (
         <ErrorHandlerModal
           componentStack={info ? info.componentStack : ''}
-          explanationText={`${error.retryFunction ? 'Retry failed action or refresh page' : 'Try to refresh page'}`}
+          explanationText={`${retryFunction ? 'Retry failed action or refresh page' : 'Try to refresh page'}`}
           error={error}
-          onRetry={error.retryFunction ? () => this.handleRetry(error) : null}
+          onRetry={retryFunction ? () => this.handleRetry(retryFunction) : null}
           onRefresh={() => this.setState({ error: null, info: null })}
         />
       );
@@ -34,15 +35,15 @@ class ErrorBoundary extends Component<Props, State> {
     return children;
   }
 
-  componentDidCatch(error: Error, info: { componentStack: string }) {
+  componentDidCatch(error, info) {
     // eslint-disable-next-line no-console
-    console.error(`${error.message} ${info.componentStack}`);
+    console.log(`${error.message} ${info.componentStack}`);
     this.setState({ error, info });
   }
 
-  handleRetry = (error) => {
+  handleRetry = (retryFunction) => {
     this.setState({ error: null, info: null });
-    error.retryFunction();
+    retryFunction();
   };
 }
 

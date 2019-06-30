@@ -66,11 +66,17 @@ class SetAwardsAddress extends Component<Props, State> {
     );
   };
 
-  handleSave = () => {
+  handleSave = async () => {
     const { closeModal, setAwardsAddress } = this.props;
     const { awardsAddress } = this.state;
-    setAwardsAddress({ awardsAddress });
-    closeModal();
+    try {
+      await setAwardsAddress({ awardsAddress });
+      closeModal();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   };
 
   handleTyping = ({ value }: { value: string }) => {
