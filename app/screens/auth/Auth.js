@@ -157,9 +157,7 @@ class Auth extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  walletFiles: state.wallet.walletFiles,
-  isConnected: state.network.isConnected,
-  isLocalNodeRunning: state.network.isLocalNodeRunning
+  walletFiles: state.wallet.walletFiles
 });
 
 const mapDispatchToProps = {
