@@ -8,8 +8,6 @@ import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
 import type { Action } from '/types';
-import { fileSystemService } from '/infra/fileSystemService';
-import { httpService } from '/infra/httpService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 
 // $FlowStyledIssue
@@ -76,7 +74,6 @@ class Auth extends Component<Props, State> {
         throw error;
       });
     }
-    await this.checkLocalNode();
   }
 
   renderBody = () => {
@@ -136,23 +133,6 @@ class Auth extends Component<Props, State> {
 
   proceedWithRestore = ({ mnemonic }) => {
     this.setState({ isRestoreWith12WordsMode: false, mode: authModes.CREATE, mnemonic });
-  };
-
-  checkLocalNode = async () => {
-    try {
-      await httpService.checkNetworkConnection();
-    } catch (err) {
-      // Ignore this error - local node not running. Will now run local node.
-      this.runLocalNode();
-    }
-  };
-
-  runLocalNode = async () => {
-    try {
-      await fileSystemService.runLocalNode();
-    } catch (error) {
-      throw error;
-    }
   };
 }
 
