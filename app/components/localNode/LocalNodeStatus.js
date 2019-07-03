@@ -68,10 +68,16 @@ class LocalNodeStatus extends Component<Props> {
     );
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { getTotalEarnings, getUpcomingEarnings } = this.props;
-    getTotalEarnings();
-    getUpcomingEarnings();
+    try {
+      await getTotalEarnings();
+      await getUpcomingEarnings();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   }
 }
 

@@ -57,10 +57,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     });
   });
 
-  ipcMain.on(ipcConsts.GET_INIT_PROGRESS, async (event) => {
-    netService.getLocalNodeSetupProgress({ event });
-  });
-
   ipcMain.on(ipcConsts.GET_TOTAL_EARNINGS, async (event) => {
     netService.getTotalEarnings({ event });
   });

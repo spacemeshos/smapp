@@ -8,6 +8,7 @@ import { Loader } from '/basicComponents';
 import { background1, background2, background3 } from '/assets/images';
 import { smColors, authModes } from '/vars';
 import type { Action } from '/types';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -64,9 +65,15 @@ class Auth extends Component<Props, State> {
     return null;
   }
 
-  componentDidMount(): void {
+  async componentDidMount() {
     const { readWalletFiles } = this.props;
-    readWalletFiles();
+    try {
+      await readWalletFiles();
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   }
 
   renderBody = () => {
@@ -142,4 +149,5 @@ Auth = connect(
   mapDispatchToProps
 )(Auth);
 
+Auth = ScreenErrorBoundary(Auth, true);
 export default Auth;

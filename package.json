@@ -170,7 +170,8 @@
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-cli": "^3.3.2",
     "webpack-dev-server": "^3.4.1",
-    "webpack-merge": "^4.2.1"
+    "webpack-merge": "^4.2.1",
+    "hoist-non-react-statics": "^3.3.0"
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.5.1",

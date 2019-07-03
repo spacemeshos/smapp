@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import routes from '/routes';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 type Props = {};
 
@@ -18,6 +19,7 @@ class Wallet extends Component<Props> {
   }
 }
 
+Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;
 
 // 7be017a967db77fd10ac7c891b3d6d946dea7e3e14756e2f0f9e09b9663f0d9c

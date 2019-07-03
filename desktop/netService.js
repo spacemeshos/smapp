@@ -168,15 +168,6 @@ class NetService {
     }
   };
 
-  getLocalNodeSetupProgress = async ({ event }) => {
-    try {
-      const { value } = await this._getLocalNodeSetupProgress();
-      event.sender.send(ipcConsts.GET_INIT_PROGRESS_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_INIT_PROGRESS_FAILURE, error.message);
-    }
-  };
-
   getTotalEarnings = async ({ event }) => {
     try {
       const { value } = await this._getTotalEarnings();

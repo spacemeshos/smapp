@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateTransaction } from '/redux/wallet/actions';
 import { Transaction } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
@@ -10,6 +9,7 @@ import { communication } from '/assets/images';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 import { shell } from 'electron';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -209,13 +209,7 @@ const mapStateToProps = (state) => ({
   transactions: state.wallet.transactions[state.wallet.currentAccountIndex].data
 });
 
-const mapDispatchToProps = {
-  updateTransaction
-};
+Transactions = connect(mapStateToProps)(Transactions);
 
-Transactions = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Transactions);
-
+Transactions = ScreenErrorBoundary(Transactions);
 export default Transactions;

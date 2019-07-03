@@ -9,6 +9,7 @@ import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import { smColors, authModes } from '/vars';
 import type { WalletMeta, Account, Action } from '/types';
 import { fileSystemService } from '/infra/fileSystemService';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -168,7 +169,7 @@ class Settings extends Component<Props, State> {
     } = this.props;
     const { shouldShowChangePassphrase } = this.state;
     return [
-      <Wrapper key="main">
+      <Wrapper key="wrapper">
         <HeaderWrapper>
           <HeaderText>Settings</HeaderText>
           <WalletName>{displayName}</WalletName>
@@ -273,7 +274,7 @@ class Settings extends Component<Props, State> {
           </div>
         </InnerWrapper>
       </Wrapper>,
-      shouldShowChangePassphrase && <ChangePassphrase goBack={() => this.setState({ shouldShowChangePassphrase: false })} key="modal1" />
+      shouldShowChangePassphrase && <ChangePassphrase key="modal" goBack={() => this.setState({ shouldShowChangePassphrase: false })} />
     ];
   }
 
@@ -352,7 +353,10 @@ const mapDispatchToProps = {
   createNewAccount
 };
 
-export default connect(
+Settings = connect(
   mapStateToProps,
   mapDispatchToProps
 )(Settings);
+
+Settings = ScreenErrorBoundary(Settings);
+export default Settings;
