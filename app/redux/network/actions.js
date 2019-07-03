@@ -4,7 +4,6 @@ import { Action, Dispatch } from '/types';
 
 export const CHECK_NETWORK_CONNECTION: string = 'CHECK_NETWORK_CONNECTION';
 export const SET_NODE_IP: string = 'SET_NODE_IP';
-export const CHECK_LOCAL_NODE: string = 'CHECK_LOCAL_NODE';
 
 export const checkNetworkConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
