@@ -5,7 +5,7 @@ import { CHECK_NETWORK_CONNECTION, SET_NODE_IP } from './actions';
 const DEFAULT_URL = 'localhost:9091';
 
 const initialState = {
-  isConnected: true,
+  isConnected: false,
   nodeIpAddress: DEFAULT_URL
 };
 
