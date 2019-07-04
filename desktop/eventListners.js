@@ -3,6 +3,7 @@ import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
 import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
+import WalletAutoStarter from './autoStartManager';
 
 const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
@@ -101,6 +102,14 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
     FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+  });
+
+  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+    WalletAutoStarter.toggleAutoStart();
+  });
+
+  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
+    WalletAutoStarter.isEnabled({ event });
   });
 };
 

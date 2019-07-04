@@ -1,22 +1,19 @@
-const builder = require('electron-builder');
-const Platform = builder.Platform;
+const { Platform, build } = require('electron-builder');
 
 const args = process.argv.slice(2);
-const target = args && args.length ? args[0] : null;
+const targets = args && args.length ? args : null;
 
-if (target !== 'mac' && target !== 'windows' && target !== 'linux') {
-  throw new Error('Wrong target args. Should be either mac, windows or linux. ex: node ./<path to file>/packageConfig.js mac');
+if (!targets) {
+  throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
 }
 
-console.log(`Building for ${target}...`);
-
-const extraFiles = {
-  mac: [{ from: 'node/mac/demoNodeExec', to: 'node/demoNodeExec' }],
-  windows: [{ from: 'node/windows/demoNodeExec.exe', to: 'node/demoNodeExec.exe' }],
-  linux: [{ from: 'node/linux/demoNodeExec', to: 'node/demoNodeExec' }]
+const nodeFiles = {
+  mac: { from: 'node/mac/', to: 'node/' },
+  windows: { from: 'node/windows/', to: 'node/' },
+  linux: { from: 'node/linux/', to: 'node/' }
 };
 
-const buildOptions = {
+const getBuildOptions = (target) => ({
   targets: Platform[target.toUpperCase()].createTarget(),
   config: {
     appId: 'com.spacemesh.wallet',
@@ -30,9 +27,9 @@ const buildOptions = {
       'desktop/ed25519.wasm',
       'package.json',
       'node_modules/',
-      'proto/'
+      'proto/',
+      nodeFiles[target]
     ],
-    extraFiles: extraFiles[target],
     dmg: {
       window: {
         width: '500',
@@ -61,7 +58,7 @@ const buildOptions = {
       perMachine: false,
       allowElevation: true,
       allowToChangeInstallationDirectory: true,
-      runAfterFinish: false
+      runAfterFinish: true
     },
     linux: {
       target: ['deb', 'snap', 'AppImage'],
@@ -71,30 +68,23 @@ const buildOptions = {
     directories: {
       buildResources: 'resources',
       output: 'release'
-    },
-    publish: [
-      {
-        provider: 'github',
-        owner: 'smapp',
-        repo: 'smapp',
-        private: false
-      }
-    ],
-    afterPack() {
-      console.log('Build completed.');
     }
   }
-};
+});
 
-builder
-  .build(buildOptions)
-  .then((results) => {
-    if (results && results.length) {
-      console.log('Build process files:');
-      results.forEach((res, index) => console.log(`${index + 1}. ${res}`));
+targets.forEach(async (target) => {
+  if (['mac', 'windows', 'linux'].indexOf(target) === -1) {
+    console.error("Invalid target provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'")
+  } else {
+    try {
+      const res = await build(getBuildOptions(target));
+      if (res && res.length) {
+        console.log(`Artifacts packed for ${target}:`);
+        res.forEach((res, index) => console.log(`${index + 1}. ${res}`));
+      }
+    } catch (error) {
+      console.log(error);
+      process.exit(1);
     }
-    process.exit(0);
-  })
-  .catch((error) => {
-    process.exit(1);
-  });
+  }
+});
