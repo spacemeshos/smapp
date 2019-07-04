@@ -19,7 +19,7 @@ cache:
 
 before_install:
   - npm i -g npm@6.9.0
-  - ./fetchNodeBinaries.sh
+  - sh ./fetchNodeBinaries.sh
 
 install:
   - npm install
