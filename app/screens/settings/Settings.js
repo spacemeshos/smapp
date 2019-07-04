@@ -9,6 +9,7 @@ import { SmButton, SmInput, SmDropdown } from '/basicComponents';
 import { smColors, authModes } from '/vars';
 import type { WalletMeta, Account, Action } from '/types';
 import { fileSystemService } from '/infra/fileSystemService';
+import { autoStartService } from '/infra/autoStartService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 
 const Wrapper = styled.div`
@@ -151,13 +152,14 @@ type Props = {
 };
 
 type State = {
-  shouldShowChangePassphrase: false,
-  shouldShowRestoreWallet: false
+  shouldShowChangePassphrase: boolean,
+  isAutoStartEnabled: boolean
 };
 
 class Settings extends Component<Props, State> {
   state = {
-    shouldShowChangePassphrase: false
+    shouldShowChangePassphrase: false,
+    isAutoStartEnabled: autoStartService.isAutoStartEnabled()
   };
 
   render() {
@@ -167,7 +169,7 @@ class Settings extends Component<Props, State> {
       walletFiles,
       createNewAccount
     } = this.props;
-    const { shouldShowChangePassphrase } = this.state;
+    const { shouldShowChangePassphrase, isAutoStartEnabled } = this.state;
     return [
       <Wrapper key="wrapper">
         <HeaderWrapper>
@@ -271,6 +273,12 @@ class Settings extends Component<Props, State> {
               actionText="Delete Wallet File"
               isDisabled={!(walletFiles && !!walletFiles.length)}
             />
+            <SettingsRow
+              text="Toggle wallet auto start"
+              subText={`Auto start is ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
+              action={this.toggleAutoStart}
+              actionText="Toggle auto start"
+            />
           </div>
         </InnerWrapper>
       </Wrapper>,
@@ -340,6 +348,12 @@ class Settings extends Component<Props, State> {
       default:
         break;
     }
+  };
+
+  toggleAutoStart = () => {
+    const { isAutoStartEnabled } = this.state;
+    autoStartService.toggleAutoStart();
+    this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
   };
 }
 
