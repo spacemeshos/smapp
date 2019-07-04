@@ -15,6 +15,7 @@ const nodeFiles = {
 
 const getBuildOptions = (target) => ({
   targets: Platform[target.toUpperCase()].createTarget(),
+  publish: 'never', 
   config: {
     appId: 'com.spacemesh.wallet',
     productName: 'Spacemesh Wallet',
