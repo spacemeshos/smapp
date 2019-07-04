@@ -9,11 +9,6 @@ matrix:
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
-    - os: linux
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
 
@@ -24,6 +19,7 @@ cache:
 
 before_install:
   - npm i -g npm@6.9.0
+  - ./fetchNodeBinaries.sh
 
 install:
   - npm install

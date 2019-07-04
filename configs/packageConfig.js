@@ -1,14 +1,35 @@
 const builder = require('electron-builder');
 const Platform = builder.Platform;
 
+const getTarget = (args) => {
+  const keyIndex = args.findIndex((arg) => arg === '--target');
+  if (keyIndex < 0 || (keyIndex >= 0 && keyIndex + 1 >= args.length)) {
+    throw new Error(`No --target key param found or no value following it.`);
+  }
+  const target = args[keyIndex + 1];
+  if (target !== 'mac' && target !== 'windows' && target !== 'linux') {
+    throw new Error('Wrong target args. Should be either mac, windows or linux. ex: node ./<path to file>/packageConfig.js --target mac');
+  }
+  return target;
+};
+
+const getPublish = (args) => {
+  const keyIndex = args.findIndex((arg) => arg === '--publish');
+  if (keyIndex >= 0 && keyIndex + 1 >= args.length) {
+    throw new Error(`No --publish key param found or no value following it.`);
+  }
+  const publish = keyIndex < 0 ? null : args[keyIndex + 1];
+  if (publish && publish !== 'always' && publish !== 'never') {
+    throw new Error('Wrong publish args. Should be either never or always. ex: node ./<path to file>/packageConfig.js --publish always');
+  }
+  return publish;
+};
+
 const args = process.argv.slice(2);
-const target = args && args.length ? args[0] : null;
+const target = getTarget(args);
+const publish = getPublish(args);
 
-if (target !== 'mac' && target !== 'windows' && target !== 'linux') {
-  throw new Error('Wrong target args. Should be either mac, windows or linux. ex: node ./<path to file>/packageConfig.js mac');
-}
-
-console.log(`Building for ${target}...`);
+console.log(`Building ${publish && publish === 'always' ? '(with publish) ' : ''}for ${target}...`);
 
 const extraFiles = {
   mac: [{ from: 'node/mac/demoNodeExec', to: 'node/demoNodeExec' }],
@@ -85,6 +106,10 @@ const buildOptions = {
     }
   }
 };
+
+if (publish) {
+  buildOptions.publish = publish;
+}
 
 builder
   .build(buildOptions)
