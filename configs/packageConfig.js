@@ -7,8 +7,6 @@ if (!targets) {
   throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
 }
 
-console.log(`Building for ${target}...`);
-
 const nodeFiles = {
   mac: { from: 'node/mac/', to: 'node/' },
   windows: { from: 'node/windows/', to: 'node/' },
@@ -76,7 +74,7 @@ const getBuildOptions = (target) => ({
 
 targets.forEach(async (target) => {
   if (['mac', 'windows', 'linux'].indexOf(target) === -1) {
-    console.error("Invalid target provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'")
+    console.error("Invalid target provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
   } else {
     try {
       const res = await build(getBuildOptions(target));
