@@ -27,4 +27,4 @@ install:
 script:
   - npm run lint-ci
   - npm run build-dll
-  - npm run package-mac
+  - npm run package-all
