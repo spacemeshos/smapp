@@ -32,7 +32,9 @@ install:
 script:
   - npm run lint-ci
   - npm run build-dll
+  - echo "$TRAVIS_OS_NAME"
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then 
-      npm run package-mac; 
+      # npm run package-all;
+      echo "os name is linux" 
     fi
