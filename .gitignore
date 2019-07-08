@@ -35,3 +35,4 @@ ct-libc/
 /desktop/dist/
 /desktop/main.prod.js
 /desktop/main.prod.js.map
+/node/
