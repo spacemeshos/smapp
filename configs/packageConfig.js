@@ -15,6 +15,7 @@ const nodeFiles = {
 
 const getBuildOptions = (target) => ({
   targets: Platform[target.toUpperCase()].createTarget(),
+  publish: 'never', 
   config: {
     appId: 'com.spacemesh.wallet',
     productName: 'Spacemesh Wallet',
@@ -74,7 +75,7 @@ const getBuildOptions = (target) => ({
 
 targets.forEach(async (target) => {
   if (['mac', 'windows', 'linux'].indexOf(target) === -1) {
-    console.error("Invalid target provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'")
+    console.error("Invalid target provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
   } else {
     try {
       const res = await build(getBuildOptions(target));
