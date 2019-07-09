@@ -87,6 +87,7 @@ const getBuildOptions = (target) => ({
       'package.json',
       'node_modules/',
       'proto/',
+      'templates/',
       nodeFiles[target]
     ],
     dmg: {
@@ -130,7 +131,7 @@ const getBuildOptions = (target) => ({
     },
     afterAllArtifactBuild: async (buildResult) => {
       try {
-        const sourceTemplate = './configs/auth_template.md';
+        const sourceTemplate = './templates/auth_template.md';
         const authFilePath = './addToPublish/auth.md';
         await generateAuthFile({ sourceTemplate, authFilePath });
         const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
