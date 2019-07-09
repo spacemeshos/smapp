@@ -1,5 +1,14 @@
+const fs = require('fs');
+const util = require('util');
+const crypto = require('crypto');
+const readline = require('readline');
+const template = require('lodash.template');
+
 const { Platform, build } = require('electron-builder');
 
+const readFileAsync = util.promisify(fs.readFile);
+const copyFileAsync = util.promisify(fs.copyFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 const args = process.argv.slice(2);
 const targets = args && args.length ? args : null;
 
@@ -13,9 +22,58 @@ const nodeFiles = {
   linux: { from: 'node/linux/', to: 'node/' }
 };
 
+const getFileHash = async ({ filename }) => {
+  const shasum = crypto.createHash('sha512');
+  const fileContent = await readFileAsync(filename);
+  const hashsum = shasum.update(fileContent);
+  const hash = hashsum.digest('hex');
+  return hash;
+};
+
+const generateAuthFile = async ({ sourceTemplate, authFilePath }) => {
+  try {
+    if (!fs.existsSync(authFilePath)) {
+      await copyFileAsync(sourceTemplate, authFilePath);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCompiledAuthFileLines = async ({ filename, artifactPath, artifactSuffix }) => {
+  return new Promise(async (resolve, reject) => {
+    const lines = [];
+    const hash = await getFileHash({ filename: artifactPath });
+    const rd = readline.createInterface({
+      input: fs.createReadStream(filename),
+      output: false,
+      console: false
+    });
+
+    rd.on('close', () => {
+      resolve(lines);
+    });
+
+    rd.on('error', reject);
+
+    rd.on('line', (line) => {
+      const compiled = template(line);
+      const installerKey = `${artifactSuffix}_installer`;
+      const shaKey = `${artifactSuffix}_sha512`;
+      let compiledLine = null;
+      try {
+        compiledLine = compiled({ [installerKey]: artifactPath, [shaKey]: hash });
+      } catch (error) {
+        compiledLine = line;
+      }
+      lines.push(compiledLine);
+    });
+  });
+};
+
 const getBuildOptions = (target) => ({
   targets: Platform[target.toUpperCase()].createTarget(),
-  publish: 'never', 
+  publish: 'always',
   config: {
     appId: 'com.spacemesh.wallet',
     productName: 'Spacemesh Wallet',
@@ -69,6 +127,26 @@ const getBuildOptions = (target) => ({
     directories: {
       buildResources: 'resources',
       output: 'release'
+    },
+    afterAllArtifactBuild: async (buildResult) => {
+      try {
+        const sourceTemplate = './configs/auth_template.md';
+        const authFilePath = './addToPublish/auth.md';
+        await generateAuthFile({ sourceTemplate, authFilePath });
+        const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
+        buildResult.artifactPaths.forEach(async (artifactPath) => {
+          const artifactSplit = artifactPath.split('.');
+          const artifactSuffix = artifactSplit[artifactSplit.length - 1];
+          if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
+            const lines = await getCompiledAuthFileLines({ filename: authFilePath, artifactPath, artifactSuffix });
+            await writeFileAsync(authFilePath, lines.join('\n'));
+          }
+        });
+        return [authFilePath];
+      } catch (error) {
+        console.error(error.message);
+        process.exit(1);
+      }
     }
   }
 });
