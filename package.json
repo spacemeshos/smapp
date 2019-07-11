@@ -20,7 +20,7 @@
     "lint": "cross-env NODE_ENV=development eslint --format=pretty .",
     "lint-ci": "npm run flow && npm run lint",
     "package": "npm run build && electron-builder build --publish never",
-    "package-all": "npm run build && node ./configs/packageConfig.js mac windows linux",
+    "package-all": "rm -f release/auth.md && npm run build && node ./configs/packageConfig.js mac windows linux",
     "package-mac": "npm run build && node ./configs/packageConfig.js mac",
     "package-win": "npm run build && node ./configs/packageConfig.js windows",
     "package-linux": "npm run build && node ./configs/packageConfig.js linux",

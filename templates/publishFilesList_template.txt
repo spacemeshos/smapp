@@ -1,0 +1,5 @@
+<%= dmg_installer %>
+<%= exe_installer %>
+<%= deb_installer %>
+<%= AppImage_installer %>
+<%= auth_md %>

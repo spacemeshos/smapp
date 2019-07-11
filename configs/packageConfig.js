@@ -31,10 +31,10 @@ const getFileHash = async ({ filename }) => {
   return hash;
 };
 
-const generateAuthFile = async ({ sourceTemplate, authFilePath }) => {
+const generateFile = async ({ source, destination }) => {
   try {
-    if (!fs.existsSync(authFilePath)) {
-      await copyFileAsync(sourceTemplate, authFilePath);
+    if (!fs.existsSync(destination)) {
+      await copyFileAsync(source, destination);
     }
   } catch (error) {
     throw error;
@@ -42,6 +42,8 @@ const generateAuthFile = async ({ sourceTemplate, authFilePath }) => {
 };
 
 const getCompiledAuthFileLines = async ({ filename, artifactPath, artifactSuffix }) => {
+  const artifactSplit = artifactPath.split('/');
+  const artifactName = artifactSplit[artifactSplit.length - 1];
   return new Promise(async (resolve, reject) => {
     const lines = [];
     const hash = await getFileHash({ filename: artifactPath });
@@ -63,7 +65,7 @@ const getCompiledAuthFileLines = async ({ filename, artifactPath, artifactSuffix
       const shaKey = `${artifactSuffix}_sha512`;
       let compiledLine = null;
       try {
-        compiledLine = compiled({ [installerKey]: artifactPath, [shaKey]: hash });
+        compiledLine = compiled({ [installerKey]: artifactName, [shaKey]: hash });
       } catch (error) {
         compiledLine = line;
       }
@@ -72,9 +74,60 @@ const getCompiledAuthFileLines = async ({ filename, artifactPath, artifactSuffix
   });
 };
 
+const getCompiledPublishListFileLines = async ({ keyToCompile, artifactPath, artifactsToPublishFile }) => {
+  const artifactSplit = artifactPath.split('/');
+  const artifactName = artifactSplit[artifactSplit.length - 1];
+  const areAllLinesProcessed = ({ lines }) => {
+    const uncompiledLines = lines.filter((line) => line.startsWith('<%='));
+    return uncompiledLines.length === 0;
+  };
+  return new Promise(async (resolve, reject) => {
+    const lines = [];
+    const rd = readline.createInterface({
+      input: fs.createReadStream(artifactsToPublishFile),
+      output: false,
+      console: false
+    });
+
+    rd.on('close', () => {
+      if (areAllLinesProcessed({ lines })) {
+        lines.push('');
+      }
+      resolve(lines);
+    });
+
+    rd.on('error', reject);
+
+    rd.on('line', (line) => {
+      const compiled = template(line);
+      let compiledLine = null;
+      try {
+        compiledLine = compiled({ [keyToCompile]: artifactName });
+      } catch (error) {
+        compiledLine = line;
+      }
+      lines.push(compiledLine);
+    });
+  });
+};
+
+const writePublishFilesList = async ({ artifactsToPublish }) => {
+  const artifactsToPublishFileTemplate = path.join(__dirname, '..', 'templates', 'publishFilesList_template.txt');
+  const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.txt');
+  await generateFile({ source: artifactsToPublishFileTemplate, destination: artifactsToPublishFile });
+  for (const artifactPathToPublish of artifactsToPublish) {
+    const artifactPath = artifactPathToPublish.artifactPath;
+    const artifactSplit = artifactPath.split('.');
+    const artifactSuffix = artifactSplit[artifactSplit.length - 1];
+    const keyToCompile = artifactPathToPublish.artifactSuffix === 'md' ? 'auth_md' : `${artifactSuffix}_installer`;
+    const lines = await getCompiledPublishListFileLines({ keyToCompile, artifactPath, artifactsToPublishFile });
+    await writeFileAsync(artifactsToPublishFile, lines.join('\n'));
+  }
+};
+
 const getBuildOptions = (target) => ({
   targets: Platform[target.toUpperCase()].createTarget(),
-  publish: 'always',
+  publish: 'never',
   config: {
     appId: 'com.spacemesh.wallet',
     productName: 'Spacemesh Wallet',
@@ -131,19 +184,21 @@ const getBuildOptions = (target) => ({
     },
     afterAllArtifactBuild: async (buildResult) => {
       try {
-        const sourceTemplate = path.join(__dirname, '..', 'addToPublish', 'auth_template.md');
-        const authFilePath = path.join(__dirname, '..', 'addToPublish', 'auth.md');
-        await generateAuthFile({ sourceTemplate, authFilePath });
+        const sourceTemplate = path.join(__dirname, '..', 'templates', 'auth_template.md');
+        const authFilePath = path.join(__dirname, '..', 'release', 'auth.md');
+        await generateFile({ source: sourceTemplate, destination: authFilePath });
         const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-        buildResult.artifactPaths.forEach(async (artifactPath) => {
+        const artifactsToPublish = [{ artifactPath: authFilePath, artifactSuffix: 'md' }];
+        for (const artifactPath of buildResult.artifactPaths) {
           const artifactSplit = artifactPath.split('.');
           const artifactSuffix = artifactSplit[artifactSplit.length - 1];
           if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
+            artifactsToPublish.push({ artifactPath, artifactSuffix });
             const lines = await getCompiledAuthFileLines({ filename: authFilePath, artifactPath, artifactSuffix });
             await writeFileAsync(authFilePath, lines.join('\n'));
           }
-        });
-        return [authFilePath];
+        }
+        await writePublishFilesList({ artifactsToPublish });
       } catch (error) {
         console.error(error.message);
         process.exit(1);
