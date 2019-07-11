@@ -151,6 +151,7 @@ const mapDispatchToProps = {
   unlockWallet
 };
 
+// $FlowConnectIssue
 UnlockWallet = connect(
   null,
   mapDispatchToProps

@@ -202,6 +202,6 @@ const mapStateToProps = (state) => ({
   isConnected: state.network.isConnected
 });
 
+// $FlowConnectIssue
 SideMenu = connect(mapStateToProps)(SideMenu);
-
 export default SideMenu;

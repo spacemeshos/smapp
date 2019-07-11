@@ -201,6 +201,7 @@ const mapDispatchToProps = {
   sendTransaction
 };
 
+// $FlowConnectIssue
 SendCoins = connect(
   mapStateToProps,
   mapDispatchToProps

@@ -119,7 +119,7 @@ class TwelveWordsBackup extends Component<Props, State> {
 
   twelveWordsPrint: string;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       isTwelveWordsCopied: false
@@ -197,5 +197,6 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-TwelveWordsBackup = connect<any>(mapStateToProps)(TwelveWordsBackup);
+// $FlowConnectIssue
+TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
 export default TwelveWordsBackup;

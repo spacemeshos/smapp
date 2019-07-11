@@ -97,5 +97,6 @@ const mapStateToProps = (state) => ({
   lastUsedAddresses: state.wallet.lastUsedAddresses
 });
 
+// $FlowConnectIssue
 AllContacts = connect(mapStateToProps)(AllContacts);
 export default AllContacts;

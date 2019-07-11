@@ -90,6 +90,7 @@ const mapDispatchToProps = {
   setNodeIpAddress
 };
 
+// $FlowConnectIssue
 SetNodeIp = connect(
   mapStateToProps,
   mapDispatchToProps

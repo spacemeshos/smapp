@@ -194,6 +194,7 @@ const mapDispatchToProps = {
   setCurrentAccount
 };
 
+// $FlowConnectIssue
 Overview = connect(
   mapStateToProps,
   mapDispatchToProps

@@ -223,6 +223,6 @@ const mapStateToProps = (state) => ({
   wallet: state.wallet
 });
 
+// $FlowConnectIssue
 Backup = connect(mapStateToProps)(Backup);
-
 export default Backup;

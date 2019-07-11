@@ -97,6 +97,7 @@ const mapDispatchToProps = {
   readFileName
 };
 
+// $FlowConnectIssue
 RestoreWallet = connect(
   null,
   mapDispatchToProps

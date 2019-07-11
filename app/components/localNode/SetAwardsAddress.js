@@ -97,6 +97,7 @@ const mapDispatchToProps = {
   setAwardsAddress
 };
 
+// $FlowConnectIssue
 SetAwardsAddress = connect(
   mapStateToProps,
   mapDispatchToProps

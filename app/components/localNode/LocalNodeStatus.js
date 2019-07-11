@@ -91,6 +91,7 @@ const mapDispatchToProps = {
   getUpcomingEarnings
 };
 
+// $FlowConnectIssue
 LocalNodeStatus = connect(
   mapStateToProps,
   mapDispatchToProps

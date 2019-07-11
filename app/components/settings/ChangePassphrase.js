@@ -194,6 +194,7 @@ const mapDispatchToProps = {
   updateAccountsInFile
 };
 
+// $FlowConnectIssue
 ChangePassphrase = connect(
   mapStateToProps,
   mapDispatchToProps

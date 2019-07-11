@@ -222,6 +222,7 @@ const mapDispatchToProps = {
   saveNewWallet
 };
 
+// $FlowConnectIssue
 CreateWallet = connect(
   null,
   mapDispatchToProps

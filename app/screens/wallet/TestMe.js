@@ -227,5 +227,6 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
+// $FlowConnectIssue
 TestMe = connect(mapStateToProps)(TestMe);
 export default TestMe;
