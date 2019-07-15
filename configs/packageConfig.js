@@ -41,6 +41,19 @@ const generateFile = async ({ source, destination }) => {
   }
 };
 
+const getLinesWithoutLinkSpaces = ({ lines }) =>
+  lines.map((line) => {
+    const hasLink = line.includes('](') && line[line.indexOf('](') + 2] !== '<';
+    if (hasLink) {
+      const startIndex = line.indexOf('](');
+      const endIndex = line.indexOf(')', startIndex + 2);
+      const linkSubstring = line.substring(startIndex, endIndex);
+
+      line = line.replace(/ /g, '&#32;');
+    }
+    return line;
+  });
+
 const getCompiledAuthFileLines = async ({ filename, artifactPath, artifactSuffix }) => {
   const artifactSplit = artifactPath.split('/');
   const artifactName = artifactSplit[artifactSplit.length - 1];
@@ -195,7 +208,8 @@ const getBuildOptions = (target) => ({
           if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
             artifactsToPublish.push({ artifactPath, artifactSuffix });
             const lines = await getCompiledAuthFileLines({ filename: authFilePath, artifactPath, artifactSuffix });
-            await writeFileAsync(authFilePath, lines.join('\n'));
+            const linesWithSpacesReplaced = getLinesWithoutLinkSpaces({ lines });
+            await writeFileAsync(authFilePath, linesWithSpacesReplaced.join('\n'));
           }
         }
         await writePublishFilesList({ artifactsToPublish });

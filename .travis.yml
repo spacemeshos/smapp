@@ -36,5 +36,7 @@ script:
   - |
     if [ $TRAVIS_OS_NAME == "osx" ]; then 
       rm -f release/auth.md
-      npm run package-all;
+      rm -f release/publishFilesList.txt
+      npm run package-all
+      sh ./deployDistributables.sh
     fi
