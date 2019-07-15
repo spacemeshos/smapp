@@ -17,6 +17,76 @@ if (!targets) {
   throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
 }
 
+const distributablesList = ['<%= dmg_installer %>', '<%= exe_installer %>', '<%= deb_installer %>', '<%= AppImage_installer %>', '<%= auth_md %>'];
+
+const authMdTemplate = [
+  '# Verifying the Downloadable Installer',
+  '',
+  'Follow the steps to verify the integrity and authenticity of the Spacemesh downloadable installer for your platform.',
+  '',
+  '### OS X',
+  '[SPACEMESH_OS_X_INSTALLER](<%= dmg_installer %>)',
+  '',
+  '1. Open Terminal and run `shasum` on the downloadable installer:',
+  '',
+  '```bash',
+  'shasum -a 512 /path/to/installer',
+  '```',
+  '',
+  '2. Verify that the shasum output you got in terminal matches this checksum:',
+  '',
+  '<span>',
+  '<%= dmg_sha512 %>',
+  '</span>',
+  '',
+  '### Windows 10',
+  '[SPACEMESH_WIN10_INSTALLER](<%= exe_installer %>)',
+  '',
+  '1. Run `certutil` from the Windows command line console:',
+  '```shell',
+  'certutil -hashfile C:path\toinstaller SHA512',
+  '```',
+  '',
+  '2. Verify that the output you got in the console matches this checksum:',
+  '',
+  '<span>',
+  '<%= exe_sha512 %>',
+  '</span>',
+  '',
+  '### Debian',
+  '',
+  '[SPACEMESH_DEB_INSTALLER](<%= deb_installer %>)',
+  '',
+  '1. Run `sha512sum` from the command line:',
+  '',
+  '```bash',
+  'sha512sum path\todownloadedinstaller',
+  '```',
+  '',
+  '2. Verify that the output you got in the console matches this checksum:',
+  '',
+  '<span>',
+  '<%= deb_sha512 %>',
+  '</span>',
+  '',
+  '### Ubuntu or Fedora Linux',
+  '',
+  '[SPACEMESH_UBUNTU_INSTALLER](<%= AppImage_installer %>)',
+  '',
+  '1. Run `sha512sum` from the command line:',
+  '',
+  '```bash',
+  'sha512sum path\todownloadedinstaller',
+  '```',
+  '',
+  '2. Verify that the output you got in the console matches this checksum:',
+  '',
+  '<span>',
+  '<%= AppImage_sha512 %>',
+  '</span>',
+  ''
+];
+
 const nodeFiles = {
   mac: { from: 'node/mac/', to: 'node/' },
   windows: { from: 'node/windows/', to: 'node/' },
@@ -31,10 +101,10 @@ const getFileHash = async ({ filename }) => {
   return hash;
 };
 
-const generateFile = async ({ source, destination }) => {
+const generateFile = async ({ destination, lines }) => {
   try {
     if (!fs.existsSync(destination)) {
-      await copyFileAsync(source, destination);
+      await writeFileAsync(destination, lines.join('\n'));
     }
   } catch (error) {
     throw error;
@@ -125,9 +195,8 @@ const getCompiledPublishListFileLines = async ({ keyToCompile, artifactPath, art
 };
 
 const writePublishFilesList = async ({ artifactsToPublish }) => {
-  const artifactsToPublishFileTemplate = path.join(__dirname, '..', 'templates', 'publishFilesList_template.txt');
   const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.txt');
-  await generateFile({ source: artifactsToPublishFileTemplate, destination: artifactsToPublishFile });
+  await generateFile({ destination: artifactsToPublishFile, lines: distributablesList });
   for (const artifactPathToPublish of artifactsToPublish) {
     const artifactPath = artifactPathToPublish.artifactPath;
     const artifactSplit = artifactPath.split('.');
@@ -197,9 +266,8 @@ const getBuildOptions = (target) => ({
     },
     afterAllArtifactBuild: async (buildResult) => {
       try {
-        const sourceTemplate = path.join(__dirname, '..', 'templates', 'auth_template.md');
         const authFilePath = path.join(__dirname, '..', 'release', 'auth.md');
-        await generateFile({ source: sourceTemplate, destination: authFilePath });
+        await generateFile({ destination: authFilePath, lines: authMdTemplate });
         const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
         const artifactsToPublish = [{ artifactPath: authFilePath, artifactSuffix: 'md' }];
         for (const artifactPath of buildResult.artifactPaths) {
