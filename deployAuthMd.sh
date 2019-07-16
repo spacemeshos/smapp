@@ -24,6 +24,6 @@ branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
 echo "BRANCH: $branch";
 git add .;
 git commit -am "updating $AUTH_MD_FILE_NAME";
-git push origin $branch;
+git push origin "https://${GH_TOKEN}@github.com/spacemeshos/testnet-guide.git";
 
 echo "Done updating $AUTH_MD_FILE_NAME in $UPLOAD_TARGET_NAME.";

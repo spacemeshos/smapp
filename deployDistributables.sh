@@ -10,8 +10,6 @@ input="../$RELEASE_FOLDER/publishFilesList.txt";
 while IFS= read -r line
 do
   echo "$line";
-  cp -v "../$RELEASE_FOLDER/$line" "$line";
-done < "$input"
-
+done < "$input";
 
 echo "Done deploying Installers.";
