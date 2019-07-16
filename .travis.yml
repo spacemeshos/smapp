@@ -34,9 +34,10 @@ script:
   - npm run build-dll
   - echo $TRAVIS_OS_NAME
   - |
-    if [ $TRAVIS_OS_NAME == "linux" ]; then 
+    if [ $TRAVIS_OS_NAME == "osx" ]; then 
       rm -f release/auth.md
       rm -f release/publishFilesList.txt
       npm run package-all
+      sh ./deployAuthMd.sh
       sh ./deployDistributables.sh
     fi

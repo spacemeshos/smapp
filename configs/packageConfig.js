@@ -17,7 +17,7 @@ if (!targets) {
   throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
 }
 
-const distributablesList = ['<%= dmg_installer %>', '<%= exe_installer %>', '<%= deb_installer %>', '<%= AppImage_installer %>', '<%= auth_md %>'];
+const distributablesList = ['<%= dmg_installer %>', '<%= exe_installer %>', '<%= deb_installer %>', '<%= AppImage_installer %>'];
 
 const authMdTemplate = [
   '# Verifying the Downloadable Installer',
