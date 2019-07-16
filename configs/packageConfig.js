@@ -269,7 +269,8 @@ const getBuildOptions = (target) => ({
         const authFilePath = path.join(__dirname, '..', 'release', 'auth.md');
         await generateFile({ destination: authFilePath, lines: authMdTemplate });
         const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-        const artifactsToPublish = [{ artifactPath: authFilePath, artifactSuffix: 'md' }];
+        // const artifactsToPublish = [{ artifactPath: authFilePath, artifactSuffix: 'md' }];
+        const artifactsToPublish = [];
         for (const artifactPath of buildResult.artifactPaths) {
           const artifactSplit = artifactPath.split('.');
           const artifactSuffix = artifactSplit[artifactSplit.length - 1];
