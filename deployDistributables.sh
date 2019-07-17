@@ -22,13 +22,14 @@ install_gcloud() {
   # Downloading gcloud package
   curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz;
   
-  # creating and giving permissions a-priori
+  # creating and giving ownership permissions a-priori
   sudo mkdir -p /Users/$USER/.config/gcloud/
-  sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
-  sudo mkdir -p /Users/$USER/.config/gcloud/logs/
-  sudo chown -R $USER: /Users/$USER/.config/gcloud/*.*
-  sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/*.*
-  sudo chown -R $USER /Users/$USER/.config/gcloud/logs/*.*
+  #sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
+  #sudo mkdir -p /Users/$USER/.config/gcloud/logs/
+  sudo chown -R $USER: /Users/$USER/.config/gcloud/
+  chmod 600 -R /Users/$USER/.config/gcloud/
+  #sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/*.*
+  #sudo chown -R $USER /Users/$USER/.config/gcloud/logs/*.*
 
   # Installing the package
   sudo mkdir -p $LOCAL_GCLOUD_PATH
@@ -59,7 +60,8 @@ upload_distributables() {
       gsutil cp "$RELEASE_FOLDER/$line" $GCLOUD_WALLET_BUCKET_PATH
     } || { # catch
       echo "Could not upload $line"
-      exit 1
+      # TODO: consider quitting script (1) if file could not upload
+      # exit 1
     }
   done < "$input";
 }
