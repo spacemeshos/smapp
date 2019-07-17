@@ -26,8 +26,8 @@ install_gcloud() {
   sudo chown -R $USER /Users/admin/.config/gcloud/
 
   # Installing the package
-  sudo mkdir -p /usr/local/gcloud \
-  sudo tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
+  sudo mkdir -p /usr/local/gcloud
+  sudo tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz
   sudo sh /usr/local/gcloud/google-cloud-sdk/install.sh -q --usage-reporting=false 
   if [[ $PATH != *"$LOCAL_GCLOUD_BIN_PATH"* ]]; then
     # Adding the package path to local if not in PATH
