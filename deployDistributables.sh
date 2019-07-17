@@ -35,16 +35,17 @@ install_gcloud() {
   sudo tar -C $LOCAL_GCLOUD_PATH -xvf /tmp/google-cloud-sdk.tar.gz
   sudo sh $LOCAL_GCLOUD_PATH/google-cloud-sdk/install.sh -q --usage-reporting=false 
   
-  # test notifications
-  echo "**** Some test notification *****"
-  echo "Running gsutil version -l..."
-  gsutil version -l
-  echo "User is: $USER"
   
   if [[ $PATH != *"$LOCAL_GCLOUD_BIN_PATH"* ]]; then
     # Adding the package path to local if not in PATH
     export PATH=$PATH:$LOCAL_GCLOUD_BIN_PATH
   fi
+  
+  # test notifications
+  echo "**** Some test notification *****"
+  echo "Running gsutil version -l..."
+  gsutil version -l
+  echo "User is: $USER"
 }
 
 upload_distributables() {
