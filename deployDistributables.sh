@@ -26,9 +26,9 @@ install_gcloud() {
   sudo mkdir -p /Users/$USER/.config/gcloud/
   sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
   sudo mkdir -p /Users/$USER/.config/gcloud/logs/
-  sudo chown -R $USER /Users/$USER/.config/gcloud/
-  sudo chown -R $USER /Users/$USER/.config/gcloud/configurations/
-  sudo chown -R $USER /Users/$USER/.config/gcloud/logs/
+  sudo chown -R $USER: /Users/$USER/.config/gcloud/*.*
+  sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/*.*
+  sudo chown -R $USER /Users/$USER/.config/gcloud/logs/*.*
 
   # Installing the package
   sudo mkdir -p $LOCAL_GCLOUD_PATH
@@ -40,7 +40,7 @@ install_gcloud() {
     # Adding the package path to local if not in PATH
     export PATH=$PATH:$LOCAL_GCLOUD_BIN_PATH
   fi
-  
+
   # test notifications
   echo "**** Some test notification *****"
   echo "Running gsutil version -l..."
