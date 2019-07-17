@@ -39,5 +39,5 @@ script:
       rm -f release/publishFilesList.txt
       npm run package-all
       sh ./deployDistributables.sh
-      sh ./deployAuthMd.sh
+      #sh ./deployAuthMd.sh
     fi

@@ -14,17 +14,24 @@ setup_git() {
 commit_files() {
     # test branch
     git checkout -b test-branch
-    git status;
+    git status
     branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
-    echo "BRANCH: $branch";
+    echo "BRANCH: $branch"
     git add .
+    echo "Travis build number: $TRAVIS_BUILD_NUMBER"
     #git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
-    git commit -am "updating $AUTH_MD_FILE_NAME";
+    git commit -am "updating $AUTH_MD_FILE_NAME"
 }
 
 upload_files() {
-   git remote add origin https://${GH_TOKEN}@github.com/spacemeshos/testnet-guide.git > /dev/null 2>&1
-   git push --quiet --set-upstream origin test-branch 
+    if [ -z $GH_TOKEN ]; then
+        echo "Environment variable GH_TOKEN is not set"
+        exit 1
+    fi
+
+    git remote add origin https://${GH_TOKEN}@github.com/spacemeshos/testnet-guide.git > /dev/null 2>&1
+    git push --quiet --set-upstream origin test-branch 
+#    git push origin test-branch;
 }
 
 echo "Updating auth.md in $UPLOAD_TARGET_NAME";
@@ -40,7 +47,5 @@ setup_git
 cp -v "../$RELEASE_FOLDER/$AUTH_MD_FILE_NAME" "$AUTH_MD_FILE_NAME";
 commit_files
 upload_files
-
-# git push origin test-branch;
 
 echo "Done updating $AUTH_MD_FILE_NAME in $UPLOAD_TARGET_NAME.";

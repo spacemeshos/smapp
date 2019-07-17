@@ -12,6 +12,7 @@ const copyFileAsync = util.promisify(fs.copyFile);
 const writeFileAsync = util.promisify(fs.writeFile);
 const args = process.argv.slice(2);
 const targets = args && args.length ? args : null;
+const gcloudWalletPathPrefix = 'https://storage.cloud.google.com/spacemesh-v010/Wallet/';
 
 if (!targets) {
   throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
@@ -111,15 +112,16 @@ const generateFile = async ({ destination, lines }) => {
   }
 };
 
-const getLinesWithoutLinkSpaces = ({ lines }) =>
+const getLinesLinksCompiled = ({ lines }) =>
   lines.map((line) => {
     const hasLink = line.includes('](') && line[line.indexOf('](') + 2] !== '<';
     if (hasLink) {
-      const startIndex = line.indexOf('](');
+      const startIndex = line.indexOf('](') + 2;
       const endIndex = line.indexOf(')', startIndex + 2);
       const linkSubstring = line.substring(startIndex, endIndex);
-
-      line = line.replace(/ /g, '&#32;');
+      const isLinkComplete = line.includes(gcloudWalletPathPrefix);
+      const completeLink = isLinkComplete ? line : `${line.substring(0, startIndex)}${gcloudWalletPathPrefix}${linkSubstring}${line.substring(endIndex, line.length)}`;
+      line = completeLink.replace(/ /g, '&#32;');
     }
     return line;
   });
@@ -269,7 +271,6 @@ const getBuildOptions = (target) => ({
         const authFilePath = path.join(__dirname, '..', 'release', 'auth.md');
         await generateFile({ destination: authFilePath, lines: authMdTemplate });
         const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-        // const artifactsToPublish = [{ artifactPath: authFilePath, artifactSuffix: 'md' }];
         const artifactsToPublish = [];
         for (const artifactPath of buildResult.artifactPaths) {
           const artifactSplit = artifactPath.split('.');
@@ -277,7 +278,7 @@ const getBuildOptions = (target) => ({
           if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
             artifactsToPublish.push({ artifactPath, artifactSuffix });
             const lines = await getCompiledAuthFileLines({ filename: authFilePath, artifactPath, artifactSuffix });
-            const linesWithSpacesReplaced = getLinesWithoutLinkSpaces({ lines });
+            const linesWithSpacesReplaced = getLinesLinksCompiled({ lines });
             await writeFileAsync(authFilePath, linesWithSpacesReplaced.join('\n'));
           }
         }
