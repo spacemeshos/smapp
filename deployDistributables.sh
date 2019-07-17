@@ -1,7 +1,8 @@
 #!/bin/bash -x -e
 
 RELEASE_FOLDER="release"
-LOCAL_GCLOUD_BIN_PATH="/usr/local/gcloud/google-cloud-sdk/bin"
+LOCAL_GCLOUD_PATH="/usr/local/gcloud"
+LOCAL_GCLOUD_BIN_PATH="$LOCAL_GCLOUD_PATH/google-cloud-sdk/bin"
 GCLOUD_WALLET_BUCKET_PATH="gs://spacemesh-v010/Wallet/"
 
 echo "Deploying Spacemesh Wallet Installers";
@@ -22,13 +23,13 @@ install_gcloud() {
   curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz;
   
   # creating and giving permissions a-priori
-  sudo mkdir -p /Users/admin/.config/gcloud/
-  sudo chown -R $USER /Users/admin/.config/gcloud/
+  sudo mkdir -p /Users/$USER/.config/gcloud/
+  sudo chown -R $USER /Users/$USER/.config/gcloud/
 
   # Installing the package
-  sudo mkdir -p /usr/local/gcloud
-  sudo tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz
-  sudo sh /usr/local/gcloud/google-cloud-sdk/install.sh -q --usage-reporting=false 
+  sudo mkdir -p $LOCAL_GCLOUD_PATH
+  sudo tar -C $LOCAL_GCLOUD_PATH -xvf /tmp/google-cloud-sdk.tar.gz
+  sudo sh $LOCAL_GCLOUD_PATH/google-cloud-sdk/install.sh -q --usage-reporting=false 
   if [[ $PATH != *"$LOCAL_GCLOUD_BIN_PATH"* ]]; then
     # Adding the package path to local if not in PATH
     export PATH=$PATH:$LOCAL_GCLOUD_BIN_PATH
