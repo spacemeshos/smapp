@@ -22,7 +22,7 @@ install_gcloud() {
   curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz;
   
   # creating and giving permissions a-priori
-  mkdir -p /Users/admin/.config/gcloud/
+  sudo mkdir -p /Users/admin/.config/gcloud/
   sudo chown -R $USER /Users/admin/.config/gcloud/
 
   # Installing the package
