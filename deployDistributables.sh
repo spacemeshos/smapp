@@ -20,11 +20,15 @@ install_gcloud() {
   echo "Installing GCloud...";
   # Downloading gcloud package
   curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz;
+  
+  # creating and giving permissions a-priori
+  mkdir -p /Users/admin/.config/gcloud/
+  sudo chown -R $USER /Users/admin/.config/gcloud/
 
   # Installing the package
-  sudo mkdir -p /usr/local/gcloud
-  sudo tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz 
-  sudo sh /usr/local/gcloud/google-cloud-sdk/install.sh --usage-reporting false -q
+  mkdir -p /usr/local/gcloud \
+    && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
+    && sh /usr/local/gcloud/google-cloud-sdk/install.sh -q --usage-reporting=false 
   if [[ $PATH != *"$LOCAL_GCLOUD_BIN_PATH"* ]]; then
     # Adding the package path to local if not in PATH
     export PATH=$PATH:$LOCAL_GCLOUD_BIN_PATH
@@ -37,8 +41,13 @@ upload_distributables() {
 
   while IFS= read -r line
   do
-    echo "$line";
-    gsutil cp "$RELEASE_FOLDER/$line" $GCLOUD_WALLET_BUCKET_PATH
+    { # try
+      echo "Uploading $line...";
+      gsutil cp "$RELEASE_FOLDER/$line" $GCLOUD_WALLET_BUCKET_PATH
+    } || { # catch
+      echo "Could not upload $line"
+      exit 1
+    }
   done < "$input";
 }
 
