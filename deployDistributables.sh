@@ -1,21 +1,12 @@
 #!/bin/bash -x -e
 
 RELEASE_FOLDER="release"
-LOCAL_GCLOUD_PATH="/usr/local/gcloud"
+#LOCAL_GCLOUD_PATH="/usr/local/gcloud"
+LOCAL_GCLOUD_PATH="/tmp/gcloud"
 LOCAL_GCLOUD_BIN_PATH="$LOCAL_GCLOUD_PATH/google-cloud-sdk/bin"
 GCLOUD_WALLET_BUCKET_PATH="gs://spacemesh-v010/Wallet/"
 
 echo "Deploying Spacemesh Wallet Installers";
-
-gcp_connect() {
-  if [ -z $GCLOUD_KEY ]; then
-    echo "Environment variable GCLOUD_KEY is not set"
-    exit 1
-  fi
-
-  echo $GCLOUD_KEY | base64 --decode > spacemesh.json
-  gcloud auth activate-service-account --key-file spacemesh.json
-}
 
 install_gcloud() {
   echo "Installing GCloud...";
@@ -27,7 +18,7 @@ install_gcloud() {
   #sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
   #sudo mkdir -p /Users/$USER/.config/gcloud/logs/
   sudo chown -R $USER: /Users/$USER/.config/gcloud/
-  chmod 700 -R /Users/$USER/.config/gcloud/
+  sudo chmod 700 /Users/$USER/.config/gcloud/
   #sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/*.*
   #sudo chown -R $USER /Users/$USER/.config/gcloud/logs/*.*
 
@@ -47,6 +38,16 @@ install_gcloud() {
   echo "Running gsutil version -l..."
   gsutil version -l
   echo "User is: $USER"
+}
+
+gcp_connect() {
+  if [ -z $GCLOUD_KEY ]; then
+    echo "Environment variable GCLOUD_KEY is not set"
+    exit 1
+  fi
+
+  echo $GCLOUD_KEY | base64 --decode > spacemesh.json
+  gcloud auth activate-service-account --key-file spacemesh.json
 }
 
 upload_distributables() {
