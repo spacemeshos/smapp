@@ -13,20 +13,22 @@ install_gcloud() {
   curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz;
   
   # creating and giving ownership permissions a-priori
-  sudo mkdir -p /Users/$USER/.config/gcloud/
-  sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
-  sudo mkdir -p /Users/$USER/.config/gcloud/logs/
-  sudo chown -R $USER: /Users/$USER/.config/gcloud/
-  sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/
-  sudo chown -R $USER /Users/$USER/.config/gcloud/logs/
-  sudo chmod 700 /Users/$USER/.config/gcloud/
-  sudo chmod 700 /Users/$USER/.config/gcloud/configurations/
-  sudo chmod 700 /Users/$USER/.config/gcloud/logs/
+  # sudo mkdir -p /Users/$USER/.config/gcloud/
+  #sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
+  #sudo mkdir -p /Users/$USER/.config/gcloud/logs/
+  # sudo chown -R $USER: /Users/$USER/.config/gcloud/
+  #sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/
+  #sudo chown -R $USER /Users/$USER/.config/gcloud/logs/
+  #sudo chmod 700 /Users/$USER/.config/gcloud/
+  #sudo chmod 700 /Users/$USER/.config/gcloud/configurations/
+  #sudo chmod 700 /Users/$USER/.config/gcloud/logs/
+
+  sudo chown -R $USER: $LOCAL_GCLOUD_PATH/google-cloud-sdk/
 
   # Installing the package
-  sudo mkdir -p $LOCAL_GCLOUD_PATH
-  sudo tar -C $LOCAL_GCLOUD_PATH -xvf /tmp/google-cloud-sdk.tar.gz
-  sudo sh $LOCAL_GCLOUD_PATH/google-cloud-sdk/install.sh -q --usage-reporting=false 
+  sudo su $USER -c "mkdir -p $LOCAL_GCLOUD_PATH"
+  sudo su $USER -c "tar -C $LOCAL_GCLOUD_PATH -xvf /tmp/google-cloud-sdk.tar.gz"
+  sudo su $USER -c "sh $LOCAL_GCLOUD_PATH/google-cloud-sdk/install.sh -q --usage-reporting=false"
   
   
   if [[ $PATH != *"$LOCAL_GCLOUD_BIN_PATH"* ]]; then
