@@ -27,7 +27,7 @@ install_gcloud() {
   #sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
   #sudo mkdir -p /Users/$USER/.config/gcloud/logs/
   sudo chown -R $USER: /Users/$USER/.config/gcloud/
-  chmod 600 -R /Users/$USER/.config/gcloud/
+  chmod 700 -R /Users/$USER/.config/gcloud/
   #sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/*.*
   #sudo chown -R $USER /Users/$USER/.config/gcloud/logs/*.*
 
@@ -61,7 +61,7 @@ upload_distributables() {
     } || { # catch
       echo "Could not upload $line"
       # TODO: consider quitting script (1) if file could not upload
-      # exit 1
+      exit 1
     }
   done < "$input";
 }
