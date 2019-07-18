@@ -19,8 +19,9 @@ commit_files() {
     echo "BRANCH: $branch"
     git add .
     echo "Travis build number: $TRAVIS_BUILD_NUMBER"
+    echo "GH TOKEN: $GH_TOKEN"
     #git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
-    git commit -am "updating $AUTH_MD_FILE_NAME"
+    git commit -message "updating $AUTH_MD_FILE_NAME"
 }
 
 upload_files() {
