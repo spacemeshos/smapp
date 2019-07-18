@@ -1,8 +1,7 @@
 #!/bin/bash -x -e
 
 RELEASE_FOLDER="release"
-#LOCAL_GCLOUD_PATH="/usr/local/gcloud"
-LOCAL_GCLOUD_PATH="/tmp/gcloud"
+LOCAL_GCLOUD_PATH="/usr/local/gcloud"
 LOCAL_GCLOUD_BIN_PATH="$LOCAL_GCLOUD_PATH/google-cloud-sdk/bin"
 GCLOUD_WALLET_BUCKET_PATH="gs://spacemesh-v010/Wallet/"
 
@@ -15,12 +14,14 @@ install_gcloud() {
   
   # creating and giving ownership permissions a-priori
   sudo mkdir -p /Users/$USER/.config/gcloud/
-  #sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
-  #sudo mkdir -p /Users/$USER/.config/gcloud/logs/
+  sudo mkdir -p /Users/$USER/.config/gcloud/configurations/
+  sudo mkdir -p /Users/$USER/.config/gcloud/logs/
   sudo chown -R $USER: /Users/$USER/.config/gcloud/
+  sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/
+  sudo chown -R $USER /Users/$USER/.config/gcloud/logs/
   sudo chmod 700 /Users/$USER/.config/gcloud/
-  #sudo chown -R $USER: /Users/$USER/.config/gcloud/configurations/*.*
-  #sudo chown -R $USER /Users/$USER/.config/gcloud/logs/*.*
+  sudo chmod 700 /Users/$USER/.config/gcloud/configurations/
+  sudo chmod 700 /Users/$USER/.config/gcloud/logs/
 
   # Installing the package
   sudo mkdir -p $LOCAL_GCLOUD_PATH
