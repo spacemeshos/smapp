@@ -8,8 +8,8 @@ AUTH_MD_FILE_NAME="auth.md";
 
 setup_git() {
     git remote
-    git config --global user.email "travis@travis-ci.org"
-    git config --global user.name "Travis CI"
+    git config --global user.email "yuval3000@gmail.com"
+    git config --global user.name "yhaspel"
 }
 
 commit_files() {
