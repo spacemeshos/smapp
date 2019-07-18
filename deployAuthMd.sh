@@ -14,14 +14,20 @@ setup_git() {
 
 commit_files() {
     # test branch
-    #git checkout -b test-branch
+    git checkout -b test-branch
     git status
     branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
     echo "BRANCH: $branch"
     git add .
     echo "Travis build number: $TRAVIS_BUILD_NUMBER"
-    #git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
-    git commit -message "updating $AUTH_MD_FILE_NAME"
+    
+    if [ -z $TRAVIS_BUILD_NUMBER ]; then
+        # locally
+        git commit -message "Updating $AUTH_MD_FILE_NAME"
+    else
+        # from travis
+        git commit -message "Updating $AUTH_MD_FILE_NAME | Travis build: $TRAVIS_BUILD_NUMBER"
+    fi
 }
 
 upload_files() {

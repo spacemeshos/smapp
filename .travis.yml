@@ -39,5 +39,20 @@ script:
       rm -f release/publishFilesList.txt
       npm run package-all
       # sh ./deployDistributables.sh
-      sh ./deployAuthMd.sh
+      # sh ./deployAuthMd.sh
     fi
+
+after_success:
+  - |
+    if [ $TRAVIS_OS_NAME == "osx" ]; then 
+      git clone testnet-guide
+      cd testnet-guide
+      git remote
+      git config --global user.email "yuval3000@gmail.com"
+      git config --global user.name "yhaspel"
+      git checkout -b test-branch
+      git status
+      git add .
+      git commit -message "Updating auth.md | Travis build number - $TRAVIS_BUILD_NUMBER"
+      git push "https://${GH_TOKEN}@github.com/spacemeshos/testnet-guide.git" test-branch > /dev/null 2>&1
+  if
