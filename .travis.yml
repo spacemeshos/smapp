@@ -55,4 +55,4 @@ after_success:
       git add .
       git commit -message "Updating auth.md | Travis build number - $TRAVIS_BUILD_NUMBER"
       git push "https://${GH_TOKEN}@github.com/spacemeshos/testnet-guide.git" test-branch > /dev/null 2>&1
-  if
+    if
