@@ -7,13 +7,14 @@ RELEASE_FOLDER="release";
 AUTH_MD_FILE_NAME="auth.md";
 
 setup_git() {
+    git remote
     git config --global user.email "travis@travis-ci.org"
     git config --global user.name "Travis CI"
 }
 
 commit_files() {
     # test branch
-    git checkout -b test-branch --track origin/test-branch
+    git checkout -b test-branch
     git status
     branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
     echo "BRANCH: $branch"
