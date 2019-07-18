@@ -41,18 +41,25 @@ upload_files() {
 #    git push origin test-branch;
 }
 
+clone_repo() {
+    echo "Cleanup before clone...";
+    rm -rf $REPO_FOLDER_NAME;
+
+    git clone $REPO_URL;
+
+    cd $REPO_FOLDER_NAME;
+}
+
 echo "Updating auth.md in $UPLOAD_TARGET_NAME";
 
-echo "Cleanup before clone...";
-rm -rf $REPO_FOLDER_NAME;
 
-git clone $REPO_URL;
-
-cd $REPO_FOLDER_NAME;
-
+clone_repo
 setup_git
+
+# copying file to repo
 cp -v "../$RELEASE_FOLDER/$AUTH_MD_FILE_NAME" "$AUTH_MD_FILE_NAME";
+
 commit_files
-#upload_files
+upload_files
 
 echo "Done updating $AUTH_MD_FILE_NAME in $UPLOAD_TARGET_NAME.";

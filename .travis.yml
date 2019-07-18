@@ -39,5 +39,11 @@ script:
       rm -f release/publishFilesList.txt
       npm run package-all
       # sh ./deployDistributables.sh
+      # sh ./deployAuthMd.sh
+    fi
+
+after_success:
+  - |
+    if [ $TRAVIS_OS_NAME == "osx" ]; then 
       sh ./deployAuthMd.sh
     fi
