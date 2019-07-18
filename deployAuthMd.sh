@@ -13,7 +13,7 @@ setup_git() {
 
 commit_files() {
     # test branch
-    git checkout -b test-branch --track origin/test_branch
+    git checkout -b test-branch --track origin/test-branch
     git status
     branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
     echo "BRANCH: $branch"
