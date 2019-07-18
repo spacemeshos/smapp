@@ -13,13 +13,12 @@ setup_git() {
 
 commit_files() {
     # test branch
-    git checkout -b test-branch
+    git checkout -b test-branch --track origin/test_branch
     git status
     branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
     echo "BRANCH: $branch"
     git add .
     echo "Travis build number: $TRAVIS_BUILD_NUMBER"
-    echo "GH TOKEN: $GH_TOKEN"
     #git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
     git commit -message "updating $AUTH_MD_FILE_NAME"
 }
