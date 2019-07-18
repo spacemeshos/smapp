@@ -14,7 +14,7 @@ setup_git() {
 
 commit_files() {
     # test branch
-    git checkout -b test-branch
+    #git checkout -b test-branch
     git status
     branch=$(git branch | sed -n -e 's/^\* \(.*\)/\1/p');
     echo "BRANCH: $branch"
@@ -47,6 +47,6 @@ cd $REPO_FOLDER_NAME;
 setup_git
 cp -v "../$RELEASE_FOLDER/$AUTH_MD_FILE_NAME" "$AUTH_MD_FILE_NAME";
 commit_files
-upload_files
+#upload_files
 
 echo "Done updating $AUTH_MD_FILE_NAME in $UPLOAD_TARGET_NAME.";
