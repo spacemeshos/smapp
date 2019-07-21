@@ -1,5 +1,14 @@
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
+const crypto = require('crypto');
+const readline = require('readline');
+const template = require('lodash.template');
+
 const { Platform, build } = require('electron-builder');
 
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 const args = process.argv.slice(2);
 const targets = args && args.length ? args : null;
 
@@ -7,10 +16,69 @@ if (!targets) {
   throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
 }
 
+const fileHashList = [
+  'File="<%= dmg_installer %>" | Hash=<%= dmg_sha512 %>',
+  'File="<%= exe_installer %>" | Hash=<%= exe_sha512 %>',
+  'File="<%= deb_installer %>" | Hash=<%= deb_sha512 %>',
+  'File="<%= snap_installer %>" | Hash=<%= snap_sha512 %>',
+  'File="<%= AppImage_installer %>" | Hash=<%= AppImage_sha512 %>'
+];
+
 const nodeFiles = {
   mac: { from: 'node/mac/', to: 'node/' },
   windows: { from: 'node/windows/', to: 'node/' },
   linux: { from: 'node/linux/', to: 'node/' }
+};
+
+const getFileHash = async ({ filename }) => {
+  const shasum = crypto.createHash('sha512');
+  const fileContent = await readFileAsync(filename);
+  const hashsum = shasum.update(fileContent);
+  const hash = hashsum.digest('hex');
+  return hash;
+};
+
+const generateFile = async ({ destination, lines }) => {
+  try {
+    if (!fs.existsSync(destination)) {
+      await writeFileAsync(destination, lines.join('\n'));
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCompiledLines = async ({ filename, artifactPath, artifactSuffix }) => {
+  const artifactSplit = artifactPath.split('/');
+  const artifactName = artifactSplit[artifactSplit.length - 1];
+  return new Promise(async (resolve, reject) => {
+    const lines = [];
+    const hash = await getFileHash({ filename: artifactPath });
+    const rd = readline.createInterface({
+      input: fs.createReadStream(filename),
+      output: false,
+      console: false
+    });
+
+    rd.on('close', () => {
+      resolve(lines);
+    });
+
+    rd.on('error', reject);
+
+    rd.on('line', (line) => {
+      const compiled = template(line);
+      const installerKey = `${artifactSuffix}_installer`;
+      const shaKey = `${artifactSuffix}_sha512`;
+      let compiledLine = null;
+      try {
+        compiledLine = compiled({ [installerKey]: artifactName, [shaKey]: hash });
+      } catch (error) {
+        compiledLine = line;
+      }
+      lines.push(compiledLine);
+    });
+  });
 };
 
 const getBuildOptions = (target) => ({
@@ -67,12 +135,33 @@ const getBuildOptions = (target) => ({
       icon: 'resources/icons'
     },
     publish: {
-      "provider": "s3",
-      "bucket": "app-binaries.spacemesh.io"
+      provider: 's3',
+      bucket: 'app-binaries.spacemesh.io'
     },
     directories: {
       buildResources: 'resources',
       output: 'release'
+    },
+    afterAllArtifactBuild: async (buildResult) => {
+      try {
+        const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.txt');
+        await generateFile({ destination: artifactsToPublishFile, lines: fileHashList });
+        const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
+        const artifactsToPublish = [];
+        for (const artifactPath of buildResult.artifactPaths) {
+          const artifactSplit = artifactPath.split('.');
+          const artifactSuffix = artifactSplit[artifactSplit.length - 1];
+          if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
+            artifactsToPublish.push({ artifactPath, artifactSuffix });
+            const lines = await getCompiledLines({ filename: artifactsToPublishFile, artifactPath, artifactSuffix });
+            await writeFileAsync(artifactsToPublishFile, lines.join('\n'));
+          }
+        }
+        return [artifactsToPublishFile];
+      } catch (error) {
+        console.error(error.message);
+        process.exit(1);
+      }
     }
   }
 });
