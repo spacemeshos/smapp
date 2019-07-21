@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -91,7 +90,6 @@ const mapDispatchToProps = {
   getUpcomingEarnings
 };
 
-// $FlowConnectIssue
 LocalNodeStatus = connect(
   mapStateToProps,
   mapDispatchToProps

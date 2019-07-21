@@ -1,4 +1,3 @@
-// @flow
 import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -197,6 +196,5 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-// $FlowConnectIssue
 TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
 export default TwelveWordsBackup;

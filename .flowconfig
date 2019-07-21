@@ -18,7 +18,6 @@ flow-typed
 
 module.name_mapper='^/\(.*\)' -> '<PROJECT_ROOT>/app/\1'
 suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
-suppress_comment= \\(.\\|\n\\)*\\$FlowConnectIssue
 
 [lints]
 deprecated-utility=off

@@ -1,4 +1,3 @@
-// @flow
 import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -202,6 +201,5 @@ const mapStateToProps = (state) => ({
   isConnected: state.network.isConnected
 });
 
-// $FlowConnectIssue
 SideMenu = connect(mapStateToProps)(SideMenu);
 export default SideMenu;

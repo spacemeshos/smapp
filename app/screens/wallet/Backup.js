@@ -1,4 +1,3 @@
-// @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -223,6 +222,5 @@ const mapStateToProps = (state) => ({
   wallet: state.wallet
 });
 
-// $FlowConnectIssue
 Backup = connect(mapStateToProps)(Backup);
 export default Backup;

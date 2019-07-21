@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Modal, SmInput, SmButton } from '/basicComponents';
@@ -90,7 +89,6 @@ const mapDispatchToProps = {
   setNodeIpAddress
 };
 
-// $FlowConnectIssue
 SetNodeIp = connect(
   mapStateToProps,
   mapDispatchToProps

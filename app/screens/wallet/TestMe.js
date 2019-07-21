@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DragDropContextProvider } from 'react-dnd';
@@ -227,6 +226,5 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-// $FlowConnectIssue
 TestMe = connect(mapStateToProps)(TestMe);
 export default TestMe;

@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -97,6 +96,5 @@ const mapStateToProps = (state) => ({
   lastUsedAddresses: state.wallet.lastUsedAddresses
 });
 
-// $FlowConnectIssue
 AllContacts = connect(mapStateToProps)(AllContacts);
 export default AllContacts;

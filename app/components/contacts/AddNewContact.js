@@ -1,4 +1,3 @@
-// @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { addToContacts, updateTransaction } from '/redux/wallet/actions';
@@ -181,7 +180,6 @@ const mapDispatchToProps = {
   updateTransaction
 };
 
-// $FlowConnectIssue
 AddNewContact = connect(
   null,
   mapDispatchToProps
