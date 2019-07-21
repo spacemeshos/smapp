@@ -3,7 +3,7 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import { getBalance, setCurrentAccount, getTxList } from '/redux/wallet/actions';
 import { AccountCards, BackupReminder, InitialLeftPane, ReceiveCoins } from '/components/wallet';
 import { LatestTransactions } from '/components/transactions';
 import { AddNewContactModal } from '/components/contacts';
@@ -58,6 +58,7 @@ type Props = {
   transactions: Object,
   getBalance: Action,
   setCurrentAccount: Action,
+  getTxList: Action,
   fiatRate: number,
   hasBackup: boolean,
   history: RouterHistory
@@ -71,6 +72,8 @@ type State = {
 };
 
 class Overview extends Component<Props, State> {
+  txListInterval: any;
+
   copiedTimeout: any;
 
   state = {
@@ -81,7 +84,7 @@ class Overview extends Component<Props, State> {
   };
 
   render() {
-    const { accounts, currentAccountIndex, transactions, fiatRate, hasBackup, setCurrentAccount } = this.props;
+    const { accounts, currentAccountIndex, transactions, fiatRate, hasBackup } = this.props;
     const { shouldShowReceiveCoinsModal, shouldShowAddContactModal, address, isCopied } = this.state;
     const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3) : null;
     return [
@@ -93,7 +96,7 @@ class Overview extends Component<Props, State> {
             isCopied={isCopied}
             clickHandler={this.copyPublicAddress}
             currentAccountIndex={currentAccountIndex}
-            switchAccount={setCurrentAccount}
+            switchAccount={this.switchAccount}
           />
           <BackupReminder navigateToBackup={this.navigateToBackup} style={{ marginBottom: 20 }} hasBackup={hasBackup} />
           <ButtonsWrapper>
@@ -135,11 +138,15 @@ class Overview extends Component<Props, State> {
   }
 
   componentDidMount() {
+    // const { getTxList } = this.props;
     // this.getBalance();
+    // getTxList();
+    // this.txListInterval = setInterval(getTxList, 50000);
   }
 
   componentWillUnmount() {
     clearTimeout(this.copiedTimeout);
+    clearInterval(this.txListInterval);
   }
 
   getBalance = async () => {
@@ -151,6 +158,14 @@ class Overview extends Component<Props, State> {
         throw error;
       });
     }
+  };
+
+  switchAccount = ({ index }: { index: number }) => {
+    const { setCurrentAccount, getTxList } = this.props;
+    clearInterval(this.txListInterval);
+    setCurrentAccount({ index });
+    getTxList();
+    this.txListInterval = setInterval(getTxList, 50000);
   };
 
   copyPublicAddress = () => {
@@ -191,7 +206,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getBalance,
-  setCurrentAccount
+  setCurrentAccount,
+  getTxList
 };
 
 Overview = connect(

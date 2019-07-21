@@ -54,7 +54,7 @@ class FileManager {
   static readDirectory = async ({ event }) => {
     try {
       const files = await readDirectoryAsync(appFilesDirPath);
-      const regex = new RegExp('.*.(json)', 'ig');
+      const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
       event.sender.send(ipcConsts.READ_DIRECTORY_SUCCESS, filesWithPath);

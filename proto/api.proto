@@ -9,7 +9,7 @@ message SimpleMessage {
 }
 
 message AccountId {
-    bytes address =1;
+    bytes address = 1;
 }
 
 message TxId {
@@ -17,7 +17,7 @@ message TxId {
 }
 
 message SignedTransaction {
-    bytes tx = 1;
+    bytes tx = 1; // serialized with XDR
 }
 
 message LayerId {
@@ -40,6 +40,10 @@ message Tx {
 
 message BroadcastMessage {
     string data = 1;
+}
+
+message BinaryMessage {
+    bytes data = 1;
 }
 
 message CommitmentSizeMessage {
@@ -90,6 +94,12 @@ service SpacemeshService {
     rpc Broadcast(BroadcastMessage) returns (SimpleMessage) {
         option (google.api.http) = {
           post: "/v1/broadcast"
+          body: "*"
+        };
+    }
+    rpc BroadcastPoet(BinaryMessage) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/broadcastpoet"
           body: "*"
         };
     }

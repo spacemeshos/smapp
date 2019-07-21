@@ -42,6 +42,15 @@ const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKe
   layerId
 });
 
+const mergeTxStatuses = ({ existingList, incomingList }: { existingList: TxList, incomingList: TxList }) => {
+ const existingListMap = {};
+ existingList.forEach((tx, index) => {
+   existingList[tx.id] = index;
+ });
+ const updatedTxList = [];
+
+};
+
 export const generateEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
@@ -151,8 +160,7 @@ export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch =
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    // const balance = await httpService.getBalance({ address: fromHexString(accounts[currentAccountIndex].pk) });
-    const balance = await httpService.getBalance({ address: fromHexString('7be017a967db77fd10ac7c891b3d6d946dea7e3e14756e2f0f9e09b9663f0d9c') });
+    const balance = await httpService.getBalance({ address: fromHexString(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
     throw createError('Error getting balance!', getBalance);
@@ -165,10 +173,8 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    // const accountNonce = await httpService.getNonce({ address: fromHexString(accounts[currentAccountIndex].pk) });
-    const accountNonce = await httpService.getNonce({ address: fromHexString('7be017a967db77fd10ac7c891b3d6d946dea7e3e14756e2f0f9e09b9663f0d9c') });
-    // const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: '81c90dd832e18d1cf9758254327cb3135961af6688ac9c2a8c5d71f73acc5ce57be017a967db77fd10ac7c891b3d6d946dea7e3e14756e2f0f9e09b9663f0d9c' });
+    const accountNonce = await httpService.getNonce({ address: fromHexString(accounts[currentAccountIndex].pk) });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
     const response = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id: response.id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {
@@ -180,7 +186,7 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
     const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
-    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [tx, ...transactions[index]] } };
+    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [tx, ...transactions[index].data] } };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
@@ -193,7 +199,8 @@ export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetS
   const accountTransactions = transactions[currentAccountIndex];
   const latestValidLayerId = await httpService.getLatestValidLayerId();
   const txList = await httpService.getTxList({ address: accounts[currentAccountIndex].pk, layerId: accountTransactions.layerId });
-  const updatedTransactions = { ...transactions, [currentAccountIndex]: { layerId: latestValidLayerId, data: accountTransactions.concat(txList) } };
+  const updatedTransactionsPerAccount = mergeTxStatuses({ existingList: accountTransactions, incomingList: txList });
+  const updatedTransactions = { ...transactions, [currentAccountIndex]: { layerId: latestValidLayerId, data: updatedTransactionsPerAccount } };
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
   dispatch(setTransactions({ transactions: updatedTransactions }));
 };

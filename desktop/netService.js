@@ -9,7 +9,7 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
-const DEFAULT_URL = '192.168.30.233:9091';
+const DEFAULT_URL = '192.168.30.167:9091';
 // const DEFAULT_URL = 'localhost:9091';
 
 class NetService {
@@ -47,10 +47,10 @@ class NetService {
       });
     });
 
-  _getTxList = ({ transactionIds, layerId }) =>
+  _getTxList = ({ address, layerId }) =>
     new Promise((resolve, reject) => {
       let transactions = [];
-      const stream = this.service.GetTxList({ transactionIds, layerId });
+      const stream = this.service.GetTxList({ address, layerId });
       stream.on('data', (data) => {
         transactions = transactions.concat(data);
       });
@@ -152,16 +152,16 @@ class NetService {
 
   sendTx = async ({ event, tx }) => {
     try {
-      const { value } = await this._submitTransaction({ tx });
-      event.sender.send(ipcConsts.SEND_TX_SUCCESS, value);
+      const response = await this._submitTransaction({ tx });
+      event.sender.send(ipcConsts.SEND_TX_SUCCESS, response);
     } catch (error) {
       event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
     }
   };
 
-  getTxList = async ({ event, transactionIds, layerId }) => {
+  getTxList = async ({ event, address, layerId }) => {
     try {
-      const { transactions } = await this._getTxList({ transactionIds, layerId });
+      const { transactions } = await this._getTxList({ address, layerId });
       event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, transactions);
     } catch (error) {
       event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);
