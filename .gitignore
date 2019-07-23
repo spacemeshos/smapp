@@ -18,7 +18,6 @@
 .env.test.local
 .env.production.local
 .eslintcache
-spacemesh.json
 
 npm-debug.log*
 yarn-debug.log*
@@ -37,5 +36,4 @@ ct-libc/
 /desktop/main.prod.js
 /desktop/main.prod.js.map
 /node/
-/testnet-guide
 /release

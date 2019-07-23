@@ -118,7 +118,7 @@ class TwelveWordsBackup extends Component<Props, State> {
 
   twelveWordsPrint: string;
 
-  constructor(props: Props) {
+  constructor(props) {
     super(props);
     this.state = {
       isTwelveWordsCopied: false

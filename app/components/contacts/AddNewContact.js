@@ -94,7 +94,7 @@ class AddNewContact extends Component<Props, State> {
 
   state = { ...this.initialState };
 
-  static getDerivedStateFromProps(props: Props, prevState: State) {
+  static getDerivedStateFromProps(props, prevState) {
     if (props.defaultAddress && props.defaultAddress !== prevState.address) {
       return { address: props.defaultAddress, renderKey: prevState.renderKey + 1, addressErrorMsg: '' };
     }
@@ -118,7 +118,7 @@ class AddNewContact extends Component<Props, State> {
 
   renderFields = () => {
     const { defaultAddress } = this.props;
-    return fields.map<Function>(({ title, placeholder, fieldName, errorFieldName }) => {
+    return fields.map(({ title, placeholder, fieldName, errorFieldName }) => {
       const isAddToContactsMode = fieldName === 'address' && !!defaultAddress;
       return (
         <FieldWrapper key={fieldName}>

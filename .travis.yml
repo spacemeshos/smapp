@@ -34,7 +34,5 @@ script:
   - npm run build-dll
   - |
     if [ $TRAVIS_OS_NAME == "osx" ]; then 
-      rm -f release/auth.md
-      rm -f release/publishFilesList.txt
       npm run package-all
     fi

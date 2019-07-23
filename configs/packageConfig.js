@@ -3,7 +3,6 @@ const path = require('path');
 const util = require('util');
 const crypto = require('crypto');
 const readline = require('readline');
-const template = require('lodash.template');
 
 const { Platform, build } = require('electron-builder');
 
@@ -17,11 +16,11 @@ if (!targets) {
 }
 
 const fileHashList = [
-  'File="<%= dmg_installer %>" | Hash=<%= dmg_sha512 %>',
-  'File="<%= exe_installer %>" | Hash=<%= exe_sha512 %>',
-  'File="<%= deb_installer %>" | Hash=<%= deb_sha512 %>',
-  'File="<%= snap_installer %>" | Hash=<%= snap_sha512 %>',
-  'File="<%= AppImage_installer %>" | Hash=<%= AppImage_sha512 %>'
+  'File="dmg_installer" | Hash=dmg_sha512',
+  'File="exe_installer" | Hash=exe_sha512',
+  'File="deb_installer" | Hash=deb_sha512',
+  'File="snap_installer" | Hash=snap_sha512',
+  'File="AppImage_installer" | Hash=AppImage_sha512'
 ];
 
 const nodeFiles = {
@@ -44,41 +43,39 @@ const generateFile = async ({ destination, lines }) => {
       await writeFileAsync(destination, lines.join('\n'));
     }
   } catch (error) {
-    throw error;
+    process.exit(1);
   }
 };
 
-const getCompiledLines = async ({ filename, artifactPath, artifactSuffix }) => {
-  const artifactSplit = artifactPath.split('/');
-  const artifactName = artifactSplit[artifactSplit.length - 1];
-  return new Promise(async (resolve, reject) => {
-    const lines = [];
-    const hash = await getFileHash({ filename: artifactPath });
-    const rd = readline.createInterface({
-      input: fs.createReadStream(filename),
-      output: false,
-      console: false
-    });
-
-    rd.on('close', () => {
-      resolve(lines);
-    });
-
-    rd.on('error', reject);
-
-    rd.on('line', (line) => {
-      const compiled = template(line);
+const getCompiledLines = async ({ artifactsToPublishFile, artifactPaths }) => {
+  const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
+  const getArtifactNameAndSuffix = ({ fullPath }) => {
+    const artifactSuffixSplit = fullPath.split('.');
+    const artifactSuffix = artifactSuffixSplit[artifactSuffixSplit.length - 1];
+    const artifactNameSplit = fullPath.split('/');
+    const artifactName = artifactNameSplit[artifactNameSplit.length - 1];
+    return { artifactName, artifactSuffix };
+  };
+  const fileContent = await readFileAsync(artifactsToPublishFile, 'utf8');
+  const lines = fileContent.split('\n');
+  for (const fullPath of artifactPaths) {
+    const { artifactName, artifactSuffix } = getArtifactNameAndSuffix({ fullPath });
+    // installers only
+    if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
       const installerKey = `${artifactSuffix}_installer`;
       const shaKey = `${artifactSuffix}_sha512`;
-      let compiledLine = null;
-      try {
-        compiledLine = compiled({ [installerKey]: artifactName, [shaKey]: hash });
-      } catch (error) {
-        compiledLine = line;
+      const lineIndex = lines.findIndex((editedLine) => editedLine.includes(installerKey));
+      if (lineIndex >= 0) {
+        const hash = await getFileHash({ filename: fullPath });
+        const installerRegex = new RegExp(installerKey, 'g');
+        const shaRegex = new RegExp(shaKey, 'g');
+        const artifactNameSpacesReplaced = artifactName.replace(/ /g, '+');
+        lines[lineIndex] = lines[lineIndex].replace(installerRegex, artifactNameSpacesReplaced);
+        lines[lineIndex] = lines[lineIndex].replace(shaRegex, hash);
       }
-      lines.push(compiledLine);
-    });
-  });
+    }
+  }
+  return lines;
 };
 
 const getBuildOptions = (target) => ({
@@ -146,17 +143,8 @@ const getBuildOptions = (target) => ({
       try {
         const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.txt');
         await generateFile({ destination: artifactsToPublishFile, lines: fileHashList });
-        const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-        const artifactsToPublish = [];
-        for (const artifactPath of buildResult.artifactPaths) {
-          const artifactSplit = artifactPath.split('.');
-          const artifactSuffix = artifactSplit[artifactSplit.length - 1];
-          if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
-            artifactsToPublish.push({ artifactPath, artifactSuffix });
-            const lines = await getCompiledLines({ filename: artifactsToPublishFile, artifactPath, artifactSuffix });
-            await writeFileAsync(artifactsToPublishFile, lines.join('\n'));
-          }
-        }
+        const lines = await getCompiledLines({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
+        await writeFileAsync(artifactsToPublishFile, lines.join('\n'));
         return [artifactsToPublishFile];
       } catch (error) {
         console.error(error.message);
