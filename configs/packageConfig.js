@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const crypto = require('crypto');
-const readline = require('readline');
 
 const { Platform, build } = require('electron-builder');
 
@@ -35,16 +34,6 @@ const getFileHash = async ({ filename }) => {
   const hashsum = shasum.update(fileContent);
   const hash = hashsum.digest('hex');
   return hash;
-};
-
-const generateFile = async ({ destination, lines }) => {
-  try {
-    if (!fs.existsSync(destination)) {
-      await writeFileAsync(destination, lines.join('\n'));
-    }
-  } catch (error) {
-    process.exit(1);
-  }
 };
 
 const getCompiledLines = async ({ artifactsToPublishFile, artifactPaths }) => {
@@ -142,7 +131,9 @@ const getBuildOptions = (target) => ({
     afterAllArtifactBuild: async (buildResult) => {
       try {
         const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.txt');
-        await generateFile({ destination: artifactsToPublishFile, lines: fileHashList });
+        if (!fs.existsSync(artifactsToPublishFile)) {
+          await writeFileAsync(artifactsToPublishFile, fileHashList.join('\n'));
+        }
         const lines = await getCompiledLines({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
         await writeFileAsync(artifactsToPublishFile, lines.join('\n'));
         return [artifactsToPublishFile];
