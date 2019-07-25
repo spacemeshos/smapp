@@ -14,13 +14,28 @@ if (!targets) {
   throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
 }
 
-const fileHashList = [
-  'File="dmg_installer" | Hash=dmg_sha512',
-  'File="exe_installer" | Hash=exe_sha512',
-  'File="deb_installer" | Hash=deb_sha512',
-  'File="snap_installer" | Hash=snap_sha512',
-  'File="AppImage_installer" | Hash=AppImage_sha512'
-];
+const fileHashList = {
+  dmg: {
+    file: 'dmg_installer',
+    hash: 'dmg_sha512'
+  },
+  exe: {
+    file: 'exe_installer',
+    hash: 'exe_sha512'
+  },
+  deb: {
+    file: 'deb_installer',
+    hash: 'deb_sha512'
+  },
+  snap: {
+    file: 'snap_installer',
+    hash: 'snap_sha512'
+  },
+  AppImage: {
+    file: 'AppImage_installer',
+    hash: 'AppImage_sha512'
+  }
+};
 
 const nodeFiles = {
   mac: { from: 'node/mac/', to: 'node/' },
@@ -36,7 +51,7 @@ const getFileHash = async ({ filename }) => {
   return hash;
 };
 
-const getCompiledLines = async ({ artifactsToPublishFile, artifactPaths }) => {
+const getCompiledHashList = async ({ artifactsToPublishFile, artifactPaths }) => {
   const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
   const getArtifactNameAndSuffix = ({ fullPath }) => {
     const artifactSuffixSplit = fullPath.split('.');
@@ -45,26 +60,30 @@ const getCompiledLines = async ({ artifactsToPublishFile, artifactPaths }) => {
     const artifactName = artifactNameSplit[artifactNameSplit.length - 1];
     return { artifactName, artifactSuffix };
   };
-  const fileContent = await readFileAsync(artifactsToPublishFile, 'utf8');
-  const lines = fileContent.split('\n');
+  const fileContent = await readFileAsync(artifactsToPublishFile);
+  const hashList = JSON.parse(fileContent);
   for (const fullPath of artifactPaths) {
     const { artifactName, artifactSuffix } = getArtifactNameAndSuffix({ fullPath });
     // installers only
     if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
       const installerKey = `${artifactSuffix}_installer`;
       const shaKey = `${artifactSuffix}_sha512`;
-      const lineIndex = lines.findIndex((editedLine) => editedLine.includes(installerKey));
-      if (lineIndex >= 0) {
+      let targetKey = null;
+      for (const key in hashList) {
+        if (hashList[key].file.includes(installerKey)) {
+          targetKey = key;
+        }
+      }
+      if (!!targetKey) {
         const hash = await getFileHash({ filename: fullPath });
         const installerRegex = new RegExp(installerKey, 'g');
         const shaRegex = new RegExp(shaKey, 'g');
         const artifactNameSpacesReplaced = artifactName.replace(/ /g, '+');
-        lines[lineIndex] = lines[lineIndex].replace(installerRegex, artifactNameSpacesReplaced);
-        lines[lineIndex] = lines[lineIndex].replace(shaRegex, hash);
+        hashList[targetKey] = { file: hashList[targetKey].file.replace(installerRegex, artifactNameSpacesReplaced), hash: hashList[targetKey].hash.replace(shaRegex, hash) };
       }
     }
   }
-  return lines;
+  return hashList;
 };
 
 const getBuildOptions = (target) => ({
@@ -130,12 +149,12 @@ const getBuildOptions = (target) => ({
     },
     afterAllArtifactBuild: async (buildResult) => {
       try {
-        const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.txt');
+        const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
         if (!fs.existsSync(artifactsToPublishFile)) {
-          await writeFileAsync(artifactsToPublishFile, fileHashList.join('\n'));
+          await writeFileAsync(artifactsToPublishFile, JSON.stringify(fileHashList));
         }
-        const lines = await getCompiledLines({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
-        await writeFileAsync(artifactsToPublishFile, lines.join('\n'));
+        const compliledHashList = await getCompiledHashList({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
+        await writeFileAsync(artifactsToPublishFile, JSON.stringify(compliledHashList));
         return [artifactsToPublishFile];
       } catch (error) {
         console.error(error.message);
