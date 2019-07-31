@@ -1,6 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
+// import type { StyleProps } from 'styled-components';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
 

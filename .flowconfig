@@ -23,4 +23,4 @@ suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
 deprecated-utility=off
 
 [version]
-^0.98.1
+0.103.0
