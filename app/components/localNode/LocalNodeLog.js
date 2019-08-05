@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
@@ -99,7 +100,7 @@ class LocalNodeLog extends Component<{}, { log: LogRecord[] }> {
   }
 
   renderLog = (log: LogRecord[]) =>
-    log.map((logEntry: LogRecord) => (
+    log.map<LogRecord>((logEntry: LogRecord): any => (
       <LogRow key={logEntry.text}>
         <LogEntry isSpecial={logEntry.isReward}>{logEntry.text}</LogEntry>
       </LogRow>

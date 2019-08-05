@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Modal, SmInput, SmButton } from '/basicComponents';
@@ -96,7 +97,7 @@ const mapDispatchToProps = {
   setAwardsAddress
 };
 
-SetAwardsAddress = connect(
+SetAwardsAddress = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(SetAwardsAddress);

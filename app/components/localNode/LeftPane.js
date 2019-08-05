@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -88,7 +89,7 @@ const mapDispatchToProps = {
   resetNodeSettings
 };
 
-LeftPane = connect(
+LeftPane = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(LeftPane);

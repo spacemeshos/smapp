@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -193,7 +194,7 @@ const mapDispatchToProps = {
   updateAccountsInFile
 };
 
-ChangePassphrase = connect(
+ChangePassphrase = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(ChangePassphrase);

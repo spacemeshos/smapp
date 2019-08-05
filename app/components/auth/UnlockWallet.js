@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -150,7 +151,7 @@ const mapDispatchToProps = {
   unlockWallet
 };
 
-UnlockWallet = connect(
+UnlockWallet = connect<any, any, _, _, _, _>(
   null,
   mapDispatchToProps
 )(UnlockWallet);

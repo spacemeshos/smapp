@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -96,7 +97,7 @@ const mapDispatchToProps = {
   readFileName
 };
 
-RestoreWallet = connect(
+RestoreWallet = connect<any, any, _, _, _, _>(
   null,
   mapDispatchToProps
 )(RestoreWallet);
