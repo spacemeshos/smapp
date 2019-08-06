@@ -67,7 +67,7 @@
     "@babel/preset-flow": "7.0.0",
     "@babel/preset-react": "7.0.0",
     "@babel/register": "7.5.5",
-    "@hot-loader/react-dom": "^16.8.6",
+    "@hot-loader/react-dom": "16.8.6",
     "aes-js": "3.1.2",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.0.2",
