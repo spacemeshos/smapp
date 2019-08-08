@@ -13,7 +13,7 @@ const productionPlugins = [
   require('babel-plugin-transform-react-remove-prop-types')
 ];
 
-module.exports = api => {
+module.exports = (api) => {
   // see docs about api at https://babeljs.io/docs/en/config-files#apicache
 
   const development = api.env(developmentEnvironments);
@@ -31,18 +31,13 @@ module.exports = api => {
     ],
     plugins: [
       [require('babel-root-slash-import'), { rootPathSuffix: 'app' }],
-      // Stage 0
-      require('@babel/plugin-proposal-function-bind'),
 
       // Stage 1
       require('@babel/plugin-proposal-export-default-from'),
       [require('@babel/plugin-proposal-optional-chaining'), { loose: false }],
 
       // Stage 2
-      [require('@babel/plugin-proposal-decorators'), { legacy: true }],
-      require('@babel/plugin-proposal-function-sent'),
       require('@babel/plugin-proposal-export-namespace-from'),
-      require('@babel/plugin-proposal-throw-expressions'),
 
       // Stage 3
       require('@babel/plugin-syntax-dynamic-import'),
