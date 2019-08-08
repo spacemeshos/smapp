@@ -1,5 +1,4 @@
 // @flow
-import { hot, setConfig } from 'react-hot-loader';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
@@ -7,12 +6,6 @@ import { logout } from '/redux/auth/actions';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
-
-const configOptions: $Shape<Object> = {
-  showReactDomPatchNotification: false
-};
-
-setConfig(configOptions);
 
 type Props = {
   store: Store
@@ -44,6 +37,4 @@ class App extends React.Component<Props> {
   }
 }
 
-const ExportedApp = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;
-
-export default ExportedApp;
+export default App;

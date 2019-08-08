@@ -1,3 +1,4 @@
+// @flow
 import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -118,7 +119,7 @@ class TwelveWordsBackup extends Component<Props, State> {
 
   twelveWordsPrint: string;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       isTwelveWordsCopied: false
@@ -196,5 +197,5 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-TwelveWordsBackup = connect(mapStateToProps)(TwelveWordsBackup);
+TwelveWordsBackup = connect<any, any, _, _, _, _>(mapStateToProps)(TwelveWordsBackup);
 export default TwelveWordsBackup;

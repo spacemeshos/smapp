@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -200,7 +201,7 @@ const mapDispatchToProps = {
   sendTransaction
 };
 
-SendCoins = connect(
+SendCoins = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(SendCoins);

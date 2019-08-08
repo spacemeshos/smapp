@@ -1,4 +1,3 @@
-// @flow
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
@@ -8,6 +7,7 @@ const { Platform, build } = require('electron-builder');
 
 const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
+const mkdirAsync = util.promisify(fs.mkdir);
 const args = process.argv.slice(2);
 const targets = args && args.length ? args : null;
 
@@ -44,8 +44,14 @@ const nodeFiles = {
   linux: { from: 'node/linux/', to: 'node/' }
 };
 
+const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
+
 const generateFileHashFile = async ({ destination }) => {
   try {
+    var dirname = path.dirname(destination);
+    if (!fs.existsSync(dirname)) {
+      await mkdirAsync(dirname);
+    }
     if (!fs.existsSync(destination)) {
       await writeFileAsync(destination, JSON.stringify(fileHashList));
     }
@@ -55,6 +61,8 @@ const generateFileHashFile = async ({ destination }) => {
   }
 };
 
+generateFileHashFile({ destination: artifactsToPublishFile });
+
 const getFileHash = async ({ filename }) => {
   const shasum = crypto.createHash('sha512');
   const fileContent = await readFileAsync(filename);
@@ -63,33 +71,24 @@ const getFileHash = async ({ filename }) => {
   return hash;
 };
 
-const getCompiledHashList = async ({ artifactsToPublishFile, artifactPaths }) => {
+const compileHashListFile = async ({ artifactsToPublishFile, artifactPaths }) => {
   const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
   const fileContent = await readFileAsync(artifactsToPublishFile);
-  const hashList = JSON.parse(fileContent);
+  let hashList = JSON.stringify(JSON.parse(fileContent));
   for (const fullPath of artifactPaths) {
-    const artifactSuffixSplit = fullPath.split('.');
-    const artifactSuffix = artifactSuffixSplit[artifactSuffixSplit.length - 1];
-    const artifactNameSplit = fullPath.split('/');
-    const artifactName = artifactNameSplit[artifactNameSplit.length - 1];
+    const artifactSuffix = fullPath.split('.').pop();
+    const artifactName = fullPath.split('/').pop();
     // installers only
     if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
       const installerKey = `${artifactSuffix}_installer`;
       const shaKey = `${artifactSuffix}_sha512`;
-      let targetKey = null;
-      for (const key in hashList) {
-        if (hashList[key].file.includes(installerKey)) {
-          targetKey = key;
-        }
-      }
-      if (!!targetKey) {
-        const hash = await getFileHash({ filename: fullPath });
-        const artifactNameSpacesReplaced = artifactName.replace(/ /g, '+');
-        hashList[targetKey] = { file: hashList[targetKey].file.replace(installerKey, artifactNameSpacesReplaced), hash: hashList[targetKey].hash.replace(shaKey, hash) };
-      }
+      const hash = await getFileHash({ filename: fullPath });
+      const artifactNameSpacesReplaced = artifactName.replace(/ /g, '+');
+      hashList = hashList.replace(installerKey, artifactNameSpacesReplaced);
+      hashList = hashList.replace(shaKey, hash);
     }
   }
-  return hashList;
+  await writeFileAsync(artifactsToPublishFile, hashList);
 };
 
 const getBuildOptions = (target) => ({
@@ -155,10 +154,7 @@ const getBuildOptions = (target) => ({
     },
     afterAllArtifactBuild: async (buildResult) => {
       try {
-        const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
-        await generateFileHashFile({ destination: artifactsToPublishFile });
-        const compliledHashList = await getCompiledHashList({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
-        await writeFileAsync(artifactsToPublishFile, JSON.stringify(compliledHashList));
+        await compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
         return [artifactsToPublishFile];
       } catch (error) {
         console.error(error.message);

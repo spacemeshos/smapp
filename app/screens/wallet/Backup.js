@@ -1,3 +1,4 @@
+// @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -222,5 +223,5 @@ const mapStateToProps = (state) => ({
   wallet: state.wallet
 });
 
-Backup = connect(mapStateToProps)(Backup);
+Backup = connect<any, any, _, _, _, _>(mapStateToProps)(Backup);
 export default Backup;

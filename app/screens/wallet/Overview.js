@@ -1,3 +1,4 @@
+// @flow
 import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -193,7 +194,7 @@ const mapDispatchToProps = {
   setCurrentAccount
 };
 
-Overview = connect(
+Overview = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(Overview);
