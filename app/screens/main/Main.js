@@ -14,6 +14,7 @@ import { notificationsService } from '/infra/notificationsService';
 import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account, Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 const completeValue = 80; // TODO: change to actual complete value
 
@@ -87,7 +88,7 @@ const InnerWrapper = styled.div`
 const bntStyle = { marginRight: 15, marginTop: 10 };
 
 type Props = {
-  history: { push: (string) => void },
+  history: RouterHistory,
   location: { pathname: string, hash: string },
   accounts: Account[],
   resetNodeSettings: Action,

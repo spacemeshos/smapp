@@ -2,9 +2,9 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
-import routes from '/routes';
 import { connect } from 'react-redux';
 import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import routes from '/routes';
 import { AccountCards } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';

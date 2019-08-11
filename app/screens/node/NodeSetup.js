@@ -10,6 +10,7 @@ import { Carousel, CommitmentSelector } from '/components/node';
 import { smallHorizontalSideBar } from '/assets/images';
 import { smColors } from '/vars';
 import type { Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
   display: flex;
@@ -40,7 +41,7 @@ type Props = {
   getDrivesList: Action,
   setLocalNodeStorage: Action,
   drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[],
-  history: { push: (string, { showIntro?: boolean }) => void, goBack: () => void }
+  history: RouterHistory
 };
 
 type State = {

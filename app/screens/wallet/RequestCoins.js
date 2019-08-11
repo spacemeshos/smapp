@@ -7,6 +7,7 @@ import { getAbbreviatedAddressText } from '/infra/utils';
 import { copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
   display: flex;
@@ -76,7 +77,7 @@ const Footer = styled.div`
 
 type Props = {
   location: { state: { account: Account } },
-  history: { push: (string) => void, goBack: () => void }
+  history: RouterHistory
 };
 
 type State = {

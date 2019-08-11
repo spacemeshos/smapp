@@ -8,6 +8,7 @@ import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopu
 import { fileSystemService } from '/infra/fileSystemService';
 import { smallHorizontalSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
   display: flex;
@@ -75,7 +76,7 @@ const BottomPart = styled.div`
 type Props = {
   deriveEncryptionKey: Action,
   saveNewWallet: Action,
-  history: { push: (string) => void, goBack: () => void },
+  history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
 };
 

@@ -7,9 +7,10 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { BaseWrapper, Loader } from '/basicComponents';
 import routes from '/routes';
 import type { Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 type Props = {
-  history: { push: (string) => void },
+  history: RouterHistory,
   readWalletFiles: Action,
   walletFiles: Array<string>,
   location: { state?: { presetMode: number } }

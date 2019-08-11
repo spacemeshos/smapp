@@ -1,6 +1,5 @@
 export { default as loader } from './loading@2x.gif';
 export { default as checkGreen } from './v@2x.png';
-export { default as checkWhite } from './v_white@2x.png';
 export { default as arrowUpGrey } from './send@2x_disabled.png';
 export { default as arrowDownGrey } from './receive@2x_disabled.png';
 export { default as openDDIcon } from './open_dd@2x.png';

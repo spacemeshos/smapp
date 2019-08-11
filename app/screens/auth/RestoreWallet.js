@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Container } from '/components/common';
 import { Button, Link, SecondaryButton } from '/basicComponents';
 import { smallHorizontalSideBar } from '/assets/images';
+import type { RouterHistory } from 'react-router-dom';
 
 const SideBar = styled.img`
   position: absolute;
@@ -19,7 +20,7 @@ const Buttons = styled.div`
 `;
 
 type Props = {
-  history: { push: (string) => void, goBack: () => void }
+  history: RouterHistory
 };
 
 class RestoreWallet extends PureComponent<Props> {

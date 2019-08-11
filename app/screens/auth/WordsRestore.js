@@ -7,6 +7,7 @@ import { Input, Button, Link, SecondaryButton, ErrorPopup } from '/basicComponen
 import { cryptoService } from '/infra/cryptoService';
 import { smColors } from '/vars';
 import { smallHorizontalSideBar } from '/assets/images';
+import type { RouterHistory } from 'react-router-dom';
 
 const SideBar = styled.img`
   position: absolute;
@@ -51,7 +52,7 @@ const BottomSection = styled.div`
 `;
 
 type Props = {
-  history: { push: (string, Object) => void, goBack: () => void }
+  history: RouterHistory
 };
 
 type State = {

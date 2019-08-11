@@ -8,6 +8,7 @@ import { DragAndDrop } from '/components/auth';
 import { Button, Link, SecondaryButton } from '/basicComponents';
 import { smallHorizontalSideBar } from '/assets/images';
 import type { Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 const SideBar = styled.img`
   position: absolute;
@@ -32,7 +33,7 @@ const BottomSection = styled.div`
 
 type Props = {
   copyFile: Action,
-  history: { push: (string) => void, goBack: () => void }
+  history: RouterHistory
 };
 
 type State = {

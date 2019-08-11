@@ -6,6 +6,7 @@ import { Container } from '/components/common';
 import { Button, Link, Tooltip } from '/basicComponents';
 import { bigInnerSideBar, laptop, power, setup, tooltip } from '/assets/images';
 import { smColors } from '/vars';
+import type { RouterHistory } from 'react-router-dom';
 
 const SideBar = styled.img`
   position: absolute;
@@ -99,7 +100,7 @@ const subHeader = (
 );
 
 type Props = {
-  history: { push: (string, Object) => void }
+  history: RouterHistory
 };
 
 class Welcome extends PureComponent<Props> {

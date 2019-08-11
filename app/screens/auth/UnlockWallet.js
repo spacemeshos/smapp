@@ -8,6 +8,7 @@ import { Link, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
 
 // $FlowStyledIssue
 const Indicator = styled.div`
@@ -68,7 +69,7 @@ const GrayText = styled.div`
 `;
 
 type Props = {
-  history: { push: (string) => void },
+  history: RouterHistory,
   deriveEncryptionKey: Action,
   unlockWallet: Action
 };
