@@ -97,5 +97,5 @@ const mapStateToProps = (state) => ({
   lastUsedAddresses: state.wallet.lastUsedAddresses
 });
 
-AllContacts = connect(mapStateToProps)(AllContacts);
+AllContacts = connect<any, any, _, _, _, _>(mapStateToProps)(AllContacts);
 export default AllContacts;

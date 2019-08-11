@@ -1,3 +1,4 @@
+// @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SmButton } from '/basicComponents';
@@ -44,7 +45,7 @@ const buttonStyle = { width: 200 };
 type Props = {
   text: string,
   subText?: string,
-  customSubText?: Array,
+  customSubText?: Array<any>,
   action?: Function,
   actionText?: string,
   customAction?: Object,

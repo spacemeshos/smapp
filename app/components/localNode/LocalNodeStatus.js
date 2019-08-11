@@ -91,7 +91,7 @@ const mapDispatchToProps = {
   getUpcomingEarnings
 };
 
-LocalNodeStatus = connect(
+LocalNodeStatus = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(LocalNodeStatus);

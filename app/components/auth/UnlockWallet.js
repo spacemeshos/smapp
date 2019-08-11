@@ -151,7 +151,7 @@ const mapDispatchToProps = {
   unlockWallet
 };
 
-UnlockWallet = connect(
+UnlockWallet = connect<any, any, _, _, _, _>(
   null,
   mapDispatchToProps
 )(UnlockWallet);

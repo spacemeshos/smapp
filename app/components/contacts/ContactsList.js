@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
@@ -58,8 +59,8 @@ type Props = {
   searchTerm?: string,
   emptyText: string,
   list: Contact[],
-  addContact?: ({ address: string }) => {},
-  selectContact?: ({ address: string, nickname: string, email?: string }) => void
+  addContact?: ({ address: string }) => void,
+  selectContact?: ({ contact: { address: string, nickname: string, email?: string } }) => void
 };
 
 const ContactsList = ({ searchTerm, list, title, emptyText, addContact, selectContact }: Props) => {

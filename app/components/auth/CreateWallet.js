@@ -222,7 +222,7 @@ const mapDispatchToProps = {
   saveNewWallet
 };
 
-CreateWallet = connect(
+CreateWallet = connect<any, any, _, _, _, _>(
   null,
   mapDispatchToProps
 )(CreateWallet);

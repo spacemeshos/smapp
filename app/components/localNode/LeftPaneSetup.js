@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -81,11 +82,11 @@ const formatNumber = (num?: number) => {
   if (!num) {
     return 0;
   }
-  const formatter = new Intl.NumberFormat();
+  const formatter: any = new Intl.NumberFormat();
   return formatter.format(num.toFixed(2));
 };
 
-const getElementIndex = (elementsList: Volume[], element: Volume) => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
+const getElementIndex = (elementsList: any[], element: any): number => (element ? elementsList.findIndex((elem) => elem.id === element.id) : -1);
 
 type CapacityAllocation = {
   id: number,
@@ -103,7 +104,7 @@ type Volume = {
 
 type Props = {
   switchMode: (mode: number) => void,
-  drives: Volume[],
+  drives: any[],
   capacity: CapacityAllocation,
   drive: Volume,
   setLocalNodeStorage: Action,
@@ -143,7 +144,7 @@ class LeftPaneSetup extends Component<Props, State> {
         <SubHeader>Choose how much storage to allocate for the local node</SubHeader>
         <Row>
           <SmDropdown
-            data={selectedDriveIndex !== -1 && drives[selectedDriveIndex].capacityAllocationsList}
+            data={selectedDriveIndex !== -1 && drives[selectedDriveIndex].capacityAllocationsList ? drives[selectedDriveIndex].capacityAllocationsList : []}
             selectedItemIndex={selectedCapacityIndex}
             onPress={this.handleSelectCapacity}
           />
@@ -213,7 +214,7 @@ const mapDispatchToProps = {
   getDrivesList
 };
 
-LeftPaneSetup = connect(
+LeftPaneSetup = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(LeftPaneSetup);

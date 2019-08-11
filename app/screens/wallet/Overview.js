@@ -194,7 +194,7 @@ const mapDispatchToProps = {
   setCurrentAccount
 };
 
-Overview = connect(
+Overview = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(Overview);

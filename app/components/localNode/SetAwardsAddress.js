@@ -97,7 +97,7 @@ const mapDispatchToProps = {
   setAwardsAddress
 };
 
-SetAwardsAddress = connect(
+SetAwardsAddress = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(SetAwardsAddress);

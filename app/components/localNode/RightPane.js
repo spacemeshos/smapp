@@ -1,10 +1,11 @@
+// @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { time, coin, noLaptop, miner, thinking, hardDriveIcon } from '/assets/images';
 import { smColors, localNodeModes } from '/vars';
 import { shell } from 'electron';
 
-const items = [
+const items: Array<Item> = [
   {
     iconSrc: coin,
     text: 'Join the Spacemesh p2p network and get awarded'
@@ -100,6 +101,11 @@ const ActionLink = styled.div`
   }
 `;
 
+type Item = {
+  iconSrc: any,
+  text: string
+};
+
 type Props = {
   mode: number,
   switchMode: (mode: number) => void,
@@ -145,7 +151,7 @@ class RightPane extends PureComponent<Props> {
   };
 
   renderSetupItems = () =>
-    items.map((setupListItem) => (
+    items.map<Item>((setupListItem): any => (
       <SettingModeListItem key={setupListItem.text}>
         <ItemImageWrapper>
           <Image src={setupListItem.iconSrc} />

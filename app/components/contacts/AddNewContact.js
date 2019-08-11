@@ -42,25 +42,7 @@ const ButtonWrapper = styled.div`
   justify-content: ${({ alignment }) => (alignment === 'right' ? 'flex-end' : 'flex-right')};
 `;
 
-type Props = {
-  isModalMode?: boolean,
-  addToContacts: Action,
-  updateTransaction: Action,
-  defaultAddress?: string,
-  onSave: () => void
-};
-
-type State = {
-  address: string,
-  nickname: string,
-  email?: string,
-  addressErrorMsg?: string,
-  nicknameErrorMsg?: string,
-  emailErrorMsg?: string,
-  renderKey: number
-};
-
-const fields = [
+const fields: Array<Field> = [
   {
     title: 'Public wallet address',
     placeholder: 'Type public wallet address',
@@ -81,6 +63,31 @@ const fields = [
   }
 ];
 
+type Props = {
+  isModalMode?: boolean,
+  addToContacts: Action,
+  updateTransaction: Action,
+  defaultAddress?: string,
+  onSave: () => void
+};
+
+type State = {
+  address: string,
+  nickname: string,
+  email?: string,
+  addressErrorMsg?: string,
+  nicknameErrorMsg?: string,
+  emailErrorMsg?: string,
+  renderKey: number
+};
+
+type Field = {
+  title: string,
+  placeholder: string,
+  fieldName: string,
+  errorFieldName: string
+};
+
 class AddNewContact extends Component<Props, State> {
   // eslint-disable-next-line react/sort-comp
   initialState = {
@@ -95,7 +102,7 @@ class AddNewContact extends Component<Props, State> {
 
   state = { ...this.initialState };
 
-  static getDerivedStateFromProps(props, prevState) {
+  static getDerivedStateFromProps(props: Props, prevState: State) {
     if (props.defaultAddress && props.defaultAddress !== prevState.address) {
       return { address: props.defaultAddress, renderKey: prevState.renderKey + 1, addressErrorMsg: '' };
     }
@@ -119,7 +126,7 @@ class AddNewContact extends Component<Props, State> {
 
   renderFields = () => {
     const { defaultAddress } = this.props;
-    return fields.map(({ title, placeholder, fieldName, errorFieldName }) => {
+    return fields.map<Field>(({ title, placeholder, fieldName, errorFieldName }): any => {
       const isAddToContactsMode = fieldName === 'address' && !!defaultAddress;
       return (
         <FieldWrapper key={fieldName}>
@@ -181,7 +188,7 @@ const mapDispatchToProps = {
   updateTransaction
 };
 
-AddNewContact = connect(
+AddNewContact = connect<any, any, _, _, _, _>(
   null,
   mapDispatchToProps
 )(AddNewContact);

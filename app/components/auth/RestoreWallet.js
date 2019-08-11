@@ -97,7 +97,7 @@ const mapDispatchToProps = {
   readFileName
 };
 
-RestoreWallet = connect(
+RestoreWallet = connect<any, any, _, _, _, _>(
   null,
   mapDispatchToProps
 )(RestoreWallet);

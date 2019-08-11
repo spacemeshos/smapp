@@ -201,7 +201,7 @@ const mapDispatchToProps = {
   sendTransaction
 };
 
-SendCoins = connect(
+SendCoins = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(SendCoins);
