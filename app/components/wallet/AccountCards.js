@@ -19,7 +19,12 @@ const AccountWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin: 5px;
   cursor: inherit;
+  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const AccountName = styled.div`
@@ -95,7 +100,7 @@ class AccountCards extends Component<Props, State> {
   copiedTimeout: any;
 
   state = {
-    isCopied: true
+    isCopied: false
   };
 
   render() {
@@ -106,7 +111,13 @@ class AccountCards extends Component<Props, State> {
       <WrapperWith2SideBars width={300} height={480} header="WALLET">
         <AccountDetails>
           {accounts.length > 1 ? (
-            <DropDown data={accounts} DdElement={({ pk }) => this.renderAccountRow({ displayName, pk })} onPress={switchAccount} selectedItemIndex={currentAccountIndex} />
+            <DropDown
+              data={accounts}
+              DdElement={({ displayName, pk, isMain }) => this.renderAccountRow({ displayName, pk, isInDropDown: !isMain })}
+              onPress={switchAccount}
+              selectedItemIndex={currentAccountIndex}
+              rowHeight={55}
+            />
           ) : (
             this.renderAccountRow({ displayName, isCopied, pk })
           )}
@@ -124,8 +135,8 @@ class AccountCards extends Component<Props, State> {
     );
   }
 
-  renderAccountRow = ({ displayName, pk }: { displayName: string, pk: string }) => (
-    <AccountWrapper key={pk}>
+  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
+    <AccountWrapper key={pk} isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>{getAbbreviatedAddressText(pk, 6)}</Address>
     </AccountWrapper>

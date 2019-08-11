@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { ddClosedIconWhite, ddOpenedIconWhite } from '/assets/images';
+import { chevronBottomBlack } from '/assets/images';
 
 // $FlowStyledIssue
 const Wrapper = styled.div`
@@ -39,11 +39,12 @@ const HeaderWrapper = styled.div`
 
 // $FlowStyledIssue
 const Icon = styled.img`
-  height: 6px;
-  width: 10px;
-  margin: 0 15px 0 10px;
-  transform: rotate(${({ isOpened }) => (isOpened ? '0' : '180')}deg);
+  height: 11px;
+  width: 22px;
+  margin: 0 10px;
+  transform: rotate(${({ isOpened }) => (isOpened ? '180' : '0')}deg);
   transition: transform 0.2s linear;
+  cursor: inherit;
 `;
 
 // $FlowStyledIssue
@@ -57,6 +58,7 @@ const ItemsWrapper = styled.div`
   transition: all 0.2s linear;
   overflow-y: scroll;
   box-shadow: 0 3px 6px ${smColors.black20alpha};
+  background-color: ${smColors.white};
 `;
 
 // $FlowStyledIssue
@@ -102,8 +104,8 @@ class DropDown extends Component<Props, State> {
         }}
       >
         <HeaderWrapper isOpened={isOpened} bgColor={bgColor} onClick={isDisabledComputed ? null : this.handleToggle}>
-          <DdElement isDisabled={isDisabled} {...data[selectedItemIndex]} />
-          <Icon isOpened={isOpened} src={isOpened ? ddClosedIconWhite : ddOpenedIconWhite} />
+          <DdElement isDisabled={isDisabled} {...data[selectedItemIndex]} isMain />
+          <Icon isOpened={isOpened} src={chevronBottomBlack} />
         </HeaderWrapper>
         {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => this.renderRow({ item, index }))}</ItemsWrapper>}
       </Wrapper>
