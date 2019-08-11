@@ -1,94 +1,59 @@
 // @flow
+import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { SimpleDropdown, WrapperWith2SideBars } from '/basicComponents';
-import { checkWhite, copyIconWhite } from '/assets/images';
+import { DropDown, WrapperWith2SideBars } from '/basicComponents';
+import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedAddressText } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
-// $FlowStyledIssue
-const PublicAddressInnerWrapper = styled.div`
+const AccountDetails = styled.div`
   display: flex;
-  flex: 1;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-  border: 1px solid ${({ isCopied }) => (isCopied ? smColors.white : 'transparent')};
-  border-radius: 2px;
-  cursor: inherit;
-`;
-
-const UpperSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-`;
-
-const PublicAddressWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  cursor: inherit;
+  margin-bottom: 15px;
 `;
 
 // $FlowStyledIssue
-const SimpleDropdownStyled = styled(SimpleDropdown)`
-  background-color: ${({ displayColor }) => displayColor};
-  &: hover ${PublicAddressInnerWrapper} {
-    border: 1px solid ${smColors.white};
-    background-color: ${smColors.green};
-  }
-`;
-
-const PublicAddress = styled.div`
-  font-size: 18px;
-  line-height: 24px;
-  color: ${smColors.white70Alpha};
+const AccountWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   cursor: inherit;
 `;
 
-const CopyIconWrapper = styled.div`
-  width: 39px;
-  height: 42px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const AccountName = styled.div`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.realBlack};
+  cursor: inherit;
+`;
+
+const Address = styled.div`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.black};
   cursor: inherit;
 `;
 
 const CopyIcon = styled.img`
-  width: 19px;
-  height: 22px;
-  cursor: inherit;
-`;
-
-const CopiedWrapper = styled.div`
-  width: 100%;
-  height: 22px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0 10px;
-  cursor: inherit;
-`;
-
-const CopiedIcon = styled.img`
-  width: 10px;
-  height: 7px;
-  margin-right: 10px;
+  width: 16px;
+  height: 15px;
+  margin: 0 10px;
+  cursor: pointer;
 `;
 
 const CopiedText = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.white70Alpha};
+  color: ${smColors.green};
 `;
 
-const LowerSection = styled.div`
+const Footer = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
+  justify-content: flex-end;
 `;
 
 const BalanceHeader = styled.div`
@@ -119,54 +84,51 @@ const SmcText = styled.div`
 type Props = {
   accounts: Account[],
   currentAccountIndex: number,
-  fiatRate: number,
-  clickHandler: () => void,
-  switchAccount: ({ index: number }) => void,
+  switchAccount: ({ index: number }) => void
+};
+
+type State = {
   isCopied: boolean
 };
 
-class AccountCards extends Component<Props> {
+class AccountCards extends Component<Props, State> {
+  copiedTimeout: any;
+
+  state = {
+    isCopied: true
+  };
+
   render() {
-    const { accounts, currentAccountIndex, switchAccount, isCopied } = this.props;
+    const { accounts, currentAccountIndex, switchAccount } = this.props;
+    const { isCopied } = this.state;
     const { displayName, pk, balance } = accounts[currentAccountIndex];
     return (
       <WrapperWith2SideBars width={300} height={480} header="WALLET">
-        <UpperSection>
-          <PublicAddressWrapper>
-            {accounts.length > 1 ? (
-              <SimpleDropdownStyled
-                data={accounts}
-                DdElement={({ pk }) => this.renderPublicAddressRow({ displayName, isCopied, pk })}
-                onPress={switchAccount}
-                selectedItemIndex={currentAccountIndex}
-              />
-            ) : (
-              this.renderPublicAddressRow({ displayName, isCopied, pk })
-            )}
-            <CopiedWrapper>
-              {isCopied && <CopiedIcon src={checkWhite} />}
-              <CopiedText>{isCopied ? 'Address had been copied to clipboard' : ''}</CopiedText>
-            </CopiedWrapper>
-          </PublicAddressWrapper>
-        </UpperSection>
-        <LowerSection>
+        <AccountDetails>
+          {accounts.length > 1 ? (
+            <DropDown data={accounts} DdElement={({ pk }) => this.renderAccountRow({ displayName, pk })} onPress={switchAccount} selectedItemIndex={currentAccountIndex} />
+          ) : (
+            this.renderAccountRow({ displayName, isCopied, pk })
+          )}
+          <CopyIcon src={copyToClipboard} />
+        </AccountDetails>
+        <CopiedText>{isCopied ? 'Address had been copied to clipboard!' : ''}</CopiedText>
+        <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
             <BalanceAmount>{balance}</BalanceAmount>
             <SmcText>SMC</SmcText>
           </BalanceWrapper>
-        </LowerSection>
+        </Footer>
       </WrapperWith2SideBars>
     );
   }
 
-  renderPublicAddressRow = ({ displayName, isCopied, pk }: { displayName: string, isCopied: boolean, pk: string }) => (
-    <PublicAddressInnerWrapper isCopied={isCopied} key={pk}>
-      <PublicAddress>{getAbbreviatedAddressText(pk, 4)}</PublicAddress>
-      <CopyIconWrapper>
-        <CopyIcon src={copyIconWhite} />
-      </CopyIconWrapper>
-    </PublicAddressInnerWrapper>
+  renderAccountRow = ({ displayName, pk }: { displayName: string, pk: string }) => (
+    <AccountWrapper key={pk}>
+      <AccountName>{displayName}</AccountName>
+      <Address>{getAbbreviatedAddressText(pk, 6)}</Address>
+    </AccountWrapper>
   );
 
   copyPublicAddress = () => {

@@ -4,7 +4,7 @@ import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 
 class FsService {
-  static copyFile = ({ fileName, filePath }: { filePath: string }) => {
+  static copyFile = ({ fileName, filePath }: { fileName: string, filePath: string }) => {
     ipcRenderer.send(ipcConsts.COPY_FILE, { fileName, filePath });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.COPY_FILE_SUCCESS, (event, xml) => {
