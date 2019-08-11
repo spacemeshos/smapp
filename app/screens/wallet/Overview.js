@@ -83,7 +83,7 @@ class Overview extends Component<Props, State> {
 
   navigateToRequestCoins = () => {
     const { history, account } = this.props;
-    history.push('/main/wallet/sendCoins', { account });
+    history.push('/main/wallet/requestCoins', { account });
   };
 
   navigateToAllTransactions = () => {

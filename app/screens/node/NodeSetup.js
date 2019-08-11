@@ -1,3 +1,4 @@
+// @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -39,7 +40,7 @@ type Props = {
   getDrivesList: Action,
   setLocalNodeStorage: Action,
   drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[],
-  history: { push: (string) => void, goBack: () => void }
+  history: { push: (string, { showIntro?: boolean }) => void, goBack: () => void }
 };
 
 type State = {
@@ -111,7 +112,7 @@ class NodeSetup extends Component<Props, State> {
     const { setLocalNodeStorage, drives, history } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
     try {
-      // await setLocalNodeStorage({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
+      await setLocalNodeStorage({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {

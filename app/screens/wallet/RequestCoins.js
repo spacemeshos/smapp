@@ -1,140 +1,163 @@
 // @flow
-import { clipboard } from 'electron';
-import React, { PureComponent } from 'react';
+import { clipboard, shell } from 'electron';
+import React, { Component } from 'react';
 import styled from 'styled-components';
-import QRCode from 'qrcode.react';
-import { copyIconGreen } from '/assets/images';
+import { Link, Button } from '/basicComponents';
+import { getAbbreviatedAddressText } from '/infra/utils';
+import { copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
+import type { Account } from '/types';
 
 const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  padding: 50px;
-`;
-
-const LeftPart = styled.div`
   display: flex;
   flex-direction: column;
+  width: 600px;
+  height: 100%;
+  padding: 15px 25px;
+  background-color: ${smColors.black02Alpha};
 `;
 
 const Header = styled.div`
+  font-family: SourceCodeProBold;
   font-size: 16px;
-  font-weight: bold;
-  line-height: 22px;
-  color: ${smColors.lighterBlack};
-  margin-bottom: 15px;
+  line-height: 20px;
+  color: ${smColors.black};
 `;
 
-const LeftPartInner = styled.div`
+const SubHeader = styled.div`
   display: flex;
   flex-direction: column;
-  padding-top: 15px;
-  padding-right: 50px;
-  border-right: 1px solid ${smColors.borderGray};
+  margin-bottom: 25px;
+`;
+
+const Text = styled.div`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.lighterBlack};
+  cursor: inherit;
 `;
 
 const AddressWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  margin-bottom: 40px;
-  border: 1px solid ${smColors.borderGray};
-  border-radius: 2px;
   cursor: pointer;
 `;
 
-const Address = styled.div`
-  font-size: 20px;
-  line-height: 25px;
-  color: ${smColors.green};
-  cursor: inherit;
+const AddressText = styled(Text)`
+  color: ${smColors.blue};
+  text-decoration: underline;
 `;
 
 const CopyIcon = styled.img`
-  width: 19px;
-  height: 22px;
-  margin-left: 20px;
+  width: 16px;
+  height: 15px;
+  margin: 0 10px;
   cursor: inherit;
 `;
 
-const Text = styled.div`
-  font-size: 16px;
-  line-height: 30px;
-  color: ${smColors.darkGray};
-  margin-bottom: 15px;
+const CopiedText = styled(Text)`
+  font-weight: SourceCodeProBold;
+  color: ${smColors.green};
 `;
 
-const Button = styled.div`
-  font-size: 16px;
-  line-height: 30px;
-  color: ${smColors.darkGreen};
-  cursor: pointer;
-  padding: 5px;
-`;
-
-const RightPart = styled.div`
+const ComplexText = styled.div`
   display: flex;
-  flex-direction: column;
-  padding-left: 50px;
+  flex-direction: row;
 `;
 
-const QrCodeWrapper = styled.div`
-  width: 175px;
-  height: 175px;
+const Footer = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 35px;
+  flex-direction: row;
+  flex: 1;
+  justify-content: space-between;
+  align-items: flex-end;
 `;
 
 type Props = {
-  address: string
+  location: { state: { account: Account } },
+  history: { push: (string) => void, goBack: () => void }
 };
 
-class RequestCoins extends PureComponent<Props> {
+type State = {
+  isCopied: boolean
+};
+
+class RequestCoins extends Component<Props, State> {
+  copiedTimeout: any;
+
+  state = {
+    isCopied: false
+  };
+
   render() {
-    const { address, closeModal } = this.props;
+    const {
+      location: {
+        state: { account }
+      },
+      history
+    } = this.props;
+    const { isCopied } = this.state;
     return (
       <Wrapper>
-        <LeftPart>
-          <Header>Your wallet public address has been copied to clipboard</Header>
-          <LeftPartInner>
-            <AddressWrapper onClick={this.copyPublicAddress}>
-              <Address>{address.substring(0, 30)}</Address>
-              <CopyIcon src={copyIconGreen} />
-            </AddressWrapper>
-            <Text>
-              This address is public and safe to share.
-              <br /> Send this address to anyone you want to receive Spacemesh Coins from.
-              <br /> Just copy and paste to share via email or a text messaging session.
-            </Text>
-            <Button onClick={closeModal}>Close</Button>
-          </LeftPartInner>
-        </LeftPart>
-        <RightPart>
-          <QrCodeWrapper>
-            <QRCode value={address} size={150} />
-          </QrCodeWrapper>
-          <Button onClick={this.copyQrCode}>Copy QR address code</Button>
-        </RightPart>
+        <Header>
+          Request SMC
+          <br />
+          --
+        </Header>
+        <SubHeader>
+          <Text>Request SMC by sharing this address:</Text>
+          <AddressWrapper onClick={this.copyPublicAddress}>
+            <AddressText>{getAbbreviatedAddressText(account.pk, 8)}</AddressText>
+            <CopyIcon src={copyToClipboard} />
+            {isCopied && <CopiedText>Address copied!</CopiedText>}
+          </AddressWrapper>
+        </SubHeader>
+        <Text>* This address is public and safe to share</Text>
+        <Text>* Send this address to anyone you want to receive a SMC from</Text>
+        <Text>* Copy + paste to share via email or a text messaging session</Text>
+        <ComplexText>
+          <Text>* You can mine SMC by activating your miner&nbsp;</Text>
+          <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
+        </ComplexText>
+        <Footer>
+          <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
+          <Button onClick={history.goBack} text="DONE" />
+        </Footer>
       </Wrapper>
     );
   }
 
   componentDidMount(): void {
-    const { address } = this.props;
-    clipboard.writeText(address);
+    const {
+      location: {
+        state: { account }
+      }
+    } = this.props;
+    clipboard.writeText(account.pk);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.copiedTimeout);
   }
 
   copyPublicAddress = () => {
-    const { address } = this.props;
-    clipboard.writeText(address);
+    const {
+      location: {
+        state: { account }
+      }
+    } = this.props;
+    clipboard.writeText(account.pk);
+    this.setState({ isCopied: true });
+    this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
   };
 
-  copyQrCode = () => {};
+  navigateToNodeSetup = () => {
+    const { history } = this.props;
+    history.push('/auth/node-setup');
+  };
+
+  navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');
 }
 
 export default RequestCoins;

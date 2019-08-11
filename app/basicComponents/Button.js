@@ -44,11 +44,13 @@ const ImageWrapper = styled.div`
   width: 20px;
   height: 100%;
   margin: 0 10px;
+  cursor: inherit;
 `;
 
 const Image = styled.img`
   max-width: 100%;
   max-height: 100%;
+  cursor: inherit;
 `;
 
 // $FlowStyledIssue
