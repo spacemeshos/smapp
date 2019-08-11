@@ -194,7 +194,7 @@ const mapDispatchToProps = {
   updateAccountsInFile
 };
 
-ChangePassphrase = connect(
+ChangePassphrase = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(ChangePassphrase);

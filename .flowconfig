@@ -7,7 +7,7 @@
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/dll/.*
 <PROJECT_ROOT>/git/.*
-<PROJECT_ROOT>/node_modules/
+<PROJECT_ROOT>/node_modules/.*
 
 [include]
 
@@ -23,4 +23,4 @@ suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
 deprecated-utility=off
 
 [version]
-^0.98.1
+0.104.0

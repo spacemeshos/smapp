@@ -230,7 +230,7 @@ const mapDispatchToProps = {
   logout
 };
 
-Main = connect(
+Main = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(Main);

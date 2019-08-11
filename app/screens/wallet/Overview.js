@@ -100,5 +100,5 @@ const mapStateToProps = (state) => ({
   transactions: state.wallet.transactions
 });
 
-Overview = connect(mapStateToProps)(Overview);
+Overview = connect<any, any, _, _, _, _>(mapStateToProps)(Overview);
 export default Overview;

@@ -1,26 +1,17 @@
+import { hot, setConfig } from 'react-hot-loader';
 import React from 'react';
 import { render } from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 import App from './App';
 import { configureStore } from './redux/configureStore';
 
-const store = configureStore();
-
-const renderWrapper = (Component) => {
-  render(
-    <AppContainer>
-      <Component store={store} />
-    </AppContainer>,
-    document.getElementById('root')
-  );
+const configOptions: $Shape<Object> = {
+  showReactDomPatchNotification: false
 };
 
-renderWrapper(App);
+setConfig(configOptions);
 
-if (module.hot) {
-  module.hot.accept('./App', () => {
-    // eslint-disable-next-line global-require
-    const NextApp = require('./App').default;
-    renderWrapper(NextApp);
-  });
-}
+const store = configureStore();
+
+const RenderedApp = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;
+
+render(<RenderedApp store={store} />, document.getElementById('root'));

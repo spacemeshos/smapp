@@ -19,16 +19,13 @@ const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;
 const dll = path.join(__dirname, '..', 'dll');
 const manifest = path.resolve(dll, 'renderer.json');
-const requiredByDLLConfig = module.parent.filename.includes(
-  'webpack.config.renderer.dev.dll'
-);
+const requiredByDLLConfig = module.parent.filename.includes('webpack.config.renderer.dev.dll');
 
 /**
  * Warn if the DLL is not built
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log('The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
-  );
+  console.log('The DLL files are missing. Sit back while we build them for you with "npm run build-dll"');
   execSync('npm run build-dll');
 }
 
@@ -39,12 +36,7 @@ export default merge.smart(baseConfig, {
 
   target: 'electron-renderer',
 
-  entry: [
-    'react-hot-loader/patch',
-    `webpack-dev-server/client?http://localhost:${port}/`,
-    'webpack/hot/only-dev-server',
-    require.resolve('../app/index')
-  ],
+  entry: ['react-hot-loader/patch', `webpack-dev-server/client?http://localhost:${port}/`, 'webpack/hot/only-dev-server', require.resolve('../app/index')],
 
   output: {
     publicPath: `http://localhost:${port}/dist/`,
@@ -82,9 +74,15 @@ export default merge.smart(baseConfig, {
       },
       {
         test: /\.wasm$/,
-        type: "javascript/auto"
+        type: 'javascript/auto'
       }
     ]
+  },
+
+  resolve: {
+    alias: {
+      'react-dom': '@hot-loader/react-dom'
+    }
   },
 
   plugins: [
@@ -156,8 +154,8 @@ export default merge.smart(baseConfig, {
           env: process.env,
           stdio: 'inherit'
         })
-          .on('close', code => process.exit(code))
-          .on('error', spawnError => console.error(spawnError));
+          .on('close', (code) => process.exit(code))
+          .on('error', (spawnError) => console.error(spawnError));
       }
     }
   }

@@ -38,8 +38,8 @@ const DriveName = styled.span`
 type Props = {
   getDrivesList: Action,
   setLocalNodeStorage: Action,
-  drives: { id: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[],
-  history: { push: (string) => void }
+  drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[],
+  history: { push: (string) => void, goBack: () => void }
 };
 
 type State = {
@@ -151,7 +151,7 @@ const mapDispatchToProps = {
   getDrivesList
 };
 
-NodeSetup = connect(
+NodeSetup = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(NodeSetup);

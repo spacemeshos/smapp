@@ -36,6 +36,7 @@ const DropContainer = (props: Props) => {
   } else if (canDrop) {
     backgroundColor = smColors.green10alpha;
   }
+
   return (
     <Item ref={connectDropTarget} backgroundColor={backgroundColor}>
       {droppedWord}

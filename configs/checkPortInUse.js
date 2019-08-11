@@ -1,4 +1,3 @@
-// @flow
 import detectPort from 'detect-port';
 
 // eslint-disable-next-line func-names

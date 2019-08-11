@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import { ErrorHandlerModal } from '/components/errorHandler';
 
@@ -6,7 +7,7 @@ type Props = {
 };
 
 type State = {
-  error: ?Error,
+  error: ?any,
   info?: Object
 };
 
@@ -32,16 +33,16 @@ class ErrorBoundary extends Component<Props, State> {
         />
       );
     }
-    return children;
+    return children || null;
   }
 
-  componentDidCatch(error, info) {
+  componentDidCatch(error: any, info: any) {
     // eslint-disable-next-line no-console
     console.log(`${error.message} ${info.componentStack}`);
     this.setState({ error, info });
   }
 
-  handleRetry = (retryFunction) => {
+  handleRetry = (retryFunction: Function) => {
     this.setState({ error: null, info: null });
     retryFunction();
   };

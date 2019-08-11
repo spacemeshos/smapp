@@ -258,7 +258,7 @@ const mapDispatchToProps = {
   getUpcomingEarnings
 };
 
-Node = connect(
+Node = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(Node);

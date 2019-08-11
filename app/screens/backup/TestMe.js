@@ -227,5 +227,5 @@ const mapStateToProps = (state) => ({
   mnemonic: state.wallet.mnemonic
 });
 
-TestMe = connect(mapStateToProps)(TestMe);
+TestMe = connect<any, any, _, _, _, _>(mapStateToProps)(TestMe);
 export default TestMe;

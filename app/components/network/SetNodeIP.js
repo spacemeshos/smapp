@@ -90,7 +90,7 @@ const mapDispatchToProps = {
   setNodeIpAddress
 };
 
-SetNodeIp = connect(
+SetNodeIp = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(SetNodeIp);
