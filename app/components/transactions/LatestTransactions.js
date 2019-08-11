@@ -44,7 +44,7 @@ class LatestTransactions extends PureComponent<Props> {
             <Transaction key={index} transaction={tx} addToContacts={addToContacts} />
           ))}
         </div>
-        <Button onClick={navigateToAllTransactions} text="ALL TRANSACTIONS" width={175} style={{ marginTop: 'auto '}} />
+        <Button onClick={navigateToAllTransactions} text="ALL TRANSACTIONS" width={175} style={{ marginTop: 'auto ' }} />
       </Wrapper>
     );
   }

@@ -115,9 +115,7 @@ type State = {
   isSentDisplayed: boolean,
   isReceivedDisplayed: boolean,
   isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean,
-  address: ?string,
-  shouldShowModal: boolean
+  isRejectedDisplayed: boolean
 };
 
 class Transactions extends Component<Props, State> {
@@ -125,14 +123,12 @@ class Transactions extends Component<Props, State> {
     isSentDisplayed: true,
     isReceivedDisplayed: true,
     isPendingDisplayed: true,
-    isRejectedDisplayed: true,
-    address: null,
-    shouldShowModal: false
+    isRejectedDisplayed: true
   };
 
   render() {
     const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed, address, shouldShowModal } = this.state;
+    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed } = this.state;
     return [
       <Wrapper key="wrapper">
         <Header>Transaction Log</Header>
@@ -162,7 +158,6 @@ class Transactions extends Component<Props, State> {
                   <Transaction
                     key={index}
                     transaction={tx}
-                    addToContacts={({ address }) => this.setState({ address, shouldShowModal: true })}
                     isSentDisplayed={isSentDisplayed}
                     isReceivedDisplayed={isReceivedDisplayed}
                     isPendingDisplayed={isPendingDisplayed}

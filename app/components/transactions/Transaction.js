@@ -50,7 +50,6 @@ const Amount = styled.div`
 
 type Props = {
   transaction: Tx,
-  addToContacts: ({ address: string }) => void,
   isSentDisplayed?: boolean,
   isReceivedDisplayed?: boolean,
   isPendingDisplayed?: boolean,
