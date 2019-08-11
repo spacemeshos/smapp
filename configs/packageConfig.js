@@ -73,8 +73,7 @@ const getFileHash = async ({ filename }) => {
 
 const compileHashListFile = async ({ artifactsToPublishFile, artifactPaths }) => {
   const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-  const fileContent = await readFileAsync(artifactsToPublishFile);
-  let hashList = JSON.stringify(JSON.parse(fileContent));
+  let hashList = await readFileAsync(artifactsToPublishFile, 'utf8');
   for (const fullPath of artifactPaths) {
     const artifactSuffix = fullPath.split('.').pop();
     const artifactName = fullPath.split('/').pop();

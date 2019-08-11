@@ -12,8 +12,6 @@ setConfig(configOptions);
 
 const store = configureStore();
 
-const renderWrapper = (Component) => {
-  render(<Component store={store} />, document.getElementById('root'));
-};
+const RenderedApp = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;
 
-renderWrapper(process.env.NODE_ENV === 'development' ? hot(module)(App) : App);
+render(<RenderedApp store={store} />, document.getElementById('root'));
