@@ -1,2 +1,1 @@
-export { default as StepsContainer } from './StepsContainer';
-export { default as WordsRestore } from './WordsRestore';
+export { default as DragAndDrop } from './DragAndDrop'; // eslint-disable-line import/prefer-default-export

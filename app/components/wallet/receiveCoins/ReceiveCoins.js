@@ -3,7 +3,6 @@ import { clipboard } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import QRCode from 'qrcode.react';
-import { Modal } from '/basicComponents';
 import { copyIconGreen } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -99,23 +98,6 @@ type Props = {
 
 class ReceiveCoins extends PureComponent<Props> {
   render() {
-    return (
-      <Modal
-        header="Confirm Transaction"
-        onQuestionMarkClick={this.onQuestionMarkClick}
-        onCancelBtnClick={this.onCloseClick}
-        onCloseClick={this.onCloseClick}
-        content={this.renderModalBody()}
-      />
-    );
-  }
-
-  componentDidMount(): void {
-    const { address } = this.props;
-    clipboard.writeText(address);
-  }
-
-  renderModalBody = () => {
     const { address, closeModal } = this.props;
     return (
       <Wrapper>
@@ -142,17 +124,12 @@ class ReceiveCoins extends PureComponent<Props> {
         </RightPart>
       </Wrapper>
     );
-  };
+  }
 
-  onQuestionMarkClick = () => {
-    const { navigateToExplanation } = this.props;
-    navigateToExplanation();
-  };
-
-  onCloseClick = () => {
-    const { closeModal } = this.props;
-    closeModal();
-  };
+  componentDidMount(): void {
+    const { address } = this.props;
+    clipboard.writeText(address);
+  }
 
   copyPublicAddress = () => {
     const { address } = this.props;

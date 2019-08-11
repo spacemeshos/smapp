@@ -2,54 +2,25 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { Transaction } from '/components/transactions';
-import { menu3 } from '/assets/images';
+import { Button } from '/basicComponents';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 
 const Wrapper = styled.div`
-  height: 50%;
   display: flex;
   flex-direction: column;
-  padding-top: 10px;
-  margin-bottom: 30px;
-  border-top: 1px solid ${smColors.borderGray};
+  width: 250px;
+  height: 100%;
+  padding: 20px 15px;
+  background-color: ${smColors.black02Alpha};
 `;
 
 const Header = styled.div`
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 19px;
-  color: ${smColors.darkGray};
-  padding-left: 20px;
-  margin-bottom: 15px;
-`;
-
-const SeeAllBtnWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  margin-top: 15px;
-`;
-
-const SeeAllBtn = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  cursor: pointer;
-`;
-
-const SeeAllText = styled.div`
-  font-size: 14px;
-  line-height: 19px;
-  color: ${smColors.darkGreen};
-  margin-right: 10px;
-  cursor: inherit;
-`;
-
-const SeeAllIcon = styled.img`
-  width: 20px;
-  height: 16px;
-  cursor: inherit;
+  font-family: SourceCodeProBold;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.black};
+  margin-bottom: 10px;
 `;
 
 type Props = {
@@ -63,18 +34,17 @@ class LatestTransactions extends PureComponent<Props> {
     const { transactions, addToContacts, navigateToAllTransactions } = this.props;
     return (
       <Wrapper>
-        <Header>Latest Transactions</Header>
+        <Header>
+          transactions
+          <br />
+          --
+        </Header>
         <div>
           {transactions.map((tx, index) => (
             <Transaction key={index} transaction={tx} addToContacts={addToContacts} />
           ))}
         </div>
-        <SeeAllBtnWrapper>
-          <SeeAllBtn onClick={navigateToAllTransactions}>
-            <SeeAllText>See all transactions history</SeeAllText>
-            <SeeAllIcon src={menu3} />
-          </SeeAllBtn>
-        </SeeAllBtnWrapper>
+        <Button onClick={navigateToAllTransactions} text="ALL TRANSACTIONS" width={175} style={{ marginTop: 'auto '}} />
       </Wrapper>
     );
   }

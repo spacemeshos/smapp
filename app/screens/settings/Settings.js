@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { SettingsRow, ChangePassphrase } from '/components/settings';
 import { SmButton, SmInput, SmDropdown } from '/basicComponents';
-import { smColors, authModes } from '/vars';
+import { smColors } from '/vars';
 import type { WalletMeta, Account, Action } from '/types';
 import { fileSystemService } from '/infra/fileSystemService';
 import { autoStartService } from '/infra/autoStartService';
@@ -336,7 +336,7 @@ class Settings extends Component<Props, State> {
 
   navigateToWalletRestore = () => {
     const { history } = this.props;
-    history.push('/auth', { presetMode: authModes.RESTORE });
+    history.push('/auth/restore');
   };
 
   externalNavigation = ({ to }: { to: string }) => {

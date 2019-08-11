@@ -15,18 +15,13 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileManager {
-  static getFileName = ({ browserWindow, event }) => {
-    const options = {
-      title: 'Load Wallet Backup File',
-      defaultPath: documentsDirPath,
-      buttonLabel: 'Load',
-      filters: [{ name: 'Backup Files', extensions: ['json'] }],
-      properties: ['openFile']
-    };
-    dialog.showOpenDialog(browserWindow, options, async (filePaths) => {
-      if (filePaths && filePaths[0]) {
-        event.sender.send(ipcConsts.GET_FILE_NAME_SUCCESS, filePaths[0]);
+  static copyFile = ({ event, fileName, filePath }) => {
+    const newFilePath = path.join(appFilesDirPath, fileName);
+    fs.copyFile(filePath, newFilePath, (err) => {
+      if (err) {
+        event.sender.send(ipcConsts.COPY_FILE_SUCCESS);
       }
+      event.sender.send(ipcConsts.COPY_FILE_SUCCESS, newFilePath);
     });
   };
 
@@ -54,7 +49,7 @@ class FileManager {
   static readDirectory = async ({ event }) => {
     try {
       const files = await readDirectoryAsync(appFilesDirPath);
-      const regex = new RegExp('.*.(json)', 'ig');
+      const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
       event.sender.send(ipcConsts.READ_DIRECTORY_SUCCESS, filesWithPath);

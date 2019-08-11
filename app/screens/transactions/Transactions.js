@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
-import { AddNewContactModal } from '/components/contacts';
 import { SmButton } from '/basicComponents';
 import { communication } from '/assets/images';
 import { smColors } from '/vars';
@@ -187,16 +186,16 @@ class Transactions extends Component<Props, State> {
             <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
           </RightSection>
         </InnerWrapper>
-      </Wrapper>,
-      shouldShowModal && (
-        <AddNewContactModal
-          key="modal"
-          addressToAdd={address}
-          navigateToExplanation={this.navigateToContactsExplanation}
-          onSave={() => this.setState({ address: '', shouldShowModal: false })}
-          closeModal={() => this.setState({ shouldShowModal: false })}
-        />
-      )
+      </Wrapper>
+      // shouldShowModal && (
+      //   <AddNewContactModal
+      //     key="modal"
+      //     addressToAdd={address}
+      //     navigateToExplanation={this.navigateToContactsExplanation}
+      //     onSave={() => this.setState({ address: '', shouldShowModal: false })}
+      //     closeModal={() => this.setState({ shouldShowModal: false })}
+      //   />
+      // )
     ];
   }
 

@@ -1,5 +1,27 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, TwelveWordsBackup, Transactions, Settings, Contacts, TestMe, Network } from '/screens';
+import {
+  Auth,
+  Welcome,
+  UnlockWallet,
+  CreateWallet,
+  RestoreWallet,
+  FileRestore,
+  WordsRestore,
+  Main,
+  Node,
+  NodeSetup,
+  Wallet,
+  Overview,
+  SendCoins,
+  RequestCoins,
+  Backup,
+  TwelveWordsBackup,
+  Transactions,
+  Settings,
+  Contacts,
+  TestMe,
+  Network
+} from '/screens';
 
 const app = [
   {
@@ -12,14 +34,49 @@ const app = [
   }
 ];
 
+const auth = [
+  {
+    path: '/auth/welcome',
+    component: Welcome
+  },
+  {
+    path: '/auth/unlock',
+    component: UnlockWallet
+  },
+  {
+    path: '/auth/create',
+    component: CreateWallet
+  },
+  {
+    path: '/auth/restore',
+    component: RestoreWallet
+  },
+  {
+    path: '/auth/file-restore',
+    component: FileRestore
+  },
+  {
+    path: '/auth/words-restore',
+    component: WordsRestore
+  },
+  {
+    path: '/auth/node-setup',
+    component: NodeSetup
+  }
+];
+
 const main = [
   {
     path: '/main/wallet',
     component: Wallet
   },
   {
-    path: '/main/local-node',
-    component: LocalNode
+    path: '/main/node',
+    component: Node
+  },
+  {
+    path: '/main/backup',
+    component: Backup
   },
   {
     path: '/main/transactions',
@@ -49,6 +106,13 @@ const wallet = [
     component: SendCoins
   },
   {
+    path: '/main/wallet/requestCoins',
+    component: RequestCoins
+  }
+];
+
+const backup = [
+  {
     path: '/main/wallet/backup',
     component: Backup
   },
@@ -64,8 +128,10 @@ const wallet = [
 
 const routes = {
   app,
+  auth,
   main,
-  wallet
+  wallet,
+  backup
 };
 
 export default routes;

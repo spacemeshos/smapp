@@ -95,9 +95,10 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
   try {
     const files = await fileSystemService.readDirectory();
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
+    return files;
   } catch (err) {
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
-    throw createError('Error reading wallet files!', readFileName);
+    throw createError('Error reading wallet files!', readWalletFiles);
   }
 };
 
@@ -116,7 +117,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
-    throw createError(err.message, readFileName);
+    throw createError(err.message, unlockWallet);
   }
 };
 
@@ -140,13 +141,17 @@ export const createNewAccount = (): Action => async (dispatch: Dispatch, getStat
     dispatch(setAccounts({ accounts: updatedAccounts }));
     localStorageService.set('accountNumber', accountNumber + 1);
   } catch (err) {
-    throw createError('Error creating new account!', readFileName);
+    throw createError('Error creating new account!', createNewAccount);
   }
 };
 
-export const readFileName = (): Action => async (dispatch: Dispatch): Dispatch => {
-  const fileName = await fileSystemService.getFileName();
-  dispatch({ type: SAVE_WALLET_FILES, payload: { files: [fileName] } });
+export const copyFile = ({ filePath }: { fileName: string, filePath: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { walletFiles } = getState().wallet;
+  const walletNumber = localStorageService.get('walletNumber');
+  const fileName = `my_wallet_${walletNumber}-${Math.floor(new Date() / 1000)}.json`;
+  const newFilePath = await fileSystemService.copyFile({ fileName, filePath });
+  localStorageService.set('walletNumber', walletNumber + 1);
+  dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [newFilePath, ...walletFiles] : [newFilePath] } });
 };
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {

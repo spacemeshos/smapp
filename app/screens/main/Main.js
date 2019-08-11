@@ -1,77 +1,90 @@
 // @flow
+import { shell } from 'electron';
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { resetNodeSettings } from '/redux/localNode/actions';
+import { resetNodeSettings } from '/redux/node/actions';
 import { checkNetworkConnection } from '/redux/network/actions';
-import styled from 'styled-components';
-import { SideMenu } from '/basicComponents';
-import type { SideMenuItem } from '/basicComponents';
-import { menu1, menu2, menu3, menu4, menu5, menu6, menu7 } from '/assets/images';
-import routes from '/routes';
-import type { Account, Action } from '/types';
-import { notificationsService } from '/infra/notificationsService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { SecondaryButton } from '/basicComponents';
+import routes from '/routes';
+import { notificationsService } from '/infra/notificationsService';
+import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
+import { smColors } from '/vars';
+import type { Account, Action } from '/types';
 
 const completeValue = 80; // TODO: change to actual complete value
 
-const sideMenuItems: SideMenuItem[] = [
-  {
-    text: 'Local Node',
-    path: '/main/local-node',
-    icon: menu1
-  },
-  {
-    text: 'Wallet',
-    path: '/main/wallet',
-    icon: menu2
-  },
-  {
-    text: 'Transaction',
-    path: '/main/transactions',
-    icon: menu3
-  },
-  {
-    text: 'Contacts',
-    path: '/main/contacts',
-    icon: menu4
-  },
-  {
-    text: 'Settings',
-    path: '/main/settings',
-    icon: menu5,
-    hasSeparator: true
-  },
-  {
-    text: 'Network',
-    path: '/main/network',
-    icon: menu6
-  },
-  {
-    text: 'Logout',
-    path: '/',
-    icon: menu7
-  }
-];
-
 const Wrapper = styled.div`
-  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
+  padding: 5px 10px;
+  background-color: ${smColors.white};
+`;
+
+const NavBar = styled.div`
   display: flex;
   flex-direction: row;
-  flex: 1;
+  justify-content: space-between;
+`;
+
+const NavBarPart = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-right: 10px;
+`;
+
+const NavLinksWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+  margin-left: 30px;
+`;
+
+// $FlowStyledIssue
+const NavBarLink = styled.div`
+  margin-right: 15px;
+  font-family: SourceCodeProBold;
+  font-size: 16px;
+  line-height: 20px;
+  text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
+  text-transform: uppercase;
+  color: ${({ isActive }) => (isActive ? smColors.purple : smColors.disabledGray)};
+  cursor: pointer;
+`;
+
+const Logo = styled.img`
+  display: block;
+  width: 130px;
+  height: 40px;
+`;
+
+const SideBar = styled.img`
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 100%;
 `;
 
 const InnerWrapper = styled.div`
-  width: 100%;
-  height: 100%;
   display: flex;
   flex: 1;
-  flex-direction: row;
   justify-content: center;
-  align-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: ${smColors.white};
 `;
+
+const bntStyle = { marginRight: 15, marginTop: 10 };
 
 type Props = {
   history: { push: (string) => void },
@@ -85,31 +98,59 @@ type Props = {
 };
 
 type State = {
-  selectedItemIndex: number,
-  loadingItemIndex: number,
-  shouldShowModal: boolean
+  activeRouteIndex: number
 };
 
 class Main extends Component<Props, State> {
   timer: any;
 
+  navMap: Array<() => void>;
+
   constructor(props: Props) {
     super(props);
-    const { location } = props;
+    const { location, history } = props;
     const isWalletLocation = location.pathname.includes('/wallet');
-    const selectedItemIndex = isWalletLocation ? 1 : 0;
+    const activeRouteIndex = isWalletLocation ? 1 : 0;
     this.state = {
-      selectedItemIndex,
-      loadingItemIndex: -1,
-      shouldShowModal: false
+      activeRouteIndex
     };
+
+    this.navMap = [
+      () => history.push('/main/node'),
+      () => history.push('/main/wallet'),
+      () => history.push('/main/settings'),
+      () => shell.openExternal('https://testnet.spacemesh.io/#/tap'),
+      () => shell.openExternal('https://testnet.spacemesh.io/#/help')
+    ];
   }
 
   render() {
-    const { selectedItemIndex, loadingItemIndex, shouldShowModal } = this.state;
+    const { activeRouteIndex } = this.state;
     return (
       <Wrapper>
-        <SideMenu items={sideMenuItems} selectedItemIndex={selectedItemIndex} onMenuItemPress={this.handleSideMenuPress} loadingItemIndex={loadingItemIndex} />
+        <SideBar src={sideBar} />
+        <NavBar>
+          <NavBarPart>
+            <Logo src={logo} />
+            <NavLinksWrapper>
+              <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
+              <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
+            </NavLinksWrapper>
+          </NavBarPart>
+          <NavBarPart>
+            <SecondaryButton
+              onClick={() => this.handleNavigation({ index: 2 })}
+              imgName={settingsIcon}
+              imgHeight={16}
+              imgWidth={16}
+              isPrimary={activeRouteIndex === 2}
+              style={bntStyle}
+            />
+            <SecondaryButton onClick={() => this.handleNavigation({ index: 3 })} imgName={getCoinsIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} imgName={helpIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} imgName={signOutIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+          </NavBarPart>
+        </NavBar>
         <InnerWrapper>
           <Switch>
             {routes.main.map((route) => (
@@ -124,10 +165,10 @@ class Main extends Component<Props, State> {
   componentDidMount() {
     const { checkNetworkConnection } = this.props;
     const networkCheckInterval = 30000;
-    checkNetworkConnection();
-    this.timer = setInterval(() => {
-      checkNetworkConnection();
-    }, networkCheckInterval);
+    // checkNetworkConnection();
+    // this.timer = setInterval(() => {
+    //   checkNetworkConnection();
+    // }, networkCheckInterval);
   }
 
   componentWillUnmount() {
@@ -143,31 +184,37 @@ class Main extends Component<Props, State> {
       notificationsService.notify({
         title: 'Local Node',
         notification: 'Your full node setup is complete! You are now participating in the Spacemesh network!',
-        callback: () => this.handleSideMenuPress({ index: 0 })
+        callback: () => this.handleNavigation({ index: 0 })
       });
     }
   }
 
-  handleSideMenuPress = ({ index }: { index: number }) => {
-    const { history, accounts, location } = this.props;
-    const newPath: ?string = sideMenuItems[index].path;
-    const isNavigatingToLocalNode = newPath && newPath.includes('/local-node');
-    if ((!accounts.length && !isNavigatingToLocalNode) || newPath === '/') {
-      this.navToAuthAndLogout();
-    } else {
-      const isSameLocation = !!newPath && location.hash.endsWith(newPath);
-      if (!isSameLocation && newPath) {
-        this.setState({ selectedItemIndex: index });
-        history.push(newPath);
+  handleNavigation = ({ index }: { index: number }) => {
+    const { history, accounts, location, resetNodeSettings } = this.props;
+    const { activeRouteIndex } = this.state;
+    if (index !== activeRouteIndex) {
+      switch (index) {
+        case 0:
+        case 1:
+        case 2: {
+          this.setState({ activeRouteIndex: index });
+          this.navMap[index]();
+          break;
+        }
+        case 3:
+        case 4: {
+          this.navMap[index]();
+          break;
+        }
+        case 5: {
+          history.push('/');
+          resetNodeSettings();
+          logout();
+          break;
+        }
+        default: break;
       }
     }
-  };
-
-  navToAuthAndLogout = () => {
-    const { history, logout, resetNodeSettings } = this.props;
-    history.push('/');
-    resetNodeSettings();
-    logout();
   };
 }
 
@@ -178,8 +225,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  checkNetworkConnection,
   resetNodeSettings,
+  checkNetworkConnection,
   logout
 };
 

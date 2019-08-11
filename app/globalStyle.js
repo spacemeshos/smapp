@@ -1,6 +1,18 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
+    @font-face {
+      font-family: SourceCodePro;
+      src: url(../app/assets/fonts/SourceCodePro-Regular.ttf);
+      font-weight:400;
+    }
+    
+    @font-face {
+      font-family: SourceCodeProBold;
+      src: url(../app/assets/fonts/SourceCodePro-Bold.ttf);
+      font-weight: 400;
+    }
+
     html, body {
         width: 100%;
         height: 100%;
@@ -25,7 +37,7 @@ const GlobalStyle = createGlobalStyle`
       padding: 0;
       box-sizing: border-box;
       cursor: default;
-      font-family: sans-serif;
+      font-family: SourceCodePro, sans-serif;
     }
 
     article, aside, details, figcaption, figure,
@@ -47,7 +59,7 @@ const GlobalStyle = createGlobalStyle`
     
     input {
       box-sizing: border-box;
-      font-family: sans-serif;
+      font-family: SourceCodePro, sans-serif;
       font-weight: normal;
     }
 `;

@@ -4,15 +4,15 @@ import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 
 class FsService {
-  static getFileName = () => {
-    ipcRenderer.send(ipcConsts.GET_FILE_NAME);
+  static copyFile = ({ fileName, filePath }: { filePath: string }) => {
+    ipcRenderer.send(ipcConsts.COPY_FILE, { fileName, filePath });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_FILE_NAME_SUCCESS, (event, xml) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_FILE_NAME_SUCCESS, ipcConsts.GET_FILE_NAME_FAILURE] });
+      ipcRenderer.once(ipcConsts.COPY_FILE_SUCCESS, (event, xml) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.COPY_FILE_SUCCESS, ipcConsts.COPY_FILE_FAILED] });
         resolve(xml);
       });
-      ipcRenderer.once(ipcConsts.GET_FILE_NAME_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_FILE_NAME_SUCCESS, ipcConsts.GET_FILE_NAME_FAILURE] });
+      ipcRenderer.once(ipcConsts.COPY_FILE_FAILED, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.COPY_FILE_SUCCESS, ipcConsts.COPY_FILE_FAILED] });
         reject(args);
       });
     });

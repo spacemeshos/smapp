@@ -10,8 +10,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileManager.readFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_FILE_NAME, async (event, request) => {
-    FileManager.getFileName({ browserWindow: mainWindow, event, ...request });
+  ipcMain.on(ipcConsts.COPY_FILE, async (event, request) => {
+    FileManager.copyFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
