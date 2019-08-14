@@ -141,15 +141,15 @@ class Main extends Component<Props, State> {
           <NavBarPart>
             <SecondaryButton
               onClick={() => this.handleNavigation({ index: 2 })}
-              imgName={settingsIcon}
+              img={settingsIcon}
               imgHeight={16}
               imgWidth={16}
               isPrimary={activeRouteIndex === 2}
               style={bntStyle}
             />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 3 })} imgName={getCoinsIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} imgName={helpIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} imgName={signOutIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <SecondaryButton onClick={() => this.handleNavigation({ index: 3 })} img={getCoinsIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={helpIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={signOutIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
           </NavBarPart>
         </NavBar>
         <InnerWrapper>

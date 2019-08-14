@@ -6,7 +6,7 @@ import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
 import { getWalletName, getAccountName, getWalletAddress, createError } from '/infra/utils';
-import { smColors, cryptoConsts } from '/vars';
+import { cryptoConsts } from '/vars';
 
 export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
 
@@ -38,7 +38,6 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   const meta = {
     displayName: getWalletName({ walletNumber }),
     created: unixEpochTimestamp,
-    displayColor: smColors.green,
     netId: 0,
     meta: {
       salt: cryptoConsts.DEFAULT_SALT
@@ -50,7 +49,6 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
       {
         displayName: getAccountName({ accountNumber }),
         created: unixEpochTimestamp,
-        displayColor: smColors.darkGreen,
         path: '0/0/1',
         balance: 100, // TODO: remove after full integration
         pk: publicKey,
@@ -130,7 +128,6 @@ export const createNewAccount = (): Action => async (dispatch: Dispatch, getStat
     const newAccount = {
       displayName: getAccountName({ accountNumber }),
       created: unixEpochTimestamp,
-      displayColor: smColors.darkGreen,
       path: '0/0/1',
       balance: 100, // TODO: remove after full integration
       pk: publicKey,

@@ -3,7 +3,7 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
-import { getAbbreviatedAddressText } from '/infra/utils';
+import { getAbbreviatedText } from '/infra/utils';
 import { copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
@@ -109,7 +109,7 @@ class RequestCoins extends Component<Props, State> {
         <SubHeader>
           <Text>Request SMC by sharing this address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
-            <AddressText>{getAbbreviatedAddressText(account.pk, 8)}</AddressText>
+            <AddressText>{getAbbreviatedText(account.pk, 8)}</AddressText>
             <CopyIcon src={copyToClipboard} />
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>
@@ -122,7 +122,7 @@ class RequestCoins extends Component<Props, State> {
           <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
         </ComplexText>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
+          <Link onClick={this.navigateToGuide} text="REQUEST SMC GUIDE" />
           <Button onClick={history.goBack} text="DONE" />
         </Footer>
       </Wrapper>

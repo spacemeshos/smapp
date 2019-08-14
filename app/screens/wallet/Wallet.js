@@ -5,11 +5,12 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
 import routes from '/routes';
-import { AccountCards } from '/components/wallet';
+import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { CorneredWrapper } from '/basicComponents';
 import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
-import { backup, leftSideTIcon, bottomLeftCorner, bottomRightCorner, topLeftCorner, topRightCorner, smallHorizontalSideBar } from '/assets/images';
+import { backup, leftSideTIcon, smallHorizontalSideBar } from '/assets/images';
 import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -63,38 +64,7 @@ const RightSection = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
-`;
-
-const TopLeftCorner = styled.img`
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const TopRightCorner = styled.img`
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomLeftCorner = styled.img`
-  position: absolute;
-  bottom: -5px;
-  left: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomRightCorner = styled.img`
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
+  height: 100%;
 `;
 
 const HorizontalBar = styled.img`
@@ -127,7 +97,7 @@ class Wallet extends Component<Props, State> {
     return (
       <Wrapper>
         <LeftSection>
-          <AccountCards accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
+          <AccountsOverview accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
           {!hasBackup && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
@@ -136,19 +106,17 @@ class Wallet extends Component<Props, State> {
             </BackupReminder>
           )}
         </LeftSection>
-        <RightSection>
-          <TopLeftCorner src={topLeftCorner} />
-          <TopRightCorner src={topRightCorner} />
-          <BottomLeftCorner src={bottomLeftCorner} />
-          <BottomRightCorner src={bottomRightCorner} />
-          <HorizontalBar src={smallHorizontalSideBar} />
-          <Switch>
-            {routes.wallet.map((route) => (
-              <Route exact key={route.path} path={route.path} component={route.component} />
-            ))}
-            <Redirect to="/main/wallet/overview" />
-          </Switch>
-        </RightSection>
+        <CorneredWrapper>
+          <RightSection>
+            <HorizontalBar src={smallHorizontalSideBar} />
+            <Switch>
+              {routes.wallet.map((route) => (
+                <Route exact key={route.path} path={route.path} component={route.component} />
+              ))}
+              <Redirect to="/main/wallet/overview" />
+            </Switch>
+          </RightSection>
+        </CorneredWrapper>
       </Wrapper>
     );
   }

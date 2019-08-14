@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedAddressText } from '/infra/utils';
+import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -24,6 +24,7 @@ const AccountWrapper = styled.div`
   ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
   &:hover {
     opacity: 1;
+    color: ${smColors.darkGray50Alpha};
   }
 `;
 
@@ -96,7 +97,7 @@ type State = {
   isCopied: boolean
 };
 
-class AccountCards extends Component<Props, State> {
+class AccountsOverview extends Component<Props, State> {
   copiedTimeout: any;
 
   state = {
@@ -138,7 +139,7 @@ class AccountCards extends Component<Props, State> {
   renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
     <AccountWrapper key={pk} isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
-      <Address>{getAbbreviatedAddressText(pk, 6)}</Address>
+      <Address>{getAbbreviatedText(pk, 6)}</Address>
     </AccountWrapper>
   );
 
@@ -151,4 +152,4 @@ class AccountCards extends Component<Props, State> {
   };
 }
 
-export default AccountCards;
+export default AccountsOverview;
