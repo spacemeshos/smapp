@@ -1,51 +1,16 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
+import { CorneredWrapper } from '/basicComponents';
 import { smColors } from '/vars';
-import { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } from '/assets/images';
 
-// $FlowStyledIssue
-const Wrapper = styled.div`
-  position: relative;
+const Wrapper = styled(CorneredWrapper)`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
-  margin: 8px;
   padding: 20px;
   background-color: ${smColors.lightGray};
-`;
-
-const TopLeftCorner = styled.img`
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  width: 8px;
-  height: 8px;
-`;
-
-const TopRightCorner = styled.img`
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomLeftCorner = styled.img`
-  position: absolute;
-  bottom: -8px;
-  left: -8px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomRightCorner = styled.img`
-  position: absolute;
-  bottom: -8px;
-  right: -8px;
-  width: 8px;
-  height: 8px;
 `;
 
 const Header = styled.div`
@@ -74,10 +39,6 @@ class Container extends PureComponent<Props> {
     const { children, width, height, header, subHeader } = this.props;
     return (
       <Wrapper width={width} height={height}>
-        <TopLeftCorner src={topLeftCorner} />
-        <TopRightCorner src={topRightCorner} />
-        <BottomLeftCorner src={bottomLeftCorner} />
-        <BottomRightCorner src={bottomRightCorner} />
         <Header>{header}</Header>
         <SubHeader>
           --
