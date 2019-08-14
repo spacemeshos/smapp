@@ -84,7 +84,7 @@ type Props = {
   isDisabled?: boolean,
   imgWidth: number,
   imgHeight: number,
-  imgName: string,
+  imgName: any,
   style?: Object
 };
 
