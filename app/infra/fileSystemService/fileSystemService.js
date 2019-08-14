@@ -2,6 +2,7 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
+import { localStorageService } from '/infra/storageService';
 
 class FsService {
   static copyFile = ({ fileName, filePath }: { fileName: string, filePath: string }) => {
@@ -46,8 +47,18 @@ class FsService {
     });
   };
 
-  static saveFile = ({ fileName, fileContent, showDialog }: { fileName: string, fileContent: string, showDialog: string }) => {
-    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, showDialog });
+  static saveFile = ({
+    fileName,
+    fileContent,
+    showDialog,
+    saveToDocumentsFolder
+  }: {
+    fileName: string,
+    fileContent: string,
+    showDialog: string,
+    saveToDocumentsFolder: boolean
+  }) => {
+    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, showDialog, saveToDocumentsFolder });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SAVE_FILE_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SAVE_FILE_SUCCESS, ipcConsts.SAVE_FILE_FAILURE] });
@@ -83,6 +94,21 @@ class FsService {
       });
       ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, (event, args) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE] });
+        reject(args);
+      });
+    });
+  };
+
+  static showWalletBackupFile = () => {
+    const fileName = localStorageService.get('lastBackupFileName');
+    ipcRenderer.send(ipcConsts.SHOW_WALLET_BACKUP_FILE, { fileName });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, () => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE] });
+        resolve();
+      });
+      ipcRenderer.once(ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE] });
         reject(args);
       });
     });

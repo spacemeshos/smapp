@@ -131,6 +131,8 @@ class TwelveWordsBackup extends Component<Props, State> {
       this.twelveWordsPrint += `<h2>${index + 1} ${word}</h2>`;
     });
     this.twelveWordsPrint += '</div>';
+    // eslint-disable-next-line no-console
+    console.warn('TWELVE WORDS BACKUP PAGE');
   }
 
   render() {

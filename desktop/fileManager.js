@@ -42,6 +42,22 @@ class FileManager {
     }
   };
 
+  static showWalletBackupFile = async ({ event, fileName }) => {
+    try {
+      const files = await readDirectoryAsync(documentsDirPath);
+      const filteredFiles = files.filter((file) => file === fileName);
+      const filesWithPath = filteredFiles.map((file) => path.join(documentsDirPath, file));
+      if (filesWithPath && filesWithPath[0]) {
+        shell.showItemInFolder(filesWithPath[0]);
+      } else {
+        shell.openItem(documentsDirPath);
+      }
+      event.sender.send(ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS);
+    } catch (error) {
+      event.sender.send(ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE, error.message);
+    }
+  };
+
   static readFile = async ({ event, filePath }) => {
     await FileManager._readFile({ event, filePath });
   };
@@ -58,7 +74,7 @@ class FileManager {
     }
   };
 
-  static writeFile = async ({ browserWindow, event, fileName, fileContent, showDialog }) => {
+  static writeFile = async ({ browserWindow, event, fileName, fileContent, showDialog, saveToDocumentsFolder }) => {
     if (showDialog) {
       const options = {
         title: 'Save Wallet Backup File',
@@ -72,7 +88,7 @@ class FileManager {
         }
       });
     } else {
-      const filePath = path.join(appFilesDirPath, fileName);
+      const filePath = path.join(saveToDocumentsFolder ? documentsDirPath : appFilesDirPath, fileName);
       await FileManager._writeFile({ event, filePath, fileContent });
     }
   };

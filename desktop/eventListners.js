@@ -62,6 +62,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileManager.openWalletBackupDirectory({ event });
   });
 
+  ipcMain.on(ipcConsts.SHOW_WALLET_BACKUP_FILE, async (event, request) => {
+    FileManager.showWalletBackupFile({ event, ...request });
+  });
+
   ipcMain.on(ipcConsts.SET_COMMITMENT_SIZE, async (event, request) => {
     netService.setCommitmentSize({ event, ...request });
   });
