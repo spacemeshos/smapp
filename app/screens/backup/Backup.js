@@ -28,7 +28,7 @@ class Backup extends Component<Props> {
     return (
       <Wrapper>
         <BackButtonWrapper>
-          <SecondaryButton onClick={history.goBack} imgName={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ marginRight: 10 }} />
+          <SecondaryButton onClick={history.goBack} imgName={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ marginRight: 10 }} />
         </BackButtonWrapper>
         <Switch>
           {routes.backup.map((route) => (

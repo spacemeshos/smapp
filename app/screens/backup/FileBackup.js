@@ -59,7 +59,7 @@ class FileBackup extends Component<Props> {
   render() {
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={815} height={480} header="BACKUP">
+        <WrapperWith2SideBars width={920} height={480} header="BACKUP">
           <HorizontalBarWrapper>
             <HorizontalBar src={smallHorizontalSideBar} />
           </HorizontalBarWrapper>
