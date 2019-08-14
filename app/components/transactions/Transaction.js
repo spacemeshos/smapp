@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
-import { getAbbreviatedAddressText } from '/infra/utils';
+import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Tx } from '/types';
 
@@ -82,7 +82,7 @@ class Transaction extends PureComponent<Props> {
         <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
         <MainWrapper>
           <Section>
-            <NickName>{isSavedContact ? nickname : getAbbreviatedAddressText(address)}</NickName>
+            <NickName>{isSavedContact ? nickname : getAbbreviatedText(address)}</NickName>
             <Text>{txId}</Text>
           </Section>
           <Section>

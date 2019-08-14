@@ -16,6 +16,7 @@ const Wrapper = styled.div`
   border: 1px solid ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
   ${({ isDisabled }) => !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
+  background-color: ${smColors.white};
 `;
 
 // $FlowStyledIssue
@@ -33,24 +34,26 @@ const ActualInput = styled.input`
 `;
 
 const ExtraTxt = styled.div`
-  margin: 8px 10px 9px 0;
+  padding: 8px 10px 9px 0;
   font-size: 14px;
   line-height: 16px;
-  color: ${smColors.red};
+  color: ${smColors.black};
   font-size: 14px;
+  background-color: ${smColors.white};
 `;
 
 type Props = {
   onChange?: ({ value: string }) => void,
+  onChangeDebounced?: ({ value: string }) => void,
   onEnterPress?: () => void,
   value: string,
   isDisabled?: boolean,
   placeholder?: string,
   extraText?: string,
-  hasDebounce?: boolean,
   debounceTime?: number,
   style?: Object,
-  type?: string
+  type?: string,
+  maxLength?: string
 };
 
 type State = {
@@ -70,7 +73,7 @@ class Input extends Component<Props, State> {
   };
 
   render() {
-    const { value, isDisabled, placeholder, extraText, style, type } = this.props;
+    const { value, isDisabled, placeholder, extraText, style, type, maxLength } = this.props;
     const { isFocused } = this.state;
     return (
       <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
@@ -83,6 +86,7 @@ class Input extends Component<Props, State> {
           onFocus={() => this.setState({ isFocused: true })}
           onBlur={() => this.setState({ isFocused: false })}
           type={type}
+          maxLength={maxLength}
         />
         {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
       </Wrapper>
@@ -90,8 +94,8 @@ class Input extends Component<Props, State> {
   }
 
   componentWillUnmount(): void {
-    const { hasDebounce } = this.props;
-    hasDebounce && clearTimeout(this.debounce);
+    const { onChangeDebounced } = this.props;
+    onChangeDebounced && clearTimeout(this.debounce);
   }
 
   onEnterPress = ({ key }: { key: string }) => {
@@ -102,12 +106,16 @@ class Input extends Component<Props, State> {
   };
 
   onChange = ({ target }: { target: { value: string } }) => {
-    const { hasDebounce, debounceTime, onChange } = this.props;
-    if (hasDebounce) {
+    const { onChangeDebounced, debounceTime, onChange } = this.props;
+    const { value } = target;
+    onChange && onChange({ value });
+    if (onChangeDebounced) {
       clearTimeout(this.debounce);
-      this.debounce = setTimeout(() => onChange && onChange({ value: target.value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
-    } else {
-      onChange && onChange({ value: target.value });
+      if (!value) {
+        onChangeDebounced({ value });
+      } else {
+        this.debounce = setTimeout(() => onChangeDebounced({ value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
+      }
     }
   };
 }

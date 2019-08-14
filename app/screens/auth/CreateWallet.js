@@ -6,7 +6,7 @@ import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { Container } from '/components/common';
 import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
-import { smallHorizontalSideBar, chevronRightBlack } from '/assets/images';
+import { smallHorizontalSideBar, chevronRightBlack, chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -121,7 +121,7 @@ class CreateWallet extends Component<Props, State> {
           <SideBar src={smallHorizontalSideBar} />
           {subMode === 1 && (
             <React.Fragment>
-              <SecondaryButton onClick={history.goBack} imgName="chevronLeftWhite" imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+              <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
               <UpperPart>
                 <Inputs>
                   <InputSection>

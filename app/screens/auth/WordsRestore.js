@@ -6,7 +6,7 @@ import { Container } from '/components/common';
 import { Input, Button, Link, SecondaryButton, ErrorPopup } from '/basicComponents';
 import { cryptoService } from '/infra/cryptoService';
 import { smColors } from '/vars';
-import { smallHorizontalSideBar } from '/assets/images';
+import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 
 const SideBar = styled.img`
@@ -75,7 +75,7 @@ class WordsRestore extends Component<Props, State> {
     return (
       <Container width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="please enter the 12 words in the right order">
         <SideBar src={smallHorizontalSideBar} />
-        <SecondaryButton onClick={history.goBack} imgName="chevronLeftWhite" imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <Table>
           <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>
           <TableColumn>{this.renderInputs({ start: 4 })}</TableColumn>

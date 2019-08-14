@@ -3,9 +3,7 @@ export { default as Loader } from './Loader';
 export { default as SmButton } from './SmButton';
 export { default as SmDropdown } from './SmDropdown';
 export { default as SmInput } from './SmInput';
-export { default as SmRadioButton } from './SmRadioButton';
 export { default as Modal } from './Modal';
-export { default as SimpleDropdown } from './SimpleDropdown';
 
 export { default as BaseWrapper } from './BaseWrapper';
 export { default as Button } from './Button';

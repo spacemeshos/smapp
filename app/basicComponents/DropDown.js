@@ -28,6 +28,7 @@ const HeaderWrapper = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  height: ${({ rowHeight }) => rowHeight}px;
   cursor: pointer;
   background-color: ${({ bgColor }) => bgColor};
   ${({ isOpened }) =>
@@ -63,6 +64,10 @@ const ItemsWrapper = styled.div`
 
 // $FlowStyledIssue
 const DropdownRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: ${({ height }) => height}px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
 `;
 
@@ -103,11 +108,11 @@ class DropDown extends Component<Props, State> {
           e.stopPropagation();
         }}
       >
-        <HeaderWrapper isOpened={isOpened} bgColor={bgColor} onClick={isDisabledComputed ? null : this.handleToggle}>
+        <HeaderWrapper isOpened={isOpened} bgColor={bgColor} onClick={isDisabledComputed ? null : this.handleToggle} rowHeight={rowHeight}>
           <DdElement isDisabled={isDisabled} {...data[selectedItemIndex]} isMain />
           <Icon isOpened={isOpened} src={chevronBottomBlack} />
         </HeaderWrapper>
-        {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => this.renderRow({ item, index }))}</ItemsWrapper>}
+        {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => this.renderRow({ item, index, rowHeight }))}</ItemsWrapper>}
       </Wrapper>
     );
   }
@@ -123,7 +128,7 @@ class DropDown extends Component<Props, State> {
     }, 0);
   }
 
-  renderRow = ({ item, index }: { item: Object, index: number }) => {
+  renderRow = ({ item, index, rowHeight }: { item: Object, index: number, rowHeight?: number }) => {
     const { onPress, DdElement } = this.props;
     return (
       <DropdownRow
@@ -139,6 +144,7 @@ class DropDown extends Component<Props, State> {
                 this.closeDropdown();
               }
         }
+        height={rowHeight}
       >
         <DdElement isDisabled={item.isDisabled} {...item} />
       </DropdownRow>
