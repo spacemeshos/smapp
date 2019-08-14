@@ -7,7 +7,7 @@ import { setLocalNodeStorage, getDrivesList } from '/redux/node/actions';
 import { Container } from '/components/common';
 import { StepsContainer, Button, SecondaryButton, Link } from '/basicComponents';
 import { Carousel, CommitmentSelector } from '/components/node';
-import { smallHorizontalSideBar } from '/assets/images';
+import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -66,7 +66,7 @@ class NodeSetup extends Component<Props, State> {
         <StepsContainer steps={['SETUP WALLET + MINER', 'PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']} currentStep={subMode} />
         <Container width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
           <SideBar src={smallHorizontalSideBar} />
-          <SecondaryButton onClick={this.handleBackBtn} imgName="chevronLeftWhite" imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+          <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
           {subMode === 2 && drives.length && (
             <Carousel data={drives} selectedItemIndex={selectedDriveIndex} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
           )}

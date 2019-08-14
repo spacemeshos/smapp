@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
 import routes from '/routes';
-import { AccountCards } from '/components/wallet';
+import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
@@ -127,7 +127,7 @@ class Wallet extends Component<Props, State> {
     return (
       <Wrapper>
         <LeftSection>
-          <AccountCards accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
+          <AccountsOverview accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
           {!hasBackup && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />

@@ -84,7 +84,7 @@ type Props = {
   isDisabled?: boolean,
   imgWidth: number,
   imgHeight: number,
-  imgName: string,
+  img: string,
   style?: Object
 };
 
@@ -95,11 +95,11 @@ class SecondaryButton extends PureComponent<Props> {
   };
 
   render() {
-    const { onClick, isPrimary, isDisabled, imgWidth, imgHeight, imgName, style } = this.props;
+    const { onClick, isPrimary, isDisabled, imgWidth, imgHeight, img, style } = this.props;
     return (
       <Wrapper onClick={isDisabled ? null : onClick} isDisabled={isDisabled} style={style}>
         <UpperPart isPrimary={isPrimary} isDisabled={isDisabled}>
-          <Image src={imgName} imgWidth={imgWidth} imgHeight={imgHeight} />
+          <Image src={img} imgWidth={imgWidth} imgHeight={imgHeight} />
         </UpperPart>
         <LowerPart isPrimary={isPrimary} isDisabled={isDisabled} />
       </Wrapper>

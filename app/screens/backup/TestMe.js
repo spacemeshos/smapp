@@ -5,7 +5,7 @@ import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
-import { DropContainer, DragItem } from '/components/wallet';
+import { DropContainer, DragItem } from '/components/backup';
 import { SmButton } from '/basicComponents';
 import { smColors } from '/vars';
 
