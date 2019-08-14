@@ -1,118 +1,104 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { DragDropContextProvider } from 'react-dnd';
-import HTML5Backend from 'react-dnd-html5-backend';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
-import { DropContainer, DragItem } from '/components/backup';
-import { SmButton } from '/basicComponents';
+import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
 import { smColors } from '/vars';
+import { smallHorizontalSideBar } from '/assets/images';
+import { shell } from 'electron';
 
 const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
   display: flex;
-  flex: 1;
+  flex-direction: row;
+`;
+
+const TextWrapper = styled.div`
+  height: 75px;
+  margin-bottom: 40px;
+  display: flex;
   flex-direction: column;
-  flex-direction: flex-start;
-  padding: 50px;
-`;
-
-const Header = styled.span`
-  font-size: 31px;
-  font-weight: bold;
-  line-height: 42px;
-  color: ${smColors.lighterBlack};
-  margin-bottom: 20px;
-`;
-
-const HeaderExplanation = styled.div`
-  font-size: 16px;
-  color: ${smColors.lighterBlack};
-  line-height: 30px;
-  margin-bottom: 30px;
-`;
-
-const BaseText = styled.span`
-  font-size: 16px;
-  font-weight: normal;
-  line-height: 22px;
-  color: ${smColors.lighterBlack};
-`;
-
-const ActionLink = styled(BaseText)`
-  user-select: none;
-  color: ${smColors.darkGreen};
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-  &:active {
-    opacity: 0.6;
-  }
+  justify-content: flex-end;
 `;
 
 const Text = styled.span`
-  font-size: 18px;
-  color: ${smColors.darkGray};
-  line-height: 32px;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 22px;
+`;
+
+const WhiteText = styled(Text)`
+  color: ${smColors.white};
+`;
+
+const HorizontalBarWrapper = styled.div`
+  position: relative;
+`;
+
+const HorizontalBar = styled.img`
+  position: absolute;
+  top: -95px;
+  right: -28px;
+  width: 70px;
+  height: 15px;
+`;
+
+const MiddleSectionRow = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const BottomSection = styled(MiddleSectionRow)`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: flex-end;
+`;
+
+const BottomRow = styled(MiddleSectionRow)`
+  justify-content: space-between;
+`;
+
+const TestWordsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 18px;
+`;
+
+const WordsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 140px;
+  width: 100%;
+`;
+
+const WordContainer = styled.div`
+  border: 1px dashed ${smColors.darkGray};
+  height: 27px;
+  width: 155px;
+  margin-bottom: 7px;
+  border-radius: 5px;
+  margin-right: 20px;
+  padding-left: 16px;
+`;
+
+const TestWordContainer = styled(WordContainer)`
+  background-color: ${smColors.black};
+  border: none;
 `;
 
 const IndexWrapper = styled.div`
-  height: 32px;
-  line-height: 32px;
-  width: 28px;
-  margin-right: 50px;
+  width: 20px;
+  margin-right: 4px;
   text-align: right;
 `;
 
 const Index = styled(Text)`
-  color: ${smColors.darkGray50Alpha};
-`;
-
-const TwelveWordsContainer = styled.div`
-  border: 1px solid ${smColors.darkGreen};
-  padding: 28px;
-  margin-bottom: 22px;
-  column-count: 3;
+  color: ${smColors.darkGray};
 `;
 
 const WordWrapper = styled.div`
-  height: 50px;
-  line-height: 50px;
-  display: flex;
-`;
-
-const NotificationSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 25px;
-  margin-bottom: 22px;
-`;
-
-// $FlowStyledIssue
-const Notification = styled(BaseText)`
-  font-weight: bold;
-  line-height: 30px;
-  color: ${({ color }) => color};
-`;
-
-const WordOptionsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  margin-bottom: 42px;
-`;
-
-const ButtonsRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: 30px;
-`;
-
-const LeftButtonsContainer = styled.div`
   display: flex;
 `;
 
@@ -157,43 +143,47 @@ class TestMe extends Component<Props, State> {
   }
 
   render() {
-    const { history } = this.props;
     const { testWords, twelveWords, dropsCounter, matchCounter } = this.state;
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
-    const isTestFailed = matchCounter < 4 && dropsCounter === 4;
+    // const isTestFailed = matchCounter < 4 && dropsCounter === 4;
     return (
       <Wrapper>
-        <DragDropContextProvider backend={HTML5Backend}>
-          <Header>Create a 12 Words Backup</Header>
-          <HeaderExplanation>Drag each of the 4 words below to its matching number in your paper backup words list.</HeaderExplanation>
-          <WordOptionsContainer>
-            {testWords.map((word: string) => (
-              <DragItem key={word} word={word} isDropped={this.checkIfWasDropped(word)} />
-            ))}
-          </WordOptionsContainer>
-          <TwelveWordsContainer>
-            {twelveWords.map(({ word, droppedWord }: { word: string, droppedWord: string }, index: number) => (
-              <WordWrapper key={word}>
-                <IndexWrapper>
-                  <Index>{`${index + 1}`}</Index>
-                </IndexWrapper>
-                <DropContainer droppedWord={droppedWord} onDrop={this.handleDrop({ word, index })} />
-              </WordWrapper>
-            ))}
-          </TwelveWordsContainer>
-          <NotificationSection>
-            {isTestSuccess && <Notification color={smColors.orange}>All right! Your 12 Words Backup is confirmed</Notification>}
-            {isTestFailed && <Notification color={smColors.red}>No match. Check your 12 Words Paper Backup and try again.</Notification>}
-          </NotificationSection>
-          <ButtonsRow>
-            <LeftButtonsContainer>
-              <SmButton text="Try Again" theme="green" onPress={this.tryAgain} style={{ width: 150, marginRight: 20 }} />
-              <SmButton text="Go Back" theme="green" onPress={history.goBack} style={{ width: 150 }} />
-            </LeftButtonsContainer>
-            <SmButton text="Done" isDisabled={!isTestSuccess} theme="orange" onPress={this.navigateToWallet} style={{ width: 150 }} />
-          </ButtonsRow>
-          <ActionLink onClick={history.goBack}>Stuck? Go back and write down the numbered words on paper.</ActionLink>
-        </DragDropContextProvider>
+        <div style={{ position: 'absolute', top: 0, left: 0 }}>{`matches: ${matchCounter} | drops: ${dropsCounter}`}</div>
+        <WrapperWith2SideBars width={920} height={480} header="CONFIRM YOUR 12 WORDS BACKUP">
+          <HorizontalBarWrapper>
+            <HorizontalBar src={smallHorizontalSideBar} />
+          </HorizontalBarWrapper>
+          <TextWrapper>
+            <Text>Drag each of the four words below to its matching number in your paper backup word list</Text>
+          </TextWrapper>
+          <MiddleSectionRow>
+            <TestWordsSection>
+              {testWords.map((word: string) => (
+                <TestWordContainer key={word}>
+                  <WhiteText>{word}</WhiteText>
+                </TestWordContainer>
+              ))}
+            </TestWordsSection>
+            <WordsSection>
+              {twelveWords.map((word: { word: string, droppedWord: string }, index: number) => (
+                <WordWrapper key={word.word}>
+                  <IndexWrapper>
+                    <Index>{`${index + 1}`}</Index>
+                  </IndexWrapper>
+                  <WordContainer>
+                    <Text>{word.word}</Text>
+                  </WordContainer>
+                </WordWrapper>
+              ))}
+            </WordsSection>
+          </MiddleSectionRow>
+          <BottomSection>
+            <BottomRow>
+              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+              <Button onClick={this.navigateToWallet} text="Done" width={95} isDisabled={!isTestSuccess} />
+            </BottomRow>
+          </BottomSection>
+        </WrapperWith2SideBars>
       </Wrapper>
     );
   }
@@ -216,6 +206,8 @@ class TestMe extends Component<Props, State> {
     const { twelveWords } = this.state;
     return !!twelveWords.find(({ droppedWord }) => droppedWord === word);
   };
+
+  openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
 
   navigateToWallet = () => {
     const { history } = this.props;
