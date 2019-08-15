@@ -116,6 +116,7 @@
     "js-xdr": "1.1.2",
     "pbkdf2": "3.0.17",
     "react": "16.8.6",
+    "react-beautiful-dnd": "11.0.5",
     "react-dom": "16.8.6",
     "react-redux": "7.1.0",
     "react-router": "5.0.1",
