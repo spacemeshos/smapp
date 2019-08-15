@@ -6,4 +6,3 @@ export { Backup, TwelveWordsBackup, TestMe } from './backup';
 export { Transactions } from './transactions';
 export { Contacts } from './contacts';
 export { Settings } from './settings';
-export { Network } from './network';

@@ -19,8 +19,7 @@ import {
   Transactions,
   Settings,
   Contacts,
-  TestMe,
-  Network
+  TestMe
 } from '/screens';
 
 const app = [
@@ -89,10 +88,6 @@ const main = [
   {
     path: '/main/settings',
     component: Settings
-  },
-  {
-    path: '/main/network',
-    component: Network
   }
 ];
 

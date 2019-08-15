@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
 import { SmButton } from '/basicComponents';
-import { communication } from '/assets/images';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 import { shell } from 'electron';
@@ -60,20 +59,6 @@ const RightSection = styled.div`
   margin-left: 30px;
   padding: 25px;
   border: 1px solid ${smColors.borderGray};
-`;
-
-const ImageWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 15px 20px;
-  border: 1px solid ${smColors.borderGray};
-`;
-
-const Image = styled.img`
-  max-width: 100%;
-  max-height: 100%;
 `;
 
 const RightSectionSubHeader = styled.div`
@@ -170,9 +155,6 @@ class Transactions extends Component<Props, State> {
             </TransactionsListWrapper>
           </LeftSection>
           <RightSection>
-            <ImageWrapper>
-              <Image src={communication} />
-            </ImageWrapper>
             <RightSectionSubHeader>Crypto Transactions</RightSectionSubHeader>
             <RightSectionText>
               Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero

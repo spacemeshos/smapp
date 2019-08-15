@@ -1,10 +1,8 @@
 // @flow
-export { default as Loader } from './Loader';
 export { default as SmButton } from './SmButton';
-export { default as SmDropdown } from './SmDropdown';
 export { default as SmInput } from './SmInput';
-export { default as Modal } from './Modal';
 
+export { default as Loader } from './Loader';
 export { default as BaseWrapper } from './BaseWrapper';
 export { default as Button } from './Button';
 export { default as SecondaryButton } from './SecondaryButton';

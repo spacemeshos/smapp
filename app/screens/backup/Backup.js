@@ -8,7 +8,6 @@ import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { localStorageService } from '/infra/storageService';
 import { smColors } from '/vars';
-import { shieldIconGreenOne, shieldIconOrangeTwo } from '/assets/images';
 import type { WalletMeta } from '/types';
 
 const Wrapper = styled.div`
@@ -76,12 +75,6 @@ const BackupTopWrapper = styled.div`
   margin-bottom: 40px;
 `;
 
-const SecurityLogo = styled.img`
-  height: 66px;
-  width: 54px;
-  margin-right: 30px;
-`;
-
 const BackupTitleWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -133,7 +126,6 @@ const content = {
   file: {
     text: 'Take your wallet file and save a copy of it in a secure location - We recommend a USB key or a external drive.',
     note: 'NOTE: You will still need your passphrase to restore the wallet from the file.',
-    icon: shieldIconGreenOne,
     securityLevel: 'Basic Security',
     backup: 'File Backup',
     actionText: 'Show me the wallet file',
@@ -142,7 +134,6 @@ const content = {
   '12words': {
     text: 'A list of words you keep on a physical paper or in your password manager, that can be used to recover your wallet on any device.',
     note: 'NOTE: Works even if you lost your passphrase or wallet backup file',
-    icon: shieldIconOrangeTwo,
     securityLevel: 'Enhanced Security',
     backup: '12 Words Backup',
     actionText: 'Create a paper backup',
@@ -181,7 +172,6 @@ class Backup extends Component<Props> {
     return (
       <BackupBox borderColor={content[mode].color}>
         <BackupTopWrapper>
-          <SecurityLogo src={content[mode].icon} />
           <BackupTitleWrapper>
             <GrayText>{content[mode].securityLevel}</GrayText>
             <BackupHeader>{content[mode].backup}</BackupHeader>
