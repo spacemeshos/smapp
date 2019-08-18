@@ -7,7 +7,7 @@ import { smColors } from '/vars';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 150px;
+  width: 175px;
   height: 100%;
   padding: 10px 15px;
   background-color: ${smColors.black02Alpha};

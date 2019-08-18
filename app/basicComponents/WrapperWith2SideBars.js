@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { rightSideBar, leftSideBar } from '/assets/images';
 import { smColors } from '/vars';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -13,7 +12,6 @@ const Wrapper = styled.div`
   background-color: ${smColors.black10Alpha};
 `;
 
-// $FlowStyledIssue
 const SideBar = styled.div`
   width: 10px;
   height: 100%;

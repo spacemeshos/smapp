@@ -22,7 +22,7 @@ const initialState = {
   accounts: [],
   currentAccountIndex: 0,
   transactions: {},
-  lastUsedAddresses: [],
+  lastUsedContacts: [],
   contacts: [],
   fiatRate: 1
 };
@@ -73,7 +73,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_LAST_USED_ADDRESSES: {
       const { transactions } = action.payload;
-      return { ...state, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex]) };
+      return { ...state, lastUsedContacts: getFirstUniqueTransactions(transactions[state.currentAccountIndex]) };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const { index } = action.payload;

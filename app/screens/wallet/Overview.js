@@ -69,7 +69,7 @@ class Overview extends Component<Props, State> {
           <MiddleSectionText>Send or request SMC to / from anyone in your contacts list or by using their address</MiddleSectionText>
           <Button onClick={this.navigateToSendCoins} text="SEND" isPrimary={false} width={225} img={sendIcon} imgPosition="after" style={{ marginBottom: 20 }} />
           <Button onClick={this.navigateToRequestCoins} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
-          <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" />
+          <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginRight: 'auto' }} />
         </MiddleSection>
         <LatestTransactions transactions={latestTransactions} navigateToAllTransactions={this.navigateToAllTransactions} />
       </Wrapper>
@@ -83,7 +83,7 @@ class Overview extends Component<Props, State> {
 
   navigateToRequestCoins = () => {
     const { history, account } = this.props;
-    history.push('/main/wallet/requestCoins', { account });
+    history.push('/main/contacts', { account });
   };
 
   navigateToAllTransactions = () => {

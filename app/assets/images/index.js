@@ -1,6 +1,4 @@
 export { default as loader } from './loading@2x.gif';
-export { default as xWhite } from './x_white@2x.png';
-export { default as search } from './search_icon@2x.png';
 
 export { default as sideBar } from './sideBar.png';
 export { default as rightSideBar } from './right_side_bar.png';

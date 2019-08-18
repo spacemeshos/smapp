@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
-import { SmButton } from '/basicComponents';
+import { Button } from '/basicComponents';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 import { shell } from 'electron';
@@ -90,7 +90,7 @@ const RightSectionLink = styled.div`
   }
 `;
 
-const btnStyle = { height: 26, marginRight: 15 };
+const btnStyle = { marginRight: 15 };
 
 type Props = {
   transactions: TxList
@@ -120,22 +120,10 @@ class Transactions extends Component<Props, State> {
         <InnerWrapper>
           <LeftSection>
             <ButtonsWrapper>
-              <SmButton text="Sent" theme="green" onPress={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
-              <SmButton
-                text="Received"
-                theme="green"
-                onPress={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })}
-                isActive={isReceivedDisplayed}
-                style={btnStyle}
-              />
-              <SmButton text="Pending" theme="green" onPress={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
-              <SmButton
-                text="Rejected"
-                theme="green"
-                onPress={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })}
-                isActive={isRejectedDisplayed}
-                style={btnStyle}
-              />
+              <Button text="Sent" onClick={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
+              <Button text="Received" onClick={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })} isActive={isReceivedDisplayed} style={btnStyle} />
+              <Button text="Pending" onClick={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
+              <Button text="Rejected" onClick={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })} isActive={isRejectedDisplayed} style={btnStyle} />
             </ButtonsWrapper>
             <TransactionsListWrapper>
               {transactions ? (
@@ -165,7 +153,7 @@ class Transactions extends Component<Props, State> {
         </InnerWrapper>
       </Wrapper>
       // shouldShowModal && (
-      //   <AddNewContactModal
+      //   <CreateNewContactModal
       //     key="modal"
       //     addressToAdd={address}
       //     navigateToExplanation={this.navigateToContactsExplanation}
