@@ -7,7 +7,7 @@ export const LOGOUT: string = 'LOGOUT';
 
 export const logout = (): Action => {
   localStorageService.clearByKey('hasBackup');
-  localStorageService.clearByKey('lastBackupFileName');
+  localStorageService.clearByKey('lastBackupTime');
   cryptoService.stopAndCleanUp();
   return { type: LOGOUT };
 };

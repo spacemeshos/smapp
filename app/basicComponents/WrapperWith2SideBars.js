@@ -45,14 +45,15 @@ type Props = {
   header: string,
   width: number,
   height: number,
-  children: any
+  children: any,
+  style?: Object
 };
 
 class WrapperWith2SideBars extends PureComponent<Props> {
   render() {
-    const { width, height, header, children } = this.props;
+    const { width, height, header, children, style } = this.props;
     return (
-      <Wrapper width={width} height={height}>
+      <Wrapper width={width} height={height} style={style}>
         <SideBar img={rightSideBar} />
         <MainWrapperInner>
           <Header>{header}</Header>

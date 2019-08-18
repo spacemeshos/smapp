@@ -4,11 +4,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
+import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '/basicComponents';
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { localStorageService } from '/infra/storageService';
-import { bottomLeftCorner, bottomRightCorner, topLeftCorner, topRightCorner, smallHorizontalSideBar } from '/assets/images';
+import { smallHorizontalSideBar } from '/assets/images';
 import type { WalletMeta } from '/types';
 import smColors from '/vars/colors';
 
@@ -22,6 +22,7 @@ const SmallText = styled.span`
   font-weight: normal;
   line-height: 20px;
   margin-bottom: 6px;
+  flex: 1;
 `;
 
 const GreenText = styled(SmallText)`
@@ -35,52 +36,15 @@ const Text = styled.span`
 `;
 
 const BoldText = styled(Text)`
+  font-family: SourceCodeProBold;
   font-weight: bold;
-  margin-bottom: 48px;
+  margin-bottom: 50px;
 `;
 
-const LeftSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-right: 10px;
-`;
-
-const RightSection = styled.div`
+const RightSection = styled(CorneredWrapper)`
   position: relative;
   display: flex;
   flex-direction: row;
-`;
-
-const TopLeftCorner = styled.img`
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const TopRightCorner = styled.img`
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomLeftCorner = styled.img`
-  position: absolute;
-  bottom: -5px;
-  left: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomRightCorner = styled.img`
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
 `;
 
 const HorizontalBar = styled.img`
@@ -94,7 +58,7 @@ const HorizontalBar = styled.img`
 const MiddleSection = styled.div`
   display: flex;
   flex-direction: column;
-  width: 502px;
+  width: 500px;
   height: 100%;
   padding: 25px 15px 15px 15px;
   background-color: ${smColors.black02Alpha};
@@ -105,15 +69,11 @@ const MiddleSectionRow = styled.div`
   flex-direction: row;
 `;
 
-const BottomSection = styled(MiddleSectionRow)`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: flex-end;
-`;
-
 const BottomRow = styled(MiddleSectionRow)`
-  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: flex-end;
 `;
 
 type Props = {
@@ -125,34 +85,26 @@ class BackupRoot extends Component<Props> {
   render() {
     return (
       <Wrapper>
-        <LeftSection>
-          <WrapperWith2SideBars width={300} height={480} header="BACKUP">
-            <BoldText>How would you like to backup your wallet?</BoldText>
-            <Text>Your wallet is encrypted with your password on your computer, but we recommend you backup your wallet for additional security.</Text>
-          </WrapperWith2SideBars>
-        </LeftSection>
+        <WrapperWith2SideBars width={300} height={480} header="BACKUP" style={{ marginRight: 10 }}>
+          <BoldText>How would you like to backup your wallet?</BoldText>
+          <Text>Your wallet is encrypted with your password on your computer, but we recommend you backup your wallet for additional security.</Text>
+        </WrapperWith2SideBars>
         <RightSection>
-          <TopLeftCorner src={topLeftCorner} />
-          <TopRightCorner src={topRightCorner} />
-          <BottomLeftCorner src={bottomLeftCorner} />
-          <BottomRightCorner src={bottomRightCorner} />
           <HorizontalBar src={smallHorizontalSideBar} />
           <MiddleSection>
             <MiddleSectionRow>
-              <SmallText style={{ marginRight: 24, width: 224 }}>Basic Security</SmallText>
-              <SmallText style={{ width: 224 }}>
+              <SmallText style={{ marginRight: 22 }}>Basic Security</SmallText>
+              <SmallText>
                 Advanced Security <GreenText>(Recommended)</GreenText>
               </SmallText>
             </MiddleSectionRow>
             <MiddleSectionRow>
-              <Button onClick={this.backupWallet} text="File Backup" isPrimary={false} width={224} style={{ marginRight: 24 }} />
-              <Button onClick={this.navigateTo12WordsBackup} text="12 Words Backup" isPrimary={false} width={224} />
+              <Button onClick={this.backupWallet} text="File Backup" isPrimary={false} isContainerFullWidth style={{ marginRight: 22 }} />
+              <Button onClick={this.navigateTo12WordsBackup} text="12 Words Backup" isPrimary={false} isContainerFullWidth />
             </MiddleSectionRow>
-            <BottomSection>
-              <BottomRow>
-                <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
-              </BottomRow>
-            </BottomSection>
+            <BottomRow>
+              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+            </BottomRow>
           </MiddleSection>
         </RightSection>
       </Wrapper>
@@ -170,17 +122,16 @@ class BackupRoot extends Component<Props> {
       const { meta, accounts, mnemonic, transactions, contacts, fileKey } = wallet;
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
       const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-      const fileName = `Wallet_Backup_${Date().toString()}.json`;
+      const now = new Date();
+      const fileName = `Wallet_Backup_${now.toISOString()}.json`;
       await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), showDialog: false, saveToDocumentsFolder: true });
       localStorageService.set('hasBackup', true);
-      localStorageService.set('lastBackupFileName', fileName);
+      localStorageService.set('lastBackupTime', now.toISOString());
       history.push('/main/backup/file-backup');
     } catch (error) {
       throw new Error(error);
     }
   };
-
-  learnMoreAboutSecurity = () => shell.openExternal('https://testnet.spacemesh.io');
 
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
 }

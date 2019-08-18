@@ -42,10 +42,11 @@ class FileManager {
     }
   };
 
-  static showWalletBackupFile = async ({ event, fileName }) => {
+  static showWalletBackupFile = async ({ event, lastBackupTime }) => {
     try {
       const files = await readDirectoryAsync(documentsDirPath);
-      const filteredFiles = files.filter((file) => file === fileName);
+      const regex = new RegExp(lastBackupTime, 'ig');
+      const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(documentsDirPath, file));
       if (filesWithPath && filesWithPath[0]) {
         shell.showItemInFolder(filesWithPath[0]);

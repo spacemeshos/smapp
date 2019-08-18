@@ -40,14 +40,11 @@ const MiddleSectionRow = styled.div`
   flex-direction: row;
 `;
 
-const BottomSection = styled(MiddleSectionRow)`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: flex-end;
-`;
-
 const BottomRow = styled(MiddleSectionRow)`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: flex-end;
   justify-content: space-between;
 `;
 
@@ -66,12 +63,10 @@ class FileBackup extends Component<Props> {
           <BoldText>A restore file has been downloaded to your computer.</BoldText>
           <Link onClick={fileSystemService.showWalletBackupFile} text="Show me where it is!" style={{ paddingTop: 26 }} />
           <Text>You can use this file to restore your spacemesh wallet in another location.</Text>
-          <BottomSection>
-            <BottomRow>
-              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
-              <Button onClick={this.backToWalletRoot} text="GOT IT" width={95} />
-            </BottomRow>
-          </BottomSection>
+          <BottomRow>
+            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+            <Button onClick={this.backToWalletRoot} text="GOT IT" width={95} />
+          </BottomRow>
         </WrapperWith2SideBars>
       </Wrapper>
     );

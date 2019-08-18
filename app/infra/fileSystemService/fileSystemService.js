@@ -100,8 +100,8 @@ class FsService {
   };
 
   static showWalletBackupFile = () => {
-    const fileName = localStorageService.get('lastBackupFileName');
-    ipcRenderer.send(ipcConsts.SHOW_WALLET_BACKUP_FILE, { fileName });
+    const lastBackupTime = localStorageService.get('lastBackupTime');
+    ipcRenderer.send(ipcConsts.SHOW_WALLET_BACKUP_FILE, { lastBackupTime });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE] });
