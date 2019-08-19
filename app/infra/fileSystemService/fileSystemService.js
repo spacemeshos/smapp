@@ -47,18 +47,8 @@ class FsService {
     });
   };
 
-  static saveFile = ({
-    fileName,
-    fileContent,
-    showDialog,
-    saveToDocumentsFolder
-  }: {
-    fileName: string,
-    fileContent: string,
-    showDialog: string,
-    saveToDocumentsFolder: boolean
-  }) => {
-    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, showDialog, saveToDocumentsFolder });
+  static saveFile = ({ fileName, fileContent, saveToDocumentsFolder }: { fileName: string, fileContent: string, saveToDocumentsFolder: boolean }) => {
+    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, saveToDocumentsFolder });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SAVE_FILE_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SAVE_FILE_SUCCESS, ipcConsts.SAVE_FILE_FAILURE] });

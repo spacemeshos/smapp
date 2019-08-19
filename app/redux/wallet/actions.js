@@ -60,7 +60,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
   const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': [] }, contacts: [] };
   try {
-    fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush), showDialog: false });
+    fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush) });
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));

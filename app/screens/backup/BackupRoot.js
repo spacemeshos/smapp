@@ -123,7 +123,7 @@ class BackupRoot extends Component<Props> {
       const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
       const now = new Date();
       const fileName = `Wallet_Backup_${now.toISOString()}.json`;
-      await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), showDialog: false, saveToDocumentsFolder: true });
+      await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
       localStorageService.set('hasBackup', true);
       localStorageService.set('lastBackupTime', now.toISOString());
       history.push('/main/backup/file-backup');

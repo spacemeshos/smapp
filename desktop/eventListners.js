@@ -19,7 +19,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
-    FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
+    FileManager.writeFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {

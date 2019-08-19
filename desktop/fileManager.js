@@ -58,23 +58,9 @@ class FileManager {
     }
   };
 
-  static writeFile = async ({ browserWindow, event, fileName, fileContent, showDialog, saveToDocumentsFolder }) => {
-    if (showDialog) {
-      const options = {
-        title: 'Save Wallet Backup File',
-        defaultPath: documentsDirPath,
-        buttonLabel: 'Save',
-        filters: [{ name: 'Backup Files', extensions: ['json'] }]
-      };
-      dialog.showSaveDialog(browserWindow, options, async (filePath) => {
-        if (filePath) {
-          await FileManager._writeFile({ event, filePath, fileContent });
-        }
-      });
-    } else {
-      const filePath = path.join(saveToDocumentsFolder ? documentsDirPath : appFilesDirPath, fileName);
-      await FileManager._writeFile({ event, filePath, fileContent });
-    }
+  static writeFile = async ({ event, fileName, fileContent, saveToDocumentsFolder }) => {
+    const filePath = path.join(saveToDocumentsFolder ? documentsDirPath : appFilesDirPath, fileName);
+    await FileManager._writeFile({ event, filePath, fileContent });
   };
 
   static updateFile = async ({ event, fileName, fieldName, data }) => {
