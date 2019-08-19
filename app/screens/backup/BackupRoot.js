@@ -114,8 +114,14 @@ class BackupRoot extends Component<Props> {
 
   backupWallet = async () => {
     const { history, backupWallet } = this.props;
-    backupWallet();
-    history.push('/main/backup/file-backup');
+    try {
+      await backupWallet();
+      history.push('/main/backup/file-backup');
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
   };
 
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');

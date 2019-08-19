@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import type { RouterHistory } from 'react-router-dom';
 import routes from '/routes';
 import styled from 'styled-components';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 import { SecondaryButton } from '/basicComponents';
 import { chevronLeftWhite } from '/assets/images';
 
@@ -34,4 +35,5 @@ class Backup extends Component<Props> {
   }
 }
 
+Backup = ScreenErrorBoundary(Backup);
 export default Backup;
