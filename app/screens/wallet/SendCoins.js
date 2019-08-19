@@ -5,11 +5,12 @@ import { sendTransaction } from '/redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, Action } from '/types';
+import type { Account, Contact, Action } from '/types';
 
 type Props = {
   currentAccount: Account,
   history: RouterHistory,
+  location: { state?: { contact: Contact } },
   sendTransaction: Action
 };
 
@@ -27,18 +28,22 @@ type State = {
 };
 
 class SendCoins extends Component<Props, State> {
-  state = {
-    mode: 1,
-    tmpAddress: '',
-    address: '',
-    hasAddressError: false,
-    tmpAmount: '',
-    amount: 0,
-    hasAmountError: false,
-    note: '',
-    fee: 0.001,
-    txId: ''
-  };
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    this.state = {
+      mode: 1,
+      tmpAddress: location?.state?.contact.address || '',
+      address: location?.state?.contact.address || '',
+      hasAddressError: false,
+      tmpAmount: '',
+      amount: 0,
+      hasAmountError: false,
+      note: '',
+      fee: 0.001,
+      txId: ''
+    };
+  }
 
   render() {
     const { currentAccount, history } = this.props;

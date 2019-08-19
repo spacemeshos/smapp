@@ -97,11 +97,11 @@ const wallet = [
     component: Overview
   },
   {
-    path: '/main/wallet/sendCoins',
+    path: '/main/wallet/send-coins',
     component: SendCoins
   },
   {
-    path: '/main/wallet/requestCoins',
+    path: '/main/wallet/request-coins',
     component: RequestCoins
   }
 ];

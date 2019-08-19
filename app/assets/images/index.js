@@ -39,3 +39,5 @@ export { default as signOutIcon } from './signout_icon.svg';
 export { default as playIcon } from './play_icon.svg';
 export { default as pauseIcon } from './pause_icon.svg';
 export { default as doneIconGreen } from './done_icon_green.png';
+export { default as addContact } from './add_contact.png';
+export { default as searchIcon } from './search_icon.png';

@@ -1,1 +1,2 @@
-export { default as CreateNewContact } from './CreateNewContact'; // eslint-disable-line import/prefer-default-export
+export { default as CreateNewContact } from './CreateNewContact';
+export { default as CreatedNewContact } from './CreatedNewContact';

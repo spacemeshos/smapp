@@ -2,12 +2,29 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { CreateNewContact } from '/components/contacts';
+import { CreateNewContact, CreatedNewContact } from '/components/contacts';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { WrapperWith2SideBars, Input, DropDown } from '/basicComponents';
 import { smColors } from '/vars';
 import { getAbbreviatedText } from '/infra/utils';
+import { searchIcon, addContact } from '/assets/images';
+import type { RouterHistory } from 'react-router-dom';
 import type { Contact } from '/types';
+
+const SearchWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 1px solid ${smColors.realBlack};
+  background-color: ${smColors.white};
+`;
+
+const SearchIcon = styled.img`
+  width: 15px;
+  height: 15px;
+  margin-left: 15px;
+`;
 
 const SubHeader = styled.div`
   display: flex;
@@ -110,6 +127,7 @@ const ContactsSubHeader = styled.div`
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  margin-bottom: 20px;
 `;
 
 const ContactsSubHeaderText = styled.div`
@@ -128,11 +146,13 @@ const ContactsList = styled.div`
 `;
 
 const ContactRow = styled.div`
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid ${smColors.disabledGray};
+  cursor: pointer;
 `;
 
 const ContactText = styled.div`
@@ -159,10 +179,10 @@ const SortingElement = styled.div`
 
 const CreateNewContactImg = styled.img`
   position: absolute;
-  top: 0;
+  top: 6px;
   right: 0;
-  width: 37px;
-  height: 36px;
+  width: 31px;
+  height: 28px;
   cursor: pointer;
 `;
 
@@ -170,7 +190,8 @@ const sortOptions = [{ id: 1, label: 'Sort by A-Z' }, { id: 2, label: 'Sort by Z
 
 type Props = {
   contacts: Contact[],
-  lastUsedContacts: Contact[]
+  lastUsedContacts: Contact[],
+  history: RouterHistory
 };
 
 type State = {
@@ -178,55 +199,39 @@ type State = {
   tmpSearchTerm: string,
   searchTerm: string,
   shouldShowCreateNewContactModal: boolean,
-  selectedSorting: number
+  selectedSorting: number,
+  isNewContactCreated: boolean
 };
 
 class Contacts extends Component<Props, State> {
+  newContactCreatedTimeOut: any;
+
   state = {
     addressToAdd: '',
     tmpSearchTerm: '',
     searchTerm: '',
     shouldShowCreateNewContactModal: false,
-    selectedSorting: 0
+    selectedSorting: 0,
+    isNewContactCreated: false
   };
 
   render() {
     const { contacts } = this.props;
-    const { addressToAdd, tmpSearchTerm, shouldShowCreateNewContactModal, selectedSorting } = this.state;
+    const { tmpSearchTerm, selectedSorting } = this.state;
     return (
       <WrapperWith2SideBars width={1000} height={600} header="MY CONTACTS">
-        <Input
-          value={tmpSearchTerm}
-          type="text"
-          placeholder="Search contacts"
-          onChange={({ value }) => this.setState({ tmpSearchTerm: value })}
-          onChangeDebounced={({ value }) => this.setState({ searchTerm: value })}
-          style={{ marginBottom: 20 }}
-        />
-        {!shouldShowCreateNewContactModal ? (
-          <SubHeader>
-            <SubHeaderText>
-              Recent
-              <br />
-              --
-            </SubHeaderText>
-            <SubHeaderInner>
-              <SubHeaderBtnWrapper onClick={() => this.setState({ shouldShowCreateNewContactModal: true })} color={smColors.darkerPurple}>
-                <SubHeaderBtnUpperPart color={smColors.purple} hoverColor={smColors.darkerPurple}>
-                  <CreateNewContactText>
-                    CREATE NEW
-                    <br />
-                    CONTACT
-                  </CreateNewContactText>
-                </SubHeaderBtnUpperPart>
-                <SubHeaderBtnLowerPart color={smColors.purple} hoverColor={smColors.darkerPurple} />
-              </SubHeaderBtnWrapper>
-              {this.renderLastUsedContacts()}
-            </SubHeaderInner>
-          </SubHeader>
-        ) : (
-          <CreateNewContact initialAddress={addressToAdd} onCompleteAction={() => this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false })} />
-        )}
+        <SearchWrapper>
+          <SearchIcon src={searchIcon} />
+          <Input
+            value={tmpSearchTerm}
+            type="text"
+            placeholder="Search contacts"
+            onChange={({ value }) => this.setState({ tmpSearchTerm: value })}
+            onChangeDebounced={({ value }) => this.setState({ searchTerm: value })}
+            style={{ border: '1px solid transparent' }}
+          />
+        </SearchWrapper>
+        {this.renderSubHeader()}
         <ContactsSubHeader>
           <ContactsSubHeaderText>All Contacts</ContactsSubHeaderText>
           <DropDown
@@ -242,11 +247,48 @@ class Contacts extends Component<Props, State> {
     );
   }
 
+  componentWillUnmount() {
+    this.newContactCreatedTimeOut && clearTimeout(this.newContactCreatedTimeOut);
+  }
+
+  renderSubHeader = () => {
+    const { contacts } = this.props;
+    const { addressToAdd, shouldShowCreateNewContactModal, isNewContactCreated } = this.state;
+    if (shouldShowCreateNewContactModal) {
+      return <CreateNewContact initialAddress={addressToAdd} onCompleteAction={this.createdNewContact} />;
+    }
+    if (isNewContactCreated) {
+      return <CreatedNewContact contact={contacts[0]} action={() => this.navigateToSendCoins({ contact: contacts[0] })} />;
+    }
+    return (
+      <SubHeader>
+        <SubHeaderText>
+          Recent
+          <br />
+          --
+        </SubHeaderText>
+        <SubHeaderInner>
+          <SubHeaderBtnWrapper onClick={() => this.setState({ shouldShowCreateNewContactModal: true })} color={smColors.darkerPurple}>
+            <SubHeaderBtnUpperPart color={smColors.purple} hoverColor={smColors.darkerPurple}>
+              <CreateNewContactText>
+                CREATE NEW
+                <br />
+                CONTACT
+              </CreateNewContactText>
+            </SubHeaderBtnUpperPart>
+            <SubHeaderBtnLowerPart color={smColors.purple} hoverColor={smColors.darkerPurple} />
+          </SubHeaderBtnWrapper>
+          {this.renderLastUsedContacts()}
+        </SubHeaderInner>
+      </SubHeader>
+    );
+  };
+
   renderLastUsedContacts = () => {
     const { lastUsedContacts } = this.props;
     if (lastUsedContacts && lastUsedContacts.length) {
       return lastUsedContacts.map((contact) => (
-        <SubHeaderBtnWrapper color={smColors.realBlack}>
+        <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => this.navigateToSendCoins({ contact })}>
           <SubHeaderBtnUpperPart color={smColors.black} hoverColor={smColors.realBlack}>
             <LastUsedNickname>{contact.nickname || 'UNKNOWN ADDRESS'}</LastUsedNickname>
             <LastUsedAddress>{getAbbreviatedText(contact.address)}</LastUsedAddress>
@@ -276,12 +318,11 @@ class Contacts extends Component<Props, State> {
     }
     const sortedContacts = filteredContacts.sort(this.sortContacts);
     return sortedContacts.map((contact) => (
-      <ContactRow key={`${contact.nickname}_${contact.address}`}>
+      <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => this.navigateToSendCoins({ contact })}>
         <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
         <ContactText>{getAbbreviatedText(contact.address, 8)}</ContactText>
         <ContactText>{contact.email}</ContactText>
-        {!contact.nickname && <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} />}
-        <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} />
+        {!contact.nickname && <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} src={addContact} />}
       </ContactRow>
     ));
   };
@@ -309,6 +350,16 @@ class Contacts extends Component<Props, State> {
       return selectedSorting === 0 ? -1 : 1;
     }
     return 0;
+  };
+
+  createdNewContact = () => {
+    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
+    this.newContactCreatedTimeOut = setTimeout(() => this.setState({ isNewContactCreated: false }), 10000);
+  };
+
+  navigateToSendCoins = ({ contact }: { contact: Contact }) => {
+    const { history } = this.props;
+    history.push('/main/wallet/send-coins', { contact });
   };
 }
 
