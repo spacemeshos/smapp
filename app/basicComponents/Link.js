@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   font-size: 14px;
   line-height: 17px;
@@ -25,7 +24,7 @@ const Wrapper = styled.div`
 `;
 
 type Props = {
-  onClick: () => void,
+  onClick: Function,
   isPrimary?: boolean,
   isDisabled?: boolean,
   text: string,

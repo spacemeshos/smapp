@@ -34,7 +34,7 @@ class RestoreWallet extends PureComponent<Props> {
           <Button text="Restore From File" isPrimary={false} onClick={() => history.push('/auth/file-restore')} width={250} style={{ marginBottom: 15 }} />
           <Button text="Restore With 12 Words" isPrimary={false} onClick={() => history.push('/auth/words-restore')} width={250} />
         </Buttons>
-        <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginTop: 'auto' }} />
+        <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginTop: 'auto', marginRight: 'auto' }} />
       </Container>
     );
   }

@@ -24,7 +24,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 5px 10px;
+  padding: 5px 25px 20px 10px;
   background-color: ${smColors.white};
 `;
 
@@ -48,7 +48,6 @@ const NavLinksWrapper = styled.div`
   margin-left: 30px;
 `;
 
-// $FlowStyledIssue
 const NavBarLink = styled.div`
   margin-right: 15px;
   font-family: SourceCodeProBold;
@@ -164,8 +163,8 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { checkNetworkConnection } = this.props;
-    const networkCheckInterval = 30000;
+    // const { checkNetworkConnection } = this.props;
+    // const networkCheckInterval = 30000;
     // checkNetworkConnection();
     // this.timer = setInterval(() => {
     //   checkNetworkConnection();
@@ -177,7 +176,7 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { progress, history, isConnected } = this.props;
+    const { progress, isConnected } = this.props;
     if (prevProps.isConnected && !isConnected) {
       // TODO: Connect to error handler service / modal to indicate a disconnect.
     }
@@ -191,7 +190,7 @@ class Main extends Component<Props, State> {
   }
 
   handleNavigation = ({ index }: { index: number }) => {
-    const { history, accounts, location, resetNodeSettings } = this.props;
+    const { history, resetNodeSettings } = this.props;
     const { activeRouteIndex } = this.state;
     if (index !== activeRouteIndex) {
       switch (index) {

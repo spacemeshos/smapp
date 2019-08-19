@@ -55,7 +55,7 @@ class FileRestore extends Component<Props, State> {
     return (
       <Container width={800} height={480} header="WALLET FILE RESTORE" subHeader="locate your existing wallet file">
         <SideBar src={smallHorizontalSideBar} />
-        <SecondaryButton onClick={history.goBack} im={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <DdArea>
           <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} />
         </DdArea>

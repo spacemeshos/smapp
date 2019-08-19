@@ -153,7 +153,7 @@ class SendCoins extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   contacts: state.wallet.contacts,
-  lastUsedAddresses: state.wallet.lastUsedAddresses
+  lastUsedContacts: state.wallet.lastUsedContacts
 });
 
 const mapDispatchToProps = {

@@ -3,8 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Transaction } from '/components/transactions';
-import { SmButton } from '/basicComponents';
-import { communication } from '/assets/images';
+import { Button } from '/basicComponents';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 import { shell } from 'electron';
@@ -62,20 +61,6 @@ const RightSection = styled.div`
   border: 1px solid ${smColors.borderGray};
 `;
 
-const ImageWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-  padding: 15px 20px;
-  border: 1px solid ${smColors.borderGray};
-`;
-
-const Image = styled.img`
-  max-width: 100%;
-  max-height: 100%;
-`;
-
 const RightSectionSubHeader = styled.div`
   font-size: 14px;
   font-weight: bold;
@@ -105,7 +90,7 @@ const RightSectionLink = styled.div`
   }
 `;
 
-const btnStyle = { height: 26, marginRight: 15 };
+const btnStyle = { marginRight: 15 };
 
 type Props = {
   transactions: TxList
@@ -135,22 +120,10 @@ class Transactions extends Component<Props, State> {
         <InnerWrapper>
           <LeftSection>
             <ButtonsWrapper>
-              <SmButton text="Sent" theme="green" onPress={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
-              <SmButton
-                text="Received"
-                theme="green"
-                onPress={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })}
-                isActive={isReceivedDisplayed}
-                style={btnStyle}
-              />
-              <SmButton text="Pending" theme="green" onPress={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
-              <SmButton
-                text="Rejected"
-                theme="green"
-                onPress={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })}
-                isActive={isRejectedDisplayed}
-                style={btnStyle}
-              />
+              <Button text="Sent" onClick={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
+              <Button text="Received" onClick={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })} isActive={isReceivedDisplayed} style={btnStyle} />
+              <Button text="Pending" onClick={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
+              <Button text="Rejected" onClick={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })} isActive={isRejectedDisplayed} style={btnStyle} />
             </ButtonsWrapper>
             <TransactionsListWrapper>
               {transactions ? (
@@ -170,9 +143,6 @@ class Transactions extends Component<Props, State> {
             </TransactionsListWrapper>
           </LeftSection>
           <RightSection>
-            <ImageWrapper>
-              <Image src={communication} />
-            </ImageWrapper>
             <RightSectionSubHeader>Crypto Transactions</RightSectionSubHeader>
             <RightSectionText>
               Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero
@@ -183,7 +153,7 @@ class Transactions extends Component<Props, State> {
         </InnerWrapper>
       </Wrapper>
       // shouldShowModal && (
-      //   <AddNewContactModal
+      //   <CreateNewContactModal
       //     key="modal"
       //     addressToAdd={address}
       //     navigateToExplanation={this.navigateToContactsExplanation}

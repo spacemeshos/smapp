@@ -5,7 +5,6 @@ import { smColors } from '/vars';
 
 const DEFAULT_DEBOUNCE_TIME = 500;
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -19,11 +18,10 @@ const Wrapper = styled.div`
   background-color: ${smColors.white};
 `;
 
-// $FlowStyledIssue
 const ActualInput = styled.input`
   flex: 1;
   width: 100%;
-  height: 34px;
+  height: 36px;
   padding: 8px 10px;
   border-radius: 0;
   border: none;

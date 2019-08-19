@@ -1,16 +1,4 @@
 export { default as loader } from './loading@2x.gif';
-export { default as checkGreen } from './v@2x.png';
-export { default as arrowUpGrey } from './send@2x_disabled.png';
-export { default as arrowDownGrey } from './receive@2x_disabled.png';
-export { default as openDDIcon } from './open_dd@2x.png';
-export { default as openDDIconDisabled } from './open_dd@2x_disabled.png';
-export { default as copyIconWhite } from './copy_white@2x.png';
-export { default as shieldIconGreenOne } from './security_logo_green_one@2x.png';
-export { default as shieldIconOrangeTwo } from './security_logo_orange_two@2x.png';
-export { default as xWhite } from './x_white@2x.png';
-export { default as communication } from './communication@2x.png';
-export { default as search } from './search_icon@2x.png';
-export { default as whiteClose } from './white_close@2x.png';
 
 export { default as sideBar } from './sideBar.png';
 export { default as rightSideBar } from './right_side_bar.png';
