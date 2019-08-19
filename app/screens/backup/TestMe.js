@@ -26,13 +26,11 @@ const TextWrapper = styled.div`
 
 const Text = styled.span`
   font-size: 14px;
-  font-weight: normal;
   line-height: 22px;
 `;
 
 const SmallText = styled.span`
   font-size: 12px;
-  font-weight: normal;
   line-height: 12px;
 `;
 
@@ -97,14 +95,11 @@ const MiddleSectionRow = styled.div`
   flex-direction: row;
 `;
 
-const BottomSection = styled(MiddleSectionRow)`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: flex-end;
-`;
-
 const BottomRow = styled(MiddleSectionRow)`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: flex-end;
   justify-content: space-between;
 `;
 
@@ -254,7 +249,7 @@ class TestMe extends Component<Props, State> {
 
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={920} height={480} header="CONFIRM YOUR 12 WORDS BACKUP">
+        <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP">
           <HorizontalBarWrapper>
             <HorizontalBar src={smallHorizontalSideBar} />
           </HorizontalBarWrapper>
@@ -262,17 +257,15 @@ class TestMe extends Component<Props, State> {
             <Text>Drag each of the four words below to its matching number in your paper backup word list</Text>
           </TextWrapper>
           {this.renderDragAndDropArea()}
-          <BottomSection>
-            <BottomRow>
-              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
-              <Button
-                onClick={isTestSuccess ? this.navigateToWallet : this.resetTest}
-                text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
-                width={isTestSuccess ? 95 : 110}
-                isPrimary={isTestSuccess}
-              />
-            </BottomRow>
-          </BottomSection>
+          <BottomRow>
+            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
+            <Button
+              onClick={isTestSuccess ? this.navigateToWallet : this.resetTest}
+              text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
+              width={isTestSuccess ? 95 : 110}
+              isPrimary={isTestSuccess}
+            />
+          </BottomRow>
         </WrapperWith2SideBars>
         {this.renderNotificationBox({ isTestSuccess, isTestFailed })}
       </Wrapper>

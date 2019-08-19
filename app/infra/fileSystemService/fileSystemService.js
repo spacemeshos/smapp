@@ -75,8 +75,7 @@ class FsService {
     });
   };
 
-  static openWalletBackupDirectory = ({ showLastBackup }: { showLastBackup?: boolean }) => {
-    const lastBackupTime = showLastBackup ? localStorageService.get('lastBackupTime') : null;
+  static openWalletBackupDirectory = ({ lastBackupTime }: { lastBackupTime?: string }) => {
     ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, () => {

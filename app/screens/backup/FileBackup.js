@@ -1,15 +1,16 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
 import { smallHorizontalSideBar } from '/assets/images';
 import { fileSystemService } from '/infra/fileSystemService';
+import type { WalletMeta } from '/types';
 
 const Text = styled.span`
   font-size: 16px;
-  font-weight: normal;
   line-height: 22px;
 `;
 
@@ -44,7 +45,8 @@ const BottomRow = styled(MiddleSectionRow)`
 `;
 
 type Props = {
-  history: RouterHistory
+  history: RouterHistory,
+  wallet: WalletMeta
 };
 
 class FileBackup extends Component<Props> {
@@ -58,14 +60,19 @@ class FileBackup extends Component<Props> {
         <Link onClick={this.showBackupFile} text="Show me where it is!" />
         <Text>You can use this file to restore your spacemesh wallet in another location.</Text>
         <BottomRow>
-          <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+          <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
           <Button onClick={this.backToWalletRoot} text="GOT IT" width={95} />
         </BottomRow>
       </WrapperWith2SideBars>
     );
   }
 
-  showBackupFile = () => fileSystemService.openWalletBackupDirectory({ showLastBackup: true });
+  showBackupFile = () => {
+    const {
+      wallet: { lastBackupTime }
+    } = this.props;
+    fileSystemService.openWalletBackupDirectory({ lastBackupTime });
+  };
 
   backToWalletRoot = () => {
     const { history } = this.props;
@@ -75,4 +82,9 @@ class FileBackup extends Component<Props> {
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
 }
 
+const mapStateToProps = (state) => ({
+  wallet: state.wallet
+});
+
+FileBackup = connect<any, any, _, _, _, _>(mapStateToProps)(FileBackup);
 export default FileBackup;

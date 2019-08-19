@@ -20,13 +20,11 @@ const TextWrapper = styled.div`
 
 const Text = styled.span`
   font-size: 14px;
-  font-weight: normal;
   line-height: 22px;
 `;
 
 const GreenText = styled.span`
   font-size: 12px;
-  font-weight: normal;
   line-height: 20px;
   color: ${smColors.green};
 `;
@@ -48,14 +46,11 @@ const MiddleSectionRow = styled.div`
   flex-direction: row;
 `;
 
-const BottomSection = styled(MiddleSectionRow)`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: flex-end;
-`;
-
 const BottomRow = styled(MiddleSectionRow)`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: flex-end;
   justify-content: space-between;
 `;
 
@@ -128,7 +123,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   render() {
     const { isTwelveWordsCopied } = this.state;
     return (
-      <WrapperWith2SideBars width={920} height={480} header="YOUR 12 WORDS BACKUP">
+      <WrapperWith2SideBars width={920} height={400} header="YOUR 12 WORDS BACKUP">
         <HorizontalBarWrapper>
           <HorizontalBar src={smallHorizontalSideBar} />
         </HorizontalBarWrapper>
@@ -157,12 +152,10 @@ class TwelveWordsBackup extends Component<Props, State> {
             ))}
           </WordsSection>
         </MiddleSectionRow>
-        <BottomSection>
-          <BottomRow>
-            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
-            <Button onClick={this.navigateToTestMe} text="Next" width={95} />
-          </BottomRow>
-        </BottomSection>
+        <BottomRow>
+          <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
+          <Button onClick={this.navigateToTestMe} text="Next" width={95} />
+        </BottomRow>
       </WrapperWith2SideBars>
     );
   }

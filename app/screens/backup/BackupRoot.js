@@ -4,12 +4,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { backupWallet } from '/redux/wallet/actions';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '/basicComponents';
-import { fileEncryptionService } from '/infra/fileEncryptionService';
-import { fileSystemService } from '/infra/fileSystemService';
-import { localStorageService } from '/infra/storageService';
 import { smallHorizontalSideBar } from '/assets/images';
-import type { WalletMeta } from '/types';
+import type { Action } from '/types';
 import smColors from '/vars/colors';
 
 const Wrapper = styled.div`
@@ -19,7 +17,6 @@ const Wrapper = styled.div`
 
 const SmallText = styled.span`
   font-size: 12px;
-  font-weight: normal;
   line-height: 20px;
   margin-bottom: 6px;
   flex: 1;
@@ -31,7 +28,6 @@ const GreenText = styled(SmallText)`
 
 const Text = styled.span`
   font-size: 16px;
-  font-weight: normal;
   line-height: 22px;
 `;
 
@@ -73,10 +69,11 @@ const BottomRow = styled(MiddleSectionRow)`
   flex-direction: row;
   flex: 1;
   align-items: flex-end;
+  justify-content: space-between;
 `;
 
 type Props = {
-  wallet: WalletMeta,
+  backupWallet: Action,
   history: RouterHistory
 };
 
@@ -102,7 +99,7 @@ class BackupRoot extends Component<Props> {
               <Button onClick={this.navigateTo12WordsBackup} text="12 Words Backup" isPrimary={false} isContainerFullWidth />
             </MiddleSectionRow>
             <BottomRow>
-              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
             </BottomRow>
           </MiddleSection>
         </RightSection>
@@ -116,28 +113,20 @@ class BackupRoot extends Component<Props> {
   };
 
   backupWallet = async () => {
-    const { wallet, history } = this.props;
-    try {
-      const { meta, accounts, mnemonic, transactions, contacts, fileKey } = wallet;
-      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
-      const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-      const now = new Date();
-      const fileName = `Wallet_Backup_${now.toISOString()}.json`;
-      await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
-      localStorageService.set('hasBackup', true);
-      localStorageService.set('lastBackupTime', now.toISOString());
-      history.push('/main/backup/file-backup');
-    } catch (error) {
-      throw new Error(error);
-    }
+    const { history, backupWallet } = this.props;
+    backupWallet();
+    history.push('/main/backup/file-backup');
   };
 
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
 }
 
-const mapStateToProps = (state) => ({
-  wallet: state.wallet
-});
+const mapDispatchToProps = {
+  backupWallet
+};
 
-BackupRoot = connect<any, any, _, _, _, _>(mapStateToProps)(BackupRoot);
+BackupRoot = connect<any, any, _, _, _, _>(
+  null,
+  mapDispatchToProps
+)(BackupRoot);
 export default BackupRoot;
