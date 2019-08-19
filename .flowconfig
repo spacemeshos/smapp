@@ -13,13 +13,11 @@
 
 [libs]
 flow-typed
+type-def-libs
 
 [options]
-
 module.name_mapper='^/\(.*\)' -> '<PROJECT_ROOT>/app/\1'
 suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
-suppress_comment= \\(.\\|\n\\)*\\$ResolveModuleIssue
-
 esproposal.optional_chaining=enable
 
 [lints]

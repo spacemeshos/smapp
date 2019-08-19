@@ -10,12 +10,7 @@ import { chevronLeftWhite } from '/assets/images';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
-
-const BackButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  position: relative;
 `;
 
 type Props = {
@@ -27,9 +22,7 @@ class Backup extends Component<Props> {
     const { history } = this.props;
     return (
       <Wrapper>
-        <BackButtonWrapper>
-          <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ marginRight: 10 }} />
-        </BackButtonWrapper>
+        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
         <Switch>
           {routes.backup.map((route) => (
             <Route exact key={route.path} path={route.path} component={route.component} />

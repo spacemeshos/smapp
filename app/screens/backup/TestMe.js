@@ -7,9 +7,7 @@ import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
 import { smColors } from '/vars';
 import { bottomLeftCorner, bottomRightCorner, topLeftCorner, topRightCorner, smallHorizontalSideBar } from '/assets/images';
 import { shell } from 'electron';
-// $ResolveModuleIssue
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-// $ResolveModuleIssue
 import type { DropResult } from 'react-beautiful-dnd';
 
 const Wrapper = styled.div`

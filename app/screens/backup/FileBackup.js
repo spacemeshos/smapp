@@ -7,11 +7,6 @@ import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
 import { smallHorizontalSideBar } from '/assets/images';
 import { fileSystemService } from '/infra/fileSystemService';
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const Text = styled.span`
   font-size: 16px;
   font-weight: normal;
@@ -19,7 +14,7 @@ const Text = styled.span`
 `;
 
 const BoldText = styled(Text)`
-  font-weight: bold;
+  font-family: SourceCodeProBold;
   margin-bottom: 24px;
 `;
 
@@ -55,22 +50,22 @@ type Props = {
 class FileBackup extends Component<Props> {
   render() {
     return (
-      <Wrapper>
-        <WrapperWith2SideBars width={920} height={480} header="BACKUP">
-          <HorizontalBarWrapper>
-            <HorizontalBar src={smallHorizontalSideBar} />
-          </HorizontalBarWrapper>
-          <BoldText>A restore file has been downloaded to your computer.</BoldText>
-          <Link onClick={fileSystemService.showWalletBackupFile} text="Show me where it is!" style={{ paddingTop: 26 }} />
-          <Text>You can use this file to restore your spacemesh wallet in another location.</Text>
-          <BottomRow>
-            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
-            <Button onClick={this.backToWalletRoot} text="GOT IT" width={95} />
-          </BottomRow>
-        </WrapperWith2SideBars>
-      </Wrapper>
+      <WrapperWith2SideBars width={820} height={370} header="BACKUP EXISTING WALLET">
+        <HorizontalBarWrapper>
+          <HorizontalBar src={smallHorizontalSideBar} />
+        </HorizontalBarWrapper>
+        <BoldText>A restore file has been downloaded to your computer.</BoldText>
+        <Link onClick={this.showBackupFile} text="Show me where it is!" />
+        <Text>You can use this file to restore your spacemesh wallet in another location.</Text>
+        <BottomRow>
+          <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+          <Button onClick={this.backToWalletRoot} text="GOT IT" width={95} />
+        </BottomRow>
+      </WrapperWith2SideBars>
     );
   }
+
+  showBackupFile = () => fileSystemService.openWalletBackupDirectory({ showLastBackup: true });
 
   backToWalletRoot = () => {
     const { history } = this.props;

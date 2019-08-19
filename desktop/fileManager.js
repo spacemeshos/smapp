@@ -25,12 +25,12 @@ class FileManager {
     });
   };
 
-  static openWalletBackupDirectory = async ({ event }) => {
+  static openWalletBackupDirectory = async ({ event, lastBackupTime }) => {
     try {
-      const files = await readDirectoryAsync(appFilesDirPath);
-      const regex = new RegExp('.*.(json)', 'ig');
+      const files = await readDirectoryAsync(lastBackupTime ? documentsDirPath : appFilesDirPath);
+      const regex = new RegExp(lastBackupTime || '.*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
-      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
+      const filesWithPath = filteredFiles.map((file) => path.join(lastBackupTime ? documentsDirPath : appFilesDirPath, file));
       if (filesWithPath && filesWithPath[0]) {
         shell.showItemInFolder(filesWithPath[0]);
       } else {
@@ -39,23 +39,6 @@ class FileManager {
       event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS);
     } catch (error) {
       event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, error.message);
-    }
-  };
-
-  static showWalletBackupFile = async ({ event, lastBackupTime }) => {
-    try {
-      const files = await readDirectoryAsync(documentsDirPath);
-      const regex = new RegExp(lastBackupTime, 'ig');
-      const filteredFiles = files.filter((file) => file.match(regex));
-      const filesWithPath = filteredFiles.map((file) => path.join(documentsDirPath, file));
-      if (filesWithPath && filesWithPath[0]) {
-        shell.showItemInFolder(filesWithPath[0]);
-      } else {
-        shell.openItem(documentsDirPath);
-      }
-      event.sender.send(ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS);
-    } catch (error) {
-      event.sender.send(ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE, error.message);
     }
   };
 

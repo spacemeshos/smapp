@@ -85,8 +85,9 @@ class FsService {
     });
   };
 
-  static openWalletBackupDirectory = () => {
-    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY);
+  static openWalletBackupDirectory = ({ showLastBackup }: { showLastBackup?: boolean }) => {
+    const lastBackupTime = showLastBackup ? localStorageService.get('lastBackupTime') : null;
+    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE] });
@@ -94,21 +95,6 @@ class FsService {
       });
       ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, (event, args) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE] });
-        reject(args);
-      });
-    });
-  };
-
-  static showWalletBackupFile = () => {
-    const lastBackupTime = localStorageService.get('lastBackupTime');
-    ipcRenderer.send(ipcConsts.SHOW_WALLET_BACKUP_FILE, { lastBackupTime });
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE] });
-        resolve();
-      });
-      ipcRenderer.once(ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SHOW_WALLET_BACKUP_FILE_SUCCESS, ipcConsts.SHOW_WALLET_BACKUP_FILE_FAILURE] });
         reject(args);
       });
     });

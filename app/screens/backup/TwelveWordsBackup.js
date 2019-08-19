@@ -10,11 +10,6 @@ import { printService } from '/infra/printService';
 import { localStorageService } from '/infra/storageService';
 import { smallHorizontalSideBar } from '/assets/images';
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const TextWrapper = styled.div`
   height: 75px;
   margin-bottom: 40px;
@@ -133,44 +128,42 @@ class TwelveWordsBackup extends Component<Props, State> {
   render() {
     const { isTwelveWordsCopied } = this.state;
     return (
-      <Wrapper>
-        <WrapperWith2SideBars width={920} height={480} header="YOUR 12 WORDS BACKUP">
-          <HorizontalBarWrapper>
-            <HorizontalBar src={smallHorizontalSideBar} />
-          </HorizontalBarWrapper>
-          <TextWrapper>
-            <Text>
-              A paper backup is a numbered list of words written down on a paper Write down or print this numbered word list and store the paper in a a safe place, or copy & paste
-              it into your password manager
-            </Text>
-          </TextWrapper>
-          <MiddleSectionRow>
-            <ButtonsSection>
-              <Button onClick={this.print12Words} text="PRINT WORDS" width={172} isPrimary={false} style={{ marginBottom: 12 }} />
-              <Button onClick={this.copy12Words} text="COPY WORDS" width={172} isPrimary={false} style={{ marginBottom: 12 }} />
-              {isTwelveWordsCopied && <GreenText>Copied to clipboard</GreenText>}
-            </ButtonsSection>
-            <WordsSection>
-              {this.twelveWords.map((word: string, index: number) => (
-                <WordWrapper key={word}>
-                  <IndexWrapper>
-                    <Index>{`${index + 1}`}</Index>
-                  </IndexWrapper>
-                  <WordContainer>
-                    <Text>{word}</Text>
-                  </WordContainer>
-                </WordWrapper>
-              ))}
-            </WordsSection>
-          </MiddleSectionRow>
-          <BottomSection>
-            <BottomRow>
-              <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
-              <Button onClick={this.navigateToTestMe} text="Next" width={95} />
-            </BottomRow>
-          </BottomSection>
-        </WrapperWith2SideBars>
-      </Wrapper>
+      <WrapperWith2SideBars width={920} height={480} header="YOUR 12 WORDS BACKUP">
+        <HorizontalBarWrapper>
+          <HorizontalBar src={smallHorizontalSideBar} />
+        </HorizontalBarWrapper>
+        <TextWrapper>
+          <Text>
+            A paper backup is a numbered list of words written down on a paper Write down or print this numbered word list and store the paper in a a safe place, or copy & paste it
+            into your password manager
+          </Text>
+        </TextWrapper>
+        <MiddleSectionRow>
+          <ButtonsSection>
+            <Button onClick={this.print12Words} text="PRINT WORDS" width={172} isPrimary={false} style={{ marginBottom: 12 }} />
+            <Button onClick={this.copy12Words} text="COPY WORDS" width={172} isPrimary={false} style={{ marginBottom: 12 }} />
+            {isTwelveWordsCopied && <GreenText>Copied to clipboard</GreenText>}
+          </ButtonsSection>
+          <WordsSection>
+            {this.twelveWords.map((word: string, index: number) => (
+              <WordWrapper key={word}>
+                <IndexWrapper>
+                  <Index>{`${index + 1}`}</Index>
+                </IndexWrapper>
+                <WordContainer>
+                  <Text>{word}</Text>
+                </WordContainer>
+              </WordWrapper>
+            ))}
+          </WordsSection>
+        </MiddleSectionRow>
+        <BottomSection>
+          <BottomRow>
+            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" style={{ paddingTop: 26 }} />
+            <Button onClick={this.navigateToTestMe} text="Next" width={95} />
+          </BottomRow>
+        </BottomSection>
+      </WrapperWith2SideBars>
     );
   }
 
