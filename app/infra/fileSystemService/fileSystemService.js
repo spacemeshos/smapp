@@ -2,7 +2,6 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
-import { localStorageService } from '/infra/storageService';
 
 class FsService {
   static copyFile = ({ fileName, filePath }: { fileName: string, filePath: string }) => {
