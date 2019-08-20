@@ -60,7 +60,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
   const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': [] }, contacts: [] };
   try {
-    fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush), showDialog: false });
+    fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush) });
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
@@ -158,6 +158,21 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
     throw createError('Error getting balance!', getBalance);
+  }
+};
+
+export const backupWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = getState().wallet;
+    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
+    const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
+    const now = new Date();
+    const fileName = `Wallet_Backup_${now.toISOString()}.json`;
+    await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
+    localStorageService.set('hasBackup', true);
+    localStorageService.set('lastBackupTime', now.toISOString());
+  } catch (error) {
+    throw createError('Error creating wallet backup!', backupWallet);
   }
 };
 

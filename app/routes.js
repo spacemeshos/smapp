@@ -15,6 +15,8 @@ import {
   SendCoins,
   RequestCoins,
   Backup,
+  BackupRoot,
+  FileBackup,
   TwelveWordsBackup,
   Transactions,
   Settings,
@@ -108,16 +110,20 @@ const wallet = [
 
 const backup = [
   {
-    path: '/main/wallet/backup',
-    component: Backup
+    path: '/main/backup/backup-root',
+    component: BackupRoot
   },
   {
-    path: '/main/wallet/twelve-words-backup',
+    path: '/main/backup/twelve-words-backup',
     component: TwelveWordsBackup
   },
   {
-    path: '/main/wallet/test-twelve-words-backup',
+    path: '/main/backup/test-twelve-words-backup',
     component: TestMe
+  },
+  {
+    path: '/main/backup/file-backup',
+    component: FileBackup
   }
 ];
 

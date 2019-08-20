@@ -46,8 +46,8 @@ class FsService {
     });
   };
 
-  static saveFile = ({ fileName, fileContent, showDialog }: { fileName: string, fileContent: string, showDialog: string }) => {
-    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, showDialog });
+  static saveFile = ({ fileName, fileContent, saveToDocumentsFolder }: { fileName: string, fileContent: string, saveToDocumentsFolder: boolean }) => {
+    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, saveToDocumentsFolder });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SAVE_FILE_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SAVE_FILE_SUCCESS, ipcConsts.SAVE_FILE_FAILURE] });
@@ -74,8 +74,8 @@ class FsService {
     });
   };
 
-  static openWalletBackupDirectory = () => {
-    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY);
+  static openWalletBackupDirectory = ({ lastBackupTime }: { lastBackupTime?: string }) => {
+    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE] });

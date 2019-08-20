@@ -25,12 +25,12 @@ class FileManager {
     });
   };
 
-  static openWalletBackupDirectory = async ({ event }) => {
+  static openWalletBackupDirectory = async ({ event, lastBackupTime }) => {
     try {
-      const files = await readDirectoryAsync(appFilesDirPath);
-      const regex = new RegExp('.*.(json)', 'ig');
+      const files = await readDirectoryAsync(lastBackupTime ? documentsDirPath : appFilesDirPath);
+      const regex = new RegExp(lastBackupTime || '.*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
-      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
+      const filesWithPath = filteredFiles.map((file) => path.join(lastBackupTime ? documentsDirPath : appFilesDirPath, file));
       if (filesWithPath && filesWithPath[0]) {
         shell.showItemInFolder(filesWithPath[0]);
       } else {
@@ -58,23 +58,9 @@ class FileManager {
     }
   };
 
-  static writeFile = async ({ browserWindow, event, fileName, fileContent, showDialog }) => {
-    if (showDialog) {
-      const options = {
-        title: 'Save Wallet Backup File',
-        defaultPath: documentsDirPath,
-        buttonLabel: 'Save',
-        filters: [{ name: 'Backup Files', extensions: ['json'] }]
-      };
-      dialog.showSaveDialog(browserWindow, options, async (filePath) => {
-        if (filePath) {
-          await FileManager._writeFile({ event, filePath, fileContent });
-        }
-      });
-    } else {
-      const filePath = path.join(appFilesDirPath, fileName);
-      await FileManager._writeFile({ event, filePath, fileContent });
-    }
+  static writeFile = async ({ event, fileName, fileContent, saveToDocumentsFolder }) => {
+    const filePath = path.join(saveToDocumentsFolder ? documentsDirPath : appFilesDirPath, fileName);
+    await FileManager._writeFile({ event, filePath, fileContent });
   };
 
   static updateFile = async ({ event, fileName, fieldName, data }) => {

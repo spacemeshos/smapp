@@ -1,231 +1,396 @@
-// // @flow
-// import React, { Component } from 'react';
-// import styled from 'styled-components';
-// import { DragDropContextProvider } from 'react-dnd';
-// import HTML5Backend from 'react-dnd-html5-backend';
-// import { connect } from 'react-redux';
-// import type { RouterHistory } from 'react-router-dom';
-// import { DropContainer, DragItem } from '/components/backup';
-// import { SmButton } from '/basicComponents';
-// import { smColors } from '/vars';
-//
-// const Wrapper = styled.div`
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   flex: 1;
-//   flex-direction: column;
-//   flex-direction: flex-start;
-//   padding: 50px;
-// `;
-//
-// const Header = styled.span`
-//   font-size: 31px;
-//   font-weight: bold;
-//   line-height: 42px;
-//   color: ${smColors.lighterBlack};
-//   margin-bottom: 20px;
-// `;
-//
-// const HeaderExplanation = styled.div`
-//   font-size: 16px;
-//   color: ${smColors.lighterBlack};
-//   line-height: 30px;
-//   margin-bottom: 30px;
-// `;
-//
-// const BaseText = styled.span`
-//   font-size: 16px;
-//   font-weight: normal;
-//   line-height: 22px;
-//   color: ${smColors.lighterBlack};
-// `;
-//
-// const ActionLink = styled(BaseText)`
-//   user-select: none;
-//   color: ${smColors.darkGreen};
-//   cursor: pointer;
-//   &:hover {
-//     opacity: 0.8;
-//   }
-//   &:active {
-//     opacity: 0.6;
-//   }
-// `;
-//
-// const Text = styled.span`
-//   font-size: 18px;
-//   color: ${smColors.darkGray};
-//   line-height: 32px;
-// `;
-//
-// const IndexWrapper = styled.div`
-//   height: 32px;
-//   line-height: 32px;
-//   width: 28px;
-//   margin-right: 50px;
-//   text-align: right;
-// `;
-//
-// const Index = styled(Text)`
-//   color: ${smColors.darkGray50Alpha};
-// `;
-//
-// const TwelveWordsContainer = styled.div`
-//   border: 1px solid ${smColors.darkGreen};
-//   padding: 28px;
-//   margin-bottom: 22px;
-//   column-count: 3;
-// `;
-//
-// const WordWrapper = styled.div`
-//   height: 50px;
-//   line-height: 50px;
-//   display: flex;
-// `;
-//
-// const NotificationSection = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   height: 25px;
-//   margin-bottom: 22px;
-// `;
-//
-// // $FlowStyledIssue
-// const Notification = styled(BaseText)`
-//   font-weight: bold;
-//   line-height: 30px;
-//   color: ${({ color }) => color};
-// `;
-//
-// const WordOptionsContainer = styled.div`
-//   display: flex;
-//   flex-direction: row;
-//   justify-content: flex-start;
-//   margin-bottom: 42px;
-// `;
-//
-// const ButtonsRow = styled.div`
-//   display: flex;
-//   flex-direction: row;
-//   justify-content: space-between;
-//   margin-bottom: 30px;
-// `;
-//
-// const LeftButtonsContainer = styled.div`
-//   display: flex;
-// `;
-//
-// const getTestWords = (mnemonic: string) => {
-//   const twelveWords = mnemonic.split(' ');
-//   const indices = [];
-//   while (indices.length < 4) {
-//     const idx = Math.floor(Math.random() * 12);
-//     if (!indices.includes(idx)) {
-//       indices.push(idx);
-//     }
-//   }
-//   const testWords: string[] = [];
-//   indices.forEach((index: number) => {
-//     testWords.push(twelveWords[index]);
-//   });
-//   return testWords;
-// };
-//
-// type Props = {
-//   history: RouterHistory,
-//   mnemonic: string
-// };
-//
-// type State = {
-//   testWords: string[],
-//   twelveWords: Array<Object>,
-//   dropsCounter: number,
-//   matchCounter: number
-// };
-//
-// class TestMe extends Component<Props, State> {
-//   constructor(props: Props) {
-//     super(props);
-//     const { mnemonic } = props;
-//     this.state = {
-//       testWords: getTestWords(mnemonic),
-//       twelveWords: mnemonic.split(' ').map((word) => ({ word, droppedWord: '' })),
-//       dropsCounter: 0,
-//       matchCounter: 0
-//     };
-//   }
-//
-//   render() {
-//     const { history } = this.props;
-//     const { testWords, twelveWords, dropsCounter, matchCounter } = this.state;
-//     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
-//     const isTestFailed = matchCounter < 4 && dropsCounter === 4;
-//     return (
-//       <Wrapper>
-//         <DragDropContextProvider backend={HTML5Backend}>
-//           <Header>Create a 12 Words Backup</Header>
-//           <HeaderExplanation>Drag each of the 4 words below to its matching number in your paper backup words list.</HeaderExplanation>
-//           <WordOptionsContainer>
-//             {testWords.map((word: string) => (
-//               <DragItem key={word} word={word} isDropped={this.checkIfWasDropped(word)} />
-//             ))}
-//           </WordOptionsContainer>
-//           <TwelveWordsContainer>
-//             {twelveWords.map(({ word, droppedWord }: { word: string, droppedWord: string }, index: number) => (
-//               <WordWrapper key={word}>
-//                 <IndexWrapper>
-//                   <Index>{`${index + 1}`}</Index>
-//                 </IndexWrapper>
-//                 <DropContainer droppedWord={droppedWord} onDrop={this.handleDrop({ word, index })} />
-//               </WordWrapper>
-//             ))}
-//           </TwelveWordsContainer>
-//           <NotificationSection>
-//             {isTestSuccess && <Notification color={smColors.orange}>All right! Your 12 Words Backup is confirmed</Notification>}
-//             {isTestFailed && <Notification color={smColors.red}>No match. Check your 12 Words Paper Backup and try again.</Notification>}
-//           </NotificationSection>
-//           <ButtonsRow>
-//             <LeftButtonsContainer>
-//               <SmButton text="Try Again" theme="green" onPress={this.tryAgain} style={{ width: 150, marginRight: 20 }} />
-//               <SmButton text="Go Back" theme="green" onPress={history.goBack} style={{ width: 150 }} />
-//             </LeftButtonsContainer>
-//             <SmButton text="Done" isDisabled={!isTestSuccess} theme="orange" onPress={this.navigateToWallet} style={{ width: 150 }} />
-//           </ButtonsRow>
-//           <ActionLink onClick={history.goBack}>Stuck? Go back and write down the numbered words on paper.</ActionLink>
-//         </DragDropContextProvider>
-//       </Wrapper>
-//     );
-//   }
-//
-//   handleDrop = ({ word, index }: { word: string, index: number }) => ({ droppedWord }: { droppedWord: string }) => {
-//     const { twelveWords, dropsCounter, matchCounter } = this.state;
-//     this.setState({
-//       twelveWords: [...twelveWords.slice(0, index), { word, droppedWord }, ...twelveWords.slice(index + 1)],
-//       dropsCounter: dropsCounter + 1,
-//       matchCounter: word === droppedWord ? matchCounter + 1 : matchCounter
-//     });
-//   };
-//
-//   tryAgain = () => {
-//     const { twelveWords } = this.state;
-//     this.setState({ twelveWords: twelveWords.map(({ word }) => ({ word, droppedWord: '' })), dropsCounter: 0, matchCounter: 0 });
-//   };
-//
-//   checkIfWasDropped = (word: string): boolean => {
-//     const { twelveWords } = this.state;
-//     return !!twelveWords.find(({ droppedWord }) => droppedWord === word);
-//   };
-//
-//   navigateToWallet = () => {
-//     const { history } = this.props;
-//     history.push('/main/wallet/overview');
-//   };
-// }
-//
-// const mapStateToProps = (state) => ({
-//   mnemonic: state.wallet.mnemonic
-// });
-//
-// TestMe = connect<any, any, _, _, _, _>(mapStateToProps)(TestMe);
-// export default TestMe;
+// @flow
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import { connect } from 'react-redux';
+import type { RouterHistory } from 'react-router-dom';
+import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
+import { smColors } from '/vars';
+import { bottomLeftCorner, bottomRightCorner, topLeftCorner, topRightCorner, smallHorizontalSideBar } from '/assets/images';
+import { shell } from 'electron';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import type { DropResult } from 'react-beautiful-dnd';
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: relative;
+`;
+
+const TextWrapper = styled.div`
+  height: 75px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+`;
+
+const Text = styled.span`
+  font-size: 14px;
+  line-height: 22px;
+`;
+
+const SmallText = styled.span`
+  font-size: 12px;
+  line-height: 12px;
+`;
+
+const GreenText = styled(SmallText)`
+  color: ${smColors.green};
+`;
+
+const RedText = styled(SmallText)`
+  color: ${smColors.red};
+`;
+
+const WhiteText = styled(Text)`
+  color: ${smColors.white};
+`;
+
+const HorizontalBarWrapper = styled.div`
+  position: relative;
+`;
+
+const HorizontalBar = styled.img`
+  position: absolute;
+  top: -95px;
+  right: -28px;
+  width: 70px;
+  height: 15px;
+`;
+
+const TopLeftCorner = styled.img`
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 8px;
+  height: 8px;
+`;
+
+const TopRightCorner = styled.img`
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+`;
+
+const BottomLeftCorner = styled.img`
+  position: absolute;
+  bottom: -5px;
+  left: -5px;
+  width: 8px;
+  height: 8px;
+`;
+
+const BottomRightCorner = styled.img`
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+`;
+
+const MiddleSectionRow = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const BottomRow = styled(MiddleSectionRow)`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: space-between;
+`;
+
+const TestWordsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 18px;
+  min-width: 190px;
+`;
+
+const WordsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 140px;
+  width: 100%;
+`;
+
+// $FlowStyledIssue
+const WordContainer = styled.div`
+  border: ${({ isDraggingOver }) => (isDraggingOver ? `none` : `1px dashed ${smColors.darkGray}`)};
+  height: 27px;
+  width: 155px;
+  margin-bottom: 7px;
+  border-radius: 5px;
+  margin-right: 20px;
+  padding-left: 16px;
+`;
+
+// $FlowStyledIssue
+const TestWordContainer = styled(WordContainer)`
+  background-color: ${smColors.black};
+  ${({ isDropped }) =>
+    !isDropped &&
+    `
+    background-color: ${smColors.black10Alpha};
+  `};
+  border: none;
+  opacity: ${({ isDragging }) => (isDragging ? 0.9 : 1)};
+`;
+
+const TestWordDroppable = styled.div`
+  border: 1px solid ${smColors.darkGray};
+  height: 27px;
+  width: 155px;
+  margin-bottom: 7px;
+  border-radius: 5px;
+  margin-right: 20px;
+`;
+
+// $FlowStyledIssue
+const WordDroppable = styled.div`
+  height: 27px;
+  width: 155px;
+  margin-bottom: 7px;
+  border-radius: 5px;
+  margin-right: 20px;
+  transform: none !important;
+  ${({ isDraggingOver }) =>
+    isDraggingOver &&
+    `
+    background-color: ${smColors.lightGray};
+  `};
+  ${({ isDropped }) =>
+    isDropped &&
+    `
+    background-color: ${smColors.black};
+    color: ${smColors.white};
+  `};
+`;
+
+const IndexWrapper = styled.div`
+  width: 20px;
+  margin-right: 4px;
+  text-align: right;
+`;
+
+const Index = styled(Text)`
+  color: ${smColors.darkGray};
+`;
+
+const WordWrapper = styled.div`
+  display: flex;
+`;
+
+const NotificationBoxOuter = styled.div`
+  position: absolute;
+  bottom: -70px;
+  right: -6px;
+`;
+
+const NotificationBox = styled.div`
+  position: relative;
+  bottom: 0;
+  width: 195px;
+  height: 47px;
+  padding: 6px;
+  background-color: ${smColors.lightGray};
+`;
+
+const getTestWords = (mnemonic: string): Array<{ id: string, content: string }> => {
+  const twelveWords = mnemonic.split(' ');
+  const indices = [];
+  while (indices.length < 4) {
+    const idx = Math.floor(Math.random() * 12);
+    if (!indices.includes(idx)) {
+      indices.push(idx);
+    }
+  }
+  const testWords: Array<{ id: string, content: string }> = [];
+  indices.forEach((index: number) => {
+    testWords.push({ id: twelveWords[index], content: twelveWords[index] });
+  });
+  return testWords;
+};
+
+const getInitialState = (mnemonic: string) => ({
+  testWords: getTestWords(mnemonic),
+  twelveWords: mnemonic.split(' ').map((word) => ({ id: word, content: '' })),
+  dropsCounter: 0,
+  matchCounter: 0
+});
+
+type Props = {
+  history: RouterHistory,
+  mnemonic: string
+};
+
+type State = {
+  testWords: Array<{ id: string, content: string }>,
+  twelveWords: Array<{ id: string, content: string }>,
+  dropsCounter: number,
+  matchCounter: number
+};
+
+class TestMe extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    const { mnemonic } = props;
+    this.state = { ...getInitialState(mnemonic) };
+  }
+
+  render() {
+    const { dropsCounter, matchCounter } = this.state;
+    const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
+    const isTestFailed = matchCounter < 4 && dropsCounter === 4;
+
+    return (
+      <Wrapper>
+        <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP">
+          <HorizontalBarWrapper>
+            <HorizontalBar src={smallHorizontalSideBar} />
+          </HorizontalBarWrapper>
+          <TextWrapper>
+            <Text>Drag each of the four words below to its matching number in your paper backup word list</Text>
+          </TextWrapper>
+          {this.renderDragAndDropArea()}
+          <BottomRow>
+            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
+            <Button
+              onClick={isTestSuccess ? this.navigateToWallet : this.resetTest}
+              text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
+              width={isTestSuccess ? 95 : 110}
+              isPrimary={isTestSuccess}
+            />
+          </BottomRow>
+        </WrapperWith2SideBars>
+        {this.renderNotificationBox({ isTestSuccess, isTestFailed })}
+      </Wrapper>
+    );
+  }
+
+  renderDragAndDropArea = () => {
+    const { testWords, twelveWords } = this.state;
+    return (
+      <DragDropContext onDragEnd={this.handleDragEnd}>
+        <MiddleSectionRow>
+          <TestWordsSection>
+            {testWords.map((word: { id: string, content: string }, index: number) => (
+              <Droppable droppableId={`Droppable_${word.id}`} key={word.id}>
+                {(provided) => (
+                  <TestWordDroppable ref={provided.innerRef} {...provided.droppableProps}>
+                    <Draggable draggableId={`Draggable_${word.id}`} index={index}>
+                      {(provided, snapshot) => (
+                        <TestWordContainer
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          isDragging={snapshot.isDragging}
+                          isDropped={word.content}
+                        >
+                          <WhiteText>{word.content}</WhiteText>
+                        </TestWordContainer>
+                      )}
+                    </Draggable>
+                    {provided.placeholder}
+                  </TestWordDroppable>
+                )}
+              </Droppable>
+            ))}
+          </TestWordsSection>
+          <WordsSection>
+            {twelveWords.map((word: { id: string, content: string }, index: number) => (
+              <WordWrapper key={word.id}>
+                <IndexWrapper>
+                  <Index>{`${index + 1}`}</Index>
+                </IndexWrapper>
+                <Droppable droppableId={`Droppable_Dest_${word.id}`}>
+                  {(provided, snapshot) => (
+                    <WordDroppable ref={provided.innerRef} {...provided.droppableProps} isDraggingOver={snapshot.isDraggingOver} isDropped={word.content}>
+                      <Draggable draggableId={`Draggable_Dest_${word.id}`} index={index} isDragDisabled>
+                        {(provided) => (
+                          <WordContainer ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} isDraggingOver={snapshot.isDraggingOver}>
+                            <Text>{word.content}</Text>
+                          </WordContainer>
+                        )}
+                      </Draggable>
+                    </WordDroppable>
+                  )}
+                </Droppable>
+              </WordWrapper>
+            ))}
+          </WordsSection>
+        </MiddleSectionRow>
+      </DragDropContext>
+    );
+  };
+
+  renderNotificationBox = ({ isTestSuccess, isTestFailed }: { isTestSuccess: boolean, isTestFailed: boolean }) => (
+    <NotificationBoxOuter>
+      {(isTestSuccess || isTestFailed) && (
+        <NotificationBox>
+          <TopLeftCorner src={topLeftCorner} />
+          <TopRightCorner src={topRightCorner} />
+          <BottomLeftCorner src={bottomLeftCorner} />
+          <BottomRightCorner src={bottomRightCorner} />
+          {isTestSuccess && <GreenText>All right! Your 12 word backup is confirmed.</GreenText>}
+          {isTestFailed && <RedText>That confirmation isn’t correct, please try again</RedText>}
+        </NotificationBox>
+      )}
+    </NotificationBoxOuter>
+  );
+
+  handleDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+    const { matchCounter, dropsCounter, testWords, twelveWords } = this.state;
+
+    // dropped outside the destination zone
+    if (!destination || !destination.droppableId.startsWith('Droppable_Dest_')) {
+      return;
+    }
+
+    const wordId = destination.droppableId.split('_').pop();
+    const wordIndex = twelveWords.findIndex((word: { id: string, content: string }) => word.id === wordId);
+    const droppedWord = source.droppableId.split('_').pop();
+    const droppedWordIndex = testWords.findIndex((testWord: { id: string, content: string }) => testWord.id === droppedWord);
+
+    if (twelveWords[wordIndex].content) {
+      return;
+    }
+
+    this.setState({
+      twelveWords: [...twelveWords.slice(0, wordIndex), { id: wordId, content: droppedWord }, ...twelveWords.slice(wordIndex + 1)],
+      testWords: [...testWords.slice(0, droppedWordIndex), { id: droppedWord, content: '' }, ...testWords.slice(droppedWordIndex + 1)]
+    });
+
+    if (droppedWord === destination.droppableId.split('_').pop()) {
+      // dropped at destination and a match
+      this.setState({ matchCounter: matchCounter + 1, dropsCounter: dropsCounter + 1 });
+    } else {
+      // dropped at destination and not a match
+      this.setState({ dropsCounter: dropsCounter + 1 });
+    }
+  };
+
+  resetTest = () => {
+    const { mnemonic } = this.props;
+    this.setState({ ...getInitialState(mnemonic) });
+  };
+
+  openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
+
+  navigateToWallet = () => {
+    const { history } = this.props;
+    history.push('/main/wallet/overview');
+  };
+}
+
+const mapStateToProps = (state) => ({
+  mnemonic: state.wallet.mnemonic
+});
+
+TestMe = connect<any, any, _, _, _, _>(mapStateToProps)(TestMe);
+export default TestMe;

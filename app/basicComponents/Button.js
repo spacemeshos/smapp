@@ -16,6 +16,11 @@ const UpperPart = styled.div`
   display: flex;
   flex-direction: row;
   width: ${({ width }) => width}px;
+  ${({ isContainerFullWidth }) =>
+    isContainerFullWidth &&
+    `
+    width: 100%;
+  `}
   height: ${({ height }) => height}px;
   ${({ isDisabled, isPrimary }) =>
     isDisabled
@@ -62,6 +67,11 @@ const LowerPart = styled.div`
   left: 0;
   right: ${GAP}px;
   width: ${({ width }) => width}px;
+  ${({ isContainerFullWidth }) =>
+    isContainerFullWidth &&
+    `
+    width: 100%;
+  `}
   height: ${({ height }) => height}px;
   ${({ isDisabled, isPrimary }) =>
     isDisabled
@@ -79,6 +89,11 @@ const LowerPart = styled.div`
 const Wrapper = styled.div`
   position: relative;
   width: ${({ width }) => width + GAP}px;
+  ${({ isContainerFullWidth }) =>
+    isContainerFullWidth &&
+    `
+    width: 100%;
+  `}
   height: ${({ height }) => height + GAP}px;
   ${({ isDisabled }) =>
     !isDisabled &&
@@ -99,6 +114,7 @@ type Props = {
   onClick: Function,
   isPrimary?: boolean,
   isDisabled?: boolean,
+  isContainerFullWidth?: boolean,
   width?: number,
   height?: number,
   text: string,
@@ -116,10 +132,10 @@ class Button extends PureComponent<Props> {
   };
 
   render() {
-    const { onClick, isPrimary, isDisabled, width, height, text, img, imgPosition, style } = this.props;
+    const { onClick, isPrimary, isDisabled, width, height, text, img, imgPosition, style, isContainerFullWidth } = this.props;
     return (
-      <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} style={style}>
-        <UpperPart width={width} height={height} isPrimary={isPrimary} isDisabled={isDisabled}>
+      <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} isContainerFullWidth={isContainerFullWidth} style={style}>
+        <UpperPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled}>
           {img && imgPosition === 'before' && (
             <ImageWrapper>
               <Image src={img} />
@@ -132,7 +148,7 @@ class Button extends PureComponent<Props> {
             </ImageWrapper>
           )}
         </UpperPart>
-        <LowerPart width={width} height={height} isPrimary={isPrimary} isDisabled={isDisabled} />
+        <LowerPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled} />
       </Wrapper>
     );
   }

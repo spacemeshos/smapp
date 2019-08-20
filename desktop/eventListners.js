@@ -19,7 +19,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
-    FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
+    FileManager.writeFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
@@ -58,8 +58,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getUpcomingEarnings({ event });
   });
 
-  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event) => {
-    FileManager.openWalletBackupDirectory({ event });
+  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
+    FileManager.openWalletBackupDirectory({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_COMMITMENT_SIZE, async (event, request) => {
