@@ -1,14 +1,12 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
 import { smallHorizontalSideBar } from '/assets/images';
 import { fileSystemService } from '/infra/fileSystemService';
 import { localStorageService } from '/infra/storageService';
-import type { WalletMeta } from '/types';
 
 const Text = styled.span`
   font-size: 16px;
@@ -46,8 +44,7 @@ const BottomRow = styled(MiddleSectionRow)`
 `;
 
 type Props = {
-  history: RouterHistory,
-  wallet: WalletMeta
+  history: RouterHistory
 };
 
 class FileBackup extends Component<Props> {
@@ -81,9 +78,4 @@ class FileBackup extends Component<Props> {
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
 }
 
-const mapStateToProps = (state) => ({
-  wallet: state.wallet
-});
-
-FileBackup = connect<any, any, _, _, _, _>(mapStateToProps)(FileBackup);
 export default FileBackup;
