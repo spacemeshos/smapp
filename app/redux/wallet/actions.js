@@ -7,8 +7,10 @@ import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
 import { getWalletName, getAccountName, getWalletAddress, createError } from '/infra/utils';
 import { cryptoConsts } from '/vars';
+import { getWalletName, getAccountName, fromHexString, createError } from '/infra/utils';
+import { smColors, cryptoConsts } from '/vars';
 
-export const DERIVE_ENCRYPTION_KEY: string = 'DERIVE_ENCRYPTION_KEY';
+export const STORE_ENCRYPTION_KEY: string = 'STORE_ENCRYPTION_KEY';
 
 export const SET_WALLET_META: string = 'SET_WALLET_META';
 export const SET_ACCOUNTS: string = 'SET_ACCOUNTS';
@@ -16,16 +18,45 @@ export const SET_CURRENT_ACCOUNT_INDEX: string = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_MNEMONIC: string = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS: string = 'SET_TRANSACTIONS';
 export const SET_CONTACTS: string = 'SET_CONTACTS';
-export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
 
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE: string = 'SET_BALANCE';
 
-export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
+const getMaxLayerId = ({ transactions }) => {
+  let max = 0;
+  Object.keys(transactions).forEach((key) => {
+    if (max < transactions[key].layerId) {
+      max = transactions[key].layerId;
+    }
+  });
+  return max;
+};
+
+const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId }) => ({
+  displayName: getAccountName({ accountNumber }),
+  created: unixEpochTimestamp,
+  displayColor: smColors.darkGreen,
+  path: `0/0/${accountNumber}`,
+  balance: 100,
+  pk: publicKey,
+  sk: secretKey,
+  layerId
+});
+
+const mergeTxStatuses = ({ existingList, incomingList }: { existingList: TxList, incomingList: TxList }) => {
+ const existingListMap = {};
+ existingList.forEach((tx, index) => {
+   existingList[tx.id] = index;
+ });
+ const updatedTxList = [];
+
+};
+
+export const generateEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
-  return { type: DERIVE_ENCRYPTION_KEY, payload: { key } };
+  return { type: STORE_ENCRYPTION_KEY, payload: { key } };
 };
 
 export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
@@ -45,6 +76,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   };
   const cipherText = {
     mnemonic: resolvedMnemonic,
+    accounts: [getNewAccountFromTemplate({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId: 0 })]
     accounts: [
       {
         displayName: getAccountName({ accountNumber }),
@@ -58,14 +90,14 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
-  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': [] }, contacts: [] };
+  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': { layerId: 0, data: [] } }, contacts: [] };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush) });
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
-    dispatch(setTransactions({ transactions: { '0': [] } }));
+    dispatch(setTransactions({ transactions: { '0': { layerId: 0, data: [] } } }));
     dispatch(setContacts({ contacts: [] }));
     localStorageService.set('walletNumber', walletNumber + 1);
     localStorageService.set('accountNumber', accountNumber + 1);
@@ -84,8 +116,6 @@ export const setCurrentAccount = ({ index }: { index: number }): Action => ({ ty
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
 export const setTransactions = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_TRANSACTIONS, payload: { transactions } });
-
-export const setLastUsedAddresses = ({ transactions }: { transactions: TxList }): Action => ({ type: SET_LAST_USED_ADDRESSES, payload: { transactions } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
 
@@ -111,7 +141,6 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: file.crypto.cipherText.mnemonic }));
     dispatch(setTransactions({ transactions: file.transactions }));
-    dispatch(setLastUsedAddresses({ transactions: file.transactions }));
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
@@ -121,10 +150,11 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
 
 export const createNewAccount = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { mnemonic, accounts } = getState().wallet;
+    const { mnemonic, accounts, transactions } = getState().wallet;
     const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length, salt: cryptoConsts.DEFAULT_SALT });
     const unixEpochTimestamp = Math.floor(new Date() / 1000);
     const accountNumber = localStorageService.get('accountNumber');
+    const newAccount = getNewAccountFromTemplate({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId: getMaxLayerId({ transactions }) });
     const newAccount = {
       displayName: getAccountName({ accountNumber }),
       created: unixEpochTimestamp,
@@ -154,7 +184,7 @@ export const copyFile = ({ filePath }: { fileName: string, filePath: string }): 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
+    const balance = await httpService.getBalance({ address: fromHexString(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
     throw createError('Error getting balance!', getBalance);
@@ -182,6 +212,10 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
+    const accountNonce = await httpService.getNonce({ address: fromHexString(accounts[currentAccountIndex].pk) });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
+    const response = await httpService.sendTx({ tx });
+    dispatch(addTransaction({ tx: { id: response.id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
     const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
     const tx = await cryptoService.signTransaction({
       accountNonce,
@@ -201,12 +235,23 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
     const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
-    const updatedTransactions = { ...transactions, [index]: [tx, ...transactions[index]] };
+    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [tx, ...transactions[index].data] } };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
     throw createError(error.message, () => addTransaction({ tx, accountPK }));
   }
+};
+
+export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { accounts, currentAccountIndex, transactions, walletFiles } = getState().wallet;
+  const accountTransactions = transactions[currentAccountIndex];
+  const latestValidLayerId = await httpService.getLatestValidLayerId();
+  const txList = await httpService.getTxList({ address: accounts[currentAccountIndex].pk, layerId: accountTransactions.layerId });
+  const updatedTransactionsPerAccount = mergeTxStatuses({ existingList: accountTransactions, incomingList: txList });
+  const updatedTransactions = { ...transactions, [currentAccountIndex]: { layerId: latestValidLayerId, data: updatedTransactionsPerAccount } };
+  await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
+  dispatch(setTransactions({ transactions: updatedTransactions }));
 };
 
 export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, updateAll: boolean, accountPK?: string }): Action => async (
@@ -218,15 +263,14 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
     const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
     let transactionsArray: TxList = [];
     if (updateAll) {
-      transactionsArray = transactions[index].map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));
+      transactionsArray = transactions[index].data.map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));
     } else {
-      const txIndex = transactions.findIndex((transaction: Tx) => transaction.address === tx.address);
-      transactionsArray = [...transactions[index].slice(0, txIndex), tx, ...transactions[index].slice(txIndex + 1)];
+      const txIndex = transactions[index].data.findIndex((transaction: Tx) => transaction.id === tx.id);
+      transactionsArray = [...transactions[index].data.slice(0, txIndex), tx, ...transactions[index].data.slice(txIndex + 1)];
     }
-    const updatedTransactions = { ...transactions, [index]: transactionsArray };
+    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: transactionsArray } };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
-    dispatch(setLastUsedAddresses({ transactions: updatedTransactions }));
   } catch (error) {
     throw createError(error.message, () => updateTransaction({ tx, updateAll, accountPK }));
   }
@@ -274,4 +318,16 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
   const cipherText = { mnemonic, accounts };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
+};
+
+export const backupWallet = () => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { wallet } = getState();
+    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = wallet;
+    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
+    const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
+    await fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
+  } catch (error) {
+    throw new Error(error);
+  }
 };

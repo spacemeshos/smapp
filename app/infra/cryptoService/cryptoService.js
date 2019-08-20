@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
-import { fromHexString, toHexString, getWalletAddress } from '/infra/utils';
+import { fromHexString, toHexString } from '/infra/utils';
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -74,7 +74,7 @@ class CryptoService {
     const types = xdr.config((xdr1) => {
       xdr1.struct('InnerSerializableSignedTransaction', [
         ['AccountNonce', xdr1.uhyper()],
-        ['Recipient', xdr1.opaque(20)],
+        ['Recipient', xdr1.opaque(32)],
         ['GasLimit', xdr1.uhyper()],
         ['Price', xdr1.uhyper()],
         ['Amount', xdr1.uhyper()]
@@ -83,8 +83,8 @@ class CryptoService {
     });
     const message = new types.InnerSerializableSignedTransaction({
       AccountNonce: xdr.UnsignedHyper.fromString(accountNonce),
-      Recipient: Buffer.from(getWalletAddress(recipient)),
-      GasLimit: xdr.UnsignedHyper.fromString('5'),
+      Recipient: Buffer.from(fromHexString(recipient)),
+      GasLimit: xdr.UnsignedHyper.fromString('5'), // TODO: change to real number passed from user selection
       Price: xdr.UnsignedHyper.fromString(`${price}`),
       Amount: xdr.UnsignedHyper.fromString(`${amount}`)
     });

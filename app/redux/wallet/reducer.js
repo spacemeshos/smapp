@@ -3,15 +3,14 @@ import type { Action, StoreStateType, TxList, Tx, Contact } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
-  DERIVE_ENCRYPTION_KEY,
+  STORE_ENCRYPTION_KEY,
   SET_WALLET_META,
   SET_BALANCE,
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
-  SET_CURRENT_ACCOUNT_INDEX,
-  SET_LAST_USED_ADDRESSES
+  SET_CURRENT_ACCOUNT_INDEX
 } from './actions';
 
 const initialState = {
@@ -46,7 +45,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       } = action;
       return { ...state, walletFiles: files };
     }
-    case DERIVE_ENCRYPTION_KEY: {
+    case STORE_ENCRYPTION_KEY: {
       const {
         payload: { key }
       } = action;
@@ -70,6 +69,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_TRANSACTIONS: {
       const { transactions } = action.payload;
+      return { ...state, transactions, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex].data) };
       return { ...state, transactions };
     }
     case SET_LAST_USED_ADDRESSES: {

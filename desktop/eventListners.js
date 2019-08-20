@@ -42,6 +42,14 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.sendTx({ event, ...request });
   });
 
+  ipcMain.on(ipcConsts.GET_LATEST_VALID_LAYER_ID, async (event) => {
+    netService.getLatestValidLayerId({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_TX_LIST, async (event, request) => {
+    netService.getTxList({ event, ...request });
+  });
+
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
     printerWindow.loadURL(`file://${__dirname}/printer.html`);
