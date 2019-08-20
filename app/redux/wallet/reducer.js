@@ -68,7 +68,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_TRANSACTIONS: {
       const { transactions } = action.payload;
-      return { ...state, transactions, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex].data) };
+      return { ...state, transactions, lastUsedAddresses: transactions && transactions.length ? getFirstUniqueTransactions(transactions[state.currentAccountIndex].data) : [] };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const { index } = action.payload;

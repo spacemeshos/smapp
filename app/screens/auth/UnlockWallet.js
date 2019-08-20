@@ -94,7 +94,7 @@ class UnlockWallet extends Component<Props, State> {
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
           <Chevron src={chevronRightBlack} />
-          <Input type="password" placeholder="ENTER PASSWORD" value={passphrase} onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
+          <Input type="password" placeholder="ENTER PASSWORD" value={passphrase} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
           <ErrorSection>
             {hasError && <ErrorPopup onClick={() => this.setState({ passphrase: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
           </ErrorSection>
@@ -112,13 +112,6 @@ class UnlockWallet extends Component<Props, State> {
     );
   }
 
-  handleEnterPress = () => {
-    const { passphrase, hasError } = this.state;
-    if (!!passphrase.trim() || !hasError) {
-      this.decryptWallet();
-    }
-  };
-
   handlePasswordTyping = ({ value }: { value: string }) => {
     this.setState({ passphrase: value, hasError: false });
   };
@@ -127,7 +120,7 @@ class UnlockWallet extends Component<Props, State> {
     const { generateEncryptionKey, unlockWallet, history } = this.props;
     const { passphrase } = this.state;
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
-    if (passphrase.trim().length >= passwordMinimumLength) {
+    if (!!passphrase && passphrase.trim().length >= passwordMinimumLength) {
       try {
         generateEncryptionKey({ passphrase });
         await unlockWallet();
