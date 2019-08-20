@@ -237,7 +237,7 @@ class CreateWallet extends Component<Props, State> {
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
   openWalletBackupDirectory = () => {
-    fileSystemService.openWalletBackupDirectory();
+    fileSystemService.openWalletBackupDirectory({ lastBackupTime: null });
   };
 }
 

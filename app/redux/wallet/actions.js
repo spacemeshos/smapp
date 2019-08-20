@@ -22,6 +22,101 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE: string = 'SET_BALANCE';
 
+// TODO: Remove this - test only
+const transactionsMockData: TxList = [
+  {
+    isSent: true,
+    amount: 3.002,
+    address: '0c183911b5758beb0ab1d93c9a1df4c8987531231bfbb931f0e4b304245089fc',
+    nickname: 'Nancy Sinatra',
+    date: '2019-08-20T07:44:51.870Z',
+    isSavedContact: true,
+    note: 'This is a test sent transaction of saved contact'
+  },
+  {
+    isSent: false,
+    amount: 15.323,
+    address: '383d06ca9f6cfe56f7aff4bc5129cba2591af0ff7c2f7671bfa065ecfca9ed8e',
+    nickname: 'Miles Davis',
+    date: '2019-08-12T09:42:51.873Z',
+    isSavedContact: true,
+    note: 'This is a test received transaction of saved contact'
+  },
+  {
+    isSent: false,
+    isPending: true,
+    amount: 5.3,
+    address: '445407f0d5c58abdd36b22be971d3b5074415a5df0aac2ac251ef68142525fa8',
+    date: '2019-08-11T12:22:31.542Z',
+    isSavedContact: false,
+    note: 'This is a test received pending transaction'
+  },
+  {
+    isSent: true,
+    isPending: true,
+    amount: 43.1,
+    address: '436ac1cc602b908d62023e5336f35febee7679dc2737df3d97a98aaeb0972edd',
+    date: '2019-08-09T12:12:11.241Z',
+    isSavedContact: false,
+    note: 'This is a test sent pending transaction'
+  },
+  {
+    isSent: false,
+    isRejected: true,
+    amount: 600.231,
+    address: '00f5fa98b48f35cb4407c23741ee5969b5279c31761bd0a40c33df6a3238e86a',
+    nickname: 'Eric Clapton',
+    date: '2019-07-19T07:02:15.211Z',
+    isSavedContact: true,
+    note: 'This is a test received rejected transaction of saved contact'
+  },
+  {
+    isSent: true,
+    isRejected: true,
+    amount: 60.95,
+    address: 'd9e6f74d65fcdad4ef37a4e91f9f7c3f8614abad1380119de29e31234e8a549f',
+    nickname: 'Elton John',
+    date: '2019-06-18T06:32:45.311Z',
+    isSavedContact: true,
+    note: 'This is a test sent rejected transaction of saved contact'
+  },
+  {
+    isSent: true,
+    isPending: true,
+    amount: 46.22,
+    address: '03a5c18ca837474b5af1ddaac2b7d7eee7c5cfa3d2336af6f67b50de16a4aa46',
+    date: '2019-06-18T06:27:34.367Z',
+    isSavedContact: false,
+    note: 'This is a test sent pending transaction'
+  },
+  {
+    isSent: false,
+    isPending: true,
+    amount: 16.321,
+    address: '9112720e0ac5f2bc583206358d7b1e6bd532abc01db6a9eaf0b303dcae3e3ea3',
+    date: '2019-06-18T06:27:34.367Z',
+    isSavedContact: false,
+    note: 'This is a test received pending transaction'
+  },
+  {
+    isSent: false,
+    amount: 73.5,
+    address: '00f15217df1e84254831be13697da675c6a55b4050e2de30668961f478af8c43',
+    date: '2019-06-17T12:27:54.357Z',
+    isSavedContact: false
+  },
+  {
+    isSent: true,
+    isRejected: true,
+    amount: 30.97,
+    address: 'db10f5d9f8b7239cf8f215d96a28d7f4f16ca678c34c9ac1d7a97670b86361b3',
+    nickname: 'MJ',
+    date: '2019-06-18T06:32:45.311Z',
+    isSavedContact: true,
+    note: 'This is a test sent rejected transaction of saved contact'
+  }
+];
+
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
@@ -58,14 +153,14 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
-  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': [] }, contacts: [] };
+  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': [...transactionsMockData] }, contacts: [] };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush) });
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
-    dispatch(setTransactions({ transactions: { '0': [] } }));
+    dispatch(setTransactions({ transactions: { '0': [...transactionsMockData] } }));
     dispatch(setContacts({ contacts: [] }));
     localStorageService.set('walletNumber', walletNumber + 1);
     localStorageService.set('accountNumber', accountNumber + 1);
@@ -220,7 +315,7 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
     if (updateAll) {
       transactionsArray = transactions[index].map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));
     } else {
-      const txIndex = transactions.findIndex((transaction: Tx) => transaction.address === tx.address);
+      const txIndex = transactions[index].findIndex((transaction: Tx) => transaction.address === tx.address);
       transactionsArray = [...transactions[index].slice(0, txIndex), tx, ...transactions[index].slice(txIndex + 1)];
     }
     const updatedTransactions = { ...transactions, [index]: transactionsArray };

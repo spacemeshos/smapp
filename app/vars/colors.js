@@ -2,7 +2,9 @@
 const smColors = {
   white: '#FFFFFF',
   lightGray: '#EEEEEE',
+  mediumLightGray: '#D5D5D5',
   darkGray: '#585858',
+  textGray: '#404040',
   green: '#65B042',
   darkerGreen: '#549237',
   mediumGray: '#828282',
@@ -17,6 +19,8 @@ const smColors = {
   black10Alpha: 'rgba(0, 0, 0, 0.1)',
   black02Alpha: 'rgba(0, 0, 0, 0.02)',
   darkGray50Alpha: 'rgba(64, 64, 64, 0.5)',
+  darkGray80Alpha: 'rgba(64, 64, 64, 0.8)',
+  lightGray20Alpha: 'rgba(196, 196, 196, 0.2)',
 
   green30alpha: 'rgba(0, 194, 140, 0.3)',
   green10alpha: 'rgba(0, 194, 140, 0.1)',

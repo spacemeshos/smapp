@@ -24,7 +24,6 @@ const initialState = {
   transactions: {},
   lastUsedContacts: [],
   contacts: [],
-  lastBackupTime: null,
   fiatRate: 1
 };
 

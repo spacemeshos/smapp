@@ -1,172 +1,63 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { Transaction } from '/components/transactions';
-import { Button } from '/basicComponents';
-import { smColors } from '/vars';
+import type { RouterHistory } from 'react-router-dom';
+import { TransactionRow, TransactionsMeta } from '/components/transactions';
+import { Link, WrapperWith2SideBars, SecondaryButton } from '/basicComponents';
 import type { TxList } from '/types';
-import { shell } from 'electron';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { chevronLeftWhite } from '/assets/images';
 
 const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 50px 60px;
-`;
-
-const Header = styled.div`
-  font-size: 31px;
-  font-weight: bold;
-  line-height: 42px;
-  color: ${smColors.lighterBlack};
-  margin-bottom: 20px;
-`;
-
-const InnerWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-`;
-
-const LeftSection = styled.div`
-  height: 100%;
-  display: flex;
-  flex: 2;
-  flex-direction: column;
-  margin-right: 30px;
-`;
-
-const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  margin-bottom: 20px;
+  position: relative;
+`;
+
+const Text = styled.span`
+  font-size: 16px;
+  line-height: 22px;
+`;
+
+const BoldText = styled.span`
+  font-family: SourceCodeProBold;
+  margin-bottom: 24px;
 `;
 
 const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: scroll;
 `;
-
-const RightSection = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  margin-left: 30px;
-  padding: 25px;
-  border: 1px solid ${smColors.borderGray};
-`;
-
-const RightSectionSubHeader = styled.div`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${smColors.darkGray};
-  line-height: 19px;
-  margin-bottom: 25px;
-`;
-
-const RightSectionText = styled.div`
-  font-size: 16px;
-  color: ${smColors.darkGray};
-  line-height: 28px;
-  margin-bottom: 25px;
-`;
-
-const RightSectionLink = styled.div`
-  font-size: 16px;
-  color: ${smColors.darkGreen};
-  line-height: 30px;
-  padding: 5px 0;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-  &:active {
-    opacity: 0.6;
-  }
-`;
-
-const btnStyle = { marginRight: 15 };
 
 type Props = {
-  transactions: TxList
+  transactions: TxList,
+  history: RouterHistory
 };
 
-type State = {
-  isSentDisplayed: boolean,
-  isReceivedDisplayed: boolean,
-  isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean
-};
-
-class Transactions extends Component<Props, State> {
-  state = {
-    isSentDisplayed: true,
-    isReceivedDisplayed: true,
-    isPendingDisplayed: true,
-    isRejectedDisplayed: true
-  };
-
+class Transactions extends PureComponent<Props> {
   render() {
-    const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed } = this.state;
-    return [
-      <Wrapper key="wrapper">
-        <Header>Transaction Log</Header>
-        <InnerWrapper>
-          <LeftSection>
-            <ButtonsWrapper>
-              <Button text="Sent" onClick={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
-              <Button text="Received" onClick={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })} isActive={isReceivedDisplayed} style={btnStyle} />
-              <Button text="Pending" onClick={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
-              <Button text="Rejected" onClick={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })} isActive={isRejectedDisplayed} style={btnStyle} />
-            </ButtonsWrapper>
-            <TransactionsListWrapper>
-              {transactions ? (
-                transactions.map((tx, index) => (
-                  <Transaction
-                    key={index}
-                    transaction={tx}
-                    isSentDisplayed={isSentDisplayed}
-                    isReceivedDisplayed={isReceivedDisplayed}
-                    isPendingDisplayed={isPendingDisplayed}
-                    isRejectedDisplayed={isRejectedDisplayed}
-                  />
-                ))
-              ) : (
-                <RightSectionText>No transactions executed yet</RightSectionText>
-              )}
-            </TransactionsListWrapper>
-          </LeftSection>
-          <RightSection>
-            <RightSectionSubHeader>Crypto Transactions</RightSectionSubHeader>
-            <RightSectionText>
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero
-              eos et accusam et justo duo dolores et ea.
-            </RightSectionText>
-            <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
-          </RightSection>
-        </InnerWrapper>
+    const { transactions, history } = this.props;
+    return (
+      <Wrapper>
+        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
+        <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
+          <BoldText>Latest transactions</BoldText>
+          <Link onClick={this.navigateToContacts} text="MY CONTACTS" style={{ position: 'absolute', top: 30, left: 500 }} />
+          <TransactionsListWrapper>
+            {transactions ? transactions.map((tx, index) => <TransactionRow key={index} transaction={tx} />) : <Text>No transactions executed yet</Text>}
+          </TransactionsListWrapper>
+        </WrapperWith2SideBars>
+        <TransactionsMeta transactions={transactions} />
       </Wrapper>
-      // shouldShowModal && (
-      //   <CreateNewContactModal
-      //     key="modal"
-      //     addressToAdd={address}
-      //     navigateToExplanation={this.navigateToContactsExplanation}
-      //     onSave={() => this.setState({ address: '', shouldShowModal: false })}
-      //     closeModal={() => this.setState({ shouldShowModal: false })}
-      //   />
-      // )
-    ];
+    );
   }
 
-  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
-
-  navigateToContactsExplanation = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
+  navigateToContacts = () => {
+    const { history } = this.props;
+    history.push('/main/contacts');
+  };
 }
 
 const mapStateToProps = (state) => ({

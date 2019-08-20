@@ -11,7 +11,6 @@ const Wrapper = styled.div`
   align-items: center;
   position: relative;
   width: 100%;
-  height: 40px;
   border: 1px solid ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
   ${({ isDisabled }) => !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
@@ -22,6 +21,19 @@ const ActualInput = styled.input`
   flex: 1;
   width: 100%;
   height: 36px;
+  padding: 8px 10px;
+  border-radius: 0;
+  border: none;
+  color: ${({ isDisabled }) => (isDisabled ? smColors.gray : smColors.black)};
+  font-size: 14px;
+  line-height: 16px;
+  outline: none;
+`;
+
+const ActualTextArea = styled.textarea`
+  flex: 1;
+  width: 100%;
+  height: ${({ rows }) => rows * 16 + 16}px;
   padding: 8px 10px;
   border-radius: 0;
   border: none;
@@ -51,7 +63,8 @@ type Props = {
   debounceTime?: number,
   style?: Object,
   type?: string,
-  maxLength?: string
+  maxLength?: string,
+  numberOfLines?: number
 };
 
 type State = {
@@ -63,7 +76,8 @@ class Input extends Component<Props, State> {
 
   static defaultProps = {
     type: 'text',
-    placeholder: ''
+    placeholder: '',
+    numberOfLines: 0
   };
 
   state = {
@@ -71,21 +85,37 @@ class Input extends Component<Props, State> {
   };
 
   render() {
-    const { value, isDisabled, placeholder, extraText, style, type, maxLength } = this.props;
+    const { value, isDisabled, placeholder, extraText, style, type, maxLength, numberOfLines } = this.props;
     const { isFocused } = this.state;
     return (
       <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
-        <ActualInput
-          value={value}
-          readOnly={isDisabled}
-          placeholder={placeholder}
-          onKeyPress={this.onEnterPress}
-          onChange={this.onChange}
-          onFocus={() => this.setState({ isFocused: true })}
-          onBlur={() => this.setState({ isFocused: false })}
-          type={type}
-          maxLength={maxLength}
-        />
+        {numberOfLines && numberOfLines > 1 ? (
+          <ActualTextArea
+            value={value}
+            readOnly={isDisabled}
+            numberOfLines={numberOfLines}
+            rows={numberOfLines}
+            placeholder={placeholder}
+            onKeyPress={this.onEnterPress}
+            onChange={this.onChange}
+            onFocus={() => this.setState({ isFocused: true })}
+            onBlur={() => this.setState({ isFocused: false })}
+            type={type}
+            maxLength={maxLength}
+          />
+        ) : (
+          <ActualInput
+            value={value}
+            readOnly={isDisabled}
+            placeholder={placeholder}
+            onKeyPress={this.onEnterPress}
+            onChange={this.onChange}
+            onFocus={() => this.setState({ isFocused: true })}
+            onBlur={() => this.setState({ isFocused: false })}
+            type={type}
+            maxLength={maxLength}
+          />
+        )}
         {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
       </Wrapper>
     );
