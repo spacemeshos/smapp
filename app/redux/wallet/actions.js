@@ -20,8 +20,6 @@ export const SET_LAST_USED_ADDRESSES: string = 'SET_LAST_USED_ADDRESSES';
 
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
-export const BACKUP_WALLET = 'BACKUP_WALLET';
-
 export const SET_BALANCE: string = 'SET_BALANCE';
 
 export const deriveEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
@@ -172,7 +170,7 @@ export const backupWallet = (): Action => async (dispatch: Dispatch, getState: G
     const fileName = `Wallet_Backup_${now.toISOString()}.json`;
     await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
     localStorageService.set('hasBackup', true);
-    dispatch({ type: BACKUP_WALLET, payload: { lastBackupTime: now.toISOString() } });
+    localStorageService.set('lastBackupTime', now.toISOString());
   } catch (error) {
     throw createError('Error creating wallet backup!', backupWallet);
   }

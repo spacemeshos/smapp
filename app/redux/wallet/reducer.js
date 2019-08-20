@@ -10,7 +10,6 @@ import {
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
-  BACKUP_WALLET,
   SET_CURRENT_ACCOUNT_INDEX,
   SET_LAST_USED_ADDRESSES
 } from './actions';
@@ -96,10 +95,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_CONTACTS: {
       const { contacts } = action.payload;
       return { ...state, contacts };
-    }
-    case BACKUP_WALLET: {
-      const { lastBackupTime } = action.payload;
-      return { ...state, lastBackupTime };
     }
     case LOGOUT: {
       return initialState;

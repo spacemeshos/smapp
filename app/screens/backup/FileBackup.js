@@ -7,6 +7,7 @@ import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
 import { smallHorizontalSideBar } from '/assets/images';
 import { fileSystemService } from '/infra/fileSystemService';
+import { localStorageService } from '/infra/storageService';
 import type { WalletMeta } from '/types';
 
 const Text = styled.span`
@@ -68,9 +69,7 @@ class FileBackup extends Component<Props> {
   }
 
   showBackupFile = () => {
-    const {
-      wallet: { lastBackupTime }
-    } = this.props;
+    const lastBackupTime = localStorageService.get('lastBackupTime');
     fileSystemService.openWalletBackupDirectory({ lastBackupTime });
   };
 
