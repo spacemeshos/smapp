@@ -1,6 +1,4 @@
 // @flow
-export { default as SmButton } from './SmButton';
-
 export { default as Loader } from './Loader';
 export { default as BaseWrapper } from './BaseWrapper';
 export { default as Button } from './Button';

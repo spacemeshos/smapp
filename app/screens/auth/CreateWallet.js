@@ -206,12 +206,17 @@ class CreateWallet extends Component<Props, State> {
   };
 
   nextAction = () => {
-    const { history } = this.props;
+    const { history, location } = this.props;
     const { subMode } = this.state;
+    const isWalletOnlySetup = !!location?.state?.withoutNode;
     if (subMode === 1 && this.validate()) {
       this.createWallet();
     } else if (subMode === 2) {
-      history.push('/auth/node-setup');
+      if (isWalletOnlySetup) {
+        history.push('/main/wallet');
+      } else {
+        history.push('/auth/node-setup');
+      }
     }
   };
 

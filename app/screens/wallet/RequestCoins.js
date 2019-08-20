@@ -34,7 +34,7 @@ const SubHeader = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.lighterBlack};
+  color: ${smColors.black};
   cursor: inherit;
 `;
 

@@ -5,8 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { resetNodeSettings } from '/redux/node/actions';
-import { checkNetworkConnection } from '/redux/network/actions';
+import { checkNodeConnection, resetNodeSettings } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { SecondaryButton } from '/basicComponents';
 import routes from '/routes';
@@ -92,7 +91,7 @@ type Props = {
   accounts: Account[],
   resetNodeSettings: Action,
   logout: Action,
-  checkNetworkConnection: Action,
+  checkNodeConnection: Action,
   progress: number,
   isConnected: boolean
 };
@@ -163,12 +162,11 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    // const { checkNetworkConnection } = this.props;
-    // const networkCheckInterval = 30000;
-    // checkNetworkConnection();
+    // const { checkNodeConnection } = this.props;
+    // checkNodeConnection();
     // this.timer = setInterval(() => {
-    //   checkNetworkConnection();
-    // }, networkCheckInterval);
+    //   checkNodeConnection();
+    // }, 30000);
   }
 
   componentWillUnmount() {
@@ -183,7 +181,7 @@ class Main extends Component<Props, State> {
     if (prevProps.progress !== progress && progress === completeValue) {
       notificationsService.notify({
         title: 'Local Node',
-        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network!',
+        notification: 'Your node setup is complete! You are now a miner in the Spacemesh network!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
@@ -220,13 +218,13 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   accounts: state.wallet.accounts,
-  progress: state.localNode.progress,
-  isConnected: state.network.isConnected
+  progress: state.node.progress,
+  isConnected: state.node.isConnected
 });
 
 const mapDispatchToProps = {
   resetNodeSettings,
-  checkNetworkConnection,
+  checkNodeConnection,
   logout
 };
 

@@ -27,7 +27,7 @@ const UpperPart = styled.div`
       ? `background-color: ${smColors.disabledGray};`
       : `background-color: ${isPrimary ? smColors.green : smColors.purple};
         &:hover {
-          background-color: ${isPrimary ? smColors.darkGreen : smColors.darkerPurple};
+          background-color: ${isPrimary ? smColors.darkerGreen : smColors.darkerPurple};
         }
       `}
   cursor: inherit;
@@ -79,7 +79,7 @@ const LowerPart = styled.div`
       : `
         border: 1px solid ${isPrimary ? smColors.green : smColors.purple};
         &:hover {
-          border: 1px solid ${isPrimary ? smColors.darkGreen : smColors.darkerPurple};
+          border: 1px solid ${isPrimary ? smColors.darkerGreen : smColors.darkerPurple};
         }
       `}
   cursor: inherit;

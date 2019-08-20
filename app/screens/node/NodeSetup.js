@@ -3,10 +3,11 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setLocalNodeStorage, getDrivesList } from '/redux/node/actions';
+import { initMining } from '/redux/node/actions';
 import { Container } from '/components/common';
 import { StepsContainer, Button, SecondaryButton, Link } from '/basicComponents';
 import { Carousel, CommitmentSelector } from '/components/node';
+import { diskStorageService } from '/infra/diskStorageService';
 import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 import type { Action } from '/types';
@@ -38,9 +39,7 @@ const DriveName = styled.span`
 `;
 
 type Props = {
-  getDrivesList: Action,
-  setLocalNodeStorage: Action,
-  drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[],
+  initMining: Action,
   history: RouterHistory
 };
 
@@ -51,6 +50,8 @@ type State = {
 };
 
 class NodeSetup extends Component<Props, State> {
+  drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[];
+
   state = {
     subMode: 2,
     selectedDriveIndex: -1,
@@ -58,7 +59,6 @@ class NodeSetup extends Component<Props, State> {
   };
 
   render() {
-    const { drives } = this.props;
     const { subMode, selectedDriveIndex, selectedCapacityIndex } = this.state;
     const header = subMode === 2 ? 'SELECT DRIVE FOR MINING' : 'ALLOCATE FREE SPACE';
     return (
@@ -67,12 +67,12 @@ class NodeSetup extends Component<Props, State> {
         <Container width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
           <SideBar src={smallHorizontalSideBar} />
           <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
-          {subMode === 2 && drives.length && (
-            <Carousel data={drives} selectedItemIndex={selectedDriveIndex} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
+          {subMode === 2 && this.drives.length && (
+            <Carousel data={this.drives} selectedItemIndex={selectedDriveIndex} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
           )}
           {subMode === 3 && (
             <CommitmentSelector
-              freeSpace={drives[selectedDriveIndex].availableDiskSpace.readable.split(' ')[0]}
+              freeSpace={this.drives[selectedDriveIndex].availableDiskSpace.readable.split(' ')[0]}
               onClick={({ index }) => this.setState({ selectedCapacityIndex: index })}
               selectedItemIndex={selectedCapacityIndex}
             />
@@ -87,12 +87,10 @@ class NodeSetup extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { getDrivesList } = this.props;
-    getDrivesList();
+    this.getDrivesList();
   }
 
   renderSubHeader = (subMode: number) => {
-    const { drives } = this.props;
     const { selectedDriveIndex } = this.state;
     return subMode === 2 ? (
       <span>
@@ -102,18 +100,22 @@ class NodeSetup extends Component<Props, State> {
       </span>
     ) : (
       <div>
-        Allocate how much space on <DriveName>{drives[selectedDriveIndex].label} HARD DRIVE</DriveName> you would
+        Allocate how much space on <DriveName>{this.drives[selectedDriveIndex].label} HARD DRIVE</DriveName> you would
         <br />
         like the mining node to use
       </div>
     );
   };
 
-  setupMining = async () => {
-    const { setLocalNodeStorage, drives, history } = this.props;
+  getDrivesList = async () => {
+    this.drives = await diskStorageService.getDriveList();
+  };
+
+  setupAndInitMining = () => {
+    const { initMining, history } = this.props;
     const { selectedCapacityIndex, selectedDriveIndex } = this.state;
     try {
-      await setLocalNodeStorage({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
+      initMining({ capacity: this.drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: this.drives[selectedDriveIndex] });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {
@@ -137,24 +139,19 @@ class NodeSetup extends Component<Props, State> {
     if (subMode === 2) {
       this.setState({ subMode: 3 });
     } else if (subMode === 3) {
-      this.setupMining();
+      this.setupAndInitMining();
     }
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 }
 
-const mapStateToProps = (state) => ({
-  drives: state.localNode.drives
-});
-
 const mapDispatchToProps = {
-  setLocalNodeStorage,
-  getDrivesList
+  initMining
 };
 
 NodeSetup = connect<any, any, _, _, _, _>(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(NodeSetup);
 

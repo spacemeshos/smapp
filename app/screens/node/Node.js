@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getTotalEarnings, getUpcomingEarnings } from '/redux/node/actions';
+import { getTotalAwards, getUpcomingAward } from '/redux/node/actions';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { playIcon, pauseIcon } from '/assets/images';
@@ -122,8 +122,8 @@ const NonShrinkableGreenText = styled(Text)`
 type Props = {
   isConnected: boolean,
   timeTillNextReward: number, // TODO: connect this with actual logic for next reward layer time - genesis time
-  // getTotalEarnings: Action,
-  // getUpcomingEarnings: Action,
+  // getTotalAwards: Action,
+  // getUpcomingAward: Action,
   totalEarnings: number,
   totalRunningTime: number,
   location: { state?: { showIntro?: boolean } }
@@ -180,10 +180,10 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    // const { getTotalEarnings, getUpcomingEarnings } = this.props;
+    // const { getTotalAwards, getUpcomingAward } = this.props;
     try {
-      // await getTotalEarnings();
-      // await getUpcomingEarnings();
+      // await getTotalAwards();
+      // await getUpcomingAward();
     } catch (error) {
       this.setState(() => {
         throw error;
@@ -248,14 +248,14 @@ class Node extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.network.isConnected,
-  totalEarnings: state.localNode.totalEarnings,
-  totalRunningTime: state.localNode.totalRunningTime
+  isConnected: state.node.isConnected,
+  totalEarnings: state.node.totalEarnings,
+  totalRunningTime: state.node.totalRunningTime
 });
 
 const mapDispatchToProps = {
-  getTotalEarnings,
-  getUpcomingEarnings
+  getTotalAwards,
+  getUpcomingAward
 };
 
 Node = connect<any, any, _, _, _, _>(

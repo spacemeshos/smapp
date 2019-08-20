@@ -50,31 +50,27 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     });
   });
 
-  ipcMain.on(ipcConsts.GET_TOTAL_EARNINGS, async (event) => {
-    netService.getTotalEarnings({ event });
+  ipcMain.on(ipcConsts.GET_TOTAL_AWARDS, async (event) => {
+    netService.getTotalAwards({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
-    netService.getUpcomingEarnings({ event });
+  ipcMain.on(ipcConsts.GET_UPCOMING_AWARD, async (event) => {
+    netService.getUpcomingAward({ event });
   });
 
   ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
     FileManager.openWalletBackupDirectory({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.SET_COMMITMENT_SIZE, async (event, request) => {
-    netService.setCommitmentSize({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.SET_LOGICAL_DRIVE, async (event, request) => {
-    netService.setLogicalDrive({ event, ...request });
+  ipcMain.on(ipcConsts.START_MINING, async (event, request) => {
+    await netService.startMining({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
     netService.setAwardsAddress({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.CHECK_NETWORK_CONNECTION, async (event) => {
+  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, async (event) => {
     netService.checkNetworkConnection({ event });
   });
 

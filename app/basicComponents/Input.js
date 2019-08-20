@@ -25,7 +25,7 @@ const ActualInput = styled.input`
   padding: 8px 10px;
   border-radius: 0;
   border: none;
-  color: ${({ isDisabled }) => (isDisabled ? smColors.gray : smColors.black)};
+  color: ${({ isDisabled }) => (isDisabled ? smColors.darkGray : smColors.black)};
   font-size: 14px;
   line-height: 16px;
   outline: none;

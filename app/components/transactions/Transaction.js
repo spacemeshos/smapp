@@ -98,9 +98,9 @@ class Transaction extends PureComponent<Props> {
     if (isPending) {
       return smColors.orange;
     } else if (isRejected) {
-      return smColors.red;
+      return smColors.orange;
     }
-    return isSent ? smColors.blue : smColors.darkGreen;
+    return isSent ? smColors.blue : smColors.darkerGreen;
   };
 }
 

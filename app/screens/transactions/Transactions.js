@@ -22,7 +22,7 @@ const Header = styled.div`
   font-size: 31px;
   font-weight: bold;
   line-height: 42px;
-  color: ${smColors.lighterBlack};
+  color: ${smColors.realBlack};
   margin-bottom: 20px;
 `;
 
@@ -58,7 +58,7 @@ const RightSection = styled.div`
   flex-direction: column;
   margin-left: 30px;
   padding: 25px;
-  border: 1px solid ${smColors.borderGray};
+  border: 1px solid ${smColors.mediumGray};
 `;
 
 const RightSectionSubHeader = styled.div`
@@ -78,7 +78,7 @@ const RightSectionText = styled.div`
 
 const RightSectionLink = styled.div`
   font-size: 16px;
-  color: ${smColors.darkGreen};
+  color: ${smColors.darkerGreen};
   line-height: 30px;
   padding: 5px 0;
   cursor: pointer;

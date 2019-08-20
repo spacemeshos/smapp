@@ -1,5 +1,5 @@
 import os from 'os';
-import { ipcConsts, localNodeConsts } from '../app/vars';
+import { ipcConsts, nodeConsts } from '../app/vars';
 
 const si = require('systeminformation');
 
@@ -12,7 +12,7 @@ const getReadableSpace = (spaceInBytes: number) => {
   return `${Math.round(spaceInBytes / 1024 ** i)} ${sizes[i]}`;
 };
 
-const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesFromGb(localNodeConsts.COMMITMENT_SIZE)): { id: number, label: string }[] => {
+const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesFromGb(nodeConsts.COMMITMENT_SIZE)): { id: number, label: string }[] => {
   const allocatedSpaceList = [];
   if (availableDiskSpace) {
     for (let i = increment; i < availableDiskSpace; i += increment) {
@@ -32,14 +32,14 @@ class DiskStorageManager {
       const validSizeMountpoints = sizeMountpoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
       const mappedDrives = mountedDrives.map((mountPoint) => {
         const volume = validSizeMountpoints.find((validVolume) => validVolume.mount === mountPoint.mount);
-        const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesFromGb(localNodeConsts.DRIVE_SPACE_BUFFER)) : 0;
+        const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesFromGb(nodeConsts.DRIVE_SPACE_BUFFER)) : 0;
         return {
           id: mountPoint.name,
           mountPoint: mountPoint.mount,
           label: (os.type() === 'Darwin' || os.type() === 'Linux') && !!mountPoint.label ? mountPoint.label : mountPoint.name,
           availableDiskSpace: { bytes: availableSpace, readable: getReadableSpace(availableSpace) },
           capacityAllocationsList: getAllocatedSpaceList(availableSpace),
-          isInsufficientSpace: availableSpace < getBytesFromGb(localNodeConsts.COMMITMENT_SIZE)
+          isInsufficientSpace: availableSpace < getBytesFromGb(nodeConsts.COMMITMENT_SIZE)
         };
       });
       event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);

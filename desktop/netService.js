@@ -17,6 +17,16 @@ class NetService {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
+  _startMining = ({ logicalDrive, commitmentSize, coinbase }) =>
+    new Promise((resolve, reject) => {
+      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   _getNonce = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.GetNonce({ address }, (error, response) => {
@@ -77,26 +87,6 @@ class NetService {
       });
     });
 
-  _setCommitmentSize = ({ commitmentSize }) =>
-    new Promise((resolve, reject) => {
-      this.service.SetCommitmentSize({ commitmentSize }, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
-
-  _setLogicalDrive = ({ logicalDrive }) =>
-    new Promise((resolve, reject) => {
-      this.service.SetLogicalDrive({ logicalDrive }, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
-
   _setAwardsAddress = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.SetAwardsAddress({ address }, (error, response) => {
@@ -116,6 +106,15 @@ class NetService {
         resolve(response);
       });
     });
+
+  startMining = async ({ event, logicalDrive, commitmentSize, address }) => {
+    try {
+      const { value } = await this._startMining({ logicalDrive, commitmentSize, coinbase: address });
+      event.sender.send(ipcConsts.START_MINING_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.START_MINING_FAILURE, error.message);
+    }
+  };
 
   getBalance = async ({ event, address }) => {
     try {
@@ -144,7 +143,7 @@ class NetService {
     }
   };
 
-  getTotalEarnings = async ({ event }) => {
+  getTotalAwards = async ({ event }) => {
     try {
       const { value } = await this._getTotalEarnings();
       event.sender.send(ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, value);
@@ -153,7 +152,7 @@ class NetService {
     }
   };
 
-  getUpcomingEarnings = async ({ event }) => {
+  getUpcomingAward = async ({ event }) => {
     try {
       const { value } = await this._getUpcomingEarnings();
       event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, value);
@@ -162,27 +161,9 @@ class NetService {
     }
   };
 
-  setCommitmentSize = async ({ event, commitmentSize }) => {
+  setAwardsAddress = async ({ event, address }) => {
     try {
-      const { value } = await this._setCommitmentSize({ mbCommitted: commitmentSize });
-      event.sender.send(ipcConsts.SET_COMMITMENT_SIZE_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_COMMITMENT_SIZE_FAILURE, error.message);
-    }
-  };
-
-  setLogicalDrive = async ({ event, logicalDrive }) => {
-    try {
-      const { value } = await this._setLogicalDrive({ logicalDrive });
-      event.sender.send(ipcConsts.SET_LOGICAL_DRIVE_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_LOGICAL_DRIVE_FAILURE, error.message);
-    }
-  };
-
-  setAwardsAddress = async ({ event, awardsAddress }) => {
-    try {
-      const { value } = await this._setAwardsAddress({ awardsAddress });
+      const { value } = await this._setAwardsAddress({ address });
       event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
     } catch (error) {
       event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
@@ -192,9 +173,9 @@ class NetService {
   checkNetworkConnection = async ({ event }) => {
     try {
       const { value } = await this._checkNetworkConnection();
-      event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_SUCCESS, value);
+      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_FAILURE, error.message);
+      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_FAILURE, error.message);
     }
   };
 
