@@ -190,8 +190,8 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
       amount,
       secretKey: accounts[currentAccountIndex].sk
     });
-    await httpService.sendTx({ tx });
-    dispatch(addTransaction({ tx: { isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+    const id = await httpService.sendTx({ tx });
+    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {
     throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
   }

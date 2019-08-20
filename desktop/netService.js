@@ -57,16 +57,6 @@ class NetService {
       });
     });
 
-  _getLocalNodeSetupProgress = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetInitProgress({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
-
   _getTotalEarnings = () =>
     new Promise((resolve, reject) => {
       this.service.GetTotalAwards({}, (error, response) => {
@@ -136,8 +126,8 @@ class NetService {
 
   sendTx = async ({ event, tx }) => {
     try {
-      const { value } = await this._submitTransaction({ tx });
-      event.sender.send(ipcConsts.SEND_TX_SUCCESS, value);
+      const { id } = await this._submitTransaction({ tx });
+      event.sender.send(ipcConsts.SEND_TX_SUCCESS, id);
     } catch (error) {
       event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
     }
