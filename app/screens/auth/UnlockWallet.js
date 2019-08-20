@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { deriveEncryptionKey, unlockWallet } from '/redux/wallet/actions';
-import { Container } from '/components/common';
+import { CorneredContainer } from '/components/common';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
@@ -89,7 +89,7 @@ class UnlockWallet extends Component<Props, State> {
     const { history } = this.props;
     const { passphrase, hasError } = this.state;
     return (
-      <Container width={520} height={310} header="UNLOCK" subHeader="welcome back to spacemesh">
+      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="welcome back to spacemesh">
         <Indicator hasError={hasError} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
@@ -108,7 +108,7 @@ class UnlockWallet extends Component<Props, State> {
           </LinksWrapper>
           <Button text="Unlock" isDisabled={!passphrase.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
         </BottomPart>
-      </Container>
+      </CorneredContainer>
     );
   }
 

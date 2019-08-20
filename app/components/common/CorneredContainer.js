@@ -34,7 +34,7 @@ type Props = {
   subHeader: ?string
 };
 
-class Container extends PureComponent<Props> {
+class CorneredContainer extends PureComponent<Props> {
   render() {
     const { children, width, height, header, subHeader } = this.props;
     return (
@@ -51,4 +51,4 @@ class Container extends PureComponent<Props> {
   }
 }
 
-export default Container;
+export default CorneredContainer;

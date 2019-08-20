@@ -4,32 +4,18 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { getTotalAwards, getUpcomingAward } from '/redux/node/actions';
+import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { playIcon, pauseIcon } from '/assets/images';
 import { smColors } from '/vars';
+import type { RouterHistory } from 'react-router-dom';
 // import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
-
-const LogWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 250px;
-  height: 480px;
-  padding: 20px 15px;
-  background-color: ${smColors.black02Alpha};
-`;
-
-const LogHeader = styled.div`
-  margin-bottom: 15px;
-  font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${smColors.black};
+  align-items: center;
 `;
 
 const LogInnerWrapper = styled.div`
@@ -121,11 +107,13 @@ const NonShrinkableGreenText = styled(Text)`
 
 type Props = {
   isConnected: boolean,
+  isMining: boolean,
   timeTillNextReward: number, // TODO: connect this with actual logic for next reward layer time - genesis time
   // getTotalAwards: Action,
   // getUpcomingAward: Action,
   totalEarnings: number,
   totalRunningTime: number,
+  history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
 
@@ -145,18 +133,12 @@ class Node extends Component<Props, State> {
   }
 
   render() {
-    const { showIntro } = this.state;
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH MINER">
-          {showIntro ? this.renderIntro() : this.renderNodeDashboard()}
+        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH MINER" style={{ marginRight: 10 }}>
+          {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <LogWrapper>
-          <LogHeader>
-            MINER LOG
-            <br />
-            --
-          </LogHeader>
+        <CorneredContainer width={250} height={480} header="MINER LOG">
           <LogInnerWrapper>
             <LogEntry>
               <LogText>12.09.19 - 13:00</LogText>
@@ -174,7 +156,7 @@ class Node extends Component<Props, State> {
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
           </LogInnerWrapper>
-        </LogWrapper>
+        </CorneredContainer>
       </Wrapper>
     );
   }
@@ -191,6 +173,17 @@ class Node extends Component<Props, State> {
     }
   }
 
+  renderMainSection = () => {
+    const { isMining } = this.props;
+    const { showIntro } = this.state;
+    if (showIntro) {
+      return this.renderIntro();
+    } else if (!isMining) {
+      return this.renderPreSetup();
+    }
+    return this.renderNodeDashboard();
+  };
+
   renderIntro = () => {
     return [
       <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
@@ -206,6 +199,22 @@ class Node extends Component<Props, State> {
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
         <Button onClick={() => this.setState({ showIntro: false })} text="GOT IT" width={175} />
+      </Footer>
+    ];
+  };
+
+  renderPreSetup = () => {
+    const { history } = this.props;
+    return [
+      <BoldText key="1">You are not mining yet.</BoldText>,
+      <br key="2" />,
+      <Text key="3">You can start earning SMC to your wallet as soon as you complete the setup</Text>,
+      <br key="4" />,
+      <br key="5" />,
+      <Text key="6">This setup uses 5 GB and takes just a few minutes to complete</Text>,
+      <Footer key="footer">
+        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Button onClick={() => history.push('/main/node-setup', { isOnlyNodeSetup: true })} text="BEGIN SETUP" width={175} />
       </Footer>
     ];
   };
@@ -249,6 +258,7 @@ class Node extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
+  isMining: state.node.isMining,
   totalEarnings: state.node.totalEarnings,
   totalRunningTime: state.node.totalRunningTime
 });

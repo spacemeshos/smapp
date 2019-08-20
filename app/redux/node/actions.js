@@ -29,7 +29,6 @@ export const getTotalAwards = (): Action => async (dispatch: Dispatch): Dispatch
     const totalEarnings = await httpService.getTotalAwards();
     dispatch({ type: GET_TOTAL_AWARDS, payload: { totalEarnings } });
   } catch (err) {
-    dispatch({ type: GET_TOTAL_AWARDS, payload: { progress: null } });
     throw createError('Error retrieving total rewards', getTotalAwards);
   }
 };

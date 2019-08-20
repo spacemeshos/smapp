@@ -155,7 +155,7 @@ class RequestCoins extends Component<Props, State> {
 
   navigateToNodeSetup = () => {
     const { history } = this.props;
-    history.push('/auth/node-setup');
+    history.push('/main/node-setup');
   };
 
   navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');

@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { initMining } from '/redux/node/actions';
-import { Container } from '/components/common';
+import { CorneredContainer } from '/components/common';
+import { ScreenErrorBoundary } from '/components/errorHandler';
 import { StepsContainer, Button, SecondaryButton, Link } from '/basicComponents';
 import { Carousel, CommitmentSelector } from '/components/node';
 import { diskStorageService } from '/infra/diskStorageService';
@@ -40,39 +41,52 @@ const DriveName = styled.span`
 
 type Props = {
   initMining: Action,
-  history: RouterHistory
+  history: RouterHistory,
+  location: { state?: { isOnlyNodeSetup: boolean } }
 };
 
 type State = {
+  drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[],
   subMode: 2 | 3,
   selectedDriveIndex: number,
   selectedCapacityIndex: number
 };
 
 class NodeSetup extends Component<Props, State> {
-  drives: { id: string, label: string, availableDiskSpace: { bytes: number, readable: string }, capacityAllocationsList: { id: number, label: string }[] }[];
+  isOnlyNodeSetup: boolean;
 
-  state = {
-    subMode: 2,
-    selectedDriveIndex: -1,
-    selectedCapacityIndex: -1
-  };
+  steps: Array<string>;
+
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    this.isOnlyNodeSetup = location?.state?.isOnlyNodeSetup;
+    this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
+    if (!this.isOnlyNodeSetup) {
+      this.steps = ['SETUP WALLET + MINER', 'PROTECT WALLET'].concat(this.steps);
+    }
+    this.state = {
+      drives: [],
+      subMode: 2,
+      selectedDriveIndex: -1,
+      selectedCapacityIndex: -1
+    };
+  }
 
   render() {
-    const { subMode, selectedDriveIndex, selectedCapacityIndex } = this.state;
-    const header = subMode === 2 ? 'SELECT DRIVE FOR MINING' : 'ALLOCATE FREE SPACE';
+    const { drives, subMode, selectedDriveIndex, selectedCapacityIndex } = this.state;
     return (
       <Wrapper>
-        <StepsContainer steps={['SETUP WALLET + MINER', 'PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']} currentStep={subMode} />
-        <Container width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
+        <StepsContainer steps={this.steps} currentStep={this.isOnlyNodeSetup ? subMode % 2 : subMode} />
+        <CorneredContainer width={650} height={400} header={this.steps[subMode]} subHeader={this.renderSubHeader(subMode)}>
           <SideBar src={smallHorizontalSideBar} />
           <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
-          {subMode === 2 && this.drives.length && (
-            <Carousel data={this.drives} selectedItemIndex={selectedDriveIndex} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
+          {subMode === 2 && drives.length && (
+            <Carousel data={drives} selectedItemIndex={selectedDriveIndex} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
           )}
           {subMode === 3 && (
             <CommitmentSelector
-              freeSpace={this.drives[selectedDriveIndex].availableDiskSpace.readable.split(' ')[0]}
+              freeSpace={drives[selectedDriveIndex].availableDiskSpace.readable.split(' ')[0]}
               onClick={({ index }) => this.setState({ selectedCapacityIndex: index })}
               selectedItemIndex={selectedCapacityIndex}
             />
@@ -81,7 +95,7 @@ class NodeSetup extends Component<Props, State> {
             <Link onClick={this.navigateToExplanation} text="SETUP GUIDE" />
             <Button onClick={this.nextAction} text="NEXT" isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCapacityIndex === -1)} />
           </BottomPart>
-        </Container>
+        </CorneredContainer>
       </Wrapper>
     );
   }
@@ -91,7 +105,7 @@ class NodeSetup extends Component<Props, State> {
   }
 
   renderSubHeader = (subMode: number) => {
-    const { selectedDriveIndex } = this.state;
+    const { drives, selectedDriveIndex } = this.state;
     return subMode === 2 ? (
       <span>
         select the hard drive you&#39;d like to use for mining
@@ -100,7 +114,7 @@ class NodeSetup extends Component<Props, State> {
       </span>
     ) : (
       <div>
-        Allocate how much space on <DriveName>{this.drives[selectedDriveIndex].label} HARD DRIVE</DriveName> you would
+        Allocate how much space on <DriveName>{drives[selectedDriveIndex].label} HARD DRIVE</DriveName> you would
         <br />
         like the mining node to use
       </div>
@@ -108,14 +122,15 @@ class NodeSetup extends Component<Props, State> {
   };
 
   getDrivesList = async () => {
-    this.drives = await diskStorageService.getDriveList();
+    const drives = await diskStorageService.getDriveList();
+    this.setState({ drives });
   };
 
-  setupAndInitMining = () => {
+  setupAndInitMining = async () => {
     const { initMining, history } = this.props;
-    const { selectedCapacityIndex, selectedDriveIndex } = this.state;
+    const { drives, selectedCapacityIndex, selectedDriveIndex } = this.state;
     try {
-      initMining({ capacity: this.drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: this.drives[selectedDriveIndex] });
+      await initMining({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {
@@ -155,4 +170,5 @@ NodeSetup = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(NodeSetup);
 
+NodeSetup = ScreenErrorBoundary(NodeSetup, true);
 export default NodeSetup;

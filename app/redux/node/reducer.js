@@ -6,9 +6,10 @@ import { INIT_MINING, GET_TOTAL_AWARDS, SET_UPCOMING_EARNINGS, SET_AWARDS_ADDRES
 const DEFAULT_URL = 'localhost:9091';
 
 const initialState = {
+  isMining: false,
+  isSetupComplete: false,
   drive: null,
   capacity: null,
-  progress: null,
   totalRunningTime: 0,
   totalEarnings: 0,
   timeTillNextReward: 0,
