@@ -2,7 +2,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
+import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
 import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -74,7 +74,7 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   saveNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
@@ -221,13 +221,13 @@ class CreateWallet extends Component<Props, State> {
   };
 
   createWallet = async () => {
-    const { deriveEncryptionKey, saveNewWallet, location } = this.props;
+    const { generateEncryptionKey, saveNewWallet, location } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     if (!isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          await deriveEncryptionKey({ passphrase });
+          await generateEncryptionKey({ passphrase });
           saveNewWallet({ mnemonic: location?.state?.mnemonic });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
@@ -247,7 +247,7 @@ class CreateWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   saveNewWallet
 };
 

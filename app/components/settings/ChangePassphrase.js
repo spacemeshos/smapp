@@ -3,9 +3,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { generateEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
-import { Modal, SmButton, SmInput, Loader } from '/basicComponents';
-import { fileSystemService } from '/infra/fileSystemService';
-import { deriveEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
 import { ErrorPopup, Input, Link, Loader } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action, Account } from '/types';
@@ -133,8 +130,6 @@ class ChangePassphrase extends Component<Props, State> {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
-          deriveEncryptionKey({ passphrase });
-        await setTimeout(async () => {
           generateEncryptionKey({ passphrase });
           await updateAccountsInFile({ accounts });
           goBack();

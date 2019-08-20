@@ -5,10 +5,8 @@ import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
-import { getWalletName, getAccountName, getWalletAddress, createError } from '/infra/utils';
-import { cryptoConsts } from '/vars';
 import { getWalletName, getAccountName, fromHexString, createError } from '/infra/utils';
-import { smColors, cryptoConsts } from '/vars';
+import { cryptoConsts } from '/vars';
 
 export const STORE_ENCRYPTION_KEY: string = 'STORE_ENCRYPTION_KEY';
 
@@ -36,21 +34,19 @@ const getMaxLayerId = ({ transactions }) => {
 const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId }) => ({
   displayName: getAccountName({ accountNumber }),
   created: unixEpochTimestamp,
-  displayColor: smColors.darkGreen,
   path: `0/0/${accountNumber}`,
-  balance: 100,
+  balance: 100, // TODO change to real balance
   pk: publicKey,
   sk: secretKey,
   layerId
 });
 
-const mergeTxStatuses = ({ existingList, incomingList }: { existingList: TxList, incomingList: TxList }) => {
- const existingListMap = {};
- existingList.forEach((tx, index) => {
-   existingList[tx.id] = index;
- });
- const updatedTxList = [];
-
+const mergeTxStatuses = () => {
+  // const existingListMap = {};
+  // existingList.forEach((tx, index) => {
+  //   existingList[tx.id] = index;
+  // });
+  // const updatedTxList = [];
 };
 
 export const generateEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
@@ -70,23 +66,11 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     displayName: getWalletName({ walletNumber }),
     created: unixEpochTimestamp,
     netId: 0,
-    meta: {
-      salt: cryptoConsts.DEFAULT_SALT
-    }
+    meta: { salt: cryptoConsts.DEFAULT_SALT }
   };
   const cipherText = {
     mnemonic: resolvedMnemonic,
     accounts: [getNewAccountFromTemplate({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId: 0 })]
-    accounts: [
-      {
-        displayName: getAccountName({ accountNumber }),
-        created: unixEpochTimestamp,
-        path: '0/0/1',
-        balance: 100, // TODO: remove after full integration
-        pk: publicKey,
-        sk: secretKey
-      }
-    ]
   };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
@@ -155,14 +139,6 @@ export const createNewAccount = (): Action => async (dispatch: Dispatch, getStat
     const unixEpochTimestamp = Math.floor(new Date() / 1000);
     const accountNumber = localStorageService.get('accountNumber');
     const newAccount = getNewAccountFromTemplate({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId: getMaxLayerId({ transactions }) });
-    const newAccount = {
-      displayName: getAccountName({ accountNumber }),
-      created: unixEpochTimestamp,
-      path: '0/0/1',
-      balance: 100, // TODO: remove after full integration
-      pk: publicKey,
-      sk: secretKey
-    };
     const updatedAccounts = [...accounts, newAccount];
     await dispatch(updateAccountsInFile({ accounts: updatedAccounts }));
     dispatch(setAccounts({ accounts: updatedAccounts }));
@@ -191,39 +167,14 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
   }
 };
 
-export const backupWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = getState().wallet;
-    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
-    const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-    const now = new Date();
-    const fileName = `Wallet_Backup_${now.toISOString()}.json`;
-    await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
-    localStorageService.set('hasBackup', true);
-    localStorageService.set('lastBackupTime', now.toISOString());
-  } catch (error) {
-    throw createError('Error creating wallet backup!', backupWallet);
-  }
-};
-
 export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const accountNonce = await httpService.getNonce({ address: fromHexString(accounts[currentAccountIndex].pk) });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
-    const response = await httpService.sendTx({ tx });
-    dispatch(addTransaction({ tx: { id: response.id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
     const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
-    const tx = await cryptoService.signTransaction({
-      accountNonce,
-      recipient,
-      price,
-      amount,
-      secretKey: accounts[currentAccountIndex].sk
-    });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {
@@ -320,14 +271,17 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'crypto', data: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
 };
 
-export const backupWallet = () => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const backupWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { wallet } = getState();
-    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = wallet;
+    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = getState().wallet;
     const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
     const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-    await fileSystemService.saveFile({ fileContent: JSON.stringify(encryptedWallet), showDialog: true });
+    const now = new Date();
+    const fileName = `Wallet_Backup_${now.toISOString()}.json`;
+    await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
+    localStorageService.set('hasBackup', true);
+    localStorageService.set('lastBackupTime', now.toISOString());
   } catch (error) {
-    throw new Error(error);
+    throw createError('Error creating wallet backup!', backupWallet);
   }
 };

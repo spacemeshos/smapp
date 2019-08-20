@@ -9,8 +9,8 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
-const DEFAULT_URL = '192.168.30.167:9091';
-// const DEFAULT_URL = 'localhost:9091';
+// const DEFAULT_URL = '192.168.30.233:9091';
+const DEFAULT_URL = 'localhost:9091';
 
 class NetService {
   constructor(url = DEFAULT_URL) {
@@ -69,16 +69,6 @@ class NetService {
       });
       stream.on('error', function(error) {
         reject(error);
-      });
-    });
-
-  _getLocalNodeSetupProgress = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetInitProgress({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
       });
     });
 
@@ -153,8 +143,6 @@ class NetService {
     try {
       const { id } = await this._submitTransaction({ tx });
       event.sender.send(ipcConsts.SEND_TX_SUCCESS, id);
-      const response = await this._submitTransaction({ tx });
-      event.sender.send(ipcConsts.SEND_TX_SUCCESS, response);
     } catch (error) {
       event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
     }
@@ -169,7 +157,6 @@ class NetService {
     }
   };
 
-  getTotalEarnings = async ({ event }) => {
   getTotalAwards = async ({ event }) => {
     try {
       const { value } = await this._getTotalEarnings();

@@ -23,7 +23,6 @@ const initialState = {
   transactions: {},
   lastUsedContacts: [],
   contacts: [],
-  lastBackupTime: null,
   fiatRate: 1
 };
 
@@ -70,11 +69,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_TRANSACTIONS: {
       const { transactions } = action.payload;
       return { ...state, transactions, lastUsedAddresses: getFirstUniqueTransactions(transactions[state.currentAccountIndex].data) };
-      return { ...state, transactions };
-    }
-    case SET_LAST_USED_ADDRESSES: {
-      const { transactions } = action.payload;
-      return { ...state, lastUsedContacts: getFirstUniqueTransactions(transactions[state.currentAccountIndex]) };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const { index } = action.payload;

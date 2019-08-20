@@ -2,7 +2,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, unlockWallet } from '/redux/wallet/actions';
+import { generateEncryptionKey, unlockWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
@@ -70,7 +70,7 @@ const GrayText = styled.div`
 
 type Props = {
   history: RouterHistory,
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   unlockWallet: Action
 };
 
@@ -124,12 +124,12 @@ class UnlockWallet extends Component<Props, State> {
   };
 
   decryptWallet = async () => {
-    const { deriveEncryptionKey, unlockWallet, history } = this.props;
+    const { generateEncryptionKey, unlockWallet, history } = this.props;
     const { passphrase } = this.state;
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (passphrase.trim().length >= passwordMinimumLength) {
       try {
-        deriveEncryptionKey({ passphrase });
+        generateEncryptionKey({ passphrase });
         await unlockWallet();
         history.push('/main/wallet');
       } catch (error) {
@@ -148,7 +148,7 @@ class UnlockWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   unlockWallet
 };
 

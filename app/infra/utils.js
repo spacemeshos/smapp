@@ -27,5 +27,4 @@ const createError = (message, func) => ({
 
 const getAbbreviatedText = (address: string, tailSize: number = 4) => `${address.substring(0, tailSize)}....${address.substring(address.length - tailSize, address.length)}`;
 
-export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText };
-export { fromHexString, toHexString, getWalletName, getAccountName, listenerCleanup, createError };
+export { fromHexString, toHexString, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText };
