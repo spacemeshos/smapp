@@ -194,11 +194,11 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
 };
 
 export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { accounts, currentAccountIndex, transactions, walletFiles } = getState().wallet;
-  const accountTransactions = transactions[currentAccountIndex];
+  const { currentAccountIndex, transactions, walletFiles } = getState().wallet;
+  // const accountTransactions = transactions[currentAccountIndex];
   const latestValidLayerId = await httpService.getLatestValidLayerId();
-  const txList = await httpService.getTxList({ address: accounts[currentAccountIndex].pk, layerId: accountTransactions.layerId });
-  const updatedTransactionsPerAccount = mergeTxStatuses({ existingList: accountTransactions, incomingList: txList });
+  // const txList = await httpService.getTxList({ address: accounts[currentAccountIndex].pk, layerId: accountTransactions.layerId });
+  const updatedTransactionsPerAccount = mergeTxStatuses(); // mergeTxStatuses({ existingList: accountTransactions, incomingList: txList });
   const updatedTransactions = { ...transactions, [currentAccountIndex]: { layerId: latestValidLayerId, data: updatedTransactionsPerAccount } };
   await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
   dispatch(setTransactions({ transactions: updatedTransactions }));

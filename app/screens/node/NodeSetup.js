@@ -60,7 +60,7 @@ class NodeSetup extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const { location } = props;
-    this.isOnlyNodeSetup = location?.state?.isOnlyNodeSetup;
+    this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
     this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
     if (!this.isOnlyNodeSetup) {
       this.steps = ['SETUP WALLET + MINER', 'PROTECT WALLET'].concat(this.steps);
