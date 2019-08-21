@@ -41,6 +41,7 @@ const ActualTextArea = styled.textarea`
   font-size: 14px;
   line-height: 16px;
   outline: none;
+  resize: none;
 `;
 
 const ExtraTxt = styled.div`

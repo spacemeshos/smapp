@@ -24,7 +24,7 @@ const Bar = styled.div`
 
 // $FlowStyledIssue
 const Progress = styled.div`
-  width: ${({ total, coins }) => coins * (0.01 * total)}px;
+  width: ${({ total, coins }) => (coins / total) * 100}%;
   height: inherit;
   background-color: ${smColors.green};
   position: absolute;

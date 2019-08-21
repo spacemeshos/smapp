@@ -1,17 +1,7 @@
 // @flow
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { CorneredWrapper } from '/basicComponents';
 import TransactionsSumProgress from './TransactionsSumProgress';
-import { smColors } from '/vars';
-import type { TxList, Tx } from '/types';
-
-const getNumOfCoinsFromTransactions = ({ transactions, isSent }: { transactions: TxList, isSent: boolean }): number => {
-  const coins: number = transactions.reduce((sumCoins, transaction: Tx) => {
-    return transaction.isSent === isSent && !transaction.isPending && !transaction.isRejected ? sumCoins + transaction.amount : sumCoins;
-  }, 0);
-  return parseInt(coins);
-};
 
 const Text = styled.span`
   font-size: 16px;
@@ -20,15 +10,7 @@ const Text = styled.span`
 
 const BoldText = styled.span`
   font-family: SourceCodeProBold;
-  margin-bottom: 24px;
-`;
-
-const Wrapper = styled(CorneredWrapper)`
-  background-color: ${smColors.black02Alpha};
-  display: flex;
-  flex-direction: column;
-  width: 300px;
-  padding: 20px 14px;
+  margin-bottom: 18px;
 `;
 
 const TextRow = styled.div`
@@ -46,55 +28,40 @@ const Dots = styled(Text)`
 `;
 
 type Props = {
-  transactions: TxList
-};
-
-type State = {
+  filterName: string,
   mined: number,
   sent: number,
-  received: number
+  received: number,
+  totalMined: number,
+  totalSent: number,
+  totalReceived: number
 };
 
-class TransactionsMeta extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      mined: 0,
-      sent: getNumOfCoinsFromTransactions({ transactions: props.transactions, isSent: true }),
-      received: getNumOfCoinsFromTransactions({ transactions: props.transactions, isSent: false })
-    };
-  }
-
+class TransactionsMeta extends PureComponent<Props> {
   render() {
-    // TODO: Implement daily / monthly / yearly filter and populate actual values under "total" below
-    const { mined, sent, received } = this.state;
-    const totalCoins = mined + sent + received;
+    const { mined, sent, received, totalMined, totalSent, totalReceived, filterName } = this.props;
+    const totalFilteredCoins = mined + sent + received;
+    const coinsMeta = [{ title: 'MINED', coins: mined }, { title: 'SENT', coins: sent }, { title: 'RECEIVED', coins: received }];
+    const totalCoinsMeta = [{ title: 'TOTAL MINED', coins: totalMined }, { title: 'TOTAL SENT', coins: totalSent }, { title: 'TOTAL RECEIVED', coins: totalReceived }];
+
     return (
-      <Wrapper>
+      <React.Fragment>
         <BoldText>traffic</BoldText>
         <BoldText>--</BoldText>
-        <Text>Monthly coins: {totalCoins}</Text>
-        <TransactionsSumProgress title="MINED" coins={mined} total={totalCoins} style={{}} />
-        <TransactionsSumProgress title="SENT" coins={sent} total={totalCoins} />
-        <TransactionsSumProgress title="RECEIVED" coins={received} total={totalCoins} />
+        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${totalFilteredCoins}`}</Text>
+        {coinsMeta.map((coinMeta) => (
+          <TransactionsSumProgress key={coinMeta.title} title={coinMeta.title} coins={coinMeta.coins} total={totalFilteredCoins} />
+        ))}
         <BoldText>total</BoldText>
         <BoldText>--</BoldText>
-        <TextRow>
-          <Text>TOTAL MINED</Text>
-          <Dots>...................</Dots>
-          <Text>{`${mined} SMC`}</Text>
-        </TextRow>
-        <TextRow>
-          <Text>TOTAL SENT</Text>
-          <Dots>...................</Dots>
-          <Text>{`${sent} SMC`}</Text>
-        </TextRow>
-        <TextRow>
-          <Text>TOTAL RECEIVED</Text>
-          <Dots>...................</Dots>
-          <Text>{`${received} SMC`}</Text>
-        </TextRow>
-      </Wrapper>
+        {totalCoinsMeta.map((totalMeta) => (
+          <TextRow key={totalMeta.title}>
+            <Text>{totalMeta.title}</Text>
+            <Dots>...................</Dots>
+            <Text>{`${totalMeta.coins} SMC`}</Text>
+          </TextRow>
+        ))}
+      </React.Fragment>
     );
   }
 }

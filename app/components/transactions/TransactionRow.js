@@ -1,8 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addToContacts, updateTransaction } from '/redux/wallet/actions';
-import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
+import { updateTransaction } from '/redux/wallet/actions';
+import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Input, Button } from '/basicComponents';
 import { getAbbreviatedText } from '/infra/utils';
@@ -96,7 +96,7 @@ const Dots = styled(Text)`
 // $FlowStyledIssue
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
-  color: ${({ color }) => color || smColors.realBlack};
+  color: ${({ color }) => color};
 `;
 
 const DarkGrayText = styled(Text)`
@@ -138,11 +138,18 @@ const TextRow = styled.div`
   margin-bottom: 10px;
 `;
 
+const AddToContactsImg = styled.img`
+  width: 14px;
+  height: 12px;
+  cursor: pointer;
+  margin-left: 4px;
+`;
+
 type Props = {
-  // addToContacts: Action,
   updateTransaction: Action,
   transaction: Tx,
-  fiatRate: number
+  fiatRate: number,
+  addAddressToContacts: ({ address: string }) => void
 };
 
 type State = {
@@ -167,13 +174,25 @@ class TransactionRow extends Component<Props, State> {
     } = this.props;
     const color = getColor({ isSent, isPending, isRejected });
     const txId = '1723d...7293'; // TODO change to real tx id
+    const detailRows = [
+      { title: 'TRANSACTION ID', value: txId },
+      { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
+      { title: 'BLOCK', value: 7701538 }, // TODO: needs real value
+      { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(address) },
+      { title: 'TO', value: isSent ? getAbbreviatedText(address) : 'Me' },
+      { title: 'VALUE', value: `$${amount * fiatRate}` },
+      { title: 'TRANSACTION FEE', value: 0.03 } // TODO: needs real value
+    ];
     return (
       <Wrapper isDetailed={isDetailed}>
         <RowWrapper onClick={this.toggleTxDetails}>
           <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
           <MainWrapper>
             <Section>
-              <DarkGrayText>{isSavedContact ? nickname.toUpperCase() : getAbbreviatedText(address)}</DarkGrayText>
+              <DarkGrayText>
+                {isSavedContact ? nickname.toUpperCase() : 'UNKNOWN'}
+                {!isSavedContact && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+              </DarkGrayText>
               <Text>{txId}</Text>
             </Section>
             <Section>
@@ -185,41 +204,13 @@ class TransactionRow extends Component<Props, State> {
         {isDetailed && (
           <DetailsSection>
             <LeftDetails>
-              <TextRow>
-                <BlackText>TRANSACTION ID</BlackText>
-                <Dots>...............</Dots>
-                <BoldText>{txId}</BoldText>
-              </TextRow>
-              <TextRow>
-                <BlackText>STATUS</BlackText>
-                <Dots>...............</Dots>
-                <BoldText color={getColor({ isSent, isPending, isRejected })}>{getTxStatus({ isPending, isRejected })}</BoldText>
-              </TextRow>
-              <TextRow>
-                <BlackText>BLOCK</BlackText>
-                <Dots>...............</Dots>
-                <BoldText>7701538</BoldText>
-              </TextRow>
-              <TextRow>
-                <BlackText>FROM</BlackText>
-                <Dots>...............</Dots>
-                <BoldText>{getAbbreviatedText(address)}</BoldText>
-              </TextRow>
-              <TextRow>
-                <BlackText>TO</BlackText>
-                <Dots>...............</Dots>
-                <BoldText>{getAbbreviatedText(address)}</BoldText>
-              </TextRow>
-              <TextRow>
-                <BlackText>VALUE</BlackText>
-                <Dots>...............</Dots>
-                <BoldText>${amount * fiatRate}</BoldText>
-              </TextRow>
-              <TextRow>
-                <BlackText>TRANSACTION FEE</BlackText>
-                <Dots>...............</Dots>
-                <BoldText>0.03</BoldText>
-              </TextRow>
+              {detailRows.map((detailRow) => (
+                <TextRow key={detailRow.title}>
+                  <BlackText>{detailRow.title}</BlackText>
+                  <Dots>...............</Dots>
+                  <BoldText color={detailRow.color || smColors.realBlack}>{detailRow.value}</BoldText>
+                </TextRow>
+              ))}
             </LeftDetails>
             <RightDetails>
               <BlackText style={{ marginBottom: 4 }}>Note</BlackText>
@@ -238,6 +229,16 @@ class TransactionRow extends Component<Props, State> {
       </Wrapper>
     );
   }
+
+  handleAddToContacts = (event: Event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const {
+      transaction: { address },
+      addAddressToContacts
+    } = this.props;
+    addAddressToContacts({ address });
+  };
 
   save = async () => {
     const { transaction, updateTransaction } = this.props;
@@ -263,7 +264,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  addToContacts,
   updateTransaction
 };
 
