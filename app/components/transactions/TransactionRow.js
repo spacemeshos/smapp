@@ -231,7 +231,6 @@ class TransactionRow extends Component<Props, State> {
   }
 
   handleAddToContacts = (event: Event) => {
-    event.preventDefault();
     event.stopPropagation();
     const {
       transaction: { address },

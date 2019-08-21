@@ -138,7 +138,7 @@ class Transactions extends Component<Props, State> {
             <React.Fragment>
               <DropDown
                 data={timeSpans}
-                DdElement={this.renderDdElement}
+                DdElement={({ label, isMain }) => <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>}
                 onPress={this.handlePress}
                 selectedItemIndex={selectedItemIndex}
                 rowHeight={55}
@@ -160,13 +160,10 @@ class Transactions extends Component<Props, State> {
     );
   }
 
-  renderDdElement = ({ label, isMain }) => {
-    return <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>;
-  };
-
   handleCompleteAction = () => {
     const { transactions } = this.props;
-    const filteredTransactions = this.filterTransactions({ index: 1, transactions });
+    const { selectedItemIndex } = this.state;
+    const filteredTransactions = this.filterTransactions({ index: selectedItemIndex, transactions });
     this.setState({ addressToAdd: '', filteredTransactions: [...filteredTransactions] });
   };
 
