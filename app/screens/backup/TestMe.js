@@ -39,7 +39,7 @@ const GreenText = styled(SmallText)`
 `;
 
 const RedText = styled(SmallText)`
-  color: ${smColors.red};
+  color: ${smColors.orange};
 `;
 
 const WhiteText = styled(Text)`

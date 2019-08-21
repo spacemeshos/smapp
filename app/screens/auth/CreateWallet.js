@@ -2,8 +2,8 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
-import { Container } from '/components/common';
+import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
+import { CorneredContainer } from '/components/common';
 import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
 import { smallHorizontalSideBar, chevronRightBlack, chevronLeftWhite } from '/assets/images';
@@ -74,7 +74,7 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   saveNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
@@ -117,7 +117,7 @@ class CreateWallet extends Component<Props, State> {
           steps={isWalletOnlySetup ? ['SETUP WALLET', 'PROTECT WALLET'] : ['SETUP WALLET + MINER', 'PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
           currentStep={1}
         />
-        <Container width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
           <SideBar src={smallHorizontalSideBar} />
           {subMode === 1 && (
             <React.Fragment>
@@ -152,7 +152,7 @@ class CreateWallet extends Component<Props, State> {
             {subMode === 1 && <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />}
             <Button onClick={this.nextAction} text="NEXT" />
           </BottomPart>
-        </Container>
+        </CorneredContainer>
       </Wrapper>
     );
   }
@@ -206,24 +206,29 @@ class CreateWallet extends Component<Props, State> {
   };
 
   nextAction = () => {
-    const { history } = this.props;
+    const { history, location } = this.props;
     const { subMode } = this.state;
+    const isWalletOnlySetup = !!location?.state?.withoutNode;
     if (subMode === 1 && this.validate()) {
       this.createWallet();
     } else if (subMode === 2) {
-      history.push('/auth/node-setup');
+      if (isWalletOnlySetup) {
+        history.push('/main/wallet');
+      } else {
+        history.push('/main/node-setup');
+      }
     }
   };
 
   createWallet = async () => {
-    const { deriveEncryptionKey, saveNewWallet, location } = this.props;
+    const { generateEncryptionKey, saveNewWallet, location } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
     if (!isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          await deriveEncryptionKey({ passphrase });
-          saveNewWallet({ mnemonic: location.state.mnemonic });
+          await generateEncryptionKey({ passphrase });
+          saveNewWallet({ mnemonic: location?.state?.mnemonic });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
       } catch (err) {
@@ -242,7 +247,7 @@ class CreateWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   saveNewWallet
 };
 

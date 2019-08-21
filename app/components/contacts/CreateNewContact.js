@@ -10,9 +10,9 @@ import type { Action } from '/types';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: ${({ isStandalone }) => (isStandalone ? '175px' : '100%')};
+  width: ${({ isStandalone }) => (isStandalone ? '215px' : '100%')};
   height: ${({ isStandalone }) => (isStandalone ? '100%' : '140px')};
-  ${({ isStandalone }) => isStandalone && `background-color: ${smColors.purple}`};
+  ${({ isStandalone }) => isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
 `;
 
 const Header = styled.div`
@@ -25,7 +25,7 @@ const Header = styled.div`
 const InputsWrapper = styled.div`
   position: relative;
   width: 100%;
-  height: 75px;
+  height: ${({ isStandalone }) => (isStandalone ? 165 : 75)}px;
 `;
 
 const InputWrapperUpperPart = styled.div`
@@ -56,6 +56,8 @@ const ButtonsWrapper = styled.div`
 
 const inputStyle1 = { margin: '10px 0 10px 10px' };
 const inputStyle2 = { margin: '10px 10px 10px 10px' };
+const inputStyle3 = { margin: '10px 0' };
+const inputStyle4 = { marginBottom: '10px' };
 
 type Props = {
   isStandalone: boolean,
@@ -88,7 +90,6 @@ class CreateNewContact extends Component<Props, State> {
   render() {
     const { isStandalone, onCompleteAction } = this.props;
     const { address, nickname, email, hasError, errorMsg } = this.state;
-    const inputStyle = isStandalone ? inputStyle2 : inputStyle1;
     return (
       <Wrapper isStandalone={isStandalone}>
         <Header isStandalone={isStandalone}>
@@ -96,11 +97,29 @@ class CreateNewContact extends Component<Props, State> {
           <br />
           --
         </Header>
-        <InputsWrapper>
+        <InputsWrapper isStandalone={isStandalone}>
           <InputWrapperUpperPart isStandalone={isStandalone}>
-            <Input value={nickname} placeholder="Nickname" onChange={({ value }) => this.setState({ nickname: value, hasError: false })} maxLength="50" style={inputStyle} />
-            <Input value={address} placeholder="Wallet address" onChange={({ value }) => this.setState({ address: value, hasError: false })} maxLength="64" style={inputStyle} />
-            <Input value={email} placeholder="Email (optional)" onChange={({ value }) => this.setState({ email: value, hasError: false })} maxLength="150" style={inputStyle2} />
+            <Input
+              value={nickname}
+              placeholder="Nickname"
+              onChange={({ value }) => this.setState({ nickname: value, hasError: false })}
+              maxLength="50"
+              style={isStandalone ? inputStyle3 : inputStyle1}
+            />
+            <Input
+              value={address}
+              placeholder="Wallet address"
+              onChange={({ value }) => this.setState({ address: value, hasError: false })}
+              maxLength="64"
+              style={isStandalone ? inputStyle4 : inputStyle1}
+            />
+            <Input
+              value={email}
+              placeholder="Email (optional)"
+              onChange={({ value }) => this.setState({ email: value, hasError: false })}
+              maxLength="150"
+              style={isStandalone ? inputStyle4 : inputStyle2}
+            />
             {hasError && <ErrorPopup onClick={() => this.setState({ hasError: false })} text={errorMsg} style={{ bottom: 60, left: 'calc(50% - 90px)' }} />}
           </InputWrapperUpperPart>
           <InputWrapperLowerPart />

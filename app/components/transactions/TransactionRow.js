@@ -32,7 +32,7 @@ const getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPendin
   } else if (isRejected) {
     return smColors.darkGray;
   }
-  return isSent ? smColors.darkGreen : smColors.orange;
+  return isSent ? smColors.green : smColors.orange;
 };
 
 // $FlowStyledIssue

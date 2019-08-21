@@ -2,7 +2,7 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Container } from '/components/common';
+import { CorneredContainer } from '/components/common';
 import { Input, Button, Link, SecondaryButton, ErrorPopup } from '/basicComponents';
 import { cryptoService } from '/infra/cryptoService';
 import { smColors } from '/vars';
@@ -73,7 +73,7 @@ class WordsRestore extends Component<Props, State> {
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <Container width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="please enter the 12 words in the right order">
+      <CorneredContainer width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="please enter the 12 words in the right order">
         <SideBar src={smallHorizontalSideBar} />
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <Table>
@@ -86,7 +86,7 @@ class WordsRestore extends Component<Props, State> {
           <Button onClick={this.restoreWith12Words} text="RESTORE" isDisabled={isDoneDisabled} />
         </BottomSection>
         {hasError && <ErrorPopup onClick={() => this.setState({ hasError: false })} text="this 12 words phrase in incorrect, please try again" style={{ bottom: 15, left: 185 }} />}
-      </Container>
+      </CorneredContainer>
     );
   }
 

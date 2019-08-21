@@ -34,7 +34,7 @@ const SubHeader = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.lighterBlack};
+  color: ${smColors.black};
   cursor: inherit;
 `;
 
@@ -155,7 +155,7 @@ class RequestCoins extends Component<Props, State> {
 
   navigateToNodeSetup = () => {
     const { history } = this.props;
-    history.push('/auth/node-setup');
+    history.push('/main/node-setup');
   };
 
   navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');

@@ -2,7 +2,7 @@
 import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { Container } from '/components/common';
+import { CorneredContainer } from '/components/common';
 import { Button, Link, Tooltip } from '/basicComponents';
 import { bigInnerSideBar, laptop, power, setup, tooltip } from '/assets/images';
 import { smColors } from '/vars';
@@ -107,7 +107,7 @@ class Welcome extends PureComponent<Props> {
   render() {
     const { history } = this.props;
     return (
-      <Container width={760} height={400} header="WELCOME" subHeader={subHeader}>
+      <CorneredContainer width={760} height={400} header="WELCOME" subHeader={subHeader}>
         <SideBar src={bigInnerSideBar} />
         <Indicator />
         <Row>
@@ -138,7 +138,7 @@ class Welcome extends PureComponent<Props> {
           </ComplexLink>
           <Button text="SETUP" onClick={() => history.push('/auth/create', { withoutNode: false })} />
         </BottomPart>
-      </Container>
+      </CorneredContainer>
     );
   }
 

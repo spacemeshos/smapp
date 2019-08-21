@@ -59,10 +59,6 @@ const auth = [
   {
     path: '/auth/words-restore',
     component: WordsRestore
-  },
-  {
-    path: '/auth/node-setup',
-    component: NodeSetup
   }
 ];
 
@@ -70,6 +66,10 @@ const main = [
   {
     path: '/main/wallet',
     component: Wallet
+  },
+  {
+    path: '/main/node-setup',
+    component: NodeSetup
   },
   {
     path: '/main/node',

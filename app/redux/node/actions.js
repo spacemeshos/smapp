@@ -1,67 +1,71 @@
 // @flow
-import { diskStorageService } from '/infra/diskStorageService';
 import { httpService } from '/infra/httpService';
 import { createError } from '/infra/utils';
 import { Action, Dispatch } from '/types';
 
-export const SET_ALLOCATION: string = 'SET_ALLOCATION';
-export const GET_DRIVES_LIST: string = 'GET_DRIVES_LIST';
-export const RESET_NODE_SETTINGS: string = 'RESET_NODE_SETTINGS';
-export const SET_TOTAL_EARNINGS: string = 'SET_TOTAL_EARNINGS';
+export const INIT_MINING: string = 'INIT_MINING';
+export const GET_TOTAL_AWARDS: string = 'GET_TOTAL_AWARDS';
 export const SET_UPCOMING_EARNINGS: string = 'SET_UPCOMING_EARNINGS';
 export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
 
-export const getDrivesList = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const drives = await diskStorageService.getDriveList();
-    dispatch({ type: GET_DRIVES_LIST, payload: { drives } });
-  } catch (err) {
-    dispatch({ type: GET_DRIVES_LIST, payload: { drives: [] } });
-    throw createError(err.message, getDrivesList);
-  }
-};
+export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
+export const SET_NODE_IP: string = 'SET_NODE_IP';
 
-export const resetNodeSettings = (): Action => ({ type: RESET_NODE_SETTINGS });
-
-export const getTotalEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const totalEarnings = await httpService.getTotalEarnings();
-    dispatch({ type: SET_TOTAL_EARNINGS, payload: { totalEarnings } });
-  } catch (err) {
-    dispatch({ type: SET_TOTAL_EARNINGS, payload: { progress: null } });
-    throw createError('Error retrieving total rewards', getTotalEarnings);
-  }
-};
-
-export const getUpcomingEarnings = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const timeTillNextReward = await httpService.getUpcomingEarnings();
-    dispatch({ type: SET_UPCOMING_EARNINGS, payload: { timeTillNextReward } });
-  } catch (err) {
-    dispatch({ type: SET_UPCOMING_EARNINGS, payload: { progress: null } });
-    throw createError('Error retrieving upcoming rewards', getUpcomingEarnings);
-  }
-};
-
-export const setLocalNodeStorage = ({ capacity, drive }: { capacity: { id: number, label: string }, drive: { id: number, label: string } }): Action => async (
+export const initMining = ({ capacity, drive, address }: { capacity: { id: number, label: string }, drive: { id: number, label: string }, address: string }): Action => async (
   dispatch: Dispatch
 ): Dispatch => {
   try {
     const commitmentSize = Math.floor(capacity.id / 1048576); // Bytes to MB
     const logicalDrive = drive.label;
-    await httpService.setCommitmentSize({ commitmentSize });
-    await httpService.setLogicalDrive({ logicalDrive });
-    dispatch({ type: SET_ALLOCATION, payload: { capacity, drive } });
+    await httpService.initMining({ logicalDrive, commitmentSize, address });
+    dispatch({ type: INIT_MINING, payload: { capacity, drive, address } });
   } catch (err) {
-    throw createError('Error setting node storage', () => setLocalNodeStorage({ capacity, drive }));
+    throw createError('Error setting node storage', () => initMining({ capacity, drive, address }));
   }
 };
 
-export const setAwardsAddress = ({ awardsAddress }: { awardsAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
+export const getTotalAwards = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.setAwardsAddress({ awardsAddress });
-    dispatch({ type: SET_AWARDS_ADDRESS, payload: { awardsAddress } });
+    const totalEarnings = await httpService.getTotalAwards();
+    dispatch({ type: GET_TOTAL_AWARDS, payload: { totalEarnings } });
   } catch (err) {
-    throw createError('Error setting awards address', () => setAwardsAddress({ awardsAddress }));
+    throw createError('Error retrieving total rewards', getTotalAwards);
+  }
+};
+
+export const getUpcomingAward = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const timeTillNextReward = await httpService.getUpcomingAward();
+    dispatch({ type: SET_UPCOMING_EARNINGS, payload: { timeTillNextReward } });
+  } catch (err) {
+    console.error(err); // eslint-disable-line no-console
+  }
+};
+
+export const setAwardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await httpService.setAwardsAddress({ address });
+    dispatch({ type: SET_AWARDS_ADDRESS, payload: { address } });
+  } catch (err) {
+    throw createError('Error setting awards address', () => setAwardsAddress({ address }));
+  }
+};
+
+export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await httpService.checkNodeConnection();
+    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+  } catch (err) {
+    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
+    throw err;
+  }
+};
+
+export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await httpService.setNodeIpAddress({ nodeIpAddress });
+    dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
+  } catch (err) {
+    throw err;
   }
 };

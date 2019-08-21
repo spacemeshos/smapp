@@ -79,7 +79,7 @@ const timeSpans = [
 ];
 
 type Props = {
-  transactions: TxList,
+  transactions: { data: TxList },
   history: RouterHistory
 };
 
@@ -106,8 +106,8 @@ class Transactions extends Component<Props, State> {
       sent: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: true }),
       received: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: false }),
       totalMined: 0,
-      totalSent: getNumOfCoinsFromTransactions({ transactions: props.transactions, isSent: true }),
-      totalReceived: getNumOfCoinsFromTransactions({ transactions: props.transactions, isSent: false }),
+      totalSent: getNumOfCoinsFromTransactions({ transactions: props.transactions.data, isSent: true }),
+      totalReceived: getNumOfCoinsFromTransactions({ transactions: props.transactions.data, isSent: false }),
       addressToAdd: ''
     };
   }
@@ -133,7 +133,7 @@ class Transactions extends Component<Props, State> {
         </WrapperWith2SideBars>
         <RightPaneWrapper>
           {addressToAdd ? (
-            <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={() => {}} />
+            <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} />
           ) : (
             <React.Fragment>
               <DropDown
@@ -164,6 +164,12 @@ class Transactions extends Component<Props, State> {
     return <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>;
   };
 
+  handleCompleteAction = () => {
+    const { transactions } = this.props;
+    const filteredTransactions = this.filterTransactions({ index: 1, transactions });
+    this.setState({ addressToAdd: '', filteredTransactions: [...filteredTransactions] });
+  };
+
   handlePress = ({ index }) => {
     const { transactions } = this.props;
     const filteredTransactions = this.filterTransactions({ index, transactions });
@@ -174,15 +180,15 @@ class Transactions extends Component<Props, State> {
       sent: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: true }),
       received: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: false }),
       totalMined: 0,
-      totalSent: getNumOfCoinsFromTransactions({ transactions, isSent: true }),
-      totalReceived: getNumOfCoinsFromTransactions({ transactions, isSent: false })
+      totalSent: getNumOfCoinsFromTransactions({ transactions: transactions.data, isSent: true }),
+      totalReceived: getNumOfCoinsFromTransactions({ transactions: transactions.data, isSent: false })
     });
   };
 
   filterTransactions = ({ index, transactions }) => {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
-    return transactions.filter((transaction: Tx) => {
+    return transactions.data.filter((transaction: Tx) => {
       const startDate = +new Date() - spanInDays[index] * oneDayInMs;
       return transaction.date >= startDate;
     });

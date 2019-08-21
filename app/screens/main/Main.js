@@ -5,18 +5,15 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { resetNodeSettings } from '/redux/node/actions';
-import { checkNetworkConnection } from '/redux/network/actions';
+import { checkNodeConnection } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { SecondaryButton } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
 import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
 import { smColors } from '/vars';
-import type { Account, Action } from '/types';
+import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-
-const completeValue = 80; // TODO: change to actual complete value
 
 const Wrapper = styled.div`
   position: relative;
@@ -87,14 +84,12 @@ const InnerWrapper = styled.div`
 const bntStyle = { marginRight: 15, marginTop: 10 };
 
 type Props = {
-  history: RouterHistory,
-  location: { pathname: string, hash: string },
-  accounts: Account[],
-  resetNodeSettings: Action,
+  isConnected: boolean,
+  isSetupComplete: boolean,
   logout: Action,
-  checkNetworkConnection: Action,
-  progress: number,
-  isConnected: boolean
+  checkNodeConnection: Action,
+  history: RouterHistory,
+  location: { pathname: string, hash: string }
 };
 
 type State = {
@@ -163,12 +158,11 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    // const { checkNetworkConnection } = this.props;
-    // const networkCheckInterval = 30000;
-    // checkNetworkConnection();
+    // const { checkNodeConnection } = this.props;
+    // checkNodeConnection();
     // this.timer = setInterval(() => {
-    //   checkNetworkConnection();
-    // }, networkCheckInterval);
+    //   checkNodeConnection();
+    // }, 30000);
   }
 
   componentWillUnmount() {
@@ -176,21 +170,21 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { progress, isConnected } = this.props;
+    const { isConnected, isSetupComplete } = this.props;
     if (prevProps.isConnected && !isConnected) {
       // TODO: Connect to error handler service / modal to indicate a disconnect.
     }
-    if (prevProps.progress !== progress && progress === completeValue) {
+    if (!prevProps.isSetupComplete && isSetupComplete) {
       notificationsService.notify({
-        title: 'Local Node',
-        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network!',
+        title: 'Node',
+        notification: 'Your node setup is complete! You are now a miner in the Spacemesh network!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
   }
 
   handleNavigation = ({ index }: { index: number }) => {
-    const { history, resetNodeSettings } = this.props;
+    const { history } = this.props;
     const { activeRouteIndex } = this.state;
     if (index !== activeRouteIndex) {
       switch (index) {
@@ -208,7 +202,6 @@ class Main extends Component<Props, State> {
         }
         case 5: {
           history.push('/');
-          resetNodeSettings();
           logout();
           break;
         }
@@ -219,14 +212,12 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: state.wallet.accounts,
-  progress: state.localNode.progress,
-  isConnected: state.network.isConnected
+  isConnected: state.node.isConnected,
+  isSetupComplete: state.node.isSetupComplete
 });
 
 const mapDispatchToProps = {
-  resetNodeSettings,
-  checkNetworkConnection,
+  checkNodeConnection,
   logout
 };
 

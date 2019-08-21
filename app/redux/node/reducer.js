@@ -1,37 +1,32 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { SET_ALLOCATION, RESET_NODE_SETTINGS, GET_DRIVES_LIST, SET_TOTAL_EARNINGS, SET_UPCOMING_EARNINGS, SET_AWARDS_ADDRESS } from './actions';
+import { INIT_MINING, GET_TOTAL_AWARDS, SET_UPCOMING_EARNINGS, SET_AWARDS_ADDRESS, CHECK_NODE_CONNECTION, SET_NODE_IP } from './actions';
+
+const DEFAULT_URL = 'localhost:9091';
 
 const initialState = {
+  isMining: false,
+  isSetupComplete: false,
   drive: null,
   capacity: null,
-  drives: [],
-  progress: null,
   totalRunningTime: 0,
   totalEarnings: 0,
   timeTillNextReward: 0,
-  awardsAddress: null
+  awardsAddress: null,
+  isConnected: false,
+  nodeIpAddress: DEFAULT_URL
 };
 
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
-    case SET_ALLOCATION: {
+    case INIT_MINING: {
       const {
-        payload: { capacity, drive }
+        payload: { capacity, drive, address }
       } = action;
-      return { ...state, capacity, drive };
+      return { ...state, capacity, drive, awardsAddress: address };
     }
-    case GET_DRIVES_LIST: {
-      const {
-        payload: { drives }
-      } = action;
-      return { ...state, drives };
-    }
-    case LOGOUT:
-    case RESET_NODE_SETTINGS:
-      return initialState;
-    case SET_TOTAL_EARNINGS: {
+    case GET_TOTAL_AWARDS: {
       const {
         payload: { totalEarnings }
       } = action;
@@ -45,10 +40,24 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case SET_AWARDS_ADDRESS: {
       const {
-        payload: { awardsAddress }
+        payload: { address }
       } = action;
-      return { ...state, awardsAddress };
+      return { ...state, awardsAddress: address };
     }
+    case CHECK_NODE_CONNECTION: {
+      const {
+        payload: { isConnected }
+      } = action;
+      return { ...state, isConnected };
+    }
+    case SET_NODE_IP: {
+      const {
+        payload: { nodeIpAddress }
+      } = action;
+      return { ...state, nodeIpAddress };
+    }
+    case LOGOUT:
+      return initialState;
     default:
       return state;
   }

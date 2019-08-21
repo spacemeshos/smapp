@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
-import { setNodeIpAddress } from '/redux/network/actions';
+import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassphrase, SideMenu } from '/components/settings';
 import { Input, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -339,7 +339,7 @@ const mapStateToProps = (state) => ({
   meta: state.wallet.meta,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
-  nodeIpAddress: state.network.nodeIpAddress
+  nodeIpAddress: state.node.nodeIpAddress
 });
 
 const mapDispatchToProps = {
