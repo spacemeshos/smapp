@@ -7,15 +7,29 @@ class HttpService {
   /**
    *  ************************************************** NODE MANAGEMENT ********************************************************
    */
-  static startMining({ commitmentSize }: { commitmentSize: number }) {
-    ipcRenderer.send(ipcConsts.START_MINING, { commitmentSize });
+  static initMining({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }) {
+    ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.START_MINING_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.START_MINING_SUCCESS, ipcConsts.START_MINING_FAILURE] });
-        resolve();
+      ipcRenderer.once(ipcConsts.INIT_MINING_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.INIT_MINING_SUCCESS, ipcConsts.INIT_MINING_FAILURE] });
+        resolve(response);
       });
-      ipcRenderer.once(ipcConsts.START_MINING_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.START_MINING_SUCCESS, ipcConsts.START_MINING_FAILURE] });
+      ipcRenderer.once(ipcConsts.INIT_MINING_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.INIT_MINING_SUCCESS, ipcConsts.INIT_MINING_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static getMiningStatus() {
+    ipcRenderer.send(ipcConsts.GET_MINING_STATUS);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_MINING_STATUS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_MINING_STATUS_SUCCESS, ipcConsts.GET_MINING_STATUS_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_MINING_STATUS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_MINING_STATUS_SUCCESS, ipcConsts.GET_MINING_STATUS_FAILURE] });
         reject(args);
       });
     });

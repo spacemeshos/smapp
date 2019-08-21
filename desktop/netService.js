@@ -17,7 +17,17 @@ class NetService {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
-  _startMining = ({ logicalDrive, commitmentSize, coinbase }) =>
+  _getMiningStatus = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetMiningStats({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
     new Promise((resolve, reject) => {
       this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, (error, response) => {
         if (error) {
@@ -112,12 +122,21 @@ class NetService {
       });
     });
 
-  startMining = async ({ event, logicalDrive, commitmentSize, address }) => {
+  getMiningStatus = async ({ event }) => {
     try {
-      const { value } = await this._startMining({ logicalDrive, commitmentSize, coinbase: address });
-      event.sender.send(ipcConsts.START_MINING_SUCCESS, value);
+      const { status } = await this._getMiningStatus();
+      event.sender.send(ipcConsts.GET_MINING_STATUS_SUCCESS, status);
     } catch (error) {
-      event.sender.send(ipcConsts.START_MINING_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, error.message);
+    }
+  };
+
+  initMining = async ({ event, logicalDrive, commitmentSize, address }) => {
+    try {
+      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase: address });
+      event.sender.send(ipcConsts.INIT_MINING_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.INIT_MINING_FAILURE, error.message);
     }
   };
 

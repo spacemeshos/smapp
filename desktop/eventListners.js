@@ -26,8 +26,73 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileManager.updateFile({ event, ...request });
   });
 
+  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
+    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+  });
+
   ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
     DiskStorageManager.getDriveList({ event });
+  });
+
+  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
+    FileManager.openWalletBackupDirectory({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
+    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
+    printerWindow.loadURL(`file://${__dirname}/printer.html`);
+    printerWindow.webContents.on('did-finish-load', () => {
+      printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
+    });
+  });
+
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
+    const isInFocus = mainWindow.isFocused();
+    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
+  });
+
+  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+    WalletAutoStarter.toggleAutoStart();
+  });
+
+  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
+    WalletAutoStarter.isEnabled({ event });
+  });
+
+  /**
+   ******************************************* gRPS Calls **************************************
+   */
+  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, async (event) => {
+    netService.checkNetworkConnection({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_MINING_STATUS, async (event) => {
+    netService.getMiningStatus({ event });
+  });
+
+  ipcMain.on(ipcConsts.INIT_MINING, async (event, request) => {
+    netService.initMining({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
+    netService.setAwardsAddress({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
+    netService.setNodeIpAddress({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.GET_TOTAL_AWARDS, async (event) => {
+    netService.getTotalAwards({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_UPCOMING_AWARD, async (event) => {
+    netService.getUpcomingAward({ event });
   });
 
   ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
@@ -48,64 +113,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.GET_TX_LIST, async (event, request) => {
     netService.getTxList({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
-    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
-    printerWindow.loadURL(`file://${__dirname}/printer.html`);
-    printerWindow.webContents.on('did-finish-load', () => {
-      printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
-    });
-  });
-
-  ipcMain.on(ipcConsts.GET_TOTAL_AWARDS, async (event) => {
-    netService.getTotalAwards({ event });
-  });
-
-  ipcMain.on(ipcConsts.GET_UPCOMING_AWARD, async (event) => {
-    netService.getUpcomingAward({ event });
-  });
-
-  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
-    FileManager.openWalletBackupDirectory({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.START_MINING, async (event, request) => {
-    await netService.startMining({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
-    netService.setAwardsAddress({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, async (event) => {
-    netService.checkNetworkConnection({ event });
-  });
-
-  ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
-    netService.setNodeIpAddress({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
-    mainWindow.show();
-    mainWindow.focus();
-  });
-
-  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
-    const isInFocus = mainWindow.isFocused();
-    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
-  });
-
-  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
-    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
-  });
-
-  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
-    WalletAutoStarter.toggleAutoStart();
-  });
-
-  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
-    WalletAutoStarter.isEnabled({ event });
   });
 };
 

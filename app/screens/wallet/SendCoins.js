@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet';
+import { CreateNewContact } from '/components/contacts';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
@@ -24,7 +25,8 @@ type State = {
   hasAmountError: boolean,
   note: string,
   fee: number,
-  txId: string
+  txId: string,
+  isCreateNewContactOn: boolean
 };
 
 class SendCoins extends Component<Props, State> {
@@ -41,7 +43,8 @@ class SendCoins extends Component<Props, State> {
       hasAmountError: false,
       note: '',
       fee: 0.001,
-      txId: ''
+      txId: '',
+      isCreateNewContactOn: false
     };
   }
 
@@ -86,7 +89,7 @@ class SendCoins extends Component<Props, State> {
 
   renderTxParamsMode = () => {
     const { currentAccount, history } = this.props;
-    const { tmpAddress, address, hasAddressError, tmpAmount, amount, hasAmountError, fee, note } = this.state;
+    const { tmpAddress, address, hasAddressError, tmpAmount, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
         fromAddress={currentAccount.pk}
@@ -108,7 +111,11 @@ class SendCoins extends Component<Props, State> {
         nextAction={() => this.setState({ mode: 2 })}
         key="params"
       />,
-      <TxSummary address={address} fromAddress={currentAccount.pk} amount={amount} fee={fee} note={note} key="summary" />
+      isCreateNewContactOn ? (
+        <CreateNewContact isStandalone initialAddress={address} key="newContact" />
+      ) : (
+        <TxSummary address={address} fromAddress={currentAccount.pk} amount={amount} fee={fee} note={note} key="summary" />
+      )
     ];
   };
 

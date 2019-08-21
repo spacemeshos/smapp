@@ -8,7 +8,7 @@ import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { playIcon, pauseIcon } from '/assets/images';
-import { smColors } from '/vars';
+import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 // import type { Action } from '/types';
 
@@ -107,7 +107,7 @@ const NonShrinkableGreenText = styled(Text)`
 
 type Props = {
   isConnected: boolean,
-  isMining: boolean,
+  miningStatus: number,
   timeTillNextReward: number, // TODO: connect this with actual logic for next reward layer time - genesis time
   // getTotalAwards: Action,
   // getUpcomingAward: Action,
@@ -174,11 +174,11 @@ class Node extends Component<Props, State> {
   }
 
   renderMainSection = () => {
-    const { isMining } = this.props;
+    const { miningStatus } = this.props;
     const { showIntro } = this.state;
     if (showIntro) {
       return this.renderIntro();
-    } else if (!isMining) {
+    } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
     }
     return this.renderNodeDashboard();
@@ -258,9 +258,7 @@ class Node extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
-  isMining: state.node.isMining,
-  totalEarnings: state.node.totalEarnings,
-  totalRunningTime: state.node.totalRunningTime
+  miningStatus: state.node.miningStatus
 });
 
 const mapDispatchToProps = {

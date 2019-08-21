@@ -1,32 +1,41 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { INIT_MINING, GET_TOTAL_AWARDS, SET_UPCOMING_EARNINGS, SET_AWARDS_ADDRESS, CHECK_NODE_CONNECTION, SET_NODE_IP } from './actions';
+import { nodeConsts } from '/vars';
+import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_TOTAL_AWARDS, SET_UPCOMING_EARNINGS, SET_AWARDS_ADDRESS, SET_NODE_IP } from './actions';
 
 const DEFAULT_URL = 'localhost:9091';
 
 const initialState = {
-  isMining: false,
-  isSetupComplete: false,
-  drive: null,
-  capacity: null,
-  totalRunningTime: 0,
+  isConnected: false,
+  miningStatus: nodeConsts.NOT_MINING,
   totalEarnings: 0,
   timeTillNextReward: 0,
   awardsAddress: null,
-  isConnected: false,
   nodeIpAddress: DEFAULT_URL
 };
 
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
+    case CHECK_NODE_CONNECTION: {
+      const {
+        payload: { isConnected }
+      } = action;
+      return { ...state, isConnected };
+    }
+    case SET_MINING_STATUS: {
+      const {
+        payload: { status }
+      } = action;
+      return { ...state, miningStatus: status };
+    }
     case INIT_MINING: {
       const {
-        payload: { capacity, drive, address }
+        payload: { address }
       } = action;
-      return { ...state, capacity, drive, awardsAddress: address };
+      return { ...state, awardsAddress: address, miningStatus: nodeConsts.IN_SETUP };
     }
-    case GET_TOTAL_AWARDS: {
+    case SET_TOTAL_AWARDS: {
       const {
         payload: { totalEarnings }
       } = action;
@@ -43,12 +52,6 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { address }
       } = action;
       return { ...state, awardsAddress: address };
-    }
-    case CHECK_NODE_CONNECTION: {
-      const {
-        payload: { isConnected }
-      } = action;
-      return { ...state, isConnected };
     }
     case SET_NODE_IP: {
       const {

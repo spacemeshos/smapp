@@ -5,7 +5,7 @@ import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
-import { getWalletName, getAccountName, fromHexString, createError } from '/infra/utils';
+import { getWalletName, getAccountName, fromHexString, createError, getWalletAddress } from '/infra/utils';
 import { cryptoConsts } from '/vars';
 
 export const STORE_ENCRYPTION_KEY: string = 'STORE_ENCRYPTION_KEY';
@@ -159,7 +159,7 @@ export const copyFile = ({ filePath }: { fileName: string, filePath: string }): 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const balance = await httpService.getBalance({ address: fromHexString(accounts[currentAccountIndex].pk) });
+    const balance = await httpService.getBalance({ address: getWalletAddress(fromHexString(accounts[currentAccountIndex].pk)) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
     throw createError('Error getting balance!', getBalance);
@@ -172,7 +172,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
+    const accountNonce = await httpService.getNonce({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));

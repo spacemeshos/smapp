@@ -11,8 +11,8 @@ import { Carousel, CommitmentSelector } from '/components/node';
 import { diskStorageService } from '/infra/diskStorageService';
 import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
-import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+import type { Account, Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -40,6 +40,7 @@ const DriveName = styled.span`
 `;
 
 type Props = {
+  accounts: Account[],
   initMining: Action,
   history: RouterHistory,
   location: { state?: { isOnlyNodeSetup: boolean } }
@@ -127,10 +128,10 @@ class NodeSetup extends Component<Props, State> {
   };
 
   setupAndInitMining = async () => {
-    const { initMining, history } = this.props;
+    const { initMining, accounts, history } = this.props;
     const { drives, selectedCapacityIndex, selectedDriveIndex } = this.state;
     try {
-      await initMining({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex] });
+      await initMining({ capacity: drives[selectedDriveIndex].capacityAllocationsList[selectedCapacityIndex], drive: drives[selectedDriveIndex], address: accounts[0].pk });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {
@@ -161,12 +162,16 @@ class NodeSetup extends Component<Props, State> {
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 }
 
+const mapStateToProps = (state) => ({
+  accounts: state.wallet.accounts
+});
+
 const mapDispatchToProps = {
   initMining
 };
 
 NodeSetup = connect<any, any, _, _, _, _>(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(NodeSetup);
 

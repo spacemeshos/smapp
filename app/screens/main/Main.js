@@ -5,13 +5,13 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { checkNodeConnection } from '/redux/node/actions';
+import { getMiningStatus, checkNodeConnection } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { SecondaryButton } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
 import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
-import { smColors } from '/vars';
+import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -85,9 +85,10 @@ const bntStyle = { marginRight: 15, marginTop: 10 };
 
 type Props = {
   isConnected: boolean,
-  isSetupComplete: boolean,
-  logout: Action,
+  miningStatus: number,
+  getMiningStatus: Action,
   checkNodeConnection: Action,
+  logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
 };
@@ -158,11 +159,11 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    // const { checkNodeConnection } = this.props;
-    // checkNodeConnection();
-    // this.timer = setInterval(() => {
-    //   checkNodeConnection();
-    // }, 30000);
+    const { checkNodeConnection } = this.props;
+    checkNodeConnection();
+    this.timer = setInterval(() => {
+      checkNodeConnection();
+    }, 50000);
   }
 
   componentWillUnmount() {
@@ -170,16 +171,18 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, isSetupComplete } = this.props;
+    const { isConnected, miningStatus, getMiningStatus } = this.props;
     if (prevProps.isConnected && !isConnected) {
       // TODO: Connect to error handler service / modal to indicate a disconnect.
+    } else if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
+      getMiningStatus();
     }
-    if (!prevProps.isSetupComplete && isSetupComplete) {
-      notificationsService.notify({
+    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+      requestAnimationFrame(() => notificationsService.notify({
         title: 'Node',
         notification: 'Your node setup is complete! You are now a miner in the Spacemesh network!',
         callback: () => this.handleNavigation({ index: 0 })
-      });
+      }));
     }
   }
 
@@ -213,11 +216,12 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
-  isSetupComplete: state.node.isSetupComplete
+  miningStatus: state.node.miningStatus
 });
 
 const mapDispatchToProps = {
   checkNodeConnection,
+  getMiningStatus,
   logout
 };
 
