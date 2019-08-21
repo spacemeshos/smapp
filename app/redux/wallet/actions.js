@@ -24,6 +24,7 @@ export const SET_BALANCE: string = 'SET_BALANCE';
 // TODO: Remove this - test only
 const transactionsMockData: TxList = [
   {
+    id: '5ec09b2b5356f11f2ab61060d8b35b5c',
     isSent: true,
     amount: 3.002,
     address: '0c183911b5758beb0ab1d93c9a1df4c8987531231bfbb931f0e4b304245089fc',
@@ -33,6 +34,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test sent transaction of saved contact'
   },
   {
+    id: 'f03fecce4ded576ac6d64568497b7350',
     isSent: false,
     amount: 15.323,
     address: '383d06ca9f6cfe56f7aff4bc5129cba2591af0ff7c2f7671bfa065ecfca9ed8e',
@@ -42,6 +44,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test received transaction of saved contact'
   },
   {
+    id: '6edd673d45d01794551fa77ffb5b820f',
     isSent: false,
     isPending: true,
     amount: 5.3,
@@ -51,6 +54,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test received pending transaction'
   },
   {
+    id: '10ad45d657d615d698764d89b2be2d0b',
     isSent: true,
     isPending: true,
     amount: 43.1,
@@ -60,6 +64,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test sent pending transaction'
   },
   {
+    id: '91a82d0305c24880ea9ab03b2417fa59',
     isSent: false,
     isPending: true,
     amount: 600.231,
@@ -70,6 +75,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test received pending transaction of saved contact'
   },
   {
+    id: '9b27e2932aac86d11e59fcbb9e180b0f',
     isSent: true,
     isRejected: true,
     amount: 60.95,
@@ -80,6 +86,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test sent rejected transaction of saved contact'
   },
   {
+    id: '46572fa6b09715896dab402457bf4f8e',
     isSent: true,
     amount: 46.22,
     address: '03a5c18ca837474b5af1ddaac2b7d7eee7c5cfa3d2336af6f67b50de16a4aa46',
@@ -88,6 +95,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test sent transaction'
   },
   {
+    id: '64475d9b037d40480edd56261aa9a136',
     isSent: false,
     isPending: true,
     amount: 16.321,
@@ -97,6 +105,7 @@ const transactionsMockData: TxList = [
     note: 'This is a test received pending transaction'
   },
   {
+    id: 'fcbd39edb90f6d2d90e9dd67a1d97d35',
     isSent: false,
     amount: 73.5,
     address: '00f15217df1e84254831be13697da675c6a55b4050e2de30668961f478af8c43',
@@ -104,6 +113,7 @@ const transactionsMockData: TxList = [
     isSavedContact: false
   },
   {
+    id: 'd83057fccac1b99356b9b3976b5e14be',
     isSent: true,
     amount: 30.97,
     address: 'db10f5d9f8b7239cf8f215d96a28d7f4f16ca678c34c9ac1d7a97670b86361b3',

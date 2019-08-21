@@ -11,11 +11,37 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
-const getNumOfCoinsFromTransactions = ({ transactions, isSent }: { transactions: TxList, isSent: boolean }): number => {
-  const coins: number = transactions.reduce((sumCoins, transaction: Tx) => {
-    return transaction.isSent === isSent && !transaction.isPending && !transaction.isRejected ? sumCoins + transaction.amount : sumCoins;
-  }, 0);
-  return parseInt(coins);
+const getNumOfCoinsFromTransactions = ({ transactions, allTransactions }: { transactions: TxList, allTransactions: TxList }) => {
+  const coins = {
+    mined: 0,
+    sent: 0,
+    received: 0,
+    totalMined: 0,
+    totalSent: 0,
+    totalReceived: 0
+  };
+
+  transactions.forEach((transaction: Tx) => {
+    if (!transaction.isPending && !transaction.isRejected) {
+      if (transaction.isSent) {
+        coins.sent += 1;
+      } else {
+        coins.received += 1;
+      }
+    }
+  });
+
+  allTransactions.forEach((transaction: Tx) => {
+    if (!transaction.isPending && !transaction.isRejected) {
+      if (transaction.isSent) {
+        coins.totalSent += 1;
+      } else {
+        coins.totalReceived += 1;
+      }
+    }
+  });
+
+  return coins;
 };
 
 const Wrapper = styled.div`
@@ -63,20 +89,7 @@ const TimeSpanEntry = styled.div`
   }
 `;
 
-const timeSpans = [
-  {
-    id: 0,
-    label: 'daily'
-  },
-  {
-    id: 1,
-    label: 'monthly'
-  },
-  {
-    id: 2,
-    label: 'yearly'
-  }
-];
+const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
 
 type Props = {
   transactions: { data: TxList },
@@ -99,15 +112,12 @@ class Transactions extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const filteredTransactions = this.filterTransactions({ index: 1, transactions: props.transactions });
+    const coins = getNumOfCoinsFromTransactions({ transactions: filteredTransactions, allTransactions: props.transactions.data });
     this.state = {
       selectedItemIndex: 1,
       filteredTransactions,
       mined: 0,
-      sent: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: true }),
-      received: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: false }),
-      totalMined: 0,
-      totalSent: getNumOfCoinsFromTransactions({ transactions: props.transactions.data, isSent: true }),
-      totalReceived: getNumOfCoinsFromTransactions({ transactions: props.transactions.data, isSent: false }),
+      ...coins,
       addressToAdd: ''
     };
   }
@@ -127,7 +137,7 @@ class Transactions extends Component<Props, State> {
                 <TransactionRow key={index} transaction={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
               ))
             ) : (
-              <Text>No transactions executed yet</Text>
+              <Text>No transactions here yet</Text>
             )}
           </TransactionsListWrapper>
         </WrapperWith2SideBars>
@@ -170,15 +180,11 @@ class Transactions extends Component<Props, State> {
   handlePress = ({ index }) => {
     const { transactions } = this.props;
     const filteredTransactions = this.filterTransactions({ index, transactions });
+    const coins = getNumOfCoinsFromTransactions({ transactions: filteredTransactions, allTransactions: transactions.data });
     this.setState({
       selectedItemIndex: index,
       filteredTransactions: [...filteredTransactions],
-      mined: 0,
-      sent: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: true }),
-      received: getNumOfCoinsFromTransactions({ transactions: filteredTransactions, isSent: false }),
-      totalMined: 0,
-      totalSent: getNumOfCoinsFromTransactions({ transactions: transactions.data, isSent: true }),
-      totalReceived: getNumOfCoinsFromTransactions({ transactions: transactions.data, isSent: false })
+      ...coins
     });
   };
 

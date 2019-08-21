@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
-import { Input, Button } from '/basicComponents';
+import { Button } from '/basicComponents';
 import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Tx, Action } from '/types';
@@ -47,7 +47,6 @@ const Wrapper = styled.div`
   border-bottom: 1px solid ${smColors.mediumLightGray};
 `;
 
-// $FlowStyledIssue
 const RowWrapper = styled.div`
   display: flex;
   height: 48px;
@@ -145,10 +144,25 @@ const AddToContactsImg = styled.img`
   margin-left: 4px;
 `;
 
+// $FlowStyledIssue
+const TextArea = styled.textarea`
+  flex: 1;
+  height: ${({ rows }) => rows * 16 + 16}px;
+  padding: 8px 10px;
+  border-radius: 0;
+  border: none;
+  color: ${smColors.black};
+  font-size: 14px;
+  line-height: 16px;
+  outline: none;
+  resize: none;
+  border: 1px solid ${smColors.black};
+  margin-bottom: 10px;
+`;
+
 type Props = {
   updateTransaction: Action,
   transaction: Tx,
-  fiatRate: number,
   addAddressToContacts: ({ address: string }) => void
 };
 
@@ -169,18 +183,18 @@ class TransactionRow extends Component<Props, State> {
   render() {
     const { isDetailed, note } = this.state;
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
-      fiatRate
+      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname, note: propsNote }
     } = this.props;
     const color = getColor({ isSent, isPending, isRejected });
-    const txId = '1723d...7293'; // TODO change to real tx id
+    // eslint-disable-next-line no-console
+    console.warn('note', note, 'propsnote', propsNote);
     const detailRows = [
-      { title: 'TRANSACTION ID', value: txId },
+      { title: 'TRANSACTION ID', value: getAbbreviatedText(id) },
       { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
       { title: 'BLOCK', value: 7701538 }, // TODO: needs real value
       { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(address) },
       { title: 'TO', value: isSent ? getAbbreviatedText(address) : 'Me' },
-      { title: 'VALUE', value: `$${amount * fiatRate}` },
+      { title: 'VALUE', value: `${amount}` },
       { title: 'TRANSACTION FEE', value: 0.03 } // TODO: needs real value
     ];
     return (
@@ -193,7 +207,7 @@ class TransactionRow extends Component<Props, State> {
                 {isSavedContact ? nickname.toUpperCase() : 'UNKNOWN'}
                 {!isSavedContact && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
               </DarkGrayText>
-              <Text>{txId}</Text>
+              <Text>{id}</Text>
             </Section>
             <Section>
               <Amount color={color}>{amount}</Amount>
@@ -214,13 +228,16 @@ class TransactionRow extends Component<Props, State> {
             </LeftDetails>
             <RightDetails>
               <BlackText style={{ marginBottom: 4 }}>Note</BlackText>
-              <Input
+              <TextArea
+                type="text"
                 numberOfLines={5}
                 value={note}
                 placeholder="Enter a note"
-                onChange={({ value }) => this.setState({ note: value })}
+                onChange={({ target }: { target: { value: string } }) => {
+                  const { value } = target;
+                  this.setState({ note: value });
+                }}
                 maxLength="50"
-                style={{ marginBottom: 10 }}
               />
               <Button onClick={this.save} text="SAVE" style={{ alignSelf: 'flex-end' }} />
             </RightDetails>
@@ -258,16 +275,12 @@ class TransactionRow extends Component<Props, State> {
   };
 }
 
-const mapStateToProps = (state) => ({
-  fiatRate: state.wallet.fiatRate
-});
-
 const mapDispatchToProps = {
   updateTransaction
 };
 
 TransactionRow = connect<any, any, _, _, _, _>(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(TransactionRow);
 
