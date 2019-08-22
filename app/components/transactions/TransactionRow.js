@@ -28,7 +28,7 @@ const getTxStatus = ({ isPending, isRejected }: { isPending: boolean, isRejected
 
 const getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPending: boolean, isRejected: boolean }) => {
   if (isPending) {
-    return smColors.textGray;
+    return smColors.darkGray;
   } else if (isRejected) {
     return smColors.darkGray;
   }
@@ -42,9 +42,9 @@ const Wrapper = styled.div`
   ${({ isDetailed }) =>
     isDetailed &&
     `
-    background-color: ${smColors.mediumLightGray};  
+    background-color: ${smColors.disabledGray};  
   `}
-  border-bottom: 1px solid ${smColors.mediumLightGray};
+  border-bottom: 1px solid ${smColors.disabledGray};
 `;
 
 const RowWrapper = styled.div`
@@ -52,7 +52,7 @@ const RowWrapper = styled.div`
   height: 48px;
   flex-direction: row;
   &:hover {
-    background-color: ${smColors.mediumLightGray};
+    background-color: ${smColors.disabledGray};
   }
   padding-top: 6px;
   padding-right: 12px;
@@ -80,7 +80,7 @@ const Section = styled.div`
 const Text = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.darkGray80Alpha};
+  color: ${smColors.darkGray50Alpha};
 `;
 
 const BlackText = styled(Text)`
@@ -99,7 +99,7 @@ const BoldText = styled(Text)`
 `;
 
 const DarkGrayText = styled(Text)`
-  color: ${smColors.textGray};
+  color: ${smColors.darkGray};
 `;
 
 // $FlowStyledIssue

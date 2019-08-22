@@ -141,31 +141,29 @@ class Transactions extends Component<Props, State> {
             )}
           </TransactionsListWrapper>
         </WrapperWith2SideBars>
-        <RightPaneWrapper>
-          {addressToAdd ? (
-            <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} />
-          ) : (
-            <React.Fragment>
-              <DropDown
-                data={timeSpans}
-                DdElement={({ label, isMain }) => <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>}
-                onPress={this.handlePress}
-                selectedItemIndex={selectedItemIndex}
-                rowHeight={55}
-                style={{ width: 120, position: 'absolute', right: 12, top: 0 }}
-              />
-              <TransactionsMeta
-                mined={mined}
-                sent={sent}
-                received={received}
-                totalMined={totalMined}
-                totalSent={totalSent}
-                totalReceived={totalReceived}
-                filterName={timeSpans[selectedItemIndex].label}
-              />
-            </React.Fragment>
-          )}
-        </RightPaneWrapper>
+        {addressToAdd ? (
+          <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} />
+        ) : (
+          <RightPaneWrapper>
+            <DropDown
+              data={timeSpans}
+              DdElement={({ label, isMain }) => <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>}
+              onPress={this.handlePress}
+              selectedItemIndex={selectedItemIndex}
+              rowHeight={55}
+              style={{ width: 120, position: 'absolute', right: 12, top: 0 }}
+            />
+            <TransactionsMeta
+              mined={mined}
+              sent={sent}
+              received={received}
+              totalMined={totalMined}
+              totalSent={totalSent}
+              totalReceived={totalReceived}
+              filterName={timeSpans[selectedItemIndex].label}
+            />
+          </RightPaneWrapper>
+        )}
       </Wrapper>
     );
   }

@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import TransactionsSumProgress from './TransactionsSumProgress';
+import { smColors } from '/vars';
 
 const Text = styled.span`
   font-size: 16px;
@@ -27,6 +27,33 @@ const Dots = styled(Text)`
   overflow: hidden;
 `;
 
+const ProgressBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 28px;
+`;
+
+const SmallText = styled.span`
+  font-size: 13px;
+  line-height: 17px;
+  color: ${smColors.darkGray};
+`;
+
+const Bar = styled.div`
+  width: 100%;
+  height: 4px;
+  background-color: ${smColors.lightGray};
+  position: relative;
+`;
+
+// $FlowStyledIssue
+const Progress = styled.div`
+  width: ${({ total, coins }) => (coins / total) * 100}%;
+  height: inherit;
+  background-color: ${smColors.green};
+  position: absolute;
+`;
+
 type Props = {
   filterName: string,
   mined: number,
@@ -50,7 +77,12 @@ class TransactionsMeta extends PureComponent<Props> {
         <BoldText>--</BoldText>
         <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${totalFilteredCoins}`}</Text>
         {coinsMeta.map((coinMeta) => (
-          <TransactionsSumProgress key={coinMeta.title} title={coinMeta.title} coins={coinMeta.coins} total={totalFilteredCoins} />
+          <ProgressBar key={coinMeta.title}>
+            <SmallText>{`${coinMeta.title} ${coinMeta.coins}`}</SmallText>
+            <Bar>
+              <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
+            </Bar>
+          </ProgressBar>
         ))}
         <BoldText>total</BoldText>
         <BoldText>--</BoldText>

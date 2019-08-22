@@ -21,109 +21,6 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE: string = 'SET_BALANCE';
 
-// TODO: Remove this - test only
-const transactionsMockData: TxList = [
-  {
-    id: '5ec09b2b5356f11f2ab61060d8b35b5c',
-    isSent: true,
-    amount: 3.002,
-    address: '0c183911b5758beb0ab1d93c9a1df4c8987531231bfbb931f0e4b304245089fc',
-    nickname: 'Nancy Sinatra',
-    date: 1566376292918,
-    isSavedContact: true,
-    note: 'This is a test sent transaction of saved contact'
-  },
-  {
-    id: 'f03fecce4ded576ac6d64568497b7350',
-    isSent: false,
-    amount: 15.323,
-    address: '383d06ca9f6cfe56f7aff4bc5129cba2591af0ff7c2f7671bfa065ecfca9ed8e',
-    nickname: 'Miles Davis',
-    date: 1566376291918,
-    isSavedContact: true,
-    note: 'This is a test received transaction of saved contact'
-  },
-  {
-    id: '6edd673d45d01794551fa77ffb5b820f',
-    isSent: false,
-    isPending: true,
-    amount: 5.3,
-    address: '445407f0d5c58abdd36b22be971d3b5074415a5df0aac2ac251ef68142525fa8',
-    date: 1566376281918,
-    isSavedContact: false,
-    note: 'This is a test received pending transaction'
-  },
-  {
-    id: '10ad45d657d615d698764d89b2be2d0b',
-    isSent: true,
-    isPending: true,
-    amount: 43.1,
-    address: '436ac1cc602b908d62023e5336f35febee7679dc2737df3d97a98aaeb0972edd',
-    date: 1566376261918,
-    isSavedContact: false,
-    note: 'This is a test sent pending transaction'
-  },
-  {
-    id: '91a82d0305c24880ea9ab03b2417fa59',
-    isSent: false,
-    isPending: true,
-    amount: 600.231,
-    address: '00f5fa98b48f35cb4407c23741ee5969b5279c31761bd0a40c33df6a3238e86a',
-    nickname: 'Eric Clapton',
-    date: 1566374261918,
-    isSavedContact: true,
-    note: 'This is a test received pending transaction of saved contact'
-  },
-  {
-    id: '9b27e2932aac86d11e59fcbb9e180b0f',
-    isSent: true,
-    isRejected: true,
-    amount: 60.95,
-    address: 'd9e6f74d65fcdad4ef37a4e91f9f7c3f8614abad1380119de29e31234e8a549f',
-    nickname: 'Elton John',
-    date: 1566314261918,
-    isSavedContact: true,
-    note: 'This is a test sent rejected transaction of saved contact'
-  },
-  {
-    id: '46572fa6b09715896dab402457bf4f8e',
-    isSent: true,
-    amount: 46.22,
-    address: '03a5c18ca837474b5af1ddaac2b7d7eee7c5cfa3d2336af6f67b50de16a4aa46',
-    date: 1565314261918,
-    isSavedContact: false,
-    note: 'This is a test sent transaction'
-  },
-  {
-    id: '64475d9b037d40480edd56261aa9a136',
-    isSent: false,
-    isPending: true,
-    amount: 16.321,
-    address: '9112720e0ac5f2bc583206358d7b1e6bd532abc01db6a9eaf0b303dcae3e3ea3',
-    date: 1565314261918,
-    isSavedContact: false,
-    note: 'This is a test received pending transaction'
-  },
-  {
-    id: 'fcbd39edb90f6d2d90e9dd67a1d97d35',
-    isSent: false,
-    amount: 73.5,
-    address: '00f15217df1e84254831be13697da675c6a55b4050e2de30668961f478af8c43',
-    date: 1561313261918,
-    isSavedContact: false
-  },
-  {
-    id: 'd83057fccac1b99356b9b3976b5e14be',
-    isSent: true,
-    amount: 30.97,
-    address: 'db10f5d9f8b7239cf8f215d96a28d7f4f16ca678c34c9ac1d7a97670b86361b3',
-    nickname: 'MJ',
-    date: 1560203261918,
-    isSavedContact: true,
-    note: 'This is a test sent rejected transaction of saved contact'
-  }
-];
-
 const getMaxLayerId = ({ transactions }) => {
   let max = 0;
   Object.keys(transactions).forEach((key) => {
@@ -180,7 +77,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   const fullWalletDataToFlush = {
     meta,
     crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
-    transactions: { '0': { layerId: 0, data: [...transactionsMockData] } },
+    transactions: { '0': { layerId: 0, data: [] } },
     contacts: []
   };
   try {
@@ -189,7 +86,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     dispatch(setCurrentAccount({ index: 0 }));
-    dispatch(setTransactions({ transactions: { '0': { layerId: 0, data: [...transactionsMockData] } } }));
+    dispatch(setTransactions({ transactions: { '0': { layerId: 0, data: [] } } }));
     dispatch(setContacts({ contacts: [] }));
     localStorageService.set('walletNumber', walletNumber + 1);
     localStorageService.set('accountNumber', accountNumber + 1);
