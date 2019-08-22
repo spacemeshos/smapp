@@ -74,7 +74,12 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
   };
   const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
   const fileName = `my_wallet_${walletNumber}-${unixEpochTimestamp}.json`;
-  const fullWalletDataToFlush = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions: { '0': { layerId: 0, data: [] } }, contacts: [] };
+  const fullWalletDataToFlush = {
+    meta,
+    crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
+    transactions: { '0': { layerId: 0, data: [] } },
+    contacts: []
+  };
   try {
     fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(fullWalletDataToFlush) });
     dispatch(setWalletMeta({ meta }));

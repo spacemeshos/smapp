@@ -2,171 +2,203 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { Transaction } from '/components/transactions';
-import { Button } from '/basicComponents';
-import { smColors } from '/vars';
-import type { TxList } from '/types';
-import { shell } from 'electron';
+import type { RouterHistory } from 'react-router-dom';
+import { TransactionRow, TransactionsMeta } from '/components/transactions';
+import { CreateNewContact } from '/components/contacts';
+import { Link, WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
+import type { TxList, Tx } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { chevronLeftWhite } from '/assets/images';
+import { smColors } from '/vars';
+
+const getNumOfCoinsFromTransactions = ({ transactions, allTransactions }: { transactions: TxList, allTransactions: TxList }) => {
+  const coins = {
+    mined: 0,
+    sent: 0,
+    received: 0,
+    totalMined: 0,
+    totalSent: 0,
+    totalReceived: 0
+  };
+
+  transactions.forEach((transaction: Tx) => {
+    if (!transaction.isPending && !transaction.isRejected) {
+      if (transaction.isSent) {
+        coins.sent += 1;
+      } else {
+        coins.received += 1;
+      }
+    }
+  });
+
+  allTransactions.forEach((transaction: Tx) => {
+    if (!transaction.isPending && !transaction.isRejected) {
+      if (transaction.isSent) {
+        coins.totalSent += 1;
+      } else {
+        coins.totalReceived += 1;
+      }
+    }
+  });
+
+  return coins;
+};
 
 const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 50px 60px;
-`;
-
-const Header = styled.div`
-  font-size: 31px;
-  font-weight: bold;
-  line-height: 42px;
-  color: ${smColors.realBlack};
-  margin-bottom: 20px;
-`;
-
-const InnerWrapper = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-`;
-
-const LeftSection = styled.div`
-  height: 100%;
-  display: flex;
-  flex: 2;
-  flex-direction: column;
-  margin-right: 30px;
-`;
-
-const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  margin-bottom: 20px;
+  position: relative;
+`;
+
+const Text = styled.span`
+  font-size: 16px;
+  line-height: 22px;
+`;
+
+const BoldText = styled.span`
+  font-family: SourceCodeProBold;
+  margin-bottom: 24px;
 `;
 
 const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
-  overflow-y: visible;
+  overflow-y: scroll;
 `;
 
-const RightSection = styled.div`
+const RightPaneWrapper = styled(CorneredWrapper)`
+  background-color: ${smColors.black02Alpha};
   display: flex;
-  flex: 1;
   flex-direction: column;
-  margin-left: 30px;
-  padding: 25px;
-  border: 1px solid ${smColors.mediumGray};
+  width: 260px;
+  padding: 20px 14px;
 `;
 
-const RightSectionSubHeader = styled.div`
-  font-size: 14px;
-  font-weight: bold;
-  color: ${smColors.darkGray};
-  line-height: 19px;
-  margin-bottom: 25px;
-`;
-
-const RightSectionText = styled.div`
-  font-size: 16px;
-  color: ${smColors.darkGray};
-  line-height: 28px;
-  margin-bottom: 25px;
-`;
-
-const RightSectionLink = styled.div`
-  font-size: 16px;
-  color: ${smColors.darkerGreen};
-  line-height: 30px;
-  padding: 5px 0;
+// $FlowStyledIssue
+const TimeSpanEntry = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 5px;
   cursor: pointer;
+  text-align: left;
+  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
   &:hover {
-    opacity: 0.8;
-  }
-  &:active {
-    opacity: 0.6;
+    opacity: 1;
+    color: ${smColors.darkGray50Alpha};
   }
 `;
 
-const btnStyle = { marginRight: 15 };
+const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
 
 type Props = {
-  transactions: TxList
+  transactions: { data: TxList },
+  history: RouterHistory
 };
 
 type State = {
-  isSentDisplayed: boolean,
-  isReceivedDisplayed: boolean,
-  isPendingDisplayed: boolean,
-  isRejectedDisplayed: boolean
+  selectedItemIndex: number,
+  filteredTransactions: TxList,
+  mined: number,
+  sent: number,
+  received: number,
+  totalMined: number,
+  totalSent: number,
+  totalReceived: number,
+  addressToAdd: string
 };
 
 class Transactions extends Component<Props, State> {
-  state = {
-    isSentDisplayed: true,
-    isReceivedDisplayed: true,
-    isPendingDisplayed: true,
-    isRejectedDisplayed: true
-  };
-
-  render() {
-    const { transactions } = this.props;
-    const { isSentDisplayed, isReceivedDisplayed, isPendingDisplayed, isRejectedDisplayed } = this.state;
-    return [
-      <Wrapper key="wrapper">
-        <Header>Transaction Log</Header>
-        <InnerWrapper>
-          <LeftSection>
-            <ButtonsWrapper>
-              <Button text="Sent" onClick={() => this.setState({ isSentDisplayed: !isSentDisplayed })} isActive={isSentDisplayed} style={btnStyle} />
-              <Button text="Received" onClick={() => this.setState({ isReceivedDisplayed: !isReceivedDisplayed })} isActive={isReceivedDisplayed} style={btnStyle} />
-              <Button text="Pending" onClick={() => this.setState({ isPendingDisplayed: !isPendingDisplayed })} isActive={isPendingDisplayed} style={btnStyle} />
-              <Button text="Rejected" onClick={() => this.setState({ isRejectedDisplayed: !isRejectedDisplayed })} isActive={isRejectedDisplayed} style={btnStyle} />
-            </ButtonsWrapper>
-            <TransactionsListWrapper>
-              {transactions ? (
-                transactions.map((tx, index) => (
-                  <Transaction
-                    key={index}
-                    transaction={tx}
-                    isSentDisplayed={isSentDisplayed}
-                    isReceivedDisplayed={isReceivedDisplayed}
-                    isPendingDisplayed={isPendingDisplayed}
-                    isRejectedDisplayed={isRejectedDisplayed}
-                  />
-                ))
-              ) : (
-                <RightSectionText>No transactions executed yet</RightSectionText>
-              )}
-            </TransactionsListWrapper>
-          </LeftSection>
-          <RightSection>
-            <RightSectionSubHeader>Crypto Transactions</RightSectionSubHeader>
-            <RightSectionText>
-              Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero
-              eos et accusam et justo duo dolores et ea.
-            </RightSectionText>
-            <RightSectionLink onClick={this.navigateToExplanation}>Learn more about Spacemesh Transactions</RightSectionLink>
-          </RightSection>
-        </InnerWrapper>
-      </Wrapper>
-      // shouldShowModal && (
-      //   <CreateNewContactModal
-      //     key="modal"
-      //     addressToAdd={address}
-      //     navigateToExplanation={this.navigateToContactsExplanation}
-      //     onSave={() => this.setState({ address: '', shouldShowModal: false })}
-      //     closeModal={() => this.setState({ shouldShowModal: false })}
-      //   />
-      // )
-    ];
+  constructor(props: Props) {
+    super(props);
+    const filteredTransactions = this.filterTransactions({ index: 1, transactions: props.transactions });
+    const coins = getNumOfCoinsFromTransactions({ transactions: filteredTransactions, allTransactions: props.transactions.data });
+    this.state = {
+      selectedItemIndex: 1,
+      filteredTransactions,
+      mined: 0,
+      ...coins,
+      addressToAdd: ''
+    };
   }
 
-  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
+  render() {
+    const { history } = this.props;
+    const { selectedItemIndex, filteredTransactions, mined, sent, received, totalMined, totalSent, totalReceived, addressToAdd } = this.state;
+    return (
+      <Wrapper>
+        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
+        <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
+          <BoldText>Latest transactions</BoldText>
+          <Link onClick={this.navigateToContacts} text="MY CONTACTS" style={{ position: 'absolute', top: 30, left: 550 }} />
+          <TransactionsListWrapper>
+            {filteredTransactions && filteredTransactions.length ? (
+              filteredTransactions.map((tx, index) => (
+                <TransactionRow key={index} transaction={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
+              ))
+            ) : (
+              <Text>No transactions here yet</Text>
+            )}
+          </TransactionsListWrapper>
+        </WrapperWith2SideBars>
+        {addressToAdd ? (
+          <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} />
+        ) : (
+          <RightPaneWrapper>
+            <DropDown
+              data={timeSpans}
+              DdElement={({ label, isMain }) => <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>}
+              onPress={this.handlePress}
+              selectedItemIndex={selectedItemIndex}
+              rowHeight={55}
+              style={{ width: 120, position: 'absolute', right: 12, top: 0 }}
+            />
+            <TransactionsMeta
+              mined={mined}
+              sent={sent}
+              received={received}
+              totalMined={totalMined}
+              totalSent={totalSent}
+              totalReceived={totalReceived}
+              filterName={timeSpans[selectedItemIndex].label}
+            />
+          </RightPaneWrapper>
+        )}
+      </Wrapper>
+    );
+  }
 
-  navigateToContactsExplanation = () => shell.openExternal('https://testnet.spacemesh.io'); // TODO: connect to actual link
+  handleCompleteAction = () => {
+    const { transactions } = this.props;
+    const { selectedItemIndex } = this.state;
+    const filteredTransactions = this.filterTransactions({ index: selectedItemIndex, transactions });
+    this.setState({ addressToAdd: '', filteredTransactions: [...filteredTransactions] });
+  };
+
+  handlePress = ({ index }) => {
+    const { transactions } = this.props;
+    const filteredTransactions = this.filterTransactions({ index, transactions });
+    const coins = getNumOfCoinsFromTransactions({ transactions: filteredTransactions, allTransactions: transactions.data });
+    this.setState({
+      selectedItemIndex: index,
+      filteredTransactions: [...filteredTransactions],
+      ...coins
+    });
+  };
+
+  filterTransactions = ({ index, transactions }) => {
+    const oneDayInMs = 86400000;
+    const spanInDays = [1, 30, 365];
+    return transactions.data.filter((transaction: Tx) => {
+      const startDate = +new Date() - spanInDays[index] * oneDayInMs;
+      return transaction.date >= startDate;
+    });
+  };
+
+  navigateToContacts = () => {
+    const { history } = this.props;
+    history.push('/main/contacts');
+  };
 }
 
 const mapStateToProps = (state) => ({
