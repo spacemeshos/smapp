@@ -34,7 +34,7 @@ const HeaderWrapper = styled.div`
   ${({ isOpened }) =>
     isOpened &&
     `
-    box-shadow: 0 3px 6px ${smColors.black20alpha};
+    box-shadow: 0 3px 6px ${smColors.black02Alpha};
   `}
 `;
 
@@ -58,7 +58,7 @@ const ItemsWrapper = styled.div`
   overflow: hidden;
   transition: all 0.2s linear;
   overflow-y: scroll;
-  box-shadow: 0 3px 6px ${smColors.black20alpha};
+  box-shadow: 0 3px 6px ${smColors.black02Alpha};
   background-color: ${smColors.white};
 `;
 
