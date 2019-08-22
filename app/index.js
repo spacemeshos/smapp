@@ -1,17 +1,7 @@
-import { hot, setConfig } from 'react-hot-loader';
 import React from 'react';
 import { render } from 'react-dom';
 import App from './App';
 import { configureStore } from './redux/configureStore';
 
-const configOptions: $Shape<Object> = {
-  showReactDomPatchNotification: false
-};
-
-setConfig(configOptions);
-
 const store = configureStore();
-
-const RenderedApp = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;
-
-render(<RenderedApp store={store} />, document.getElementById('root'));
+render(<App store={store} />, document.getElementById('root'));

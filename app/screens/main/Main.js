@@ -158,23 +158,9 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    const { checkNodeConnection } = this.props;
-    checkNodeConnection();
-    this.timer = setInterval(() => {
-      checkNodeConnection();
-    }, 50000);
-  }
-
-  componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
-  }
-
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus } = this.props;
-    if (prevProps.isConnected && !isConnected) {
-      // TODO: Connect to error handler service / modal to indicate a disconnect.
-    } else if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
+    if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
       getMiningStatus();
     }
     if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {

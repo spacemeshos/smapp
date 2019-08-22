@@ -64,6 +64,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     WalletAutoStarter.isEnabled({ event });
   });
 
+  ipcMain.on(ipcConsts.START_NODE, async (event) => {
+    FileManager.startNode({ event });
+  });
+
   /**
    ******************************************* gRPS Calls **************************************
    */
