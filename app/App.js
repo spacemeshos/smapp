@@ -11,6 +11,7 @@ import GlobalStyle from './globalStyle';
 import type { Store, Action } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { createError } from '/infra/utils';
+import { httpService } from '/infra/httpService';
 
 const configOptions: $Shape<Object> = {
   showReactDomPatchNotification: false
@@ -25,6 +26,13 @@ type Props = {
 };
 
 class App extends React.Component<Props> {
+  // eslint-disable-next-line react/sort-comp
+  startNodeInterval;
+
+  keepAliveInterval;
+
+  checkConnectionTimer;
+
   render() {
     const { store } = this.props;
     return (
@@ -44,26 +52,21 @@ class App extends React.Component<Props> {
     );
   }
 
-  componentDidMount() {
-    const { checkNodeConnection } = this.props;
-    checkNodeConnection();
-    const timer = setTimeout(async () => {
-      const { isConnected } = this.props;
-      if (!isConnected) {
-        try {
-          await this.startLocalNodeFlow();
-          this.keepAliveFlow();
-        } catch {
-          this.setState(() => {
-            this.clearTimers();
-            throw createError('Failed to start Spacemesh Node.', this.startLocalNodeFlow);
-          });
-        }
-      } else {
+  async componentDidMount() {
+    const isConnected = await this.checkConnectionAsync();
+    this.clearTimers();
+    if (!isConnected) {
+      try {
+        await this.startLocalNodeFlow();
         this.keepAliveFlow();
+      } catch {
+        this.setState(() => {
+          throw createError('Failed to start Spacemesh Node.', this.startLocalNodeFlow);
+        });
       }
-      clearTimeout(timer);
-    });
+    } else {
+      this.keepAliveFlow();
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -80,68 +83,54 @@ class App extends React.Component<Props> {
     store.dispatch(logout());
   }
 
-  timers: any[] = [];
-
-  clearTimers = () => this.timers.forEach((timer) => clearInterval(timer));
+  clearTimers = () => {
+    this.keepAliveInterval && clearInterval(this.keepAliveInterval);
+    this.startNodeInterval && clearInterval(this.startNodeInterval);
+    this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
+  };
 
   startLocalNodeFlow = () => {
     const intervalTime = 5000; // ms
-    let attemptsLimit = 5;
+    let attemptsRemaining = 5;
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      this.timers.push(
-        setInterval(async () => {
-          if (!attemptsLimit) {
-            reject();
-          } else {
-            const { isConnected } = this.props;
-            attemptsLimit -= 1;
-            if (!isConnected) {
-              try {
-                await fileSystemService.startNode();
-              } catch {
-                // eslint-disable-next-line no-console
-                console.error('Cannot run local node or node is already running.');
-              }
-              try {
-                await this.checkConnectionAsync();
-                resolve();
-              } catch {
-                // eslint-disable-next-line no-console
-                console.error(`Failed to run Spacemesh node. ${attemptsLimit + 1} tr${!attemptsLimit ? 'y' : 'ies'} remaining`);
-              }
-            } else {
-              resolve();
+      this.startNodeInterval = setInterval(async () => {
+        if (!attemptsRemaining) {
+          reject();
+        } else {
+          const { isConnected: isConnectedProps } = this.props;
+          attemptsRemaining -= 1;
+          if (!isConnectedProps) {
+            try {
+              await fileSystemService.startNode();
+            } catch {
+              // Ignoring this error since we still want to check connection if node is already running.
             }
+            const isConnected = await this.checkConnectionAsync();
+            isConnected && resolve();
+          } else {
+            resolve();
           }
-        }, intervalTime)
-      );
+        }
+      }, intervalTime);
     });
   };
 
   keepAliveFlow = () => {
-    // eslint-disable-next-line no-console
-    console.warn('KEEP ALIVE FLOW');
     const { checkNodeConnection } = this.props;
     const keepAliveInterval = 50000;
     checkNodeConnection();
-    this.timers.push(
-      setInterval(() => {
-        checkNodeConnection();
-      }, keepAliveInterval)
-    );
+    this.keepAliveInterval = setInterval(() => {
+      checkNodeConnection();
+    }, keepAliveInterval);
   };
 
-  checkConnectionAsync = () => {
-    const { checkNodeConnection } = this.props;
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      checkNodeConnection();
-      this.timers.push(
-        setTimeout(() => {
-          const { isConnected } = this.props;
-          isConnected ? resolve(isConnected) : reject();
-        })
-      );
-    });
+  checkConnectionAsync = async () => {
+    try {
+      await httpService.checkNodeConnection();
+      return true;
+    } catch (err) {
+      return false;
+    }
   };
 }
 
@@ -161,5 +150,5 @@ App = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(App);
 
-App = ScreenErrorBoundary(App);
+App = ScreenErrorBoundary(App, true);
 export default App;

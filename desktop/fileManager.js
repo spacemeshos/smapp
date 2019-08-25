@@ -17,6 +17,19 @@ const writeFileAsync = util.promisify(fs.writeFile);
 const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
+const getOsTarget = (): 'mac' | 'linux' | 'windows' => {
+  switch (os.type()) {
+    case 'Darwin':
+      return 'mac';
+    case 'Linux':
+      return 'linux';
+    case 'Windows_NT':
+      return 'windows';
+    default:
+      throw new Error('Could not get OS target name.');
+  }
+};
+
 class FileManager {
   static copyFile = ({ event, fileName, filePath }) => {
     const newFilePath = path.join(appFilesDirPath, fileName);
@@ -105,23 +118,9 @@ class FileManager {
 
   static startNode = async ({ event }) => {
     const isDevMode = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
-    const getOsTarget = (): 'mac' | 'linux' | 'windows' => {
-      switch (os.type()) {
-        case 'Darwin':
-          return 'mac';
-        case 'Linux':
-          return 'linux';
-        case 'Windows_NT':
-          return 'windows';
-        default:
-          throw new Error('Could not get OS target name.');
-      }
-    };
-
-    // try {
     const osTarget = getOsTarget();
     const devPath = './miniMesh.sh';
-    // TODO: should change to actual executable file path in prod.
+    // TODO: should change prodPath to actual executable file path in prod.
     const prodPath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget === 'windows' ? '' : osTarget}go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
     const executablePath = isDevMode ? devPath : prodPath;
     child(executablePath, (err) => {
@@ -130,9 +129,6 @@ class FileManager {
       }
       event.sender.send(ipcConsts.START_NODE_SUCCESS);
     });
-    // } catch (error) {
-    //   event.sender.send(ipcConsts.START_NODE_FAILURE, error.message);
-    // }
   };
 
   static _readFile = async ({ event, filePath }) => {
