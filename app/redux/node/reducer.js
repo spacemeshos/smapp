@@ -8,7 +8,6 @@ const DEFAULT_URL = 'localhost:9091';
 
 const initialState = {
   isConnected: false,
-  nodeStarted: false,
   miningStatus: nodeConsts.NOT_MINING,
   totalEarnings: 0,
   timeTillNextReward: 0,
