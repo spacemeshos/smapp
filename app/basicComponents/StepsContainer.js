@@ -31,7 +31,6 @@ const RightSideBar = styled.img`
   height: 100%;
 `;
 
-// $FlowStyledIssue
 const StepContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -41,7 +40,6 @@ const StepContainer = styled.div`
   ${({ isFuture }) => isFuture && 'opacity: 0.4'}
 `;
 
-// $FlowStyledIssue
 const StepText = styled.div`
   font-size: 13px;
   line-height: 17px;
@@ -50,7 +48,6 @@ const StepText = styled.div`
   text-align: right;
 `;
 
-// $FlowStyledIssue
 const Indicator = styled.div`
   display: flex;
   justify-content: center;

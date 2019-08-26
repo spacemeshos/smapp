@@ -118,7 +118,6 @@ const WordsSection = styled.div`
   width: 100%;
 `;
 
-// $FlowStyledIssue
 const WordContainer = styled.div`
   border: ${({ isDraggingOver }) => (isDraggingOver ? `none` : `1px dashed ${smColors.darkGray}`)};
   height: 27px;
@@ -129,7 +128,6 @@ const WordContainer = styled.div`
   padding-left: 16px;
 `;
 
-// $FlowStyledIssue
 const TestWordContainer = styled(WordContainer)`
   background-color: ${smColors.black};
   ${({ isDropped }) =>
@@ -150,7 +148,6 @@ const TestWordDroppable = styled.div`
   margin-right: 20px;
 `;
 
-// $FlowStyledIssue
 const WordDroppable = styled.div`
   height: 27px;
   width: 155px;

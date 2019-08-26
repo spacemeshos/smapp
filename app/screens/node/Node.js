@@ -66,7 +66,6 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
-// $FlowStyledIssue
 const Status = styled.div`
   font-size: 16px;
   line-height: 20px;
@@ -78,6 +77,7 @@ const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-bottom: 20px;
 `;
 
 const LeftText = styled.div`

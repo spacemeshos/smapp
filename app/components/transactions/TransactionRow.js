@@ -35,7 +35,6 @@ const getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPendin
   return isSent ? smColors.green : smColors.orange;
 };
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -92,7 +91,6 @@ const Dots = styled(Text)`
   overflow: hidden;
 `;
 
-// $FlowStyledIssue
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
   color: ${({ color }) => color};
@@ -102,7 +100,6 @@ const DarkGrayText = styled(Text)`
   color: ${smColors.darkGray};
 `;
 
-// $FlowStyledIssue
 const Amount = styled.div`
   text-align: right;
   color: ${({ color }) => color};
@@ -144,7 +141,6 @@ const AddToContactsImg = styled.img`
   margin-left: 4px;
 `;
 
-// $FlowStyledIssue
 const TextArea = styled.textarea`
   flex: 1;
   height: ${({ rows }) => rows * 16 + 16}px;

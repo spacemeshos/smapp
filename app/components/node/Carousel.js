@@ -15,7 +15,6 @@ const Wrapper = styled.div`
   height: 170px;
 `;
 
-// $FlowStyledIssue
 const Button = styled.img`
   width: 10px;
   height: 17px;
@@ -29,7 +28,6 @@ const OuterWrapper = styled.div`
   overflow-x: hidden;
 `;
 
-// $FlowStyledIssue
 const InnerWrapper = styled.div`
   position: relative;
   display: flex;
@@ -40,7 +38,6 @@ const InnerWrapper = styled.div`
   transition: transform 0.6s linear;
 `;
 
-// $FlowStyledIssue
 const SlideUpperPart = styled.div`
   position: absolute;
   z-index: 2;
@@ -63,7 +60,6 @@ const SlideUpperPart = styled.div`
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
 `;
 
-// $FlowStyledIssue
 const SlideMiddlePart = styled.div`
   position: absolute;
   z-index: 1;
@@ -78,7 +74,6 @@ const SlideMiddlePart = styled.div`
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
 `;
 
-// $FlowStyledIssue
 const SlideLowerPart = styled.div`
   position: absolute;
   z-index: 0;

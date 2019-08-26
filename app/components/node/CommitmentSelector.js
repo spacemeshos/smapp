@@ -22,7 +22,6 @@ const DdWrapper = styled.div`
   margin-right: 100px;
 `;
 
-// $FlowStyledIssue
 const SelectorUpperPart = styled.div`
   position: absolute;
   z-index: 2;
@@ -44,7 +43,6 @@ const SelectorUpperPart = styled.div`
   ${({ isSelected, hasError }) => (hasError ? `background-color: ${smColors.orange}` : `background-color: ${isSelected ? smColors.realBlack : smColors.darkGray}`)}
 `;
 
-// $FlowStyledIssue
 const SelectorLowerPart = styled.div`
   position: absolute;
   z-index: 0;
@@ -114,7 +112,6 @@ const CustomTooltip = styled(Tooltip)`
   right: -175px;
 `;
 
-// $FlowStyledIssue
 const TooltipWrapper = styled.div`
   position: relative;
   margin-left: 5px;

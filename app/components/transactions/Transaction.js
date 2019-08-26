@@ -43,7 +43,6 @@ const NickName = styled(Text)`
   color: ${smColors.realBlack};
 `;
 
-// $FlowStyledIssue
 const Amount = styled.div`
   color: ${({ color }) => color};
 `;
