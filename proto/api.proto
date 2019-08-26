@@ -8,6 +8,11 @@ message SimpleMessage {
     string value = 1;
 }
 
+message TxConfirmation {
+    string value = 1;
+    string id = 2;
+}
+
 message AccountId {
     string address =1;
 }
@@ -19,12 +24,26 @@ message TransferFunds {
     uint64 amount =4;
 }
 
+message InitPost {
+    string logicalDrive =1;
+    uint64 commitmentSize =2;
+    string coinbase =3;
+}
+
 message SignedTransaction {
     bytes tx = 1; // serialized with XDR
 }
 
+message EligibleLayers {
+    repeated uint64 layers = 1;
+}
+
 message BroadcastMessage {
     string data = 1;
+}
+
+message BinaryMessage {
+    bytes data = 1;
 }
 
 message CommitmentSizeMessage {
@@ -33,6 +52,12 @@ message CommitmentSizeMessage {
 
 message LogicalDriveMessage {
     string logicalDrive = 1;
+}
+
+message MiningStats {
+    string dataDir = 1;
+    int32 status = 2;
+    string coinbase = 3;
 }
 
 service SpacemeshService {
@@ -54,7 +79,13 @@ service SpacemeshService {
           body: "*"
         };
     }
-    rpc SubmitTransaction(SignedTransaction) returns (SimpleMessage) {
+    rpc StartMining(InitPost) returns (SimpleMessage) {
+        option (google.api.http) = {
+          post: "/v1/startmining"
+          body: "*"
+        };
+    }
+    rpc SubmitTransaction(SignedTransaction) returns (TxConfirmation) {
         option (google.api.http) = {
           post: "/v1/submittransaction"
           body: "*"
@@ -66,15 +97,9 @@ service SpacemeshService {
           body: "*"
         };
     }
-    rpc SetCommitmentSize(CommitmentSizeMessage) returns (SimpleMessage) {
+    rpc BroadcastPoet(BinaryMessage) returns (SimpleMessage) {
         option (google.api.http) = {
-          post: "/v1/setcommitmentsize"
-          body: "*"
-        };
-    }
-    rpc SetLogicalDrive(LogicalDriveMessage) returns (SimpleMessage) {
-        option (google.api.http) = {
-          post: "/v1/setlogicaldrive"
+          post: "/v1/broadcastpoet"
           body: "*"
         };
     }
@@ -84,21 +109,9 @@ service SpacemeshService {
           body: "*"
         };
     }
-    rpc GetInitProgress(google.protobuf.Empty) returns (SimpleMessage) {
+    rpc GetMiningStats(google.protobuf.Empty) returns (MiningStats) {
         option (google.api.http) = {
-          post: "/v1/getprogress"
-          body: "*"
-        };
-    }
-    rpc GetTotalAwards(google.protobuf.Empty) returns (SimpleMessage) {
-        option (google.api.http) = {
-          post: "/v1/gettotalawards"
-          body: "*"
-        };
-    }
-    rpc GetUpcomingAwards(google.protobuf.Empty) returns (SimpleMessage) {
-        option (google.api.http) = {
-          post: "/v1/getupcomingawards"
+          post: "/v1/stats"
           body: "*"
         };
     }

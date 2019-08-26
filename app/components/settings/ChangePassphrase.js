@@ -2,180 +2,144 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { deriveEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
-import { Modal, SmButton, SmInput, Loader } from '/basicComponents';
-import { fileSystemService } from '/infra/fileSystemService';
+import { generateEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
+import { ErrorPopup, Input, Link, Loader } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action, Account } from '/types';
 
-// TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
-const passwordMinimumLentgth = 1;
-
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex: 1;
-  justify-content: space-between;
-  padding: 30px;
 `;
 
-const UpperPart = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: space-between;
-`;
-
-const BottomPart = styled.div`
+const LeftPart = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
+  flex: 3;
 `;
 
-const GrayText = styled.span`
-  font-size: 16px;
-  text-align: left;
-  color: ${smColors.gray};
-  line-height: 29px;
-`;
-
-const UpperPartHeader = styled.span`
-  font-size: 24px;
-  text-align: left;
-  color: ${smColors.black};
-`;
-
-const Link = styled(GrayText)`
-  font-size: 16px;
-  text-align: left;
-  color: ${smColors.green};
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-  &:active {
-    opacity: 0.6;
-  }
-`;
-
-const LoaderWrapper = styled.div`
-  height: 100%;
-  width: 100%;
+const RightPart = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  flex: 2;
+  justify-content: flex-end;
   align-items: center;
 `;
 
 type Props = {
-  deriveEncryptionKey: Action,
+  generateEncryptionKey: Action,
   updateAccountsInFile: Action,
   accounts: Account[],
   goBack: () => void
 };
 
 type State = {
+  isEditMode: boolean,
   passphrase: string,
   verifiedPassphrase: string,
-  passphraseError: ?string,
-  verifyPassphraseError: ?string,
+  passphraseError: string,
+  verifyPassphraseError: string,
   isLoaderVisible: boolean
 };
 
 class ChangePassphrase extends Component<Props, State> {
+  timeOut: any;
+
   state = {
+    isEditMode: false,
     passphrase: '',
     verifiedPassphrase: '',
-    passphraseError: null,
-    verifyPassphraseError: null,
+    passphraseError: '',
+    verifyPassphraseError: '',
     isLoaderVisible: false
   };
 
   render() {
-    const { goBack } = this.props;
-    return <Modal header="Change Passphrase" onCancelBtnClick={goBack} onCloseClick={goBack} content={this.renderModalBody()} />;
-  }
-
-  renderModalBody = () => {
-    const { isLoaderVisible, passphraseError, verifyPassphraseError } = this.state;
+    const { isEditMode, passphrase, verifiedPassphrase, isLoaderVisible, passphraseError, verifyPassphraseError } = this.state;
     if (isLoaderVisible) {
-      return (
-        <LoaderWrapper>
-          <Loader size={Loader.sizes.BIG} />
-        </LoaderWrapper>
-      );
+      return <Loader size={Loader.sizes.BIG} />;
     }
     return (
       <Wrapper>
-        <UpperPart>
-          <UpperPartHeader>Encrypt your Wallet</UpperPartHeader>
-          <GrayText>{`Must be at least ${passwordMinimumLentgth} character${passwordMinimumLentgth > 1 ? 's' : ''}`}</GrayText>
-          <SmInput
-            type="password"
-            placeholder="Type passphrase"
-            errorMsg={passphraseError}
-            onEnterPress={this.handleEnterPress}
-            onChange={this.handlePassphraseTyping}
-            hasDebounce
-          />
-          <SmInput
-            type="password"
-            placeholder="Verify passphrase"
-            errorMsg={verifyPassphraseError}
-            onEnterPress={this.handleEnterPress}
-            onChange={this.handlePassphraseVerifyTyping}
-            hasDebounce
-          />
-          <GrayText>
-            Your Wallet file is encrypted and saved on your computer. <Link onClick={this.openWalletBackupDirectory}>Show me the file</Link>
-          </GrayText>
-        </UpperPart>
-        <BottomPart>
-          <SmButton text="Next" theme="orange" onPress={this.updatePassphrase} style={{ marginTop: 20 }} />
-        </BottomPart>
+        <LeftPart>
+          {isEditMode ? (
+            [
+              <Input value={passphrase} type="password" placeholder="Type passphrase" onChange={this.handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" />,
+              <Input value={verifiedPassphrase} type="password" placeholder="Verify passphrase" onChange={this.handlePasswordVerifyTyping} key="passRetype" />
+            ]
+          ) : (
+            <Input value="***********" type="password" isDisabled />
+          )}
+          {(!!passphraseError || !!verifyPassphraseError) && (
+            <ErrorPopup
+              onClick={() => this.setState({ passphraseError: '', verifyPassphraseError: '' })}
+              text={passphraseError || verifyPassphraseError}
+              style={{ top: '95px', right: '-30px' }}
+            />
+          )}
+        </LeftPart>
+        <RightPart>
+          {isEditMode ? (
+            [
+              <Link onClick={this.updatePassphrase} text="SAVE" style={{ marginRight: 15 }} key="change" />,
+              <Link onClick={this.cancelUpdatingPassphrase} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+            ]
+          ) : (
+            <Link onClick={this.startUpdatingPassphrase} text="CHANGE" />
+          )}
+        </RightPart>
       </Wrapper>
     );
+  }
+
+  componentWillUnmount() {
+    this.timeOut && clearTimeout(this.timeOut);
+  }
+
+  handlePasswordTyping = ({ value }: { value: string }) => {
+    this.setState({ passphrase: value, passphraseError: '' });
   };
 
-  handleEnterPress = () => {
-    const { passphrase, verifiedPassphrase, passphraseError, verifyPassphraseError } = this.state;
-    if (!!passphrase || !!verifiedPassphrase || !passphraseError || !verifyPassphraseError) {
-      this.updatePassphrase();
-    }
+  handlePasswordVerifyTyping = ({ value }: { value: string }) => {
+    this.setState({ verifiedPassphrase: value, verifyPassphraseError: '' });
   };
 
-  handlePassphraseTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, passphraseError: null });
-  };
+  startUpdatingPassphrase = () => this.setState({ isEditMode: true });
 
-  handlePassphraseVerifyTyping = ({ value }: { value: string }) => {
-    this.setState({ verifiedPassphrase: value, verifyPassphraseError: null });
+  cancelUpdatingPassphrase = () => {
+    this.setState({ passphrase: '', isEditMode: false, passphraseError: '', verifyPassphraseError: '' });
   };
 
   validate = () => {
     const { passphrase, verifiedPassphrase } = this.state;
-    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < passwordMinimumLentgth);
+    const pasMinLength = 1; // TODO: Changed to 8 before testnet.
+    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < pasMinLength);
     const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? `Passphrase has to be ${passwordMinimumLentgth} characters or more.` : null;
-    const verifyPassphraseError = hasVerifyPassphraseError ? 'Passphrase does not match.' : null;
+    const passphraseError = hasPassphraseError ? `Passphrase has to be ${pasMinLength} characters or more.` : '';
+    const verifyPassphraseError = hasVerifyPassphraseError ? "these passphrases don't match, please try again " : '';
     this.setState({ passphraseError, verifyPassphraseError });
     return !passphraseError && !verifyPassphraseError;
   };
 
   updatePassphrase = async () => {
-    const { deriveEncryptionKey, updateAccountsInFile, accounts, goBack } = this.props;
+    const { generateEncryptionKey, updateAccountsInFile, accounts, goBack } = this.props;
     const { passphrase, isLoaderVisible } = this.state;
-    const canProceed = this.validate();
-    if (canProceed && !isLoaderVisible) {
+    if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
-      await setTimeout(async () => {
-        deriveEncryptionKey({ passphrase });
-        await updateAccountsInFile({ accounts });
-        goBack();
-      }, 500);
+      try {
+        this.timeOut = await setTimeout(async () => {
+          generateEncryptionKey({ passphrase });
+          await updateAccountsInFile({ accounts });
+          goBack();
+        }, 500);
+      } catch (error) {
+        this.setState(() => {
+          throw error;
+        });
+      }
     }
-  };
-
-  openWalletBackupDirectory = async () => {
-    await fileSystemService.openWalletBackupDirectory();
   };
 }
 
@@ -184,11 +148,11 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  deriveEncryptionKey,
+  generateEncryptionKey,
   updateAccountsInFile
 };
 
-ChangePassphrase = connect(
+ChangePassphrase = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
 )(ChangePassphrase);

@@ -1,5 +1,28 @@
 // @flow
-import { Auth, Main, LocalNode, Wallet, Overview, SendCoins, Backup, TwelveWordsBackup, Transactions, Settings, Contacts, TestMe, Network } from '/screens';
+import {
+  Auth,
+  Welcome,
+  UnlockWallet,
+  CreateWallet,
+  RestoreWallet,
+  FileRestore,
+  WordsRestore,
+  Main,
+  Node,
+  NodeSetup,
+  Wallet,
+  Overview,
+  SendCoins,
+  RequestCoins,
+  Backup,
+  BackupRoot,
+  FileBackup,
+  TwelveWordsBackup,
+  Transactions,
+  Settings,
+  Contacts,
+  TestMe
+} from '/screens';
 
 const app = [
   {
@@ -12,14 +35,49 @@ const app = [
   }
 ];
 
+const auth = [
+  {
+    path: '/auth/welcome',
+    component: Welcome
+  },
+  {
+    path: '/auth/unlock',
+    component: UnlockWallet
+  },
+  {
+    path: '/auth/create',
+    component: CreateWallet
+  },
+  {
+    path: '/auth/restore',
+    component: RestoreWallet
+  },
+  {
+    path: '/auth/file-restore',
+    component: FileRestore
+  },
+  {
+    path: '/auth/words-restore',
+    component: WordsRestore
+  }
+];
+
 const main = [
   {
     path: '/main/wallet',
     component: Wallet
   },
   {
-    path: '/main/local-node',
-    component: LocalNode
+    path: '/main/node-setup',
+    component: NodeSetup
+  },
+  {
+    path: '/main/node',
+    component: Node
+  },
+  {
+    path: '/main/backup',
+    component: Backup
   },
   {
     path: '/main/transactions',
@@ -32,10 +90,6 @@ const main = [
   {
     path: '/main/settings',
     component: Settings
-  },
-  {
-    path: '/main/network',
-    component: Network
   }
 ];
 
@@ -45,27 +99,40 @@ const wallet = [
     component: Overview
   },
   {
-    path: '/main/wallet/sendCoins',
+    path: '/main/wallet/send-coins',
     component: SendCoins
   },
   {
-    path: '/main/wallet/backup',
-    component: Backup
+    path: '/main/wallet/request-coins',
+    component: RequestCoins
+  }
+];
+
+const backup = [
+  {
+    path: '/main/backup/backup-root',
+    component: BackupRoot
   },
   {
-    path: '/main/wallet/twelve-words-backup',
+    path: '/main/backup/twelve-words-backup',
     component: TwelveWordsBackup
   },
   {
-    path: '/main/wallet/test-twelve-words-backup',
+    path: '/main/backup/test-twelve-words-backup',
     component: TestMe
+  },
+  {
+    path: '/main/backup/file-backup',
+    component: FileBackup
   }
 ];
 
 const routes = {
   app,
+  auth,
   main,
-  wallet
+  wallet,
+  backup
 };
 
 export default routes;

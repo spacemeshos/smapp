@@ -17,6 +17,66 @@ class NetService {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
+  _checkNetworkConnection = () =>
+    new Promise((resolve, reject) => {
+      this.service.Echo({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _getMiningStatus = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetMiningStats({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
+    new Promise((resolve, reject) => {
+      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _getGenesisTime = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetGenesisTime({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _getUpcomingRewards = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetUpcomingAwards({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
+  _setAwardsAddress = ({ address }) =>
+    new Promise((resolve, reject) => {
+      this.service.SetAwardsAddress({ address }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   _getNonce = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.GetNonce({ address }, (error, response) => {
@@ -47,75 +107,83 @@ class NetService {
       });
     });
 
-  _getLocalNodeSetupProgress = () =>
+  _getTxList = ({ address, layerId }) =>
     new Promise((resolve, reject) => {
-      this.service.GetInitProgress({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
+      let transactions = [];
+      const stream = this.service.GetTxList({ address, layerId });
+      stream.on('data', (data) => {
+        transactions = transactions.concat(data);
+      });
+      stream.on('end', function() {
+        resolve(transactions);
+      });
+      stream.on('error', function(error) {
+        reject(error);
       });
     });
 
-  _getTotalEarnings = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetTotalAwards({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
+  checkNetworkConnection = async ({ event }) => {
+    try {
+      const { value } = await this._checkNetworkConnection();
+      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_FAILURE, error.message);
+    }
+  };
 
-  _getUpcomingEarnings = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetUpcomingAwards({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
+  getMiningStatus = async ({ event }) => {
+    try {
+      const { status } = await this._getMiningStatus();
+      event.sender.send(ipcConsts.GET_MINING_STATUS_SUCCESS, status);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, error.message);
+    }
+  };
 
-  _setCommitmentSize = ({ commitmentSize }) =>
-    new Promise((resolve, reject) => {
-      this.service.SetCommitmentSize({ commitmentSize }, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
+  initMining = async ({ event, logicalDrive, commitmentSize, address }) => {
+    try {
+      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase: address });
+      event.sender.send(ipcConsts.INIT_MINING_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.INIT_MINING_FAILURE, error.message);
+    }
+  };
 
-  _setLogicalDrive = ({ logicalDrive }) =>
-    new Promise((resolve, reject) => {
-      this.service.SetLogicalDrive({ logicalDrive }, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
+  getGenesisTime = async ({ event }) => {
+    try {
+      const { value } = await this._getGenesisTime();
+      event.sender.send(ipcConsts.GET_GENESIS_TIME_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_GENESIS_TIME_FAILURE, error.message);
+    }
+  };
 
-  _setAwardsAddress = ({ address }) =>
-    new Promise((resolve, reject) => {
-      this.service.SetAwardsAddress({ address }, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
+  getUpcomingRewards = async ({ event }) => {
+    try {
+      const { value } = await this._getUpcomingRewards();
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, error.message);
+    }
+  };
 
-  _checkNetworkConnection = () =>
-    new Promise((resolve, reject) => {
-      this.service.Echo({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
+  setNodeIpAddress = ({ event, nodeIpAddress }) => {
+    try {
+      this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
+      event.sender.send(ipcConsts.SET_NODE_IP_SUCCESS, nodeIpAddress);
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, error.message);
+    }
+  };
+
+  setAwardsAddress = async ({ event, address }) => {
+    try {
+      const { value } = await this._setAwardsAddress({ address });
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
+    }
+  };
 
   getBalance = async ({ event, address }) => {
     try {
@@ -137,82 +205,19 @@ class NetService {
 
   sendTx = async ({ event, tx }) => {
     try {
-      const { value } = await this._submitTransaction({ tx });
-      event.sender.send(ipcConsts.SEND_TX_SUCCESS, value);
+      const { id } = await this._submitTransaction({ tx });
+      event.sender.send(ipcConsts.SEND_TX_SUCCESS, id);
     } catch (error) {
       event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
     }
   };
 
-  getLocalNodeSetupProgress = async ({ event }) => {
+  getTxList = async ({ event, address, layerId }) => {
     try {
-      const { value } = await this._getLocalNodeSetupProgress();
-      event.sender.send(ipcConsts.GET_INIT_PROGRESS_SUCCESS, value);
+      const { transactions } = await this._getTxList({ address, layerId });
+      event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, transactions);
     } catch (error) {
-      event.sender.send(ipcConsts.GET_INIT_PROGRESS_FAILURE, error.message);
-    }
-  };
-
-  getTotalEarnings = async ({ event }) => {
-    try {
-      const { value } = await this._getTotalEarnings();
-      event.sender.send(ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_TOTAL_EARNINGS_FAILURE, error.message);
-    }
-  };
-
-  getUpcomingEarnings = async ({ event }) => {
-    try {
-      const { value } = await this._getUpcomingEarnings();
-      event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_EARNINGS_FAILURE, error.message);
-    }
-  };
-
-  setCommitmentSize = async ({ event, commitmentSize }) => {
-    try {
-      const { value } = await this._setCommitmentSize({ mbCommitted: commitmentSize });
-      event.sender.send(ipcConsts.SET_COMMITMENT_SIZE_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_COMMITMENT_SIZE_FAILURE, error.message);
-    }
-  };
-
-  setLogicalDrive = async ({ event, logicalDrive }) => {
-    try {
-      const { value } = await this._setLogicalDrive({ logicalDrive });
-      event.sender.send(ipcConsts.SET_LOGICAL_DRIVE_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_LOGICAL_DRIVE_FAILURE, error.message);
-    }
-  };
-
-  setAwardsAddress = async ({ event, awardsAddress }) => {
-    try {
-      const { value } = await this._setAwardsAddress({ awardsAddress });
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
-    }
-  };
-
-  checkNetworkConnection = async ({ event }) => {
-    try {
-      const { value } = await this._checkNetworkConnection();
-      event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.CHECK_NETWORK_CONNECTION_FAILURE, error.message);
-    }
-  };
-
-  setNodeIpAddress = ({ event, nodeIpAddress }) => {
-    try {
-      this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
-      event.sender.send(ipcConsts.SET_NODE_IP_SUCCESS, nodeIpAddress);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);
     }
   };
 }

@@ -4,15 +4,15 @@ import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 
 class FsService {
-  static getFileName = () => {
-    ipcRenderer.send(ipcConsts.GET_FILE_NAME);
+  static copyFile = ({ fileName, filePath }: { fileName: string, filePath: string }) => {
+    ipcRenderer.send(ipcConsts.COPY_FILE, { fileName, filePath });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_FILE_NAME_SUCCESS, (event, xml) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_FILE_NAME_SUCCESS, ipcConsts.GET_FILE_NAME_FAILURE] });
+      ipcRenderer.once(ipcConsts.COPY_FILE_SUCCESS, (event, xml) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.COPY_FILE_SUCCESS, ipcConsts.COPY_FILE_FAILED] });
         resolve(xml);
       });
-      ipcRenderer.once(ipcConsts.GET_FILE_NAME_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_FILE_NAME_SUCCESS, ipcConsts.GET_FILE_NAME_FAILURE] });
+      ipcRenderer.once(ipcConsts.COPY_FILE_FAILED, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.COPY_FILE_SUCCESS, ipcConsts.COPY_FILE_FAILED] });
         reject(args);
       });
     });
@@ -46,8 +46,8 @@ class FsService {
     });
   };
 
-  static saveFile = ({ fileName, fileContent, showDialog }: { fileName: string, fileContent: string, showDialog: string }) => {
-    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, showDialog });
+  static saveFile = ({ fileName, fileContent, saveToDocumentsFolder }: { fileName: string, fileContent: string, saveToDocumentsFolder: boolean }) => {
+    ipcRenderer.send(ipcConsts.SAVE_FILE, { fileName, fileContent, saveToDocumentsFolder });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SAVE_FILE_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SAVE_FILE_SUCCESS, ipcConsts.SAVE_FILE_FAILURE] });
@@ -74,8 +74,8 @@ class FsService {
     });
   };
 
-  static openWalletBackupDirectory = () => {
-    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY);
+  static openWalletBackupDirectory = ({ lastBackupTime }: { lastBackupTime?: string }) => {
+    ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS, ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE] });

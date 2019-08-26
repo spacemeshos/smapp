@@ -1,71 +1,70 @@
+// @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { SmButton } from '/basicComponents';
 import smColors from '/vars/colors';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid ${smColors.borderGray};
-  ${({ withTopBorder }) => withTopBorder && `border-top: 1px solid ${smColors.borderGray};`}
-  &: last-child {
-    margin-bottom: 30px;
-  }
+  flex-direction: column;
+  margin-bottom: 25px;
 `;
 
-const MainText = styled.div`
-  min-width: 150px;
-  margin-right: 20px;
-  font-size: 16px;
-  line-height: 22px;
-  font-weight: bold;
-  color: ${smColors.darkGray};
-`;
-
-const TextWrapper = styled.div`
+const UpperPart = styled.div`
   display: flex;
   flex-direction: row;
+  margin-bottom: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid ${smColors.realBlack};
+`;
+
+const UpperPartLeft = styled.div`
+  display: flex;
   align-items: center;
-  margin-top: 10px;
+  flex: 3;
+`;
+
+const UpperPartRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 2;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const Name = styled.div`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.realBlack};
 `;
 
 const Text = styled.div`
-  font-size: 16px;
-  line-height: 22px;
-  color: ${smColors.darkGray50Alpha};
+  font-size: 13px;
+  line-height: 17px;
+  color: ${smColors.black};
 `;
 
-const buttonStyle = { width: 200 };
-
 type Props = {
-  text: string,
-  subText?: string,
-  customSubText?: Array,
-  action?: Function,
-  actionText?: string,
-  customAction?: Object,
-  isDisabled?: boolean,
-  withTopBorder?: boolean
+  upperPart?: any,
+  upperPartLeft: any,
+  isUpperPartLeftText?: boolean,
+  upperPartRight: any,
+  rowName: string
 };
 
 class SettingRow extends PureComponent<Props> {
   render() {
-    const { text, subText, customSubText, action, actionText, customAction, isDisabled, withTopBorder } = this.props;
+    const { upperPart, upperPartLeft, isUpperPartLeftText, upperPartRight, rowName } = this.props;
     return (
-      <Wrapper withTopBorder={withTopBorder}>
-        {subText || customSubText ? (
-          <div>
-            <MainText>{text}</MainText>
-            <TextWrapper>{customSubText || <Text>{subText}</Text>}</TextWrapper>
-          </div>
-        ) : (
-          <MainText>{text}</MainText>
-        )}
-        {customAction || (actionText && <SmButton text={actionText} onPress={action} isDisabled={isDisabled} style={buttonStyle} />)}
+      <Wrapper>
+        <UpperPart>
+          {upperPart || (
+            <React.Fragment>
+              <UpperPartLeft>{isUpperPartLeftText ? <Text>{upperPartLeft}</Text> : upperPartLeft}</UpperPartLeft>
+              <UpperPartRight>{upperPartRight}</UpperPartRight>
+            </React.Fragment>
+          )}
+        </UpperPart>
+        <Name>{rowName}</Name>
       </Wrapper>
     );
   }

@@ -7,20 +7,20 @@
 <PROJECT_ROOT>/release/.*
 <PROJECT_ROOT>/dll/.*
 <PROJECT_ROOT>/git/.*
-<PROJECT_ROOT>/node_modules/
+<PROJECT_ROOT>/node_modules/.*
 
 [include]
 
 [libs]
 flow-typed
+type-def-libs
 
 [options]
-
 module.name_mapper='^/\(.*\)' -> '<PROJECT_ROOT>/app/\1'
-suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
+esproposal.optional_chaining=enable
 
 [lints]
 deprecated-utility=off
 
 [version]
-^0.98.1
+0.104.0

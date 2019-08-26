@@ -106,7 +106,7 @@
     "flowtype/require-return-type": "off",
     "flowtype/require-valid-file-annotation": "off",
     "flowtype/semi": ["error", "always"],
-    "flowtype/use-flow-type": "error",
+    "flowtype/use-flow-type": "warn",
     "flowtype/valid-syntax": "error",
     "no-use-before-define": "off",
     "react/no-array-index-key": 0

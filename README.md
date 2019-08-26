@@ -10,7 +10,7 @@
 </a>
 </p>
 
-![](https://raw.githubusercontent.com/spacemeshos/smapp/master/mocks/desktop_look.jpg)
+![](https://github.com/spacemeshos/smapp/blob/develop/design/release_0.4/smapp_wallet_desktop.png)
 
 # MVP1 Milestone
 - [Interactive Prototype](https://xd.adobe.com/view/d1d14f8b-4c11-46a9-400b-c0157ecae268-a7e0/?fullscreen)
