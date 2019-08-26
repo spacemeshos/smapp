@@ -19,9 +19,10 @@ export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dis
   try {
     await httpService.checkNodeConnection();
     dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+    return { isConnected: true };
   } catch (err) {
     dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    throw err;
+    return { isConnected: false };
   }
 };
 

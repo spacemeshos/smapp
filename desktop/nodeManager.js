@@ -28,6 +28,8 @@ class NodeManager {
       event.sender.send(ipcConsts.START_NODE_SUCCESS);
     });
   };
+
+  static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 }
 
 export default NodeManager;

@@ -17,6 +17,10 @@ class NodeService {
       });
     });
   }
+
+  static hardRefresh() {
+    ipcRenderer.send(ipcConsts.HARD_REFRESH);
+  }
 }
 
 export default NodeService;

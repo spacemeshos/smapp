@@ -52,11 +52,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     mainWindow.focus();
   });
 
-  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
-    const isInFocus = mainWindow.isFocused();
-    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
-  });
-
   ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
     WalletAutoStarter.toggleAutoStart();
   });
@@ -69,14 +64,18 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.startNode({ event });
   });
 
+  ipcMain.on(ipcConsts.HARD_REFRESH, async () => {
+    NodeManager.hardRefresh({ browserWindow: mainWindow });
+  });
+
   /**
    ******************************************* gRPS Calls **************************************
    */
-  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, async (event) => {
+  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, (event) => {
     netService.checkNetworkConnection({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_MINING_STATUS, async (event) => {
+  ipcMain.on(ipcConsts.GET_MINING_STATUS, (event) => {
     netService.getMiningStatus({ event });
   });
 
@@ -100,27 +99,27 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.setNodeIpAddress({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_TOTAL_AWARDS, async (event) => {
+  ipcMain.on(ipcConsts.GET_TOTAL_AWARDS, (event) => {
     netService.getTotalAwards({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_UPCOMING_AWARD, async (event) => {
+  ipcMain.on(ipcConsts.GET_UPCOMING_AWARD, (event) => {
     netService.getUpcomingAward({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
+  ipcMain.on(ipcConsts.GET_BALANCE, (event, request) => {
     netService.getBalance({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_NONCE, async (event, request) => {
+  ipcMain.on(ipcConsts.GET_NONCE, (event, request) => {
     netService.getNonce({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
+  ipcMain.on(ipcConsts.SEND_TX, (event, request) => {
     netService.sendTx({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_LATEST_VALID_LAYER_ID, async (event) => {
+  ipcMain.on(ipcConsts.GET_LATEST_VALID_LAYER_ID, (event) => {
     netService.getLatestValidLayerId({ event });
   });
 

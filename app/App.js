@@ -9,7 +9,6 @@ import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
-import { httpService } from '/infra/httpService';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
 
@@ -24,7 +23,6 @@ setConfig(configOptions);
 type Props = {};
 
 type State = {
-  isConnectedState: boolean[],
   error: ?Error
 };
 
@@ -36,25 +34,14 @@ class App extends React.Component<Props, State> {
 
   checkConnectionTimer: TimeoutID;
 
-  unsubscribe: () => void;
-
   state = {
-    isConnectedState: [false, false],
     error: null
   };
 
   render() {
     const { error } = this.state;
     if (error) {
-      return (
-        <ErrorHandlerModal
-          componentStack={''}
-          explanationText="Retry failed action or refresh page"
-          error={error}
-          onRetry={() => this.setState({ error: null }, this.localNodeFlow)}
-          onRefresh={() => this.setState({ error: null })}
-        />
-      );
+      return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
     return (
       <React.Fragment>
@@ -74,9 +61,8 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.subscribeToStore();
-    const isConnected = await this.checkConnectionAsync();
     this.clearTimers();
+    const { isConnected } = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       await this.localNodeFlow();
     } else {
@@ -86,20 +72,8 @@ class App extends React.Component<Props, State> {
 
   componentWillUnmount(): void {
     this.clearTimers();
-    this.unsubscribe();
     store.dispatch(logout());
   }
-
-  subscribeToStore = () => {
-    this.unsubscribe = store.subscribe(() => {
-      const { isConnectedState } = this.state;
-      const newIsConnectedState = [store.getState().node.isConnected, isConnectedState[0]];
-      const [isConnected, isConnectedPrev] = newIsConnectedState;
-      const hasDisconnectError = isConnectedPrev && !isConnected;
-      hasDisconnectError && this.clearTimers();
-      this.setState({ isConnectedState: newIsConnectedState, error: hasDisconnectError ? new Error('Disconnected from Spacemesh Node.') : null });
-    });
-  };
 
   clearTimers = () => {
     this.healthCheckInterval && clearInterval(this.healthCheckInterval);
@@ -134,8 +108,10 @@ class App extends React.Component<Props, State> {
             } catch {
               // Ignoring this error since we still want to check connection if node is already running.
             }
-            const isConnected = await this.checkConnectionAsync();
-            isConnected && resolve();
+            this.checkConnectionTimer = setTimeout(async () => {
+              const { isConnected } = await store.dispatch(checkNodeConnection());
+              isConnected && resolve();
+            }, 1000);
           } else {
             resolve();
           }
@@ -145,20 +121,11 @@ class App extends React.Component<Props, State> {
   };
 
   healthCheckFlow = () => {
-    const healthCheckInterval = 50000;
+    const healthCheckIntervalTime = 60000;
     store.dispatch(checkNodeConnection());
     this.healthCheckInterval = setInterval(() => {
       store.dispatch(checkNodeConnection());
-    }, healthCheckInterval);
-  };
-
-  checkConnectionAsync = async () => {
-    try {
-      await httpService.checkNodeConnection();
-      return true;
-    } catch (err) {
-      return false;
-    }
+    }, healthCheckIntervalTime);
   };
 }
 
