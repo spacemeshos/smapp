@@ -74,7 +74,6 @@ const RightPaneWrapper = styled(CorneredWrapper)`
   padding: 20px 14px;
 `;
 
-// $FlowStyledIssue
 const TimeSpanEntry = styled.div`
   display: flex;
   flex-direction: column;

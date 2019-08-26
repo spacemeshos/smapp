@@ -12,7 +12,7 @@ import type { RouterHistory } from 'react-router-dom';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 600px;
+  width: 610px;
   height: 100%;
   padding: 15px 25px;
   background-color: ${smColors.black02Alpha};

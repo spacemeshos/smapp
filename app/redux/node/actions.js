@@ -3,16 +3,27 @@ import { httpService } from '/infra/httpService';
 import { createError } from '/infra/utils';
 import { Action, Dispatch } from '/types';
 
+export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
+
 export const SET_MINING_STATUS: string = 'SET_MINING_STATUS';
 export const INIT_MINING: string = 'INIT_MINING';
 
+export const SET_GENESIS_TIME: string = 'SET_GENESIS_TIME';
 export const SET_TOTAL_AWARDS: string = 'SET_TOTAL_AWARDS';
-export const SET_UPCOMING_EARNINGS: string = 'SET_UPCOMING_EARNINGS';
-
-export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
+export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
 
 export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
+
+export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    await httpService.checkNodeConnection();
+    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+  } catch (err) {
+    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
+    throw err;
+  }
+};
 
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -34,31 +45,21 @@ export const initMining = ({ capacity, drive, address }: { capacity: { id: numbe
   }
 };
 
-export const getTotalAwards = (): Action => async (dispatch: Dispatch): Dispatch => {
+export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    const totalEarnings = await httpService.getTotalAwards();
-    dispatch({ type: SET_TOTAL_AWARDS, payload: { totalEarnings } });
-  } catch (err) {
-    throw createError('Error retrieving total rewards', getTotalAwards);
-  }
-};
-
-export const getUpcomingAward = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const timeTillNextReward = await httpService.getUpcomingAward();
-    dispatch({ type: SET_UPCOMING_EARNINGS, payload: { timeTillNextReward } });
+    const genesisTime = await httpService.getGenesisTime();
+    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }
 };
 
-export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
+export const getUpcomingRewards = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.checkNodeConnection();
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+    const timeTillNextReward = await httpService.getUpcomingRewards();
+    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextReward } });
   } catch (err) {
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    throw err;
+    console.error(err); // eslint-disable-line no-console
   }
 };
 

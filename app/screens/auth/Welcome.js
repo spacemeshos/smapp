@@ -77,7 +77,6 @@ const CustomTooltip = styled(Tooltip)`
   right: -175px;
 `;
 
-// $FlowStyledIssue
 const TooltipWrapper = styled.div`
   position: absolute;
   top: -4px;

@@ -55,7 +55,7 @@ const BackupText = styled.div`
 const FullCrossIcon = styled.img`
   position: absolute;
   top: -11px;
-  right: -9px;
+  right: -13px;
   width: 12px;
   height: 12px;
 `;

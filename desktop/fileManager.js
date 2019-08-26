@@ -1,11 +1,8 @@
 import fs from 'fs';
 import util from 'util';
 import path from 'path';
-import os from 'os';
 import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
-
-const child = require('child_process').execFile;
 
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
@@ -16,19 +13,6 @@ const writeFileAsync = util.promisify(fs.writeFile);
 // Windows: C:\Users\<user>\AppData\Local\<App Name>
 const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
-
-const getOsTarget = (): 'mac' | 'linux' | 'windows' => {
-  switch (os.type()) {
-    case 'Darwin':
-      return 'mac';
-    case 'Linux':
-      return 'linux';
-    case 'Windows_NT':
-      return 'windows';
-    default:
-      throw new Error('Could not get OS target name.');
-  }
-};
 
 class FileManager {
   static copyFile = ({ event, fileName, filePath }) => {

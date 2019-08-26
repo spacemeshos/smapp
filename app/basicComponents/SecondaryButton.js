@@ -5,7 +5,6 @@ import { smColors } from '/vars';
 
 const GAP = 3;
 
-// $FlowStyledIssue
 const UpperPart = styled.div`
   position: absolute;
   z-index: 1;
@@ -29,14 +28,12 @@ const UpperPart = styled.div`
   cursor: inherit;
 `;
 
-// $FlowStyledIssue
 const Image = styled.img`
   width: ${({ imgWidth }) => imgWidth}px;
   height: ${({ imgHeight }) => imgHeight}px;
   cursor: inherit;
 `;
 
-// $FlowStyledIssue
 const LowerPart = styled.div`
   position: absolute;
   z-index: 0;
@@ -58,7 +55,6 @@ const LowerPart = styled.div`
   cursor: inherit;
 `;
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   position: relative;
   width: ${25 + GAP}px;

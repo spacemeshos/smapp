@@ -84,7 +84,15 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.initMining({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
+  ipcMain.on(ipcConsts.GET_GENESIS_TIME, (event) => {
+    netService.getGenesisTime({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
+    netService.getUpcomingRewards({ event });
+  });
+
+  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {
     netService.setAwardsAddress({ event, ...request });
   });
 
@@ -116,7 +124,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getLatestValidLayerId({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_TX_LIST, async (event, request) => {
+  ipcMain.on(ipcConsts.GET_TX_LIST, (event, request) => {
     netService.getTxList({ event, ...request });
   });
 };

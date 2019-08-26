@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { chevronBottomBlack } from '/assets/images';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
@@ -22,7 +21,6 @@ const Wrapper = styled.div`
   `};
 `;
 
-// $FlowStyledIssue
 const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -34,11 +32,10 @@ const HeaderWrapper = styled.div`
   ${({ isOpened }) =>
     isOpened &&
     `
-    box-shadow: 0 3px 6px ${smColors.black20alpha};
+    box-shadow: 0 3px 6px ${smColors.black02Alpha};
   `}
 `;
 
-// $FlowStyledIssue
 const Icon = styled.img`
   height: 11px;
   width: 22px;
@@ -48,7 +45,6 @@ const Icon = styled.img`
   cursor: inherit;
 `;
 
-// $FlowStyledIssue
 const ItemsWrapper = styled.div`
   position: absolute;
   top: ${({ rowHeight }) => rowHeight - 1}px;
@@ -58,11 +54,10 @@ const ItemsWrapper = styled.div`
   overflow: hidden;
   transition: all 0.2s linear;
   overflow-y: scroll;
-  box-shadow: 0 3px 6px ${smColors.black20alpha};
+  box-shadow: 0 3px 6px ${smColors.black02Alpha};
   background-color: ${smColors.white};
 `;
 
-// $FlowStyledIssue
 const DropdownRow = styled.div`
   display: flex;
   justify-content: center;

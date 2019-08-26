@@ -46,7 +46,6 @@ const Bar = styled.div`
   position: relative;
 `;
 
-// $FlowStyledIssue
 const Progress = styled.div`
   width: ${({ total, coins }) => (coins / total) * 100}%;
   height: inherit;

@@ -16,8 +16,7 @@ const smColors = {
   realBlack: '#000000',
   black10Alpha: 'rgba(0, 0, 0, 0.1)',
   black02Alpha: 'rgba(0, 0, 0, 0.02)',
-  darkGray50Alpha: 'rgba(64, 64, 64, 0.5)',
-  black20alpha: 'rgba(0, 0, 0, 0.2)'
+  darkGray50Alpha: 'rgba(64, 64, 64, 0.5)'
 };
 
 export default smColors;

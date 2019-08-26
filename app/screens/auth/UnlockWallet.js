@@ -10,7 +10,6 @@ import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
-// $FlowStyledIssue
 const Indicator = styled.div`
   position: absolute;
   top: 0;

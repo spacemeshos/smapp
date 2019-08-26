@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getTotalAwards, getUpcomingAward } from '/redux/node/actions';
+import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -66,7 +66,6 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
-// $FlowStyledIssue
 const Status = styled.div`
   font-size: 16px;
   line-height: 20px;
@@ -74,45 +73,42 @@ const Status = styled.div`
   margin-bottom: 30px;
 `;
 
-const ComplexTextWrapper = styled.div`
-  position: relative;
+const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  &:before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 0;
-    line-height: 0;
-    border-bottom: 1px dotted ${smColors.realBlack};
-  }
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
-const TruncatedText = styled(Text)`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+const LeftText = styled.div`
+  margin-right: 15px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
 `;
 
-const NonShrinkableText = styled(Text)`
-  flex-shrink: 0;
+const RightText = styled.div`
+  flex: 1;
+  margin-right: 0;
+  margin-left: 15px;
+  text-align: right;
 `;
 
-const NonShrinkableGreenText = styled(Text)`
-  flex-shrink: 0;
+const GreenText = styled(RightText)`
   color: ${smColors.green};
+`;
+
+const Dots = styled(LeftText)`
+  flex-shrink: 1;
+  overflow: hidden;
 `;
 
 type Props = {
   isConnected: boolean,
   miningStatus: number,
-  timeTillNextReward: number, // TODO: connect this with actual logic for next reward layer time - genesis time
-  // getTotalAwards: Action,
-  // getUpcomingAward: Action,
+  timeTillNextReward: string,
+  // getUpcomingRewards: Action,
   totalEarnings: number,
-  totalRunningTime: number,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -162,10 +158,9 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    // const { getTotalAwards, getUpcomingAward } = this.props;
+    // const { getUpcomingRewards } = this.props;
     try {
-      // await getTotalAwards();
-      // await getUpcomingAward();
+      // await getUpcomingRewards();
     } catch (error) {
       this.setState(() => {
         throw error;
@@ -220,24 +215,22 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { isConnected, totalRunningTime, timeTillNextReward, totalEarnings } = this.props;
+    const { isConnected, timeTillNextReward, totalEarnings } = this.props;
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
         {isConnected ? 'Connected!' : 'Not connected!'}
       </Status>,
-      <ComplexTextWrapper key="1">
-        <TruncatedText>Total time running</TruncatedText>
-        <NonShrinkableText>{totalRunningTime}</NonShrinkableText>
-      </ComplexTextWrapper>,
-      <ComplexTextWrapper key="2">
-        <TruncatedText>Upcoming reward in</TruncatedText>
-        <NonShrinkableText>{timeTillNextReward}</NonShrinkableText>
-      </ComplexTextWrapper>,
-      <ComplexTextWrapper key="3" style={{ marginTop: '20px' }}>
-        <TruncatedText>Total Rewards</TruncatedText>
-        <NonShrinkableGreenText>{totalEarnings}</NonShrinkableGreenText>
-      </ComplexTextWrapper>,
+      <TextWrapper key="1">
+        <LeftText>Upcoming reward in</LeftText>
+        <Dots>....................................</Dots>
+        <RightText>{timeTillNextReward}</RightText>
+      </TextWrapper>,
+      <TextWrapper key="2">
+        <LeftText>Total Rewards</LeftText>
+        <Dots>....................................</Dots>
+        <GreenText>{totalEarnings} SMC</GreenText>
+      </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
         <Button
@@ -246,6 +239,7 @@ class Node extends Component<Props, State> {
           width={175}
           imgPosition="before"
           img={isMiningPaused ? playIcon : pauseIcon}
+          isDisabled
         />
       </Footer>
     ];
@@ -258,12 +252,13 @@ class Node extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
-  miningStatus: state.node.miningStatus
+  miningStatus: state.node.miningStatus,
+  timeTillNextReward: state.node.timeTillNextReward,
+  totalEarnings: state.node.totalEarnings
 });
 
 const mapDispatchToProps = {
-  getTotalAwards,
-  getUpcomingAward
+  getUpcomingRewards
 };
 
 Node = connect<any, any, _, _, _, _>(

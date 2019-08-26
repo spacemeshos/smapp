@@ -2,15 +2,16 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_TOTAL_AWARDS, SET_UPCOMING_EARNINGS, SET_AWARDS_ADDRESS, SET_NODE_IP } from './actions';
+import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_TOTAL_AWARDS, SET_UPCOMING_REWARDS, SET_AWARDS_ADDRESS, SET_NODE_IP, SET_GENESIS_TIME } from './actions';
 
 const DEFAULT_URL = 'localhost:9091';
 
 const initialState = {
   isConnected: false,
   miningStatus: nodeConsts.NOT_MINING,
-  totalEarnings: 0,
+  genesisTime: 0,
   timeTillNextReward: 0,
+  totalEarnings: 0,
   awardsAddress: null,
   nodeIpAddress: DEFAULT_URL
 };
@@ -35,13 +36,19 @@ const reducer = (state: any = initialState, action: Action) => {
       } = action;
       return { ...state, awardsAddress: address, miningStatus: nodeConsts.IN_SETUP };
     }
+    case SET_GENESIS_TIME: {
+      const {
+        payload: { genesisTime }
+      } = action;
+      return { ...state, genesisTime };
+    }
     case SET_TOTAL_AWARDS: {
       const {
         payload: { totalEarnings }
       } = action;
       return { ...state, totalEarnings };
     }
-    case SET_UPCOMING_EARNINGS: {
+    case SET_UPCOMING_REWARDS: {
       const {
         payload: { timeTillNextReward }
       } = action;

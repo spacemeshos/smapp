@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, checkNodeConnection } from '/redux/node/actions';
+import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { SecondaryButton } from '/basicComponents';
 import routes from '/routes';
@@ -88,6 +88,7 @@ type Props = {
   miningStatus: number,
   getMiningStatus: Action,
   checkNodeConnection: Action,
+  getGenesisTime: Action,
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
@@ -164,12 +165,20 @@ class Main extends Component<Props, State> {
       getMiningStatus();
     }
     if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
-      requestAnimationFrame(() => notificationsService.notify({
-        title: 'Node',
-        notification: 'Your node setup is complete! You are now a miner in the Spacemesh network!',
+      notificationsService.notify({
+        title: 'Spacemesh Wallet',
+        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
-      }));
+      });
     }
+  }
+
+  static getDerivedStateFromProps(props: Props) {
+    const pathname = props.location.pathname;
+    if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1 || pathname.indexOf('contacts') !== -1) {
+      return { activeRouteIndex: -1 };
+    }
+    return null;
   }
 
   handleNavigation = ({ index }: { index: number }) => {
@@ -208,6 +217,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   checkNodeConnection,
   getMiningStatus,
+  getGenesisTime,
   logout
 };
 
