@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
+import NodeManager from './nodeManager';
 import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
 import WalletAutoStarter from './autoStartManager';
@@ -65,7 +66,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.START_NODE, async (event) => {
-    FileManager.startNode({ event });
+    NodeManager.startNode({ event });
   });
 
   /**

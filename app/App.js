@@ -1,17 +1,19 @@
 // @flow
 import { hot, setConfig } from 'react-hot-loader';
 import React from 'react';
-import { Provider, connect } from 'react-redux';
+import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection } from '/redux/node/actions';
-import { fileSystemService } from '/infra/fileSystemService';
+import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
-import type { Store, Action } from '/types';
-import { ScreenErrorBoundary } from '/components/errorHandler';
-import { createError } from '/infra/utils';
+import type { Store } from '/types';
 import { httpService } from '/infra/httpService';
+import { configureStore } from './redux/configureStore';
+import { ErrorHandlerModal } from '/components/errorHandler';
+
+const store: Store = configureStore();
 
 const configOptions: $Shape<Object> = {
   showReactDomPatchNotification: false
@@ -19,22 +21,41 @@ const configOptions: $Shape<Object> = {
 
 setConfig(configOptions);
 
-type Props = {
-  store: Store,
-  checkNodeConnection: Action,
-  isConnected: boolean
+type Props = {};
+
+type State = {
+  isConnectedState: boolean[],
+  error: ?Error
 };
 
-class App extends React.Component<Props> {
+class App extends React.Component<Props, State> {
   // eslint-disable-next-line react/sort-comp
-  startNodeInterval;
+  startNodeInterval: IntervalID;
 
-  keepAliveInterval;
+  healthCheckInterval: IntervalID;
 
-  checkConnectionTimer;
+  checkConnectionTimer: TimeoutID;
+
+  unsubscribe: () => void;
+
+  state = {
+    isConnectedState: [false, false],
+    error: null
+  };
 
   render() {
-    const { store } = this.props;
+    const { error } = this.state;
+    if (error) {
+      return (
+        <ErrorHandlerModal
+          componentStack={''}
+          explanationText="Retry failed action or refresh page"
+          error={error}
+          onRetry={() => this.setState({ error: null }, this.localNodeFlow)}
+          onRefresh={() => this.setState({ error: null })}
+        />
+      );
+    }
     return (
       <React.Fragment>
         <GlobalStyle />
@@ -53,43 +74,51 @@ class App extends React.Component<Props> {
   }
 
   async componentDidMount() {
+    this.subscribeToStore();
     const isConnected = await this.checkConnectionAsync();
     this.clearTimers();
     if (!isConnected) {
-      try {
-        await this.startLocalNodeFlow();
-        this.keepAliveFlow();
-      } catch {
-        this.setState(() => {
-          throw createError('Failed to start Spacemesh Node.', this.startLocalNodeFlow);
-        });
-      }
+      await this.localNodeFlow();
     } else {
-      this.keepAliveFlow();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const { isConnected } = this.props;
-    if (prevProps.isConnected && !isConnected) {
-      this.clearTimers();
-      throw createError('Disconnected from Spacemesh Node.', this.startLocalNodeFlow);
+      this.healthCheckFlow();
     }
   }
 
   componentWillUnmount(): void {
-    const { store } = this.props;
     this.clearTimers();
+    this.unsubscribe();
     store.dispatch(logout());
   }
 
+  subscribeToStore = () => {
+    this.unsubscribe = store.subscribe(() => {
+      const { isConnectedState } = this.state;
+      const newIsConnectedState = [store.getState().node.isConnected, isConnectedState[0]];
+      const [isConnected, isConnectedPrev] = newIsConnectedState;
+      const hasDisconnectError = isConnectedPrev && !isConnected;
+      hasDisconnectError && this.clearTimers();
+      this.setState({ isConnectedState: newIsConnectedState, error: hasDisconnectError ? new Error('Disconnected from Spacemesh Node.') : null });
+    });
+  };
+
   clearTimers = () => {
-    this.keepAliveInterval && clearInterval(this.keepAliveInterval);
+    this.healthCheckInterval && clearInterval(this.healthCheckInterval);
     this.startNodeInterval && clearInterval(this.startNodeInterval);
     this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
   };
 
-  startLocalNodeFlow = () => {
+  localNodeFlow = async () => {
+    try {
+      await this.startLocalNode();
+      this.healthCheckFlow();
+    } catch {
+      this.setState({
+        error: new Error('Failed to start Spacemesh Node.')
+      });
+    }
+  };
+
+  startLocalNode = () => {
     const intervalTime = 5000; // ms
     let attemptsRemaining = 5;
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
@@ -97,11 +126,11 @@ class App extends React.Component<Props> {
         if (!attemptsRemaining) {
           reject();
         } else {
-          const { isConnected: isConnectedProps } = this.props;
+          const isConnectedProps = store.getState().node.isConnected;
           attemptsRemaining -= 1;
           if (!isConnectedProps) {
             try {
-              await fileSystemService.startNode();
+              await nodeService.startNode();
             } catch {
               // Ignoring this error since we still want to check connection if node is already running.
             }
@@ -115,13 +144,12 @@ class App extends React.Component<Props> {
     });
   };
 
-  keepAliveFlow = () => {
-    const { checkNodeConnection } = this.props;
-    const keepAliveInterval = 50000;
-    checkNodeConnection();
-    this.keepAliveInterval = setInterval(() => {
-      checkNodeConnection();
-    }, keepAliveInterval);
+  healthCheckFlow = () => {
+    const healthCheckInterval = 50000;
+    store.dispatch(checkNodeConnection());
+    this.healthCheckInterval = setInterval(() => {
+      store.dispatch(checkNodeConnection());
+    }, healthCheckInterval);
   };
 
   checkConnectionAsync = async () => {
@@ -136,19 +164,4 @@ class App extends React.Component<Props> {
 
 App = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;
 
-const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected
-});
-
-const mapDispatchToProps = {
-  checkNodeConnection,
-  logout
-};
-
-App = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(App);
-
-App = ScreenErrorBoundary(App, true);
 export default App;

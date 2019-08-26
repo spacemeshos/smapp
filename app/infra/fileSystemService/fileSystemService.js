@@ -91,20 +91,6 @@ class FsService {
   static deleteWalletFile = ({ fileName }: { fileName: string }) => {
     ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
   };
-
-  static startNode() {
-    ipcRenderer.send(ipcConsts.START_NODE);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.START_NODE_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.START_NODE_SUCCESS, ipcConsts.START_NODE_FAILURE] });
-        resolve();
-      });
-      ipcRenderer.once(ipcConsts.START_NODE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.START_NODE_SUCCESS, ipcConsts.START_NODE_FAILURE] });
-        reject(args);
-      });
-    });
-  }
 }
 
 export default FsService;
