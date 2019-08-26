@@ -35,29 +35,29 @@ class HttpService {
     });
   }
 
-  static getTotalAwards() {
-    ipcRenderer.send(ipcConsts.GET_TOTAL_AWARDS);
+  static getGenesisTime() {
+    ipcRenderer.send(ipcConsts.GET_GENESIS_TIME);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, ipcConsts.GET_TOTAL_EARNINGS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_GENESIS_TIME_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_GENESIS_TIME_SUCCESS, ipcConsts.GET_GENESIS_TIME_FAILURE] });
         resolve(response);
       });
-      ipcRenderer.once(ipcConsts.GET_TOTAL_EARNINGS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TOTAL_EARNINGS_SUCCESS, ipcConsts.GET_TOTAL_EARNINGS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_GENESIS_TIME_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_GENESIS_TIME_SUCCESS, ipcConsts.GET_GENESIS_TIME_FAILURE] });
         reject(args);
       });
     });
   }
 
-  static getUpcomingAward() {
-    ipcRenderer.send(ipcConsts.GET_UPCOMING_AWARD);
+  static getUpcomingRewards() {
+    ipcRenderer.send(ipcConsts.GET_UPCOMING_REWARDS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, ipcConsts.GET_UPCOMING_EARNINGS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
         resolve(response);
       });
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_EARNINGS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_EARNINGS_SUCCESS, ipcConsts.GET_UPCOMING_EARNINGS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
         reject(args);
       });
     });
