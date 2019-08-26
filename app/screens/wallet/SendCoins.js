@@ -1,187 +1,159 @@
 // @flow
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
-import { AllContactsModal } from '/components/contacts';
-import { SendCoinsHeader, TxParams, TxTotal, TxConfirmation } from '/components/wallet';
+import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet';
+import { CreateNewContact } from '/components/contacts';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, Action, Contact } from '/types';
-import { shell } from 'electron';
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 50px;
-`;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-const fees = [
-  {
-    fee: 0.001,
-    label: '~ 10 min',
-    additionalText: 'fee 0.001 SMC = '
-  },
-  {
-    fee: 0.003,
-    label: '~ 5 min',
-    additionalText: 'fee 0.003 SMC = '
-  },
-  {
-    fee: 0.005,
-    label: '~ 1 min',
-    additionalText: 'fee 0.005 SMC = '
-  }
-];
+import type { Account, Contact, Action } from '/types';
 
 type Props = {
   currentAccount: Account,
   history: RouterHistory,
-  fiatRate: number,
-  sendTransaction: Action,
-  contacts: Contact[],
-  lastUsedAddresses: Contact[]
+  location: { state?: { contact: Contact } },
+  sendTransaction: Action
 };
 
 type State = {
+  mode: 1 | 2 | 3,
+  tmpAddress: string,
   address: string,
-  defaultAddress?: string,
+  hasAddressError: boolean,
+  tmpAmount: number | string,
   amount: number,
+  hasAmountError: boolean,
   note: string,
-  addressErrorMsg?: string,
-  amountErrorMsg?: string,
-  feeIndex: number,
-  shouldShowModal: boolean,
-  shouldShowContactsModal: boolean
+  fee: number,
+  txId: string,
+  isCreateNewContactOn: boolean
 };
 
 class SendCoins extends Component<Props, State> {
-  state = {
-    address: '',
-    defaultAddress: '',
-    addressErrorMsg: '',
-    amount: 0,
-    amountErrorMsg: '',
-    note: '',
-    feeIndex: 0,
-    shouldShowModal: false,
-    shouldShowContactsModal: false
-  };
-
-  render() {
-    const {
-      currentAccount: { balance },
-      fiatRate,
-      contacts,
-      lastUsedAddresses
-    } = this.props;
-    const { address, defaultAddress, amount, addressErrorMsg, amountErrorMsg, feeIndex, note, shouldShowModal, shouldShowContactsModal } = this.state;
-    return [
-      <Wrapper key="main">
-        <SendCoinsHeader fiatRate={fiatRate} balance={balance} navigateToTxExplanation={this.navigateToTxExplanation} />
-        <MainContainer>
-          <TxParams
-            defaultAddress={defaultAddress}
-            updateTxAddress={this.updateTxAddress}
-            updateTxAmount={this.updateTxAmount}
-            amount={amount}
-            updateTxNote={this.updateTxNote}
-            updateFee={this.updateFee}
-            addressErrorMsg={addressErrorMsg}
-            amountErrorMsg={amountErrorMsg}
-            fees={fees}
-            feeIndex={feeIndex}
-            fiatRate={fiatRate}
-            openModal={contacts.length || lastUsedAddresses.length ? () => this.setState({ shouldShowContactsModal: true }) : null}
-          />
-          <TxTotal
-            amount={amount}
-            fee={fees[feeIndex]}
-            fiatRate={1}
-            proceedToTxConfirmation={this.proceedToTxConfirmation}
-            canSendTx={address && amount && !addressErrorMsg && !amountErrorMsg}
-          />
-        </MainContainer>
-      </Wrapper>,
-      shouldShowModal && (
-        <TxConfirmation
-          key="modal1"
-          address={address}
-          amount={amount}
-          fee={fees[feeIndex].fee}
-          note={note}
-          confirmationTime={fees[feeIndex].label}
-          fiatRate={fiatRate}
-          navigateToExplanation={this.navigateToTxExplanation}
-          onCancelBtnClick={this.cancelTxProcess}
-          closeModal={() => this.setState({ shouldShowModal: false })}
-          sendTransaction={this.sendTransaction}
-          editTransaction={() => this.setState({ shouldShowModal: false })}
-        />
-      ),
-      shouldShowContactsModal && <AllContactsModal key="modal2" selectContact={this.selectContactFromModal} closeModal={() => this.setState({ shouldShowContactsModal: false })} />
-    ];
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    this.state = {
+      mode: 1,
+      tmpAddress: location?.state?.contact.address || '',
+      address: location?.state?.contact.address || '',
+      hasAddressError: false,
+      tmpAmount: '',
+      amount: 0,
+      hasAmountError: false,
+      note: '',
+      fee: 0.001,
+      txId: '',
+      isCreateNewContactOn: false
+    };
   }
 
-  navigateToTxExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/send_coin');
+  render() {
+    const { currentAccount, history } = this.props;
+    const { mode, address, amount, fee, note, txId } = this.state;
+    switch (mode) {
+      case 1: {
+        return this.renderTxParamsMode();
+      }
+      case 2: {
+        return (
+          <TxConfirmation
+            address={address}
+            fromAddress={currentAccount.pk}
+            amount={amount}
+            fee={fee}
+            note={note}
+            doneAction={this.sendTransaction}
+            editTx={() => this.setState({ mode: 1 })}
+            cancelTx={history.goBack}
+          />
+        );
+      }
+      case 3: {
+        return (
+          <TxSent
+            address={address}
+            fromAddress={currentAccount.pk}
+            amount={amount}
+            txId={txId}
+            doneAction={history.goBack}
+            navigateToTxList={() => history.replace('/main/transactions')}
+          />
+        );
+      }
+      default: {
+        return null;
+      }
+    }
+  }
 
-  selectContactFromModal = ({ contact }: { contact: Contact }) => {
-    const { address } = contact;
-    this.setState({ address, defaultAddress: address, shouldShowContactsModal: false });
+  renderTxParamsMode = () => {
+    const { currentAccount, history } = this.props;
+    const { tmpAddress, address, hasAddressError, tmpAmount, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
+    return [
+      <TxParams
+        fromAddress={currentAccount.pk}
+        address={tmpAddress}
+        hasAddressError={hasAddressError}
+        updateTxAddress={({ value }) => this.setState({ tmpAddress: value })}
+        updateTxAddressDebounced={this.updateTxAddressDebounced}
+        resetAddressError={() => this.setState({ address: '', hasAddressError: false })}
+        amount={tmpAmount}
+        updateTxAmount={({ value }) => this.setState({ tmpAmount: value })}
+        updateTxAmountDebounced={this.updateTxAmountDebounced}
+        hasAmountError={hasAmountError}
+        resetAmountError={() => this.setState({ amount: 0, hasAmountError: false })}
+        updateFee={this.updateFee}
+        note={note}
+        updateTxNote={this.updateTxNote}
+        cancelTx={history.goBack}
+        isNextActionEnabled={!!address && !!amount && !hasAddressError && !hasAmountError}
+        nextAction={() => this.setState({ mode: 2 })}
+        key="params"
+      />,
+      isCreateNewContactOn ? (
+        <CreateNewContact isStandalone initialAddress={address} key="newContact" />
+      ) : (
+        <TxSummary address={address} fromAddress={currentAccount.pk} amount={amount} fee={fee} note={note} key="summary" />
+      )
+    ];
   };
 
-  updateTxAddress = ({ value }: { value: string }) => {
-    this.setState({ addressErrorMsg: '' });
+  updateTxAddressDebounced = ({ value }: { value: string }) => {
     if (value) {
-      if (value.length === cryptoConsts.PUB_KEY_LENGTH) {
-        this.setState({ address: value });
-      } else {
-        this.setState({ addressErrorMsg: 'Invalid Address' });
-      }
+      this.setState({ address: value, hasAddressError: value.length !== cryptoConsts.PUB_KEY_LENGTH });
+    } else {
+      this.setState({ hasAddressError: false });
     }
   };
 
-  updateTxAmount = ({ value }: { value: string }) => {
+  updateTxAmountDebounced = ({ value }: { value: string }) => {
     const {
       currentAccount: { balance }
     } = this.props;
-    this.setState({ amountErrorMsg: '' });
     if (value) {
       const integerValue = parseInt(value);
-      if (integerValue <= balance) {
-        this.setState({ amount: integerValue });
-      } else {
-        this.setState({ amountErrorMsg: 'Amount exceeds available balance' });
-      }
+      this.setState({ amount: integerValue, hasAmountError: integerValue >= balance });
+    } else {
+      this.setState({ hasAmountError: false });
     }
   };
 
-  updateTxNote = ({ value }: { value: string }) => this.setState({ note: value });
+  updateTxNote = ({ value }: { value: string }) => this.setState({ note: (value && value.trim()) || '' });
 
-  updateFee = ({ index }: { index: number }) => this.setState({ feeIndex: index });
+  updateFee = ({ fee }: { fee: number }) => this.setState({ fee });
 
   cancelTxProcess = () => {
     const { history } = this.props;
     history.push('/main/wallet');
   };
 
-  proceedToTxConfirmation = () => this.setState({ shouldShowModal: true });
-
   sendTransaction = async () => {
-    const { sendTransaction, history } = this.props;
-    const { address, amount, feeIndex, note } = this.state;
+    const { sendTransaction } = this.props;
+    const { address, amount, fee, note } = this.state;
     try {
-      await sendTransaction({ recipient: address, amount: amount * 10000, price: fees[feeIndex].fee * 10000, note });
-      history.push('/main/wallet');
+      const txId = await sendTransaction({ recipient: address, amount, price: fee, note });
+      this.setState({ mode: 3, txId });
     } catch (error) {
       this.setState(() => {
         throw error;
@@ -192,9 +164,8 @@ class SendCoins extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
-  fiatRate: state.wallet.fiatRate,
   contacts: state.wallet.contacts,
-  lastUsedAddresses: state.wallet.lastUsedAddresses
+  lastUsedContacts: state.wallet.lastUsedContacts
 });
 
 const mapDispatchToProps = {

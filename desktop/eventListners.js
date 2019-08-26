@@ -10,8 +10,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileManager.readFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_FILE_NAME, async (event, request) => {
-    FileManager.getFileName({ browserWindow: mainWindow, event, ...request });
+  ipcMain.on(ipcConsts.COPY_FILE, async (event, request) => {
+    FileManager.copyFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
@@ -19,27 +19,23 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
-    FileManager.writeFile({ browserWindow: mainWindow, event, ...request });
+    FileManager.writeFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
     FileManager.updateFile({ event, ...request });
   });
 
+  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
+    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+  });
+
   ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
     DiskStorageManager.getDriveList({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
-    netService.getBalance({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.GET_NONCE, async (event, request) => {
-    netService.getNonce({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
-    netService.sendTx({ event, ...request });
+  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
+    FileManager.openWalletBackupDirectory({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
@@ -50,50 +46,9 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     });
   });
 
-  ipcMain.on(ipcConsts.GET_TOTAL_EARNINGS, async (event) => {
-    netService.getTotalEarnings({ event });
-  });
-
-  ipcMain.on(ipcConsts.GET_UPCOMING_EARNINGS, async (event) => {
-    netService.getUpcomingEarnings({ event });
-  });
-
-  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event) => {
-    FileManager.openWalletBackupDirectory({ event });
-  });
-
-  ipcMain.on(ipcConsts.SET_COMMITMENT_SIZE, async (event, request) => {
-    netService.setCommitmentSize({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.SET_LOGICAL_DRIVE, async (event, request) => {
-    netService.setLogicalDrive({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, async (event, request) => {
-    netService.setAwardsAddress({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.CHECK_NETWORK_CONNECTION, async (event) => {
-    netService.checkNetworkConnection({ event });
-  });
-
-  ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
-    netService.setNodeIpAddress({ event, ...request });
-  });
-
   ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
     mainWindow.show();
     mainWindow.focus();
-  });
-
-  ipcMain.on(ipcConsts.CAN_NOTIFY, (event) => {
-    const isInFocus = mainWindow.isFocused();
-    event.sender.send(ipcConsts.CAN_NOTIFY_SUCCESS, isInFocus);
-  });
-
-  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
-    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
   });
 
   ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
@@ -102,6 +57,57 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
     WalletAutoStarter.isEnabled({ event });
+  });
+
+  /**
+   ******************************************* gRPS Calls **************************************
+   */
+  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, (event) => {
+    netService.checkNetworkConnection({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_MINING_STATUS, (event) => {
+    netService.getMiningStatus({ event });
+  });
+
+  ipcMain.on(ipcConsts.INIT_MINING, async (event, request) => {
+    netService.initMining({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.GET_GENESIS_TIME, (event) => {
+    netService.getGenesisTime({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
+    netService.getUpcomingRewards({ event });
+  });
+
+  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {
+    netService.setAwardsAddress({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
+    netService.setNodeIpAddress({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.GET_BALANCE, (event, request) => {
+    netService.getBalance({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.GET_NONCE, (event, request) => {
+    netService.getNonce({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.SEND_TX, (event, request) => {
+    netService.sendTx({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.GET_LATEST_VALID_LAYER_ID, (event) => {
+    netService.getLatestValidLayerId({ event });
+  });
+
+  ipcMain.on(ipcConsts.GET_TX_LIST, (event, request) => {
+    netService.getTxList({ event, ...request });
   });
 };
 

@@ -3,7 +3,7 @@ import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
 import { ErrorBoundary } from '/components/errorHandler';
 
-const ScreenErrorBoundry = (WrappedComponent: any) =>
+const ScreenErrorBoundary = (WrappedComponent: any) =>
   hoistStatics(
     ({ ...props }) => (
       <ErrorBoundary>
@@ -13,4 +13,4 @@ const ScreenErrorBoundry = (WrappedComponent: any) =>
     WrappedComponent
   );
 
-export default ScreenErrorBoundry;
+export default ScreenErrorBoundary;

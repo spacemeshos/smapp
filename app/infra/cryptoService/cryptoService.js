@@ -38,7 +38,7 @@ class CryptoService {
   /**
    *
    * @param mnemonic {string}
-   * @param index {integer}
+   * @param index {int}
    * @param salt {string}
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
@@ -83,8 +83,8 @@ class CryptoService {
     });
     const message = new types.InnerSerializableSignedTransaction({
       AccountNonce: xdr.UnsignedHyper.fromString(accountNonce),
-      Recipient: Buffer.from(getWalletAddress(recipient)),
-      GasLimit: xdr.UnsignedHyper.fromString('5'),
+      Recipient: getWalletAddress(recipient),
+      GasLimit: xdr.UnsignedHyper.fromString('5'), // TODO: change to real number passed from user selection
       Price: xdr.UnsignedHyper.fromString(`${price}`),
       Amount: xdr.UnsignedHyper.fromString(`${amount}`)
     });

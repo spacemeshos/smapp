@@ -1,6 +1,7 @@
 // @flow
 
 export type Tx = {
+  id: string,
   isSent?: boolean,
   isPending?: boolean,
   isRejected?: boolean,

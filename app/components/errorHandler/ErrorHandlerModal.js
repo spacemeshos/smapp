@@ -1,27 +1,42 @@
 // @flow
 import React, { PureComponent } from 'react';
-import { Modal, SmButton } from '/basicComponents';
+import { CorneredWrapper, Button } from '/basicComponents';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
-  padding: 20px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.3);
 `;
 
-const Text = styled.span`
+const InnerWrapper = styled.div`
+  padding: 25px;
+  background-color: ${smColors.lightGray};
+`;
+
+const Text = styled.div`
   font-size: 16px;
-  color: ${smColors.lighterBlack};
-  line-height: 28px;
-  margin-bottom: 12px;
+  line-height: 22px;
+  color: ${smColors.orange};
+  margin-top: 20px;
+`;
+
+const Header = styled(Text)`
+  margin-top: 0;
 `;
 
 const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
-  margin-top: 20px;
+  justify-content: ${({ hasSingleButton }) => (hasSingleButton ? 'center' : 'space-between')};
+  margin-top: 30px;
 `;
 
 type Props = {
@@ -32,22 +47,22 @@ type Props = {
 
 class ErrorHandlerModal extends PureComponent<Props> {
   render() {
-    return <Modal header="Oops!" isErrorAlert onCloseClick={() => {}} content={this.renderModalBody()} />;
-  }
-
-  renderModalBody = () => {
     const { onRetry, onRefresh, explanationText } = this.props;
     return (
       <Wrapper>
-        <Text>Something went wrong.</Text>
-        {explanationText && <Text>{explanationText}</Text>}
-        <ButtonsWrapper>
-          <SmButton text="Refresh" theme="orange" onPress={onRefresh} style={{ marginRight: 20, minWidth: 150 }} />
-          {onRetry && <SmButton text="Retry" theme="orange" onPress={onRetry} style={{ marginRight: 20, minWidth: 150 }} />}
-        </ButtonsWrapper>
+        <CorneredWrapper>
+          <InnerWrapper>
+            <Header>Something&#39;s wrong here...</Header>
+            {explanationText && <Text>{explanationText}</Text>}
+            <ButtonsWrapper hasSingleButton={!onRetry}>
+              <Button onClick={onRefresh} text="REFRESH" />
+              {onRetry && <Button onClick={onRetry} text="RETRY" isPrimary={false} style={{ marginLeft: 20 }} />}
+            </ButtonsWrapper>
+          </InnerWrapper>
+        </CorneredWrapper>
       </Wrapper>
     );
-  };
+  }
 }
 
 export default ErrorHandlerModal;

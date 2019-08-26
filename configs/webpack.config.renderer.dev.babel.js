@@ -45,6 +45,28 @@ export default merge.smart(baseConfig, {
 
   module: {
     rules: [
+      // TTF Font
+      {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 10000,
+            mimetype: 'application/octet-stream'
+          }
+        }
+      },
+      // SVG
+      {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 10000,
+            mimetype: 'image/svg+xml'
+          }
+        }
+      },
       // Common Image Formats
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
@@ -116,9 +138,9 @@ export default merge.smart(baseConfig, {
     headers: { 'Access-Control-Allow-Origin': '*' },
     contentBase: path.join(__dirname, 'dist'),
     watchOptions: {
-      aggregateTimeout: 300,
-      ignored: /node_modules/,
-      poll: 100
+      aggregateTimeout: 1500,
+      ignored: ['node_modules', 'proto', 'release', 'resources', 'dll'],
+      poll: 1000
     },
     historyApiFallback: {
       verbose: true,
