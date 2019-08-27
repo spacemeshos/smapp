@@ -58,10 +58,10 @@ class SettingRow extends PureComponent<Props> {
       <Wrapper>
         <UpperPart>
           {upperPart || (
-            <React.Fragment>
+            <>
               <UpperPartLeft>{isUpperPartLeftText ? <Text>{upperPartLeft}</Text> : upperPartLeft}</UpperPartLeft>
               <UpperPartRight>{upperPartRight}</UpperPartRight>
-            </React.Fragment>
+            </>
           )}
         </UpperPart>
         <Name>{rowName}</Name>

@@ -15,7 +15,7 @@ class App extends React.Component<Props> {
   render() {
     const { store } = this.props;
     return (
-      <React.Fragment>
+      <>
         <GlobalStyle />
         <Provider store={store}>
           <Router>
@@ -27,7 +27,7 @@ class App extends React.Component<Props> {
             </Switch>
           </Router>
         </Provider>
-      </React.Fragment>
+      </>
     );
   }
 

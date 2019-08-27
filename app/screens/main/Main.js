@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { SecondaryButton } from '/basicComponents';
+import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
 import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
@@ -81,6 +81,20 @@ const InnerWrapper = styled.div`
   background-color: ${smColors.white};
 `;
 
+const CustomTooltip = styled(Tooltip)`
+  top: 57px;
+  right: -8px;
+  width: 90px;
+  text-align: center;
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  &:hover ${CustomTooltip} {
+    display: block;
+  }
+`;
+
 const bntStyle = { marginRight: 15, marginTop: 10 };
 
 type Props = {
@@ -115,6 +129,7 @@ class Main extends Component<Props, State> {
     this.navMap = [
       () => history.push('/main/node'),
       () => history.push('/main/wallet'),
+      () => history.push('/main/contacts'),
       () => history.push('/main/settings'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/tap'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/help')
@@ -132,20 +147,35 @@ class Main extends Component<Props, State> {
             <NavLinksWrapper>
               <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
               <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
+              <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>CONTACTS</NavBarLink>
             </NavLinksWrapper>
           </NavBarPart>
           <NavBarPart>
-            <SecondaryButton
-              onClick={() => this.handleNavigation({ index: 2 })}
-              img={settingsIcon}
-              imgHeight={16}
-              imgWidth={16}
-              isPrimary={activeRouteIndex === 2}
-              style={bntStyle}
-            />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 3 })} img={getCoinsIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={helpIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={signOutIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 3 })}
+                img={settingsIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={activeRouteIndex === 3}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
+              <CustomTooltip text="SETTINGS" withIcon={false} />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={getCoinsIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <CustomTooltip text="GET COINS" withIcon={false} />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={helpIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <CustomTooltip text="HELP" withIcon={false} />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton onClick={() => this.handleNavigation({ index: 6 })} img={signOutIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <CustomTooltip text="LOGOUT" withIcon={false} />
+            </TooltipWrapper>
           </NavBarPart>
         </NavBar>
         <InnerWrapper>
@@ -187,10 +217,12 @@ class Main extends Component<Props, State> {
     }
   }
 
-  static getDerivedStateFromProps(props: Props) {
+  static getDerivedStateFromProps(props: Props, prevState: State) {
     const pathname = props.location.pathname;
-    if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1 || pathname.indexOf('contacts') !== -1) {
+    if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
       return { activeRouteIndex: -1 };
+    } else if (pathname.indexOf('contacts') !== -1 && prevState.activeRouteIndex === -1) {
+      return { activeRouteIndex: 2 };
     }
     return null;
   }

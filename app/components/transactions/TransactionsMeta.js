@@ -71,7 +71,7 @@ class TransactionsMeta extends PureComponent<Props> {
     const totalCoinsMeta = [{ title: 'TOTAL MINED', coins: totalMined }, { title: 'TOTAL SENT', coins: totalSent }, { title: 'TOTAL RECEIVED', coins: totalReceived }];
 
     return (
-      <React.Fragment>
+      <>
         <BoldText>traffic</BoldText>
         <BoldText>--</BoldText>
         <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${totalFilteredCoins}`}</Text>
@@ -92,7 +92,7 @@ class TransactionsMeta extends PureComponent<Props> {
             <Text>{`${totalMeta.coins} SMC`}</Text>
           </TextRow>
         ))}
-      </React.Fragment>
+      </>
     );
   }
 }

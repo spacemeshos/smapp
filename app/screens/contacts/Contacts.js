@@ -217,7 +217,7 @@ class Contacts extends Component<Props, State> {
 
   render() {
     const { contacts } = this.props;
-    const { tmpSearchTerm, selectedSorting } = this.state;
+    const { tmpSearchTerm, searchTerm, selectedSorting } = this.state;
     return (
       <WrapperWith2SideBars width={1000} height={600} header="MY CONTACTS">
         <SearchWrapper>
@@ -242,7 +242,9 @@ class Contacts extends Component<Props, State> {
             style={{ flex: '0 0 150px', borderBottom: '1px solid' }}
           />
         </ContactsSubHeader>
-        <ContactsList>{contacts && contacts.length && this.renderContacts()}</ContactsList>
+        <ContactsList>
+          {contacts && contacts.length ? this.renderContacts() : <ContactText>{searchTerm ? 'No contacts matching criteria' : 'No contacts added yet'}</ContactText>}
+        </ContactsList>
       </WrapperWith2SideBars>
     );
   }

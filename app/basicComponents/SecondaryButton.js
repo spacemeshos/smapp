@@ -15,8 +15,8 @@ const UpperPart = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 25px;
-  height: 25px;
+  width: ${({ width }) => width}px;
+  height: ${({ height }) => height}px;
   ${({ isDisabled, isPrimary }) =>
     isDisabled
       ? `background-color: ${smColors.disabledGray};`
@@ -41,8 +41,8 @@ const LowerPart = styled.div`
   bottom: 0;
   left: 0;
   right: ${GAP}px;
-  width: 25px;
-  height: 25px;
+  width: ${({ width }) => width}px;
+  height: ${({ height }) => height}px;
   ${({ isDisabled, isPrimary }) =>
     isDisabled
       ? `border: 1px solid ${smColors.disabledGray};`
@@ -57,8 +57,8 @@ const LowerPart = styled.div`
 
 const Wrapper = styled.div`
   position: relative;
-  width: ${25 + GAP}px;
-  height: ${25 + GAP}px;
+  width: ${({ width }) => width + GAP}px;
+  height: ${({ height }) => height + GAP}px;
   ${({ isDisabled }) =>
     !isDisabled &&
     `
@@ -76,6 +76,8 @@ const Wrapper = styled.div`
 
 type Props = {
   onClick: Function,
+  width?: number,
+  height?: number,
   isPrimary?: boolean,
   isDisabled?: boolean,
   imgWidth: number,
@@ -86,18 +88,20 @@ type Props = {
 
 class SecondaryButton extends PureComponent<Props> {
   static defaultProps = {
+    width: 25,
+    height: 25,
     isPrimary: true,
     isDisabled: false
   };
 
   render() {
-    const { onClick, isPrimary, isDisabled, imgWidth, imgHeight, img, style } = this.props;
+    const { onClick, width, height, isPrimary, isDisabled, imgWidth, imgHeight, img, style } = this.props;
     return (
-      <Wrapper onClick={isDisabled ? null : onClick} isDisabled={isDisabled} style={style}>
-        <UpperPart isPrimary={isPrimary} isDisabled={isDisabled}>
+      <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} style={style}>
+        <UpperPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled}>
           <Image src={img} imgWidth={imgWidth} imgHeight={imgHeight} />
         </UpperPart>
-        <LowerPart isPrimary={isPrimary} isDisabled={isDisabled} />
+        <LowerPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} />
       </Wrapper>
     );
   }

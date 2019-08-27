@@ -13,7 +13,7 @@ export const SET_TOTAL_AWARDS: string = 'SET_TOTAL_AWARDS';
 export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
 
 export const SET_NODE_IP: string = 'SET_NODE_IP';
-export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
+export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
 export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -34,14 +34,14 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
   }
 };
 
-export const initMining = ({ capacity, drive, address }: { capacity: { id: number, label: string }, drive: { mountPoint: string }, address: string }): Action => async (
+export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
   dispatch: Dispatch
 ): Dispatch => {
   try {
-    await httpService.initMining({ logicalDrive: drive.mountPoint, commitmentSize: capacity.id, address });
+    await httpService.initMining({ logicalDrive, commitmentSize, address });
     dispatch({ type: INIT_MINING, payload: { address } });
   } catch (err) {
-    throw createError('Error setting node storage', () => initMining({ capacity, drive, address }));
+    throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
   }
 };
 
@@ -68,15 +68,15 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
     await httpService.setNodeIpAddress({ nodeIpAddress });
     dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
   } catch (err) {
-    throw err;
+    throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
   }
 };
 
-export const setAwardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.setAwardsAddress({ address });
-    dispatch({ type: SET_AWARDS_ADDRESS, payload: { address } });
+    await httpService.setRewardsAddress({ address });
+    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
   } catch (err) {
-    throw createError('Error setting awards address', () => setAwardsAddress({ address }));
+    throw createError('Error setting rewards address', () => setRewardsAddress({ address }));
   }
 };
