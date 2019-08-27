@@ -10,7 +10,7 @@ import { StepsContainer, Button, SecondaryButton, Link } from '/basicComponents'
 import { Carousel, CommitmentSelector } from '/components/node';
 import { diskStorageService } from '/infra/diskStorageService';
 import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
-import { smColors, nodeConsts } from '/vars';
+import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 
@@ -59,7 +59,7 @@ type State = {
   drives: { id: string, label: string, mountPoint: string, availableDiskSpace: string }[],
   subMode: 2 | 3,
   selectedDriveIndex: number,
-  selectedCommitmentIndex: number
+  selectedCommitmentSize: number
 };
 
 class NodeSetup extends Component<Props, State> {
@@ -79,12 +79,12 @@ class NodeSetup extends Component<Props, State> {
       drives: [],
       subMode: 2,
       selectedDriveIndex: -1,
-      selectedCommitmentIndex: -1
+      selectedCommitmentSize: 0
     };
   }
 
   render() {
-    const { subMode, selectedDriveIndex, selectedCommitmentIndex } = this.state;
+    const { subMode, selectedDriveIndex, selectedCommitmentSize } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode;
     return (
       <Wrapper>
@@ -95,7 +95,7 @@ class NodeSetup extends Component<Props, State> {
           {this.renderSubMode()}
           <Footer>
             <Link onClick={this.navigateToExplanation} text="SETUP GUIDE" />
-            <Button onClick={this.nextAction} text="NEXT" isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentIndex === -1)} />
+            <Button onClick={this.nextAction} text="NEXT" isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0)} />
           </Footer>
         </CorneredContainer>
       </Wrapper>
@@ -132,18 +132,18 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like the mining node to use
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentIndex: index })} />
+        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
       </>
     );
   };
 
   setupAndInitMining = async () => {
     const { initMining, accounts, history } = this.props;
-    const { drives, selectedCommitmentIndex, selectedDriveIndex } = this.state;
+    const { drives, selectedCommitmentSize, selectedDriveIndex } = this.state;
     try {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
-        commitmentSize: nodeConsts.COMMITMENT_SIZE * selectedCommitmentIndex * 1000000000,
+        commitmentSize: selectedCommitmentSize * 1000000000,
         address: accounts[0].pk
       });
       history.push('/main/node', { showIntro: true });

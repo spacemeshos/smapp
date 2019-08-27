@@ -163,7 +163,7 @@ class CommitmentSelector extends Component<Props, State> {
   handleClick = ({ index }: { index: number }) => {
     const { freeSpace, onClick } = this.props;
     const totalRequiredSpace = nodeConsts.COMMITMENT_SIZE * (index + 1);
-    onClick({ index: freeSpace < totalRequiredSpace ? -1 : index });
+    onClick({ index: freeSpace < totalRequiredSpace ? 0 : totalRequiredSpace });
     this.setState({ selectedCommitmentIndex: index, hasInsufficientSpace: freeSpace < totalRequiredSpace });
   };
 
