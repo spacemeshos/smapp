@@ -45,7 +45,7 @@ type State = {
 };
 
 class ChangePassphrase extends Component<Props, State> {
-  timeOut: any;
+  timeOut: TimeoutID;
 
   state = {
     isEditMode: false,

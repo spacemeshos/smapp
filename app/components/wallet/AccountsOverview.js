@@ -97,7 +97,7 @@ type State = {
 };
 
 class AccountsOverview extends Component<Props, State> {
-  copiedTimeout: any;
+  copiedTimeout: TimeoutID;
 
   state = {
     isCopied: false
@@ -106,6 +106,9 @@ class AccountsOverview extends Component<Props, State> {
   render() {
     const { accounts, currentAccountIndex, switchAccount } = this.props;
     const { isCopied } = this.state;
+    if (!accounts || !accounts.length) {
+      return null;
+    }
     const { displayName, pk, balance } = accounts[currentAccountIndex];
     return (
       <WrapperWith2SideBars width={300} height={480} header="WALLET">
