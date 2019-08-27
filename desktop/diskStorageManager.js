@@ -14,7 +14,7 @@ class DiskStorageManager {
       const mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount && !mountPoint.mount.includes('private')); // yields only mounted and non VM
       const validSizeMountPoints = sizeMountPoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
       const mappedDrives = [];
-      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * nodeConsts.COMMITMENT_SIZE;
+      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * 1073741824;
       mountedDrives.forEach((mountPoint) => {
         const volume = validSizeMountPoints.find((validSizeMountPoint) => validSizeMountPoint.mount === mountPoint.mount);
         const availableSpace = volume ? volume.size - volume.used : 0;
