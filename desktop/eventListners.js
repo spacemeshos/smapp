@@ -99,10 +99,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.setNodeIpAddress({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_TOTAL_AWARDS, (event) => {
-    netService.getTotalAwards({ event });
-  });
-
   ipcMain.on(ipcConsts.GET_UPCOMING_AWARD, (event) => {
     netService.getUpcomingAward({ event });
   });

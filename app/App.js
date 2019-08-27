@@ -62,7 +62,7 @@ class App extends React.Component<Props, State> {
 
   async componentDidMount() {
     this.clearTimers();
-    const { isConnected } = await store.dispatch(checkNodeConnection());
+    const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       await this.localNodeFlow();
     } else {
@@ -109,7 +109,7 @@ class App extends React.Component<Props, State> {
               // Ignoring this error since we still want to check connection if node is already running.
             }
             this.checkConnectionTimer = setTimeout(async () => {
-              const { isConnected } = await store.dispatch(checkNodeConnection());
+              const isConnected = await store.dispatch(checkNodeConnection());
               isConnected && resolve();
             }, 1000);
           } else {
