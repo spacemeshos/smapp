@@ -204,7 +204,7 @@ type State = {
 };
 
 class Contacts extends Component<Props, State> {
-  newContactCreatedTimeOut: any;
+  newContactCreatedTimeOut: TimeoutID;
 
   state = {
     addressToAdd: '',

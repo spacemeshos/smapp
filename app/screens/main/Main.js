@@ -113,7 +113,7 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
-  timer: any;
+  miningStatusInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -189,12 +189,20 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidMount() {
     const { isConnected, miningStatus, getMiningStatus } = this.props;
     if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
       getMiningStatus();
     }
-    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { isConnected, miningStatus, getMiningStatus } = this.props;
+    if (isConnected && prevProps.miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => getMiningStatus, 3600000);
+    }
+    if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+      clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh Wallet',
         notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
@@ -220,17 +228,18 @@ class Main extends Component<Props, State> {
       switch (index) {
         case 0:
         case 1:
-        case 2: {
+        case 2:
+        case 3: {
           this.setState({ activeRouteIndex: index });
           this.navMap[index]();
           break;
         }
-        case 3:
-        case 4: {
+        case 4:
+        case 5: {
           this.navMap[index]();
           break;
         }
-        case 5: {
+        case 6: {
           history.push('/');
           logout();
           break;
