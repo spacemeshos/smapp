@@ -123,13 +123,13 @@ const Text = styled.div`
 `;
 
 type Props = {
-  data: Array<Object>,
-  onClick: Function,
-  selectedItemIndex: number,
+  data: Array<{ label: string, availableDiskSpace: number }>,
+  onClick: ({ index: number }) => void,
   style?: Object
 };
 
 type State = {
+  selectedItemIndex: number,
   leftSlideIndex: number,
   isLeftBtnEnabled: boolean,
   isRightBtnEnabled: boolean
@@ -137,28 +137,29 @@ type State = {
 
 class Carousel extends Component<Props, State> {
   state = {
+    selectedItemIndex: -1,
     leftSlideIndex: 0,
     isLeftBtnEnabled: false,
     isRightBtnEnabled: this.props.data.length > 3 // eslint-disable-line react/destructuring-assignment
   };
 
   render() {
-    const { data, onClick, selectedItemIndex, style } = this.props;
-    const { leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
+    const { data, style } = this.props;
+    const { selectedItemIndex, leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
     return (
       <Wrapper>
         <Button src={isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray} onClick={isLeftBtnEnabled ? this.slideLeft : null} isDisabled={!isLeftBtnEnabled} />
         <OuterWrapper style={style}>
           <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
             {data.map((element, index) => (
-              <SlideWrapper onClick={() => onClick({ index })} key={element.id}>
+              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.label}>
                 <SlideUpperPart isSelected={selectedItemIndex === index}>
                   <TextWrapper>
                     <Text>{element.label} hard drive</Text>
                     <Text>
                       FREE SPACE...
                       <br />
-                      {element.availableDiskSpace.readable}
+                      {element.availableDiskSpace} GB
                     </Text>
                   </TextWrapper>
                 </SlideUpperPart>
@@ -172,6 +173,12 @@ class Carousel extends Component<Props, State> {
       </Wrapper>
     );
   }
+
+  handleSelection = ({ index }: { index: number }) => {
+    const { onClick } = this.props;
+    onClick({ index });
+    this.setState({ selectedItemIndex: index });
+  };
 
   slideLeft = () => {
     const { data } = this.props;

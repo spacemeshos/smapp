@@ -91,8 +91,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getUpcomingRewards({ event });
   });
 
-  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {
-    netService.setAwardsAddress({ event, ...request });
+  ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, (event, request) => {
+    netService.setRewardsAddress({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {

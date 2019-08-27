@@ -120,7 +120,7 @@ class CreateWallet extends Component<Props, State> {
         <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
           <SideBar src={smallHorizontalSideBar} />
           {subMode === 1 && (
-            <React.Fragment>
+            <>
               <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
               <UpperPart>
                 <Inputs>
@@ -145,7 +145,7 @@ class CreateWallet extends Component<Props, State> {
                   )}
                 </ErrorSection>
               </UpperPart>
-            </React.Fragment>
+            </>
           )}
           <BottomPart>
             <Link onClick={this.navigateToExplanation} text="WALLET GUIDE" />

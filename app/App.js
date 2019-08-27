@@ -44,7 +44,7 @@ class App extends React.Component<Props, State> {
       return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
     return (
-      <React.Fragment>
+      <>
         <GlobalStyle />
         <Provider store={store}>
           <Router>
@@ -56,7 +56,7 @@ class App extends React.Component<Props, State> {
             </Switch>
           </Router>
         </Provider>
-      </React.Fragment>
+      </>
     );
   }
 
