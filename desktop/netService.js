@@ -176,7 +176,7 @@ class NetService {
     }
   };
 
-  setAwardsAddress = async ({ event, address }) => {
+  setRewardsAddress = async ({ event, address }) => {
     try {
       const { value } = await this._setAwardsAddress({ address });
       event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);

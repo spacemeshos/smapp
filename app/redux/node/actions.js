@@ -68,15 +68,15 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
     await httpService.setNodeIpAddress({ nodeIpAddress });
     dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
   } catch (err) {
-    throw err;
+    throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
   }
 };
 
-export const setAwardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.setAwardsAddress({ address });
+    await httpService.setRewardsAddress({ address });
     dispatch({ type: SET_AWARDS_ADDRESS, payload: { address } });
   } catch (err) {
-    throw createError('Error setting awards address', () => setAwardsAddress({ address }));
+    throw createError('Error setting rewards address', () => setRewardsAddress({ address }));
   }
 };

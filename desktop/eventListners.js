@@ -83,7 +83,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {
-    netService.setAwardsAddress({ event, ...request });
+    netService.setRewardsAddress({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {

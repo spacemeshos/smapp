@@ -8,7 +8,7 @@ import { Button, Link } from '/basicComponents';
 import { sendIcon, requestIcon } from '/assets/images';
 import smColors from '/vars/colors';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account } from '/types';
+import type { Account, TxList } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -43,7 +43,7 @@ const MiddleSectionText = styled.div`
 type Props = {
   account: Account,
   currentAccountIndex: number,
-  transactions: Object,
+  transactions: { data: TxList },
   history: RouterHistory
 };
 

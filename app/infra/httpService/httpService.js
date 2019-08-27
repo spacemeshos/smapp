@@ -63,7 +63,7 @@ class HttpService {
     });
   }
 
-  static setAwardsAddress({ address }: { address: string }) {
+  static setRewardsAddress({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.SET_AWARDS_ADDRESS, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, () => {

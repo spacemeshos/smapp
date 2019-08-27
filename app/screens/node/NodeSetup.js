@@ -111,7 +111,7 @@ class NodeSetup extends Component<Props, State> {
     const { subMode, drives, selectedDriveIndex } = this.state;
     if (subMode === 2) {
       return (
-        <React.Fragment>
+        <>
           <SubHeader>
             --
             <br />
@@ -120,11 +120,11 @@ class NodeSetup extends Component<Props, State> {
             You will need at least 160 GB free space to setup miner
           </SubHeader>
           {drives.length ? <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} /> : null}
-        </React.Fragment>
+        </>
       );
     }
     return (
-      <React.Fragment>
+      <>
         <SubHeader>
           --
           <br />
@@ -133,7 +133,7 @@ class NodeSetup extends Component<Props, State> {
           like the mining node to use
         </SubHeader>
         <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentIndex: index })} />
-      </React.Fragment>
+      </>
     );
   };
 
