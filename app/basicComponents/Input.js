@@ -59,7 +59,7 @@ type State = {
 };
 
 class Input extends Component<Props, State> {
-  debounce: any;
+  debounce: TimeoutID;
 
   static defaultProps = {
     type: 'text',

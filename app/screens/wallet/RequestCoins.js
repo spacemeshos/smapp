@@ -85,7 +85,7 @@ type State = {
 };
 
 class RequestCoins extends Component<Props, State> {
-  copiedTimeout: any;
+  copiedTimeout: TimeoutID;
 
   state = {
     isCopied: false
