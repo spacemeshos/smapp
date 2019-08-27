@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
+import NodeManager from './nodeManager';
 import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
 import WalletAutoStarter from './autoStartManager';
@@ -57,6 +58,14 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
     WalletAutoStarter.isEnabled({ event });
+  });
+
+  ipcMain.on(ipcConsts.START_NODE, async (event) => {
+    NodeManager.startNode({ event });
+  });
+
+  ipcMain.on(ipcConsts.HARD_REFRESH, async () => {
+    NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
 
   /**

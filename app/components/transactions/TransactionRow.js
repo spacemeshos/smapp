@@ -179,11 +179,9 @@ class TransactionRow extends Component<Props, State> {
   render() {
     const { isDetailed, note } = this.state;
     const {
-      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname, note: propsNote }
+      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname }
     } = this.props;
     const color = getColor({ isSent, isPending, isRejected });
-    // eslint-disable-next-line no-console
-    console.warn('note', note, 'propsnote', propsNote);
     const detailRows = [
       { title: 'TRANSACTION ID', value: getAbbreviatedText(id) },
       { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
