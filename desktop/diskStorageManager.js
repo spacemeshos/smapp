@@ -3,44 +3,25 @@ import { ipcConsts, nodeConsts } from '../app/vars';
 
 const si = require('systeminformation');
 
-const getBytesFromGb = (Gb: number) => Gb * 1073741824;
-
-const getReadableSpace = (spaceInBytes: number) => {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  if (spaceInBytes === 0) return '0 Byte';
+const convertToGb = (spaceInBytes) => {
   const i = parseInt(Math.floor(Math.log(spaceInBytes) / Math.log(1024)));
-  return `${Math.round(spaceInBytes / 1024 ** i)} ${sizes[i]}`;
-};
-
-const getAllocatedSpaceList = (availableDiskSpace: ?number, increment: number = getBytesFromGb(nodeConsts.COMMITMENT_SIZE)): { id: number, label: string }[] => {
-  const allocatedSpaceList = [];
-  if (availableDiskSpace) {
-    for (let i = increment; i < availableDiskSpace; i += increment) {
-      allocatedSpaceList.push({
-        id: i,
-        label: getReadableSpace(i)
-      });
-    }
-  }
-  return allocatedSpaceList;
+  return Math.round(spaceInBytes / 1024 ** i);
 };
 
 class DiskStorageManager {
-  static getDriveList = async ({ event }: { event: any }) => {
-    Promise.all([si.blockDevices(), si.fsSize()]).then(([mountpoints, sizeMountpoints]) => {
-      const mountedDrives = mountpoints.filter((mountPoint) => !!mountPoint.mount && !mountPoint.mount.includes('private')); // yields only mounted and non VM
-      const validSizeMountpoints = sizeMountpoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
-      const mappedDrives = mountedDrives.map((mountPoint) => {
-        const volume = validSizeMountpoints.find((validVolume) => validVolume.mount === mountPoint.mount);
-        const availableSpace = volume ? volume.size - volume.used - Math.max(0, getBytesFromGb(nodeConsts.DRIVE_SPACE_BUFFER)) : 0;
-        return {
-          id: mountPoint.name,
-          mountPoint: mountPoint.mount,
-          label: (os.type() === 'Darwin' || os.type() === 'Linux') && !!mountPoint.label ? mountPoint.label : mountPoint.name,
-          availableDiskSpace: { bytes: availableSpace, readable: getReadableSpace(availableSpace) },
-          capacityAllocationsList: getAllocatedSpaceList(availableSpace),
-          isInsufficientSpace: availableSpace < getBytesFromGb(nodeConsts.COMMITMENT_SIZE)
-        };
+  static getDriveList = async ({ event }) => {
+    Promise.all([si.blockDevices(), si.fsSize()]).then(([mountPoints, sizeMountPoints]) => {
+      const mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount && !mountPoint.mount.includes('private')); // yields only mounted and non VM
+      const validSizeMountPoints = sizeMountPoints.filter((mountPoint) => !mountPoint.mount.includes('private'));
+      const mappedDrives = [];
+      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * nodeConsts.COMMITMENT_SIZE;
+      mountedDrives.forEach((mountPoint) => {
+        const volume = validSizeMountPoints.find((validSizeMountPoint) => validSizeMountPoint.mount === mountPoint.mount);
+        const availableSpace = volume ? volume.size - volume.used : 0;
+        if (availableSpace > minimalCommitmentSizeInBytes) {
+          const label = (os.type() === 'Darwin' || os.type() === 'Linux') && !!mountPoint.label ? mountPoint.label : mountPoint.name;
+          mappedDrives.push({ mountPoint: mountPoint.mount, label, availableDiskSpace: convertToGb(availableSpace) });
+        }
       });
       event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
     });

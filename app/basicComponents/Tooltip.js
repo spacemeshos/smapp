@@ -30,15 +30,20 @@ const Text = styled.div`
 
 type Props = {
   className?: string,
-  text: string
+  text: string,
+  withIcon?: boolean
 };
 
 class Tooltip extends PureComponent<Props> {
+  static defaultProps = {
+    withIcon: true
+  };
+
   render() {
-    const { className, text } = this.props;
+    const { className, withIcon, text } = this.props;
     return (
       <Wrapper className={className}>
-        <ToolTipIcon src={tooltip} />
+        {withIcon && <ToolTipIcon src={tooltip} />}
         <Text>{text}</Text>
       </Wrapper>
     );
