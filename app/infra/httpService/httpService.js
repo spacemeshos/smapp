@@ -64,14 +64,14 @@ class HttpService {
   }
 
   static setRewardsAddress({ address }: { address: string }) {
-    ipcRenderer.send(ipcConsts.SET_AWARDS_ADDRESS, { address });
+    ipcRenderer.send(ipcConsts.SET_REWARDS_ADDRESS, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, ipcConsts.SET_AWARDS_ADDRESS_FAILURE] });
+      ipcRenderer.once(ipcConsts.SET_REWARDS_ADDRESS_SUCCESS, () => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_REWARDS_ADDRESS_SUCCESS, ipcConsts.SET_REWARDS_ADDRESS_FAILURE] });
         resolve();
       });
-      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, ipcConsts.SET_AWARDS_ADDRESS_FAILURE] });
+      ipcRenderer.once(ipcConsts.SET_REWARDS_ADDRESS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_REWARDS_ADDRESS_SUCCESS, ipcConsts.SET_REWARDS_ADDRESS_FAILURE] });
         reject(args);
       });
     });

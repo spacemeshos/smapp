@@ -179,9 +179,9 @@ class NetService {
   setRewardsAddress = async ({ event, address }) => {
     try {
       const { value } = await this._setAwardsAddress({ address });
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
+      event.sender.send(ipcConsts.SET_REWARDS_ADDRESS_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
+      event.sender.send(ipcConsts.SET_REWARDS_ADDRESS_FAILURE, error.message);
     }
   };
 

@@ -13,7 +13,7 @@ export const SET_TOTAL_AWARDS: string = 'SET_TOTAL_AWARDS';
 export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
 
 export const SET_NODE_IP: string = 'SET_NODE_IP';
-export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
+export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
 export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -75,7 +75,7 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
 export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     await httpService.setRewardsAddress({ address });
-    dispatch({ type: SET_AWARDS_ADDRESS, payload: { address } });
+    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
   } catch (err) {
     throw createError('Error setting rewards address', () => setRewardsAddress({ address }));
   }
