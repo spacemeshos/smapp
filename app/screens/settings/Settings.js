@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
-import { setNodeIpAddress } from '/redux/node/actions';
+// import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassphrase, SideMenu } from '/components/settings';
 import { Input, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -58,7 +58,7 @@ type Props = {
   updateWalletMeta: Action,
   updateAccount: Action,
   createNewAccount: Action,
-  setNodeIpAddress: Action,
+  // setNodeIpAddress: Action,
   history: RouterHistory,
   nodeIpAddress: string
 };
@@ -105,7 +105,7 @@ class Settings extends Component<Props, State> {
 
   // TODO: add last backup time
   render() {
-    const { accounts, createNewAccount, setNodeIpAddress } = this.props;
+    const { accounts, createNewAccount } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
     return (
       <Wrapper>
@@ -214,7 +214,7 @@ class Settings extends Component<Props, State> {
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                upperPartRight={<Link onClick={setNodeIpAddress} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0} />}
+                upperPartRight={<Link onClick={() => {}} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>
@@ -345,8 +345,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   updateWalletMeta,
   updateAccount,
-  createNewAccount,
-  setNodeIpAddress
+  createNewAccount
+  // setNodeIpAddress
 };
 
 Settings = connect(

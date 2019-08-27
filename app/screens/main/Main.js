@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
+import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
@@ -101,7 +101,6 @@ type Props = {
   isConnected: boolean,
   miningStatus: number,
   getMiningStatus: Action,
-  checkNodeConnection: Action,
   getGenesisTime: Action,
   logout: Action,
   history: RouterHistory,
@@ -192,7 +191,7 @@ class Main extends Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus } = this.props;
     if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
-      getMiningStatus();
+      // getMiningStatus();
     }
     if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       notificationsService.notify({
@@ -247,7 +246,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  checkNodeConnection,
   getMiningStatus,
   getGenesisTime,
   logout

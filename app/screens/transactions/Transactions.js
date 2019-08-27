@@ -190,7 +190,7 @@ class Transactions extends Component<Props, State> {
     const spanInDays = [1, 30, 365];
     return transactions.data.filter((transaction: Tx) => {
       const startDate = +new Date() - spanInDays[index] * oneDayInMs;
-      return transaction.date >= startDate;
+      return +new Date(transaction.date) >= startDate;
     });
   };
 

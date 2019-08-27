@@ -34,7 +34,7 @@ const reducer = (state: any = initialState, action: Action) => {
       const {
         payload: { address }
       } = action;
-      return { ...state, awardsAddress: address, miningStatus: nodeConsts.IN_SETUP };
+      return { ...state, awardsAddress: address, miningStatus: nodeConsts.IS_MINING };
     }
     case SET_GENESIS_TIME: {
       const {

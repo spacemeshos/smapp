@@ -16,14 +16,8 @@ export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
 export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.checkNodeConnection();
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
-    return true;
-  } catch (err) {
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    return false;
-  }
+  dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+  return true;
 };
 
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
@@ -35,15 +29,8 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
   }
 };
 
-export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
-  dispatch: Dispatch
-): Dispatch => {
-  try {
-    await httpService.initMining({ logicalDrive, commitmentSize, address });
-    dispatch({ type: INIT_MINING, payload: { address } });
-  } catch (err) {
-    throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
-  }
+export const initMining = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  dispatch({ type: INIT_MINING, payload: { address } });
 };
 
 export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
