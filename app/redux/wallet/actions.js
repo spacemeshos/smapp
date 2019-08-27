@@ -31,6 +31,17 @@ const getMaxLayerId = ({ transactions }) => {
   return max;
 };
 
+// mock util function
+const generateTxId = () => {
+  const idLength = 32;
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let txId = '';
+  for (let i = 0; i < idLength; i += 1) {
+    txId += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return txId;
+};
+
 const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKey, secretKey, layerId }) => ({
   displayName: getAccountName({ accountNumber }),
   created: unixEpochTimestamp,
@@ -172,18 +183,11 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
 };
 
 export const sendTransaction = ({ recipient, amount, price, note }: { recipient: string, amount: number, price: number, note: string }): Action => async (
-  dispatch: Dispatch,
-  getState: GetState
+  dispatch: Dispatch
 ): Dispatch => {
-  try {
-    const { accounts, currentAccountIndex } = getState().wallet;
-    const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: accounts[currentAccountIndex].sk });
-    const id = await httpService.sendTx({ tx });
-    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
-  } catch (error) {
-    throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
-  }
+  const id = generateTxId();
+  dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+  return id;
 };
 
 export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {

@@ -1,6 +1,4 @@
 // @flow
-import { httpService } from '/infra/httpService';
-import { createError } from '/infra/utils';
 import { Action, Dispatch } from '/types';
 
 export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
@@ -15,69 +13,46 @@ export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
 export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
+// ************************ Mock Util Functions ********************************
+
+const simulateTimedResponse = (upperLimitInSec?: number) => {
+  const seconds = upperLimitInSec || 1;
+  return new Promise((resolve: Function) => {
+    const timeToWait = Math.floor(Math.random() * Math.floor(seconds * 1000));
+    setTimeout(() => {
+      resolve();
+    }, timeToWait);
+  });
+};
+
+const _getMiningStatus = async (status?: number) => {
+  await simulateTimedResponse();
+  // 1 = not mining, 2 = in setup, 3 = is mining
+  return status || Math.floor(Math.random() * Math.floor(3)) + 1;
+};
+
+// ***************************************************************************
+
 export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.checkNodeConnection();
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
-    return true;
-  } catch (err) {
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    return false;
-  }
+  await simulateTimedResponse(0.1);
+  dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
+  return true;
 };
 
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const status = await httpService.getMiningStatus();
-    dispatch({ type: SET_MINING_STATUS, payload: { status } });
-  } catch (error) {
-    console.error(error); // eslint-disable-line no-console
-  }
+  await simulateTimedResponse(0.1);
+  dispatch({ type: SET_MINING_STATUS, payload: { status: _getMiningStatus() } });
 };
 
-export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
-  dispatch: Dispatch
-): Dispatch => {
-  try {
-    await httpService.initMining({ logicalDrive, commitmentSize, address });
-    dispatch({ type: INIT_MINING, payload: { address } });
-  } catch (err) {
-    throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
-  }
+export const initMining = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  await simulateTimedResponse();
+  dispatch({ type: INIT_MINING, payload: { address } });
 };
 
-export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const genesisTime = await httpService.getGenesisTime();
-    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime } });
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-  }
+export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => (dispatch: Dispatch): Dispatch => {
+  dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
 };
 
-export const getUpcomingRewards = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const timeTillNextReward = await httpService.getUpcomingRewards();
-    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextReward } });
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-  }
-};
-
-export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.setNodeIpAddress({ nodeIpAddress });
-    dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
-  } catch (err) {
-    throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
-  }
-};
-
-export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.setRewardsAddress({ address });
-    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
-  } catch (err) {
-    throw createError('Error setting rewards address', () => setRewardsAddress({ address }));
-  }
+export const setRewardsAddress = ({ address }: { address: string }): Action => (dispatch: Dispatch): Dispatch => {
+  dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
 };
