@@ -110,9 +110,11 @@ class App extends React.Component<Props, State> {
             }
             this.checkConnectionTimer = setTimeout(async () => {
               const isConnected = await store.dispatch(checkNodeConnection());
+              clearInterval(this.startNodeInterval);
               isConnected && resolve();
             }, 1000);
           } else {
+            clearInterval(this.startNodeInterval);
             resolve();
           }
         }
