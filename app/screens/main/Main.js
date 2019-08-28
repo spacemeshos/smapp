@@ -60,6 +60,7 @@ const Logo = styled.img`
   display: block;
   width: 130px;
   height: 40px;
+  cursor: pointer;
 `;
 
 const SideBar = styled.img`
