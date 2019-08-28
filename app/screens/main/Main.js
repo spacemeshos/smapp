@@ -60,6 +60,7 @@ const Logo = styled.img`
   display: block;
   width: 130px;
   height: 40px;
+  cursor: pointer;
 `;
 
 const SideBar = styled.img`
@@ -143,7 +144,7 @@ class Main extends Component<Props, State> {
         <SideBar src={sideBar} />
         <NavBar>
           <NavBarPart>
-            <Logo src={logo} />
+            <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
             <NavLinksWrapper>
               <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
               <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
