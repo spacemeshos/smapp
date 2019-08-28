@@ -104,8 +104,9 @@ class NodeSetup extends Component<Props, State> {
 
   async componentDidMount() {
     const drives = await diskStorageService.getDriveList();
-    const selectedDriveIndex = drives.findIndex((drive) => drive.availableDiskSpace >= nodeConsts.COMMITMENT_SIZE);
-    this.setState({ drives, selectedDriveIndex });
+    const selectedDriveIndex = drives.length ? 0 : -1;
+    const selectedCommitmentSize = drives.length ? nodeConsts.COMMITMENT_SIZE : 0;
+    this.setState({ drives, selectedDriveIndex, selectedCommitmentSize });
   }
 
   renderSubMode = () => {

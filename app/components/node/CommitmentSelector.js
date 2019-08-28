@@ -122,7 +122,7 @@ type State = {
 
 class CommitmentSelector extends Component<Props, State> {
   state = {
-    selectedCommitmentIndex: -1,
+    selectedCommitmentIndex: 0,
     hasInsufficientSpace: false
   };
 
@@ -137,8 +137,6 @@ class CommitmentSelector extends Component<Props, State> {
       </Wrapper>
     );
   }
-
-  componentDidMount = () => this.handleClick({ index: 0 });
 
   renderSelector = () => {
     const { selectedCommitmentIndex, hasInsufficientSpace } = this.state;
