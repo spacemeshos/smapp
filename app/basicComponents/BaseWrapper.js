@@ -1,4 +1,5 @@
 // @flow
+import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
@@ -21,6 +22,7 @@ const Logo = styled.img`
   left: 15px;
   width: 130px;
   height: 40px;
+  cursor: pointer;
 `;
 
 const SideBar = styled.img`
@@ -51,7 +53,7 @@ class BaseWrapper extends PureComponent<Props> {
     const { children } = this.props;
     return (
       <Wrapper>
-        <Logo src={logo} />
+        <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
         <SideBar src={sideBar} />
         <InnerWrapper>{children}</InnerWrapper>
       </Wrapper>
