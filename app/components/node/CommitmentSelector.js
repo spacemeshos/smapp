@@ -138,6 +138,8 @@ class CommitmentSelector extends Component<Props, State> {
     );
   }
 
+  componentDidMount = () => this.handleClick({ index: 0 });
+
   renderSelector = () => {
     const { selectedCommitmentIndex, hasInsufficientSpace } = this.state;
     const selectors = [];

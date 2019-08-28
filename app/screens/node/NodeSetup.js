@@ -10,7 +10,7 @@ import { StepsContainer, Button, SecondaryButton, Link } from '/basicComponents'
 import { Carousel, CommitmentSelector } from '/components/node';
 import { diskStorageService } from '/infra/diskStorageService';
 import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
-import { smColors } from '/vars';
+import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 
@@ -104,7 +104,8 @@ class NodeSetup extends Component<Props, State> {
 
   async componentDidMount() {
     const drives = await diskStorageService.getDriveList();
-    this.setState({ drives });
+    const selectedDriveIndex = drives.findIndex((drive) => drive.availableDiskSpace >= nodeConsts.COMMITMENT_SIZE);
+    this.setState({ drives, selectedDriveIndex });
   }
 
   renderSubMode = () => {
