@@ -140,9 +140,9 @@ class NetService {
     }
   };
 
-  initMining = async ({ event, logicalDrive, commitmentSize, address }) => {
+  initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
     try {
-      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase: address });
+      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase });
       event.sender.send(ipcConsts.INIT_MINING_SUCCESS, value);
     } catch (error) {
       event.sender.send(ipcConsts.INIT_MINING_FAILURE, error.message);

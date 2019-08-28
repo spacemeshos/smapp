@@ -10,7 +10,7 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { playIcon, pauseIcon } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-// import type { Action } from '/types';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -106,9 +106,9 @@ const Dots = styled(LeftText)`
 type Props = {
   isConnected: boolean,
   miningStatus: number,
-  timeTillNextReward: string,
-  // getUpcomingRewards: Action,
+  timeTillNextReward: number,
   totalEarnings: number,
+  getUpcomingRewards: Action,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -119,6 +119,8 @@ type State = {
 };
 
 class Node extends Component<Props, State> {
+  getUpcomingRewardsInterval: IntervalID;
+
   constructor(props) {
     super(props);
     const { location } = props;
@@ -158,14 +160,15 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    // const { getUpcomingRewards } = this.props;
-    try {
-      // await getUpcomingRewards();
-    } catch (error) {
-      this.setState(() => {
-        throw error;
-      });
+    const { isConnected, miningStatus, getUpcomingRewards } = this.props;
+    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
+      await getUpcomingRewards();
+      this.getUpcomingRewardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
+  }
+
+  componentWillUnmount(): * {
+    this.getUpcomingRewardsInterval && clearInterval(this.getUpcomingRewardsInterval);
   }
 
   renderMainSection = () => {
@@ -224,7 +227,7 @@ class Node extends Component<Props, State> {
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
         <Dots>....................................</Dots>
-        <RightText>{timeTillNextReward}</RightText>
+        <RightText>{Math.floor(timeTillNextReward / 1000)} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Rewards</LeftText>

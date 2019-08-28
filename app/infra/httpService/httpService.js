@@ -7,8 +7,8 @@ class HttpService {
   /**
    *  ************************************************** NODE MANAGEMENT ********************************************************
    */
-  static initMining({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }) {
-    ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, address });
+  static initMining({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string, commitmentSize: number, coinbase: string }) {
+    ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, coinbase });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.INIT_MINING_SUCCESS, (event, response) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.INIT_MINING_SUCCESS, ipcConsts.INIT_MINING_FAILURE] });
