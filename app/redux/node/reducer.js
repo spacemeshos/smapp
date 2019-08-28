@@ -2,7 +2,7 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_TOTAL_AWARDS, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_GENESIS_TIME } from './actions';
+import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_GENESIS_TIME, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP } from './actions';
 
 const DEFAULT_URL = 'localhost:9091';
 
@@ -41,12 +41,6 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { genesisTime }
       } = action;
       return { ...state, genesisTime };
-    }
-    case SET_TOTAL_AWARDS: {
-      const {
-        payload: { totalEarnings }
-      } = action;
-      return { ...state, totalEarnings };
     }
     case SET_UPCOMING_REWARDS: {
       const {
