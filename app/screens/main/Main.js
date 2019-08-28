@@ -60,6 +60,7 @@ const Logo = styled.img`
   display: block;
   width: 130px;
   height: 40px;
+  cursor: pointer;
 `;
 
 const SideBar = styled.img`
@@ -132,7 +133,8 @@ class Main extends Component<Props, State> {
       () => history.push('/main/contacts'),
       () => history.push('/main/settings'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/tap'),
-      () => shell.openExternal('https://testnet.spacemesh.io/#/help')
+      () => shell.openExternal('https://testnet.spacemesh.io/#/help'),
+      () => shell.openExternal('https://spacemesh.io')
     ];
   }
 
@@ -143,11 +145,17 @@ class Main extends Component<Props, State> {
         <SideBar src={sideBar} />
         <NavBar>
           <NavBarPart>
-            <Logo src={logo} />
+            <Logo src={logo} onClick={() => this.handleNavigation({ index: 6 })} />
             <NavLinksWrapper>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>CONTACTS</NavBarLink>
+              <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
+                MINING
+              </NavBarLink>
+              <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                WALLET
+              </NavBarLink>
+              <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                CONTACTS
+              </NavBarLink>
             </NavLinksWrapper>
           </NavBarPart>
           <NavBarPart>
@@ -165,15 +173,42 @@ class Main extends Component<Props, State> {
               <CustomTooltip text="SETTINGS" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={getCoinsIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 4 })}
+                img={getCoinsIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="GET COINS" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={helpIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 5 })}
+                img={helpIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="HELP" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 6 })} img={signOutIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 7 })}
+                img={signOutIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="LOGOUT" withIcon={false} />
             </TooltipWrapper>
           </NavBarPart>
@@ -235,16 +270,18 @@ class Main extends Component<Props, State> {
           break;
         }
         case 4:
-        case 5: {
+        case 5:
+        case 6: {
           this.navMap[index]();
           break;
         }
-        case 6: {
+        case 7: {
           history.push('/');
           logout();
           break;
         }
-        default: break;
+        default:
+          break;
       }
     }
   };
