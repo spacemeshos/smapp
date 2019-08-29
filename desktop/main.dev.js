@@ -11,8 +11,14 @@
 import { app, BrowserWindow, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
+import { nodeConsts } from '/vars';
+
+const Store = require('electron-store');
+
+const store = new Store();
 
 export default class AppUpdater {
   constructor() {
@@ -84,24 +90,41 @@ app.on('ready', async () => {
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
+    const miningStatus = store.get('miningStatus');
+    const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
     const options = {
       title: 'Spacemesh',
-      message: 'Quit app or keep in background?',
+      message: 'Quit Spacemesh and stop the miner?',
       buttons: ['Keep running in background', 'Quit']
     };
-    dialog.showMessageBox(mainWindow, options, (response) => {
-      if (response === 0) {
-        mainWindow.hide();
-      }
-      if (response === 1) {
-        mainWindow.destroy();
-        mainWindow = null;
-        app.quit();
-      }
+
+    const closeApp = () => {
+      mainWindow.destroy();
+      mainWindow = null;
+      app.quit();
+    };
+
+    const hideAppFromDock = () => {
       if (process.platform === 'darwin') {
         app.dock.hide();
       }
-    });
+    };
+
+    if (isMining) {
+      dialog.showMessageBox(mainWindow, options, (response) => {
+        if (response === 0) {
+          mainWindow.hide();
+          event.sender.send(ipcConsts.SHOW_MINER_RUNNING_NOTIFICATION);
+        }
+        if (response === 1) {
+          closeApp();
+        }
+        hideAppFromDock();
+      });
+    } else {
+      closeApp();
+      hideAppFromDock();
+    }
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
