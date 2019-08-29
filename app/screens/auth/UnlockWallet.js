@@ -74,28 +74,28 @@ type Props = {
 };
 
 type State = {
-  passphrase: string,
+  password: string,
   hasError: boolean
 };
 
 class UnlockWallet extends Component<Props, State> {
   state = {
-    passphrase: '',
+    password: '',
     hasError: false
   };
 
   render() {
     const { history } = this.props;
-    const { passphrase, hasError } = this.state;
+    const { password, hasError } = this.state;
     return (
       <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="welcome back to spacemesh">
         <Indicator hasError={hasError} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
           <Chevron src={chevronRightBlack} />
-          <Input type="password" placeholder="ENTER PASSWORD" value={passphrase} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
+          <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
           <ErrorSection>
-            {hasError && <ErrorPopup onClick={() => this.setState({ passphrase: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
+            {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
           </ErrorSection>
         </InputSection>
         <BottomPart>
@@ -105,23 +105,23 @@ class UnlockWallet extends Component<Props, State> {
             <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
-          <Button text="Unlock" isDisabled={!passphrase.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
+          <Button text="Unlock" isDisabled={!password.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
         </BottomPart>
       </CorneredContainer>
     );
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, hasError: false });
+    this.setState({ password: value, hasError: false });
   };
 
   decryptWallet = async () => {
     const { generateEncryptionKey, unlockWallet, history } = this.props;
-    const { passphrase } = this.state;
+    const { password } = this.state;
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
-    if (!!passphrase && passphrase.trim().length >= passwordMinimumLength) {
+    if (!!password && password.trim().length >= passwordMinimumLength) {
       try {
-        generateEncryptionKey({ passphrase });
+        generateEncryptionKey({ password });
         await unlockWallet();
         history.push('/main/wallet');
       } catch (error) {

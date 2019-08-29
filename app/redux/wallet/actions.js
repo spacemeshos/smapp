@@ -49,9 +49,9 @@ const mergeTxStatuses = () => {
   // const updatedTxList = [];
 };
 
-export const generateEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
+export const generateEncryptionKey = ({ password }: { password: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
-  const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
+  const key = fileEncryptionService.createEncryptionKey({ password, salt });
   return { type: STORE_ENCRYPTION_KEY, payload: { key } };
 };
 

@@ -82,26 +82,26 @@ type Props = {
 
 type State = {
   subMode: 1 | 2,
-  passphrase: string,
-  verifiedPassphrase: string,
-  passphraseError: string,
-  verifyPassphraseError: string,
+  password: string,
+  verifiedPassword: string,
+  passwordError: string,
+  verifyPasswordError: string,
   isLoaderVisible: boolean
 };
 
 class CreateWallet extends Component<Props, State> {
   state = {
     subMode: 1,
-    passphrase: '',
-    verifiedPassphrase: '',
-    passphraseError: '',
-    verifyPassphraseError: '',
+    password: '',
+    verifiedPassword: '',
+    passwordError: '',
+    verifyPasswordError: '',
     isLoaderVisible: false
   };
 
   render() {
     const { history, location } = this.props;
-    const { isLoaderVisible, subMode, passphrase, verifiedPassphrase, passphraseError, verifyPassphraseError } = this.state;
+    const { isLoaderVisible, subMode, password, verifiedPassword, passwordError, verifyPasswordError } = this.state;
     if (isLoaderVisible) {
       return (
         <LoaderWrapper>
@@ -126,22 +126,16 @@ class CreateWallet extends Component<Props, State> {
                 <Inputs>
                   <InputSection>
                     <Chevron src={chevronRightBlack} />
-                    <Input value={passphrase} type="password" placeholder="ENTER PASSPHRASE" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
+                    <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
                   </InputSection>
                   <InputSection>
                     <Chevron src={chevronRightBlack} />
-                    <Input
-                      value={verifiedPassphrase}
-                      type="password"
-                      placeholder="VERIFY PASSPHRASE"
-                      onEnterPress={this.handleEnterPress}
-                      onChange={this.handlePasswordVerifyTyping}
-                    />
+                    <Input value={verifiedPassword} type="password" placeholder="VERIFY PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordVerifyTyping} />
                   </InputSection>
                 </Inputs>
                 <ErrorSection>
-                  {(!!passphraseError || !!verifyPassphraseError) && (
-                    <ErrorPopup onClick={() => this.setState({ passphraseError: '', verifyPassphraseError: '' })} text={passphraseError || verifyPassphraseError} />
+                  {(!!passwordError || !!verifyPasswordError) && (
+                    <ErrorPopup onClick={() => this.setState({ passwordError: '', verifyPasswordError: '' })} text={passwordError || verifyPasswordError} />
                   )}
                 </ErrorSection>
               </UpperPart>
@@ -187,22 +181,22 @@ class CreateWallet extends Component<Props, State> {
   };
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, passphraseError: '' });
+    this.setState({ password: value, passwordError: '' });
   };
 
   handlePasswordVerifyTyping = ({ value }: { value: string }) => {
-    this.setState({ verifiedPassphrase: value, verifyPassphraseError: '' });
+    this.setState({ verifiedPassword: value, verifyPasswordError: '' });
   };
 
   validate = () => {
-    const { passphrase, verifiedPassphrase } = this.state;
+    const { password, verifiedPassword } = this.state;
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < pasMinLength);
-    const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? `Passphrase has to be ${pasMinLength} characters or more.` : '';
-    const verifyPassphraseError = hasVerifyPassphraseError ? "these passphrases don't match, please try again " : '';
-    this.setState({ passphraseError, verifyPassphraseError });
-    return !passphraseError && !verifyPassphraseError;
+    const hasPasswordError = !password || (!!password && password.length < pasMinLength);
+    const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
+    const passwordError = hasPasswordError ? `Password has to be ${pasMinLength} characters or more.` : '';
+    const verifyPasswordError = hasVerifyPasswordError ? "these passwords don't match, please try again " : '';
+    this.setState({ passwordError, verifyPasswordError });
+    return !passwordError && !verifyPasswordError;
   };
 
   nextAction = () => {
@@ -222,12 +216,12 @@ class CreateWallet extends Component<Props, State> {
 
   createWallet = async () => {
     const { generateEncryptionKey, saveNewWallet, location } = this.props;
-    const { passphrase, isLoaderVisible } = this.state;
+    const { password, isLoaderVisible } = this.state;
     if (!isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          await generateEncryptionKey({ passphrase });
+          await generateEncryptionKey({ password });
           saveNewWallet({ mnemonic: location?.state?.mnemonic });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
