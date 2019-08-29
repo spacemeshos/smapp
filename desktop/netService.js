@@ -1,5 +1,6 @@
 import path from 'path';
 import { ipcConsts } from '../app/vars';
+// eslint-disable-next-line import/no-cycle
 import { updateMiningStatus } from './main.dev';
 import { nodeConsts } from '/vars';
 
