@@ -88,7 +88,7 @@ class UnlockWallet extends Component<Props, State> {
     const { history } = this.props;
     const { passphrase, hasError } = this.state;
     return (
-      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="welcome back to spacemesh">
+      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to spacemesh">
         <Indicator hasError={hasError} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
