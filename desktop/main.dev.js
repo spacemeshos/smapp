@@ -8,17 +8,13 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, dialog } from 'electron';
+import path from 'path';
+import { app, BrowserWindow, dialog, Notification } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
+// eslint-disable-next-line import/no-cycle
 import { subscribeToEventListeners } from './eventListners';
-import { nodeConsts } from '/vars';
-
-const Store = require('electron-store');
-
-const store = new Store();
 
 export default class AppUpdater {
   constructor() {
@@ -29,6 +25,11 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
+let isMining = false;
+
+export const updateMiningStatus = (isMiningOrInSetup) => {
+  isMining = isMiningOrInSetup;
+};
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -90,8 +91,6 @@ app.on('ready', async () => {
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
-    const miningStatus = store.get('miningStatus');
-    const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
     const options = {
       title: 'Spacemesh',
       message: 'Quit Spacemesh and stop the miner?',
@@ -110,11 +109,21 @@ app.on('ready', async () => {
       }
     };
 
+    const notifyMinerIsRunning = () => {
+      const notificationOptions: any = {
+        title: 'Spacemesh',
+        body: 'Miner is running in the background.',
+        icon: path.join(__dirname, '..', 'resources', 'icon.png')
+      };
+      const notification = new Notification(notificationOptions);
+      notification.show();
+    };
+
     if (isMining) {
       dialog.showMessageBox(mainWindow, options, (response) => {
         if (response === 0) {
           mainWindow.hide();
-          event.sender.send(ipcConsts.SHOW_MINER_RUNNING_NOTIFICATION);
+          notifyMinerIsRunning();
         }
         if (response === 1) {
           closeApp();

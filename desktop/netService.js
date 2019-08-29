@@ -1,7 +1,7 @@
 import path from 'path';
 import { ipcConsts } from '../app/vars';
-
-const Store = require('electron-store');
+import { updateMiningStatus } from './main.dev';
+import { nodeConsts } from '/vars';
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -13,8 +13,6 @@ const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
 // const DEFAULT_URL = '192.168.30.233:9091';
 const DEFAULT_URL = 'localhost:9091';
-
-const store = new Store();
 
 class NetService {
   constructor(url = DEFAULT_URL) {
@@ -138,10 +136,10 @@ class NetService {
   getMiningStatus = async ({ event }) => {
     try {
       const { status } = await this._getMiningStatus();
-      store.set('miningStatus', status);
+      updateMiningStatus(status === nodeConsts.IN_SETUP || status === nodeConsts.IS_MINING);
       event.sender.send(ipcConsts.GET_MINING_STATUS_SUCCESS, status);
     } catch (error) {
-      store.set('miningStatus', null);
+      updateMiningStatus(false);
       event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, error.message);
     }
   };
