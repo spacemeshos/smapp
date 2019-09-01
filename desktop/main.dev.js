@@ -103,36 +103,23 @@ app.on('ready', async () => {
       app.quit();
     };
 
-    const hideAppFromDock = () => {
-      if (process.platform === 'darwin') {
-        app.dock.hide();
-      }
-    };
-
-    const notifyMinerIsRunning = () => {
-      const notificationOptions: any = {
-        title: 'Spacemesh',
-        body: 'Miner is running in the background.',
-        icon: path.join(__dirname, '..', 'resources', 'icon.png')
-      };
-      const notification = new Notification(notificationOptions);
-      notification.show();
-    };
-
     if (isMining) {
       dialog.showMessageBox(mainWindow, options, (response) => {
         if (response === 0) {
           mainWindow.hide();
-          notifyMinerIsRunning();
+          const notification = new Notification({
+            title: 'Spacemesh',
+            body: 'Miner is running in the background.',
+            icon: path.join(__dirname, '..', 'resources', 'icon.png')
+          });
+          notification.show();
         }
         if (response === 1) {
           closeApp();
         }
-        hideAppFromDock();
       });
     } else {
       closeApp();
-      hideAppFromDock();
     }
   });
 
