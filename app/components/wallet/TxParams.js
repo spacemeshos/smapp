@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
 import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
+import type { Contact } from '/types';
+import AutoComplete from './AutoComplete';
 
 const Wrapper = styled.div`
   display: flex;
@@ -96,10 +98,10 @@ const fees = [
 
 type Props = {
   fromAddress: string,
-  address: string,
+  initialAddress: string,
+  contacts: Contact[],
   hasAddressError: boolean,
   updateTxAddress: ({ value: string }) => void,
-  updateTxAddressDebounced: ({ value: string }) => void,
   resetAddressError: () => void,
   amount: string,
   updateTxAmount: ({ value: string }) => void,
@@ -126,10 +128,10 @@ class TxParams extends Component<Props, State> {
   render() {
     const {
       fromAddress,
-      address,
+      initialAddress,
+      contacts,
       hasAddressError,
       updateTxAddress,
-      updateTxAddressDebounced,
       resetAddressError,
       amount,
       hasAmountError,
@@ -151,8 +153,8 @@ class TxParams extends Component<Props, State> {
         </Header>
         <SubHeader>--</SubHeader>
         <DetailsRow>
-          <DetailsText>From</DetailsText>
-          <Input value={address} onChange={updateTxAddress} onChangeDebounced={updateTxAddressDebounced} maxLength="64" style={{ flex: 1 }} />
+          <DetailsText>Send to</DetailsText>
+          <AutoComplete initialAddress={initialAddress} onChange={updateTxAddress} contacts={contacts} />
           {hasAddressError && <ErrorPopup onClick={resetAddressError} text="this address is invalid" style={{ top: '-4px', right: '-195px' }} />}
         </DetailsRow>
         <DetailsRow>

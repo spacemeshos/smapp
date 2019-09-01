@@ -268,5 +268,5 @@ Main = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(Main);
 
-Main = ScreenErrorBoundary(Main, true);
+Main = ScreenErrorBoundary(Main);
 export default Main;

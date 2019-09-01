@@ -9,6 +9,7 @@ import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
 
 type Props = {
+  contacts: Contact[],
   currentAccount: Account,
   history: RouterHistory,
   location: { state?: { contact: Contact } },
@@ -17,7 +18,6 @@ type Props = {
 
 type State = {
   mode: 1 | 2 | 3,
-  tmpAddress: string,
   address: string,
   hasAddressError: boolean,
   tmpAmount: number | string,
@@ -35,7 +35,6 @@ class SendCoins extends Component<Props, State> {
     const { location } = props;
     this.state = {
       mode: 1,
-      tmpAddress: location?.state?.contact.address || '',
       address: location?.state?.contact.address || '',
       hasAddressError: false,
       tmpAmount: '',
@@ -88,15 +87,15 @@ class SendCoins extends Component<Props, State> {
   }
 
   renderTxParamsMode = () => {
-    const { currentAccount, history } = this.props;
-    const { tmpAddress, address, hasAddressError, tmpAmount, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
+    const { currentAccount, contacts, history, location } = this.props;
+    const { address, hasAddressError, tmpAmount, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
         fromAddress={currentAccount.pk}
-        address={tmpAddress}
+        initialAddress={location?.state?.contact.address || ''}
+        contacts={contacts}
         hasAddressError={hasAddressError}
-        updateTxAddress={({ value }) => this.setState({ tmpAddress: value })}
-        updateTxAddressDebounced={this.updateTxAddressDebounced}
+        updateTxAddress={this.updateTxAddress}
         resetAddressError={() => this.setState({ address: '', hasAddressError: false })}
         amount={tmpAmount}
         updateTxAmount={({ value }) => this.setState({ tmpAmount: value })}
@@ -119,7 +118,7 @@ class SendCoins extends Component<Props, State> {
     ];
   };
 
-  updateTxAddressDebounced = ({ value }: { value: string }) => {
+  updateTxAddress = ({ value }: { value: string }) => {
     if (value) {
       this.setState({ address: value, hasAddressError: value.length !== cryptoConsts.PUB_KEY_LENGTH });
     } else {

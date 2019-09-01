@@ -100,7 +100,11 @@ export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({ type
 
 export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({ type: SET_ACCOUNTS, payload: { accounts } });
 
-export const setCurrentAccount = ({ index }: { index: number }): Action => ({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
+export const setCurrentAccount = ({ index }: { index: number }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { transactions } = getState().wallet;
+  dispatch({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
+  dispatch(setTransactions({ transactions }));
+};
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
@@ -114,8 +118,8 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
     return files;
   } catch (err) {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
-    throw createError('Error reading wallet files!', readWalletFiles);
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
+    return [];
   }
 };
 
