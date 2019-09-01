@@ -1,5 +1,8 @@
 import path from 'path';
 import { ipcConsts } from '../app/vars';
+// eslint-disable-next-line import/no-cycle
+import { updateMiningStatus } from './main.dev';
+import { nodeConsts } from '/vars';
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -134,8 +137,10 @@ class NetService {
   getMiningStatus = async ({ event }) => {
     try {
       const { status } = await this._getMiningStatus();
+      updateMiningStatus(status === nodeConsts.IN_SETUP || status === nodeConsts.IS_MINING);
       event.sender.send(ipcConsts.GET_MINING_STATUS_SUCCESS, status);
     } catch (error) {
+      updateMiningStatus(false);
       event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, error.message);
     }
   };
