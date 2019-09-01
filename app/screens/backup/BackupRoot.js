@@ -95,8 +95,8 @@ class BackupRoot extends Component<Props> {
               </SmallText>
             </MiddleSectionRow>
             <MiddleSectionRow>
-              <Button onClick={this.backupWallet} text="File Backup" isPrimary={false} isContainerFullWidth style={{ marginRight: 22 }} />
-              <Button onClick={this.navigateTo12WordsBackup} text="12 Words Backup" isPrimary={false} isContainerFullWidth />
+              <Button onClick={this.backupWallet} text="FILE BACKUP" isPrimary={false} isContainerFullWidth style={{ marginRight: 22 }} />
+              <Button onClick={this.navigateTo12WordsBackup} text="12 WORDS BACKUP" isPrimary={false} isContainerFullWidth />
             </MiddleSectionRow>
             <BottomRow>
               <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
