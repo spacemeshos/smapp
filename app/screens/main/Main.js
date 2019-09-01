@@ -83,7 +83,7 @@ const InnerWrapper = styled.div`
 `;
 
 const CustomTooltip = styled(Tooltip)`
-  top: 57px;
+  top: ${({isLinkTooltip}) => isLinkTooltip ? 30 : 57}px;
   right: -8px;
   width: 90px;
   text-align: center;
@@ -146,9 +146,18 @@ class Main extends Component<Props, State> {
           <NavBarPart>
             <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
             <NavLinksWrapper>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>CONTACTS</NavBarLink>
+              <TooltipWrapper>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
+                <CustomTooltip text="SETUP OR MANAGE YOUR MINING" withIcon={false} isLinkTooltip />
+              </TooltipWrapper>
+              <TooltipWrapper>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
+                <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
+              </TooltipWrapper>
+              <TooltipWrapper>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>CONTACTS</NavBarLink>
+                <CustomTooltip text="MANAGE YOUR CONTACTS" withIcon={false} isLinkTooltip />
+              </TooltipWrapper>
             </NavLinksWrapper>
           </NavBarPart>
           <NavBarPart>
