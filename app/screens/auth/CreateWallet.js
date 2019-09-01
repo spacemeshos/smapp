@@ -154,9 +154,9 @@ class CreateWallet extends Component<Props, State> {
   renderSubHeader = (subMode: number, isWalletOnlySetup: boolean) => {
     return subMode === 1 ? (
       <span>
-        enter your password
+        Enter your password
         <br />
-        it must be at least 8 characters
+        It must be at least 8 characters
       </span>
     ) : (
       <div>

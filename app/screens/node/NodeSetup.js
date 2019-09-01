@@ -117,7 +117,7 @@ class NodeSetup extends Component<Props, State> {
           <SubHeader>
             --
             <br />
-            select the hard drive you&#39;d like to use for mining
+            Select the hard drive you&#39;d like to use for mining
             <br />
             You will need at least 160 GB free space to setup miner
           </SubHeader>
