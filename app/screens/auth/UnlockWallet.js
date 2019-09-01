@@ -105,7 +105,7 @@ class UnlockWallet extends Component<Props, State> {
             <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
-          <Button text="Unlock" isDisabled={!passphrase.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
+          <Button text="UNLOCK" isDisabled={!passphrase.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
         </BottomPart>
       </CorneredContainer>
     );
