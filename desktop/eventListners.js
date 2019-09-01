@@ -3,6 +3,7 @@ import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
 import NodeManager from './nodeManager';
 import DiskStorageManager from './diskStorageManager';
+// eslint-disable-next-line import/no-cycle
 import netService from './netService';
 import WalletAutoStarter from './autoStartManager';
 
