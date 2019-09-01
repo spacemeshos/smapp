@@ -1,5 +1,4 @@
-export { default as loader } from './loading@2x.gif';
-
+export { default as loader } from './loading.gif';
 export { default as sideBar } from './sideBar.png';
 export { default as rightSideBar } from './right_side_bar.png';
 export { default as leftSideBar } from './left_side_bar.png';
