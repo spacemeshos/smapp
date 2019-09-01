@@ -37,27 +37,27 @@ type Props = {
 
 type State = {
   isEditMode: boolean,
-  passphrase: string,
-  verifiedPassphrase: string,
-  passphraseError: string,
-  verifyPassphraseError: string,
+  password: string,
+  verifiedPassword: string,
+  passwordError: string,
+  verifyPasswordError: string,
   isLoaderVisible: boolean
 };
 
-class ChangePassphrase extends Component<Props, State> {
+class ChangePassword extends Component<Props, State> {
   timeOut: TimeoutID;
 
   state = {
     isEditMode: false,
-    passphrase: '',
-    verifiedPassphrase: '',
-    passphraseError: '',
-    verifyPassphraseError: '',
+    password: '',
+    verifiedPassword: '',
+    passwordError: '',
+    verifyPasswordError: '',
     isLoaderVisible: false
   };
 
   render() {
-    const { isEditMode, passphrase, verifiedPassphrase, isLoaderVisible, passphraseError, verifyPassphraseError } = this.state;
+    const { isEditMode, password, verifiedPassword, isLoaderVisible, passwordError, verifyPasswordError } = this.state;
     if (isLoaderVisible) {
       return <Loader size={Loader.sizes.BIG} />;
     }
@@ -66,16 +66,16 @@ class ChangePassphrase extends Component<Props, State> {
         <LeftPart>
           {isEditMode ? (
             [
-              <Input value={passphrase} type="password" placeholder="Type passphrase" onChange={this.handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" />,
-              <Input value={verifiedPassphrase} type="password" placeholder="Verify passphrase" onChange={this.handlePasswordVerifyTyping} key="passRetype" />
+              <Input value={password} type="password" placeholder="Type password" onChange={this.handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" />,
+              <Input value={verifiedPassword} type="password" placeholder="Verify password" onChange={this.handlePasswordVerifyTyping} key="passRetype" />
             ]
           ) : (
             <Input value="***********" type="password" isDisabled />
           )}
-          {(!!passphraseError || !!verifyPassphraseError) && (
+          {(!!passwordError || !!verifyPasswordError) && (
             <ErrorPopup
-              onClick={() => this.setState({ passphraseError: '', verifyPassphraseError: '' })}
-              text={passphraseError || verifyPassphraseError}
+              onClick={() => this.setState({ passwordError: '', verifyPasswordError: '' })}
+              text={passwordError || verifyPasswordError}
               style={{ top: '95px', right: '-30px' }}
             />
           )}
@@ -83,11 +83,11 @@ class ChangePassphrase extends Component<Props, State> {
         <RightPart>
           {isEditMode ? (
             [
-              <Link onClick={this.updatePassphrase} text="SAVE" style={{ marginRight: 15 }} key="change" />,
-              <Link onClick={this.cancelUpdatingPassphrase} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+              <Link onClick={this.updatePassword} text="SAVE" style={{ marginRight: 15 }} key="change" />,
+              <Link onClick={this.cancelUpdatingPassword} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
             ]
           ) : (
-            <Link onClick={this.startUpdatingPassphrase} text="CHANGE" />
+            <Link onClick={this.startUpdatingPassword} text="CHANGE" />
           )}
         </RightPart>
       </Wrapper>
@@ -99,38 +99,38 @@ class ChangePassphrase extends Component<Props, State> {
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, passphraseError: '' });
+    this.setState({ password: value, passwordError: '' });
   };
 
   handlePasswordVerifyTyping = ({ value }: { value: string }) => {
-    this.setState({ verifiedPassphrase: value, verifyPassphraseError: '' });
+    this.setState({ verifiedPassword: value, verifyPasswordError: '' });
   };
 
-  startUpdatingPassphrase = () => this.setState({ isEditMode: true });
+  startUpdatingPassword = () => this.setState({ isEditMode: true });
 
-  cancelUpdatingPassphrase = () => {
-    this.setState({ passphrase: '', isEditMode: false, passphraseError: '', verifyPassphraseError: '' });
+  cancelUpdatingPassword = () => {
+    this.setState({ password: '', isEditMode: false, passwordError: '', verifyPasswordError: '' });
   };
 
   validate = () => {
-    const { passphrase, verifiedPassphrase } = this.state;
+    const { password, verifiedPassword } = this.state;
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < pasMinLength);
-    const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? `Passphrase has to be ${pasMinLength} characters or more.` : '';
-    const verifyPassphraseError = hasVerifyPassphraseError ? "these passphrases don't match, please try again " : '';
-    this.setState({ passphraseError, verifyPassphraseError });
-    return !passphraseError && !verifyPassphraseError;
+    const hasPasswordError = !password || (!!password && password.length < pasMinLength);
+    const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
+    const passwordError = hasPasswordError ? `Password has to be ${pasMinLength} characters or more.` : '';
+    const verifyPasswordError = hasVerifyPasswordError ? "these passwords don't match, please try again " : '';
+    this.setState({ passwordError, verifyPasswordError });
+    return !passwordError && !verifyPasswordError;
   };
 
-  updatePassphrase = async () => {
+  updatePassword = async () => {
     const { generateEncryptionKey, updateAccountsInFile, accounts, goBack } = this.props;
-    const { passphrase, isLoaderVisible } = this.state;
+    const { password, isLoaderVisible } = this.state;
     if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
-          generateEncryptionKey({ passphrase });
+          generateEncryptionKey({ password });
           await updateAccountsInFile({ accounts });
           goBack();
         }, 500);
@@ -152,9 +152,9 @@ const mapDispatchToProps = {
   updateAccountsInFile
 };
 
-ChangePassphrase = connect<any, any, _, _, _, _>(
+ChangePassword = connect<any, any, _, _, _, _>(
   mapStateToProps,
   mapDispatchToProps
-)(ChangePassphrase);
+)(ChangePassword);
 
-export default ChangePassphrase;
+export default ChangePassword;

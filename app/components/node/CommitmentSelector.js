@@ -122,7 +122,7 @@ type State = {
 
 class CommitmentSelector extends Component<Props, State> {
   state = {
-    selectedCommitmentIndex: -1,
+    selectedCommitmentIndex: 0,
     hasInsufficientSpace: false
   };
 

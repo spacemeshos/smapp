@@ -181,7 +181,7 @@ class TxParams extends Component<Props, State> {
           <DetailsText>
             Note
             <br />
-            (only you can see this)
+            (Only you can see this)
           </DetailsText>
           <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
         </DetailsRow>

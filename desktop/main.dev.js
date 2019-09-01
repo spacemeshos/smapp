@@ -8,10 +8,12 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, dialog } from 'electron';
+import path from 'path';
+import { app, BrowserWindow, dialog, Notification } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
+// eslint-disable-next-line import/no-cycle
 import { subscribeToEventListeners } from './eventListners';
 
 export default class AppUpdater {
@@ -23,6 +25,11 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
+let isMining = false;
+
+export const updateMiningStatus = (isMiningOrInSetup) => {
+  isMining = isMiningOrInSetup;
+};
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -86,22 +93,34 @@ app.on('ready', async () => {
     event.preventDefault();
     const options = {
       title: 'Spacemesh',
-      message: 'Quit app or keep in background?',
+      message: 'Quit Spacemesh and stop the miner?',
       buttons: ['Keep running in background', 'Quit']
     };
-    dialog.showMessageBox(mainWindow, options, (response) => {
-      if (response === 0) {
-        mainWindow.hide();
-      }
-      if (response === 1) {
-        mainWindow.destroy();
-        mainWindow = null;
-        app.quit();
-      }
-      if (process.platform === 'darwin') {
-        app.dock.hide();
-      }
-    });
+
+    const closeApp = () => {
+      mainWindow.destroy();
+      mainWindow = null;
+      app.quit();
+    };
+
+    if (isMining) {
+      dialog.showMessageBox(mainWindow, options, (response) => {
+        if (response === 0) {
+          mainWindow.hide();
+          const notification = new Notification({
+            title: 'Spacemesh',
+            body: 'Miner is running in the background.',
+            icon: path.join(__dirname, '..', 'resources', 'icon.png')
+          });
+          notification.show();
+        }
+        if (response === 1) {
+          closeApp();
+        }
+      });
+    } else {
+      closeApp();
+    }
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
-import { SettingsSection, SettingRow, ChangePassphrase, SideMenu } from '/components/settings';
+import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
 import { Input, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -128,7 +128,7 @@ class Settings extends Component<Props, State> {
                 }
                 rowName="Display name"
               />
-              <SettingRow upperPart={<ChangePassphrase />} rowName="Change passphrase" />
+              <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
               <SettingRow
                 upperPartLeft="Last Backup at 08.14.19"
                 isUpperPartLeftText
