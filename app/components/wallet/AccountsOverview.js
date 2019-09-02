@@ -42,9 +42,10 @@ const Address = styled.div`
 `;
 
 const CopyIcon = styled.img`
+  align-self: flex-end;
   width: 16px;
   height: 15px;
-  margin: 0 10px;
+  margin: 8px 10px;
   cursor: pointer;
 `;
 
@@ -122,9 +123,9 @@ class AccountsOverview extends Component<Props, State> {
               rowHeight={55}
             />
           ) : (
-            this.renderAccountRow({ displayName, isCopied, pk })
+            this.renderAccountRow({ displayName, pk })
           )}
-          <CopyIcon src={copyToClipboard} />
+          <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
         </AccountDetails>
         <CopiedText>{isCopied ? 'Address had been copied to clipboard!' : ''}</CopiedText>
         <Footer>
