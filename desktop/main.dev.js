@@ -93,8 +93,8 @@ app.on('ready', async () => {
     event.preventDefault();
     const options = {
       title: 'Spacemesh',
-      message: 'Quit Spacemesh and stop the miner?',
-      buttons: ['Keep running in background', 'Quit']
+      message: 'Quit Spacemesh and stop the miner? Quitting and stopping the miner will cause you to miss some mining awards.',
+      buttons: ['Keep running in background', 'Quit', 'Cancel']
     };
 
     const closeApp = () => {
