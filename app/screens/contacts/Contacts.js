@@ -257,7 +257,7 @@ class Contacts extends Component<Props, State> {
     const { contacts } = this.props;
     const { addressToAdd, shouldShowCreateNewContactModal, isNewContactCreated } = this.state;
     if (shouldShowCreateNewContactModal) {
-      return <CreateNewContact initialAddress={addressToAdd} onCompleteAction={this.createdNewContact} />;
+      return <CreateNewContact initialAddress={addressToAdd} onCompleteAction={this.createdNewContact} onCancel={this.cancelCreateNewContact} />;
     }
     if (isNewContactCreated) {
       return <CreatedNewContact contact={contacts[0]} action={() => this.navigateToSendCoins({ contact: contacts[0] })} />;
@@ -357,6 +357,10 @@ class Contacts extends Component<Props, State> {
   createdNewContact = () => {
     this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
     this.newContactCreatedTimeOut = setTimeout(() => this.setState({ isNewContactCreated: false }), 10000);
+  };
+
+  cancelCreateNewContact = () => {
+    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
   };
 
   navigateToSendCoins = ({ contact }: { contact: Contact }) => {

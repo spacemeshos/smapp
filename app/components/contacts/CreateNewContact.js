@@ -64,7 +64,8 @@ type Props = {
   addToContacts: Action,
   updateTransaction: Action,
   initialAddress?: string,
-  onCompleteAction: () => void
+  onCompleteAction: () => void,
+  onCancel: () => void
 };
 
 type State = {
@@ -88,7 +89,7 @@ class CreateNewContact extends Component<Props, State> {
   }
 
   render() {
-    const { isStandalone, onCompleteAction } = this.props;
+    const { isStandalone, onCancel } = this.props;
     const { address, nickname, email, hasError, errorMsg } = this.state;
     return (
       <Wrapper isStandalone={isStandalone}>
@@ -125,7 +126,7 @@ class CreateNewContact extends Component<Props, State> {
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCompleteAction} text="CANCEL" style={{ color: smColors.mediumGray, marginRight: 15 }} />
+          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.mediumGray, marginRight: 15 }} />
           <Link onClick={this.createContact} text="CREATE" />
         </ButtonsWrapper>
       </Wrapper>

@@ -26,14 +26,14 @@ const initialState = {
   fiatRate: 1
 };
 
-const getFirstUniqueTransactions = (txList: TxList, n: number = 3): Contact[] => {
+const getFirst3UniqueAddresses = (txList: TxList): Contact[] => {
   const unique = new Set();
-  for (let i = 0; i < txList.length && i < n; i += 1) {
+  for (let i = 0; i < txList.length && i < 3; i += 1) {
     if (!unique.has(txList[i])) {
       unique.add(txList[i]);
     }
   }
-  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname }));
+  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname || '' }));
 };
 
 const reducer = (state: StoreStateType = initialState, action: Action) => {
@@ -68,7 +68,11 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_TRANSACTIONS: {
       const { transactions } = action.payload;
-      return { ...state, transactions, lastUsedAddresses: transactions && transactions.length ? getFirstUniqueTransactions(transactions[state.currentAccountIndex].data) : [] };
+      return {
+        ...state,
+        transactions,
+        lastUsedContacts: transactions[state.currentAccountIndex].data.length ? getFirst3UniqueAddresses(transactions[state.currentAccountIndex].data) : []
+      };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const { index } = action.payload;

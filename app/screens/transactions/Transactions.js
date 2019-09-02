@@ -141,7 +141,7 @@ class Transactions extends Component<Props, State> {
           </TransactionsListWrapper>
         </WrapperWith2SideBars>
         {addressToAdd ? (
-          <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} />
+          <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} onCancel={this.cancelCreatingNewContact} />
         ) : (
           <RightPaneWrapper>
             <DropDown
@@ -183,6 +183,10 @@ class Transactions extends Component<Props, State> {
       filteredTransactions: [...filteredTransactions],
       ...coins
     });
+  };
+
+  cancelCreatingNewContact = () => {
+    this.setState({ addressToAdd: '' });
   };
 
   filterTransactions = ({ index, transactions }) => {
