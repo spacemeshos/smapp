@@ -219,7 +219,7 @@ class Contacts extends Component<Props, State> {
     const { contacts } = this.props;
     const { tmpSearchTerm, searchTerm, selectedSorting } = this.state;
     return (
-      <WrapperWith2SideBars width={1000} height={600} header="MY CONTACTS">
+      <WrapperWith2SideBars width={1000} height={600} header="CONTACTS">
         <SearchWrapper>
           <SearchIcon src={searchIcon} />
           <Input
