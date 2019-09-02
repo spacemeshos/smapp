@@ -28,7 +28,7 @@ class FileManager {
   static openWalletBackupDirectory = async ({ event, lastBackupTime }) => {
     try {
       const files = await readDirectoryAsync(lastBackupTime ? documentsDirPath : appFilesDirPath);
-      const regex = new RegExp(lastBackupTime || '.*.(json)', 'ig');
+      const regex = new RegExp(lastBackupTime || '(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(lastBackupTime ? documentsDirPath : appFilesDirPath, file));
       if (filesWithPath && filesWithPath[0]) {
