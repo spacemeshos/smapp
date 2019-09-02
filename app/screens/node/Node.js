@@ -190,7 +190,11 @@ class Node extends Component<Props, State> {
       <BoldText key="4">Important:</BoldText>,
       <Text key="5">* Leave your computer on 24/7 to mine</Text>,
       <Text key="6">* Disable your computer from going to sleep</Text>,
-      <Text key="7" style={{ display: 'flex', flexDirection: 'row' }}>
+      <Text key="7">
+        * Important: configure your network to accept incoming app connections. {/** TODO: need to navigate to right page when it becomes available in testnet guide */}
+        <Link onClick={this.navigateToMiningGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+      </Text>,
+      <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
         <Link onClick={this.navigateToMiningGuide} text="Learn more about Spacemesh Mining" style={{ fontSize: '16px', lineHeight: '20px' }} />
       </Text>,
