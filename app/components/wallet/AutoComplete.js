@@ -15,7 +15,10 @@ const Wrapper = styled.div`
   flex: 1;
   width: 100%;
   height: 100%;
-  border: 1px solid ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
+  border: 1px solid ${smColors.black};
+  &:hover {
+    border: 1px solid ${smColors.purple};
+  }
 `;
 
 const HeaderWrapper = styled.div`
@@ -41,22 +44,25 @@ const ActualInput = styled.input`
 `;
 
 const AddToContactsImg = styled.img`
-  width: 14px;
-  height: 12px;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
-  margin: 0 10px;
+  margin: 0 5px;
 `;
 
 const ItemsWrapper = styled.div`
   position: absolute;
   top: ${ROW_HEIGHT - 1}px;
-  width: 100%;
+  left: -1px;
   flex: 1;
+  width: 101%;
   z-index: 10;
   overflow: hidden;
   transition: all 0.2s linear;
   overflow-y: scroll;
-  box-shadow: 0 3px 6px ${smColors.black02Alpha};
+  border-bottom: 1px solid ${smColors.purple};
+  border-left: 1px solid ${smColors.purple};
+  border-right: 1px solid ${smColors.purple};
   background-color: ${smColors.white};
 `;
 
@@ -64,7 +70,6 @@ const DropdownRow = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: ${ROW_HEIGHT}px;
   cursor: pointer;
 `;
 
@@ -73,15 +78,18 @@ const DdElement = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  height: ${ROW_HEIGHT}px;
-  padding: 10px 5px;
+  margin: 5px 10px;
+  padding: 5px 0;
   border-bottom: 1px solid ${smColors.disabledGray};
+  cursor: pointer;
+  ${({ isFirst }) => isFirst && `border-top: 1px solid ${smColors.disabledGray};`}
 `;
 
 const Nickname = styled.div`
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
   color: ${smColors.black};
+  cursor: pointer;
 `;
 
 const Address = styled(Nickname)`
@@ -90,19 +98,21 @@ const Address = styled(Nickname)`
 
 type Props = {
   initialAddress: string,
-  onChange: ({ value: string }) => void,
-  contacts: Contact[],
-  style?: Object
+  onChange: ({ address: string }) => void,
+  openCreateNewContact: () => void,
+  contacts: Contact[]
 };
 
 type State = {
   address: string,
   filteredContacts: Contact[],
-  isFocused: boolean
+  isUnsavedAddress: boolean
 };
 
 class AutoComplete extends Component<Props, State> {
   debounce: TimeoutID;
+
+  myRef: any;
 
   constructor(props: Props) {
     super(props);
@@ -110,35 +120,40 @@ class AutoComplete extends Component<Props, State> {
     this.state = {
       address: initialAddress,
       filteredContacts: [],
-      isFocused: false
+      isUnsavedAddress: false
     };
+
+    this.myRef = React.createRef();
   }
 
   render() {
-    const { style } = this.props;
-    const { address, isFocused, filteredContacts } = this.state;
+    const { address, filteredContacts, isUnsavedAddress } = this.state;
     return (
-      <Wrapper isFocused={isFocused} style={style}>
+      <Wrapper>
         <HeaderWrapper>
-          <ActualInput
-            value={address}
-            onChange={this.onChange}
-            onFocus={() => this.setState({ isFocused: true })}
-            onBlur={() => this.setState({ isFocused: false })}
-            type="text"
-            maxLength="64"
-          />
-          <AddToContactsImg src={addContact} />
+          <ActualInput value={address} onKeyPress={this.onEnterPress} onChange={this.onChange} type="text" maxLength="64" ref={this.myRef} />
+          {isUnsavedAddress && <AddToContactsImg src={addContact} onClick={this.openCreateNewContact} />}
         </HeaderWrapper>
-        {isFocused && filteredContacts && <ItemsWrapper>{filteredContacts.map((item, index) => this.renderRow({ item, index }))}</ItemsWrapper>}
+        {filteredContacts.length ? <ItemsWrapper>{filteredContacts.map((item, index) => this.renderRow({ item, index }))}</ItemsWrapper> : null}
       </Wrapper>
     );
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
+    const { filteredContacts } = this.state;
+    if (prevState.filteredContacts.length && !filteredContacts.length) {
+      this.myRef.current.focus();
+    }
+  }
+
+  componentWillUnmount() {
+    this.debounce && clearTimeout(this.debounce);
   }
 
   renderRow = ({ item, index }: { item: Contact, index: number }) => {
     return (
       <DropdownRow onClick={(event) => this.handleSelection({ event, item })} key={`${item.label}${index}`}>
-        <DdElement>
+        <DdElement isFirst={index === 0}>
           <Nickname>{item.nickname || 'Unknown Address'}</Nickname>
           <Address>{getAbbreviatedText(item.address, 8)}</Address>
         </DdElement>
@@ -146,31 +161,46 @@ class AutoComplete extends Component<Props, State> {
     );
   };
 
+  onEnterPress = ({ key }: { key: string }) => {
+    const { onChange, contacts } = this.props;
+    const { address } = this.state;
+    if (key === 'Enter') {
+      clearTimeout(this.debounce);
+      onChange({ address });
+      const filteredContacts = contacts.filter((contact) => contact.address.indexOf(address) !== -1 || contact.nickname.indexOf(address) !== -1);
+      this.setState({ address, filteredContacts: [], isUnsavedAddress: filteredContacts.length === 0 });
+    }
+  };
+
   onChange = ({ target }: { target: { value: string } }) => {
     const { onChange, contacts } = this.props;
     const { value } = target;
     this.setState({ address: value });
+    onChange({ address: value });
     clearTimeout(this.debounce);
     if (!value) {
-      onChange({ value });
       this.setState({ address: '', filteredContacts: contacts });
     } else {
       this.debounce = setTimeout(() => {
-        onChange({ value });
-        this.setState({
-          filteredContacts: contacts.filter((contact) => contact.address.indexOf(value) !== -1 || contact.nickname.indexOf(value) !== -1)
-        });
+        const filteredContacts = contacts.filter((contact) => contact.address.indexOf(value) !== -1 || contact.nickname.indexOf(value) !== -1);
+        this.setState({ filteredContacts, isUnsavedAddress: filteredContacts.length === 0 });
       }, 200);
     }
   };
 
   handleSelection = ({ event, item }: { event: Event, item: Contact }) => {
     const { onChange } = this.props;
-    event.preventDefault();
     event.stopPropagation();
+    event.preventDefault();
     clearTimeout(this.debounce);
-    onChange({ value: item.address });
-    this.setState({ address: item.address, isFocused: false });
+    onChange({ address: item.address });
+    this.setState({ address: item.address, filteredContacts: [], isUnsavedAddress: false });
+  };
+
+  openCreateNewContact = () => {
+    const { openCreateNewContact } = this.props;
+    openCreateNewContact();
+    this.setState({ isUnsavedAddress: false });
   };
 }
 
