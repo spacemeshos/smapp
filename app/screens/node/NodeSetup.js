@@ -130,7 +130,7 @@ class NodeSetup extends Component<Props, State> {
         <SubHeader>
           --
           <br />
-          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label} HARD DRIVE</DriveName> you would
+          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
           <br />
           like the mining node to use
         </SubHeader>
