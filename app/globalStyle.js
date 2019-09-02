@@ -1,15 +1,17 @@
 import { createGlobalStyle } from 'styled-components';
+import srcReg from './assets/fonts/SourceCodePro-Regular.ttf';
+import srcBold from './assets/fonts/SourceCodePro-Bold.ttf';
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
       font-family: SourceCodePro;
-      src: url(../app/assets/fonts/SourceCodePro-Regular.ttf);
+      src: url(${srcReg});
       font-weight:400;
     }
     
     @font-face {
       font-family: SourceCodeProBold;
-      src: url(../app/assets/fonts/SourceCodePro-Bold.ttf);
+      src: url(${srcBold});
       font-weight: 400;
     }
 
