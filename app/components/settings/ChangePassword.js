@@ -31,8 +31,7 @@ const RightPart = styled.div`
 type Props = {
   generateEncryptionKey: Action,
   updateAccountsInFile: Action,
-  accounts: Account[],
-  goBack: () => void
+  accounts: Account[]
 };
 
 type State = {
@@ -124,7 +123,7 @@ class ChangePassword extends Component<Props, State> {
   };
 
   updatePassword = async () => {
-    const { generateEncryptionKey, updateAccountsInFile, accounts, goBack } = this.props;
+    const { generateEncryptionKey, updateAccountsInFile, accounts } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
@@ -132,7 +131,6 @@ class ChangePassword extends Component<Props, State> {
         this.timeOut = await setTimeout(async () => {
           generateEncryptionKey({ password });
           await updateAccountsInFile({ accounts });
-          goBack();
         }, 500);
       } catch (error) {
         this.setState(() => {
