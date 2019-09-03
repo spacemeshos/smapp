@@ -76,7 +76,7 @@ class QuitDialog extends Component<Props, State> {
   }
 
   componentDidMount() {
-    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, async () => {
+    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => {
       const { miningStatus } = this.props;
       const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
       isMining ? this.setState({ isVisible: true }) : this.handleQuit();
