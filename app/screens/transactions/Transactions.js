@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { shell } from 'electron';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
@@ -64,6 +65,7 @@ const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
   overflow-y: scroll;
+  margin-bottom: 6px;
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
@@ -138,6 +140,7 @@ class Transactions extends Component<Props, State> {
               <Text>No transactions here yet</Text>
             )}
           </TransactionsListWrapper>
+          <Link onClick={this.navigateToGuide} text="TRANSACTIONS GUIDE" />
         </WrapperWith2SideBars>
         {addressToAdd ? (
           <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} onCancel={this.cancelCreatingNewContact} />
@@ -201,6 +204,8 @@ class Transactions extends Component<Props, State> {
     const { history } = this.props;
     history.push('/main/contacts');
   };
+
+  navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
 }
 
 const mapStateToProps = (state) => ({
