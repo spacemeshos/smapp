@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
 import { TransactionRow, TransactionsMeta } from '/components/transactions';
 import { CreateNewContact } from '/components/contacts';
-import { Link, WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
+import { WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
 import type { TxList, Tx } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { chevronLeftWhite } from '/assets/images';
@@ -129,7 +129,6 @@ class Transactions extends Component<Props, State> {
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
         <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
           <BoldText>Latest transactions</BoldText>
-          <Link onClick={this.navigateToContacts} text="MY CONTACTS" style={{ position: 'absolute', top: 30, left: 550 }} />
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
               filteredTransactions.map((tx, index) => (
