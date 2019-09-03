@@ -1,11 +1,12 @@
 // @flow
 import React, { Component } from 'react';
+import { shell } from 'electron';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
 import { TransactionRow, TransactionsMeta } from '/components/transactions';
 import { CreateNewContact } from '/components/contacts';
-import { Link, WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
+import { WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
 import type { TxList, Tx } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { chevronLeftWhite } from '/assets/images';
@@ -64,6 +65,7 @@ const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
   overflow-y: scroll;
+  margin-bottom: 6px;
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
@@ -129,7 +131,6 @@ class Transactions extends Component<Props, State> {
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
         <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
           <BoldText>Latest transactions</BoldText>
-          <Link onClick={this.navigateToContacts} text="MY CONTACTS" style={{ position: 'absolute', top: 30, left: 550 }} />
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
               filteredTransactions.map((tx, index) => (
@@ -139,6 +140,7 @@ class Transactions extends Component<Props, State> {
               <Text>No transactions here yet</Text>
             )}
           </TransactionsListWrapper>
+          <Link onClick={this.navigateToGuide} text="TRANSACTIONS GUIDE" />
         </WrapperWith2SideBars>
         {addressToAdd ? (
           <CreateNewContact isStandalone initialAddress={addressToAdd} onCompleteAction={this.handleCompleteAction} onCancel={this.cancelCreatingNewContact} />
@@ -202,6 +204,8 @@ class Transactions extends Component<Props, State> {
     const { history } = this.props;
     history.push('/main/contacts');
   };
+
+  navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
 }
 
 const mapStateToProps = (state) => ({
