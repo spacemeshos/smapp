@@ -1,4 +1,5 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import { BrowserWindow, ipcMain, app, Notification } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
 import NodeManager from './nodeManager';
@@ -67,6 +68,21 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.HARD_REFRESH, async () => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
+  });
+
+  ipcMain.on(ipcConsts.QUIT_APP, () => {
+    mainWindow.destroy();
+    app.quit();
+  });
+
+  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => {
+    mainWindow.hide();
+    const notification = new Notification({
+      title: 'Spacemesh',
+      body: 'Miner is running in the background.',
+      icon: path.join(__dirname, '..', 'resources', 'icon.png')
+    });
+    notification.show();
   });
 
   /**

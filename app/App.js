@@ -11,6 +11,7 @@ import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+import { QuitDialog } from '/components/common';
 
 const store: Store = configureStore();
 
@@ -47,6 +48,7 @@ class App extends React.Component<Props, State> {
       <>
         <GlobalStyle />
         <Provider store={store}>
+          <QuitDialog />
           <Router>
             <Switch>
               {routes.app.map((route) => (
