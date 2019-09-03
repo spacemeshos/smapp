@@ -2,7 +2,7 @@
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { DropDown, WrapperWith2SideBars } from '/basicComponents';
+import { DropDown, WrapperWith2SideBars, Tooltip } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
@@ -35,6 +35,8 @@ const AccountName = styled.div`
 `;
 
 const Address = styled.div`
+  display: flex;
+  flex-direction: row;
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.black};
@@ -45,14 +47,8 @@ const CopyIcon = styled.img`
   align-self: flex-end;
   width: 16px;
   height: 15px;
-  margin: 8px 10px;
+  margin: 6px;
   cursor: pointer;
-`;
-
-const CopiedText = styled.div`
-  font-size: 16px;
-  line-height: 22px;
-  color: ${smColors.green};
 `;
 
 const Footer = styled.div`
@@ -87,6 +83,20 @@ const SmcText = styled.div`
   color: ${smColors.green};
 `;
 
+const CustomTooltip = styled(Tooltip)`
+  top: 60px;
+  right: -30px;
+  width: 90px;
+  text-align: center;
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  &:hover ${CustomTooltip} {
+    display: block;
+  }
+`;
+
 type Props = {
   accounts: Account[],
   currentAccountIndex: number,
@@ -106,7 +116,6 @@ class AccountsOverview extends Component<Props, State> {
 
   render() {
     const { accounts, currentAccountIndex, switchAccount } = this.props;
-    const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
     }
@@ -125,9 +134,7 @@ class AccountsOverview extends Component<Props, State> {
           ) : (
             this.renderAccountRow({ displayName, pk })
           )}
-          <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
         </AccountDetails>
-        <CopiedText>{isCopied ? 'Address had been copied to clipboard!' : ''}</CopiedText>
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
@@ -139,12 +146,21 @@ class AccountsOverview extends Component<Props, State> {
     );
   }
 
-  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
-    <AccountWrapper key={pk} isInDropDown={isInDropDown}>
-      <AccountName>{displayName}</AccountName>
-      <Address>{getAbbreviatedText(pk, 6)}</Address>
-    </AccountWrapper>
-  );
+  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => {
+    const { isCopied } = this.state;
+    return (
+      <TooltipWrapper key={pk} onClick={this.copyPublicAddress}>
+        <AccountWrapper isInDropDown={isInDropDown}>
+          <AccountName>{displayName}</AccountName>
+          <Address>
+            {getAbbreviatedText(pk, 6)}
+            <CopyIcon src={copyToClipboard} />
+          </Address>
+        </AccountWrapper>
+        <CustomTooltip text={isCopied ? 'COPIED' : 'COPY TO CLIPBOARD'} withIcon={false} />
+      </TooltipWrapper>
+    );
+  };
 
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
