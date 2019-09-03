@@ -62,8 +62,8 @@ class DragAndDrop extends Component<Props, State> {
         <input ref={this.fileInputRef} type="file" onChange={this.onFilesAdded} style={{ display: 'none' }} />
         <MsgWrapper>
           {!fileName && <Image src={hasError ? incorrectFile : upload} />}
-          <Text>{hasError ? 'incorrect file' : fileName || 'drag & drop'}</Text>
-          <Link onClick={this.openFileDialog} text={hasError ? 'click to browse again' : 'or browse for another file' || 'Or click to browse computer'} />
+          <Text>{hasError ? 'incorrect file' : fileName || 'Drop a wallet restore file here'}</Text>
+          <Link onClick={this.openFileDialog} text={hasError ? 'click to browse again' : 'or locate a restore file' || 'or click to browse computer'} />
         </MsgWrapper>
       </Wrapper>
     );

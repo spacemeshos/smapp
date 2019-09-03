@@ -9,6 +9,8 @@ import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
 
 type Props = {
+  contacts: Contact[],
+  lastUsedContacts: Contact[],
   currentAccount: Account,
   history: RouterHistory,
   location: { state?: { contact: Contact } },
@@ -17,10 +19,8 @@ type Props = {
 
 type State = {
   mode: 1 | 2 | 3,
-  tmpAddress: string,
   address: string,
   hasAddressError: boolean,
-  tmpAmount: number | string,
   amount: number,
   hasAmountError: boolean,
   note: string,
@@ -35,10 +35,8 @@ class SendCoins extends Component<Props, State> {
     const { location } = props;
     this.state = {
       mode: 1,
-      tmpAddress: location?.state?.contact.address || '',
       address: location?.state?.contact.address || '',
       hasAddressError: false,
-      tmpAmount: '',
       amount: 0,
       hasAmountError: false,
       note: '',
@@ -88,60 +86,72 @@ class SendCoins extends Component<Props, State> {
   }
 
   renderTxParamsMode = () => {
-    const { currentAccount, history } = this.props;
-    const { tmpAddress, address, hasAddressError, tmpAmount, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
+    const { currentAccount, lastUsedContacts, contacts, history, location } = this.props;
+    const { address, hasAddressError, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
         fromAddress={currentAccount.pk}
-        address={tmpAddress}
+        initialAddress={location?.state?.contact.address || ''}
+        contacts={lastUsedContacts.concat(contacts)}
         hasAddressError={hasAddressError}
-        updateTxAddress={({ value }) => this.setState({ tmpAddress: value })}
-        updateTxAddressDebounced={this.updateTxAddressDebounced}
+        updateTxAddress={this.updateTxAddress}
         resetAddressError={() => this.setState({ address: '', hasAddressError: false })}
-        amount={tmpAmount}
-        updateTxAmount={({ value }) => this.setState({ tmpAmount: value })}
-        updateTxAmountDebounced={this.updateTxAmountDebounced}
+        amount={amount}
+        updateTxAmount={this.updateTxAmount}
         hasAmountError={hasAmountError}
         resetAmountError={() => this.setState({ amount: 0, hasAmountError: false })}
         updateFee={this.updateFee}
         note={note}
         updateTxNote={this.updateTxNote}
         cancelTx={history.goBack}
-        isNextActionEnabled={!!address && !!amount && !hasAddressError && !hasAmountError}
-        nextAction={() => this.setState({ mode: 2 })}
+        openCreateNewContact={() => this.setState({ isCreateNewContactOn: true })}
+        nextAction={this.proceedToMode2}
         key="params"
       />,
       isCreateNewContactOn ? (
-        <CreateNewContact isStandalone initialAddress={address} key="newContact" />
+        <CreateNewContact
+          isStandalone
+          initialAddress={address}
+          onCompleteAction={() => this.setState({ isCreateNewContactOn: false })}
+          onCancel={() => this.setState({ isCreateNewContactOn: false })}
+          key="newContact"
+        />
       ) : (
         <TxSummary address={address} fromAddress={currentAccount.pk} amount={amount} fee={fee} note={note} key="summary" />
       )
     ];
   };
 
-  updateTxAddressDebounced = ({ value }: { value: string }) => {
-    if (value) {
-      this.setState({ address: value, hasAddressError: value.length !== cryptoConsts.PUB_KEY_LENGTH });
-    } else {
-      this.setState({ hasAddressError: false });
-    }
+  updateTxAddress = ({ address }: { address: string }) => {
+    this.setState({ address, hasAddressError: false });
   };
 
-  updateTxAmountDebounced = ({ value }: { value: string }) => {
-    const {
-      currentAccount: { balance }
-    } = this.props;
-    if (value) {
+  updateTxAmount = ({ value }: { value: string }) => {
+    if (value && value.trim()) {
       const integerValue = parseInt(value);
-      this.setState({ amount: integerValue, hasAmountError: integerValue >= balance });
+      this.setState({ amount: integerValue });
     } else {
-      this.setState({ hasAmountError: false });
+      this.setState({ amount: 0 });
     }
   };
 
   updateTxNote = ({ value }: { value: string }) => this.setState({ note: (value && value.trim()) || '' });
 
   updateFee = ({ fee }: { fee: number }) => this.setState({ fee });
+
+  proceedToMode2 = () => {
+    const {
+      currentAccount: { balance }
+    } = this.props;
+    const { address, amount, fee, hasAddressError, hasAmountError } = this.state;
+    if (!!address && !!amount && !hasAddressError && !hasAmountError) {
+      this.setState({ mode: 2 });
+    } else if (!address || address.length !== cryptoConsts.PUB_KEY_LENGTH) {
+      this.setState({ hasAddressError: true });
+    } else if (!amount || amount + fee > balance) {
+      this.setState({ hasAmountError: true });
+    }
+  };
 
   cancelTxProcess = () => {
     const { history } = this.props;

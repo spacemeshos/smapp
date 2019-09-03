@@ -1,6 +1,5 @@
 // @flow
 export { default as Loader } from './Loader';
-export { default as BaseWrapper } from './BaseWrapper';
 export { default as Button } from './Button';
 export { default as SecondaryButton } from './SecondaryButton';
 export { default as Input } from './Input';

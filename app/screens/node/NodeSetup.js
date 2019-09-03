@@ -191,5 +191,5 @@ NodeSetup = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(NodeSetup);
 
-NodeSetup = ScreenErrorBoundary(NodeSetup, true);
+NodeSetup = ScreenErrorBoundary(NodeSetup);
 export default NodeSetup;

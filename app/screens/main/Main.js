@@ -215,7 +215,7 @@ class Main extends Component<Props, State> {
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
-        title: 'Spacemesh Wallet',
+        title: 'Spacemesh',
         notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
@@ -278,5 +278,5 @@ Main = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(Main);
 
-Main = ScreenErrorBoundary(Main, true);
+Main = ScreenErrorBoundary(Main);
 export default Main;
