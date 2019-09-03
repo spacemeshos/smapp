@@ -323,7 +323,6 @@ class Contacts extends Component<Props, State> {
       <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => this.navigateToSendCoins({ contact })}>
         <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
         <ContactText>{getAbbreviatedText(contact.address, 8)}</ContactText>
-        <ContactText>{contact.email}</ContactText>
         {!contact.nickname && <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} src={addContact} />}
       </ContactRow>
     ));
@@ -333,8 +332,7 @@ class Contacts extends Component<Props, State> {
     const { searchTerm } = this.state;
     const nicknameMatch = contact.nickname && contact.nickname.toLowerCase().includes(searchTerm);
     const addressMatch = contact.address && contact.address.toLowerCase().includes(searchTerm);
-    const emailMatch = contact.email && contact.email.includes(searchTerm);
-    return nicknameMatch || addressMatch || emailMatch;
+    return nicknameMatch || addressMatch;
   };
 
   sortContacts = (c1: Contact, c2: Contact) => {

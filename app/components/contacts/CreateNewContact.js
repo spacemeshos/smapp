@@ -55,9 +55,8 @@ const ButtonsWrapper = styled.div`
 `;
 
 const inputStyle1 = { margin: '10px 0 10px 10px' };
-const inputStyle2 = { margin: '10px 10px 10px 10px' };
-const inputStyle3 = { margin: '10px 0' };
-const inputStyle4 = { marginBottom: '10px' };
+const inputStyle2 = { margin: '10px 0' };
+const inputStyle3 = { marginBottom: '10px' };
 
 type Props = {
   isStandalone: boolean,
@@ -71,7 +70,6 @@ type Props = {
 type State = {
   address: string,
   nickname: string,
-  email: string,
   hasError: boolean,
   errorMsg: string
 };
@@ -82,7 +80,6 @@ class CreateNewContact extends Component<Props, State> {
     this.state = {
       address: props.initialAddress || '',
       nickname: '',
-      email: '',
       hasError: false,
       errorMsg: ''
     };
@@ -90,7 +87,7 @@ class CreateNewContact extends Component<Props, State> {
 
   render() {
     const { isStandalone, onCancel } = this.props;
-    const { address, nickname, email, hasError, errorMsg } = this.state;
+    const { address, nickname, hasError, errorMsg } = this.state;
     return (
       <Wrapper isStandalone={isStandalone}>
         <Header isStandalone={isStandalone}>
@@ -105,21 +102,14 @@ class CreateNewContact extends Component<Props, State> {
               placeholder="Nickname"
               onChange={({ value }) => this.setState({ nickname: value, hasError: false })}
               maxLength="50"
-              style={isStandalone ? inputStyle3 : inputStyle1}
+              style={isStandalone ? inputStyle2 : inputStyle1}
             />
             <Input
               value={address}
               placeholder="Wallet address"
               onChange={({ value }) => this.setState({ address: value, hasError: false })}
               maxLength="64"
-              style={isStandalone ? inputStyle4 : inputStyle1}
-            />
-            <Input
-              value={email}
-              placeholder="Email (optional)"
-              onChange={({ value }) => this.setState({ email: value, hasError: false })}
-              maxLength="150"
-              style={isStandalone ? inputStyle4 : inputStyle2}
+              style={isStandalone ? inputStyle3 : inputStyle1}
             />
             {hasError && <ErrorPopup onClick={() => this.setState({ hasError: false })} text={errorMsg} style={{ bottom: 60, left: 'calc(50% - 90px)' }} />}
           </InputWrapperUpperPart>
@@ -146,9 +136,9 @@ class CreateNewContact extends Component<Props, State> {
     if (errorMsg) {
       this.setState({ hasError: true, errorMsg });
     } else {
-      const { address, nickname, email } = this.state;
+      const { address, nickname } = this.state;
       try {
-        await addToContacts({ contact: { address, nickname, email } });
+        await addToContacts({ contact: { address, nickname } });
         await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
         onCompleteAction();
       } catch (error) {
@@ -160,7 +150,7 @@ class CreateNewContact extends Component<Props, State> {
   };
 
   validate = () => {
-    const { nickname, address, email } = this.state;
+    const { nickname, address } = this.state;
     const nicknameRegex = /^([a-zA-Z0-9_-])$/;
     if (nicknameRegex.test(nickname)) {
       return 'Nickname is missing or invalid';
@@ -168,11 +158,6 @@ class CreateNewContact extends Component<Props, State> {
     const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
     if (!addressRegex.test(address)) {
       return 'Address is invalid';
-    }
-    // eslint-disable-next-line no-useless-escape
-    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (!!email && !emailRegex.test(email)) {
-      return 'Must enter a valid email';
     }
     return '';
   };

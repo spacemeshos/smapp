@@ -53,7 +53,7 @@ class FileRestore extends Component<Props, State> {
     const { history } = this.props;
     const { fileName, hasError } = this.state;
     return (
-      <CorneredContainer width={800} height={480} header="WALLET FILE RESTORE" subHeader="Locate your existing wallet file">
+      <CorneredContainer width={800} height={480} header="WALLET FILE RESTORE" subHeader="Locate a wallet restore file'">
         <SideBar src={smallHorizontalSideBar} />
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <DdArea>

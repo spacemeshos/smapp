@@ -142,7 +142,7 @@ class Settings extends Component<Props, State> {
                 rowName="Wallet Restore"
               />
               <SettingRow
-                upperPartLeft={`Auto start is ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
+                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
                 rowName="Wallet Auto Start"

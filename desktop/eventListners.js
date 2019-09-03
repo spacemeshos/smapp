@@ -41,11 +41,9 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
-    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
-    printerWindow.loadURL(`file://${__dirname}/printer.html`);
-    printerWindow.webContents.on('did-finish-load', () => {
-      printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
-    });
+    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
+    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
+    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
   });
 
   ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
