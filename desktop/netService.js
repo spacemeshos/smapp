@@ -1,6 +1,5 @@
 import path from 'path';
 import { ipcConsts } from '../app/vars';
-import { nodeConsts } from '/vars';
 
 const protoLoader = require('@grpc/proto-loader');
 
