@@ -162,7 +162,7 @@ class CreateWallet extends Component<Props, State> {
       <div>
         For future reference, a restore file is now on your computer
         <br />
-        <Link onClick={this.openWalletBackupDirectory} text="Show me where it is!" />
+        <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
         {!isWalletOnlySetup && (
           <span>
             Next, you&#39;re going to commit storage space from your hard
