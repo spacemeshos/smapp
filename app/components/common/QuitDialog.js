@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { CorneredWrapper, Button } from '/basicComponents';
 import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
+import { notificationsService } from '/infra/notificationsService';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -15,14 +16,14 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${smColors.white};
+  background-color: rgba(255, 255, 255, 0.2);
   z-index: 2;
 `;
 
 const InnerWrapper = styled.div`
   padding: 25px;
   background-color: ${smColors.lightGray};
-  width: 580px;
+  width: 700px;
 `;
 
 const Text = styled.div`
@@ -79,7 +80,7 @@ class QuitDialog extends Component<Props, State> {
     ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => {
       const { miningStatus } = this.props;
       const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
-      isMining ? this.setState({ isVisible: true }) : this.handleQuit();
+      !isMining ? this.setState({ isVisible: true }) : this.handleQuit();
     });
   }
 
@@ -88,6 +89,13 @@ class QuitDialog extends Component<Props, State> {
   handleKeepInBackground = () => {
     this.setState({ isVisible: false });
     ipcRenderer.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
+    const timer = setTimeout(() => {
+      notificationsService.notify({
+        title: 'Spacemesh',
+        notification: 'Miner is running in the background.'
+      });
+      clearTimeout(timer);
+    }, 5000);
   };
 }
 

@@ -8,7 +8,7 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
@@ -86,6 +86,11 @@ app.on('ready', async () => {
   mainWindow.on('close', (event) => {
     event.preventDefault();
     event.sender.send(ipcConsts.REQUEST_CLOSE);
+  });
+
+  ipcMain.on(ipcConsts.QUIT_APP, () => {
+    mainWindow.destroy();
+    app.quit();
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
