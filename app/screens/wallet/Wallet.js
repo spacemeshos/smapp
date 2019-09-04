@@ -78,8 +78,9 @@ const HorizontalBar = styled.img`
 type Props = {
   accounts: Account[],
   currentAccountIndex: number,
-  getBalance: Action,
+  // getBalance: Action,
   setCurrentAccount: Action,
+  // isConnected: boolean,
   history: RouterHistory
 };
 
@@ -121,20 +122,18 @@ class Wallet extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    // this.getBalance();
+  async componentDidMount() {
+    // const { isConnected, getBalance } = this.props;
+    // if (isConnected) {
+    //   try {
+    //     await getBalance();
+    //   } catch (error) {
+    //     this.setState(() => {
+    //       throw error;
+    //     });
+    //   }
+    // }
   }
-
-  getBalance = async () => {
-    const { getBalance } = this.props;
-    try {
-      await getBalance();
-    } catch (error) {
-      this.setState(() => {
-        throw error;
-      });
-    }
-  };
 
   navigateToBackup = () => {
     const { history } = this.props;
@@ -143,6 +142,7 @@ class Wallet extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
+  isConnected: state.node.isConnected,
   accounts: state.wallet.accounts,
   currentAccountIndex: state.wallet.currentAccountIndex
 });
