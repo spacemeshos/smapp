@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
 import { TransactionRow, TransactionsMeta } from '/components/transactions';
 import { CreateNewContact } from '/components/contacts';
-import { WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
+import { Link, WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
 import type { TxList, Tx } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { chevronLeftWhite } from '/assets/images';
