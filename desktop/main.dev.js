@@ -93,6 +93,8 @@ app.on('ready', async () => {
     app.quit();
   });
 
+  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 

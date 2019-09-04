@@ -1,4 +1,3 @@
-import path from 'path';
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
@@ -67,8 +66,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.HARD_REFRESH, async () => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
-
-  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
 
   /**
    ******************************************* gRPS Calls **************************************
