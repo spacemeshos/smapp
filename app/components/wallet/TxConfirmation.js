@@ -101,12 +101,13 @@ type Props = {
   note: string,
   doneAction: () => void,
   editTx: () => void,
-  cancelTx: () => void
+  cancelTx: () => void,
+  isConnected: boolean
 };
 
 class TxConfirmation extends PureComponent<Props> {
   render() {
-    const { fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx } = this.props;
+    const { fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx, isConnected } = this.props;
     return (
       <Wrapper>
         <Header>
@@ -145,7 +146,7 @@ class TxConfirmation extends PureComponent<Props> {
             <ComplexButtonText>EDIT TRANSACTION</ComplexButtonText>
           </ComplexButton>
           <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
-          <Button onClick={doneAction} text="SEND" />
+          <Button onClick={doneAction} text="SEND" isDisabled={!isConnected} />
         </Footer>
       </Wrapper>
     );
