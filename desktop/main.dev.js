@@ -8,12 +8,11 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
-import { app, BrowserWindow, dialog, Notification } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-// eslint-disable-next-line import/no-cycle
 import { subscribeToEventListeners } from './eventListners';
 
 export default class AppUpdater {
@@ -25,11 +24,6 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
-let isMining = false;
-
-export const updateMiningStatus = (isMiningOrInSetup) => {
-  isMining = isMiningOrInSetup;
-};
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -91,37 +85,15 @@ app.on('ready', async () => {
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
-    const options = {
-      title: 'Spacemesh',
-      message: 'Quit Spacemesh and stop the miner?',
-      buttons: ['Keep running in background', 'Quit']
-    };
-
-    const closeApp = () => {
-      mainWindow.destroy();
-      mainWindow = null;
-      app.quit();
-    };
-
-    if (isMining) {
-      dialog.showMessageBox(mainWindow, options, (response) => {
-        if (response === 0) {
-          mainWindow.hide();
-          const notification = new Notification({
-            title: 'Spacemesh',
-            body: 'Miner is running in the background.',
-            icon: path.join(__dirname, '..', 'resources', 'icon.png')
-          });
-          notification.show();
-        }
-        if (response === 1) {
-          closeApp();
-        }
-      });
-    } else {
-      closeApp();
-    }
+    event.sender.send(ipcConsts.REQUEST_CLOSE);
   });
+
+  ipcMain.on(ipcConsts.QUIT_APP, () => {
+    mainWindow.destroy();
+    app.quit();
+  });
+
+  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
