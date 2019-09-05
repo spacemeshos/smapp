@@ -12,7 +12,7 @@ const args = process.argv.slice(2);
 const targets = args && args.length ? args : null;
 
 if (!targets) {
-  throw new Error("No arguments provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
+  throw new Error("No arguments provided. Usage example: 'node ./packagerScript.js {mac/linux/windows}'");
 }
 
 const fileHashList = {
@@ -48,7 +48,7 @@ const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFil
 
 const generateFileHashFile = async ({ destination }) => {
   try {
-    var dirname = path.dirname(destination);
+    const dirname = path.dirname(destination);
     if (!fs.existsSync(dirname)) {
       await mkdirAsync(dirname);
     }
@@ -64,11 +64,10 @@ const generateFileHashFile = async ({ destination }) => {
 generateFileHashFile({ destination: artifactsToPublishFile });
 
 const getFileHash = async ({ filename }) => {
-  const shasum = crypto.createHash('sha512');
+  const shaSum = crypto.createHash('sha512');
   const fileContent = await readFileAsync(filename);
-  const hashsum = shasum.update(fileContent);
-  const hash = hashsum.digest('hex');
-  return hash;
+  const hashSum = shaSum.update(fileContent);
+  return hashSum.digest('hex');
 };
 
 const compileHashListFile = async ({ artifactsToPublishFile, artifactPaths }) => {
@@ -165,7 +164,7 @@ const getBuildOptions = (target) => ({
 
 targets.forEach(async (target) => {
   if (['mac', 'windows', 'linux'].indexOf(target) === -1) {
-    console.error("Invalid target provided. Usage example: 'node ./packageConfig.js {mac/linux/windows}'");
+    console.error("Invalid target provided. Usage example: 'node ./packagerScript.js {mac/linux/windows}'");
   } else {
     try {
       const res = await build(getBuildOptions(target));

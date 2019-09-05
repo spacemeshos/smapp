@@ -8,7 +8,8 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
@@ -72,6 +73,26 @@ app.on('ready', async () => {
   }
 
   createWindow();
+
+  const appIcon = new Tray(path.join(__dirname, '..', 'resources', 'icon.png'));
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        mainWindow.show();
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        app.isQuiting = true;
+        app.quit();
+      }
+    }
+  ]);
+
+  appIcon.setContextMenu(contextMenu);
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
