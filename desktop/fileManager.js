@@ -110,23 +110,23 @@ class FileManager {
       };
       dialog.showMessageBox(browserWindow, options, async (response) => {
         if (response === 0) {
-          // await unlinkFileAsync(appFilesDirPath);
-          // app.exit();
-          // const appName = app.getName();
-          //
-          // // Get app directory
-          // // on OSX it's /Users/Yourname/Library/Application Support/AppName
-          // const getAppPath = path.join(app.getPath('appData'), appName);
-          //
-          // fs.unlink(getAppPath, () => {
-          //   // callback
-          //   // You should relaunch the app after clearing the app settings.
-          //   app.exit();
-          // });
-
-          const ses = browserWindow.webContents.session;
-
-          ses.clearCache();
+          const deleteFolderRecursive = (path) => {
+            if (fs.existsSync(path)) {
+              fs.readdirSync(path).forEach((file) => {
+                const curPath = `${path}/${file}`;
+                if (fs.lstatSync(curPath).isDirectory()) {
+                  // recurse
+                  deleteFolderRecursive(curPath);
+                } else {
+                  // delete file
+                  fs.unlinkSync(curPath);
+                }
+              });
+              fs.rmdirSync(path);
+            }
+          };
+          deleteFolderRecursive(appFilesDirPath);
+          app.exit();
         }
       });
     } catch (error) {
