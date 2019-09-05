@@ -54,9 +54,9 @@ class FileBackup extends Component<Props> {
         <HorizontalBarWrapper>
           <HorizontalBar src={smallHorizontalSideBar} />
         </HorizontalBarWrapper>
-        <BoldText>A restore file has been downloaded to your computer.</BoldText>
-        <Link onClick={this.showBackupFile} text="Show me where it is!" />
-        <Text>You can use this file to restore your spacemesh wallet in another location.</Text>
+        <BoldText>A wallet restore file has been saved.</BoldText>
+        <Link onClick={this.showBackupFile} text="Browse file location" />
+        <Text>You can use this file to restore your spacemesh wallet on any computer.</Text>
         <BottomRow>
           <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
           <Button onClick={this.backToWalletRoot} text="GOT IT" width={95} />

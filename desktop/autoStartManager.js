@@ -8,7 +8,7 @@ const store = new Store();
 class WalletAutoStarter {
   constructor() {
     this.walletAutoStarter = new AutoLaunch({
-      name: 'Spacemesh Wallet',
+      name: 'Spacemesh',
       isHidden: true
     });
     if (store.get('isAutoStartEnabled')) {

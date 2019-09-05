@@ -219,7 +219,7 @@ class Contacts extends Component<Props, State> {
     const { contacts } = this.props;
     const { tmpSearchTerm, searchTerm, selectedSorting } = this.state;
     return (
-      <WrapperWith2SideBars width={1000} height={600} header="MY CONTACTS">
+      <WrapperWith2SideBars width={1000} height={600} header="CONTACTS">
         <SearchWrapper>
           <SearchIcon src={searchIcon} />
           <Input
@@ -257,7 +257,7 @@ class Contacts extends Component<Props, State> {
     const { contacts } = this.props;
     const { addressToAdd, shouldShowCreateNewContactModal, isNewContactCreated } = this.state;
     if (shouldShowCreateNewContactModal) {
-      return <CreateNewContact initialAddress={addressToAdd} onCompleteAction={this.createdNewContact} />;
+      return <CreateNewContact initialAddress={addressToAdd} onCompleteAction={this.createdNewContact} onCancel={this.cancelCreateNewContact} />;
     }
     if (isNewContactCreated) {
       return <CreatedNewContact contact={contacts[0]} action={() => this.navigateToSendCoins({ contact: contacts[0] })} />;
@@ -323,7 +323,6 @@ class Contacts extends Component<Props, State> {
       <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => this.navigateToSendCoins({ contact })}>
         <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
         <ContactText>{getAbbreviatedText(contact.address, 8)}</ContactText>
-        <ContactText>{contact.email}</ContactText>
         {!contact.nickname && <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} src={addContact} />}
       </ContactRow>
     ));
@@ -333,8 +332,7 @@ class Contacts extends Component<Props, State> {
     const { searchTerm } = this.state;
     const nicknameMatch = contact.nickname && contact.nickname.toLowerCase().includes(searchTerm);
     const addressMatch = contact.address && contact.address.toLowerCase().includes(searchTerm);
-    const emailMatch = contact.email && contact.email.includes(searchTerm);
-    return nicknameMatch || addressMatch || emailMatch;
+    return nicknameMatch || addressMatch;
   };
 
   sortContacts = (c1: Contact, c2: Contact) => {
@@ -357,6 +355,10 @@ class Contacts extends Component<Props, State> {
   createdNewContact = () => {
     this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
     this.newContactCreatedTimeOut = setTimeout(() => this.setState({ isNewContactCreated: false }), 10000);
+  };
+
+  cancelCreateNewContact = () => {
+    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
   };
 
   navigateToSendCoins = ({ contact }: { contact: Contact }) => {

@@ -5,8 +5,10 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
+import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { QuitDialog } from '/components/common';
+import { OfflineBanner } from '/components';
 import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
@@ -74,6 +76,7 @@ const SideBar = styled.img`
 `;
 
 const InnerWrapper = styled.div`
+  position: relative;
   display: flex;
   flex: 1;
   justify-content: center;
@@ -83,7 +86,7 @@ const InnerWrapper = styled.div`
 `;
 
 const CustomTooltip = styled(Tooltip)`
-  top: ${({isLinkTooltip}) => isLinkTooltip ? 30 : 57}px;
+  top: ${({ isLinkTooltip }) => (isLinkTooltip ? 30 : 57)}px;
   right: -8px;
   width: 90px;
   text-align: center;
@@ -102,7 +105,6 @@ type Props = {
   isConnected: boolean,
   miningStatus: number,
   getMiningStatus: Action,
-  checkNodeConnection: Action,
   getGenesisTime: Action,
   logout: Action,
   history: RouterHistory,
@@ -110,7 +112,8 @@ type Props = {
 };
 
 type State = {
-  activeRouteIndex: number
+  activeRouteIndex: number,
+  isOfflineBannerVisible: boolean
 };
 
 class Main extends Component<Props, State> {
@@ -124,7 +127,8 @@ class Main extends Component<Props, State> {
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 1 : 0;
     this.state = {
-      activeRouteIndex
+      activeRouteIndex,
+      isOfflineBannerVisible: true
     };
 
     this.navMap = [
@@ -138,24 +142,32 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { activeRouteIndex } = this.state;
+    const { isConnected } = this.props;
+    const { activeRouteIndex, isOfflineBannerVisible } = this.state;
     return (
       <Wrapper>
+        <QuitDialog />
         <SideBar src={sideBar} />
         <NavBar>
           <NavBarPart>
             <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
             <NavLinksWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
+                  MINING
+                </NavBarLink>
                 <CustomTooltip text="SETUP OR MANAGE YOUR MINING" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                  WALLET
+                </NavBarLink>
                 <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>CONTACTS</NavBarLink>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                  CONTACTS
+                </NavBarLink>
                 <CustomTooltip text="MANAGE YOUR CONTACTS" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
             </NavLinksWrapper>
@@ -175,20 +187,48 @@ class Main extends Component<Props, State> {
               <CustomTooltip text="SETTINGS" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={getCoinsIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 4 })}
+                img={getCoinsIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="GET COINS" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={helpIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 5 })}
+                img={helpIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="HELP" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 6 })} img={signOutIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 6 })}
+                img={signOutIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="LOGOUT" withIcon={false} />
             </TooltipWrapper>
           </NavBarPart>
         </NavBar>
         <InnerWrapper>
+          {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
           <Switch>
             {routes.main.map((route) => (
               <Route key={route.path} path={route.path} component={route.component} />
@@ -204,6 +244,9 @@ class Main extends Component<Props, State> {
     if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
       getMiningStatus();
     }
+    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
+      getGenesisTime();
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -215,7 +258,7 @@ class Main extends Component<Props, State> {
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
-        title: 'Spacemesh Wallet',
+        title: 'Spacemesh',
         notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
@@ -255,7 +298,8 @@ class Main extends Component<Props, State> {
           logout();
           break;
         }
-        default: break;
+        default:
+          break;
       }
     }
   };
@@ -267,7 +311,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  checkNodeConnection,
   getMiningStatus,
   getGenesisTime,
   logout
@@ -278,5 +321,5 @@ Main = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(Main);
 
-Main = ScreenErrorBoundary(Main, true);
+Main = ScreenErrorBoundary(Main);
 export default Main;
