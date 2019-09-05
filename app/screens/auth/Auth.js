@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { QuitDialog } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
 import { smColors } from '/vars';
@@ -64,6 +65,7 @@ class Auth extends Component<Props> {
     const { walletFiles } = this.props;
     return (
       <Wrapper>
+        <QuitDialog />
         <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
         <SideBar src={sideBar} />
         <InnerWrapper>

@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { QuitDialog } from '/components/common';
 import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
@@ -83,7 +84,7 @@ const InnerWrapper = styled.div`
 `;
 
 const CustomTooltip = styled(Tooltip)`
-  top: ${({isLinkTooltip}) => isLinkTooltip ? 30 : 57}px;
+  top: ${({ isLinkTooltip }) => (isLinkTooltip ? 30 : 57)}px;
   right: -8px;
   width: 90px;
   text-align: center;
@@ -141,21 +142,28 @@ class Main extends Component<Props, State> {
     const { activeRouteIndex } = this.state;
     return (
       <Wrapper>
+        <QuitDialog />
         <SideBar src={sideBar} />
         <NavBar>
           <NavBarPart>
             <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
             <NavLinksWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
+                  MINING
+                </NavBarLink>
                 <CustomTooltip text="SETUP OR MANAGE YOUR MINING" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                  WALLET
+                </NavBarLink>
                 <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>CONTACTS</NavBarLink>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                  CONTACTS
+                </NavBarLink>
                 <CustomTooltip text="MANAGE YOUR CONTACTS" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
             </NavLinksWrapper>
@@ -175,15 +183,42 @@ class Main extends Component<Props, State> {
               <CustomTooltip text="SETTINGS" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={getCoinsIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 4 })}
+                img={getCoinsIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="GET COINS" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={helpIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 5 })}
+                img={helpIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="HELP" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
-              <SecondaryButton onClick={() => this.handleNavigation({ index: 6 })} img={signOutIcon} imgHeight={30} imgWidth={30} isPrimary={false} width={35} height={35} style={bntStyle} />
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 6 })}
+                img={signOutIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
               <CustomTooltip text="LOGOUT" withIcon={false} />
             </TooltipWrapper>
           </NavBarPart>
@@ -255,7 +290,8 @@ class Main extends Component<Props, State> {
           logout();
           break;
         }
-        default: break;
+        default:
+          break;
       }
     }
   };
