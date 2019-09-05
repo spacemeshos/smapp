@@ -35,6 +35,8 @@ const AccountName = styled.div`
 `;
 
 const Address = styled.div`
+  display: flex;
+  flex-direction: row;
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.black};
@@ -42,16 +44,17 @@ const Address = styled.div`
 `;
 
 const CopyIcon = styled.img`
+  align-self: flex-end;
   width: 16px;
   height: 15px;
-  margin: 0 10px;
+  margin: 6px;
   cursor: pointer;
-`;
-
-const CopiedText = styled.div`
-  font-size: 16px;
-  line-height: 22px;
-  color: ${smColors.green};
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
 `;
 
 const Footer = styled.div`
@@ -83,6 +86,15 @@ const BalanceAmount = styled.div`
 const SmcText = styled.div`
   font-size: 17px;
   line-height: 32px;
+  color: ${smColors.green};
+`;
+
+const CopiedText = styled.div`
+  text-align: left;
+  font-size: 16px;
+  line-height: 20px;
+  height: 20px;
+  margin-left: 6px;
   color: ${smColors.green};
 `;
 
@@ -122,11 +134,10 @@ class AccountsOverview extends Component<Props, State> {
               rowHeight={55}
             />
           ) : (
-            this.renderAccountRow({ displayName, isCopied, pk })
+            this.renderAccountRow({ displayName, pk })
           )}
-          <CopyIcon src={copyToClipboard} />
         </AccountDetails>
-        <CopiedText>{isCopied ? 'Address had been copied to clipboard!' : ''}</CopiedText>
+        {isCopied && <CopiedText>COPIED</CopiedText>}
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
@@ -139,9 +150,12 @@ class AccountsOverview extends Component<Props, State> {
   }
 
   renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
-    <AccountWrapper key={pk} isInDropDown={isInDropDown}>
+    <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
-      <Address>{getAbbreviatedText(pk, 6)}</Address>
+      <Address>
+        {getAbbreviatedText(pk, 6)}
+        <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
+      </Address>
     </AccountWrapper>
   );
 
@@ -149,7 +163,7 @@ class AccountsOverview extends Component<Props, State> {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
     clipboard.writeText(accounts[currentAccountIndex].pk);
-    this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
+    this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };
 }
