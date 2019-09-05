@@ -7,6 +7,7 @@ import { ipcConsts } from '../app/vars';
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
 const writeFileAsync = util.promisify(fs.writeFile);
+const unlinkFileAsync = util.promisify(fs.unlink);
 
 // Linux: ~/.config/<App Name>
 // Mac OS: ~/Library/Application Support/<App Name>
@@ -84,19 +85,53 @@ class FileManager {
         message: 'All wallet data will be lost. Are You Sure?',
         buttons: ['Delete Wallet File', 'Cancel']
       };
-      dialog.showMessageBox(browserWindow, options, (response) => {
+      dialog.showMessageBox(browserWindow, options, async (response) => {
         if (response === 0) {
-          fs.unlink(filePath, (err) => {
-            if (err) {
-              throw err;
-            }
-          });
-          browserWindow.reload();
+          try {
+            await unlinkFileAsync(filePath);
+            browserWindow.reload();
+          } catch (err) {
+            throw new Error(err);
+          }
         }
       });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error deleting wallet file');
+    }
+  };
+
+  static wipeOut = ({ browserWindow }) => {
+    try {
+      const options = {
+        title: 'Delete all data and settings',
+        message: 'All wallets and app settings will be lost. Are You Sure?',
+        buttons: ['Delete All', 'Cancel']
+      };
+      dialog.showMessageBox(browserWindow, options, async (response) => {
+        if (response === 0) {
+          // await unlinkFileAsync(appFilesDirPath);
+          // app.exit();
+          // const appName = app.getName();
+          //
+          // // Get app directory
+          // // on OSX it's /Users/Yourname/Library/Application Support/AppName
+          // const getAppPath = path.join(app.getPath('appData'), appName);
+          //
+          // fs.unlink(getAppPath, () => {
+          //   // callback
+          //   // You should relaunch the app after clearing the app settings.
+          //   app.exit();
+          // });
+
+          const ses = browserWindow.webContents.session;
+
+          ses.clearCache();
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error purging app data directory');
     }
   };
 

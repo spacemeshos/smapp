@@ -85,9 +85,9 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions: { '0': { layerId: 0, data: [] } } }));
     dispatch(setContacts({ contacts: [] }));
+    dispatch(setCurrentAccount({ index: 0 }));
     localStorageService.set('walletNumber', walletNumber + 1);
     localStorageService.set('accountNumber', accountNumber + 1);
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });

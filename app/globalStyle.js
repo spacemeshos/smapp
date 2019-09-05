@@ -20,6 +20,7 @@ const GlobalStyle = createGlobalStyle`
         height: 100%;
         margin: 0;
         padding: 0;
+        background-color: #F3F3F3;
     }
     
     html, body, div, span, applet, object, iframe,
