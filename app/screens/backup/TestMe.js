@@ -197,13 +197,6 @@ const NotificationBox = styled.div`
   background-color: ${smColors.lightGray};
 `;
 
-// TODO: Test - remove this
-const TestCounter = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-`;
-
 const getTestWords = (mnemonic: string): Array<{ id: string, content: string }> => {
   const twelveWords = mnemonic.split(' ');
   const indices = [];
@@ -253,7 +246,6 @@ class TestMe extends Component<Props, State> {
 
     return (
       <Wrapper>
-        <TestCounter>{`drops: ${dropsCounter} | matches: ${matchCounter}`}</TestCounter>
         <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP">
           <HorizontalBarWrapper>
             <HorizontalBar src={smallHorizontalSideBar} />
