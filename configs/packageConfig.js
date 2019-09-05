@@ -95,7 +95,7 @@ const getBuildOptions = (target) => ({
   publish: 'always',
   config: {
     appId: 'com.spacemesh.wallet',
-    productName: 'Spacemesh Wallet',
+    productName: 'Spacemesh',
     files: [
       'desktop/dist/',
       'desktop/app.html',
@@ -126,7 +126,7 @@ const getBuildOptions = (target) => ({
           type: 'file'
         }
       ],
-      title: 'Spacemesh Wallet'
+      title: 'Spacemesh'
     },
     win: {
       target: 'nsis'

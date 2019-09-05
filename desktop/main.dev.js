@@ -8,9 +8,10 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
 
@@ -33,7 +34,7 @@ if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true')
   require('electron-debug')();
 }
 
-const installExtensions = async () => {
+const installExtensions = () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
@@ -84,25 +85,15 @@ app.on('ready', async () => {
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
-    const options = {
-      title: 'Spacemesh',
-      message: 'Quit app or keep in background?',
-      buttons: ['Keep running in background', 'Quit']
-    };
-    dialog.showMessageBox(mainWindow, options, (response) => {
-      if (response === 0) {
-        mainWindow.hide();
-      }
-      if (response === 1) {
-        mainWindow.destroy();
-        mainWindow = null;
-        app.quit();
-      }
-      if (process.platform === 'darwin') {
-        app.dock.hide();
-      }
-    });
+    event.sender.send(ipcConsts.REQUEST_CLOSE);
   });
+
+  ipcMain.on(ipcConsts.QUIT_APP, () => {
+    mainWindow.destroy();
+    app.quit();
+  });
+
+  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();

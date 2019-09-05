@@ -51,6 +51,7 @@ const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 type Props = {
   accounts: Account[],
   initMining: Action,
+  isConnected: boolean,
   history: RouterHistory,
   location: { state?: { isOnlyNodeSetup: boolean } }
 };
@@ -84,6 +85,7 @@ class NodeSetup extends Component<Props, State> {
   }
 
   render() {
+    const { isConnected } = this.props;
     const { subMode, selectedDriveIndex, selectedCommitmentSize } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode;
     return (
@@ -95,7 +97,11 @@ class NodeSetup extends Component<Props, State> {
           {this.renderSubMode()}
           <Footer>
             <Link onClick={this.navigateToExplanation} text="SETUP GUIDE" />
-            <Button onClick={this.nextAction} text="NEXT" isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0)} />
+            <Button
+              onClick={this.nextAction}
+              text="NEXT"
+              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || ((subMode === 3 && selectedCommitmentSize === 0) || !isConnected)}
+            />
           </Footer>
         </CorneredContainer>
       </Wrapper>
@@ -117,7 +123,7 @@ class NodeSetup extends Component<Props, State> {
           <SubHeader>
             --
             <br />
-            select the hard drive you&#39;d like to use for mining
+            Select the hard drive you&#39;d like to use for mining
             <br />
             You will need at least 160 GB free space to setup miner
           </SubHeader>
@@ -130,7 +136,7 @@ class NodeSetup extends Component<Props, State> {
         <SubHeader>
           --
           <br />
-          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label} HARD DRIVE</DriveName> you would
+          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
           <br />
           like the mining node to use
         </SubHeader>
@@ -179,6 +185,7 @@ class NodeSetup extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
+  isConnected: state.node.isConnected,
   accounts: state.wallet.accounts
 });
 
@@ -191,5 +198,5 @@ NodeSetup = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(NodeSetup);
 
-NodeSetup = ScreenErrorBoundary(NodeSetup, true);
+NodeSetup = ScreenErrorBoundary(NodeSetup);
 export default NodeSetup;

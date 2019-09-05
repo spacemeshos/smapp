@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
-import { SettingsSection, SettingRow, ChangePassphrase, SideMenu } from '/components/settings';
+import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
 import { Input, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -59,6 +59,7 @@ type Props = {
   updateAccount: Action,
   createNewAccount: Action,
   setNodeIpAddress: Action,
+  isConnected: boolean,
   history: RouterHistory,
   nodeIpAddress: string
 };
@@ -105,7 +106,7 @@ class Settings extends Component<Props, State> {
 
   // TODO: add last backup time
   render() {
-    const { accounts, createNewAccount, setNodeIpAddress } = this.props;
+    const { accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
     return (
       <Wrapper>
@@ -128,7 +129,7 @@ class Settings extends Component<Props, State> {
                 }
                 rowName="Display name"
               />
-              <SettingRow upperPart={<ChangePassphrase />} rowName="Change passphrase" />
+              <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
               <SettingRow
                 upperPartLeft="Last Backup at 08.14.19"
                 isUpperPartLeftText
@@ -142,7 +143,7 @@ class Settings extends Component<Props, State> {
                 rowName="Wallet Restore"
               />
               <SettingRow
-                upperPartLeft={`Auto start is ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
+                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
                 rowName="Wallet Auto Start"
@@ -152,6 +153,12 @@ class Settings extends Component<Props, State> {
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.deleteWallet} text="DELETE WALLET" width={180} />}
                 rowName="Delete Wallet"
+              />
+              <SettingRow
+                upperPartLeft="Use at your own risk! (Return app to fresh installed state)"
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="DELETE ALL" width={180} />}
+                rowName="Delete all wallets and settings"
               />
               <SettingRow
                 upperPart={[
@@ -214,7 +221,7 @@ class Settings extends Component<Props, State> {
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                upperPartRight={<Link onClick={setNodeIpAddress} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0} />}
+                upperPartRight={<Link onClick={setNodeIpAddress} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>
@@ -259,6 +266,10 @@ class Settings extends Component<Props, State> {
   deleteWallet = async () => {
     const { walletFiles } = this.props;
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
+  };
+
+  cleanAllAppDataAndSettings = async () => {
+    fileSystemService.wipeOut();
   };
 
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
@@ -336,6 +347,7 @@ class Settings extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
+  isConnected: state.node.isConnected,
   meta: state.wallet.meta,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,

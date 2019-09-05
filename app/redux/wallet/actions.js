@@ -49,9 +49,9 @@ const mergeTxStatuses = () => {
   // const updatedTxList = [];
 };
 
-export const generateEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
+export const generateEncryptionKey = ({ password }: { password: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
-  const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
+  const key = fileEncryptionService.createEncryptionKey({ password, salt });
   return { type: STORE_ENCRYPTION_KEY, payload: { key } };
 };
 
@@ -85,9 +85,9 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions: { '0': { layerId: 0, data: [] } } }));
     dispatch(setContacts({ contacts: [] }));
+    dispatch(setCurrentAccount({ index: 0 }));
     localStorageService.set('walletNumber', walletNumber + 1);
     localStorageService.set('accountNumber', accountNumber + 1);
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
@@ -100,7 +100,11 @@ export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({ type
 
 export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({ type: SET_ACCOUNTS, payload: { accounts } });
 
-export const setCurrentAccount = ({ index }: { index: number }): Action => ({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
+export const setCurrentAccount = ({ index }: { index: number }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { transactions } = getState().wallet;
+  dispatch({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
+  dispatch(setTransactions({ transactions }));
+};
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
@@ -114,8 +118,8 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
     return files;
   } catch (err) {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
-    throw createError('Error reading wallet files!', readWalletFiles);
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
+    return [];
   }
 };
 

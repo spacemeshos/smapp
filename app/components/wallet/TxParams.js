@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
 import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
+import type { Contact } from '/types';
+import AutoComplete from './AutoComplete';
 
 const Wrapper = styled.div`
   display: flex;
@@ -94,22 +96,23 @@ const fees = [
   }
 ];
 
+const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
+
 type Props = {
   fromAddress: string,
-  address: string,
+  initialAddress: string,
+  contacts: Contact[],
   hasAddressError: boolean,
-  updateTxAddress: ({ value: string }) => void,
-  updateTxAddressDebounced: ({ value: string }) => void,
+  updateTxAddress: ({ address: string }) => void,
   resetAddressError: () => void,
   amount: string,
   updateTxAmount: ({ value: string }) => void,
-  updateTxAmountDebounced: ({ value: string }) => void,
   hasAmountError: boolean,
   resetAmountError: () => void,
   updateFee: ({ fee: number }) => void,
   note: string,
   updateTxNote: ({ value: string }) => void,
-  isNextActionEnabled: boolean,
+  openCreateNewContact: () => void,
   nextAction: () => void,
   cancelTx: () => void
 };
@@ -126,19 +129,18 @@ class TxParams extends Component<Props, State> {
   render() {
     const {
       fromAddress,
-      address,
+      initialAddress,
+      contacts,
       hasAddressError,
       updateTxAddress,
-      updateTxAddressDebounced,
       resetAddressError,
       amount,
       hasAmountError,
       updateTxAmount,
-      updateTxAmountDebounced,
       resetAmountError,
       note,
       updateTxNote,
-      isNextActionEnabled,
+      openCreateNewContact,
       nextAction,
       cancelTx
     } = this.props;
@@ -151,18 +153,18 @@ class TxParams extends Component<Props, State> {
         </Header>
         <SubHeader>--</SubHeader>
         <DetailsRow>
-          <DetailsText>From</DetailsText>
-          <Input value={address} onChange={updateTxAddress} onChangeDebounced={updateTxAddressDebounced} maxLength="64" style={{ flex: 1 }} />
-          {hasAddressError && <ErrorPopup onClick={resetAddressError} text="this address is invalid" style={{ top: '-4px', right: '-195px' }} />}
+          <DetailsText>Send to</DetailsText>
+          <AutoComplete initialAddress={initialAddress} onChange={updateTxAddress} contacts={contacts} openCreateNewContact={openCreateNewContact} />
+          {hasAddressError && <ErrorPopup onClick={resetAddressError} text="this address is invalid" style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
-          <DetailsText1>{getAbbreviatedText(fromAddress, 8)}</DetailsText1>
+          <DetailsText1>{getAbbreviatedText(fromAddress, 12)}</DetailsText1>
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount to send</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMC" onChangeDebounced={updateTxAmountDebounced} style={{ flex: 1 }} />
-          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMC in your wallet" style={{ top: '-4px', right: '-195px' }} />}
+          <Input value={amount} onChange={updateTxAmount} extraText="SMC" style={{ flex: 1 }} />
+          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMC in your wallet" style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Est. Confirmation time</DetailsText>
@@ -179,13 +181,13 @@ class TxParams extends Component<Props, State> {
           <DetailsText>
             Note
             <br />
-            (only you can see this)
+            (Only you can see this)
           </DetailsText>
           <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
         </DetailsRow>
         <Footer>
           <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
-          <Button onClick={nextAction} text="NEXT" isDisabled={!isNextActionEnabled} />
+          <Button onClick={nextAction} text="NEXT" />
         </Footer>
       </Wrapper>
     );
