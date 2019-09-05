@@ -2,7 +2,7 @@
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { DropDown, WrapperWith2SideBars, Tooltip } from '/basicComponents';
+import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
@@ -49,6 +49,12 @@ const CopyIcon = styled.img`
   height: 15px;
   margin: 6px;
   cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
 `;
 
 const Footer = styled.div`
@@ -83,18 +89,13 @@ const SmcText = styled.div`
   color: ${smColors.green};
 `;
 
-const CustomTooltip = styled(Tooltip)`
-  top: 60px;
-  right: -30px;
-  width: 90px;
-  text-align: center;
-`;
-
-const TooltipWrapper = styled.div`
-  position: relative;
-  &:hover ${CustomTooltip} {
-    display: block;
-  }
+const CopiedText = styled.div`
+  text-align: left;
+  font-size: 16px;
+  line-height: 20px;
+  height: 20px;
+  margin-left: 6px;
+  color: ${smColors.green};
 `;
 
 type Props = {
@@ -116,6 +117,7 @@ class AccountsOverview extends Component<Props, State> {
 
   render() {
     const { accounts, currentAccountIndex, switchAccount } = this.props;
+    const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
     }
@@ -135,6 +137,7 @@ class AccountsOverview extends Component<Props, State> {
             this.renderAccountRow({ displayName, pk })
           )}
         </AccountDetails>
+        {isCopied && <CopiedText>COPIED</CopiedText>}
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
@@ -146,27 +149,21 @@ class AccountsOverview extends Component<Props, State> {
     );
   }
 
-  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => {
-    const { isCopied } = this.state;
-    return (
-      <TooltipWrapper key={pk} onClick={this.copyPublicAddress}>
-        <AccountWrapper isInDropDown={isInDropDown}>
-          <AccountName>{displayName}</AccountName>
-          <Address>
-            {getAbbreviatedText(pk, 6)}
-            <CopyIcon src={copyToClipboard} />
-          </Address>
-        </AccountWrapper>
-        <CustomTooltip text={isCopied ? 'COPIED' : 'COPY TO CLIPBOARD'} withIcon={false} />
-      </TooltipWrapper>
-    );
-  };
+  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
+    <AccountWrapper isInDropDown={isInDropDown}>
+      <AccountName>{displayName}</AccountName>
+      <Address>
+        {getAbbreviatedText(pk, 6)}
+        <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
+      </Address>
+    </AccountWrapper>
+  );
 
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
     clipboard.writeText(accounts[currentAccountIndex].pk);
-    this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
+    this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };
 }
