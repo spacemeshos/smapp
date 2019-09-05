@@ -5,9 +5,10 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
+import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { QuitDialog } from '/components/common';
+import { OfflineBanner } from '/components';
 import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
@@ -75,6 +76,7 @@ const SideBar = styled.img`
 `;
 
 const InnerWrapper = styled.div`
+  position: relative;
   display: flex;
   flex: 1;
   justify-content: center;
@@ -103,7 +105,6 @@ type Props = {
   isConnected: boolean,
   miningStatus: number,
   getMiningStatus: Action,
-  checkNodeConnection: Action,
   getGenesisTime: Action,
   logout: Action,
   history: RouterHistory,
@@ -111,7 +112,8 @@ type Props = {
 };
 
 type State = {
-  activeRouteIndex: number
+  activeRouteIndex: number,
+  isOfflineBannerVisible: boolean
 };
 
 class Main extends Component<Props, State> {
@@ -125,7 +127,8 @@ class Main extends Component<Props, State> {
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 1 : 0;
     this.state = {
-      activeRouteIndex
+      activeRouteIndex,
+      isOfflineBannerVisible: true
     };
 
     this.navMap = [
@@ -139,7 +142,8 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { activeRouteIndex } = this.state;
+    const { isConnected } = this.props;
+    const { activeRouteIndex, isOfflineBannerVisible } = this.state;
     return (
       <Wrapper>
         <QuitDialog />
@@ -224,6 +228,7 @@ class Main extends Component<Props, State> {
           </NavBarPart>
         </NavBar>
         <InnerWrapper>
+          {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
           <Switch>
             {routes.main.map((route) => (
               <Route key={route.path} path={route.path} component={route.component} />
@@ -238,6 +243,9 @@ class Main extends Component<Props, State> {
     const { isConnected, miningStatus, getMiningStatus } = this.props;
     if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
       getMiningStatus();
+    }
+    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
+      getGenesisTime();
     }
   }
 
@@ -303,7 +311,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  checkNodeConnection,
   getMiningStatus,
   getGenesisTime,
   logout
