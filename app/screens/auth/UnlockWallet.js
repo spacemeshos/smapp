@@ -4,11 +4,19 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { generateEncryptionKey, unlockWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
+import { LoggedOutBanner } from '/components/banners';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+
+const Text = styled.div`
+  margin: -15px 0 15px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.black};
+`;
 
 const Indicator = styled.div`
   position: absolute;
@@ -70,25 +78,34 @@ const GrayText = styled.div`
 type Props = {
   history: RouterHistory,
   generateEncryptionKey: Action,
-  unlockWallet: Action
+  unlockWallet: Action,
+  location: { state?: { isLoggedOut: boolean } }
 };
 
 type State = {
   password: string,
-  hasError: boolean
+  hasError: boolean,
+  isLoggedOutBannerVisible: boolean
 };
 
 class UnlockWallet extends Component<Props, State> {
-  state = {
-    password: '',
-    hasError: false
-  };
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    this.state = {
+      password: '',
+      hasError: false,
+      isLoggedOutBannerVisible: location?.state?.isLoggedOut || false
+    };
+  }
 
   render() {
     const { history } = this.props;
-    const { password, hasError } = this.state;
-    return (
-      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to spacemesh">
+    const { isLoggedOutBannerVisible, password, hasError } = this.state;
+    return [
+      isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />,
+      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to spacemesh" key="main">
+        <Text>Please enter your wallet password</Text>
         <Indicator hasError={hasError} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
@@ -108,7 +125,7 @@ class UnlockWallet extends Component<Props, State> {
           <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
         </BottomPart>
       </CorneredContainer>
-    );
+    ];
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {

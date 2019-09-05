@@ -91,6 +91,10 @@ class FsService {
   static deleteWalletFile = ({ fileName }: { fileName: string }) => {
     ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
   };
+
+  static wipeOut = () => {
+    ipcRenderer.send(ipcConsts.WIPE_OUT);
+  };
 }
 
 export default FsService;

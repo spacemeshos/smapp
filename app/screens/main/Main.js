@@ -8,7 +8,7 @@ import { logout } from '/redux/auth/actions';
 import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { QuitDialog } from '/components/common';
-import { OfflineBanner } from '/components';
+import { OfflineBanner } from '/components/banners';
 import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
@@ -24,7 +24,6 @@ const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 5px 25px 20px 10px;
-  background-color: ${smColors.white};
 `;
 
 const NavBar = styled.div`
@@ -82,7 +81,6 @@ const InnerWrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-color: ${smColors.white};
 `;
 
 const CustomTooltip = styled(Tooltip)`
@@ -294,7 +292,7 @@ class Main extends Component<Props, State> {
           break;
         }
         case 6: {
-          history.push('/');
+          history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;
         }
