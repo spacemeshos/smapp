@@ -191,8 +191,8 @@ class Node extends Component<Props, State> {
       <Text key="5">* Leave your computer on 24/7 to mine</Text>,
       <Text key="6">* Disable your computer from going to sleep</Text>,
       <Text key="7">
-        * Important: configure your network to accept incoming app connections. {/** TODO: need to navigate to right page when it becomes available in testnet guide */}
-        <Link onClick={this.navigateToMiningGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+        * Important: configure your network to accept incoming app connections.
+        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
@@ -255,6 +255,8 @@ class Node extends Component<Props, State> {
   pauseResumeMining = () => {};
 
   navigateToMiningGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+
+  navigateToNetConfigGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/netconfig');
 }
 
 const mapStateToProps = (state) => ({
