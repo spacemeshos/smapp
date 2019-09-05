@@ -155,6 +155,12 @@ class Settings extends Component<Props, State> {
                 rowName="Delete Wallet"
               />
               <SettingRow
+                upperPartLeft="Use at your own risk! (Return app to fresh installed state)"
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="DELETE ALL" width={180} />}
+                rowName="Delete all wallets and settings"
+              />
+              <SettingRow
                 upperPart={[
                   <Text key={1}>Read about the&nbsp;</Text>,
                   <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy" key={2} />,
@@ -260,6 +266,10 @@ class Settings extends Component<Props, State> {
   deleteWallet = async () => {
     const { walletFiles } = this.props;
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
+  };
+
+  cleanAllAppDataAndSettings = async () => {
+    fileSystemService.wipeOut();
   };
 
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {

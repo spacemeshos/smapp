@@ -8,35 +8,39 @@ import netService from './netService';
 import WalletAutoStarter from './autoStartManager';
 
 const subscribeToEventListeners = ({ mainWindow }) => {
-  ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.READ_FILE, (event, request) => {
     FileManager.readFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.COPY_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.COPY_FILE, (event, request) => {
     FileManager.copyFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
+  ipcMain.on(ipcConsts.READ_DIRECTORY, (event) => {
     FileManager.readDirectory({ browserWindow: mainWindow, event });
   });
 
-  ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.SAVE_FILE, (event, request) => {
     FileManager.writeFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.UPDATE_FILE, (event, request) => {
     FileManager.updateFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.DELETE_FILE, (event, request) => {
     FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+  });
+
+  ipcMain.on(ipcConsts.WIPE_OUT, () => {
+    FileManager.wipeOut({ browserWindow: mainWindow });
   });
 
   ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
     DiskStorageManager.getDriveList({ event });
   });
 
-  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
+  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, (event, request) => {
     FileManager.openWalletBackupDirectory({ event, ...request });
   });
 
@@ -51,19 +55,19 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     mainWindow.focus();
   });
 
-  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
     WalletAutoStarter.toggleAutoStart();
   });
 
-  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
+  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
     WalletAutoStarter.isEnabled({ event });
   });
 
-  ipcMain.on(ipcConsts.START_NODE, async (event) => {
+  ipcMain.on(ipcConsts.START_NODE, (event) => {
     NodeManager.startNode({ event });
   });
 
-  ipcMain.on(ipcConsts.HARD_REFRESH, async () => {
+  ipcMain.on(ipcConsts.HARD_REFRESH, () => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
 

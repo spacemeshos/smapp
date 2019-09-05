@@ -9,7 +9,6 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { QuitDialog } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
-import { smColors } from '/vars';
 import { logo, sideBar } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -21,7 +20,6 @@ const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   padding: 30px 25px;
-  background-color: ${smColors.white};
 `;
 
 const Logo = styled.img`
@@ -50,7 +48,6 @@ const InnerWrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-color: ${smColors.white};
 `;
 
 type Props = {
