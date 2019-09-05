@@ -197,6 +197,13 @@ const NotificationBox = styled.div`
   background-color: ${smColors.lightGray};
 `;
 
+// TODO: Test - remove this
+const TestCounter = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+
 const getTestWords = (mnemonic: string): Array<{ id: string, content: string }> => {
   const twelveWords = mnemonic.split(' ');
   const indices = [];
@@ -246,6 +253,7 @@ class TestMe extends Component<Props, State> {
 
     return (
       <Wrapper>
+        <TestCounter>{`drops: ${dropsCounter} | matches: ${matchCounter}`}</TestCounter>
         <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP">
           <HorizontalBarWrapper>
             <HorizontalBar src={smallHorizontalSideBar} />
@@ -276,10 +284,10 @@ class TestMe extends Component<Props, State> {
         <MiddleSectionRow>
           <TestWordsSection>
             {testWords.map((word: { id: string, content: string }, index: number) => (
-              <Droppable droppableId={`Droppable_${word.id}`} key={word.id}>
+              <Droppable droppableId={`Droppable_Src_${word.id}`} key={word.id}>
                 {(provided) => (
                   <TestWordDroppable ref={provided.innerRef} {...provided.droppableProps}>
-                    <Draggable draggableId={`Draggable_${word.id}`} index={index}>
+                    <Draggable draggableId={`Draggable_Src_${word.id}`} index={index}>
                       {(provided, snapshot) => (
                         <TestWordContainer
                           ref={provided.innerRef}
@@ -307,7 +315,7 @@ class TestMe extends Component<Props, State> {
                 <Droppable droppableId={`Droppable_Dest_${word.id}`}>
                   {(provided, snapshot) => (
                     <WordDroppable ref={provided.innerRef} {...provided.droppableProps} isDraggingOver={snapshot.isDraggingOver} isDropped={word.content}>
-                      <Draggable draggableId={`Draggable_Dest_${word.id}`} index={index} isDragDisabled>
+                      <Draggable draggableId={`Draggable_Dest_${word.id}`} index={index}>
                         {(provided) => (
                           <WordContainer ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} isDraggingOver={snapshot.isDraggingOver}>
                             <Text>{word.content}</Text>
@@ -352,23 +360,38 @@ class TestMe extends Component<Props, State> {
     const wordId = destination.droppableId.split('_').pop();
     const wordIndex = twelveWords.findIndex((word: { id: string, content: string }) => word.id === wordId);
     const droppedWord = source.droppableId.split('_').pop();
-    const droppedWordIndex = testWords.findIndex((testWord: { id: string, content: string }) => testWord.id === droppedWord);
+    const isDraggedFromTestWords = source.droppableId.startsWith('Droppable_Src_');
+    const droppedWordIndex = isDraggedFromTestWords
+      ? testWords.findIndex((testWord: { id: string, content: string }) => testWord.id === droppedWord)
+      : twelveWords.findIndex((testWord: { id: string, content: string }) => testWord.id === droppedWord);
+    const droppedWordFromDropZone = twelveWords[droppedWordIndex].content;
+    const isDropMatch = isDraggedFromTestWords ? droppedWord === destination.droppableId.split('_').pop() : droppedWordFromDropZone === destination.droppableId.split('_').pop();
+    const wasDraggedPreviousMatch = droppedWordFromDropZone === source.droppableId.split('_').pop();
 
     if (twelveWords[wordIndex].content) {
       return;
     }
 
-    this.setState({
-      twelveWords: [...twelveWords.slice(0, wordIndex), { id: wordId, content: droppedWord }, ...twelveWords.slice(wordIndex + 1)],
-      testWords: [...testWords.slice(0, droppedWordIndex), { id: droppedWord, content: '' }, ...testWords.slice(droppedWordIndex + 1)]
-    });
+    const stateObj = {};
 
-    if (droppedWord === destination.droppableId.split('_').pop()) {
-      // dropped at destination and a match
-      this.setState({ matchCounter: matchCounter + 1, dropsCounter: dropsCounter + 1 });
+    if (isDraggedFromTestWords) {
+      stateObj.twelveWords = [...twelveWords.slice(0, wordIndex), { id: wordId, content: droppedWord }, ...twelveWords.slice(wordIndex + 1)];
+      stateObj.testWords = [...testWords.slice(0, droppedWordIndex), { id: droppedWord, content: '' }, ...testWords.slice(droppedWordIndex + 1)];
     } else {
-      // dropped at destination and not a match
+      const twelveWordsArray = [...twelveWords.slice(0, droppedWordIndex), { id: droppedWord, content: '' }, ...twelveWords.slice(droppedWordIndex + 1)];
+      stateObj.twelveWords = [...twelveWordsArray.slice(0, wordIndex), { id: wordId, content: droppedWordFromDropZone }, ...twelveWordsArray.slice(wordIndex + 1)];
+    }
+
+    this.setState(stateObj);
+
+    if (isDraggedFromTestWords) {
       this.setState({ dropsCounter: dropsCounter + 1 });
+    }
+
+    if (isDropMatch) {
+      this.setState({ matchCounter: matchCounter + 1 });
+    } else if (wasDraggedPreviousMatch) {
+      this.setState({ matchCounter: matchCounter - 1 });
     }
   };
 
