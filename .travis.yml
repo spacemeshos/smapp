@@ -34,5 +34,5 @@ script:
   - npm run build-dll
   - |
     if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_BRANCH" == "master" ]]; then 
-      npm run package-all
+      npm run publish-all
     fi
