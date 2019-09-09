@@ -25,6 +25,7 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
+let tray = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -51,6 +52,28 @@ app.on('window-all-closed', () => {
   }
 });
 
+const createTray = () => {
+  tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
+  tray.setToolTip('Spacemesh');
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
+      }
+    }
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.setHighlightMode('never');
+};
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     show: false,
@@ -72,27 +95,8 @@ app.on('ready', async () => {
     await installExtensions();
   }
 
+  createTray();
   createWindow();
-
-  const appIcon = new Tray(path.join(__dirname, '..', 'resources', 'icon.png'));
-
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Show App',
-      click: () => {
-        mainWindow.show();
-      }
-    },
-    {
-      label: 'Quit',
-      click: () => {
-        app.isQuiting = true;
-        app.quit();
-      }
-    }
-  ]);
-
-  appIcon.setContextMenu(contextMenu);
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
 
@@ -106,7 +110,7 @@ app.on('ready', async () => {
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
-    event.sender.send(ipcConsts.REQUEST_CLOSE);
+    mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
   });
 
   ipcMain.on(ipcConsts.QUIT_APP, () => {

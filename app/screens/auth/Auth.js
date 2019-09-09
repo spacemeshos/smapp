@@ -9,7 +9,7 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { QuitDialog } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
-import { logo, sideBar } from '/assets/images';
+import { logo, rightDecoration } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -32,14 +32,13 @@ const Logo = styled.img`
   cursor: pointer;
 `;
 
-const SideBar = styled.img`
+const RightDecoration = styled.img`
   display: block;
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 100%;
+  right: -1px;
+  height: 102%;
 `;
 
 const InnerWrapper = styled.div`
@@ -64,7 +63,7 @@ class Auth extends Component<Props> {
       <Wrapper>
         <QuitDialog />
         <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
-        <SideBar src={sideBar} />
+        <RightDecoration src={rightDecoration} />
         <InnerWrapper>
           {walletFiles ? (
             <Switch>

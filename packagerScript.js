@@ -105,27 +105,31 @@ const getBuildOptions = (target) => ({
       'package.json',
       'node_modules/',
       'proto/',
+      'resources/icons/*',
       nodeFiles[target]
     ],
     dmg: {
       window: {
-        width: '500',
-        height: '300'
+        width: '350',
+        height: '380'
       },
+      background: path.join(__dirname, 'resources', 'background.png'),
       contents: [
         {
-          x: 410,
-          y: 150,
+          x: 300,
+          y: 180,
           type: 'link',
           path: '/Applications'
         },
         {
-          x: 130,
-          y: 150,
+          x: 70,
+          y: 180,
           type: 'file'
         }
       ],
-      title: 'Spacemesh'
+      internetEnabled: true,
+      title: 'Spacemesh',
+      sign: false
     },
     win: {
       target: 'nsis'
