@@ -9,7 +9,7 @@ import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { QuitDialog } from '/components/common';
 import { OfflineBanner } from '/components/banners';
-import { SecondaryButton, Tooltip } from '/basicComponents';
+import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
 import { logo, rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
@@ -49,11 +49,11 @@ const NavLinksWrapper = styled.div`
 const NavBarLink = styled.div`
   margin-right: 15px;
   font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 12px;
+  line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
   text-transform: uppercase;
-  color: ${({ isActive }) => (isActive ? smColors.purple : smColors.disabledGray)};
+  color: ${({ isActive }) => (isActive ? smColors.purple : smColors.navLinkGrey)};
   cursor: pointer;
 `;
 
@@ -82,11 +82,10 @@ const InnerWrapper = styled.div`
   height: 100%;
 `;
 
-const CustomTooltip = styled(Tooltip)`
-  top: ${({ isLinkTooltip }) => (isLinkTooltip ? 30 : 57)}px;
-  right: -8px;
-  width: 90px;
-  text-align: center;
+const CustomTooltip = styled(NavTooltip)`
+  bottom: -45px;
+  right: -27px;
+  width: 110px;
 `;
 
 const TooltipWrapper = styled.div`

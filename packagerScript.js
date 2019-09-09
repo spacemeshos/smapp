@@ -44,7 +44,7 @@ const nodeFiles = {
   linux: { from: 'node/linux/', to: 'node/' }
 };
 
-const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
+const artifactsToPublishFile = path.join(__dirname, 'release', 'publishFilesList.json');
 
 const generateFileHashFile = async ({ destination }) => {
   try {
