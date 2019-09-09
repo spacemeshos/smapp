@@ -12,7 +12,7 @@ import { OfflineBanner } from '/components/banners';
 import { SecondaryButton, Tooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
-import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
+import { logo, rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -64,14 +64,13 @@ const Logo = styled.img`
   cursor: pointer;
 `;
 
-const SideBar = styled.img`
+const RightDecoration = styled.img`
   display: block;
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 100%;
+  right: -1px;
+  height: 102%;
 `;
 
 const InnerWrapper = styled.div`
@@ -145,7 +144,7 @@ class Main extends Component<Props, State> {
     return (
       <Wrapper>
         <QuitDialog />
-        <SideBar src={sideBar} />
+        <RightDecoration src={rightDecoration} />
         <NavBar>
           <NavBarPart>
             <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
