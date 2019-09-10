@@ -1,22 +1,13 @@
 // @flow
+import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import type { RouterHistory } from 'react-router-dom';
-import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '/basicComponents';
-import { smColors } from '/vars';
-import { smallHorizontalSideBar } from '/assets/images';
-import { shell } from 'electron';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
+import { smColors } from '/vars';
+import type { RouterHistory } from 'react-router-dom';
 import type { DropResult } from 'react-beautiful-dnd';
-
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -95px;
-  right: -28px;
-  width: 70px;
-  height: 15px;
-`;
 
 const Text = styled.span`
   font-size: 14px;
@@ -185,15 +176,22 @@ class TestMe extends Component<Props, State> {
         height={400}
         header="CONFIRM YOUR 12 WORDS BACKUP"
         subHeader="Drag each of the four words below to its matching number in your paper backup word list"
+        key="1"
       >
-        <HorizontalBar src={smallHorizontalSideBar} />
+        <SmallHorizontalPanel />
         {this.renderDragAndDropArea()}
         <BottomRow>
           <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
           <Button onClick={isTestSuccess ? this.navigateToWallet : this.resetTest} text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`} isPrimary={isTestSuccess} />
         </BottomRow>
       </WrapperWith2SideBars>,
-      dropsCounter === 4 && this.renderNotificationBox({ isTestSuccess: matchCounter === 4 })
+      dropsCounter === 4 && (
+        <NotificationBoxOuter key="2">
+          <NotificationBox color={isTestSuccess ? smColors.green : smColors.orange}>
+            {isTestSuccess ? 'All right! Your 12 word backup is confirmed.' : 'That confirmation isn’t correct, please try again'}
+          </NotificationBox>
+        </NotificationBoxOuter>
+      )
     ];
   }
 
@@ -252,14 +250,6 @@ class TestMe extends Component<Props, State> {
       </DragDropContext>
     );
   };
-
-  renderNotificationBox = ({ isTestSuccess }: { isTestSuccess: boolean }) => (
-    <NotificationBoxOuter>
-      <NotificationBox color={isTestSuccess ? smColors.green : smColors.orange}>
-        {isTestSuccess ? 'All right! Your 12 word backup is confirmed.' : 'That confirmation isn’t correct, please try again'}
-      </NotificationBox>
-    </NotificationBoxOuter>
-  );
 
   handleDragEnd = (result: DropResult) => {
     const { source, destination } = result;

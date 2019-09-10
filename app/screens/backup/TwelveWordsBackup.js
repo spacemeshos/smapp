@@ -4,11 +4,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
-import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
+import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import { smColors } from '/vars';
 import { printService } from '/infra/printService';
 import { localStorageService } from '/infra/storageService';
-import { smallHorizontalSideBar } from '/assets/images';
 
 const TextWrapper = styled.div`
   height: 75px;
@@ -27,18 +26,6 @@ const GreenText = styled.span`
   font-size: 12px;
   line-height: 20px;
   color: ${smColors.green};
-`;
-
-const HorizontalBarWrapper = styled.div`
-  position: relative;
-`;
-
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -95px;
-  right: -28px;
-  width: 70px;
-  height: 15px;
 `;
 
 const MiddleSectionRow = styled.div`
@@ -124,9 +111,7 @@ class TwelveWordsBackup extends Component<Props, State> {
     const { isTwelveWordsCopied } = this.state;
     return (
       <WrapperWith2SideBars width={920} height={400} header="YOUR 12 WORDS BACKUP">
-        <HorizontalBarWrapper>
-          <HorizontalBar src={smallHorizontalSideBar} />
-        </HorizontalBarWrapper>
+        <SmallHorizontalPanel />
         <TextWrapper>
           <Text>
             A paper backup is a numbered list of words written down on a paper Write down or print this numbered word list and store the paper in a a safe place, or copy & paste it

@@ -6,11 +6,10 @@ import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
-import { Input, Link, Button } from '/basicComponents';
+import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
 import { autoStartService } from '/infra/autoStartService';
-import { smallHorizontalSideBar } from '/assets/images';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { WalletMeta, Account, Action } from '/types';
@@ -26,14 +25,6 @@ const AllSettingsWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-`;
-
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -25px;
-  right: 0;
-  width: 70px;
-  height: 15px;
 `;
 
 const AllSettingsInnerWrapper = styled.div`
@@ -112,7 +103,7 @@ class Settings extends Component<Props, State> {
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
-          <HorizontalBar src={smallHorizontalSideBar} />
+          <SmallHorizontalPanel />
           <AllSettingsInnerWrapper>
             <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1}>
               <SettingRow

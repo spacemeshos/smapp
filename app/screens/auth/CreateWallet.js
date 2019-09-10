@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
-import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup } from '/basicComponents';
+import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
-import { smallHorizontalSideBar, chevronRightBlack, chevronLeftWhite } from '/assets/images';
+import { chevronRightBlack, chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -14,14 +14,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const SideBar = styled.img`
-  position: absolute;
-  top: -30px;
-  right: 0;
-  width: 55px;
-  height: 15px;
 `;
 
 const UpperPart = styled.div`
@@ -118,7 +110,7 @@ class CreateWallet extends Component<Props, State> {
           currentStep={1}
         />
         <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
-          <SideBar src={smallHorizontalSideBar} />
+          <SmallHorizontalPanel />
           {subMode === 1 && (
             <>
               <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
