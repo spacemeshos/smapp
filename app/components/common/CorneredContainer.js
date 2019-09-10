@@ -16,7 +16,7 @@ const Wrapper = styled(CorneredWrapper)`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${smColors.black};
+  color: ${smColors.realBlack};
 `;
 
 const SubHeader = styled.div`

@@ -1,34 +1,29 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { leftSideBar, rightSideBar } from '/assets/images';
+import { sidePanelRightMed, sidePanelLeftMed } from '/assets/images';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
-  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 250px;
   height: 150px;
   margin-right: 15px;
-  padding: 25px;
   background-color: ${smColors.black10Alpha};
 `;
 
-const LeftSideBar = styled.img`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 10px;
+const SideBar = styled.img`
+  display: block;
+  width: 13px;
   height: 100%;
 `;
 
-const RightSideBar = styled.img`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 10px;
-  height: 100%;
+const InnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 25px 5px;
 `;
 
 const Container = styled.div`
@@ -73,14 +68,16 @@ class SideMenu extends PureComponent<Props> {
     const { items, currentItem, onClick } = this.props;
     return (
       <Wrapper>
-        <LeftSideBar src={leftSideBar} />
-        <RightSideBar src={rightSideBar} />
-        {items.map((item, index) => (
-          <Container onClick={() => onClick({ index })} key={index}>
-            <Text isCurrent={index === currentItem}>{item}</Text>
-            <Indicator isCurrent={index === currentItem}>{index + 1}</Indicator>
-          </Container>
-        ))}
+        <SideBar src={sidePanelLeftMed} />
+        <InnerWrapper>
+          {items.map((item, index) => (
+            <Container onClick={() => onClick({ index })} key={index}>
+              <Text isCurrent={index === currentItem}>{item}</Text>
+              <Indicator isCurrent={index === currentItem}>{index + 1}</Indicator>
+            </Container>
+          ))}
+        </InnerWrapper>
+        <SideBar src={sidePanelRightMed} />
       </Wrapper>
     );
   }

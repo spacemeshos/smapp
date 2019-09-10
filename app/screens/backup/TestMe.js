@@ -3,52 +3,12 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
-import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
+import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '/basicComponents';
 import { smColors } from '/vars';
-import { bottomLeftCorner, bottomRightCorner, topLeftCorner, topRightCorner, smallHorizontalSideBar } from '/assets/images';
+import { smallHorizontalSideBar } from '/assets/images';
 import { shell } from 'electron';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import type { DropResult } from 'react-beautiful-dnd';
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  position: relative;
-`;
-
-const TextWrapper = styled.div`
-  height: 75px;
-  margin-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-`;
-
-const Text = styled.span`
-  font-size: 14px;
-  line-height: 22px;
-`;
-
-const SmallText = styled.span`
-  font-size: 12px;
-  line-height: 12px;
-`;
-
-const GreenText = styled(SmallText)`
-  color: ${smColors.green};
-`;
-
-const RedText = styled(SmallText)`
-  color: ${smColors.orange};
-`;
-
-const WhiteText = styled(Text)`
-  color: ${smColors.white};
-`;
-
-const HorizontalBarWrapper = styled.div`
-  position: relative;
-`;
 
 const HorizontalBar = styled.img`
   position: absolute;
@@ -58,36 +18,13 @@ const HorizontalBar = styled.img`
   height: 15px;
 `;
 
-const TopLeftCorner = styled.img`
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  width: 8px;
-  height: 8px;
+const Text = styled.span`
+  font-size: 14px;
+  line-height: 18px;
 `;
 
-const TopRightCorner = styled.img`
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomLeftCorner = styled.img`
-  position: absolute;
-  bottom: -5px;
-  left: -5px;
-  width: 8px;
-  height: 8px;
-`;
-
-const BottomRightCorner = styled.img`
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 8px;
-  height: 8px;
+const WhiteText = styled(Text)`
+  color: ${smColors.white};
 `;
 
 const MiddleSectionRow = styled.div`
@@ -182,19 +119,19 @@ const WordWrapper = styled.div`
   display: flex;
 `;
 
-const NotificationBoxOuter = styled.div`
+const NotificationBoxOuter = styled(CorneredWrapper)`
   position: absolute;
-  bottom: -70px;
-  right: -6px;
+  bottom: -75px;
+  right: 0px;
 `;
 
 const NotificationBox = styled.div`
-  position: relative;
-  bottom: 0;
-  width: 195px;
-  height: 47px;
-  padding: 6px;
+  width: 130px;
+  padding: 4px 9px;
   background-color: ${smColors.lightGray};
+  font-size: 10px;
+  line-height: 13px;
+  color: ${({ color }) => color};
 `;
 
 const getTestWords = (mnemonic: string): Array<{ id: string, content: string }> => {
@@ -242,31 +179,22 @@ class TestMe extends Component<Props, State> {
   render() {
     const { dropsCounter, matchCounter } = this.state;
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
-    const isTestFailed = matchCounter < 4 && dropsCounter === 4;
-
-    return (
-      <Wrapper>
-        <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP">
-          <HorizontalBarWrapper>
-            <HorizontalBar src={smallHorizontalSideBar} />
-          </HorizontalBarWrapper>
-          <TextWrapper>
-            <Text>Drag each of the four words below to its matching number in your paper backup word list</Text>
-          </TextWrapper>
-          {this.renderDragAndDropArea()}
-          <BottomRow>
-            <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
-            <Button
-              onClick={isTestSuccess ? this.navigateToWallet : this.resetTest}
-              text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
-              width={isTestSuccess ? 95 : 110}
-              isPrimary={isTestSuccess}
-            />
-          </BottomRow>
-        </WrapperWith2SideBars>
-        {this.renderNotificationBox({ isTestSuccess, isTestFailed })}
-      </Wrapper>
-    );
+    return [
+      <WrapperWith2SideBars
+        width={920}
+        height={400}
+        header="CONFIRM YOUR 12 WORDS BACKUP"
+        subHeader="Drag each of the four words below to its matching number in your paper backup word list"
+      >
+        <HorizontalBar src={smallHorizontalSideBar} />
+        {this.renderDragAndDropArea()}
+        <BottomRow>
+          <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
+          <Button onClick={isTestSuccess ? this.navigateToWallet : this.resetTest} text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`} isPrimary={isTestSuccess} />
+        </BottomRow>
+      </WrapperWith2SideBars>,
+      dropsCounter === 4 && this.renderNotificationBox({ isTestSuccess: matchCounter === 4 })
+    ];
   }
 
   renderDragAndDropArea = () => {
@@ -325,18 +253,11 @@ class TestMe extends Component<Props, State> {
     );
   };
 
-  renderNotificationBox = ({ isTestSuccess, isTestFailed }: { isTestSuccess: boolean, isTestFailed: boolean }) => (
+  renderNotificationBox = ({ isTestSuccess }: { isTestSuccess: boolean }) => (
     <NotificationBoxOuter>
-      {(isTestSuccess || isTestFailed) && (
-        <NotificationBox>
-          <TopLeftCorner src={topLeftCorner} />
-          <TopRightCorner src={topRightCorner} />
-          <BottomLeftCorner src={bottomLeftCorner} />
-          <BottomRightCorner src={bottomRightCorner} />
-          {isTestSuccess && <GreenText>All right! Your 12 word backup is confirmed.</GreenText>}
-          {isTestFailed && <RedText>That confirmation isn’t correct, please try again</RedText>}
-        </NotificationBox>
-      )}
+      <NotificationBox color={isTestSuccess ? smColors.green : smColors.orange}>
+        {isTestSuccess ? 'All right! Your 12 word backup is confirmed.' : 'That confirmation isn’t correct, please try again'}
+      </NotificationBox>
     </NotificationBoxOuter>
   );
 
