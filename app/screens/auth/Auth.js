@@ -16,10 +16,10 @@ import type { RouterHistory } from 'react-router-dom';
 const Wrapper = styled.div`
   position: relative;
   display: flex;
+  flex-direction: row;
   flex: 1;
   width: 100%;
   height: 100%;
-  padding: 30px 25px;
 `;
 
 const Logo = styled.img`
@@ -34,11 +34,7 @@ const Logo = styled.img`
 
 const RightDecoration = styled.img`
   display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: -1px;
-  height: 102%;
+  height: 100%;
 `;
 
 const InnerWrapper = styled.div`
@@ -47,13 +43,14 @@ const InnerWrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
+  padding: 30px 25px;
 `;
 
 type Props = {
   history: RouterHistory,
   readWalletFiles: Action,
   walletFiles: Array<string>,
-  location: { state?: { presetMode: number } }
+  location: { pathname: string, state?: { presetMode: number } }
 };
 
 class Auth extends Component<Props> {
@@ -63,7 +60,6 @@ class Auth extends Component<Props> {
       <Wrapper>
         <QuitDialog />
         <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
-        <RightDecoration src={rightDecoration} />
         <InnerWrapper>
           {walletFiles ? (
             <Switch>
@@ -76,14 +72,15 @@ class Auth extends Component<Props> {
             <Loader size={Loader.sizes.BIG} />
           )}
         </InnerWrapper>
+        <RightDecoration src={rightDecoration} />
       </Wrapper>
     );
   }
 
   async componentDidMount() {
-    const { readWalletFiles, history } = this.props;
+    const { readWalletFiles, history, location } = this.props;
     const files = await readWalletFiles();
-    if (files.length) {
+    if (files.length && location.pathname !== '/auth/restore') {
       history.push('/auth/unlock');
     }
   }

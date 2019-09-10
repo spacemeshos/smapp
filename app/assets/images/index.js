@@ -1,7 +1,9 @@
 export { default as loader } from './loading.gif';
 export { default as rightDecoration } from './right_decoration.svg';
-export { default as rightSideBar } from './right_side_bar.png';
-export { default as leftSideBar } from './left_side_bar.png';
+export { default as sidePanelRightLong } from './side_panel_right_long.svg';
+export { default as sidePanelLeftLong } from './side_panel_left_long.svg';
+export { default as sidePanelRightMed } from './side_panel_right_med.svg';
+export { default as sidePanelLeftMed } from './side_panel_left_med.svg';
 export { default as bigInnerSideBar } from './bigInnerSideBar.png';
 export { default as smallInnerSideBar } from './smallInnerSideBar.png';
 export { default as smallHorizontalSideBar } from './smallHorizontalSideBar.png';

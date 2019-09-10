@@ -23,8 +23,8 @@ const CloseImg = styled.img`
 
 const PopupText = styled.div`
   margin: 10px 10px 10px 30px;
-  font-size: 13px;
-  line-height: 17px;
+  font-size: 10px;
+  line-height: 13px;
   color: ${smColors.white};
 `;
 

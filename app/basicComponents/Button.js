@@ -34,7 +34,7 @@ const UpperPart = styled.div`
 
 const Text = styled.div`
   padding-left: 7px;
-  font-size: 16px;
+  font-size: 12px;
   line-height: ${({ height }) => height}px;
   color: ${smColors.white};
   cursor: inherit;
