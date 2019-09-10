@@ -23,7 +23,7 @@ const targets = args[targetIdx + 1] === 'all' ? ['mac', 'windows', 'linux'] : [a
 const publishArgIdx = args.findIndex((arg) => arg === '--publish');
 const publishOptiobns = ['onTag', 'onTagOrDraft', 'always', 'never'];
 const hasValidPublishArg = publishArgIdx >= 0 && !!args[publishArgIdx + 1] && publishOptiobns.includes(args[publishArgIdx + 1]);
-console.warn('HAS VALID PUBLISH >>>>> ', hasValidPublishArg);
+
 if (!(publishArgIdx < 0 || hasValidPublishArg)) {
   throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/all} --publish {onTag/onTagOrDraft/always/never}'");
 }
