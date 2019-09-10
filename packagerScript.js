@@ -9,26 +9,20 @@ const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
 const mkdirAsync = util.promisify(fs.mkdir);
 const args = process.argv.slice(2);
-const hasArgs = args && args.length;
-const targetIdx = args.findIndex((arg) => arg === '--target');
-const targetOptions = ['mac', 'windows', 'linux', 'all'];
-const hasValidTargetArg = hasArgs && targetIdx >= 0 && !!args[targetIdx + 1] && targetOptions.includes(args[targetIdx + 1]);
+
+const hasValidTargetArg = args[0] === '--target' && ['mac', 'windows', 'linux', 'mwl'].includes(args[1]);
 
 if (!hasValidTargetArg) {
-  throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/all}'");
+  throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/mwl}'");
 }
 
-const targets = args[targetIdx + 1] === 'all' ? ['mac', 'windows', 'linux'] : [args[targetIdx + 1]];
+const targets = args[1] === 'mwl' ? ['mac', 'windows', 'linux'] : [args[1]];
 
-const publishArgIdx = args.findIndex((arg) => arg === '--publish');
-const publishOptiobns = ['onTag', 'onTagOrDraft', 'always', 'never'];
-const hasValidPublishArg = publishArgIdx >= 0 && !!args[publishArgIdx + 1] && publishOptiobns.includes(args[publishArgIdx + 1]);
+const hasValidPublishArg = args[2] === '--publish' && ['onTag', 'onTagOrDraft', 'always', 'never'].includes(args[3])
 
-if (!(publishArgIdx < 0 || hasValidPublishArg)) {
-  throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/all} --publish {onTag/onTagOrDraft/always/never}'");
+if (args[2] && !hasValidPublishArg) {
+  throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/mwl} --publish {onTag/onTagOrDraft/always/never}'");
 }
-
-const publishArg = args[publishArgIdx + 1];
 
 const fileHashList = {
   dmg: {
@@ -193,7 +187,7 @@ targets.forEach(async (target) => {
     console.error("Invalid target provided. Usage example: 'node ./packagerScript.js {mac/linux/windows}'");
   } else {
     try {
-      const res = await build(getBuildOptions({ target, publish: hasValidPublishArg ? publishArg : 'never' }));
+      const res = await build(getBuildOptions({ target, publish: hasValidPublishArg ? args[3] : 'never' }));
       if (res && res.length) {
         console.log(`Artifacts packed for ${target}:`);
         res.forEach((res, index) => console.log(`${index + 1}. ${res}`));
