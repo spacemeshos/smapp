@@ -8,7 +8,7 @@ matrix:
       env:
         - ELECTRON_CACHE=$HOME/.cache/electron
         - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
-  
+
     - os: linux
       env:
         - ELECTRON_CACHE=$HOME/.cache/electron
@@ -33,6 +33,6 @@ script:
   - npm run lint-ci
   - npm run build-dll
   - |
-    if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_BRANCH" == "master" ]]; then 
-      npm run package-all
+    if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_BRANCH" == "master" ]]; then
+      npm run package-ci
     fi
