@@ -12,3 +12,4 @@ export { default as NavTooltip } from './NavTooltip';
 export { default as WrapperWith2SideBars } from './WrapperWith2SideBars';
 export { default as DropDown } from './DropDown';
 export { default as Banner } from './Banner';
+export { default as SmallHorizontalPanel } from './SmallHorizontalPanel';

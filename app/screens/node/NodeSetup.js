@@ -6,10 +6,10 @@ import { connect } from 'react-redux';
 import { initMining } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { StepsContainer, Button, SecondaryButton, Link } from '/basicComponents';
+import { StepsContainer, Button, SecondaryButton, Link, SmallHorizontalPanel } from '/basicComponents';
 import { Carousel, CommitmentSelector } from '/components/node';
 import { diskStorageService } from '/infra/diskStorageService';
-import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
+import { chevronLeftWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
@@ -17,14 +17,6 @@ import type { Account, Action } from '/types';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
-
-const SideBar = styled.img`
-  position: absolute;
-  top: -30px;
-  right: 0;
-  width: 55px;
-  height: 15px;
 `;
 
 const SubHeader = styled.div`
@@ -92,7 +84,7 @@ class NodeSetup extends Component<Props, State> {
       <Wrapper>
         <StepsContainer steps={this.steps} currentStep={adjustedSubStep} />
         <CorneredContainer width={650} height={400} header={this.steps[adjustedSubStep]}>
-          <SideBar src={smallHorizontalSideBar} />
+          <SmallHorizontalPanel />
           <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />
           {this.renderSubMode()}
           <Footer>

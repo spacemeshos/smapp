@@ -7,10 +7,10 @@ import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { CorneredWrapper } from '/basicComponents';
+import { CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
 import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
-import { backup, leftSideTIcon, smallHorizontalSideBar } from '/assets/images';
+import { backup, leftSideTIcon } from '/assets/images';
 import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -67,14 +67,6 @@ const RightSection = styled.div`
   height: 100%;
 `;
 
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -25px;
-  right: 0;
-  width: 70px;
-  height: 15px;
-`;
-
 type Props = {
   accounts: Account[],
   currentAccountIndex: number,
@@ -109,7 +101,7 @@ class Wallet extends Component<Props, State> {
         </LeftSection>
         <CorneredWrapper>
           <RightSection>
-            <HorizontalBar src={smallHorizontalSideBar} />
+            <SmallHorizontalPanel />
             <Switch>
               {routes.wallet.map((route) => (
                 <Route exact key={route.path} path={route.path} component={route.component} />

@@ -3,31 +3,13 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
-import { WrapperWith2SideBars, Button, Link } from '/basicComponents';
-import { smallHorizontalSideBar } from '/assets/images';
+import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
 import { localStorageService } from '/infra/storageService';
 
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-`;
-
-const BoldText = styled(Text)`
-  font-family: SourceCodeProBold;
-  margin-bottom: 24px;
-`;
-
-const HorizontalBarWrapper = styled.div`
-  position: relative;
-`;
-
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -95px;
-  right: -28px;
-  width: 70px;
-  height: 15px;
 `;
 
 const MiddleSectionRow = styled.div`
@@ -50,11 +32,8 @@ type Props = {
 class FileBackup extends Component<Props> {
   render() {
     return (
-      <WrapperWith2SideBars width={820} height={370} header="BACKUP EXISTING WALLET">
-        <HorizontalBarWrapper>
-          <HorizontalBar src={smallHorizontalSideBar} />
-        </HorizontalBarWrapper>
-        <BoldText>A wallet restore file has been saved.</BoldText>
+      <WrapperWith2SideBars width={820} height={370} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved.">
+        <SmallHorizontalPanel />
         <Link onClick={this.showBackupFile} text="Browse file location" />
         <Text>You can use this file to restore your spacemesh wallet on any computer.</Text>
         <BottomRow>
