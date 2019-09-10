@@ -1,28 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const util = require('util');
 const crypto = require('crypto');
 
 const { Platform, build } = require('electron-builder');
 
-const readFileAsync = util.promisify(fs.readFile);
-const writeFileAsync = util.promisify(fs.writeFile);
-const mkdirAsync = util.promisify(fs.mkdir);
 const args = process.argv.slice(2);
-
-const hasValidTargetArg = args[0] === '--target' && ['mac', 'windows', 'linux', 'mwl'].includes(args[1]);
-
-if (!hasValidTargetArg) {
-  throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/mwl}'");
+if (args.length < 2 || args[0] !== '--target' || !['mac', 'windows', 'linux', 'mwl'].includes(args[1])) {
+  throw new Error("No valid flags provided. Usage example: 'node ./packagerScript.js --target {mac|linux|windows|mwl}'");
 }
-
 const targets = args[1] === 'mwl' ? ['mac', 'windows', 'linux'] : [args[1]];
 
-const hasValidPublishArg = args[2] === '--publish' && ['onTag', 'onTagOrDraft', 'always', 'never'].includes(args[3])
-
-if (args[2] && !hasValidPublishArg) {
-  throw new Error("No valid arguments provided. Usage example: 'node ./packagerScript.js --target {mac/linux/windows/mwl} --publish {onTag/onTagOrDraft/always/never}'");
+if ((args.length > 2 && args.length !== 4) || (args.length === 4 && (args[2] !== '--publish' || !['always', 'never'].includes(args[3])))) {
+  throw new Error("No valid flags provided. Usage example: 'node ./packagerScript.js --target {mac|linux|windows|mwl} --publish {always|never}'");
 }
+const publishFlagValue = args.length === 4 ? args[3] : 'never';
 
 const fileHashList = {
   dmg: {
@@ -54,48 +45,41 @@ const nodeFiles = {
 };
 
 const artifactsToPublishFile = path.join(__dirname, 'release', 'publishFilesList.json');
-
-const generateFileHashFile = async ({ destination }) => {
-  try {
-    const dirname = path.dirname(destination);
-    if (!fs.existsSync(dirname)) {
-      await mkdirAsync(dirname);
-    }
-    if (!fs.existsSync(destination)) {
-      await writeFileAsync(destination, JSON.stringify(fileHashList));
-    }
-  } catch (error) {
-    console.error(error);
-    process.exit(1);
+try {
+  const dirname = path.dirname(artifactsToPublishFile);
+  if (!fs.existsSync(dirname)) {
+    fs.mkdirSync(dirname);
   }
-};
+  if (!fs.existsSync(artifactsToPublishFile)) {
+    fs.writeFileSync(artifactsToPublishFile, JSON.stringify(fileHashList));
+  }
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
 
-generateFileHashFile({ destination: artifactsToPublishFile });
-
-const getFileHash = async ({ filename }) => {
+const getFileHash = ({ filename }) => {
   const shaSum = crypto.createHash('sha512');
-  const fileContent = await readFileAsync(filename);
+  const fileContent = fs.readFileSync(filename);
   const hashSum = shaSum.update(fileContent);
   return hashSum.digest('hex');
 };
 
-const compileHashListFile = async ({ artifactsToPublishFile, artifactPaths }) => {
+const compileHashListFile = ({ artifactsToPublishFile, artifactPaths }) => {
   const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-  let hashList = await readFileAsync(artifactsToPublishFile, 'utf8');
+  let hashList = fs.readFileSync(artifactsToPublishFile, 'utf8');
   for (const fullPath of artifactPaths) {
     const artifactSuffix = fullPath.split('.').pop();
     const artifactName = fullPath.split('/').pop();
     // installers only
     if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
-      const installerKey = `${artifactSuffix}_installer`;
-      const shaKey = `${artifactSuffix}_sha512`;
-      const hash = await getFileHash({ filename: fullPath });
+      const hash = getFileHash({ filename: fullPath });
       const artifactNameSpacesReplaced = artifactName.replace(/ /g, '+');
-      hashList = hashList.replace(installerKey, artifactNameSpacesReplaced);
-      hashList = hashList.replace(shaKey, hash);
+      hashList = hashList.replace(`${artifactSuffix}_installer`, artifactNameSpacesReplaced);
+      hashList = hashList.replace(`${artifactSuffix}_sha512`, hash);
     }
   }
-  await writeFileAsync(artifactsToPublishFile, hashList);
+  fs.writeFileSync(artifactsToPublishFile, hashList);
 };
 
 const getBuildOptions = ({ target, publish }) => {
@@ -162,7 +146,7 @@ const getBuildOptions = ({ target, publish }) => {
       },
       afterAllArtifactBuild: async (buildResult) => {
         try {
-          await compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
+          compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
           return [artifactsToPublishFile];
         } catch (error) {
           console.error(error.message);
@@ -183,18 +167,14 @@ const getBuildOptions = ({ target, publish }) => {
 };
 
 targets.forEach(async (target) => {
-  if (['mac', 'windows', 'linux'].indexOf(target) === -1) {
-    console.error("Invalid target provided. Usage example: 'node ./packagerScript.js {mac/linux/windows}'");
-  } else {
-    try {
-      const res = await build(getBuildOptions({ target, publish: hasValidPublishArg ? args[3] : 'never' }));
-      if (res && res.length) {
-        console.log(`Artifacts packed for ${target}:`);
-        res.forEach((res, index) => console.log(`${index + 1}. ${res}`));
-      }
-    } catch (error) {
-      console.log(error);
-      process.exit(1);
+  try {
+    const res = await build(getBuildOptions({ target, publish: publishFlagValue }));
+    if (res && res.length) {
+      console.log(`Artifacts packed for ${target}:`);
+      res.forEach((res, index) => console.log(`${index + 1}. ${res}`));
     }
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
   }
 });
