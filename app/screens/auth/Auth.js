@@ -1,15 +1,14 @@
 // @flow
-import { shell } from 'electron';
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { QuitDialog } from '/components/common';
+import { Logo, QuitDialog } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
-import { logo, rightDecoration } from '/assets/images';
+import { rightDecoration } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -20,16 +19,6 @@ const Wrapper = styled.div`
   flex: 1;
   width: 100%;
   height: 100%;
-`;
-
-const Logo = styled.img`
-  display: block;
-  position: absolute;
-  top: 5px;
-  left: 15px;
-  width: 130px;
-  height: 40px;
-  cursor: pointer;
 `;
 
 const RightDecoration = styled.img`
@@ -58,8 +47,7 @@ class Auth extends Component<Props> {
     const { walletFiles } = this.props;
     return (
       <Wrapper>
-        <QuitDialog />
-        <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
+        <Logo />
         <InnerWrapper>
           {walletFiles ? (
             <Switch>
@@ -73,6 +61,7 @@ class Auth extends Component<Props> {
           )}
         </InnerWrapper>
         <RightDecoration src={rightDecoration} />
+        <QuitDialog />
       </Wrapper>
     );
   }
