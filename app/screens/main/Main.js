@@ -240,8 +240,10 @@ class Main extends Component<Props, State> {
 
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
-    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
+    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
       getGenesisTime();
+    }
+    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
     }
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
