@@ -153,16 +153,14 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow
                 upperPart={[
-                  <Text key={1}>Read about the&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy" key={2} />,
+                  <Text key={1}>Read our&nbsp;</Text>,
+                  <Link onClick={() => this.externalNavigation({ to: 'terms' })} text="terms of service" key={2} />,
                   <Text key={3}>,&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'security' })} text="security" key={4} />,
-                  <Text key={5}>, of your personal information, our&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'terms' })} text="terms" key={6} />,
-                  <Text key={7}>&nbsp;and&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'serviceAgreement' })} text="service agreement" key={8} />
+                  <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={4} />,
+                  <Text key={5}>&nbsp;or&nbsp;</Text>,
+                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy statement" key={6} />
                 ]}
-                rowName="Privacy, Security, Terms and Service Agreement"
+                rowName="Legal"
               />
               <SettingRow
                 upperPartLeft="Learn more in our extensive user guide"
@@ -282,6 +280,18 @@ class Settings extends Component<Props, State> {
 
   externalNavigation = ({ to }: { to: string }) => {
     switch (to) {
+      case 'terms': {
+        shell.openExternal('https://testnet.spacemesh.io/#/terms');
+        break;
+      }
+      case 'disclaimer': {
+        shell.openExternal('https://testnet.spacemesh.io/#/disclaimer');
+        break;
+      }
+      case 'privacy': {
+        shell.openExternal('https://testnet.spacemesh.io/#/privacy');
+        break;
+      }
       case 'userGuide': {
         shell.openExternal('https://testnet.spacemesh.io');
         break;
