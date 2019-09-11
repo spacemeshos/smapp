@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.6);
   z-index: 2;
 `;
 
@@ -30,18 +30,17 @@ const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.orange};
-  margin-top: 20px;
 `;
 
 const Header = styled(Text)`
-  margin-top: 0;
+  margin-bottom: 20px;
 `;
 
 const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 30px;
+  padding-top: 30px;
 `;
 
 type Props = {
@@ -77,12 +76,22 @@ class QuitDialog extends Component<Props, State> {
   }
 
   componentDidMount() {
-    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => {
-      const { miningStatus } = this.props;
-      const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
-      isMining ? this.setState({ isVisible: true }) : this.handleQuit();
-    });
+    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, this.handleQuitEvent);
   }
+
+  componentDidUpdate(prevProps: Props) {
+    const { miningStatus } = this.props;
+    if (prevProps.miningStatus !== miningStatus) {
+      ipcRenderer.removeAllListeners(ipcConsts.REQUEST_CLOSE);
+      ipcRenderer.on(ipcConsts.REQUEST_CLOSE, this.handleQuitEvent);
+    }
+  }
+
+  handleQuitEvent = () => {
+    const { miningStatus } = this.props;
+    const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
+    isMining ? this.setState({ isVisible: true }) : this.handleQuit();
+  };
 
   handleQuit = () => ipcRenderer.send(ipcConsts.QUIT_APP);
 
@@ -95,7 +104,7 @@ class QuitDialog extends Component<Props, State> {
         notification: 'Miner is running in the background.'
       });
       clearTimeout(timer);
-    }, 5000);
+    }, 2500);
   };
 }
 
@@ -104,5 +113,4 @@ const mapStateToProps = (state) => ({
 });
 
 QuitDialog = connect<any, any, _, _, _, _>(mapStateToProps)(QuitDialog);
-
 export default QuitDialog;

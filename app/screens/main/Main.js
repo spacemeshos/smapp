@@ -7,12 +7,12 @@ import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { QuitDialog } from '/components/common';
+import { Logo, QuitDialog } from '/components/common';
 import { OfflineBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
-import { logo, rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
+import { rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -20,10 +20,16 @@ import type { RouterHistory } from 'react-router-dom';
 const Wrapper = styled.div`
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
   height: 100%;
-  padding: 5px 25px 20px 10px;
+`;
+
+const InnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 5px 0 30px 30px;
 `;
 
 const NavBar = styled.div`
@@ -36,14 +42,13 @@ const NavBarPart = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  margin-right: 10px;
 `;
 
 const NavLinksWrapper = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: 10px;
-  margin-left: 30px;
+  margin-left: 140px;
 `;
 
 const NavBarLink = styled.div`
@@ -57,23 +62,12 @@ const NavBarLink = styled.div`
   cursor: pointer;
 `;
 
-const Logo = styled.img`
-  display: block;
-  width: 130px;
-  height: 40px;
-  cursor: pointer;
-`;
-
 const RightDecoration = styled.img`
   display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: -1px;
-  height: 102%;
+  height: 100%;
 `;
 
-const InnerWrapper = styled.div`
+const RoutesWrapper = styled.div`
   position: relative;
   display: flex;
   flex: 1;
@@ -142,11 +136,10 @@ class Main extends Component<Props, State> {
     const { activeRouteIndex, isOfflineBannerVisible } = this.state;
     return (
       <Wrapper>
-        <QuitDialog />
-        <RightDecoration src={rightDecoration} />
-        <NavBar>
+        <Logo />
+        <InnerWrapper>
+          <NavBar>
           <NavBarPart>
-            <Logo src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />
             <NavLinksWrapper>
               <TooltipWrapper>
                 <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
@@ -222,15 +215,18 @@ class Main extends Component<Props, State> {
               <CustomTooltip text="LOGOUT" withIcon={false} />
             </TooltipWrapper>
           </NavBarPart>
-        </NavBar>
-        <InnerWrapper>
-          {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
-          <Switch>
-            {routes.main.map((route) => (
-              <Route key={route.path} path={route.path} component={route.component} />
-            ))}
-          </Switch>
+          </NavBar>
+          <RoutesWrapper>
+            {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
+            <Switch>
+              {routes.main.map((route) => (
+                <Route key={route.path} path={route.path} component={route.component} />
+              ))}
+            </Switch>
+          </RoutesWrapper>
         </InnerWrapper>
+        <RightDecoration src={rightDecoration} />
+        <QuitDialog />
       </Wrapper>
     );
   }
@@ -240,16 +236,15 @@ class Main extends Component<Props, State> {
     if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
       getMiningStatus();
     }
-    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
-      getGenesisTime();
-    }
   }
 
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
-    if (isConnected && prevProps.miningStatus === nodeConsts.IN_SETUP) {
+    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
       getGenesisTime();
-      this.miningStatusInterval = setInterval(() => getMiningStatus, 3600000);
+    }
+    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
     }
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
