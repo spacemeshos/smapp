@@ -104,8 +104,8 @@ class FileManager {
   static wipeOut = ({ browserWindow }) => {
     try {
       const options = {
-        title: 'Delete all data and settings',
-        message: 'All wallets and app settings will be lost. Are You Sure?',
+        title: 'Reinstall App',
+        message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
         buttons: ['Delete All', 'Cancel']
       };
       dialog.showMessageBox(browserWindow, options, async (response) => {

@@ -68,6 +68,7 @@ const RightSection = styled.div`
 `;
 
 type Props = {
+  displayName: string,
   accounts: Account[],
   currentAccountIndex: number,
   // getBalance: Action,
@@ -85,12 +86,12 @@ type State = {
 
 class Wallet extends Component<Props, State> {
   render() {
-    const { accounts, currentAccountIndex, setCurrentAccount } = this.props;
+    const { displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
     const hasBackup = !!localStorageService.get('hasBackup');
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
+          <AccountsOverview walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
           {!hasBackup && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
@@ -135,6 +136,7 @@ class Wallet extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
+  displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   currentAccountIndex: state.wallet.currentAccountIndex
 });

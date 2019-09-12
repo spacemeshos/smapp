@@ -23,12 +23,16 @@ const MainWrapperInner = styled.div`
   flex-direction: column;
   flex: 1;
   margin: 15px;
+  width: calc(100% - 56px);
 `;
 
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
   color: ${smColors.realBlack};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SubHeader = styled.div`
