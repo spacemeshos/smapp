@@ -27,9 +27,11 @@ const SelectorUpperPart = styled.div`
   height: 120px;
   padding: 10px;
   cursor: inherit;
-  &:hover {
-    background-color: ${({ hasError }) => (hasError ? smColors.orange : smColors.realBlack)};
-  }
+  ${({ isDisabled, hasError }) =>
+    !isDisabled &&
+    `&:hover {
+    background-color: ${hasError ? smColors.orange : smColors.realBlack};
+  }`}
   ${({ isSelected, hasError }) => (hasError ? `background-color: ${smColors.orange}` : `background-color: ${isSelected ? smColors.realBlack : smColors.darkGray}`)}
 `;
 
@@ -43,9 +45,11 @@ const SelectorLowerPart = styled.div`
   width: 160px;
   height: 120px;
   cursor: inherit;
-  &:hover {
-    border: 1px solid ${({ hasError }) => (hasError ? smColors.orange : smColors.realBlack)};
-  }
+  ${({ isDisabled, hasError }) =>
+    !isDisabled &&
+    `&:hover {
+    border: 1px solid ${hasError ? smColors.orange : smColors.realBlack};
+  }`}
   ${({ isSelected, hasError }) => (hasError ? `border: 1px solid ${smColors.orange}` : `border: 1px solid ${isSelected ? smColors.realBlack : smColors.darkGray}`)}
 `;
 
@@ -53,15 +57,17 @@ const SelectorWrapper = styled.div`
   position: relative;
   width: 165px;
   height: 125px;
-  cursor: pointer;
-  &:active ${SelectorUpperPart} {
+  ${({ isDisabled }) =>
+    !isDisabled &&
+    `cursor: pointer;
+    &:active ${SelectorUpperPart} {
     transform: translate3d(-5px, 5px, 0);
     transition: transform 0.2s cubic-bezier;
     background-color: ${smColors.black};
   }
   &:active ${SelectorLowerPart} {
     border: 1px solid ${smColors.black};
-  }
+  }`}
 `;
 
 const SelectorsWrapper = styled.div`
@@ -142,9 +148,10 @@ class CommitmentSelector extends Component<Props, State> {
     const { selectedCommitmentIndex, hasInsufficientSpace } = this.state;
     const selectors = [];
     for (let i = 0; i < 3; i += 1) {
+      const clickHandler = i === 0 ? () => this.handleClick({ index: i }) : null;
       selectors.push(
-        <SelectorWrapper onClick={() => this.handleClick({ index: i })} key={i} style={{ zIndex: 3 - i }}>
-          <SelectorUpperPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isSelected={selectedCommitmentIndex === i}>
+        <SelectorWrapper onClick={clickHandler} key={i} style={{ zIndex: 3 - i }} isDisabled={i !== 0}>
+          <SelectorUpperPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isSelected={selectedCommitmentIndex === i} isDisabled={i !== 0}>
             <TextWrapper>
               <Text>{nodeConsts.COMMITMENT_SIZE * (i + 1)} GB</Text>
               <TooltipWrapper>
@@ -153,7 +160,7 @@ class CommitmentSelector extends Component<Props, State> {
               </TooltipWrapper>
             </TextWrapper>
           </SelectorUpperPart>
-          <SelectorLowerPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} />
+          <SelectorLowerPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isDisabled={i !== 0} />
         </SelectorWrapper>
       );
     }
