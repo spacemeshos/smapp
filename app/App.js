@@ -11,6 +11,7 @@ import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+import { localTestnetMeta } from '/vars';
 
 const store: Store = configureStore();
 
@@ -104,7 +105,7 @@ class App extends React.Component<Props, State> {
           attemptsRemaining -= 1;
           if (!isConnectedProps) {
             try {
-              await nodeService.startNode();
+              !localTestnetMeta.isLocalTestnet && (await nodeService.startNode()); // TODO: test - since connected to local testnet, not running exec file
             } catch {
               // Ignoring this error since we still want to check connection if node is already running.
             }

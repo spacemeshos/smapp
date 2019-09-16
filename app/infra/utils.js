@@ -30,6 +30,7 @@ const createError = (message, func) => ({
   retryFunction: func
 });
 
-const getAbbreviatedText = (address: string, tailSize: number = 4) => `0x${address.substring(0, tailSize)}....${address.substring(address.length - tailSize, address.length)}`;
+const getAbbreviatedText = (address: string, tailSize: number = 4) =>
+  address ? `0x${address.substring(0, tailSize)}....${address.substring(address.length - tailSize, address.length)}` : '';
 
 export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText };

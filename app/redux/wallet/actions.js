@@ -6,7 +6,7 @@ import { fileSystemService } from '/infra/fileSystemService';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
 import { getWalletName, getAccountName, createError, getWalletAddress } from '/infra/utils';
-import { cryptoConsts } from '/vars';
+import { cryptoConsts, localTestnetMeta } from '/vars';
 
 export const STORE_ENCRYPTION_KEY: string = 'STORE_ENCRYPTION_KEY';
 
@@ -35,7 +35,7 @@ const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKe
   displayName: getAccountName({ accountNumber }),
   created: unixEpochTimestamp,
   path: `0/0/${accountNumber}`,
-  balance: 100, // TODO change to real balance
+  balance: 0,
   pk: publicKey,
   sk: secretKey,
   layerId
@@ -168,10 +168,43 @@ export const copyFile = ({ filePath }: { fileName: string, filePath: string }): 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
+    // TODO: testnet account for local testnet purposes.
+    const testnetAccount: { pk: string, sk: string } = localTestnetMeta.accounts[localTestnetMeta.selectedAccount];
+    const balance = await httpService.getBalance({ address: localTestnetMeta.isLocalTestnet ? testnetAccount.pk : getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
+    return balance;
   } catch (error) {
-    throw createError('Error getting balance!', getBalance);
+    if (typeof error === 'string' && error.includes('account does not exist')) {
+      dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
+      return 0;
+    } else {
+      throw createError('Error getting balance!', getBalance);
+    }
+  }
+};
+
+/**
+  TODO: Test function for local testnet purposes.
+
+  This will transfer initial SMCs from tap
+ */
+export const getSmcFromTap = (): Action => async (dispatch: Dispatch): Dispatch => {
+  const tapAccount = {
+    pk: '891da146767aa80e3ce3ef826ef675c1bb32e9021844193a163fac231513149a',
+    sk: 'a3db6583a3e989525fac730814f85d9c9fef3c00f4ed1c4c56c33ac560c94950891da146767aa80e3ce3ef826ef675c1bb32e9021844193a163fac231513149a'
+  };
+  const testnetAccount: { pk: string, sk: string } = localTestnetMeta.accounts[localTestnetMeta.selectedAccount];
+  const amount = 100;
+  const price = 0.01;
+  const note = 'From_Tap';
+  try {
+    const recipient = testnetAccount.pk;
+    const accountNonce = await httpService.getNonce({ address: tapAccount.pk });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: tapAccount.sk });
+    const id = await httpService.sendTx({ tx });
+    dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+  } catch (error) {
+    throw createError('Error sending transaction!', () => getSmcFromTap());
   }
 };
 
@@ -181,8 +214,10 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: accounts[currentAccountIndex].sk });
+    // TODO: testnet account for local testnet purposes.
+    const account = localTestnetMeta.isLocalTestnet ? localTestnetMeta.accounts[localTestnetMeta.selectedAccount] : accounts[currentAccountIndex];
+    const accountNonce = await httpService.getNonce({ address: account.pk });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: account.sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
   } catch (error) {

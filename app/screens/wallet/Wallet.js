@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import { getBalance, setCurrentAccount, getSmcFromTap } from '/redux/wallet/actions';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -71,9 +71,10 @@ type Props = {
   displayName: string,
   accounts: Account[],
   currentAccountIndex: number,
-  // getBalance: Action,
+  getBalance: Action,
   setCurrentAccount: Action,
-  // isConnected: boolean,
+  getSmcFromTap: Action,
+  isConnected: boolean,
   history: RouterHistory
 };
 
@@ -85,6 +86,8 @@ type State = {
 };
 
 class Wallet extends Component<Props, State> {
+  getBalanceInterval: IntervalID;
+
   render() {
     const { displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
     const hasBackup = !!localStorageService.get('hasBackup');
@@ -116,16 +119,26 @@ class Wallet extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    // const { isConnected, getBalance } = this.props;
-    // if (isConnected) {
-    //   try {
-    //     await getBalance();
-    //   } catch (error) {
-    //     this.setState(() => {
-    //       throw error;
-    //     });
-    //   }
-    // }
+    const { isConnected, getBalance, getSmcFromTap } = this.props;
+    if (isConnected) {
+      try {
+        const balance = await getBalance();
+        if (balance === 0) {
+          await getSmcFromTap();
+        }
+        this.getBalanceInterval = setInterval(async () => {
+          await getBalance();
+        }, 60000);
+      } catch (error) {
+        this.setState(() => {
+          throw error;
+        });
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.getBalanceInterval && clearInterval(this.getBalanceInterval);
   }
 
   navigateToBackup = () => {
@@ -143,6 +156,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getBalance,
+  getSmcFromTap,
   setCurrentAccount
 };
 
