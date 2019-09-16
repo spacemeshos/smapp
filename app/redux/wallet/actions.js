@@ -35,7 +35,7 @@ const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKe
   displayName: getAccountName({ accountNumber }),
   created: unixEpochTimestamp,
   path: `0/0/${accountNumber}`,
-  balance: 100, // TODO change to real balance
+  balance: 0,
   pk: publicKey,
   sk: secretKey,
   layerId
@@ -171,7 +171,11 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    throw createError('Error getting balance!', getBalance);
+    if (typeof error === 'string' && error.includes('account does not exist')) {
+      dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
+    } else {
+      throw createError('Error getting balance!', getBalance);
+    }
   }
 };
 
@@ -185,6 +189,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
     const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: accounts[currentAccountIndex].sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+    return id;
   } catch (error) {
     throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
   }
