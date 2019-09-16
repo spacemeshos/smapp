@@ -168,8 +168,7 @@ export const copyFile = ({ filePath }: { fileName: string, filePath: string }): 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    // const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
-    const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].pk });
+    const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
     if (typeof error === 'string' && error.includes('account does not exist')) {
