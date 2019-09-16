@@ -35,7 +35,7 @@ const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKe
   displayName: getAccountName({ accountNumber }),
   created: unixEpochTimestamp,
   path: `0/0/${accountNumber}`,
-  balance: 100, // TODO change to real balance
+  balance: 0,
   pk: publicKey,
   sk: secretKey,
   layerId
@@ -168,10 +168,15 @@ export const copyFile = ({ filePath }: { fileName: string, filePath: string }): 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
+    // const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
+    const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].pk });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    throw createError('Error getting balance!', getBalance);
+    if (typeof error === 'string' && error.includes('account does not exist')) {
+      dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
+    } else {
+      throw createError('Error getting balance!', getBalance);
+    }
   }
 };
 
