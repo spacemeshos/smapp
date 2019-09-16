@@ -189,6 +189,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
     const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: accounts[currentAccountIndex].sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+    return id;
   } catch (error) {
     throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
   }
