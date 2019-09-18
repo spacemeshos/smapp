@@ -128,7 +128,7 @@ class Settings extends Component<Props, State> {
                 rowName="Wallet Backup"
               />
               <SettingRow
-                upperPartLeft="Restore wallet from file or mnemonic phrase"
+                upperPartLeft="Restore wallet from backup file or a 12 words list"
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"

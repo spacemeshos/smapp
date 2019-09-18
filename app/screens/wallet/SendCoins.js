@@ -137,7 +137,7 @@ class SendCoins extends Component<Props, State> {
     }
   };
 
-  updateTxNote = ({ value }: { value: string }) => this.setState({ note: (value && value.trim()) || '' });
+  updateTxNote = ({ value }: { value: string }) => this.setState({ note: value });
 
   updateFee = ({ fee }: { fee: number }) => this.setState({ fee });
 

@@ -106,8 +106,9 @@ class CreateWallet extends Component<Props, State> {
     return (
       <Wrapper>
         <StepsContainer
-          steps={isWalletOnlySetup ? ['SETUP WALLET', 'PROTECT WALLET'] : ['SETUP WALLET + MINER', 'PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
-          currentStep={1}
+          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
+          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + MINER'}
+          currentStep={0}
         />
         <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
           <SmallHorizontalPanel />

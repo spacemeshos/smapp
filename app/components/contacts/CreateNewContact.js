@@ -69,6 +69,7 @@ type Props = {
 
 type State = {
   address: string,
+  initialAddress: string,
   nickname: string,
   hasError: boolean,
   errorMsg: string
@@ -79,6 +80,7 @@ class CreateNewContact extends Component<Props, State> {
     super(props);
     this.state = {
       address: props.initialAddress || '',
+      initialAddress: props.initialAddress || '',
       nickname: '',
       hasError: false,
       errorMsg: ''
@@ -110,25 +112,30 @@ class CreateNewContact extends Component<Props, State> {
               onChange={({ value }) => this.setState({ address: value, hasError: false })}
               maxLength="64"
               style={isStandalone ? inputStyle3 : inputStyle1}
+              onFocus={this.handleFocus}
             />
             {hasError && <ErrorPopup onClick={() => this.setState({ hasError: false })} text={errorMsg} style={{ bottom: 60, left: 'calc(50% - 90px)' }} />}
           </InputWrapperUpperPart>
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.mediumGray, marginRight: 15 }} />
-          <Link onClick={this.createContact} text="CREATE" />
+          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.disabledGray, marginRight: 15 }} />
+          <Link onClick={this.createContact} text="CREATE" style={{ color: smColors.white }} />
         </ButtonsWrapper>
       </Wrapper>
     );
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
-    if (props.initialAddress && props.initialAddress !== prevState.address) {
-      return { address: props.initialAddress };
+    if (props.initialAddress !== prevState.initialAddress) {
+      return { address: props.initialAddress, initialAddress: props.initialAddress };
     }
     return null;
   }
+
+  handleFocus = ({ target }: { target: Object }) => {
+    target.select();
+  };
 
   createContact = async () => {
     const { addToContacts, onCompleteAction, updateTransaction } = this.props;

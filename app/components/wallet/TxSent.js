@@ -129,16 +129,16 @@ class TxSent extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeftBold>{getAbbreviatedText(fromAddress, 8)}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{getAbbreviatedText(fromAddress)}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeftBold>{getAbbreviatedText(address, 8)}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{getAbbreviatedText(address)}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow isLast>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
-            <span>{getAbbreviatedText(txId, 8)}</span>
+            <span>{getAbbreviatedText(txId, false, 8)}</span>
             <CopyIcon src={copyToClipboard} onClick={this.copyTxId} />
           </ComplexText>
         </DetailsRow>

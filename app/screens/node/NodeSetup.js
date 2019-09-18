@@ -60,13 +60,16 @@ class NodeSetup extends Component<Props, State> {
 
   steps: Array<string>;
 
+  header: string;
+
   constructor(props: Props) {
     super(props);
     const { location } = props;
     this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
+    this.header = this.isOnlyNodeSetup ? 'SETUP NODE' : 'SETUP WALLET + MINER';
     this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
     if (!this.isOnlyNodeSetup) {
-      this.steps = ['SETUP WALLET + MINER', 'PROTECT WALLET'].concat(this.steps);
+      this.steps = ['PROTECT WALLET'].concat(this.steps);
     }
     this.state = {
       drives: [],
@@ -79,10 +82,10 @@ class NodeSetup extends Component<Props, State> {
   render() {
     const { isConnected } = this.props;
     const { subMode, selectedDriveIndex, selectedCommitmentSize } = this.state;
-    const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode;
+    const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
     return (
       <Wrapper>
-        <StepsContainer steps={this.steps} currentStep={adjustedSubStep} />
+        <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
         <CorneredContainer width={650} height={400} header={this.steps[adjustedSubStep]}>
           <SmallHorizontalPanel />
           <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />
