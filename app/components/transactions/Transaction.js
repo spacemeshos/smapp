@@ -65,7 +65,7 @@ class Transaction extends PureComponent<Props> {
 
   render() {
     const {
-      transaction: { isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
+      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname },
       isSentDisplayed,
       isReceivedDisplayed,
       isPendingDisplayed,
@@ -75,14 +75,13 @@ class Transaction extends PureComponent<Props> {
       return null;
     }
     const color = this.getColor({ isSent, isPending, isRejected });
-    const txId = '1723d...7293'; // TODO change to real tx id
     return (
       <Wrapper>
         <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
         <MainWrapper>
           <Section>
             <NickName>{isSavedContact ? nickname : getAbbreviatedText(address)}</NickName>
-            <Text>{txId}</Text>
+            <Text>{getAbbreviatedText(id)}</Text>
           </Section>
           <Section>
             <Text>{getDateText(date)}</Text>

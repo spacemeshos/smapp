@@ -3,12 +3,14 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
+import { getMiningStatus } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
 import { chevronRightBlack, chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+import { nodeConsts } from '/vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -67,6 +69,7 @@ const BottomPart = styled.div`
 
 type Props = {
   generateEncryptionKey: Action,
+  getMiningStatus: Action,
   saveNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
@@ -191,14 +194,15 @@ class CreateWallet extends Component<Props, State> {
     return !passwordError && !verifyPasswordError;
   };
 
-  nextAction = () => {
-    const { history, location } = this.props;
+  nextAction = async () => {
+    const { history, location, getMiningStatus } = this.props;
     const { subMode } = this.state;
     const isWalletOnlySetup = !!location?.state?.withoutNode;
+    const miningStatus = await getMiningStatus();
     if (subMode === 1 && this.validate()) {
       this.createWallet();
     } else if (subMode === 2) {
-      if (isWalletOnlySetup) {
+      if (isWalletOnlySetup || miningStatus !== nodeConsts.NOT_MINING) {
         history.push('/main/wallet');
       } else {
         history.push('/main/node-setup');
@@ -234,6 +238,7 @@ class CreateWallet extends Component<Props, State> {
 
 const mapDispatchToProps = {
   generateEncryptionKey,
+  getMiningStatus,
   saveNewWallet
 };
 

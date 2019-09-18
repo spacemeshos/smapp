@@ -30,8 +30,10 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
   try {
     const status = await httpService.getMiningStatus();
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
+    return status;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
+    return nodeConsts.NOT_MINING;
   }
 };
 
