@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 
 const SideBar = styled.img`
   display: block;
-  width: 13px;
+  width: 16px;
   height: 100%;
 `;
 

@@ -133,7 +133,7 @@ class Welcome extends PureComponent<Props> {
           </ComplexLink>
           <ComplexLink>
             <Text>GOT A WALLET?</Text>
-            <Link onClick={() => history.push('/auth/restore')} text="RESTORE HERE" />
+            <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />
           </ComplexLink>
           <Button text="SETUP" onClick={() => history.push('/auth/create', { withoutNode: false })} />
         </BottomPart>

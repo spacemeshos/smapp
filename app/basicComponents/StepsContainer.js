@@ -26,6 +26,15 @@ const InnerWrapper = styled.div`
   padding: 25px 15px;
 `;
 
+const Header = styled.div`
+  align-self: center;
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
+  font-family: SourceCodeProBold;
+`;
+
 const StepContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -62,16 +71,18 @@ const Icon = styled.img`
 
 type Props = {
   steps: Array<Object>,
+  header: string,
   currentStep: number
 };
 
 class StepsContainer extends PureComponent<Props> {
   render() {
-    const { steps, currentStep } = this.props;
+    const { steps, header, currentStep } = this.props;
     return (
       <Wrapper>
         <SideBar src={sidePanelLeftMed} />
         <InnerWrapper>
+          <Header>{header}</Header>
           {steps.map((step, index) => (
             <StepContainer key={step} isFuture={index > currentStep}>
               <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>

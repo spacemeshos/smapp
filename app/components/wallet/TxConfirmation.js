@@ -118,11 +118,11 @@ class TxConfirmation extends PureComponent<Props> {
         <SubHeader2>SUMMARY</SubHeader2>
         <DetailsRow>
           <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeft>{getAbbreviatedText(fromAddress, 10)}</DetailsTextLeft>
+          <DetailsTextLeft>{getAbbreviatedText(fromAddress)}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeft>{getAbbreviatedText(address, 10)}</DetailsTextLeft>
+          <DetailsTextLeft>{getAbbreviatedText(address)}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Note</DetailsTextRight>

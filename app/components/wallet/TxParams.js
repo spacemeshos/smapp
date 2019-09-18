@@ -159,7 +159,7 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
-          <DetailsText1>{getAbbreviatedText(fromAddress, 12)}</DetailsText1>
+          <DetailsText1>{getAbbreviatedText(fromAddress)}</DetailsText1>
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount to send</DetailsText>
