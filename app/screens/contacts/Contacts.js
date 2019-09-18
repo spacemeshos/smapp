@@ -322,7 +322,7 @@ class Contacts extends Component<Props, State> {
     return sortedContacts.map((contact) => (
       <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => this.navigateToSendCoins({ contact })}>
         <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
-        <ContactText>{getAbbreviatedText(contact.address, 8)}</ContactText>
+        <ContactText>{getAbbreviatedText(contact.address)}</ContactText>
         {!contact.nickname && <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} src={addContact} />}
       </ContactRow>
     ));
@@ -358,7 +358,7 @@ class Contacts extends Component<Props, State> {
   };
 
   cancelCreateNewContact = () => {
-    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: true });
+    this.setState({ addressToAdd: '', shouldShowCreateNewContactModal: false, isNewContactCreated: false });
   };
 
   navigateToSendCoins = ({ contact }: { contact: Contact }) => {

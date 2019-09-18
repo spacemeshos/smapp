@@ -63,7 +63,7 @@ class DragAndDrop extends Component<Props, State> {
         <MsgWrapper>
           {!fileName && <Image src={hasError ? incorrectFile : upload} />}
           <Text>{hasError ? 'incorrect file' : fileName || 'Drop a wallet restore file here'}</Text>
-          <Link onClick={this.openFileDialog} text={hasError ? 'click to browse again' : 'or locate a restore file' || 'or click to browse computer'} />
+          <Link onClick={this.openFileDialog} text={hasError ? 'click to browse again' : 'or locate a wallet backup file' || 'or click to browse computer'} />
         </MsgWrapper>
       </Wrapper>
     );
