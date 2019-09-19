@@ -83,7 +83,7 @@ class Settings extends Component<Props, State> {
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
-      isAutoStartEnabled: autoStartService.isAutoStartEnabled(),
+      isAutoStartEnabled: false,
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
@@ -95,7 +95,6 @@ class Settings extends Component<Props, State> {
     this.myRef3 = React.createRef();
   }
 
-  // TODO: add last backup time
   render() {
     const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
@@ -226,6 +225,11 @@ class Settings extends Component<Props, State> {
       return { accountDisplayNames: updatedAccountDisplayNames };
     }
     return null;
+  }
+
+  async componentDidMount() {
+    const isAutoStartEnabled = await autoStartService.isAutoStartEnabled();
+    this.setState({ isAutoStartEnabled });
   }
 
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });

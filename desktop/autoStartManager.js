@@ -32,8 +32,7 @@ class WalletAutoStarter {
 
   isEnabled = async ({ event }) => {
     try {
-      const isEnabled = await this.walletAutoStarter.isEnabled();
-      store.set('isAutoStartEnabled', isEnabled);
+      const isEnabled = store.get('isAutoStartEnabled');
       event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, isEnabled);
     } catch (error) {
       event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, false);

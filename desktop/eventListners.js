@@ -59,7 +59,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     WalletAutoStarter.toggleAutoStart();
   });
 
-  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
+  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, (event) => {
     WalletAutoStarter.isEnabled({ event });
   });
 
