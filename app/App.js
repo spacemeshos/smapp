@@ -4,13 +4,14 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
-import { checkNodeConnection } from '/redux/node/actions';
+import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+import { nodeConsts } from '/vars';
 
 const store: Store = configureStore();
 
@@ -30,7 +31,7 @@ class App extends React.Component<Props, State> {
   // eslint-disable-next-line react/sort-comp
   startNodeInterval: IntervalID;
 
-  healthCheckInterval: IntervalID;
+  connectionAndMiningInterval: IntervalID;
 
   checkConnectionTimer: TimeoutID;
 
@@ -66,7 +67,7 @@ class App extends React.Component<Props, State> {
     if (!isConnected) {
       await this.localNodeFlow();
     } else {
-      this.healthCheckFlow();
+      this.connectionAndMiningFlow();
     }
   }
 
@@ -76,7 +77,7 @@ class App extends React.Component<Props, State> {
   }
 
   clearTimers = () => {
-    this.healthCheckInterval && clearInterval(this.healthCheckInterval);
+    this.connectionAndMiningInterval && clearInterval(this.connectionAndMiningInterval);
     this.startNodeInterval && clearInterval(this.startNodeInterval);
     this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
   };
@@ -84,7 +85,7 @@ class App extends React.Component<Props, State> {
   localNodeFlow = async () => {
     try {
       await this.startLocalNode();
-      this.healthCheckFlow();
+      this.connectionAndMiningFlow();
     } catch {
       this.setState({
         error: new Error('Failed to start Spacemesh Node.')
@@ -122,12 +123,17 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  healthCheckFlow = () => {
-    const healthCheckIntervalTime = 60000;
-    store.dispatch(checkNodeConnection());
-    this.healthCheckInterval = setInterval(() => {
-      store.dispatch(checkNodeConnection());
-    }, healthCheckIntervalTime);
+  connectionAndMiningFlow = async () => {
+    const connectionAndMiningIntervalTime = 360000;
+    const isConnected = await store.dispatch(checkNodeConnection());
+    isConnected && (await store.dispatch(getMiningStatus()));
+    this.connectionAndMiningInterval = setInterval(async () => {
+      const isConnected = await store.dispatch(checkNodeConnection());
+      const miningStatus = isConnected ? await store.dispatch(getMiningStatus()) : nodeConsts.NOT_MINING;
+      if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
+        store.dispatch(getMiningStatus());
+      }
+    }, connectionAndMiningIntervalTime);
   };
 }
 

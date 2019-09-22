@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
+import { getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo, QuitDialog } from '/components/common';
 import { OfflineBanner } from '/components/banners';
@@ -94,7 +94,6 @@ const bntStyle = { marginRight: 15, marginTop: 10 };
 type Props = {
   isConnected: boolean,
   miningStatus: number,
-  getMiningStatus: Action,
   getGenesisTime: Action,
   logout: Action,
   history: RouterHistory,
@@ -231,20 +230,10 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    const { isConnected, miningStatus, getMiningStatus } = this.props;
-    if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
-      getMiningStatus();
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
+    const { isConnected, miningStatus, getGenesisTime } = this.props;
     if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
       getGenesisTime();
-    }
-    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
     }
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
@@ -302,7 +291,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  getMiningStatus,
   getGenesisTime,
   logout
 };
