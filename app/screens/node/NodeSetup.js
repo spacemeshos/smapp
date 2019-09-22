@@ -38,6 +38,17 @@ const DriveName = styled.span`
   color: ${smColors.darkerGreen};
 `;
 
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const Text = styled.div`
+  font-size: 14px;
+  line-height: 18px;
+  color: ${smColors.black};
+`;
+
 const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 
 type Props = {
@@ -122,7 +133,14 @@ class NodeSetup extends Component<Props, State> {
             <br />
             You will need at least 160 GB free space to setup miner
           </SubHeader>
-          {drives.length ? <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} /> : null}
+          {drives.length ? (
+            <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
+          ) : (
+            <EmptyState>
+              <Text>Insufficient disk space. You need a local hard drive with at least 256GB of free space to setup mining.</Text>
+              <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
+            </EmptyState>
+          )}
         </>
       );
     }
@@ -177,6 +195,8 @@ class NodeSetup extends Component<Props, State> {
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+
+  navigateToNodeSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup?id=step-2-full-node-amp-mining-setup');
 }
 
 const mapStateToProps = (state) => ({
