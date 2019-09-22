@@ -131,6 +131,7 @@ class ChangePassword extends Component<Props, State> {
         this.timeOut = await setTimeout(async () => {
           generateEncryptionKey({ password });
           await updateAccountsInFile({ accounts });
+          this.setState({ isEditMode: false, isLoaderVisible: false });
         }, 500);
       } catch (error) {
         this.setState(() => {

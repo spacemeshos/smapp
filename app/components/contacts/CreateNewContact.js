@@ -17,8 +17,8 @@ const Wrapper = styled.div`
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 22px;
+  font-size: 15px;
+  line-height: 20px;
   color: ${({ isStandalone }) => (isStandalone ? smColors.white : smColors.realBlack)};
 `;
 
