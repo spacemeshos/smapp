@@ -58,8 +58,8 @@ export const generateEncryptionKey = ({ password }: { password: string }): Actio
 export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const walletNumber = localStorageService.get('walletNumber');
-  const accountNumber = localStorageService.get('accountNumber');
+  const walletNumber = localStorageService.get('walletNumber') || '0';
+  const accountNumber = localStorageService.get('accountNumber') || '0';
   const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
   const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
   const meta = {
