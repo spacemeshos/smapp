@@ -125,7 +125,9 @@ class SendCoins extends Component<Props, State> {
   };
 
   updateTxAddress = ({ address }: { address: string }) => {
-    this.setState({ address, hasAddressError: false });
+    if (address.length === 64) {
+      this.setState({ address, hasAddressError: false });
+    }
   };
 
   updateTxAmount = ({ value }: { value: string }) => {

@@ -35,6 +35,11 @@ const Text = styled.span`
   margin-bottom: 10px;
 `;
 
+const LinkWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 type Props = {
   onFilesAdded: Function,
   fileName: string,
@@ -57,13 +62,28 @@ class DragAndDrop extends Component<Props, State> {
   render() {
     const { fileName, hasError } = this.props;
     const { isDragging } = this.state;
+    let preLinkText;
+    let linkText;
+    if (hasError) {
+      preLinkText = 'click to';
+      linkText = 'browse again';
+    } else if (fileName) {
+      preLinkText = 'or browse for';
+      linkText = 'another file';
+    } else {
+      preLinkText = 'or click to';
+      linkText = 'browse computer';
+    }
     return (
       <Wrapper onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop} isDragging={isDragging} hasError={hasError}>
         <input ref={this.fileInputRef} type="file" onChange={this.onFilesAdded} style={{ display: 'none' }} />
         <MsgWrapper>
           {!fileName && <Image src={hasError ? incorrectFile : upload} />}
           <Text>{hasError ? 'incorrect file' : fileName || 'Drop a wallet restore file here'}</Text>
-          <Link onClick={this.openFileDialog} text={hasError ? 'click to browse again' : 'or locate a wallet backup file' || 'or click to browse computer'} />
+          <LinkWrapper>
+            <Text>{preLinkText}&nbsp;</Text>
+            <Link onClick={this.openFileDialog} text={linkText} />
+          </LinkWrapper>
         </MsgWrapper>
       </Wrapper>
     );

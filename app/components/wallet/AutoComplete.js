@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 import { getAbbreviatedText } from '/infra/utils';
-import { addContact } from '/assets/images';
+import { addContact, chevronBottomBlack } from '/assets/images';
 import type { Contact } from '/types';
 
 const ROW_HEIGHT = 40;
@@ -48,6 +48,15 @@ const AddToContactsImg = styled.img`
   height: 20px;
   cursor: pointer;
   margin: 0 5px;
+`;
+
+const Chevron = styled.img`
+  height: 11px;
+  width: 22px;
+  margin: 0 10px;
+  transform: rotate(${({ isOpened }) => (isOpened ? '180' : '0')}deg);
+  transition: transform 0.2s linear;
+  cursor: pointer;
 `;
 
 const ItemsWrapper = styled.div`
@@ -106,7 +115,8 @@ type Props = {
 type State = {
   address: string,
   filteredContacts: Contact[],
-  isUnsavedAddress: boolean
+  isUnsavedAddress: boolean,
+  isSuggestionListVisible: boolean
 };
 
 class AutoComplete extends Component<Props, State> {
@@ -120,19 +130,21 @@ class AutoComplete extends Component<Props, State> {
     this.state = {
       address: initialAddress,
       filteredContacts: [],
-      isUnsavedAddress: false
+      isUnsavedAddress: false,
+      isSuggestionListVisible: false
     };
 
     this.myRef = React.createRef();
   }
 
   render() {
-    const { address, filteredContacts, isUnsavedAddress } = this.state;
+    const { address, filteredContacts, isUnsavedAddress, isSuggestionListVisible } = this.state;
     return (
       <Wrapper>
         <HeaderWrapper>
           <ActualInput value={address} onKeyPress={this.onEnterPress} onChange={this.onChange} type="text" maxLength="64" ref={this.myRef} />
           {isUnsavedAddress && <AddToContactsImg src={addContact} onClick={this.openCreateNewContact} />}
+          {<Chevron onClick={this.openSuggestions} isOpened={isSuggestionListVisible} src={chevronBottomBlack} />}
         </HeaderWrapper>
         {filteredContacts.length ? <ItemsWrapper>{filteredContacts.map((item, index) => this.renderRow({ item, index }))}</ItemsWrapper> : null}
       </Wrapper>
@@ -168,7 +180,7 @@ class AutoComplete extends Component<Props, State> {
       clearTimeout(this.debounce);
       onChange({ address });
       const filteredContacts = contacts.filter((contact) => contact.address.indexOf(address) !== -1 || contact.nickname.indexOf(address) !== -1);
-      this.setState({ address, filteredContacts: [], isUnsavedAddress: filteredContacts.length === 0 });
+      this.setState({ address, filteredContacts: [], isUnsavedAddress: filteredContacts.length === 0, isSuggestionListVisible: false });
     }
   };
 
@@ -194,7 +206,13 @@ class AutoComplete extends Component<Props, State> {
     event.preventDefault();
     clearTimeout(this.debounce);
     onChange({ address: item.address });
-    this.setState({ address: item.address, filteredContacts: [], isUnsavedAddress: false });
+    this.setState({ address: item.address, filteredContacts: [], isSuggestionListVisible: false, isUnsavedAddress: false });
+  };
+
+  openSuggestions = () => {
+    const { contacts } = this.props;
+    const { isSuggestionListVisible } = this.state;
+    this.setState({ isSuggestionListVisible: !isSuggestionListVisible, filteredContacts: isSuggestionListVisible ? [] : contacts });
   };
 
   openCreateNewContact = () => {
