@@ -194,7 +194,7 @@ class CreateWallet extends Component<Props, State> {
     return !passwordError && !verifyPasswordError;
   };
 
-  nextAction = async () => {
+  nextAction = () => {
     const { history, location, miningStatus } = this.props;
     const { subMode } = this.state;
     const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
