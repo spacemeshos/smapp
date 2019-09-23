@@ -231,13 +231,6 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    const { isConnected, miningStatus, getMiningStatus } = this.props;
-    if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
-      getMiningStatus();
-    }
-  }
-
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
     if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {

@@ -83,7 +83,7 @@ class ChangePassword extends Component<Props, State> {
           {isEditMode ? (
             [
               <Link onClick={this.updatePassword} text="SAVE" style={{ marginRight: 15 }} key="change" />,
-              <Link onClick={this.cancelUpdatingPassword} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+              <Link onClick={this.clearFields} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
             ]
           ) : (
             <Link onClick={this.startUpdatingPassword} text="CHANGE" />
@@ -107,8 +107,8 @@ class ChangePassword extends Component<Props, State> {
 
   startUpdatingPassword = () => this.setState({ isEditMode: true });
 
-  cancelUpdatingPassword = () => {
-    this.setState({ password: '', isEditMode: false, passwordError: '', verifyPasswordError: '' });
+  clearFields = () => {
+    this.setState({ password: '', verifiedPassword: '', isEditMode: false, passwordError: '', verifyPasswordError: '', isLoaderVisible: false });
   };
 
   validate = () => {
@@ -131,6 +131,7 @@ class ChangePassword extends Component<Props, State> {
         this.timeOut = await setTimeout(async () => {
           generateEncryptionKey({ password });
           await updateAccountsInFile({ accounts });
+          this.clearFields();
         }, 500);
       } catch (error) {
         this.setState(() => {
