@@ -128,11 +128,7 @@ class App extends React.Component<Props, State> {
     const isConnected = await store.dispatch(checkNodeConnection());
     isConnected && (await store.dispatch(getMiningStatus()));
     this.connectionAndMiningInterval = setInterval(async () => {
-      const isConnected = await store.dispatch(checkNodeConnection());
-      const miningStatus = isConnected ? await store.dispatch(getMiningStatus()) : nodeConsts.NOT_MINING;
-      if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
-        store.dispatch(getMiningStatus());
-      }
+      await store.dispatch(checkNodeConnection());
     }, connectionAndMiningIntervalTime);
   };
 }
