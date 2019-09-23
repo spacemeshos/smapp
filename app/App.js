@@ -124,8 +124,7 @@ class App extends React.Component<Props, State> {
 
   connectionAndMiningFlow = async () => {
     const connectionAndMiningIntervalTime = 360000;
-    const isConnected = await store.dispatch(checkNodeConnection());
-    isConnected && (await store.dispatch(getMiningStatus()));
+    await store.dispatch(getMiningStatus());
     this.connectionAndMiningInterval = setInterval(async () => {
       await store.dispatch(checkNodeConnection());
     }, connectionAndMiningIntervalTime);

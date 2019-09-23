@@ -237,9 +237,7 @@ class Main extends Component<Props, State> {
       getGenesisTime();
     }
     if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => {
-        isConnected && getMiningStatus();
-      }, 3600000);
+      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
     }
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
