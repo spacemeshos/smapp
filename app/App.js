@@ -11,7 +11,6 @@ import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
-import { nodeConsts } from '/vars';
 
 const store: Store = configureStore();
 
