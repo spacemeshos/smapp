@@ -32,7 +32,6 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
-    return nodeConsts.NOT_MINING;
   }
 };
 
