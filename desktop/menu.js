@@ -13,7 +13,6 @@ class MenuBuilder {
     } else {
       this.addInputAndSelectionMenu();
     }
-    this.addInputAndSelectionMenu();
 
     const template = this.buildMenuTemplate();
     const menu = Menu.buildFromTemplate(template);
