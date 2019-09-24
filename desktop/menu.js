@@ -10,7 +10,10 @@ class MenuBuilder {
   buildMenu() {
     if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
       this.addInspectElementMenu();
+    } else {
+      this.addInputAndSelectionMenu();
     }
+    this.addInputAndSelectionMenu();
 
     const template = this.buildMenuTemplate();
     const menu = Menu.buildFromTemplate(template);
@@ -30,6 +33,30 @@ class MenuBuilder {
           }
         }
       ]).popup(this.mainWindow);
+    });
+  }
+
+  addInputAndSelectionMenu() {
+    const selectionMenu = Menu.buildFromTemplate([{ role: 'copy' }, { type: 'separator' }, { role: 'selectall' }]);
+
+    const inputMenu = Menu.buildFromTemplate([
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      { type: 'separator' },
+      { role: 'selectall' }
+    ]);
+
+    this.mainWindow.webContents.on('context-menu', (e, props) => {
+      const { selectionText, isEditable } = props;
+      if (isEditable) {
+        inputMenu.popup(this.mainWindow);
+      } else if (selectionText && selectionText.trim() !== '') {
+        selectionMenu.popup(this.mainWindow);
+      }
     });
   }
 
