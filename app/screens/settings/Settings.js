@@ -213,7 +213,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                upperPartRight={<Link onClick={setNodeIpAddress} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
+                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>
