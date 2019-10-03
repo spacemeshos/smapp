@@ -12,7 +12,10 @@
 
 ![](https://github.com/spacemeshos/smapp/blob/develop/design/release_0.4/smapp_wallet_desktop.png)
 
-# MVP1 Milestone
+# Spacemesh 0.1 Reelease Milestone
+We are currently finalizing the App and the installer - the artifacts of this repo for the Open Testnet Release. The best resource to understand the app functionalith and capabilities is our [Spacemesh Testnet Guide](http://testnet.spacemesh.io)
+
+# MVP1 Milestone (Complete)
 - [Interactive Prototype](https://xd.adobe.com/view/d1d14f8b-4c11-46a9-400b-c0157ecae268-a7e0/?fullscreen)
 - [Desktop Specs and Visual Design Guide](https://docs.google.com/presentation/d/1G20T3KSt3iVmTqPJ7x9bljBA--PrPUNOpRNA9klVRSk/edit?usp=sharing)
 - [Assets](https://drive.google.com/drive/folders/1OHXb15_5uKHsGGMlm0zQ8LSIMRz9C2E7)
