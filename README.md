@@ -1,7 +1,7 @@
 <h1 align="center">
   <a href="https://spacemesh.io"><img width="400" src="https://spacemesh.io/content/images/2019/05/black_logo_hp.png" alt="Spacemesh logo" /></a>
   <p align="center">Smapp - the Spacemesh App 🏦📊</p>
-  <p align="center">Full Node UI + Wallet </p>
+  <p align="center">Full Node UI + Wallet</p>
 </h1>
 
 <p align="center">
@@ -10,7 +10,11 @@
 </a>
 </p>
 
+This repo includes the source code for the `Spacemesh App`. A desktop application for Windows 10, OS X and Linux which includes a full p2p node and a basic wallet. The main artifects of this repo are the app and an app installer for all supported platforms.
+
 ![](https://github.com/spacemeshos/smapp/blob/develop/design/release_0.4/smapp_wallet_desktop.png)
+
+
 
 # Spacemesh 0.1 Release Milestone - WIP
 We are currently finalizing the App and the installer - the artifacts of this repo for the Open Testnet Release. The best resource to understand the app functionality and capabilities is our [Spacemesh Testnet Guide](http://testnet.spacemesh.io). 
