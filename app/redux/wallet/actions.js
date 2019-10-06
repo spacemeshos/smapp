@@ -290,10 +290,11 @@ export const backupWallet = (): Action => async (dispatch: Dispatch, getState: G
     const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
     const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
     const now = new Date();
-    const fileName = `Wallet_Backup_${now.toISOString()}.json`;
+    const timestamp = now.toISOString().replace(/:/, '-');
+    const fileName = `Wallet_Backup_${timestamp}.json`;
     await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
     localStorageService.set('hasBackup', true);
-    localStorageService.set('lastBackupTime', now.toISOString());
+    localStorageService.set('lastBackupTime', timestamp);
   } catch (error) {
     throw createError('Error creating wallet backup!', backupWallet);
   }
