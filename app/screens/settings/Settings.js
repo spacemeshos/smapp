@@ -15,6 +15,8 @@ import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { localStorageService } from '/infra/storageService';
 
+const packageJson = require('../../../package.json');
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -172,6 +174,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
+              <SettingRow upperPartLeft={packageJson.version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
