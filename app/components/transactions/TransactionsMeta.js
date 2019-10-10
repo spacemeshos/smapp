@@ -72,7 +72,7 @@ class TransactionsMeta extends PureComponent<Props> {
 
     return (
       <>
-        <BoldText>traffic</BoldText>
+        <BoldText>activity</BoldText>
         <BoldText>--</BoldText>
         <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${totalFilteredCoins}`}</Text>
         {coinsMeta.map((coinMeta) => (

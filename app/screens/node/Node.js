@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getUpcomingRewards } from '/redux/node/actions';
+import { getUpcomingAwards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -38,7 +38,7 @@ const LogText = styled.div`
   color: ${smColors.black};
 `;
 
-const RewardText = styled(LogText)`
+const AwardText = styled(LogText)`
   color: ${smColors.green};
 `;
 
@@ -106,9 +106,9 @@ const Dots = styled(LeftText)`
 type Props = {
   isConnected: boolean,
   miningStatus: number,
-  timeTillNextReward: number,
+  timeTillNextAward: number,
   totalEarnings: number,
-  getUpcomingRewards: Action,
+  getUpcomingAwards: Action,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -119,7 +119,7 @@ type State = {
 };
 
 class Node extends Component<Props, State> {
-  getUpcomingRewardsInterval: IntervalID;
+  getUpcomingAwardsInterval: IntervalID;
 
   constructor(props) {
     super(props);
@@ -133,10 +133,10 @@ class Node extends Component<Props, State> {
   render() {
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH MINER" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH FULL NODE" style={{ marginRight: 10 }}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <CorneredContainer width={250} height={480} header="MINER LOG">
+        <CorneredContainer width={250} height={480} header="FULL NODE LOG">
           <LogInnerWrapper>
             <LogEntry>
               <LogText>12.09.19 - 13:00</LogText>
@@ -145,7 +145,7 @@ class Node extends Component<Props, State> {
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
               <LogText>12.09.19 - 13:10</LogText>
-              <RewardText>Network reward: 2SMC</RewardText>
+              <AwardText>Network award: 2SMC</AwardText>
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
@@ -160,15 +160,15 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { isConnected, miningStatus, getUpcomingRewards } = this.props;
+    const { isConnected, miningStatus, getUpcomingAwards } = this.props;
     if (isConnected && miningStatus === nodeConsts.IS_MINING) {
-      await getUpcomingRewards();
-      this.getUpcomingRewardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
+      await getUpcomingAwards();
+      this.getUpcomingAwardsInterval = setInterval(getUpcomingAwards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
   }
 
   componentWillUnmount(): * {
-    this.getUpcomingRewardsInterval && clearInterval(this.getUpcomingRewardsInterval);
+    this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
   }
 
   renderMainSection = () => {
@@ -185,7 +185,7 @@ class Node extends Component<Props, State> {
   renderIntro = () => {
     return [
       <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
-      <Text key="2">* You will receive a desktop notification about your mining rewards</Text>,
+      <Text key="2">* You will receive a desktop notification about your mining awards</Text>,
       <Text key="3">* You can close this app, Mining still happens in the background</Text>,
       <BoldText key="4">Important:</BoldText>,
       <Text key="5">* Leave your computer on 24/7 to mine</Text>,
@@ -222,19 +222,19 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { isConnected, timeTillNextReward, totalEarnings } = this.props;
+    const { isConnected, timeTillNextAward, totalEarnings } = this.props;
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
         {isConnected ? 'Connected!' : 'Not connected!'}
       </Status>,
       <TextWrapper key="1">
-        <LeftText>Upcoming reward in</LeftText>
+        <LeftText>Upcoming award in</LeftText>
         <Dots>....................................</Dots>
-        <RightText>{Math.floor(timeTillNextReward / 1000)} min</RightText>
+        <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
-        <LeftText>Total Rewards</LeftText>
+        <LeftText>Total Awards</LeftText>
         <Dots>....................................</Dots>
         <GreenText>{totalEarnings} SMC</GreenText>
       </TextWrapper>,
@@ -262,12 +262,12 @@ class Node extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
   miningStatus: state.node.miningStatus,
-  timeTillNextReward: state.node.timeTillNextReward,
+  timeTillNextAward: state.node.timeTillNextAward,
   totalEarnings: state.node.totalEarnings
 });
 
 const mapDispatchToProps = {
-  getUpcomingRewards
+  getUpcomingAwards
 };
 
 Node = connect<any, any, _, _, _, _>(

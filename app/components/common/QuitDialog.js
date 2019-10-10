@@ -62,8 +62,8 @@ class QuitDialog extends Component<Props, State> {
       <Wrapper>
         <CorneredWrapper>
           <InnerWrapper>
-            <Header>Quit Spacemesh and stop the miner?</Header>
-            <Text>Quitting Spacemesh and stopping the miner may cause you to lose mining rewards.</Text>
+            <Header>Quit Spacemesh and stop the full node?</Header>
+            <Text>Quitting Spacemesh and stopping the full node may cause you to lose mining awards.</Text>
             <ButtonsWrapper>
               <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
               <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
@@ -101,7 +101,7 @@ class QuitDialog extends Component<Props, State> {
     const timer = setTimeout(() => {
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'Miner is running in the background.'
+        notification: 'Full node is running in the background.'
       });
       clearTimeout(timer);
     }, 2500);
