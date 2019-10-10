@@ -128,7 +128,7 @@ class Welcome extends PureComponent<Props> {
             <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
             <TooltipWrapper>
               <TooltipIcon src={tooltip} />
-              <CustomTooltip text="set up only a wallet, you can set up the miner later" />
+              <CustomTooltip text="set up only a wallet, you can set up the full node later" />
             </TooltipWrapper>
           </ComplexLink>
           <ComplexLink>

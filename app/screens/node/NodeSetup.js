@@ -77,7 +77,7 @@ class NodeSetup extends Component<Props, State> {
     super(props);
     const { location } = props;
     this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
-    this.header = this.isOnlyNodeSetup ? 'SETUP NODE' : 'SETUP WALLET + MINER';
+    this.header = this.isOnlyNodeSetup ? 'SETUP NODE' : 'SETUP WALLET + FULL NODE';
     this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
     if (!this.isOnlyNodeSetup) {
       this.steps = ['PROTECT WALLET'].concat(this.steps);
@@ -131,7 +131,7 @@ class NodeSetup extends Component<Props, State> {
             <br />
             Select the hard drive you&#39;d like to use for mining
             <br />
-            You will need at least 160 GB free space to setup miner
+            {`You will need at least ${nodeConsts.COMMITMENT_SIZE} GB free space to setup full node`}
           </SubHeader>
           {drives.length ? (
             <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />

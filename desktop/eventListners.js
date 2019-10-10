@@ -90,12 +90,12 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getGenesisTime({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
-    netService.getUpcomingRewards({ event });
+  ipcMain.on(ipcConsts.GET_UPCOMING_AWARDS, (event) => {
+    netService.getUpcomingAwards({ event });
   });
 
-  ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, (event, request) => {
-    netService.setRewardsAddress({ event, ...request });
+  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {
+    netService.setAwardsAddress({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {

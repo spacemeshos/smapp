@@ -57,7 +57,7 @@ class NetService {
       });
     });
 
-  _getUpcomingRewards = () =>
+  _getUpcomingAwards = () =>
     new Promise((resolve, reject) => {
       this.service.GetUpcomingAwards({}, (error, response) => {
         if (error) {
@@ -158,12 +158,12 @@ class NetService {
     }
   };
 
-  getUpcomingRewards = async ({ event }) => {
+  getUpcomingAwards = async ({ event }) => {
     try {
-      const { value } = await this._getUpcomingRewards();
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, value);
+      const { value } = await this._getUpcomingAwards();
+      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_FAILURE, error.message);
     }
   };
 
@@ -176,12 +176,12 @@ class NetService {
     }
   };
 
-  setRewardsAddress = async ({ event, address }) => {
+  setAwardsAddress = async ({ event, address }) => {
     try {
       const { value } = await this._setAwardsAddress({ address });
-      event.sender.send(ipcConsts.SET_REWARDS_ADDRESS_SUCCESS, value);
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.SET_REWARDS_ADDRESS_FAILURE, error.message);
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
     }
   };
 
