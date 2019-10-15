@@ -203,11 +203,8 @@ class AutoComplete extends Component<Props, State> {
 
   onPaste = () => {
     const { onChange } = this.props;
-    let address = clipboard.readText();
-    if (address.startsWith('0x')) {
-      address = address.substring(2);
-      clipboard.writeText(address);
-    }
+    const clipboardValue = clipboard.readText();
+    const address = clipboardValue.startsWith('0x') ? clipboardValue.substring(2) : clipboardValue;
     this.setState({ address });
     onChange({ address });
   };
