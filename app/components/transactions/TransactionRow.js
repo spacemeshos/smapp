@@ -198,10 +198,7 @@ class TransactionRow extends Component<Props, State> {
           <MainWrapper>
             <Section>
               {isSavedContact && nickname && <DarkGrayText>{nickname.toUpperCase()}</DarkGrayText>}
-              <Text>
-                {getAbbreviatedText(id)}
-                {!isSavedContact && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
-              </Text>
+              <Text>{getAbbreviatedText(id)}</Text>
             </Section>
             <Section>
               <Amount color={color}>{amount}</Amount>
@@ -216,7 +213,9 @@ class TransactionRow extends Component<Props, State> {
                 <TextRow key={detailRow.title}>
                   <BlackText>{detailRow.title}</BlackText>
                   <Dots>...............</Dots>
-                  <BoldText color={detailRow.color || smColors.realBlack}>{detailRow.value}</BoldText>
+                  <BoldText color={detailRow.color || smColors.realBlack}>
+                    {detailRow.value} {!isSavedContact && detailRow.title === 'TO' && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+                  </BoldText>
                 </TextRow>
               ))}
             </LeftDetails>
