@@ -1,4 +1,5 @@
 // @flow
+import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
@@ -142,7 +143,7 @@ class AutoComplete extends Component<Props, State> {
     return (
       <Wrapper>
         <HeaderWrapper>
-          <ActualInput value={address} onKeyPress={this.onEnterPress} onChange={this.onChange} type="text" maxLength="64" ref={this.myRef} />
+          <ActualInput value={address} onKeyPress={this.onEnterPress} onChange={this.onChange} onPaste={this.onPaste} type="text" maxLength="64" ref={this.myRef} />
           {isUnsavedAddress && <AddToContactsImg src={addContact} onClick={this.openCreateNewContact} />}
           {<Chevron onClick={this.openSuggestions} isOpened={isSuggestionListVisible} src={chevronBottomBlack} />}
         </HeaderWrapper>
@@ -198,6 +199,17 @@ class AutoComplete extends Component<Props, State> {
         this.setState({ filteredContacts, isUnsavedAddress: filteredContacts.length === 0 });
       }, 200);
     }
+  };
+
+  onPaste = () => {
+    const { onChange } = this.props;
+    let address = clipboard.readText();
+    if (address.startsWith('0x')) {
+      address = address.substring(2);
+      clipboard.writeText(address);
+    }
+    this.setState({ address });
+    onChange({ address });
   };
 
   handleSelection = ({ event, item }: { event: Event, item: Contact }) => {
