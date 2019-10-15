@@ -197,11 +197,11 @@ class TransactionRow extends Component<Props, State> {
           <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
           <MainWrapper>
             <Section>
-              <DarkGrayText>
-                {isSavedContact ? nickname.toUpperCase() : 'UNKNOWN'}
+              {isSavedContact && nickname && <DarkGrayText>{nickname.toUpperCase()}</DarkGrayText>}
+              <Text>
+                {getAbbreviatedText(id)}
                 {!isSavedContact && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
-              </DarkGrayText>
-              <Text>{getAbbreviatedText(id)}</Text>
+              </Text>
             </Section>
             <Section>
               <Amount color={color}>{amount}</Amount>
