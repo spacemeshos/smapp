@@ -214,7 +214,7 @@ class TransactionRow extends Component<Props, State> {
                   <BlackText>{detailRow.title}</BlackText>
                   <Dots>...............</Dots>
                   <BoldText color={detailRow.color || smColors.realBlack}>
-                    {detailRow.value} {!isSavedContact && detailRow.title === 'TO' && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+                    {detailRow.value} {this.renderAddToContactIcon({ isSent, isSavedContact, title: detailRow.title })}
                   </BoldText>
                 </TextRow>
               ))}
@@ -239,6 +239,11 @@ class TransactionRow extends Component<Props, State> {
       </Wrapper>
     );
   }
+
+  renderAddToContactIcon = ({ isSent, isSavedContact, title }: { isSent: boolean, isSavedContact: boolean, title: string }) => {
+    const isFieldToOrFrom = (isSent && title === 'TO') || (!isSent && title === 'FROM');
+    return !isSavedContact && isFieldToOrFrom && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />;
+  };
 
   handleAddToContacts = (event: Event) => {
     event.stopPropagation();
