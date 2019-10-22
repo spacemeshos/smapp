@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray } from '/assets/images';
 import { smColors } from '/vars';
+import { formatNumber } from '/infra/utils';
 
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
@@ -159,7 +160,7 @@ class Carousel extends Component<Props, State> {
                     <Text>
                       FREE SPACE...
                       <br />
-                      {element.availableDiskSpace} GB
+                      {formatNumber(element.availableDiskSpace)} GB
                     </Text>
                   </TextWrapper>
                 </SlideUpperPart>

@@ -33,4 +33,6 @@ const createError = (message, func) => ({
 const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize: number = 4) =>
   `${addPrefix ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
 
-export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText };
+const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+
+export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText, formatNumber };
