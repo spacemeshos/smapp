@@ -71,6 +71,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
 
+  ipcMain.on(ipcConsts.QUIT_NODE, (event) => {
+    NodeManager.killNodeProcess({ event });
+  });
+
   /**
    ******************************************* gRPS Calls **************************************
    */

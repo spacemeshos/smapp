@@ -111,6 +111,7 @@
     "auto-launch": "5.0.5",
     "bip39": "3.0.2",
     "electron-store": "4.0.0",
+    "find-process": "1.4.2",
     "grpc": "1.22.2",
     "js-xdr": "1.1.2",
     "pbkdf2": "3.0.17",
