@@ -23,15 +23,6 @@ const getPidByName = ({ name }) => {
   });
 };
 
-const runExecutablePath = ({ event, executablePath, eventIdSuccess, eventIdFailure }) => {
-  child(executablePath, (err) => {
-    if (err) {
-      event.sender.send(eventIdFailure, err.message);
-    }
-    event.sender.send(eventIdSuccess);
-  });
-};
-
 class NodeManager {
   static startNode = async ({ event }) => {
     const isDevMode = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
@@ -43,7 +34,12 @@ class NodeManager {
     // TODO: should change prodPath to actual executable file path in prod.
     const prodPath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget === 'windows' ? '' : osTarget}go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
     const executablePath = isDevMode ? devPath : prodPath;
-    runExecutablePath({ event, executablePath, eventIdSuccess: ipcConsts.START_NODE_SUCCESS, eventIdFailure: ipcConsts.START_NODE_FAILURE });
+    child(executablePath, (err) => {
+      if (err) {
+        event.sender.send(ipcConsts.START_NODE_FAILURE, err.message);
+      }
+      event.sender.send(ipcConsts.START_NODE_SUCCESS);
+    });
   };
 
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
