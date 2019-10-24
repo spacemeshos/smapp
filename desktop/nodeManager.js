@@ -52,7 +52,7 @@ class NodeManager {
       } else {
         const pid = await getPidByName({ name: 'go-spacemesh' });
         if (pid === null) {
-          throw new Error(`process corresponding with go-spacemesh was not found!`);
+          event.sender.send(ipcConsts.QUIT_NODE_FAILURE, 'process corresponding with go-spacemesh was not found!');
         }
         process.kill(pid, 'SIGINT');
         event.sender.send(ipcConsts.QUIT_NODE_SUCCESS);
