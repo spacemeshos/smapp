@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import path from 'path';
 import os from 'os';
 import { ipcConsts } from '../app/vars';
@@ -11,13 +12,25 @@ const osTargetNames = {
   Windows_NT: 'windows'
 };
 
+// const getPidByName = async ({ name }) => {
+//   try {
+//     const list = await find('name', name);
+//     return list.length && list[0].pid ? list[0].pid : null;
+//   } catch {
+//     return null;
+//   }
+// };
+
 const getPidByName = async ({ name }) => {
-  try {
-    const list = await find('name', name);
+  return find('name', name).then((list) => {
     return list.length && list[0].pid ? list[0].pid : null;
-  } catch {
-    return null;
-  }
+  });
+  // try {
+  //   const list = await find('name', name);
+  //   return list.length && list[0].pid ? list[0].pid : null;
+  // } catch {
+  //   return null;
+  // }
 };
 
 class NodeManager {
@@ -45,19 +58,16 @@ class NodeManager {
   static killNodeProcess = async ({ event }) => {
     try {
       const isDevMode = process.env.NODE_ENV === 'development';
-      // TODO: remove this when dev mode uses binary node file
       if (isDevMode) {
-        event.sender.send(ipcConsts.QUIT_NODE_SUCCESS);
+        event.returnValue = null;
       } else {
         const pid = await getPidByName({ name: 'go-spacemesh' });
-        if (pid === null) {
-          event.sender.send(ipcConsts.QUIT_NODE_FAILURE, 'process corresponding with go-spacemesh was not found!');
-        }
         process.kill(pid, 'SIGINT');
-        event.sender.send(ipcConsts.QUIT_NODE_SUCCESS);
+        event.returnValue = pid;
       }
     } catch (err) {
-      event.sender.send(ipcConsts.QUIT_NODE_FAILURE, err.message);
+      // could not find or kill node processß
+      event.returnValue = null;
     }
   };
 }

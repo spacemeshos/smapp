@@ -21,20 +21,6 @@ class NodeService {
   static hardRefresh() {
     ipcRenderer.send(ipcConsts.HARD_REFRESH);
   }
-
-  static killNodeProcess() {
-    ipcRenderer.send(ipcConsts.QUIT_NODE);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.QUIT_NODE_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.QUIT_NODE_SUCCESS, ipcConsts.QUIT_NODE_FAILURE] });
-        resolve();
-      });
-      ipcRenderer.once(ipcConsts.QUIT_NODE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.QUIT_NODE_SUCCESS, ipcConsts.QUIT_NODE_FAILURE] });
-        reject(args);
-      });
-    });
-  }
 }
 
 export default NodeService;

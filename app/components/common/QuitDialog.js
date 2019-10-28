@@ -6,7 +6,7 @@ import { CorneredWrapper, Button } from '/basicComponents';
 import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
-import { nodeService } from '/infra/nodeService';
+// import { nodeService } from '/infra/nodeService';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -95,11 +95,7 @@ class QuitDialog extends Component<Props, State> {
   };
 
   handleQuit = async () => {
-    try {
-      await nodeService.killNodeProcess();
-    } catch {
-      // could not kill node process - ignore
-    }
+    ipcRenderer.sendSync(ipcConsts.QUIT_NODE);
     ipcRenderer.send(ipcConsts.QUIT_APP);
   };
 
