@@ -90,7 +90,7 @@ const subHeader = (
   <span>
     <span>Thank you for downloading the spacemesh mining app</span>
     <br />
-    <span>This app will be use free disk space from your computer to mine SMC,</span>
+    <span>This app will use free disk space from your computer to mine SMC,</span>
     <br />
     <span>so you can make transactions and test our technology</span>
     <br />
