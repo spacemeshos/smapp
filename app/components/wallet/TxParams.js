@@ -11,7 +11,7 @@ import AutoComplete from './AutoComplete';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 525px;
+  width: 540px;
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
@@ -80,19 +80,19 @@ const Footer = styled.div`
 // TODO add auto update for fee ranges
 const fees = [
   {
-    fee: 0.001,
+    fee: 1,
     label: '~ 10 min',
-    text: '(FEE 0.001 SMC)'
+    text: '(FEE 1 Shmkl)'
   },
   {
-    fee: 0.003,
+    fee: 2,
     label: '~ 5 min',
-    text: '(FEE 0.003 SMC)'
+    text: '(FEE 2 Shmkls)'
   },
   {
-    fee: 0.005,
+    fee: 3,
     label: '~ 1 min',
-    text: '(FEE 0.005 SMC)'
+    text: '(FEE 3 Shmkls)'
   }
 ];
 

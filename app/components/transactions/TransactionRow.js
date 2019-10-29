@@ -5,7 +5,7 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Tx, Action } from '/types';
 
@@ -179,7 +179,7 @@ class TransactionRow extends Component<Props, State> {
   render() {
     const { isDetailed, note } = this.state;
     const {
-      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname }
+      transaction: { id, isSent, isPending, isRejected, amount, fee, address, date, isSavedContact, nickname }
     } = this.props;
     const color = getColor({ isSent, isPending, isRejected });
     const detailRows = [
@@ -188,8 +188,8 @@ class TransactionRow extends Component<Props, State> {
       { title: 'BLOCK', value: 7701538 }, // TODO: needs real value
       { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(address) },
       { title: 'TO', value: isSent ? getAbbreviatedText(address) : 'Me' },
-      { title: 'VALUE', value: `${amount}` },
-      { title: 'TRANSACTION FEE', value: 0.03 } // TODO: needs real value
+      { title: 'VALUE', value: `${shmklToSmesh(amount)}` },
+      { title: 'TRANSACTION FEE', value: `${fee || 0} Shmkl` }
     ];
     return (
       <Wrapper isDetailed={isDetailed}>
@@ -201,7 +201,7 @@ class TransactionRow extends Component<Props, State> {
               <Text>{getAbbreviatedText(id)}</Text>
             </Section>
             <Section>
-              <Amount color={color}>{amount}</Amount>
+              <Amount color={color}>{parseFloat(shmklToSmesh(amount).toFixed(4))}</Amount>
               <DarkGrayText>{getDateText(date)}</DarkGrayText>
             </Section>
           </MainWrapper>

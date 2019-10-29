@@ -10,6 +10,7 @@ export type Tx = {
   nickname?: string,
   date: string,
   isSavedContact: boolean,
+  fee: number,
   note?: string
 };
 
