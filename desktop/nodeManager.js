@@ -12,25 +12,10 @@ const osTargetNames = {
   Windows_NT: 'windows'
 };
 
-// const getPidByName = async ({ name }) => {
-//   try {
-//     const list = await find('name', name);
-//     return list.length && list[0].pid ? list[0].pid : null;
-//   } catch {
-//     return null;
-//   }
-// };
-
-const getPidByName = async ({ name }) => {
+const getPidByName = ({ name }) => {
   return find('name', name).then((list) => {
     return list.length && list[0].pid ? list[0].pid : null;
   });
-  // try {
-  //   const list = await find('name', name);
-  //   return list.length && list[0].pid ? list[0].pid : null;
-  // } catch {
-  //   return null;
-  // }
 };
 
 class NodeManager {

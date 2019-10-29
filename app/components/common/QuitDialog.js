@@ -6,7 +6,6 @@ import { CorneredWrapper, Button } from '/basicComponents';
 import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
-// import { nodeService } from '/infra/nodeService';
 
 const Wrapper = styled.div`
   position: fixed;
