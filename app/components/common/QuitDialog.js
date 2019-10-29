@@ -93,7 +93,10 @@ class QuitDialog extends Component<Props, State> {
     isMining ? this.setState({ isVisible: true }) : this.handleQuit();
   };
 
-  handleQuit = () => ipcRenderer.send(ipcConsts.QUIT_APP);
+  handleQuit = async () => {
+    ipcRenderer.sendSync(ipcConsts.QUIT_NODE);
+    ipcRenderer.send(ipcConsts.QUIT_APP);
+  };
 
   handleKeepInBackground = () => {
     this.setState({ isVisible: false });

@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - node
+  - 'lts/*'
 
 matrix:
   include:
@@ -23,7 +23,7 @@ cache:
     - $HOME/.cache/electron-builder
 
 before_install:
-  - npm i -g npm@6.10.1
+  - npm i -g npm@6.12.0
   - sh ./fetchNodeBinaries.sh
 
 install:
