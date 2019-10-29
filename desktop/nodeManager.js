@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import path from 'path';
 import os from 'os';
 import { ipcConsts } from '../app/vars';
@@ -44,14 +43,17 @@ class NodeManager {
     try {
       const isDevMode = process.env.NODE_ENV === 'development';
       if (isDevMode) {
+        // eslint-disable-next-line no-param-reassign
         event.returnValue = null;
       } else {
         const pid = await getPidByName({ name: 'go-spacemesh' });
         process.kill(pid, 'SIGINT');
+        // eslint-disable-next-line no-param-reassign
         event.returnValue = pid;
       }
     } catch (err) {
-      // could not find or kill node processß
+      // could not find or kill node process
+      // eslint-disable-next-line no-param-reassign
       event.returnValue = null;
     }
   };
