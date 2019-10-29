@@ -5,12 +5,14 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime, checkNodeConnection } from '/redux/node/actions';
+import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { SecondaryButton } from '/basicComponents';
+import { Logo, QuitDialog } from '/components/common';
+import { OfflineBanner } from '/components/banners';
+import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
-import { logo, sideBar, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
+import { rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -18,11 +20,16 @@ import type { RouterHistory } from 'react-router-dom';
 const Wrapper = styled.div`
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
   height: 100%;
-  padding: 5px 25px 20px 10px;
-  background-color: ${smColors.white};
+`;
+
+const InnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 5px 0 30px 30px;
 `;
 
 const NavBar = styled.div`
@@ -35,50 +42,51 @@ const NavBarPart = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  margin-right: 10px;
 `;
 
 const NavLinksWrapper = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: 10px;
-  margin-left: 30px;
+  margin-left: 140px;
 `;
 
 const NavBarLink = styled.div`
   margin-right: 15px;
   font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 12px;
+  line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
   text-transform: uppercase;
-  color: ${({ isActive }) => (isActive ? smColors.purple : smColors.disabledGray)};
+  color: ${({ isActive }) => (isActive ? smColors.purple : smColors.navLinkGrey)};
   cursor: pointer;
 `;
 
-const Logo = styled.img`
+const RightDecoration = styled.img`
   display: block;
-  width: 130px;
-  height: 40px;
-`;
-
-const SideBar = styled.img`
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 20px;
   height: 100%;
 `;
 
-const InnerWrapper = styled.div`
+const RoutesWrapper = styled.div`
+  position: relative;
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
   height: 100%;
-  background-color: ${smColors.white};
+`;
+
+const CustomTooltip = styled(NavTooltip)`
+  bottom: -45px;
+  right: -27px;
+  width: 110px;
+`;
+
+const TooltipWrapper = styled.div`
+  position: relative;
+  &:hover ${CustomTooltip} {
+    display: block;
+  }
 `;
 
 const bntStyle = { marginRight: 15, marginTop: 10 };
@@ -87,7 +95,6 @@ type Props = {
   isConnected: boolean,
   miningStatus: number,
   getMiningStatus: Action,
-  checkNodeConnection: Action,
   getGenesisTime: Action,
   logout: Action,
   history: RouterHistory,
@@ -95,11 +102,12 @@ type Props = {
 };
 
 type State = {
-  activeRouteIndex: number
+  activeRouteIndex: number,
+  isOfflineBannerVisible: boolean
 };
 
 class Main extends Component<Props, State> {
-  timer: any;
+  miningStatusInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -109,12 +117,14 @@ class Main extends Component<Props, State> {
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 1 : 0;
     this.state = {
-      activeRouteIndex
+      activeRouteIndex,
+      isOfflineBannerVisible: true
     };
 
     this.navMap = [
       () => history.push('/main/node'),
       () => history.push('/main/wallet'),
+      () => history.push('/main/contacts'),
       () => history.push('/main/settings'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/tap'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/help')
@@ -122,75 +132,129 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { activeRouteIndex } = this.state;
+    const { isConnected } = this.props;
+    const { activeRouteIndex, isOfflineBannerVisible } = this.state;
     return (
       <Wrapper>
-        <SideBar src={sideBar} />
-        <NavBar>
+        <Logo />
+        <InnerWrapper>
+          <NavBar>
           <NavBarPart>
-            <Logo src={logo} />
             <NavLinksWrapper>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>MINING</NavBarLink>
-              <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>WALLET</NavBarLink>
+              <TooltipWrapper>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
+                  MINING
+                </NavBarLink>
+                <CustomTooltip text="SETUP OR MANAGE YOUR MINING" withIcon={false} isLinkTooltip />
+              </TooltipWrapper>
+              <TooltipWrapper>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                  WALLET
+                </NavBarLink>
+                <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
+              </TooltipWrapper>
+              <TooltipWrapper>
+                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                  CONTACTS
+                </NavBarLink>
+                <CustomTooltip text="MANAGE YOUR CONTACTS" withIcon={false} isLinkTooltip />
+              </TooltipWrapper>
             </NavLinksWrapper>
           </NavBarPart>
           <NavBarPart>
-            <SecondaryButton
-              onClick={() => this.handleNavigation({ index: 2 })}
-              img={settingsIcon}
-              imgHeight={16}
-              imgWidth={16}
-              isPrimary={activeRouteIndex === 2}
-              style={bntStyle}
-            />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 3 })} img={getCoinsIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 4 })} img={helpIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
-            <SecondaryButton onClick={() => this.handleNavigation({ index: 5 })} img={signOutIcon} imgHeight={16} imgWidth={16} isPrimary={false} style={bntStyle} />
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 3 })}
+                img={settingsIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={activeRouteIndex === 3}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
+              <CustomTooltip text="SETTINGS" withIcon={false} />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 4 })}
+                img={getCoinsIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
+              <CustomTooltip text="GET COINS" withIcon={false} />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 5 })}
+                img={helpIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
+              <CustomTooltip text="HELP" withIcon={false} />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => this.handleNavigation({ index: 6 })}
+                img={signOutIcon}
+                imgHeight={30}
+                imgWidth={30}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+              />
+              <CustomTooltip text="LOGOUT" withIcon={false} />
+            </TooltipWrapper>
           </NavBarPart>
-        </NavBar>
-        <InnerWrapper>
-          <Switch>
-            {routes.main.map((route) => (
-              <Route key={route.path} path={route.path} component={route.component} />
-            ))}
-          </Switch>
+          </NavBar>
+          <RoutesWrapper>
+            {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
+            <Switch>
+              {routes.main.map((route) => (
+                <Route key={route.path} path={route.path} component={route.component} />
+              ))}
+            </Switch>
+          </RoutesWrapper>
         </InnerWrapper>
+        <RightDecoration src={rightDecoration} />
+        <QuitDialog />
       </Wrapper>
     );
   }
 
-  componentDidMount() {
-    const { checkNodeConnection } = this.props;
-    checkNodeConnection();
-    this.timer = setInterval(() => {
-      checkNodeConnection();
-    }, 50000);
-  }
-
-  componentWillUnmount() {
-    this.timer && clearInterval(this.timer);
-  }
-
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus, getMiningStatus } = this.props;
-    if (prevProps.isConnected && !isConnected) {
-      // TODO: Connect to error handler service / modal to indicate a disconnect.
-    } else if (isConnected && miningStatus === nodeConsts.NOT_MINING) {
-      getMiningStatus();
+    const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
+    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
+      getGenesisTime();
     }
-    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
+    }
+    if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+      clearInterval(this.miningStatusInterval);
       notificationsService.notify({
-        title: 'Spacemesh Wallet',
+        title: 'Spacemesh',
         notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
   }
 
-  static getDerivedStateFromProps(props: Props) {
+  static getDerivedStateFromProps(props: Props, prevState: State) {
     const pathname = props.location.pathname;
-    if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1 || pathname.indexOf('contacts') !== -1) {
+    if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
       return { activeRouteIndex: -1 };
+    } else if (pathname.indexOf('contacts') !== -1 && prevState.activeRouteIndex === -1) {
+      return { activeRouteIndex: 2 };
     }
     return null;
   }
@@ -202,22 +266,24 @@ class Main extends Component<Props, State> {
       switch (index) {
         case 0:
         case 1:
-        case 2: {
+        case 2:
+        case 3: {
           this.setState({ activeRouteIndex: index });
           this.navMap[index]();
           break;
         }
-        case 3:
-        case 4: {
+        case 4:
+        case 5: {
           this.navMap[index]();
           break;
         }
-        case 5: {
-          history.push('/');
+        case 6: {
+          history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;
         }
-        default: break;
+        default:
+          break;
       }
     }
   };
@@ -229,7 +295,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  checkNodeConnection,
   getMiningStatus,
   getGenesisTime,
   logout
@@ -240,5 +305,5 @@ Main = connect<any, any, _, _, _, _>(
   mapDispatchToProps
 )(Main);
 
-Main = ScreenErrorBoundary(Main, true);
+Main = ScreenErrorBoundary(Main);
 export default Main;

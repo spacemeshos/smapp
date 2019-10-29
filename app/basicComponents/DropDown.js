@@ -114,13 +114,13 @@ class DropDown extends Component<Props, State> {
 
   componentDidUpdate() {
     const { isOpened } = this.state;
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       if (isOpened) {
         window.addEventListener('click', this.closeDropdown);
       } else {
         window.removeEventListener('click', this.closeDropdown);
       }
-    }, 0);
+    });
   }
 
   renderRow = ({ item, index, rowHeight }: { item: Object, index: number, rowHeight?: number }) => {

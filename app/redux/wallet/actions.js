@@ -35,7 +35,7 @@ const getNewAccountFromTemplate = ({ accountNumber, unixEpochTimestamp, publicKe
   displayName: getAccountName({ accountNumber }),
   created: unixEpochTimestamp,
   path: `0/0/${accountNumber}`,
-  balance: 100, // TODO change to real balance
+  balance: 0,
   pk: publicKey,
   sk: secretKey,
   layerId
@@ -49,17 +49,17 @@ const mergeTxStatuses = () => {
   // const updatedTxList = [];
 };
 
-export const generateEncryptionKey = ({ passphrase }: { passphrase: string }): Action => {
+export const generateEncryptionKey = ({ password }: { password: string }): Action => {
   const salt = cryptoConsts.DEFAULT_SALT;
-  const key = fileEncryptionService.createEncryptionKey({ passphrase, salt });
+  const key = fileEncryptionService.createEncryptionKey({ password, salt });
   return { type: STORE_ENCRYPTION_KEY, payload: { key } };
 };
 
 export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { fileKey, walletFiles } = getState().wallet;
   const unixEpochTimestamp = Math.floor(new Date() / 1000);
-  const walletNumber = localStorageService.get('walletNumber');
-  const accountNumber = localStorageService.get('accountNumber');
+  const walletNumber = localStorageService.get('walletNumber') || 0;
+  const accountNumber = localStorageService.get('accountNumber') || 0;
   const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
   const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
   const meta = {
@@ -85,9 +85,9 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: cipherText.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    dispatch(setCurrentAccount({ index: 0 }));
     dispatch(setTransactions({ transactions: { '0': { layerId: 0, data: [] } } }));
     dispatch(setContacts({ contacts: [] }));
+    dispatch(setCurrentAccount({ index: 0 }));
     localStorageService.set('walletNumber', walletNumber + 1);
     localStorageService.set('accountNumber', accountNumber + 1);
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
@@ -100,7 +100,11 @@ export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({ type
 
 export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({ type: SET_ACCOUNTS, payload: { accounts } });
 
-export const setCurrentAccount = ({ index }: { index: number }): Action => ({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
+export const setCurrentAccount = ({ index }: { index: number }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { transactions } = getState().wallet;
+  dispatch({ type: SET_CURRENT_ACCOUNT_INDEX, payload: { index } });
+  dispatch(setTransactions({ transactions }));
+};
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }): Action => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
@@ -114,8 +118,8 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
     dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
     return files;
   } catch (err) {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: null } });
-    throw createError('Error reading wallet files!', readWalletFiles);
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
+    return [];
   }
 };
 
@@ -167,7 +171,11 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     const balance = await httpService.getBalance({ address: getWalletAddress(accounts[currentAccountIndex].pk) });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    throw createError('Error getting balance!', getBalance);
+    if (typeof error === 'string' && error.includes('account does not exist')) {
+      dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
+    } else {
+      throw createError('Error getting balance!', getBalance);
+    }
   }
 };
 
@@ -181,6 +189,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
     const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: accounts[currentAccountIndex].sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, note } }));
+    return id;
   } catch (error) {
     throw createError('Error sending transaction!', () => sendTransaction({ recipient, amount, price, note }));
   }
@@ -281,10 +290,11 @@ export const backupWallet = (): Action => async (dispatch: Dispatch, getState: G
     const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
     const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
     const now = new Date();
-    const fileName = `Wallet_Backup_${now.toISOString()}.json`;
+    const timestamp = now.toISOString().replace(/:/, '-');
+    const fileName = `Wallet_Backup_${timestamp}.json`;
     await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
     localStorageService.set('hasBackup', true);
-    localStorageService.set('lastBackupTime', now.toISOString());
+    localStorageService.set('lastBackupTime', timestamp);
   } catch (error) {
     throw createError('Error creating wallet backup!', backupWallet);
   }

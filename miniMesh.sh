@@ -7,6 +7,9 @@ if [ "$1" == "clean" ]; then
     exit 0
 fi
 
+#Update images
+docker pull spacemeshos/go-spacemesh:develop
+
 #Run oracle
 docker run -d --rm --expose 3030 -p 3030:3030 --name oracle beckmani/oracle_server
 

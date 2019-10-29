@@ -5,18 +5,10 @@ import { connect } from 'react-redux';
 import { copyFile } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
 import { DragAndDrop } from '/components/auth';
-import { Button, Link, SecondaryButton } from '/basicComponents';
-import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
+import { Button, Link, SecondaryButton, SmallHorizontalPanel } from '/basicComponents';
+import { chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-
-const SideBar = styled.img`
-  position: absolute;
-  top: -30px;
-  right: 0;
-  width: 55px;
-  height: 15px;
-`;
 
 const DdArea = styled.div`
   display: flex;
@@ -53,8 +45,8 @@ class FileRestore extends Component<Props, State> {
     const { history } = this.props;
     const { fileName, hasError } = this.state;
     return (
-      <CorneredContainer width={800} height={480} header="WALLET FILE RESTORE" subHeader="locate your existing wallet file">
-        <SideBar src={smallHorizontalSideBar} />
+      <CorneredContainer width={800} height={480} header="WALLET FILE RESTORE" subHeader="Locate a wallet restore file'">
+        <SmallHorizontalPanel />
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <DdArea>
           <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} />

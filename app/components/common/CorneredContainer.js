@@ -16,7 +16,7 @@ const Wrapper = styled(CorneredWrapper)`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${smColors.black};
+  color: ${smColors.realBlack};
 `;
 
 const SubHeader = styled.div`
@@ -31,7 +31,7 @@ type Props = {
   width: number,
   height: number,
   header: string,
-  subHeader: ?string
+  subHeader?: string
 };
 
 class CorneredContainer extends PureComponent<Props> {
@@ -40,11 +40,13 @@ class CorneredContainer extends PureComponent<Props> {
     return (
       <Wrapper width={width} height={height}>
         <Header>{header}</Header>
-        <SubHeader>
-          --
-          <br />
-          {subHeader}
-        </SubHeader>
+        {subHeader && (
+          <SubHeader>
+            --
+            <br />
+            {subHeader}
+          </SubHeader>
+        )}
         {children}
       </Wrapper>
     );

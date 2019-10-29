@@ -119,7 +119,7 @@ class Welcome extends PureComponent<Props> {
         </Row>
         <Row>
           <Icon src={setup} />
-          <RowText>Setup will use the GPU and may take up to 48 hours</RowText>
+          <RowText>Setup will use your GPU and may take up to 48 hours</RowText>
         </Row>
         <BottomPart>
           <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" />
@@ -128,12 +128,12 @@ class Welcome extends PureComponent<Props> {
             <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
             <TooltipWrapper>
               <TooltipIcon src={tooltip} />
-              <CustomTooltip text="set up a light version now, you can set up the miner later" />
+              <CustomTooltip text="set up only a wallet, you can set up the full node later" />
             </TooltipWrapper>
           </ComplexLink>
           <ComplexLink>
             <Text>GOT A WALLET?</Text>
-            <Link onClick={() => history.push('/auth/restore')} text="RESTORE HERE" />
+            <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />
           </ComplexLink>
           <Button text="SETUP" onClick={() => history.push('/auth/create', { withoutNode: false })} />
         </BottomPart>

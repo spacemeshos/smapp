@@ -44,6 +44,7 @@ type Props = {
   onChange?: ({ value: string }) => void,
   onChangeDebounced?: ({ value: string }) => void,
   onEnterPress?: () => void,
+  onFocus?: ({ target: Object }) => void,
   value: string,
   isDisabled?: boolean,
   placeholder?: string,
@@ -59,7 +60,7 @@ type State = {
 };
 
 class Input extends Component<Props, State> {
-  debounce: any;
+  debounce: TimeoutID;
 
   static defaultProps = {
     type: 'text',
@@ -81,7 +82,7 @@ class Input extends Component<Props, State> {
           placeholder={placeholder}
           onKeyPress={this.onEnterPress}
           onChange={this.onChange}
-          onFocus={() => this.setState({ isFocused: true })}
+          onFocus={this.handleFocus}
           onBlur={() => this.setState({ isFocused: false })}
           type={type}
           maxLength={maxLength}
@@ -115,6 +116,14 @@ class Input extends Component<Props, State> {
         this.debounce = setTimeout(() => onChangeDebounced({ value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
       }
     }
+  };
+
+  handleFocus = (event: Event) => {
+    const { onFocus } = this.props;
+    const target = event.target;
+    this.setState({ isFocused: true }, () => {
+      onFocus && onFocus({ target });
+    });
   };
 }
 

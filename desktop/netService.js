@@ -57,7 +57,7 @@ class NetService {
       });
     });
 
-  _getUpcomingRewards = () =>
+  _getUpcomingAwards = () =>
     new Promise((resolve, reject) => {
       this.service.GetUpcomingAwards({}, (error, response) => {
         if (error) {
@@ -140,9 +140,9 @@ class NetService {
     }
   };
 
-  initMining = async ({ event, logicalDrive, commitmentSize, address }) => {
+  initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
     try {
-      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase: address });
+      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase });
       event.sender.send(ipcConsts.INIT_MINING_SUCCESS, value);
     } catch (error) {
       event.sender.send(ipcConsts.INIT_MINING_FAILURE, error.message);
@@ -158,12 +158,12 @@ class NetService {
     }
   };
 
-  getUpcomingRewards = async ({ event }) => {
+  getUpcomingAwards = async ({ event }) => {
     try {
-      const { value } = await this._getUpcomingRewards();
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, value);
+      const { value } = await this._getUpcomingAwards();
+      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, value);
     } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_FAILURE, error.message);
     }
   };
 

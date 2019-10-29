@@ -1,1 +1,3 @@
-export { default as CorneredContainer } from './CorneredContainer'; // eslint-disable-line import/prefer-default-export
+export { default as Logo } from './Logo';
+export { default as CorneredContainer } from './CorneredContainer';
+export { default as QuitDialog } from './QuitDialog';

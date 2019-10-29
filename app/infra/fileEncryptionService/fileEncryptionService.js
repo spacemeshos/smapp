@@ -5,21 +5,21 @@ import * as aes from 'aes-js';
 class FileEncryptionService {
   /**
    * Derives encryption key using provided pin code and salt.
-   * @param passphrase - at least 8 digits/chars combo string.
+   * @param password - at least 8 digits/chars combo string.
    * @param salt - nonce used for encryption.
    * @param callBack - callback for async key derivation func.
    * @return {Buffer} derived key.
    * @throws error if pin code missing or empty string.
    */
-  static createEncryptionKey = ({ passphrase, salt }: { passphrase: string, salt: string }) => {
-    if (!passphrase || !passphrase.length) {
+  static createEncryptionKey = ({ password, salt }: { password: string, salt: string }) => {
+    if (!password || !password.length) {
       throw new Error('missing pin code');
     }
     if (!salt || !salt.length) {
       throw new Error('missing salt');
     }
     // Derive a 32 bytes (256 bits) AES sym enc/dec key from the user provided pin
-    const key = pbkdf2.pbkdf2Sync(passphrase, salt, 1000000, 32, 'sha512');
+    const key = pbkdf2.pbkdf2Sync(password, salt, 1000000, 32, 'sha512');
     return key;
   };
 

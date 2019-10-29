@@ -1,11 +1,12 @@
-export { default as loader } from './loading@2x.gif';
-
-export { default as sideBar } from './sideBar.png';
-export { default as rightSideBar } from './right_side_bar.png';
-export { default as leftSideBar } from './left_side_bar.png';
+export { default as loader } from './loading.gif';
+export { default as rightDecoration } from './right_decoration.svg';
+export { default as sidePanelRightLong } from './side_panel_right_long.svg';
+export { default as sidePanelLeftLong } from './side_panel_left_long.svg';
+export { default as sidePanelRightMed } from './side_panel_right_med.svg';
+export { default as sidePanelLeftMed } from './side_panel_left_med.svg';
 export { default as bigInnerSideBar } from './bigInnerSideBar.png';
 export { default as smallInnerSideBar } from './smallInnerSideBar.png';
-export { default as smallHorizontalSideBar } from './smallHorizontalSideBar.png';
+export { default as horizontalPanelSmall } from './horizontal_panel_small.svg';
 export { default as logo } from './logo.svg';
 export { default as bottomLeftCorner } from './bottom_left.svg';
 export { default as bottomRightCorner } from './bottom_right.svg';
@@ -15,7 +16,6 @@ export { default as chevronRightBlack } from './chevron_right_black.png';
 export { default as chevronLeftBlack } from './chevron_left_black.png';
 export { default as chevronRightGray } from './chevron_right_gray.png';
 export { default as chevronLeftGray } from './chevron_left_gray.png';
-export { default as chevronRightWhite } from './chevron_right_white.png';
 export { default as chevronLeftWhite } from './chevron_left_white.png';
 export { default as chevronBottomBlack } from './chevron_bottom_black.png';
 export { default as checkIconWhite } from './checkIconWhite.png';

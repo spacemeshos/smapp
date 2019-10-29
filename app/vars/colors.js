@@ -1,5 +1,6 @@
 // @flow
 const smColors = {
+  background: '#F3F3F3',
   white: '#FFFFFF',
   lightGray: '#EEEEEE',
   darkGray: '#585858',
@@ -16,7 +17,8 @@ const smColors = {
   realBlack: '#000000',
   black10Alpha: 'rgba(0, 0, 0, 0.1)',
   black02Alpha: 'rgba(0, 0, 0, 0.02)',
-  darkGray50Alpha: 'rgba(64, 64, 64, 0.5)'
+  darkGray50Alpha: 'rgba(64, 64, 64, 0.5)',
+  navLinkGrey: '#CFCFCF'
 };
 
 export default smColors;

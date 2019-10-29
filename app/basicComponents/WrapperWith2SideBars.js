@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { rightSideBar, leftSideBar } from '/assets/images';
+import { sidePanelRightLong, sidePanelLeftLong } from '/assets/images';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -12,12 +12,10 @@ const Wrapper = styled.div`
   background-color: ${smColors.black10Alpha};
 `;
 
-const SideBar = styled.div`
-  width: 10px;
+const SideBar = styled.img`
+  display: block;
+  width: 16px;
   height: 100%;
-  background-image: url(${({ img }) => img});
-  background-size: 10px 100%;
-  background-repeat: repeat-y;
 `;
 
 const MainWrapperInner = styled.div`
@@ -25,12 +23,16 @@ const MainWrapperInner = styled.div`
   flex-direction: column;
   flex: 1;
   margin: 15px;
+  width: calc(100% - 56px);
 `;
 
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${smColors.black};
+  color: ${smColors.realBlack};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const SubHeader = styled.div`
@@ -52,13 +54,13 @@ class WrapperWith2SideBars extends PureComponent<Props> {
     const { width, height, header, children, style } = this.props;
     return (
       <Wrapper width={width} height={height} style={style}>
-        <SideBar img={rightSideBar} />
+        <SideBar src={sidePanelRightLong} />
         <MainWrapperInner>
           <Header>{header}</Header>
           <SubHeader>--</SubHeader>
           {children}
         </MainWrapperInner>
-        <SideBar img={leftSideBar} />
+        <SideBar src={sidePanelLeftLong} />
       </Wrapper>
     );
   }

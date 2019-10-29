@@ -8,9 +8,11 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, dialog } from 'electron';
+import path from 'path';
+import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
 
@@ -23,6 +25,7 @@ export default class AppUpdater {
 }
 
 let mainWindow = null;
+let tray = null;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -33,7 +36,7 @@ if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true')
   require('electron-debug')();
 }
 
-const installExtensions = async () => {
+const installExtensions = () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
@@ -48,6 +51,28 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+const createTray = () => {
+  tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
+  tray.setToolTip('Spacemesh');
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show App',
+      click: () => {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
+      }
+    }
+  ]);
+  tray.setContextMenu(contextMenu);
+  tray.setHighlightMode('never');
+};
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -70,6 +95,7 @@ app.on('ready', async () => {
     await installExtensions();
   }
 
+  createTray();
   createWindow();
 
   mainWindow.loadURL(`file://${__dirname}/app.html`);
@@ -84,25 +110,15 @@ app.on('ready', async () => {
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
-    const options = {
-      title: 'Spacemesh',
-      message: 'Quit app or keep in background?',
-      buttons: ['Keep running in background', 'Quit']
-    };
-    dialog.showMessageBox(mainWindow, options, (response) => {
-      if (response === 0) {
-        mainWindow.hide();
-      }
-      if (response === 1) {
-        mainWindow.destroy();
-        mainWindow = null;
-        app.quit();
-      }
-      if (process.platform === 'darwin') {
-        app.dock.hide();
-      }
-    });
+    mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
   });
+
+  ipcMain.on(ipcConsts.QUIT_APP, () => {
+    mainWindow.destroy();
+    app.quit();
+  });
+
+  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();

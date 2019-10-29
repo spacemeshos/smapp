@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
   z-index: 100;
 `;
 
@@ -30,9 +30,9 @@ type Props = {
 
 class Loader extends PureComponent<Props> {
   static sizes = {
-    SMALL: 25,
-    MEDIUM: 50,
-    BIG: 150
+    SMALL: 50,
+    MEDIUM: 250,
+    BIG: 500
   };
 
   render() {

@@ -1,34 +1,38 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { leftSideBar, rightSideBar, checkIconWhite } from '/assets/images';
+import { sidePanelRightMed, sidePanelLeftMed, checkIconWhite } from '/assets/images';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
-  position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 290px;
   height: 190px;
   margin-right: 15px;
-  padding: 25px;
   background-color: ${smColors.black10Alpha};
 `;
 
-const LeftSideBar = styled.img`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 10px;
+const SideBar = styled.img`
+  display: block;
+  width: 13px;
   height: 100%;
 `;
 
-const RightSideBar = styled.img`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 10px;
-  height: 100%;
+const InnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 25px 15px;
+`;
+
+const Header = styled.div`
+  align-self: center;
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
+  font-family: SourceCodeProBold;
 `;
 
 const StepContainer = styled.div`
@@ -67,26 +71,30 @@ const Icon = styled.img`
 
 type Props = {
   steps: Array<Object>,
+  header: string,
   currentStep: number
 };
 
 class StepsContainer extends PureComponent<Props> {
   render() {
-    const { steps, currentStep } = this.props;
+    const { steps, header, currentStep } = this.props;
     return (
       <Wrapper>
-        <LeftSideBar src={leftSideBar} />
-        <RightSideBar src={rightSideBar} />
-        {steps.map((step, index) => (
-          <StepContainer key={step} isFuture={index > currentStep}>
-            <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>
-              {step}
-            </StepText>
-            <Indicator isCompleted={index < currentStep} isCurrent={index === currentStep}>
-              {index < currentStep ? <Icon src={checkIconWhite} /> : index + 1}
-            </Indicator>
-          </StepContainer>
-        ))}
+        <SideBar src={sidePanelLeftMed} />
+        <InnerWrapper>
+          <Header>{header}</Header>
+          {steps.map((step, index) => (
+            <StepContainer key={step} isFuture={index > currentStep}>
+              <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>
+                {step}
+              </StepText>
+              <Indicator isCompleted={index < currentStep} isCurrent={index === currentStep}>
+                {index < currentStep ? <Icon src={checkIconWhite} /> : index + 1}
+              </Indicator>
+            </StepContainer>
+          ))}
+        </InnerWrapper>
+        <SideBar src={sidePanelRightMed} />
       </Wrapper>
     );
   }

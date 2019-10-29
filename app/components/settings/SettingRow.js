@@ -20,13 +20,13 @@ const UpperPart = styled.div`
 const UpperPartLeft = styled.div`
   display: flex;
   align-items: center;
-  flex: 3;
+  flex: 2;
 `;
 
 const UpperPartRight = styled.div`
   display: flex;
   flex-direction: row;
-  flex: 2;
+  flex: 1;
   justify-content: flex-end;
   align-items: center;
 `;
@@ -58,10 +58,10 @@ class SettingRow extends PureComponent<Props> {
       <Wrapper>
         <UpperPart>
           {upperPart || (
-            <React.Fragment>
+            <>
               <UpperPartLeft>{isUpperPartLeftText ? <Text>{upperPartLeft}</Text> : upperPartLeft}</UpperPartLeft>
               <UpperPartRight>{upperPartRight}</UpperPartRight>
-            </React.Fragment>
+            </>
           )}
         </UpperPart>
         <Name>{rowName}</Name>

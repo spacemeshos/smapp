@@ -5,15 +5,16 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
-import { SettingsSection, SettingRow, ChangePassphrase, SideMenu } from '/components/settings';
-import { Input, Link, Button } from '/basicComponents';
+import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
+import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
 import { autoStartService } from '/infra/autoStartService';
-import { smallHorizontalSideBar } from '/assets/images';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { WalletMeta, Account, Action } from '/types';
+import type { Account, Action } from '/types';
+import { localStorageService } from '/infra/storageService';
+import { version } from '../../../package.json';
 
 const Wrapper = styled.div`
   display: flex;
@@ -26,14 +27,6 @@ const AllSettingsWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-`;
-
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -25px;
-  right: 0;
-  width: 70px;
-  height: 15px;
 `;
 
 const AllSettingsInnerWrapper = styled.div`
@@ -51,14 +44,19 @@ const Text = styled.div`
   color: ${smColors.black};
 `;
 
+const GreenText = styled(Text)`
+  color: ${smColors.green};
+`;
+
 type Props = {
-  meta: WalletMeta,
+  displayName: string,
   accounts: Account[],
   walletFiles: Array<string>,
   updateWalletMeta: Action,
   updateAccount: Action,
   createNewAccount: Action,
   setNodeIpAddress: Action,
+  isConnected: boolean,
   history: RouterHistory,
   nodeIpAddress: string
 };
@@ -80,13 +78,11 @@ class Settings extends Component<Props, State> {
 
   myRef3: any;
 
+  lastBackupTime: ?Date;
+
   constructor(props) {
     super(props);
-    const {
-      meta: { displayName },
-      accounts,
-      nodeIpAddress
-    } = props;
+    const { displayName, accounts, nodeIpAddress } = props;
     const accountDisplayNames = accounts.map((account) => account.displayName);
     this.state = {
       walletDisplayName: displayName,
@@ -101,17 +97,18 @@ class Settings extends Component<Props, State> {
     this.myRef1 = React.createRef();
     this.myRef2 = React.createRef();
     this.myRef3 = React.createRef();
+    const savedLastBackupTime = localStorageService.get('lastBackupTime');
+    this.lastBackupTime = savedLastBackupTime ? new Date(savedLastBackupTime) : null;
   }
 
-  // TODO: add last backup time
   render() {
-    const { accounts, createNewAccount, setNodeIpAddress } = this.props;
+    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
-          <HorizontalBar src={smallHorizontalSideBar} />
+          <SmallHorizontalPanel />
           <AllSettingsInnerWrapper>
             <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1}>
               <SettingRow
@@ -128,21 +125,21 @@ class Settings extends Component<Props, State> {
                 }
                 rowName="Display name"
               />
-              <SettingRow upperPart={<ChangePassphrase />} rowName="Change passphrase" />
+              <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
               <SettingRow
-                upperPartLeft="Last Backup at 08.14.19"
+                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"
               />
               <SettingRow
-                upperPartLeft="Restore wallet from file or mnemonic phrase"
+                upperPartLeft="Restore wallet from backup file or a 12 words list"
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"
               />
               <SettingRow
-                upperPartLeft={`Auto start is ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
+                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
                 rowName="Wallet Auto Start"
@@ -155,16 +152,14 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow
                 upperPart={[
-                  <Text key={1}>Read about the&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy" key={2} />,
+                  <Text key={1}>Read our&nbsp;</Text>,
+                  <Link onClick={() => this.externalNavigation({ to: 'terms' })} text="terms of service" key={2} />,
                   <Text key={3}>,&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'security' })} text="security" key={4} />,
-                  <Text key={5}>, of your personal information, our&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'terms' })} text="terms" key={6} />,
-                  <Text key={7}>&nbsp;and&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'serviceAgreement' })} text="service agreement" key={8} />
+                  <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={4} />,
+                  <Text key={5}>&nbsp;or&nbsp;</Text>,
+                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy statement" key={6} />
                 ]}
-                rowName="Privacy, Security, Terms and Service Agreement"
+                rowName="Legal"
               />
               <SettingRow
                 upperPartLeft="Learn more in our extensive user guide"
@@ -178,11 +173,11 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
+              <SettingRow upperPartLeft={version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
-                upperPartLeft="Created account is ready for use immediately"
-                isUpperPartLeftText
+                upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
                 upperPartRight={<Link onClick={createNewAccount} text="ADD ACCOUNT" width={180} />}
                 rowName="Add a new account"
               />
@@ -213,8 +208,14 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
+                upperPartLeft="Use at your own risk! (Return app to fresh installed state)"
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
+                rowName="Reinstall App"
+              />
+              <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                upperPartRight={<Link onClick={setNodeIpAddress} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0} />}
+                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>
@@ -238,10 +239,7 @@ class Settings extends Component<Props, State> {
   startEditingWalletDisplayName = () => this.setState({ canEditDisplayName: true });
 
   saveEditedWalletDisplayName = () => {
-    const {
-      meta: { displayName },
-      updateWalletMeta
-    } = this.props;
+    const { displayName, updateWalletMeta } = this.props;
     const { walletDisplayName } = this.state;
     this.setState({ canEditDisplayName: false });
     if (!!walletDisplayName && !!walletDisplayName.trim() && walletDisplayName !== displayName) {
@@ -250,15 +248,17 @@ class Settings extends Component<Props, State> {
   };
 
   cancelEditingWalletDisplayName = () => {
-    const {
-      meta: { displayName }
-    } = this.props;
+    const { displayName } = this.props;
     this.setState({ walletDisplayName: displayName, canEditDisplayName: false });
   };
 
   deleteWallet = async () => {
     const { walletFiles } = this.props;
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
+  };
+
+  cleanAllAppDataAndSettings = async () => {
+    fileSystemService.wipeOut();
   };
 
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
@@ -280,6 +280,18 @@ class Settings extends Component<Props, State> {
 
   externalNavigation = ({ to }: { to: string }) => {
     switch (to) {
+      case 'terms': {
+        shell.openExternal('https://testnet.spacemesh.io/#/terms');
+        break;
+      }
+      case 'disclaimer': {
+        shell.openExternal('https://testnet.spacemesh.io/#/disclaimer');
+        break;
+      }
+      case 'privacy': {
+        shell.openExternal('https://testnet.spacemesh.io/#/privacy');
+        break;
+      }
       case 'userGuide': {
         shell.openExternal('https://testnet.spacemesh.io');
         break;
@@ -336,7 +348,8 @@ class Settings extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  meta: state.wallet.meta,
+  isConnected: state.node.isConnected,
+  displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
   nodeIpAddress: state.node.nodeIpAddress

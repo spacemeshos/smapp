@@ -1,49 +1,53 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
+import NodeManager from './nodeManager';
 import DiskStorageManager from './diskStorageManager';
+// eslint-disable-next-line import/no-cycle
 import netService from './netService';
 import WalletAutoStarter from './autoStartManager';
 
 const subscribeToEventListeners = ({ mainWindow }) => {
-  ipcMain.on(ipcConsts.READ_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.READ_FILE, (event, request) => {
     FileManager.readFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.COPY_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.COPY_FILE, (event, request) => {
     FileManager.copyFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.READ_DIRECTORY, async (event) => {
+  ipcMain.on(ipcConsts.READ_DIRECTORY, (event) => {
     FileManager.readDirectory({ browserWindow: mainWindow, event });
   });
 
-  ipcMain.on(ipcConsts.SAVE_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.SAVE_FILE, (event, request) => {
     FileManager.writeFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.UPDATE_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.UPDATE_FILE, (event, request) => {
     FileManager.updateFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
+  ipcMain.on(ipcConsts.DELETE_FILE, (event, request) => {
     FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+  });
+
+  ipcMain.on(ipcConsts.WIPE_OUT, () => {
+    FileManager.wipeOut({ browserWindow: mainWindow });
   });
 
   ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
     DiskStorageManager.getDriveList({ event });
   });
 
-  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, async (event, request) => {
+  ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, (event, request) => {
     FileManager.openWalletBackupDirectory({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
-    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: false, webPreferences: { devTools: false } });
-    printerWindow.loadURL(`file://${__dirname}/printer.html`);
-    printerWindow.webContents.on('did-finish-load', () => {
-      printerWindow.webContents.send('LOAD_CONTENT_AND_PRINT', { content: request.content });
-    });
+    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
+    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
+    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
   });
 
   ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
@@ -51,12 +55,24 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     mainWindow.focus();
   });
 
-  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
     WalletAutoStarter.toggleAutoStart();
   });
 
-  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, async (event) => {
+  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
     WalletAutoStarter.isEnabled({ event });
+  });
+
+  ipcMain.on(ipcConsts.START_NODE, (event) => {
+    NodeManager.startNode({ event });
+  });
+
+  ipcMain.on(ipcConsts.HARD_REFRESH, () => {
+    NodeManager.hardRefresh({ browserWindow: mainWindow });
+  });
+
+  ipcMain.once(ipcConsts.QUIT_NODE, (event) => {
+    NodeManager.killNodeProcess({ event });
   });
 
   /**
@@ -78,8 +94,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getGenesisTime({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
-    netService.getUpcomingRewards({ event });
+  ipcMain.on(ipcConsts.GET_UPCOMING_AWARDS, (event) => {
+    netService.getUpcomingAwards({ event });
   });
 
   ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {

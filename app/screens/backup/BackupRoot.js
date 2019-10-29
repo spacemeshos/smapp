@@ -5,8 +5,7 @@ import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { backupWallet } from '/redux/wallet/actions';
-import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '/basicComponents';
-import { smallHorizontalSideBar } from '/assets/images';
+import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
 import type { Action } from '/types';
 import smColors from '/vars/colors';
 
@@ -40,14 +39,6 @@ const RightSection = styled(CorneredWrapper)`
   position: relative;
   display: flex;
   flex-direction: row;
-`;
-
-const HorizontalBar = styled.img`
-  position: absolute;
-  top: -25px;
-  right: 0;
-  width: 70px;
-  height: 15px;
 `;
 
 const MiddleSection = styled.div`
@@ -86,7 +77,7 @@ class BackupRoot extends Component<Props> {
           <Text>Your wallet is encrypted with your password on your computer, but we recommend you backup your wallet for additional security.</Text>
         </WrapperWith2SideBars>
         <RightSection>
-          <HorizontalBar src={smallHorizontalSideBar} />
+          <SmallHorizontalPanel />
           <MiddleSection>
             <MiddleSectionRow>
               <SmallText style={{ marginRight: 22 }}>Basic Security</SmallText>
@@ -95,8 +86,8 @@ class BackupRoot extends Component<Props> {
               </SmallText>
             </MiddleSectionRow>
             <MiddleSectionRow>
-              <Button onClick={this.backupWallet} text="File Backup" isPrimary={false} isContainerFullWidth style={{ marginRight: 22 }} />
-              <Button onClick={this.navigateTo12WordsBackup} text="12 Words Backup" isPrimary={false} isContainerFullWidth />
+              <Button onClick={this.backupWallet} text="FILE BACKUP" isPrimary={false} isContainerFullWidth style={{ marginRight: 22 }} />
+              <Button onClick={this.navigateTo12WordsBackup} text="12 WORDS BACKUP" isPrimary={false} isContainerFullWidth />
             </MiddleSectionRow>
             <BottomRow>
               <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />

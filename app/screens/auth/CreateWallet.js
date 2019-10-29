@@ -4,24 +4,17 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
-import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup } from '/basicComponents';
+import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
-import { smallHorizontalSideBar, chevronRightBlack, chevronLeftWhite } from '/assets/images';
+import { chevronRightBlack, chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+import { nodeConsts } from '/vars';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const SideBar = styled.img`
-  position: absolute;
-  top: -30px;
-  right: 0;
-  width: 55px;
-  height: 15px;
 `;
 
 const UpperPart = styled.div`
@@ -75,6 +68,7 @@ const BottomPart = styled.div`
 
 type Props = {
   generateEncryptionKey: Action,
+  miningStatus: number,
   saveNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
@@ -82,26 +76,26 @@ type Props = {
 
 type State = {
   subMode: 1 | 2,
-  passphrase: string,
-  verifiedPassphrase: string,
-  passphraseError: string,
-  verifyPassphraseError: string,
+  password: string,
+  verifiedPassword: string,
+  passwordError: string,
+  verifyPasswordError: string,
   isLoaderVisible: boolean
 };
 
 class CreateWallet extends Component<Props, State> {
   state = {
     subMode: 1,
-    passphrase: '',
-    verifiedPassphrase: '',
-    passphraseError: '',
-    verifyPassphraseError: '',
+    password: '',
+    verifiedPassword: '',
+    passwordError: '',
+    verifyPasswordError: '',
     isLoaderVisible: false
   };
 
   render() {
-    const { history, location } = this.props;
-    const { isLoaderVisible, subMode, passphrase, verifiedPassphrase, passphraseError, verifyPassphraseError } = this.state;
+    const { history, location, miningStatus } = this.props;
+    const { isLoaderVisible, subMode, password, verifiedPassword, passwordError, verifyPasswordError } = this.state;
     if (isLoaderVisible) {
       return (
         <LoaderWrapper>
@@ -110,42 +104,37 @@ class CreateWallet extends Component<Props, State> {
       );
     }
     const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
-    const isWalletOnlySetup = !!location?.state?.withoutNode;
+    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
     return (
       <Wrapper>
         <StepsContainer
-          steps={isWalletOnlySetup ? ['SETUP WALLET', 'PROTECT WALLET'] : ['SETUP WALLET + MINER', 'PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
-          currentStep={1}
+          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
+          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + FULL NODE'}
+          currentStep={0}
         />
         <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
-          <SideBar src={smallHorizontalSideBar} />
+          <SmallHorizontalPanel />
           {subMode === 1 && (
-            <React.Fragment>
+            <>
               <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
               <UpperPart>
                 <Inputs>
                   <InputSection>
                     <Chevron src={chevronRightBlack} />
-                    <Input value={passphrase} type="password" placeholder="ENTER PASSPHRASE" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
+                    <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
                   </InputSection>
                   <InputSection>
                     <Chevron src={chevronRightBlack} />
-                    <Input
-                      value={verifiedPassphrase}
-                      type="password"
-                      placeholder="VERIFY PASSPHRASE"
-                      onEnterPress={this.handleEnterPress}
-                      onChange={this.handlePasswordVerifyTyping}
-                    />
+                    <Input value={verifiedPassword} type="password" placeholder="VERIFY PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordVerifyTyping} />
                   </InputSection>
                 </Inputs>
                 <ErrorSection>
-                  {(!!passphraseError || !!verifyPassphraseError) && (
-                    <ErrorPopup onClick={() => this.setState({ passphraseError: '', verifyPassphraseError: '' })} text={passphraseError || verifyPassphraseError} />
+                  {(!!passwordError || !!verifyPasswordError) && (
+                    <ErrorPopup onClick={() => this.setState({ passwordError: '', verifyPasswordError: '' })} text={passwordError || verifyPasswordError} />
                   )}
                 </ErrorSection>
               </UpperPart>
-            </React.Fragment>
+            </>
           )}
           <BottomPart>
             <Link onClick={this.navigateToExplanation} text="WALLET GUIDE" />
@@ -160,15 +149,15 @@ class CreateWallet extends Component<Props, State> {
   renderSubHeader = (subMode: number, isWalletOnlySetup: boolean) => {
     return subMode === 1 ? (
       <span>
-        enter your password
+        Enter your password
         <br />
-        it must be at least 8 characters
+        It must be at least 8 characters
       </span>
     ) : (
       <div>
         For future reference, a restore file is now on your computer
         <br />
-        <Link onClick={this.openWalletBackupDirectory} text="Show me where it is!" />
+        <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
         {!isWalletOnlySetup && (
           <span>
             Next, you&#39;re going to commit storage space from your hard
@@ -187,28 +176,28 @@ class CreateWallet extends Component<Props, State> {
   };
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, passphraseError: '' });
+    this.setState({ password: value, passwordError: '' });
   };
 
   handlePasswordVerifyTyping = ({ value }: { value: string }) => {
-    this.setState({ verifiedPassphrase: value, verifyPassphraseError: '' });
+    this.setState({ verifiedPassword: value, verifyPasswordError: '' });
   };
 
   validate = () => {
-    const { passphrase, verifiedPassphrase } = this.state;
+    const { password, verifiedPassword } = this.state;
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPassphraseError = !passphrase || (!!passphrase && passphrase.length < pasMinLength);
-    const hasVerifyPassphraseError = !verifiedPassphrase || passphrase !== verifiedPassphrase;
-    const passphraseError = hasPassphraseError ? `Passphrase has to be ${pasMinLength} characters or more.` : '';
-    const verifyPassphraseError = hasVerifyPassphraseError ? "these passphrases don't match, please try again " : '';
-    this.setState({ passphraseError, verifyPassphraseError });
-    return !passphraseError && !verifyPassphraseError;
+    const hasPasswordError = !password || (!!password && password.length < pasMinLength);
+    const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
+    const passwordError = hasPasswordError ? `Password has to be ${pasMinLength} characters or more.` : '';
+    const verifyPasswordError = hasVerifyPasswordError ? "these passwords don't match, please try again " : '';
+    this.setState({ passwordError, verifyPasswordError });
+    return !passwordError && !verifyPasswordError;
   };
 
   nextAction = () => {
-    const { history, location } = this.props;
+    const { history, location, miningStatus } = this.props;
     const { subMode } = this.state;
-    const isWalletOnlySetup = !!location?.state?.withoutNode;
+    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
     if (subMode === 1 && this.validate()) {
       this.createWallet();
     } else if (subMode === 2) {
@@ -222,12 +211,12 @@ class CreateWallet extends Component<Props, State> {
 
   createWallet = async () => {
     const { generateEncryptionKey, saveNewWallet, location } = this.props;
-    const { passphrase, isLoaderVisible } = this.state;
+    const { password, isLoaderVisible } = this.state;
     if (!isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          await generateEncryptionKey({ passphrase });
+          await generateEncryptionKey({ password });
           saveNewWallet({ mnemonic: location?.state?.mnemonic });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
@@ -246,13 +235,17 @@ class CreateWallet extends Component<Props, State> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  miningStatus: state.node.miningStatus
+});
+
 const mapDispatchToProps = {
   generateEncryptionKey,
   saveNewWallet
 };
 
 CreateWallet = connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(CreateWallet);
 

@@ -85,7 +85,7 @@ type State = {
 };
 
 class RequestCoins extends Component<Props, State> {
-  copiedTimeout: any;
+  copiedTimeout: TimeoutID;
 
   state = {
     isCopied: false
@@ -109,7 +109,7 @@ class RequestCoins extends Component<Props, State> {
         <SubHeader>
           <Text>Request SMC by sharing this address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
-            <AddressText>{getAbbreviatedText(account.pk, 8)}</AddressText>
+            <AddressText>{getAbbreviatedText(account.pk)}</AddressText>
             <CopyIcon src={copyToClipboard} />
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>
@@ -118,7 +118,7 @@ class RequestCoins extends Component<Props, State> {
         <Text>* Send this address to anyone you want to receive a SMC from</Text>
         <Text>* Copy + paste to share via email or a text messaging session</Text>
         <ComplexText>
-          <Text>* You can mine SMC by activating your miner&nbsp;</Text>
+          <Text>* You can mine Spacemesh Coins (SMC) by setting up mining&nbsp;</Text>
           <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
         </ComplexText>
         <Footer>
@@ -135,7 +135,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(account.pk);
+    clipboard.writeText(`0x${account.pk}`);
   }
 
   componentWillUnmount() {
@@ -148,7 +148,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(account.pk);
+    clipboard.writeText(`0x${account.pk}`);
     this.setState({ isCopied: true });
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
   };

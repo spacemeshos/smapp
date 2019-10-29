@@ -4,11 +4,19 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { generateEncryptionKey, unlockWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
+import { LoggedOutBanner } from '/components/banners';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+
+const Text = styled.div`
+  margin: -15px 0 15px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.black};
+`;
 
 const Indicator = styled.div`
   position: absolute;
@@ -70,32 +78,41 @@ const GrayText = styled.div`
 type Props = {
   history: RouterHistory,
   generateEncryptionKey: Action,
-  unlockWallet: Action
+  unlockWallet: Action,
+  location: { state?: { isLoggedOut: boolean } }
 };
 
 type State = {
-  passphrase: string,
-  hasError: boolean
+  password: string,
+  hasError: boolean,
+  isLoggedOutBannerVisible: boolean
 };
 
 class UnlockWallet extends Component<Props, State> {
-  state = {
-    passphrase: '',
-    hasError: false
-  };
+  constructor(props: Props) {
+    super(props);
+    const { location } = props;
+    this.state = {
+      password: '',
+      hasError: false,
+      isLoggedOutBannerVisible: location?.state?.isLoggedOut || false
+    };
+  }
 
   render() {
     const { history } = this.props;
-    const { passphrase, hasError } = this.state;
-    return (
-      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="welcome back to spacemesh">
+    const { isLoggedOutBannerVisible, password, hasError } = this.state;
+    return [
+      isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />,
+      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to spacemesh" key="main">
+        <Text>Please enter your wallet password</Text>
         <Indicator hasError={hasError} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
           <Chevron src={chevronRightBlack} />
-          <Input type="password" placeholder="ENTER PASSWORD" value={passphrase} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
+          <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
           <ErrorSection>
-            {hasError && <ErrorPopup onClick={() => this.setState({ passphrase: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
+            {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
           </ErrorSection>
         </InputSection>
         <BottomPart>
@@ -105,23 +122,23 @@ class UnlockWallet extends Component<Props, State> {
             <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
-          <Button text="Unlock" isDisabled={!passphrase.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
+          <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
         </BottomPart>
       </CorneredContainer>
-    );
+    ];
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ passphrase: value, hasError: false });
+    this.setState({ password: value, hasError: false });
   };
 
   decryptWallet = async () => {
     const { generateEncryptionKey, unlockWallet, history } = this.props;
-    const { passphrase } = this.state;
+    const { password } = this.state;
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
-    if (!!passphrase && passphrase.trim().length >= passwordMinimumLength) {
+    if (!!password && password.trim().length >= passwordMinimumLength) {
       try {
-        generateEncryptionKey({ passphrase });
+        generateEncryptionKey({ password });
         await unlockWallet();
         history.push('/main/wallet');
       } catch (error) {

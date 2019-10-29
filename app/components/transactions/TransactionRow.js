@@ -179,11 +179,9 @@ class TransactionRow extends Component<Props, State> {
   render() {
     const { isDetailed, note } = this.state;
     const {
-      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname, note: propsNote }
+      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname }
     } = this.props;
     const color = getColor({ isSent, isPending, isRejected });
-    // eslint-disable-next-line no-console
-    console.warn('note', note, 'propsnote', propsNote);
     const detailRows = [
       { title: 'TRANSACTION ID', value: getAbbreviatedText(id) },
       { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
@@ -199,11 +197,8 @@ class TransactionRow extends Component<Props, State> {
           <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
           <MainWrapper>
             <Section>
-              <DarkGrayText>
-                {isSavedContact ? nickname.toUpperCase() : 'UNKNOWN'}
-                {!isSavedContact && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
-              </DarkGrayText>
-              <Text>{id}</Text>
+              {isSavedContact && nickname && <DarkGrayText>{nickname.toUpperCase()}</DarkGrayText>}
+              <Text>{getAbbreviatedText(id)}</Text>
             </Section>
             <Section>
               <Amount color={color}>{amount}</Amount>
@@ -218,7 +213,9 @@ class TransactionRow extends Component<Props, State> {
                 <TextRow key={detailRow.title}>
                   <BlackText>{detailRow.title}</BlackText>
                   <Dots>...............</Dots>
-                  <BoldText color={detailRow.color || smColors.realBlack}>{detailRow.value}</BoldText>
+                  <BoldText color={detailRow.color || smColors.realBlack}>
+                    {detailRow.value} {this.renderAddToContactIcon({ isSent, isSavedContact, title: detailRow.title })}
+                  </BoldText>
                 </TextRow>
               ))}
             </LeftDetails>
@@ -242,6 +239,11 @@ class TransactionRow extends Component<Props, State> {
       </Wrapper>
     );
   }
+
+  renderAddToContactIcon = ({ isSent, isSavedContact, title }: { isSent: boolean, isSavedContact: boolean, title: string }) => {
+    const isFieldToOrFrom = (isSent && title === 'TO') || (!isSent && title === 'FROM');
+    return !isSavedContact && isFieldToOrFrom && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />;
+  };
 
   handleAddToContacts = (event: Event) => {
     event.stopPropagation();

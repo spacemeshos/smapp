@@ -7,6 +7,7 @@ import { ipcConsts } from '../app/vars';
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
 const writeFileAsync = util.promisify(fs.writeFile);
+const unlinkFileAsync = util.promisify(fs.unlink);
 
 // Linux: ~/.config/<App Name>
 // Mac OS: ~/Library/Application Support/<App Name>
@@ -28,7 +29,7 @@ class FileManager {
   static openWalletBackupDirectory = async ({ event, lastBackupTime }) => {
     try {
       const files = await readDirectoryAsync(lastBackupTime ? documentsDirPath : appFilesDirPath);
-      const regex = new RegExp(lastBackupTime || '.*.(json)', 'ig');
+      const regex = new RegExp(lastBackupTime || '(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(lastBackupTime ? documentsDirPath : appFilesDirPath, file));
       if (filesWithPath && filesWithPath[0]) {
@@ -84,19 +85,53 @@ class FileManager {
         message: 'All wallet data will be lost. Are You Sure?',
         buttons: ['Delete Wallet File', 'Cancel']
       };
-      dialog.showMessageBox(browserWindow, options, (response) => {
+      dialog.showMessageBox(browserWindow, options, async (response) => {
         if (response === 0) {
-          fs.unlink(filePath, (err) => {
-            if (err) {
-              throw err;
-            }
-          });
-          browserWindow.reload();
+          try {
+            await unlinkFileAsync(filePath);
+            browserWindow.reload();
+          } catch (err) {
+            throw new Error(err);
+          }
         }
       });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error deleting wallet file');
+    }
+  };
+
+  static wipeOut = ({ browserWindow }) => {
+    try {
+      const options = {
+        title: 'Reinstall App',
+        message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
+        buttons: ['Delete All', 'Cancel']
+      };
+      dialog.showMessageBox(browserWindow, options, async (response) => {
+        if (response === 0) {
+          const deleteFolderRecursive = (path) => {
+            if (fs.existsSync(path)) {
+              fs.readdirSync(path).forEach((file) => {
+                const curPath = `${path}/${file}`;
+                if (fs.lstatSync(curPath).isDirectory()) {
+                  // recurse
+                  deleteFolderRecursive(curPath);
+                } else {
+                  // delete file
+                  fs.unlinkSync(curPath);
+                }
+              });
+              fs.rmdirSync(path);
+            }
+          };
+          deleteFolderRecursive(appFilesDirPath);
+          app.exit();
+        }
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error purging app data directory');
     }
   };
 

@@ -2,20 +2,11 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { CorneredContainer } from '/components/common';
-import { Input, Button, Link, SecondaryButton, ErrorPopup } from '/basicComponents';
+import { WrapperWith2SideBars, Input, Button, Link, SecondaryButton, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { cryptoService } from '/infra/cryptoService';
 import { smColors } from '/vars';
-import { smallHorizontalSideBar, chevronLeftWhite } from '/assets/images';
+import { chevronLeftWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
-
-const SideBar = styled.img`
-  position: absolute;
-  top: -30px;
-  right: 0;
-  width: 55px;
-  height: 15px;
-`;
 
 const Table = styled.div`
   display: flex;
@@ -73,8 +64,8 @@ class WordsRestore extends Component<Props, State> {
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <CorneredContainer width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="please enter the 12 words in the right order">
-        <SideBar src={smallHorizontalSideBar} />
+      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order">
+        <SmallHorizontalPanel />
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <Table>
           <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>
@@ -86,7 +77,7 @@ class WordsRestore extends Component<Props, State> {
           <Button onClick={this.restoreWith12Words} text="RESTORE" isDisabled={isDoneDisabled} />
         </BottomSection>
         {hasError && <ErrorPopup onClick={() => this.setState({ hasError: false })} text="this 12 words phrase in incorrect, please try again" style={{ bottom: 15, left: 185 }} />}
-      </CorneredContainer>
+      </WrapperWith2SideBars>
     );
   }
 

@@ -7,8 +7,8 @@ class HttpService {
   /**
    *  ************************************************** NODE MANAGEMENT ********************************************************
    */
-  static initMining({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }) {
-    ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, address });
+  static initMining({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string, commitmentSize: number, coinbase: string }) {
+    ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, coinbase });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.INIT_MINING_SUCCESS, (event, response) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.INIT_MINING_SUCCESS, ipcConsts.INIT_MINING_FAILURE] });
@@ -49,15 +49,15 @@ class HttpService {
     });
   }
 
-  static getUpcomingRewards() {
-    ipcRenderer.send(ipcConsts.GET_UPCOMING_REWARDS);
+  static getUpcomingAwards() {
+    ipcRenderer.send(ipcConsts.GET_UPCOMING_AWARDS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, ipcConsts.GET_UPCOMING_AWARDS_FAILURE] });
         resolve(response);
       });
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_AWARDS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, ipcConsts.GET_UPCOMING_AWARDS_FAILURE] });
         reject(args);
       });
     });
