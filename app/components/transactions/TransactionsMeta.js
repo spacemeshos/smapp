@@ -89,7 +89,7 @@ class TransactionsMeta extends PureComponent<Props> {
           <TextRow key={totalMeta.title}>
             <Text>{totalMeta.title}</Text>
             <Dots>...................</Dots>
-            <Text>{`${totalMeta.coins} SMC`}</Text>
+            <Text>{`${totalMeta.coins} SMH`}</Text>
           </TextRow>
         ))}
       </>

@@ -102,12 +102,12 @@ class RequestCoins extends Component<Props, State> {
     return (
       <Wrapper>
         <Header>
-          Request SMC
+          Request SMH
           <br />
           --
         </Header>
         <SubHeader>
-          <Text>Request SMC by sharing this address:</Text>
+          <Text>Request SMH by sharing this address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
             <AddressText>{getAbbreviatedText(account.pk)}</AddressText>
             <CopyIcon src={copyToClipboard} />
@@ -115,14 +115,14 @@ class RequestCoins extends Component<Props, State> {
           </AddressWrapper>
         </SubHeader>
         <Text>* This address is public and safe to share</Text>
-        <Text>* Send this address to anyone you want to receive a SMC from</Text>
+        <Text>* Send this address to anyone you want to receive a SMH from</Text>
         <Text>* Copy + paste to share via email or a text messaging session</Text>
         <ComplexText>
-          <Text>* You can mine Spacemesh Coins (SMC) by setting up mining&nbsp;</Text>
+          <Text>* You can mine Spacemesh Coins (SMH) by setting up mining&nbsp;</Text>
           <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
         </ComplexText>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="REQUEST SMC GUIDE" />
+          <Link onClick={this.navigateToGuide} text="REQUEST SMH GUIDE" />
           <Button onClick={history.goBack} text="DONE" />
         </Footer>
       </Wrapper>
