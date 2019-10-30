@@ -186,7 +186,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
     const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].pk });
-    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price: price * 1000, amount, secretKey: accounts[currentAccountIndex].sk });
+    const tx = await cryptoService.signTransaction({ accountNonce, recipient, price, amount, secretKey: accounts[currentAccountIndex].sk });
     const id = await httpService.sendTx({ tx });
     dispatch(addTransaction({ tx: { id, isSent: true, isPending: true, address: recipient, date: new Date(), amount: amount + price, fee: price, note } }));
     return id;
