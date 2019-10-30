@@ -35,4 +35,8 @@ const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize
 
 const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 
-export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText, formatNumber };
+const smeshToShmkl = (amount: number) => amount * 10 ** 12;
+
+const shmklToSmesh = (amount: number) => amount / 10 ** 12;
+
+export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText, formatNumber, smeshToShmkl, shmklToSmesh };

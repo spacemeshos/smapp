@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -142,7 +142,7 @@ class AccountsOverview extends Component<Props, State> {
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
-            <BalanceAmount>{balance}</BalanceAmount>
+            <BalanceAmount>{shmklToSmesh(balance)}</BalanceAmount>
             <SmcText>SMC</SmcText>
           </BalanceWrapper>
         </Footer>
