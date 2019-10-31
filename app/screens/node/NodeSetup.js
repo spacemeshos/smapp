@@ -78,7 +78,7 @@ class NodeSetup extends Component<Props, State> {
     const { location } = props;
     this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
     this.header = this.isOnlyNodeSetup ? 'SETUP SMESHER' : 'SETUP WALLET + SMESHER';
-    this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
+    this.steps = ['SELECT DRIVE', 'COMMIT SPACE'];
     if (!this.isOnlyNodeSetup) {
       this.steps = ['PROTECT WALLET'].concat(this.steps);
     }
@@ -149,9 +149,9 @@ class NodeSetup extends Component<Props, State> {
         <SubHeader>
           --
           <br />
-          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
+          Set how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
           <br />
-          like the Smesher to use
+          like to commit for smeshing
         </SubHeader>
         <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
       </>
