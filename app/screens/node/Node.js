@@ -184,14 +184,17 @@ class Node extends Component<Props, State> {
 
   renderIntro = () => {
     return [
-      <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
-      <Text key="2">* You will receive a desktop notification about your smeshing awards</Text>,
-      <Text key="3">* You can close this app, smeshing still happens in the background</Text>,
-      <BoldText key="4">Important:</BoldText>,
-      <Text key="5">* Leave your computer on 24/7 to keep smeshing</Text>,
-      <Text key="6">* Disable your computer from going to sleep</Text>,
+      <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
+      <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
+      <Text key="3">* You can close this window and choose to keep smeshing the background</Text>,
+      <BoldText key="4">Important</BoldText>,
+      <Text key="5">* Leave your computer on 24/7 to smesh and to earn smeshing rewards</Text>,
+      <Text key="6">
+        *{' '}
+        <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+      </Text>,
       <Text key="7">
-        * Important: configure your network to accept incoming app connections.
+        * Configure your network to accept incoming app connections.
         <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
@@ -210,7 +213,7 @@ class Node extends Component<Props, State> {
     return [
       <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">Setup smeshing to earn Smesh awards</Text>,
+      <Text key="3">Setup smeshing to earn Smesh rewards</Text>,
       <br key="4" />,
       <br key="5" />,
       <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space`}</Text>,
@@ -258,6 +261,8 @@ class Node extends Component<Props, State> {
   navigateToMiningGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
   navigateToNetConfigGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/netconfig');
+
+  navigateToPreventComputerSleep = () => shell.openExternal('https://testnet.spacemesh.io/#/no_sleep');
 }
 
 const mapStateToProps = (state) => ({
