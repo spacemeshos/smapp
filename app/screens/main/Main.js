@@ -151,7 +151,7 @@ class Main extends Component<Props, State> {
                 <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
                   WALLET
                 </NavBarLink>
-                <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
+                <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
                 <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>

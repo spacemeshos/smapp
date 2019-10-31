@@ -145,7 +145,7 @@ class Node extends Component<Props, State> {
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
               <LogText>12.09.19 - 13:10</LogText>
-              <AwardText>Network award: 2SMC</AwardText>
+              <AwardText>Network award: 2SMH</AwardText>
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
@@ -210,7 +210,7 @@ class Node extends Component<Props, State> {
     return [
       <BoldText key="1">You are not mining yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">You can start earning SMC to your wallet as soon as you complete the setup</Text>,
+      <Text key="3">You can start earning SMH to your wallet as soon as you complete the setup</Text>,
       <br key="4" />,
       <br key="5" />,
       <Text key="6">This setup uses 5 GB and takes just a few minutes to complete</Text>,
@@ -236,7 +236,7 @@ class Node extends Component<Props, State> {
       <TextWrapper key="2">
         <LeftText>Total Awards</LeftText>
         <Dots>....................................</Dots>
-        <GreenText>{totalEarnings} SMC</GreenText>
+        <GreenText>{totalEarnings} SMH</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />

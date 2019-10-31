@@ -148,7 +148,7 @@ class TxParams extends Component<Props, State> {
     return (
       <Wrapper>
         <Header>
-          <HeaderText>Send SMC</HeaderText>
+          <HeaderText>Send SMH</HeaderText>
           <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
         </Header>
         <SubHeader>--</SubHeader>
@@ -163,8 +163,8 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount to send</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMC" style={{ flex: 1 }} />
-          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMC in your wallet" style={errorPopupStyle} />}
+          <Input value={amount} onChange={updateTxAmount} extraText="SMH" style={{ flex: 1 }} />
+          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMH in your wallet" style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Est. Confirmation time</DetailsText>
@@ -186,7 +186,7 @@ class TxParams extends Component<Props, State> {
           <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
         </DetailsRow>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
+          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
           <Button onClick={nextAction} text="NEXT" />
         </Footer>
       </Wrapper>

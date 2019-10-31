@@ -120,11 +120,11 @@ class TxSent extends Component<Props, State> {
     return (
       <Wrapper>
         <Header>
-          <HeaderText>SMC SENT!</HeaderText>
+          <HeaderText>SMH SENT!</HeaderText>
           <HeaderIcon src={doneIconGreen} />
         </Header>
         <DetailsRow>
-          <DetailsTextRight>SMC</DetailsTextRight>
+          <DetailsTextRight>SMH</DetailsTextRight>
           <DetailsTextLeft>{amount}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
@@ -144,7 +144,7 @@ class TxSent extends Component<Props, State> {
         </DetailsRow>
         {isCopied && <CopiedText>Tx ID copied to clipboard!</CopiedText>}
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
+          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
           <ButtonsBlock>
             <Button onClick={navigateToTxList} text="VIEW TRANSACTION" isPrimary={false} width={170} style={{ marginRight: 20 }} />
             <Button onClick={doneAction} text="DONE" />

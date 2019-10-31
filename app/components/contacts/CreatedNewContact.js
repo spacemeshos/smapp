@@ -73,7 +73,7 @@ class CreatedNewContact extends PureComponent<Props> {
         <MainWrapper>
           <MainWrapperUpperPart>
             <Text>{`"${contact.nickname}" contact created`}</Text>
-            <Button onClick={action} text="SEND SMC" width={100} />
+            <Button onClick={action} text="SEND SMH" width={100} />
           </MainWrapperUpperPart>
           <MainWrapperLowerPart />
         </MainWrapper>
