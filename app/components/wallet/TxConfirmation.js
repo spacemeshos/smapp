@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -111,7 +111,7 @@ class TxConfirmation extends PureComponent<Props> {
     return (
       <Wrapper>
         <Header>
-          <HeaderText>Send SMC</HeaderText>
+          <HeaderText>Send SMH</HeaderText>
           <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
         </Header>
         <SubHeader1>--</SubHeader1>
@@ -129,23 +129,23 @@ class TxConfirmation extends PureComponent<Props> {
           <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>SMC</DetailsTextRight>
+          <DetailsTextRight>SMH</DetailsTextRight>
           <DetailsTextLeft>{amount}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>SMC fee</DetailsTextRight>
+          <DetailsTextRight>Shmkl fee</DetailsTextRight>
           <DetailsTextLeft>{fee}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow isLast>
           <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{amount + fee}</TotalText>
+          <TotalText>{amount + parseFloat(shmklToSmesh(fee).toFixed(4))}</TotalText>
         </DetailsRow>
         <Footer>
           <ComplexButton>
             <SecondaryButton onClick={editTx} img={chevronLeftWhite} imgWidth={10} imgHeight={15} />
             <ComplexButtonText>EDIT TRANSACTION</ComplexButtonText>
           </ComplexButton>
-          <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
+          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
           <Button onClick={doneAction} text="SEND" isDisabled={!isConnected} />
         </Footer>
       </Wrapper>

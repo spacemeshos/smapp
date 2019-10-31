@@ -83,7 +83,7 @@ const BalanceAmount = styled.div`
   color: ${smColors.green};
 `;
 
-const SmcText = styled.div`
+const SmhText = styled.div`
   font-size: 17px;
   line-height: 32px;
   color: ${smColors.green};
@@ -143,7 +143,7 @@ class AccountsOverview extends Component<Props, State> {
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
             <BalanceAmount>{shmklToSmesh(balance)}</BalanceAmount>
-            <SmcText>SMC</SmcText>
+            <SmhText>SMH</SmhText>
           </BalanceWrapper>
         </Footer>
       </WrapperWith2SideBars>
