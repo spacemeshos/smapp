@@ -144,6 +144,7 @@ class NodeSetup extends Component<Props, State> {
         </>
       );
     }
+    // TODO: for Testnet 0.1 purposes only showing one valid space commitment
     return (
       <>
         <SubHeader>
@@ -153,7 +154,7 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
+        <CommitmentSelector freeSpace={Math.min(300, +drives[selectedDriveIndex].availableDiskSpace)} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
       </>
     );
   };

@@ -147,10 +147,11 @@ class CommitmentSelector extends Component<Props, State> {
   renderSelector = () => {
     const { selectedCommitmentIndex, hasInsufficientSpace } = this.state;
     const selectors = [];
-    for (let i = 0; i < 3; i += 1) {
+    // TODO: for Testnet 0.1 purposes only showing one valid space commitment
+    for (let i = 0; i < 1; i += 1) {
       const clickHandler = i === 0 ? () => this.handleClick({ index: i }) : null;
       selectors.push(
-        <SelectorWrapper onClick={clickHandler} key={i} style={{ zIndex: 3 - i }} isDisabled={i !== 0}>
+        <SelectorWrapper onClick={clickHandler} key={i} style={{ zIndex: 1 - i }} isDisabled={i !== 0}>
           <SelectorUpperPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isSelected={selectedCommitmentIndex === i} isDisabled={i !== 0}>
             <TextWrapper>
               <Text>{nodeConsts.COMMITMENT_SIZE * (i + 1)} GB</Text>
