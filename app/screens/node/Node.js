@@ -133,10 +133,10 @@ class Node extends Component<Props, State> {
   render() {
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH FULL NODE" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <CorneredContainer width={250} height={480} header="FULL NODE LOG">
+        <CorneredContainer width={250} height={480} header="SMESHER LOG">
           <LogInnerWrapper>
             <LogEntry>
               <LogText>12.09.19 - 13:00</LogText>
@@ -185,10 +185,10 @@ class Node extends Component<Props, State> {
   renderIntro = () => {
     return [
       <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
-      <Text key="2">* You will receive a desktop notification about your mining awards</Text>,
-      <Text key="3">* You can close this app, Mining still happens in the background</Text>,
+      <Text key="2">* You will receive a desktop notification about your smeshing awards</Text>,
+      <Text key="3">* You can close this app, smeshing still happens in the background</Text>,
       <BoldText key="4">Important:</BoldText>,
-      <Text key="5">* Leave your computer on 24/7 to mine</Text>,
+      <Text key="5">* Leave your computer on 24/7 to keep smeshing</Text>,
       <Text key="6">* Disable your computer from going to sleep</Text>,
       <Text key="7">
         * Important: configure your network to accept incoming app connections.
@@ -196,10 +196,10 @@ class Node extends Component<Props, State> {
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
-        <Link onClick={this.navigateToMiningGuide} text="Learn more about Spacemesh Mining" style={{ fontSize: '16px', lineHeight: '20px' }} />
+        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={{ fontSize: '16px', lineHeight: '20px' }} />
       </Text>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => this.setState({ showIntro: false })} text="GOT IT" width={175} />
       </Footer>
     ];
@@ -208,14 +208,15 @@ class Node extends Component<Props, State> {
   renderPreSetup = () => {
     const { history } = this.props;
     return [
-      <BoldText key="1">You are not mining yet.</BoldText>,
+      <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">You can start earning SMH to your wallet as soon as you complete the setup</Text>,
+      <Text key="3">Setup smeshing to earn Smesh awards</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">This setup uses 5 GB and takes just a few minutes to complete</Text>,
+      <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space`}</Text>,
+      <Text key="7">Once set up is complete, You should start earning Smesh rewards for smeshing in about 48 hours</Text>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => history.push('/main/node-setup', { isOnlyNodeSetup: true })} text="BEGIN SETUP" width={175} />
       </Footer>
     ];
@@ -239,10 +240,10 @@ class Node extends Component<Props, State> {
         <GreenText>{totalEarnings} SMH</GreenText>
       </TextWrapper>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button
           onClick={this.pauseResumeMining}
-          text={isMiningPaused ? 'RESUME MINING' : 'PAUSE MINING'}
+          text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
           width={175}
           imgPosition="before"
           img={isMiningPaused ? playIcon : pauseIcon}
