@@ -145,7 +145,7 @@ class Node extends Component<Props, State> {
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
               <LogText>12.09.19 - 13:10</LogText>
-              <AwardText>Network award: 2SMH</AwardText>
+              <AwardText>Network reward: 2SMH</AwardText>
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
@@ -230,15 +230,15 @@ class Node extends Component<Props, State> {
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
-        {isConnected ? 'Connected!' : 'Not connected!'}
+        {isConnected ? 'Your Smesher is online' : 'Not connected!'}
       </Status>,
       <TextWrapper key="1">
-        <LeftText>Upcoming award in</LeftText>
+        <LeftText>Upcoming reward in</LeftText>
         <Dots>....................................</Dots>
         <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
-        <LeftText>Total Awards</LeftText>
+        <LeftText>Total Rewards</LeftText>
         <Dots>....................................</Dots>
         <GreenText>{totalEarnings} SMH</GreenText>
       </TextWrapper>,
