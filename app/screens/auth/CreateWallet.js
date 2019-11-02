@@ -112,7 +112,7 @@ class CreateWallet extends Component<Props, State> {
           header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + FULL NODE'}
           currentStep={0}
         />
-        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
           <SmallHorizontalPanel />
           {subMode === 1 && (
             <>
@@ -146,7 +146,7 @@ class CreateWallet extends Component<Props, State> {
     );
   }
 
-  renderSubHeader = (subMode: number, isWalletOnlySetup: boolean) => {
+  renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
       <span>
         Enter your password
