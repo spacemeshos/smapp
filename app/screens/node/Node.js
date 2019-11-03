@@ -7,7 +7,7 @@ import { getUpcomingAwards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { playIcon, pauseIcon } from '/assets/images';
+import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Action } from '/types';
@@ -103,6 +103,15 @@ const Dots = styled(LeftText)`
   overflow: hidden;
 `;
 
+const Fireworks = styled.img`
+  position: absolute;
+  top: 50px;
+  max-width: 100%;
+  max-height: 100%;
+  cursor: inherit;
+  opacity: 0.3;
+`;
+
 const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
 
 type Props = {
@@ -186,6 +195,7 @@ class Node extends Component<Props, State> {
 
   renderIntro = () => {
     return [
+      <Fireworks key="fireworks" src={fireworks} />,
       <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
       <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
       <Text key="3">* You can close this window and choose to keep smeshing the background</Text>,
