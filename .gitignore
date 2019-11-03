@@ -39,3 +39,4 @@ ct-libc/
 /release
 .env
 /scripts/release/publishFilesList.json
+/.env
