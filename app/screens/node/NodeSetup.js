@@ -131,7 +131,7 @@ class NodeSetup extends Component<Props, State> {
             <br />
             Select the hard drive you&#39;d like to use for smeshing
             <br />
-            {`You will need at least ${nodeConsts.COMMITMENT_SIZE} GB free space to setup smeshing`}
+            {`You need to commit ${nodeConsts.COMMITMENT_SIZE} GB of free space on your drive`}
           </SubHeader>
           {drives.length ? (
             <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
