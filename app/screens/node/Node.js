@@ -103,6 +103,8 @@ const Dots = styled(LeftText)`
   overflow: hidden;
 `;
 
+const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
+
 type Props = {
   isConnected: boolean,
   miningStatus: number,
@@ -145,7 +147,7 @@ class Node extends Component<Props, State> {
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
               <LogText>12.09.19 - 13:10</LogText>
-              <AwardText>Network award: 2SMH</AwardText>
+              <AwardText>Network reward: 2SMH</AwardText>
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
             <LogEntry>
@@ -184,19 +186,21 @@ class Node extends Component<Props, State> {
 
   renderIntro = () => {
     return [
-      <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
-      <Text key="2">* You will receive a desktop notification about your smeshing awards</Text>,
-      <Text key="3">* You can close this app, smeshing still happens in the background</Text>,
-      <BoldText key="4">Important:</BoldText>,
-      <Text key="5">* Leave your computer on 24/7 to keep smeshing</Text>,
-      <Text key="6">* Disable your computer from going to sleep</Text>,
+      <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
+      <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
+      <Text key="3">* You can close this window and choose to keep smeshing the background</Text>,
+      <BoldText key="4">Important</BoldText>,
+      <Text key="5">* Leave your computer on 24/7 to smesh and to earn smeshing rewards</Text>,
+      <Text key="6">
+        * <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={inlineLinkStyle} />
+      </Text>,
       <Text key="7">
-        * Important: configure your network to accept incoming app connections.
-        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+        * Configure your network to accept incoming app connections.
+        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={inlineLinkStyle} />
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
-        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={{ fontSize: '16px', lineHeight: '20px' }} />
+        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={inlineLinkStyle} />
       </Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -210,7 +214,7 @@ class Node extends Component<Props, State> {
     return [
       <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">Setup smeshing to earn Smesh awards</Text>,
+      <Text key="3">Setup smeshing to earn Smesh rewards</Text>,
       <br key="4" />,
       <br key="5" />,
       <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space`}</Text>,
@@ -227,15 +231,15 @@ class Node extends Component<Props, State> {
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
-        {isConnected ? 'Connected!' : 'Not connected!'}
+        {isConnected ? 'Your Smesher is online' : 'Not connected!'}
       </Status>,
       <TextWrapper key="1">
-        <LeftText>Upcoming award in</LeftText>
+        <LeftText>Upcoming reward in</LeftText>
         <Dots>....................................</Dots>
         <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
-        <LeftText>Total Awards</LeftText>
+        <LeftText>Total Rewards</LeftText>
         <Dots>....................................</Dots>
         <GreenText>{totalEarnings} SMH</GreenText>
       </TextWrapper>,
@@ -258,6 +262,8 @@ class Node extends Component<Props, State> {
   navigateToMiningGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
   navigateToNetConfigGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/netconfig');
+
+  navigateToPreventComputerSleep = () => shell.openExternal('https://testnet.spacemesh.io/#/no_sleep');
 }
 
 const mapStateToProps = (state) => ({
