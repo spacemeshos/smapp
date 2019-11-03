@@ -88,7 +88,7 @@ const TooltipWrapper = styled.div`
 
 const subHeader = (
   <span>
-    <span>Thank you for downloading the spacemesh mining app</span>
+    <span>Thank you for downloading the spacemesh smeshing app</span>
     <br />
     <span>This app will use free disk space from your computer to mine SMH,</span>
     <br />
@@ -128,7 +128,7 @@ class Welcome extends PureComponent<Props> {
             <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
             <TooltipWrapper>
               <TooltipIcon src={tooltip} />
-              <CustomTooltip text="set up only a wallet, you can set up the full node later" />
+              <CustomTooltip text="set up only a wallet, you can set up the Smesher later" />
             </TooltipWrapper>
           </ComplexLink>
           <ComplexLink>

@@ -186,7 +186,7 @@ class Main extends Component<Props, State> {
                 height={35}
                 style={bntStyle}
               />
-              <CustomTooltip text="GET COINS" withIcon={false} />
+              <CustomTooltip text="GET SMESH" withIcon={false} />
             </TooltipWrapper>
             <TooltipWrapper>
               <SecondaryButton
@@ -243,7 +243,7 @@ class Main extends Component<Props, State> {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
+        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }

@@ -118,7 +118,7 @@ class RequestCoins extends Component<Props, State> {
         <Text>* Send this address to anyone you want to receive a SMH from</Text>
         <Text>* Copy + paste to share via email or a text messaging session</Text>
         <ComplexText>
-          <Text>* You can mine Spacemesh Coins (SMH) by setting up mining&nbsp;</Text>
+          <Text>* You can mine SMH by setting up the Smesher&nbsp;</Text>
           <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
         </ComplexText>
         <Footer>
