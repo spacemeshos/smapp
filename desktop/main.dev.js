@@ -71,7 +71,6 @@ const createTray = () => {
     }
   ]);
   tray.setContextMenu(contextMenu);
-  tray.setHighlightMode('never');
 };
 
 const createWindow = () => {

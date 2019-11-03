@@ -64,7 +64,7 @@ class MenuBuilder {
     return [
       isMac
         ? {
-            label: isMac ? app.getName() : '&File',
+            label: isMac ? app.name : '&File',
             submenu: [
               {
                 label: 'About',
