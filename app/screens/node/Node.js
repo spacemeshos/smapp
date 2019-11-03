@@ -103,6 +103,8 @@ const Dots = styled(LeftText)`
   overflow: hidden;
 `;
 
+const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
+
 type Props = {
   isConnected: boolean,
   miningStatus: number,
@@ -190,16 +192,15 @@ class Node extends Component<Props, State> {
       <BoldText key="4">Important</BoldText>,
       <Text key="5">* Leave your computer on 24/7 to smesh and to earn smeshing rewards</Text>,
       <Text key="6">
-        *{' '}
-        <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+        * <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={inlineLinkStyle} />
       </Text>,
       <Text key="7">
         * Configure your network to accept incoming app connections.
-        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={inlineLinkStyle} />
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
-        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={{ fontSize: '16px', lineHeight: '20px' }} />
+        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={inlineLinkStyle} />
       </Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
