@@ -109,7 +109,6 @@ const Fireworks = styled.img`
   max-width: 100%;
   max-height: 100%;
   cursor: inherit;
-  opacity: 0.3;
 `;
 
 const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
@@ -126,7 +125,8 @@ type Props = {
 
 type State = {
   showIntro: boolean,
-  isMiningPaused: boolean
+  isMiningPaused: boolean,
+  showFireworks: boolean
 };
 
 class Node extends Component<Props, State> {
@@ -137,7 +137,8 @@ class Node extends Component<Props, State> {
     const { location } = props;
     this.state = {
       showIntro: !!location?.state?.showIntro,
-      isMiningPaused: false
+      isMiningPaused: false,
+      showFireworks: !!location?.state?.showIntro
     };
   }
 
@@ -176,6 +177,10 @@ class Node extends Component<Props, State> {
       await getUpcomingAwards();
       this.getUpcomingAwardsInterval = setInterval(getUpcomingAwards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
+    const showFireworksTimer = setTimeout(() => {
+      this.setState({ showFireworks: false });
+      clearTimeout(showFireworksTimer);
+    }, 1500);
   }
 
   componentWillUnmount(): * {
@@ -184,9 +189,9 @@ class Node extends Component<Props, State> {
 
   renderMainSection = () => {
     const { miningStatus } = this.props;
-    const { showIntro } = this.state;
+    const { showIntro, showFireworks } = this.state;
     if (showIntro) {
-      return this.renderIntro();
+      return showFireworks ? <Fireworks key="fireworks" src={fireworks} /> : this.renderIntro();
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
     }
@@ -195,7 +200,6 @@ class Node extends Component<Props, State> {
 
   renderIntro = () => {
     return [
-      <Fireworks key="fireworks" src={fireworks} />,
       <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
       <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
       <Text key="3">* You can close this window and choose to keep smeshing the background</Text>,
