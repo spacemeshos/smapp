@@ -137,7 +137,7 @@ class NodeSetup extends Component<Props, State> {
             <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
           ) : (
             <EmptyState>
-              <Text>Insufficient disk space. You need a local hard drive with at least 256GB of free space to setup smeshing.</Text>
+              <Text>{`Insufficient disk space. You need a local hard drive with at least ${nodeConsts.COMMITMENT_SIZE}GB of free space to setup smeshing.`}</Text>
               <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
             </EmptyState>
           )}
