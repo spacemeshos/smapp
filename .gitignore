@@ -38,5 +38,3 @@ ct-libc/
 /node/
 /release
 .env
-/scripts/release/publishFilesList.json
-/.env

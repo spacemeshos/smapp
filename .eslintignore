@@ -62,5 +62,4 @@ package.json
 /configs/
 /proto/
 /desktop/wasm_exec.js
-/scripts/
-/scripts/entitlements.mac.plist
+/scripts/*
