@@ -198,8 +198,8 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
 export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
-    const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
-    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [tx, ...transactions[index].data] } };
+    const index: number = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
+    const updatedTransactions = { ...transactions, [index]: { layerId: transactions[index].layerId, data: [{ ...tx }, ...transactions[index].data] } };
     await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
     dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
@@ -224,7 +224,7 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
 ): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
-    const index = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
+    const index: number = accountPK ? accounts.findIndex((account) => account.pk === accountPK) : currentAccountIndex;
     let transactionsArray: TxList = [];
     if (updateAll) {
       transactionsArray = transactions[index].data.map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));

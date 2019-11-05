@@ -6,12 +6,12 @@ const { Platform, build } = require('electron-builder');
 
 const args = process.argv.slice(2);
 if (args.length < 2 || args[0] !== '--target' || !['mac', 'windows', 'linux', 'mwl'].includes(args[1])) {
-  throw new Error("No valid flags provided. Usage example: 'node ./packagerScript.js --target {mac|linux|windows|mwl}'");
+  throw new Error("No valid flags provided. Usage example: 'node ./scripts/packagerScript.js --target {mac|linux|windows|mwl}'");
 }
 const targets = args[1] === 'mwl' ? ['mac', 'windows', 'linux'] : [args[1]];
 
 if ((args.length > 2 && args.length !== 4) || (args.length === 4 && (args[2] !== '--publish' || !['always', 'never'].includes(args[3])))) {
-  throw new Error("No valid flags provided. Usage example: 'node ./packagerScript.js --target {mac|linux|windows|mwl} --publish {always|never}'");
+  throw new Error("No valid flags provided. Usage example: 'node ./scripts/packagerScript.js --target {mac|linux|windows|mwl} --publish {always|never}'");
 }
 const publishFlagValue = args.length === 4 ? args[3] : 'never';
 
@@ -44,7 +44,7 @@ const nodeFiles = {
   linux: { from: 'node/linux/', to: 'node/' }
 };
 
-const artifactsToPublishFile = path.join(__dirname, 'release', 'publishFilesList.json');
+const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
 try {
   const dirname = path.dirname(artifactsToPublishFile);
   if (!fs.existsSync(dirname)) {
@@ -102,28 +102,33 @@ const getBuildOptions = ({ target, publish }) => {
         'resources/icons/*',
         nodeFiles[target]
       ],
+      mac: {
+        hardenedRuntime: true,
+        gatekeeperAssess: false,
+        entitlements: path.join(__dirname, 'entitlements.mac.plist'),
+        entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
+        target: ['dmg']
+      },
       dmg: {
         window: {
-          width: '350',
+          width: '400',
           height: '380'
         },
-        background: path.join(__dirname, 'resources', 'background.png'),
+        background: path.join(__dirname, '..', 'resources', 'background.png'),
         contents: [
           {
-            x: 300,
+            x: 330,
             y: 180,
             type: 'link',
             path: '/Applications'
           },
           {
-            x: 70,
+            x: 50,
             y: 180,
             type: 'file'
           }
         ],
-        internetEnabled: true,
-        title: 'Spacemesh',
-        sign: false
+        title: 'Spacemesh'
       },
       win: {
         target: 'nsis'
@@ -133,17 +138,23 @@ const getBuildOptions = ({ target, publish }) => {
         perMachine: false,
         allowElevation: true,
         allowToChangeInstallationDirectory: true,
-        runAfterFinish: true
+        runAfterFinish: true,
+        deleteAppDataOnUninstall: true,
+        createDesktopShortcut: true,
+        createStartMenuShortcut: true,
+        shortcutName: 'Spacemesh',
+        uninstallDisplayName: 'Spacemesh (${version})'
       },
       linux: {
         target: ['deb', 'snap', 'AppImage'],
         category: 'Utility',
-        icon: 'resources/icons'
+        icon: path.join(__dirname, '..', 'resources', 'icons')
       },
       directories: {
-        buildResources: 'resources',
-        output: 'release'
+        buildResources: path.join(__dirname, '..', 'resources'),
+        output: path.join(__dirname, '..', 'release')
       },
+      afterSign: path.join(__dirname, 'notarize.js'),
       afterAllArtifactBuild: async (buildResult) => {
         try {
           compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });

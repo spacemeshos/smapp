@@ -37,3 +37,4 @@ ct-libc/
 /desktop/main.prod.js.map
 /node/
 /release
+.env

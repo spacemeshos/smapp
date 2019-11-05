@@ -62,4 +62,4 @@ package.json
 /configs/
 /proto/
 /desktop/wasm_exec.js
-/packagerScript.js
+/scripts/*
