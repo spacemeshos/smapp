@@ -7,7 +7,7 @@ import { getUpcomingAwards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { playIcon, pauseIcon } from '/assets/images';
+import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Action } from '/types';
@@ -103,6 +103,14 @@ const Dots = styled(LeftText)`
   overflow: hidden;
 `;
 
+const Fireworks = styled.img`
+  position: absolute;
+  top: 50px;
+  max-width: 100%;
+  max-height: 100%;
+  cursor: inherit;
+`;
+
 const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
 
 type Props = {
@@ -117,7 +125,8 @@ type Props = {
 
 type State = {
   showIntro: boolean,
-  isMiningPaused: boolean
+  isMiningPaused: boolean,
+  showFireworks: boolean
 };
 
 class Node extends Component<Props, State> {
@@ -128,7 +137,8 @@ class Node extends Component<Props, State> {
     const { location } = props;
     this.state = {
       showIntro: !!location?.state?.showIntro,
-      isMiningPaused: false
+      isMiningPaused: false,
+      showFireworks: !!location?.state?.showIntro
     };
   }
 
@@ -167,6 +177,10 @@ class Node extends Component<Props, State> {
       await getUpcomingAwards();
       this.getUpcomingAwardsInterval = setInterval(getUpcomingAwards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
+    const showFireworksTimer = setTimeout(() => {
+      this.setState({ showFireworks: false });
+      clearTimeout(showFireworksTimer);
+    }, 1500);
   }
 
   componentWillUnmount(): * {
@@ -175,9 +189,9 @@ class Node extends Component<Props, State> {
 
   renderMainSection = () => {
     const { miningStatus } = this.props;
-    const { showIntro } = this.state;
+    const { showIntro, showFireworks } = this.state;
     if (showIntro) {
-      return this.renderIntro();
+      return showFireworks ? <Fireworks key="fireworks" src={fireworks} /> : this.renderIntro();
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
     }
