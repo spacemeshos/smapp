@@ -44,7 +44,7 @@ const nodeFiles = {
   linux: { from: 'node/linux/', to: 'node/' }
 };
 
-const artifactsToPublishFile = path.join(__dirname, 'release', 'publishFilesList.json');
+const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
 try {
   const dirname = path.dirname(artifactsToPublishFile);
   if (!fs.existsSync(dirname)) {
@@ -106,30 +106,29 @@ const getBuildOptions = ({ target, publish }) => {
         hardenedRuntime: true,
         gatekeeperAssess: false,
         entitlements: path.join(__dirname, 'entitlements.mac.plist'),
-        entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist')
+        entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
+        target: ['dmg']
       },
       dmg: {
         window: {
-          width: '350',
+          width: '400',
           height: '380'
         },
         background: path.join(__dirname, '..', 'resources', 'background.png'),
         contents: [
           {
-            x: 300,
+            x: 330,
             y: 180,
             type: 'link',
             path: '/Applications'
           },
           {
-            x: 70,
+            x: 50,
             y: 180,
             type: 'file'
           }
         ],
-        internetEnabled: true,
-        title: 'Spacemesh',
-        sign: false
+        title: 'Spacemesh'
       },
       win: {
         target: 'nsis'
@@ -139,7 +138,12 @@ const getBuildOptions = ({ target, publish }) => {
         perMachine: false,
         allowElevation: true,
         allowToChangeInstallationDirectory: true,
-        runAfterFinish: true
+        runAfterFinish: true,
+        deleteAppDataOnUninstall: true,
+        createDesktopShortcut: true,
+        createStartMenuShortcut: true,
+        shortcutName: 'Spacemesh',
+        uninstallDisplayName: 'Spacemesh (${version})'
       },
       linux: {
         target: ['deb', 'snap', 'AppImage'],
