@@ -3,6 +3,8 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
+// import { Button, Link, Tooltip } from '/basicComponents';
+// import { bigInnerSideBar, laptop, power, setup, tooltip } from '/assets/images';
 import { Button, Link } from '/basicComponents';
 import { bigInnerSideBar, laptop, power, setup } from '/assets/images';
 import { smColors } from '/vars';
@@ -67,6 +69,25 @@ const Text = styled.span`
   margin-right: 5px;
 `;
 
+// const TooltipIcon = styled.img`
+//   width: 13px;
+//   height: 13px;
+// `;
+
+// const CustomTooltip = styled(Tooltip)`
+//   top: -2px;
+//   right: -175px;
+// `;
+
+// const TooltipWrapper = styled.div`
+//   position: absolute;
+//   top: -4px;
+//   right: -14px;
+//   &:hover ${CustomTooltip} {
+//     display: block;
+//   }
+// `;
+
 const subHeader = (
   <span>
     <span>Thank you for downloading the Spacemesh App</span>
@@ -104,6 +125,20 @@ class Welcome extends PureComponent<Props> {
         </Row>
         <BottomPart>
           <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" />
+          {
+            // TODO: Spacemesh 0.1 does not offer a wallet-only mode
+            // <ComplexLink>
+            // eslint-disable-next-line no-irregular-whitespace
+            //   <Text>NO DESKTOP?</Text>
+            // eslint-disable-next-line no-irregular-whitespace
+            //   <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
+            //   <TooltipWrapper>
+            //     <TooltipIcon src={tooltip} />
+            // eslint-disable-next-line no-irregular-whitespace
+            //     <CustomTooltip text="set up only a wallet, you can set up the Smesher later" />
+            //   </TooltipWrapper>
+            // </ComplexLink>
+          }
           <ComplexLink>
             <Text>GOT A WALLET?</Text>
             <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />
