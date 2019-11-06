@@ -3,8 +3,8 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
-import { Button, Link, Tooltip } from '/basicComponents';
-import { bigInnerSideBar, laptop, power, setup, tooltip } from '/assets/images';
+import { Button, Link } from '/basicComponents';
+import { bigInnerSideBar, laptop, power, setup } from '/assets/images';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 
