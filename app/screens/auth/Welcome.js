@@ -67,34 +67,15 @@ const Text = styled.span`
   margin-right: 5px;
 `;
 
-const TooltipIcon = styled.img`
-  width: 13px;
-  height: 13px;
-`;
-
-const CustomTooltip = styled(Tooltip)`
-  top: -2px;
-  right: -175px;
-`;
-
-const TooltipWrapper = styled.div`
-  position: absolute;
-  top: -4px;
-  right: -14px;
-  &:hover ${CustomTooltip} {
-    display: block;
-  }
-`;
-
 const subHeader = (
   <span>
-    <span>Thank you for downloading the spacemesh smeshing app</span>
+    <span>Thank you for downloading the Spacemesh App</span>
     <br />
-    <span>This app will use free disk space from your computer to mine SMH,</span>
+    <span>The App lets you to you join the Spacemesh decentralized Testnet,</span>
     <br />
-    <span>so you can make transactions and test our technology</span>
+    <span>use free disk space on your computer to earn Smesh, and make Smesh transactions using a built-in wallet</span>
     <br />
-    <span>We`re happy to have you on our testnet</span>
+    <span>We`re happy to have you on Spacemesh 0.1</span>
   </span>
 );
 
@@ -111,26 +92,18 @@ class Welcome extends PureComponent<Props> {
         <Indicator />
         <Row>
           <Icon src={laptop} />
-          <RowText>Don&#39;t use a laptop, only use a desktop</RowText>
+          <RowText>Use a desktop computer, not a laptop</RowText>
         </Row>
         <Row>
           <Icon src={power} />
-          <RowText>Leave your desktop on 24/7, at least until setup is fully complete</RowText>
+          <RowText>Leave your desktop computer on 24/7</RowText>
         </Row>
         <Row>
           <Icon src={setup} />
-          <RowText>Setup will use your GPU and may take up to 48 hours</RowText>
+          <RowText>You should start earning Smesh rewards in about 48 hours</RowText>
         </Row>
         <BottomPart>
           <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" />
-          <ComplexLink>
-            <Text>NO DESKTOP?</Text>
-            <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
-            <TooltipWrapper>
-              <TooltipIcon src={tooltip} />
-              <CustomTooltip text="set up only a wallet, you can set up the Smesher later" />
-            </TooltipWrapper>
-          </ComplexLink>
           <ComplexLink>
             <Text>GOT A WALLET?</Text>
             <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />
