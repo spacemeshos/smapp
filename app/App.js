@@ -5,12 +5,14 @@ import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
+import { getWalletUpdateStatus } from '/redux/wallet/actions';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+import { UpdaterModal } from '/components/updater';
 
 const HEALTH_CHECK_INTERVAL = 360000;
 
@@ -25,7 +27,9 @@ setConfig(configOptions);
 type Props = {};
 
 type State = {
-  error: ?Error
+  error: ?Error,
+  walletUpdatePath: string,
+  isUpdateDismissed: boolean
 };
 
 class App extends React.Component<Props, State> {
@@ -34,17 +38,27 @@ class App extends React.Component<Props, State> {
 
   healthCheckInterval: IntervalID;
 
+  updateCheckInterval: IntervalID;
+
   checkConnectionTimer: TimeoutID;
 
   state = {
-    error: null
+    error: null,
+    walletUpdatePath: '',
+    isUpdateDismissed: false
   };
 
   render() {
-    const { error } = this.state;
+    const { error, walletUpdatePath } = this.state;
+
     if (error) {
       return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
+
+    if (walletUpdatePath) {
+      return <UpdaterModal onCloseModal={this.closeUpdateModal} walletUpdatePath={walletUpdatePath} />;
+    }
+
     return (
       <>
         <GlobalStyle />
@@ -63,7 +77,20 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
+    const { isUpdateDismissed } = this.state;
     this.clearTimers();
+    try {
+      await this.checkForUpdate();
+      if (!isUpdateDismissed) {
+        this.updateCheckInterval = setInterval(async () => {
+          await this.checkForUpdate();
+        }, 86400000);
+      }
+    } catch {
+      this.setState({
+        error: new Error('Wallet update check has failed.')
+      });
+    }
     const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       try {
@@ -87,6 +114,7 @@ class App extends React.Component<Props, State> {
   clearTimers = () => {
     this.healthCheckInterval && clearInterval(this.healthCheckInterval);
     this.startNodeInterval && clearInterval(this.startNodeInterval);
+    this.updateCheckInterval && clearInterval(this.updateCheckInterval);
     this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
   };
 
@@ -119,6 +147,15 @@ class App extends React.Component<Props, State> {
         }
       }, intervalTime);
     });
+  };
+
+  checkForUpdate = async () => {
+    const { walletUpdatePath }: { walletUpdatePath: string } = await store.dispatch(getWalletUpdateStatus());
+    this.setState({ walletUpdatePath });
+  };
+
+  closeUpdateModal = async ({ isUpdateDismissed }: { isUpdateDismissed: boolean }) => {
+    this.setState({ walletUpdatePath: '', isUpdateDismissed });
   };
 
   healthCheckFlow = async () => {

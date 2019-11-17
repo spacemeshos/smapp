@@ -1,7 +1,7 @@
 {
   "name": "smapp",
   "productName": "Spacemesh",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Spacemech",
     "email": "info@spacemesh.io",
@@ -24,6 +24,7 @@
     "package-win": "npm run build && node ./scripts/packagerScript.js --target windows",
     "package-linux": "npm run build && node ./scripts/packagerScript.js --target linux",
     "package-ci": "npm run build && node ./scripts/packagerScript.js --target mwl --publish always",
+    "package-mac-ci": "npm run build && node ./scripts/packagerScript.js --target mac --publish always",
     "postinstall": "npm run flow-typed && electron-builder install-app-deps && npm run build-dll",
     "prestart": "npm run build",
     "start": "cross-env NODE_ENV=production electron ./desktop/main.prod.js",

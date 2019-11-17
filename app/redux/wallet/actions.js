@@ -3,6 +3,7 @@ import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } 
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { cryptoService } from '/infra/cryptoService';
 import { fileSystemService } from '/infra/fileSystemService';
+import { walletUpdateService } from '/infra/walletUpdateService';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
 import { getWalletName, getAccountName, createError, getWalletAddress } from '/infra/utils';
@@ -20,6 +21,8 @@ export const SET_CONTACTS: string = 'SET_CONTACTS';
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE: string = 'SET_BALANCE';
+
+export const GET_AUTO_UPDATE_STATUS: string = 'GET_AUTO_UPDATE_STATUS';
 
 const getMaxLayerId = ({ transactions }) => {
   let max = 0;
@@ -53,6 +56,12 @@ export const generateEncryptionKey = ({ password }: { password: string }): Actio
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = fileEncryptionService.createEncryptionKey({ password, salt });
   return { type: STORE_ENCRYPTION_KEY, payload: { key } };
+};
+
+export const getWalletUpdateStatus = (): Action => async (dispatch: Dispatch) => {
+  const { walletUpdatePath }: { walletUpdatePath: string } = await walletUpdateService.getWalletUpdateStatus();
+  dispatch({ type: GET_AUTO_UPDATE_STATUS, payload: { walletUpdatePath } });
+  return { walletUpdatePath };
 };
 
 export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {

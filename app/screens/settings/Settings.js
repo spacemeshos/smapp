@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
+import { walletUpdateService } from '/infra/walletUpdateService';
 import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
@@ -58,7 +59,8 @@ type Props = {
   setNodeIpAddress: Action,
   isConnected: boolean,
   history: RouterHistory,
-  nodeIpAddress: string
+  nodeIpAddress: string,
+  walletUpdatePath: string
 };
 
 type State = {
@@ -68,7 +70,11 @@ type State = {
   editedAccountIndex: number,
   accountDisplayNames: Array<string>,
   nodeIp: string,
-  currentSettingIndex: number
+  currentSettingIndex: number,
+  isUpdateAvailable: boolean,
+  isDownloadReady: boolean,
+  isLoading: boolean,
+  updateDownloadStatus: string
 };
 
 class Settings extends Component<Props, State> {
@@ -91,7 +97,11 @@ class Settings extends Component<Props, State> {
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
-      currentSettingIndex: 0
+      currentSettingIndex: 0,
+      isUpdateAvailable: false,
+      updateDownloadStatus: '',
+      isDownloadReady: false,
+      isLoading: false
     };
 
     this.myRef1 = React.createRef();
@@ -103,7 +113,19 @@ class Settings extends Component<Props, State> {
 
   render() {
     const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
-    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
+    const {
+      walletDisplayName,
+      canEditDisplayName,
+      isAutoStartEnabled,
+      accountDisplayNames,
+      editedAccountIndex,
+      nodeIp,
+      currentSettingIndex,
+      updateDownloadStatus,
+      isUpdateAvailable,
+      isDownloadReady,
+      isLoading
+    } = this.state;
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -173,7 +195,25 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
-              <SettingRow upperPartLeft={version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
+              <SettingRow
+                upperPartLeft={version}
+                upperPartRight={[
+                  isUpdateAvailable && !isDownloadReady && (
+                    <Text key="1" style={{ width: 134 }}>
+                      {updateDownloadStatus ? 'DOWNLOADING:' : 'UPDATE AVAILABLE:'}
+                    </Text>
+                  ),
+                  isLoading && (
+                    <Text key="2" style={{ width: 120 }}>
+                      {updateDownloadStatus}
+                    </Text>
+                  ),
+                  isUpdateAvailable && !isLoading && !updateDownloadStatus && <Link onClick={this.downloadUpdate} text="DOWNLOAD" key="3" style={{ width: 120 }} />,
+                  isDownloadReady && <Link onClick={fileSystemService.openDownloadsDirectory} text="SHOW ME THE FILE" style={{ width: 144 }} />,
+                  <Link onClick={this.checkForUpdate} text="CHECK FOR UPDATES" key="4" style={{ width: 144 }} isDisabled={isLoading || isDownloadReady} />
+                ]}
+                rowName="Spacemesh Wallet Version"
+              />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
@@ -268,6 +308,23 @@ class Settings extends Component<Props, State> {
     }
   };
 
+  checkForUpdate = async () => {
+    const { walletUpdatePath }: { walletUpdatePath: string } = this.props;
+    this.setState({ isUpdateAvailable: !!walletUpdatePath });
+  };
+
+  downloadUpdate = async () => {
+    const { walletUpdatePath }: { walletUpdatePath: string } = this.props;
+    this.setState({ isLoading: true });
+    await walletUpdateService.downloadUpdate({
+      walletUpdatePath,
+      onProgress: ({ receivedBytes, totalBytes }) => {
+        this.setState({ updateDownloadStatus: `${parseInt((receivedBytes / totalBytes) * 100)}%` });
+      }
+    });
+    this.setState({ isDownloadReady: true, isLoading: false });
+  };
+
   navigateToWalletBackup = () => {
     const { history } = this.props;
     history.push('/main/backup');
@@ -352,7 +409,8 @@ const mapStateToProps = (state) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
-  nodeIpAddress: state.node.nodeIpAddress
+  nodeIpAddress: state.node.nodeIpAddress,
+  walletUpdatePath: state.wallet.walletUpdatePath
 });
 
 const mapDispatchToProps = {

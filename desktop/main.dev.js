@@ -15,6 +15,7 @@ import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
+import { subscribeToAutoUpdateListeners } from './autoUpdateListeners';
 
 export default class AppUpdater {
   constructor() {
@@ -87,6 +88,7 @@ const createWindow = () => {
   });
   // Add event listeners.
   subscribeToEventListeners({ mainWindow });
+  subscribeToAutoUpdateListeners({ mainWindow });
 };
 
 app.on('ready', async () => {

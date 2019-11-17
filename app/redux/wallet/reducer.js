@@ -10,7 +10,8 @@ import {
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
-  SET_CURRENT_ACCOUNT_INDEX
+  SET_CURRENT_ACCOUNT_INDEX,
+  GET_AUTO_UPDATE_STATUS
 } from './actions';
 
 const initialState = {
@@ -23,7 +24,8 @@ const initialState = {
   transactions: {},
   lastUsedContacts: [],
   contacts: [],
-  fiatRate: 1
+  fiatRate: 1,
+  walletUpdatePath: ''
 };
 
 const getFirst3UniqueAddresses = (txList: TxList): Contact[] => {
@@ -93,6 +95,10 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_CONTACTS: {
       const { contacts } = action.payload;
       return { ...state, contacts };
+    }
+    case GET_AUTO_UPDATE_STATUS: {
+      const { walletUpdatePath } = action.payload;
+      return { ...state, walletUpdatePath };
     }
     case LOGOUT: {
       return initialState;
