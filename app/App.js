@@ -81,7 +81,6 @@ class App extends React.Component<Props, State> {
     this.clearTimers();
     try {
       await this.checkForUpdate();
-      // await this.checkForUpdate();
       if (!isUpdateDismissed) {
         this.updateCheckInterval = setInterval(async () => {
           await this.checkForUpdate();
