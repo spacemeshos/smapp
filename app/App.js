@@ -81,11 +81,13 @@ class App extends React.Component<Props, State> {
     this.clearTimers();
     try {
       await this.checkForUpdate();
-      if (!isUpdateDismissed) {
-        this.updateCheckInterval = setInterval(async () => {
+      this.updateCheckInterval = setInterval(async () => {
+        if (isUpdateDismissed) {
+          clearInterval(this.updateCheckInterval);
+        } else {
           await this.checkForUpdate();
-        }, 86400000);
-      }
+        }
+      }, 86400000);
     } catch {
       this.setState({
         error: new Error('Wallet update check has failed.')
