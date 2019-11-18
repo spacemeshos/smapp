@@ -5,12 +5,14 @@ import { listenerCleanup } from '/infra/utils';
 
 class WalletUpdateService {
   static getWalletUpdateStatus() {
+    ipcRenderer.send(ipcConsts.GET_WALLET_UPDATE_STATUS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.on(ipcConsts.GET_WALLET_AUTO_UPDATE_STATUS, (event, xml) => {
+      ipcRenderer.once(ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, (event, xml) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE] });
         resolve(xml);
       });
-      ipcRenderer.once(ipcConsts.AUTO_UPDATE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_AUTO_UPDATE_STATUS, ipcConsts.AUTO_UPDATE_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE] });
         reject(args);
       });
     });

@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
+import { updateWalletMeta, updateAccount, createNewAccount, getWalletUpdateStatus } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
@@ -60,6 +60,7 @@ type Props = {
   isConnected: boolean,
   history: RouterHistory,
   nodeIpAddress: string,
+  getWalletUpdateStatus: Action,
   walletUpdatePath: string
 };
 
@@ -309,7 +310,8 @@ class Settings extends Component<Props, State> {
   };
 
   checkForUpdate = async () => {
-    const { walletUpdatePath }: { walletUpdatePath: string } = this.props;
+    const { getWalletUpdateStatus } = this.props;
+    const { walletUpdatePath }: { walletUpdatePath: string } = await getWalletUpdateStatus();
     this.setState({ isUpdateAvailable: !!walletUpdatePath });
   };
 
@@ -417,7 +419,8 @@ const mapDispatchToProps = {
   updateWalletMeta,
   updateAccount,
   createNewAccount,
-  setNodeIpAddress
+  setNodeIpAddress,
+  getWalletUpdateStatus
 };
 
 Settings = connect(
