@@ -156,9 +156,7 @@ class App extends React.Component<Props, State> {
     this.setState({ walletUpdatePath });
   };
 
-  closeUpdateModal = async ({ isUpdateDismissed }: { isUpdateDismissed: boolean }) => {
-    this.setState({ walletUpdatePath: '', isUpdateDismissed });
-  };
+  closeUpdateModal = ({ isUpdateDismissed }: { isUpdateDismissed: boolean }) => this.setState({ walletUpdatePath: '', isUpdateDismissed });
 
   healthCheckFlow = async () => {
     await store.dispatch(getMiningStatus());

@@ -9,6 +9,7 @@ import srcReg from '/assets/fonts/SourceCodePro-Regular.ttf';
 
 const Wrapper = styled.div`
   position: fixed;
+  z-index: 1;
   top: 0;
   bottom: 0;
   left: 0;
@@ -74,19 +75,16 @@ class UpdaterModal extends Component<Props, State> {
             <Header>Wallet Update Available</Header>
             {downloadStatus
               ? [<Text key="1">Please wait while download is in progress.</Text>, <Text key="2">{isDownloadReady ? 'Update downloaded.' : downloadStatus}</Text>]
-              : [
-                  <Text key="1">A new wallet version is now available for download.</Text>,
-                  <Text key="2">You can choose tÎo install update from Settings tab at a later time.</Text>
-                ]}
+              : [<Text key="1">An important App update is available.</Text>, <Text key="2">Would you like to install it now?</Text>]}
             <ButtonsWrapper>
               <Button
                 onClick={isDownloadReady ? this.showDownloadFile : this.downloadUpdate}
-                text={isDownloadReady ? 'SHOW ME THE FILE' : 'DOWNLOAD UPDATE'}
+                text={isDownloadReady ? 'SHOW ME THE FILE' : 'YES'}
                 isDisabled={isLoading}
-                width={138}
+                width={isDownloadReady ? 138 : 95}
                 style={{ marginRight: 20 }}
               />
-              <Button onClick={this.handleDismissUpdate} text="NOT NOW" isPrimary={false} isDisabled={!canDismiss} />
+              <Button onClick={this.handleDismissUpdate} text={isDownloadReady ? 'CLOSE' : 'NO'} isPrimary={false} isDisabled={!isDownloadReady && !canDismiss} />
             </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>

@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletMeta, updateAccount, createNewAccount, getWalletUpdateStatus } from '/redux/wallet/actions';
-import { walletUpdateService } from '/infra/walletUpdateService';
 import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
@@ -15,6 +14,7 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { localStorageService } from '/infra/storageService';
+import { UpdaterModal } from '/components/updater';
 import { version } from '../../../package.json';
 
 const Wrapper = styled.div`
@@ -72,10 +72,8 @@ type State = {
   accountDisplayNames: Array<string>,
   nodeIp: string,
   currentSettingIndex: number,
-  isUpdateAvailable: boolean,
-  isDownloadReady: boolean,
-  isLoading: boolean,
-  updateDownloadStatus: string
+  isUpdateAvailable: ?boolean,
+  isDownloadReady: boolean
 };
 
 class Settings extends Component<Props, State> {
@@ -91,6 +89,7 @@ class Settings extends Component<Props, State> {
     super(props);
     const { displayName, accounts, nodeIpAddress } = props;
     const accountDisplayNames = accounts.map((account) => account.displayName);
+    const fullLocalDestPath = localStorageService.get('fullLocalDestPath');
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
@@ -99,10 +98,8 @@ class Settings extends Component<Props, State> {
       accountDisplayNames,
       nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
-      isUpdateAvailable: false,
-      updateDownloadStatus: '',
-      isDownloadReady: false,
-      isLoading: false
+      isUpdateAvailable: null,
+      isDownloadReady: !!fullLocalDestPath
     };
 
     this.myRef1 = React.createRef();
@@ -113,7 +110,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
+    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, walletUpdatePath } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -122,12 +119,12 @@ class Settings extends Component<Props, State> {
       editedAccountIndex,
       nodeIp,
       currentSettingIndex,
-      updateDownloadStatus,
       isUpdateAvailable,
-      isDownloadReady,
-      isLoading
+      isDownloadReady
     } = this.state;
-    return (
+    return isUpdateAvailable ? (
+      <UpdaterModal onCloseModal={this.handleCloseUpdateModal} walletUpdatePath={walletUpdatePath} />
+    ) : (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
@@ -199,19 +196,13 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={version}
                 upperPartRight={[
-                  isUpdateAvailable && !isDownloadReady && (
-                    <Text key="1" style={{ width: 134 }}>
-                      {updateDownloadStatus ? 'DOWNLOADING:' : 'UPDATE AVAILABLE:'}
+                  isUpdateAvailable === false && (
+                    <Text key="1" style={{ width: 170 }}>
+                      UPDATE NOT AVAILABLE
                     </Text>
                   ),
-                  isLoading && (
-                    <Text key="2" style={{ width: 120 }}>
-                      {updateDownloadStatus}
-                    </Text>
-                  ),
-                  isUpdateAvailable && !isLoading && !updateDownloadStatus && <Link onClick={this.downloadUpdate} text="DOWNLOAD" key="3" style={{ width: 120 }} />,
                   isDownloadReady && <Link onClick={fileSystemService.openDownloadsDirectory} text="SHOW ME THE FILE" style={{ width: 144 }} />,
-                  <Link onClick={this.checkForUpdate} text="CHECK FOR UPDATES" key="4" style={{ width: 144 }} isDisabled={isLoading || isDownloadReady} />
+                  <Link onClick={this.checkForUpdate} text="CHECK FOR UPDATES" key="4" style={{ width: 144 }} isDisabled={isDownloadReady} />
                 ]}
                 rowName="Spacemesh Wallet Version"
               />
@@ -302,6 +293,11 @@ class Settings extends Component<Props, State> {
     fileSystemService.wipeOut();
   };
 
+  handleCloseUpdateModal = () => {
+    const fullLocalDestPath = localStorageService.get('fullLocalDestPath');
+    this.setState({ isUpdateAvailable: null, isDownloadReady: !!fullLocalDestPath });
+  };
+
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
     const { accounts, updateAccount } = this.props;
     if (!!value && !!value.trim() && value !== accounts[accountIndex].displayName) {
@@ -313,18 +309,6 @@ class Settings extends Component<Props, State> {
     const { getWalletUpdateStatus } = this.props;
     const { walletUpdatePath }: { walletUpdatePath: string } = await getWalletUpdateStatus();
     this.setState({ isUpdateAvailable: !!walletUpdatePath });
-  };
-
-  downloadUpdate = async () => {
-    const { walletUpdatePath }: { walletUpdatePath: string } = this.props;
-    this.setState({ isLoading: true });
-    await walletUpdateService.downloadUpdate({
-      walletUpdatePath,
-      onProgress: ({ receivedBytes, totalBytes }) => {
-        this.setState({ updateDownloadStatus: `${parseInt((receivedBytes / totalBytes) * 100)}%` });
-      }
-    });
-    this.setState({ isDownloadReady: true, isLoading: false });
   };
 
   navigateToWalletBackup = () => {

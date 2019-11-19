@@ -59,9 +59,14 @@ export const generateEncryptionKey = ({ password }: { password: string }): Actio
 };
 
 export const getWalletUpdateStatus = (): Action => async (dispatch: Dispatch) => {
-  const { walletUpdatePath }: { walletUpdatePath: string } = await walletUpdateService.getWalletUpdateStatus();
-  dispatch({ type: GET_AUTO_UPDATE_STATUS, payload: { walletUpdatePath } });
-  return { walletUpdatePath };
+  try {
+    const { walletUpdatePath }: { walletUpdatePath: string } = await walletUpdateService.getWalletUpdateStatus();
+    dispatch({ type: GET_AUTO_UPDATE_STATUS, payload: { walletUpdatePath } });
+    return { walletUpdatePath };
+  } catch (error) {
+    dispatch({ type: GET_AUTO_UPDATE_STATUS, payload: { walletUpdatePath: '' } });
+    return { walletUpdatePath: '' };
+  }
 };
 
 export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {

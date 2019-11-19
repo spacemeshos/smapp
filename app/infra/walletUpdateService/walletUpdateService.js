@@ -2,6 +2,7 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
+import { localStorageService } from '/infra/storageService';
 
 class WalletUpdateService {
   static getWalletUpdateStatus() {
@@ -26,10 +27,12 @@ class WalletUpdateService {
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_SUCCESS, (event, xml) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_FAILURE, ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
+        localStorageService.set('fullLocalDestPath', xml.fullLocalDestPath);
         resolve(xml);
       });
       ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_FAILURE, (event, args) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_FAILURE, ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
+        localStorageService.clearByKey('fullLocalDestPath');
         reject(args);
       });
     });
