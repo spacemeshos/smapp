@@ -266,6 +266,11 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
+  handleCloseUpdateModal = () => {
+    const fullLocalDestPath = localStorageService.get('fullLocalDestPath');
+    this.setState({ isUpdateAvailable: null, isDownloadReady: !!fullLocalDestPath });
+  };
+
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
   startEditingWalletDisplayName = () => this.setState({ canEditDisplayName: true });
@@ -291,11 +296,6 @@ class Settings extends Component<Props, State> {
 
   cleanAllAppDataAndSettings = async () => {
     fileSystemService.wipeOut();
-  };
-
-  handleCloseUpdateModal = () => {
-    const fullLocalDestPath = localStorageService.get('fullLocalDestPath');
-    this.setState({ isUpdateAvailable: null, isDownloadReady: !!fullLocalDestPath });
   };
 
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
