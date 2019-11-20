@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 import { localStorageService } from '/infra/storageService';
+import { notificationsService } from '/infra/notificationsService';
 
 class WalletUpdateService {
   static getWalletUpdateStatus() {
@@ -10,6 +11,12 @@ class WalletUpdateService {
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, (event, xml) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE] });
+        const { walletUpdatePath } = xml;
+        !!walletUpdatePath &&
+          notificationsService.notify({
+            title: 'Spacemesh',
+            notification: 'An important App update is available'
+          });
         resolve(xml);
       });
       ipcRenderer.once(ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE, (event, args) => {
@@ -28,6 +35,10 @@ class WalletUpdateService {
       ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_SUCCESS, (event, xml) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_FAILURE, ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
         localStorageService.set('fullLocalDestPath', xml.fullLocalDestPath);
+        notificationsService.notify({
+          title: 'Spacemesh',
+          notification: 'App update downloaded.'
+        });
         resolve(xml);
       });
       ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_FAILURE, (event, args) => {
