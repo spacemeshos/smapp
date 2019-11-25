@@ -46,43 +46,22 @@ const ButtonsWrapper = styled.div`
 `;
 
 type Props = {
-  onCloseModal: ({ isUpdateDismissed: boolean }) => void
+  onCloseModal: () => void
 };
 
-type State = {
-  isDownloadReady: boolean,
-  downloadStatus: string,
-  isLoading: boolean,
-  canDismiss: boolean
-};
-
-class UpdaterModal extends Component<Props, State> {
-  state = {
-    isDownloadReady: false,
-    downloadStatus: '',
-    isLoading: false,
-    canDismiss: true
-  };
-
+class UpdaterModal extends Component<Props> {
   render() {
-    const { isDownloadReady, downloadStatus, isLoading, canDismiss } = this.state;
+    const { onCloseModal } = this.props;
     return (
       <Wrapper>
         <CorneredWrapper>
           <InnerWrapper>
             <Header>Wallet Update Available</Header>
-            {downloadStatus
-              ? [<Text key="1">Please wait while download is in progress.</Text>, <Text key="2">{isDownloadReady ? 'Update downloaded.' : downloadStatus}</Text>]
-              : [<Text key="1">An important App update is available.</Text>, <Text key="2">Would you like to download it now?</Text>]}
+            <Text>An important App update is available.</Text>
+            <Text>Would you like to install it now?</Text>
             <ButtonsWrapper>
-              <Button
-                onClick={isDownloadReady ? this.quitAppAndInstallUpdate : this.downloadUpdate}
-                text={isDownloadReady ? 'RESTART AND INSTALL' : 'YES'}
-                isDisabled={isLoading}
-                width={isDownloadReady ? 150 : 95}
-                style={{ marginRight: 20 }}
-              />
-              <Button onClick={this.handleDismissUpdate} text={isDownloadReady ? 'LATER' : 'NO'} isPrimary={false} isDisabled={!isDownloadReady && !canDismiss} />
+              <Button onClick={this.quitAppAndInstallUpdate} text="YES" style={{ marginRight: 20 }} />
+              <Button onClick={onCloseModal} text="NO" isPrimary={false} />
             </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>
@@ -90,25 +69,10 @@ class UpdaterModal extends Component<Props, State> {
     );
   }
 
-  handleDismissUpdate = () => {
-    const { onCloseModal } = this.props;
-    onCloseModal({ isUpdateDismissed: true });
-  };
-
-  downloadUpdate = () => {
-    this.setState({ isLoading: true, canDismiss: false });
-    walletUpdateService.downloadUpdate({
-      onProgress: ({ receivedBytes, totalBytes }) => {
-        this.setState({ downloadStatus: `${parseInt((receivedBytes / totalBytes) * 100)}% (${receivedBytes} / ${totalBytes} bytes) downloaded.` });
-      },
-      onDownloadUpdateCompleted: () => this.setState({ isDownloadReady: true, isLoading: false })
-    });
-  };
-
   quitAppAndInstallUpdate = async () => {
     const { onCloseModal } = this.props;
     walletUpdateService.quitAppAndInstallUpdate();
-    onCloseModal({ isUpdateDismissed: false });
+    onCloseModal();
   };
 }
 

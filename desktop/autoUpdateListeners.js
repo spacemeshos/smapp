@@ -1,8 +1,6 @@
 import { ipcMain } from 'electron';
-import { autoUpdater, CancellationToken } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import { ipcConsts } from '../app/vars';
-
-const cancellationToken = new CancellationToken();
 
 const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
   autoUpdater.on('update-available', () => mainWindow.webContents.send(ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, { isUpdateAvailable: true }));
@@ -19,10 +17,7 @@ const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.QUIT_APP_AND_INSTALL_UPDATE, () => autoUpdater.quitAndInstall());
 
-  ipcMain.on(ipcConsts.DOWNLOAD_UPDATE, () => autoUpdater.downloadUpdate(cancellationToken));
-
   ipcMain.on(ipcConsts.GET_WALLET_UPDATE_STATUS, () => {
-    autoUpdater.autoDownload = false;
     autoUpdater.checkForUpdates();
   });
 };

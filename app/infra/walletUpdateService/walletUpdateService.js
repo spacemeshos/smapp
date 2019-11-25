@@ -18,8 +18,13 @@ class WalletUpdateService {
     });
   }
 
-  static downloadUpdate({ onProgress, onDownloadUpdateCompleted }: { onProgress: ({ receivedBytes: number, totalBytes: number }) => void, onDownloadUpdateCompleted: () => void }) {
-    ipcRenderer.send(ipcConsts.DOWNLOAD_UPDATE);
+  static listenToDownloadUpdate({
+    onProgress,
+    onDownloadUpdateCompleted
+  }: {
+    onProgress: ({ receivedBytes: number, totalBytes: number }) => void,
+    onDownloadUpdateCompleted: () => void
+  }) {
     ipcRenderer.on(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, (event, progress: { receivedBytes: number, totalBytes: number }) => {
       onProgress && onProgress({ ...progress });
     });

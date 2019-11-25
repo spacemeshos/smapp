@@ -28,8 +28,7 @@ type Props = {};
 
 type State = {
   error: ?Error,
-  isUpdateAvailable: boolean,
-  isUpdateDismissed: boolean
+  isUpdateDownloaded: boolean
 };
 
 class App extends React.Component<Props, State> {
@@ -44,18 +43,17 @@ class App extends React.Component<Props, State> {
 
   state = {
     error: null,
-    isUpdateAvailable: false,
-    isUpdateDismissed: false
+    isUpdateDownloaded: false
   };
 
   render() {
-    const { error, isUpdateAvailable } = this.state;
+    const { error, isUpdateDownloaded } = this.state;
 
     if (error) {
       return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
 
-    if (isUpdateAvailable) {
+    if (isUpdateDownloaded) {
       return <UpdaterModal onCloseModal={this.closeUpdateModal} />;
     }
 
@@ -77,16 +75,11 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { isUpdateDismissed } = this.state;
     this.clearTimers();
     try {
       await this.checkForUpdate();
       this.updateCheckInterval = setInterval(async () => {
-        if (isUpdateDismissed) {
-          clearInterval(this.updateCheckInterval);
-        } else {
-          await this.checkForUpdate();
-        }
+        await this.checkForUpdate();
       }, 86400000);
     } catch {
       this.setState({
@@ -153,10 +146,12 @@ class App extends React.Component<Props, State> {
 
   checkForUpdate = async () => {
     const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.getWalletUpdateStatus();
-    this.setState({ isUpdateAvailable });
+    isUpdateAvailable && this.listenToDownloadUpdate();
   };
 
-  closeUpdateModal = ({ isUpdateDismissed }: { isUpdateDismissed: boolean }) => this.setState({ isUpdateAvailable: false, isUpdateDismissed });
+  listenToDownloadUpdate = () => walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateDownloaded: true }) });
+
+  closeUpdateModal = () => this.setState({ isUpdateDownloaded: false });
 
   healthCheckFlow = async () => {
     await store.dispatch(getMiningStatus());

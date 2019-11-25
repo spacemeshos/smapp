@@ -21,6 +21,8 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
+    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoDownload = true;
   }
 }
 
