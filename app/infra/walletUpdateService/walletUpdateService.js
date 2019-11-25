@@ -2,51 +2,35 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
-import { localStorageService } from '/infra/storageService';
-import { notificationsService } from '/infra/notificationsService';
 
 class WalletUpdateService {
   static getWalletUpdateStatus() {
     ipcRenderer.send(ipcConsts.GET_WALLET_UPDATE_STATUS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, (event, xml) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE] });
-        const { walletUpdatePath } = xml;
-        !!walletUpdatePath &&
-          notificationsService.notify({
-            title: 'Spacemesh',
-            notification: 'An important App update is available'
-          });
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR] });
         resolve(xml);
       });
-      ipcRenderer.once(ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.GET_WALLET_UPDATE_STATUS_FAILURE] });
+      ipcRenderer.once(ipcConsts.WALLET_UPDATE_ERROR, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR] });
         reject(args);
       });
     });
   }
 
-  static downloadUpdate({ walletUpdatePath, onProgress }: { walletUpdatePath: string, onProgress: ({ receivedBytes: number, totalBytes: number }) => void }) {
-    ipcRenderer.send(ipcConsts.DOWNLOAD_UPDATE, { walletUpdatePath });
+  static downloadUpdate({ onProgress, onDownloadUpdateCompleted }: { onProgress: ({ receivedBytes: number, totalBytes: number }) => void, onDownloadUpdateCompleted: () => void }) {
+    ipcRenderer.send(ipcConsts.DOWNLOAD_UPDATE);
     ipcRenderer.on(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, (event, progress: { receivedBytes: number, totalBytes: number }) => {
       onProgress && onProgress({ ...progress });
     });
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_SUCCESS, (event, xml) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_FAILURE, ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
-        localStorageService.set('fullLocalDestPath', xml.fullLocalDestPath);
-        notificationsService.notify({
-          title: 'Spacemesh',
-          notification: 'App update downloaded.'
-        });
-        resolve(xml);
-      });
-      ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_FAILURE, ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
-        localStorageService.clearByKey('fullLocalDestPath');
-        reject(args);
-      });
+    ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_SUCCESS, () => {
+      listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
+      onDownloadUpdateCompleted && onDownloadUpdateCompleted();
     });
+  }
+
+  static quitAppAndInstallUpdate() {
+    ipcRenderer.send(ipcConsts.QUIT_APP_AND_INSTALL_UPDATE);
   }
 }
 

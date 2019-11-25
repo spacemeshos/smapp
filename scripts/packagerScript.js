@@ -88,7 +88,6 @@ const getBuildOptions = ({ target, publish }) => {
     publish,
     config: {
       appId: 'com.spacemesh.wallet',
-      productName: 'Spacemesh',
       files: [
         'desktop/dist/',
         'desktop/app.html',
@@ -107,7 +106,7 @@ const getBuildOptions = ({ target, publish }) => {
         gatekeeperAssess: false,
         entitlements: path.join(__dirname, 'entitlements.mac.plist'),
         entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
-        target: ['dmg']
+        target: ['zip', 'dmg']
       },
       dmg: {
         window: {

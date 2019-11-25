@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
-import { getWalletUpdateStatus } from '/redux/wallet/actions';
+import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
@@ -28,7 +28,7 @@ type Props = {};
 
 type State = {
   error: ?Error,
-  walletUpdatePath: string,
+  isUpdateAvailable: boolean,
   isUpdateDismissed: boolean
 };
 
@@ -44,19 +44,19 @@ class App extends React.Component<Props, State> {
 
   state = {
     error: null,
-    walletUpdatePath: '',
+    isUpdateAvailable: false,
     isUpdateDismissed: false
   };
 
   render() {
-    const { error, walletUpdatePath } = this.state;
+    const { error, isUpdateAvailable } = this.state;
 
     if (error) {
       return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
 
-    if (walletUpdatePath) {
-      return <UpdaterModal onCloseModal={this.closeUpdateModal} walletUpdatePath={walletUpdatePath} />;
+    if (isUpdateAvailable) {
+      return <UpdaterModal onCloseModal={this.closeUpdateModal} />;
     }
 
     return (
@@ -152,11 +152,11 @@ class App extends React.Component<Props, State> {
   };
 
   checkForUpdate = async () => {
-    const { walletUpdatePath }: { walletUpdatePath: string } = await store.dispatch(getWalletUpdateStatus());
-    this.setState({ walletUpdatePath });
+    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.getWalletUpdateStatus();
+    this.setState({ isUpdateAvailable });
   };
 
-  closeUpdateModal = ({ isUpdateDismissed }: { isUpdateDismissed: boolean }) => this.setState({ walletUpdatePath: '', isUpdateDismissed });
+  closeUpdateModal = ({ isUpdateDismissed }: { isUpdateDismissed: boolean }) => this.setState({ isUpdateAvailable: false, isUpdateDismissed });
 
   healthCheckFlow = async () => {
     await store.dispatch(getMiningStatus());

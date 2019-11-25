@@ -88,20 +88,6 @@ class FsService {
     });
   };
 
-  static openDownloadsDirectory = () => {
-    ipcRenderer.send(ipcConsts.OPEN_DOWNLOADS_DIRECTORY);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.OPEN_DOWNLOADS_DIRECTORY_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_DOWNLOADS_DIRECTORY_SUCCESS, ipcConsts.OPEN_DOWNLOADS_DIRECTORY_FAILURE] });
-        resolve();
-      });
-      ipcRenderer.once(ipcConsts.OPEN_DOWNLOADS_DIRECTORY_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.OPEN_DOWNLOADS_DIRECTORY_SUCCESS, ipcConsts.OPEN_DOWNLOADS_DIRECTORY_FAILURE] });
-        reject(args);
-      });
-    });
-  };
-
   static deleteWalletFile = ({ fileName }: { fileName: string }) => {
     ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
   };

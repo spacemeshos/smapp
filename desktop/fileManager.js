@@ -1,8 +1,6 @@
 import fs from 'fs';
 import util from 'util';
 import path from 'path';
-import https from 'https';
-import os from 'os';
 import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
@@ -16,7 +14,6 @@ const unlinkFileAsync = util.promisify(fs.unlink);
 // Windows: C:\Users\<user>\AppData\Local\<App Name>
 const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
-const downloadsDirPath = app.getPath('downloads');
 
 class FileManager {
   static copyFile = ({ event, fileName, filePath }) => {
@@ -43,36 +40,6 @@ class FileManager {
       event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS);
     } catch (error) {
       event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, error.message);
-    }
-  };
-
-  static openDownloadsDirectory = async ({ event }) => {
-    try {
-      const files = await readDirectoryAsync(downloadsDirPath);
-      let fileSuffix: string;
-      switch (os.type()) {
-        case 'Linux':
-          fileSuffix = 'AppImage';
-          break;
-        case 'Windows_NT':
-          fileSuffix = 'exe';
-          break;
-        case 'Darwin':
-        default:
-          fileSuffix = 'dmg';
-          break;
-      }
-      const regex = new RegExp(`(Spacemesh).*.(${fileSuffix})`, 'ig');
-      const filteredFiles = files.filter((file) => file.match(regex));
-      const filesWithPath = filteredFiles.map((file) => path.join(downloadsDirPath, file));
-      if (filesWithPath && filesWithPath[0]) {
-        shell.showItemInFolder(filesWithPath[0]);
-      } else {
-        shell.openItem(downloadsDirPath);
-      }
-      event.sender.send(ipcConsts.OPEN_DOWNLOADS_DIRECTORY_SUCCESS);
-    } catch (error) {
-      event.sender.send(ipcConsts.OPEN_DOWNLOADS_DIRECTORY_FAILURE, error.message);
     }
   };
 
@@ -107,37 +74,6 @@ class FileManager {
       event.sender.send(ipcConsts.UPDATE_FILE_SUCCESS);
     } catch (error) {
       event.sender.send(ipcConsts.UPDATE_FILE_FAILURE, error.message);
-    }
-  };
-
-  static downloadUpdate = async ({ event, walletUpdatePath }) => {
-    try {
-      const fileName = walletUpdatePath.split('/').pop();
-      const fullLocalDestPath = path.join(downloadsDirPath, fileName);
-      const file = fs.createWriteStream(fullLocalDestPath);
-      let receivedBytes: number = 0;
-      const request = https.get(walletUpdatePath, (response) => {
-        response.pipe(file);
-        file.on('finish', () => {
-          file.close();
-          event.sender.send(ipcConsts.DOWNLOAD_UPDATE_SUCCESS, { fullLocalDestPath });
-        });
-        response.on('data', function(chunk) {
-          receivedBytes += chunk.length;
-          const totalBytes: number = response.headers && parseInt(response.headers['content-length']);
-          event.sender.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, { receivedBytes, totalBytes });
-        });
-        file.on('error', () => {
-          fs.unlink(fullLocalDestPath);
-          throw new Error('File Error!');
-        });
-      });
-      request.on('error', () => {
-        fs.unlink(fullLocalDestPath);
-        throw new Error('Request Error!');
-      });
-    } catch (error) {
-      event.sender.send(ipcConsts.DOWNLOAD_UPDATE_FAILURE, error.message);
     }
   };
 

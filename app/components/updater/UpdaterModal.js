@@ -4,7 +4,6 @@ import { CorneredWrapper, Button } from '/basicComponents';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 import { walletUpdateService } from '/infra/walletUpdateService';
-import { fileSystemService } from '/infra/fileSystemService';
 import srcReg from '/assets/fonts/SourceCodePro-Regular.ttf';
 
 const Wrapper = styled.div`
@@ -47,8 +46,7 @@ const ButtonsWrapper = styled.div`
 `;
 
 type Props = {
-  onCloseModal: ({ isUpdateDismissed: boolean }) => void,
-  walletUpdatePath: string
+  onCloseModal: ({ isUpdateDismissed: boolean }) => void
 };
 
 type State = {
@@ -75,16 +73,16 @@ class UpdaterModal extends Component<Props, State> {
             <Header>Wallet Update Available</Header>
             {downloadStatus
               ? [<Text key="1">Please wait while download is in progress.</Text>, <Text key="2">{isDownloadReady ? 'Update downloaded.' : downloadStatus}</Text>]
-              : [<Text key="1">An important App update is available.</Text>, <Text key="2">Would you like to install it now?</Text>]}
+              : [<Text key="1">An important App update is available.</Text>, <Text key="2">Would you like to download it now?</Text>]}
             <ButtonsWrapper>
               <Button
-                onClick={isDownloadReady ? this.showDownloadFile : this.downloadUpdate}
-                text={isDownloadReady ? 'SHOW ME THE FILE' : 'YES'}
+                onClick={isDownloadReady ? this.quitAppAndInstallUpdate : this.downloadUpdate}
+                text={isDownloadReady ? 'RESTART AND INSTALL' : 'YES'}
                 isDisabled={isLoading}
-                width={isDownloadReady ? 138 : 95}
+                width={isDownloadReady ? 150 : 95}
                 style={{ marginRight: 20 }}
               />
-              <Button onClick={this.handleDismissUpdate} text={isDownloadReady ? 'CLOSE' : 'NO'} isPrimary={false} isDisabled={!isDownloadReady && !canDismiss} />
+              <Button onClick={this.handleDismissUpdate} text={isDownloadReady ? 'LATER' : 'NO'} isPrimary={false} isDisabled={!isDownloadReady && !canDismiss} />
             </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>
@@ -97,21 +95,19 @@ class UpdaterModal extends Component<Props, State> {
     onCloseModal({ isUpdateDismissed: true });
   };
 
-  downloadUpdate = async () => {
-    const { walletUpdatePath }: { walletUpdatePath: string } = this.props;
+  downloadUpdate = () => {
     this.setState({ isLoading: true, canDismiss: false });
-    await walletUpdateService.downloadUpdate({
-      walletUpdatePath,
+    walletUpdateService.downloadUpdate({
       onProgress: ({ receivedBytes, totalBytes }) => {
         this.setState({ downloadStatus: `${parseInt((receivedBytes / totalBytes) * 100)}% (${receivedBytes} / ${totalBytes} bytes) downloaded.` });
-      }
+      },
+      onDownloadUpdateCompleted: () => this.setState({ isDownloadReady: true, isLoading: false })
     });
-    this.setState({ isDownloadReady: true, isLoading: false });
   };
 
-  showDownloadFile = async () => {
+  quitAppAndInstallUpdate = async () => {
     const { onCloseModal } = this.props;
-    await fileSystemService.openDownloadsDirectory();
+    walletUpdateService.quitAppAndInstallUpdate();
     onCloseModal({ isUpdateDismissed: false });
   };
 }

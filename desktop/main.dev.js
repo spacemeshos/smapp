@@ -21,7 +21,7 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    // autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
@@ -83,7 +83,8 @@ const createWindow = () => {
     minHeight: 728,
     center: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      devTools: true // TODO: test remove
     }
   });
   // Add event listeners.
@@ -92,9 +93,12 @@ const createWindow = () => {
 };
 
 app.on('ready', async () => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    await installExtensions();
-  }
+  // TODO: test uncomment
+  // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  //   await installExtensions();
+  // }
+  // TODO: test remove
+  await installExtensions();
 
   createTray();
   createWindow();
@@ -107,6 +111,7 @@ app.on('ready', async () => {
     }
     mainWindow.show();
     mainWindow.focus();
+    mainWindow.openDevTools(); // TODO: test remove
   });
 
   mainWindow.on('close', (event) => {

@@ -44,10 +44,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileManager.openWalletBackupDirectory({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.OPEN_DOWNLOADS_DIRECTORY, (event) => {
-    FileManager.openDownloadsDirectory({ event });
-  });
-
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
     const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;

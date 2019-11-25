@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateWalletMeta, updateAccount, createNewAccount, getWalletUpdateStatus } from '/redux/wallet/actions';
+import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
@@ -14,7 +14,6 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { localStorageService } from '/infra/storageService';
-import { UpdaterModal } from '/components/updater';
 import { version } from '../../../package.json';
 
 const Wrapper = styled.div`
@@ -59,9 +58,7 @@ type Props = {
   setNodeIpAddress: Action,
   isConnected: boolean,
   history: RouterHistory,
-  nodeIpAddress: string,
-  getWalletUpdateStatus: Action,
-  walletUpdatePath: string
+  nodeIpAddress: string
 };
 
 type State = {
@@ -71,9 +68,7 @@ type State = {
   editedAccountIndex: number,
   accountDisplayNames: Array<string>,
   nodeIp: string,
-  currentSettingIndex: number,
-  isUpdateAvailable: ?boolean,
-  isDownloadReady: boolean
+  currentSettingIndex: number
 };
 
 class Settings extends Component<Props, State> {
@@ -89,7 +84,6 @@ class Settings extends Component<Props, State> {
     super(props);
     const { displayName, accounts, nodeIpAddress } = props;
     const accountDisplayNames = accounts.map((account) => account.displayName);
-    const fullLocalDestPath = localStorageService.get('fullLocalDestPath');
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
@@ -97,9 +91,7 @@ class Settings extends Component<Props, State> {
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
-      currentSettingIndex: 0,
-      isUpdateAvailable: null,
-      isDownloadReady: !!fullLocalDestPath
+      currentSettingIndex: 0
     };
 
     this.myRef1 = React.createRef();
@@ -110,21 +102,9 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, walletUpdatePath } = this.props;
-    const {
-      walletDisplayName,
-      canEditDisplayName,
-      isAutoStartEnabled,
-      accountDisplayNames,
-      editedAccountIndex,
-      nodeIp,
-      currentSettingIndex,
-      isUpdateAvailable,
-      isDownloadReady
-    } = this.state;
-    return isUpdateAvailable ? (
-      <UpdaterModal onCloseModal={this.handleCloseUpdateModal} walletUpdatePath={walletUpdatePath} />
-    ) : (
+    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
+    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
+    return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
@@ -147,7 +127,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
               <SettingRow
-                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
+                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"
@@ -193,19 +173,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
-              <SettingRow
-                upperPartLeft={version}
-                upperPartRight={[
-                  isUpdateAvailable === false && (
-                    <Text key="1" style={{ width: 170 }}>
-                      UPDATE NOT AVAILABLE
-                    </Text>
-                  ),
-                  isDownloadReady && <Link onClick={fileSystemService.openDownloadsDirectory} text="SHOW ME THE FILE" style={{ width: 144 }} />,
-                  <Link onClick={this.checkForUpdate} text="CHECK FOR UPDATES" key="4" style={{ width: 144 }} isDisabled={isDownloadReady} />
-                ]}
-                rowName="Spacemesh Wallet Version"
-              />
+              <SettingRow upperPartLeft={version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
@@ -266,11 +234,6 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
-  handleCloseUpdateModal = () => {
-    const fullLocalDestPath = localStorageService.get('fullLocalDestPath');
-    this.setState({ isUpdateAvailable: null, isDownloadReady: !!fullLocalDestPath });
-  };
-
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
   startEditingWalletDisplayName = () => this.setState({ canEditDisplayName: true });
@@ -303,12 +266,6 @@ class Settings extends Component<Props, State> {
     if (!!value && !!value.trim() && value !== accounts[accountIndex].displayName) {
       await updateAccount({ accountIndex, fieldName: 'displayName', data: value });
     }
-  };
-
-  checkForUpdate = async () => {
-    const { getWalletUpdateStatus } = this.props;
-    const { walletUpdatePath }: { walletUpdatePath: string } = await getWalletUpdateStatus();
-    this.setState({ isUpdateAvailable: !!walletUpdatePath });
   };
 
   navigateToWalletBackup = () => {
@@ -395,16 +352,14 @@ const mapStateToProps = (state) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
-  nodeIpAddress: state.node.nodeIpAddress,
-  walletUpdatePath: state.wallet.walletUpdatePath
+  nodeIpAddress: state.node.nodeIpAddress
 });
 
 const mapDispatchToProps = {
   updateWalletMeta,
   updateAccount,
   createNewAccount,
-  setNodeIpAddress,
-  getWalletUpdateStatus
+  setNodeIpAddress
 };
 
 Settings = connect(
