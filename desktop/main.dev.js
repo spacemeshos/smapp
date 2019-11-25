@@ -21,7 +21,6 @@ export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    // autoUpdater.checkForUpdatesAndNotify();
   }
 }
 
@@ -83,8 +82,7 @@ const createWindow = () => {
     minHeight: 728,
     center: true,
     webPreferences: {
-      nodeIntegration: true,
-      devTools: true // TODO: test remove
+      nodeIntegration: true
     }
   });
   // Add event listeners.
@@ -93,12 +91,9 @@ const createWindow = () => {
 };
 
 app.on('ready', async () => {
-  // TODO: test uncomment
-  // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-  //   await installExtensions();
-  // }
-  // TODO: test remove
-  await installExtensions();
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    await installExtensions();
+  }
 
   createTray();
   createWindow();
@@ -111,17 +106,12 @@ app.on('ready', async () => {
     }
     mainWindow.show();
     mainWindow.focus();
-    mainWindow.openDevTools(); // TODO: test remove
   });
 
   mainWindow.on('close', (event) => {
     event.preventDefault();
     mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
   });
-
-  ipcMain.on(ipcConsts.CHECK_APP_VISIBLITY, () =>
-    mainWindow.isVisible() && mainWindow.isFocused() ? mainWindow.webContents.send(ipcConsts.APP_VISIBLE) : mainWindow.webContents.send(ipcConsts.APP_HIDDEN)
-  );
 
   ipcMain.on(ipcConsts.QUIT_APP, () => {
     mainWindow.destroy();
