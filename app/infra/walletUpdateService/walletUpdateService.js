@@ -12,7 +12,10 @@ class WalletUpdateService {
         resolve(xml);
       });
       ipcRenderer.once(ipcConsts.WALLET_UPDATE_ERROR, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR] });
+        listenerCleanup({
+          ipcRenderer,
+          channels: [ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR, ipcConsts.DOWNLOAD_UPDATE_SUCCESS, ipcConsts.DOWNLOAD_UPDATE_PROGRESS]
+        });
         reject(args);
       });
     });
