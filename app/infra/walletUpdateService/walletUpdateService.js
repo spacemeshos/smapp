@@ -4,11 +4,11 @@ import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
 
 class WalletUpdateService {
-  static getWalletUpdateStatus() {
+  static checkForWalletUpdate() {
     ipcRenderer.send(ipcConsts.CHECK_WALLET_UPDATE);
     return new Promise<string, Error>((resolve: Function) => {
       ipcRenderer.once(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, (event, xml) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR] });
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS] });
         resolve(xml);
       });
     });
@@ -17,14 +17,14 @@ class WalletUpdateService {
   static listenToUpdaterError({ onUpdaterError }: { onUpdaterError: () => void }) {
     ipcRenderer.once(ipcConsts.WALLET_UPDATE_ERROR, () => {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR, ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
-      onUpdaterError && onUpdaterError();
+      onUpdaterError();
     });
   }
 
   static listenToDownloadUpdate({ onDownloadUpdateCompleted }: { onDownloadUpdateCompleted: () => void }) {
     ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_COMPLETED, () => {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
-      onDownloadUpdateCompleted && onDownloadUpdateCompleted();
+      onDownloadUpdateCompleted();
     });
   }
 

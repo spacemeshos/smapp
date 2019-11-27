@@ -74,12 +74,12 @@ class App extends React.Component<Props, State> {
   async componentDidMount() {
     this.clearTimers();
     try {
-      await this.checkForUpdate();
       walletUpdateService.listenToUpdaterError({
         onUpdaterError: () => {
           throw new Error('Wallet Updater Error.');
         }
       });
+      await this.checkForUpdate();
       this.updateCheckInterval = setInterval(async () => {
         await this.checkForUpdate();
       }, 86400000);
@@ -147,7 +147,7 @@ class App extends React.Component<Props, State> {
   };
 
   checkForUpdate = async () => {
-    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.getWalletUpdateStatus();
+    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
     isUpdateAvailable && this.listenToDownloadUpdate();
   };
 

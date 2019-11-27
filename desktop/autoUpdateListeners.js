@@ -11,13 +11,9 @@ const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.QUIT_AND_UPDATE, () => autoUpdater.quitAndInstall());
 
   ipcMain.on(ipcConsts.CHECK_WALLET_UPDATE, async () => {
-    try {
-      const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates();
-      const isUpdateAvailable = !!updateCheckResult.downloadPromise;
-      mainWindow.webContents.send(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, { isUpdateAvailable });
-    } catch {
-      mainWindow.webContents.send(ipcConsts.WALLET_UPDATE_ERROR, { error: new Error('Error checking for updates.') });
-    }
+    const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates();
+    const isUpdateAvailable = !!updateCheckResult.downloadPromise;
+    mainWindow.webContents.send(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, { isUpdateAvailable });
   });
 };
 
