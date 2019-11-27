@@ -82,8 +82,7 @@ const createWindow = () => {
     minHeight: 728,
     center: true,
     webPreferences: {
-      nodeIntegration: true,
-      devtools: true // TODO: test - remove
+      nodeIntegration: true
     }
   });
   // Add event listeners.
@@ -92,12 +91,9 @@ const createWindow = () => {
 };
 
 app.on('ready', async () => {
-  // TODO: test - uncomment
-  // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-  //   await installExtensions();
-  // }
-  // TODO: test - remove
-  await installExtensions();
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    await installExtensions();
+  }
 
   createTray();
   createWindow();
@@ -110,7 +106,6 @@ app.on('ready', async () => {
     }
     mainWindow.show();
     mainWindow.focus();
-    mainWindow.openDevTools(); // TODO: test - remove
   });
 
   mainWindow.on('close', (event) => {
