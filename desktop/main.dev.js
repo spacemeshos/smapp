@@ -11,16 +11,14 @@
 import path from 'path';
 import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
-import { subscribeToAutoUpdateListeners } from './autoUpdateListeners';
+import subscribeToAutoUpdateListeners from './autoUpdateListeners';
 
 export default class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
+    autoUpdater.logger = null;
     autoUpdater.autoInstallOnAppQuit = false;
     autoUpdater.autoDownload = true;
   }
@@ -84,7 +82,8 @@ const createWindow = () => {
     minHeight: 728,
     center: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      devtools: true // TODO: test - remove
     }
   });
   // Add event listeners.
@@ -93,9 +92,12 @@ const createWindow = () => {
 };
 
 app.on('ready', async () => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    await installExtensions();
-  }
+  // TODO: test - uncomment
+  // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  //   await installExtensions();
+  // }
+  // TODO: test - remove
+  await installExtensions();
 
   createTray();
   createWindow();
@@ -108,6 +110,7 @@ app.on('ready', async () => {
     }
     mainWindow.show();
     mainWindow.focus();
+    mainWindow.openDevTools(); // TODO: test - remove
   });
 
   mainWindow.on('close', (event) => {

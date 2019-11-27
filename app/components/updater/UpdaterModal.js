@@ -4,7 +4,6 @@ import { CorneredWrapper, Button } from '/basicComponents';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 import { walletUpdateService } from '/infra/walletUpdateService';
-import srcReg from '/assets/fonts/SourceCodePro-Regular.ttf';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -17,8 +16,6 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.3);
-  src: url(${srcReg});
-  font-family: SourceCodePro;
 `;
 
 const InnerWrapper = styled.div`
@@ -60,7 +57,7 @@ class UpdaterModal extends Component<Props> {
             <Text>An important App update is available.</Text>
             <Text>Would you like to install it now?</Text>
             <ButtonsWrapper>
-              <Button onClick={this.quitAppAndInstallUpdate} text="YES" style={{ marginRight: 20 }} />
+              <Button onClick={walletUpdateService.quitAppAndInstallUpdate} text="YES" style={{ marginRight: 20 }} />
               <Button onClick={onCloseModal} text="NO" isPrimary={false} />
             </ButtonsWrapper>
           </InnerWrapper>
@@ -68,12 +65,6 @@ class UpdaterModal extends Component<Props> {
       </Wrapper>
     );
   }
-
-  quitAppAndInstallUpdate = async () => {
-    const { onCloseModal } = this.props;
-    walletUpdateService.quitAppAndInstallUpdate();
-    onCloseModal();
-  };
 }
 
 export default UpdaterModal;

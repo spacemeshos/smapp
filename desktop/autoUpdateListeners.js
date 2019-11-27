@@ -1,25 +1,24 @@
 import { ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import type { UpdateCheckResult } from 'electron-updater';
 import { ipcConsts } from '../app/vars';
 
 const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
-  autoUpdater.on('update-available', () => mainWindow.webContents.send(ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, { isUpdateAvailable: true }));
-
-  autoUpdater.on('update-not-available', () => mainWindow.webContents.send(ipcConsts.GET_WALLET_UPDATE_STATUS_SUCCESS, { isUpdateAvailable: false }));
-
   autoUpdater.on('error', (error) => mainWindow.webContents.send(ipcConsts.WALLET_UPDATE_ERROR, { error }));
 
-  autoUpdater.on('download-progress', (progressObj) =>
-    mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, { receivedBytes: progressObj.transferred, totalBytes: progressObj.total })
-  );
+  autoUpdater.once('update-downloaded', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_COMPLETED));
 
-  autoUpdater.on('update-downloaded', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_SUCCESS));
+  ipcMain.on(ipcConsts.QUIT_AND_UPDATE, () => autoUpdater.quitAndInstall());
 
-  ipcMain.on(ipcConsts.QUIT_APP_AND_INSTALL_UPDATE, () => autoUpdater.quitAndInstall());
-
-  ipcMain.on(ipcConsts.GET_WALLET_UPDATE_STATUS, () => {
-    autoUpdater.checkForUpdates();
+  ipcMain.on(ipcConsts.CHECK_WALLET_UPDATE, async () => {
+    try {
+      const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates();
+      const isUpdateAvailable = !!updateCheckResult.downloadPromise;
+      mainWindow.webContents.send(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, { isUpdateAvailable });
+    } catch {
+      mainWindow.webContents.send(ipcConsts.WALLET_UPDATE_ERROR, { error: new Error('Error checking for updates.') });
+    }
   });
 };
 
-export { subscribeToAutoUpdateListeners }; // eslint-disable-line import/prefer-default-export
+export default subscribeToAutoUpdateListeners;

@@ -53,13 +53,10 @@ class App extends React.Component<Props, State> {
       return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
 
-    if (isUpdateDownloaded) {
-      return <UpdaterModal onCloseModal={this.closeUpdateModal} />;
-    }
-
     return (
       <>
         <GlobalStyle />
+        {isUpdateDownloaded ? <UpdaterModal onCloseModal={this.closeUpdateModal} /> : null}
         <Provider store={store}>
           <Router>
             <Switch>
@@ -78,6 +75,11 @@ class App extends React.Component<Props, State> {
     this.clearTimers();
     try {
       await this.checkForUpdate();
+      walletUpdateService.listenToUpdaterError({
+        onUpdaterError: () => {
+          throw new Error('Wallet Updater Error.');
+        }
+      });
       this.updateCheckInterval = setInterval(async () => {
         await this.checkForUpdate();
       }, 86400000);
