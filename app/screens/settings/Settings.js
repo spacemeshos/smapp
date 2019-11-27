@@ -127,7 +127,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
               <SettingRow
-                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
+                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"

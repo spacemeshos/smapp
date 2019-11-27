@@ -11,16 +11,16 @@
 import path from 'path';
 import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
+import subscribeToAutoUpdateListeners from './autoUpdateListeners';
 
 export default class AppUpdater {
   constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.logger = null;
+    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoDownload = true;
   }
 }
 
@@ -87,6 +87,7 @@ const createWindow = () => {
   });
   // Add event listeners.
   subscribeToEventListeners({ mainWindow });
+  subscribeToAutoUpdateListeners({ mainWindow });
 };
 
 app.on('ready', async () => {
