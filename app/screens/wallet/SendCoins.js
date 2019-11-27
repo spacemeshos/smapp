@@ -7,7 +7,7 @@ import { CreateNewContact } from '/components/contacts';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
-import { smeshToShmkl } from '/infra/utils';
+import { smeshToSmg } from '/infra/utils';
 
 type Props = {
   contacts: Contact[],
@@ -59,7 +59,7 @@ class SendCoins extends Component<Props, State> {
         return (
           <TxConfirmation
             address={address}
-            fromAddress={currentAccount.pk}
+            fromAddress={currentAccount.publicKey}
             amount={amount}
             fee={fee}
             note={note}
@@ -74,7 +74,7 @@ class SendCoins extends Component<Props, State> {
         return (
           <TxSent
             address={address}
-            fromAddress={currentAccount.pk}
+            fromAddress={currentAccount.publicKey}
             amount={amount}
             txId={txId}
             doneAction={history.goBack}
@@ -93,7 +93,7 @@ class SendCoins extends Component<Props, State> {
     const { address, hasAddressError, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
-        fromAddress={currentAccount.pk}
+        fromAddress={currentAccount.publicKey}
         initialAddress={location?.state?.contact.address || ''}
         contacts={lastUsedContacts.concat(contacts)}
         hasAddressError={hasAddressError}
@@ -120,7 +120,7 @@ class SendCoins extends Component<Props, State> {
           key="newContact"
         />
       ) : (
-        <TxSummary address={address} fromAddress={currentAccount.pk} amount={amount} fee={fee} note={note} key="summary" />
+        <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={amount} fee={fee} note={note} key="summary" />
       )
     ];
   };
@@ -164,10 +164,10 @@ class SendCoins extends Component<Props, State> {
   };
 
   sendTransaction = async () => {
-    const { sendTransaction } = this.props;
+    const { sendTransaction, currentAccount } = this.props;
     const { address, amount, fee, note } = this.state;
     try {
-      const txId = await sendTransaction({ recipient: address, amount: smeshToShmkl(amount), price: fee, note });
+      const txId = await sendTransaction({ sender: currentAccount.publicKey, recipient: address, amount: smeshToSmg(amount), price: fee, note });
       this.setState({ mode: 3, txId });
     } catch (error) {
       this.setState(() => {

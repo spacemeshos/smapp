@@ -118,6 +118,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.sendTx({ event, ...request });
   });
 
+  ipcMain.on(ipcConsts.GET_ACCOUNT_TXS, (event, request) => {
+    netService.getAccountTxs({ event, ...request });
+  });
+
   ipcMain.on(ipcConsts.GET_LATEST_VALID_LAYER_ID, (event) => {
     netService.getLatestValidLayerId({ event });
   });

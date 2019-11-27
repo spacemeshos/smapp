@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
+import { getAbbreviatedText, smgToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -122,27 +122,27 @@ class AccountsOverview extends Component<Props, State> {
     if (!accounts || !accounts.length) {
       return null;
     }
-    const { displayName, pk, balance } = accounts[currentAccountIndex];
+    const { displayName, publicKey, balance } = accounts[currentAccountIndex];
     return (
       <WrapperWith2SideBars width={300} height={480} header={walletName}>
         <AccountDetails>
           {accounts.length > 1 ? (
             <DropDown
               data={accounts}
-              DdElement={({ displayName, pk, isMain }) => this.renderAccountRow({ displayName, pk, isInDropDown: !isMain })}
+              DdElement={({ displayName, publicKey, isMain }) => this.renderAccountRow({ displayName, publicKey, isInDropDown: !isMain })}
               onPress={switchAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
             />
           ) : (
-            this.renderAccountRow({ displayName, pk })
+            this.renderAccountRow({ displayName, publicKey })
           )}
         </AccountDetails>
         {isCopied && <CopiedText>COPIED</CopiedText>}
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
-            <BalanceAmount>{shmklToSmesh(balance)}</BalanceAmount>
+            <BalanceAmount>{smgToSmesh(balance)}</BalanceAmount>
             <SmhText>SMH</SmhText>
           </BalanceWrapper>
         </Footer>
@@ -150,11 +150,11 @@ class AccountsOverview extends Component<Props, State> {
     );
   }
 
-  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
+  renderAccountRow = ({ displayName, publicKey, isInDropDown }: { displayName: string, publicKey: string, isInDropDown?: boolean }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
-        {getAbbreviatedText(pk)}
+        {getAbbreviatedText(publicKey)}
         <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
@@ -163,7 +163,7 @@ class AccountsOverview extends Component<Props, State> {
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(`0x${accounts[currentAccountIndex].pk}`);
+    clipboard.writeText(`0x${accounts[currentAccountIndex].publicKey}`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };

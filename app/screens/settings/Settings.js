@@ -11,9 +11,9 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
 import { autoStartService } from '/infra/autoStartService';
 import { smColors } from '/vars';
+import { localStorageService } from '/infra/storageService';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
-import { localStorageService } from '/infra/storageService';
 import { version } from '../../../package.json';
 
 const Wrapper = styled.div`
@@ -201,8 +201,8 @@ class Settings extends Component<Props, State> {
                       <Link onClick={() => this.startEditingAccountDisplayName({ index })} text="EDIT" />
                     )
                   }
-                  rowName={account.pk}
-                  key={account.pk}
+                  rowName={account.publicKey}
+                  key={account.publicKey}
                 />
               ))}
             </SettingsSection>

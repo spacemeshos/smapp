@@ -67,6 +67,16 @@ class NetService {
       });
     });
 
+  _getRewards = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetAccountRewards({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   _setAwardsAddress = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.SetAwardsAddress({ address }, (error, response) => {
@@ -107,10 +117,10 @@ class NetService {
       });
     });
 
-  _getTxList = ({ address, layerId }) =>
+  _getAccountTxs = ({ address, layerId }) =>
     new Promise((resolve, reject) => {
       let transactions = [];
-      const stream = this.service.GetTxList({ address, layerId });
+      const stream = this.service.GetAccountTxs({ address, layerId });
       stream.on('data', (data) => {
         transactions = transactions.concat(data);
       });
@@ -212,9 +222,9 @@ class NetService {
     }
   };
 
-  getTxList = async ({ event, address, layerId }) => {
+  getAccountTxs = async ({ event, startLayer, account }) => {
     try {
-      const { transactions } = await this._getTxList({ address, layerId });
+      const { transactions } = await this._getAccountTxs({ startLayer, account });
       event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, transactions);
     } catch (error) {
       event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);

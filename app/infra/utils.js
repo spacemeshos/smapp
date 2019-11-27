@@ -35,8 +35,27 @@ const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize
 
 const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 
-const smeshToShmkl = (amount: number) => amount * 10 ** 12;
+const smeshToSmg = (amount: number) => amount * 10 ** 12;
 
-const shmklToSmesh = (amount: number) => amount / 10 ** 12;
+const smgToSmesh = (amount: number) => amount / 10 ** 12;
 
-export { fromHexString, toHexString, getWalletAddress, getWalletName, getAccountName, listenerCleanup, createError, getAbbreviatedText, formatNumber, smeshToShmkl, shmklToSmesh };
+const asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index += 1) {
+    await callback(array[index], index, array); // eslint-disable-line no-await-in-loop
+  }
+};
+
+export {
+  fromHexString,
+  toHexString,
+  getWalletAddress,
+  getWalletName,
+  getAccountName,
+  listenerCleanup,
+  createError,
+  getAbbreviatedText,
+  formatNumber,
+  smeshToSmg,
+  smgToSmesh,
+  asyncForEach
+};

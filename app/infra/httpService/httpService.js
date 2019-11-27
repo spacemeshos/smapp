@@ -122,7 +122,7 @@ class HttpService {
     });
   }
 
-  static getNonce({ address }: { address: string }) {
+  static getNonce({ address }: { address: Uint8Array }) {
     ipcRenderer.send(ipcConsts.GET_NONCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_NONCE_SUCCESS, (event, response) => {
@@ -145,6 +145,20 @@ class HttpService {
       });
       ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SEND_TX_SUCCESS, ipcConsts.SEND_TX_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static getAccountTxs({ startLayer, account }: { startLayer: number, account: Uint8Array }) {
+    ipcRenderer.send(ipcConsts.GET_ACCOUNT_TXS, { startLayer, account });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_TXS_SUCCESS, ipcConsts.GET_ACCOUNT_TXS_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_TXS_SUCCESS, ipcConsts.GET_ACCOUNT_TXS_FAILURE] });
         reject(args);
       });
     });

@@ -1,16 +1,15 @@
 // @flow
 
 export type Tx = {
-  id: string,
-  isSent?: boolean,
-  isPending?: boolean,
-  isRejected?: boolean,
+  txId: string,
+  sender: string,
+  receiver: string,
   amount: number,
-  address: string,
-  nickname?: string,
-  date: string,
-  isSavedContact: boolean,
   fee: number,
+  status: number,
+  layerId: number,
+  timestamp: number,
+  nickname?: string,
   note?: string
 };
 

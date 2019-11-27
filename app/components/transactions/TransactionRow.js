@@ -5,8 +5,9 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
+import { getAbbreviatedText, smgToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
+import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
 
 const getDateText = (date: string) => {
@@ -159,6 +160,7 @@ const TextArea = styled.textarea`
 type Props = {
   updateTransaction: Action,
   transaction: Tx,
+  publicKey: string,
   addAddressToContacts: ({ address: string }) => void
 };
 
@@ -179,16 +181,20 @@ class TransactionRow extends Component<Props, State> {
   render() {
     const { isDetailed, note } = this.state;
     const {
-      transaction: { id, isSent, isPending, isRejected, amount, fee, address, date, isSavedContact, nickname }
+      transaction: { txId, sender, status, amount, fee, timestamp, layerId, nickname },
+      publicKey
     } = this.props;
+    const isSent = sender === publicKey;
+    const isPending = status === TX_STATUSES.PENDING;
+    const isRejected = status === TX_STATUSES.REJECTED;
     const color = getColor({ isSent, isPending, isRejected });
     const detailRows = [
-      { title: 'TRANSACTION ID', value: getAbbreviatedText(id) },
+      { title: 'TRANSACTION ID', value: getAbbreviatedText(txId) },
       { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
-      { title: 'BLOCK', value: 7701538 }, // TODO: needs real value
-      { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(address) },
-      { title: 'TO', value: isSent ? getAbbreviatedText(address) : 'Me' },
-      { title: 'VALUE', value: `${shmklToSmesh(amount)}` },
+      { title: 'LAYER ID', value: layerId },
+      { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(sender) },
+      { title: 'TO', value: isSent ? getAbbreviatedText(sender) : 'Me' },
+      { title: 'VALUE', value: `${smgToSmesh(amount)}` },
       { title: 'TRANSACTION FEE', value: `${fee || 0} Shmkl` }
     ];
     return (
@@ -197,12 +203,12 @@ class TransactionRow extends Component<Props, State> {
           <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
           <MainWrapper>
             <Section>
-              {isSavedContact && nickname && <DarkGrayText>{nickname.toUpperCase()}</DarkGrayText>}
-              <Text>{getAbbreviatedText(id)}</Text>
+              {nickname && <DarkGrayText>{nickname.toUpperCase()}</DarkGrayText>}
+              <Text>{getAbbreviatedText(txId)}</Text>
             </Section>
             <Section>
-              <Amount color={color}>{parseFloat(shmklToSmesh(amount).toFixed(4))}</Amount>
-              <DarkGrayText>{getDateText(date)}</DarkGrayText>
+              <Amount color={color}>{parseFloat(smgToSmesh(amount).toFixed(4))}</Amount>
+              <DarkGrayText>{getDateText(timestamp)}</DarkGrayText>
             </Section>
           </MainWrapper>
         </RowWrapper>
@@ -214,7 +220,7 @@ class TransactionRow extends Component<Props, State> {
                   <BlackText>{detailRow.title}</BlackText>
                   <Dots>...............</Dots>
                   <BoldText color={detailRow.color || smColors.realBlack}>
-                    {detailRow.value} {this.renderAddToContactIcon({ isSent, isSavedContact, title: detailRow.title })}
+                    {detailRow.value} {!nickname && this.renderAddToContactIcon({ isSent, title: detailRow.title })}
                   </BoldText>
                 </TextRow>
               ))}
@@ -240,9 +246,9 @@ class TransactionRow extends Component<Props, State> {
     );
   }
 
-  renderAddToContactIcon = ({ isSent, isSavedContact, title }: { isSent: boolean, isSavedContact: boolean, title: string }) => {
+  renderAddToContactIcon = ({ isSent, title }: { isSent: boolean, title: string }) => {
     const isFieldToOrFrom = (isSent && title === 'TO') || (!isSent && title === 'FROM');
-    return !isSavedContact && isFieldToOrFrom && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />;
+    return isFieldToOrFrom && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />;
   };
 
   handleAddToContacts = (event: Event) => {

@@ -11,33 +11,21 @@ import type { TxList, Tx } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
+import TX_STATUSES from '/vars/enums';
 
-const getNumOfCoinsFromTransactions = ({ transactions, allTransactions }: { transactions: TxList, allTransactions: TxList }) => {
+const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string, transactions: TxList }) => {
   const coins = {
     mined: 0,
     sent: 0,
-    received: 0,
-    totalMined: 0,
-    totalSent: 0,
-    totalReceived: 0
+    received: 0
   };
 
-  transactions.forEach((transaction: Tx) => {
-    if (!transaction.isPending && !transaction.isRejected) {
-      if (transaction.isSent) {
+  transactions.forEach(({ status, sender }: { status: number, sender: string }) => {
+    if (![TX_STATUSES.PENDING, TX_STATUSES.REJECTED].includes(status)) {
+      if (sender === publicKey) {
         coins.sent += 1;
       } else {
         coins.received += 1;
-      }
-    }
-  });
-
-  allTransactions.forEach((transaction: Tx) => {
-    if (!transaction.isPending && !transaction.isRejected) {
-      if (transaction.isSent) {
-        coins.totalSent += 1;
-      } else {
-        coins.totalReceived += 1;
       }
     }
   });
@@ -93,6 +81,7 @@ const TimeSpanEntry = styled.div`
 const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
 
 type Props = {
+  publicKey: string,
   transactions: { data: TxList },
   history: RouterHistory
 };
@@ -112,13 +101,18 @@ type State = {
 class Transactions extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const filteredTransactions = this.filterTransactions({ index: 1, transactions: props.transactions });
-    const coins = getNumOfCoinsFromTransactions({ transactions: filteredTransactions, allTransactions: props.transactions.data });
+    const { publicKey, transactions } = props;
+    const filteredTransactions = this.filterTransactions({ index: 1, transactions });
+    const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
+    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions.data });
     this.state = {
       selectedItemIndex: 1,
       filteredTransactions,
       mined: 0,
       ...coins,
+      totalMined: totalCoins.mined,
+      totalSent: totalCoins.sent,
+      totalReceived: totalCoins.received,
       addressToAdd: ''
     };
   }
@@ -177,9 +171,9 @@ class Transactions extends Component<Props, State> {
   };
 
   handlePress = ({ index }) => {
-    const { transactions } = this.props;
+    const { transactions, publicKey } = this.props;
     const filteredTransactions = this.filterTransactions({ index, transactions });
-    const coins = getNumOfCoinsFromTransactions({ transactions: filteredTransactions, allTransactions: transactions.data });
+    const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
     this.setState({
       selectedItemIndex: index,
       filteredTransactions: [...filteredTransactions],
@@ -209,6 +203,7 @@ class Transactions extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
+  publicKey: state.wallet.accounts[state.wallet.currentAccountIndex].publicKey,
   transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
