@@ -5,12 +5,14 @@ import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
+import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+import { UpdaterModal } from '/components/updater';
 
 const HEALTH_CHECK_INTERVAL = 360000;
 
@@ -25,7 +27,8 @@ setConfig(configOptions);
 type Props = {};
 
 type State = {
-  error: ?Error
+  error: ?Error,
+  isUpdateDownloaded: boolean
 };
 
 class App extends React.Component<Props, State> {
@@ -34,20 +37,26 @@ class App extends React.Component<Props, State> {
 
   healthCheckInterval: IntervalID;
 
+  updateCheckInterval: IntervalID;
+
   checkConnectionTimer: TimeoutID;
 
   state = {
-    error: null
+    error: null,
+    isUpdateDownloaded: false
   };
 
   render() {
-    const { error } = this.state;
+    const { error, isUpdateDownloaded } = this.state;
+
     if (error) {
       return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
     }
+
     return (
       <>
         <GlobalStyle />
+        {isUpdateDownloaded ? <UpdaterModal onCloseModal={this.closeUpdateModal} /> : null}
         <Provider store={store}>
           <Router>
             <Switch>
@@ -64,6 +73,21 @@ class App extends React.Component<Props, State> {
 
   async componentDidMount() {
     this.clearTimers();
+    try {
+      walletUpdateService.listenToUpdaterError({
+        onUpdaterError: () => {
+          throw new Error('Wallet Updater Error.');
+        }
+      });
+      await this.checkForUpdate();
+      this.updateCheckInterval = setInterval(async () => {
+        await this.checkForUpdate();
+      }, 86400000);
+    } catch {
+      this.setState({
+        error: new Error('Wallet update check has failed.')
+      });
+    }
     const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       try {
@@ -87,6 +111,7 @@ class App extends React.Component<Props, State> {
   clearTimers = () => {
     this.healthCheckInterval && clearInterval(this.healthCheckInterval);
     this.startNodeInterval && clearInterval(this.startNodeInterval);
+    this.updateCheckInterval && clearInterval(this.updateCheckInterval);
     this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
   };
 
@@ -120,6 +145,15 @@ class App extends React.Component<Props, State> {
       }, intervalTime);
     });
   };
+
+  checkForUpdate = async () => {
+    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
+    isUpdateAvailable && this.listenToDownloadUpdate();
+  };
+
+  listenToDownloadUpdate = () => walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateDownloaded: true }) });
+
+  closeUpdateModal = () => this.setState({ isUpdateDownloaded: false });
 
   healthCheckFlow = async () => {
     await store.dispatch(getMiningStatus());
