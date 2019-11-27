@@ -15,7 +15,7 @@ class WalletUpdateService {
   }
 
   static listenToUpdaterError({ onUpdaterError }: { onUpdaterError: () => void }) {
-    ipcRenderer.once(ipcConsts.WALLET_UPDATE_ERROR, (event, xml) => {
+    ipcRenderer.once(ipcConsts.WALLET_UPDATE_ERROR, () => {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR, ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
       onUpdaterError && onUpdaterError();
     });
