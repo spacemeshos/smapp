@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '/basicComponents';
-import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
+import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -133,12 +133,12 @@ class TxConfirmation extends PureComponent<Props> {
           <DetailsTextLeft>{amount}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>Shmkl fee</DetailsTextRight>
+          <DetailsTextRight>Smidge fee</DetailsTextRight>
           <DetailsTextLeft>{fee}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow isLast>
           <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{amount + parseFloat(shmklToSmesh(fee).toFixed(4))}</TotalText>
+          <TotalText>{amount + parseFloat(smidgeToSmesh(fee).toFixed(4))}</TotalText>
         </DetailsRow>
         <Footer>
           <ComplexButton>
