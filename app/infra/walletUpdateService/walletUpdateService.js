@@ -9,12 +9,6 @@ class WalletUpdateService {
     ipcRenderer.send(ipcConsts.CHECK_WALLET_UPDATE);
     return new Promise<string, Error>((resolve: Function) => {
       ipcRenderer.once(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, (event, xml) => {
-        const { isUpdateAvailable }: { isUpdateAvailable: boolean } = xml;
-        isUpdateAvailable &&
-          notificationsService.notify({
-            title: 'Spacemesh',
-            notification: 'An important update is available. Downloading in the background.'
-          });
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS] });
         resolve(xml);
       });
@@ -33,7 +27,7 @@ class WalletUpdateService {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'App update downloaded.'
+        notification: 'An important update is available.'
       });
       onDownloadUpdateCompleted();
     });

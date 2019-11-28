@@ -24,13 +24,10 @@ class NotificationsService {
   static checkAppVisibility() {
     ipcRenderer.send(ipcConsts.CHECK_APP_VISIBLITY);
     return new Promise<string, Error>((resolve: Function) => {
-      ipcRenderer.once(ipcConsts.APP_VISIBLE, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.APP_VISIBLE, ipcConsts.APP_HIDDEN] });
-        resolve(true);
-      });
-      ipcRenderer.once(ipcConsts.APP_HIDDEN, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.APP_VISIBLE, ipcConsts.APP_HIDDEN] });
-        resolve(false);
+      ipcRenderer.once(ipcConsts.IS_APP_VISIBLE, (event, xml) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.IS_APP_VISIBLE] });
+        const { isAppVisible } = xml;
+        resolve(isAppVisible);
       });
     });
   }

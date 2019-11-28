@@ -113,9 +113,7 @@ app.on('ready', async () => {
     mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
   });
 
-  ipcMain.on(ipcConsts.CHECK_APP_VISIBLITY, () =>
-    mainWindow.isVisible() && mainWindow.isFocused() ? mainWindow.webContents.send(ipcConsts.APP_VISIBLE) : mainWindow.webContents.send(ipcConsts.APP_HIDDEN)
-  );
+  ipcMain.on(ipcConsts.CHECK_APP_VISIBLITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, { isAppVisible: mainWindow.isVisible() && mainWindow.isFocused() }));
 
   ipcMain.on(ipcConsts.QUIT_APP, () => {
     mainWindow.destroy();
