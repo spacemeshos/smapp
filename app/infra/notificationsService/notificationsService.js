@@ -26,8 +26,7 @@ class NotificationsService {
     return new Promise<string, Error>((resolve: Function) => {
       ipcRenderer.once(ipcConsts.IS_APP_VISIBLE, (event, xml) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.IS_APP_VISIBLE] });
-        const { isAppVisible } = xml;
-        resolve(isAppVisible);
+        resolve(xml);
       });
     });
   }
