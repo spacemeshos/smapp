@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
-import { getAbbreviatedText, shmklToSmesh } from '/infra/utils';
+import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Tx } from '/types';
 
@@ -85,7 +85,7 @@ class Transaction extends PureComponent<Props> {
           </Section>
           <Section>
             <Text>{getDateText(date)}</Text>
-            <Amount color={color}>{parseFloat(shmklToSmesh(amount).toFixed(4))}</Amount>
+            <Amount color={color}>{parseFloat(smidgeToSmesh(amount).toFixed(4))}</Amount>
           </Section>
         </MainWrapper>
       </Wrapper>
