@@ -2,6 +2,7 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 import { listenerCleanup } from '/infra/utils';
+import { notificationsService } from '/infra/notificationsService';
 
 class WalletUpdateService {
   static checkForWalletUpdate() {
@@ -24,6 +25,10 @@ class WalletUpdateService {
   static listenToDownloadUpdate({ onDownloadUpdateCompleted }: { onDownloadUpdateCompleted: () => void }) {
     ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_COMPLETED, () => {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
+      notificationsService.notify({
+        title: 'Spacemesh',
+        notification: 'An important update is available.'
+      });
       onDownloadUpdateCompleted();
     });
   }

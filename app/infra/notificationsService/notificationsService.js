@@ -2,11 +2,13 @@
 import path from 'path';
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
+import { listenerCleanup } from '/infra/utils';
 
 class NotificationsService {
   static notify = async ({ title, notification, callback }: { title: string, notification: string, callback: () => void }) => {
     const isPermitted = await Notification.requestPermission();
-    if (isPermitted) {
+    const isAppVisible = await NotificationsService.checkAppVisibility();
+    if (isPermitted && !isAppVisible) {
       const notificationOptions: any = {
         body: notification,
         icon: path.join(__dirname, '..', 'resources', 'icon.png')
@@ -18,6 +20,16 @@ class NotificationsService {
       };
     }
   };
+
+  static checkAppVisibility() {
+    ipcRenderer.send(ipcConsts.CHECK_APP_VISIBLITY);
+    return new Promise<string, Error>((resolve: Function) => {
+      ipcRenderer.once(ipcConsts.IS_APP_VISIBLE, (event, xml) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.IS_APP_VISIBLE] });
+        resolve(xml);
+      });
+    });
+  }
 }
 
 export default NotificationsService;
