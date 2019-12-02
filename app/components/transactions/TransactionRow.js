@@ -5,7 +5,7 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, smgToSmesh } from '/infra/utils';
+import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
@@ -194,7 +194,7 @@ class TransactionRow extends Component<Props, State> {
       { title: 'LAYER ID', value: layerId },
       { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(sender) },
       { title: 'TO', value: isSent ? getAbbreviatedText(sender) : 'Me' },
-      { title: 'VALUE', value: `${smgToSmesh(amount)}` },
+      { title: 'VALUE', value: `${smidgeToSmesh(amount)}` },
       { title: 'TRANSACTION FEE', value: `${fee || 0} Shmkl` }
     ];
     return (
@@ -207,7 +207,7 @@ class TransactionRow extends Component<Props, State> {
               <Text>{getAbbreviatedText(txId)}</Text>
             </Section>
             <Section>
-              <Amount color={color}>{parseFloat(smgToSmesh(amount).toFixed(4))}</Amount>
+              <Amount color={color}>{parseFloat(smidgeToSmesh(amount).toFixed(4))}</Amount>
               <DarkGrayText>{getDateText(timestamp)}</DarkGrayText>
             </Section>
           </MainWrapper>

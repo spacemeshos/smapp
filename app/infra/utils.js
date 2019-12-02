@@ -35,15 +35,9 @@ const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize
 
 const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 
-const smeshToSmg = (amount: number) => amount * 10 ** 12;
+const smeshToSmidge = (amount: number) => amount * 10 ** 12;
 
-const smgToSmesh = (amount: number) => amount / 10 ** 12;
-
-const asyncForEach = async (array, callback) => {
-  for (let index = 0; index < array.length; index += 1) {
-    await callback(array[index], index, array); // eslint-disable-line no-await-in-loop
-  }
-};
+const smidgeToSmesh = (amount: number) => amount / 10 ** 12;
 
 export {
   fromHexString,
@@ -55,7 +49,6 @@ export {
   createError,
   getAbbreviatedText,
   formatNumber,
-  smeshToSmg,
-  smgToSmesh,
-  asyncForEach
+  smeshToSmidge,
+  smidgeToSmesh
 };
