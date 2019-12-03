@@ -30,8 +30,6 @@ class WalletUpdateService {
     onUpdateProgress: ({ downloadPercent: number }) => void
   }) {
     ipcRenderer.on(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, (event, { downloadPercent }: { downloadPercent: number }) => {
-      // eslint-disable-next-line no-console
-      console.warn('DOWNLOAD PERCENT', downloadPercent);
       onUpdateProgress && onUpdateProgress({ downloadPercent });
     });
     ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_COMPLETED, () => {

@@ -1,9 +1,7 @@
 import { ipcMain } from 'electron';
-import { autoUpdater, CancellationToken } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import type { UpdateCheckResult } from 'electron-updater';
 import { ipcConsts } from '../app/vars';
-
-const cancellationToken = new CancellationToken();
 
 const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
   autoUpdater.on('error', (error) => mainWindow.webContents.send(ipcConsts.WALLET_UPDATE_ERROR, { error }));
@@ -14,9 +12,8 @@ const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.QUIT_AND_UPDATE, () => autoUpdater.quitAndInstall());
 
-  ipcMain.on(ipcConsts.CHECK_WALLET_UPDATE, async (cancelBeforeCheck) => {
-    cancelBeforeCheck && (await CancellationToken.cancel());
-    const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates(cancellationToken);
+  ipcMain.on(ipcConsts.CHECK_WALLET_UPDATE, async () => {
+    const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates();
     const isUpdateAvailable = !!updateCheckResult.downloadPromise;
     mainWindow.webContents.send(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, { isUpdateAvailable });
   });
