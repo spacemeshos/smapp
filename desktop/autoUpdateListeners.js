@@ -6,9 +6,9 @@ import { ipcConsts } from '../app/vars';
 const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
   autoUpdater.on('error', (error) => mainWindow.webContents.send(ipcConsts.WALLET_UPDATE_ERROR, { error }));
 
-  autoUpdater.on('download-progress', (progressObj) => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, { downloadPercent: progressObj.percent }));
+  autoUpdater.once('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
 
-  autoUpdater.once('update-downloaded', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_COMPLETED));
+  autoUpdater.on('update-downloaded', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_COMPLETED));
 
   ipcMain.on(ipcConsts.QUIT_AND_UPDATE, () => autoUpdater.quitAndInstall());
 

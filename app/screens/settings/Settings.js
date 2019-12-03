@@ -121,11 +121,8 @@ class Settings extends Component<Props, State> {
       isUpdateReady
     } = this.state;
 
-    if (isUpdateReady) {
-      return <UpdaterModal onCloseModal={() => this.setState({ isUpdateReady: false })} />;
-    }
-
-    return (
+    return [
+      isUpdateReady && <UpdaterModal onCloseModal={() => this.setState({ isUpdateReady: false })} />,
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
@@ -259,7 +256,7 @@ class Settings extends Component<Props, State> {
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
       </Wrapper>
-    );
+    ];
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -271,9 +268,7 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
-  componentDidMount = () => this.listenToDownloadUpdate();
-
-  handleProgressUpdate = ({ downloadPercent }: { downloadPercent: number }) => this.setState({ isUpdateDownloading: !!downloadPercent });
+  componentDidMount = () => this.setState({ isUpdateDownloading: localStorageService.get('isUpdateDownloading') });
 
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
@@ -315,8 +310,7 @@ class Settings extends Component<Props, State> {
     isUpdateAvailable && this.listenToDownloadUpdate();
   };
 
-  listenToDownloadUpdate = () =>
-    walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateReady: true }), onUpdateProgress: this.handleProgressUpdate });
+  listenToDownloadUpdate = () => walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateReady: true }) });
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
