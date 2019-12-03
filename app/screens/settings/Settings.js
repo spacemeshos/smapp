@@ -14,7 +14,9 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { localStorageService } from '/infra/storageService';
+import { walletUpdateService } from '/infra/walletUpdateService';
 import { version } from '../../../package.json';
+import { UpdaterModal } from '/components/updater';
 
 const Wrapper = styled.div`
   display: flex;
@@ -68,7 +70,9 @@ type State = {
   editedAccountIndex: number,
   accountDisplayNames: Array<string>,
   nodeIp: string,
-  currentSettingIndex: number
+  currentSettingIndex: number,
+  isUpdateDownloading: ?boolean,
+  isUpdateReady: boolean
 };
 
 class Settings extends Component<Props, State> {
@@ -91,7 +95,9 @@ class Settings extends Component<Props, State> {
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
-      currentSettingIndex: 0
+      currentSettingIndex: 0,
+      isUpdateDownloading: null,
+      isUpdateReady: false
     };
 
     this.myRef1 = React.createRef();
@@ -103,7 +109,22 @@ class Settings extends Component<Props, State> {
 
   render() {
     const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
-    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
+    const {
+      walletDisplayName,
+      canEditDisplayName,
+      isAutoStartEnabled,
+      accountDisplayNames,
+      editedAccountIndex,
+      nodeIp,
+      currentSettingIndex,
+      isUpdateDownloading,
+      isUpdateReady
+    } = this.state;
+
+    if (isUpdateReady) {
+      return <UpdaterModal onCloseModal={() => this.setState({ isUpdateReady: false })} />;
+    }
+
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -173,7 +194,23 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
-              <SettingRow upperPartLeft={version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
+              <SettingRow
+                upperPartLeft={version}
+                upperPartRight={[
+                  isUpdateDownloading === true && (
+                    <Text key="1" style={{ width: 170 }}>
+                      Downloading update...
+                    </Text>
+                  ),
+                  isUpdateDownloading === false && (
+                    <Text key="2" style={{ width: 170 }}>
+                      No updates available
+                    </Text>
+                  ),
+                  <Link key="3" style={{ width: 144 }} onClick={this.checkForUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading === true} />
+                ]}
+                rowName="Spacemesh Wallet Version"
+              />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
@@ -234,6 +271,10 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
+  componentDidMount = () => this.listenToDownloadUpdate();
+
+  handleProgressUpdate = ({ downloadPercent }: { downloadPercent: number }) => this.setState({ isUpdateDownloading: !!downloadPercent });
+
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
   startEditingWalletDisplayName = () => this.setState({ canEditDisplayName: true });
@@ -267,6 +308,15 @@ class Settings extends Component<Props, State> {
       await updateAccount({ accountIndex, fieldName: 'displayName', data: value });
     }
   };
+
+  checkForUpdate = async () => {
+    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
+    this.setState({ isUpdateDownloading: isUpdateAvailable });
+    isUpdateAvailable && this.listenToDownloadUpdate();
+  };
+
+  listenToDownloadUpdate = () =>
+    walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateReady: true }), onUpdateProgress: this.handleProgressUpdate });
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
