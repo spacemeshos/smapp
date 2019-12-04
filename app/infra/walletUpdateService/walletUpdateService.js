@@ -27,7 +27,7 @@ class WalletUpdateService {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
       onDownloadProgress();
     });
-    ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_COMPLETED, () => {
+    ipcRenderer.on(ipcConsts.DOWNLOAD_UPDATE_COMPLETED, () => {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
       notificationsService.notify({
         title: 'Spacemesh',

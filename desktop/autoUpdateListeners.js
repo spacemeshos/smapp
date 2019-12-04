@@ -14,7 +14,7 @@ const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
     const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates();
     const isUpdateAvailable = !!updateCheckResult.downloadPromise;
     mainWindow.webContents.send(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, { isUpdateAvailable });
-    autoUpdater.on('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
+    autoUpdater.once('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
   });
 };
 
