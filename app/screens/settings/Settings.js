@@ -16,7 +16,6 @@ import type { Account, Action } from '/types';
 import { localStorageService } from '/infra/storageService';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { version } from '../../../package.json';
-import { UpdaterModal } from '/components/updater';
 
 const Wrapper = styled.div`
   display: flex;
@@ -60,7 +59,8 @@ type Props = {
   setNodeIpAddress: Action,
   isConnected: boolean,
   history: RouterHistory,
-  nodeIpAddress: string
+  nodeIpAddress: string,
+  isUpdateDownloading: boolean
 };
 
 type State = {
@@ -71,8 +71,7 @@ type State = {
   accountDisplayNames: Array<string>,
   nodeIp: string,
   currentSettingIndex: number,
-  isUpdateDownloading: ?boolean,
-  isUpdateReady: boolean
+  isUpdateDownloading: ?boolean
 };
 
 class Settings extends Component<Props, State> {
@@ -96,8 +95,7 @@ class Settings extends Component<Props, State> {
       accountDisplayNames,
       nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
-      isUpdateDownloading: null,
-      isUpdateReady: false
+      isUpdateDownloading: props.isUpdateDownloading || null
     };
 
     this.myRef1 = React.createRef();
@@ -109,20 +107,9 @@ class Settings extends Component<Props, State> {
 
   render() {
     const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
-    const {
-      walletDisplayName,
-      canEditDisplayName,
-      isAutoStartEnabled,
-      accountDisplayNames,
-      editedAccountIndex,
-      nodeIp,
-      currentSettingIndex,
-      isUpdateDownloading,
-      isUpdateReady
-    } = this.state;
+    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex, isUpdateDownloading } = this.state;
 
-    return [
-      isUpdateReady && <UpdaterModal onCloseModal={() => this.setState({ isUpdateReady: false })} />,
+    return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
@@ -256,7 +243,7 @@ class Settings extends Component<Props, State> {
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
       </Wrapper>
-    ];
+    );
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -267,8 +254,6 @@ class Settings extends Component<Props, State> {
     }
     return null;
   }
-
-  componentDidMount = () => this.setState({ isUpdateDownloading: localStorageService.get('isUpdateDownloading') });
 
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
@@ -307,10 +292,7 @@ class Settings extends Component<Props, State> {
   checkForUpdate = async () => {
     const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
     this.setState({ isUpdateDownloading: isUpdateAvailable });
-    isUpdateAvailable && this.listenToDownloadUpdate();
   };
-
-  listenToDownloadUpdate = () => walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateReady: true }) });
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
@@ -396,6 +378,7 @@ const mapStateToProps = (state) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
+  isUpdateDownloading: state.wallet.isUpdateDownloading,
   nodeIpAddress: state.node.nodeIpAddress
 });
 

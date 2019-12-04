@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
+import { setUpdateDownloading, setUpdateReady } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
@@ -79,9 +80,10 @@ class App extends React.Component<Props, State> {
           throw new Error('Wallet Updater Error.');
         }
       });
-      await this.checkForUpdate();
+      this.listenToDownloadUpdate();
+      await walletUpdateService.checkForWalletUpdate();
       this.updateCheckInterval = setInterval(async () => {
-        await this.checkForUpdate();
+        await walletUpdateService.checkForWalletUpdate();
       }, 86400000);
     } catch {
       this.setState({
@@ -146,12 +148,16 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  checkForUpdate = async () => {
-    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
-    isUpdateAvailable && this.listenToDownloadUpdate();
+  listenToDownloadUpdate = () => {
+    walletUpdateService.listenToDownloadUpdate({
+      onDownloadUpdateCompleted: () => {
+        store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
+        store.dispatch(setUpdateReady({ isUpdateReady: true }));
+        this.setState({ isUpdateDownloaded: true });
+      },
+      onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
+    });
   };
-
-  listenToDownloadUpdate = () => walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateDownloaded: true }) });
 
   closeUpdateModal = () => this.setState({ isUpdateDownloaded: false });
 

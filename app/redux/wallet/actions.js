@@ -21,6 +21,9 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE: string = 'SET_BALANCE';
 
+export const SET_UPDATE_DOWNLOADING: string = 'IS_UPDATE_DOWNLOADING';
+export const SET_UPDATE_READY: string = 'IS_UPDATE_READY';
+
 const getMaxLayerId = ({ transactions }) => {
   let max = 0;
   Object.keys(transactions).forEach((key) => {
@@ -299,3 +302,7 @@ export const backupWallet = (): Action => async (dispatch: Dispatch, getState: G
     throw createError('Error creating wallet backup!', backupWallet);
   }
 };
+
+export const setUpdateDownloading = ({ isUpdateDownloading }: { isUpdateDownloading: boolean }): Action => ({ type: SET_UPDATE_DOWNLOADING, payload: { isUpdateDownloading } });
+
+export const setUpdateReady = ({ isUpdateReady }: { isUpdateReady: boolean }): Action => ({ type: SET_UPDATE_READY, payload: { isUpdateReady } });

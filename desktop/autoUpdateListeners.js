@@ -6,8 +6,6 @@ import { ipcConsts } from '../app/vars';
 const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
   autoUpdater.on('error', (error) => mainWindow.webContents.send(ipcConsts.WALLET_UPDATE_ERROR, { error }));
 
-  autoUpdater.once('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
-
   autoUpdater.on('update-downloaded', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_COMPLETED));
 
   ipcMain.on(ipcConsts.QUIT_AND_UPDATE, () => autoUpdater.quitAndInstall());
@@ -16,6 +14,7 @@ const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
     const updateCheckResult: UpdateCheckResult = await autoUpdater.checkForUpdates();
     const isUpdateAvailable = !!updateCheckResult.downloadPromise;
     mainWindow.webContents.send(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, { isUpdateAvailable });
+    autoUpdater.once('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
   });
 };
 
