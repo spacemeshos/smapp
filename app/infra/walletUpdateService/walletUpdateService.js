@@ -23,7 +23,7 @@ class WalletUpdateService {
   }
 
   static listenToDownloadUpdate({ onDownloadUpdateCompleted, onDownloadProgress }: { onDownloadUpdateCompleted: () => void, onDownloadProgress: () => void }) {
-    ipcRenderer.once(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, () => {
+    ipcRenderer.on(ipcConsts.DOWNLOAD_UPDATE_PROGRESS, () => {
       listenerCleanup({ ipcRenderer, channels: [ipcConsts.DOWNLOAD_UPDATE_PROGRESS] });
       onDownloadProgress();
     });
