@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-// import type { UpdateCheckResult } from 'electron-updater';
 import { ipcConsts } from '../app/vars';
 
 const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
