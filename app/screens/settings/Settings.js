@@ -179,16 +179,8 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={version}
                 upperPartRight={[
-                  isUpdateDownloading ? (
-                    <Text key="1" style={{ width: 170 }}>
-                      Downloading update...
-                    </Text>
-                  ) : (
-                    <Text key="2" style={{ width: 170 }}>
-                      No updates available
-                    </Text>
-                  ),
-                  <Link key="3" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
+                  <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
+                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
                 ]}
                 rowName="Spacemesh Wallet Version"
               />
