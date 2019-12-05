@@ -7,17 +7,11 @@ import { notificationsService } from '/infra/notificationsService';
 class WalletUpdateService {
   static checkForWalletUpdate() {
     ipcRenderer.send(ipcConsts.CHECK_WALLET_UPDATE);
-    return new Promise<string, Error>((resolve: Function) => {
-      ipcRenderer.once(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS] });
-        resolve();
-      });
-    });
   }
 
   static listenToUpdaterError({ onUpdaterError }: { onUpdaterError: () => void }) {
     ipcRenderer.once(ipcConsts.WALLET_UPDATE_ERROR, () => {
-      listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, ipcConsts.WALLET_UPDATE_ERROR, ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
+      listenerCleanup({ ipcRenderer, channels: [ipcConsts.WALLET_UPDATE_ERROR, ipcConsts.DOWNLOAD_UPDATE_COMPLETED] });
       onUpdaterError();
     });
   }

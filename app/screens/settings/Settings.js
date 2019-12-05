@@ -70,8 +70,7 @@ type State = {
   editedAccountIndex: number,
   accountDisplayNames: Array<string>,
   nodeIp: string,
-  currentSettingIndex: number,
-  isUpdateDownloading: ?boolean
+  currentSettingIndex: number
 };
 
 class Settings extends Component<Props, State> {
@@ -94,8 +93,7 @@ class Settings extends Component<Props, State> {
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
-      currentSettingIndex: 0,
-      isUpdateDownloading: props.isUpdateDownloading || null
+      currentSettingIndex: 0
     };
 
     this.myRef1 = React.createRef();
@@ -106,8 +104,8 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
-    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex, isUpdateDownloading } = this.state;
+    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
+    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
 
     return (
       <Wrapper>
@@ -181,17 +179,16 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={version}
                 upperPartRight={[
-                  isUpdateDownloading === true && (
+                  isUpdateDownloading ? (
                     <Text key="1" style={{ width: 170 }}>
                       Downloading update...
                     </Text>
-                  ),
-                  isUpdateDownloading === false && (
+                  ) : (
                     <Text key="2" style={{ width: 170 }}>
                       No updates available
                     </Text>
                   ),
-                  <Link key="3" style={{ width: 144 }} onClick={this.checkForUpdates} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading === true} />
+                  <Link key="3" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
                 ]}
                 rowName="Spacemesh Wallet Version"
               />
@@ -280,19 +277,6 @@ class Settings extends Component<Props, State> {
 
   cleanAllAppDataAndSettings = async () => {
     fileSystemService.wipeOut();
-  };
-
-  checkForUpdates = () => {
-    const { isUpdateDownloading } = this.props;
-    walletUpdateService.checkForWalletUpdate();
-    this.setState({ isUpdateDownloading }, () => {
-      if (!isUpdateDownloading) {
-        const timer = setTimeout(() => {
-          this.setState({ isUpdateDownloading: null });
-          clearTimeout(timer);
-        }, 3500);
-      }
-    });
   };
 
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
