@@ -81,9 +81,9 @@ class App extends React.Component<Props, State> {
         }
       });
       this.listenToDownloadUpdate();
-      await walletUpdateService.checkForWalletUpdate();
+      walletUpdateService.checkForWalletUpdate();
       this.updateCheckInterval = setInterval(async () => {
-        await walletUpdateService.checkForWalletUpdate();
+        walletUpdateService.checkForWalletUpdate();
       }, 86400000);
     } catch {
       this.setState({

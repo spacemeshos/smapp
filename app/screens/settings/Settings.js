@@ -191,7 +191,7 @@ class Settings extends Component<Props, State> {
                       No updates available
                     </Text>
                   ),
-                  <Link key="3" style={{ width: 144 }} onClick={this.checkForUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading === true} />
+                  <Link key="3" style={{ width: 144 }} onClick={this.checkForUpdates} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading === true} />
                 ]}
                 rowName="Spacemesh Wallet Version"
               />
@@ -282,16 +282,24 @@ class Settings extends Component<Props, State> {
     fileSystemService.wipeOut();
   };
 
+  checkForUpdates = () => {
+    const { isUpdateDownloading } = this.props;
+    walletUpdateService.checkForWalletUpdate();
+    this.setState({ isUpdateDownloading }, () => {
+      if (!isUpdateDownloading) {
+        const timer = setTimeout(() => {
+          this.setState({ isUpdateDownloading: null });
+          clearTimeout(timer);
+        }, 3500);
+      }
+    });
+  };
+
   updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
     const { accounts, updateAccount } = this.props;
     if (!!value && !!value.trim() && value !== accounts[accountIndex].displayName) {
       await updateAccount({ accountIndex, fieldName: 'displayName', data: value });
     }
-  };
-
-  checkForUpdate = async () => {
-    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
-    this.setState({ isUpdateDownloading: isUpdateAvailable });
   };
 
   navigateToWalletBackup = () => {

@@ -8,9 +8,9 @@ class WalletUpdateService {
   static checkForWalletUpdate() {
     ipcRenderer.send(ipcConsts.CHECK_WALLET_UPDATE);
     return new Promise<string, Error>((resolve: Function) => {
-      ipcRenderer.once(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, (event, xml) => {
+      ipcRenderer.once(ipcConsts.CHECK_WALLET_UPDATE_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_WALLET_UPDATE_SUCCESS] });
-        resolve(xml);
+        resolve();
       });
     });
   }
