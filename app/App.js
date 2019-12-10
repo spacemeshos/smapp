@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
-import { setUpdateDownloading, setUpdateReady } from '/redux/wallet/actions';
+import { setUpdateDownloading } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
@@ -152,7 +152,6 @@ class App extends React.Component<Props, State> {
     walletUpdateService.listenToDownloadUpdate({
       onDownloadUpdateCompleted: () => {
         store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
-        store.dispatch(setUpdateReady({ isUpdateReady: true }));
         this.setState({ isUpdateDownloaded: true });
       },
       onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))

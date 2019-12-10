@@ -11,8 +11,7 @@ import {
   SET_TRANSACTIONS,
   SET_CONTACTS,
   SET_CURRENT_ACCOUNT_INDEX,
-  SET_UPDATE_DOWNLOADING,
-  SET_UPDATE_READY
+  SET_UPDATE_DOWNLOADING
 } from './actions';
 
 const initialState = {
@@ -26,8 +25,7 @@ const initialState = {
   lastUsedContacts: [],
   contacts: [],
   fiatRate: 1,
-  isUpdateDownloading: false,
-  isUpdateReady: false
+  isUpdateDownloading: false
 };
 
 const getFirst3UniqueAddresses = (txList: TxList): Contact[] => {
@@ -101,10 +99,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_UPDATE_DOWNLOADING: {
       const { isUpdateDownloading } = action.payload;
       return { ...state, isUpdateDownloading };
-    }
-    case SET_UPDATE_READY: {
-      const { isUpdateReady } = action.payload;
-      return { ...state, isUpdateReady };
     }
     case LOGOUT: {
       return initialState;
