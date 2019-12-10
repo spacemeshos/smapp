@@ -75,16 +75,19 @@ class App extends React.Component<Props, State> {
   async componentDidMount() {
     this.clearTimers();
     try {
-      walletUpdateService.listenToUpdaterError({
-        onUpdaterError: () => {
-          throw new Error('Wallet Updater Error.');
-        }
-      });
-      this.listenToDownloadUpdate();
-      walletUpdateService.checkForWalletUpdate();
-      this.updateCheckInterval = setInterval(async () => {
+      const isProductionMode = process.env.NODE_ENV === 'production';
+      if (isProductionMode) {
+        walletUpdateService.listenToUpdaterError({
+          onUpdaterError: () => {
+            throw new Error('Wallet Updater Error.');
+          }
+        });
+        this.listenToDownloadUpdate();
         walletUpdateService.checkForWalletUpdate();
-      }, 86400000);
+        this.updateCheckInterval = setInterval(async () => {
+          walletUpdateService.checkForWalletUpdate();
+        }, 86400000);
+      }
     } catch {
       this.setState({
         error: new Error('Wallet update check has failed.')

@@ -106,6 +106,7 @@ class Settings extends Component<Props, State> {
   render() {
     const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
+    const isProductionMode = process.env.NODE_ENV === 'production';
 
     return (
       <Wrapper>
@@ -180,7 +181,13 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
+                  <Link
+                    key="2"
+                    style={{ width: 144 }}
+                    onClick={() => isProductionMode && walletUpdateService.checkForWalletUpdate()}
+                    text="CHECK FOR UPDATES"
+                    isDisabled={isUpdateDownloading}
+                  />
                 ]}
                 rowName="Spacemesh Wallet Version"
               />
