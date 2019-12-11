@@ -175,9 +175,6 @@ const mapDispatchToProps = {
   updateTransaction
 };
 
-CreateNewContact = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(CreateNewContact);
+CreateNewContact = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(CreateNewContact);
 
 export default CreateNewContact;

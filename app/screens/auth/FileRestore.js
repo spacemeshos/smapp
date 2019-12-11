@@ -85,9 +85,6 @@ const mapDispatchToProps = {
   copyFile
 };
 
-FileRestore = connect(
-  null,
-  mapDispatchToProps
-)(FileRestore);
+FileRestore = connect(null, mapDispatchToProps)(FileRestore);
 
 export default FileRestore;

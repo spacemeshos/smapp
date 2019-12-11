@@ -46,9 +46,6 @@ const mapDispatchToProps = {
   checkNodeConnection
 };
 
-OfflineBanner = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(OfflineBanner);
+OfflineBanner = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(OfflineBanner);
 
 export default OfflineBanner;

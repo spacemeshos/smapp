@@ -79,7 +79,10 @@ class CryptoService {
         ['Price', xdr1.uhyper()],
         ['Amount', xdr1.uhyper()]
       ]);
-      xdr1.struct('SerializableSignedTransaction', [['InnerSerializableSignedTransaction', xdr1.lookup('InnerSerializableSignedTransaction')], ['Signature', xdr1.opaque(64)]]);
+      xdr1.struct('SerializableSignedTransaction', [
+        ['InnerSerializableSignedTransaction', xdr1.lookup('InnerSerializableSignedTransaction')],
+        ['Signature', xdr1.opaque(64)]
+      ]);
     });
     const message = new types.InnerSerializableSignedTransaction({
       AccountNonce: xdr.UnsignedHyper.fromString(accountNonce),

@@ -155,10 +155,7 @@ const mapDispatchToProps = {
   setCurrentAccount
 };
 
-Wallet = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Wallet);
+Wallet = connect(mapStateToProps, mapDispatchToProps)(Wallet);
 
 Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;

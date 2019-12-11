@@ -161,9 +161,6 @@ const mapDispatchToProps = {
   unlockWallet
 };
 
-UnlockWallet = connect(
-  null,
-  mapDispatchToProps
-)(UnlockWallet);
+UnlockWallet = connect(null, mapDispatchToProps)(UnlockWallet);
 
 export default UnlockWallet;

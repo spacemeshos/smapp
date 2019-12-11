@@ -164,7 +164,7 @@ class SendCoins extends Component<Props, State> {
   };
 
   sendTransaction = async () => {
-    const { sendTransaction, currentAccount } = this.props;
+    const { sendTransaction } = this.props;
     const { address, amount, fee, note } = this.state;
     try {
       const txId = await sendTransaction({ recipient: address, amount: smeshToSmidge(amount), price: fee, note });
@@ -188,9 +188,6 @@ const mapDispatchToProps = {
   sendTransaction
 };
 
-SendCoins = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(SendCoins);
+SendCoins = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(SendCoins);
 
 export default SendCoins;

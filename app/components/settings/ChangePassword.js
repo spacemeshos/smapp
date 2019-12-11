@@ -151,9 +151,6 @@ const mapDispatchToProps = {
   updateAccountsInFile
 };
 
-ChangePassword = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChangePassword);
+ChangePassword = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(ChangePassword);
 
 export default ChangePassword;

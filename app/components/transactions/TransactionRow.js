@@ -283,9 +283,6 @@ const mapDispatchToProps = {
   updateTransaction
 };
 
-TransactionRow = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(TransactionRow);
+TransactionRow = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(TransactionRow);
 
 export default TransactionRow;

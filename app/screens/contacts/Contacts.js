@@ -186,7 +186,10 @@ const CreateNewContactImg = styled.img`
   cursor: pointer;
 `;
 
-const sortOptions = [{ id: 1, label: 'Sort by A-Z' }, { id: 2, label: 'Sort by Z-A' }];
+const sortOptions = [
+  { id: 1, label: 'Sort by A-Z' },
+  { id: 2, label: 'Sort by Z-A' }
+];
 
 type Props = {
   contacts: Contact[],

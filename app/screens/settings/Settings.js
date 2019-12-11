@@ -373,10 +373,7 @@ const mapDispatchToProps = {
   setNodeIpAddress
 };
 
-Settings = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Settings);
+Settings = connect(mapStateToProps, mapDispatchToProps)(Settings);
 
 Settings = ScreenErrorBoundary(Settings);
 export default Settings;

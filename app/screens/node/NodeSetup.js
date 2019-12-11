@@ -106,7 +106,7 @@ class NodeSetup extends Component<Props, State> {
             <Button
               onClick={this.nextAction}
               text="NEXT"
-              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || ((subMode === 3 && selectedCommitmentSize === 0) || !isConnected)}
+              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0) || !isConnected}
             />
           </Footer>
         </CorneredContainer>
@@ -209,10 +209,7 @@ const mapDispatchToProps = {
   initMining
 };
 
-NodeSetup = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(NodeSetup);
+NodeSetup = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(NodeSetup);
 
 NodeSetup = ScreenErrorBoundary(NodeSetup);
 export default NodeSetup;

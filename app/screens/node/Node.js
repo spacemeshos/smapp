@@ -298,10 +298,7 @@ const mapDispatchToProps = {
   getUpcomingRewards
 };
 
-Node = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(Node);
+Node = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Node);
 
 Node = ScreenErrorBoundary(Node);
 export default Node;
