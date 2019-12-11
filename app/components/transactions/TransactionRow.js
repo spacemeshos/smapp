@@ -195,7 +195,7 @@ class TransactionRow extends Component<Props, State> {
       { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(sender) },
       { title: 'TO', value: isSent ? getAbbreviatedText(sender) : 'Me' },
       { title: 'VALUE', value: `${smidgeToSmesh(amount)}` },
-      { title: 'TRANSACTION FEE', value: `${fee || 0} Shmkl` }
+      { title: 'TRANSACTION FEE', value: `${fee || 0} Smidge` }
     ];
     return (
       <Wrapper isDetailed={isDetailed}>

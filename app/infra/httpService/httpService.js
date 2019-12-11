@@ -136,7 +136,7 @@ class HttpService {
     });
   }
 
-  static getNonce({ address }: { address: Uint8Array }) {
+  static getNonce({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.GET_NONCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_NONCE_SUCCESS, (event, response) => {

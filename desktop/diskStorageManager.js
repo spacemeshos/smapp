@@ -7,10 +7,6 @@ const si = require('systeminformation');
 class DiskStorageManager {
   static getDriveList = async ({ event }) => {
     Promise.all([si.blockDevices(), si.fsSize()]).then(([mountPoints, sizeMountPoints]) => {
-      // console.log(`mountPoints`);
-      // mountPoints.forEach((mP) => console.log(mP));
-      // console.log(`sizeMountPoints`);
-      // sizeMountPoints.forEach((sMP) => console.log(sMP));
       let mountedDrives;
       let validSizeMountPoints;
       if (os.type() === 'Darwin') {

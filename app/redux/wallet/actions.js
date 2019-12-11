@@ -200,7 +200,7 @@ export const sendTransaction = ({ recipient, amount, price, note }: { recipient:
 ): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const accountNonce = await httpService.getNonce({ address: fromHexString(accounts[currentAccountIndex].publicKey) });
+    const accountNonce = await httpService.getNonce({ address: accounts[currentAccountIndex].publicKey });
     const tx = await cryptoService.signTransaction({
       accountNonce,
       recipient: fromHexString(recipient),
