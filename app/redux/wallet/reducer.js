@@ -84,10 +84,9 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_BALANCE: {
       const { balance } = action.payload;
       const accountToUpdate = state.accounts[state.currentAccountIndex];
-      accountToUpdate.balance = balance;
       return {
         ...state,
-        accounts: [...state.accounts.slice(0, state.currentAccountIndex), accountToUpdate, ...state.accounts.slice(state.currentAccountIndex + 1)]
+        accounts: [...state.accounts.slice(0, state.currentAccountIndex), { ...accountToUpdate, balance }, ...state.accounts.slice(state.currentAccountIndex + 1)]
       };
     }
     case SET_CONTACTS: {

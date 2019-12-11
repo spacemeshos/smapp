@@ -39,6 +39,12 @@ const smeshToSmidge = (amount: number) => amount * 10 ** 12;
 
 const smidgeToSmesh = (amount: number) => amount / 10 ** 12;
 
+const asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index += 1) {
+    await callback(array[index], index, array); // eslint-disable-line no-await-in-loop
+  }
+};
+
 export {
   fromHexString,
   toHexString,
@@ -50,5 +56,6 @@ export {
   getAbbreviatedText,
   formatNumber,
   smeshToSmidge,
-  smidgeToSmesh
+  smidgeToSmesh,
+  asyncForEach
 };

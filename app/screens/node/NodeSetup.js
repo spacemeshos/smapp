@@ -10,7 +10,6 @@ import { StepsContainer, Button, SecondaryButton, Link, SmallHorizontalPanel } f
 import { Carousel, CommitmentSelector } from '/components/node';
 import { chevronLeftWhite } from '/assets/images';
 import { diskStorageService } from '/infra/diskStorageService';
-import { fromHexString } from '/infra/utils';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
@@ -167,7 +166,7 @@ class NodeSetup extends Component<Props, State> {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
         commitmentSize: selectedCommitmentSize * 1073741824,
-        address: fromHexString(accounts[0].publicKey)
+        address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
     } catch (error) {

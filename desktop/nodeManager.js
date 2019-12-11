@@ -25,7 +25,7 @@ class NodeManager {
     }
     const osTarget = osTargetNames[os.type()];
     // TODO: remove this and change to binary file path when dev mode uses binary node file
-    const devPath = '../scripts/miniMesh.sh';
+    const devPath = './miniMesh.sh';
     // TODO: should change prodPath to actual executable file path in prod.
     const prodPath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget === 'windows' ? '' : osTarget}go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
     const executablePath = isDevMode ? devPath : prodPath;

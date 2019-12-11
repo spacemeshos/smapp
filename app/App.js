@@ -72,22 +72,22 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.clearTimers();
-    try {
-      walletUpdateService.listenToUpdaterError({
-        onUpdaterError: () => {
-          throw new Error('Wallet Updater Error.');
-        }
-      });
-      await this.checkForUpdate();
-      this.updateCheckInterval = setInterval(async () => {
-        await this.checkForUpdate();
-      }, 86400000);
-    } catch {
-      this.setState({
-        error: new Error('Wallet update check has failed.')
-      });
-    }
+    // await store.dispatch(checkNodeConnection());
+    // try {
+    //   walletUpdateService.listenToUpdaterError({
+    //     onUpdaterError: () => {
+    //       throw new Error('Wallet Updater Error.');
+    //     }
+    //   });
+    //   await this.checkForUpdate();
+    //   this.updateCheckInterval = setInterval(async () => {
+    //     await this.checkForUpdate();
+    //   }, 86400000);
+    // } catch {
+    //   this.setState({
+    //     error: new Error('Wallet update check has failed.')
+    //   });
+    // }
     const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       try {

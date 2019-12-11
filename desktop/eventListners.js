@@ -94,12 +94,16 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getGenesisTime({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_UPCOMING_AWARDS, (event) => {
-    netService.getUpcomingAwards({ event });
+  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
+    netService.getUpcomingRewards({ event });
   });
 
-  ipcMain.on(ipcConsts.SET_AWARDS_ADDRESS, (event, request) => {
-    netService.setAwardsAddress({ event, ...request });
+  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event, request) => {
+    netService.getAccountRewards({ event, ...request });
+  });
+
+  ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, (event, request) => {
+    netService.setRewardsAddress({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
@@ -122,12 +126,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getAccountTxs({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.GET_LATEST_VALID_LAYER_ID, (event) => {
-    netService.getLatestValidLayerId({ event });
-  });
-
-  ipcMain.on(ipcConsts.GET_TX_LIST, (event, request) => {
-    netService.getTxList({ event, ...request });
+  ipcMain.on(ipcConsts.GET_TX, (event, request) => {
+    netService.getTransaction({ event, ...request });
   });
 };
 

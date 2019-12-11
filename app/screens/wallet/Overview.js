@@ -9,7 +9,6 @@ import { sendIcon, requestIcon } from '/assets/images';
 import smColors from '/vars/colors';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, TxList } from '/types';
-import { getTxList } from '/redux/wallet/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -57,7 +56,7 @@ type State = {
 
 class Overview extends Component<Props, State> {
   render() {
-    const { currentAccountIndex, transactions, account, getTxList } = this.props;
+    const { currentAccountIndex, transactions, account } = this.props;
     const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3) : [];
     return (
       <Wrapper>
@@ -69,7 +68,7 @@ class Overview extends Component<Props, State> {
           </MiddleSectionHeader>
           <MiddleSectionText>Send or request SMH to / from anyone in your contacts list or by using their address</MiddleSectionText>
           <Button onClick={this.navigateToSendCoins} text="SEND" isPrimary={false} width={225} img={sendIcon} imgPosition="after" style={{ marginBottom: 20 }} />
-          <Button onClick={getTxList} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
+          <Button onClick={this.navigateToRequestCoins} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
           <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginRight: 'auto' }} />
         </MiddleSection>
         <LatestTransactions publicKey={account.publicKey} transactions={latestTransactions} navigateToAllTransactions={this.navigateToAllTransactions} />
@@ -101,5 +100,5 @@ const mapStateToProps = (state) => ({
   transactions: state.wallet.transactions
 });
 
-Overview = connect<any, any, _, _, _, _>(mapStateToProps, { getTxList })(Overview);
+Overview = connect<any, any, _, _, _, _>(mapStateToProps)(Overview);
 export default Overview;

@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getUpcomingAwards } from '/redux/node/actions';
+import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -99,6 +99,7 @@ const GreenText = styled(RightText)`
 `;
 
 const Dots = styled(LeftText)`
+  margin: 0 auto;
   flex-shrink: 1;
   overflow: hidden;
 `;
@@ -118,7 +119,7 @@ type Props = {
   miningStatus: number,
   timeTillNextAward: number,
   totalEarnings: number,
-  getUpcomingAwards: Action,
+  getUpcomingRewards: Action,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -131,6 +132,8 @@ type State = {
 
 class Node extends Component<Props, State> {
   getUpcomingAwardsInterval: IntervalID;
+
+  fireworksTimeout: TimeoutID;
 
   constructor(props) {
     super(props);
@@ -172,30 +175,34 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { isConnected, miningStatus, getUpcomingAwards } = this.props;
+    const { isConnected, miningStatus, getUpcomingRewards } = this.props;
     if (isConnected && miningStatus === nodeConsts.IS_MINING) {
-      await getUpcomingAwards();
-      this.getUpcomingAwardsInterval = setInterval(getUpcomingAwards, nodeConsts.TIME_BETWEEN_LAYERS);
+      await getUpcomingRewards();
+      this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
-    const showFireworksTimer = setTimeout(() => {
-      this.setState({ showFireworks: false });
-      clearTimeout(showFireworksTimer);
-    }, 1500);
   }
 
   componentWillUnmount(): * {
     this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
+    this.fireworksTimeout && clearTimeout(this.fireworksTimeout);
   }
 
   renderMainSection = () => {
     const { miningStatus } = this.props;
     const { showIntro, showFireworks } = this.state;
     if (showIntro) {
-      return showFireworks ? <Fireworks key="fireworks" src={fireworks} /> : this.renderIntro();
+      return showFireworks ? this.renderFireworks() : this.renderIntro();
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
     }
     return this.renderNodeDashboard();
+  };
+
+  renderFireworks = () => {
+    this.fireworksTimeout = setTimeout(() => {
+      this.setState({ showFireworks: false });
+    }, 1500);
+    return <Fireworks key="fireworks" src={fireworks} />;
   };
 
   renderIntro = () => {
@@ -249,13 +256,13 @@ class Node extends Component<Props, State> {
       </Status>,
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
-        <Dots>....................................</Dots>
+        <Dots>.............................</Dots>
         <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Rewards</LeftText>
-        <Dots>....................................</Dots>
-        <GreenText>{totalEarnings} SMH</GreenText>
+        <Dots>.............................</Dots>
+        <GreenText>{totalEarnings} SMG</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -288,7 +295,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  getUpcomingAwards
+  getUpcomingRewards
 };
 
 Node = connect<any, any, _, _, _, _>(
