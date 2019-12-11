@@ -237,9 +237,6 @@ const mapDispatchToProps = {
   saveNewWallet
 };
 
-CreateWallet = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateWallet);
+CreateWallet = connect(mapStateToProps, mapDispatchToProps)(CreateWallet);
 
 export default CreateWallet;

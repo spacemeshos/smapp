@@ -39,9 +39,9 @@ const fileHashList = {
 };
 
 const nodeFiles = {
-  mac: { from: 'node/mac/', to: 'node/' },
-  windows: { from: 'node/windows/', to: 'node/' },
-  linux: { from: 'node/linux/', to: 'node/' }
+  mac: { from: '../node/mac/', to: 'node/' },
+  windows: { from: '../node/windows/', to: 'node/' },
+  linux: { from: '../node/linux/', to: 'node/' }
 };
 
 const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');

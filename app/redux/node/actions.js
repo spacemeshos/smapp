@@ -10,10 +10,11 @@ export const SET_MINING_STATUS: string = 'SET_MINING_STATUS';
 export const INIT_MINING: string = 'INIT_MINING';
 
 export const SET_GENESIS_TIME: string = 'SET_GENESIS_TIME';
-export const SET_UPCOMING_AWARDS: string = 'SET_UPCOMING_AWARDS';
+export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
+export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
 
 export const SET_NODE_IP: string = 'SET_NODE_IP';
-export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
+export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
 export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
@@ -55,13 +56,13 @@ export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch
   }
 };
 
-export const getUpcomingAwards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const awardLayerNumbers = await httpService.getUpcomingAwards();
+    const awardLayerNumbers = await httpService.getUpcomingRewards();
     const { genesisTime } = getState().node;
     const currentLayer = Math.floor((new Date().getTime() - genesisTime) / nodeConsts.TIME_BETWEEN_LAYERS);
     const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer >= currentLayer);
-    dispatch({ type: SET_UPCOMING_AWARDS, payload: { timeTillNextAward: nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer) } });
+    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer) } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }
@@ -76,11 +77,21 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
   }
 };
 
-export const setAwardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.setAwardsAddress({ address });
-    dispatch({ type: SET_AWARDS_ADDRESS, payload: { address } });
+    await httpService.setRewardsAddress({ address });
+    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
   } catch (err) {
-    throw createError('Error setting awards address', () => setAwardsAddress({ address }));
+    throw createError('Error setting awards address', () => setRewardsAddress({ address }));
+  }
+};
+
+export const getAccountRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  try {
+    const { rewardsAddress } = getState().node;
+    const rewards = await httpService.getAccountRewards({ address: rewardsAddress });
+    dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
+  } catch (err) {
+    throw createError('Error getting account rewards', getAccountRewards);
   }
 };

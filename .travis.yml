@@ -24,7 +24,7 @@ cache:
 
 before_install:
   - npm i -g npm@6.12.0
-  - sh ./fetchNodeBinaries.sh
+  - sh ./scripts/fetchNodeBinaries.sh
 
 install:
   - npm install

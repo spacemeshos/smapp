@@ -22,7 +22,7 @@ class NotificationsService {
   };
 
   static checkAppVisibility() {
-    ipcRenderer.send(ipcConsts.CHECK_APP_VISIBLITY);
+    ipcRenderer.send(ipcConsts.CHECK_APP_VISIBILITY);
     return new Promise<string, Error>((resolve: Function) => {
       ipcRenderer.once(ipcConsts.IS_APP_VISIBLE, (event, xml) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.IS_APP_VISIBLE] });

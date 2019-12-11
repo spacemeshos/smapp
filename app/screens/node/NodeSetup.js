@@ -8,8 +8,8 @@ import { CorneredContainer } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { StepsContainer, Button, SecondaryButton, Link, SmallHorizontalPanel } from '/basicComponents';
 import { Carousel, CommitmentSelector } from '/components/node';
-import { diskStorageService } from '/infra/diskStorageService';
 import { chevronLeftWhite } from '/assets/images';
+import { diskStorageService } from '/infra/diskStorageService';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
@@ -106,7 +106,7 @@ class NodeSetup extends Component<Props, State> {
             <Button
               onClick={this.nextAction}
               text="NEXT"
-              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || ((subMode === 3 && selectedCommitmentSize === 0) || !isConnected)}
+              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0) || !isConnected}
             />
           </Footer>
         </CorneredContainer>
@@ -166,7 +166,7 @@ class NodeSetup extends Component<Props, State> {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
         commitmentSize: selectedCommitmentSize * 1073741824,
-        address: accounts[0].pk
+        address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
@@ -209,10 +209,7 @@ const mapDispatchToProps = {
   initMining
 };
 
-NodeSetup = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(NodeSetup);
+NodeSetup = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(NodeSetup);
 
 NodeSetup = ScreenErrorBoundary(NodeSetup);
 export default NodeSetup;

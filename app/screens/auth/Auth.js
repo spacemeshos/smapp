@@ -83,10 +83,7 @@ const mapDispatchToProps = {
   readWalletFiles
 };
 
-Auth = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Auth);
+Auth = connect(mapStateToProps, mapDispatchToProps)(Auth);
 
 Auth = ScreenErrorBoundary(Auth);
 export default Auth;
