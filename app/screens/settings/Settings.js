@@ -10,8 +10,9 @@ import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
 import { autoStartService } from '/infra/autoStartService';
-import { smColors } from '/vars';
 import { localStorageService } from '/infra/storageService';
+import { walletUpdateService } from '/infra/walletUpdateService';
+import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
@@ -58,7 +59,8 @@ type Props = {
   setNodeIpAddress: Action,
   isConnected: boolean,
   history: RouterHistory,
-  nodeIpAddress: string
+  nodeIpAddress: string,
+  isUpdateDownloading: boolean
 };
 
 type State = {
@@ -102,8 +104,9 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected } = this.props;
+    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
     const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
+
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -173,7 +176,14 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
                 rowName="Create a new wallet"
               />
-              <SettingRow upperPartLeft={version} upperPartRight={<Link onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />} rowName="Spacemesh Wallet Version" />
+              <SettingRow
+                upperPartLeft={version}
+                upperPartRight={[
+                  <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
+                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
+                ]}
+                rowName="Spacemesh Wallet Version"
+              />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
@@ -352,6 +362,7 @@ const mapStateToProps = (state) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
+  isUpdateDownloading: state.wallet.isUpdateDownloading,
   nodeIpAddress: state.node.nodeIpAddress
 });
 

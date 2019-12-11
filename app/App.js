@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
+import { setUpdateDownloading } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
@@ -72,22 +73,23 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    // await store.dispatch(checkNodeConnection());
-    // try {
-    //   walletUpdateService.listenToUpdaterError({
-    //     onUpdaterError: () => {
-    //       throw new Error('Wallet Updater Error.');
-    //     }
-    //   });
-    //   await this.checkForUpdate();
-    //   this.updateCheckInterval = setInterval(async () => {
-    //     await this.checkForUpdate();
-    //   }, 86400000);
-    // } catch {
-    //   this.setState({
-    //     error: new Error('Wallet update check has failed.')
-    //   });
-    // }
+    this.clearTimers();
+    try {
+      walletUpdateService.listenToUpdaterError({
+        onUpdaterError: () => {
+          throw new Error('Wallet Updater Error.');
+        }
+      });
+      this.listenToDownloadUpdate();
+      walletUpdateService.checkForWalletUpdate();
+      this.updateCheckInterval = setInterval(async () => {
+        walletUpdateService.checkForWalletUpdate();
+      }, 86400000);
+    } catch {
+      this.setState({
+        error: new Error('Wallet update check has failed.')
+      });
+    }
     const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       try {
@@ -146,12 +148,15 @@ class App extends React.Component<Props, State> {
     });
   };
 
-  checkForUpdate = async () => {
-    const { isUpdateAvailable }: { isUpdateAvailable: boolean } = await walletUpdateService.checkForWalletUpdate();
-    isUpdateAvailable && this.listenToDownloadUpdate();
+  listenToDownloadUpdate = () => {
+    walletUpdateService.listenToDownloadUpdate({
+      onDownloadUpdateCompleted: () => {
+        store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
+        this.setState({ isUpdateDownloaded: true });
+      },
+      onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
+    });
   };
-
-  listenToDownloadUpdate = () => walletUpdateService.listenToDownloadUpdate({ onDownloadUpdateCompleted: () => this.setState({ isUpdateDownloaded: true }) });
 
   closeUpdateModal = () => this.setState({ isUpdateDownloaded: false });
 

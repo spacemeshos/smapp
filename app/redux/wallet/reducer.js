@@ -10,7 +10,8 @@ import {
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
-  SET_CURRENT_ACCOUNT_INDEX
+  SET_CURRENT_ACCOUNT_INDEX,
+  SET_UPDATE_DOWNLOADING
 } from './actions';
 
 const initialState = {
@@ -23,7 +24,8 @@ const initialState = {
   transactions: {},
   lastUsedContacts: [],
   contacts: [],
-  fiatRate: 1
+  fiatRate: 1,
+  isUpdateDownloading: false
 };
 
 const getFirst3UniqueAddresses = (txList: TxList): Contact[] => {
@@ -92,6 +94,10 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_CONTACTS: {
       const { contacts } = action.payload;
       return { ...state, contacts };
+    }
+    case SET_UPDATE_DOWNLOADING: {
+      const { isUpdateDownloading } = action.payload;
+      return { ...state, isUpdateDownloading };
     }
     case LOGOUT: {
       return initialState;
