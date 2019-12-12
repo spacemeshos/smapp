@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime, getAccountRewards } from '/redux/node/actions';
+import { getMiningStatus, getAccountRewards } from '/redux/node/actions';
 import { getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo, QuitDialog } from '/components/common';
@@ -95,9 +95,7 @@ const bntStyle = { marginRight: 15, marginTop: 10 };
 type Props = {
   isConnected: boolean,
   miningStatus: number,
-  genesisTime: number,
   getMiningStatus: Action,
-  getGenesisTime: Action,
   getAccountRewards: Action,
   getTxList: Action,
   logout: Action,
@@ -237,11 +235,15 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus, genesisTime, getMiningStatus, getGenesisTime, getAccountRewards } = this.props;
-    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus) && genesisTime === 0) {
-      getGenesisTime();
+  componentDidMount() {
+    const { isConnected, miningStatus, getMiningStatus } = this.props;
+    if (isConnected && miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 300000);
     }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { isConnected, miningStatus, getMiningStatus, getAccountRewards } = this.props;
     if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 300000);
     }
@@ -252,11 +254,19 @@ class Main extends Component<Props, State> {
         notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
-      this.accountRewardsInterval = setInterval(getAccountRewards, 10000);
+    }
+    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
+      this.accountRewardsInterval = setInterval(() => getAccountRewards({ notify: () => {
+          notificationsService.notify({
+            title: 'Spacemesh',
+            notification: 'Received a reward for smeshing!',
+            callback: () => this.handleNavigation({ index: 0 })
+          });
+        } }), 10000);
     }
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount() {
     this.miningStatusInterval && clearImmediate(this.miningStatusInterval);
     this.accountRewardsInterval && clearImmediate(this.accountRewardsInterval);
   }
@@ -303,22 +313,17 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
-  miningStatus: state.node.miningStatus,
-  genesisTime: state.node.genesisTime
+  miningStatus: state.node.miningStatus
 });
 
 const mapDispatchToProps = {
   getMiningStatus,
-  getGenesisTime,
   getAccountRewards,
   getTxList,
   logout
 };
 
-Main = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(Main);
+Main = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Main);
 
 Main = ScreenErrorBoundary(Main);
 export default Main;

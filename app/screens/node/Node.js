@@ -7,8 +7,10 @@ import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { localStorageService } from '/infra/storageService';
 import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
+import { getFormattedTimestamp } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
 import type { Action } from '/types';
 
@@ -146,28 +148,45 @@ class Node extends Component<Props, State> {
   }
 
   render() {
+    const rewards = localStorageService.get('rewards') || [];
+    let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
+    smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
+    let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
+    smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(smesherSmeshingTimestamp) : '';
     return (
       <Wrapper>
         <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <CorneredContainer width={250} height={480} header="SMESHER LOG">
+        <CorneredContainer width={260} height={480} header="SMESHER LOG">
           <LogInnerWrapper>
-            <LogEntry>
-              <LogText>12.09.19 - 13:00</LogText>
-              <LogText>Initializing</LogText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
-            <LogEntry>
-              <LogText>12.09.19 - 13:10</LogText>
-              <AwardText>Network reward: 2SMH</AwardText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
-            <LogEntry>
-              <LogText>12.09.19 - 13:20</LogText>
-              <LogText>Network checkup</LogText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
+            {smesherInitTimestamp ? (
+              <>
+                <LogEntry>
+                  <LogText>{smesherInitTimestamp}</LogText>
+                  <LogText>Initializing smesher</LogText>
+                </LogEntry>
+                <LogEntrySeparator>...</LogEntrySeparator>
+              </>
+            ) : null}
+            {smesherSmeshingTimestamp ? (
+              <>
+                <LogEntry>
+                  <LogText>{smesherSmeshingTimestamp}</LogText>
+                  <LogText>Started smeshing</LogText>
+                </LogEntry>
+                <LogEntrySeparator>...</LogEntrySeparator>
+              </>
+            ) : null}
+            {rewards.map((reward, index) => (
+              <div key={`reward${index}`}>
+                <LogEntry>
+                  <LogText>12.09.19 - 13:10</LogText>
+                  <AwardText>Smeshing reward: {reward.totalReward + reward.layerRewardEstimate}</AwardText>
+                </LogEntry>
+                <LogEntrySeparator>...</LogEntrySeparator>
+              </div>
+            ))}
           </LogInnerWrapper>
         </CorneredContainer>
       </Wrapper>
@@ -257,7 +276,7 @@ class Node extends Component<Props, State> {
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
         <Dots>.............................</Dots>
-        <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
+        <RightText>{timeTillNextAward ? `${Math.floor(timeTillNextAward / 1000)} min` : 'Not available'}</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Rewards</LeftText>

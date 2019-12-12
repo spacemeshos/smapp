@@ -1,5 +1,6 @@
 // @flow
 import { httpService } from '/infra/httpService';
+import { localStorageService } from '/infra/storageService';
 import { createError } from '/infra/utils';
 import { nodeConsts } from '/vars';
 import { Action, Dispatch, GetState } from '/types';
@@ -30,6 +31,12 @@ export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dis
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const status = await httpService.getMiningStatus();
+    if (status === nodeConsts.IS_MINING) {
+      dispatch(getGenesisTime());
+      if (!localStorageService.get('smesherSmeshingTimestamp')) {
+        localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
+      }
+    }
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
@@ -41,6 +48,7 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
 ): Dispatch => {
   try {
     await httpService.initMining({ logicalDrive, commitmentSize, coinbase: address });
+    localStorageService.set('smesherInitTimestamp', new Date().getTime());
     dispatch({ type: INIT_MINING, payload: { address } });
   } catch (err) {
     throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
@@ -86,12 +94,17 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
   }
 };
 
-export const getAccountRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { rewardsAddress } = getState().node;
-    const rewards = await httpService.getAccountRewards({ address: rewardsAddress });
+    const { accounts, currentAccountIndex } = getState().wallet;
+    const rewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
+    const prevRewards = localStorageService.get('rewards') || [];
+    if (prevRewards.length < rewards.length) {
+      notify();
+      localStorageService.set('rewards', rewards);
+    }
     dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
   } catch (err) {
-    throw createError('Error getting account rewards', getAccountRewards);
+    throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
   }
 };

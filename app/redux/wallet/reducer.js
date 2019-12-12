@@ -73,7 +73,10 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       return {
         ...state,
         transactions,
-        lastUsedContacts: transactions[state.currentAccountIndex].data.length ? getFirst3UniqueAddresses(transactions[state.currentAccountIndex].data) : []
+        lastUsedContacts:
+          transactions[state.currentAccountIndex] && transactions[state.currentAccountIndex].data.length
+            ? getFirst3UniqueAddresses(transactions[state.currentAccountIndex].data)
+            : []
       };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {

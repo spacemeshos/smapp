@@ -142,8 +142,8 @@ class AccountsOverview extends Component<Props, State> {
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
-            <BalanceAmount>{balance ? smidgeToSmesh(balance) : 0}</BalanceAmount>
-            <SmhText>SMH</SmhText>
+            <BalanceAmount>{balance || 0}</BalanceAmount>
+            <SmhText>SMG</SmhText>
           </BalanceWrapper>
         </Footer>
       </WrapperWith2SideBars>

@@ -4,8 +4,6 @@ import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
 import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_GENESIS_TIME, SET_UPCOMING_REWARDS, SET_ACCOUNT_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP } from './actions';
 
-const DEFAULT_URL = 'localhost:9091';
-
 const initialState = {
   isConnected: false,
   miningStatus: nodeConsts.NOT_MINING,
@@ -13,7 +11,7 @@ const initialState = {
   timeTillNextAward: 0,
   totalEarnings: 0,
   rewardsAddress: null,
-  nodeIpAddress: DEFAULT_URL
+  nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
 const reducer = (state: any = initialState, action: Action) => {

@@ -1,5 +1,5 @@
 import path from 'path';
-import { ipcConsts } from '../app/vars';
+import { ipcConsts, nodeConsts } from '../app/vars';
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -9,11 +9,8 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
-// const DEFAULT_URL = '192.168.30.233:9091';
-const DEFAULT_URL = 'localhost:9091';
-
 class NetService {
-  constructor(url = DEFAULT_URL) {
+  constructor(url = nodeConsts.DEFAULT_URL) {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
@@ -187,8 +184,17 @@ class NetService {
   getAccountRewards = async ({ event, address }) => {
     try {
       const { rewards } = await this._getAccountRewards({ address });
-      rewards.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
-      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, rewards);
+      if (!rewards) {
+        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, []);
+      } else {
+        const parsedReward = rewards.map((reward) => ({
+          layer: parseInt(reward.layer),
+          totalReward: parseInt(reward.totalReward),
+          layerRewardEstimate: parseInt(reward.layerRewardEstimate)
+        }));
+        parsedReward.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
+        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, parsedReward);
+      }
     } catch (error) {
       event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_FAILURE, error.message);
     }

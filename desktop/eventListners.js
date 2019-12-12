@@ -98,7 +98,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     netService.getUpcomingRewards({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event, request) => {
+  ipcMain.on(ipcConsts.GET_ACCOUNT_REWARDS, (event, request) => {
     netService.getAccountRewards({ event, ...request });
   });
 

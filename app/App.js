@@ -8,6 +8,7 @@ import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
 import { setUpdateDownloading } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
+import { localStorageService } from '/infra/storageService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
@@ -73,22 +74,23 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    try {
-      walletUpdateService.listenToUpdaterError({
-        onUpdaterError: () => {
-          throw new Error('Wallet Updater Error.');
-        }
-      });
-      this.listenToDownloadUpdate();
-      walletUpdateService.checkForWalletUpdate();
-      this.updateCheckInterval = setInterval(async () => {
-        walletUpdateService.checkForWalletUpdate();
-      }, 86400000);
-    } catch {
-      this.setState({
-        error: new Error('Wallet update check has failed.')
-      });
-    }
+    localStorageService.clear(); // TODO: find better place to clear local storage between runs
+    // try {
+    //   walletUpdateService.listenToUpdaterError({
+    //     onUpdaterError: () => {
+    //       throw new Error('Wallet Updater Error.');
+    //     }
+    //   });
+    //   this.listenToDownloadUpdate();
+    //   walletUpdateService.checkForWalletUpdate();
+    //   this.updateCheckInterval = setInterval(async () => {
+    //     walletUpdateService.checkForWalletUpdate();
+    //   }, 86400000);
+    // } catch {
+    //   this.setState({
+    //     error: new Error('Wallet update check has failed.')
+    //   });
+    // }
     const isConnected = await store.dispatch(checkNodeConnection());
     if (!isConnected) {
       try {

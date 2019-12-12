@@ -163,7 +163,7 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount to send</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMH" style={{ flex: 1 }} />
+          <Input value={amount} onChange={updateTxAmount} extraText="SMG" style={{ flex: 1 }} />
           {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMH in your wallet" style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
@@ -186,7 +186,7 @@ class TxParams extends Component<Props, State> {
           <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
         </DetailsRow>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
+          <Link onClick={this.navigateToGuide} text="SEND SMG GUIDE" />
           <Button onClick={nextAction} text="NEXT" />
         </Footer>
       </Wrapper>
