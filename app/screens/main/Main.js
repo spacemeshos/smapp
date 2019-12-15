@@ -113,6 +113,8 @@ class Main extends Component<Props, State> {
 
   accountRewardsInterval: IntervalID;
 
+  txCollectorInterval: IntervalID;
+
   navMap: Array<() => void>;
 
   constructor(props: Props) {
@@ -236,9 +238,12 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { isConnected, miningStatus, getMiningStatus } = this.props;
-    if (isConnected && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 300000);
+    const { miningStatus, getMiningStatus } = this.props;
+    this.txCollectorInterval = setInterval(getTxList, 10000);
+    if (miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => {
+        getMiningStatus();
+      }, 300000);
     }
   }
 
@@ -269,6 +274,7 @@ class Main extends Component<Props, State> {
   componentWillUnmount() {
     this.miningStatusInterval && clearImmediate(this.miningStatusInterval);
     this.accountRewardsInterval && clearImmediate(this.accountRewardsInterval);
+    this.txCollectorInterval && clearImmediate(this.txCollectorInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
