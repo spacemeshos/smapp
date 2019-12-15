@@ -67,8 +67,16 @@ class TransactionsMeta extends PureComponent<Props> {
   render() {
     const { mined, sent, received, totalMined, totalSent, totalReceived, filterName } = this.props;
     const totalFilteredCoins = mined + sent + received;
-    const coinsMeta = [{ title: 'MINED', coins: mined }, { title: 'SENT', coins: sent }, { title: 'RECEIVED', coins: received }];
-    const totalCoinsMeta = [{ title: 'TOTAL MINED', coins: totalMined }, { title: 'TOTAL SENT', coins: totalSent }, { title: 'TOTAL RECEIVED', coins: totalReceived }];
+    const coinsMeta = [
+      { title: 'MINED', coins: mined },
+      { title: 'SENT', coins: sent },
+      { title: 'RECEIVED', coins: received }
+    ];
+    const totalCoinsMeta = [
+      { title: 'TOTAL MINED', coins: totalMined },
+      { title: 'TOTAL SENT', coins: totalSent },
+      { title: 'TOTAL RECEIVED', coins: totalReceived }
+    ];
 
     return (
       <>

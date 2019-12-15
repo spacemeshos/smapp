@@ -75,7 +75,6 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.clearTimers();
     try {
       try {
         ipcRenderer.send(ipcConsts.CHECK_PROD_MODE);
@@ -115,16 +114,12 @@ class App extends React.Component<Props, State> {
   }
 
   componentWillUnmount(): void {
-    this.clearTimers();
-    store.dispatch(logout());
-  }
-
-  clearTimers = () => {
     this.healthCheckInterval && clearInterval(this.healthCheckInterval);
     this.startNodeInterval && clearInterval(this.startNodeInterval);
     this.updateCheckInterval && clearInterval(this.updateCheckInterval);
     this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
-  };
+    store.dispatch(logout());
+  }
 
   attemptToStartFullNode = () => {
     const intervalTime = 5000; // ms

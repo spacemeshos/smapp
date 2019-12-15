@@ -124,7 +124,7 @@ class Wallet extends Component<Props, State> {
         await getBalance();
         this.getBalanceInterval = setInterval(async () => {
           await getBalance();
-        }, 60000);
+        }, 30000);
       } catch (error) {
         this.setState(() => {
           throw error;
@@ -155,10 +155,7 @@ const mapDispatchToProps = {
   setCurrentAccount
 };
 
-Wallet = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Wallet);
+Wallet = connect(mapStateToProps, mapDispatchToProps)(Wallet);
 
 Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;

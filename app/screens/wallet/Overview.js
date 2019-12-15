@@ -56,11 +56,8 @@ type State = {
 
 class Overview extends Component<Props, State> {
   render() {
-    const { currentAccountIndex, transactions } = this.props;
-    const latestTransactions =
-      transactions[currentAccountIndex] && transactions[currentAccountIndex].data && transactions[currentAccountIndex].data.length > 0
-        ? transactions[currentAccountIndex].data.slice(0, 3)
-        : [];
+    const { currentAccountIndex, transactions, account } = this.props;
+    const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3) : [];
     return (
       <Wrapper>
         <MiddleSection>
@@ -74,7 +71,7 @@ class Overview extends Component<Props, State> {
           <Button onClick={this.navigateToRequestCoins} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
           <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginRight: 'auto' }} />
         </MiddleSection>
-        <LatestTransactions transactions={latestTransactions} navigateToAllTransactions={this.navigateToAllTransactions} />
+        <LatestTransactions publicKey={account.publicKey} transactions={latestTransactions} navigateToAllTransactions={this.navigateToAllTransactions} />
       </Wrapper>
     );
   }

@@ -5,7 +5,8 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
+import { getMiningStatus, getGenesisTime, getAccountRewards } from '/redux/node/actions';
+import { getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo, QuitDialog } from '/components/common';
 import { OfflineBanner } from '/components/banners';
@@ -94,8 +95,11 @@ const bntStyle = { marginRight: 15, marginTop: 10 };
 type Props = {
   isConnected: boolean,
   miningStatus: number,
+  genesisTime: number,
   getMiningStatus: Action,
   getGenesisTime: Action,
+  getAccountRewards: Action,
+  getTxList: Action,
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
@@ -108,6 +112,8 @@ type State = {
 
 class Main extends Component<Props, State> {
   miningStatusInterval: IntervalID;
+
+  accountRewardsInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -232,12 +238,12 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
-    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
+    const { isConnected, miningStatus, genesisTime, getMiningStatus, getGenesisTime, getAccountRewards } = this.props;
+    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus) && genesisTime === 0) {
       getGenesisTime();
     }
     if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
+      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 300000);
     }
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
@@ -246,7 +252,13 @@ class Main extends Component<Props, State> {
         notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network…!',
         callback: () => this.handleNavigation({ index: 0 })
       });
+      this.accountRewardsInterval = setInterval(getAccountRewards, 10000);
     }
+  }
+
+  componentWillUnmount(): * {
+    this.miningStatusInterval && clearImmediate(this.miningStatusInterval);
+    this.accountRewardsInterval && clearImmediate(this.accountRewardsInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -291,12 +303,15 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
-  miningStatus: state.node.miningStatus
+  miningStatus: state.node.miningStatus,
+  genesisTime: state.node.genesisTime
 });
 
 const mapDispatchToProps = {
   getMiningStatus,
   getGenesisTime,
+  getAccountRewards,
+  getTxList,
   logout
 };
 

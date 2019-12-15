@@ -4,9 +4,8 @@ export type Account = {
   displayName: string,
   created: number,
   path: string,
-  balance: number,
-  pk: string,
-  sk: string,
+  publicKey: string,
+  secretKey: string,
   layerId: number
 };
 

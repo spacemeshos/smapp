@@ -146,7 +146,7 @@ class CreateNewContact extends Component<Props, State> {
       const { address, nickname } = this.state;
       try {
         await addToContacts({ contact: { address, nickname } });
-        await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
+        await updateTransaction({ tx: { address, nickname }, updateAll: true });
         onCompleteAction();
       } catch (error) {
         this.setState(() => {
@@ -175,9 +175,6 @@ const mapDispatchToProps = {
   updateTransaction
 };
 
-CreateNewContact = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(CreateNewContact);
+CreateNewContact = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(CreateNewContact);
 
 export default CreateNewContact;

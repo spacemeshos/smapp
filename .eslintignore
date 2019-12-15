@@ -56,10 +56,14 @@ __snapshots__
 # Package.json
 package.json
 .travis.yml
-/node_modules/
-/dll/
 /babel.config.js
 /configs/
 /proto/
+/desktop/dist/
 /desktop/wasm_exec.js
-/scripts/*
+/desktop/main.prod.js
+/scripts/
+/resources/
+/type-def-libs/
+/design/
+/.env

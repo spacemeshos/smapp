@@ -49,22 +49,36 @@ class HttpService {
     });
   }
 
-  static getUpcomingAwards() {
-    ipcRenderer.send(ipcConsts.GET_UPCOMING_AWARDS);
+  static getUpcomingRewards() {
+    ipcRenderer.send(ipcConsts.GET_UPCOMING_REWARDS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, ipcConsts.GET_UPCOMING_AWARDS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
         resolve(response);
       });
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_AWARDS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, ipcConsts.GET_UPCOMING_AWARDS_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
         reject(args);
       });
     });
   }
 
-  static setAwardsAddress({ address }: { address: string }) {
-    ipcRenderer.send(ipcConsts.SET_AWARDS_ADDRESS, { address });
+  static getAccountRewards({ address }: { address: string }) {
+    ipcRenderer.send(ipcConsts.GET_ACCOUNT_REWARDS, { address });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, ipcConsts.GET_ACCOUNT_REWARDS_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, ipcConsts.GET_ACCOUNT_REWARDS_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static setRewardsAddress({ address }: { address: string }) {
+    ipcRenderer.send(ipcConsts.SET_REWARDS_ADDRESS, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, () => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, ipcConsts.SET_AWARDS_ADDRESS_FAILURE] });
@@ -145,6 +159,34 @@ class HttpService {
       });
       ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
         listenerCleanup({ ipcRenderer, channels: [ipcConsts.SEND_TX_SUCCESS, ipcConsts.SEND_TX_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static getAccountTxs({ startLayer, account }: { startLayer: number, account: string }) {
+    ipcRenderer.send(ipcConsts.GET_ACCOUNT_TXS, { startLayer, account });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_TXS_SUCCESS, ipcConsts.GET_ACCOUNT_TXS_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_TXS_SUCCESS, ipcConsts.GET_ACCOUNT_TXS_FAILURE] });
+        reject(args);
+      });
+    });
+  }
+
+  static getTransaction({ id }: { id: Uint8Array }) {
+    ipcRenderer.send(ipcConsts.GET_TX, { id });
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_TX_SUCCESS, (event, response) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_SUCCESS, ipcConsts.GET_TX_FAILURE] });
+        resolve(response);
+      });
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_FAILURE, (event, args) => {
+        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_SUCCESS, ipcConsts.GET_TX_FAILURE] });
         reject(args);
       });
     });

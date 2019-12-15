@@ -109,7 +109,7 @@ class RequestCoins extends Component<Props, State> {
         <SubHeader>
           <Text>Request SMH by sharing this address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
-            <AddressText>{getAbbreviatedText(account.pk)}</AddressText>
+            <AddressText>{getAbbreviatedText(account.publicKey)}</AddressText>
             <CopyIcon src={copyToClipboard} />
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>
@@ -135,7 +135,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(`0x${account.pk}`);
+    clipboard.writeText(`0x${account.publicKey}`);
   }
 
   componentWillUnmount() {
@@ -148,7 +148,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(`0x${account.pk}`);
+    clipboard.writeText(`0x${account.publicKey}`);
     this.setState({ isCopied: true });
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
   };

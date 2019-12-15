@@ -122,8 +122,5 @@ const mapDispatchToProps = {
   backupWallet
 };
 
-BackupRoot = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(BackupRoot);
+BackupRoot = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(BackupRoot);
 export default BackupRoot;

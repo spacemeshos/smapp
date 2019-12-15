@@ -67,6 +67,16 @@ class NetService {
       });
     });
 
+  _getAccountRewards = ({ address }) =>
+    new Promise((resolve, reject) => {
+      this.service.GetAccountRewards({ address }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   _setAwardsAddress = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.SetAwardsAddress({ address }, (error, response) => {
@@ -107,18 +117,23 @@ class NetService {
       });
     });
 
-  _getTxList = ({ address, layerId }) =>
+  _getAccountTxs = ({ account, startLayer }) =>
     new Promise((resolve, reject) => {
-      let transactions = [];
-      const stream = this.service.GetTxList({ address, layerId });
-      stream.on('data', (data) => {
-        transactions = transactions.concat(data);
+      this.service.GetAccountTxs({ account, startLayer }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
       });
-      stream.on('end', function() {
-        resolve(transactions);
-      });
-      stream.on('error', function(error) {
-        reject(error);
+    });
+
+  _getTransaction = ({ id }) =>
+    new Promise((resolve, reject) => {
+      this.service.GetTransaction({ id }, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
       });
     });
 
@@ -158,12 +173,24 @@ class NetService {
     }
   };
 
-  getUpcomingAwards = async ({ event }) => {
+  getUpcomingRewards = async ({ event }) => {
     try {
-      const { value } = await this._getUpcomingAwards();
-      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, value);
+      const { layers } = await this._getUpcomingAwards();
+      const layersArr = layers.map((layer) => parseInt(layer));
+      layersArr.sort((a, b) => a - b);
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, layersArr);
     } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, error.message);
+    }
+  };
+
+  getAccountRewards = async ({ event, address }) => {
+    try {
+      const { rewards } = await this._getAccountRewards({ address });
+      rewards.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
+      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, rewards);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_FAILURE, error.message);
     }
   };
 
@@ -176,7 +203,7 @@ class NetService {
     }
   };
 
-  setAwardsAddress = async ({ event, address }) => {
+  setRewardsAddress = async ({ event, address }) => {
     try {
       const { value } = await this._setAwardsAddress({ address });
       event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
@@ -212,12 +239,21 @@ class NetService {
     }
   };
 
-  getTxList = async ({ event, address, layerId }) => {
+  getAccountTxs = async ({ event, startLayer, account }) => {
     try {
-      const { transactions } = await this._getTxList({ address, layerId });
-      event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, transactions);
+      const { txs, validatedLayer } = await this._getAccountTxs({ startLayer, account });
+      event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, { txs, validatedLayer });
     } catch (error) {
       event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);
+    }
+  };
+
+  getTransaction = async ({ event, id }) => {
+    try {
+      const tx = await this._getTransaction({ id });
+      event.sender.send(ipcConsts.GET_TX_SUCCESS, tx);
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_TX_FAILURE, error);
     }
   };
 }
