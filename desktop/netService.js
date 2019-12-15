@@ -148,7 +148,7 @@ class NetService {
       const { status } = await this._getMiningStatus();
       event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error: null, status });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, { error, status: null });
+      event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error, status: null });
     }
   };
 
@@ -209,7 +209,7 @@ class NetService {
       this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
       event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, { error });
+      event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error });
     }
   };
 

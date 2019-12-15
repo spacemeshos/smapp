@@ -19,7 +19,7 @@ class DiskStorageManager {
         validSizeMountPoints = sizeMountPoints;
       }
       const mappedDrives = [];
-      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * 1048576; // 1073741824;
+      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * 1073741824;
       mountedDrives.forEach((mountPoint) => {
         const volume = validSizeMountPoints.find((validSizeMountPoint) => validSizeMountPoint.mount === mountPoint.mount);
         const availableSpace = volume ? volume.size - volume.used : 0;
