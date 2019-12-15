@@ -1,5 +1,6 @@
 // @flow
 import { hot, setConfig } from 'react-hot-loader';
+import { ipcRenderer } from 'electron';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
@@ -14,6 +15,7 @@ import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
 import { UpdaterModal } from '/components/updater';
+import { ipcConsts } from '/vars';
 
 const HEALTH_CHECK_INTERVAL = 360000;
 
@@ -75,36 +77,40 @@ class App extends React.Component<Props, State> {
   async componentDidMount() {
     this.clearTimers();
     try {
-      const isProductionMode = process.env.NODE_ENV === 'production';
-      if (isProductionMode) {
-        walletUpdateService.listenToUpdaterError({
-          onUpdaterError: () => {
-            throw new Error('Wallet Updater Error.');
+      try {
+        ipcRenderer.send(ipcConsts.CHECK_PROD_MODE);
+        ipcRenderer.on(ipcConsts.IS_PROD_MODE, (isProductionMode) => {
+          if (isProductionMode) {
+            walletUpdateService.listenToUpdaterError({
+              onUpdaterError: () => {
+                throw new Error('Wallet Updater Error.');
+              }
+            });
+            this.listenToDownloadUpdate();
+            walletUpdateService.checkForWalletUpdate();
+            this.updateCheckInterval = setInterval(async () => {
+              walletUpdateService.checkForWalletUpdate();
+            }, 86400000);
           }
         });
-        this.listenToDownloadUpdate();
-        walletUpdateService.checkForWalletUpdate();
-        this.updateCheckInterval = setInterval(async () => {
-          walletUpdateService.checkForWalletUpdate();
-        }, 86400000);
-      }
-    } catch {
-      this.setState({
-        error: new Error('Wallet update check has failed.')
-      });
-    }
-    const isConnected = await store.dispatch(checkNodeConnection());
-    if (!isConnected) {
-      try {
-        await this.attemptToStartFullNode();
-        this.healthCheckFlow();
       } catch {
-        this.setState({
-          error: new Error('Failed to start Spacemesh Node.')
-        });
+        throw new Error('Wallet updater has failed.');
       }
-    } else {
-      this.healthCheckFlow();
+      const isConnected = await store.dispatch(checkNodeConnection());
+      if (!isConnected) {
+        try {
+          await this.attemptToStartFullNode();
+          this.healthCheckFlow();
+        } catch {
+          this.setState({
+            error: new Error('Failed to start Spacemesh Node.')
+          });
+        }
+      } else {
+        this.healthCheckFlow();
+      }
+    } catch (error) {
+      this.setState({ error });
     }
   }
 
