@@ -1,7 +1,6 @@
 // @flow
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
-import { listenerCleanup } from '/infra/utils';
 
 class HttpService {
   /**
@@ -10,13 +9,11 @@ class HttpService {
   static initMining({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string, commitmentSize: number, coinbase: string }) {
     ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, coinbase });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.INIT_MINING_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.INIT_MINING_SUCCESS, ipcConsts.INIT_MINING_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.INIT_MINING_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.INIT_MINING_SUCCESS, ipcConsts.INIT_MINING_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.INIT_MINING_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve();
       });
     });
   }
@@ -24,13 +21,11 @@ class HttpService {
   static getMiningStatus() {
     ipcRenderer.send(ipcConsts.GET_MINING_STATUS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_MINING_STATUS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_MINING_STATUS_SUCCESS, ipcConsts.GET_MINING_STATUS_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_MINING_STATUS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_MINING_STATUS_SUCCESS, ipcConsts.GET_MINING_STATUS_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_MINING_STATUS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.status);
       });
     });
   }
@@ -38,13 +33,11 @@ class HttpService {
   static getGenesisTime() {
     ipcRenderer.send(ipcConsts.GET_GENESIS_TIME);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_GENESIS_TIME_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_GENESIS_TIME_SUCCESS, ipcConsts.GET_GENESIS_TIME_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_GENESIS_TIME_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_GENESIS_TIME_SUCCESS, ipcConsts.GET_GENESIS_TIME_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_GENESIS_TIME_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.time);
       });
     });
   }
@@ -52,13 +45,11 @@ class HttpService {
   static getUpcomingRewards() {
     ipcRenderer.send(ipcConsts.GET_UPCOMING_REWARDS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, ipcConsts.GET_UPCOMING_REWARDS_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.layers);
       });
     });
   }
@@ -66,13 +57,11 @@ class HttpService {
   static getAccountRewards({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.GET_ACCOUNT_REWARDS, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, ipcConsts.GET_ACCOUNT_REWARDS_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, ipcConsts.GET_ACCOUNT_REWARDS_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.rewards);
       });
     });
   }
@@ -80,13 +69,11 @@ class HttpService {
   static setRewardsAddress({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.SET_REWARDS_ADDRESS, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, ipcConsts.SET_AWARDS_ADDRESS_FAILURE] });
+      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
         resolve();
-      });
-      ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, ipcConsts.SET_AWARDS_ADDRESS_FAILURE] });
-        reject(args);
       });
     });
   }
@@ -94,13 +81,11 @@ class HttpService {
   static checkNodeConnection() {
     ipcRenderer.send(ipcConsts.CHECK_NODE_CONNECTION);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, ipcConsts.CHECK_NODE_CONNECTION_FAILURE] });
+      ipcRenderer.once(ipcConsts.CHECK_NODE_CONNECTION_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject();
+        }
         resolve();
-      });
-      ipcRenderer.once(ipcConsts.CHECK_NODE_CONNECTION_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, ipcConsts.CHECK_NODE_CONNECTION_FAILURE] });
-        reject(args);
       });
     });
   }
@@ -108,13 +93,11 @@ class HttpService {
   static setNodeIpAddress({ nodeIpAddress }: { nodeIpAddress: string }) {
     ipcRenderer.send(ipcConsts.SET_NODE_IP, { nodeIpAddress });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SET_NODE_IP_SUCCESS, () => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_NODE_IP_SUCCESS, ipcConsts.SET_NODE_IP_FAILURE] });
+      ipcRenderer.once(ipcConsts.SET_NODE_IP_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
         resolve();
-      });
-      ipcRenderer.once(ipcConsts.SET_NODE_IP_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SET_NODE_IP_SUCCESS, ipcConsts.SET_NODE_IP_FAILURE] });
-        reject(args);
       });
     });
   }
@@ -125,13 +108,11 @@ class HttpService {
   static getBalance({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.GET_BALANCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_BALANCE_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_BALANCE_SUCCESS, ipcConsts.GET_BALANCE_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_BALANCE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_BALANCE_SUCCESS, ipcConsts.GET_BALANCE_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_BALANCE_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.balance);
       });
     });
   }
@@ -139,13 +120,11 @@ class HttpService {
   static getNonce({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.GET_NONCE, { address });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_NONCE_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_NONCE_SUCCESS, ipcConsts.GET_NONCE_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_NONCE_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_NONCE_SUCCESS, ipcConsts.GET_NONCE_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_NONCE_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.nonce);
       });
     });
   }
@@ -153,13 +132,11 @@ class HttpService {
   static sendTx({ tx }: { tx: Buffer }) {
     ipcRenderer.send(ipcConsts.SEND_TX, { tx });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.SEND_TX_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SEND_TX_SUCCESS, ipcConsts.SEND_TX_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.SEND_TX_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.SEND_TX_SUCCESS, ipcConsts.SEND_TX_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.SEND_TX_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.id);
       });
     });
   }
@@ -167,13 +144,11 @@ class HttpService {
   static getAccountTxs({ startLayer, account }: { startLayer: number, account: string }) {
     ipcRenderer.send(ipcConsts.GET_ACCOUNT_TXS, { startLayer, account });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_TXS_SUCCESS, ipcConsts.GET_ACCOUNT_TXS_FAILURE] });
-        resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_ACCOUNT_TXS_SUCCESS, ipcConsts.GET_ACCOUNT_TXS_FAILURE] });
-        reject(args);
+      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve({ txs: response.txs, validatedLayer: response.validatedLayer });
       });
     });
   }
@@ -181,13 +156,11 @@ class HttpService {
   static getTransaction({ id }: { id: Uint8Array }) {
     ipcRenderer.send(ipcConsts.GET_TX, { id });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_TX_SUCCESS, (event, response) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_SUCCESS, ipcConsts.GET_TX_FAILURE] });
+      ipcRenderer.once(ipcConsts.GET_TX_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
         resolve(response);
-      });
-      ipcRenderer.once(ipcConsts.GET_ACCOUNT_TXS_FAILURE, (event, args) => {
-        listenerCleanup({ ipcRenderer, channels: [ipcConsts.GET_TX_SUCCESS, ipcConsts.GET_TX_FAILURE] });
-        reject(args);
       });
     });
   }

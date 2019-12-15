@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
+import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -142,8 +142,8 @@ class AccountsOverview extends Component<Props, State> {
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
-            <BalanceAmount>{balance ? smidgeToSmesh(balance) : 0}</BalanceAmount>
-            <SmhText>SMH</SmhText>
+            <BalanceAmount>{balance || 0}</BalanceAmount>
+            <SmhText>SMG</SmhText>
           </BalanceWrapper>
         </Footer>
       </WrapperWith2SideBars>

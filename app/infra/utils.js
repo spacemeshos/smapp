@@ -8,23 +8,6 @@ const fromHexString = (hexString) => {
 
 const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-const getWalletAddress = (address: string) => {
-  const addressUint8Array = fromHexString(address);
-  return addressUint8Array.slice(12);
-};
-
-const getWalletName = ({ walletNumber }) => (walletNumber > 0 ? `Wallet ${walletNumber}` : 'Main Wallet');
-
-const getAccountName = ({ accountNumber }) => (accountNumber > 0 ? `Account ${accountNumber}` : 'Main Account');
-
-const listenerCleanup = ({ ipcRenderer, channels }) => {
-  if (channels && channels.length) {
-    channels.forEach((channel) => {
-      ipcRenderer.removeAllListeners(channel);
-    });
-  }
-};
-
 const createError = (message, func) => ({
   message,
   retryFunction: func
@@ -45,17 +28,10 @@ const asyncForEach = async (array, callback) => {
   }
 };
 
-export {
-  fromHexString,
-  toHexString,
-  getWalletAddress,
-  getWalletName,
-  getAccountName,
-  listenerCleanup,
-  createError,
-  getAbbreviatedText,
-  formatNumber,
-  smeshToSmidge,
-  smidgeToSmesh,
-  asyncForEach
+const getFormattedTimestamp = (timestamp: string) => {
+  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const dateObj = new Date(timestamp);
+  return `${dateObj.toLocaleDateString('en-US', options).replace(',', '')} - ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
 };
+
+export { fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, smeshToSmidge, smidgeToSmesh, asyncForEach, getFormattedTimestamp };

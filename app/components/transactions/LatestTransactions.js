@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
-import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { TxList, Tx } from '/types';
@@ -98,8 +98,8 @@ class LatestTransactions extends PureComponent<Props> {
             <Text>{getAbbreviatedText(txId)}</Text>
           </Section>
           <Section>
-            <Text>{this.getDateText(timestamp)}</Text>
-            <Amount color={color}>{parseFloat(smidgeToSmesh(amount).toFixed(4))}</Amount>
+            <Text>{getFormattedTimestamp(timestamp)}</Text>
+            <Amount color={color}>{amount} SMG</Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>
@@ -113,12 +113,6 @@ class LatestTransactions extends PureComponent<Props> {
       return smColors.orange;
     }
     return isSent ? smColors.blue : smColors.darkerGreen;
-  };
-
-  getDateText = (date: string) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    const dateObj = new Date(date);
-    return `${dateObj.toLocaleDateString('en-US', options)} ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
   };
 }
 

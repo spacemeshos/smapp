@@ -18,11 +18,11 @@ const documentsDirPath = app.getPath('documents');
 class FileManager {
   static copyFile = ({ event, fileName, filePath }) => {
     const newFilePath = path.join(appFilesDirPath, fileName);
-    fs.copyFile(filePath, newFilePath, (err) => {
-      if (err) {
-        event.sender.send(ipcConsts.COPY_FILE_SUCCESS);
+    fs.copyFile(filePath, newFilePath, (error) => {
+      if (error) {
+        event.sender.send(ipcConsts.COPY_FILE_RESPONSE, { error });
       }
-      event.sender.send(ipcConsts.COPY_FILE_SUCCESS, newFilePath);
+      event.sender.send(ipcConsts.COPY_FILE_RESPONSE, { error: null, newFilePath });
     });
   };
 
@@ -37,9 +37,9 @@ class FileManager {
       } else {
         shell.openItem(appFilesDirPath);
       }
-      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_SUCCESS);
+      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_FAILURE, error.message);
+      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_RESPONSE, { error });
     }
   };
 
@@ -53,9 +53,9 @@ class FileManager {
       const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
-      event.sender.send(ipcConsts.READ_DIRECTORY_SUCCESS, filesWithPath);
+      event.sender.send(ipcConsts.READ_DIRECTORY_RESPONSE, { error: null, filesWithPath });
     } catch (error) {
-      event.sender.send(ipcConsts.READ_DIRECTORY_FAILURE, error.message);
+      event.sender.send(ipcConsts.READ_DIRECTORY_FAILURE, { error, filesWithPath: null });
     }
   };
 
@@ -71,9 +71,9 @@ class FileManager {
       const file = JSON.parse(fileContent);
       file[fieldName] = data;
       await writeFileAsync(filePath, JSON.stringify(file));
-      event.sender.send(ipcConsts.UPDATE_FILE_SUCCESS);
+      event.sender.send(ipcConsts.UPDATE_FILE_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.UPDATE_FILE_FAILURE, error.message);
+      event.sender.send(ipcConsts.UPDATE_FILE_RESPONSE, { error });
     }
   };
 
@@ -138,18 +138,18 @@ class FileManager {
   static _readFile = async ({ event, filePath }) => {
     try {
       const fileContent = await readFileAsync(filePath);
-      event.sender.send(ipcConsts.READ_FILE_SUCCESS, JSON.parse(fileContent));
+      event.sender.send(ipcConsts.READ_FILE_RESPONSE, { error: null, xml: JSON.parse(fileContent) });
     } catch (error) {
-      event.sender.send(ipcConsts.READ_FILE_FAILURE, error.message);
+      event.sender.send(ipcConsts.READ_FILE_RESPONSE, { error, xml: null });
     }
   };
 
   static _writeFile = async ({ event, filePath, fileContent }) => {
     try {
       await writeFileAsync(filePath, fileContent);
-      event.sender.send(ipcConsts.SAVE_FILE_SUCCESS);
+      event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.SAVE_FILE_FAILURE, error.message);
+      event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error });
     }
   };
 }

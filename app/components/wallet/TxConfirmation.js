@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '/basicComponents';
-import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
+import { getAbbreviatedText } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -111,7 +111,7 @@ class TxConfirmation extends PureComponent<Props> {
     return (
       <Wrapper>
         <Header>
-          <HeaderText>Send SMH</HeaderText>
+          <HeaderText>Send SMG</HeaderText>
           <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
         </Header>
         <SubHeader1>--</SubHeader1>
@@ -129,7 +129,7 @@ class TxConfirmation extends PureComponent<Props> {
           <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>SMH</DetailsTextRight>
+          <DetailsTextRight>SMG</DetailsTextRight>
           <DetailsTextLeft>{amount}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
@@ -138,7 +138,7 @@ class TxConfirmation extends PureComponent<Props> {
         </DetailsRow>
         <DetailsRow isLast>
           <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{amount + parseFloat(smidgeToSmesh(fee).toFixed(4))}</TotalText>
+          <TotalText>{amount + fee}</TotalText>
         </DetailsRow>
         <Footer>
           <ComplexButton>

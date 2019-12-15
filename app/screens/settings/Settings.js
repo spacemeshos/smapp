@@ -264,10 +264,12 @@ class Settings extends Component<Props, State> {
 
   deleteWallet = async () => {
     const { walletFiles } = this.props;
+    localStorageService.clear();
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
   };
 
   cleanAllAppDataAndSettings = async () => {
+    localStorageService.clear();
     fileSystemService.wipeOut();
   };
 

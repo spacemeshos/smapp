@@ -74,33 +74,33 @@ class App extends React.Component<Props, State> {
 
   async componentDidMount() {
     try {
+      const isConnected = await store.dispatch(checkNodeConnection());
+      if (!isConnected) {
+        await this.attemptToStartFullNode();
+        this.healthCheckFlow();
+      } else {
+        this.healthCheckFlow();
+      }
       walletUpdateService.listenToUpdaterError({
         onUpdaterError: () => {
           throw new Error('Wallet Updater Error.');
         }
       });
-      this.listenToDownloadUpdate();
+      walletUpdateService.listenToDownloadUpdate({
+        onDownloadUpdateCompleted: () => {
+          store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
+          this.setState({ isUpdateDownloaded: true });
+        },
+        onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
+      });
       walletUpdateService.checkForWalletUpdate();
       this.updateCheckInterval = setInterval(async () => {
         walletUpdateService.checkForWalletUpdate();
       }, 86400000);
-    } catch {
+    } catch (error) {
       this.setState({
-        error: new Error('Wallet update check has failed.')
+        error: new Error(error === 'Wallet Updater Error.' ? 'Wallet update check has failed.' : 'Failed to start Spacemesh Node.')
       });
-    }
-    const isConnected = await store.dispatch(checkNodeConnection());
-    if (!isConnected) {
-      try {
-        await this.attemptToStartFullNode();
-        this.healthCheckFlow();
-      } catch {
-        this.setState({
-          error: new Error('Failed to start Spacemesh Node.')
-        });
-      }
-    } else {
-      this.healthCheckFlow();
     }
   }
 
@@ -140,16 +140,6 @@ class App extends React.Component<Props, State> {
           }
         }
       }, intervalTime);
-    });
-  };
-
-  listenToDownloadUpdate = () => {
-    walletUpdateService.listenToDownloadUpdate({
-      onDownloadUpdateCompleted: () => {
-        store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
-        this.setState({ isUpdateDownloaded: true });
-      },
-      onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
     });
   };
 

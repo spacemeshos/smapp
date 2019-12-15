@@ -4,16 +4,15 @@ import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
 import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_GENESIS_TIME, SET_UPCOMING_REWARDS, SET_ACCOUNT_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP } from './actions';
 
-const DEFAULT_URL = 'localhost:9091';
-
 const initialState = {
   isConnected: false,
   miningStatus: nodeConsts.NOT_MINING,
   genesisTime: 0,
   timeTillNextAward: 0,
   totalEarnings: 0,
+  totalFeesEarnings: 0,
   rewardsAddress: null,
-  nodeIpAddress: DEFAULT_URL
+  nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
 const reducer = (state: any = initialState, action: Action) => {
@@ -53,10 +52,12 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { rewards }
       } = action;
       let totalEarnings = 0;
+      let totalFeesEarnings = 0;
       rewards.forEach((reward) => {
-        totalEarnings += reward.totalReward + reward.layerRewardEstimate;
+        totalEarnings += reward.totalReward;
+        totalFeesEarnings += reward.layerRewardEstimate;
       });
-      return { ...state, totalEarnings };
+      return { ...state, totalEarnings, totalFeesEarnings };
     }
     case SET_REWARDS_ADDRESS: {
       const {

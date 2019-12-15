@@ -7,7 +7,6 @@ import { CreateNewContact } from '/components/contacts';
 import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
-import { smeshToSmidge } from '/infra/utils';
 
 type Props = {
   contacts: Contact[],
@@ -167,7 +166,7 @@ class SendCoins extends Component<Props, State> {
     const { sendTransaction } = this.props;
     const { address, amount, fee, note } = this.state;
     try {
-      const txId = await sendTransaction({ recipient: address, amount: smeshToSmidge(amount), price: fee, note });
+      const txId = await sendTransaction({ recipient: address, amount, fee, note });
       this.setState({ mode: 3, txId });
     } catch (error) {
       this.setState(() => {

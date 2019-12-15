@@ -28,7 +28,7 @@ class DiskStorageManager {
           mappedDrives.push({ mountPoint: mountPoint.mount, label, availableDiskSpace: Math.round(availableSpace / 1024 ** 3) });
         }
       });
-      event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
+      event.sender.send(ipcConsts.GET_DRIVE_LIST_RESPONSE, mappedDrives);
     });
   };
 }

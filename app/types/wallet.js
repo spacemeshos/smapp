@@ -5,8 +5,7 @@ export type Account = {
   created: number,
   path: string,
   publicKey: string,
-  secretKey: string,
-  layerId: number
+  secretKey: string
 };
 
 export type WalletMeta = {
