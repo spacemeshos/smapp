@@ -121,6 +121,7 @@ type Props = {
   miningStatus: number,
   timeTillNextAward: number,
   totalEarnings: number,
+  totalFeesEarnings: number,
   getUpcomingRewards: Action,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
@@ -182,7 +183,8 @@ class Node extends Component<Props, State> {
               <div key={`reward${index}`}>
                 <LogEntry>
                   <LogText>12.09.19 - 13:10</LogText>
-                  <AwardText>Smeshing reward: {reward.totalReward + reward.layerRewardEstimate}</AwardText>
+                  <AwardText>Smeshing reward: {reward.totalReward} SMG</AwardText>
+                  <AwardText>Smeshing fee reward: {reward.layerRewardEstimate} SMG</AwardText>
                 </LogEntry>
                 <LogEntrySeparator>...</LogEntrySeparator>
               </div>
@@ -267,7 +269,7 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { isConnected, timeTillNextAward, totalEarnings } = this.props;
+    const { isConnected, timeTillNextAward, totalEarnings, totalFeesEarnings } = this.props;
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
@@ -279,9 +281,14 @@ class Node extends Component<Props, State> {
         <RightText>{timeTillNextAward || timeTillNextAward === 0 ? `${Math.floor(timeTillNextAward / 1000)} min` : 'Not available'}</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
-        <LeftText>Total Rewards</LeftText>
+        <LeftText>Total Smeshing Rewards</LeftText>
         <Dots>.............................</Dots>
         <GreenText>{totalEarnings} SMG</GreenText>
+      </TextWrapper>,
+      <TextWrapper key="3">
+        <LeftText>Total Fees Rewards</LeftText>
+        <Dots>.............................</Dots>
+        <GreenText>{totalFeesEarnings} SMG</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -310,7 +317,8 @@ const mapStateToProps = (state) => ({
   isConnected: state.node.isConnected,
   miningStatus: state.node.miningStatus,
   timeTillNextAward: state.node.timeTillNextAward,
-  totalEarnings: state.node.totalEarnings
+  totalEarnings: state.node.totalEarnings,
+  totalFeesEarnings: state.node.totalEarnings
 });
 
 const mapDispatchToProps = {

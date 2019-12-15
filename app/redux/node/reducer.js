@@ -10,6 +10,7 @@ const initialState = {
   genesisTime: 0,
   timeTillNextAward: 0,
   totalEarnings: 0,
+  totalFeesEarnings: 0,
   rewardsAddress: null,
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
@@ -51,10 +52,12 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { rewards }
       } = action;
       let totalEarnings = 0;
+      let totalFeesEarnings = 0;
       rewards.forEach((reward) => {
-        totalEarnings += reward.totalReward + reward.layerRewardEstimate;
+        totalEarnings += reward.totalReward;
+        totalFeesEarnings += reward.layerRewardEstimate;
       });
-      return { ...state, totalEarnings };
+      return { ...state, totalEarnings, totalFeesEarnings };
     }
     case SET_REWARDS_ADDRESS: {
       const {
