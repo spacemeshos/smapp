@@ -78,7 +78,7 @@ class App extends React.Component<Props, State> {
     try {
       try {
         ipcRenderer.send(ipcConsts.CHECK_PROD_MODE);
-        ipcRenderer.on(ipcConsts.IS_PROD_MODE, (isProductionMode) => {
+        ipcRenderer.on(ipcConsts.IS_PROD_MODE, (event, isProductionMode) => {
           if (isProductionMode) {
             walletUpdateService.listenToUpdaterError({
               onUpdaterError: () => {
