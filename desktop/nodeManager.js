@@ -29,11 +29,11 @@ class NodeManager {
     // TODO: should change prodPath to actual executable file path in prod.
     const prodPath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget === 'windows' ? '' : osTarget}go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
     const executablePath = isDevMode ? devPath : prodPath;
-    child(executablePath, (err) => {
-      if (err) {
-        event.sender.send(ipcConsts.START_NODE_FAILURE, err.message);
+    child(executablePath, (error) => {
+      if (error) {
+        event.sender.send(ipcConsts.START_NODE_RESPONSE, { error });
       }
-      event.sender.send(ipcConsts.START_NODE_SUCCESS);
+      event.sender.send(ipcConsts.START_NODE_RESPONSE, { error: null });
     });
   };
 

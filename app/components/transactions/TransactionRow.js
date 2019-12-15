@@ -5,17 +5,10 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, smidgeToSmesh } from '/infra/utils';
+import { getAbbreviatedText, smidgeToSmesh, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
-
-const getDateText = (date: string) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  const dateObj = new Date(date);
-  const localeDateString = dateObj.toLocaleDateString('en-US', options);
-  return `${localeDateString.replace(',', '')} - ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
-};
 
 const getTxStatus = ({ isPending, isRejected }: { isPending: boolean, isRejected: boolean }) => {
   if (isRejected) {
@@ -39,11 +32,7 @@ const getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPendin
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  ${({ isDetailed }) =>
-    isDetailed &&
-    `
-    background-color: ${smColors.disabledGray};  
-  `}
+  ${({ isDetailed }) => (isDetailed ? `background-color: ${smColors.disabledGray};` : 'cursor: pointer;')}
   border-bottom: 1px solid ${smColors.disabledGray};
 `;
 
@@ -207,8 +196,8 @@ class TransactionRow extends Component<Props, State> {
               <Text>{getAbbreviatedText(txId)}</Text>
             </Section>
             <Section>
-              <Amount color={color}>{parseFloat(smidgeToSmesh(amount).toFixed(4))}</Amount>
-              <DarkGrayText>{getDateText(timestamp)}</DarkGrayText>
+              <Amount color={color}>{amount} SMG</Amount>
+              <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
             </Section>
           </MainWrapper>
         </RowWrapper>

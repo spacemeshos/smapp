@@ -8,12 +8,6 @@ const fromHexString = (hexString) => {
 
 const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
 
-const listenerCleanup = ({ ipcRenderer, channels }) => {
-  // channels.forEach((channel) => {
-  //   ipcRenderer.removeAllListeners(channel);
-  // });
-};
-
 const createError = (message, func) => ({
   message,
   retryFunction: func
@@ -34,6 +28,10 @@ const asyncForEach = async (array, callback) => {
   }
 };
 
-const getFormattedTimestamp = (timestamp: string) => new Date(timestamp).toLocaleString('us-US', { timeZone: 'UTC' });
+const getFormattedTimestamp = (timestamp: string) => {
+  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  const dateObj = new Date(timestamp);
+  return `${dateObj.toLocaleDateString('en-US', options).replace(',', '')} - ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
+};
 
-export { fromHexString, toHexString, listenerCleanup, createError, getAbbreviatedText, formatNumber, smeshToSmidge, smidgeToSmesh, asyncForEach, getFormattedTimestamp };
+export { fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, smeshToSmidge, smidgeToSmesh, asyncForEach, getFormattedTimestamp };

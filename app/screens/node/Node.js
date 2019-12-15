@@ -276,7 +276,7 @@ class Node extends Component<Props, State> {
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
         <Dots>.............................</Dots>
-        <RightText>{timeTillNextAward ? `${Math.floor(timeTillNextAward / 1000)} min` : 'Not available'}</RightText>
+        <RightText>{timeTillNextAward || timeTillNextAward === 0 ? `${Math.floor(timeTillNextAward / 1000)} min` : 'Not available'}</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Rewards</LeftText>

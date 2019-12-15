@@ -20,12 +20,14 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
     received: 0
   };
 
-  transactions.forEach(({ status, sender }: { status: number, sender: string }) => {
-    if (![TX_STATUSES.PENDING, TX_STATUSES.REJECTED].includes(status)) {
+  transactions.forEach(({ status, sender, receiver, amount }: { status: number, sender: string, receiver: string, amount: number }) => {
+    if (status !== TX_STATUSES.REJECTED) {
       if (sender === publicKey) {
-        coins.sent += 1;
+        coins.sent += amount;
+      } else if (receiver === publicKey) {
+        coins.received += amount;
       } else {
-        coins.received += 1;
+        coins.mined += amount;
       }
     }
   });
@@ -118,7 +120,7 @@ class Transactions extends Component<Props, State> {
   }
 
   render() {
-    const { history } = this.props;
+    const { history, publicKey } = this.props;
     const { selectedItemIndex, filteredTransactions, mined, sent, received, totalMined, totalSent, totalReceived, addressToAdd } = this.state;
     return (
       <Wrapper>
@@ -128,7 +130,7 @@ class Transactions extends Component<Props, State> {
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
               filteredTransactions.map((tx, index) => (
-                <TransactionRow key={index} transaction={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
+                <TransactionRow key={index} publicKey={publicKey} transaction={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
               ))
             ) : (
               <Text>No transactions here yet</Text>
@@ -190,7 +192,7 @@ class Transactions extends Component<Props, State> {
     const spanInDays = [1, 30, 365];
     return transactions.data.filter((transaction: Tx) => {
       const startDate = +new Date() - spanInDays[index] * oneDayInMs;
-      return +new Date(transaction.date) >= startDate;
+      return transaction.timestamp >= startDate;
     });
   };
 

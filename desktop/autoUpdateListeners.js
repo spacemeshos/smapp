@@ -10,8 +10,10 @@ const subscribeToAutoUpdateListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.QUIT_AND_UPDATE, () => autoUpdater.quitAndInstall());
 
   ipcMain.on(ipcConsts.CHECK_WALLET_UPDATE, () => {
-    autoUpdater.checkForUpdates();
-    autoUpdater.once('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
+    if (process.env.NODE_ENV === 'production') {
+      autoUpdater.checkForUpdates();
+      autoUpdater.once('download-progress', () => mainWindow.webContents.send(ipcConsts.DOWNLOAD_UPDATE_PROGRESS));
+    }
   });
 };
 

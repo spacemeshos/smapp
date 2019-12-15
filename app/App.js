@@ -8,7 +8,6 @@ import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
 import { setUpdateDownloading } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
-import { localStorageService } from '/infra/storageService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
@@ -74,35 +73,34 @@ class App extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    localStorageService.clear(); // TODO: find better place to clear local storage between runs
-    // try {
-    //   walletUpdateService.listenToUpdaterError({
-    //     onUpdaterError: () => {
-    //       throw new Error('Wallet Updater Error.');
-    //     }
-    //   });
-    //   this.listenToDownloadUpdate();
-    //   walletUpdateService.checkForWalletUpdate();
-    //   this.updateCheckInterval = setInterval(async () => {
-    //     walletUpdateService.checkForWalletUpdate();
-    //   }, 86400000);
-    // } catch {
-    //   this.setState({
-    //     error: new Error('Wallet update check has failed.')
-    //   });
-    // }
-    const isConnected = await store.dispatch(checkNodeConnection());
-    if (!isConnected) {
-      try {
+    try {
+      const isConnected = await store.dispatch(checkNodeConnection());
+      if (!isConnected) {
         await this.attemptToStartFullNode();
         this.healthCheckFlow();
-      } catch {
-        this.setState({
-          error: new Error('Failed to start Spacemesh Node.')
-        });
+      } else {
+        this.healthCheckFlow();
       }
-    } else {
-      this.healthCheckFlow();
+      walletUpdateService.listenToUpdaterError({
+        onUpdaterError: () => {
+          throw new Error('Wallet Updater Error.');
+        }
+      });
+      walletUpdateService.listenToDownloadUpdate({
+        onDownloadUpdateCompleted: () => {
+          store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
+          this.setState({ isUpdateDownloaded: true });
+        },
+        onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
+      });
+      walletUpdateService.checkForWalletUpdate();
+      this.updateCheckInterval = setInterval(async () => {
+        walletUpdateService.checkForWalletUpdate();
+      }, 86400000);
+    } catch (error) {
+      this.setState({
+        error: new Error(error === 'Wallet Updater Error.' ? 'Wallet update check has failed.' : 'Failed to start Spacemesh Node.')
+      });
     }
   }
 
@@ -142,16 +140,6 @@ class App extends React.Component<Props, State> {
           }
         }
       }, intervalTime);
-    });
-  };
-
-  listenToDownloadUpdate = () => {
-    walletUpdateService.listenToDownloadUpdate({
-      onDownloadUpdateCompleted: () => {
-        store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
-        this.setState({ isUpdateDownloaded: true });
-      },
-      onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
     });
   };
 

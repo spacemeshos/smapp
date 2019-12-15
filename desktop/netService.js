@@ -14,7 +14,7 @@ class NetService {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
-  _checkNetworkConnection = () =>
+  _checkNodeConnection = () =>
     new Promise((resolve, reject) => {
       this.service.Echo({}, (error, response) => {
         if (error) {
@@ -134,50 +134,54 @@ class NetService {
       });
     });
 
-  checkNetworkConnection = async ({ event }) => {
+  checkNodeConnection = async ({ event }) => {
     try {
-      const { value } = await this._checkNetworkConnection();
-      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, value);
+      await this._checkNodeConnection();
+      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_FAILURE, error.message);
+      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_RESPONSE, { error: error.message });
     }
   };
 
   getMiningStatus = async ({ event }) => {
     try {
       const { status } = await this._getMiningStatus();
-      event.sender.send(ipcConsts.GET_MINING_STATUS_SUCCESS, status);
+      event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error: null, status });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, { error, status: null });
     }
   };
 
   initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
     try {
-      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase });
-      event.sender.send(ipcConsts.INIT_MINING_SUCCESS, value);
+      await this._initMining({ logicalDrive, commitmentSize, coinbase });
+      event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.INIT_MINING_FAILURE, error.message);
+      event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error });
     }
   };
 
   getGenesisTime = async ({ event }) => {
     try {
       const { value } = await this._getGenesisTime();
-      event.sender.send(ipcConsts.GET_GENESIS_TIME_SUCCESS, value);
+      event.sender.send(ipcConsts.GET_GENESIS_TIME_RESPONSE, { error: null, time: value });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_GENESIS_TIME_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_GENESIS_TIME_RESPONSE, { error, time: null });
     }
   };
 
   getUpcomingRewards = async ({ event }) => {
     try {
       const { layers } = await this._getUpcomingAwards();
-      const layersArr = layers.map((layer) => parseInt(layer));
-      layersArr.sort((a, b) => a - b);
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_SUCCESS, layersArr);
+      if (!layers) {
+        event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: null, layers: [] });
+      }
+      const resolvedLayers = layers || [];
+      const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
+      parsedLayers.sort((a, b) => a - b);
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: null, layers: parsedLayers });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: error.message, layers: null });
     }
   };
 
@@ -185,7 +189,7 @@ class NetService {
     try {
       const { rewards } = await this._getAccountRewards({ address });
       if (!rewards) {
-        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, []);
+        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: [] });
       } else {
         const parsedReward = rewards.map((reward) => ({
           layer: parseInt(reward.layer),
@@ -193,73 +197,73 @@ class NetService {
           layerRewardEstimate: parseInt(reward.layerRewardEstimate)
         }));
         parsedReward.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
-        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_SUCCESS, parsedReward);
+        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: parsedReward });
       }
     } catch (error) {
-      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error, rewards: [] });
     }
   };
 
   setNodeIpAddress = ({ event, nodeIpAddress }) => {
     try {
       this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
-      event.sender.send(ipcConsts.SET_NODE_IP_SUCCESS, nodeIpAddress);
+      event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, error.message);
+      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, { error });
     }
   };
 
   setRewardsAddress = async ({ event, address }) => {
     try {
-      const { value } = await this._setAwardsAddress({ address });
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
+      await this._setAwardsAddress({ address });
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, { error });
     }
   };
 
   getBalance = async ({ event, address }) => {
     try {
       const { value } = await this._getBalance({ address });
-      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, value);
+      event.sender.send(ipcConsts.GET_BALANCE_RESPONSE, { error: null, balance: value });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_BALANCE_RESPONSE, { error, balance: null });
     }
   };
 
   getNonce = async ({ event, address }) => {
     try {
       const { value } = await this._getNonce({ address });
-      event.sender.send(ipcConsts.GET_NONCE_SUCCESS, value);
+      event.sender.send(ipcConsts.GET_NONCE_RESPONSE, { error: null, nonce: value });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_NONCE_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_NONCE_RESPONSE, { error, nonce: null });
     }
   };
 
   sendTx = async ({ event, tx }) => {
     try {
       const { id } = await this._submitTransaction({ tx });
-      event.sender.send(ipcConsts.SEND_TX_SUCCESS, id);
+      event.sender.send(ipcConsts.SEND_TX_RESPONSE, { error: null, id });
     } catch (error) {
-      event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
+      event.sender.send(ipcConsts.SEND_TX_RESPONSE, error.message);
     }
   };
 
   getAccountTxs = async ({ event, startLayer, account }) => {
     try {
       const { txs, validatedLayer } = await this._getAccountTxs({ startLayer, account });
-      event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, { txs, validatedLayer });
+      event.sender.send(ipcConsts.GET_ACCOUNT_TXS_RESPONSE, { error: null, txs, validatedLayer });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);
+      event.sender.send(ipcConsts.GET_ACCOUNT_TXS_RESPONSE, { error: error.message, txs: null, validatedLayer: null });
     }
   };
 
   getTransaction = async ({ event, id }) => {
     try {
       const tx = await this._getTransaction({ id });
-      event.sender.send(ipcConsts.GET_TX_SUCCESS, tx);
+      event.sender.send(ipcConsts.GET_TX_RESPONSE, { error: null, tx });
     } catch (error) {
-      event.sender.send(ipcConsts.GET_TX_FAILURE, error);
+      event.sender.send(ipcConsts.GET_TX_RESPONSE, { error, tx: null });
     }
   };
 }

@@ -19,7 +19,7 @@ class DiskStorageManager {
         validSizeMountPoints = sizeMountPoints;
       }
       const mappedDrives = [];
-      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * 1073741824;
+      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * 1048576; // 1073741824;
       mountedDrives.forEach((mountPoint) => {
         const volume = validSizeMountPoints.find((validSizeMountPoint) => validSizeMountPoint.mount === mountPoint.mount);
         const availableSpace = volume ? volume.size - volume.used : 0;
@@ -28,7 +28,7 @@ class DiskStorageManager {
           mappedDrives.push({ mountPoint: mountPoint.mount, label, availableDiskSpace: Math.round(availableSpace / 1024 ** 3) });
         }
       });
-      event.sender.send(ipcConsts.GET_DRIVE_LIST_SUCCESS, mappedDrives);
+      event.sender.send(ipcConsts.GET_DRIVE_LIST_RESPONSE, mappedDrives);
     });
   };
 }

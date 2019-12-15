@@ -36,6 +36,10 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
       if (!localStorageService.get('smesherSmeshingTimestamp')) {
         localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
       }
+    } else if (status === nodeConsts.NOT_MINING) {
+      localStorageService.clearByKey('smesherInitTimestamp');
+      localStorageService.clearByKey('smesherSmeshingTimestamp');
+      localStorageService.clearByKey('rewards');
     }
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
   } catch (error) {
@@ -49,6 +53,8 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
   try {
     await httpService.initMining({ logicalDrive, commitmentSize, coinbase: address });
     localStorageService.set('smesherInitTimestamp', new Date().getTime());
+    localStorageService.clearByKey('smesherSmeshingTimestamp');
+    localStorageService.clearByKey('rewards');
     dispatch({ type: INIT_MINING, payload: { address } });
   } catch (err) {
     throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
