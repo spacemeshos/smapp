@@ -147,9 +147,9 @@ class Main extends Component<Props, State> {
             <NavLinksWrapper>
               <TooltipWrapper>
                 <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
-                  MINING
+                  SMESHING
                 </NavBarLink>
-                <CustomTooltip text="SETUP OR MANAGE YOUR MINING" withIcon={false} isLinkTooltip />
+                <CustomTooltip text="SETUP OR MANAGE YOUR SMESHING" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
                 <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
