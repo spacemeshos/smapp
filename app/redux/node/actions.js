@@ -80,7 +80,7 @@ export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getSt
     const { genesisTime } = getState().node;
     const currentLayer = Math.floor((new Date().getTime() - genesisTime) / nodeConsts.TIME_BETWEEN_LAYERS);
     const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer >= currentLayer);
-    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer) } });
+    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }

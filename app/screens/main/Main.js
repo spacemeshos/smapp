@@ -238,7 +238,7 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { miningStatus, getMiningStatus } = this.props;
+    const { miningStatus, getTxList, getMiningStatus } = this.props;
     this.txCollectorInterval = setInterval(getTxList, 10000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {

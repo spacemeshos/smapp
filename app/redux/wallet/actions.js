@@ -252,38 +252,44 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
 export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { isConnected } = getState().node;
   if (isConnected) {
-    const { accounts, transactions, walletFiles } = getState().wallet;
-    let updatedTransactions = [];
+    try {
+      const { accounts, transactions, walletFiles } = getState().wallet;
+      let updatedTransactions = [];
 
-    // for given account and it's tx ids list get full tx data
-    const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
-      await asyncForEach(txIds, async (txId) => {
-        const tx = await httpService.getTransaction({ id: fromHexString(txId) });
-        collector.push(tx);
-      });
-    };
-
-    // get all tx ids for every account, then for each account get full tx data for the list
-    const txListCollector = async () => {
-      let minValidatedLayer = 0;
-      await asyncForEach(accounts, async (account, index) => {
-        const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
-        if (minValidatedLayer === 0) {
-          minValidatedLayer = validatedLayer;
-        }
-        const fullDataTxsList = [];
-        await fullTxDataCollector(txs, fullDataTxsList);
-        const { unifiedTxList } = mergeTxStatuses({
-          existingList: transactions[index],
-          incomingList: fullDataTxsList,
-          address: account.publicKey
+      // for given account and it's tx ids list get full tx data
+      const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
+        await asyncForEach(txIds, async (txId) => {
+          const tx = await httpService.getTransaction({ id: fromHexString(txId) });
+          collector.push(tx);
         });
-        updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
-      });
-    };
-    await txListCollector();
-    await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
-    dispatch(setTransactions({ transactions: updatedTransactions }));
+      };
+
+      // get all tx ids for every account, then for each account get full tx data for the list
+      const txListCollector = async () => {
+        let minValidatedLayer = 0;
+        await asyncForEach(accounts, async (account, index) => {
+          const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
+          console.log(txs);
+          console.log(validatedLayer);
+          if (minValidatedLayer === 0) {
+            minValidatedLayer = validatedLayer;
+          }
+          const fullDataTxsList = [];
+          await fullTxDataCollector(txs, fullDataTxsList);
+          const { unifiedTxList } = mergeTxStatuses({
+            existingList: transactions[index].data,
+            incomingList: fullDataTxsList,
+            address: account.publicKey
+          });
+          updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
+        });
+      };
+      await txListCollector();
+      await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
+      dispatch(setTransactions({ transactions: updatedTransactions }));
+    } catch (error) {
+      console.log(error); // eslint-disable-line no-console
+    }
   }
 };
 

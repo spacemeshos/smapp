@@ -116,7 +116,7 @@ class NetService {
 
   _getAccountTxs = ({ account, startLayer }) =>
     new Promise((resolve, reject) => {
-      this.service.GetAccountTxs({ account, startLayer }, (error, response) => {
+      this.service.GetAccountTxs({ account: { address: account }, startLayer }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -126,10 +126,13 @@ class NetService {
 
   _getTransaction = ({ id }) =>
     new Promise((resolve, reject) => {
+      console.log(id);
       this.service.GetTransaction({ id }, (error, response) => {
         if (error) {
+          console.log(error);
           reject(error);
         }
+        console.log(response);
         resolve(response);
       });
     });
@@ -252,7 +255,7 @@ class NetService {
   getAccountTxs = async ({ event, startLayer, account }) => {
     try {
       const { txs, validatedLayer } = await this._getAccountTxs({ startLayer, account });
-      event.sender.send(ipcConsts.GET_ACCOUNT_TXS_RESPONSE, { error: null, txs, validatedLayer });
+      event.sender.send(ipcConsts.GET_ACCOUNT_TXS_RESPONSE, { error: null, txs: txs || [], validatedLayer: parseInt(validatedLayer) });
     } catch (error) {
       event.sender.send(ipcConsts.GET_ACCOUNT_TXS_RESPONSE, { error: error.message, txs: null, validatedLayer: null });
     }
@@ -261,7 +264,18 @@ class NetService {
   getTransaction = async ({ event, id }) => {
     try {
       const tx = await this._getTransaction({ id });
-      event.sender.send(ipcConsts.GET_TX_RESPONSE, { error: null, tx });
+      const { txId, sender, receiver, amount, fee, status, layerId, timestamp } = tx;
+      const parsedTx = {
+        txId: txId.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), ''),
+        sender,
+        receiver,
+        amount: parseInt(amount),
+        fee: parseInt(fee),
+        status,
+        layerId: parseInt(layerId),
+        timestamp: parseInt(timestamp)
+      };
+      event.sender.send(ipcConsts.GET_TX_RESPONSE, { error: null, tx: parsedTx });
     } catch (error) {
       event.sender.send(ipcConsts.GET_TX_RESPONSE, { error, tx: null });
     }
