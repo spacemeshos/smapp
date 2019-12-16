@@ -259,7 +259,7 @@ export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetS
       // for given account and it's tx ids list get full tx data
       const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
         await asyncForEach(txIds, async (txId) => {
-          const tx = await httpService.getTransaction({ id: fromHexString(txId) });
+          const tx = await httpService.getTransaction({ id: fromHexString(txId.substring(2)) });
           collector.push(tx);
         });
       };
