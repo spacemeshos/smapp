@@ -126,13 +126,10 @@ class NetService {
 
   _getTransaction = ({ id }) =>
     new Promise((resolve, reject) => {
-      console.log(id);
       this.service.GetTransaction({ id }, (error, response) => {
         if (error) {
-          console.log(error);
           reject(error);
         }
-        console.log(response);
         resolve(response);
       });
     });
@@ -266,7 +263,7 @@ class NetService {
       const tx = await this._getTransaction({ id });
       const { txId, sender, receiver, amount, fee, status, layerId, timestamp } = tx;
       const parsedTx = {
-        txId: txId.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), ''),
+        txId: txId.id.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), ''),
         sender,
         receiver,
         amount: parseInt(amount),

@@ -160,7 +160,7 @@ class HttpService {
         if (response.error) {
           reject(response.error);
         }
-        resolve(response);
+        resolve(response.tx);
       });
     });
   }

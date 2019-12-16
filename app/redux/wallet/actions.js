@@ -52,12 +52,14 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
   let hasConfirmedOutgoingTxs = false;
   const existingListMap = {};
   existingList.forEach((tx, index) => {
-    existingListMap[tx.id] = { index, tx };
+    existingListMap[tx.txId] = { index, tx };
   });
   incomingList.forEach((tx) => {
     if (existingListMap[tx.txId]) {
-      hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.txId.tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-      hasConfirmedOutgoingTxs = !hasConfirmedOutgoingTxs && tx.txId.tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver !== address;
+      hasConfirmedIncomingTxs =
+        !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
+      hasConfirmedOutgoingTxs =
+        !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver !== address;
       unifiedTxList[existingListMap[tx.txId.index]] = tx;
     } else {
       hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
@@ -269,8 +271,6 @@ export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetS
         let minValidatedLayer = 0;
         await asyncForEach(accounts, async (account, index) => {
           const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
-          console.log(txs);
-          console.log(validatedLayer);
           if (minValidatedLayer === 0) {
             minValidatedLayer = validatedLayer;
           }
