@@ -275,6 +275,11 @@ export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetS
             minValidatedLayer = validatedLayer;
           }
           const fullDataTxsList = [];
+          transactions[index].data.forEach((existingTx) => {
+            if (!txs.includes(existingTx.txId) && existingTx.status !== TX_STATUSES.PENDING && existingTx.status !== TX_STATUSES.REJECTED) {
+              fullDataTxsList.push(existingTx.txId);
+            }
+          });
           await fullTxDataCollector(txs, fullDataTxsList);
           const { unifiedTxList } = mergeTxStatuses({
             existingList: transactions[index].data,
