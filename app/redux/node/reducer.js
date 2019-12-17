@@ -54,8 +54,8 @@ const reducer = (state: any = initialState, action: Action) => {
       let totalEarnings = 0;
       let totalFeesEarnings = 0;
       rewards.forEach((reward) => {
-        totalEarnings += reward.totalReward;
-        totalFeesEarnings += reward.layerRewardEstimate;
+        totalEarnings += reward.layerRewardEstimate;
+        totalFeesEarnings += reward.totalReward - reward.layerRewardEstimate;
       });
       return { ...state, totalEarnings, totalFeesEarnings };
     }

@@ -28,23 +28,27 @@ export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dis
   }
 };
 
-export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const status = await httpService.getMiningStatus();
-    if (status === nodeConsts.IS_MINING) {
-      dispatch(getGenesisTime());
-      if (!localStorageService.get('smesherSmeshingTimestamp')) {
-        localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
+export const getMiningStatus = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { isConnected } = getState().node;
+  if (isConnected) {
+    try {
+      const status = await httpService.getMiningStatus();
+      if (status === nodeConsts.IS_MINING) {
+        dispatch(getGenesisTime());
+        if (!localStorageService.get('smesherSmeshingTimestamp')) {
+          localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
+        }
+      } else if (status === nodeConsts.NOT_MINING) {
+        localStorageService.clearByKey('smesherInitTimestamp');
+        localStorageService.clearByKey('smesherSmeshingTimestamp');
+        localStorageService.clearByKey('rewards');
       }
-    } else if (status === nodeConsts.NOT_MINING) {
-      localStorageService.clearByKey('smesherInitTimestamp');
-      localStorageService.clearByKey('smesherSmeshingTimestamp');
-      localStorageService.clearByKey('rewards');
+      dispatch({ type: SET_MINING_STATUS, payload: { status } });
+    } catch (error) {
+      console.error(error); // eslint-disable-line no-console
     }
-    dispatch({ type: SET_MINING_STATUS, payload: { status } });
-  } catch (error) {
-    console.error(error); // eslint-disable-line no-console
   }
+  return -1;
 };
 
 export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
@@ -76,7 +80,7 @@ export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getSt
     const { genesisTime } = getState().node;
     const currentLayer = Math.floor((new Date().getTime() - genesisTime) / nodeConsts.TIME_BETWEEN_LAYERS);
     const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer >= currentLayer);
-    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer) } });
+    dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }

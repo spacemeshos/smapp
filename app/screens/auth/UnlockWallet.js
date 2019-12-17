@@ -138,8 +138,8 @@ class UnlockWallet extends Component<Props, State> {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
       try {
-        generateEncryptionKey({ password });
-        await unlockWallet();
+        const key = generateEncryptionKey({ password });
+        await unlockWallet({ key });
         history.push('/main/wallet');
       } catch (error) {
         if (error.message.indexOf('Unexpected token') === 0) {

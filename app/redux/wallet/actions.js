@@ -38,7 +38,7 @@ const getMaxLayerId = ({ transactions }) => {
   return max;
 };
 
-const getNewAccountFromTemplate = ({ accountNumber, timestamp, publicKey, secretKey }: { accountNumber: number, timestamp: number, publicKey: string, secretKey: string }) => ({
+const getNewAccountFromTemplate = ({ accountNumber, timestamp, publicKey, secretKey }: { accountNumber: number, timestamp: string, publicKey: string, secretKey: string }) => ({
   displayName: getAccountName({ accountNumber }),
   created: timestamp,
   path: `0/0/${accountNumber}`,
@@ -52,13 +52,15 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
   let hasConfirmedOutgoingTxs = false;
   const existingListMap = {};
   existingList.forEach((tx, index) => {
-    existingListMap[tx.id] = { index, tx };
+    existingListMap[tx.txId] = { index, tx };
   });
   incomingList.forEach((tx) => {
     if (existingListMap[tx.txId]) {
-      hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.txId.tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-      hasConfirmedOutgoingTxs = !hasConfirmedOutgoingTxs && tx.txId.tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver !== address;
-      unifiedTxList[existingListMap[tx.txId.index]] = tx;
+      hasConfirmedIncomingTxs =
+        !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
+      hasConfirmedOutgoingTxs =
+        !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver !== address;
+      unifiedTxList[existingListMap[tx.txId].index] = tx;
     } else {
       hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
       unifiedTxList.push(tx);
@@ -67,15 +69,16 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
   return { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
 };
 
-export const generateEncryptionKey = ({ password }: { password: string }): Action => {
+export const generateEncryptionKey = ({ password }: { password: string }): Action => (dispatch: Dispatch): Dispatch => {
   const salt = cryptoConsts.DEFAULT_SALT;
   const key = fileEncryptionService.createEncryptionKey({ password, salt });
-  return { type: STORE_ENCRYPTION_KEY, payload: { key } };
+  dispatch({ type: STORE_ENCRYPTION_KEY, payload: { key } });
+  return key;
 };
 
-export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { fileKey, walletFiles } = getState().wallet;
-  const timestamp = new Date().getTime();
+export const saveNewWallet = ({ mnemonic, key }: { mnemonic?: string, key: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { walletFiles } = getState().wallet;
+  const timestamp = new Date().toISOString().replace(/:/, '-');
   const walletNumber = localStorageService.get('walletNumber') || 0;
   const accountNumber = localStorageService.get('accountNumber') || 0;
   const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
@@ -90,7 +93,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     mnemonic: resolvedMnemonic,
     accounts: [getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey })]
   };
-  const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key: fileKey });
+  const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(cipherText), key });
   const fileName = `my_wallet_${walletNumber}-${timestamp}.json`;
   const fullWalletDataToFlush = {
     meta,
@@ -110,7 +113,7 @@ export const saveNewWallet = ({ mnemonic }: { mnemonic?: string }): Action => as
     localStorageService.set('accountNumber', accountNumber + 1);
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [fileName, ...walletFiles] : [fileName] } });
   } catch (err) {
-    throw createError('Error saving new wallet!', () => saveNewWallet({ mnemonic }));
+    throw createError('Error saving new wallet!', () => saveNewWallet({ mnemonic, key }));
   }
 };
 
@@ -141,11 +144,11 @@ export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatc
   }
 };
 
-export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const unlockWallet = ({ key }: { key: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { walletFiles, fileKey } = getState().wallet;
+    const { walletFiles } = getState().wallet;
     const file = await fileSystemService.readFile({ filePath: walletFiles[0] });
-    const decryptedDataJSON = fileEncryptionService.decryptData({ data: file.crypto.cipherText, key: fileKey });
+    const decryptedDataJSON = fileEncryptionService.decryptData({ data: file.crypto.cipherText, key });
     file.crypto.cipherText = JSON.parse(decryptedDataJSON);
     dispatch(setWalletMeta({ meta: file.meta }));
     dispatch(setAccounts({ accounts: file.crypto.cipherText.accounts }));
@@ -154,7 +157,7 @@ export const unlockWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch(setContacts({ contacts: file.contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
   } catch (err) {
-    throw createError(err.message, unlockWallet);
+    throw createError(err.message, () => unlockWallet({ key }));
   }
 };
 
@@ -162,7 +165,7 @@ export const createNewAccount = (): Action => async (dispatch: Dispatch, getStat
   try {
     const { mnemonic, accounts, transactions } = getState().wallet;
     const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length, salt: cryptoConsts.DEFAULT_SALT });
-    const timestamp = new Date().getTime();
+    const timestamp = new Date().toISOString().replace(/:/, '-');
     const accountNumber = localStorageService.get('accountNumber');
     const newAccount = getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey });
     const updatedAccounts = [...accounts, newAccount];
@@ -190,7 +193,7 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].publicKey });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    if (typeof error === 'string' && error.includes('account does not exist')) {
+    if (typeof error.details === 'string' && error.details.includes('account does not exist')) {
       dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
     } else {
       throw createError('Error getting balance!', getBalance);
@@ -249,39 +252,54 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   }
 };
 
-export const getTxList = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { accounts, transactions, walletFiles } = getState().wallet;
-  let updatedTransactions = [];
+export const getTxList = ({ notify }: { notify: Function }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { isConnected } = getState().node;
+  if (isConnected) {
+    try {
+      const { accounts, transactions, walletFiles } = getState().wallet;
+      let updatedTransactions = [];
 
-  // for given account and it's tx ids list get full tx data
-  const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
-    await asyncForEach(txIds, async (txId) => {
-      const tx = await httpService.getTransaction({ id: fromHexString(txId) });
-      collector.push(tx);
-    });
-  };
+      // for given account and it's tx ids list get full tx data
+      const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
+        await asyncForEach(txIds, async (txId) => {
+          const tx = await httpService.getTransaction({ id: fromHexString(txId.substring(2)) });
+          collector.push(tx);
+        });
+      };
 
-  // get all tx ids for every account, then for each account get full tx data for the list
-  const txListCollector = async () => {
-    let minValidatedLayer = 0;
-    await asyncForEach(accounts, async (account, index) => {
-      const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
-      if (minValidatedLayer === 0) {
-        minValidatedLayer = validatedLayer;
-      }
-      const fullDataTxsList = [];
-      await fullTxDataCollector(txs, fullDataTxsList);
-      const { unifiedTxList } = mergeTxStatuses({
-        existingList: transactions[index],
-        incomingList: fullDataTxsList,
-        address: account.publicKey
-      });
-      updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
-    });
-  };
-  await txListCollector();
-  await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
-  dispatch(setTransactions({ transactions: updatedTransactions }));
+      // get all tx ids for every account, then for each account get full tx data for the list
+      const txListCollector = async () => {
+        let minValidatedLayer = 0;
+        await asyncForEach(accounts, async (account, index) => {
+          const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
+          if (minValidatedLayer === 0) {
+            minValidatedLayer = validatedLayer;
+          }
+          transactions[index].data.forEach((existingTx) => {
+            if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
+              txs.push(`0x${existingTx.txId}`);
+            }
+          });
+          const fullDataTxsList = [];
+          await fullTxDataCollector(txs, fullDataTxsList);
+          const { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = mergeTxStatuses({
+            existingList: transactions[index].data,
+            incomingList: fullDataTxsList,
+            address: account.publicKey
+          });
+          if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
+            notify({ hasConfirmedIncomingTxs });
+          }
+          updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
+        });
+      };
+      await txListCollector();
+      await fileSystemService.updateFile({ fileName: walletFiles[0], fieldName: 'transactions', data: updatedTransactions });
+      dispatch(setTransactions({ transactions: updatedTransactions }));
+    } catch (error) {
+      console.log(error); // eslint-disable-line no-console
+    }
+  }
 };
 
 export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, updateAll: boolean, accountPK?: string }): Action => async (
@@ -352,13 +370,10 @@ export const updateAccountsInFile = ({ accounts }: { accounts?: Account[] }): Ac
 
 export const backupWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { meta, accounts, mnemonic, transactions, contacts, fileKey } = getState().wallet;
-    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key: fileKey });
-    const encryptedWallet = { meta, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }, transactions, contacts };
-    const now = new Date();
-    const timestamp = now.toISOString().replace(/:/, '-');
+    const { walletFiles } = getState().wallet;
+    const timestamp = new Date().toISOString().replace(/:/, '-');
     const fileName = `Wallet_Backup_${timestamp}.json`;
-    await fileSystemService.saveFile({ fileName, fileContent: JSON.stringify(encryptedWallet), saveToDocumentsFolder: true });
+    await fileSystemService.copyFile({ fileName: '', filePath: walletFiles[0], newFileName: fileName, saveToDocumentsFolder: true });
     localStorageService.set('hasBackup', true);
     localStorageService.set('lastBackupTime', timestamp);
   } catch (error) {

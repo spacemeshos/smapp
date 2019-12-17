@@ -1,5 +1,5 @@
 const nodeConsts = {
-  COMMITMENT_SIZE: 1, // GB
+  COMMITMENT_SIZE: 8, // GB
   NOT_MINING: 1,
   IN_SETUP: 2,
   IS_MINING: 3,

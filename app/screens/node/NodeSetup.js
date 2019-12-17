@@ -61,6 +61,7 @@ type Props = {
 
 type State = {
   drives: { id: string, label: string, mountPoint: string, availableDiskSpace: string }[],
+  isScanningDrives: boolean,
   subMode: 2 | 3,
   selectedDriveIndex: number,
   selectedCommitmentSize: number
@@ -84,6 +85,7 @@ class NodeSetup extends Component<Props, State> {
     }
     this.state = {
       drives: [],
+      isScanningDrives: true,
       subMode: 2,
       selectedDriveIndex: -1,
       selectedCommitmentSize: 0
@@ -118,11 +120,11 @@ class NodeSetup extends Component<Props, State> {
     const drives = await diskStorageService.getDriveList();
     const selectedDriveIndex = drives.length ? 0 : -1;
     const selectedCommitmentSize = drives.length ? nodeConsts.COMMITMENT_SIZE : 0;
-    this.setState({ drives, selectedDriveIndex, selectedCommitmentSize });
+    this.setState({ drives, selectedDriveIndex, selectedCommitmentSize, isScanningDrives: false });
   }
 
   renderSubMode = () => {
-    const { subMode, drives, selectedDriveIndex } = this.state;
+    const { subMode, drives, selectedDriveIndex, isScanningDrives } = this.state;
     if (subMode === 2) {
       return (
         <>
@@ -133,14 +135,7 @@ class NodeSetup extends Component<Props, State> {
             <br />
             {`You need to commit ${nodeConsts.COMMITMENT_SIZE} GB of free space on your drive`}
           </SubHeader>
-          {drives.length ? (
-            <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
-          ) : (
-            <EmptyState>
-              <Text>{`Insufficient disk space. You need a local hard drive with at least ${nodeConsts.COMMITMENT_SIZE}GB of free space to setup smeshing.`}</Text>
-              <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
-            </EmptyState>
-          )}
+          {!isScanningDrives ? this.renderDriveSelection() : null}
         </>
       );
     }
@@ -154,8 +149,21 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={Math.min(300, +drives[selectedDriveIndex].availableDiskSpace)} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
+        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
       </>
+    );
+  };
+
+  renderDriveSelection = () => {
+    const { drives } = this.state;
+    if (drives.length) {
+      return <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />;
+    }
+    return (
+      <EmptyState>
+        <Text>{`Insufficient disk space. You need a local hard drive with at least ${nodeConsts.COMMITMENT_SIZE}GB of free space to setup smeshing.`}</Text>
+        <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
+      </EmptyState>
     );
   };
 
