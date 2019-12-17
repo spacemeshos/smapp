@@ -238,8 +238,14 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { miningStatus, getTxList, getMiningStatus } = this.props;
-    this.txCollectorInterval = setInterval(getTxList, 10000);
+    const { miningStatus, getTxList, getMiningStatus, history } = this.props;
+    this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
+        notificationsService.notify({
+          title: 'Spacemesh',
+          notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
+          callback: () => history.push('/main/transactions')
+        });
+      } }), 10000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
         getMiningStatus();

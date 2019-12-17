@@ -264,13 +264,13 @@ class NetService {
       const { txId, sender, receiver, amount, fee, status, layerId, timestamp } = tx;
       const parsedTx = {
         txId: txId.id.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), ''),
-        sender,
-        receiver,
+        sender: sender.address,
+        receiver: receiver.address,
         amount: parseInt(amount),
         fee: parseInt(fee),
         status,
         layerId: parseInt(layerId),
-        timestamp: parseInt(timestamp)
+        timestamp: parseInt(timestamp) * 1000
       };
       event.sender.send(ipcConsts.GET_TX_RESPONSE, { error: null, tx: parsedTx });
     } catch (error) {

@@ -209,8 +209,8 @@ class CreateWallet extends Component<Props, State> {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          await generateEncryptionKey({ password });
-          saveNewWallet({ mnemonic: location?.state?.mnemonic });
+          const key = generateEncryptionKey({ password });
+          saveNewWallet({ mnemonic: location?.state?.mnemonic, key });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
       } catch (err) {

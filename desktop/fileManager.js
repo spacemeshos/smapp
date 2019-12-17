@@ -16,8 +16,8 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileManager {
-  static copyFile = ({ event, fileName, filePath }) => {
-    const newFilePath = path.join(appFilesDirPath, fileName);
+  static copyFile = ({ event, fileName, filePath, newFileName, saveToDocumentsFolder }) => {
+    const newFilePath = saveToDocumentsFolder ? path.join(documentsDirPath, newFileName) : path.join(appFilesDirPath, fileName);
     fs.copyFile(filePath, newFilePath, (error) => {
       if (error) {
         event.sender.send(ipcConsts.COPY_FILE_RESPONSE, { error });

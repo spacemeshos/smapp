@@ -3,8 +3,8 @@ import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 
 class FsService {
-  static copyFile = ({ fileName, filePath }: { fileName: string, filePath: string }) => {
-    ipcRenderer.send(ipcConsts.COPY_FILE, { fileName, filePath });
+  static copyFile = ({ fileName, filePath, newFileName, saveToDocumentsFolder }: { fileName: string, filePath: string, newFileName: string, saveToDocumentsFolder: boolean }) => {
+    ipcRenderer.send(ipcConsts.COPY_FILE, { fileName, filePath, newFileName, saveToDocumentsFolder });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.COPY_FILE_RESPONSE, (event, response) => {
         if (response.error) {
