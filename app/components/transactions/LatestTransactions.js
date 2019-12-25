@@ -99,7 +99,7 @@ class LatestTransactions extends PureComponent<Props> {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={color}>{amount} SMG</Amount>
+            <Amount color={color}>{amount} SMH</Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>

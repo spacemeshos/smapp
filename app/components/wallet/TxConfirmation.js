@@ -111,7 +111,7 @@ class TxConfirmation extends PureComponent<Props> {
     return (
       <Wrapper>
         <Header>
-          <HeaderText>Send SMG</HeaderText>
+          <HeaderText>Send SMH</HeaderText>
           <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
         </Header>
         <SubHeader1>--</SubHeader1>
