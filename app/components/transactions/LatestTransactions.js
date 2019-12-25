@@ -72,7 +72,7 @@ class LatestTransactions extends PureComponent<Props> {
     return (
       <Wrapper>
         <Header>
-          transactions
+          Transactions
           <br />
           --
         </Header>

@@ -148,14 +148,11 @@ class CreateWallet extends Component<Props, State> {
 
   renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
-      <span>
-        Enter your password
-        <br />
-        It must be at least 8 characters
-      </span>
+      <span>Enter a new wallet password. It must be at least 8 characters.</span>
     ) : (
       <div>
-        For future reference, a restore file is now on your computer
+        For future reference, a wallet restore file was created.
+        <br />
         <br />
         <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
       </div>
@@ -181,8 +178,8 @@ class CreateWallet extends Component<Props, State> {
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
     const hasPasswordError = !password || (!!password && password.length < pasMinLength);
     const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
-    const passwordError = hasPasswordError ? `Password has to be ${pasMinLength} characters or more.` : '';
-    const verifyPasswordError = hasVerifyPasswordError ? "these passwords don't match, please try again " : '';
+    const passwordError = hasPasswordError ? "Password has to be ${pasMinLength} characters or more." : '';
+    const verifyPasswordError = hasVerifyPasswordError ? "These passwords don't match, please try again." : '';
     this.setState({ passwordError, verifyPasswordError });
     return !passwordError && !verifyPasswordError;
   };

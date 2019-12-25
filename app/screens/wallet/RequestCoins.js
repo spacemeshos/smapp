@@ -114,11 +114,11 @@ class RequestCoins extends Component<Props, State> {
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>
         </SubHeader>
-        <Text>* This address is public and safe to share</Text>
-        <Text>* Send this address to anyone you want to receive a SMH from</Text>
-        <Text>* Copy + paste to share via email or a text messaging session</Text>
+        <Text>* This address is public and safe to share.</Text>
+        <Text>* Send this address to anyone you want to receive SMH from.</Text>
+        <Text>* Copy + paste to share via email or a text message.</Text>
         <ComplexText>
-          <Text>* You can mine SMH by setting up the Smesher&nbsp;</Text>
+          <Text>* You can earn SMH by setting up Smeshing&nbsp;</Text>
           <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
         </ComplexText>
         <Footer>

@@ -129,11 +129,11 @@ class TxConfirmation extends PureComponent<Props> {
           <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>SMG</DetailsTextRight>
+          <DetailsTextRight>SMH</DetailsTextRight>
           <DetailsTextLeft>{amount}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>Smidge fee</DetailsTextRight>
+          <DetailsTextRight>Fee</DetailsTextRight>
           <DetailsTextLeft>{fee}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow isLast>

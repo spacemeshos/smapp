@@ -71,8 +71,8 @@ class DragAndDrop extends Component<Props, State> {
       preLinkText = 'or browse for';
       linkText = 'another file';
     } else {
-      preLinkText = 'or click to';
-      linkText = 'browse computer';
+      preLinkText = 'or';
+      linkText = 'locate file on your computer';
     }
     return (
       <Wrapper onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop} isDragging={isDragging} hasError={hasError}>
