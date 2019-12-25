@@ -214,7 +214,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
-                upperPartLeft="Delete all app data and reinstall it"
+                upperPartLeft="Delete all wallets and app data, and restart it"
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
                 rowName="Reinstall App"
