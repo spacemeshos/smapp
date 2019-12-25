@@ -156,11 +156,7 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPart={[
                   <Text key={1}>Read our&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'terms' })} text="terms of service" key={2} />,
-                  <Text key={3}>,&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={4} />,
-                  <Text key={5}>&nbsp;or&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy statement" key={6} />
+                  <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />,
                 ]}
                 rowName="Legal"
               />

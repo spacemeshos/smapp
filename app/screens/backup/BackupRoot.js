@@ -72,9 +72,9 @@ class BackupRoot extends Component<Props> {
   render() {
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={300} height={360} header="BACKUP" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={300} height={360} header="WALLET" style={{ marginRight: 10 }}>
           <BoldText>How would you like to backup your wallet?</BoldText>
-          <Text>Your wallet is encrypted with your password on your computer, but we recommend you backup your wallet for additional security.</Text>
+          <Text>Your wallet is encrypted using your password. We recommend you backup your wallet for additional security.</Text>
         </WrapperWith2SideBars>
         <RightSection>
           <SmallHorizontalPanel />
