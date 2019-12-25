@@ -182,7 +182,7 @@ class Settings extends Component<Props, State> {
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
                   <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
                 ]}
-                rowName="Spacemesh Wallet Version"
+                rowName="App Version"
               />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
