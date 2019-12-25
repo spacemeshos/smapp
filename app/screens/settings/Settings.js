@@ -128,7 +128,7 @@ class Settings extends Component<Props, State> {
                 }
                 rowName="Display name"
               />
-              <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
+              <SettingRow upperPart={<ChangePassword />} rowName="Wallet password" />
               <SettingRow
                 upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
@@ -136,7 +136,7 @@ class Settings extends Component<Props, State> {
                 rowName="Wallet Backup"
               />
               <SettingRow
-                upperPartLeft="Restore wallet from backup file or a 12 words list"
+                upperPartLeft="Restore wallet from backup file or 12 words"
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"
@@ -214,7 +214,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
-                upperPartLeft="Use at your own risk! (Return app to fresh installed state)"
+                upperPartLeft="Delete all app data and reinstall it"
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
                 rowName="Reinstall App"
