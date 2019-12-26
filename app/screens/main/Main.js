@@ -132,7 +132,7 @@ class Main extends Component<Props, State> {
       () => history.push('/main/wallet'),
       () => history.push('/main/contacts'),
       () => history.push('/main/settings'),
-      () => shell.openExternal('https://testnet.spacemesh.io/#/tap'),
+      () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/help')
     ];
   }
