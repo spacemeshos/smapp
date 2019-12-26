@@ -66,7 +66,7 @@ class CreatedNewContact extends PureComponent<Props> {
     return (
       <Wrapper>
         <Header>
-          Create new contact
+          Create a new contact
           <br />
           --
         </Header>

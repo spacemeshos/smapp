@@ -93,7 +93,7 @@ class CreateNewContact extends Component<Props, State> {
     return (
       <Wrapper isStandalone={isStandalone}>
         <Header isStandalone={isStandalone}>
-          Create new contact
+          Create a new contact
           <br />
           --
         </Header>
