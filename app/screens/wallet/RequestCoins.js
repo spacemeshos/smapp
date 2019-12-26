@@ -38,6 +38,13 @@ const Text = styled.div`
   cursor: inherit;
 `;
 
+const TextElement = styled.span`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${smColors.black};
+  cursor: inherit;
+`;
+
 const AddressWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -107,19 +114,25 @@ class RequestCoins extends Component<Props, State> {
           --
         </Header>
         <SubHeader>
-          <Text>Request SMH by sharing this address:</Text>
+          <Text>Request SMH by sharing your wallet&apos;s address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
             <AddressText>{getAbbreviatedText(account.publicKey)}</AddressText>
             <CopyIcon src={copyToClipboard} />
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>
         </SubHeader>
-        <Text>* This address is public and safe to share.</Text>
-        <Text>* Send this address to anyone you want to receive SMH from.</Text>
-        <Text>* Copy + paste to share via email or a text message.</Text>
+        <Text>* This address is public and safe to share with anyone.</Text>
+        <Text>* Send this address to anyone you want to receive Smesh from.</Text>
         <ComplexText>
-          <Text>* You can earn SMH by setting up Smeshing&nbsp;</Text>
-          <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
+          <Text>* You may also paste this address in the&nbsp;</Text>
+          <Link onClick={this.navigateToTap} text="Testnet Tap" style={{ fontSize: 16, lineHeight: '22px' }} />
+          <TextElement>.</TextElement>
+        </ComplexText>
+        <br/>
+        <ComplexText>
+          <Text>To earn Smesh&nbsp;</Text>
+          <Link onClick={this.navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />
+          <TextElement>.</TextElement>
         </ComplexText>
         <Footer>
           <Link onClick={this.navigateToGuide} text="REQUEST SMH GUIDE" />
@@ -159,6 +172,8 @@ class RequestCoins extends Component<Props, State> {
   };
 
   navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');
+
+  navigateToTap = () => shell.openExternal('https://discord.gg/ASpy52C');
 }
 
 export default RequestCoins;

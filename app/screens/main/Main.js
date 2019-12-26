@@ -151,7 +151,7 @@ class Main extends Component<Props, State> {
                 <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
                   SMESHING
                 </NavBarLink>
-                <CustomTooltip text="SETUP OR MANAGE YOUR SMESHING" withIcon={false} isLinkTooltip />
+                <CustomTooltip text="MANAGE SMESHING" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
               <TooltipWrapper>
                 <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
@@ -163,7 +163,7 @@ class Main extends Component<Props, State> {
                 <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
                   CONTACTS
                 </NavBarLink>
-                <CustomTooltip text="MANAGE YOUR CONTACTS" withIcon={false} isLinkTooltip />
+                <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
               </TooltipWrapper>
             </NavLinksWrapper>
           </NavBarPart>
