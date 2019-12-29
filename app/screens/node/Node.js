@@ -27,6 +27,7 @@ const LogInnerWrapper = styled.div`
   height: 100%;
   overflow-y: visible;
   overflow-x: hidden;
+  padding: 0 10px;
 `;
 
 const LogEntry = styled.div`
@@ -159,7 +160,7 @@ class Node extends Component<Props, State> {
         <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <CorneredContainer width={260} height={480} header="SMESHER LOG">
+        <CorneredContainer width={310} height={480} header="SMESHER LOG">
           <LogInnerWrapper>
             {smesherInitTimestamp ? (
               <>
@@ -184,7 +185,7 @@ class Node extends Component<Props, State> {
                 <LogEntry>
                   <LogText>12.09.19 - 13:10</LogText>
                   <AwardText>Smeshing reward: {reward.totalReward} SMG</AwardText>
-                  <AwardText>Smeshing fee reward: {reward.layerRewardEstimate} SMG</AwardText>
+                  <AwardText>Smeshing fee reward: {reward.totalReward - reward.layerRewardEstimate} SMG</AwardText>
                 </LogEntry>
                 <LogEntrySeparator>...</LogEntrySeparator>
               </div>
@@ -318,7 +319,7 @@ const mapStateToProps = (state) => ({
   miningStatus: state.node.miningStatus,
   timeTillNextAward: state.node.timeTillNextAward,
   totalEarnings: state.node.totalEarnings,
-  totalFeesEarnings: state.node.totalEarnings
+  totalFeesEarnings: state.node.totalFeesEarnings
 });
 
 const mapDispatchToProps = {

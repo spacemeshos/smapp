@@ -1,8 +1,10 @@
 // @flow
+import { addTransaction } from '/redux/wallet/actions';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
-import { createError } from '/infra/utils';
+import { createError, asyncForEach } from '/infra/utils';
 import { nodeConsts } from '/vars';
+import TX_STATUSES from '/vars/enums';
 import { Action, Dispatch, GetState } from '/types';
 
 export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
@@ -28,27 +30,23 @@ export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dis
   }
 };
 
-export const getMiningStatus = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { isConnected } = getState().node;
-  if (isConnected) {
-    try {
-      const status = await httpService.getMiningStatus();
-      if (status === nodeConsts.IS_MINING) {
-        dispatch(getGenesisTime());
-        if (!localStorageService.get('smesherSmeshingTimestamp')) {
-          localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
-        }
-      } else if (status === nodeConsts.NOT_MINING) {
-        localStorageService.clearByKey('smesherInitTimestamp');
-        localStorageService.clearByKey('smesherSmeshingTimestamp');
-        localStorageService.clearByKey('rewards');
+export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const status = await httpService.getMiningStatus();
+    if (status === nodeConsts.IS_MINING) {
+      dispatch(getGenesisTime());
+      if (!localStorageService.get('smesherSmeshingTimestamp')) {
+        localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
       }
-      dispatch({ type: SET_MINING_STATUS, payload: { status } });
-    } catch (error) {
-      console.error(error); // eslint-disable-line no-console
+    } else if (status === nodeConsts.NOT_MINING) {
+      localStorageService.clearByKey('smesherInitTimestamp');
+      localStorageService.clearByKey('smesherSmeshingTimestamp');
+      localStorageService.clearByKey('rewards');
     }
+    dispatch({ type: SET_MINING_STATUS, payload: { status } });
+  } catch (error) {
+    console.error(error); // eslint-disable-line no-console
   }
-  return -1;
 };
 
 export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
@@ -112,8 +110,22 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
     if (prevRewards.length < rewards.length) {
       notify();
       localStorageService.set('rewards', rewards);
+      const newRewards = [...rewards.slice(prevRewards.length)];
+      await asyncForEach(newRewards, async (reward) => {
+        const tx = {
+          txId: 'reward',
+          sender: '',
+          receiver: accounts[currentAccountIndex].publicKey,
+          amount: reward.totalReward,
+          fee: 0,
+          status: TX_STATUSES.CONFIRMED,
+          layerId: reward.layer,
+          timestamp: new Date().getTime()
+        };
+        await dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
+      });
+      dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
     }
-    dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
   } catch (err) {
     throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
   }

@@ -2,10 +2,11 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
+import { createNewWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
 import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { fileSystemService } from '/infra/fileSystemService';
+import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { chevronRightBlack, chevronLeftWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -67,9 +68,8 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  generateEncryptionKey: Action,
   miningStatus: number,
-  saveNewWallet: Action,
+  createNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
 };
@@ -203,14 +203,14 @@ class CreateWallet extends Component<Props, State> {
   };
 
   createWallet = async () => {
-    const { generateEncryptionKey, saveNewWallet, location } = this.props;
+    const { createNewWallet, location } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (!isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          const key = generateEncryptionKey({ password });
-          saveNewWallet({ mnemonic: location?.state?.mnemonic, key });
+          const key = fileEncryptionService.createEncryptionKey({ password });
+          createNewWallet({ mnemonic: location?.state?.mnemonic, key });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
       } catch (err) {
@@ -233,8 +233,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  generateEncryptionKey,
-  saveNewWallet
+  createNewWallet
 };
 
 CreateWallet = connect(mapStateToProps, mapDispatchToProps)(CreateWallet);

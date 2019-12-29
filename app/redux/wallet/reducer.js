@@ -3,7 +3,6 @@ import type { Action, StoreStateType, TxList, Tx, Contact } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import {
   SAVE_WALLET_FILES,
-  STORE_ENCRYPTION_KEY,
   SET_WALLET_META,
   SET_BALANCE,
   SET_ACCOUNTS,
@@ -15,9 +14,9 @@ import {
 } from './actions';
 
 const initialState = {
-  fileKey: null,
   walletFiles: null,
   meta: {},
+  cipherText: null,
   mnemonic: null,
   accounts: [],
   currentAccountIndex: 0,
@@ -46,17 +45,11 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       } = action;
       return { ...state, walletFiles: files };
     }
-    case STORE_ENCRYPTION_KEY: {
-      const {
-        payload: { key }
-      } = action;
-      return { ...state, fileKey: key };
-    }
     case SET_WALLET_META: {
       const {
-        payload: { meta }
+        payload: { meta, cipherText }
       } = action;
-      return { ...state, meta };
+      return { ...state, meta, cipherText };
     }
     case SET_ACCOUNTS: {
       const {

@@ -13,28 +13,6 @@ import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 
-const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string, transactions: TxList }) => {
-  const coins = {
-    mined: 0,
-    sent: 0,
-    received: 0
-  };
-
-  transactions.forEach(({ status, sender, receiver, amount }: { status: number, sender: string, receiver: string, amount: number }) => {
-    if (status !== TX_STATUSES.REJECTED) {
-      if (sender === publicKey) {
-        coins.sent += amount;
-      } else if (receiver === publicKey) {
-        coins.received += amount;
-      } else {
-        coins.mined += amount;
-      }
-    }
-  });
-
-  return coins;
-};
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -79,6 +57,28 @@ const TimeSpanEntry = styled.div`
     color: ${smColors.darkGray50Alpha};
   }
 `;
+
+const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string, transactions: TxList }) => {
+  const coins = {
+    mined: 0,
+    sent: 0,
+    received: 0
+  };
+
+  transactions.forEach(({ status, sender, receiver, amount }: { status: number, sender: string, receiver: string, amount: number }) => {
+    if (status !== TX_STATUSES.REJECTED) {
+      if (sender === publicKey) {
+        coins.sent += amount;
+      } else if (receiver === publicKey) {
+        coins.received += amount;
+      } else {
+        coins.mined += amount;
+      }
+    }
+  });
+
+  return coins;
+};
 
 const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
 
@@ -130,7 +130,7 @@ class Transactions extends Component<Props, State> {
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
               filteredTransactions.map((tx, index) => (
-                <TransactionRow key={index} publicKey={publicKey} transaction={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
+                <TransactionRow key={index} publicKey={publicKey} tx={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
               ))
             ) : (
               <Text>No transactions here yet</Text>

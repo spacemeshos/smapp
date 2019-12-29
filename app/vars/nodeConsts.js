@@ -4,7 +4,8 @@ const nodeConsts = {
   IN_SETUP: 2,
   IS_MINING: 3,
   TIME_BETWEEN_LAYERS: 120000,
-  DEFAULT_URL: 'localhost:9091'
+  DEFAULT_URL: 'localhost:9091',
+  ADDRESS_LENGTH: 20
 };
 
 export default nodeConsts;

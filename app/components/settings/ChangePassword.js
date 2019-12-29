@@ -2,10 +2,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { generateEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
+import { updateWalletFile } from '/redux/wallet/actions';
 import { ErrorPopup, Input, Link, Loader } from '/basicComponents';
+import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { smColors } from '/vars';
-import type { Action, Account } from '/types';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -29,9 +30,7 @@ const RightPart = styled.div`
 `;
 
 type Props = {
-  generateEncryptionKey: Action,
-  updateAccountsInFile: Action,
-  accounts: Account[]
+  updateWalletFile: Action
 };
 
 type State = {
@@ -123,14 +122,14 @@ class ChangePassword extends Component<Props, State> {
   };
 
   updatePassword = async () => {
-    const { generateEncryptionKey, updateAccountsInFile, accounts } = this.props;
+    const { updateWalletFile } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
-          generateEncryptionKey({ password });
-          await updateAccountsInFile({ accounts });
+          const key = fileEncryptionService.createEncryptionKey({ password });
+          updateWalletFile({ key });
           this.clearFields();
         }, 500);
       } catch (error) {
@@ -142,15 +141,10 @@ class ChangePassword extends Component<Props, State> {
   };
 }
 
-const mapStateToProps = (state) => ({
-  accounts: state.wallet.accounts
-});
-
 const mapDispatchToProps = {
-  generateEncryptionKey,
-  updateAccountsInFile
+  updateWalletFile
 };
 
-ChangePassword = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(ChangePassword);
+ChangePassword = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(ChangePassword);
 
 export default ChangePassword;

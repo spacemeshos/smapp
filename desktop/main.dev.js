@@ -15,6 +15,7 @@ import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
 import subscribeToAutoUpdateListeners from './autoUpdateListeners';
+import FileManager from './fileManager';
 
 export default class AppUpdater {
   constructor() {
@@ -137,4 +138,10 @@ app.on('activate', () => {
     mainWindow.show();
     mainWindow.focus();
   }
+});
+
+app.on('before-quit', (event) => {
+  event.preventDefault();
+  FileManager.cleanUp();
+  app.quit();
 });

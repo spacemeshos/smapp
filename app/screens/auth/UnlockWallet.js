@@ -2,10 +2,11 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { generateEncryptionKey, unlockWallet } from '/redux/wallet/actions';
+import { unlockWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
 import { LoggedOutBanner } from '/components/banners';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
+import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
@@ -77,7 +78,6 @@ const GrayText = styled.div`
 
 type Props = {
   history: RouterHistory,
-  generateEncryptionKey: Action,
   unlockWallet: Action,
   location: { state?: { isLoggedOut: boolean } }
 };
@@ -133,12 +133,12 @@ class UnlockWallet extends Component<Props, State> {
   };
 
   decryptWallet = async () => {
-    const { generateEncryptionKey, unlockWallet, history } = this.props;
+    const { unlockWallet, history } = this.props;
     const { password } = this.state;
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
       try {
-        const key = generateEncryptionKey({ password });
+        const key = fileEncryptionService.createEncryptionKey({ password });
         await unlockWallet({ key });
         history.push('/main/wallet');
       } catch (error) {
@@ -157,7 +157,6 @@ class UnlockWallet extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  generateEncryptionKey,
   unlockWallet
 };
 

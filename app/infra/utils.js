@@ -34,4 +34,6 @@ const getFormattedTimestamp = (timestamp: string) => {
   return `${dateObj.toLocaleDateString('en-US', options).replace(',', '')} - ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
 };
 
-export { fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, smeshToSmidge, smidgeToSmesh, asyncForEach, getFormattedTimestamp };
+const getAddress = (key: string) => key.substring(24);
+
+export { fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, smeshToSmidge, smidgeToSmesh, asyncForEach, getFormattedTimestamp, getAddress };

@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
-import { getAbbreviatedText, getFormattedTimestamp } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { TxList, Tx } from '/types';
@@ -85,17 +85,15 @@ class LatestTransactions extends PureComponent<Props> {
   renderTransaction = ({ tx, index }: { tx: Tx, index: number }) => {
     const { publicKey } = this.props;
     const { txId, status, amount, sender, timestamp, nickname } = tx;
-    const isSent = sender === publicKey;
-    const isPending = status === TX_STATUSES.PENDING;
-    const isRejected = status === TX_STATUSES.REJECTED;
-    const color = this.getColor({ isSent, isPending, isRejected });
+    const isSent = sender === getAddress(publicKey);
+    const color = this.getColor({ status, isSent });
     return (
       <TxWrapper key={index}>
         <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
         <MainWrapper>
           <Section>
-            <NickName>{nickname || getAbbreviatedText(sender)}</NickName>
-            <Text>{getAbbreviatedText(txId)}</Text>
+            <NickName>{txId === 'reward' ? 'Smeshing reward' : nickname || getAbbreviatedText(sender)}</NickName>
+            {txId === 'reward' ? null : <Text>{getAbbreviatedText(txId)}</Text>}
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
@@ -106,10 +104,10 @@ class LatestTransactions extends PureComponent<Props> {
     );
   };
 
-  getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPending: boolean, isRejected: boolean }) => {
-    if (isPending) {
+  getColor = ({ status, isSent }: { status: string, isSent: boolean }) => {
+    if (status === TX_STATUSES.PENDING) {
       return smColors.orange;
-    } else if (isRejected) {
+    } else if (status === TX_STATUSES.REJECTED) {
       return smColors.orange;
     }
     return isSent ? smColors.blue : smColors.darkerGreen;
