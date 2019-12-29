@@ -178,6 +178,7 @@ class CreateWallet extends Component<Props, State> {
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
     const hasPasswordError = !password || (!!password && password.length < pasMinLength);
     const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
+    // eslint-disable-next-line no-template-curly-in-string
     const passwordError = hasPasswordError ? "Password has to be ${pasMinLength} characters or more." : '';
     const verifyPasswordError = hasVerifyPasswordError ? "These passwords don't match, please try again." : '';
     this.setState({ passwordError, verifyPasswordError });

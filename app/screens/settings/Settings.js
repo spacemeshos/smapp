@@ -154,10 +154,7 @@ class Settings extends Component<Props, State> {
                 rowName="Delete Wallet"
               />
               <SettingRow
-                upperPart={[
-                  <Text key={1}>Read our&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />,
-                ]}
+                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
                 rowName="Legal"
               />
               <SettingRow

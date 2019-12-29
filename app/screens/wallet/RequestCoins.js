@@ -128,7 +128,7 @@ class RequestCoins extends Component<Props, State> {
           <Link onClick={this.navigateToTap} text="Testnet Tap" style={{ fontSize: 16, lineHeight: '22px' }} />
           <TextElement>.</TextElement>
         </ComplexText>
-        <br/>
+        <br />
         <ComplexText>
           <Text>To earn Smesh&nbsp;</Text>
           <Link onClick={this.navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />
