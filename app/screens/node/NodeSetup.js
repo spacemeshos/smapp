@@ -131,9 +131,9 @@ class NodeSetup extends Component<Props, State> {
           <SubHeader>
             --
             <br />
-            Select the hard drive you&#39;d like to use for smeshing
+            Select the hard drive you&#39;d like to use for smeshing.
             <br />
-            {`You need to commit ${nodeConsts.COMMITMENT_SIZE} GB of free space on your drive`}
+            {`You need to commit ${nodeConsts.COMMITMENT_SIZE} GB of free space.`}
           </SubHeader>
           {!isScanningDrives ? this.renderDriveSelection() : null}
         </>

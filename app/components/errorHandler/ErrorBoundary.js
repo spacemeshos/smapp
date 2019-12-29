@@ -26,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <ErrorHandlerModal
           componentStack={info ? info.componentStack : ''}
-          explanationText={`${retryFunction ? 'Retry failed action or refresh page' : 'Try to refresh page'}`}
+          explanationText={`${retryFunction ? 'Retry failed action or refresh page.' : 'Try to refresh page.'}`}
           error={error}
           onRetry={retryFunction ? () => this.handleRetry(retryFunction) : null}
           onRefresh={() => this.setState({ error: null, info: null })}

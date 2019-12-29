@@ -133,7 +133,7 @@ class Transactions extends Component<Props, State> {
                 <TransactionRow key={index} publicKey={publicKey} transaction={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
               ))
             ) : (
-              <Text>No transactions here yet</Text>
+              <Text>No transactions yet.</Text>
             )}
           </TransactionsListWrapper>
           <Link onClick={this.navigateToGuide} text="TRANSACTIONS GUIDE" />

@@ -104,20 +104,20 @@ class UnlockWallet extends Component<Props, State> {
     const { isLoggedOutBannerVisible, password, hasError } = this.state;
     return [
       isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />,
-      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to spacemesh" key="main">
-        <Text>Please enter your wallet password</Text>
+      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main">
+        <Text>Please enter your wallet password.</Text>
         <Indicator hasError={hasError} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
           <Chevron src={chevronRightBlack} />
           <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
           <ErrorSection>
-            {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
+            {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="Sorry, this password doesn't ring a bell, please try again." />}
           </ErrorSection>
         </InputSection>
         <BottomPart>
           <LinksWrapper>
-            <GrayText>FORGOT PASSWORD?</GrayText>
+            <GrayText>FORGOT YOUR PASSWORD?</GrayText>
             <Link onClick={() => history.push('/auth/restore')} text="RESTORE" style={{ marginRight: 'auto' }} />
             <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />

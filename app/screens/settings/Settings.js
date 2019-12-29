@@ -128,7 +128,7 @@ class Settings extends Component<Props, State> {
                 }
                 rowName="Display name"
               />
-              <SettingRow upperPart={<ChangePassword />} rowName="Change password" />
+              <SettingRow upperPart={<ChangePassword />} rowName="Wallet password" />
               <SettingRow
                 upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
@@ -136,7 +136,7 @@ class Settings extends Component<Props, State> {
                 rowName="Wallet Backup"
               />
               <SettingRow
-                upperPartLeft="Restore wallet from backup file or a 12 words list"
+                upperPartLeft="Restore wallet from backup file or 12 words"
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"
@@ -154,14 +154,7 @@ class Settings extends Component<Props, State> {
                 rowName="Delete Wallet"
               />
               <SettingRow
-                upperPart={[
-                  <Text key={1}>Read our&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'terms' })} text="terms of service" key={2} />,
-                  <Text key={3}>,&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={4} />,
-                  <Text key={5}>&nbsp;or&nbsp;</Text>,
-                  <Link onClick={() => this.externalNavigation({ to: 'privacy' })} text="privacy statement" key={6} />
-                ]}
+                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
                 rowName="Legal"
               />
               <SettingRow
@@ -182,7 +175,7 @@ class Settings extends Component<Props, State> {
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
                   <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
                 ]}
-                rowName="Spacemesh Wallet Version"
+                rowName="App Version"
               />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
@@ -218,7 +211,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
-                upperPartLeft="Use at your own risk! (Return app to fresh installed state)"
+                upperPartLeft="Delete all wallets and app data, and restart it"
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
                 rowName="Reinstall App"
