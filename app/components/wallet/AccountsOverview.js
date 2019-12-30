@@ -143,7 +143,7 @@ class AccountsOverview extends Component<Props, State> {
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
             <BalanceAmount>{balance || 0}</BalanceAmount>
-            <SmhText>SMG</SmhText>
+            <SmhText>SMH</SmhText>
           </BalanceWrapper>
         </Footer>
       </WrapperWith2SideBars>

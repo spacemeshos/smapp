@@ -64,7 +64,7 @@ class WordsRestore extends Component<Props, State> {
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order">
+      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order.">
         <SmallHorizontalPanel />
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
         <Table>

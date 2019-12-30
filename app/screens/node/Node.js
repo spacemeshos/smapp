@@ -257,11 +257,11 @@ class Node extends Component<Props, State> {
     return [
       <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">Setup smeshing to earn Smesh rewards</Text>,
+      <Text key="3">Setup smeshing to join Spacemesh and earn Smesh rewards.</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space`}</Text>,
-      <Text key="7">Once set up is complete, You should start earning Smesh rewards for smeshing in about 48 hours</Text>,
+      <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space.`}</Text>,
+      <Text key="7">You will start earning Smesh rewards in about 48 hours.</Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => history.push('/main/node-setup', { isOnlyNodeSetup: true })} text="BEGIN SETUP" width={175} />
@@ -274,7 +274,7 @@ class Node extends Component<Props, State> {
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" isConnected={isConnected}>
-        {isConnected ? 'Your Smesher is online' : 'Not connected!'}
+        {isConnected ? 'Your Smesher is online.' : 'Not connected!'}
       </Status>,
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>

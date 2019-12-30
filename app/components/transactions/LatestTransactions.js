@@ -72,7 +72,7 @@ class LatestTransactions extends PureComponent<Props> {
     return (
       <Wrapper>
         <Header>
-          transactions
+          Transactions
           <br />
           --
         </Header>
@@ -97,7 +97,7 @@ class LatestTransactions extends PureComponent<Props> {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={color}>{amount} SMG</Amount>
+            <Amount color={color}>{amount} SMH</Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>

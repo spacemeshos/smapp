@@ -90,13 +90,12 @@ const Text = styled.span`
 
 const subHeader = (
   <span>
-    <span>Thank you for downloading the Spacemesh App</span>
+    <span>Thank you for downloading the Spacemesh App.</span>
     <br />
-    <span>The App lets you to you join the Spacemesh decentralized Testnet,</span>
     <br />
-    <span>use free disk space on your computer to earn Smesh, and make Smesh transactions using a built-in wallet</span>
+    <span>This App lets you you join the Spacemesh decentralized Testnet,</span>
     <br />
-    <span>We`re happy to have you on Spacemesh 0.1</span>
+    <span>use free disk space to earn Smesh, and make Smesh transactions using a built-in wallet.</span>
   </span>
 );
 
@@ -113,15 +112,15 @@ class Welcome extends PureComponent<Props> {
         <Indicator />
         <Row>
           <Icon src={laptop} />
-          <RowText>Use a desktop computer, not a laptop</RowText>
+          <RowText>Use a desktop computer, not a laptop.</RowText>
         </Row>
         <Row>
           <Icon src={power} />
-          <RowText>Leave your desktop computer on 24/7</RowText>
+          <RowText>Leave your desktop computer on 24/7.</RowText>
         </Row>
         <Row>
           <Icon src={setup} />
-          <RowText>You should start earning Smesh rewards in about 48 hours</RowText>
+          <RowText>You should start earning Smesh rewards in about 48 hours.</RowText>
         </Row>
         <BottomPart>
           <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" />

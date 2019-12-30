@@ -153,21 +153,21 @@ class TxParams extends Component<Props, State> {
         </Header>
         <SubHeader>--</SubHeader>
         <DetailsRow>
-          <DetailsText>Send to</DetailsText>
+          <DetailsText>To</DetailsText>
           <AutoComplete initialAddress={initialAddress} onChange={updateTxAddress} contacts={contacts} openCreateNewContact={openCreateNewContact} />
-          {hasAddressError && <ErrorPopup onClick={resetAddressError} text="this address is invalid" style={errorPopupStyle} />}
+          {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
           <DetailsText1>{getAbbreviatedText(fromAddress)}</DetailsText1>
         </DetailsRow>
         <DetailsRow>
-          <DetailsText>Amount to send</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMG" style={{ flex: 1 }} />
-          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMH in your wallet" style={errorPopupStyle} />}
+          <DetailsText>Amount</DetailsText>
+          <Input value={amount} onChange={updateTxAmount} extraText="SMH" style={{ flex: 1 }} />
+          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough SMH in your wallet." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
-          <DetailsText>Est. Confirmation time</DetailsText>
+          <DetailsText>Confirmation time</DetailsText>
           <DropDown
             data={fees}
             onPress={this.selectFee}
@@ -178,15 +178,11 @@ class TxParams extends Component<Props, State> {
           />
         </DetailsRow>
         <DetailsRow>
-          <DetailsText>
-            Note
-            <br />
-            (Only you can see this)
-          </DetailsText>
+          <DetailsText>Note</DetailsText>
           <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
         </DetailsRow>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMG GUIDE" />
+          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
           <Button onClick={nextAction} text="NEXT" />
         </Footer>
       </Wrapper>

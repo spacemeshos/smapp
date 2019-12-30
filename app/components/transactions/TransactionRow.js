@@ -178,7 +178,7 @@ class TransactionRow extends Component<Props, State> {
               <Text>{getAbbreviatedText(txId)}</Text>
             </Section>
             <Section>
-              <Amount color={color}>{amount} SMG</Amount>
+              <Amount color={color}>{amount} SMH</Amount>
               <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
             </Section>
           </MainWrapper>
