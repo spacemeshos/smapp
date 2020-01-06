@@ -149,7 +149,7 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
+        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ commitment }) => this.setState({ selectedCommitmentSize: commitment })} />
       </>
     );
   };
@@ -173,7 +173,7 @@ class NodeSetup extends Component<Props, State> {
     try {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
-        commitmentSize: 1048576, // selectedCommitmentSize * 1073741824,
+        commitmentSize: selectedCommitmentSize * 1073741824,
         address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });

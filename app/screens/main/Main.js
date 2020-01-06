@@ -254,7 +254,7 @@ class Main extends Component<Props, State> {
         isConnected && getMiningStatus();
       }, 100000);
     }
-    this.walletFileUpdateInterval = setInterval(updateWalletFile, 500);
+    this.walletFileUpdateInterval = setInterval(() => updateWalletFile({}), 500);
   }
 
   componentDidUpdate(prevProps: Props) {

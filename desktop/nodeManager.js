@@ -2,7 +2,7 @@ import path from 'path';
 import os from 'os';
 import { ipcConsts } from '../app/vars';
 
-const child = require('child_process').execFile;
+const execFile = require('child_process').execFile;
 const find = require('find-process');
 
 const osTargetNames = {
@@ -29,7 +29,7 @@ class NodeManager {
     // TODO: should change prodPath to actual executable file path in prod.
     const prodPath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget === 'windows' ? '' : osTarget}go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
     const executablePath = isDevMode ? devPath : prodPath;
-    child(executablePath, (error) => {
+    execFile(executablePath, (error) => {
       if (error) {
         event.sender.send(ipcConsts.START_NODE_RESPONSE, { error });
       }

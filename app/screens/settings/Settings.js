@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { validateWalletKey, updateWalletName, updateAccountName, createNewAccount } from '/redux/wallet/actions';
+import { updateWalletName, updateAccountName, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
@@ -95,7 +95,7 @@ class Settings extends Component<Props, State> {
       nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
       shouldShowPasswordModal: false,
-      passwordModalSubmitAction: null
+      passwordModalSubmitAction: () => {}
     };
 
     this.myRef1 = React.createRef();
@@ -104,8 +104,18 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
-    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex, shouldShowPasswordModal } = this.state;
+    const { displayName, accounts, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
+    const {
+      walletDisplayName,
+      canEditDisplayName,
+      isAutoStartEnabled,
+      accountDisplayNames,
+      editedAccountIndex,
+      nodeIp,
+      currentSettingIndex,
+      shouldShowPasswordModal,
+      passwordModalSubmitAction
+    } = this.state;
     const lastBackupTime = localStorageService.get('lastBackupTime');
     return (
       <Wrapper>
@@ -181,7 +191,7 @@ class Settings extends Component<Props, State> {
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
-                upperPartRight={<Link onClick={createNewAccount} text="ADD ACCOUNT" width={180} />}
+                upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
                 rowName="Add a new account"
               />
               {accounts.map((account, index) => (
@@ -224,7 +234,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
-        {shouldShowPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} />}
+        {shouldShowPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>
     );
   }
@@ -237,6 +247,17 @@ class Settings extends Component<Props, State> {
     }
     return null;
   }
+
+  createNewAccountWrapper = () => {
+    const { createNewAccount } = this.props;
+    this.setState({
+      shouldShowPasswordModal: true,
+      passwordModalSubmitAction: ({ key }) => {
+        this.setState({ shouldShowPasswordModal: false });
+        createNewAccount({ key });
+      }
+    });
+  };
 
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
@@ -262,7 +283,7 @@ class Settings extends Component<Props, State> {
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
   };
 
-  cleanAllAppDataAndSettings = async () => {
+  cleanAllAppDataAndSettings = () => {
     localStorageService.clear();
     fileSystemService.wipeOut();
   };
@@ -316,8 +337,13 @@ class Settings extends Component<Props, State> {
   saveEditedAccountDisplayName = ({ index }: { index: number }) => {
     const { updateAccountName } = this.props;
     const { accountDisplayNames } = this.state;
-    this.setState({ editedAccountIndex: -1 });
-    updateAccountName({ accountIndex: index, fieldName: 'displayName', data: accountDisplayNames[index] });
+    this.setState({
+      shouldShowPasswordModal: true,
+      passwordModalSubmitAction: ({ key }) => {
+        this.setState({ editedAccountIndex: -1, shouldShowPasswordModal: false });
+        updateAccountName({ accountIndex: index, fieldName: 'displayName', data: accountDisplayNames[index], key });
+      }
+    });
   };
 
   cancelEditingAccountDisplayName = ({ index }: { index: number }) => {

@@ -142,7 +142,7 @@ class UnlockWallet extends Component<Props, State> {
         await unlockWallet({ key });
         history.push('/main/wallet');
       } catch (error) {
-        if (error.message.indexOf('Unexpected token') === 0) {
+        if (error.message && error.message.indexOf('Unexpected token') === 0) {
           this.setState({ hasError: true });
         } else {
           this.setState(() => {

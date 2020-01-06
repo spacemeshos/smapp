@@ -42,12 +42,12 @@ class FileEncryptionService {
 
   /**
    * AES decrypt of provided string.
-   * @param data - string representation of data to be encrypted.
-   * @param key - string used to encrypt data.
+   * @param data {string} representation of data to be encrypted.
+   * @param key {Uint8Array} used to encrypt data.
    * @return {string} decrypted string.
    * @throws error if one of params is invalid.
    */
-  static decryptData = ({ data, key }: { data: string, key: string }) => {
+  static decryptData = ({ data, key }: { data: string, key: Uint8Array }) => {
     if (!data || !data.length) {
       throw new Error('missing data to decrypt');
     }

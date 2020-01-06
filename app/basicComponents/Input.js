@@ -43,7 +43,7 @@ const ExtraTxt = styled.div`
 type Props = {
   onChange?: ({ value: string }) => void,
   onChangeDebounced?: ({ value: string }) => void,
-  onEnterPress?: () => void,
+  onEnterPress?: () => void | Promise<any>,
   onFocus?: ({ target: Object }) => void,
   value: string,
   isDisabled?: boolean,

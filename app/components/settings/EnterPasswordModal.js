@@ -1,7 +1,10 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { CorneredWrapper, Button, Input, ErrorPopup } from '/basicComponents';
+import { fileEncryptionService } from '/infra/fileEncryptionService';
+import { fileSystemService } from '/infra/fileSystemService';
 import { smColors } from '/vars';
 import { chevronRightBlack } from '/assets/images';
 
@@ -19,12 +22,14 @@ const Wrapper = styled.div`
 `;
 
 const InnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 415px;
   padding: 25px;
   background-color: ${smColors.lightGray};
-  width: 300px;
 `;
 
-const Header = styled(Text)`
+const Header = styled.div`
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.black};
@@ -51,8 +56,17 @@ const ErrorSection = styled.div`
   margin-left: 10px;
 `;
 
+const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 20px;
+`;
+
 type Props = {
-  submitAction: ({ password: string }) => boolean
+  walletFiles: Array<string>,
+  submitAction: ({ key: string }) => void,
+  closeModal: () => void
 };
 
 type State = {
@@ -67,6 +81,7 @@ class EnterPasswordModal extends Component<Props, State> {
   };
 
   render() {
+    const { closeModal } = this.props;
     const { password, hasError } = this.state;
     return (
       <Wrapper>
@@ -75,19 +90,15 @@ class EnterPasswordModal extends Component<Props, State> {
             <Header>Enter password to complete the action</Header>
             <InputSection>
               <Chevron src={chevronRightBlack} />
-              <Input
-                type="password"
-                placeholder="ENTER PASSWORD"
-                value={password}
-                onEnterPress={this.submitActionWrapper}
-                onChange={this.handlePasswordTyping}
-                style={{ flex: 1 }}
-              />
+              <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.submitActionWrapper} onChange={this.handlePasswordTyping} />
               <ErrorSection>
                 {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}
               </ErrorSection>
             </InputSection>
-            <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.submitActionWrapper} style={{ marginTop: 'auto' }} />
+            <ButtonsWrapper>
+              <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.submitActionWrapper} />
+              <Button text="Cancel" isPrimary={false} onClick={closeModal} />
+            </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>
       </Wrapper>
@@ -98,13 +109,25 @@ class EnterPasswordModal extends Component<Props, State> {
     this.setState({ password: value, hasError: false });
   };
 
-  submitActionWrapper = () => {
-    const { submitAction } = this.props;
+  submitActionWrapper = async () => {
+    const { walletFiles, submitAction } = this.props;
     const { password } = this.state;
-    if (!submitAction({ password })) {
+    try {
+      const file = await fileSystemService.readFile({ filePath: walletFiles[0] });
+      const key = fileEncryptionService.createEncryptionKey({ password });
+      const decryptedDataJSON = fileEncryptionService.decryptData({ data: file.crypto.cipherText, key });
+      file.crypto.cipherText = JSON.parse(decryptedDataJSON);
+      submitAction({ key });
+    } catch {
       this.setState({ hasError: true });
     }
   };
 }
+
+const mapStateToProps = (state) => ({
+  walletFiles: state.wallet.walletFiles
+});
+
+EnterPasswordModal = connect<any, any, _, _, _, _>(mapStateToProps)(EnterPasswordModal);
 
 export default EnterPasswordModal;

@@ -116,7 +116,8 @@ app.on('ready', async () => {
 
   ipcMain.on(ipcConsts.CHECK_APP_VISIBILITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, mainWindow.isVisible() && mainWindow.isFocused()));
 
-  ipcMain.on(ipcConsts.QUIT_APP, () => {
+  ipcMain.on(ipcConsts.QUIT_APP, async () => {
+    await FileManager.cleanUp();
     mainWindow.destroy();
     app.quit();
   });
@@ -138,10 +139,4 @@ app.on('activate', () => {
     mainWindow.show();
     mainWindow.focus();
   }
-});
-
-app.on('before-quit', (event) => {
-  event.preventDefault();
-  FileManager.cleanUp();
-  app.quit();
 });
