@@ -2,7 +2,6 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
 import { smColors } from '/vars';
@@ -150,7 +149,7 @@ const getInitialState = (mnemonic: string) => ({
 
 type Props = {
   history: RouterHistory,
-  mnemonic: string
+  location: { state: { mnemonic: string } }
 };
 
 type State = {
@@ -163,7 +162,11 @@ type State = {
 class TestMe extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { mnemonic } = props;
+    const {
+      location: {
+        state: { mnemonic }
+      }
+    } = props;
     this.state = { ...getInitialState(mnemonic) };
   }
 
@@ -299,7 +302,11 @@ class TestMe extends Component<Props, State> {
   };
 
   resetTest = () => {
-    const { mnemonic } = this.props;
+    const {
+      location: {
+        state: { mnemonic }
+      }
+    } = this.props;
     this.setState({ ...getInitialState(mnemonic) });
   };
 
@@ -311,9 +318,4 @@ class TestMe extends Component<Props, State> {
   };
 }
 
-const mapStateToProps = (state) => ({
-  mnemonic: state.wallet.mnemonic
-});
-
-TestMe = connect<any, any, _, _, _, _>(mapStateToProps)(TestMe);
 export default TestMe;

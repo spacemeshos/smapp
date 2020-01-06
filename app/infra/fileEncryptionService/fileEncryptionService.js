@@ -1,26 +1,22 @@
 // @flow
 import * as pbkdf2 from 'pbkdf2';
 import * as aes from 'aes-js';
+import { cryptoConsts } from '/vars';
 
 class FileEncryptionService {
   /**
    * Derives encryption key using provided pin code and salt.
    * @param password - at least 8 digits/chars combo string.
    * @param salt - nonce used for encryption.
-   * @param callBack - callback for async key derivation func.
-   * @return {Buffer} derived key.
-   * @throws error if pin code missing or empty string.
+   * @return {Uint8Array} derived key.
+   * @throws error if password is missing or empty string.
    */
-  static createEncryptionKey = ({ password, salt }: { password: string, salt: string }) => {
+  static createEncryptionKey = ({ password }: { password: string }) => {
     if (!password || !password.length) {
-      throw new Error('missing pin code');
-    }
-    if (!salt || !salt.length) {
-      throw new Error('missing salt');
+      throw new Error('missing password');
     }
     // Derive a 32 bytes (256 bits) AES sym enc/dec key from the user provided pin
-    const key = pbkdf2.pbkdf2Sync(password, salt, 1000000, 32, 'sha512');
-    return key;
+    return pbkdf2.pbkdf2Sync(password, cryptoConsts.DEFAULT_SALT, 1000000, 32, 'sha512');
   };
 
   /**
@@ -46,12 +42,12 @@ class FileEncryptionService {
 
   /**
    * AES decrypt of provided string.
-   * @param data - string representation of data to be encrypted.
-   * @param key - string used to encrypt data.
+   * @param data {string} representation of data to be encrypted.
+   * @param key {Uint8Array} used to encrypt data.
    * @return {string} decrypted string.
    * @throws error if one of params is invalid.
    */
-  static decryptData = ({ data, key }: { data: string, key: string }) => {
+  static decryptData = ({ data, key }: { data: string, key: Uint8Array }) => {
     if (!data || !data.length) {
       throw new Error('missing data to decrypt');
     }

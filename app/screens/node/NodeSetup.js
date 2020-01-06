@@ -149,7 +149,7 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
+        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ commitment }) => this.setState({ selectedCommitmentSize: commitment })} />
       </>
     );
   };

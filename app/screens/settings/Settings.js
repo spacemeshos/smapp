@@ -3,9 +3,9 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateWalletMeta, updateAccount, createNewAccount } from '/redux/wallet/actions';
+import { updateWalletName, updateAccountName, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress } from '/redux/node/actions';
-import { SettingsSection, SettingRow, ChangePassword, SideMenu } from '/components/settings';
+import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { fileSystemService } from '/infra/fileSystemService';
@@ -53,8 +53,8 @@ type Props = {
   displayName: string,
   accounts: Account[],
   walletFiles: Array<string>,
-  updateWalletMeta: Action,
-  updateAccount: Action,
+  updateWalletName: Action,
+  updateAccountName: Action,
   createNewAccount: Action,
   setNodeIpAddress: Action,
   isConnected: boolean,
@@ -70,7 +70,9 @@ type State = {
   editedAccountIndex: number,
   accountDisplayNames: Array<string>,
   nodeIp: string,
-  currentSettingIndex: number
+  currentSettingIndex: number,
+  shouldShowPasswordModal: boolean,
+  passwordModalSubmitAction: Function
 };
 
 class Settings extends Component<Props, State> {
@@ -79,8 +81,6 @@ class Settings extends Component<Props, State> {
   myRef2: any;
 
   myRef3: any;
-
-  lastBackupTime: ?Date;
 
   constructor(props) {
     super(props);
@@ -93,20 +93,30 @@ class Settings extends Component<Props, State> {
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
-      currentSettingIndex: 0
+      currentSettingIndex: 0,
+      shouldShowPasswordModal: false,
+      passwordModalSubmitAction: () => {}
     };
 
     this.myRef1 = React.createRef();
     this.myRef2 = React.createRef();
     this.myRef3 = React.createRef();
-    const savedLastBackupTime = localStorageService.get('lastBackupTime');
-    this.lastBackupTime = savedLastBackupTime ? new Date(savedLastBackupTime) : null;
   }
 
   render() {
-    const { displayName, accounts, createNewAccount, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
-    const { walletDisplayName, canEditDisplayName, isAutoStartEnabled, accountDisplayNames, editedAccountIndex, nodeIp, currentSettingIndex } = this.state;
-
+    const { displayName, accounts, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
+    const {
+      walletDisplayName,
+      canEditDisplayName,
+      isAutoStartEnabled,
+      accountDisplayNames,
+      editedAccountIndex,
+      nodeIp,
+      currentSettingIndex,
+      shouldShowPasswordModal,
+      passwordModalSubmitAction
+    } = this.state;
+    const lastBackupTime = localStorageService.get('lastBackupTime');
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -130,7 +140,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow upperPart={<ChangePassword />} rowName="Wallet password" />
               <SettingRow
-                upperPartLeft={`Last Backup ${this.lastBackupTime ? `at ${this.lastBackupTime.toLocaleString()}` : 'was not found'}`}
+                upperPartLeft={`Last Backup ${lastBackupTime ? `at ${new Date(lastBackupTime).toLocaleString()}` : 'was not found'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"
@@ -181,7 +191,7 @@ class Settings extends Component<Props, State> {
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
-                upperPartRight={<Link onClick={createNewAccount} text="ADD ACCOUNT" width={180} />}
+                upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
                 rowName="Add a new account"
               />
               {accounts.map((account, index) => (
@@ -224,6 +234,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
+        {shouldShowPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>
     );
   }
@@ -237,16 +248,27 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
+  createNewAccountWrapper = () => {
+    const { createNewAccount } = this.props;
+    this.setState({
+      shouldShowPasswordModal: true,
+      passwordModalSubmitAction: ({ key }) => {
+        this.setState({ shouldShowPasswordModal: false });
+        createNewAccount({ key });
+      }
+    });
+  };
+
   editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
 
   startEditingWalletDisplayName = () => this.setState({ canEditDisplayName: true });
 
   saveEditedWalletDisplayName = () => {
-    const { displayName, updateWalletMeta } = this.props;
+    const { displayName, updateWalletName } = this.props;
     const { walletDisplayName } = this.state;
     this.setState({ canEditDisplayName: false });
     if (!!walletDisplayName && !!walletDisplayName.trim() && walletDisplayName !== displayName) {
-      updateWalletMeta({ metaFieldName: 'displayName', data: walletDisplayName });
+      updateWalletName({ displayName: walletDisplayName });
     }
   };
 
@@ -261,16 +283,9 @@ class Settings extends Component<Props, State> {
     fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
   };
 
-  cleanAllAppDataAndSettings = async () => {
+  cleanAllAppDataAndSettings = () => {
     localStorageService.clear();
     fileSystemService.wipeOut();
-  };
-
-  updateAccountName = ({ accountIndex }) => async ({ value }: { value: string }) => {
-    const { accounts, updateAccount } = this.props;
-    if (!!value && !!value.trim() && value !== accounts[accountIndex].displayName) {
-      await updateAccount({ accountIndex, fieldName: 'displayName', data: value });
-    }
   };
 
   navigateToWalletBackup = () => {
@@ -320,10 +335,15 @@ class Settings extends Component<Props, State> {
   };
 
   saveEditedAccountDisplayName = ({ index }: { index: number }) => {
-    const { updateAccount } = this.props;
+    const { updateAccountName } = this.props;
     const { accountDisplayNames } = this.state;
-    this.setState({ editedAccountIndex: -1 });
-    updateAccount({ accountIndex: index, fieldName: 'displayName', data: accountDisplayNames[index] });
+    this.setState({
+      shouldShowPasswordModal: true,
+      passwordModalSubmitAction: ({ key }) => {
+        this.setState({ editedAccountIndex: -1, shouldShowPasswordModal: false });
+        updateAccountName({ accountIndex: index, fieldName: 'displayName', data: accountDisplayNames[index], key });
+      }
+    });
   };
 
   cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
@@ -362,8 +382,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  updateWalletMeta,
-  updateAccount,
+  updateWalletName,
+  updateAccountName,
   createNewAccount,
   setNodeIpAddress
 };

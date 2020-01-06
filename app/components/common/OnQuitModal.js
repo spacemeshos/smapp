@@ -52,7 +52,7 @@ type State = {
   isVisible: boolean
 };
 
-class QuitDialog extends Component<Props, State> {
+class OnQuitModal extends Component<Props, State> {
   state = {
     isVisible: false
   };
@@ -78,24 +78,23 @@ class QuitDialog extends Component<Props, State> {
   }
 
   componentDidMount() {
-    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, this.handleQuitEvent);
+    const { miningStatus } = this.props;
+    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => this.handleQuitEvent(miningStatus));
   }
 
   componentDidUpdate(prevProps: Props) {
     const { miningStatus } = this.props;
     if (prevProps.miningStatus !== miningStatus) {
       ipcRenderer.removeAllListeners(ipcConsts.REQUEST_CLOSE);
-      ipcRenderer.on(ipcConsts.REQUEST_CLOSE, this.handleQuitEvent);
+      ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => this.handleQuitEvent(miningStatus));
     }
   }
 
-  handleQuitEvent = () => {
-    const { miningStatus } = this.props;
-    const isMining = miningStatus === nodeConsts.IN_SETUP || miningStatus === nodeConsts.IS_MINING;
-    isMining ? this.setState({ isVisible: true }) : this.handleQuit();
+  handleQuitEvent = (miningStatus: number) => {
+    [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus) ? this.setState({ isVisible: true }) : this.handleQuit();
   };
 
-  handleQuit = async () => {
+  handleQuit = () => {
     ipcRenderer.sendSync(ipcConsts.QUIT_NODE);
     ipcRenderer.send(ipcConsts.QUIT_APP);
   };
@@ -103,13 +102,12 @@ class QuitDialog extends Component<Props, State> {
   handleKeepInBackground = () => {
     this.setState({ isVisible: false });
     ipcRenderer.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
-    const timer = setTimeout(() => {
+    setTimeout(() => {
       notificationsService.notify({
         title: 'Spacemesh',
         notification: 'Smesher is running in the background.'
       });
-      clearTimeout(timer);
-    }, 2500);
+    }, 1000);
   };
 }
 
@@ -117,5 +115,5 @@ const mapStateToProps = (state) => ({
   miningStatus: state.node.miningStatus
 });
 
-QuitDialog = connect<any, any, _, _, _, _>(mapStateToProps)(QuitDialog);
-export default QuitDialog;
+OnQuitModal = connect<any, any, _, _, _, _>(mapStateToProps)(OnQuitModal);
+export default OnQuitModal;

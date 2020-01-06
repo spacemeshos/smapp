@@ -24,8 +24,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileManager.writeFile({ event, ...request });
   });
 
-  ipcMain.on(ipcConsts.UPDATE_FILE, (event, request) => {
-    FileManager.updateFile({ event, ...request });
+  ipcMain.on(ipcConsts.UPDATE_WALLET_FILE, (event, request) => {
+    FileManager.updateWalletFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.DELETE_FILE, (event, request) => {
@@ -41,7 +41,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, (event, request) => {
-    FileManager.openWalletBackupDirectory({ event, ...request });
+    FileManager.openWalletBackupDirectory({ ...request });
   });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {

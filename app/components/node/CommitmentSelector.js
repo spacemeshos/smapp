@@ -117,7 +117,7 @@ const ErrorPopupWrapper = styled.div`
 `;
 
 type Props = {
-  onClick: ({ index: number }) => void,
+  onClick: ({ commitment: number }) => void,
   freeSpace: number
 };
 
@@ -149,9 +149,8 @@ class CommitmentSelector extends Component<Props, State> {
     const selectors = [];
     // TODO: for Testnet 0.1 purposes only showing one valid space commitment
     for (let i = 0; i < 1; i += 1) {
-      const clickHandler = i === 0 ? () => this.handleClick({ index: i }) : null;
       selectors.push(
-        <SelectorWrapper onClick={clickHandler} key={i} style={{ zIndex: 1 - i }} isDisabled={i !== 0}>
+        <SelectorWrapper onClick={() => this.handleClick({ index: i })} key={i} style={{ zIndex: 1 - i }} isDisabled={i !== 0}>
           <SelectorUpperPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isSelected={selectedCommitmentIndex === i} isDisabled={i !== 0}>
             <TextWrapper>
               <Text>{nodeConsts.COMMITMENT_SIZE * (i + 1)} GB</Text>
@@ -171,13 +170,13 @@ class CommitmentSelector extends Component<Props, State> {
   handleClick = ({ index }: { index: number }) => {
     const { freeSpace, onClick } = this.props;
     const totalRequiredSpace = nodeConsts.COMMITMENT_SIZE * (index + 1);
-    onClick({ index: freeSpace < totalRequiredSpace ? 0 : totalRequiredSpace });
+    onClick({ commitment: freeSpace < totalRequiredSpace ? 0 : totalRequiredSpace });
     this.setState({ selectedCommitmentIndex: index, hasInsufficientSpace: freeSpace < totalRequiredSpace });
   };
 
   closeErrorPopup = () => {
     const { onClick } = this.props;
-    onClick({ index: -1 });
+    onClick({ commitment: 0 });
     this.setState({ selectedCommitmentIndex: -1, hasInsufficientSpace: false });
   };
 }

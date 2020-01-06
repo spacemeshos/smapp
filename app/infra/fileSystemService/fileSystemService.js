@@ -51,28 +51,12 @@ class FsService {
     });
   };
 
-  static updateFile = ({ fileName, fieldName, data }: { fileName: string, fieldName: string, data: string }) => {
-    ipcRenderer.send(ipcConsts.UPDATE_FILE, { fileName, fieldName, data });
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.UPDATE_FILE_RESPONSE, (event, response) => {
-        if (response.error) {
-          reject(response.error);
-        }
-        resolve();
-      });
-    });
+  static updateWalletFile = ({ fileName, data, immediateUpdate }: { fileName: string, data: Object, immediateUpdate?: boolean }) => {
+    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, data, immediateUpdate });
   };
 
   static openWalletBackupDirectory = ({ lastBackupTime }: { lastBackupTime?: string }) => {
     ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_RESPONSE, (event, response) => {
-        if (response.error) {
-          reject(response.error);
-        }
-        resolve();
-      });
-    });
   };
 
   static deleteWalletFile = ({ fileName }: { fileName: string }) => {

@@ -6,7 +6,6 @@ export type StoreStateType = {
   +wallet: {
     walletNumber: number,
     accountNumber: number,
-    fileKey?: Buffer | null,
     salt: string,
     wallet: Wallet,
     accounts: Account[],

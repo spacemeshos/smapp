@@ -4,6 +4,8 @@ import path from 'path';
 import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
+const { exec } = require('child_process');
+
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
 const writeFileAsync = util.promisify(fs.writeFile);
@@ -16,6 +18,14 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileManager {
+  static fileName = '';
+
+  static prevBuffer = '';
+
+  static curBuffer = '';
+
+  static fileWriterInterval = null;
+
   static copyFile = ({ event, fileName, filePath, newFileName, saveToDocumentsFolder }) => {
     const newFilePath = saveToDocumentsFolder ? path.join(documentsDirPath, newFileName) : path.join(appFilesDirPath, fileName);
     fs.copyFile(filePath, newFilePath, (error) => {
@@ -26,7 +36,7 @@ class FileManager {
     });
   };
 
-  static openWalletBackupDirectory = async ({ event, lastBackupTime }) => {
+  static openWalletBackupDirectory = async ({ lastBackupTime }) => {
     try {
       const files = await readDirectoryAsync(lastBackupTime ? documentsDirPath : appFilesDirPath);
       const regex = new RegExp(lastBackupTime || '(my_wallet_).*.(json)', 'ig');
@@ -37,9 +47,8 @@ class FileManager {
       } else {
         shell.openItem(appFilesDirPath);
       }
-      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY_RESPONSE, { error });
+      console.log(error); // eslint-disable-line no-console
     }
   };
 
@@ -61,77 +70,88 @@ class FileManager {
 
   static writeFile = async ({ event, fileName, fileContent, saveToDocumentsFolder }) => {
     const filePath = path.join(saveToDocumentsFolder ? documentsDirPath : appFilesDirPath, fileName);
-    await FileManager._writeFile({ event, filePath, fileContent });
-  };
-
-  static updateFile = async ({ event, fileName, fieldName, data }) => {
     try {
-      const filePath = path.isAbsolute(fileName) ? fileName : path.join(appFilesDirPath, fileName);
-      const fileContent = await readFileAsync(filePath);
-      const file = JSON.parse(fileContent);
-      file[fieldName] = data;
-      await writeFileAsync(filePath, JSON.stringify(file));
-      event.sender.send(ipcConsts.UPDATE_FILE_RESPONSE, { error: null });
+      await FileManager._writeFile({ filePath, fileContent });
+      event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.UPDATE_FILE_RESPONSE, { error });
+      event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error });
     }
   };
 
-  static deleteWalletFile = ({ browserWindow, fileName }) => {
-    try {
-      const filePath = path.isAbsolute(fileName) ? fileName : path.join(appFilesDirPath, fileName);
-      const options = {
-        title: 'Delete File',
-        message: 'All wallet data will be lost. Are You Sure?',
-        buttons: ['Delete Wallet File', 'Cancel']
-      };
-      dialog.showMessageBox(browserWindow, options, async (response) => {
-        if (response === 0) {
+  static updateWalletFile = async ({ fileName, data, immediateUpdate }) => {
+    if (FileManager.prevBuffer !== FileManager.curBuffer) {
+      FileManager.prevBuffer = FileManager.curBuffer;
+    }
+    FileManager.curBuffer = data;
+    FileManager.fileName = fileName;
+    if (immediateUpdate) {
+      try {
+        await FileManager._writeFile({ filePath: FileManager.fileName, fileContent: JSON.stringify(FileManager.curBuffer) });
+      } catch (error) {
+        console.log(error); // eslint-disable-line no-console
+      }
+    }
+    if (!FileManager.fileWriterInterval) {
+      FileManager.fileWriterInterval = setInterval(async () => {
+        if (FileManager.curBuffer !== FileManager.prevBuffer) {
           try {
-            await unlinkFileAsync(filePath);
-            browserWindow.reload();
-          } catch (err) {
-            throw new Error(err);
+            await FileManager._writeFile({ filePath: FileManager.fileName, fileContent: JSON.stringify(FileManager.curBuffer) });
+          } catch (error) {
+            console.log(error); // eslint-disable-line no-console
           }
         }
-      });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error deleting wallet file');
+      }, 1000);
     }
   };
 
-  static wipeOut = ({ browserWindow }) => {
-    try {
-      const options = {
-        title: 'Reinstall App',
-        message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
-        buttons: ['Delete All', 'Cancel']
-      };
-      dialog.showMessageBox(browserWindow, options, async (response) => {
-        if (response === 0) {
-          const deleteFolderRecursive = (path) => {
-            if (fs.existsSync(path)) {
-              fs.readdirSync(path).forEach((file) => {
-                const curPath = `${path}/${file}`;
-                if (fs.lstatSync(curPath).isDirectory()) {
-                  // recurse
-                  deleteFolderRecursive(curPath);
-                } else {
-                  // delete file
-                  fs.unlinkSync(curPath);
-                }
-              });
-              fs.rmdirSync(path);
-            }
-          };
-          deleteFolderRecursive(appFilesDirPath);
-          app.exit();
+  static cleanUp = async () => {
+    clearInterval(FileManager.fileWriterInterval);
+    if (FileManager.fileName) {
+      try {
+        await FileManager._writeFile({ filePath: FileManager.fileName, fileContent: JSON.stringify(FileManager.curBuffer) });
+      } catch (error) {
+        console.log(error); // eslint-disable-line no-console
+      }
+    }
+  };
+
+  static deleteWalletFile = async ({ browserWindow, fileName }) => {
+    const options = {
+      title: 'Delete File',
+      message: 'All wallet data will be lost. Are You Sure?',
+      buttons: ['Delete Wallet File', 'Cancel']
+    };
+    const { response } = await dialog.showMessageBox(browserWindow, options);
+    if (response === 0) {
+      try {
+        clearInterval(FileManager.fileWriterInterval);
+        await unlinkFileAsync(fileName);
+        browserWindow.reload();
+      } catch (err) {
+        console.error('Error deleting wallet file'); // eslint-disable-line no-console
+      }
+    }
+  };
+
+  static wipeOut = async ({ browserWindow }) => {
+    const options = {
+      type: 'warning',
+      title: 'Reinstall App',
+      message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
+      buttons: ['Delete All', 'Cancel']
+    };
+    const { response } = await dialog.showMessageBox(browserWindow, options);
+    if (response === 0) {
+      clearInterval(FileManager.fileWriterInterval);
+      browserWindow.destroy();
+      const command = `rm -rf '${appFilesDirPath}'`;
+      exec(command, (error) => {
+        if (error) {
+          console.error(error); // eslint-disable-line no-console
         }
+        console.log('deleted'); // eslint-disable-line no-console
       });
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error purging app data directory');
+      app.quit();
     }
   };
 
@@ -144,13 +164,8 @@ class FileManager {
     }
   };
 
-  static _writeFile = async ({ event, filePath, fileContent }) => {
-    try {
-      await writeFileAsync(filePath, fileContent);
-      event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error: null });
-    } catch (error) {
-      event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error });
-    }
+  static _writeFile = async ({ filePath, fileContent }) => {
+    await writeFileAsync(filePath, fileContent);
   };
 }
 

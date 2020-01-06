@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo, QuitDialog } from '/components/common';
+import { Logo, OnQuitModal } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
 import { rightDecoration } from '/assets/images';
@@ -61,7 +61,7 @@ class Auth extends Component<Props> {
           )}
         </InnerWrapper>
         <RightDecoration src={rightDecoration} />
-        <QuitDialog />
+        <OnQuitModal />
       </Wrapper>
     );
   }

@@ -146,8 +146,8 @@ class TwelveWordsBackup extends Component<Props, State> {
   }
 
   navigateToTestMe = () => {
-    const { history } = this.props;
-    history.push('/main/backup/test-twelve-words-backup');
+    const { history, mnemonic } = this.props;
+    history.push('/main/backup/test-twelve-words-backup', { mnemonic });
     localStorageService.set('hasBackup', true);
   };
 

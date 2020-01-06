@@ -6,9 +6,9 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { getMiningStatus, getAccountRewards } from '/redux/node/actions';
-import { getTxList } from '/redux/wallet/actions';
+import { getTxList, updateWalletFile } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo, QuitDialog } from '/components/common';
+import { Logo, OnQuitModal } from '/components/common';
 import { OfflineBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
@@ -98,6 +98,7 @@ type Props = {
   getMiningStatus: Action,
   getAccountRewards: Action,
   getTxList: Action,
+  updateWalletFile: Action,
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
@@ -114,6 +115,8 @@ class Main extends Component<Props, State> {
   accountRewardsInterval: IntervalID;
 
   txCollectorInterval: IntervalID;
+
+  walletFileUpdateInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -232,13 +235,13 @@ class Main extends Component<Props, State> {
           </RoutesWrapper>
         </InnerWrapper>
         <RightDecoration src={rightDecoration} />
-        <QuitDialog />
+        <OnQuitModal />
       </Wrapper>
     );
   }
 
   componentDidMount() {
-    const { miningStatus, getTxList, getMiningStatus, history } = this.props;
+    const { isConnected, miningStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
     this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
         notificationsService.notify({
           title: 'Spacemesh',
@@ -248,21 +251,22 @@ class Main extends Component<Props, State> {
       } }), 10000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
-        getMiningStatus();
-      }, 300000);
+        isConnected && getMiningStatus();
+      }, 100000);
     }
+    this.walletFileUpdateInterval = setInterval(() => updateWalletFile({}), 500);
   }
 
   componentDidUpdate(prevProps: Props) {
     const { isConnected, miningStatus, getMiningStatus, getAccountRewards } = this.props;
     if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 300000);
+      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 100000);
     }
     if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network…!',
+        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
@@ -278,9 +282,10 @@ class Main extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    this.miningStatusInterval && clearImmediate(this.miningStatusInterval);
-    this.accountRewardsInterval && clearImmediate(this.accountRewardsInterval);
-    this.txCollectorInterval && clearImmediate(this.txCollectorInterval);
+    this.miningStatusInterval && clearInterval(this.miningStatusInterval);
+    this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
+    this.txCollectorInterval && clearInterval(this.txCollectorInterval);
+    this.walletFileUpdateInterval && clearInterval(this.walletFileUpdateInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -332,6 +337,7 @@ const mapDispatchToProps = {
   getMiningStatus,
   getAccountRewards,
   getTxList,
+  updateWalletFile,
   logout
 };
 

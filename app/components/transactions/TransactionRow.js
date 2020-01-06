@@ -5,29 +5,10 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, smidgeToSmesh, getFormattedTimestamp } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
-
-const getTxStatus = ({ isPending, isRejected }: { isPending: boolean, isRejected: boolean }) => {
-  if (isRejected) {
-    return 'REJECTED';
-  }
-  if (isPending) {
-    return 'PENDING';
-  }
-  return 'SUCCESS';
-};
-
-const getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPending: boolean, isRejected: boolean }) => {
-  if (isPending) {
-    return smColors.darkGray;
-  } else if (isRejected) {
-    return smColors.darkGray;
-  }
-  return isSent ? smColors.green : smColors.orange;
-};
 
 const Wrapper = styled.div`
   display: flex;
@@ -148,7 +129,7 @@ const TextArea = styled.textarea`
 
 type Props = {
   updateTransaction: Action,
-  transaction: Tx,
+  tx: Tx,
   publicKey: string,
   addAddressToContacts: ({ address: string }) => void
 };
@@ -159,32 +140,33 @@ type State = {
 };
 
 class TransactionRow extends Component<Props, State> {
+  statuses: Array<string>;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       isDetailed: false,
-      note: props.transaction.note
+      note: props.tx.note
     };
+    this.statuses = Object.keys(TX_STATUSES);
   }
 
   render() {
-    const { isDetailed, note } = this.state;
     const {
-      transaction: { txId, sender, status, amount, fee, timestamp, layerId, nickname },
+      tx: { txId, sender, status, amount, fee, timestamp, layerId, nickname },
       publicKey
     } = this.props;
-    const isSent = sender === publicKey;
-    const isPending = status === TX_STATUSES.PENDING;
-    const isRejected = status === TX_STATUSES.REJECTED;
-    const color = getColor({ isSent, isPending, isRejected });
+    const { isDetailed, note } = this.state;
+    const isSent = sender === getAddress(publicKey);
+    const color = this.getColor({ status, isSent });
     const detailRows = [
       { title: 'TRANSACTION ID', value: getAbbreviatedText(txId) },
-      { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
+      { title: 'STATUS', value: this.statuses[status], color },
       { title: 'LAYER ID', value: layerId },
       { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(sender) },
       { title: 'TO', value: isSent ? getAbbreviatedText(sender) : 'Me' },
-      { title: 'VALUE', value: `${smidgeToSmesh(amount)}` },
-      { title: 'TRANSACTION FEE', value: `${fee || 0} Smidge` }
+      { title: 'VALUE', value: `${amount} SMG` },
+      { title: 'TRANSACTION FEE', value: `${fee || 0} SMG` }
     ];
     return (
       <Wrapper isDetailed={isDetailed}>
@@ -240,20 +222,29 @@ class TransactionRow extends Component<Props, State> {
     return isFieldToOrFrom && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />;
   };
 
+  getColor = ({ status, isSent }: { status: string, isSent: boolean }) => {
+    if (status === TX_STATUSES.PENDING) {
+      return smColors.orange;
+    } else if (status === TX_STATUSES.REJECTED) {
+      return smColors.orange;
+    }
+    return isSent ? smColors.blue : smColors.darkerGreen;
+  };
+
   handleAddToContacts = (event: Event) => {
     event.stopPropagation();
     const {
-      transaction: { address },
+      tx: { address },
       addAddressToContacts
     } = this.props;
     addAddressToContacts({ address });
   };
 
   save = async () => {
-    const { transaction, updateTransaction } = this.props;
+    const { tx, updateTransaction } = this.props;
     const { note } = this.state;
     try {
-      await updateTransaction({ tx: { ...transaction, note } });
+      await updateTransaction({ tx: { ...tx, note } });
       this.setState({ isDetailed: false });
     } catch (error) {
       this.setState(() => {

@@ -15,6 +15,7 @@ import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import { subscribeToEventListeners } from './eventListners';
 import subscribeToAutoUpdateListeners from './autoUpdateListeners';
+import FileManager from './fileManager';
 
 export default class AppUpdater {
   constructor() {
@@ -115,7 +116,8 @@ app.on('ready', async () => {
 
   ipcMain.on(ipcConsts.CHECK_APP_VISIBILITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, mainWindow.isVisible() && mainWindow.isFocused()));
 
-  ipcMain.on(ipcConsts.QUIT_APP, () => {
+  ipcMain.on(ipcConsts.QUIT_APP, async () => {
+    await FileManager.cleanUp();
     mainWindow.destroy();
     app.quit();
   });
