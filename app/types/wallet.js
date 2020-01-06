@@ -18,6 +18,7 @@ export type WalletMeta = {
   crypto: {
     cipher: string,
     cipherText: {
+      accounts: Array<Account>,
       mnemonic: string
     }
   }
