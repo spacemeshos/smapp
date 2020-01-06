@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateWalletFile } from '/redux/wallet/actions';
+import { changeWalletPassword } from '/redux/wallet/actions';
 import { ErrorPopup, Input, Link, Loader } from '/basicComponents';
 import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { smColors } from '/vars';
@@ -30,7 +30,7 @@ const RightPart = styled.div`
 `;
 
 type Props = {
-  updateWalletFile: Action
+  changeWalletPassword: Action
 };
 
 type State = {
@@ -122,14 +122,14 @@ class ChangePassword extends Component<Props, State> {
   };
 
   updatePassword = async () => {
-    const { updateWalletFile } = this.props;
+    const { changeWalletPassword } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
           const key = fileEncryptionService.createEncryptionKey({ password });
-          updateWalletFile({ key });
+          changeWalletPassword({ key });
           this.clearFields();
         }, 500);
       } catch (error) {
@@ -142,7 +142,7 @@ class ChangePassword extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  updateWalletFile
+  changeWalletPassword
 };
 
 ChangePassword = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(ChangePassword);

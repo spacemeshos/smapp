@@ -305,6 +305,12 @@ export const updateAccountName = ({ accountIndex, fieldName, data, key }: { acco
   dispatch(setWalletMeta({ meta, cipherText }));
 };
 
+export const changeWalletPassword = ({ key }: { key: Uint8Array }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { accounts, mnemonic, meta } = getState().wallet;
+  const cipherText = fileEncryptionService.encryptData({ data: JSON.stringify({ mnemonic, accounts }), key });
+  dispatch(setWalletMeta({ meta, cipherText }));
+};
+
 export const addToContacts = ({ contact }: Contact): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { contacts } = getState().wallet;
   const updatedContacts = [contact, ...contacts];
