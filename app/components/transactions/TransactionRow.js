@@ -159,15 +159,24 @@ class TransactionRow extends Component<Props, State> {
     const { isDetailed, note } = this.state;
     const isSent = sender === getAddress(publicKey);
     const color = this.getColor({ status, isSent });
-    const detailRows = [
-      { title: 'TRANSACTION ID', value: getAbbreviatedText(txId) },
-      { title: 'STATUS', value: this.statuses[status], color },
-      { title: 'LAYER ID', value: layerId },
-      { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(sender) },
-      { title: 'TO', value: isSent ? getAbbreviatedText(sender) : 'Me' },
-      { title: 'VALUE', value: `${amount} SMG` },
-      { title: 'TRANSACTION FEE', value: `${fee || 0} SMG` }
-    ];
+    const detailRows =
+      txId === 'reward'
+        ? [
+            { title: 'TRANSACTION ID', value: 'Smeshing reward' },
+            { title: 'STATUS', value: this.statuses[status], color },
+            { title: 'LAYER ID', value: layerId },
+            { title: 'TO', value: 'Me' },
+            { title: 'VALUE', value: `${amount} SMG` }
+          ]
+        : [
+            { title: 'TRANSACTION ID', value: txId === 'reward' ? 'Smeshing reward' : getAbbreviatedText(txId) },
+            { title: 'STATUS', value: this.statuses[status], color },
+            { title: 'LAYER ID', value: layerId },
+            { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(sender) },
+            { title: 'TO', value: isSent ? getAbbreviatedText(sender) : 'Me' },
+            { title: 'VALUE', value: `${amount} SMG` },
+            { title: 'TRANSACTION FEE', value: `${fee || 0} SMG` }
+          ];
     return (
       <Wrapper isDetailed={isDetailed}>
         <RowWrapper onClick={this.toggleTxDetails}>

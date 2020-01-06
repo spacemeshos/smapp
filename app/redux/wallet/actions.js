@@ -171,7 +171,7 @@ export const sendTransaction = ({ recipient, amount, fee, note }: { recipient: s
   }
 };
 
-export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }): Action => (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, transactions, currentAccountIndex } = getState().wallet;
     const index: number = accountPK ? accounts.findIndex((account) => account.publicKey === accountPK) : currentAccountIndex;
