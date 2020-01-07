@@ -75,6 +75,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.killNodeProcess({ event });
   });
 
+  ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
+    NodeManager.tmpRunNodeFunc({ event, ...request });
+  });
+
   /**
    ******************************************* gRPS Calls **************************************
    */

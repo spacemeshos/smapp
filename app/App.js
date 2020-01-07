@@ -4,7 +4,6 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
-import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
 import { setUpdateDownloading } from '/redux/wallet/actions';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
@@ -14,8 +13,6 @@ import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
 import { UpdaterModal } from '/components/updater';
-
-const HEALTH_CHECK_INTERVAL = 360000;
 
 const store: Store = configureStore();
 
@@ -28,19 +25,13 @@ setConfig(configOptions);
 type Props = {};
 
 type State = {
-  error: ?Error,
+  error: ?Object,
   isUpdateDownloaded: boolean
 };
 
 class App extends React.Component<Props, State> {
   // eslint-disable-next-line react/sort-comp
-  startNodeInterval: IntervalID;
-
-  healthCheckInterval: IntervalID;
-
   updateCheckInterval: IntervalID;
-
-  checkConnectionTimer: TimeoutID;
 
   state = {
     error: null,
@@ -49,14 +40,10 @@ class App extends React.Component<Props, State> {
 
   render() {
     const { error, isUpdateDownloaded } = this.state;
-
-    if (error) {
-      return <ErrorHandlerModal componentStack={''} explanationText="Retry failed action or refresh page" error={error} onRefresh={nodeService.hardRefresh} />;
-    }
-
     return (
       <>
         <GlobalStyle />
+        {error ? <ErrorHandlerModal componentStack={''} explanationText="Wallet update check has failed" error={error} onRefresh={nodeService.hardRefresh} /> : null}
         {isUpdateDownloaded ? <UpdaterModal onCloseModal={this.closeUpdateModal} /> : null}
         <Provider store={store}>
           <Router>
@@ -64,7 +51,7 @@ class App extends React.Component<Props, State> {
               {routes.app.map((route) => (
                 <Route key={route.path} path={route.path} component={route.component} />
               ))}
-              <Redirect to="/auth" />
+              <Redirect to="/pre" />
             </Switch>
           </Router>
         </Provider>
@@ -74,13 +61,6 @@ class App extends React.Component<Props, State> {
 
   async componentDidMount() {
     try {
-      const isConnected = await store.dispatch(checkNodeConnection());
-      if (!isConnected) {
-        await this.attemptToStartFullNode();
-        this.healthCheckFlow();
-      } else {
-        this.healthCheckFlow();
-      }
       walletUpdateService.listenToUpdaterError({
         onUpdaterError: () => {
           throw new Error('Wallet Updater Error.');
@@ -99,58 +79,17 @@ class App extends React.Component<Props, State> {
       }, 86400000);
     } catch (error) {
       this.setState({
-        error: new Error(error === 'Wallet Updater Error.' ? 'Wallet update check has failed.' : 'Failed to start Spacemesh Node.')
+        error: new Error('Wallet update check has failed.')
       });
     }
   }
 
   componentWillUnmount(): void {
-    this.healthCheckInterval && clearInterval(this.healthCheckInterval);
-    this.startNodeInterval && clearInterval(this.startNodeInterval);
     this.updateCheckInterval && clearInterval(this.updateCheckInterval);
-    this.checkConnectionTimer && clearTimeout(this.checkConnectionTimer);
     store.dispatch(logout());
   }
 
-  attemptToStartFullNode = () => {
-    const intervalTime = 5000; // ms
-    let attemptsRemaining = 5;
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      this.startNodeInterval = setInterval(async () => {
-        if (!attemptsRemaining) {
-          clearInterval(this.startNodeInterval);
-          reject();
-        } else {
-          const isConnectedToNode = store.getState().node.isConnected;
-          attemptsRemaining -= 1;
-          if (!isConnectedToNode) {
-            try {
-              await nodeService.startNode();
-            } catch {
-              // Ignoring this error since we still want to check connection if node is already running.
-            }
-            this.checkConnectionTimer = setTimeout(async () => {
-              const isConnected = await store.dispatch(checkNodeConnection());
-              clearInterval(this.startNodeInterval);
-              isConnected && resolve();
-            }, 1000);
-          } else {
-            clearInterval(this.startNodeInterval);
-            resolve();
-          }
-        }
-      }, intervalTime);
-    });
-  };
-
   closeUpdateModal = () => this.setState({ isUpdateDownloaded: false });
-
-  healthCheckFlow = async () => {
-    await store.dispatch(getMiningStatus());
-    this.healthCheckInterval = setInterval(async () => {
-      await store.dispatch(checkNodeConnection());
-    }, HEALTH_CHECK_INTERVAL);
-  };
 }
 
 App = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;

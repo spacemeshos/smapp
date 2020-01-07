@@ -28,6 +28,7 @@ const ipcConsts = {
   QUIT_NODE: 'QUIT_NODE',
   QUIT_APP: 'QUIT_APP',
   KEEP_RUNNING_IN_BACKGROUND: 'KEEP_RUNNING_IN_BACKGROUND',
+  TMP_RUN_NODE_CALL: 'TMP_RUN_NODE_CALL', // TODO remove after stabilizing node start params
   // gRPC calls
   // Node management
   CHECK_NODE_CONNECTION: 'CHECK_NODE_CONNECTION',

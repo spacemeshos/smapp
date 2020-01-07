@@ -2,7 +2,7 @@ import path from 'path';
 import os from 'os';
 import { ipcConsts } from '../app/vars';
 
-const execFile = require('child_process').execFile;
+const { execFile, exec } = require('child_process');
 const find = require('find-process');
 
 const osTargetNames = {
@@ -56,6 +56,18 @@ class NodeManager {
       // eslint-disable-next-line no-param-reassign
       event.returnValue = null;
     }
+  };
+
+  static tmpRunNodeFunc = ({ port }) => {
+    // const osTarget = osTargetNames[os.type()];
+    // const nodePath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget}go-spacemesh`);
+    const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} --poet-server spacemesh-testnet-poet-grpc-lb-949d0cde858743fb.elb.us-east-1.amazonaws.com:50002 --test-mode --randcon 8 --layer-duration-sec 180 --hare-wakeup-delta 30 --hare-round-duration-sec 30 --layers-per-epoch 480 --eligibility-confidence-param 200 --eligibility-epoch-offset 0 --layer-average-size 50 --genesis-active-size 300 --hare-committee-size 50 --hare-max-adversaries 24 --sync-request-timeout 60000 --post-labels 100 --max-inbound 12 --genesis-time 2020-01-06T16:23:33+00:00 --bootstrap --bootnodes spacemesh://EJ7QrHgAxvoBkMvmymrAwj48Lo2vTW1ifHetxqkD9Xtj@13.124.21.203:65417 -d ~/spacemeshtestdata/ > log.txt`;
+    exec(pathWithParams, (error) => {
+      if (error) {
+        console.error(error); // eslint-disable-line no-console
+      }
+      console.log('node started with provided params'); // eslint-disable-line no-console
+    });
   };
 }
 

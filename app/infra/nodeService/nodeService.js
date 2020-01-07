@@ -18,6 +18,10 @@ class NodeService {
   static hardRefresh() {
     ipcRenderer.send(ipcConsts.HARD_REFRESH);
   }
+
+  static tmpRunNodeFunc = ({ port }: { port: number }) => {
+    ipcRenderer.send(ipcConsts.TMP_RUN_NODE_CALL, { port });
+  };
 }
 
 export default NodeService;
