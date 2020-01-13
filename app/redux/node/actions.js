@@ -66,7 +66,7 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
 export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const genesisTime = await httpService.getGenesisTime();
-    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime: new Date(genesisTime).getTime() } });
+    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }

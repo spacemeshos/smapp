@@ -1,4 +1,5 @@
 // @flow
+import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateTransaction } from '/redux/wallet/actions';
@@ -199,7 +200,10 @@ class TransactionRow extends Component<Props, State> {
                 <TextRow key={detailRow.title}>
                   <BlackText>{detailRow.title}</BlackText>
                   <Dots>...............</Dots>
-                  <BoldText color={detailRow.color || smColors.realBlack}>
+                  <BoldText
+                    color={detailRow.color || smColors.realBlack}
+                    onClick={detailRow.title === 'TO' || detailRow.title === 'FROM' ? () => clipboard.writeText(detailRow.value) : null}
+                  >
                     {detailRow.value} {!nickname && this.renderAddToContactIcon({ isSent, title: detailRow.title })}
                   </BoldText>
                 </TextRow>

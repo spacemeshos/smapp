@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { checkNodeConnection } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { Button, Input, ErrorPopup } from '/basicComponents';
 import { nodeService } from '/infra/nodeService';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   position: relative;
@@ -70,6 +73,7 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
+  checkNodeConnection: Action,
   history: RouterHistory
 };
 
@@ -106,6 +110,14 @@ class PreAuth extends Component<Props, State> {
     );
   }
 
+  async componentDidMount() {
+    const { checkNodeConnection, history } = this.props;
+    const isConnected = await checkNodeConnection();
+    if (isConnected) {
+      history.push('/auth');
+    }
+  }
+
   handlePortTyping = ({ value }: { value: string }) => {
     this.setState({ port: value, hasError: false });
   };
@@ -123,5 +135,11 @@ class PreAuth extends Component<Props, State> {
     }
   };
 }
+
+const mapDispatchToProps = {
+  checkNodeConnection
+};
+
+PreAuth = connect(null, mapDispatchToProps)(PreAuth);
 
 export default PreAuth;
