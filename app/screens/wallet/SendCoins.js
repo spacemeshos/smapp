@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet';
 import { CreateNewContact } from '/components/contacts';
-import { cryptoConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
 
@@ -124,11 +123,12 @@ class SendCoins extends Component<Props, State> {
     ];
   };
 
-  updateTxAddress = ({ address }: { address: string }) => {
-    if (address && address.indexOf('0x') !== -1) {
-      this.setState({ address: address.substring(12), hasAddressError: false });
-    } else if (address.length === 40) {
-      this.setState({ address, hasAddressError: false });
+  updateTxAddress = ({ value }: { value: string }) => {
+    const trimmedValue = value ? value.trim() : '';
+    if (trimmedValue && trimmedValue.startsWith('0x') !== -1 && trimmedValue.length === 42) {
+      this.setState({ address: trimmedValue.substring(2), hasAddressError: false });
+    } else if (trimmedValue.length === 40) {
+      this.setState({ address: trimmedValue, hasAddressError: false });
     } else {
       this.setState({ address: '', hasAddressError: false });
     }
@@ -152,9 +152,9 @@ class SendCoins extends Component<Props, State> {
       currentAccount: { balance }
     } = this.props;
     const { address, amount, fee, hasAddressError, hasAmountError } = this.state;
-    if (!!address && !!amount && !hasAddressError && !hasAmountError) {
+    if (!!address && !!amount && amount + fee < balance && !hasAddressError && !hasAmountError) {
       this.setState({ mode: 2 });
-    } else if (!address || address.length !== cryptoConsts.PUB_KEY_LENGTH) {
+    } else if (!address || address.length !== 40) {
       this.setState({ hasAddressError: true });
     } else if (!amount || amount + fee > balance) {
       this.setState({ hasAmountError: true });

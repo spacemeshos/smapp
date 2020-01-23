@@ -1,12 +1,10 @@
 // @flow
-import { shell } from 'electron';
+import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
 import { getAbbreviatedText } from '/infra/utils';
 import { smColors } from '/vars';
-import type { Contact } from '/types';
-import AutoComplete from './AutoComplete';
 
 const Wrapper = styled.div`
   display: flex;
@@ -41,6 +39,22 @@ const DetailsRow = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
+`;
+
+const ActualInput = styled.input`
+  flex: 1;
+  width: 100%;
+  height: 40px;
+  padding: 8px 10px;
+  border-radius: 0;
+  border: 1px solid ${smColors.black};
+  color: ${smColors.black};
+  font-size: 14px;
+  line-height: 16px;
+  outline: none;
+  &:hover {
+    border: 1px solid ${smColors.purple};
+  }
 `;
 
 const DetailsText = styled.div`
@@ -101,9 +115,8 @@ const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
 type Props = {
   fromAddress: string,
   initialAddress: string,
-  contacts: Contact[],
   hasAddressError: boolean,
-  updateTxAddress: ({ address: string }) => void,
+  updateTxAddress: ({ value: string }) => void,
   resetAddressError: () => void,
   amount: string,
   updateTxAmount: ({ value: string }) => void,
@@ -112,25 +125,28 @@ type Props = {
   updateFee: ({ fee: number }) => void,
   note: string,
   updateTxNote: ({ value: string }) => void,
-  openCreateNewContact: () => void,
   nextAction: () => void,
   cancelTx: () => void
 };
 
 type State = {
+  address: string,
   selectedFeeIndex: number
 };
 
 class TxParams extends Component<Props, State> {
-  state = {
-    selectedFeeIndex: 0
-  };
+  constructor(props: Props) {
+    super(props);
+    const { initialAddress } = props;
+    this.state = {
+      address: initialAddress || '',
+      selectedFeeIndex: 0
+    };
+  }
 
   render() {
     const {
       fromAddress,
-      initialAddress,
-      contacts,
       hasAddressError,
       updateTxAddress,
       resetAddressError,
@@ -140,11 +156,10 @@ class TxParams extends Component<Props, State> {
       resetAmountError,
       note,
       updateTxNote,
-      openCreateNewContact,
       nextAction,
       cancelTx
     } = this.props;
-    const { selectedFeeIndex } = this.state;
+    const { address, selectedFeeIndex } = this.state;
     return (
       <Wrapper>
         <Header>
@@ -154,7 +169,7 @@ class TxParams extends Component<Props, State> {
         <SubHeader>--</SubHeader>
         <DetailsRow>
           <DetailsText>To</DetailsText>
-          <AutoComplete initialAddress={initialAddress} onChange={updateTxAddress} contacts={contacts} openCreateNewContact={openCreateNewContact} />
+          <ActualInput value={address} onChange={updateTxAddress} onPaste={this.onPaste} type="text" maxLength="42" />
           {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
@@ -194,6 +209,14 @@ class TxParams extends Component<Props, State> {
       {label} {text}
     </Fee>
   );
+
+  onPaste = () => {
+    const { updateTxAddress } = this.props;
+    const clipboardValue = clipboard.readText();
+    const address = clipboardValue.startsWith('0x') ? clipboardValue.substring(2) : clipboardValue;
+    this.setState({ address: clipboardValue });
+    updateTxAddress({ value: address });
+  };
 
   selectFee = ({ index }: { index: number }) => {
     const { updateFee } = this.props;

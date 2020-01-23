@@ -38,11 +38,6 @@ class NodeManager {
 
   static killNodeProcess = async ({ event }) => {
     try {
-      // const isDevMode = process.env.NODE_ENV === 'development';
-      // if (isDevMode) {
-      //   // eslint-disable-next-line no-param-reassign
-      //   event.returnValue = null;
-      // } else {
       const processes = await getPidByName({ name: 'go-spacemesh' });
       if (processes) {
         const command = `kill -s INT ${processes[0].pid} ${processes[1].pid}`;
@@ -52,7 +47,6 @@ class NodeManager {
           }
           event.returnValue = null; // eslint-disable-line no-param-reassign
         });
-        // process.kill(process.pid, 'SIGINT');
       }
       // }
     } catch (err) {
@@ -63,13 +57,17 @@ class NodeManager {
 
   static tmpRunNodeFunc = ({ port }) => {
     const homeDirPath = app.getPath('home');
-    const dataPath = path.resolve(`${homeDirPath}`, 'spacemesh');
-    const testDataPath = path.resolve(`${homeDirPath}`, 'spacemeshtestdata');
-    const postDataPath = path.resolve(`${homeDirPath}`, 'post');
-    const command = `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath} && rm -rf log.txt`;
+    const dataPath = path.resolve(homeDirPath, 'spacemesh');
+    const testDataPath = path.resolve(homeDirPath, 'spacemeshtestdata');
+    const postDataPath = path.resolve(homeDirPath, 'post');
+    const logFilePath = path.resolve(app.getPath('documents'), 'spacemeshLog.txt');
+    const command =
+      os.type() === 'windows'
+        ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath} && del ${logFilePath}`
+        : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
     exec(command, (err) => {
       if (!err) {
-        const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} --poet-server spacemesh-testnet-poet-grpc-lb-949d0cde858743fb.elb.us-east-1.amazonaws.com:50002 --post-space 8589934592 --test-mode --randcon 8 --layer-duration-sec 180 --hare-wakeup-delta 30 --hare-round-duration-sec 30 --layers-per-epoch 480 --eligibility-confidence-param 200 --eligibility-epoch-offset 0 --layer-average-size 50 --genesis-active-size 300 --hare-committee-size 50 --hare-max-adversaries 24 --sync-request-timeout 60000 --post-labels 100 --max-inbound 12 --genesis-time 2020-01-08T21:31:19+00:00 --bootstrap --bootnodes spacemesh://3augAJDbLGyXGfGxQT3GvTPaBdvbDLx8tyH7vZrGnRJT@54.180.96.161:64587 -d ~/spacemeshtestdata/ > log.txt`;
+        const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} --poet-server spacemesh-testnet-poet-grpc-lb-949d0cde858743fb.elb.us-east-1.amazonaws.com:50002 --post-space 8589934592 --test-mode --randcon 8 --layer-duration-sec 180 --hare-wakeup-delta 30 --hare-round-duration-sec 30 --layers-per-epoch 480 --eligibility-confidence-param 200 --eligibility-epoch-offset 0 --layer-average-size 50 --genesis-active-size 300 --hare-committee-size 50 --hare-max-adversaries 24 --sync-request-timeout 60000 --post-labels 100 --max-inbound 12 --genesis-time 2020-01-08T21:31:19+00:00 --bootstrap --bootnodes spacemesh://3augAJDbLGyXGfGxQT3GvTPaBdvbDLx8tyH7vZrGnRJT@54.180.96.161:64587 -d ~/spacemeshtestdata/ > ${logFilePath}`;
         exec(pathWithParams, (error) => {
           if (error) {
             console.error(error); // eslint-disable-line no-console

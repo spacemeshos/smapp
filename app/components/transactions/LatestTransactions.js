@@ -28,6 +28,7 @@ const Header = styled.div`
 const TxWrapper = styled.div`
   display: flex;
   flex-direction: row;
+  margin-bottom: 10px;
 `;
 
 const Icon = styled.img`

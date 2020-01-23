@@ -31,7 +31,7 @@ const asyncForEach = async (array, callback) => {
 const getFormattedTimestamp = (timestamp: string) => {
   const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
   const dateObj = new Date(timestamp);
-  return `${dateObj.toLocaleDateString('en-US', options).replace(',', '')} - ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
+  return dateObj.toLocaleDateString('en-US', options).replace(',', '');
 };
 
 const getAddress = (key: string) => key.substring(24);

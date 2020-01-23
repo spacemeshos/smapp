@@ -186,12 +186,12 @@ export const addTransaction = ({ tx, accountPK }: { tx: Tx, accountPK?: string }
   }
 };
 
-export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, updateAll: boolean, accountPK?: string }): Action => async (
+export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, updateAll: boolean, accountPK?: string }): Action => (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   try {
-    const { accounts, transactions, currentAccountIndex, walletFiles } = getState().wallet;
+    const { accounts, transactions, currentAccountIndex } = getState().wallet;
     const index: number = accountPK ? accounts.findIndex((account) => account.publicKey === accountPK) : currentAccountIndex;
     let transactionsArray: TxList = [];
     if (updateAll) {
@@ -201,7 +201,7 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
       transactionsArray = [...transactions[index].data.slice(0, txIndex), tx, ...transactions[index].data.slice(txIndex + 1)];
     }
     const updatedTransactions = [...transactions.slice(0, index), { layerId: transactions[index].layerId, data: transactionsArray }, ...transactions.slice(index + 1)];
-    dispatch(setTransactions({ transactions: updatedTransactions, fileName: walletFiles[0] }));
+    dispatch(setTransactions({ transactions: updatedTransactions }));
   } catch (error) {
     throw createError(error.message, () => updateTransaction({ tx, updateAll, accountPK }));
   }
