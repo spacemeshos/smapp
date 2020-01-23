@@ -12,6 +12,7 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
+import { getAddress } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,16 +25,17 @@ const Text = styled.span`
   line-height: 22px;
 `;
 
-const BoldText = styled.span`
+const Header = styled.span`
   font-family: SourceCodeProBold;
-  margin-bottom: 24px;
+  margin-bottom: 25px;
 `;
 
 const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
   overflow-y: scroll;
-  margin-bottom: 6px;
+  margin: 0 -10px 10px -10px;
+  padding: 0 10px;
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
@@ -65,14 +67,15 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
     received: 0
   };
 
-  transactions.forEach(({ status, sender, receiver, amount }: { status: number, sender: string, receiver: string, amount: number }) => {
+  transactions.forEach(({ txId, status, sender, amount }: { txId: string, status: number, sender: string, amount: number }) => {
+    const address = getAddress(publicKey);
     if (status !== TX_STATUSES.REJECTED) {
-      if (sender === publicKey) {
-        coins.sent += amount;
-      } else if (receiver === publicKey) {
-        coins.received += amount;
-      } else {
+      if (txId === 'reward') {
         coins.mined += amount;
+      } else if (sender === address) {
+        coins.sent += amount;
+      } else {
+        coins.received += amount;
       }
     }
   });
@@ -126,7 +129,7 @@ class Transactions extends Component<Props, State> {
       <Wrapper>
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
         <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
-          <BoldText>Latest transactions</BoldText>
+          <Header>Latest transactions</Header>
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
               filteredTransactions.map((tx, index) => (

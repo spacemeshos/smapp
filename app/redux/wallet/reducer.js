@@ -27,14 +27,14 @@ const initialState = {
   isUpdateDownloading: false
 };
 
-const getFirst3UniqueAddresses = (txList: TxList): Contact[] => {
+const getFirst3UniqueAddresses = (txList: TxList, ownAddress): Contact[] => {
   const unique = new Set();
-  for (let i = 0; i < txList.length && i < 3; i += 1) {
-    if (!unique.has(txList[i])) {
+  for (let i = 0; i < txList.length && i < 10; i += 1) {
+    if (!unique.has(txList[i]) && txList[i].receiver !== ownAddress) {
       unique.add(txList[i]);
     }
   }
-  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.address, nickname: uniqueTx.nickname || '' }));
+  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.receiver, nickname: uniqueTx.nickname || '' }));
 };
 
 const reducer = (state: StoreStateType = initialState, action: Action) => {
@@ -68,7 +68,7 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         transactions,
         lastUsedContacts:
           transactions[state.currentAccountIndex] && transactions[state.currentAccountIndex].data.length
-            ? getFirst3UniqueAddresses(transactions[state.currentAccountIndex].data)
+            ? getFirst3UniqueAddresses(transactions[state.currentAccountIndex].data, state.accounts[state.currentAccountIndex].publicKey.substring(24))
             : []
       };
     }

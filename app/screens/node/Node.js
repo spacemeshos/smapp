@@ -183,7 +183,7 @@ class Node extends Component<Props, State> {
             {rewards.map((reward, index) => (
               <div key={`reward${index}`}>
                 <LogEntry>
-                  <LogText>12.09.19 - 13:10</LogText>
+                  <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
                   <AwardText>Smeshing reward: {reward.totalReward} SMG</AwardText>
                   <AwardText>Smeshing fee reward: {reward.totalReward - reward.layerRewardEstimate} SMG</AwardText>
                 </LogEntry>

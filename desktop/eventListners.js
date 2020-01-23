@@ -71,8 +71,12 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
 
-  ipcMain.once(ipcConsts.QUIT_NODE, (event) => {
+  ipcMain.once(ipcConsts.KILL_NODE, (event) => {
     NodeManager.killNodeProcess({ event });
+  });
+
+  ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
+    NodeManager.tmpRunNodeFunc({ event, ...request });
   });
 
   /**

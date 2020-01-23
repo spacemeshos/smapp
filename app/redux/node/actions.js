@@ -2,7 +2,7 @@
 import { addTransaction } from '/redux/wallet/actions';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
-import { createError, asyncForEach } from '/infra/utils';
+import { createError, getAddress } from '/infra/utils';
 import { nodeConsts } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import { Action, Dispatch, GetState } from '/types';
@@ -66,7 +66,7 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
 export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const genesisTime = await httpService.getGenesisTime();
-    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime: new Date(genesisTime).getTime() } });
+    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }
@@ -111,18 +111,18 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
       notify();
       localStorageService.set('rewards', rewards);
       const newRewards = [...rewards.slice(prevRewards.length)];
-      await asyncForEach(newRewards, async (reward) => {
+      newRewards.forEach((reward) => {
         const tx = {
           txId: 'reward',
-          sender: '',
-          receiver: accounts[currentAccountIndex].publicKey,
+          sender: null,
+          receiver: getAddress(accounts[currentAccountIndex].publicKey),
           amount: reward.totalReward,
           fee: 0,
           status: TX_STATUSES.CONFIRMED,
           layerId: reward.layer,
           timestamp: new Date().getTime()
         };
-        await dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
+        dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
       });
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
     }

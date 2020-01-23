@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -163,7 +163,7 @@ class AccountsOverview extends Component<Props, State> {
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(`0x${accounts[currentAccountIndex].publicKey}`);
+    clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };

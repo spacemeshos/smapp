@@ -6,3 +6,4 @@ export { Backup, BackupRoot, TwelveWordsBackup, TestMe, FileBackup } from './bac
 export { Transactions } from './transactions';
 export { Contacts } from './contacts';
 export { Settings } from './settings';
+export { PreAuth } from './preAuth';
