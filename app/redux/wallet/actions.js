@@ -220,7 +220,7 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
       hasConfirmedIncomingTxs =
         !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
       hasConfirmedOutgoingTxs =
-        !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver !== address;
+        !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
       unifiedTxList[existingListMap[tx.txId].index] = tx.timestamp ? tx : { ...tx, timestamp: existingListMap[tx.txId].tx.timestamp };
     } else {
       hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
@@ -263,7 +263,7 @@ export const getTxList = ({ notify }: { notify: Function }): Action => async (di
           const { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = mergeTxStatuses({
             existingList: transactions[index].data,
             incomingList: fullDataTxsList,
-            address: account.publicKey
+            address: getAddress(account.publicKey)
           });
           if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
             notify({ hasConfirmedIncomingTxs });

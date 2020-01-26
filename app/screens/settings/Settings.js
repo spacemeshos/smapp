@@ -16,6 +16,7 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
+import { getAddress } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -214,7 +215,7 @@ class Settings extends Component<Props, State> {
                       <Link onClick={() => this.startEditingAccountDisplayName({ index })} text="EDIT" />
                     )
                   }
-                  rowName={account.publicKey}
+                  rowName={getAddress(account.publicKey)}
                   key={account.publicKey}
                 />
               ))}

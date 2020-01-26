@@ -93,38 +93,20 @@ type Props = {
 
 type State = {
   selectedItemIndex: number,
-  filteredTransactions: TxList,
-  mined: number,
-  sent: number,
-  received: number,
-  totalMined: number,
-  totalSent: number,
-  totalReceived: number,
   addressToAdd: string
 };
 
 class Transactions extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    const { publicKey, transactions } = props;
-    const filteredTransactions = this.filterTransactions({ index: 1, transactions });
-    const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
-    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions.data });
-    this.state = {
-      selectedItemIndex: 1,
-      filteredTransactions,
-      mined: 0,
-      ...coins,
-      totalMined: totalCoins.mined,
-      totalSent: totalCoins.sent,
-      totalReceived: totalCoins.received,
-      addressToAdd: ''
-    };
-  }
+  state = {
+    selectedItemIndex: 1,
+    addressToAdd: ''
+  };
 
   render() {
-    const { history, publicKey } = this.props;
-    const { selectedItemIndex, filteredTransactions, mined, sent, received, totalMined, totalSent, totalReceived, addressToAdd } = this.state;
+    const { history, publicKey, transactions } = this.props;
+    const { selectedItemIndex, addressToAdd } = this.state;
+    const filteredTransactions = this.filterTransactions({ index: selectedItemIndex, transactions });
+    const { mined, sent, received, totalMined, totalSent, totalReceived } = this.getCoinStatistics({ filteredTransactions });
     return (
       <Wrapper>
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
@@ -168,26 +150,26 @@ class Transactions extends Component<Props, State> {
     );
   }
 
+  getCoinStatistics = ({ filteredTransactions }: { filteredTransactions: TxList }) => {
+    const { publicKey, transactions } = this.props;
+    const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
+    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions.data });
+    return {
+      ...coins,
+      totalMined: totalCoins.mined,
+      totalSent: totalCoins.sent,
+      totalReceived: totalCoins.received
+    };
+  };
+
   handleCompleteAction = () => {
-    const { transactions } = this.props;
-    const { selectedItemIndex } = this.state;
-    const filteredTransactions = this.filterTransactions({ index: selectedItemIndex, transactions });
-    this.setState({ addressToAdd: '', filteredTransactions: [...filteredTransactions] });
+    this.setState({ addressToAdd: '' });
   };
 
   handlePress = ({ index }) => {
-    const { transactions, publicKey } = this.props;
-    const filteredTransactions = this.filterTransactions({ index, transactions });
-    const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
     this.setState({
-      selectedItemIndex: index,
-      filteredTransactions: [...filteredTransactions],
-      ...coins
+      selectedItemIndex: index
     });
-  };
-
-  cancelCreatingNewContact = () => {
-    this.setState({ addressToAdd: '' });
   };
 
   filterTransactions = ({ index, transactions }) => {
@@ -197,6 +179,10 @@ class Transactions extends Component<Props, State> {
       const startDate = +new Date() - spanInDays[index] * oneDayInMs;
       return transaction.timestamp >= startDate;
     });
+  };
+
+  cancelCreatingNewContact = () => {
+    this.setState({ addressToAdd: '' });
   };
 
   navigateToContacts = () => {

@@ -3,7 +3,7 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
@@ -116,7 +116,7 @@ class RequestCoins extends Component<Props, State> {
         <SubHeader>
           <Text>Request SMH by sharing your wallet&apos;s address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
-            <AddressText>{getAbbreviatedText(account.publicKey.substring(24), true)}</AddressText>
+            <AddressText>{getAbbreviatedText(getAddress(account.publicKey), true)}</AddressText>
             <CopyIcon src={copyToClipboard} />
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>
@@ -148,7 +148,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(`0x${account.publicKey.substring(24)}`);
+    clipboard.writeText(`0x${getAddress(account.publicKey)}`);
   }
 
   componentWillUnmount() {
@@ -161,7 +161,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(`0x${account.publicKey.substring(24)}`);
+    clipboard.writeText(`0x${getAddress(account.publicKey)}`);
     this.setState({ isCopied: true });
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
   };

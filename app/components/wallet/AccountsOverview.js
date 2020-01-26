@@ -154,7 +154,7 @@ class AccountsOverview extends Component<Props, State> {
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
-        {getAbbreviatedText(publicKey)}
+        {getAbbreviatedText(getAddress(publicKey))}
         <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
