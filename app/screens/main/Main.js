@@ -248,7 +248,7 @@ class Main extends Component<Props, State> {
           notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
           callback: () => history.push('/main/transactions')
         });
-      } }), 10000);
+      } }), 30000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
         isConnected && getMiningStatus();
@@ -277,7 +277,7 @@ class Main extends Component<Props, State> {
             notification: 'Received a reward for smeshing!',
             callback: () => this.handleNavigation({ index: 0 })
           });
-        } }), 10000);
+        } }), 50000);
     }
   }
 

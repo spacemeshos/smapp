@@ -202,7 +202,7 @@ class TransactionRow extends Component<Props, State> {
   renderDetails = () => {
     const {
       tx,
-      tx: { txId, nickname, status, color, layerId, isSent, sender, amount, fee },
+      tx: { txId, nickname, status, color, layerId, isSent, sender, receiver, amount, fee },
       publicKey
     } = this.props;
     const { note } = this.state;
@@ -241,7 +241,7 @@ class TransactionRow extends Component<Props, State> {
           <TextRow>
             <BlackText>TRANSACTION ID</BlackText>
             <Dots>...............</Dots>
-            <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ sender: txId })}>
+            <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ id: txId })}>
               {getAbbreviatedText(txId)}
             </BoldText>
           </TextRow>
@@ -258,17 +258,17 @@ class TransactionRow extends Component<Props, State> {
           <TextRow>
             <BlackText>FROM</BlackText>
             <Dots>...............</Dots>
-            <BoldText color={smColors.realBlack} onClick={!isSent ? () => this.copyAddress({ sender }) : null}>
-              {isSent ? `${getAbbreviatedText(publicKey)} (Me)` : nickname || getAbbreviatedText(sender)}
-              {!isSent && !nickname && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+            <BoldText color={smColors.realBlack} onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
+              {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
+              {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
             </BoldText>
           </TextRow>
           <TextRow>
             <BlackText>TO</BlackText>
             <Dots>...............</Dots>
-            <BoldText color={smColors.realBlack} onClick={isSent ? () => this.copyAddress({ sender }) : null}>
-              {isSent ? nickname || getAbbreviatedText(sender) : `${getAbbreviatedText(publicKey)} (Me)`}
-              {isSent && !nickname && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+            <BoldText color={smColors.realBlack} onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
+              {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
+              {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
             </BoldText>
           </TextRow>
           <TextRow>
@@ -310,12 +310,9 @@ class TransactionRow extends Component<Props, State> {
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
 
-  handleAddToContacts = (event: Event) => {
+  handleAddToContacts = (event: Event, address: string) => {
     event.stopPropagation();
-    const {
-      tx: { address },
-      addAddressToContacts
-    } = this.props;
+    const { addAddressToContacts } = this.props;
     addAddressToContacts({ address });
   };
 
@@ -337,8 +334,8 @@ class TransactionRow extends Component<Props, State> {
     this.setState({ isDetailed: !isDetailed });
   };
 
-  copyAddress = ({ sender }: { sender: string }) => {
-    clipboard.writeText(`0x${sender}`);
+  copyAddress = ({ id }: { id: string }) => {
+    clipboard.writeText(`0x${id}`);
     this.setState({ wasCopied: true });
   };
 }
