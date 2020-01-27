@@ -212,23 +212,28 @@ class TransactionRow extends Component<Props, State> {
           <LeftDetails>
             <TextRow>
               <BlackText>STATUS</BlackText>
-              <Dots>...............</Dots>
+              <Dots>............</Dots>
               <BoldText color={color}>{this.statuses[status]}</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>LAYER ID</BlackText>
-              <Dots>...............</Dots>
+              <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>{layerId}</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>TO</BlackText>
-              <Dots>...............</Dots>
+              <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>ME</BoldText>
             </TextRow>
             <TextRow>
-              <BlackText>AMOUNT</BlackText>
-              <Dots>...............</Dots>
+              <BlackText>SMESHING REWARD</BlackText>
+              <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>{amount} SMG</BoldText>
+            </TextRow>
+            <TextRow>
+              <BlackText>SMESHING FEE REWARD</BlackText>
+              <Dots>............</Dots>
+              <BoldText color={smColors.realBlack}>{fee || 0} SMG</BoldText>
             </TextRow>
           </LeftDetails>
           <RightDetails />
@@ -240,24 +245,24 @@ class TransactionRow extends Component<Props, State> {
         <LeftDetails>
           <TextRow>
             <BlackText>TRANSACTION ID</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ id: txId })}>
               {getAbbreviatedText(txId)}
             </BoldText>
           </TextRow>
           <TextRow>
             <BlackText>STATUS</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={color}>{this.statuses[status]}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>LAYER ID</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack}>{layerId}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>FROM</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack} onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
               {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
               {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
@@ -265,7 +270,7 @@ class TransactionRow extends Component<Props, State> {
           </TextRow>
           <TextRow>
             <BlackText>TO</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack} onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
               {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
               {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
@@ -273,12 +278,12 @@ class TransactionRow extends Component<Props, State> {
           </TextRow>
           <TextRow>
             <BlackText>VALUE</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack}>{amount} SMG</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>TRANSACTION FEE</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack}>{fee || 0} SMG</BoldText>
           </TextRow>
         </LeftDetails>

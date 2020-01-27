@@ -77,7 +77,7 @@ export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getSt
     const awardLayerNumbers = await httpService.getUpcomingRewards();
     const { genesisTime } = getState().node;
     const currentLayer = Math.floor((new Date().getTime() - genesisTime) / nodeConsts.TIME_BETWEEN_LAYERS);
-    const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer >= currentLayer);
+    const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer > currentLayer);
     dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
@@ -109,7 +109,6 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
     const prevRewards = localStorageService.get('rewards') || [];
     if (prevRewards.length < rewards.length) {
       notify();
-      localStorageService.set('rewards', rewards);
       const newRewards = [...rewards.slice(prevRewards.length)];
       newRewards.forEach((reward) => {
         const tx = {
@@ -117,11 +116,12 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
           sender: null,
           receiver: getAddress(accounts[currentAccountIndex].publicKey),
           amount: reward.totalReward,
-          fee: 0,
+          fee: reward.totalReward - reward.layerRewardEstimate,
           status: TX_STATUSES.CONFIRMED,
           layerId: reward.layer,
           timestamp: new Date().getTime()
         };
+        localStorageService.set('rewards', newRewards);
         dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
       });
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });

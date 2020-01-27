@@ -184,8 +184,8 @@ class Node extends Component<Props, State> {
               <div key={`reward${index}`}>
                 <LogEntry>
                   <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                  <AwardText>Smeshing reward: {reward.totalReward} SMG</AwardText>
-                  <AwardText>Smeshing fee reward: {reward.totalReward - reward.layerRewardEstimate} SMG</AwardText>
+                  <AwardText>Smeshing reward: {reward.amount} SMG</AwardText>
+                  <AwardText>Smeshing fee reward: {reward.fee} SMG</AwardText>
                 </LogEntry>
                 <LogEntrySeparator>...</LogEntrySeparator>
               </div>
@@ -204,7 +204,7 @@ class Node extends Component<Props, State> {
     }
   }
 
-  componentWillUnmount(): * {
+  componentWillUnmount() {
     this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
     this.fireworksTimeout && clearTimeout(this.fireworksTimeout);
   }
@@ -279,7 +279,7 @@ class Node extends Component<Props, State> {
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
         <Dots>.............................</Dots>
-        <RightText>{timeTillNextAward || timeTillNextAward === 0 ? `${timeTillNextAward} min` : 'Not available'}</RightText>
+        <RightText>{timeTillNextAward} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
