@@ -184,8 +184,8 @@ class Node extends Component<Props, State> {
               <div key={`reward${index}`}>
                 <LogEntry>
                   <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                  <AwardText>Smeshing reward: {reward.totalReward} SMG</AwardText>
-                  <AwardText>Smeshing fee reward: {reward.totalReward - reward.layerRewardEstimate} SMG</AwardText>
+                  <AwardText>Smeshing reward: {reward.amount} SMG</AwardText>
+                  <AwardText>Smeshing fee reward: {reward.fee} SMG</AwardText>
                 </LogEntry>
                 <LogEntrySeparator>...</LogEntrySeparator>
               </div>

@@ -6,6 +6,7 @@ import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet'
 import { CreateNewContact } from '/components/contacts';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
+import { getAddress } from '../../infra/utils';
 
 type Props = {
   contacts: Contact[],
@@ -136,9 +137,12 @@ class SendCoins extends Component<Props, State> {
   updateFee = ({ fee }: { fee: number }) => this.setState({ fee });
 
   validateAddress = () => {
+    const { currentAccount } = this.props;
     const { address } = this.state;
     const trimmedValue = address ? address.trim() : '';
-    return (trimmedValue && trimmedValue.startsWith('0x') !== -1 && trimmedValue.length === 42) || trimmedValue.length === 40;
+    return (
+      trimmedValue && ((trimmedValue.startsWith('0x') !== -1 && trimmedValue.length === 42) || trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
+    );
   };
 
   validateAmount = () => {
