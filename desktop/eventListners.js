@@ -5,7 +5,13 @@ import NodeManager from './nodeManager';
 import DiskStorageManager from './diskStorageManager';
 // eslint-disable-next-line import/no-cycle
 import netService from './netService';
-import WalletAutoStarter from './autoStartManager';
+import AutoStartManager from './autoStartManager';
+
+const Store = require('electron-store');
+
+const store = new Store();
+
+const autoStartManager = new AutoStartManager(store);
 
 const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.READ_FILE, (event, request) => {
@@ -56,11 +62,11 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
-    WalletAutoStarter.toggleAutoStart();
+    autoStartManager.toggleAutoStart();
   });
 
   ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
-    WalletAutoStarter.isEnabled({ event });
+    autoStartManager.isEnabled({ event });
   });
 
   ipcMain.on(ipcConsts.START_NODE, (event) => {
@@ -76,7 +82,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
-    NodeManager.tmpRunNodeFunc({ event, ...request });
+    NodeManager.tmpRunNodeFunc({ event, store, ...request });
   });
 
   /**

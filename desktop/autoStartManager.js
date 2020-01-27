@@ -1,30 +1,27 @@
 import AutoLaunch from 'auto-launch';
 import { ipcConsts } from '../app/vars';
 
-const Store = require('electron-store');
-
-const store = new Store();
-
-class WalletAutoStarter {
-  constructor() {
-    this.walletAutoStarter = new AutoLaunch({
+class AutoStartManager {
+  constructor(store) {
+    this.autoStartManager = new AutoLaunch({
       name: 'Spacemesh',
       isHidden: true
     });
-    if (store.get('isAutoStartEnabled')) {
-      this.walletAutoStarter.enable();
+    this.store = store;
+    if (this.store.get('isAutoStartEnabled')) {
+      this.autoStartManager.enable();
     }
   }
 
   toggleAutoStart = async () => {
     try {
-      const isEnabled = await this.walletAutoStarter.isEnabled();
+      const isEnabled = await this.autoStartManager.isEnabled();
       if (isEnabled) {
-        this.walletAutoStarter.disable();
+        this.autoStartManager.disable();
       } else {
-        this.walletAutoStarter.enable();
+        this.autoStartManager.enable();
       }
-      store.set('isAutoStartEnabled', !isEnabled);
+      this.store.set('isAutoStartEnabled', !isEnabled);
     } catch (error) {
       console.error(error); // eslint-disable-line no-console
     }
@@ -32,8 +29,8 @@ class WalletAutoStarter {
 
   isEnabled = async ({ event }) => {
     try {
-      const isEnabled = await this.walletAutoStarter.isEnabled();
-      store.set('isAutoStartEnabled', isEnabled);
+      const isEnabled = await this.autoStartManager.isEnabled();
+      this.store.set('isAutoStartEnabled', isEnabled);
       event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, isEnabled);
     } catch (error) {
       event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, false);
@@ -41,4 +38,4 @@ class WalletAutoStarter {
   };
 }
 
-export default new WalletAutoStarter();
+export default AutoStartManager;
