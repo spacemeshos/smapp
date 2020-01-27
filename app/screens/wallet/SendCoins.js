@@ -151,7 +151,7 @@ class SendCoins extends Component<Props, State> {
     } = this.props;
     const { amount, fee } = this.state;
     const intAmount = parseInt(amount);
-    return !intAmount || intAmount + fee > balance;
+    return !!intAmount && intAmount + fee < balance;
   };
 
   proceedToMode2 = () => {
