@@ -115,6 +115,19 @@ class FileManager {
     }
   };
 
+  static cleanWalletFile = async () => {
+    const files = await readDirectoryAsync(appFilesDirPath);
+    const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
+    const filteredFiles = files.filter((file) => file.match(regex));
+    if (filteredFiles.length) {
+      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
+      const fileContent = await readFileAsync(filesWithPath[0]);
+      const parsedData = JSON.parse(fileContent);
+      parsedData.transactions = { layerId: 0, data: [] };
+      await writeFileAsync(filesWithPath[0], JSON.stringify(parsedData));
+    }
+  };
+
   static deleteWalletFile = async ({ browserWindow, fileName }) => {
     const options = {
       title: 'Delete File',

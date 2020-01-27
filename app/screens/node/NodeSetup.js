@@ -169,11 +169,12 @@ class NodeSetup extends Component<Props, State> {
 
   setupAndInitMining = async () => {
     const { initMining, accounts, history } = this.props;
-    const { drives, selectedCommitmentSize, selectedDriveIndex } = this.state;
+    // const { drives, selectedCommitmentSize, selectedDriveIndex } = this.state;
+    const { drives, selectedDriveIndex } = this.state;
     try {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
-        commitmentSize: selectedCommitmentSize * 1073741824,
+        commitmentSize: 1048576,
         address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
