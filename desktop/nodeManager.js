@@ -81,8 +81,8 @@ class NodeManager {
         await FileManager.cleanWalletFile();
         const command =
           os.type() === 'windows'
-            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath} && del ${logFilePath}`
-            : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
+            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath}`
+            : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath}`;
         exec(command, (err) => {
           if (!err) {
             exec(pathWithParams, (error) => {
