@@ -6,6 +6,7 @@ import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet'
 import { CreateNewContact } from '/components/contacts';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
+import { getAddress } from '../../infra/utils';
 
 type Props = {
   contacts: Contact[],
@@ -21,7 +22,7 @@ type State = {
   mode: 1 | 2 | 3,
   address: string,
   hasAddressError: boolean,
-  amount: number,
+  amount: number | string,
   hasAmountError: boolean,
   note: string,
   fee: number,
@@ -124,40 +125,46 @@ class SendCoins extends Component<Props, State> {
   };
 
   updateTxAddress = ({ value }: { value: string }) => {
-    const trimmedValue = value ? value.trim() : '';
-    if (trimmedValue && trimmedValue.startsWith('0x') !== -1 && trimmedValue.length === 42) {
-      this.setState({ address: trimmedValue.substring(2), hasAddressError: false });
-    } else if (trimmedValue.length === 40) {
-      this.setState({ address: trimmedValue, hasAddressError: false });
-    } else {
-      this.setState({ address: '', hasAddressError: false });
-    }
+    this.setState({ address: value, hasAddressError: false });
   };
 
   updateTxAmount = ({ value }: { value: string }) => {
-    if (value && value.trim()) {
-      const integerValue = parseInt(value);
-      this.setState({ amount: integerValue });
-    } else {
-      this.setState({ amount: 0 });
-    }
+    this.setState({ amount: value, hasAmountError: false });
   };
 
   updateTxNote = ({ value }: { value: string }) => this.setState({ note: value });
 
   updateFee = ({ fee }: { fee: number }) => this.setState({ fee });
 
-  proceedToMode2 = () => {
+  validateAddress = () => {
+    const { currentAccount } = this.props;
+    const { address } = this.state;
+    const trimmedValue = address ? address.trim() : '';
+    return (
+      trimmedValue && ((trimmedValue.startsWith('0x') !== -1 && trimmedValue.length === 42) || trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
+    );
+  };
+
+  validateAmount = () => {
     const {
       currentAccount: { balance }
     } = this.props;
-    const { address, amount, fee, hasAddressError, hasAmountError } = this.state;
-    if (!!address && !!amount && amount + fee < balance && !hasAddressError && !hasAmountError) {
-      this.setState({ mode: 2 });
-    } else if (!address || address.length !== 40) {
+    const { amount, fee } = this.state;
+    const intAmount = parseInt(amount);
+    return !!intAmount && intAmount + fee < balance;
+  };
+
+  proceedToMode2 = () => {
+    const { address, amount } = this.state;
+    if (!this.validateAddress()) {
       this.setState({ hasAddressError: true });
-    } else if (!amount || amount + fee > balance) {
+    }
+    if (!this.validateAmount()) {
       this.setState({ hasAmountError: true });
+    } else {
+      let trimmedAddress = address.trim();
+      trimmedAddress = trimmedAddress.startsWith('0x') ? trimmedAddress.substring(2) : trimmedAddress;
+      this.setState({ address: trimmedAddress, amount: parseInt(amount), mode: 2 });
     }
   };
 

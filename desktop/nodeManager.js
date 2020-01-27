@@ -1,10 +1,17 @@
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
+import util from 'util';
 import { app } from 'electron';
 import { ipcConsts } from '../app/vars';
+import FileManager from './fileManager';
 
 const { execFile, exec } = require('child_process');
+const fetch = require('node-fetch');
+const toml = require('toml');
 const find = require('find-process');
+
+const writeFileAsync = util.promisify(fs.writeFile);
 
 const osTargetNames = {
   Darwin: 'mac',
@@ -55,6 +62,7 @@ class NodeManager {
     }
   };
 
+<<<<<<< HEAD
   static tmpRunNodeFunc = ({ port }) => {
     const homeDirPath = app.getPath('home');
     const dataPath = path.resolve(homeDirPath, 'spacemesh');
@@ -74,6 +82,52 @@ class NodeManager {
       }
       console.log('node started with provided params'); // eslint-disable-line no-console
     });
+=======
+  static tmpRunNodeFunc = async ({ port, store }) => {
+    const rawData = await fetch('http://nodes.unruly.io');
+    const tomlData = await rawData.text();
+    try {
+      const parsedToml = toml.parse(tomlData);
+      const fetchedGenesisTime = parsedToml.main['genesis-time'];
+      const prevGenesisTime = store.get('genesisTime') || '';
+      const homeDirPath = app.getPath('home');
+      const dataPath = path.resolve(homeDirPath, 'spacemesh');
+      const testDataPath = path.resolve(homeDirPath, 'spacemeshtestdata');
+      const postDataPath = path.resolve(homeDirPath, 'post');
+      const logFilePath = path.resolve(app.getPath('documents'), 'spacemeshLog.txt');
+      const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} -d ~/spacemeshtestdata/ >> ${logFilePath}`;
+      await writeFileAsync('./config.toml', tomlData);
+      if (prevGenesisTime !== fetchedGenesisTime) {
+        store.set('genesisTime', fetchedGenesisTime);
+        await FileManager.cleanWalletFile();
+        const command =
+          os.type() === 'windows'
+            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath}`
+            : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath}`;
+        exec(command, (err) => {
+          if (!err) {
+            exec(pathWithParams, (error) => {
+              if (error) {
+                console.error(error); // eslint-disable-line no-console
+              }
+              console.log('node started with provided params'); // eslint-disable-line no-console
+            });
+          } else {
+            console.error(err); // eslint-disable-line no-console
+          }
+        });
+      } else {
+        exec(pathWithParams, (error) => {
+          if (error) {
+            console.error(error); // eslint-disable-line no-console
+          }
+          console.log('node started with provided params'); // eslint-disable-line no-console
+        });
+      }
+    } catch (e) {
+      console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+    }
+>>>>>>> eceebeba961b2b8f66ad2aaf8ddfd4f7b6c22bcb
   };
 }
 

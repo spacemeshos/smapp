@@ -202,7 +202,7 @@ class TransactionRow extends Component<Props, State> {
   renderDetails = () => {
     const {
       tx,
-      tx: { txId, nickname, status, color, layerId, isSent, sender, amount, fee },
+      tx: { txId, nickname, status, color, layerId, isSent, sender, receiver, amount, fee },
       publicKey
     } = this.props;
     const { note } = this.state;
@@ -212,23 +212,28 @@ class TransactionRow extends Component<Props, State> {
           <LeftDetails>
             <TextRow>
               <BlackText>STATUS</BlackText>
-              <Dots>...............</Dots>
+              <Dots>............</Dots>
               <BoldText color={color}>{this.statuses[status]}</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>LAYER ID</BlackText>
-              <Dots>...............</Dots>
+              <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>{layerId}</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>TO</BlackText>
-              <Dots>...............</Dots>
+              <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>ME</BoldText>
             </TextRow>
             <TextRow>
-              <BlackText>AMOUNT</BlackText>
-              <Dots>...............</Dots>
+              <BlackText>SMESHING REWARD</BlackText>
+              <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>{amount} SMG</BoldText>
+            </TextRow>
+            <TextRow>
+              <BlackText>SMESHING FEE REWARD</BlackText>
+              <Dots>............</Dots>
+              <BoldText color={smColors.realBlack}>{fee || 0} SMG</BoldText>
             </TextRow>
           </LeftDetails>
           <RightDetails />
@@ -240,45 +245,45 @@ class TransactionRow extends Component<Props, State> {
         <LeftDetails>
           <TextRow>
             <BlackText>TRANSACTION ID</BlackText>
-            <Dots>...............</Dots>
-            <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ sender: txId })}>
+            <Dots>............</Dots>
+            <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ id: txId })}>
               {getAbbreviatedText(txId)}
             </BoldText>
           </TextRow>
           <TextRow>
             <BlackText>STATUS</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={color}>{this.statuses[status]}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>LAYER ID</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack}>{layerId}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>FROM</BlackText>
-            <Dots>...............</Dots>
-            <BoldText color={smColors.realBlack} onClick={!isSent ? () => this.copyAddress({ sender }) : null}>
-              {isSent ? `${getAbbreviatedText(publicKey)} (Me)` : nickname || getAbbreviatedText(sender)}
-              {!isSent && !nickname && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+            <Dots>............</Dots>
+            <BoldText color={smColors.realBlack} onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
+              {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
+              {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
             </BoldText>
           </TextRow>
           <TextRow>
             <BlackText>TO</BlackText>
-            <Dots>...............</Dots>
-            <BoldText color={smColors.realBlack} onClick={isSent ? () => this.copyAddress({ sender }) : null}>
-              {isSent ? nickname || getAbbreviatedText(sender) : `${getAbbreviatedText(publicKey)} (Me)`}
-              {isSent && !nickname && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />}
+            <Dots>............</Dots>
+            <BoldText color={smColors.realBlack} onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
+              {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
+              {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
             </BoldText>
           </TextRow>
           <TextRow>
             <BlackText>VALUE</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack}>{amount} SMG</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>TRANSACTION FEE</BlackText>
-            <Dots>...............</Dots>
+            <Dots>............</Dots>
             <BoldText color={smColors.realBlack}>{fee || 0} SMG</BoldText>
           </TextRow>
         </LeftDetails>
@@ -310,12 +315,9 @@ class TransactionRow extends Component<Props, State> {
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
 
-  handleAddToContacts = (event: Event) => {
+  handleAddToContacts = (event: Event, address: string) => {
     event.stopPropagation();
-    const {
-      tx: { address },
-      addAddressToContacts
-    } = this.props;
+    const { addAddressToContacts } = this.props;
     addAddressToContacts({ address });
   };
 
@@ -337,8 +339,8 @@ class TransactionRow extends Component<Props, State> {
     this.setState({ isDetailed: !isDetailed });
   };
 
-  copyAddress = ({ sender }: { sender: string }) => {
-    clipboard.writeText(`0x${sender}`);
+  copyAddress = ({ id }: { id: string }) => {
+    clipboard.writeText(`0x${id}`);
     this.setState({ wasCopied: true });
   };
 }
