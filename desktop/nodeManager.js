@@ -55,7 +55,6 @@ class NodeManager {
           event.returnValue = null; // eslint-disable-line no-param-reassign
         });
       }
-      // }
     } catch (err) {
       // could not find or kill node process
       event.returnValue = null; // eslint-disable-line no-param-reassign
@@ -73,16 +72,18 @@ class NodeManager {
       const dataPath = path.resolve(homeDirPath, 'spacemesh');
       const testDataPath = path.resolve(homeDirPath, 'spacemeshtestdata');
       const postDataPath = path.resolve(homeDirPath, 'post');
-      const logFilePath = path.resolve(app.getPath('documents'), 'spacemeshLog.txt');
-      const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} -d ~/spacemeshtestdata/ >> ${logFilePath}`;
-      await writeFileAsync('./config.toml', tomlData);
+      const logFilePath = path.resolve(app.getPath('documents'), 'spacemesh-log.txt');
+      const osTarget = osTargetNames[os.type()];
+      const nodePath = path.resolve(`./node/${osTarget}/go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
+      const pathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} -d ~/spacemeshtestdata/ > ${logFilePath}`;
+      await writeFileAsync(path.resolve(`./node/${osTarget}/`, 'config.toml'), tomlData);
       if (prevGenesisTime !== fetchedGenesisTime) {
         store.set('genesisTime', fetchedGenesisTime);
         await FileManager.cleanWalletFile();
         const command =
           os.type() === 'windows'
-            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath}`
-            : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath}`;
+            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath} && del ${logFilePath}`
+            : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             exec(pathWithParams, (error) => {

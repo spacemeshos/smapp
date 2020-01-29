@@ -10,7 +10,7 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
 import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
-import { getFormattedTimestamp } from '/infra/utils';
+import { getFormattedTimestamp, formatSmidge } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
 import type { Action } from '/types';
 
@@ -80,6 +80,7 @@ const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   margin-bottom: 20px;
 `;
 
@@ -184,8 +185,8 @@ class Node extends Component<Props, State> {
               <div key={`reward${index}`}>
                 <LogEntry>
                   <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                  <AwardText>Smeshing reward: {reward.amount} SMG</AwardText>
-                  <AwardText>Smeshing fee reward: {reward.fee} SMG</AwardText>
+                  <AwardText>Smeshing reward: {formatSmidge(reward.totalReward)}</AwardText>
+                  <AwardText>Smeshing fee reward: {formatSmidge(reward.totalReward - reward.layerRewardEstimate)}</AwardText>
                 </LogEntry>
                 <LogEntrySeparator>...</LogEntrySeparator>
               </div>
@@ -278,18 +279,18 @@ class Node extends Component<Props, State> {
       </Status>,
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
-        <Dots>.............................</Dots>
+        <Dots>..................</Dots>
         <RightText>{timeTillNextAward} min</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
-        <Dots>.............................</Dots>
-        <GreenText>{totalEarnings} SMG</GreenText>
+        <Dots>..................</Dots>
+        <GreenText>{formatSmidge(totalEarnings)}</GreenText>
       </TextWrapper>,
       <TextWrapper key="3">
         <LeftText>Total Fees Rewards</LeftText>
-        <Dots>.............................</Dots>
-        <GreenText>{totalFeesEarnings} SMG</GreenText>
+        <Dots>..................</Dots>
+        <GreenText>{formatSmidge(totalFeesEarnings)}</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { checkNodeConnection } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
-import { Button, Input, ErrorPopup } from '/basicComponents';
+import { Button, Input, ErrorPopup, Loader } from '/basicComponents';
 import { nodeService } from '/infra/nodeService';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
@@ -85,12 +85,15 @@ type State = {
 class PreAuth extends Component<Props, State> {
   state = {
     port: '',
-    hasError: false
+    hasError: false,
+    isShowLoader: false
   };
 
   render() {
-    const { port, hasError } = this.state;
-    return (
+    const { port, hasError, isShowLoader } = this.state;
+    return isShowLoader ? (
+      <Loader size={Loader.sizes.BIG} />
+    ) : (
       <Wrapper>
         <InnerWrapper>
           <CorneredContainer width={520} height={310} header="Node Init" subHeader="Enter forwarded port number.">
@@ -131,7 +134,8 @@ class PreAuth extends Component<Props, State> {
     } else {
       // pull params
       nodeService.tmpRunNodeFunc({ port: parsedPort });
-      history.push('/auth');
+      setTimeout(() => history.push('/auth'), 1500);
+      this.setState({ isShowLoader: true });
     }
   };
 }

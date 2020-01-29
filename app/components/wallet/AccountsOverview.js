@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedText, getAddress } from '/infra/utils';
+import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
 
@@ -83,12 +83,6 @@ const BalanceAmount = styled.div`
   color: ${smColors.green};
 `;
 
-const SmhText = styled.div`
-  font-size: 17px;
-  line-height: 32px;
-  color: ${smColors.green};
-`;
-
 const CopiedText = styled.div`
   text-align: left;
   font-size: 16px;
@@ -142,8 +136,7 @@ class AccountsOverview extends Component<Props, State> {
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
-            <BalanceAmount>{balance || 0}</BalanceAmount>
-            <SmhText>SMH</SmhText>
+            <BalanceAmount>{formatSmidge(balance || 0)}</BalanceAmount>
           </BalanceWrapper>
         </Footer>
       </WrapperWith2SideBars>

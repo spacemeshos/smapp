@@ -123,11 +123,11 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
           fee: reward.totalReward - reward.layerRewardEstimate,
           status: TX_STATUSES.CONFIRMED,
           layerId: reward.layer,
-          timestamp: new Date().getTime()
+          timestamp: reward.timestamp
         };
-        localStorageService.set('rewards', newRewards);
         dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
       });
+      localStorageService.set('rewards', rewards);
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
     }
   } catch (err) {
