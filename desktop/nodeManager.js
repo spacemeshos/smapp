@@ -62,27 +62,6 @@ class NodeManager {
     }
   };
 
-<<<<<<< HEAD
-  static tmpRunNodeFunc = ({ port }) => {
-    const homeDirPath = app.getPath('home');
-    const dataPath = path.resolve(homeDirPath, 'spacemesh');
-    const testDataPath = path.resolve(homeDirPath, 'spacemeshtestdata');
-    const postDataPath = path.resolve(homeDirPath, 'post');
-    const logFilePath = path.resolve(app.getPath('documents'), 'spacemeshLog.txt');
-
-    // gc
-    const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} -d ~/spacemeshtestdata/ > ${logFilePath}`;
-
-    // aws
-    //const pathWithParams = `./go-spacemesh --grpc-server --json-server --tcp-port ${port} --poet-server spacemesh-testnet-poet-grpc-lb-949d0cde858743fb.elb.us-east-1.amazonaws.com:50002 --randcon 8 --layer-duration-sec 180 --hare-wakeup-delta 30 --hare-round-duration-sec 30 --layers-per-epoch 480 --eligibility-confidence-param 200 --eligibility-epoch-offset 0 --layer-average-size 50 --genesis-active-size 300 --hare-committee-size 50 --hare-max-adversaries 24 --sync-request-timeout 60000 --post-labels 100 --max-inbound 12 --genesis-time 2020-01-24T12:24:02+00:00 --post-space 4294967296 --bootstrap --bootnodes spacemesh://CC7SgrcqNxfd5uzs2tgfTzrYukrEVKTBMKJv2X9DubCe@54.180.100.11:63937 -d ~/spacemeshtestdata/ > ${logFilePath}`;
-
-    exec(pathWithParams, (error) => {
-      if (error) {
-        console.error(error); // eslint-disable-line no-console
-      }
-      console.log('node started with provided params'); // eslint-disable-line no-console
-    });
-=======
   static tmpRunNodeFunc = async ({ port, store }) => {
     const rawData = await fetch('http://nodes.unruly.io');
     const tomlData = await rawData.text();
@@ -127,7 +106,6 @@ class NodeManager {
     } catch (e) {
       console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
     }
->>>>>>> eceebeba961b2b8f66ad2aaf8ddfd4f7b6c22bcb
   };
 }
 
