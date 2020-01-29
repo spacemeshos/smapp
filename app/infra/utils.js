@@ -38,6 +38,7 @@ const getValueAndUnit = (amount: number) => {
     unit = 'MSMD';
 } else if (amount == 0) {
     // we want to show 0 balance in SMH units
+    v = 0;
     unit = 'SMH';
 } else {
     v = amount;
