@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
-import { getAbbreviatedText, getFormattedTimestamp, getAddress } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { TxList, Tx } from '/types';
@@ -98,7 +98,7 @@ class LatestTransactions extends PureComponent<Props> {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={color}>{amount} SMH</Amount>
+            <Amount color={color}>{formatSmidge(amount)}</Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>

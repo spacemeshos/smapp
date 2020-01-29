@@ -3,7 +3,7 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, formatSmidge } from '/infra/utils';
 import { doneIconGreen, copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -117,15 +117,16 @@ class TxSent extends Component<Props, State> {
   render() {
     const { fromAddress, address, amount, txId, doneAction, navigateToTxList } = this.props;
     const { isCopied } = this.state;
+    const { value, unit } = formatSmidge(amount, true);
     return (
       <Wrapper>
         <Header>
-          <HeaderText>SMH SENT!</HeaderText>
+          <HeaderText>{unit} SENT!</HeaderText>
           <HeaderIcon src={doneIconGreen} />
         </Header>
         <DetailsRow>
-          <DetailsTextRight>SMH</DetailsTextRight>
-          <DetailsTextLeft>{amount}</DetailsTextLeft>
+          <DetailsTextRight>{unit}</DetailsTextRight>
+          <DetailsTextLeft>{value}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent from</DetailsTextRight>

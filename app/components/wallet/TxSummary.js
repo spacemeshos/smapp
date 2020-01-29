@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -45,6 +45,11 @@ type Props = {
 class TxSummary extends PureComponent<Props> {
   render() {
     const { address, fromAddress, amount, fee, note } = this.props;
+    let value = 0;
+    let unit = 'SMH';
+    if (amount) {
+      ({ value, unit } = formatSmidge(amount, true));
+    }
     return (
       <Wrapper>
         <Header>
@@ -56,8 +61,8 @@ class TxSummary extends PureComponent<Props> {
         <Text>{address ? getAbbreviatedText(address) : '...'}</Text>
         <SubHeader>FROM</SubHeader>
         <Text>{getAbbreviatedText(fromAddress)}</Text>
-        <SubHeader>SMH</SubHeader>
-        <Text>{amount || '...'}</Text>
+        <SubHeader>{unit}</SubHeader>
+        <Text>{value || '...'}</Text>
         <SubHeader>FEE</SubHeader>
         <Text>{fee || '...'}</Text>
         <SubHeader>NOTE</SubHeader>

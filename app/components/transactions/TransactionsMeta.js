@@ -1,6 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
+import { formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 
 const Text = styled.span`
@@ -97,7 +98,7 @@ class TransactionsMeta extends PureComponent<Props> {
           <TextRow key={totalMeta.title}>
             <Text>{totalMeta.title}</Text>
             <Dots>...................</Dots>
-            <Text>{`${totalMeta.coins} SMH`}</Text>
+            <Text>{formatSmidge(totalMeta.coins)}</Text>
           </TextRow>
         ))}
       </>

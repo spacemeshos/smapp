@@ -18,10 +18,6 @@ const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize
 
 const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 
-const smeshToSmidge = (amount: number) => amount * 10 ** 12;
-
-const smidgeToSmesh = (amount: number) => amount / 10 ** 12;
-
 // Internal helper - returns the value and the unit of a smidge coin amount.
 // Used to format smidge strings
 const getValueAndUnit = (amount: number) => {
@@ -36,11 +32,11 @@ const getValueAndUnit = (amount: number) => {
   } else if (amount >= 10 ** 4) {
     v = amount / 10 ** 6;
     unit = 'MSMD';
-} else if (amount == 0) {
+  } else if (amount === 0) {
     // we want to show 0 balance in SMH units
     v = 0;
     unit = 'SMH';
-} else {
+  } else {
     v = amount;
     unit = 'SMD';
   }
@@ -49,9 +45,9 @@ const getValueAndUnit = (amount: number) => {
 
 // Returns formatted display string for a smidge amount.
 // All coin displayed in the app should display amount formatted
-const formatSmidge = (amount: number) => {
+const formatSmidge = (amount: number, separateResult) => {
   const res = getValueAndUnit(amount);
-  return `${res.value} ${res.unit}`;
+  return separateResult ? { value: res.value, unit: res.unit } : `${res.value} ${res.unit}`;
 };
 
 const testGetValueAndUnit = () => {
@@ -160,17 +156,4 @@ const getFormattedTimestamp = (timestamp: string) => {
 
 const getAddress = (key: string) => key.substring(24);
 
-export {
-  testGetValueAndUnit,
-  formatSmidge,
-  fromHexString,
-  toHexString,
-  createError,
-  getAbbreviatedText,
-  formatNumber,
-  smeshToSmidge,
-  smidgeToSmesh,
-  asyncForEach,
-  getFormattedTimestamp,
-  getAddress
-};
+export { testGetValueAndUnit, formatSmidge, fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, asyncForEach, getFormattedTimestamp, getAddress };

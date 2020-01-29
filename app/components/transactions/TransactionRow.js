@@ -6,7 +6,7 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, getFormattedTimestamp, getAddress } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
@@ -188,7 +188,7 @@ class TransactionRow extends Component<Props, State> {
               )}
             </HeaderSection>
             <HeaderSection>
-              <Amount color={color}>{amount} SMH</Amount>
+              <Amount color={color}>{formatSmidge(amount)}</Amount>
               <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
             </HeaderSection>
             {wasCopied && <CopiedBanner>Copied!</CopiedBanner>}
@@ -228,12 +228,12 @@ class TransactionRow extends Component<Props, State> {
             <TextRow>
               <BlackText>SMESHING REWARD</BlackText>
               <Dots>............</Dots>
-              <BoldText color={smColors.realBlack}>{amount} SMG</BoldText>
+              <BoldText color={smColors.realBlack}>{formatSmidge(amount)}</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>SMESHING FEE REWARD</BlackText>
               <Dots>............</Dots>
-              <BoldText color={smColors.realBlack}>{fee || 0} SMG</BoldText>
+              <BoldText color={smColors.realBlack}>{formatSmidge(fee || 0)}</BoldText>
             </TextRow>
           </LeftDetails>
           <RightDetails />
@@ -279,12 +279,12 @@ class TransactionRow extends Component<Props, State> {
           <TextRow>
             <BlackText>VALUE</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack}>{amount} SMG</BoldText>
+            <BoldText color={smColors.realBlack}>{formatSmidge(amount)}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>TRANSACTION FEE</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack}>{fee || 0} SMG</BoldText>
+            <BoldText color={smColors.realBlack}>{formatSmidge(fee || 0)}</BoldText>
           </TextRow>
         </LeftDetails>
         <RightDetails>
