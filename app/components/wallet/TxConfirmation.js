@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, formatSmidge } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -108,6 +108,7 @@ type Props = {
 class TxConfirmation extends PureComponent<Props> {
   render() {
     const { fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx, isConnected } = this.props;
+    const { value, unit } = formatSmidge(amount, true);
     return (
       <Wrapper>
         <Header>
@@ -129,8 +130,8 @@ class TxConfirmation extends PureComponent<Props> {
           <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>SMH</DetailsTextRight>
-          <DetailsTextLeft>{amount}</DetailsTextLeft>
+          <DetailsTextRight>{unit}</DetailsTextRight>
+          <DetailsTextLeft>{value}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Fee</DetailsTextRight>

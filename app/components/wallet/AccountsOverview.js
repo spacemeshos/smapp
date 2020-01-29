@@ -83,6 +83,12 @@ const BalanceAmount = styled.div`
   color: ${smColors.green};
 `;
 
+const SmhText = styled.div`
+  font-size: 17px;
+  line-height: 32px;
+  color: ${smColors.green};
+`;
+
 const CopiedText = styled.div`
   text-align: left;
   font-size: 16px;
@@ -117,6 +123,7 @@ class AccountsOverview extends Component<Props, State> {
       return null;
     }
     const { displayName, publicKey, balance } = accounts[currentAccountIndex];
+    const { value, unit } = formatSmidge(balance || 0, true);
     return (
       <WrapperWith2SideBars width={300} height={480} header={walletName}>
         <AccountDetails>
@@ -136,7 +143,8 @@ class AccountsOverview extends Component<Props, State> {
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           <BalanceWrapper>
-            <BalanceAmount>{formatSmidge(balance || 0)}</BalanceAmount>
+            <BalanceAmount>{value}</BalanceAmount>
+            <SmhText>{unit}</SmhText>
           </BalanceWrapper>
         </Footer>
       </WrapperWith2SideBars>

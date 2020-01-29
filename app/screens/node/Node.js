@@ -80,7 +80,6 @@ const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
   margin-bottom: 20px;
 `;
 
