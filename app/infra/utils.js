@@ -36,7 +36,10 @@ const getValueAndUnit = (amount: number) => {
   } else if (amount >= 10 ** 4) {
     v = amount / 10 ** 6;
     unit = 'MSMD';
-  } else {
+} else if (amount == 0) {
+    // we want to show 0 balance in SMH units
+    unit = 'SMH';
+} else {
     v = amount;
     unit = 'SMD';
   }
@@ -51,6 +54,13 @@ const formatSmidge = (amount: number) => {
 };
 
 const testGetValueAndUnit = () => {
+    let res = getValueAndUnit(0);
+    if (res.unit !== 'SMH' || res.value !== 0) {
+      console.error(`test failed. expected 0 SMH: ${res.value.toString()} ${res.unit}`); // eslint-disable-line no-console
+    }
+    console.log(`${res.value.toString()} ${res.unit}`); // eslint-disable-line no-console
+
+
   let res = getValueAndUnit(2.5 * 10 ** 12);
   if (res.unit !== 'SMH' || res.value !== 2.5) {
     console.error(`test failed. expected 2.5 SMH: ${res.value.toString()} ${res.unit}`); // eslint-disable-line no-console
