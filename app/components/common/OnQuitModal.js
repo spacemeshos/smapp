@@ -69,7 +69,7 @@ class OnQuitModal extends Component<Props, State> {
             <ButtonsWrapper>
               <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
               <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
-              <Button onClick={this.handleKeepInBackground} text="KEEP RUNNING IN BACKGROUND" width={270} />
+              <Button onClick={this.handleKeepInBackground} text="RUN IN BACKGROUND" width={270} />
             </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>
