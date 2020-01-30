@@ -9,10 +9,10 @@ import { CreateNewContact } from '/components/contacts';
 import { Link, WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
 import type { TxList, Tx } from '/types';
 import { ScreenErrorBoundary } from '/components/errorHandler';
+import { getAddress } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
-import { getAddress } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
