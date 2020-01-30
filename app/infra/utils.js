@@ -40,7 +40,10 @@ const getValueAndUnit = (amount: number) => {
     v = amount;
     unit = 'SMD';
   }
-  return { value: v, unit };
+
+  // truncate to 3 decimals and truncate trailing franctional 0s
+  let s: String = parseFloat(v.toFixed(3)).toString();
+  return { value: s, unit };
 };
 
 // Returns formatted display string for a smidge amount.
