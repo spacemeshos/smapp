@@ -123,7 +123,7 @@ class FileManager {
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
       const fileContent = await readFileAsync(filesWithPath[0]);
       const parsedData = JSON.parse(fileContent);
-      parsedData.transactions = { layerId: 0, data: [] };
+      parsedData.transactions = [{ layerId: 0, data: [] }];
       await writeFileAsync(filesWithPath[0], JSON.stringify(parsedData));
     }
   };
