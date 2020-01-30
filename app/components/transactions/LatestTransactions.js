@@ -70,6 +70,7 @@ type Props = {
 class LatestTransactions extends PureComponent<Props> {
   render() {
     const { transactions, navigateToAllTransactions } = this.props;
+    const reversedTransactions = transactions.reverse();
     return (
       <Wrapper>
         <Header>
@@ -77,7 +78,7 @@ class LatestTransactions extends PureComponent<Props> {
           <br />
           --
         </Header>
-        <div>{transactions.map((tx, index) => this.renderTransaction({ tx, index }))}</div>
+        <div>{reversedTransactions.map((tx, index) => this.renderTransaction({ tx, index }))}</div>
         <Button onClick={navigateToAllTransactions} text="ALL TRANSACTIONS" width={175} style={{ marginTop: 'auto ' }} />
       </Wrapper>
     );

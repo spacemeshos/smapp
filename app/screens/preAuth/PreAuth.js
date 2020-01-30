@@ -134,7 +134,7 @@ class PreAuth extends Component<Props, State> {
     } else {
       // pull params
       nodeService.tmpRunNodeFunc({ port: parsedPort });
-      setTimeout(() => history.push('/auth'), 1500);
+      setTimeout(() => history.push('/auth'), 2500);
       this.setState({ isShowLoader: true });
     }
   };
