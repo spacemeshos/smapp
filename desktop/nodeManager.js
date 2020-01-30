@@ -75,8 +75,9 @@ class NodeManager {
       const logFilePath = path.resolve(app.getPath('documents'), 'spacemesh-log.txt');
       const osTarget = osTargetNames[os.type()];
       const nodePath = path.resolve(`./node/${osTarget}/go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
-      const pathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} -d ~/spacemeshtestdata/ > ${logFilePath}`;
-      await writeFileAsync(path.resolve(`./node/${osTarget}/`, 'config.toml'), tomlData);
+      const tomlFileLocation = path.resolve(app.getPath('userData'), 'config.toml');
+      const pathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${tomlFileLocation} -d ~/spacemeshtestdata/ > ${logFilePath}`;
+      await writeFileAsync(tomlFileLocation, tomlData);
       if (prevGenesisTime !== fetchedGenesisTime) {
         store.set('genesisTime', fetchedGenesisTime);
         await FileManager.cleanWalletFile();
