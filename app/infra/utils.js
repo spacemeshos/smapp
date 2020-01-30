@@ -36,7 +36,7 @@ const getValueAndUnit = (amount: number) => {
     // we want to show 0 balance in SMH units
     v = 0;
     unit = 'SMH';
-  } else {
+} else if (typeof amount == 'number') {
     v = amount;
     unit = 'SMD';
   }
