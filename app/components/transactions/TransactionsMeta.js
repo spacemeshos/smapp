@@ -74,7 +74,7 @@ class TransactionsMeta extends PureComponent<Props> {
       { title: 'RECEIVED', coins: received }
     ];
     const totalCoinsMeta = [
-      { title: 'TOTAL MINED', coins: totalMined },
+      { title: 'TOTAL SMESHED', coins: totalMined },
       { title: 'TOTAL SENT', coins: totalSent },
       { title: 'TOTAL RECEIVED', coins: totalReceived }
     ];

@@ -63,13 +63,13 @@ class OnQuitModal extends Component<Props, State> {
       <Wrapper>
         <CorneredWrapper>
           <InnerWrapper>
-            <Header>Quitting the app stops smeshing may cause loss of smeshing rewards.</Header>
-            <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background</Text>
-            <Text>&bull; Click QUIT to close the app and stop smeshing</Text>
+            <Header>Quitting stops smeshing may cause loss of future due smeshing rewards.</Header>
+            <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.</Text>
+            <Text>&bull; Click QUIT to close the app and stop smeshing.</Text>
             <ButtonsWrapper>
               <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
               <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
-              <Button onClick={this.handleKeepInBackground} text="KEEP RUNNING IN BACKGROUND" width={270} />
+              <Button onClick={this.handleKeepInBackground} text="RUN IN BACKGROUND" width={270} />
             </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>
