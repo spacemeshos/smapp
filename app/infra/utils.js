@@ -32,11 +32,11 @@ const getValueAndUnit = (amount: number) => {
   } else if (amount >= 10 ** 4) {
     v = amount / 10 ** 6;
     unit = 'MSMD';
-  } else if (amount === 0) {
+  } else if (amount == 0) {
     // we want to show 0 balance in SMH units
     v = 0;
     unit = 'SMH';
-} else if (typeof amount == 'number') {
+} else if (!Number.isNaN(amount) && typeof(amount) == 'number') {
     v = amount;
     unit = 'SMD';
   }
