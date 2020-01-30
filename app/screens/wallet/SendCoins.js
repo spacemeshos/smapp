@@ -88,20 +88,20 @@ class SendCoins extends Component<Props, State> {
   }
 
   renderTxParamsMode = () => {
-    const { currentAccount, lastUsedContacts, contacts, history, location } = this.props;
+    const { currentAccount, lastUsedContacts, contacts, history } = this.props;
     const { address, hasAddressError, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
         fromAddress={currentAccount.publicKey}
-        initialAddress={location?.state?.contact.address || ''}
+        address={address}
         contacts={lastUsedContacts.concat(contacts)}
         hasAddressError={hasAddressError}
         updateTxAddress={this.updateTxAddress}
-        resetAddressError={() => this.setState({ address: '', hasAddressError: false })}
+        resetAddressError={() => this.setState({ hasAddressError: false })}
         amount={amount}
         updateTxAmount={this.updateTxAmount}
         hasAmountError={hasAmountError}
-        resetAmountError={() => this.setState({ amount: 0, hasAmountError: false })}
+        resetAmountError={() => this.setState({ hasAmountError: false })}
         updateFee={this.updateFee}
         note={note}
         updateTxNote={this.updateTxNote}

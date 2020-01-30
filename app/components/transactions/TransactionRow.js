@@ -202,9 +202,10 @@ class TransactionRow extends Component<Props, State> {
   renderDetails = () => {
     const {
       tx,
-      tx: { txId, nickname, status, color, layerId, isSent, sender, receiver, amount, fee },
+      tx: { txId, nickname, status, color, layerId, sender, receiver, amount, fee },
       publicKey
     } = this.props;
+    const isSent = sender === getAddress(publicKey);
     const { note } = this.state;
     if (txId === 'reward') {
       return (

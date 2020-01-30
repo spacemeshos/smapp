@@ -114,7 +114,7 @@ const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
 
 type Props = {
   fromAddress: string,
-  initialAddress: string,
+  address: string,
   hasAddressError: boolean,
   updateTxAddress: ({ value: string }) => void,
   resetAddressError: () => void,
@@ -130,16 +130,13 @@ type Props = {
 };
 
 type State = {
-  address: string,
   selectedFeeIndex: number
 };
 
 class TxParams extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { initialAddress } = props;
     this.state = {
-      address: initialAddress || '',
       selectedFeeIndex: 0
     };
   }
@@ -148,7 +145,7 @@ class TxParams extends Component<Props, State> {
     const {
       fromAddress,
       hasAddressError,
-      updateTxAddress,
+      address,
       resetAddressError,
       amount,
       hasAmountError,
@@ -159,7 +156,7 @@ class TxParams extends Component<Props, State> {
       nextAction,
       cancelTx
     } = this.props;
-    const { address, selectedFeeIndex } = this.state;
+    const { selectedFeeIndex } = this.state;
     return (
       <Wrapper>
         <Header>
@@ -169,7 +166,7 @@ class TxParams extends Component<Props, State> {
         <SubHeader>--</SubHeader>
         <DetailsRow>
           <DetailsText>To</DetailsText>
-          <ActualInput value={address} onChange={updateTxAddress} onPaste={this.onPaste} type="text" maxLength="42" />
+          <ActualInput value={address} onChange={this.updateTxAddress} onPaste={this.onPaste} type="text" maxLength="42" />
           {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
@@ -213,9 +210,12 @@ class TxParams extends Component<Props, State> {
   onPaste = () => {
     const { updateTxAddress } = this.props;
     const clipboardValue = clipboard.readText();
-    const address = clipboardValue.startsWith('0x') ? clipboardValue.substring(2) : clipboardValue;
-    this.setState({ address: clipboardValue });
-    updateTxAddress({ value: address });
+    updateTxAddress({ value: clipboardValue });
+  };
+
+  updateTxAddress = ({ target }: { target: { value: string } }) => {
+    const { updateTxAddress } = this.props;
+    updateTxAddress({ value: target.value });
   };
 
   selectFee = ({ index }: { index: number }) => {

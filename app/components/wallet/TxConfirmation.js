@@ -135,11 +135,11 @@ class TxConfirmation extends PureComponent<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Fee</DetailsTextRight>
-          <DetailsTextLeft>{fee}</DetailsTextLeft>
+          <DetailsTextLeft>{formatSmidge(fee)}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow isLast>
           <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{amount + fee}</TotalText>
+          <TotalText>{formatSmidge(amount + fee)}</TotalText>
         </DetailsRow>
         <Footer>
           <ComplexButton>
