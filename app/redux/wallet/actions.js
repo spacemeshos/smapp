@@ -195,9 +195,9 @@ export const updateTransaction = ({ tx, updateAll, accountPK }: { tx: Tx, update
     const index: number = accountPK ? accounts.findIndex((account) => account.publicKey === accountPK) : currentAccountIndex;
     let transactionsArray: TxList = [];
     if (updateAll) {
-      transactionsArray = transactions[index].data.map((transaction: Tx) => (transaction.address === tx.address ? { ...transaction, ...tx } : transaction));
+      transactionsArray = transactions[index].data.map((transaction: Tx) => (transaction.txId === tx.txId ? { ...transaction, ...tx } : transaction));
     } else {
-      const txIndex = transactions[index].data.findIndex((transaction: Tx) => transaction.id === tx.id);
+      const txIndex = transactions[index].data.findIndex((transaction: Tx) => transaction.txId === tx.txId);
       transactionsArray = [...transactions[index].data.slice(0, txIndex), tx, ...transactions[index].data.slice(txIndex + 1)];
     }
     const updatedTransactions = [...transactions.slice(0, index), { layerId: transactions[index].layerId, data: transactionsArray }, ...transactions.slice(index + 1)];
