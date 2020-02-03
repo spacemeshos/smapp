@@ -1,17 +1,14 @@
 import path from 'path';
 import os from 'os';
-import fs from 'fs';
-import util from 'util';
-import { app } from 'electron';
+import { app, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileManager from './fileManager';
+import StoreService from './storeService';
 
 const { execFile, exec } = require('child_process');
 const fetch = require('node-fetch');
 const toml = require('toml');
 const find = require('find-process');
-
-const writeFileAsync = util.promisify(fs.writeFile);
 
 const osTargetNames = {
   Darwin: 'mac',
@@ -50,62 +47,82 @@ class NodeManager {
         const command = `kill -s INT ${processes[0].pid} ${processes[1].pid}`;
         exec(command, (err) => {
           if (err) {
-            console.error(); // eslint-disable-line no-console
+            console.error(err); // eslint-disable-line no-console
+            event.returnValue = null; // eslint-disable-line no-param-reassign
           }
           event.returnValue = null; // eslint-disable-line no-param-reassign
         });
       }
+      event.returnValue = null; // eslint-disable-line no-param-reassign
     } catch (err) {
       // could not find or kill node process
+      console.error(err); // eslint-disable-line no-console
       event.returnValue = null; // eslint-disable-line no-param-reassign
     }
   };
 
-  static tmpRunNodeFunc = async ({ port, store }) => {
-    const rawData = await fetch('http://nodes.unruly.io');
-    const tomlData = await rawData.text();
+  static tmpRunNodeFunc = async ({ port }) => {
     try {
+      const rawData = await fetch('http://nodes.unruly.io');
+      const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
+
       const fetchedGenesisTime = parsedToml.main['genesis-time'];
-      const prevGenesisTime = store.get('genesisTime') || '';
-      const homeDirPath = app.getPath('home');
-      const dataPath = path.resolve(homeDirPath, 'spacemesh');
-      const testDataPath = path.resolve(homeDirPath, 'spacemeshtestdata');
-      const postDataPath = path.resolve(homeDirPath, 'post');
-      const logFilePath = path.resolve(app.getPath('documents'), 'spacemesh-log.txt');
+      const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
+
+      const userDataPath = app.getPath('userData').replace(' ', '\ '); // eslint-disable-line
       const osTarget = osTargetNames[os.type()];
-      const nodePath = path.resolve(`./node/${osTarget}/go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
-      const tomlFileLocation = path.resolve(app.getPath('userData'), 'config.toml');
-      const pathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config '${tomlFileLocation}' -d ~/spacemeshtestdata/ > ${logFilePath}`;
-      await writeFileAsync(`${tomlFileLocation}`, tomlData);
+      const nodePath = path.resolve(
+        app.getAppPath(),
+        process.env.NODE_ENV === 'development' ? '../node/mac/' : '../../node/',
+        `go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`
+      );
+      const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata/');
+      const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
+
+      await FileManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
+
       if (prevGenesisTime !== fetchedGenesisTime) {
-        store.set('genesisTime', fetchedGenesisTime);
+        StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
         await FileManager.cleanWalletFile();
+        const homeDirPath = app.getPath('home');
+        const postDataPath = path.resolve(homeDirPath, 'post');
+        const dataPath = path.resolve(`${userDataPath}`, 'spacemesh');
         const command =
           os.type() === 'windows'
-            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${testDataPath} && rmdir /q/s ${postDataPath} && del ${logFilePath}`
-            : `rm -rf ${dataPath} && rm -rf ${testDataPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
+            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${nodeDataFilesPath} && rmdir /q/s ${postDataPath} && del ${logFilePath}`
+            : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
-            exec(pathWithParams, (error) => {
+            const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config '${tomlFileLocation}' -d '${nodeDataFilesPath}/' > '${logFilePath}'`;
+            exec(nodePathWithParams, (error) => {
               if (error) {
+                dialog.showErrorBox('Node Start Error', `${error}`);
                 console.error(error); // eslint-disable-line no-console
               }
               console.log('node started with provided params'); // eslint-disable-line no-console
             });
           } else {
+            dialog.showErrorBox('Old data files removal failed', `${err}`);
             console.error(err); // eslint-disable-line no-console
           }
         });
       } else {
-        exec(pathWithParams, (error) => {
+        const savedMiningParams = StoreService.get({ key: 'miningParams' });
+        const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config '${tomlFileLocation}'${
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir '${savedMiningParams.logicalDrive}/post'` : ''
+        } -d '${nodeDataFilesPath}/' > '${logFilePath}'`;
+        exec(nodePathWithParams, (error) => {
           if (error) {
+            dialog.showErrorBox('Node Start Error', `${error}`);
             console.error(error); // eslint-disable-line no-console
           }
           console.log('node started with provided params'); // eslint-disable-line no-console
         });
       }
     } catch (e) {
+      dialog.showErrorBox('Loading / Parsing toml failed', `${e}`);
       console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
     }
   };

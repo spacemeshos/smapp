@@ -1,4 +1,5 @@
 import os from 'os';
+import path from 'path';
 import { app } from 'electron';
 import { ipcConsts, nodeConsts } from '../app/vars';
 
@@ -11,9 +12,9 @@ class DiskStorageManager {
       let validSizeMountPoints;
       if (os.type() === 'Darwin') {
         mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount && mountPoint.mount.includes('Data')); // yields only mounted and non VM
-        mountedDrives[0].mount = `${mountedDrives[0].mount}/${app.getPath('home')}`;
+        mountedDrives[0].mount = path.resolve(mountedDrives[0].mount, app.getPath('home'));
         validSizeMountPoints = sizeMountPoints.filter((mountPoint) => mountPoint.mount.includes('Data'));
-        validSizeMountPoints[0].mount = `${validSizeMountPoints[0].mount}/${app.getPath('home')}`;
+        validSizeMountPoints[0].mount = path.resolve(validSizeMountPoints[0].mount, app.getPath('home'));
       } else {
         mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount); // yields only mounted and non VM
         validSizeMountPoints = sizeMountPoints;

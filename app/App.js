@@ -4,14 +4,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
-import { setUpdateDownloading } from '/redux/wallet/actions';
-import { walletUpdateService } from '/infra/walletUpdateService';
+// import { setUpdateDownloading } from '/redux/wallet/actions';
+// import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { ErrorHandlerModal } from '/components/errorHandler';
+import { OnQuitModal } from '/components/common';
 import { UpdaterModal } from '/components/updater';
 
 const store: Store = configureStore();
@@ -54,35 +55,37 @@ class App extends React.Component<Props, State> {
               <Redirect to="/pre" />
             </Switch>
           </Router>
+          <OnQuitModal />
         </Provider>
       </>
     );
   }
 
-  async componentDidMount() {
-    try {
-      walletUpdateService.listenToUpdaterError({
-        onUpdaterError: () => {
-          throw new Error('Wallet Updater Error.');
-        }
-      });
-      walletUpdateService.listenToDownloadUpdate({
-        onDownloadUpdateCompleted: () => {
-          store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
-          this.setState({ isUpdateDownloaded: true });
-        },
-        onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
-      });
-      walletUpdateService.checkForWalletUpdate();
-      this.updateCheckInterval = setInterval(async () => {
-        walletUpdateService.checkForWalletUpdate();
-      }, 86400000);
-    } catch (error) {
-      this.setState({
-        error: new Error('Wallet update check has failed.')
-      });
-    }
-  }
+  // TODO: auto update is temporary disabled
+  // async componentDidMount() {
+  //   try {
+  //     walletUpdateService.listenToUpdaterError({
+  //       onUpdaterError: () => {
+  //         throw new Error('Wallet Updater Error.');
+  //       }
+  //     });
+  //     walletUpdateService.listenToDownloadUpdate({
+  //       onDownloadUpdateCompleted: () => {
+  //         store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
+  //         this.setState({ isUpdateDownloaded: true });
+  //       },
+  //       onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
+  //     });
+  //     walletUpdateService.checkForWalletUpdate();
+  //     this.updateCheckInterval = setInterval(async () => {
+  //       walletUpdateService.checkForWalletUpdate();
+  //     }, 86400000);
+  //   } catch (error) {
+  //     this.setState({
+  //       error: new Error('Wallet update check has failed.')
+  //     });
+  //   }
+  // }
 
   componentWillUnmount(): void {
     this.updateCheckInterval && clearInterval(this.updateCheckInterval);

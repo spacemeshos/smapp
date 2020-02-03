@@ -19,6 +19,10 @@ class NodeService {
     ipcRenderer.send(ipcConsts.HARD_REFRESH);
   }
 
+  static copyNodeBinary = () => {
+    ipcRenderer.send(ipcConsts.COPY_NODE_BINARY);
+  };
+
   static tmpRunNodeFunc = ({ port }: { port: number }) => {
     ipcRenderer.send(ipcConsts.TMP_RUN_NODE_CALL, { port });
   };
