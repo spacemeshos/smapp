@@ -276,7 +276,7 @@ class Main extends Component<Props, State> {
             notification: 'Received a reward for smeshing!',
             callback: () => this.handleNavigation({ index: 0 })
           });
-        } }), 50000);
+        } }), 180000);
     }
   }
 

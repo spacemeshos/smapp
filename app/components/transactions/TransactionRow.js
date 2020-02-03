@@ -301,7 +301,7 @@ class TransactionRow extends Component<Props, State> {
             }}
             maxLength="50"
           />
-          <Button isDisabled={note === tx.note} onClick={this.save} text="SAVE" style={{ alignSelf: 'flex-end' }} />
+          {note !== tx.note && <Button onClick={this.save} text="SAVE" style={{ alignSelf: 'flex-end' }} />}
         </RightDetails>
       </DetailsSection>
     );

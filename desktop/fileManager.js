@@ -1,6 +1,7 @@
 import fs from 'fs';
 import util from 'util';
 import path from 'path';
+import os from 'os';
 import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
@@ -157,7 +158,7 @@ class FileManager {
     if (response === 0) {
       clearInterval(FileManager.fileWriterInterval);
       browserWindow.destroy();
-      const command = `rm -rf '${appFilesDirPath}'`;
+      const command = os.type() === 'windows' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
       exec(command, (error) => {
         if (error) {
           console.error(error); // eslint-disable-line no-console
