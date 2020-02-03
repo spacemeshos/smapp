@@ -7,12 +7,6 @@ import DiskStorageManager from './diskStorageManager';
 import netService from './netService';
 import AutoStartManager from './autoStartManager';
 
-const Store = require('electron-store');
-
-const store = new Store();
-
-const autoStartManager = new AutoStartManager(store);
-
 const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.READ_FILE, (event, request) => {
     FileManager.readFile({ event, ...request });
@@ -62,11 +56,11 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
-    autoStartManager.toggleAutoStart();
+    AutoStartManager.toggleAutoStart();
   });
 
   ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
-    autoStartManager.isEnabled({ event });
+    AutoStartManager.isEnabled({ event });
   });
 
   ipcMain.on(ipcConsts.START_NODE, (event) => {
@@ -81,8 +75,12 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.killNodeProcess({ event });
   });
 
+  ipcMain.once(ipcConsts.COPY_NODE_BINARY, async () => {
+    await NodeManager.copyNodeBinary();
+  });
+
   ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
-    NodeManager.tmpRunNodeFunc({ event, store, ...request });
+    NodeManager.tmpRunNodeFunc({ event, ...request });
   });
 
   /**
@@ -141,4 +139,4 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 };
 
-export { subscribeToEventListeners }; // eslint-disable-line import/prefer-default-export
+export default subscribeToEventListeners;

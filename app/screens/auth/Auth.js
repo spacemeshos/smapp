@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { checkNodeConnection, getMiningStatus } from '/redux/node/actions';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo, OnQuitModal } from '/components/common';
+import { Logo } from '/components/common';
 import { Loader } from '/basicComponents';
 import { nodeService } from '/infra/nodeService';
 import routes from '/routes';
@@ -74,7 +74,6 @@ class Auth extends Component<Props> {
           )}
         </InnerWrapper>
         <RightDecoration src={rightDecoration} />
-        <OnQuitModal />
       </Wrapper>
     );
   }

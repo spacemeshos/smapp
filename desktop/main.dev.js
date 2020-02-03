@@ -13,11 +13,21 @@ import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import { subscribeToEventListeners } from './eventListners';
+import subscribeToEventListeners from './eventListners';
 import subscribeToAutoUpdateListeners from './autoUpdateListeners';
 import FileManager from './fileManager';
+import AutoStartManager from './autoStartManager';
+import StoreService from './storeService';
 
-export default class AppUpdater {
+const debug = require('electron-debug');
+const unhandled = require('electron-unhandled');
+
+unhandled();
+
+StoreService.init();
+AutoStartManager.init();
+
+class AppUpdater {
   constructor() {
     autoUpdater.logger = null;
     autoUpdater.autoInstallOnAppQuit = false;
@@ -27,15 +37,6 @@ export default class AppUpdater {
 
 let mainWindow = null;
 let tray = null;
-
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
-
-if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-  require('electron-debug')();
-}
 
 const installExtensions = () => {
   const installer = require('electron-devtools-installer');
@@ -93,6 +94,7 @@ const createWindow = () => {
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    debug();
     await installExtensions();
   }
 
@@ -127,8 +129,7 @@ app.on('ready', async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
+  // eslint-disable-next-line no-new
   new AppUpdater();
 });
 

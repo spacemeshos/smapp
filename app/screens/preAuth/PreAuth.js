@@ -115,6 +115,7 @@ class PreAuth extends Component<Props, State> {
 
   async componentDidMount() {
     const { checkNodeConnection, history } = this.props;
+    // await nodeService.copyNodeBinary();
     const isConnected = await checkNodeConnection();
     if (isConnected) {
       history.push('/auth');
@@ -134,7 +135,7 @@ class PreAuth extends Component<Props, State> {
     } else {
       // pull params
       nodeService.tmpRunNodeFunc({ port: parsedPort });
-      setTimeout(() => history.push('/auth'), 2500);
+      setTimeout(() => history.push('/auth'), 15000);
       this.setState({ isShowLoader: true });
     }
   };

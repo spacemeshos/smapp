@@ -1,5 +1,6 @@
 import path from 'path';
 import { ipcConsts, nodeConsts } from '../app/vars';
+import StoreService from './storeService';
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -155,6 +156,7 @@ class NetService {
   initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
     try {
       await this._initMining({ logicalDrive, commitmentSize, coinbase });
+      StoreService.set({ key: 'miningParams', value: { logicalDrive, coinbase } });
       event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error: null });
     } catch (error) {
       event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error });

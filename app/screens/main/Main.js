@@ -8,7 +8,7 @@ import { logout } from '/redux/auth/actions';
 import { getMiningStatus, getAccountRewards } from '/redux/node/actions';
 import { getTxList, updateWalletFile } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo, OnQuitModal } from '/components/common';
+import { Logo } from '/components/common';
 import { OfflineBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
@@ -235,7 +235,6 @@ class Main extends Component<Props, State> {
           </RoutesWrapper>
         </InnerWrapper>
         <RightDecoration src={rightDecoration} />
-        <OnQuitModal />
       </Wrapper>
     );
   }

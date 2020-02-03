@@ -39,10 +39,12 @@ const fileHashList = {
 };
 
 const nodeFiles = {
-  mac: { from: '../node/mac/', to: 'node/' },
-  windows: { from: '../node/windows/', to: 'node/' },
-  linux: { from: '../node/linux/', to: 'node/' }
+  mac: { from: path.resolve('node/mac/'), to: 'node/' },
+  windows: { from: path.resolve('node/windows/'), to: 'node' },
+  linux: { from: path.resolve('node/linux/'), to: 'node/' }
 };
+
+console.log(path.resolve('node/mac/go-spacemesh'));
 
 const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
 try {
@@ -98,7 +100,9 @@ const getBuildOptions = ({ target, publish }) => {
         'package.json',
         'node_modules/',
         'proto/',
-        'resources/icons/*',
+        'resources/icons/*'
+      ],
+      extraFiles: [
         nodeFiles[target]
       ],
       mac: {
@@ -116,7 +120,7 @@ const getBuildOptions = ({ target, publish }) => {
         background: path.join(__dirname, '..', 'resources', 'background.png'),
         contents: [
           {
-            x: 330,
+            x: 245,
             y: 180,
             type: 'link',
             path: '/Applications'
