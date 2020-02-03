@@ -41,7 +41,7 @@ const getValueAndUnit = (amount: number) => {
     unit = 'SMD';
   }
 
-  // truncate to 3 decimals and truncate trailing franctional 0s
+  // truncate to 3 decimals and truncate trailing fractional 0s
   const s = parseFloat(v.toFixed(3)).toString();
   return { value: s, unit };
 };
