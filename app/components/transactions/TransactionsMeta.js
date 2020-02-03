@@ -69,7 +69,7 @@ class TransactionsMeta extends PureComponent<Props> {
     const { mined, sent, received, totalMined, totalSent, totalReceived, filterName } = this.props;
     const totalFilteredCoins = mined + sent + received;
     const coinsMeta = [
-      { title: 'MINED', coins: mined },
+      { title: 'SMESHED', coins: mined },
       { title: 'SENT', coins: sent },
       { title: 'RECEIVED', coins: received }
     ];
