@@ -28,7 +28,6 @@ const ipcConsts = {
   KILL_NODE: 'KILL_NODE',
   QUIT_APP: 'QUIT_APP',
   KEEP_RUNNING_IN_BACKGROUND: 'KEEP_RUNNING_IN_BACKGROUND',
-  COPY_NODE_BINARY: 'COPY_NODE_BINARY',
   TMP_RUN_NODE_CALL: 'TMP_RUN_NODE_CALL', // TODO remove after stabilizing node start params
   // gRPC calls
   // Node management
