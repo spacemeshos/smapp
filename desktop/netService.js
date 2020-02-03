@@ -190,7 +190,7 @@ class NetService {
   getAccountRewards = async ({ event, address }) => {
     try {
       const { rewards } = await this._getAccountRewards({ address });
-      if (!rewards) {
+      if (!rewards || !rewards.length) {
         event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: [] });
       } else {
         const parsedReward = rewards.map((reward) => ({
