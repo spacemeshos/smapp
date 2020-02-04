@@ -44,7 +44,7 @@ class NodeManager {
     try {
       const processes = await getPidByName({ name: 'go-spacemesh' });
       if (processes) {
-        const command = `${processes[0].pid}>&- && kill -s INT ${processes[1].pid}`;
+        const command = `kill -s INT ${processes[1].pid}`;
         exec(command, (err) => {
           if (err) {
             console.error(err); // eslint-disable-line no-console

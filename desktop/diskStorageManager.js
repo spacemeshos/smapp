@@ -13,7 +13,7 @@ class DiskStorageManager {
       if (os.type() === 'Darwin') {
         mountedDrives = mountPoints.filter((mountPoint) => mountPoint.identifier === 'disk1s1');
         mountedDrives[0].mount = path.resolve(mountedDrives[0].mount, app.getPath('home'));
-        validSizeMountPoints = sizeMountPoints.filter((mountPoint) => mountPoint.identifier === 'disk1s1');
+        validSizeMountPoints = sizeMountPoints.filter((mountPoint) => mountPoint.fs.includes('disk1s1'));
         validSizeMountPoints[0].mount = path.resolve(validSizeMountPoints[0].mount, app.getPath('home'));
       } else {
         mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount); // yields only mounted and non VM
