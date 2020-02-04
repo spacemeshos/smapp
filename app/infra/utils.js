@@ -49,7 +49,7 @@ const getValueAndUnit = (amount: number) => {
 // Returns formatted display string for a smidge amount.
 // All coin displayed in the app should display amount formatted
 const formatSmidge = (amount: number, separateResult) => {
-  const res = getValueAndUnit(amount);
+  const res = getValueAndUnit(parseInt(amount));
   return separateResult ? { value: res.value, unit: res.unit } : `${res.value} ${res.unit}`;
 };
 

@@ -158,7 +158,7 @@ class FileManager {
     if (response === 0) {
       clearInterval(FileManager.fileWriterInterval);
       browserWindow.destroy();
-      const command = os.type() === 'windows' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
+      const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
       exec(command, (error) => {
         if (error) {
           console.error(error); // eslint-disable-line no-console
