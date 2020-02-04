@@ -56,6 +56,7 @@ class HttpService {
 
   static getAccountRewards({ address }: { address: string }) {
     ipcRenderer.send(ipcConsts.GET_ACCOUNT_REWARDS, { address });
+    ipcRenderer.removeAllListeners(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, (event, response) => {
         if (response.error) {
