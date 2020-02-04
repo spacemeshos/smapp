@@ -279,7 +279,7 @@ class Node extends Component<Props, State> {
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
         <Dots>..................</Dots>
-        <RightText>{timeTillNextAward} min</RightText>
+        <RightText>{timeTillNextAward ? `${timeTillNextAward} min` : 'Calculating...'}</RightText>
       </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
