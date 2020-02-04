@@ -113,7 +113,7 @@ class NodeManager {
         });
       } else {
         const savedMiningParams = StoreService.get({ key: 'miningParams' });
-        const postDataFolder = path.resolve(savedMiningParams.logicalDrive, 'post');
+        const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
         const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config '${tomlFileLocation}'${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir '${postDataFolder}'` : ''
         } -d '${nodeDataFilesPath}${additionalSlash}' >> '${logFilePath}'`;
