@@ -221,9 +221,7 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
         !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
       hasConfirmedOutgoingTxs =
         !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
-      unifiedTxList[existingListMap[tx.txId].index] = tx.timestamp
-        ? { ...tx, layerId: existingListMap[tx.txId].tx.layerId }
-        : { ...tx, layerId: existingListMap[tx.txId].tx.layerId, timestamp: existingListMap[tx.txId].tx.timestamp };
+      unifiedTxList[existingListMap[tx.txId].index] = { ...existingListMap[tx.txId].tx, status: tx.status };
     } else {
       hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
       unifiedTxList.push(tx.timestamp ? tx : { ...tx, timestamp: new Date().getTime() });

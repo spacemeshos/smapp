@@ -11,9 +11,9 @@ class DiskStorageManager {
       let mountedDrives;
       let validSizeMountPoints;
       if (os.type() === 'Darwin') {
-        mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount && mountPoint.mount.includes('Data')); // yields only mounted and non VM
+        mountedDrives = mountPoints.filter((mountPoint) => mountPoint.identifier === 'disk1s1');
         mountedDrives[0].mount = path.resolve(mountedDrives[0].mount, app.getPath('home'));
-        validSizeMountPoints = sizeMountPoints.filter((mountPoint) => mountPoint.mount.includes('Data'));
+        validSizeMountPoints = sizeMountPoints.filter((mountPoint) => mountPoint.identifier === 'disk1s1');
         validSizeMountPoints[0].mount = path.resolve(validSizeMountPoints[0].mount, app.getPath('home'));
       } else {
         mountedDrives = mountPoints.filter((mountPoint) => !!mountPoint.mount); // yields only mounted and non VM
