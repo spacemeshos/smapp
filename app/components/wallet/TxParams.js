@@ -175,7 +175,7 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMG" style={{ flex: 1 }} />
+          <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={{ flex: 1 }} />
           {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
