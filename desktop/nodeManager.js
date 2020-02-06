@@ -93,17 +93,18 @@ class NodeManager {
 
       await FileManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
+      const savedMiningParams = StoreService.get({ key: 'miningParams' });
+      const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
+
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
         StoreService.remove({ key: 'savedMiningParams' });
         await FileManager.cleanWalletFile();
-        const homeDirPath = app.getPath('home');
-        const postDataPath = path.resolve(homeDirPath, 'post');
         const dataPath = path.resolve(`${userDataPath}`, 'spacemesh');
         const command =
           os.type() === 'Windows_NT'
-            ? `(if exist ${dataPath} rd /s /q ${dataPath}) && (if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataPath} rd /s /q ${postDataPath}) && (if exist ${logFilePath} del ${logFilePath})`
-            : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
+            ? `(if exist ${dataPath} rd /s /q ${dataPath}) && (if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
+            : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             // eslint-disable-next-line max-len
@@ -121,8 +122,6 @@ class NodeManager {
           }
         });
       } else {
-        const savedMiningParams = StoreService.get({ key: 'miningParams' });
-        const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
         const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${tomlFileLocation}${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir ${postDataFolder}` : ''
         } -d ${nodeDataFilesPath} >> ${logFilePath}`;
