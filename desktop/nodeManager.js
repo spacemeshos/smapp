@@ -41,19 +41,28 @@ class NodeManager {
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
   static killNodeProcess = async ({ event }) => {
-    try {
-      const processes = await getPidByName({ name: 'go-spacemesh' });
-      if (processes) {
-        const command = `kill -s INT ${processes[1].pid}`;
-        exec(command, (err) => {
-          if (err) {
-            console.error(err); // eslint-disable-line no-console
-            event.returnValue = null; // eslint-disable-line no-param-reassign
+      try {
+          if (os.type() === 'Windows_NT') {
+              exec('taskkill /F /IM go-spacemesh.exe', (err) => {
+                  if (err) {
+                      console.error(err); // eslint-disable-line no-console
+                      event.returnValue = null; // eslint-disable-line no-param-reassign
+                  }
+                  event.returnValue = null; // eslint-disable-line no-param-reassign
+              });
+          } else {
+              const processes = await getPidByName({ name: 'go-spacemesh' });
+              if (processes) {
+                  exec(`kill -s INT ${processes[1].pid}`, (err) => {
+                      if (err) {
+                          console.error(err); // eslint-disable-line no-console
+                          event.returnValue = null; // eslint-disable-line no-param-reassign
+                      }
+                      event.returnValue = null; // eslint-disable-line no-param-reassign
+                  });
+              }
+              event.returnValue = null; // eslint-disable-line no-param-reassign
           }
-          event.returnValue = null; // eslint-disable-line no-param-reassign
-        });
-      }
-      event.returnValue = null; // eslint-disable-line no-param-reassign
     } catch (err) {
       // could not find or kill node process
       console.error(err); // eslint-disable-line no-console
@@ -93,7 +102,7 @@ class NodeManager {
         const dataPath = path.resolve(`${userDataPath}`, 'spacemesh');
         const command =
           os.type() === 'Windows_NT'
-            ? `rd /s /q ${dataPath} && rd /s /q ${nodeDataFilesPath} && rd /s /q ${postDataPath} && del ${logFilePath}`
+            ? `(if exist ${dataPath} rd /s /q ${dataPath}) && (if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataPath} rd /s /q ${postDataPath}) && (if exist ${logFilePath} del ${logFilePath})`
             : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
