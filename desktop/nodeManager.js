@@ -41,28 +41,28 @@ class NodeManager {
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
   static killNodeProcess = async ({ event }) => {
-      try {
-          if (os.type() === 'Windows_NT') {
-              exec('taskkill /F /IM go-spacemesh.exe', (err) => {
-                  if (err) {
-                      console.error(err); // eslint-disable-line no-console
-                      event.returnValue = null; // eslint-disable-line no-param-reassign
-                  }
-                  event.returnValue = null; // eslint-disable-line no-param-reassign
-              });
-          } else {
-              const processes = await getPidByName({ name: 'go-spacemesh' });
-              if (processes) {
-                  exec(`kill -s INT ${processes[1].pid}`, (err) => {
-                      if (err) {
-                          console.error(err); // eslint-disable-line no-console
-                          event.returnValue = null; // eslint-disable-line no-param-reassign
-                      }
-                      event.returnValue = null; // eslint-disable-line no-param-reassign
-                  });
-              }
-              event.returnValue = null; // eslint-disable-line no-param-reassign
+    try {
+      if (os.type() === 'Windows_NT') {
+        exec('taskkill /F /IM go-spacemesh.exe', (err) => {
+          if (err) {
+            console.error(err); // eslint-disable-line no-console
+            event.returnValue = null; // eslint-disable-line no-param-reassign
           }
+          event.returnValue = null; // eslint-disable-line no-param-reassign
+        });
+      } else {
+        const processes = await getPidByName({ name: 'go-spacemesh' });
+        if (processes) {
+          exec(`kill -s INT ${processes[1].pid}`, (err) => {
+            if (err) {
+              console.error(err); // eslint-disable-line no-console
+              event.returnValue = null; // eslint-disable-line no-param-reassign
+            }
+            event.returnValue = null; // eslint-disable-line no-param-reassign
+          });
+        }
+        event.returnValue = null; // eslint-disable-line no-param-reassign
+      }
     } catch (err) {
       // could not find or kill node process
       console.error(err); // eslint-disable-line no-console
@@ -79,7 +79,8 @@ class NodeManager {
       const fetchedGenesisTime = parsedToml.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
-      const userDataPath = app.getPath('userData').replace(' ', '\ '); // eslint-disable-line
+      const userDataPath = app.getPath('userData'); // eslint-disable-line
+      const shouldAddApostrophe = userDataPath.indexOf(' ') !== -1;
       const osTarget = osTargetNames[os.type()];
       const nodePath = path.resolve(
         app.getAppPath(),
@@ -103,12 +104,17 @@ class NodeManager {
         const dataPath = path.resolve(`${userDataPath}`, 'spacemesh');
         const command =
           os.type() === 'Windows_NT'
-            ? `(if exist ${dataPath} rd /s /q ${dataPath}) && (if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
+            ? // eslint-disable-next-line max-len
+              `(if exist ${dataPath} rd /s /q ${dataPath}) && (if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
             : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             // eslint-disable-next-line max-len
-            const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${tomlFileLocation} -d ${nodeDataFilesPath} > ${logFilePath}`;
+            const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${shouldAddApostrophe ? "'" : ''}${tomlFileLocation}${
+              shouldAddApostrophe ? "'" : ''
+            } -d ${shouldAddApostrophe ? "'" : ''}${nodeDataFilesPath}${additionalSlash}${shouldAddApostrophe ? "'" : ''} > ${shouldAddApostrophe ? "'" : ''}${logFilePath}${
+              shouldAddApostrophe ? "'" : ''
+            }`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 dialog.showErrorBox('Node Start Error', `${error}`);
@@ -122,9 +128,17 @@ class NodeManager {
           }
         });
       } else {
-        const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${tomlFileLocation}${
-          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir ${postDataFolder}` : ''
-        } -d ${nodeDataFilesPath} >> ${logFilePath}`;
+        const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${shouldAddApostrophe ? "'" : ''}${tomlFileLocation}${
+          shouldAddApostrophe ? "'" : ''
+        }${
+          savedMiningParams
+            ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir ${shouldAddApostrophe ? "'" : ''}${postDataFolder}${additionalSlash}${
+                shouldAddApostrophe ? "'" : ''
+              }`
+            : ''
+        } -d ${shouldAddApostrophe ? "'" : ''}${nodeDataFilesPath}${additionalSlash}${shouldAddApostrophe ? "'" : ''} >> ${shouldAddApostrophe ? "'" : ''}${logFilePath}${
+          shouldAddApostrophe ? "'" : ''
+        }`;
         exec(nodePathWithParams, (error) => {
           if (error) {
             dialog.showErrorBox('Node Start Error', `${error}`);
