@@ -128,7 +128,7 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     const balance = await httpService.getBalance({ address: accounts[currentAccountIndex].publicKey });
     dispatch({ type: SET_BALANCE, payload: { balance } });
   } catch (error) {
-    if (typeof error.details === 'string' && error.details.includes('account does not exist')) {
+    if (typeof error.message === 'string' && error.message.includes('account does not exist')) {
       dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
     } else {
       throw createError('Error getting balance!', getBalance);

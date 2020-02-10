@@ -59,7 +59,7 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
     localStorageService.clearByKey('rewards');
     dispatch({ type: INIT_MINING, payload: { address } });
   } catch (err) {
-    throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
+    throw createError('Error initiating smeshing', () => initMining({ logicalDrive, commitmentSize, address }));
   }
 };
 

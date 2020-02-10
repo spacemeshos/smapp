@@ -42,18 +42,27 @@ class NodeManager {
 
   static killNodeProcess = async ({ event }) => {
     try {
-      const processes = await getPidByName({ name: 'go-spacemesh' });
-      if (processes) {
-        const command = `kill -s INT ${processes[1].pid}`;
-        exec(command, (err) => {
+      if (os.type() === 'Windows_NT') {
+        exec('taskkill /F /IM go-spacemesh.exe', (err) => {
           if (err) {
             console.error(err); // eslint-disable-line no-console
             event.returnValue = null; // eslint-disable-line no-param-reassign
           }
           event.returnValue = null; // eslint-disable-line no-param-reassign
         });
+      } else {
+        const processes = await getPidByName({ name: 'go-spacemesh' });
+        if (processes) {
+          exec(`kill -s INT ${processes[1].pid}`, (err) => {
+            if (err) {
+              console.error(err); // eslint-disable-line no-console
+              event.returnValue = null; // eslint-disable-line no-param-reassign
+            }
+            event.returnValue = null; // eslint-disable-line no-param-reassign
+          });
+        }
+        event.returnValue = null; // eslint-disable-line no-param-reassign
       }
-      event.returnValue = null; // eslint-disable-line no-param-reassign
     } catch (err) {
       // could not find or kill node process
       console.error(err); // eslint-disable-line no-console
@@ -70,11 +79,11 @@ class NodeManager {
       const fetchedGenesisTime = parsedToml.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
-      const userDataPath = app.getPath('userData').replace(' ', '\ '); // eslint-disable-line
+      const userDataPath = app.getPath('userData'); // eslint-disable-line
       const osTarget = osTargetNames[os.type()];
       const nodePath = path.resolve(
         app.getAppPath(),
-        process.env.NODE_ENV === 'development' ? '../node/mac/' : '../../node/',
+        process.env.NODE_ENV === 'development' ? `../node/${osTarget}/` : '../../node/',
         `go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`
       );
       const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
@@ -84,21 +93,23 @@ class NodeManager {
 
       await FileManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
+      const savedMiningParams = StoreService.get({ key: 'miningParams' });
+      const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
+
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
         StoreService.remove({ key: 'savedMiningParams' });
         await FileManager.cleanWalletFile();
-        const homeDirPath = app.getPath('home');
-        const postDataPath = path.resolve(homeDirPath, 'post');
         const dataPath = path.resolve(`${userDataPath}`, 'spacemesh');
         const command =
           os.type() === 'Windows_NT'
-            ? `rmdir /q/s ${dataPath} && rmdir /q/s ${nodeDataFilesPath} && rmdir /q/s ${postDataPath} && del ${logFilePath}`
-            : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataPath} && rm -rf ${logFilePath}`;
+            ? // eslint-disable-next-line max-len
+              `(if exist ${dataPath} rd /s /q ${dataPath}) && (if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
+            : `rm -rf ${dataPath} && rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             // eslint-disable-next-line max-len
-            const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config '${tomlFileLocation}' -d '${nodeDataFilesPath}${additionalSlash}' > '${logFilePath}'`;
+            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}${additionalSlash}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 dialog.showErrorBox('Node Start Error', `${error}`);
@@ -112,11 +123,9 @@ class NodeManager {
           }
         });
       } else {
-        const savedMiningParams = StoreService.get({ key: 'miningParams' });
-        const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
-        const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config '${tomlFileLocation}'${
-          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir '${postDataFolder}'` : ''
-        } -d '${nodeDataFilesPath}${additionalSlash}' >> '${logFilePath}'`;
+        const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${postDataFolder}${additionalSlash}"` : ''
+        } -d "${nodeDataFilesPath}${additionalSlash}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
             dialog.showErrorBox('Node Start Error', `${error}`);

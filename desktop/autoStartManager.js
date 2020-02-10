@@ -5,25 +5,25 @@ import StoreService from './storeService';
 class AutoStartManager {
   static manager;
 
-  static init() {
+  static init = async () => {
     if (!AutoStartManager.manager) {
       AutoStartManager.manager = new AutoLaunch({
         name: 'Spacemesh',
         isHidden: true
       });
       if (StoreService.get({ key: 'isAutoStartEnabled' })) {
-        AutoStartManager.manager.enable();
+        await AutoStartManager.manager.enable();
       }
     }
-  }
+  };
 
   static toggleAutoStart = async () => {
     try {
       const isEnabled = await AutoStartManager.manager.isEnabled();
       if (isEnabled) {
-        AutoStartManager.manager.disable();
+        await AutoStartManager.manager.disable();
       } else {
-        AutoStartManager.manager.enable();
+        await AutoStartManager.manager.enable();
       }
       StoreService.set({ key: 'isAutoStartEnabled', value: !isEnabled });
     } catch (error) {

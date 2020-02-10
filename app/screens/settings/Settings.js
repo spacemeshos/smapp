@@ -215,7 +215,7 @@ class Settings extends Component<Props, State> {
                       <Link onClick={() => this.startEditingAccountDisplayName({ index })} text="EDIT" />
                     )
                   }
-                  rowName={getAddress(account.publicKey)}
+                  rowName={`0x${getAddress(account.publicKey)}`}
                   key={account.publicKey}
                 />
               ))}
