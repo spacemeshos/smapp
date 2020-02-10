@@ -80,7 +80,6 @@ class NodeManager {
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
       const userDataPath = app.getPath('userData'); // eslint-disable-line
-      const shouldAddApostrophe = userDataPath.indexOf(' ') !== -1;
       const osTarget = osTargetNames[os.type()];
       const nodePath = path.resolve(
         app.getAppPath(),
@@ -110,11 +109,7 @@ class NodeManager {
         exec(command, (err) => {
           if (!err) {
             // eslint-disable-next-line max-len
-            const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${shouldAddApostrophe ? "'" : ''}${tomlFileLocation}${
-              shouldAddApostrophe ? "'" : ''
-            } -d ${shouldAddApostrophe ? "'" : ''}${nodeDataFilesPath}${additionalSlash}${shouldAddApostrophe ? "'" : ''} > ${shouldAddApostrophe ? "'" : ''}${logFilePath}${
-              shouldAddApostrophe ? "'" : ''
-            }`;
+            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}${additionalSlash}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 dialog.showErrorBox('Node Start Error', `${error}`);
@@ -128,17 +123,9 @@ class NodeManager {
           }
         });
       } else {
-        const nodePathWithParams = `${nodePath} --grpc-server --json-server --tcp-port ${port} --config ${shouldAddApostrophe ? "'" : ''}${tomlFileLocation}${
-          shouldAddApostrophe ? "'" : ''
-        }${
-          savedMiningParams
-            ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir ${shouldAddApostrophe ? "'" : ''}${postDataFolder}${additionalSlash}${
-                shouldAddApostrophe ? "'" : ''
-              }`
-            : ''
-        } -d ${shouldAddApostrophe ? "'" : ''}${nodeDataFilesPath}${additionalSlash}${shouldAddApostrophe ? "'" : ''} >> ${shouldAddApostrophe ? "'" : ''}${logFilePath}${
-          shouldAddApostrophe ? "'" : ''
-        }`;
+        const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${postDataFolder}${additionalSlash}"` : ''
+        } -d "${nodeDataFilesPath}${additionalSlash}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
             dialog.showErrorBox('Node Start Error', `${error}`);
