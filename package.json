@@ -8,7 +8,7 @@
     "url": "https://spacemesh.io/"
   },
   "private": true,
-  "description": "Spacemesh Coin Wallet Desktop Application",
+  "description": "Spacemesh reference full p2p node, miner and wallet",
   "scripts": {
     "build": "npm run build-main && npm run build-renderer",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
