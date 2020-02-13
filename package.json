@@ -48,7 +48,7 @@
     "spacemeshos",
     "smapp"
   ],
-  "homepage": "https://github.com/spacemeshos/smapp#readme",
+  "homepage": "https://spacemesh.io/",
   "devDependencies": {
     "@babel/core": "7.7.4",
     "@babel/plugin-proposal-class-properties": "7.7.4",
