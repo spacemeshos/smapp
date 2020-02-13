@@ -27,14 +27,6 @@ const fileHashList = {
   deb: {
     file: 'deb_installer',
     hash: 'deb_sha512'
-  },
-  snap: {
-    file: 'snap_installer',
-    hash: 'snap_sha512'
-  },
-  AppImage: {
-    file: 'AppImage_installer',
-    hash: 'AppImage_sha512'
   }
 };
 
@@ -149,7 +141,7 @@ const getBuildOptions = ({ target, publish }) => {
         uninstallDisplayName: 'Spacemesh (${version})'
       },
       linux: {
-        target: ['deb', 'snap', 'AppImage'],
+        target: ['deb'],
         category: 'Utility',
         icon: path.join(__dirname, '..', 'resources', 'icons')
       },
