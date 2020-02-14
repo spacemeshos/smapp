@@ -87,8 +87,7 @@ class NodeManager {
         `go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`
       );
       const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata/');
-      const additionalSlash = os.type() === 'Windows_NT' ? '\\' : '/';
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata');
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
       await FileManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
@@ -103,12 +102,12 @@ class NodeManager {
         const command =
           os.type() === 'Windows_NT'
             ? // eslint-disable-next-line max-len
-              `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
+            `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
             : `rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             // eslint-disable-next-line max-len
-            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}${additionalSlash}" > "${logFilePath}"`;
+            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 dialog.showErrorBox('Node Start Error', `${error}`);
@@ -123,8 +122,8 @@ class NodeManager {
         });
       } else {
         const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
-          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${postDataFolder}${additionalSlash}"` : ''
-        } -d "${nodeDataFilesPath}${additionalSlash}" >> "${logFilePath}"`;
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${postDataFolder}"` : ''
+        } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
             dialog.showErrorBox('Node Start Error', `${error}`);
