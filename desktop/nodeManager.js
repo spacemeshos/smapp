@@ -55,7 +55,7 @@ class NodeManager {
 
   static tmpRunNodeFunc = async ({ port }) => {
     try {
-      const rawData = await fetch('http://nodes.unruly.io'); // http://aa234afcf4aac11ea8d4d0ea80dce922-558418211.us-east-1.elb.amazonaws.com/
+      const rawData = await fetch('http://aa234afcf4aac11ea8d4d0ea80dce922-558418211.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
@@ -116,8 +116,13 @@ class NodeManager {
         });
       }
     } catch (e) {
-      dialog.showErrorBox('Loading / Parsing toml failed', `${e}`);
-      console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+      if (e.line) {
+        dialog.showErrorBox('Parsing toml failed', `${e}`);
+        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+      } else {
+        dialog.showErrorBox('Failed to download settings file.', 'Check your internet connection and restart the app');
+        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+      }
     }
   };
 
