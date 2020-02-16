@@ -6,6 +6,20 @@ class HttpService {
   /**
    *  ************************************************** NODE MANAGEMENT ********************************************************
    */
+
+  static getNodeStatus() {
+    ipcRenderer.send(ipcConsts.GET_NODE_STATUS);
+    ipcRenderer.removeAllListeners(ipcConsts.GET_NODE_STATUS_RESPONSE);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_NODE_STATUS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.status);
+      });
+    });
+  }
+
   static initMining({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string, commitmentSize: number, coinbase: string }) {
     ipcRenderer.send(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, coinbase });
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
@@ -73,18 +87,6 @@ class HttpService {
       ipcRenderer.once(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, (event, response) => {
         if (response.error) {
           reject(response.error);
-        }
-        resolve();
-      });
-    });
-  }
-
-  static checkNodeConnection() {
-    ipcRenderer.send(ipcConsts.CHECK_NODE_CONNECTION);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.CHECK_NODE_CONNECTION_RESPONSE, (event, response) => {
-        if (response.error) {
-          reject();
         }
         resolve();
       });

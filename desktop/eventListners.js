@@ -86,8 +86,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   /**
    ******************************************* gRPS Calls **************************************
    */
-  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, (event) => {
-    netService.checkNodeConnection({ event });
+  ipcMain.on(ipcConsts.GET_NODE_STATUS, (event) => {
+    netService.getNodeStatus({ event });
   });
 
   ipcMain.on(ipcConsts.GET_MINING_STATUS, (event) => {

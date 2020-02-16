@@ -231,51 +231,48 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
 };
 
 export const getTxList = ({ notify }: { notify: Function }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { isConnected } = getState().node;
-  if (isConnected) {
-    try {
-      const { accounts, transactions } = getState().wallet;
-      let updatedTransactions = [];
+  try {
+    const { accounts, transactions } = getState().wallet;
+    let updatedTransactions = [];
 
-      // for given account and it's tx ids list get full tx data
-      const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
-        await asyncForEach(txIds, async (txId) => {
-          const tx = await httpService.getTransaction({ id: fromHexString(txId.substring(2)) });
-          collector.push(tx);
-        });
-      };
+    // for given account and it's tx ids list get full tx data
+    const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
+      await asyncForEach(txIds, async (txId) => {
+        const tx = await httpService.getTransaction({ id: fromHexString(txId.substring(2)) });
+        collector.push(tx);
+      });
+    };
 
-      // get all tx ids for every account, then for each account get full tx data for the list
-      const txListCollector = async () => {
-        let minValidatedLayer = 0;
-        await asyncForEach(accounts, async (account, index) => {
-          const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
-          if (minValidatedLayer === 0) {
-            minValidatedLayer = validatedLayer;
+    // get all tx ids for every account, then for each account get full tx data for the list
+    const txListCollector = async () => {
+      let minValidatedLayer = 0;
+      await asyncForEach(accounts, async (account, index) => {
+        const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
+        if (minValidatedLayer === 0) {
+          minValidatedLayer = validatedLayer;
+        }
+        transactions[index].data.forEach((existingTx) => {
+          if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
+            txs.push(`0x${existingTx.txId}`);
           }
-          transactions[index].data.forEach((existingTx) => {
-            if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
-              txs.push(`0x${existingTx.txId}`);
-            }
-          });
-          const fullDataTxsList = [];
-          await fullTxDataCollector(txs, fullDataTxsList);
-          const { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = mergeTxStatuses({
-            existingList: transactions[index].data,
-            incomingList: fullDataTxsList,
-            address: getAddress(account.publicKey)
-          });
-          if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
-            notify({ hasConfirmedIncomingTxs });
-          }
-          updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
         });
-      };
-      await txListCollector();
-      dispatch(setTransactions({ transactions: updatedTransactions }));
-    } catch (error) {
-      console.log(error); // eslint-disable-line no-console
-    }
+        const fullDataTxsList = [];
+        await fullTxDataCollector(txs, fullDataTxsList);
+        const { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = mergeTxStatuses({
+          existingList: transactions[index].data,
+          incomingList: fullDataTxsList,
+          address: getAddress(account.publicKey)
+        });
+        if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
+          notify({ hasConfirmedIncomingTxs });
+        }
+        updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
+      });
+    };
+    await txListCollector();
+    dispatch(setTransactions({ transactions: updatedTransactions }));
+  } catch (error) {
+    console.log(error); // eslint-disable-line no-console
   }
 };
 
