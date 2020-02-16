@@ -1,7 +1,7 @@
 import os from 'os';
 import path from 'path';
 import { app } from 'electron';
-import { ipcConsts, nodeConsts } from '../app/vars';
+import { ipcConsts } from '../app/vars';
 
 const si = require('systeminformation');
 
@@ -20,7 +20,7 @@ class DiskStorageManager {
         validSizeMountPoints = sizeMountPoints;
       }
       const mappedDrives = [];
-      const minimalCommitmentSizeInBytes = nodeConsts.COMMITMENT_SIZE * 1073741824;
+      const minimalCommitmentSizeInBytes = 4 * 1073741824;
       mountedDrives.forEach((mountPoint) => {
         const volume = validSizeMountPoints.find((validSizeMountPoint) => validSizeMountPoint.mount === mountPoint.mount);
         const availableSpace = volume ? volume.size - volume.used : 0;
