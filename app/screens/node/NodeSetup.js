@@ -174,7 +174,7 @@ class NodeSetup extends Component<Props, State> {
     try {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
-        commitmentSize: 1048576,
+        commitmentSize: 4294967296,
         address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
