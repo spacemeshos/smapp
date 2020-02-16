@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { checkNodeConnection } from '/redux/node/actions';
+import { getNodeStatus } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { Button, Input, ErrorPopup, Loader } from '/basicComponents';
 import { nodeService } from '/infra/nodeService';
@@ -73,7 +73,7 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  checkNodeConnection: Action,
+  getNodeStatus: Action,
   history: RouterHistory
 };
 
@@ -114,10 +114,9 @@ class PreAuth extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { checkNodeConnection, history } = this.props;
-    // await nodeService.copyNodeBinary();
-    const isConnected = await checkNodeConnection();
-    if (isConnected) {
+    const { getNodeStatus, history } = this.props;
+    const status = await getNodeStatus();
+    if (status) {
       history.push('/auth');
     }
   }
@@ -142,7 +141,7 @@ class PreAuth extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  checkNodeConnection
+  getNodeStatus
 };
 
 PreAuth = connect(null, mapDispatchToProps)(PreAuth);

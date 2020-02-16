@@ -10,7 +10,8 @@ import { StepsContainer, Button, SecondaryButton, Link, SmallHorizontalPanel } f
 import { Carousel, CommitmentSelector } from '/components/node';
 import { chevronLeftWhite } from '/assets/images';
 import { diskStorageService } from '/infra/diskStorageService';
-import { smColors, nodeConsts } from '/vars';
+import { nodeService } from '/infra/nodeService';
+import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 
@@ -54,7 +55,7 @@ const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 type Props = {
   accounts: Account[],
   initMining: Action,
-  isConnected: boolean,
+  status: Object,
   history: RouterHistory,
   location: { state?: { isOnlyNodeSetup: boolean } }
 };
@@ -73,6 +74,8 @@ class NodeSetup extends Component<Props, State> {
   steps: Array<string>;
 
   header: string;
+
+  commitmentSize: number;
 
   constructor(props: Props) {
     super(props);
@@ -93,7 +96,7 @@ class NodeSetup extends Component<Props, State> {
   }
 
   render() {
-    const { isConnected } = this.props;
+    const { status } = this.props;
     const { subMode, selectedDriveIndex, selectedCommitmentSize } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
     return (
@@ -105,11 +108,7 @@ class NodeSetup extends Component<Props, State> {
           {this.renderSubMode()}
           <Footer>
             <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />
-            <Button
-              onClick={this.nextAction}
-              text="NEXT"
-              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0) || !isConnected}
-            />
+            <Button onClick={this.nextAction} text="NEXT" isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0) || !status} />
           </Footer>
         </CorneredContainer>
       </Wrapper>
@@ -117,9 +116,10 @@ class NodeSetup extends Component<Props, State> {
   }
 
   async componentDidMount() {
+    this.commitmentSize = await nodeService.getCommitmentSize();
     const drives = await diskStorageService.getDriveList();
     const selectedDriveIndex = drives.length ? 0 : -1;
-    const selectedCommitmentSize = drives.length ? nodeConsts.COMMITMENT_SIZE : 0;
+    const selectedCommitmentSize = drives.length ? 1 : 0;
     this.setState({ drives, selectedDriveIndex, selectedCommitmentSize, isScanningDrives: false });
   }
 
@@ -133,7 +133,7 @@ class NodeSetup extends Component<Props, State> {
             <br />
             Select the hard drive you&#39;d like to use for smeshing.
             <br />
-            {`You need to commit ${nodeConsts.COMMITMENT_SIZE} GB of free space.`}
+            {`You need to commit 4GB of free space.`}
           </SubHeader>
           {!isScanningDrives ? this.renderDriveSelection() : null}
         </>
@@ -149,7 +149,11 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ commitment }) => this.setState({ selectedCommitmentSize: commitment })} />
+        <CommitmentSelector
+          commitmentSize={this.commitmentSize}
+          freeSpace={drives[selectedDriveIndex].availableDiskSpace}
+          onClick={({ commitment }) => this.setState({ selectedCommitmentSize: commitment })}
+        />
       </>
     );
   };
@@ -161,7 +165,7 @@ class NodeSetup extends Component<Props, State> {
     }
     return (
       <EmptyState>
-        <Text>{`Insufficient disk space. You need a local hard drive with at least ${nodeConsts.COMMITMENT_SIZE}GB of free space to setup smeshing.`}</Text>
+        <Text>{`Insufficient disk space. You need a local hard drive with at least ${this.commitmentSize}GB of free space to setup smeshing.`}</Text>
         <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
       </EmptyState>
     );
@@ -174,7 +178,7 @@ class NodeSetup extends Component<Props, State> {
     try {
       await initMining({
         logicalDrive: drives[selectedDriveIndex].mountPoint,
-        commitmentSize: 4294967296,
+        commitmentSize: this.commitmentSize,
         address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
@@ -210,7 +214,7 @@ class NodeSetup extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   accounts: state.wallet.accounts
 });
 

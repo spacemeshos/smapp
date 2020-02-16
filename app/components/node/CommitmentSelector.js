@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Tooltip, ErrorPopup } from '/basicComponents';
 import { tooltip } from '/assets/images';
-import { smColors, nodeConsts } from '/vars';
+import { smColors } from '/vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -118,7 +118,8 @@ const ErrorPopupWrapper = styled.div`
 
 type Props = {
   onClick: ({ commitment: number }) => void,
-  freeSpace: number
+  freeSpace: number,
+  commitmentSize: number
 };
 
 type State = {
@@ -145,6 +146,7 @@ class CommitmentSelector extends Component<Props, State> {
   }
 
   renderSelector = () => {
+    const { commitmentSize } = this.props;
     const { selectedCommitmentIndex, hasInsufficientSpace } = this.state;
     const selectors = [];
     // TODO: for Testnet 0.1 purposes only showing one valid space commitment
@@ -153,7 +155,7 @@ class CommitmentSelector extends Component<Props, State> {
         <SelectorWrapper onClick={() => this.handleClick({ index: i })} key={i} style={{ zIndex: 1 - i }} isDisabled={i !== 0}>
           <SelectorUpperPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isSelected={selectedCommitmentIndex === i} isDisabled={i !== 0}>
             <TextWrapper>
-              <Text>{nodeConsts.COMMITMENT_SIZE * (i + 1)} GB</Text>
+              <Text>{commitmentSize * (i + 1)} GB</Text>
               <TooltipWrapper>
                 <TooltipIcon src={tooltip} />
                 <CustomTooltip text="The download of spacemesh requires 5GB of space in addition to the amount you choose to commit for smeshing" />
@@ -168,8 +170,8 @@ class CommitmentSelector extends Component<Props, State> {
   };
 
   handleClick = ({ index }: { index: number }) => {
-    const { freeSpace, onClick } = this.props;
-    const totalRequiredSpace = nodeConsts.COMMITMENT_SIZE * (index + 1);
+    const { commitmentSize, freeSpace, onClick } = this.props;
+    const totalRequiredSpace = commitmentSize * (index + 1);
     onClick({ commitment: freeSpace < totalRequiredSpace ? 0 : totalRequiredSpace });
     this.setState({ selectedCommitmentIndex: index, hasInsufficientSpace: freeSpace < totalRequiredSpace });
   };

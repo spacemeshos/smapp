@@ -7,7 +7,7 @@ import { nodeConsts } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import { Action, Dispatch, GetState } from '/types';
 
-export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
+export const SET_NODE_STATUS: string = 'SET_NODE_STATUS';
 
 export const SET_MINING_STATUS: string = 'SET_MINING_STATUS';
 export const INIT_MINING: string = 'INIT_MINING';
@@ -19,14 +19,14 @@ export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
 export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
-export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
+export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.checkNodeConnection();
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
-    return true;
+    const status = await httpService.getNodeStatus();
+    dispatch({ type: SET_NODE_STATUS, payload: { status } });
+    return status;
   } catch (err) {
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    return false;
+    dispatch({ type: SET_NODE_STATUS, payload: { status: null } });
+    return null;
   }
 };
 

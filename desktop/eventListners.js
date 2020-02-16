@@ -63,10 +63,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     AutoStartManager.isEnabled({ event });
   });
 
-  ipcMain.on(ipcConsts.START_NODE, (event) => {
-    NodeManager.startNode({ event });
-  });
-
   ipcMain.on(ipcConsts.HARD_REFRESH, () => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
@@ -75,8 +71,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.killNodeProcess({ event });
   });
 
-  ipcMain.once(ipcConsts.COPY_NODE_BINARY, async () => {
-    await NodeManager.copyNodeBinary();
+  ipcMain.once(ipcConsts.GET_COMMITMENT_SIZE, async (event) => {
+    await NodeManager.getCommitmentSize({ event });
   });
 
   ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
@@ -86,8 +82,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   /**
    ******************************************* gRPS Calls **************************************
    */
-  ipcMain.on(ipcConsts.CHECK_NODE_CONNECTION, (event) => {
-    netService.checkNodeConnection({ event });
+  ipcMain.on(ipcConsts.GET_NODE_STATUS, (event) => {
+    netService.getNodeStatus({ event });
   });
 
   ipcMain.on(ipcConsts.GET_MINING_STATUS, (event) => {

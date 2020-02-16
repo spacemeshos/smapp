@@ -2,10 +2,10 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_GENESIS_TIME, SET_UPCOMING_REWARDS, SET_ACCOUNT_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP } from './actions';
+import { SET_MINING_STATUS, INIT_MINING, SET_GENESIS_TIME, SET_UPCOMING_REWARDS, SET_ACCOUNT_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS } from './actions';
 
 const initialState = {
-  isConnected: false,
+  status: null,
   miningStatus: nodeConsts.NOT_MINING,
   genesisTime: 0,
   timeTillNextAward: 0,
@@ -17,11 +17,11 @@ const initialState = {
 
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
-    case CHECK_NODE_CONNECTION: {
+    case SET_NODE_STATUS: {
       const {
-        payload: { isConnected }
+        payload: { status }
       } = action;
-      return { ...state, isConnected };
+      return { ...state, status };
     }
     case SET_MINING_STATUS: {
       const {

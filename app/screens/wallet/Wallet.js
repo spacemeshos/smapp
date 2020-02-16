@@ -73,7 +73,7 @@ type Props = {
   currentAccountIndex: number,
   getBalance: Action,
   setCurrentAccount: Action,
-  isConnected: boolean,
+  status: Object,
   history: RouterHistory
 };
 
@@ -118,8 +118,8 @@ class Wallet extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { isConnected, getBalance } = this.props;
-    if (isConnected) {
+    const { status, getBalance } = this.props;
+    if (status) {
       try {
         await getBalance();
         this.getBalanceInterval = setInterval(async () => {
@@ -144,7 +144,7 @@ class Wallet extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   currentAccountIndex: state.wallet.currentAccountIndex
