@@ -15,9 +15,9 @@ class NetService {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
-  _checkNodeConnection = () =>
+  _getNodeStatus = () =>
     new Promise((resolve, reject) => {
-      this.service.Echo({}, (error, response) => {
+      this.service.GetNodeStatus({}, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -135,12 +135,21 @@ class NetService {
       });
     });
 
-  checkNodeConnection = async ({ event }) => {
+  getNodeStatus = async ({ event }) => {
     try {
-      await this._checkNodeConnection();
-      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_RESPONSE, { error: null });
+      const status = await this._getNodeStatus();
+      const parsedStatus = {
+        peers: parseInt(status.peers),
+        minPeers: parseInt(status.minPeers),
+        maxPeers: parseInt(status.maxPeers),
+        synced: status.synced,
+        syncedLayer: parseInt(status.syncedLayer),
+        currentLayer: parseInt(status.currentLayer),
+        verifiedLayer: parseInt(status.verifiedLayer)
+      };
+      event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: parsedStatus, error: null });
     } catch (error) {
-      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_RESPONSE, { error: error.message });
+      event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: null, error });
     }
   };
 

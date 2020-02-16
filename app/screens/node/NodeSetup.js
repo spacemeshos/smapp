@@ -54,7 +54,7 @@ const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 type Props = {
   accounts: Account[],
   initMining: Action,
-  isConnected: boolean,
+  status: Object,
   history: RouterHistory,
   location: { state?: { isOnlyNodeSetup: boolean } }
 };
@@ -93,7 +93,7 @@ class NodeSetup extends Component<Props, State> {
   }
 
   render() {
-    const { isConnected } = this.props;
+    const { status } = this.props;
     const { subMode, selectedDriveIndex, selectedCommitmentSize } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
     return (
@@ -105,11 +105,7 @@ class NodeSetup extends Component<Props, State> {
           {this.renderSubMode()}
           <Footer>
             <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />
-            <Button
-              onClick={this.nextAction}
-              text="NEXT"
-              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0) || !isConnected}
-            />
+            <Button onClick={this.nextAction} text="NEXT" isDisabled={(subMode === 2 && selectedDriveIndex === -1) || (subMode === 3 && selectedCommitmentSize === 0) || !status} />
           </Footer>
         </CorneredContainer>
       </Wrapper>
@@ -210,7 +206,7 @@ class NodeSetup extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   accounts: state.wallet.accounts
 });
 

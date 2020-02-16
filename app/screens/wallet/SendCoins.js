@@ -14,7 +14,7 @@ type Props = {
   currentAccount: Account,
   sendTransaction: Action,
   history: RouterHistory,
-  isConnected: boolean,
+  status: Object,
   location: { state?: { contact: Contact } }
 };
 
@@ -48,7 +48,7 @@ class SendCoins extends Component<Props, State> {
   }
 
   render() {
-    const { currentAccount, history, isConnected } = this.props;
+    const { currentAccount, history, status } = this.props;
     const { mode, address, amount, fee, note, txId } = this.state;
     switch (mode) {
       case 1: {
@@ -63,7 +63,7 @@ class SendCoins extends Component<Props, State> {
             fee={fee}
             note={note}
             doneAction={this.sendTransaction}
-            isConnected={isConnected}
+            status={status}
             editTx={() => this.setState({ mode: 1 })}
             cancelTx={history.goBack}
           />
@@ -188,7 +188,7 @@ class SendCoins extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   contacts: state.wallet.contacts,
   lastUsedContacts: state.wallet.lastUsedContacts

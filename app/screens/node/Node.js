@@ -72,7 +72,7 @@ const Footer = styled.div`
 const Status = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ isConnected }) => (isConnected ? smColors.green : smColors.orange)};
+  color: ${({ status }) => (status ? smColors.green : smColors.orange)};
   margin-bottom: 30px;
 `;
 
@@ -118,7 +118,7 @@ const Fireworks = styled.img`
 const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
 
 type Props = {
-  isConnected: boolean,
+  status: Object,
   miningStatus: number,
   timeTillNextAward: number,
   totalEarnings: number,
@@ -197,8 +197,8 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { isConnected, miningStatus, getUpcomingRewards } = this.props;
-    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
+    const { status, miningStatus, getUpcomingRewards } = this.props;
+    if (status && status.synced && miningStatus === nodeConsts.IS_MINING) {
       await getUpcomingRewards();
       this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
     }
@@ -270,11 +270,11 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { isConnected, timeTillNextAward, totalEarnings, totalFeesEarnings } = this.props;
+    const { status, timeTillNextAward, totalEarnings, totalFeesEarnings } = this.props;
     const { isMiningPaused } = this.state;
     return [
-      <Status key="status" isConnected={isConnected}>
-        {isConnected ? 'Your Smesher is online.' : 'Not connected!'}
+      <Status key="status" status={status}>
+        {status ? 'Your Smesher is online.' : 'Not connected!'}
       </Status>,
       <TextWrapper key="1">
         <LeftText>Upcoming reward in</LeftText>
@@ -315,7 +315,7 @@ class Node extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   miningStatus: state.node.miningStatus,
   timeTillNextAward: state.node.timeTillNextAward,
   totalEarnings: state.node.totalEarnings,

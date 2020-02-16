@@ -93,6 +93,12 @@ const ComplexButtonText = styled.div`
   color: ${smColors.mediumGray};
 `;
 
+const NotSyncedExplanation = styled.div`
+  font-size: 13px;
+  line-height: 17px;
+  color: ${smColors.black};
+`;
+
 type Props = {
   fromAddress: string,
   address: string,
@@ -102,12 +108,12 @@ type Props = {
   doneAction: () => void,
   editTx: () => void,
   cancelTx: () => void,
-  isConnected: boolean
+  status: Object
 };
 
 class TxConfirmation extends PureComponent<Props> {
   render() {
-    const { fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx, isConnected } = this.props;
+    const { fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx, status } = this.props;
     const { value, unit } = formatSmidge(amount, true);
     return (
       <Wrapper>
@@ -147,7 +153,8 @@ class TxConfirmation extends PureComponent<Props> {
             <ComplexButtonText>EDIT TRANSACTION</ComplexButtonText>
           </ComplexButton>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
-          <Button onClick={doneAction} text="SEND" isDisabled={!isConnected} />
+          <Button onClick={doneAction} text="SEND" isDisabled={!status.synced} />
+          {!status.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
         </Footer>
       </Wrapper>
     );

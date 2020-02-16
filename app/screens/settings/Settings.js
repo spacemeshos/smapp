@@ -58,7 +58,7 @@ type Props = {
   updateAccountName: Action,
   createNewAccount: Action,
   setNodeIpAddress: Action,
-  isConnected: boolean,
+  status: Object,
   history: RouterHistory,
   nodeIpAddress: string,
   isUpdateDownloading: boolean
@@ -105,7 +105,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, isConnected, isUpdateDownloading } = this.props;
+    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -229,7 +229,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !isConnected} />}
+                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>
@@ -374,7 +374,7 @@ class Settings extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,

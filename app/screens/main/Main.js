@@ -5,11 +5,11 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getAccountRewards } from '/redux/node/actions';
+import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
 import { getTxList, updateWalletFile } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
-import { OfflineBanner } from '/components/banners';
+import { InfoBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
@@ -93,8 +93,9 @@ const TooltipWrapper = styled.div`
 const bntStyle = { marginRight: 15, marginTop: 10 };
 
 type Props = {
-  isConnected: boolean,
+  status: Object,
   miningStatus: number,
+  getNodeStatus: Action,
   getMiningStatus: Action,
   getAccountRewards: Action,
   getTxList: Action,
@@ -110,6 +111,9 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
+  // eslint-disable-next-line react/sort-comp
+  getNodeStatusInterval: IntervalID;
+
   miningStatusInterval: IntervalID;
 
   accountRewardsInterval: IntervalID;
@@ -141,8 +145,7 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isConnected } = this.props;
-    const { activeRouteIndex, isOfflineBannerVisible } = this.state;
+    const { activeRouteIndex } = this.state;
     return (
       <Wrapper>
         <Logo />
@@ -226,7 +229,7 @@ class Main extends Component<Props, State> {
           </NavBarPart>
           </NavBar>
           <RoutesWrapper>
-            {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
+            <InfoBanner />
             <Switch>
               {routes.main.map((route) => (
                 <Route key={route.path} path={route.path} component={route.component} />
@@ -239,8 +242,12 @@ class Main extends Component<Props, State> {
     );
   }
 
-  componentDidMount() {
-    const { isConnected, miningStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
+  async componentDidMount() {
+    const { getNodeStatus, miningStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
+    const status = await getNodeStatus();
+    if (status) {
+      this.getNodeStatusInterval = setInterval(getNodeStatus, 2000);
+    }
     this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
         notificationsService.notify({
           title: 'Spacemesh',
@@ -250,18 +257,18 @@ class Main extends Component<Props, State> {
       } }), 30000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
-        isConnected && getMiningStatus();
+        status && getMiningStatus();
       }, 100000);
     }
     this.walletFileUpdateInterval = setInterval(() => updateWalletFile({}), 500);
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus, getMiningStatus, getAccountRewards } = this.props;
-    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 100000);
+    const { status, miningStatus, getMiningStatus, getAccountRewards } = this.props;
+    if (status && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => { status && getMiningStatus(); }, 100000);
     }
-    if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+    if (status && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh',
@@ -269,7 +276,7 @@ class Main extends Component<Props, State> {
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
-    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
+    if (status && miningStatus === nodeConsts.IS_MINING) {
       this.accountRewardsInterval = setInterval(() => getAccountRewards({ notify: () => {
           notificationsService.notify({
             title: 'Spacemesh',
@@ -330,11 +337,12 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   miningStatus: state.node.miningStatus
 });
 
 const mapDispatchToProps = {
+  getNodeStatus,
   getMiningStatus,
   getAccountRewards,
   getTxList,
