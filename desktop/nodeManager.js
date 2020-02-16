@@ -116,8 +116,13 @@ class NodeManager {
         });
       }
     } catch (e) {
-      dialog.showErrorBox('Loading / Parsing toml failed', `${e}`);
-      console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+      if (e.line) {
+        dialog.showErrorBox('Parsing toml failed', `${e}`);
+        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+      } else {
+        dialog.showErrorBox('Failed to download settings file.', 'Check your internet connection and restart the app');
+        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+      }
     }
   };
 
