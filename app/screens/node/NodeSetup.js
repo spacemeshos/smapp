@@ -119,7 +119,7 @@ class NodeSetup extends Component<Props, State> {
     this.commitmentSize = await nodeService.getCommitmentSize();
     const drives = await diskStorageService.getDriveList();
     const selectedDriveIndex = drives.length ? 0 : -1;
-    const selectedCommitmentSize = drives.length ? 4 : 0;
+    const selectedCommitmentSize = drives.length ? 1 : 0;
     this.setState({ drives, selectedDriveIndex, selectedCommitmentSize, isScanningDrives: false });
   }
 
