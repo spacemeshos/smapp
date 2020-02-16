@@ -55,7 +55,7 @@ class NodeManager {
 
   static tmpRunNodeFunc = async ({ port }) => {
     try {
-      const rawData = await fetch('http://nodes.unruly.io'); // http://aa234afcf4aac11ea8d4d0ea80dce922-558418211.us-east-1.elb.amazonaws.com/
+      const rawData = await fetch('http://aa234afcf4aac11ea8d4d0ea80dce922-558418211.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
@@ -86,7 +86,7 @@ class NodeManager {
         const command =
           os.type() === 'Windows_NT'
             ? // eslint-disable-next-line max-len
-            `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
+              `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
             : `rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
