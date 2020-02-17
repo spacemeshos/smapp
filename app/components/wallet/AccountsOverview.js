@@ -98,7 +98,14 @@ const CopiedText = styled.div`
   color: ${smColors.green};
 `;
 
+const NotSyncedYetText = styled.div`
+  font-size: 15px;
+  line-height: 32px;
+  color: ${smColors.orange};
+`;
+
 type Props = {
+  status: Object,
   walletName: string,
   accounts: Account[],
   currentAccountIndex: number,
@@ -117,7 +124,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, switchAccount } = this.props;
+    const { walletName, accounts, currentAccountIndex, switchAccount, status } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -142,10 +149,14 @@ class AccountsOverview extends Component<Props, State> {
         {isCopied && <CopiedText>COPIED</CopiedText>}
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
-          <BalanceWrapper>
-            <BalanceAmount>{value}</BalanceAmount>
-            <SmhText>{unit}</SmhText>
-          </BalanceWrapper>
+          {status.synced ? (
+            <BalanceWrapper>
+              <BalanceAmount>{value}</BalanceAmount>
+              <SmhText>{unit}</SmhText>
+            </BalanceWrapper>
+          ) : (
+            <NotSyncedYetText>Waiting for Sync Complete</NotSyncedYetText>
+          )}
         </Footer>
       </WrapperWith2SideBars>
     );
