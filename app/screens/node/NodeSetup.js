@@ -52,6 +52,11 @@ const Text = styled.div`
 
 const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 
+function formatBytes(bytes) {
+  if (bytes === 0) return 0;
+  return parseFloat((bytes / 1073741824).toFixed(2));
+}
+
 type Props = {
   accounts: Account[],
   initMining: Action,
@@ -116,7 +121,8 @@ class NodeSetup extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    this.commitmentSize = await nodeService.getCommitmentSize();
+    const notFormattedCommitmentSize = await nodeService.getCommitmentSize();
+    this.commitmentSize = formatBytes(notFormattedCommitmentSize);
     const drives = await diskStorageService.getDriveList();
     const selectedDriveIndex = drives.length ? 0 : -1;
     const selectedCommitmentSize = drives.length ? 1 : 0;
