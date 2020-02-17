@@ -1,9 +1,9 @@
 {
-  "name": "spacemesh_wallet",
+  "name": "smapp",
   "productName": "Spacemesh",
   "version": "0.0.1",
   "author": {
-    "name": "Spacemech",
+    "name": "Spacemesh",
     "email": "info@spacemesh.io",
     "url": "https://spacemesh.io/"
   },
@@ -113,6 +113,7 @@
     "bip39": "3.0.2",
     "electron-store": "5.1.0",
     "find-process": "1.4.3",
+    "freespace": "^1.0.4",
     "grpc": "1.24.2",
     "js-xdr": "1.1.3",
     "node-fetch": "2.6.0",
@@ -126,7 +127,6 @@
     "redux": "4.0.5",
     "redux-thunk": "2.3.0",
     "styled-components": "5.0.0",
-    "systeminformation": "4.21.1",
     "toml": "3.0.0"
   }
 }

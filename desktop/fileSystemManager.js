@@ -6,6 +6,7 @@ import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
 const { exec } = require('child_process');
+const freespace = require('freespace');
 
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
@@ -18,7 +19,7 @@ const unlinkFileAsync = util.promisify(fs.unlink);
 const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
-class FileManager {
+class FileSystemManager {
   static fileName = '';
 
   static prevBuffer = '';
@@ -54,7 +55,7 @@ class FileManager {
   };
 
   static readFile = async ({ event, filePath }) => {
-    await FileManager._readFile({ event, filePath });
+    await FileSystemManager._readFile({ event, filePath });
   };
 
   static readDirectory = async ({ event }) => {
@@ -72,7 +73,7 @@ class FileManager {
   static writeFile = async ({ event, fileName, fileContent, saveToDocumentsFolder }) => {
     const filePath = path.join(saveToDocumentsFolder ? documentsDirPath : appFilesDirPath, fileName);
     try {
-      await FileManager._writeFile({ filePath, fileContent });
+      await FileSystemManager._writeFile({ filePath, fileContent });
       event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error: null });
     } catch (error) {
       event.sender.send(ipcConsts.SAVE_FILE_RESPONSE, { error });
@@ -80,23 +81,23 @@ class FileManager {
   };
 
   static updateWalletFile = async ({ fileName, data, immediateUpdate }) => {
-    if (FileManager.prevBuffer !== FileManager.curBuffer) {
-      FileManager.prevBuffer = FileManager.curBuffer;
+    if (FileSystemManager.prevBuffer !== FileSystemManager.curBuffer) {
+      FileSystemManager.prevBuffer = FileSystemManager.curBuffer;
     }
-    FileManager.curBuffer = data;
-    FileManager.fileName = fileName;
+    FileSystemManager.curBuffer = data;
+    FileSystemManager.fileName = fileName;
     if (immediateUpdate) {
       try {
-        await FileManager._writeFile({ filePath: FileManager.fileName, fileContent: JSON.stringify(FileManager.curBuffer) });
+        await FileSystemManager._writeFile({ filePath: FileSystemManager.fileName, fileContent: JSON.stringify(FileSystemManager.curBuffer) });
       } catch (error) {
         console.log(error); // eslint-disable-line no-console
       }
     }
-    if (!FileManager.fileWriterInterval) {
-      FileManager.fileWriterInterval = setInterval(async () => {
-        if (FileManager.curBuffer !== FileManager.prevBuffer) {
+    if (!FileSystemManager.fileWriterInterval) {
+      FileSystemManager.fileWriterInterval = setInterval(async () => {
+        if (FileSystemManager.curBuffer !== FileSystemManager.prevBuffer) {
           try {
-            await FileManager._writeFile({ filePath: FileManager.fileName, fileContent: JSON.stringify(FileManager.curBuffer) });
+            await FileSystemManager._writeFile({ filePath: FileSystemManager.fileName, fileContent: JSON.stringify(FileSystemManager.curBuffer) });
           } catch (error) {
             console.log(error); // eslint-disable-line no-console
           }
@@ -106,10 +107,10 @@ class FileManager {
   };
 
   static cleanUp = async () => {
-    clearInterval(FileManager.fileWriterInterval);
-    if (FileManager.fileName) {
+    clearInterval(FileSystemManager.fileWriterInterval);
+    if (FileSystemManager.fileName) {
       try {
-        await FileManager._writeFile({ filePath: FileManager.fileName, fileContent: JSON.stringify(FileManager.curBuffer) });
+        await FileSystemManager._writeFile({ filePath: FileSystemManager.fileName, fileContent: JSON.stringify(FileSystemManager.curBuffer) });
       } catch (error) {
         console.log(error); // eslint-disable-line no-console
       }
@@ -138,7 +139,7 @@ class FileManager {
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
       try {
-        clearInterval(FileManager.fileWriterInterval);
+        clearInterval(FileSystemManager.fileWriterInterval);
         await unlinkFileAsync(fileName);
         browserWindow.reload();
       } catch (err) {
@@ -156,7 +157,7 @@ class FileManager {
     };
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
-      clearInterval(FileManager.fileWriterInterval);
+      clearInterval(FileSystemManager.fileWriterInterval);
       browserWindow.destroy();
       const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
       exec(command, (error) => {
@@ -166,6 +167,25 @@ class FileManager {
         console.log('deleted'); // eslint-disable-line no-console
       });
       app.quit();
+    }
+  };
+
+  static selectPostFolder = async ({ event, browserWindow }) => {
+    const { canceled, filePaths } = await dialog.showOpenDialog(browserWindow, {
+      title: 'Select folder for smeshing',
+      defaultPath: documentsDirPath,
+      properties: ['openDirectory']
+    });
+    if (canceled || !filePaths.length) {
+      event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: 'no folder selected' });
+    } else {
+      try {
+        fs.accessSync(filePaths[0], fs.constants.W_OK);
+        const bytes = freespace.checkSync(filePaths[0]);
+        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { selectedFolder: filePaths[0], freeSpace: bytes });
+      } catch (err) {
+        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: err });
+      }
     }
   };
 
@@ -183,4 +203,4 @@ class FileManager {
   };
 }
 
-export default FileManager;
+export default FileSystemManager;

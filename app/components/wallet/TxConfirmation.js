@@ -96,7 +96,7 @@ const ComplexButtonText = styled.div`
 const NotSyncedExplanation = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${smColors.orange};
 `;
 
 type Props = {

@@ -66,6 +66,18 @@ class FsService {
   static wipeOut = () => {
     ipcRenderer.send(ipcConsts.WIPE_OUT);
   };
+
+  static selectPostFolder = () => {
+    ipcRenderer.send(ipcConsts.SELECT_POST_FOLDER);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.SELECT_POST_FOLDER_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject({ error: response.error }); // eslint-disable-line prefer-promise-reject-errors
+        }
+        resolve({ selectedFolder: response.selectedFolder, freeSpace: response.freeSpace });
+      });
+    });
+  };
 }
 
 export default FsService;

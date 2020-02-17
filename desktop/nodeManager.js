@@ -2,7 +2,7 @@ import path from 'path';
 import os from 'os';
 import { app, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
-import FileManager from './fileManager';
+import FileSystemManager from './fileSystemManager';
 import StoreService from './storeService';
 
 const { exec } = require('child_process');
@@ -74,7 +74,7 @@ class NodeManager {
       const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata');
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-      await FileManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
+      await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
       const savedMiningParams = StoreService.get({ key: 'miningParams' });
       const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
@@ -82,7 +82,7 @@ class NodeManager {
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
         StoreService.remove({ key: 'savedMiningParams' });
-        await FileManager.cleanWalletFile();
+        await FileSystemManager.cleanWalletFile();
         const command =
           os.type() === 'Windows_NT'
             ? // eslint-disable-next-line max-len

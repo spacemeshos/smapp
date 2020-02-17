@@ -88,7 +88,7 @@ class SendCoins extends Component<Props, State> {
   }
 
   renderTxParamsMode = () => {
-    const { currentAccount, lastUsedContacts, contacts, history } = this.props;
+    const { currentAccount, lastUsedContacts, contacts, history, status } = this.props;
     const { address, hasAddressError, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
@@ -108,6 +108,7 @@ class SendCoins extends Component<Props, State> {
         cancelTx={history.goBack}
         openCreateNewContact={() => this.setState({ isCreateNewContactOn: true })}
         nextAction={this.proceedToMode2}
+        status={status}
         key="params"
       />,
       isCreateNewContactOn ? (
