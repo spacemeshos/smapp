@@ -103,6 +103,8 @@ class NodeSetup extends Component<Props, State> {
     }
     this.state = {
       subMode: 2,
+      selectedFolder: '',
+      freeSpace: 0,
       hasPermissionError: false,
       selectedCommitmentSize: 0
     };
