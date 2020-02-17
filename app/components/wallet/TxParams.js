@@ -91,6 +91,13 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
+const NotSyncedExplanation = styled.div`
+  flex: 1;
+  font-size: 11px;
+  line-height: 15px;
+  color: ${smColors.orange};
+`;
+
 // TODO add auto update for fee ranges
 const fees = [
   {
@@ -126,7 +133,8 @@ type Props = {
   note: string,
   updateTxNote: ({ value: string }) => void,
   nextAction: () => void,
-  cancelTx: () => void
+  cancelTx: () => void,
+  status: Object
 };
 
 type State = {
@@ -154,7 +162,8 @@ class TxParams extends Component<Props, State> {
       note,
       updateTxNote,
       nextAction,
-      cancelTx
+      cancelTx,
+      status
     } = this.props;
     const { selectedFeeIndex } = this.state;
     return (
@@ -194,8 +203,9 @@ class TxParams extends Component<Props, State> {
           <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
         </DetailsRow>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
-          <Button onClick={nextAction} text="NEXT" />
+          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
+          {!status.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+          <Button onClick={nextAction} text="NEXT" isDisabled={!status.synced} />
         </Footer>
       </Wrapper>
     );

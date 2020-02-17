@@ -1,47 +1,46 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import FileManager from './fileManager';
+import FileSystemManager from './fileSystemManager';
 import NodeManager from './nodeManager';
-import DiskStorageManager from './diskStorageManager';
 // eslint-disable-next-line import/no-cycle
 import netService from './netService';
 import AutoStartManager from './autoStartManager';
 
 const subscribeToEventListeners = ({ mainWindow }) => {
   ipcMain.on(ipcConsts.READ_FILE, (event, request) => {
-    FileManager.readFile({ event, ...request });
+    FileSystemManager.readFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.COPY_FILE, (event, request) => {
-    FileManager.copyFile({ event, ...request });
+    FileSystemManager.copyFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.READ_DIRECTORY, (event) => {
-    FileManager.readDirectory({ browserWindow: mainWindow, event });
+    FileSystemManager.readDirectory({ browserWindow: mainWindow, event });
   });
 
   ipcMain.on(ipcConsts.SAVE_FILE, (event, request) => {
-    FileManager.writeFile({ event, ...request });
+    FileSystemManager.writeFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.UPDATE_WALLET_FILE, (event, request) => {
-    FileManager.updateWalletFile({ event, ...request });
+    FileSystemManager.updateWalletFile({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.DELETE_FILE, (event, request) => {
-    FileManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
+    FileSystemManager.deleteWalletFile({ browserWindow: mainWindow, ...request });
   });
 
   ipcMain.on(ipcConsts.WIPE_OUT, () => {
-    FileManager.wipeOut({ browserWindow: mainWindow });
-  });
-
-  ipcMain.on(ipcConsts.GET_DRIVE_LIST, (event) => {
-    DiskStorageManager.getDriveList({ event });
+    FileSystemManager.wipeOut({ browserWindow: mainWindow });
   });
 
   ipcMain.on(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, (event, request) => {
-    FileManager.openWalletBackupDirectory({ ...request });
+    FileSystemManager.openWalletBackupDirectory({ ...request });
+  });
+
+  ipcMain.on(ipcConsts.SELECT_POST_FOLDER, (event) => {
+    FileSystemManager.selectPostFolder({ browserWindow: mainWindow, event });
   });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
