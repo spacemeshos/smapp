@@ -88,12 +88,12 @@ class Wallet extends Component<Props, State> {
   getBalanceInterval: IntervalID;
 
   render() {
-    const { displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
+    const { status, displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
     const hasBackup = !!localStorageService.get('hasBackup');
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
+          <AccountsOverview status={status} walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
           {!hasBackup && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />

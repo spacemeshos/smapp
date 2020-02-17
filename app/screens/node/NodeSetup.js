@@ -82,6 +82,8 @@ class NodeSetup extends Component<Props, State> {
 
   commitmentSize: number;
 
+  formattedCommitmentSize: number;
+
   constructor(props: Props) {
     super(props);
     const { location } = props;
@@ -121,8 +123,8 @@ class NodeSetup extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const notFormattedCommitmentSize = await nodeService.getCommitmentSize();
-    this.commitmentSize = formatBytes(notFormattedCommitmentSize);
+    this.commitmentSize = await nodeService.getCommitmentSize();
+    this.formattedCommitmentSize = formatBytes(this.commitmentSize);
     const drives = await diskStorageService.getDriveList();
     const selectedDriveIndex = drives.length ? 0 : -1;
     const selectedCommitmentSize = drives.length ? 1 : 0;
@@ -156,7 +158,7 @@ class NodeSetup extends Component<Props, State> {
           like to commit for smeshing
         </SubHeader>
         <CommitmentSelector
-          commitmentSize={this.commitmentSize}
+          commitmentSize={this.formattedCommitmentSize}
           freeSpace={drives[selectedDriveIndex].availableDiskSpace}
           onClick={({ commitment }) => this.setState({ selectedCommitmentSize: commitment })}
         />
@@ -171,7 +173,7 @@ class NodeSetup extends Component<Props, State> {
     }
     return (
       <EmptyState>
-        <Text>{`Insufficient disk space. You need a local hard drive with at least ${this.commitmentSize}GB of free space to setup smeshing.`}</Text>
+        <Text>{`Insufficient disk space. You need a local hard drive with at least ${this.formattedCommitmentSize}GB of free space to setup smeshing.`}</Text>
         <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
       </EmptyState>
     );

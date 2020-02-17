@@ -51,7 +51,7 @@ class InfoBanner extends PureComponent<Props> {
     } else if (!status.synced) {
       this.noPeersCounter = 0;
       color = smColors.orange;
-      text = `Syncing the mesh... Layer ${status.syncedLayer} / ${status.currentLayer}`;
+      text = `Syncing the mesh... Layer ${status.syncedLayer || 0} / ${status.currentLayer}`;
     } else {
       this.noPeersCounter = 0;
       color = smColors.blue;
