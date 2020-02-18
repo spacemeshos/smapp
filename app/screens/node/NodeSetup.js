@@ -70,7 +70,7 @@ type Props = {
   initMining: Action,
   status: Object,
   history: RouterHistory,
-  location: { state?: { isOnlyNodeSetup: boolean } }
+  location: { state?: { isOnlyNodeSetup: boolean, isWalletCreation: boolean } }
 };
 
 type State = {
@@ -111,7 +111,7 @@ class NodeSetup extends Component<Props, State> {
   }
 
   render() {
-    const { status } = this.props;
+    const { status, location } = this.props;
     const { subMode, selectedFolder, hasPermissionError, selectedCommitmentSize } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
     const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || (subMode === 3 && selectedCommitmentSize === 0) || !status;
@@ -120,7 +120,7 @@ class NodeSetup extends Component<Props, State> {
         <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
         <CorneredContainer width={650} height={400} header={this.steps[adjustedSubStep]}>
           <SmallHorizontalPanel />
-          <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />
+          {location?.state?.isOnlyNodeSetup && <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />}
           {this.renderSubMode()}
           <Footer>
             <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />

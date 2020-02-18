@@ -6,7 +6,7 @@ import { app, dialog, shell } from 'electron';
 import { ipcConsts } from '../app/vars';
 
 const { exec } = require('child_process');
-const freespace = require('freespace');
+const checkDiskSpace = require('check-disk-space');
 
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
@@ -181,8 +181,9 @@ class FileSystemManager {
     } else {
       try {
         fs.accessSync(filePaths[0], fs.constants.W_OK);
-        const bytes = freespace.checkSync(filePaths[0]);
-        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { selectedFolder: filePaths[0], freeSpace: bytes });
+        // const bytes = freespace.checkSync(filePaths[0]);
+        const diskSpace = await checkDiskSpace(filePaths[0]);
+        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { selectedFolder: filePaths[0], freeSpace: diskSpace.free });
       } catch (err) {
         event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: err });
       }
