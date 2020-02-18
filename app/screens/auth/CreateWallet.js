@@ -195,7 +195,7 @@ class CreateWallet extends Component<Props, State> {
       if (isWalletOnlySetup) {
         history.push('/main/wallet');
       } else {
-        history.push('/main/node-setup');
+        history.push('/main/node-setup', { isWalletCreation: true });
       }
     }
   };

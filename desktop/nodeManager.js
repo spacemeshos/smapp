@@ -19,8 +19,6 @@ const osTargetNames = {
 const getPidByName = ({ name }) => find('name', name).then((list) => (list.length ? list : null));
 
 class NodeManager {
-  static POST_SIZE = 0;
-
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
   static killNodeProcess = async ({ event }) => {
@@ -62,7 +60,7 @@ class NodeManager {
       const fetchedGenesisTime = parsedToml.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
-      NodeManager.POST_SIZE = parsedToml.post['post-space'];
+      StoreService.set({ key: 'postSize', value: parsedToml.post['post-space'] });
 
       const userDataPath = app.getPath('userData'); // eslint-disable-line
       const nodePath = path.resolve(
@@ -127,7 +125,7 @@ class NodeManager {
   };
 
   static getCommitmentSize = ({ event }) => {
-    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: parseInt(NodeManager.POST_SIZE) });
+    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: parseInt(StoreService.get({ key: 'postSize' })) });
   };
 }
 

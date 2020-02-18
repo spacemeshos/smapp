@@ -70,7 +70,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.killNodeProcess({ event });
   });
 
-  ipcMain.once(ipcConsts.GET_COMMITMENT_SIZE, async (event) => {
+  ipcMain.on(ipcConsts.GET_COMMITMENT_SIZE, async (event) => {
     await NodeManager.getCommitmentSize({ event });
   });
 

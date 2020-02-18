@@ -58,7 +58,7 @@ class InfoBanner extends PureComponent<Props> {
       text = `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`;
     }
     return (
-      <Banner top={35} color={color}>
+      <Banner top={20} color={color}>
         <Text>{text}</Text>
       </Banner>
     );
