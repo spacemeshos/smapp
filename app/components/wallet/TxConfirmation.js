@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '/basicComponents';
-import { getAbbreviatedText, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -125,11 +125,11 @@ class TxConfirmation extends PureComponent<Props> {
         <SubHeader2>SUMMARY</SubHeader2>
         <DetailsRow>
           <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeft>{getAbbreviatedText(fromAddress)}</DetailsTextLeft>
+          <DetailsTextLeft>{getAbbreviatedText(getAddress(fromAddress))}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeft>{getAbbreviatedText(address)}</DetailsTextLeft>
+          <DetailsTextLeft>{getAbbreviatedText(getAddress(address))}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Note</DetailsTextRight>

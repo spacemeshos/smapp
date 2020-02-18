@@ -3,7 +3,7 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
-import { getAbbreviatedText, getAddress } from '/infra/utils';
+import { getAddress } from '/infra/utils';
 import { copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 import type { Account } from '/types';
@@ -116,7 +116,7 @@ class RequestCoins extends Component<Props, State> {
         <SubHeader>
           <Text>Request SMH by sharing your wallet&apos;s address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
-            <AddressText>{getAbbreviatedText(getAddress(account.publicKey), true)}</AddressText>
+            <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
             <CopyIcon src={copyToClipboard} />
             {isCopied && <CopiedText>Address copied!</CopiedText>}
           </AddressWrapper>

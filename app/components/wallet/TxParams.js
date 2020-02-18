@@ -3,7 +3,7 @@ import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -180,7 +180,7 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
-          <DetailsText1>{getAbbreviatedText(fromAddress)}</DetailsText1>
+          <DetailsText1>{`0x${getAddress(fromAddress)}`}</DetailsText1>
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount</DetailsText>

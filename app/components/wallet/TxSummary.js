@@ -1,7 +1,7 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { getAbbreviatedText, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -58,9 +58,9 @@ class TxSummary extends PureComponent<Props> {
           --
         </Header>
         <SubHeader>TO</SubHeader>
-        <Text>{address ? getAbbreviatedText(address) : '...'}</Text>
+        <Text>{address ? getAbbreviatedText(getAddress(address)) : '...'}</Text>
         <SubHeader>FROM</SubHeader>
-        <Text>{getAbbreviatedText(fromAddress)}</Text>
+        <Text>{getAbbreviatedText(getAddress(fromAddress))}</Text>
         <SubHeader>{unit}</SubHeader>
         <Text>{value || '...'}</Text>
         <SubHeader>FEE</SubHeader>
