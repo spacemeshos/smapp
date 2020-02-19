@@ -3,7 +3,7 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
-import { getAbbreviatedText, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { doneIconGreen, copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -130,16 +130,16 @@ class TxSent extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeftBold>{getAbbreviatedText(fromAddress)}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{`0x${getAddress(fromAddress)}`}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeftBold>{getAbbreviatedText(address)}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{`0x${address}`}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow isLast>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
-            <span>{getAbbreviatedText(txId, false, 8)}</span>
+            <span>{getAbbreviatedText(txId, true, 8)}</span>
             <CopyIcon src={copyToClipboard} onClick={this.copyTxId} />
           </ComplexText>
         </DetailsRow>

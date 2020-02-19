@@ -149,7 +149,7 @@ class AccountsOverview extends Component<Props, State> {
         {isCopied && <CopiedText>COPIED</CopiedText>}
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
-          {status.synced ? (
+          {status?.synced ? (
             <BalanceWrapper>
               <BalanceAmount>{value}</BalanceAmount>
               <SmhText>{unit}</SmhText>

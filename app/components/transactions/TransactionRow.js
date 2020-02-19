@@ -184,7 +184,7 @@ class TransactionRow extends Component<Props, State> {
               {txId === 'reward' ? (
                 <DarkGrayText>SMESHING REWARD</DarkGrayText>
               ) : (
-                [nickname && <DarkGrayText key="nickname">{nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{getAbbreviatedText(txId)}</Text>]
+                [nickname && <DarkGrayText key="nickname">{nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{getAbbreviatedText(txId, true, 10)}</Text>]
               )}
             </HeaderSection>
             <HeaderSection>

@@ -62,7 +62,7 @@ class NodeManager {
 
       StoreService.set({ key: 'postSize', value: parsedToml.post['post-space'] });
 
-      const userDataPath = app.getPath('userData'); // eslint-disable-line
+      const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
         app.getAppPath(),
         process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
@@ -75,7 +75,7 @@ class NodeManager {
       await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
       const savedMiningParams = StoreService.get({ key: 'miningParams' });
-      const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive, 'post');
+      const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive);
 
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });

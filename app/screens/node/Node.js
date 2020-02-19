@@ -198,7 +198,7 @@ class Node extends Component<Props, State> {
 
   async componentDidMount() {
     const { status, miningStatus, getUpcomingRewards } = this.props;
-    if (status && status.synced && miningStatus === nodeConsts.IS_MINING) {
+    if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
       await getUpcomingRewards();
       this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
     }

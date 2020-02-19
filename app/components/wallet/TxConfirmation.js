@@ -3,7 +3,7 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '/basicComponents';
-import { getAbbreviatedText, formatSmidge } from '/infra/utils';
+import { getAddress, formatSmidge } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
@@ -125,11 +125,11 @@ class TxConfirmation extends PureComponent<Props> {
         <SubHeader2>SUMMARY</SubHeader2>
         <DetailsRow>
           <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeft>{getAbbreviatedText(fromAddress)}</DetailsTextLeft>
+          <DetailsTextLeft>{`0x${getAddress(fromAddress)}`}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeft>{getAbbreviatedText(address)}</DetailsTextLeft>
+          <DetailsTextLeft>{`0x${address}`}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Note</DetailsTextRight>
@@ -154,7 +154,7 @@ class TxConfirmation extends PureComponent<Props> {
           </ComplexButton>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
           <Button onClick={doneAction} text="SEND" isDisabled={!status.synced} />
-          {!status.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+          {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
         </Footer>
       </Wrapper>
     );

@@ -3,7 +3,7 @@ import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -117,7 +117,8 @@ const fees = [
   }
 ];
 
-const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
+const errorPopupStyle = { top: 3, right: -190, maxWidth: 250 };
+const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
 
 type Props = {
   fromAddress: string,
@@ -180,12 +181,12 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
-          <DetailsText1>{getAbbreviatedText(fromAddress)}</DetailsText1>
+          <DetailsText1>{`0x${getAddress(fromAddress)}`}</DetailsText1>
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount</DetailsText>
           <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={{ flex: 1 }} />
-          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle} />}
+          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Confirmation time</DetailsText>
@@ -204,7 +205,7 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <Footer>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
-          {!status.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+          {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
           <Button onClick={nextAction} text="NEXT" isDisabled={!status.synced} />
         </Footer>
       </Wrapper>
