@@ -95,7 +95,7 @@ class LatestTransactions extends PureComponent<Props> {
         <MainWrapper>
           <Section>
             <NickName>{txId === 'reward' ? 'Smeshing reward' : nickname || getAbbreviatedText(sender)}</NickName>
-            {txId === 'reward' ? null : <Text>{getAddress(txId)}</Text>}
+            {txId === 'reward' ? null : <Text>{getAbbreviatedText(txId)}</Text>}
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>

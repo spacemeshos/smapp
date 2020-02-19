@@ -117,7 +117,8 @@ const fees = [
   }
 ];
 
-const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
+const errorPopupStyle = { top: 3, right: -190, maxWidth: 250 };
+const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
 
 type Props = {
   fromAddress: string,
@@ -185,7 +186,7 @@ class TxParams extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Amount</DetailsText>
           <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={{ flex: 1 }} />
-          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle} />}
+          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Confirmation time</DetailsText>
