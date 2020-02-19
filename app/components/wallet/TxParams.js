@@ -204,7 +204,7 @@ class TxParams extends Component<Props, State> {
         </DetailsRow>
         <Footer>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
-          {!status.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+          {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
           <Button onClick={nextAction} text="NEXT" isDisabled={!status.synced} />
         </Footer>
       </Wrapper>

@@ -154,7 +154,7 @@ class TxConfirmation extends PureComponent<Props> {
           </ComplexButton>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
           <Button onClick={doneAction} text="SEND" isDisabled={!status.synced} />
-          {!status.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+          {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
         </Footer>
       </Wrapper>
     );
