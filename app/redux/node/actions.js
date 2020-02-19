@@ -2,6 +2,7 @@
 import { addTransaction } from '/redux/wallet/actions';
 import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
+import { nodeService } from '/infra/nodeService';
 import { createError, getAddress } from '/infra/utils';
 import { nodeConsts } from '/vars';
 import TX_STATUSES from '/vars/enums';
@@ -78,11 +79,12 @@ export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getSt
     if (awardLayerNumbers.length === 0) {
       dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: 0 } });
     } else {
-      const { genesisTime } = getState().node;
-      const currentLayer = Math.floor((new Date().getTime() - new Date(genesisTime).getTime()) / nodeConsts.TIME_BETWEEN_LAYERS);
+      const { status } = getState().node;
+      const layerDuration = await nodeService.getLayerDurationSec();
+      const currentLayer = status?.currentLayer || 0;
       const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer > currentLayer);
       if (futureAwardLayerNumbers.length) {
-        dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
+        dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((layerDuration * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
       }
     }
   } catch (err) {
