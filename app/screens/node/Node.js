@@ -12,7 +12,7 @@ import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import { getFormattedTimestamp, formatSmidge } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
-import type { Action } from '/types';
+// import type { Action } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -120,10 +120,10 @@ const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px
 type Props = {
   status: Object,
   miningStatus: number,
-  timeTillNextAward: number,
+  // timeTillNextAward: number,
   totalEarnings: number,
   totalFeesEarnings: number,
-  getUpcomingRewards: Action,
+  // getUpcomingRewards: Action,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -196,16 +196,16 @@ class Node extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const { status, miningStatus, getUpcomingRewards } = this.props;
-    if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
-      await getUpcomingRewards();
-      this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, nodeConsts.TIME_BETWEEN_LAYERS);
-    }
-  }
+  // async componentDidMount() {
+  //   const { status, miningStatus, getUpcomingRewards } = this.props;
+  //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
+  //     await getUpcomingRewards();
+  //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
+  //   }
+  // }
 
   componentWillUnmount() {
-    this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
+    // this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
     this.fireworksTimeout && clearTimeout(this.fireworksTimeout);
   }
 
@@ -270,17 +270,12 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { status, timeTillNextAward, totalEarnings, totalFeesEarnings } = this.props;
+    const { status, totalEarnings, totalFeesEarnings } = this.props;
     const { isMiningPaused } = this.state;
     return [
       <Status key="status" status={status}>
         {status ? 'Your Smesher is online.' : 'Not connected!'}
       </Status>,
-      <TextWrapper key="1">
-        <LeftText>Upcoming reward in</LeftText>
-        <Dots>..................</Dots>
-        <RightText>{timeTillNextAward ? `${timeTillNextAward} min` : 'Calculating...'}</RightText>
-      </TextWrapper>,
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
         <Dots>..................</Dots>

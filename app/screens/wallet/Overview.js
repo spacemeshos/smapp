@@ -58,7 +58,9 @@ class Overview extends Component<Props, State> {
   render() {
     const { currentAccountIndex, transactions, account } = this.props;
     const latestTransactions =
-      transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3).reverse() : [];
+      transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0
+        ? transactions[currentAccountIndex].data.slice(transactions[currentAccountIndex].data.length - 3)
+        : [];
     return (
       <Wrapper>
         <MiddleSection>

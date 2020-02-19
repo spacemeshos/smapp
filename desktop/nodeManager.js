@@ -60,7 +60,8 @@ class NodeManager {
       const fetchedGenesisTime = parsedToml.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
-      StoreService.set({ key: 'postSize', value: parsedToml.post['post-space'] });
+      StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
+      StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -125,7 +126,11 @@ class NodeManager {
   };
 
   static getCommitmentSize = ({ event }) => {
-    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: parseInt(StoreService.get({ key: 'postSize' })) });
+    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: StoreService.get({ key: 'postSize' }) });
+  };
+
+  static getLayerDurationSec = ({ event }) => {
+    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { layerDuration: StoreService.get({ key: 'layerDurationSec' }) });
   };
 }
 
