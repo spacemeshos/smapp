@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  smapp:
+     build: .
+     #     image: smapp:latest
+     container_name: smapp
+     command: [ 'start',
+                '--daemon=no',
+                '--start-child=no-sandbox-smapp',
+                '--exit-with-children',
+                '--bind-tcp=0.0.0.0:9999' ]
+     ports:
+        - '127.0.0.1:6070:9999'
+        - "127.0.0.1:${SMESH_PORT:-7513}:${SMESH_PORT:-7513}"
+        - "127.0.0.1:${SMESH_JSON_PORT:-9090}:9090"
+     networks:
+       smapp: {}
+       
+     volumes:
+        - "${SMESH_HOST_DATA_PATH:-smesh-data}:/home/spacemesh"
+
+
+volumes:
+  smesh-data:
+        
+# Specify network interface name to make firewall rules easier.
+networks:
+  smapp:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: "docker-smapp"
