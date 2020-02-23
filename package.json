@@ -1,14 +1,14 @@
 {
-  "name": "smapp",
+  "name": "Spacemesh App",
   "productName": "Spacemesh",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Spacemesh",
     "email": "info@spacemesh.io",
     "url": "https://spacemesh.io/"
   },
   "private": true,
-  "description": "Spacemesh reference full p2p node, miner and wallet",
+  "description": "Spacemesh reference full p2p node, smesher and wallet",
   "scripts": {
     "build": "npm run build-main && npm run build-renderer",
     "build-dll": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js --colors",
