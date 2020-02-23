@@ -101,12 +101,21 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
   }
 };
 
+export const getRewardsAddress = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const address = await nodeService.getRewardsAddress();
+    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
+  } catch (err) {
+    throw createError('Error getting rewards address', () => getRewardsAddress());
+  }
+};
+
 export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     await httpService.setRewardsAddress({ address });
     dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
   } catch (err) {
-    throw createError('Error setting awards address', () => setRewardsAddress({ address }));
+    throw createError('Error setting rewards address', () => setRewardsAddress({ address }));
   }
 };
 
