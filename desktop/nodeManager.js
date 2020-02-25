@@ -53,7 +53,7 @@ class NodeManager {
 
   static tmpRunNodeFunc = async ({ port }) => {
     try {
-      const rawData = await fetch('http://aa234afcf4aac11ea8d4d0ea80dce922-558418211.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
+      const rawData = await fetch('http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
