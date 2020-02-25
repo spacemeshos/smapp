@@ -8,6 +8,7 @@ import { fileSystemService } from '/infra/fileSystemService';
 import { smColors } from '/vars';
 import { chevronRightBlack } from '/assets/images';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   position: fixed;
   top: 0;

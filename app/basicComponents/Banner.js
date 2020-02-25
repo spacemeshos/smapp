@@ -2,6 +2,7 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   position: absolute;
   top: ${({ top }) => top}px;

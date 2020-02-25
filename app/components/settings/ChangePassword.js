@@ -8,6 +8,7 @@ import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { smColors } from '/vars';
 import type { Action } from '/types';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;

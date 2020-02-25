@@ -3,6 +3,7 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } from '/assets/images';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   position: relative;
   margin: 8px;

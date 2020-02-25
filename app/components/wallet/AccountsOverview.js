@@ -14,6 +14,7 @@ const AccountDetails = styled.div`
   margin-bottom: 15px;
 `;
 
+// $FlowStyledIssue
 const AccountWrapper = styled.div`
   display: flex;
   flex-direction: column;

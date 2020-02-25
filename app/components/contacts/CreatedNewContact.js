@@ -5,6 +5,7 @@ import { Button } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Contact } from '/types';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

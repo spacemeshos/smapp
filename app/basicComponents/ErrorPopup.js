@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { closePopup } from '/assets/images';
 import { smColors } from '/vars';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   position: absolute;
   display: flex;

@@ -7,6 +7,7 @@ import { Input, Link, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action } from '/types';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

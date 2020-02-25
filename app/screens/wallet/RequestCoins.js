@@ -9,6 +9,7 @@ import { smColors } from '/vars';
 import type { Account } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

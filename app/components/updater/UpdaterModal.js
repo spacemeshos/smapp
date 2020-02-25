@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { walletUpdateService } from '/infra/walletUpdateService';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   position: fixed;
   z-index: 1;

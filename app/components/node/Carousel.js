@@ -8,6 +8,7 @@ import { formatNumber } from '/infra/utils';
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;

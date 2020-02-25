@@ -9,6 +9,7 @@ import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPan
 import type { Action } from '/types';
 import smColors from '/vars/colors';
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;

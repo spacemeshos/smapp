@@ -9,6 +9,7 @@ import type { Contact } from '/types';
 
 const ROW_HEIGHT = 40;
 
+// $FlowStyledIssue
 const Wrapper = styled.div`
   position: relative;
   display: flex;
@@ -76,6 +77,7 @@ const ItemsWrapper = styled.div`
   background-color: ${smColors.white};
 `;
 
+// $FlowStyledIssue
 const DropdownRow = styled.div`
   display: flex;
   justify-content: center;
