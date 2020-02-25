@@ -1,6 +1,6 @@
 // @flow
 import {
-  PreAuth,
+  SplashScreen,
   Auth,
   Welcome,
   UnlockWallet,
@@ -28,7 +28,7 @@ import {
 const app = [
   {
     path: '/pre',
-    component: PreAuth
+    component: SplashScreen
   },
   {
     path: '/auth',
