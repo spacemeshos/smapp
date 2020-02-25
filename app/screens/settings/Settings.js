@@ -12,6 +12,7 @@ import { fileSystemService } from '/infra/fileSystemService';
 import { autoStartService } from '/infra/autoStartService';
 import { localStorageService } from '/infra/storageService';
 import { walletUpdateService } from '/infra/walletUpdateService';
+import { nodeService } from '/infra/nodeService';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
@@ -73,7 +74,9 @@ type State = {
   nodeIp: string,
   currentSettingIndex: number,
   shouldShowPasswordModal: boolean,
-  passwordModalSubmitAction: Function
+  passwordModalSubmitAction: Function,
+  port: string,
+  isPortSet: boolean
 };
 
 class Settings extends Component<Props, State> {
@@ -96,7 +99,9 @@ class Settings extends Component<Props, State> {
       nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
       shouldShowPasswordModal: false,
-      passwordModalSubmitAction: () => {}
+      passwordModalSubmitAction: () => {},
+      port: '',
+      isPortSet: false
     };
 
     this.myRef1 = React.createRef();
@@ -115,7 +120,9 @@ class Settings extends Component<Props, State> {
       nodeIp,
       currentSettingIndex,
       shouldShowPasswordModal,
-      passwordModalSubmitAction
+      passwordModalSubmitAction,
+      port,
+      isPortSet
     } = this.state;
     const lastBackupTime = localStorageService.get('lastBackupTime');
     return (
@@ -222,6 +229,17 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
               <SettingRow
+                upperPartLeft={
+                  isPortSet ? (
+                    <Text>Please restart application to apply changes</Text>
+                  ) : (
+                    <Input value={port} onChange={({ value }) => this.setState({ port: value })} maxLength="10" />
+                  )
+                }
+                upperPartRight={<Button onClick={this.setPort} text="SET PORT" width={180} />}
+                rowName="Set new TCP/UDP port for smesher. Please select port number greater than 1024"
+              />
+              <SettingRow
                 upperPartLeft="Delete all wallets and app data, and restart it"
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
@@ -240,6 +258,11 @@ class Settings extends Component<Props, State> {
     );
   }
 
+  async componentDidMount() {
+    const port = await nodeService.getPort();
+    this.setState({ port });
+  }
+
   static getDerivedStateFromProps(props: Props, prevState: State) {
     if (props.accounts && props.accounts.length > prevState.accountDisplayNames.length) {
       const updatedAccountDisplayNames = [...prevState.accountDisplayNames];
@@ -248,6 +271,15 @@ class Settings extends Component<Props, State> {
     }
     return null;
   }
+
+  setPort = () => {
+    const { port } = this.state;
+    const parsedPort = parseInt(port);
+    if (parsedPort && parsedPort > 1024) {
+      nodeService.setPort({ port });
+      this.setState({ isPortSet: true });
+    }
+  };
 
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;

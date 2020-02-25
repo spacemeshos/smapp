@@ -66,8 +66,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
 
-  ipcMain.once(ipcConsts.KILL_NODE, (event) => {
-    NodeManager.killNodeProcess({ event });
+  ipcMain.once(ipcConsts.STOP_NODE, (event) => {
+    NodeManager.stopNode({ event });
   });
 
   ipcMain.on(ipcConsts.GET_COMMITMENT_SIZE, async (event) => {
@@ -78,8 +78,16 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     await NodeManager.getRewardsAddress({ event });
   });
 
-  ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
-    NodeManager.tmpRunNodeFunc({ event, ...request });
+  ipcMain.once(ipcConsts.START_NODE, async (event) => {
+    await NodeManager.startNode({ event });
+  });
+
+  ipcMain.once(ipcConsts.GET_NODE_PORT, (event) => {
+    NodeManager.getPort({ event });
+  });
+
+  ipcMain.once(ipcConsts.SET_NODE_PORT, (event, request) => {
+    NodeManager.setPort({ ...request });
   });
 
   /**
