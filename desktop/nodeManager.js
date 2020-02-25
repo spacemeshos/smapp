@@ -16,49 +16,21 @@ const osTargetNames = {
   Windows_NT: 'windows'
 };
 
+const DEFAULT_PORT = '7153';
+
 const getPidByName = ({ name }) => find('name', name).then((list) => (list.length ? list : null));
 
 class NodeManager {
-  static hardRefresh = ({ browserWindow }) => browserWindow.reload();
-
-  static killNodeProcess = async ({ event }) => {
+  static startNode = async () => {
     try {
-      if (os.type() === 'Windows_NT') {
-        exec('taskkill /F /IM go-spacemesh.exe', (err) => {
-          if (err) {
-            console.error(err); // eslint-disable-line no-console
-            event.returnValue = null; // eslint-disable-line no-param-reassign
-          }
-          event.returnValue = null; // eslint-disable-line no-param-reassign
-        });
-      } else {
-        const processes = await getPidByName({ name: 'go-spacemesh' });
-        if (processes) {
-          exec(`kill -s INT ${processes[1].pid}`, (err) => {
-            if (err) {
-              console.error(err); // eslint-disable-line no-console
-              event.returnValue = null; // eslint-disable-line no-param-reassign
-            }
-            event.returnValue = null; // eslint-disable-line no-param-reassign
-          });
-        }
-        event.returnValue = null; // eslint-disable-line no-param-reassign
-      }
-    } catch (err) {
-      // could not find or kill node process
-      console.error(err); // eslint-disable-line no-console
-      event.returnValue = null; // eslint-disable-line no-param-reassign
-    }
-  };
-
-  static tmpRunNodeFunc = async ({ port }) => {
-    try {
-      const rawData = await fetch('http://aa234afcf4aac11ea8d4d0ea80dce922-558418211.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
+      const rawData = await fetch('http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
       const fetchedGenesisTime = parsedToml.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
+
+      const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
       StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
       StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
@@ -125,12 +97,57 @@ class NodeManager {
     }
   };
 
+  static hardRefresh = ({ browserWindow }) => browserWindow.reload();
+
+  static stopNode = async ({ event }) => {
+    try {
+      if (os.type() === 'Windows_NT') {
+        exec('taskkill /F /IM go-spacemesh.exe', (err) => {
+          if (err) {
+            console.error(err); // eslint-disable-line no-console
+            event.returnValue = null; // eslint-disable-line no-param-reassign
+          }
+          event.returnValue = null; // eslint-disable-line no-param-reassign
+        });
+      } else {
+        const processes = await getPidByName({ name: 'go-spacemesh' });
+        if (processes) {
+          exec(`kill -s INT ${processes[1].pid}`, (err) => {
+            if (err) {
+              console.error(err); // eslint-disable-line no-console
+              event.returnValue = null; // eslint-disable-line no-param-reassign
+            }
+            event.returnValue = null; // eslint-disable-line no-param-reassign
+          });
+        }
+        event.returnValue = null; // eslint-disable-line no-param-reassign
+      }
+    } catch (err) {
+      // could not find or kill node process
+      console.error(err); // eslint-disable-line no-console
+      event.returnValue = null; // eslint-disable-line no-param-reassign
+    }
+  };
+
   static getCommitmentSize = ({ event }) => {
     event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: StoreService.get({ key: 'postSize' }) });
   };
 
   static getLayerDurationSec = ({ event }) => {
     event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { layerDuration: StoreService.get({ key: 'layerDurationSec' }) });
+  };
+
+  static getRewardsAddress = ({ event }) => {
+    const savedMiningParams = StoreService.get({ key: 'miningParams' });
+    event.sender.send(ipcConsts.GET_REWARDS_ADDRESS_RESPONSE, { address: savedMiningParams?.coinbase });
+  };
+
+  static getPort = ({ event }) => {
+    event.sender.send(ipcConsts.GET_NODE_PORT_RESPONSE, { port: StoreService.get({ key: 'port' }) || DEFAULT_PORT });
+  };
+
+  static setPort = ({ port }) => {
+    StoreService.set({ key: 'port', value: port });
   };
 }
 
