@@ -132,6 +132,11 @@ class NodeManager {
   static getLayerDurationSec = ({ event }) => {
     event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { layerDuration: StoreService.get({ key: 'layerDurationSec' }) });
   };
+
+  static getRewardsAddress = ({ event }) => {
+    const savedMiningParams = StoreService.get({ key: 'miningParams' });
+    event.sender.send(ipcConsts.GET_REWARDS_ADDRESS_RESPONSE, { address: savedMiningParams?.coinbase });
+  };
 }
 
 export default NodeManager;

@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
+import { getNodeStatus, getMiningStatus, getAccountRewards, getRewardsAddress } from '/redux/node/actions';
 import { getTxList, updateWalletFile } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
@@ -98,6 +98,7 @@ type Props = {
   getNodeStatus: Action,
   getMiningStatus: Action,
   getAccountRewards: Action,
+  getRewardsAddress: Action,
   getTxList: Action,
   updateWalletFile: Action,
   logout: Action,
@@ -243,7 +244,8 @@ class Main extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, miningStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
+    const { getNodeStatus, miningStatus, getMiningStatus, getTxList, updateWalletFile, history, getRewardsAddress } = this.props;
+    await getRewardsAddress();
     const status = await getNodeStatus();
     if (status) {
       this.getNodeStatusInterval = setInterval(getNodeStatus, 2000);
@@ -345,6 +347,7 @@ const mapDispatchToProps = {
   getNodeStatus,
   getMiningStatus,
   getAccountRewards,
+  getRewardsAddress,
   getTxList,
   updateWalletFile,
   logout

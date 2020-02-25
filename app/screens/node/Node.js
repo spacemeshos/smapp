@@ -1,5 +1,5 @@
 // @flow
-import { shell } from 'electron';
+import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -8,9 +8,9 @@ import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
+import { getAbbreviatedText, getFormattedTimestamp, formatSmidge } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
-import { getFormattedTimestamp, formatSmidge } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
 // import type { Action } from '/types';
 
@@ -124,6 +124,7 @@ type Props = {
   totalEarnings: number,
   totalFeesEarnings: number,
   // getUpcomingRewards: Action,
+  rewardsAddress: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -131,7 +132,8 @@ type Props = {
 type State = {
   showIntro: boolean,
   isMiningPaused: boolean,
-  showFireworks: boolean
+  showFireworks: boolean,
+  copied: boolean
 };
 
 class Node extends Component<Props, State> {
@@ -145,7 +147,8 @@ class Node extends Component<Props, State> {
     this.state = {
       showIntro: !!location?.state?.showIntro,
       isMiningPaused: false,
-      showFireworks: !!location?.state?.showIntro
+      showFireworks: !!location?.state?.showIntro,
+      copied: false
     };
   }
 
@@ -270,8 +273,8 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { status, totalEarnings, totalFeesEarnings } = this.props;
-    const { isMiningPaused } = this.state;
+    const { status, totalEarnings, totalFeesEarnings, rewardsAddress } = this.props;
+    const { isMiningPaused, copied } = this.state;
     return [
       <Status key="status" status={status}>
         {status ? 'Your Smesher is online.' : 'Not connected!'}
@@ -286,6 +289,15 @@ class Node extends Component<Props, State> {
         <Dots>..................</Dots>
         <GreenText>{formatSmidge(totalFeesEarnings)}</GreenText>
       </TextWrapper>,
+      <TextWrapper key="4">
+        <LeftText>Rewards Account</LeftText>
+        <Dots>..................</Dots>
+        <GreenText>{getAbbreviatedText(rewardsAddress, true, 8)}</GreenText>
+      </TextWrapper>,
+      <TextWrapper key="5">
+        <Button onClick={this.copyRewardsAccount} text="Copy reward account" width={155} />
+        {copied && <GreenText>Copied</GreenText>}
+      </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button
@@ -298,6 +310,12 @@ class Node extends Component<Props, State> {
         />
       </Footer>
     ];
+  };
+
+  copyRewardsAccount = () => {
+    const { rewardsAddress } = this.props;
+    clipboard.writeText(rewardsAddress);
+    this.setState({ copied: true });
   };
 
   pauseResumeMining = () => {};
@@ -314,7 +332,8 @@ const mapStateToProps = (state) => ({
   miningStatus: state.node.miningStatus,
   timeTillNextAward: state.node.timeTillNextAward,
   totalEarnings: state.node.totalEarnings,
-  totalFeesEarnings: state.node.totalFeesEarnings
+  totalFeesEarnings: state.node.totalFeesEarnings,
+  rewardsAddress: state.node.rewardsAddress
 });
 
 const mapDispatchToProps = {

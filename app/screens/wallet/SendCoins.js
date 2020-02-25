@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet';
 import { CreateNewContact } from '/components/contacts';
+import { getAddress } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
-import { getAddress } from '../../infra/utils';
 
 type Props = {
   contacts: Contact[],

@@ -34,6 +34,18 @@ class NodeService {
       });
     });
   };
+
+  static getRewardsAddress = () => {
+    ipcRenderer.send(ipcConsts.GET_REWARDS_ADDRESS);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_REWARDS_ADDRESS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response.address);
+      });
+    });
+  };
 }
 
 export default NodeService;

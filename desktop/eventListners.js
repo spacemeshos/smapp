@@ -74,6 +74,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     await NodeManager.getCommitmentSize({ event });
   });
 
+  ipcMain.on(ipcConsts.GET_REWARDS_ADDRESS, async (event) => {
+    await NodeManager.getRewardsAddress({ event });
+  });
+
   ipcMain.once(ipcConsts.TMP_RUN_NODE_CALL, (event, request) => {
     NodeManager.tmpRunNodeFunc({ event, ...request });
   });
