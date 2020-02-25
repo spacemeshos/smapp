@@ -11,7 +11,6 @@ import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -91,7 +90,6 @@ const CopiedBanner = styled.div`
   color: ${smColors.darkerGreen};
 `;
 
-// $FlowStyledIssue
 const DetailsSection = styled.div`
   display: flex;
   flex-direction: row;

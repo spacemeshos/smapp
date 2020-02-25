@@ -4,7 +4,6 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { logo } from '/assets/images';
 
-// $FlowStyledIssue
 const LogoImg = styled.img`
   position: absolute;
   top: 5px;

@@ -10,7 +10,6 @@ import smColors from '/vars/colors';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, TxList } from '/types';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;

@@ -7,7 +7,6 @@ import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   position: fixed;
   top: 0;

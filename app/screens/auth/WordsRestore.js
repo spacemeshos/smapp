@@ -26,7 +26,6 @@ const TableColumn = styled.div`
   margin-right: 50px;
 `;
 
-// $FlowStyledIssue
 const InputWrapper = styled.div`
   display: flex;
   flex-direction: row;

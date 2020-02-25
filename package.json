@@ -18,7 +18,7 @@
     "flow": "flow",
     "flow-typed": "node ./scripts/flowInstaller.js",
     "lint": "cross-env NODE_ENV=development eslint --format=pretty .",
-    "lint-ci": "npm run flow && npm run lint",
+    "lint-ci": "npm run lint",
     "package-all": "npm run build && node ./scripts/packagerScript.js --target mwl",
     "package-mac": "npm run build && node ./scripts/packagerScript.js --target mac",
     "package-win": "npm run build && node ./scripts/packagerScript.js --target windows",

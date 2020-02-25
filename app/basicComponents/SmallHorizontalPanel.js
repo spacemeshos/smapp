@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { horizontalPanelSmall } from '/assets/images';
 
-// $FlowStyledIssue
 const Wrapper = styled.img`
   position: absolute;
   top: -25px;

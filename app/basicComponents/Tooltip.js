@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { tooltip } from '/assets/images';
 import { smColors } from '/vars';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: none;
   position: absolute;

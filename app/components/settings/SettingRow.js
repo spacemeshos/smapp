@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import smColors from '/vars/colors';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

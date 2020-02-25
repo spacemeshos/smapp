@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { CorneredWrapper } from '/basicComponents';
 
-// $FlowStyledIssue
 const Wrapper = styled(CorneredWrapper)`
   display: none;
   position: absolute;

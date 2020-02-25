@@ -1,3 +1,4 @@
+// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Tooltip, ErrorPopup } from '/basicComponents';

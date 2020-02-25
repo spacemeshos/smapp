@@ -7,7 +7,6 @@ import { getAddress, formatSmidge } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

@@ -109,7 +109,6 @@ const WordWrapper = styled.div`
   display: flex;
 `;
 
-// $FlowStyledIssue
 const NotificationBoxOuter = styled(CorneredWrapper)`
   position: absolute;
   bottom: -75px;

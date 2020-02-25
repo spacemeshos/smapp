@@ -6,7 +6,6 @@ import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
 import { getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -71,7 +70,6 @@ const DetailsText1 = styled(DetailsText)`
   text-align: right;
 `;
 
-// $FlowStyledIssue
 const Fee = styled.div`
   font-size: 13px;
   line-height: 17px;

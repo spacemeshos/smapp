@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } from '/assets/images';
 import smColors from '/vars/colors';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   position: relative;
   display: flex;

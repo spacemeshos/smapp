@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { loader } from '/assets/images';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   position: fixed;
   top: 0;

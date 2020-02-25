@@ -8,7 +8,6 @@ import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { TxList, Tx } from '/types';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -26,7 +25,6 @@ const Header = styled.div`
   margin-bottom: 10px;
 `;
 
-// $FlowStyledIssue
 const TxWrapper = styled.div`
   display: flex;
   flex-direction: row;

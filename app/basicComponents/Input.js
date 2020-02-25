@@ -5,7 +5,6 @@ import { smColors } from '/vars';
 
 const DEFAULT_DEBOUNCE_TIME = 500;
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;

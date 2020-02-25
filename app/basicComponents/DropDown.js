@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { chevronBottomBlack } from '/assets/images';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
@@ -59,7 +58,6 @@ const ItemsWrapper = styled.div`
   background-color: ${smColors.white};
 `;
 
-// $FlowStyledIssue
 const DropdownRow = styled.div`
   display: flex;
   justify-content: center;

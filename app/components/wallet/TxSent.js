@@ -7,7 +7,6 @@ import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { doneIconGreen, copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 
-// $FlowStyledIssue
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
