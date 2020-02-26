@@ -59,6 +59,10 @@ class FsService {
     ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
   };
 
+  static openLogFile = () => {
+    ipcRenderer.send(ipcConsts.OPEN_LOG_FILE);
+  };
+
   static deleteWalletFile = ({ fileName }: { fileName: string }) => {
     ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
   };

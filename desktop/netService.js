@@ -45,16 +45,6 @@ class NetService {
       });
     });
 
-  _getGenesisTime = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetGenesisTime({}, (error, response) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(response);
-      });
-    });
-
   _getUpcomingAwards = () =>
     new Promise((resolve, reject) => {
       this.service.GetUpcomingAwards({}, (error, response) => {
@@ -169,15 +159,6 @@ class NetService {
       event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error: null });
     } catch (error) {
       event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error });
-    }
-  };
-
-  getGenesisTime = async ({ event }) => {
-    try {
-      const { value } = await this._getGenesisTime();
-      event.sender.send(ipcConsts.GET_GENESIS_TIME_RESPONSE, { error: null, time: value });
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_GENESIS_TIME_RESPONSE, { error, time: null });
     }
   };
 
