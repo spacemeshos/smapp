@@ -54,6 +54,15 @@ class FileSystemManager {
     }
   };
 
+  static openLogFile = async () => {
+    try {
+      const logFilePath = path.resolve(app.getPath('userData'), 'spacemesh-log.txt');
+      shell.showItemInFolder(logFilePath);
+    } catch (error) {
+      console.log(error); // eslint-disable-line no-console
+    }
+  };
+
   static readFile = async ({ event, filePath }) => {
     await FileSystemManager._readFile({ event, filePath });
   };

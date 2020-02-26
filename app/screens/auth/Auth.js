@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getNodeStatus, getMiningStatus } from '/redux/node/actions';
+import { getNodeStatus, getMiningStatus, getNodeSettings } from '/redux/node/actions';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
@@ -39,6 +39,7 @@ const InnerWrapper = styled.div`
 type Props = {
   getNodeStatus: Action,
   getMiningStatus: Action,
+  getNodeSettings: Action,
   readWalletFiles: Action,
   walletFiles: Array<string>,
   history: RouterHistory,
@@ -72,7 +73,7 @@ class Auth extends Component<Props> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, readWalletFiles, history, location } = this.props;
+    const { getNodeStatus, getMiningStatus, getNodeSettings, readWalletFiles, history, location } = this.props;
     const files = await readWalletFiles();
     if (files.length && location.pathname !== '/auth/restore') {
       history.push('/auth/unlock');
@@ -82,6 +83,7 @@ class Auth extends Component<Props> {
       await getMiningStatus();
       this.getNodeStatusInterval = setInterval(getNodeStatus, 2000);
     }
+    await getNodeSettings();
   }
 
   componentWillUnmount(): void {
@@ -96,6 +98,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   getNodeStatus,
   getMiningStatus,
+  getNodeSettings,
   readWalletFiles
 };
 

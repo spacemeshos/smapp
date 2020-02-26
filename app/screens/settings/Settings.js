@@ -13,11 +13,11 @@ import { autoStartService } from '/infra/autoStartService';
 import { localStorageService } from '/infra/storageService';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { nodeService } from '/infra/nodeService';
+import { getAddress, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
-import { getAddress } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -62,7 +62,10 @@ type Props = {
   status: Object,
   history: RouterHistory,
   nodeIpAddress: string,
-  isUpdateDownloading: boolean
+  isUpdateDownloading: boolean,
+  genesisTime: string,
+  rewardsAddress: string,
+  networkId: string
 };
 
 type State = {
@@ -86,6 +89,8 @@ class Settings extends Component<Props, State> {
 
   myRef3: any;
 
+  myRef4: any;
+
   constructor(props) {
     super(props);
     const { displayName, accounts, nodeIpAddress } = props;
@@ -107,10 +112,11 @@ class Settings extends Component<Props, State> {
     this.myRef1 = React.createRef();
     this.myRef2 = React.createRef();
     this.myRef3 = React.createRef();
+    this.myRef4 = React.createRef();
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading } = this.props;
+    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -127,7 +133,7 @@ class Settings extends Component<Props, State> {
     const lastBackupTime = localStorageService.get('lastBackupTime');
     return (
       <Wrapper>
-        <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
+        <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
           <SmallHorizontalPanel />
           <AllSettingsInnerWrapper>
@@ -227,7 +233,21 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef3}>
+            <SettingsSection title="MESH INFO" refProp={this.myRef3}>
+              <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
+              <SettingRow upperPartLeft={rewardsAddress || 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
+              <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" />
+              <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
+              <SettingRow
+                upperPartLeft={`Synced: ${status.synced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.currentLayer}. Verified layer: ${
+                  status.verifiedLayer
+                }.`}
+                isUpperPartLeftText
+                rowName="Sync status"
+              />
+              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Log" width={180} />} rowName="View log file" />
+            </SettingsSection>
+            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>
               <SettingRow
                 upperPartLeft={
                   isPortSet ? (
@@ -396,12 +416,16 @@ class Settings extends Component<Props, State> {
   };
 
   scrollToRef = ({ index }) => {
-    const ref = [this.myRef1, this.myRef2, this.myRef3][index];
+    const ref = [this.myRef1, this.myRef2, this.myRef3, this.myRef4][index];
     this.setState({ currentSettingIndex: index });
     ref.current.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });
+  };
+
+  openLogFile = () => {
+    fileSystemService.openLogFile();
   };
 }
 
@@ -411,7 +435,10 @@ const mapStateToProps = (state) => ({
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
   isUpdateDownloading: state.wallet.isUpdateDownloading,
-  nodeIpAddress: state.node.nodeIpAddress
+  nodeIpAddress: state.node.nodeIpAddress,
+  genesisTime: state.node.genesisTime,
+  rewardsAddress: state.node.rewardsAddress,
+  networkId: state.node.networkId
 });
 
 const mapDispatchToProps = {

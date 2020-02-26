@@ -33,6 +33,7 @@ class NodeManager {
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
       StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
+      StoreService.set({ key: 'networkId', value: parseInt(parsedToml.p2p['network-id']) });
       StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
@@ -133,21 +134,22 @@ class NodeManager {
     event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: StoreService.get({ key: 'postSize' }) });
   };
 
-  static getLayerDurationSec = ({ event }) => {
-    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { layerDuration: StoreService.get({ key: 'layerDurationSec' }) });
-  };
-
-  static getRewardsAddress = ({ event }) => {
-    const savedMiningParams = StoreService.get({ key: 'miningParams' });
-    event.sender.send(ipcConsts.GET_REWARDS_ADDRESS_RESPONSE, { address: savedMiningParams?.coinbase });
-  };
-
   static getPort = ({ event }) => {
     event.sender.send(ipcConsts.GET_NODE_PORT_RESPONSE, { port: StoreService.get({ key: 'port' }) || DEFAULT_PORT });
   };
 
   static setPort = ({ port }) => {
     StoreService.set({ key: 'port', value: port });
+  };
+
+  static getNodeSettings = ({ event }) => {
+    const savedMiningParams = StoreService.get({ key: 'miningParams' });
+    const address = savedMiningParams?.coinbase;
+    const genesisTime = StoreService.get({ key: 'genesisTime' });
+    const networkId = StoreService.get({ key: 'networkId' });
+    const commitmentSize = StoreService.get({ key: 'postSize' });
+    const layerDuration = StoreService.get({ key: 'layerDurationSec' });
+    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration });
   };
 }
 

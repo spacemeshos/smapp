@@ -60,7 +60,7 @@ class SettingRow extends PureComponent<Props> {
           {upperPart || (
             <>
               <UpperPartLeft>{isUpperPartLeftText ? <Text>{upperPartLeft}</Text> : upperPartLeft}</UpperPartLeft>
-              <UpperPartRight>{upperPartRight}</UpperPartRight>
+              {upperPartRight && <UpperPartRight>{upperPartRight}</UpperPartRight>}
             </>
           )}
         </UpperPart>
