@@ -156,7 +156,7 @@ export const sendTransaction = ({ recipient, amount, fee, note }: { recipient: s
         tx: {
           txId,
           sender: getAddress(accounts[currentAccountIndex].publicKey),
-          receiver: getAddress(recipient),
+          receiver: recipient,
           amount,
           fee,
           status: TX_STATUSES.PENDING,
