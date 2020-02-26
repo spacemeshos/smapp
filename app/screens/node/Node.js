@@ -8,8 +8,8 @@ import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
-import { getAbbreviatedText, getFormattedTimestamp, formatSmidge } from '/infra/utils';
-import { playIcon, pauseIcon, fireworks } from '/assets/images';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
+import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 // import type { Action } from '/types';
@@ -113,6 +113,20 @@ const Fireworks = styled.img`
   max-width: 100%;
   max-height: 100%;
   cursor: inherit;
+`;
+
+const CopyIcon = styled.img`
+  align-self: flex-end;
+  width: 16px;
+  height: 15px;
+  margin: 6px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
 `;
 
 const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
@@ -292,11 +306,11 @@ class Node extends Component<Props, State> {
       <TextWrapper key="4">
         <LeftText>Rewards Account</LeftText>
         <Dots>..................</Dots>
-        <GreenText>{getAbbreviatedText(rewardsAddress, true, 8)}</GreenText>
+        <GreenText>{getAbbreviatedText(getAddress(rewardsAddress), true, 4)}</GreenText>
+        <CopyIcon src={copyToClipboard} onClick={this.copyRewardsAccount} />
       </TextWrapper>,
       <TextWrapper key="5">
-        <Button onClick={this.copyRewardsAccount} text="Copy reward account" width={155} />
-        {copied && <GreenText>Copied</GreenText>}
+        <GreenText>{copied ? 'Copied' : ' '}</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -316,7 +330,7 @@ class Node extends Component<Props, State> {
 
   copyRewardsAccount = () => {
     const { rewardsAddress } = this.props;
-    clipboard.writeText(rewardsAddress);
+    clipboard.writeText(`0x${getAddress(rewardsAddress)}`);
     this.setState({ copied: true });
   };
 
