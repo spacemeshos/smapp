@@ -258,11 +258,13 @@ class TransactionRow extends Component<Props, State> {
             <Dots>............</Dots>
             <BoldText color={color}>{this.statuses[status]}</BoldText>
           </TextRow>
-          <TextRow>
-            <BlackText>LAYER ID</BlackText>
-            <Dots>............</Dots>
-            <BoldText color={smColors.realBlack}>{layerId}</BoldText>
-          </TextRow>
+          {layerId && (
+            <TextRow>
+              <BlackText>LAYER ID</BlackText>
+              <Dots>............</Dots>
+              <BoldText color={smColors.realBlack}>{layerId}</BoldText>
+            </TextRow>
+          )}
           <TextRow>
             <BlackText>FROM</BlackText>
             <Dots>............</Dots>
