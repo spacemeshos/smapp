@@ -44,18 +44,6 @@ class HttpService {
     });
   }
 
-  static getGenesisTime() {
-    ipcRenderer.send(ipcConsts.GET_GENESIS_TIME);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_GENESIS_TIME_RESPONSE, (event, response) => {
-        if (response.error) {
-          reject(response.error);
-        }
-        resolve(response.time);
-      });
-    });
-  }
-
   static getUpcomingRewards() {
     ipcRenderer.send(ipcConsts.GET_UPCOMING_REWARDS);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {

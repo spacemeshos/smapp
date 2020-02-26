@@ -300,14 +300,16 @@ class Node extends Component<Props, State> {
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
-        <Button
-          onClick={this.pauseResumeMining}
-          text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
-          width={175}
-          imgPosition="before"
-          img={isMiningPaused ? playIcon : pauseIcon}
-          isDisabled
-        />
+        {false && (
+          <Button
+            onClick={this.pauseResumeMining}
+            text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
+            width={175}
+            imgPosition="before"
+            img={isMiningPaused ? playIcon : pauseIcon}
+            isDisabled
+          />
+        )}
       </Footer>
     ];
   };

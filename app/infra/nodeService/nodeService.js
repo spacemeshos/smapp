@@ -11,6 +11,18 @@ class NodeService {
     ipcRenderer.send(ipcConsts.START_NODE);
   };
 
+  static getNodeSettings = () => {
+    ipcRenderer.send(ipcConsts.GET_NODE_SETTINGS);
+    return new Promise<string, Error>((resolve: Function, reject: Function) => {
+      ipcRenderer.once(ipcConsts.GET_NODE_SETTINGS_RESPONSE, (event, response) => {
+        if (response.error) {
+          reject(response.error);
+        }
+        resolve(response);
+      });
+    });
+  };
+
   static getCommitmentSize = () => {
     ipcRenderer.send(ipcConsts.GET_COMMITMENT_SIZE);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
@@ -19,30 +31,6 @@ class NodeService {
           reject(response.error);
         }
         resolve(response.commitmentSize);
-      });
-    });
-  };
-
-  static getLayerDurationSec = () => {
-    ipcRenderer.send(ipcConsts.GET_LAYER_DURATION_SEC);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_LAYER_DURATION_SEC_RESPONSE, (event, response) => {
-        if (response.error) {
-          reject(response.error);
-        }
-        resolve(response.layerDuration);
-      });
-    });
-  };
-
-  static getRewardsAddress = () => {
-    ipcRenderer.send(ipcConsts.GET_REWARDS_ADDRESS);
-    return new Promise<string, Error>((resolve: Function, reject: Function) => {
-      ipcRenderer.once(ipcConsts.GET_REWARDS_ADDRESS_RESPONSE, (event, response) => {
-        if (response.error) {
-          reject(response.error);
-        }
-        resolve(response.address);
       });
     });
   };

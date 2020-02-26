@@ -155,7 +155,7 @@ class AccountsOverview extends Component<Props, State> {
               <SmhText>{unit}</SmhText>
             </BalanceWrapper>
           ) : (
-            <NotSyncedYetText>Waiting for Sync Complete</NotSyncedYetText>
+            <NotSyncedYetText>Syncing...</NotSyncedYetText>
           )}
         </Footer>
       </WrapperWith2SideBars>
