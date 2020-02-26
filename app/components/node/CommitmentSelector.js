@@ -158,7 +158,7 @@ class CommitmentSelector extends Component<Props, State> {
               <Text>{commitmentSize * (i + 1)} GB</Text>
               <TooltipWrapper>
                 <TooltipIcon src={tooltip} />
-                <CustomTooltip text="The download of spacemesh requires 5GB of space in addition to the amount you choose to commit for smeshing" />
+                <CustomTooltip text={`The download of spacemesh requires ${commitmentSize}GB of space in addition to the amount you choose to commit for smeshing`} />
               </TooltipWrapper>
             </TextWrapper>
           </SelectorUpperPart>

@@ -8,7 +8,7 @@ import { Button, Link } from '/basicComponents';
 import { sendIcon, requestIcon } from '/assets/images';
 import smColors from '/vars/colors';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, TxList } from '/types';
+import type { Account } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,8 +42,6 @@ const MiddleSectionText = styled.div`
 
 type Props = {
   account: Account,
-  currentAccountIndex: number,
-  transactions: { data: TxList },
   history: RouterHistory
 };
 
@@ -56,11 +54,7 @@ type State = {
 
 class Overview extends Component<Props, State> {
   render() {
-    const { currentAccountIndex, transactions, account } = this.props;
-    const latestTransactions =
-      transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0
-        ? transactions[currentAccountIndex].data.slice(transactions[currentAccountIndex].data.length - 3)
-        : [];
+    const { account } = this.props;
     return (
       <Wrapper>
         <MiddleSection>
@@ -74,7 +68,7 @@ class Overview extends Component<Props, State> {
           <Button onClick={this.navigateToRequestCoins} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
           <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginRight: 'auto' }} />
         </MiddleSection>
-        <LatestTransactions publicKey={account.publicKey} transactions={latestTransactions} navigateToAllTransactions={this.navigateToAllTransactions} />
+        <LatestTransactions publicKey={account.publicKey} navigateToAllTransactions={this.navigateToAllTransactions} />
       </Wrapper>
     );
   }
@@ -98,9 +92,7 @@ class Overview extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  account: state.wallet.accounts[state.wallet.currentAccountIndex],
-  currentAccountIndex: state.wallet.currentAccountIndex,
-  transactions: state.wallet.transactions
+  account: state.wallet.accounts[state.wallet.currentAccountIndex]
 });
 
 Overview = connect<any, any, _, _, _, _>(mapStateToProps)(Overview);
