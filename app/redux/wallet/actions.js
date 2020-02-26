@@ -224,7 +224,7 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
       unifiedTxList[existingListMap[tx.txId].index] = { ...existingListMap[tx.txId].tx, status: tx.status };
     } else {
       hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-      unifiedTxList.push(tx.timestamp ? tx : { ...tx, timestamp: new Date().getTime() });
+      unifiedTxList.unshift(tx.timestamp ? tx : { ...tx, timestamp: new Date().getTime() });
     }
   });
   return { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
