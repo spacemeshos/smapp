@@ -48,18 +48,14 @@ class NodeManager {
 
       await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
-      const savedMiningParams = StoreService.get({ key: 'miningParams' });
-      const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive);
-
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
         StoreService.remove({ key: 'savedMiningParams' });
         await FileSystemManager.cleanWalletFile();
         const command =
           os.type() === 'Windows_NT'
-            ? // eslint-disable-next-line max-len
-              `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
-            : `rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
+            ? `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${logFilePath} del ${logFilePath})`
+            : `rm -rf ${nodeDataFilesPath} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
@@ -76,8 +72,9 @@ class NodeManager {
           }
         });
       } else {
+        const savedMiningParams = StoreService.get({ key: 'miningParams' });
         const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
-          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${postDataFolder}"` : ''
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
