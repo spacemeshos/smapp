@@ -13,6 +13,7 @@ const initialState = {
   commitmentSize: 0,
   layerDuration: 0,
   timeTillNextAward: 0,
+  rewards: [],
   totalEarnings: 0,
   totalFeesEarnings: 0,
   nodeIpAddress: nodeConsts.DEFAULT_URL
@@ -60,7 +61,7 @@ const reducer = (state: any = initialState, action: Action) => {
         totalEarnings += reward.layerRewardEstimate;
         totalFeesEarnings += reward.totalReward - reward.layerRewardEstimate;
       });
-      return { ...state, totalEarnings, totalFeesEarnings };
+      return { ...state, rewards, totalEarnings, totalFeesEarnings };
     }
     case SET_REWARDS_ADDRESS: {
       const {

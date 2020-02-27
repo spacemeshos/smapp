@@ -78,11 +78,9 @@ class Auth extends Component<Props> {
     if (files.length && location.pathname !== '/auth/restore') {
       history.push('/auth/unlock');
     }
-    const status = await getNodeStatus();
-    if (status) {
-      await getMiningStatus();
-      this.getNodeStatusInterval = setInterval(getNodeStatus, 2000);
-    }
+    await getNodeStatus();
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 5000);
+    await getMiningStatus();
     await getNodeSettings();
   }
 

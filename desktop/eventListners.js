@@ -47,6 +47,10 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileSystemManager.selectPostFolder({ browserWindow: mainWindow, event });
   });
 
+  ipcMain.on(ipcConsts.GET_AUDIO_PATH, (event) => {
+    FileSystemManager.getAudioPath({ event });
+  });
+
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
     const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;

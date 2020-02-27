@@ -8,10 +8,12 @@ import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
+import { fileSystemService } from '/infra/fileSystemService';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
+import type { TxList } from '/types';
 // import type { Action } from '/types';
 
 const Wrapper = styled.div`
@@ -119,7 +121,7 @@ const CopyIcon = styled.img`
   align-self: flex-end;
   width: 16px;
   height: 15px;
-  margin: 6px;
+  margin: 6px 0 6px 6px;
   cursor: pointer;
   &:hover {
     opacity: 0.5;
@@ -135,6 +137,7 @@ type Props = {
   status: Object,
   miningStatus: number,
   // timeTillNextAward: number,
+  rewards: TxList,
   totalEarnings: number,
   totalFeesEarnings: number,
   // getUpcomingRewards: Action,
@@ -155,6 +158,8 @@ class Node extends Component<Props, State> {
 
   fireworksTimeout: TimeoutID;
 
+  audio: any;
+
   constructor(props) {
     super(props);
     const { location } = props;
@@ -167,7 +172,8 @@ class Node extends Component<Props, State> {
   }
 
   render() {
-    const rewards = localStorageService.get('rewards') || [];
+    const { rewards } = this.props;
+    const resolvedRewards = rewards || localStorageService.get('rewards');
     let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
     smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
     let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
@@ -197,7 +203,7 @@ class Node extends Component<Props, State> {
                 <LogEntrySeparator>...</LogEntrySeparator>
               </>
             ) : null}
-            {rewards.map((reward, index) => (
+            {resolvedRewards.map((reward, index) => (
               <div key={`reward${index}`}>
                 <LogEntry>
                   <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
@@ -213,13 +219,23 @@ class Node extends Component<Props, State> {
     );
   }
 
-  // async componentDidMount() {
-  //   const { status, miningStatus, getUpcomingRewards } = this.props;
-  //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
-  //     await getUpcomingRewards();
-  //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
-  //   }
-  // }
+  async componentDidMount() {
+    //   const { status, miningStatus, getUpcomingRewards } = this.props;
+    //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
+    //     await getUpcomingRewards();
+    //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
+    //   }
+    const audioUrl = await fileSystemService.getAudioPath();
+    this.audio = new Audio(audioUrl);
+  }
+
+  componentDidUpdate() {
+    const { rewards } = this.props;
+    const playedAudio = localStorageService.get('playedAudio');
+    if (rewards.length === 1 && !playedAudio) {
+      this.audio.play();
+    }
+  }
 
   componentWillUnmount() {
     // this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
@@ -347,6 +363,7 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
   timeTillNextAward: state.node.timeTillNextAward,
+  rewards: state.node.rewards,
   totalEarnings: state.node.totalEarnings,
   totalFeesEarnings: state.node.totalFeesEarnings,
   rewardsAddress: state.node.rewardsAddress
