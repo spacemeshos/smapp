@@ -96,7 +96,7 @@ const getBuildOptions = ({ target, publish }) => {
       ],
       extraFiles: [
         nodeFiles[target],
-        'resources/smesh_reward.mp3'
+        { from: path.resolve('resources/sounds'), to: 'sounds/' }
       ],
       mac: {
         hardenedRuntime: true,

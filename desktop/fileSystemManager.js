@@ -190,7 +190,6 @@ class FileSystemManager {
     } else {
       try {
         fs.accessSync(filePaths[0], fs.constants.W_OK);
-        // const bytes = freespace.checkSync(filePaths[0]);
         const diskSpace = await checkDiskSpace(filePaths[0]);
         event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { selectedFolder: filePaths[0], freeSpace: diskSpace.free });
       } catch (err) {
@@ -200,7 +199,7 @@ class FileSystemManager {
   };
 
   static getAudioPath = ({ event }) => {
-    const audioPath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/' : '../../', 'smesh_reward.mp3');
+    const audioPath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3');
     event.sender.send(ipcConsts.GET_AUDIO_PATH_RESPONSE, { error: null, audioPath });
   };
 
