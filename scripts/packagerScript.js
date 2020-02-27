@@ -95,7 +95,8 @@ const getBuildOptions = ({ target, publish }) => {
         'resources/icons/*'
       ],
       extraFiles: [
-        nodeFiles[target]
+        nodeFiles[target],
+        'resources/smesh_reward.mp3'
       ],
       mac: {
         hardenedRuntime: true,

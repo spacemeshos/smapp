@@ -199,6 +199,11 @@ class FileSystemManager {
     }
   };
 
+  static getAudioPath = ({ event }) => {
+    const audioPath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/' : '../../', 'smesh_reward.mp3');
+    event.sender.send(ipcConsts.GET_AUDIO_PATH_RESPONSE, { error: null, audioPath });
+  };
+
   static _readFile = async ({ event, filePath }) => {
     try {
       const fileContent = await readFileAsync(filePath);
