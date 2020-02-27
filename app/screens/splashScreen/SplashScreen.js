@@ -23,7 +23,7 @@ class SplashScreen extends PureComponent<Props> {
       history.push('/auth');
     } else {
       await nodeService.startNode();
-      setTimeout(() => history.push('/auth'), 10000);
+      setTimeout(() => history.push('/auth'), 15000);
     }
   }
 }

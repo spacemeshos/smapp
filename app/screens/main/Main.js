@@ -244,10 +244,9 @@ class Main extends Component<Props, State> {
 
   async componentDidMount() {
     const { getNodeStatus, miningStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
-    const status = await getNodeStatus();
-    if (status) {
-      this.getNodeStatusInterval = setInterval(getNodeStatus, 2000);
-    }
+    await getNodeStatus();
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 5000);
+    await getMiningStatus();
     this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
         notificationsService.notify({
           title: 'Spacemesh',
@@ -257,7 +256,7 @@ class Main extends Component<Props, State> {
       } }), 30000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
-        status && getMiningStatus();
+        getMiningStatus();
       }, 100000);
     }
     this.walletFileUpdateInterval = setInterval(() => updateWalletFile({}), 500);
