@@ -119,7 +119,7 @@ const CopyIcon = styled.img`
   align-self: flex-end;
   width: 16px;
   height: 15px;
-  margin: 6px;
+  margin: 6px 0 6px 6px;
   cursor: pointer;
   &:hover {
     opacity: 0.5;
