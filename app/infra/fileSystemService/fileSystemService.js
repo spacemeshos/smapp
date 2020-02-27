@@ -82,6 +82,15 @@ class FsService {
       });
     });
   };
+
+  static getAudioPath = () => {
+    ipcRenderer.send(ipcConsts.GET_AUDIO_PATH);
+    return new Promise<string, Error>((resolve: Function) => {
+      ipcRenderer.once(ipcConsts.GET_AUDIO_PATH_RESPONSE, (event, response) => {
+        resolve(response.audioPath);
+      });
+    });
+  };
 }
 
 export default FsService;

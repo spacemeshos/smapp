@@ -95,7 +95,8 @@ const getBuildOptions = ({ target, publish }) => {
         'resources/icons/*'
       ],
       extraFiles: [
-        nodeFiles[target]
+        nodeFiles[target],
+        { from: path.resolve('resources/sounds'), to: 'sounds/' }
       ],
       mac: {
         hardenedRuntime: true,
