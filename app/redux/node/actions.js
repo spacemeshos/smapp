@@ -10,10 +10,11 @@ import { Action, Dispatch, GetState } from '/types';
 
 export const SET_NODE_STATUS: string = 'SET_NODE_STATUS';
 
+export const SET_NODE_SETTINGS: string = 'SET_NODE_SETTINGS';
+
 export const SET_MINING_STATUS: string = 'SET_MINING_STATUS';
 export const INIT_MINING: string = 'INIT_MINING';
 
-export const SET_GENESIS_TIME: string = 'SET_GENESIS_TIME';
 export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
 export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
 
@@ -31,15 +32,24 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
   }
 };
 
+export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatch => {
+  try {
+    const { address, genesisTime, networkId, commitmentSize, layerDuration } = await nodeService.getNodeSettings();
+    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration } });
+  } catch (error) {
+    console.error(error); // eslint-disable-line no-console
+  }
+};
+
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
     const status = await httpService.getMiningStatus();
     if (status === nodeConsts.IS_MINING) {
-      dispatch(getGenesisTime());
       if (!localStorageService.get('smesherSmeshingTimestamp')) {
         localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
       }
     } else if (status === nodeConsts.NOT_MINING) {
+      localStorageService.clearByKey('playedAudio');
       localStorageService.clearByKey('smesherInitTimestamp');
       localStorageService.clearByKey('smesherSmeshingTimestamp');
       localStorageService.clearByKey('rewards');
@@ -64,23 +74,13 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
   }
 };
 
-export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const genesisTime = await httpService.getGenesisTime();
-    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime } });
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-  }
-};
-
 export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const awardLayerNumbers = await httpService.getUpcomingRewards();
     if (awardLayerNumbers.length === 0) {
       dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: 0 } });
     } else {
-      const { status } = getState().node;
-      const layerDuration = await nodeService.getLayerDurationSec();
+      const { status, layerDuration } = getState().node;
       const currentLayer = status?.currentLayer || 0;
       const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer > currentLayer);
       if (futureAwardLayerNumbers.length) {
@@ -98,15 +98,6 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
     dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
   } catch (err) {
     throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
-  }
-};
-
-export const getRewardsAddress = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const address = await nodeService.getRewardsAddress();
-    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
-  } catch (err) {
-    throw createError('Error getting rewards address', () => getRewardsAddress());
   }
 };
 

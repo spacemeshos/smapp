@@ -8,10 +8,12 @@ import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
-import { getAbbreviatedText, getFormattedTimestamp, formatSmidge } from '/infra/utils';
-import { playIcon, pauseIcon, fireworks } from '/assets/images';
+import { fileSystemService } from '/infra/fileSystemService';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
+import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
+import type { TxList } from '/types';
 // import type { Action } from '/types';
 
 const Wrapper = styled.div`
@@ -115,12 +117,27 @@ const Fireworks = styled.img`
   cursor: inherit;
 `;
 
+const CopyIcon = styled.img`
+  align-self: flex-end;
+  width: 16px;
+  height: 15px;
+  margin: 6px 0 6px 6px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
+`;
+
 const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
 
 type Props = {
   status: Object,
   miningStatus: number,
   // timeTillNextAward: number,
+  rewards: TxList,
   totalEarnings: number,
   totalFeesEarnings: number,
   // getUpcomingRewards: Action,
@@ -141,6 +158,8 @@ class Node extends Component<Props, State> {
 
   fireworksTimeout: TimeoutID;
 
+  audio: any;
+
   constructor(props) {
     super(props);
     const { location } = props;
@@ -153,7 +172,8 @@ class Node extends Component<Props, State> {
   }
 
   render() {
-    const rewards = localStorageService.get('rewards') || [];
+    const { rewards } = this.props;
+    const resolvedRewards = rewards || localStorageService.get('rewards');
     let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
     smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
     let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
@@ -183,7 +203,7 @@ class Node extends Component<Props, State> {
                 <LogEntrySeparator>...</LogEntrySeparator>
               </>
             ) : null}
-            {rewards.map((reward, index) => (
+            {resolvedRewards.map((reward, index) => (
               <div key={`reward${index}`}>
                 <LogEntry>
                   <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
@@ -199,13 +219,23 @@ class Node extends Component<Props, State> {
     );
   }
 
-  // async componentDidMount() {
-  //   const { status, miningStatus, getUpcomingRewards } = this.props;
-  //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
-  //     await getUpcomingRewards();
-  //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
-  //   }
-  // }
+  async componentDidMount() {
+    //   const { status, miningStatus, getUpcomingRewards } = this.props;
+    //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
+    //     await getUpcomingRewards();
+    //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
+    //   }
+    const audioUrl = await fileSystemService.getAudioPath();
+    this.audio = new Audio(audioUrl);
+  }
+
+  componentDidUpdate() {
+    const { rewards } = this.props;
+    const playedAudio = localStorageService.get('playedAudio');
+    if (rewards.length === 1 && !playedAudio) {
+      this.audio.play();
+    }
+  }
 
   componentWillUnmount() {
     // this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
@@ -292,29 +322,31 @@ class Node extends Component<Props, State> {
       <TextWrapper key="4">
         <LeftText>Rewards Account</LeftText>
         <Dots>..................</Dots>
-        <GreenText>{getAbbreviatedText(rewardsAddress, true, 8)}</GreenText>
+        <GreenText>{getAbbreviatedText(getAddress(rewardsAddress), true, 4)}</GreenText>
+        <CopyIcon src={copyToClipboard} onClick={this.copyRewardsAccount} />
       </TextWrapper>,
       <TextWrapper key="5">
-        <Button onClick={this.copyRewardsAccount} text="Copy reward account" width={155} />
-        {copied && <GreenText>Copied</GreenText>}
+        <GreenText>{copied ? 'Copied' : ' '}</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
-        <Button
-          onClick={this.pauseResumeMining}
-          text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
-          width={175}
-          imgPosition="before"
-          img={isMiningPaused ? playIcon : pauseIcon}
-          isDisabled
-        />
+        {false && (
+          <Button
+            onClick={this.pauseResumeMining}
+            text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
+            width={175}
+            imgPosition="before"
+            img={isMiningPaused ? playIcon : pauseIcon}
+            isDisabled
+          />
+        )}
       </Footer>
     ];
   };
 
   copyRewardsAccount = () => {
     const { rewardsAddress } = this.props;
-    clipboard.writeText(rewardsAddress);
+    clipboard.writeText(`0x${getAddress(rewardsAddress)}`);
     this.setState({ copied: true });
   };
 
@@ -331,6 +363,7 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
   timeTillNextAward: state.node.timeTillNextAward,
+  rewards: state.node.rewards,
   totalEarnings: state.node.totalEarnings,
   totalFeesEarnings: state.node.totalFeesEarnings,
   rewardsAddress: state.node.rewardsAddress

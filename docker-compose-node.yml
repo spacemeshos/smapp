@@ -1,0 +1,5 @@
+version: '3.7'
+services:
+  go-spacemesh:
+          build: https://github.com/spacemeshos/go-spacemesh.git#${NODE_VERSION}
+          image: go-spacemesh:${NODE_VERSION}

@@ -33,6 +33,7 @@ class NodeManager {
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
       StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
+      StoreService.set({ key: 'networkId', value: parseInt(parsedToml.p2p['network-id']) });
       StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
@@ -47,18 +48,14 @@ class NodeManager {
 
       await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
-      const savedMiningParams = StoreService.get({ key: 'miningParams' });
-      const postDataFolder = savedMiningParams && path.resolve(savedMiningParams.logicalDrive);
-
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
         StoreService.remove({ key: 'savedMiningParams' });
         await FileSystemManager.cleanWalletFile();
         const command =
           os.type() === 'Windows_NT'
-            ? // eslint-disable-next-line max-len
-              `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${postDataFolder} rd /s /q ${postDataFolder}) && (if exist ${logFilePath} del ${logFilePath})`
-            : `rm -rf ${nodeDataFilesPath} && rm -rf ${postDataFolder} && rm -rf ${logFilePath}`;
+            ? `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${logFilePath} del ${logFilePath})`
+            : `rm -rf ${nodeDataFilesPath} && rm -rf ${logFilePath}`;
         exec(command, (err) => {
           if (!err) {
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
@@ -75,8 +72,9 @@ class NodeManager {
           }
         });
       } else {
+        const savedMiningParams = StoreService.get({ key: 'miningParams' });
         const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
-          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${postDataFolder}"` : ''
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
@@ -133,21 +131,22 @@ class NodeManager {
     event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: StoreService.get({ key: 'postSize' }) });
   };
 
-  static getLayerDurationSec = ({ event }) => {
-    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { layerDuration: StoreService.get({ key: 'layerDurationSec' }) });
-  };
-
-  static getRewardsAddress = ({ event }) => {
-    const savedMiningParams = StoreService.get({ key: 'miningParams' });
-    event.sender.send(ipcConsts.GET_REWARDS_ADDRESS_RESPONSE, { address: savedMiningParams?.coinbase });
-  };
-
   static getPort = ({ event }) => {
     event.sender.send(ipcConsts.GET_NODE_PORT_RESPONSE, { port: StoreService.get({ key: 'port' }) || DEFAULT_PORT });
   };
 
   static setPort = ({ port }) => {
     StoreService.set({ key: 'port', value: port });
+  };
+
+  static getNodeSettings = ({ event }) => {
+    const savedMiningParams = StoreService.get({ key: 'miningParams' });
+    const address = savedMiningParams?.coinbase;
+    const genesisTime = StoreService.get({ key: 'genesisTime' });
+    const networkId = StoreService.get({ key: 'networkId' });
+    const commitmentSize = StoreService.get({ key: 'postSize' });
+    const layerDuration = StoreService.get({ key: 'layerDurationSec' });
+    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration });
   };
 }
 

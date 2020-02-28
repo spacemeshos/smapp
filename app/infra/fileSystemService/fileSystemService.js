@@ -59,6 +59,10 @@ class FsService {
     ipcRenderer.send(ipcConsts.OPEN_WALLET_BACKUP_DIRECTORY, { lastBackupTime });
   };
 
+  static openLogFile = () => {
+    ipcRenderer.send(ipcConsts.OPEN_LOG_FILE);
+  };
+
   static deleteWalletFile = ({ fileName }: { fileName: string }) => {
     ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
   };
@@ -75,6 +79,15 @@ class FsService {
           reject({ error: response.error }); // eslint-disable-line prefer-promise-reject-errors
         }
         resolve({ selectedFolder: response.selectedFolder, freeSpace: response.freeSpace });
+      });
+    });
+  };
+
+  static getAudioPath = () => {
+    ipcRenderer.send(ipcConsts.GET_AUDIO_PATH);
+    return new Promise<string, Error>((resolve: Function) => {
+      ipcRenderer.once(ipcConsts.GET_AUDIO_PATH_RESPONSE, (event, response) => {
+        resolve(response.audioPath);
       });
     });
   };

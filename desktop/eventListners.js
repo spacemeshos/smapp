@@ -39,8 +39,16 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     FileSystemManager.openWalletBackupDirectory({ ...request });
   });
 
+  ipcMain.on(ipcConsts.OPEN_LOG_FILE, async () => {
+    await FileSystemManager.openLogFile();
+  });
+
   ipcMain.on(ipcConsts.SELECT_POST_FOLDER, (event) => {
     FileSystemManager.selectPostFolder({ browserWindow: mainWindow, event });
+  });
+
+  ipcMain.on(ipcConsts.GET_AUDIO_PATH, (event) => {
+    FileSystemManager.getAudioPath({ event });
   });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
@@ -74,8 +82,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     await NodeManager.getCommitmentSize({ event });
   });
 
-  ipcMain.on(ipcConsts.GET_REWARDS_ADDRESS, async (event) => {
-    await NodeManager.getRewardsAddress({ event });
+  ipcMain.on(ipcConsts.GET_NODE_SETTINGS, async (event) => {
+    await NodeManager.getNodeSettings({ event });
   });
 
   ipcMain.once(ipcConsts.START_NODE, async (event) => {
@@ -103,10 +111,6 @@ const subscribeToEventListeners = ({ mainWindow }) => {
 
   ipcMain.on(ipcConsts.INIT_MINING, async (event, request) => {
     netService.initMining({ event, ...request });
-  });
-
-  ipcMain.on(ipcConsts.GET_GENESIS_TIME, (event) => {
-    netService.getGenesisTime({ event });
   });
 
   ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {

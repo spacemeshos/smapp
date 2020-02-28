@@ -10,9 +10,11 @@ This will build the sources in the current directory inside a docker container (
 
 ## Building
 
-0. Run `git pull` to get the latest sources.
-1. Run `docker-compose build`. This builds the docker image.
-2. **Optional:** If you want to remove any previous volumes (i.e., start from scratch), run `docker-compose down -v`
+0. Run `git pull` to get the latest sources. 
+1. **Optional:** Edit the .env file to specify the version of go-spacemesh that will be used.
+2. The build process expects a docker image with the tag `go-spacemesh:${NODE_VERSION}` to be accessible in the local docker repository. If such an image does not exist, run `docker-compose -f docker-compose-node.yml`. This will pull the version tagged `${NODE_VERSION}` from the [go-spacemesh git repository](https://github.com/spacemeshos/go-spacemesh) and build it to create the image.
+3. Run `docker-compose build`. This builds the docker image.
+4. **Optional:** If you want to remove any previous volumes (i.e., start from scratch), run `docker-compose down -v`
 
 ## Running
 

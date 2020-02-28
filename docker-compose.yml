@@ -1,7 +1,10 @@
 version: '3.7'
 services:
   smapp:
-     build: .
+     build: 
+        context: .
+        args:
+           NODE_VERSION: ${NODE_VERSION}
      #     image: smapp:latest
      container_name: smapp
      command: [ 'start',

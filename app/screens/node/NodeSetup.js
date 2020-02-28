@@ -62,7 +62,7 @@ const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 
 function formatBytes(bytes) {
   if (bytes === 0) return 0;
-  return parseFloat((bytes / 1073741824).toFixed(2));
+  return parseFloat((bytes / 1073741824).toFixed(4));
 }
 
 type Props = {

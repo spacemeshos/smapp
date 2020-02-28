@@ -1,5 +1,6 @@
 // @flow
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
 import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
@@ -63,14 +64,15 @@ const Amount = styled.div`
 
 type Props = {
   publicKey: string,
-  transactions: TxList,
+  currentAccountIndex: number,
+  transactions: { data: TxList },
   navigateToAllTransactions: () => void
 };
 
 class LatestTransactions extends PureComponent<Props> {
   render() {
-    const { transactions, navigateToAllTransactions } = this.props;
-    const reversedTxs = transactions.slice().reverse();
+    const { transactions, currentAccountIndex, navigateToAllTransactions } = this.props;
+    const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3) : [];
     return (
       <Wrapper>
         <Header>
@@ -78,7 +80,7 @@ class LatestTransactions extends PureComponent<Props> {
           <br />
           --
         </Header>
-        <div>{reversedTxs.map((tx, index) => this.renderTransaction({ tx, index }))}</div>
+        <div>{latestTransactions.map((tx, index) => this.renderTransaction({ tx, index }))}</div>
         <Button onClick={navigateToAllTransactions} text="ALL TRANSACTIONS" width={175} style={{ marginTop: 'auto ' }} />
       </Wrapper>
     );
@@ -116,4 +118,10 @@ class LatestTransactions extends PureComponent<Props> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  currentAccountIndex: state.wallet.currentAccountIndex,
+  transactions: state.wallet.transactions
+});
+
+LatestTransactions = connect<any, any, _, _, _, _>(mapStateToProps)(LatestTransactions);
 export default LatestTransactions;
