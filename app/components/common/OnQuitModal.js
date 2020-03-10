@@ -95,8 +95,7 @@ class OnQuitModal extends Component<Props, State> {
   };
 
   handleQuit = () => {
-    ipcRenderer.sendSync(ipcConsts.STOP_NODE);
-    ipcRenderer.send(ipcConsts.QUIT_APP);
+    ipcRenderer.send(ipcConsts.STOP_NODE);
   };
 
   handleKeepInBackground = () => {

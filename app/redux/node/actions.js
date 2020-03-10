@@ -55,8 +55,10 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
       localStorageService.clearByKey('rewards');
     }
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
+    return status;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
+    return 1;
   }
 };
 
