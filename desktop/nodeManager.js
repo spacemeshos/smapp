@@ -23,7 +23,7 @@ const getPidByName = ({ name }) => find('name', name).then((list) => (list.lengt
 class NodeManager {
   static startNode = async () => {
     try {
-      const rawData = await fetch('http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io
+      const rawData = await fetch('http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io/
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
@@ -97,33 +97,36 @@ class NodeManager {
 
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
-  static stopNode = async ({ event }) => {
+  static stopNode = async ({ browserWindow }) => {
     try {
       if (os.type() === 'Windows_NT') {
-        exec('taskkill /F /IM go-spacemesh.exe', (err) => {
+        exec('taskkill /F /IM go-spacemesh.exe', async (err) => {
           if (err) {
             console.error(err); // eslint-disable-line no-console
-            event.returnValue = null; // eslint-disable-line no-param-reassign
           }
-          event.returnValue = null; // eslint-disable-line no-param-reassign
+          await FileSystemManager.cleanUp();
+          browserWindow.destroy();
+          app.quit();
         });
       } else {
         const processes = await getPidByName({ name: 'go-spacemesh' });
         if (processes) {
-          exec(`kill -s INT ${processes[1].pid}`, (err) => {
+          exec(`kill -s INT ${processes[1].pid}`, async (err) => {
             if (err) {
               console.error(err); // eslint-disable-line no-console
-              event.returnValue = null; // eslint-disable-line no-param-reassign
             }
-            event.returnValue = null; // eslint-disable-line no-param-reassign
+            await FileSystemManager.cleanUp();
+            browserWindow.destroy();
+            app.quit();
           });
         }
-        event.returnValue = null; // eslint-disable-line no-param-reassign
       }
     } catch (err) {
       // could not find or kill node process
       console.error(err); // eslint-disable-line no-console
-      event.returnValue = null; // eslint-disable-line no-param-reassign
+      await FileSystemManager.cleanUp();
+      browserWindow.destroy();
+      app.quit();
     }
   };
 

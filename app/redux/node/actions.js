@@ -55,8 +55,10 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
       localStorageService.clearByKey('rewards');
     }
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
+    return status;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
+    return 1;
   }
 };
 
@@ -70,7 +72,8 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
     localStorageService.clearByKey('rewards');
     dispatch({ type: INIT_MINING, payload: { address } });
   } catch (err) {
-    throw createError('Error initiating smeshing', () => initMining({ logicalDrive, commitmentSize, address }));
+    console.error(err); // eslint-disable-line no-console
+    throw createError(`Error initiating smeshing: ${err}`);
   }
 };
 

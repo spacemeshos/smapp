@@ -39,3 +39,4 @@ ct-libc/
 /release
 .env
 .vscode
+/node/

@@ -78,7 +78,8 @@ type State = {
   hasPermissionError: boolean,
   freeSpace: number,
   subMode: 2 | 3,
-  selectedCommitmentSize: number
+  selectedCommitmentSize: number,
+  isSubmitting: boolean
 };
 
 class NodeSetup extends Component<Props, State> {
@@ -106,15 +107,16 @@ class NodeSetup extends Component<Props, State> {
       selectedFolder: '',
       freeSpace: 0,
       hasPermissionError: false,
-      selectedCommitmentSize: 0
+      selectedCommitmentSize: 0,
+      isSubmitting: false
     };
   }
 
   render() {
     const { status, location } = this.props;
-    const { subMode, selectedFolder, hasPermissionError, selectedCommitmentSize } = this.state;
+    const { subMode, selectedFolder, hasPermissionError, selectedCommitmentSize, isSubmitting } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
-    const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || (subMode === 3 && selectedCommitmentSize === 0) || !status;
+    const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || (subMode === 3 && selectedCommitmentSize === 0) || isSubmitting || !status;
     return (
       <Wrapper>
         <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
@@ -134,7 +136,6 @@ class NodeSetup extends Component<Props, State> {
   async componentDidMount() {
     this.commitmentSize = await nodeService.getCommitmentSize();
     this.formattedCommitmentSize = formatBytes(this.commitmentSize);
-    this.setState({ selectedFolder: '', hasPermissionError: false, selectedCommitmentSize: 0 });
   }
 
   renderSubMode = () => {
@@ -177,7 +178,6 @@ class NodeSetup extends Component<Props, State> {
 
   setupAndInitMining = async () => {
     const { initMining, accounts, history } = this.props;
-    // const { selectedFolder, selectedDriveIndex } = this.state;
     const { selectedFolder } = this.state;
     try {
       await initMining({
@@ -208,6 +208,7 @@ class NodeSetup extends Component<Props, State> {
     if (subMode === 2) {
       this.setState({ subMode: 3 });
     } else if (subMode === 3) {
+      this.setState({ isSubmitting: true });
       this.setupAndInitMining();
     }
   };

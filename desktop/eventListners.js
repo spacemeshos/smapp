@@ -74,8 +74,8 @@ const subscribeToEventListeners = ({ mainWindow }) => {
     NodeManager.hardRefresh({ browserWindow: mainWindow });
   });
 
-  ipcMain.once(ipcConsts.STOP_NODE, (event) => {
-    NodeManager.stopNode({ event });
+  ipcMain.once(ipcConsts.STOP_NODE, async (event) => {
+    await NodeManager.stopNode({ event, browserWindow: mainWindow });
   });
 
   ipcMain.on(ipcConsts.GET_COMMITMENT_SIZE, async (event) => {
