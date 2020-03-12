@@ -15,7 +15,6 @@ import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import subscribeToEventListeners from './eventListners';
 import subscribeToAutoUpdateListeners from './autoUpdateListeners';
-import FileSystemManager from './fileSystemManager';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 
@@ -117,12 +116,6 @@ app.on('ready', async () => {
   });
 
   ipcMain.on(ipcConsts.CHECK_APP_VISIBILITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, mainWindow.isVisible() && mainWindow.isFocused()));
-
-  ipcMain.on(ipcConsts.QUIT_APP, async () => {
-    await FileSystemManager.cleanUp();
-    mainWindow.destroy();
-    app.quit();
-  });
 
   ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
 
