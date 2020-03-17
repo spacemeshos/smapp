@@ -8,6 +8,13 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { DropResult } from 'react-beautiful-dnd';
 
+const SubHeader = styled.div`
+  margin-bottom: 25px;
+  font-size: 15px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
+`;
+
 const Text = styled.span`
   font-size: 14px;
   line-height: 18px;
@@ -174,14 +181,9 @@ class TestMe extends Component<Props, State> {
     const { dropsCounter, matchCounter } = this.state;
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
     return [
-      <WrapperWith2SideBars
-        width={920}
-        height={400}
-        header="CONFIRM YOUR 12 WORDS BACKUP"
-        subHeader="Drag each of the four words below to its matching number in your paper backup word list"
-        key="1"
-      >
+      <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP" key="1">
         <SmallHorizontalPanel />
+        <SubHeader>Drag each of the four words below to its matching number in your paper backup word list</SubHeader>
         {this.renderDragAndDropArea()}
         <BottomRow>
           <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
