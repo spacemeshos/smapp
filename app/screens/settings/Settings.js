@@ -65,6 +65,7 @@ type Props = {
   isUpdateDownloading: boolean,
   genesisTime: string,
   rewardsAddress: string,
+  stateRootHash: string,
   networkId: string
 };
 
@@ -116,7 +117,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId } = this.props;
+    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId, stateRootHash } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -245,6 +246,7 @@ class Settings extends Component<Props, State> {
                 isUpperPartLeftText
                 rowName="Sync status"
               />
+              <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" />
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Log" width={180} />} rowName="View log file" />
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>
@@ -438,6 +440,7 @@ const mapStateToProps = (state) => ({
   nodeIpAddress: state.node.nodeIpAddress,
   genesisTime: state.node.genesisTime,
   rewardsAddress: state.node.rewardsAddress,
+  stateRootHash: state.node.stateRootHash,
   networkId: state.node.networkId
 });
 

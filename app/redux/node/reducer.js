@@ -12,6 +12,7 @@ const initialState = {
   networkId: 0,
   commitmentSize: 0,
   layerDuration: 0,
+  stateRootHash: null,
   timeTillNextAward: 0,
   rewards: [],
   totalEarnings: 0,
@@ -29,9 +30,9 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case SET_NODE_SETTINGS: {
       const {
-        payload: { address, genesisTime, networkId, commitmentSize, layerDuration }
+        payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash }
       } = action;
-      return { ...state, rewardsAddress: address, genesisTime, networkId, commitmentSize, layerDuration };
+      return { ...state, rewardsAddress: address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash };
     }
     case SET_MINING_STATUS: {
       const {

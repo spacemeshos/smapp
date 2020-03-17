@@ -3,7 +3,7 @@ import { ipcConsts } from '../app/vars';
 import FileSystemManager from './fileSystemManager';
 import NodeManager from './nodeManager';
 // eslint-disable-next-line import/no-cycle
-import netService from './netService';
+import NetService from './netService';
 import AutoStartManager from './autoStartManager';
 
 const subscribeToEventListeners = ({ mainWindow }) => {
@@ -102,51 +102,51 @@ const subscribeToEventListeners = ({ mainWindow }) => {
    ******************************************* gRPS Calls **************************************
    */
   ipcMain.on(ipcConsts.GET_NODE_STATUS, (event) => {
-    netService.getNodeStatus({ event });
+    NetService.getNodeStatus({ event });
   });
 
   ipcMain.on(ipcConsts.GET_MINING_STATUS, (event) => {
-    netService.getMiningStatus({ event });
+    NetService.getMiningStatus({ event });
   });
 
   ipcMain.on(ipcConsts.INIT_MINING, async (event, request) => {
-    netService.initMining({ event, ...request });
+    NetService.initMining({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
-    netService.getUpcomingRewards({ event });
+    NetService.getUpcomingRewards({ event });
   });
 
   ipcMain.on(ipcConsts.GET_ACCOUNT_REWARDS, (event, request) => {
-    netService.getAccountRewards({ event, ...request });
+    NetService.getAccountRewards({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, (event, request) => {
-    netService.setRewardsAddress({ event, ...request });
+    NetService.setRewardsAddress({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
-    netService.setNodeIpAddress({ event, ...request });
+    NetService.setNodeIpAddress({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.GET_BALANCE, (event, request) => {
-    netService.getBalance({ event, ...request });
+    NetService.getBalance({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.GET_NONCE, (event, request) => {
-    netService.getNonce({ event, ...request });
+    NetService.getNonce({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.SEND_TX, (event, request) => {
-    netService.sendTx({ event, ...request });
+    NetService.sendTx({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.GET_ACCOUNT_TXS, (event, request) => {
-    netService.getAccountTxs({ event, ...request });
+    NetService.getAccountTxs({ event, ...request });
   });
 
   ipcMain.on(ipcConsts.GET_TX, (event, request) => {
-    netService.getTransaction({ event, ...request });
+    NetService.getTransaction({ event, ...request });
   });
 };
 

@@ -25,6 +25,16 @@ class NetService {
       });
     });
 
+  _getStateRoot = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetStateRoot({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   _getMiningStatus = () =>
     new Promise((resolve, reject) => {
       this.service.GetMiningStats({}, (error, response) => {
@@ -140,6 +150,15 @@ class NetService {
       event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: parsedStatus, error: null });
     } catch (error) {
       event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: null, error });
+    }
+  };
+
+  getStateRoot = async () => {
+    try {
+      const { value } = await this._getStateRoot();
+      return value;
+    } catch (err) {
+      return null;
     }
   };
 
@@ -271,4 +290,5 @@ class NetService {
   };
 }
 
-export default new NetService();
+const NodeNetService = new NetService();
+export default NodeNetService;

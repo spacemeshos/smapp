@@ -34,8 +34,8 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
 
 export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    const { address, genesisTime, networkId, commitmentSize, layerDuration } = await nodeService.getNodeSettings();
-    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration } });
+    const { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash } = await nodeService.getNodeSettings();
+    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash } });
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
   }
