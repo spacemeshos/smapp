@@ -18,8 +18,6 @@ const osTargetNames = {
 
 const DEFAULT_PORT = '7153';
 
-const getPidByName = ({ name }) => find('name', name).then((list) => (list.length ? list : null));
-
 class NodeManager {
   static startNode = async () => {
     try {
@@ -98,35 +96,37 @@ class NodeManager {
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
   static stopNode = async ({ browserWindow }) => {
+    const closeApp = async () => {
+      await FileSystemManager.cleanUp();
+      browserWindow.destroy();
+      app.quit();
+    };
     try {
-      if (os.type() === 'Windows_NT') {
-        exec('taskkill /F /IM go-spacemesh.exe', async (err) => {
+      const nodeProcesses = await find('name', 'go-spacemesh');
+      if (nodeProcesses && nodeProcesses.length) {
+        exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err) => {
           if (err) {
             console.error(err); // eslint-disable-line no-console
           }
-          await FileSystemManager.cleanUp();
-          browserWindow.destroy();
-          app.quit();
-        });
-      } else {
-        const processes = await getPidByName({ name: 'go-spacemesh' });
-        if (processes) {
-          exec(`kill -s INT ${processes[1].pid}`, async (err) => {
-            if (err) {
-              console.error(err); // eslint-disable-line no-console
+          setTimeout(async () => {
+            const nodeProcesses1 = await find('name', 'go-spacemesh');
+            if (nodeProcesses1 && nodeProcesses1.length) {
+              exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`, async (err1) => {
+                if (err1) {
+                  console.error(err1); // eslint-disable-line no-console
+                }
+                await closeApp();
+              });
+            } else {
+              await closeApp();
             }
-            await FileSystemManager.cleanUp();
-            browserWindow.destroy();
-            app.quit();
-          });
-        }
+          }, 60000);
+        });
       }
     } catch (err) {
       // could not find or kill node process
       console.error(err); // eslint-disable-line no-console
-      await FileSystemManager.cleanUp();
-      browserWindow.destroy();
-      app.quit();
+      await closeApp();
     }
   };
 
