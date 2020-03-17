@@ -21,7 +21,7 @@ const DEFAULT_PORT = '7153';
 class NodeManager {
   static startNode = async () => {
     try {
-      const rawData = await fetch('http://nodes.unruly.io/'); // http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/
+      const rawData = await fetch('http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io/
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
