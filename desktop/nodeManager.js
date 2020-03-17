@@ -4,6 +4,7 @@ import { app, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileSystemManager from './fileSystemManager';
 import StoreService from './storeService';
+import NetService from './netService';
 
 const { exec } = require('child_process');
 const fetch = require('node-fetch');
@@ -108,19 +109,24 @@ class NodeManager {
           if (err) {
             console.error(err); // eslint-disable-line no-console
           }
-          setTimeout(async () => {
-            const nodeProcesses1 = await find('name', 'go-spacemesh');
-            if (nodeProcesses1 && nodeProcesses1.length) {
-              exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`, async (err1) => {
-                if (err1) {
-                  console.error(err1); // eslint-disable-line no-console
-                }
+          const nodeProcesses1 = await find('name', 'go-spacemesh');
+          if (nodeProcesses1 && nodeProcesses1.length) {
+            setTimeout(async () => {
+              const nodeProcesses2 = await find('name', 'go-spacemesh');
+              if (nodeProcesses2 && nodeProcesses2.length) {
+                exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`, async (err1) => {
+                  if (err1) {
+                    console.error(err1); // eslint-disable-line no-console
+                  }
+                  await closeApp();
+                });
+              } else {
                 await closeApp();
-              });
-            } else {
-              await closeApp();
-            }
-          }, 60000);
+              }
+            }, 60000);
+          } else {
+            await closeApp();
+          }
         });
       }
     } catch (err) {
@@ -142,14 +148,15 @@ class NodeManager {
     StoreService.set({ key: 'port', value: port });
   };
 
-  static getNodeSettings = ({ event }) => {
+  static getNodeSettings = async ({ event }) => {
     const savedMiningParams = StoreService.get({ key: 'miningParams' });
     const address = savedMiningParams?.coinbase;
     const genesisTime = StoreService.get({ key: 'genesisTime' });
     const networkId = StoreService.get({ key: 'networkId' });
     const commitmentSize = StoreService.get({ key: 'postSize' });
     const layerDuration = StoreService.get({ key: 'layerDurationSec' });
-    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration });
+    const stateRootHash = await NetService.getStateRoot();
+    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash });
   };
 }
 
