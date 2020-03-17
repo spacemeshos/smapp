@@ -245,7 +245,7 @@ class Main extends Component<Props, State> {
   async componentDidMount() {
     const { getNodeStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
     await getNodeStatus();
-    this.getNodeStatusInterval = setInterval(getNodeStatus, 5000);
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 10000);
     const status = await getMiningStatus();
     this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
         notificationsService.notify({
