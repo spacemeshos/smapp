@@ -186,8 +186,7 @@ class NetService {
         const parsedReward = rewards.map((reward) => ({
           layer: parseInt(reward.layer),
           totalReward: parseInt(reward.totalReward),
-          layerRewardEstimate: parseInt(reward.layerRewardEstimate),
-          timestamp: new Date().getTime()
+          layerRewardEstimate: parseInt(reward.layerRewardEstimate)
         }));
         parsedReward.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
         event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: parsedReward });
