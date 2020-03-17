@@ -38,11 +38,11 @@ class InfoBanner extends PureComponent<Props> {
     let text;
     if (!status) {
       color = smColors.red;
-      text = 'Offline. Please quit and start the app again. [Get help]';
+      text = 'Offline. Please quit and start the app again.';
     } else if (!status.peers) {
-      if (this.noPeersCounter === 5) {
+      if (this.noPeersCounter === 30) {
         color = smColors.red;
-        text = "Can't connect to the p2p network. [Get help]";
+        text = "Can't connect to the p2p network.";
       } else {
         color = smColors.orange;
         text = 'Connecting to the p2p network...';
