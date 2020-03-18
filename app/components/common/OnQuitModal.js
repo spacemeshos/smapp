@@ -71,7 +71,7 @@ class OnQuitModal extends Component<Props, State> {
             </InnerWrapper>
           ) : (
             <InnerWrapper>
-              <Header>Quitting stops smeshing may cause loss of future due smeshing rewards.</Header>
+              <Header>Quitting stops smeshing and may cause loss of future due smeshing rewards.</Header>
               <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.</Text>
               <Text>&bull; Click QUIT to close the app and stop smeshing.</Text>
               <ButtonsWrapper>
