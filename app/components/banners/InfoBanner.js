@@ -29,16 +29,21 @@ type Props = {
 };
 
 class InfoBanner extends PureComponent<Props> {
-  // eslint-disable-next-line react/sort-comp
-  noPeersCounter = 0;
+  startUpDelay = 5; // eslint-disable-line react/sort-comp
+
+  noPeersCounter = 0; // eslint-disable-line react/sort-comp
 
   render() {
     const { status } = this.props;
     let color;
     let text;
     if (!status) {
-      color = smColors.red;
-      text = 'Offline. Please quit and start the app again.';
+      if (this.startUpDelay === 5) {
+        color = smColors.red;
+        text = 'Offline. Please quit and start the app again.';
+      } else {
+        this.startUpDelay += 1;
+      }
     } else if (!status.peers) {
       if (this.noPeersCounter === 30) {
         color = smColors.red;
@@ -53,15 +58,16 @@ class InfoBanner extends PureComponent<Props> {
       color = smColors.orange;
       text = `Syncing the mesh... Layer ${status.syncedLayer || 0} / ${status.currentLayer}`;
     } else {
+      this.startUpDelay = 0;
       this.noPeersCounter = 0;
       color = smColors.blue;
       text = `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`;
     }
-    return (
+    return color ? (
       <Banner top={20} color={color}>
         <Text>{text}</Text>
       </Banner>
-    );
+    ) : null;
   }
 }
 
