@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
-import { CorneredWrapper, Button } from '/basicComponents';
+import { CorneredWrapper, Button, Loader } from '/basicComponents';
 import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
@@ -49,29 +49,38 @@ type Props = {
 };
 
 type State = {
-  isVisible: boolean
+  isVisible: boolean,
+  isClosing: boolean
 };
 
 class OnQuitModal extends Component<Props, State> {
   state = {
-    isVisible: false
+    isVisible: false,
+    isClosing: false
   };
 
   render() {
-    const { isVisible } = this.state;
+    const { isVisible, isClosing } = this.state;
     return isVisible ? (
       <Wrapper>
         <CorneredWrapper>
-          <InnerWrapper>
-            <Header>Quitting stops smeshing may cause loss of future due smeshing rewards.</Header>
-            <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.</Text>
-            <Text>&bull; Click QUIT to close the app and stop smeshing.</Text>
-            <ButtonsWrapper>
-              <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
-              <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
-              <Button onClick={this.handleKeepInBackground} text="RUN IN BACKGROUND" width={270} />
-            </ButtonsWrapper>
-          </InnerWrapper>
+          {isClosing ? (
+            <InnerWrapper style={{ height: 550 }}>
+              <Loader size={Loader.sizes.BIG} />
+              <Text style={{ textAlign: 'center' }}>Shutting down, please wait...</Text>
+            </InnerWrapper>
+          ) : (
+            <InnerWrapper>
+              <Header>Quitting stops smeshing and may cause loss of future due smeshing rewards.</Header>
+              <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.</Text>
+              <Text>&bull; Click QUIT to close the app and stop smeshing.</Text>
+              <ButtonsWrapper>
+                <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
+                <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
+                <Button onClick={this.handleKeepInBackground} text="RUN IN BACKGROUND" width={270} />
+              </ButtonsWrapper>
+            </InnerWrapper>
+          )}
         </CorneredWrapper>
       </Wrapper>
     ) : null;
@@ -95,6 +104,7 @@ class OnQuitModal extends Component<Props, State> {
   };
 
   handleQuit = () => {
+    this.setState({ isVisible: true, isClosing: true });
     ipcRenderer.send(ipcConsts.STOP_NODE);
   };
 

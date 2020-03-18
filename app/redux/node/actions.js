@@ -34,8 +34,8 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
 
 export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    const { address, genesisTime, networkId, commitmentSize, layerDuration } = await nodeService.getNodeSettings();
-    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration } });
+    const { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash } = await nodeService.getNodeSettings();
+    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash } });
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
   }
@@ -115,7 +115,7 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
 
 export const getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { accounts, currentAccountIndex } = getState().wallet;
+    const { accounts, currentAccountIndex, genesisTime, layerDuration } = getState().wallet;
     const rewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
     const prevRewards = localStorageService.get('rewards') || [];
     if (prevRewards.length < rewards.length) {
@@ -130,11 +130,12 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
           fee: reward.totalReward - reward.layerRewardEstimate,
           status: TX_STATUSES.CONFIRMED,
           layerId: reward.layer,
-          timestamp: reward.timestamp
+          timestamp: new Date(genesisTime).getTime() + layerDuration * reward.layer
         };
         dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
       });
-      localStorageService.set('rewards', rewards);
+      const rewardsWithTimeStamps = [...rewards.slice(0, prevRewards.length), ...newRewards];
+      localStorageService.set('rewards', rewardsWithTimeStamps);
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
     }
   } catch (err) {

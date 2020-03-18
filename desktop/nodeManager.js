@@ -4,6 +4,7 @@ import { app, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
 import FileSystemManager from './fileSystemManager';
 import StoreService from './storeService';
+import NetService from './netService';
 
 const { exec } = require('child_process');
 const fetch = require('node-fetch');
@@ -18,12 +19,10 @@ const osTargetNames = {
 
 const DEFAULT_PORT = '7153';
 
-const getPidByName = ({ name }) => find('name', name).then((list) => (list.length ? list : null));
-
 class NodeManager {
   static startNode = async () => {
     try {
-      const rawData = await fetch('http://a95220c1e575811eaa61112de75eb21f-1178855954.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io/
+      const rawData = await fetch('http://ae7809a90692211ea8d4d0ea80dce922-597797094.us-east-1.elb.amazonaws.com/'); // http://nodes.unruly.io/
       const tomlData = await rawData.text();
       const parsedToml = toml.parse(tomlData);
 
@@ -78,7 +77,7 @@ class NodeManager {
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
-            dialog.showErrorBox('Node Start Error', `${error}`);
+            dialog.showErrorBox('Smesher Error', `${error}`);
             console.error(error); // eslint-disable-line no-console
           }
           console.log('node started with provided params'); // eslint-disable-line no-console
@@ -90,7 +89,7 @@ class NodeManager {
         console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
       } else {
         dialog.showErrorBox('Failed to download settings file.', 'Check your internet connection and restart the app');
-        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
+        console.error(`Failed to download settings file: ${e.message}`); // eslint-disable-line no-console
       }
     }
   };
@@ -98,35 +97,38 @@ class NodeManager {
   static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
   static stopNode = async ({ browserWindow }) => {
+    const closeApp = async () => {
+      await FileSystemManager.cleanUp();
+      browserWindow.destroy();
+      app.quit();
+    };
+    const stopNodeCycle = async (attempt) => {
+      const nodeProcesses = await find('name', 'go-spacemesh');
+      if (attempt > 15) {
+        if (nodeProcesses && nodeProcesses.length) {
+          exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`);
+        }
+        await closeApp();
+      } else if (!nodeProcesses || !nodeProcesses.length) {
+        await closeApp();
+      } else {
+        setTimeout(() => stopNodeCycle(attempt + 1), 3000);
+      }
+    };
     try {
-      if (os.type() === 'Windows_NT') {
-        exec('taskkill /F /IM go-spacemesh.exe', async (err) => {
+      const nodeProcesses = await find('name', 'go-spacemesh');
+      if (nodeProcesses && nodeProcesses.length) {
+        exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err) => {
           if (err) {
             console.error(err); // eslint-disable-line no-console
           }
-          await FileSystemManager.cleanUp();
-          browserWindow.destroy();
-          app.quit();
+          await stopNodeCycle(0);
         });
-      } else {
-        const processes = await getPidByName({ name: 'go-spacemesh' });
-        if (processes) {
-          exec(`kill -s INT ${processes[1].pid}`, async (err) => {
-            if (err) {
-              console.error(err); // eslint-disable-line no-console
-            }
-            await FileSystemManager.cleanUp();
-            browserWindow.destroy();
-            app.quit();
-          });
-        }
       }
     } catch (err) {
       // could not find or kill node process
       console.error(err); // eslint-disable-line no-console
-      await FileSystemManager.cleanUp();
-      browserWindow.destroy();
-      app.quit();
+      await closeApp();
     }
   };
 
@@ -142,14 +144,15 @@ class NodeManager {
     StoreService.set({ key: 'port', value: port });
   };
 
-  static getNodeSettings = ({ event }) => {
+  static getNodeSettings = async ({ event }) => {
     const savedMiningParams = StoreService.get({ key: 'miningParams' });
     const address = savedMiningParams?.coinbase;
     const genesisTime = StoreService.get({ key: 'genesisTime' });
     const networkId = StoreService.get({ key: 'networkId' });
     const commitmentSize = StoreService.get({ key: 'postSize' });
     const layerDuration = StoreService.get({ key: 'layerDurationSec' });
-    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration });
+    const stateRootHash = await NetService.getStateRoot();
+    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash });
   };
 }
 

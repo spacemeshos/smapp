@@ -25,6 +25,16 @@ class NetService {
       });
     });
 
+  _getStateRoot = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetStateRoot({}, (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      });
+    });
+
   _getMiningStatus = () =>
     new Promise((resolve, reject) => {
       this.service.GetMiningStats({}, (error, response) => {
@@ -143,6 +153,15 @@ class NetService {
     }
   };
 
+  getStateRoot = async () => {
+    try {
+      const { value } = await this._getStateRoot();
+      return value;
+    } catch (err) {
+      return null;
+    }
+  };
+
   getMiningStatus = async ({ event }) => {
     try {
       const { status } = await this._getMiningStatus();
@@ -186,8 +205,7 @@ class NetService {
         const parsedReward = rewards.map((reward) => ({
           layer: parseInt(reward.layer),
           totalReward: parseInt(reward.totalReward),
-          layerRewardEstimate: parseInt(reward.layerRewardEstimate),
-          timestamp: new Date().getTime()
+          layerRewardEstimate: parseInt(reward.layerRewardEstimate)
         }));
         parsedReward.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
         event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: parsedReward });
@@ -272,4 +290,5 @@ class NetService {
   };
 }
 
-export default new NetService();
+const NodeNetService = new NetService();
+export default NodeNetService;
