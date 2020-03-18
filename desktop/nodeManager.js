@@ -77,7 +77,7 @@ class NodeManager {
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
-            dialog.showErrorBox('Node Start Error', `${error}`);
+            dialog.showErrorBox('Smesher Error', `${error}`);
             console.error(error); // eslint-disable-line no-console
           }
           console.log('node started with provided params'); // eslint-disable-line no-console

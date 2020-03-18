@@ -67,7 +67,7 @@ class OnQuitModal extends Component<Props, State> {
           {isClosing ? (
             <InnerWrapper style={{ height: 550 }}>
               <Loader size={Loader.sizes.BIG} />
-              <Text style={{ textAlign: 'center' }}>App is shutting down</Text>
+              <Text style={{ textAlign: 'center' }}>Shutting down, please wait...</Text>
             </InnerWrapper>
           ) : (
             <InnerWrapper>
