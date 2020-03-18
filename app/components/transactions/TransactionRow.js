@@ -216,13 +216,13 @@ class TransactionRow extends Component<Props, State> {
               <Dots>............</Dots>
               <BoldText color={color}>{this.statuses[status]}</BoldText>
             </TextRow>
-            {layerId && (
+            {layerId ? (
               <TextRow>
                 <BlackText>LAYER ID</BlackText>
                 <Dots>............</Dots>
                 <BoldText color={smColors.realBlack}>{layerId}</BoldText>
               </TextRow>
-            )}
+            ) : null}
             <TextRow>
               <BlackText>TO</BlackText>
               <Dots>............</Dots>
@@ -258,13 +258,13 @@ class TransactionRow extends Component<Props, State> {
             <Dots>............</Dots>
             <BoldText color={color}>{this.statuses[status]}</BoldText>
           </TextRow>
-          {layerId && (
+          {layerId ? (
             <TextRow>
               <BlackText>LAYER ID</BlackText>
               <Dots>............</Dots>
               <BoldText color={smColors.realBlack}>{layerId}</BoldText>
             </TextRow>
-          )}
+          ) : null}
           <TextRow>
             <BlackText>FROM</BlackText>
             <Dots>............</Dots>
