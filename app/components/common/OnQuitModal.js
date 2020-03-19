@@ -2,10 +2,12 @@
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import { logout } from '/redux/auth/actions';
 import { CorneredWrapper, Button, Loader } from '/basicComponents';
 import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -45,7 +47,8 @@ const ButtonsWrapper = styled.div`
 `;
 
 type Props = {
-  miningStatus: number
+  miningStatus: number,
+  logout: Action
 };
 
 type State = {
@@ -109,8 +112,10 @@ class OnQuitModal extends Component<Props, State> {
   };
 
   handleKeepInBackground = () => {
+    const { logout } = this.props;
     this.setState({ isVisible: false });
     ipcRenderer.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
+    logout();
     setTimeout(() => {
       notificationsService.notify({
         title: 'Spacemesh',
@@ -124,5 +129,9 @@ const mapStateToProps = (state) => ({
   miningStatus: state.node.miningStatus
 });
 
-OnQuitModal = connect<any, any, _, _, _, _>(mapStateToProps)(OnQuitModal);
+const mapDispatchToProps = {
+  logout
+};
+
+OnQuitModal = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(OnQuitModal);
 export default OnQuitModal;
