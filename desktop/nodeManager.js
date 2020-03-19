@@ -60,7 +60,7 @@ class NodeManager {
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
-                dialog.showErrorBox('Node Start Error', `${error}`);
+                (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
                 console.error(error); // eslint-disable-line no-console
               }
               console.log('node started with provided params'); // eslint-disable-line no-console
@@ -77,7 +77,7 @@ class NodeManager {
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
-            dialog.showErrorBox('Smesher Error', `${error}`);
+            (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
             console.error(error); // eslint-disable-line no-console
           }
           console.log('node started with provided params'); // eslint-disable-line no-console
