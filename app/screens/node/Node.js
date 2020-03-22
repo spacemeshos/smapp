@@ -232,6 +232,7 @@ class Node extends Component<Props, State> {
   componentDidUpdate() {
     const { rewards } = this.props;
     const playedAudio = localStorageService.get('playedAudio');
+    this.audio.loop = false;
     if (rewards.length === 1 && !playedAudio) {
       this.audio.play();
     }

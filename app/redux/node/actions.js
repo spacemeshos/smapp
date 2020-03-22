@@ -115,13 +115,16 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
 
 export const getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const { accounts, currentAccountIndex, genesisTime, layerDuration } = getState().wallet;
+    const { accounts, currentAccountIndex } = getState().wallet;
+    const { genesisTime, layerDuration } = getState().node;
     const rewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
     const prevRewards = localStorageService.get('rewards') || [];
+    let newRewardsWithTimeStamp = [];
     if (prevRewards.length < rewards.length) {
       notify();
       const newRewards = [...rewards.slice(prevRewards.length)];
-      newRewards.forEach((reward) => {
+      newRewardsWithTimeStamp = newRewards.map((reward) => {
+        const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
         const tx = {
           txId: 'reward',
           sender: null,
@@ -130,13 +133,18 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
           fee: reward.totalReward - reward.layerRewardEstimate,
           status: TX_STATUSES.CONFIRMED,
           layerId: reward.layer,
-          timestamp: new Date(genesisTime).getTime() + layerDuration * reward.layer
+          timestamp
         };
         dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
+        return {
+          totalReward: reward.totalReward,
+          layerRewardEstimate: reward.layerRewardEstimate,
+          timestamp
+        };
       });
-      const rewardsWithTimeStamps = [...rewards.slice(0, prevRewards.length), ...newRewards];
+      const rewardsWithTimeStamps = [...rewards.slice(0, prevRewards.length), ...newRewardsWithTimeStamp];
       localStorageService.set('rewards', rewardsWithTimeStamps);
-      dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
+      dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
     }
   } catch (err) {
     throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
