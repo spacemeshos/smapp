@@ -49,7 +49,7 @@ class NodeManager {
 
       if (prevGenesisTime !== fetchedGenesisTime) {
         StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
-        StoreService.remove({ key: 'savedMiningParams' });
+        StoreService.remove({ key: 'miningParams' });
         await FileSystemManager.cleanWalletFile();
         const command =
           os.type() === 'Windows_NT'
