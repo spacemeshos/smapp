@@ -250,6 +250,8 @@ class Node extends Component<Props, State> {
       return showFireworks ? this.renderFireworks() : this.renderIntro();
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
+    } else if (miningStatus === nodeConsts.MINING_UNSET) {
+      return this.renderMiningUnset();
     }
     return this.renderNodeDashboard();
   };
@@ -302,6 +304,17 @@ class Node extends Component<Props, State> {
       </Footer>
     ];
   };
+
+  renderMiningUnset = () => [
+    <BoldText key="1">Please wait,</BoldText>,
+    <br key="2" />,
+    <Text key="3">waiting for smesher to return smeshing status.</Text>,
+    <br key="4" />,
+    <Text key="5">After retrieving status you will be redirected automatically.</Text>,
+    <Footer key="footer">
+      <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
+    </Footer>
+  ];
 
   renderNodeDashboard = () => {
     const { status, totalEarnings, totalFeesEarnings, rewardsAddress } = this.props;
