@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Banner } from '/basicComponents';
@@ -28,7 +28,7 @@ type Props = {
   status: Object
 };
 
-class InfoBanner extends PureComponent<Props> {
+class InfoBanner extends Component<Props> {
   startUpDelay = 5; // eslint-disable-line react/sort-comp
 
   noPeersCounter = 0; // eslint-disable-line react/sort-comp
@@ -68,6 +68,11 @@ class InfoBanner extends PureComponent<Props> {
         <Text>{text}</Text>
       </Banner>
     ) : null;
+  }
+
+  shouldComponentUpdate(nextProps: Props) {
+    const { status } = this.props;
+    return nextProps.status !== status;
   }
 }
 

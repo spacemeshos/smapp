@@ -27,7 +27,6 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
     dispatch({ type: SET_NODE_STATUS, payload: { status } });
     return status;
   } catch (err) {
-    dispatch({ type: SET_NODE_STATUS, payload: { status: null } });
     return null;
   }
 };
