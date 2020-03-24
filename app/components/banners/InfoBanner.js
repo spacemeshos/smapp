@@ -41,8 +41,6 @@ class InfoBanner extends Component<Props> {
       if (this.startUpDelay === 5) {
         color = smColors.red;
         text = 'Offline. Please quit and start the app again.';
-      } else {
-        this.startUpDelay += 1;
       }
     } else if (!status.peers) {
       if (this.noPeersCounter === 30) {
@@ -72,7 +70,10 @@ class InfoBanner extends Component<Props> {
 
   shouldComponentUpdate(nextProps: Props) {
     const { status } = this.props;
-    return nextProps.status !== status;
+    if (status === null && nextProps.status === null) {
+      this.startUpDelay += 1;
+    }
+    return nextProps.status !== status || this.startUpDelay === 5;
   }
 }
 
