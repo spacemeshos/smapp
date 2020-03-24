@@ -12,6 +12,7 @@ import routes from '/routes';
 import { rightDecoration } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+import { nodeConsts } from '../../vars';
 
 const Wrapper = styled.div`
   position: relative;
@@ -47,8 +48,9 @@ type Props = {
 };
 
 class Auth extends Component<Props> {
-  // eslint-disable-next-line react/sort-comp
-  getNodeStatusInterval: IntervalID;
+  getNodeStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
+
+  getMiningStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
 
   render() {
     const { walletFiles } = this.props;
@@ -80,11 +82,20 @@ class Auth extends Component<Props> {
     }
     await getNodeStatus();
     this.getNodeStatusInterval = setInterval(getNodeStatus, 10000);
-    await getMiningStatus();
+    const status = await getMiningStatus();
+    if (status === nodeConsts.MINING_UNSET) {
+      this.getMiningStatusInterval = setInterval(async () => {
+        const status = await getMiningStatus();
+        if (status !== nodeConsts.MINING_UNSET) {
+          clearInterval(this.getMiningStatusInterval);
+        }
+      }, 500);
+    }
     await getNodeSettings();
   }
 
   componentWillUnmount(): void {
+    this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
     this.getNodeStatusInterval && clearInterval(this.getNodeStatusInterval);
   }
 }
