@@ -11,6 +11,7 @@ import { CommitmentSelector } from '/components/node';
 import { chevronLeftWhite } from '/assets/images';
 import { fileSystemService } from '/infra/fileSystemService';
 import { nodeService } from '/infra/nodeService';
+import { formatBytes } from '/infra/utils';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
@@ -59,11 +60,6 @@ const PermissionError = styled.div`
 `;
 
 const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
-
-function formatBytes(bytes) {
-  if (bytes === 0) return 0;
-  return parseFloat((bytes / 1073741824).toFixed(4));
-}
 
 type Props = {
   accounts: Account[],

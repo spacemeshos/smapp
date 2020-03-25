@@ -161,6 +161,11 @@ const getFormattedTimestamp = (timestamp: string) => {
 
 const getAddress = (key: string) => key.substring(24);
 
+const formatBytes = (bytes) => {
+  if (bytes === 0) return 0;
+  return parseFloat((bytes / 1073741824).toFixed(4));
+};
+
 export {
   testGetValueAndUnit,
   formatSmidge,
@@ -172,5 +177,6 @@ export {
   asyncForEach,
   getFormattedTimestamp,
   getAddress,
-  formatTxId
+  formatTxId,
+  formatBytes
 };
