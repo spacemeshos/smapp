@@ -48,9 +48,6 @@ class NodeManager {
       await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
 
       if (prevGenesisTime !== fetchedGenesisTime) {
-        StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
-        StoreService.remove({ key: 'miningParams' });
-        await FileSystemManager.cleanWalletFile();
         const command =
           os.type() === 'Windows_NT'
             ? `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${logFilePath} del ${logFilePath})`
@@ -58,12 +55,16 @@ class NodeManager {
         exec(command, (err) => {
           if (!err) {
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-            exec(nodePathWithParams, (error) => {
+            exec(nodePathWithParams, async (error) => {
               if (error) {
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
                 console.error(error); // eslint-disable-line no-console
+              } else {
+                StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
+                StoreService.remove({ key: 'miningParams' });
+                await FileSystemManager.cleanWalletFile();
+                console.log('node started with provided params'); // eslint-disable-line no-console
               }
-              console.log('node started with provided params'); // eslint-disable-line no-console
             });
           } else {
             dialog.showErrorBox('Old data files removal failed', `${err}`);
