@@ -38,12 +38,13 @@ class InfoBanner extends Component<Props> {
     let color;
     let text;
     if (!status) {
-      if (this.startUpDelay === 5) {
+      if (this.startUpDelay === 15) {
         color = smColors.red;
         text = 'Offline. Please quit and start the app again.';
       }
     } else if (!status.peers) {
-      if (this.noPeersCounter === 30) {
+      this.startUpDelay = 0;
+      if (this.noPeersCounter === 15) {
         color = smColors.red;
         text = "Can't connect to the p2p network.";
       } else {
@@ -52,6 +53,7 @@ class InfoBanner extends Component<Props> {
         this.noPeersCounter += 1;
       }
     } else if (!status.synced) {
+      this.startUpDelay = 0;
       this.noPeersCounter = 0;
       color = smColors.orange;
       text = `Syncing the mesh... Layer ${status.syncedLayer || 0} / ${status.currentLayer}`;
@@ -73,7 +75,7 @@ class InfoBanner extends Component<Props> {
     if (status === null && nextProps.status === null) {
       this.startUpDelay += 1;
     }
-    return nextProps.status !== status || this.startUpDelay === 5;
+    return nextProps.status !== status || this.startUpDelay === 15;
   }
 }
 

@@ -42,7 +42,8 @@ const MiddleSectionText = styled.div`
 
 type Props = {
   account: Account,
-  history: RouterHistory
+  history: RouterHistory,
+  miningStatus: string
 };
 
 type State = {
@@ -79,8 +80,8 @@ class Overview extends Component<Props, State> {
   };
 
   navigateToRequestCoins = () => {
-    const { history, account } = this.props;
-    history.push('/main/wallet/request-coins', { account });
+    const { history, account, miningStatus } = this.props;
+    history.push('/main/wallet/request-coins', { account, miningStatus });
   };
 
   navigateToAllTransactions = () => {
@@ -92,7 +93,8 @@ class Overview extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  account: state.wallet.accounts[state.wallet.currentAccountIndex]
+  account: state.wallet.accounts[state.wallet.currentAccountIndex],
+  miningStatus: state.node.miningStatus
 });
 
 Overview = connect<any, any, _, _, _, _>(mapStateToProps)(Overview);

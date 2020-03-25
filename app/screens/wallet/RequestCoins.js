@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
 import { getAddress } from '/infra/utils';
 import { copyToClipboard } from '/assets/images';
-import { smColors } from '/vars';
+import { smColors, nodeConsts } from '/vars';
 import type { Account } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -83,7 +83,7 @@ const Footer = styled.div`
 `;
 
 type Props = {
-  location: { state: { account: Account } },
+  location: { state: { account: Account, miningStatus: string } },
   history: RouterHistory
 };
 
@@ -101,7 +101,7 @@ class RequestCoins extends Component<Props, State> {
   render() {
     const {
       location: {
-        state: { account }
+        state: { account, miningStatus }
       },
       history
     } = this.props;
@@ -129,11 +129,13 @@ class RequestCoins extends Component<Props, State> {
           <TextElement>.</TextElement>
         </ComplexText>
         <br />
-        <ComplexText>
-          <Text>To earn Smesh&nbsp;</Text>
-          <Link onClick={this.navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />
-          <TextElement>.</TextElement>
-        </ComplexText>
+        {miningStatus === nodeConsts.NOT_MINING && (
+          <ComplexText>
+            <Text>To earn Smesh&nbsp;</Text>
+            <Link onClick={this.navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />
+            <TextElement>.</TextElement>
+          </ComplexText>
+        )}
         <Footer>
           <Link onClick={this.navigateToGuide} text="REQUEST SMH GUIDE" />
           <Button onClick={history.goBack} text="DONE" />
