@@ -306,11 +306,9 @@ class Node extends Component<Props, State> {
   };
 
   renderMiningUnset = () => [
-    <BoldText key="1">Please wait,</BoldText>,
+    <BoldText key="1">SMESHER</BoldText>,
     <br key="2" />,
-    <Text key="3">waiting for smesher to return smeshing status.</Text>,
-    <br key="4" />,
-    <Text key="5">After retrieving status you will be redirected automatically.</Text>,
+    <Text key="3">Please wait for smeshing status…</Text>,
     <Footer key="footer">
       <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
     </Footer>

@@ -81,7 +81,7 @@ class Auth extends Component<Props> {
       history.push('/auth/unlock');
     }
     await getNodeStatus();
-    this.getNodeStatusInterval = setInterval(getNodeStatus, 10000);
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
     const status = await getMiningStatus();
     if (status === nodeConsts.MINING_UNSET) {
       this.getMiningStatusInterval = setInterval(async () => {

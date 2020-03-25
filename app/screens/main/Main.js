@@ -247,7 +247,7 @@ class Main extends Component<Props, State> {
   async componentDidMount() {
     const { getNodeStatus, getMiningStatus, getTxList, updateWalletFile, miningStatus, history } = this.props;
     await getNodeStatus();
-    this.getNodeStatusInterval = setInterval(getNodeStatus, 10000);
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
     this.initialMiningStatusInterval = setInterval(async () => {
       const status = await getMiningStatus();
       if (status !== nodeConsts.MINING_UNSET) {
