@@ -6,7 +6,7 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, formatTxId, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
@@ -184,7 +184,7 @@ class TransactionRow extends Component<Props, State> {
               {txId === 'reward' ? (
                 <DarkGrayText>SMESHING REWARD</DarkGrayText>
               ) : (
-                [nickname && <DarkGrayText key="nickname">{nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{getAbbreviatedText(txId, true, 10)}</Text>]
+                [nickname && <DarkGrayText key="nickname">{nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{formatTxId(txId)}</Text>]
               )}
             </HeaderSection>
             <HeaderSection>
@@ -250,7 +250,7 @@ class TransactionRow extends Component<Props, State> {
             <BlackText>TRANSACTION ID</BlackText>
             <Dots>............</Dots>
             <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ id: txId })}>
-              {getAbbreviatedText(txId)}
+              {formatTxId(txId)}
             </BoldText>
           </TextRow>
           <TextRow>
