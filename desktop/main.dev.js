@@ -117,7 +117,10 @@ app.on('ready', async () => {
 
   ipcMain.on(ipcConsts.CHECK_APP_VISIBILITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, mainWindow.isVisible() && mainWindow.isFocused()));
 
-  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => mainWindow.hide());
+  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => {
+    mainWindow.hide();
+    mainWindow.reload();
+  });
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
