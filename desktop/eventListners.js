@@ -71,7 +71,7 @@ const subscribeToEventListeners = ({ mainWindow }) => {
   });
 
   ipcMain.on(ipcConsts.HARD_REFRESH, () => {
-    NodeManager.hardRefresh({ browserWindow: mainWindow });
+    mainWindow.reload();
   });
 
   ipcMain.once(ipcConsts.STOP_NODE, async (event) => {
