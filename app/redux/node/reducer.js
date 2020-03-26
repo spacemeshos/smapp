@@ -6,7 +6,7 @@ import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS
 
 const initialState = {
   status: null,
-  miningStatus: nodeConsts.NOT_MINING,
+  miningStatus: nodeConsts.MINING_UNSET,
   rewardsAddress: null,
   genesisTime: 0,
   networkId: 0,

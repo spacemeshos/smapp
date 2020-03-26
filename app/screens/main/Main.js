@@ -114,6 +114,8 @@ class Main extends Component<Props, State> {
   // eslint-disable-next-line react/sort-comp
   getNodeStatusInterval: IntervalID;
 
+  initialMiningStatusInterval: IntervalID;
+
   miningStatusInterval: IntervalID;
 
   accountRewardsInterval: IntervalID;
@@ -243,10 +245,15 @@ class Main extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getTxList, updateWalletFile, history } = this.props;
+    const { getNodeStatus, getMiningStatus, getTxList, updateWalletFile, miningStatus, history } = this.props;
     await getNodeStatus();
     this.getNodeStatusInterval = setInterval(getNodeStatus, 10000);
-    const status = await getMiningStatus();
+    this.initialMiningStatusInterval = setInterval(async () => {
+      const status = await getMiningStatus();
+      if (status !== nodeConsts.MINING_UNSET) {
+        clearInterval(this.initialMiningStatusInterval);
+      }
+    });
     this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
         notificationsService.notify({
           title: 'Spacemesh',
@@ -254,7 +261,7 @@ class Main extends Component<Props, State> {
           callback: () => history.push('/main/transactions')
         });
       } }), 30000);
-    if (status === nodeConsts.IN_SETUP) {
+    if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
         getMiningStatus();
       }, 100000);
@@ -263,11 +270,11 @@ class Main extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { status, miningStatus, getMiningStatus, getAccountRewards } = this.props;
-    if (status && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { status && getMiningStatus(); }, 100000);
+    const {miningStatus, getMiningStatus, getAccountRewards } = this.props;
+    if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(getMiningStatus, 100000);
     }
-    if (status && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh',
@@ -275,7 +282,7 @@ class Main extends Component<Props, State> {
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
-    if (status && miningStatus === nodeConsts.IS_MINING) {
+    if (miningStatus === nodeConsts.IS_MINING) {
       this.accountRewardsInterval = setInterval(() => getAccountRewards({ notify: () => {
           notificationsService.notify({
             title: 'Spacemesh',
@@ -287,6 +294,7 @@ class Main extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
     this.miningStatusInterval && clearInterval(this.miningStatusInterval);
     this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
     this.txCollectorInterval && clearInterval(this.txCollectorInterval);
