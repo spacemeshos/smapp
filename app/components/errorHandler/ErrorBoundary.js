@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { ErrorHandlerModal } from '/components/errorHandler';
 
 type Props = {
-  children?: any
+  children: any
 };
 
 type State = {
@@ -33,7 +33,7 @@ class ErrorBoundary extends Component<Props, State> {
         />
       );
     }
-    return children || null;
+    return children;
   }
 
   componentDidCatch(error: any, info: any) {

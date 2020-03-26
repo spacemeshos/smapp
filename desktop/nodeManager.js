@@ -32,7 +32,8 @@ class NodeManager {
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
       StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
-      StoreService.set({ key: 'networkId', value: parseInt(parsedToml.p2p['network-id']) });
+      const networkId = parseInt(parsedToml.p2p['network-id']);
+      StoreService.set({ key: 'networkId', value: networkId });
       StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
@@ -42,7 +43,7 @@ class NodeManager {
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
       const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata');
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, `smdata${networkId}`);
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
       await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
@@ -94,8 +95,6 @@ class NodeManager {
       }
     }
   };
-
-  static hardRefresh = ({ browserWindow }) => browserWindow.reload();
 
   static stopNode = async ({ browserWindow }) => {
     const closeApp = async () => {
