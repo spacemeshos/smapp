@@ -238,14 +238,18 @@ class Settings extends Component<Props, State> {
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
               <SettingRow upperPartLeft={`0x${getAddress(rewardsAddress)}` || 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
               <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" />
-              <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
-              <SettingRow
-                upperPartLeft={`Synced: ${status.synced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.currentLayer}. Verified layer: ${
-                  status.verifiedLayer
-                }.`}
-                isUpperPartLeftText
-                rowName="Sync status"
-              />
+              {status ? (
+                <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
+              ) : null}
+              {status ? (
+                <SettingRow
+                  upperPartLeft={`Synced: ${status.synced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.currentLayer}. Verified layer: ${
+                    status.verifiedLayer
+                  }.`}
+                  isUpperPartLeftText
+                  rowName="Sync status"
+                />
+              ) : null}
               <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" />
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Log" width={180} />} rowName="View log file" />
             </SettingsSection>
