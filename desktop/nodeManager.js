@@ -43,7 +43,7 @@ class NodeManager {
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
       const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, `smdata${networkId}`);
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata');
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
       await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
