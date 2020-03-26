@@ -16,6 +16,8 @@ const createError = (message, func) => ({
 const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize: number = 4) =>
   `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
 
+const formatTxId = (id) => id && id.substring(0, 6);
+
 const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 
 // Internal helper - returns the value and the unit of a smidge coin amount.
@@ -159,4 +161,22 @@ const getFormattedTimestamp = (timestamp: string) => {
 
 const getAddress = (key: string) => key.substring(24);
 
-export { testGetValueAndUnit, formatSmidge, fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, asyncForEach, getFormattedTimestamp, getAddress };
+const formatBytes = (bytes) => {
+  if (bytes === 0) return 0;
+  return parseFloat((bytes / 1073741824).toFixed(4));
+};
+
+export {
+  testGetValueAndUnit,
+  formatSmidge,
+  fromHexString,
+  toHexString,
+  createError,
+  getAbbreviatedText,
+  formatNumber,
+  asyncForEach,
+  getFormattedTimestamp,
+  getAddress,
+  formatTxId,
+  formatBytes
+};

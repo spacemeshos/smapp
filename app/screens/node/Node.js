@@ -6,10 +6,11 @@ import { connect } from 'react-redux';
 import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
+import { nodeService } from '/infra/nodeService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
 import { fileSystemService } from '/infra/fileSystemService';
-import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
@@ -160,6 +161,8 @@ class Node extends Component<Props, State> {
 
   audio: any;
 
+  formattedCommitmentSize: number;
+
   constructor(props) {
     super(props);
     const { location } = props;
@@ -227,6 +230,8 @@ class Node extends Component<Props, State> {
     //   }
     const audioUrl = await fileSystemService.getAudioPath();
     this.audio = new Audio(audioUrl);
+    const commitmentSize = await nodeService.getCommitmentSize();
+    this.formattedCommitmentSize = formatBytes(commitmentSize);
   }
 
   componentDidUpdate() {
@@ -296,7 +301,7 @@ class Node extends Component<Props, State> {
       <Text key="3">Setup smeshing to join Spacemesh and earn Smesh rewards.</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">{`Setup requires ${nodeConsts.COMMITMENT_SIZE} GB of free disk space.`}</Text>,
+      <Text key="6">{`Setup requires ${this.formattedCommitmentSize} GB of free disk space.`}</Text>,
       <Text key="7">You will start earning Smesh rewards in about 48 hours.</Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -306,11 +311,9 @@ class Node extends Component<Props, State> {
   };
 
   renderMiningUnset = () => [
-    <BoldText key="1">Please wait,</BoldText>,
+    <BoldText key="1">SMESHER</BoldText>,
     <br key="2" />,
-    <Text key="3">waiting for smesher to return smeshing status.</Text>,
-    <br key="4" />,
-    <Text key="5">After retrieving status you will be redirected automatically.</Text>,
+    <Text key="3">Please wait for smeshing status…</Text>,
     <Footer key="footer">
       <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
     </Footer>
