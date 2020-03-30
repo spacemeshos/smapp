@@ -53,18 +53,16 @@ class NodeManager {
           os.type() === 'Windows_NT'
             ? `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${logFilePath} del ${logFilePath})`
             : `rm -rf ${nodeDataFilesPath} && rm -rf ${logFilePath}`;
-        exec(command, (err) => {
+        exec(command, async (err) => {
           if (!err) {
+            StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
+            StoreService.remove({ key: 'miningParams' });
+            await FileSystemManager.cleanWalletFile();
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-            exec(nodePathWithParams, async (error) => {
+            exec(nodePathWithParams, (error) => {
               if (error) {
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
                 console.error(error); // eslint-disable-line no-console
-              } else {
-                StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
-                StoreService.remove({ key: 'miningParams' });
-                await FileSystemManager.cleanWalletFile();
-                console.log('node started with provided params'); // eslint-disable-line no-console
               }
             });
           } else {
