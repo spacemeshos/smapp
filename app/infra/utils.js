@@ -16,7 +16,7 @@ const createError = (message, func) => ({
 const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize: number = 4) =>
   `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
 
-const formatTxId = (id) => id && id.substring(0, 6);
+const formatTxId = (id) => id && `0x${id.substring(0, 6)}`;
 
 const formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 
