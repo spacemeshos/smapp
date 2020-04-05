@@ -20,7 +20,6 @@ import type { TxList } from '/types';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
 `;
 
 const LogInnerWrapper = styled.div`
@@ -112,7 +111,7 @@ const Dots = styled(LeftText)`
 
 const Fireworks = styled.img`
   position: absolute;
-  top: 50px;
+  top: -40px;
   max-width: 100%;
   max-height: 100%;
   cursor: inherit;
