@@ -139,8 +139,6 @@ type Props = {
   miningStatus: number,
   // timeTillNextAward: number,
   rewards: TxList,
-  totalEarnings: number,
-  totalFeesEarnings: number,
   // getUpcomingRewards: Action,
   rewardsAddress: string,
   history: RouterHistory,
@@ -176,7 +174,6 @@ class Node extends Component<Props, State> {
 
   render() {
     const { rewards } = this.props;
-    const resolvedRewards = rewards || localStorageService.get('rewards');
     let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
     smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
     let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
@@ -206,16 +203,17 @@ class Node extends Component<Props, State> {
                 <LogEntrySeparator>...</LogEntrySeparator>
               </>
             ) : null}
-            {resolvedRewards.map((reward, index) => (
-              <div key={`reward${index}`}>
-                <LogEntry>
-                  <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                  <AwardText>Smeshing reward: {formatSmidge(reward.totalReward)}</AwardText>
-                  <AwardText>Smeshing fee reward: {formatSmidge(reward.totalReward - reward.layerRewardEstimate)}</AwardText>
-                </LogEntry>
-                <LogEntrySeparator>...</LogEntrySeparator>
-              </div>
-            ))}
+            {rewards &&
+              rewards.map((reward, index) => (
+                <div key={`reward${index}`}>
+                  <LogEntry>
+                    <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
+                    <AwardText>Smeshing reward: {formatSmidge(reward.totalReward)}</AwardText>
+                    <AwardText>Smeshing fee reward: {formatSmidge(reward.totalReward - reward.layerRewardEstimate)}</AwardText>
+                  </LogEntry>
+                  <LogEntrySeparator>...</LogEntrySeparator>
+                </div>
+              ))}
           </LogInnerWrapper>
         </CorneredContainer>
       </Wrapper>
@@ -238,7 +236,7 @@ class Node extends Component<Props, State> {
     const { rewards } = this.props;
     const playedAudio = localStorageService.get('playedAudio');
     this.audio.loop = false;
-    if (rewards.length === 1 && !playedAudio) {
+    if (rewards && rewards.length === 1 && !playedAudio) {
       this.audio.play();
     }
   }
@@ -320,7 +318,7 @@ class Node extends Component<Props, State> {
   ];
 
   renderNodeDashboard = () => {
-    const { status, totalEarnings, totalFeesEarnings, rewardsAddress } = this.props;
+    const { status, rewardsAddress } = this.props;
     const { isMiningPaused, copied } = this.state;
     return [
       <Status key="status" status={status}>
@@ -329,12 +327,12 @@ class Node extends Component<Props, State> {
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
         <Dots>..................</Dots>
-        <GreenText>{formatSmidge(totalEarnings)}</GreenText>
+        <GreenText>{formatSmidge(this.calculateRewards(true))}</GreenText>
       </TextWrapper>,
       <TextWrapper key="3">
         <LeftText>Total Fees Rewards</LeftText>
         <Dots>..................</Dots>
-        <GreenText>{formatSmidge(totalFeesEarnings)}</GreenText>
+        <GreenText>{formatSmidge(this.calculateRewards())}</GreenText>
       </TextWrapper>,
       <TextWrapper key="4">
         <LeftText>Rewards Account</LeftText>
@@ -365,6 +363,15 @@ class Node extends Component<Props, State> {
     const { rewardsAddress } = this.props;
     clipboard.writeText(`0x${getAddress(rewardsAddress)}`);
     this.setState({ copied: true });
+  };
+
+  calculateRewards = (totalRewards?: boolean) => {
+    const { rewards } = this.props;
+    let sum = 0;
+    rewards.forEach((reward) => {
+      sum += totalRewards ? reward.layerRewardEstimate : reward.totalReward - reward.layerRewardEstimate;
+    });
+    return sum;
   };
 
   pauseResumeMining = () => {};
