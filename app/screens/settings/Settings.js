@@ -236,7 +236,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="MESH INFO" refProp={this.myRef3}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPartLeft={`0x${getAddress(rewardsAddress)}` || 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
+              <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
               <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" />
               {status ? (
                 <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
