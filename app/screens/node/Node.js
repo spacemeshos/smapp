@@ -111,7 +111,7 @@ const Dots = styled(LeftText)`
 
 const Fireworks = styled.img`
   position: absolute;
-  top: 0;
+  top: -40px;
   max-width: 100%;
   max-height: 100%;
   cursor: inherit;
