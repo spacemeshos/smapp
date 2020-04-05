@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  height: 80%;
+  height: 100%;
 `;
 
 const AllSettingsWrapper = styled.div`
