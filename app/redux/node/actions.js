@@ -141,7 +141,7 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
           timestamp
         };
       });
-      const rewardsWithTimeStamps = [...updatedRewards.slice(0, rewards.length), ...newRewardsWithTimeStamp];
+      const rewardsWithTimeStamps = [...rewards, ...newRewardsWithTimeStamp];
       localStorageService.set('rewards', rewardsWithTimeStamps);
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
     }
