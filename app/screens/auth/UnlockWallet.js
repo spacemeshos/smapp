@@ -12,6 +12,12 @@ import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const Text = styled.div`
   margin: -15px 0 15px;
   font-size: 16px;
@@ -102,30 +108,32 @@ class UnlockWallet extends Component<Props, State> {
   render() {
     const { history } = this.props;
     const { isLoggedOutBannerVisible, password, hasError } = this.state;
-    return [
-      isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />,
-      <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main">
-        <Text>Please enter your wallet password.</Text>
-        <Indicator hasError={hasError} />
-        <SmallSideBar src={smallInnerSideBar} />
-        <InputSection>
-          <Chevron src={chevronRightBlack} />
-          <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
-          <ErrorSection>
-            {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="Sorry, this password doesn't ring a bell, please try again." />}
-          </ErrorSection>
-        </InputSection>
-        <BottomPart>
-          <LinksWrapper>
-            <GrayText>FORGOT YOUR PASSWORD?</GrayText>
-            <Link onClick={() => history.push('/auth/restore')} text="RESTORE" style={{ marginRight: 'auto' }} />
-            <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
-            <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
-          </LinksWrapper>
-          <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
-        </BottomPart>
-      </CorneredContainer>
-    ];
+    return (
+      <Wrapper>
+        {isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />}
+        <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main">
+          <Text>Please enter your wallet password.</Text>
+          <Indicator hasError={hasError} />
+          <SmallSideBar src={smallInnerSideBar} />
+          <InputSection>
+            <Chevron src={chevronRightBlack} />
+            <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
+            <ErrorSection>
+              {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="Sorry, this password doesn't ring a bell, please try again." />}
+            </ErrorSection>
+          </InputSection>
+          <BottomPart>
+            <LinksWrapper>
+              <GrayText>FORGOT YOUR PASSWORD?</GrayText>
+              <Link onClick={() => history.push('/auth/restore')} text="RESTORE" style={{ marginRight: 'auto' }} />
+              <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
+              <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
+            </LinksWrapper>
+            <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.decryptWallet} style={{ marginTop: 'auto' }} />
+          </BottomPart>
+        </CorneredContainer>
+      </Wrapper>
+    );
   }
 
   handlePasswordTyping = ({ value }: { value: string }) => {

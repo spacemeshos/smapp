@@ -29,14 +29,17 @@ const Wrapper = styled.div`
 const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   flex: 1;
-  padding: 5px 0 30px 30px;
+  padding: 0 0 30px 30px;
 `;
 
 const NavBar = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: 100%;
+  margin-top: 9px;
 `;
 
 const NavBarPart = styled.div`
@@ -71,10 +74,7 @@ const RightDecoration = styled.img`
 const RoutesWrapper = styled.div`
   position: relative;
   display: flex;
-  flex: 1;
   justify-content: center;
-  align-items: center;
-  height: 100%;
 `;
 
 const CustomTooltip = styled(NavTooltip)`
@@ -153,85 +153,85 @@ class Main extends Component<Props, State> {
         <Logo />
         <InnerWrapper>
           <NavBar>
-          <NavBarPart>
-            <NavLinksWrapper>
+            <NavBarPart>
+              <NavLinksWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
+                    SMESHING
+                  </NavBarLink>
+                  <CustomTooltip text="MANAGE SMESHING" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                    WALLET
+                  </NavBarLink>
+                  <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                    CONTACTS
+                  </NavBarLink>
+                  <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+              </NavLinksWrapper>
+            </NavBarPart>
+            <NavBarPart>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
-                  SMESHING
-                </NavBarLink>
-                <CustomTooltip text="MANAGE SMESHING" withIcon={false} isLinkTooltip />
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 3 })}
+                  img={settingsIcon}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={activeRouteIndex === 3}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                />
+                <CustomTooltip text="SETTINGS" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
-                  WALLET
-                </NavBarLink>
-                <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 4 })}
+                  img={getCoinsIcon}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                />
+                <CustomTooltip text="GET SMESH" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
-                  CONTACTS
-                </NavBarLink>
-                <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 5 })}
+                  img={helpIcon}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                />
+                <CustomTooltip text="HELP" withIcon={false} />
               </TooltipWrapper>
-            </NavLinksWrapper>
-          </NavBarPart>
-          <NavBarPart>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 3 })}
-                img={settingsIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={activeRouteIndex === 3}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="SETTINGS" withIcon={false} />
-            </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 4 })}
-                img={getCoinsIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="GET SMESH" withIcon={false} />
-            </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 5 })}
-                img={helpIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="HELP" withIcon={false} />
-            </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 6 })}
-                img={signOutIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="LOGOUT" withIcon={false} />
-            </TooltipWrapper>
-          </NavBarPart>
+              <TooltipWrapper>
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 6 })}
+                  img={signOutIcon}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                />
+                <CustomTooltip text="LOGOUT" withIcon={false} />
+              </TooltipWrapper>
+            </NavBarPart>
           </NavBar>
+          <InfoBanner />
           <RoutesWrapper>
-            <InfoBanner />
             <Switch>
               {routes.main.map((route) => (
                 <Route key={route.path} path={route.path} component={route.component} />

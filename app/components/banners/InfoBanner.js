@@ -64,7 +64,7 @@ class InfoBanner extends Component<Props> {
       text = `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`;
     }
     return color ? (
-      <Banner top={20} color={color}>
+      <Banner margin={'30px 0 30px 0'} color={color}>
         <Text>{text}</Text>
       </Banner>
     ) : null;

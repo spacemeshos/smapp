@@ -121,7 +121,7 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
     let newRewardsWithTimeStamp = [];
     if (rewards.length < updatedRewards.length) {
       notify();
-      const newRewards = [...rewards.slice(rewards.length)];
+      const newRewards = [...updatedRewards.slice(rewards.length)];
       newRewardsWithTimeStamp = newRewards.map((reward) => {
         const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
         const tx = {
