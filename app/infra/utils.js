@@ -154,12 +154,15 @@ const asyncForEach = async (array, callback) => {
 };
 
 const getFormattedTimestamp = (timestamp: string) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-  const dateObj = new Date(timestamp);
-  return dateObj.toLocaleDateString('en-US', options).replace(',', '');
+  if (timestamp) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const dateObj = new Date(timestamp);
+    return dateObj.toLocaleDateString('en-US', options).replace(',', '');
+  }
+  return null;
 };
 
-const getAddress = (key: string) => key.substring(24);
+const getAddress = (key: string) => (key ? key.substring(24) : null);
 
 const formatBytes = (bytes) => {
   if (bytes === 0) return 0;
