@@ -131,7 +131,7 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     if (typeof error.message === 'string' && error.message.includes('account does not exist')) {
       dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
     } else {
-      throw createError('Error getting balance!', getBalance);
+      console.log(error); // eslint-disable-line no-console
     }
   }
 };

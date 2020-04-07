@@ -37,11 +37,12 @@ class InfoBanner extends Component<Props> {
     const { status } = this.props;
     let color;
     let text;
-    if (!status) {
-      if (this.startUpDelay === 15) {
-        color = smColors.red;
-        text = 'Offline. Please quit and start the app again.';
-      }
+    if (this.startUpDelay === 10) {
+      color = smColors.red;
+      text = 'Offline. Please quit and start the app again.';
+    } else if (!status || status.noConnection) {
+      color = smColors.orange;
+      text = 'Waiting for smesher response...';
     } else if (!status.peers) {
       this.startUpDelay = 0;
       if (this.noPeersCounter === 15) {
@@ -72,10 +73,10 @@ class InfoBanner extends Component<Props> {
 
   shouldComponentUpdate(nextProps: Props) {
     const { status } = this.props;
-    if (status === null && nextProps.status === null) {
+    if (nextProps.status.noConnection) {
       this.startUpDelay += 1;
     }
-    return nextProps.status !== status || this.startUpDelay === 15;
+    return (nextProps.status !== status && !nextProps.status.noConnection) || this.startUpDelay === 10;
   }
 }
 

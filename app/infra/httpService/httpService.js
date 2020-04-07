@@ -34,6 +34,7 @@ class HttpService {
 
   static getMiningStatus() {
     ipcRenderer.send(ipcConsts.GET_MINING_STATUS);
+    ipcRenderer.removeAllListeners(ipcConsts.GET_MINING_STATUS_RESPONSE);
     return new Promise<string, Error>((resolve: Function, reject: Function) => {
       ipcRenderer.once(ipcConsts.GET_MINING_STATUS_RESPONSE, (event, response) => {
         if (response.error) {
