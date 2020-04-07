@@ -118,7 +118,7 @@ class RequestCoins extends Component<Props, State> {
           <AddressWrapper onClick={this.copyPublicAddress}>
             <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
             <CopyIcon src={copyToClipboard} />
-            {isCopied && <CopiedText>Address copied!</CopiedText>}
+            {isCopied && <CopiedText>Copied!</CopiedText>}
           </AddressWrapper>
         </SubHeader>
         <Text>* This address is public and safe to share with anyone.</Text>
