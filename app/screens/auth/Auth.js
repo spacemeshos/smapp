@@ -87,9 +87,9 @@ class Auth extends Component<Props> {
       this.getMiningStatusInterval = setInterval(async () => {
         const status = await getMiningStatus();
         if (status !== nodeConsts.MINING_UNSET) {
-          clearInterval(this.getMiningStatusInterval);
+          this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
         }
-      }, 500);
+      }, 1000);
     }
     await getNodeSettings();
   }

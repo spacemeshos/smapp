@@ -17,7 +17,7 @@ import type { RouterHistory } from 'react-router-dom';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 90px);
+  height: 100%;
 `;
 
 const LeftSection = styled.div`

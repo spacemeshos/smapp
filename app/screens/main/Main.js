@@ -75,7 +75,7 @@ const RoutesWrapper = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
-  height: calc(100% - 180px);
+  height: calc(100% - 200px);
 `;
 
 const CustomTooltip = styled(NavTooltip)`
