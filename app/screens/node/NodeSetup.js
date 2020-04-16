@@ -74,7 +74,7 @@ type State = {
   hasPermissionError: boolean,
   freeSpace: number,
   subMode: 2 | 3,
-  selectedCommitmentSize: number,
+  // selectedCommitmentSize: number,
   isSubmitting: boolean
 };
 
@@ -103,16 +103,16 @@ class NodeSetup extends Component<Props, State> {
       selectedFolder: '',
       freeSpace: 0,
       hasPermissionError: false,
-      selectedCommitmentSize: 0,
+      // selectedCommitmentSize: 0,
       isSubmitting: false
     };
   }
 
   render() {
     const { status, location } = this.props;
-    const { subMode, selectedFolder, hasPermissionError, selectedCommitmentSize, isSubmitting } = this.state;
+    const { subMode, selectedFolder, hasPermissionError, isSubmitting } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
-    const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || (subMode === 3 && selectedCommitmentSize === 0) || isSubmitting || !status;
+    const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || isSubmitting || !status;
     return (
       <Wrapper>
         <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
@@ -163,11 +163,7 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector
-          commitmentSize={this.formattedCommitmentSize}
-          freeSpace={freeSpace}
-          onClick={({ commitment }) => this.setState({ selectedCommitmentSize: commitment })}
-        />
+        <CommitmentSelector commitmentSize={this.formattedCommitmentSize} freeSpace={freeSpace} onClick={() => {}} />
       </>
     );
   };
