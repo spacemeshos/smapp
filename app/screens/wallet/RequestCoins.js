@@ -65,7 +65,7 @@ const CopyIcon = styled.img`
 `;
 
 const CopiedText = styled(Text)`
-  font-weight: SourceCodeProBold;
+  font-family: SourceCodeProBold;
   color: ${smColors.green};
 `;
 

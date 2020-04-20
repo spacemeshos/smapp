@@ -66,7 +66,7 @@ const Text = styled.span`
   font-size: 14px;
   line-height: 17px;
   color: ${smColors.darkGray};
-  margin-right: 5px;
+  margin-right: 15px;
 `;
 
 // const TooltipIcon = styled.img`

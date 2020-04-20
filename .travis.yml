@@ -5,14 +5,8 @@ node_js:
 matrix:
   include:
     - os: osx
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
     - os: linux
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
