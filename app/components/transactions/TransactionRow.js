@@ -178,7 +178,7 @@ class TransactionRow extends Component<Props, State> {
     return (
       <Wrapper isDetailed={isDetailed}>
         <Header onClick={this.toggleTxDetails}>
-          <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
+          <Icon src={isSent ? chevronRightBlack : chevronLeftBlack} />
           <HeaderInner>
             <HeaderSection>
               {txId === 'reward' ? (

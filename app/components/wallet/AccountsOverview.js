@@ -28,6 +28,7 @@ const AccountWrapper = styled.div`
 `;
 
 const AccountName = styled.div`
+  font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.realBlack};

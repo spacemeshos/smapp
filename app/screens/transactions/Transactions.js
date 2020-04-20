@@ -66,9 +66,8 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
     sent: 0,
     received: 0
   };
-
+  const address = getAddress(publicKey);
   transactions.forEach(({ txId, status, sender, amount }: { txId: string, status: number, sender: string, amount: number }) => {
-    const address = getAddress(publicKey);
     if (status !== TX_STATUSES.REJECTED) {
       if (txId === 'reward') {
         coins.mined += amount;
@@ -110,7 +109,7 @@ class Transactions extends Component<Props, State> {
     return (
       <Wrapper>
         <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
-        <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ height: '100%', marginRight: 10 }}>
           <Header>Latest transactions</Header>
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
@@ -175,10 +174,8 @@ class Transactions extends Component<Props, State> {
   filterTransactions = ({ index, transactions }) => {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
-    return transactions.data.filter((transaction: Tx) => {
-      const startDate = +new Date() - spanInDays[index] * oneDayInMs;
-      return transaction.timestamp >= startDate;
-    });
+    const startDate = new Date().getTime() - spanInDays[index] * oneDayInMs;
+    return transactions.data.filter((transaction: Tx) => transaction.timestamp >= startDate);
   };
 
   cancelCreatingNewContact = () => {
