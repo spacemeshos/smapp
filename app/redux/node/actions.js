@@ -27,7 +27,7 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
     dispatch({ type: SET_NODE_STATUS, payload: { status } });
     return status;
   } catch (err) {
-    dispatch({ type: SET_NODE_STATUS, payload: { status: null } });
+    dispatch({ type: SET_NODE_STATUS, payload: { status: { noConnection: true } } });
     return null;
   }
 };
@@ -116,13 +116,12 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
 export const getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
     const { accounts, currentAccountIndex } = getState().wallet;
-    const { genesisTime, layerDuration } = getState().node;
-    const rewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
-    const prevRewards = localStorageService.get('rewards') || [];
+    const { rewards, genesisTime, layerDuration } = getState().node;
+    const updatedRewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
     let newRewardsWithTimeStamp = [];
-    if (prevRewards.length < rewards.length) {
+    if (rewards.length < updatedRewards.length) {
       notify();
-      const newRewards = [...rewards.slice(prevRewards.length)];
+      const newRewards = [...updatedRewards.slice(rewards.length)];
       newRewardsWithTimeStamp = newRewards.map((reward) => {
         const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
         const tx = {
@@ -142,7 +141,7 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
           timestamp
         };
       });
-      const rewardsWithTimeStamps = [...rewards.slice(0, prevRewards.length), ...newRewardsWithTimeStamp];
+      const rewardsWithTimeStamps = [...rewards, ...newRewardsWithTimeStamp];
       localStorageService.set('rewards', rewardsWithTimeStamps);
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
     }

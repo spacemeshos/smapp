@@ -17,7 +17,7 @@ type Props = {};
 class LoggedOutBanner extends PureComponent<Props> {
   render() {
     return (
-      <Banner top={100} color={smColors.blue}>
+      <Banner margin={'0 0 30px 0'} color={smColors.blue}>
         <Text>YOU ARE LOGGED OUT FROM YOUR WALLET</Text>
       </Banner>
     );

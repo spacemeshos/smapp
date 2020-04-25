@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  height: 80%;
+  height: 100%;
 `;
 
 const AllSettingsWrapper = styled.div`
@@ -236,12 +236,12 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="MESH INFO" refProp={this.myRef3}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPartLeft={`0x${getAddress(rewardsAddress)}` || 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
-              <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" />
-              {status ? (
+              <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
+              {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
+              {status && !status.noConnection ? (
                 <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
               ) : null}
-              {status ? (
+              {status && !status.noConnection ? (
                 <SettingRow
                   upperPartLeft={`Synced: ${status.synced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.currentLayer}. Verified layer: ${
                     status.verifiedLayer
@@ -250,7 +250,7 @@ class Settings extends Component<Props, State> {
                   rowName="Sync status"
                 />
               ) : null}
-              <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" />
+              {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Log" width={180} />} rowName="View log file" />
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>

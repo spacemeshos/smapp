@@ -93,7 +93,7 @@ class LatestTransactions extends PureComponent<Props> {
     const color = this.getColor({ status, isSent });
     return (
       <TxWrapper key={index}>
-        <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
+        <Icon src={isSent ? chevronRightBlack : chevronLeftBlack} />
         <MainWrapper>
           <Section>
             <NickName>{txId === 'reward' ? 'Smeshing reward' : nickname || getAbbreviatedText(sender)}</NickName>
@@ -101,7 +101,7 @@ class LatestTransactions extends PureComponent<Props> {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={color}>{formatSmidge(amount)}</Amount>
+            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(amount)}`}</Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>

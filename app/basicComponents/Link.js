@@ -6,7 +6,7 @@ import { smColors } from '/vars';
 const Wrapper = styled.div`
   font-size: 14px;
   line-height: 17px;
-  font-weight: ${({ isPrimary }) => (isPrimary ? 'normal' : 'bold')};
+  font-family: ${({ isPrimary }) => (isPrimary ? 'SourceCodePro' : 'SourceCodeProBold')};
   text-decoration: underline;
   ${({ isDisabled, isPrimary }) =>
     isDisabled

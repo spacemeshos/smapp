@@ -1,6 +1,7 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
+import { localStorageService } from '/infra/storageService';
 import { nodeConsts } from '/vars';
 import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_ACCOUNT_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS } from './actions';
 
@@ -14,9 +15,7 @@ const initialState = {
   layerDuration: 0,
   stateRootHash: null,
   timeTillNextAward: 0,
-  rewards: [],
-  totalEarnings: 0,
-  totalFeesEarnings: 0,
+  rewards: localStorageService.get('rewards') || [],
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 

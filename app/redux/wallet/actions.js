@@ -131,7 +131,7 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
     if (typeof error.message === 'string' && error.message.includes('account does not exist')) {
       dispatch({ type: SET_BALANCE, payload: { balance: 0 } });
     } else {
-      throw createError('Error getting balance!', getBalance);
+      console.log(error); // eslint-disable-line no-console
     }
   }
 };
@@ -221,10 +221,10 @@ const mergeTxStatuses = ({ existingList, incomingList, address }: { existingList
         !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
       hasConfirmedOutgoingTxs =
         !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
-      unifiedTxList[existingListMap[tx.txId].index] = { ...existingListMap[tx.txId].tx, status: tx.status };
+      unifiedTxList[existingListMap[tx.txId].index] = { ...existingListMap[tx.txId].tx, status: tx.status, layerId: tx.layerId || existingListMap[tx.txId].tx.layerId };
     } else {
       hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-      unifiedTxList.unshift(tx.timestamp ? tx : { ...tx, timestamp: new Date().getTime() });
+      unifiedTxList.unshift(tx.timestamp ? tx : { ...tx, timestamp: tx.timestamp || new Date().getTime() });
     }
   });
   return { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
@@ -245,12 +245,8 @@ export const getTxList = ({ notify }: { notify: Function }): Action => async (di
 
     // get all tx ids for every account, then for each account get full tx data for the list
     const txListCollector = async () => {
-      let minValidatedLayer = 0;
       await asyncForEach(accounts, async (account, index) => {
         const { txs, validatedLayer } = await httpService.getAccountTxs({ startLayer: transactions[index].layerId, account: account.publicKey });
-        if (minValidatedLayer === 0) {
-          minValidatedLayer = validatedLayer;
-        }
         transactions[index].data.forEach((existingTx) => {
           if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
             txs.push(`0x${existingTx.txId}`);
@@ -266,7 +262,7 @@ export const getTxList = ({ notify }: { notify: Function }): Action => async (di
         if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
           notify({ hasConfirmedIncomingTxs });
         }
-        updatedTransactions = [...transactions.slice(0, index), { layerId: minValidatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
+        updatedTransactions = [...transactions.slice(0, index), { layerId: validatedLayer, data: unifiedTxList }, ...transactions.slice(index + 1)];
       });
     };
     await txListCollector();

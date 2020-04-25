@@ -17,6 +17,7 @@ import type { RouterHistory } from 'react-router-dom';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  height: 100%;
 `;
 
 const LeftSection = styled.div`
@@ -30,10 +31,11 @@ const BackupReminder = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  align-self: flex-end;
+  width: 230px;
   height: 50px;
   margin-top: 10px;
-  padding-left: 25px;
+  padding: 0 15px;
   background-color: ${smColors.black02Alpha};
   cursor: pointer;
 `;

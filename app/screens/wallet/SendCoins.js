@@ -142,7 +142,7 @@ class SendCoins extends Component<Props, State> {
     const { address } = this.state;
     const trimmedValue = address ? address.trim() : '';
     return (
-      trimmedValue && ((trimmedValue.startsWith('0x') !== -1 && trimmedValue.length === 42) || trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
+      trimmedValue && (trimmedValue.startsWith('0x') !== -1 ? trimmedValue.length === 42 : trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
     );
   };
 

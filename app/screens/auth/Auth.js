@@ -11,8 +11,8 @@ import { Loader } from '/basicComponents';
 import routes from '/routes';
 import { rightDecoration } from '/assets/images';
 import type { Action } from '/types';
+import { nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import { nodeConsts } from '../../vars';
 
 const Wrapper = styled.div`
   position: relative;
@@ -87,9 +87,9 @@ class Auth extends Component<Props> {
       this.getMiningStatusInterval = setInterval(async () => {
         const status = await getMiningStatus();
         if (status !== nodeConsts.MINING_UNSET) {
-          clearInterval(this.getMiningStatusInterval);
+          this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
         }
-      }, 500);
+      }, 1000);
     }
     await getNodeSettings();
   }
