@@ -188,7 +188,7 @@ class TransactionRow extends Component<Props, State> {
               )}
             </HeaderSection>
             <HeaderSection>
-              <Amount color={color}>{formatSmidge(amount)}</Amount>
+              <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(amount)}`}</Amount>
               <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
             </HeaderSection>
             {wasCopied && <CopiedBanner>Copied!</CopiedBanner>}

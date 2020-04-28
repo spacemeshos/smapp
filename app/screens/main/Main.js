@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
-import { getTxList, updateWalletFile } from '/redux/wallet/actions';
+import { getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
 import { InfoBanner } from '/components/banners';
@@ -100,7 +100,6 @@ type Props = {
   getMiningStatus: Action,
   getAccountRewards: Action,
   getTxList: Action,
-  updateWalletFile: Action,
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
@@ -122,8 +121,6 @@ class Main extends Component<Props, State> {
   accountRewardsInterval: IntervalID;
 
   txCollectorInterval: IntervalID;
-
-  walletFileUpdateInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -246,7 +243,7 @@ class Main extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getTxList, updateWalletFile, getAccountRewards, miningStatus, history } = this.props;
+    const { getNodeStatus, getMiningStatus, getTxList, getAccountRewards, miningStatus, history } = this.props;
     await getNodeStatus();
     await getAccountRewards({ notify: () => {} });
     this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
@@ -268,7 +265,6 @@ class Main extends Component<Props, State> {
         getMiningStatus();
       }, 100000);
     }
-    this.walletFileUpdateInterval = setInterval(() => updateWalletFile({}), 500);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -300,7 +296,6 @@ class Main extends Component<Props, State> {
     this.miningStatusInterval && clearInterval(this.miningStatusInterval);
     this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
     this.txCollectorInterval && clearInterval(this.txCollectorInterval);
-    this.walletFileUpdateInterval && clearInterval(this.walletFileUpdateInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -355,7 +350,6 @@ const mapDispatchToProps = {
   getMiningStatus,
   getAccountRewards,
   getTxList,
-  updateWalletFile,
   logout
 };
 

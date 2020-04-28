@@ -16,14 +16,12 @@ import {
 const initialState = {
   walletFiles: null,
   meta: {},
-  cipherText: null,
   mnemonic: null,
   accounts: [],
   currentAccountIndex: 0,
   transactions: {},
   lastUsedContacts: [],
   contacts: [],
-  fiatRate: 1,
   isUpdateDownloading: false
 };
 
@@ -47,9 +45,9 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     }
     case SET_WALLET_META: {
       const {
-        payload: { meta, cipherText }
+        payload: { meta }
       } = action;
-      return { ...state, meta, cipherText };
+      return { ...state, meta };
     }
     case SET_ACCOUNTS: {
       const {

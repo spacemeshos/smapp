@@ -51,8 +51,8 @@ class FsService {
     });
   };
 
-  static updateWalletFile = ({ fileName, data, immediateUpdate }: { fileName: string, data: Object, immediateUpdate?: boolean }) => {
-    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, data, immediateUpdate });
+  static updateWalletFile = ({ fileName, data, field }: { fileName: string, data: Object, field: string }) => {
+    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, data, field });
   };
 
   static openWalletBackupDirectory = ({ lastBackupTime }: { lastBackupTime?: string }) => {

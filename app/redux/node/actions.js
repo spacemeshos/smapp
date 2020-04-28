@@ -114,38 +114,40 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
 };
 
 export const getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const { accounts, currentAccountIndex } = getState().wallet;
-    const { rewards, genesisTime, layerDuration } = getState().node;
-    const updatedRewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
-    let newRewardsWithTimeStamp = [];
-    if (rewards.length < updatedRewards.length) {
-      notify();
-      const newRewards = [...updatedRewards.slice(rewards.length)];
-      newRewardsWithTimeStamp = newRewards.map((reward) => {
-        const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
-        const tx = {
-          txId: 'reward',
-          sender: null,
-          receiver: getAddress(accounts[currentAccountIndex].publicKey),
-          amount: reward.totalReward,
-          fee: reward.totalReward - reward.layerRewardEstimate,
-          status: TX_STATUSES.CONFIRMED,
-          layerId: reward.layer,
-          timestamp
-        };
-        dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
-        return {
-          totalReward: reward.totalReward,
-          layerRewardEstimate: reward.layerRewardEstimate,
-          timestamp
-        };
-      });
-      const rewardsWithTimeStamps = [...rewards, ...newRewardsWithTimeStamp];
-      localStorageService.set('rewards', rewardsWithTimeStamps);
-      dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
+  const { status, rewards, genesisTime, layerDuration } = getState().node;
+  if (status && !status.noConnection) {
+    try {
+      const { accounts, currentAccountIndex } = getState().wallet;
+      const updatedRewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
+      let newRewardsWithTimeStamp = [];
+      if (rewards.length < updatedRewards.length) {
+        notify();
+        const newRewards = [...updatedRewards.slice(rewards.length)];
+        newRewardsWithTimeStamp = newRewards.map((reward) => {
+          const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
+          const tx = {
+            txId: 'reward',
+            sender: null,
+            receiver: getAddress(accounts[currentAccountIndex].publicKey),
+            amount: reward.totalReward,
+            fee: reward.totalReward - reward.layerRewardEstimate,
+            status: TX_STATUSES.CONFIRMED,
+            layerId: reward.layer,
+            timestamp
+          };
+          dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
+          return {
+            totalReward: reward.totalReward,
+            layerRewardEstimate: reward.layerRewardEstimate,
+            timestamp
+          };
+        });
+        const rewardsWithTimeStamps = [...rewards, ...newRewardsWithTimeStamp];
+        localStorageService.set('rewards', rewardsWithTimeStamps);
+        dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
+      }
+    } catch (err) {
+      throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
     }
-  } catch (err) {
-    throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
   }
 };

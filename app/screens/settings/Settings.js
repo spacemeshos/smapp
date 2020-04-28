@@ -400,7 +400,7 @@ class Settings extends Component<Props, State> {
       shouldShowPasswordModal: true,
       passwordModalSubmitAction: ({ key }) => {
         this.setState({ editedAccountIndex: -1, shouldShowPasswordModal: false });
-        updateAccountName({ accountIndex: index, fieldName: 'displayName', data: accountDisplayNames[index], key });
+        updateAccountName({ accountIndex: index, name: accountDisplayNames[index], key });
       }
     });
   };

@@ -20,14 +20,6 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class FileSystemManager {
-  static fileName = '';
-
-  static prevBuffer = '';
-
-  static curBuffer = '';
-
-  static fileWriterInterval = null;
-
   static copyFile = ({ event, fileName, filePath, newFileName, saveToDocumentsFolder }) => {
     const newFilePath = saveToDocumentsFolder ? path.join(documentsDirPath, newFileName) : path.join(appFilesDirPath, fileName);
     fs.copyFile(filePath, newFilePath, (error) => {
@@ -89,53 +81,13 @@ class FileSystemManager {
     }
   };
 
-  static updateWalletFile = async ({ fileName, data, immediateUpdate }) => {
-    if (FileSystemManager.prevBuffer !== FileSystemManager.curBuffer) {
-      FileSystemManager.prevBuffer = FileSystemManager.curBuffer;
-    }
-    FileSystemManager.curBuffer = data;
-    FileSystemManager.fileName = fileName;
-    if (immediateUpdate) {
-      try {
-        await FileSystemManager._writeFile({ filePath: FileSystemManager.fileName, fileContent: JSON.stringify(FileSystemManager.curBuffer) });
-      } catch (error) {
-        console.log(error); // eslint-disable-line no-console
-      }
-    }
-    if (!FileSystemManager.fileWriterInterval) {
-      FileSystemManager.fileWriterInterval = setInterval(async () => {
-        if (FileSystemManager.curBuffer !== FileSystemManager.prevBuffer) {
-          try {
-            await FileSystemManager._writeFile({ filePath: FileSystemManager.fileName, fileContent: JSON.stringify(FileSystemManager.curBuffer) });
-          } catch (error) {
-            console.log(error); // eslint-disable-line no-console
-          }
-        }
-      }, 1000);
-    }
-  };
-
-  static cleanUp = async () => {
-    clearInterval(FileSystemManager.fileWriterInterval);
-    if (FileSystemManager.fileName) {
-      try {
-        await FileSystemManager._writeFile({ filePath: FileSystemManager.fileName, fileContent: JSON.stringify(FileSystemManager.curBuffer) });
-      } catch (error) {
-        console.log(error); // eslint-disable-line no-console
-      }
-    }
-  };
-
-  static cleanWalletFile = async () => {
-    const files = await readDirectoryAsync(appFilesDirPath);
-    const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
-    const filteredFiles = files.filter((file) => file.match(regex));
-    if (filteredFiles.length) {
-      const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
-      const fileContent = await readFileAsync(filesWithPath[0]);
-      const parsedData = JSON.parse(fileContent);
-      parsedData.transactions = [{ layerId: 0, data: [] }];
-      await writeFileAsync(filesWithPath[0], JSON.stringify(parsedData));
+  static updateWalletFile = async ({ fileName, data, field }) => {
+    try {
+      const rawFileContent = await readFileAsync(fileName);
+      const fileContent = JSON.parse(rawFileContent);
+      await FileSystemManager._writeFile({ filePath: fileName, fileContent: JSON.stringify({ ...fileContent, [field]: data }) });
+    } catch (error) {
+      console.log(error); // eslint-disable-line no-console
     }
   };
 
@@ -148,7 +100,6 @@ class FileSystemManager {
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
       try {
-        clearInterval(FileSystemManager.fileWriterInterval);
         await unlinkFileAsync(fileName);
         browserWindow.reload();
       } catch (err) {
@@ -166,7 +117,6 @@ class FileSystemManager {
     };
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
-      clearInterval(FileSystemManager.fileWriterInterval);
       browserWindow.destroy();
       const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
       exec(command, (error) => {
