@@ -8,7 +8,6 @@ import NetService from './netService';
 
 const { exec } = require('child_process');
 const fetch = require('node-fetch');
-const toml = require('toml');
 const find = require('find-process');
 
 const osTargetNames = {
@@ -22,19 +21,18 @@ const DEFAULT_PORT = '7153';
 class NodeManager {
   static startNode = async () => {
     try {
-      const rawData = await fetch('http://ae7809a90692211ea8d4d0ea80dce922-597797094.us-east-1.elb.amazonaws.com/');
-      const tomlData = await rawData.text();
-      const parsedToml = toml.parse(tomlData);
+      const rawData = await fetch('http://spacecraft.unruly.io:8000/testnet');
+      const configObj = await rawData.json();
 
-      const fetchedGenesisTime = parsedToml.main['genesis-time'];
+      const fetchedGenesisTime = configObj.flags.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
-      StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
-      const networkId = parseInt(parsedToml.p2p['network-id']);
+      StoreService.set({ key: 'postSize', value: parseInt(configObj.flags.post['post-space']) });
+      const networkId = parseInt(configObj.flags.p2p['network-id']);
       StoreService.set({ key: 'networkId', value: networkId });
-      StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
+      StoreService.set({ key: 'layerDurationSec', value: parseInt(configObj.flags.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -42,23 +40,19 @@ class NodeManager {
         process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
-      const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata');
+      const configFileLocation = path.resolve(`${userDataPath}`, 'config.json');
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data', networkId);
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-      await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
+      await FileSystemManager._writeFile({ filePath: `${configFileLocation}`, fileContent: rawData });
 
       if (prevGenesisTime !== fetchedGenesisTime) {
-        const command =
-          os.type() === 'Windows_NT'
-            ? `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${logFilePath} del ${logFilePath})`
-            : `rm -rf ${nodeDataFilesPath} && rm -rf ${logFilePath}`;
+        const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
         exec(command, async (err) => {
           if (!err) {
             StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
             StoreService.remove({ key: 'miningParams' });
-            await FileSystemManager.cleanWalletFile();
-            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
+            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
@@ -72,7 +66,7 @@ class NodeManager {
         });
       } else {
         const savedMiningParams = StoreService.get({ key: 'miningParams' });
-        const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
+        const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}"${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
@@ -85,7 +79,7 @@ class NodeManager {
       }
     } catch (e) {
       if (e.line) {
-        dialog.showErrorBox('Parsing toml failed', `${e}`);
+        dialog.showErrorBox('Parsing json failed', `${e}`);
         console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
       } else {
         dialog.showErrorBox('Failed to download settings file.', 'Check your internet connection and restart the app');
