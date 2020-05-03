@@ -5,9 +5,9 @@ import { ipcConsts } from '../app/vars';
 import FileSystemManager from './fileSystemManager';
 import StoreService from './storeService';
 import NetService from './netService';
+import nodeConfig from './config.json';
 
 const { exec } = require('child_process');
-const fetch = require('node-fetch');
 const find = require('find-process');
 
 const osTargetNames = {
@@ -21,18 +21,15 @@ const DEFAULT_PORT = '7153';
 class NodeManager {
   static startNode = async () => {
     try {
-      const rawData = await fetch('http://nodes.unruly.io/');
-      const configObj = await rawData.json();
-
-      const fetchedGenesisTime = configObj.flags.main['genesis-time'];
+      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
-      StoreService.set({ key: 'postSize', value: parseInt(configObj.flags.post['post-space']) });
-      const networkId = parseInt(configObj.flags.p2p['network-id']);
+      StoreService.set({ key: 'postSize', value: parseInt(nodeConfig.post['post-space']) });
+      const networkId = parseInt(nodeConfig.p2p['network-id']);
       StoreService.set({ key: 'networkId', value: networkId });
-      StoreService.set({ key: 'layerDurationSec', value: parseInt(configObj.flags.main['layer-duration-sec']) });
+      StoreService.set({ key: 'layerDurationSec', value: parseInt(nodeConfig.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -40,11 +37,10 @@ class NodeManager {
         process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
-      const configFileLocation = path.resolve(`${userDataPath}`, 'config.json');
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data', networkId);
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data', `${networkId}`);
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-      await FileSystemManager._writeFile({ filePath: `${configFileLocation}`, fileContent: rawData });
+      const configFileLocation = path.resolve(app.getAppPath(), './config.json');
 
       if (prevGenesisTime !== fetchedGenesisTime) {
         const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
@@ -78,13 +74,8 @@ class NodeManager {
         });
       }
     } catch (e) {
-      if (e.line) {
-        dialog.showErrorBox('Parsing toml failed', `${e}`);
-        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
-      } else {
-        dialog.showErrorBox('Failed to download settings file.', 'Check your internet connection and restart the app');
-        console.error(`Failed to download settings file: ${e.message}`); // eslint-disable-line no-console
-      }
+      dialog.showErrorBox('Parsing json failed', `${e}`);
+      console.error('Parsing json failed', `${e}`); // eslint-disable-line no-console
     }
   };
 
