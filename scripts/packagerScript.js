@@ -89,6 +89,7 @@ const getBuildOptions = ({ target, publish }) => {
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
         'desktop/ed25519.wasm',
+        'desktop/config.json',
         'package.json',
         'node_modules/',
         'proto/',
