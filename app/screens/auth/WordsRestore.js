@@ -2,10 +2,10 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { WrapperWith2SideBars, Input, Button, Link, SecondaryButton, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
+import { BackButton } from '/components/common';
+import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { cryptoService } from '/infra/cryptoService';
 import { smColors } from '/vars';
-import { chevronLeftWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 
 const Header = styled.div`
@@ -72,7 +72,7 @@ class WordsRestore extends Component<Props, State> {
     return (
       <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" style={{ position: 'relative' }}>
         <SmallHorizontalPanel />
-        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+        <BackButton action={history.goBack} />
         <Header>Please enter the 12 words in the right order.</Header>
         <Table>
           <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>

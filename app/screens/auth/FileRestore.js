@@ -3,10 +3,9 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { copyFile } from '/redux/wallet/actions';
-import { CorneredContainer } from '/components/common';
+import { CorneredContainer, BackButton } from '/components/common';
 import { DragAndDrop } from '/components/auth';
-import { Button, Link, SecondaryButton, SmallHorizontalPanel } from '/basicComponents';
-import { chevronLeftWhite } from '/assets/images';
+import { Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -47,7 +46,7 @@ class FileRestore extends Component<Props, State> {
     return (
       <CorneredContainer width={800} height={480} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
         <SmallHorizontalPanel />
-        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+        <BackButton action={history.goBack} />
         <DdArea>
           <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} />
         </DdArea>
