@@ -4,11 +4,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { initMining } from '/redux/node/actions';
-import { CorneredContainer } from '/components/common';
+import { CorneredContainer, BackButton } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { StepsContainer, Button, SecondaryButton, Link, SmallHorizontalPanel } from '/basicComponents';
+import { StepsContainer, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import { CommitmentSelector } from '/components/node';
-import { chevronLeftWhite } from '/assets/images';
 import { fileSystemService } from '/infra/fileSystemService';
 import { nodeService } from '/infra/nodeService';
 import { formatBytes } from '/infra/utils';
@@ -58,8 +57,6 @@ const PermissionError = styled.div`
   line-height: 20px;
   color: ${smColors.red};
 `;
-
-const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
 
 type Props = {
   accounts: Account[],
@@ -118,7 +115,7 @@ class NodeSetup extends Component<Props, State> {
         <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
         <CorneredContainer width={650} height={400} header={this.steps[adjustedSubStep]}>
           <SmallHorizontalPanel />
-          {location?.state?.isOnlyNodeSetup && <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />}
+          {location?.state?.isOnlyNodeSetup && <BackButton action={this.handleBackBtn} />}
           {this.renderSubMode()}
           <Footer>
             <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />
