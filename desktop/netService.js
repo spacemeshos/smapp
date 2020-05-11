@@ -9,6 +9,8 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
+const getDeadline = () => new Date().setSeconds(new Date().getSeconds() + 60000);
+
 class NetService {
   constructor(url = nodeConsts.DEFAULT_URL) {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
@@ -16,7 +18,7 @@ class NetService {
 
   getNodeStatus = () =>
     new Promise((resolve, reject) => {
-      this.service.GetNodeStatus({}, (error, response) => {
+      this.service.GetNodeStatus({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -26,7 +28,7 @@ class NetService {
 
   getStateRoot = () =>
     new Promise((resolve, reject) => {
-      this.service.GetStateRoot({}, (error, response) => {
+      this.service.GetStateRoot({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -36,7 +38,7 @@ class NetService {
 
   getMiningStatus = () =>
     new Promise((resolve, reject) => {
-      this.service.GetMiningStats({}, (error, response) => {
+      this.service.GetMiningStats({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -46,7 +48,7 @@ class NetService {
 
   initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
     new Promise((resolve, reject) => {
-      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, (error, response) => {
+      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -56,7 +58,7 @@ class NetService {
 
   getUpcomingAwards = () =>
     new Promise((resolve, reject) => {
-      this.service.GetUpcomingAwards({}, (error, response) => {
+      this.service.GetUpcomingAwards({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -66,7 +68,7 @@ class NetService {
 
   getAccountRewards = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.GetAccountRewards({ address }, (error, response) => {
+      this.service.GetAccountRewards({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -76,7 +78,7 @@ class NetService {
 
   setAwardsAddress = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.SetAwardsAddress({ address }, (error, response) => {
+      this.service.SetAwardsAddress({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -86,7 +88,7 @@ class NetService {
 
   getNonce = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.GetNonce({ address }, (error, response) => {
+      this.service.GetNonce({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -96,7 +98,7 @@ class NetService {
 
   getBalance = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.GetBalance({ address }, (error, response) => {
+      this.service.GetBalance({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -106,7 +108,7 @@ class NetService {
 
   submitTransaction = ({ tx }) =>
     new Promise((resolve, reject) => {
-      this.service.SubmitTransaction({ tx }, (error, response) => {
+      this.service.SubmitTransaction({ tx }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -116,7 +118,7 @@ class NetService {
 
   getAccountTxs = ({ account, startLayer }) =>
     new Promise((resolve, reject) => {
-      this.service.GetAccountTxs({ account: { address: account }, startLayer }, (error, response) => {
+      this.service.GetAccountTxs({ account: { address: account }, startLayer }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
@@ -126,7 +128,7 @@ class NetService {
 
   getTransaction = ({ id }) =>
     new Promise((resolve, reject) => {
-      this.service.GetTransaction({ id }, (error, response) => {
+      this.service.GetTransaction({ id }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           reject(error);
         }
