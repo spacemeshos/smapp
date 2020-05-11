@@ -6,7 +6,6 @@ import { unlockWallet } from '/redux/wallet/actions';
 import { CorneredContainer } from '/components/common';
 import { LoggedOutBanner } from '/components/banners';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
-import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { smColors } from '/vars';
 import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
@@ -146,8 +145,7 @@ class UnlockWallet extends Component<Props, State> {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
       try {
-        const key = fileEncryptionService.createEncryptionKey({ password });
-        await unlockWallet({ key });
+        await unlockWallet({ password });
         history.push('/main/wallet');
       } catch (error) {
         if (error.message && error.message.indexOf('Unexpected token') === 0) {

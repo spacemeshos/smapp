@@ -1,9 +1,8 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { localStorageService } from '/infra/storageService';
 import { nodeConsts } from '/vars';
-import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_ACCOUNT_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS } from './actions';
+import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS } from './actions';
 
 const initialState = {
   status: null,
@@ -14,8 +13,8 @@ const initialState = {
   commitmentSize: 0,
   layerDuration: 0,
   stateRootHash: null,
+  port: '',
   timeTillNextAward: 0,
-  rewards: localStorageService.get('rewards') || [],
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
@@ -29,9 +28,9 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case SET_NODE_SETTINGS: {
       const {
-        payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash }
+        payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port }
       } = action;
-      return { ...state, rewardsAddress: address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash };
+      return { ...state, rewardsAddress: address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port };
     }
     case SET_MINING_STATUS: {
       const {
@@ -50,18 +49,6 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { timeTillNextAward }
       } = action;
       return { ...state, timeTillNextAward };
-    }
-    case SET_ACCOUNT_REWARDS: {
-      const {
-        payload: { rewards }
-      } = action;
-      let totalEarnings = 0;
-      let totalFeesEarnings = 0;
-      rewards.forEach((reward) => {
-        totalEarnings += reward.layerRewardEstimate;
-        totalFeesEarnings += reward.totalReward - reward.layerRewardEstimate;
-      });
-      return { ...state, rewards, totalEarnings, totalFeesEarnings };
     }
     case SET_REWARDS_ADDRESS: {
       const {

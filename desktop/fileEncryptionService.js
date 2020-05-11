@@ -1,7 +1,6 @@
-// @flow
 import * as pbkdf2 from 'pbkdf2';
 import * as aes from 'aes-js';
-import { cryptoConsts } from '/vars';
+import encryptionConst from './encryptionConst';
 
 class FileEncryptionService {
   /**
@@ -16,7 +15,7 @@ class FileEncryptionService {
       throw new Error('missing password');
     }
     // Derive a 32 bytes (256 bits) AES sym enc/dec key from the user provided pin
-    return pbkdf2.pbkdf2Sync(password, cryptoConsts.DEFAULT_SALT, 1000000, 32, 'sha512');
+    return pbkdf2.pbkdf2Sync(password, encryptionConst.DEFAULT_SALT, 1000000, 32, 'sha512');
   };
 
   /**

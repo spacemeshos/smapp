@@ -15,4 +15,4 @@ export type Tx = {
 
 export type TxList = Tx[];
 
-export type Transactions = Array<{ layerId: number, data: TxList }>;
+export type AccountTxs = Array<{ layerId: number, data: TxList }>;

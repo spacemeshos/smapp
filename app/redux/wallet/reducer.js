@@ -1,17 +1,7 @@
 // @flow
 import type { Action, StoreStateType, TxList, Tx, Contact } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import {
-  SAVE_WALLET_FILES,
-  SET_WALLET_META,
-  SET_BALANCE,
-  SET_ACCOUNTS,
-  SET_MNEMONIC,
-  SET_TRANSACTIONS,
-  SET_CONTACTS,
-  SET_CURRENT_ACCOUNT_INDEX,
-  SET_UPDATE_DOWNLOADING
-} from './actions';
+import { SAVE_WALLET_FILES, SET_WALLET_META, SET_BALANCE, SET_ACCOUNTS, SET_MNEMONIC, SET_TRANSACTIONS, SET_CONTACTS, SET_CURRENT_ACCOUNT_INDEX, SET_UPDATE_DOWNLOADING, SET_TRANSACTIONS } from './actions';
 
 const initialState = {
   walletFiles: null,
@@ -25,15 +15,15 @@ const initialState = {
   isUpdateDownloading: false
 };
 
-const getFirst3UniqueAddresses = (txList: TxList, ownAddress): Contact[] => {
-  const unique = new Set();
-  for (let i = 0; i < txList.length && i < 10; i += 1) {
-    if (!unique.has(txList[i]) && txList[i].receiver !== ownAddress) {
-      unique.add(txList[i]);
-    }
-  }
-  return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.receiver, nickname: uniqueTx.nickname || '' }));
-};
+// const getFirst3UniqueAddresses = (txList: TxList, ownAddress): Contact[] => {
+//   const unique = new Set();
+//   for (let i = 0; i < txList.length && i < 10; i += 1) {
+//     if (!unique.has(txList[i]) && txList[i].receiver !== ownAddress) {
+//       unique.add(txList[i]);
+//     }
+//   }
+//   return Array.from(unique).map((uniqueTx: Tx) => ({ address: uniqueTx.receiver, nickname: uniqueTx.nickname || '' }));
+// };
 
 const reducer = (state: StoreStateType = initialState, action: Action) => {
   switch (action.type) {
@@ -59,17 +49,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
       const { mnemonic } = action.payload;
       return { ...state, mnemonic };
     }
-    case SET_TRANSACTIONS: {
-      const { transactions } = action.payload;
-      return {
-        ...state,
-        transactions,
-        lastUsedContacts:
-          transactions[state.currentAccountIndex] && transactions[state.currentAccountIndex].data.length
-            ? getFirst3UniqueAddresses(transactions[state.currentAccountIndex].data, state.accounts[state.currentAccountIndex].publicKey.substring(24))
-            : []
-      };
-    }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const { index } = action.payload;
       if (index < state.accounts.length && index >= 0) {
@@ -84,6 +63,10 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
         ...state,
         accounts: [...state.accounts.slice(0, state.currentAccountIndex), { ...accountToUpdate, balance }, ...state.accounts.slice(state.currentAccountIndex + 1)]
       };
+    }
+    case SET_TRANSACTIONS: {
+      const { transactions } = action.payload;
+      return { ...state, transactions };
     }
     case SET_CONTACTS: {
       const { contacts } = action.payload;

@@ -3,13 +3,12 @@ import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getUpcomingRewards } from '/redux/node/actions';
+import { getUpcomingRewards, getAccountRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
-import { nodeService } from '/infra/nodeService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { localStorageService } from '/infra/storageService';
-import { fileSystemService } from '/infra/fileSystemService';
+import { eventsService } from '/infra/eventsService';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
@@ -139,6 +138,7 @@ type Props = {
   // timeTillNextAward: number,
   rewards: TxList,
   // getUpcomingRewards: Action,
+  getAccountRewards: Action,
   rewardsAddress: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
@@ -157,8 +157,6 @@ class Node extends Component<Props, State> {
   fireworksTimeout: TimeoutID;
 
   audio: any;
-
-  formattedCommitmentSize: number;
 
   constructor(props) {
     super(props);
@@ -225,10 +223,8 @@ class Node extends Component<Props, State> {
     //     await getUpcomingRewards();
     //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
     //   }
-    const audioUrl = await fileSystemService.getAudioPath();
-    this.audio = new Audio(audioUrl);
-    const commitmentSize = await nodeService.getCommitmentSize();
-    this.formattedCommitmentSize = formatBytes(commitmentSize);
+    const { audioPath } = await eventsService.getAudioPath();
+    this.audio = new Audio(audioPath);
   }
 
   componentDidUpdate() {
@@ -298,7 +294,7 @@ class Node extends Component<Props, State> {
       <Text key="3">Setup smeshing to join Spacemesh and earn Smesh rewards.</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">{`Setup requires ${this.formattedCommitmentSize} GB of free disk space.`}</Text>,
+      <Text key="6">{`Setup requires ${formatBytes(commitmentSize)} GB of free disk space.`}</Text>,
       <Text key="7">You will start earning Smesh rewards in about 48 hours.</Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -385,15 +381,15 @@ class Node extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
+  commitmentSize: state.node.commitmentSize,
   timeTillNextAward: state.node.timeTillNextAward,
   rewards: state.node.rewards,
-  totalEarnings: state.node.totalEarnings,
-  totalFeesEarnings: state.node.totalFeesEarnings,
   rewardsAddress: state.node.rewardsAddress
 });
 
 const mapDispatchToProps = {
-  getUpcomingRewards
+  getUpcomingRewards,
+  getAccountRewards
 };
 
 Node = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Node);

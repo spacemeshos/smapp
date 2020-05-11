@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { CorneredWrapper, Button, Loader } from '/basicComponents';
 import { smColors, ipcConsts, nodeConsts } from '/vars';
 import styled from 'styled-components';
+import { eventsService } from '/infra/eventsService';
 import { notificationsService } from '/infra/notificationsService';
 
 const Wrapper = styled.div`
@@ -105,7 +106,7 @@ class OnQuitModal extends Component<Props, State> {
 
   handleQuit = () => {
     this.setState({ isVisible: true, isClosing: true });
-    ipcRenderer.send(ipcConsts.STOP_NODE);
+    eventsService.stopNode();
   };
 
   handleKeepInBackground = () => {

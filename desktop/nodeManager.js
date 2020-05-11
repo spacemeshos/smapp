@@ -1,14 +1,16 @@
 import path from 'path';
 import os from 'os';
-import { app, dialog } from 'electron';
+import fs from 'fs';
+import { app, ipcMain, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
-import FileSystemManager from './fileSystemManager';
 import StoreService from './storeService';
-import NetService from './netService';
+import netService from './netService';
 import nodeConfig from './config.json';
 
 const { exec } = require('child_process');
+
 const find = require('find-process');
+const checkDiskSpace = require('check-disk-space');
 
 const osTargetNames = {
   Darwin: 'mac',
@@ -19,7 +21,47 @@ const osTargetNames = {
 const DEFAULT_PORT = '7153';
 
 class NodeManager {
-  static startNode = async () => {
+  constructor(mainWindow) {
+    this.subscribeToEvents(mainWindow);
+  }
+
+  subscribeToEvents = (mainWindow) => {
+    ipcMain.once(ipcConsts.START_NODE, async () => {
+      await this.startNode();
+    });
+    ipcMain.once(ipcConsts.STOP_NODE, async (event) => {
+      await this.stopNode({ event, browserWindow: mainWindow });
+    });
+    ipcMain.on(ipcConsts.GET_NODE_SETTINGS, async (event) => {
+      await this.getNodeSettings({ event });
+    });
+    ipcMain.on(ipcConsts.GET_NODE_STATUS, async (event) => {
+      await this.getNodeStatus({ event });
+    });
+    ipcMain.once(ipcConsts.SET_NODE_PORT, (event, request) => {
+      this.setPort({ ...request.data });
+    });
+    ipcMain.on(ipcConsts.SELECT_POST_FOLDER, async (event) => {
+      await this.selectPostFolder({ event, mainWindow });
+    });
+    ipcMain.on(ipcConsts.GET_MINING_STATUS, async (event) => {
+      await this.getMiningStatus({ event });
+    });
+    ipcMain.on(ipcConsts.INIT_MINING, async (event, request) => {
+      await this.initMining({ event, ...request.data });
+    });
+    ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
+      this.getUpcomingRewards({ event });
+    });
+    ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, (event, request) => {
+      this.setRewardsAddress({ event, ...request.data });
+    });
+    ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
+      this.setNodeIpAddress({ event, ...request.data });
+    });
+  };
+
+  startNode = async () => {
     try {
       const fetchedGenesisTime = nodeConfig.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
@@ -79,7 +121,7 @@ class NodeManager {
     }
   };
 
-  static stopNode = async ({ browserWindow }) => {
+  stopNode = async ({ browserWindow }) => {
     const closeApp = async () => {
       browserWindow.destroy();
       app.quit();
@@ -116,27 +158,109 @@ class NodeManager {
     }
   };
 
-  static getCommitmentSize = ({ event }) => {
-    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: StoreService.get({ key: 'postSize' }) });
-  };
-
-  static getPort = ({ event }) => {
-    event.sender.send(ipcConsts.GET_NODE_PORT_RESPONSE, { port: StoreService.get({ key: 'port' }) || DEFAULT_PORT });
-  };
-
-  static setPort = ({ port }) => {
-    StoreService.set({ key: 'port', value: port });
-  };
-
-  static getNodeSettings = async ({ event }) => {
+  getNodeSettings = async ({ event }) => {
     const savedMiningParams = StoreService.get({ key: 'miningParams' });
     const address = savedMiningParams?.coinbase;
     const genesisTime = StoreService.get({ key: 'genesisTime' });
     const networkId = StoreService.get({ key: 'networkId' });
     const commitmentSize = StoreService.get({ key: 'postSize' });
     const layerDuration = StoreService.get({ key: 'layerDurationSec' });
-    const stateRootHash = await NetService.getStateRoot();
-    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash });
+    const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
+    const { value } = await netService.getStateRoot();
+    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port });
+  };
+
+  getNodeStatus = async ({ event }) => {
+    try {
+      const status = await netService.getNodeStatus();
+      const parsedStatus = {
+        peers: parseInt(status.peers),
+        minPeers: parseInt(status.minPeers),
+        maxPeers: parseInt(status.maxPeers),
+        synced: status.synced,
+        syncedLayer: parseInt(status.syncedLayer),
+        currentLayer: parseInt(status.currentLayer),
+        verifiedLayer: parseInt(status.verifiedLayer)
+      };
+      event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: parsedStatus, error: null });
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: null, error });
+    }
+  };
+
+  setPort = ({ port }) => {
+    StoreService.set({ key: 'port', value: port });
+  };
+
+  selectPostFolder = async ({ event, mainWindow }) => {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select folder for smeshing',
+      defaultPath: app.getPath('documents'),
+      properties: ['openDirectory']
+    });
+    if (canceled || !filePaths.length) {
+      event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: 'no folder selected' });
+    } else {
+      try {
+        fs.accessSync(filePaths[0], fs.constants.W_OK);
+        const diskSpace = await checkDiskSpace(filePaths[0]);
+        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { selectedFolder: filePaths[0], freeSpace: diskSpace.free });
+      } catch (err) {
+        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: err });
+      }
+    }
+  };
+
+  getMiningStatus = async ({ event }) => {
+    try {
+      const { status } = await netService.getMiningStatus();
+      event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error: null, status });
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error, status: null });
+    }
+  };
+
+  initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
+    try {
+      await this._initMining({ logicalDrive, commitmentSize, coinbase });
+      StoreService.set({ key: 'miningParams', value: { logicalDrive, coinbase } });
+      event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error: null });
+    } catch (error) {
+      event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error });
+    }
+  };
+
+  getUpcomingRewards = async ({ event }) => {
+    try {
+      const { layers } = await netService.getUpcomingAwards();
+      if (!layers) {
+        event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: null, layers: [] });
+      }
+      const resolvedLayers = layers || [];
+      const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
+      parsedLayers.sort((a, b) => a - b);
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: null, layers: parsedLayers });
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: error.message, layers: null });
+    }
+  };
+
+  setRewardsAddress = async ({ event, address }) => {
+    try {
+      await netService.setAwardsAddress({ address });
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, { error: null });
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, { error });
+    }
+  };
+
+  setNodeIpAddress = ({ event, nodeIpAddress }) => {
+    try {
+      netService.setNodeIpAddress({ nodeIpAddress });
+      event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error: null });
+    } catch (error) {
+      event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error });
+    }
   };
 }
 

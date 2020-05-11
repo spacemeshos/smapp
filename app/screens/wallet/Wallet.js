@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import { setCurrentAccount } from '/redux/wallet/actions';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -73,7 +73,6 @@ type Props = {
   displayName: string,
   accounts: Account[],
   currentAccountIndex: number,
-  getBalance: Action,
   setCurrentAccount: Action,
   status: Object,
   history: RouterHistory
@@ -87,8 +86,6 @@ type State = {
 };
 
 class Wallet extends Component<Props, State> {
-  getBalanceInterval: IntervalID;
-
   render() {
     const { status, displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
     const hasBackup = !!localStorageService.get('hasBackup');
@@ -119,26 +116,6 @@ class Wallet extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const { status, getBalance } = this.props;
-    if (status) {
-      try {
-        await getBalance();
-        this.getBalanceInterval = setInterval(async () => {
-          await getBalance();
-        }, 30000);
-      } catch (error) {
-        this.setState(() => {
-          throw error;
-        });
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    this.getBalanceInterval && clearInterval(this.getBalanceInterval);
-  }
-
   navigateToBackup = () => {
     const { history } = this.props;
     history.push('/main/backup');
@@ -153,7 +130,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  getBalance,
   setCurrentAccount
 };
 

@@ -1,8 +1,6 @@
 // @flow
-import { addTransaction } from '/redux/wallet/actions';
-import { httpService } from '/infra/httpService';
 import { localStorageService } from '/infra/storageService';
-import { nodeService } from '/infra/nodeService';
+import { eventsService } from '/infra/eventsService';
 import { createError, getAddress } from '/infra/utils';
 import { nodeConsts } from '/vars';
 import TX_STATUSES from '/vars/enums';
@@ -23,7 +21,7 @@ export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
 export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    const status = await httpService.getNodeStatus();
+    const { status } = await eventsService.getNodeStatus();
     dispatch({ type: SET_NODE_STATUS, payload: { status } });
     return status;
   } catch (err) {
@@ -34,8 +32,8 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
 
 export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    const { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash } = await nodeService.getNodeSettings();
-    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash } });
+    const { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port } = await eventsService.getNodeSettings();
+    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port } });
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
   }
@@ -43,7 +41,7 @@ export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatc
 
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    const status = await httpService.getMiningStatus();
+    const { status } = await eventsService.getMiningStatus();
     if (status === nodeConsts.IS_MINING) {
       if (!localStorageService.get('smesherSmeshingTimestamp')) {
         localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
@@ -52,7 +50,6 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
       localStorageService.clearByKey('playedAudio');
       localStorageService.clearByKey('smesherInitTimestamp');
       localStorageService.clearByKey('smesherSmeshingTimestamp');
-      localStorageService.clearByKey('rewards');
     }
     dispatch({ type: SET_MINING_STATUS, payload: { status } });
     return status;
@@ -66,10 +63,9 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
   dispatch: Dispatch
 ): Dispatch => {
   try {
-    await httpService.initMining({ logicalDrive, commitmentSize, coinbase: address });
+    await eventsService.initMining({ logicalDrive, commitmentSize, coinbase: address });
     localStorageService.set('smesherInitTimestamp', new Date().getTime());
     localStorageService.clearByKey('smesherSmeshingTimestamp');
-    localStorageService.clearByKey('rewards');
     dispatch({ type: INIT_MINING, payload: { address } });
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
@@ -79,7 +75,7 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
 
 export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const awardLayerNumbers = await httpService.getUpcomingRewards();
+    const awardLayerNumbers = await eventsService.getUpcomingRewards();
     if (awardLayerNumbers.length === 0) {
       dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: 0 } });
     } else {
@@ -97,7 +93,7 @@ export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getSt
 
 export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.setNodeIpAddress({ nodeIpAddress });
+    await eventsService.setNodeIpAddress({ nodeIpAddress });
     dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
   } catch (err) {
     throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
@@ -106,7 +102,7 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
 
 export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
   try {
-    await httpService.setRewardsAddress({ address });
+    await eventsService.setRewardsAddress({ address });
     dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
   } catch (err) {
     throw createError('Error setting rewards address', () => setRewardsAddress({ address }));
@@ -114,40 +110,5 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
 };
 
 export const getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { status, rewards, genesisTime, layerDuration } = getState().node;
-  if (status && !status.noConnection) {
-    try {
-      const { accounts, currentAccountIndex } = getState().wallet;
-      const updatedRewards = await httpService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
-      let newRewardsWithTimeStamp = [];
-      if (rewards.length < updatedRewards.length) {
-        notify();
-        const newRewards = [...updatedRewards.slice(rewards.length)];
-        newRewardsWithTimeStamp = newRewards.map((reward) => {
-          const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
-          const tx = {
-            txId: 'reward',
-            sender: null,
-            receiver: getAddress(accounts[currentAccountIndex].publicKey),
-            amount: reward.totalReward,
-            fee: reward.totalReward - reward.layerRewardEstimate,
-            status: TX_STATUSES.CONFIRMED,
-            layerId: reward.layer,
-            timestamp
-          };
-          dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
-          return {
-            totalReward: reward.totalReward,
-            layerRewardEstimate: reward.layerRewardEstimate,
-            timestamp
-          };
-        });
-        const rewardsWithTimeStamps = [...rewards, ...newRewardsWithTimeStamp];
-        localStorageService.set('rewards', rewardsWithTimeStamps);
-        dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
-      }
-    } catch (err) {
-      throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
-    }
-  }
+
 };

@@ -146,7 +146,7 @@ class CreateNewContact extends Component<Props, State> {
       const { address, nickname } = this.state;
       try {
         await addToContacts({ contact: { address, nickname } });
-        updateTransaction({ tx: { address, nickname }, updateAll: true });
+        updateTransaction({ newData: { nickname } });
         onCompleteAction();
       } catch (error) {
         this.setState(() => {

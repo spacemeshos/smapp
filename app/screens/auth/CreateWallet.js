@@ -5,8 +5,7 @@ import { connect } from 'react-redux';
 import { createNewWallet } from '/redux/wallet/actions';
 import { CorneredContainer, BackButton } from '/components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
-import { fileSystemService } from '/infra/fileSystemService';
-import { fileEncryptionService } from '/infra/fileEncryptionService';
+import { eventsService } from '/infra/eventsService';
 import { chevronRightBlack } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
@@ -154,7 +153,7 @@ class CreateWallet extends Component<Props, State> {
         For future reference, a wallet restore file was created.
         <br />
         <br />
-        <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
+        <Link onClick={() => eventsService.showFileInFolder({})} text="Browse file location" />
       </div>
     );
   };
@@ -207,8 +206,7 @@ class CreateWallet extends Component<Props, State> {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          const key = fileEncryptionService.createEncryptionKey({ password });
-          createNewWallet({ mnemonic: location?.state?.mnemonic, key });
+          createNewWallet({ mnemonic: location?.state?.mnemonic, password });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
       } catch (err) {
@@ -220,10 +218,6 @@ class CreateWallet extends Component<Props, State> {
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
-
-  openWalletBackupDirectory = () => {
-    fileSystemService.openWalletBackupDirectory({});
-  };
 }
 
 const mapStateToProps = (state) => ({

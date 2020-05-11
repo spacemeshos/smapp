@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import { smColors } from '/vars';
-import { printService } from '/infra/printService';
+import { eventsService } from '/infra/evenstService';
 import { localStorageService } from '/infra/storageService';
 
 const TextWrapper = styled.div`
@@ -159,7 +159,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   };
 
   print12Words = () => {
-    printService.print({ content: this.twelveWordsPrint });
+    eventsService.print({ content: this.twelveWordsPrint });
     localStorageService.set('hasBackup', true);
   };
 

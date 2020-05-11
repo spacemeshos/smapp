@@ -147,12 +147,6 @@ const testGetValueAndUnit = () => {
   console.log(`${res.value.toString()} ${res.unit}`); // eslint-disable-line no-console
 };
 
-const asyncForEach = async (array, callback) => {
-  for (let index = 0; index < array.length; index += 1) {
-    await callback(array[index], index, array); // eslint-disable-line no-await-in-loop
-  }
-};
-
 const getFormattedTimestamp = (timestamp: string) => {
   if (timestamp) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
@@ -177,7 +171,6 @@ export {
   createError,
   getAbbreviatedText,
   formatNumber,
-  asyncForEach,
   getFormattedTimestamp,
   getAddress,
   formatTxId,

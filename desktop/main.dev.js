@@ -13,7 +13,6 @@ import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import subscribeToEventListeners from './eventListners';
 import subscribeToAutoUpdateListeners from './autoUpdateListeners';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -87,7 +86,6 @@ const createWindow = () => {
     }
   });
   // Add event listeners.
-  subscribeToEventListeners({ mainWindow });
   subscribeToAutoUpdateListeners({ mainWindow });
 };
 
@@ -119,6 +117,34 @@ app.on('ready', async () => {
 
   ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => {
     mainWindow.hide();
+    mainWindow.reload();
+  });
+
+  ipcMain.on(ipcConsts.GET_AUDIO_PATH, (event) => {
+    const audioPath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3');
+    event.sender.send(ipcConsts.GET_AUDIO_PATH_RESPONSE, { error: null, audioPath });
+  });
+
+  ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
+    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
+    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
+    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
+  });
+
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
+    AutoStartManager.toggleAutoStart();
+  });
+
+  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
+    AutoStartManager.isEnabled({ event });
+  });
+
+  ipcMain.on(ipcConsts.HARD_REFRESH, () => {
     mainWindow.reload();
   });
 

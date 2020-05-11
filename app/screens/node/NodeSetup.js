@@ -8,8 +8,7 @@ import { CorneredContainer, BackButton } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { StepsContainer, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import { CommitmentSelector } from '/components/node';
-import { fileSystemService } from '/infra/fileSystemService';
-import { nodeService } from '/infra/nodeService';
+import { eventsService } from '/infra/eventsService';
 import { formatBytes } from '/infra/utils';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
@@ -62,6 +61,7 @@ type Props = {
   accounts: Account[],
   initMining: Action,
   status: Object,
+  commitmentSize: string,
   history: RouterHistory,
   location: { state?: { isOnlyNodeSetup: boolean, isWalletCreation: boolean } }
 };
@@ -81,8 +81,6 @@ class NodeSetup extends Component<Props, State> {
   steps: Array<string>;
 
   header: string;
-
-  commitmentSize: number;
 
   formattedCommitmentSize: number;
 
@@ -126,12 +124,8 @@ class NodeSetup extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    this.commitmentSize = await nodeService.getCommitmentSize();
-    this.formattedCommitmentSize = formatBytes(this.commitmentSize);
-  }
-
   renderSubMode = () => {
+    const { commitmentSize } = this.props;
     const { subMode, selectedFolder, hasPermissionError, freeSpace } = this.state;
     if (subMode === 2) {
       return (
@@ -160,18 +154,18 @@ class NodeSetup extends Component<Props, State> {
           <br />
           like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector commitmentSize={this.formattedCommitmentSize} freeSpace={freeSpace} onClick={() => {}} />
+        <CommitmentSelector commitmentSize={formatBytes(commitmentSize)} freeSpace={freeSpace} onClick={() => {}} />
       </>
     );
   };
 
   setupAndInitMining = async () => {
-    const { initMining, accounts, history } = this.props;
+    const { initMining, accounts, commitmentSize, history } = this.props;
     const { selectedFolder } = this.state;
     try {
       await initMining({
         logicalDrive: selectedFolder,
-        commitmentSize: this.commitmentSize,
+        commitmentSize,
         address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
@@ -204,7 +198,7 @@ class NodeSetup extends Component<Props, State> {
 
   openFolderSelectionDialog = async () => {
     try {
-      const { selectedFolder, freeSpace } = await fileSystemService.selectPostFolder();
+      const { selectedFolder, freeSpace } = await eventsService.selectPostFolder();
       this.setState({ selectedFolder, freeSpace: formatBytes(freeSpace), hasPermissionError: false });
     } catch (err) {
       if (err.error !== 'no folder selected') {
@@ -220,6 +214,7 @@ class NodeSetup extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   status: state.node.status,
+  commitmentSize: state.node.commitmentSize,
   accounts: state.wallet.accounts
 });
 
