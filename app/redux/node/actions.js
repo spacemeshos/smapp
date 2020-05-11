@@ -146,6 +146,6 @@ export const getAccountRewards = ({ notify }: { notify: () => void }): Action =>
       dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
     }
   } catch (err) {
-    throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
+    console.error(err); // eslint-disable-line no-console
   }
 };
