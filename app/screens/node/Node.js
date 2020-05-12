@@ -3,7 +3,7 @@ import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getUpcomingRewards, getAccountRewards } from '/redux/node/actions';
+import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -138,8 +138,8 @@ type Props = {
   // timeTillNextAward: number,
   rewards: TxList,
   // getUpcomingRewards: Action,
-  getAccountRewards: Action,
   rewardsAddress: string,
+  commitmentSize: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -287,7 +287,7 @@ class Node extends Component<Props, State> {
   };
 
   renderPreSetup = () => {
-    const { history } = this.props;
+    const { history, commitmentSize } = this.props;
     return [
       <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
@@ -364,7 +364,7 @@ class Node extends Component<Props, State> {
     const { rewards } = this.props;
     let sum = 0;
     rewards.forEach((reward) => {
-      sum += totalRewards ? reward.layerRewardEstimate : reward.totalReward - reward.layerRewardEstimate;
+      sum += totalRewards ? reward.amount : reward.fee;
     });
     return sum;
   };
@@ -388,8 +388,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  getUpcomingRewards,
-  getAccountRewards
+  getUpcomingRewards
 };
 
 Node = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Node);

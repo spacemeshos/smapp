@@ -1,7 +1,17 @@
 // @flow
-import type { Action, StoreStateType, TxList, Tx, Contact } from '/types';
+import type { Action, StoreStateType } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { SAVE_WALLET_FILES, SET_WALLET_META, SET_BALANCE, SET_ACCOUNTS, SET_MNEMONIC, SET_TRANSACTIONS, SET_CONTACTS, SET_CURRENT_ACCOUNT_INDEX, SET_UPDATE_DOWNLOADING, SET_TRANSACTIONS } from './actions';
+import {
+  SAVE_WALLET_FILES,
+  SET_WALLET_META,
+  SET_BALANCE,
+  SET_ACCOUNTS,
+  SET_MNEMONIC,
+  SET_TRANSACTIONS,
+  SET_CONTACTS,
+  SET_CURRENT_ACCOUNT_INDEX,
+  SET_UPDATE_DOWNLOADING
+} from './actions';
 
 const initialState = {
   walletFiles: null,

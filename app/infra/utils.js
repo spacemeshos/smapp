@@ -163,16 +163,4 @@ const formatBytes = (bytes) => {
   return parseFloat((bytes / 1073741824).toFixed(4));
 };
 
-export {
-  testGetValueAndUnit,
-  formatSmidge,
-  fromHexString,
-  toHexString,
-  createError,
-  getAbbreviatedText,
-  formatNumber,
-  getFormattedTimestamp,
-  getAddress,
-  formatTxId,
-  formatBytes
-};
+export { testGetValueAndUnit, formatSmidge, fromHexString, toHexString, createError, getAbbreviatedText, formatNumber, getFormattedTimestamp, getAddress, formatTxId, formatBytes };

@@ -3,9 +3,8 @@ import { eventsService } from '/infra/eventsService';
 import { cryptoService } from '/infra/cryptoService';
 import { localStorageService } from '/infra/storageService';
 import { createError, getAddress } from '/infra/utils';
-import { Action, Dispatch, GetState, WalletMeta, Account, TxList, Tx, Contact } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, AccountTxs, Contact } from '/types';
 import TX_STATUSES from '/vars/enums';
-import type { AccountTxs } from '../../types/transactions';
 
 export const SET_WALLET_META: string = 'SET_WALLET_META';
 export const SET_ACCOUNTS: string = 'SET_ACCOUNTS';
@@ -48,41 +47,42 @@ export const createNewWallet = ({ mnemonic, password }: { mnemonic?: string, pas
     mnemonic: resolvedMnemonic,
     accounts: [getNewAccountFromTemplate({ accountNumber: 0, timestamp, publicKey, secretKey })]
   };
-  try {
-    const { meta } = await eventsService.createWallet({ timestamp, dataToEncrypt, password });
+  const { error, meta } = await eventsService.createWallet({ timestamp, dataToEncrypt, password });
+  if (error) {
+    console.log(error); // eslint-disable-line no-console
+    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ mnemonic, password })));
+  } else {
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: dataToEncrypt.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
     localStorageService.set('accountNumber', 1);
     dispatch(readWalletFiles());
-  } catch (err) {
-    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ mnemonic, password })));
   }
 };
 
 export const readWalletFiles = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const { files } = await eventsService.readWalletFiles();
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
-    return files;
-  } catch (err) {
+  const { error, files } = await eventsService.readWalletFiles();
+  if (error) {
+    console.log(error); // eslint-disable-line no-console
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: [] } });
     return [];
   }
+  dispatch({ type: SAVE_WALLET_FILES, payload: { files } });
+  return files;
 };
 
 export const unlockWallet = ({ password }: { password: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const { walletFiles } = getState().wallet;
-    const response = await eventsService.unlockWallet({ path: walletFiles[0], password });
-    const { accounts, mnemonic, meta, contacts } = response;
+  const { walletFiles } = getState().wallet;
+  const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles[0], password });
+  if (error) {
+    console.log(error); // eslint-disable-line no-console
+    throw createError(error.message, () => dispatch(unlockWallet({ password })));
+  } else {
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts }));
     dispatch(setMnemonic({ mnemonic }));
     dispatch(setContacts({ contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
-  } catch (err) {
-    throw createError(err.message, () => dispatch(unlockWallet({ password })));
   }
 };
 
@@ -129,25 +129,25 @@ export const restoreFile = ({ filePath }: { filePath: string }): Action => async
 };
 
 export const backupWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const { walletFiles } = getState().wallet;
-    await eventsService.copyFile({ filePath: walletFiles[0], copyToDocuments: true });
+  const { walletFiles } = getState().wallet;
+  const { error } = await eventsService.copyFile({ filePath: walletFiles[0], copyToDocuments: true });
+  if (error) {
+    throw createError('Error creating wallet backup!', () => dispatch(backupWallet()));
+  } else {
     localStorageService.set('hasBackup', true);
     localStorageService.set('lastBackupTime', new Date());
-  } catch (error) {
-    throw createError('Error creating wallet backup!', () => dispatch(backupWallet()));
   }
 };
 
 export const setUpdateDownloading = ({ isUpdateDownloading }: { isUpdateDownloading: boolean }): Action => ({ type: SET_UPDATE_DOWNLOADING, payload: { isUpdateDownloading } });
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const { accounts, currentAccountIndex } = getState().wallet;
-    const { balance } = await eventsService.getBalance({ address: accounts[currentAccountIndex].publicKey });
-    dispatch({ type: SET_BALANCE, payload: { balance } });
-  } catch (error) {
+  const { accounts, currentAccountIndex } = getState().wallet;
+  const { error, balance } = await eventsService.getBalance({ address: accounts[currentAccountIndex].publicKey });
+  if (error) {
     console.log(error); // eslint-disable-line no-console
+  } else {
+    dispatch({ type: SET_BALANCE, payload: { balance } });
   }
 };
 
@@ -155,30 +155,31 @@ export const sendTransaction = ({ recipient, amount, fee, note }: { recipient: s
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  try {
-    const { accounts, currentAccountIndex } = getState().wallet;
-    const accountNonce = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
-    const { tx } = await cryptoService.signTransaction({
-      accountNonce,
-      recipient,
-      price: fee,
-      amount,
-      secretKey: accounts[currentAccountIndex].secretKey
-    });
-    const txToAdd = {
-      sender: getAddress(accounts[currentAccountIndex].publicKey),
-      receiver: recipient,
-      amount,
-      fee,
-      status: TX_STATUSES.PENDING,
-      timestamp: new Date().getTime(),
-      note
-    };
-    const { transactions, id } = await eventsService.sendTx({ tx, accountIndex: currentAccountIndex, txToAdd });
+  const { accounts, currentAccountIndex } = getState().wallet;
+  const accountNonce = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
+  const { tx } = await cryptoService.signTransaction({
+    accountNonce,
+    recipient,
+    price: fee,
+    amount,
+    secretKey: accounts[currentAccountIndex].secretKey
+  });
+  const txToAdd = {
+    sender: getAddress(accounts[currentAccountIndex].publicKey),
+    receiver: recipient,
+    amount,
+    fee,
+    status: TX_STATUSES.PENDING,
+    timestamp: new Date().getTime(),
+    note
+  };
+  const { error, transactions, id } = await eventsService.sendTx({ tx, accountIndex: currentAccountIndex, txToAdd });
+  if (error) {
+    console.log(error); // eslint-disable-line no-console
+    throw createError('Error sending transaction!', () => dispatch(sendTransaction({ recipient, amount, fee, note })));
+  } else {
     dispatch(setTransactions({ transactions }));
     return id;
-  } catch (error) {
-    throw createError('Error sending transaction!', () => dispatch(sendTransaction({ recipient, amount, fee, note })));
   }
 };
 

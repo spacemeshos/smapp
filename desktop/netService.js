@@ -9,7 +9,7 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
-const getDeadline = () => new Date().setSeconds(new Date().getSeconds() + 60000);
+const getDeadline = () => new Date().setSeconds(new Date().getSeconds() + 120000);
 
 class NetService {
   constructor(url = nodeConsts.DEFAULT_URL) {

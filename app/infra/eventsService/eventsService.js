@@ -10,11 +10,8 @@ class EventsService {
   static _createEventWithResponse = ({ event, responseEvent, data }: { event: string, responseEvent: string, data?: Object }) => {
     ipcRenderer.removeAllListeners(responseEvent);
     ipcRenderer.send(event, { data });
-    return new Promise<Object, Error>((resolve: Function, reject: Function) => {
+    return new Promise<Object, Error>((resolve: Function) => {
       ipcRenderer.once(responseEvent, (event, response) => {
-        if (response.error) {
-          reject(response.error);
-        }
         resolve(response);
       });
     });
@@ -68,8 +65,8 @@ class EventsService {
 
   static getUpcomingRewards = () => EventsService._createEventWithResponse({ event: ipcConsts.GET_UPCOMING_REWARDS, responseEvent: ipcConsts.GET_UPCOMING_REWARDS_RESPONSE });
 
-  static getAccountRewards = ({ address }: { address: string }) =>
-    EventsService._createEventWithResponse({ event: ipcConsts.GET_ACCOUNT_REWARDS, responseEvent: ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, data: { address } });
+  static getAccountRewards = ({ address, accountIndex }: { address: string, accountIndex: number }) =>
+    EventsService._createEventWithResponse({ event: ipcConsts.GET_ACCOUNT_REWARDS, responseEvent: ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, data: { address, accountIndex } });
 
   static setRewardsAddress = ({ address }: { address: string }) =>
     EventsService._createEventWithResponse({ event: ipcConsts.SET_REWARDS_ADDRESS, responseEvent: ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, data: { address } });
@@ -97,7 +94,7 @@ class EventsService {
   /** ************************************   AUTOSTART   ************************************** */
 
   static isAutoStartEnabled = () =>
-    EventsService._createEventWithResponse({ event: ipcConsts.ipcConsts.IS_AUTO_START_ENABLED_REQUEST, responseEvent: ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE });
+    EventsService._createEventWithResponse({ event: ipcConsts.IS_AUTO_START_ENABLED_REQUEST, responseEvent: ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE });
 
   static toggleAutoStart = () => EventsService._createEvent({ event: ipcConsts.TOGGLE_AUTO_START });
 

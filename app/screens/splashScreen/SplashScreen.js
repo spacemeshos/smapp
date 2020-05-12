@@ -18,12 +18,12 @@ class SplashScreen extends PureComponent<Props> {
 
   async componentDidMount() {
     const { getNodeStatus, history } = this.props;
-    const { status } = await getNodeStatus();
+    const status = await getNodeStatus();
     if (status && !status.noConnection) {
       history.push('/auth');
     } else {
       await eventsService.startNode();
-      setTimeout(() => history.push('/auth'), 3000);
+      setTimeout(() => history.push('/auth'), 10000);
     }
   }
 }

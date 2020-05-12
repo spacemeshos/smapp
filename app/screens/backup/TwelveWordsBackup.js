@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
-import { smColors } from '/vars';
-import { eventsService } from '/infra/evenstService';
+import { eventsService } from '/infra/eventsService';
 import { localStorageService } from '/infra/storageService';
+import { smColors } from '/vars';
 
 const TextWrapper = styled.div`
   height: 75px;

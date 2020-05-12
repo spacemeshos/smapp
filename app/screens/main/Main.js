@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getNodeStatus, getMiningStatus } from '/redux/node/actions';
+import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
 import { getBalance, getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
@@ -98,6 +98,7 @@ type Props = {
   miningStatus: number,
   getNodeStatus: Action,
   getMiningStatus: Action,
+  getAccountRewards: Action,
   getBalance: Action,
   getTxList: Action,
   logout: Action,
@@ -247,11 +248,13 @@ class Main extends Component<Props, State> {
   async componentDidMount() {
     const { getNodeStatus, getMiningStatus, getBalance, getTxList, miningStatus } = this.props;
     await getNodeStatus();
-    await getTxList({ approveTxNotifier });
-    this.txCollectorInterval = setInterval(() => { getTxList({ approveTxNotifier }); }, 30000);
+    await getTxList({ approveTxNotifier: this.approveTxNotifier });
+    await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
+    this.txCollectorInterval = setInterval(() => { getTxList({ approveTxNotifier: this.approveTxNotifier }); }, 60000);
+    this.accountRewardsInterval = setInterval(() => { getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); }, 300000);
     getBalance();
-    this.getBalanceInterval = setInterval(getBalance, 30000);
-    this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
+    this.getBalanceInterval = setInterval(getBalance, 60000);
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
     this.initialMiningStatusInterval = setInterval(async () => {
       const status = await getMiningStatus();
       if (status !== nodeConsts.MINING_UNSET) {
@@ -337,6 +340,14 @@ class Main extends Component<Props, State> {
       callback: () => history.push('/main/transactions')
     });
   }
+
+  newRewardsNotifier = () => {
+    notificationsService.notify({
+      title: 'Spacemesh',
+      notification: 'Received a reward for smeshing!',
+      callback: () => this.handleNavigation({ index: 0 })
+    });
+  }
 }
 
 const mapStateToProps = (state) => ({
@@ -347,6 +358,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = {
   getNodeStatus,
   getMiningStatus,
+  getAccountRewards,
   getBalance,
   getTxList,
   logout

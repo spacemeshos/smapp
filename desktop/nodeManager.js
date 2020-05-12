@@ -53,25 +53,25 @@ class NodeManager {
     ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
       this.getUpcomingRewards({ event });
     });
-    ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, (event, request) => {
-      this.setRewardsAddress({ event, ...request.data });
+    ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
+      await this.setRewardsAddress({ event, ...request.data });
     });
-    ipcMain.on(ipcConsts.SET_NODE_IP, async (event, request) => {
+    ipcMain.on(ipcConsts.SET_NODE_IP, (event, request) => {
       this.setNodeIpAddress({ event, ...request.data });
     });
   };
 
   startNode = async () => {
     try {
-      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
+      const fetchedGenesisTime = nodeConfig.flags.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
-      StoreService.set({ key: 'postSize', value: parseInt(nodeConfig.post['post-space']) });
-      const networkId = parseInt(nodeConfig.p2p['network-id']);
+      StoreService.set({ key: 'postSize', value: parseInt(nodeConfig.flags.post['post-space']) });
+      const networkId = parseInt(nodeConfig.flags.p2p['network-id']);
       StoreService.set({ key: 'networkId', value: networkId });
-      StoreService.set({ key: 'layerDurationSec', value: parseInt(nodeConfig.main['layer-duration-sec']) });
+      StoreService.set({ key: 'layerDurationSec', value: parseInt(nodeConfig.flags.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -159,15 +159,19 @@ class NodeManager {
   };
 
   getNodeSettings = async ({ event }) => {
-    const savedMiningParams = StoreService.get({ key: 'miningParams' });
-    const address = savedMiningParams?.coinbase;
-    const genesisTime = StoreService.get({ key: 'genesisTime' });
-    const networkId = StoreService.get({ key: 'networkId' });
-    const commitmentSize = StoreService.get({ key: 'postSize' });
-    const layerDuration = StoreService.get({ key: 'layerDurationSec' });
-    const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
-    const { value } = await netService.getStateRoot();
-    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port });
+    try {
+      const savedMiningParams = StoreService.get({ key: 'miningParams' });
+      const address = savedMiningParams?.coinbase;
+      const genesisTime = StoreService.get({ key: 'genesisTime' });
+      const networkId = StoreService.get({ key: 'networkId' });
+      const commitmentSize = StoreService.get({ key: 'postSize' });
+      const layerDuration = StoreService.get({ key: 'layerDurationSec' });
+      const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
+      const { value } = await netService.getStateRoot();
+      event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port });
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { error });
+    }
   };
 
   getNodeStatus = async ({ event }) => {
@@ -222,7 +226,7 @@ class NodeManager {
 
   initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
     try {
-      await this._initMining({ logicalDrive, commitmentSize, coinbase });
+      await netService.initMining({ logicalDrive, commitmentSize, coinbase });
       StoreService.set({ key: 'miningParams', value: { logicalDrive, coinbase } });
       event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error: null });
     } catch (error) {

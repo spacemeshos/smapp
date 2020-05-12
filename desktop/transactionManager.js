@@ -17,17 +17,13 @@ const fromHexString = (hexString) => {
   return Uint8Array.from(bytes);
 };
 
-// notificationsService.notify({
-//             title: 'Spacemesh',
-//             notification: 'Received a reward for smeshing!',
-//             callback: () => this.handleNavigation({ index: 0 })
-//           });
-
 class TransactionManager {
   constructor() {
     this.networkId = StoreService.get({ key: 'networkId' });
     const rawTransactions = StoreService.get({ key: `${this.networkId}-transactions` });
     this.transactions = rawTransactions ? JSON.parse(rawTransactions) : [{ layerId: 0, data: [] }];
+    const rawAwards = StoreService.get({ key: `${this.networkId}-rewards` });
+    this.rewards = rawAwards ? JSON.parse(rawAwards) : [];
     this.accounts = [];
   }
 
@@ -47,17 +43,11 @@ class TransactionManager {
     try {
       const { id } = await netService.submitTransaction({ tx });
       const fullTxToAdd = { ...txToAdd, txId: id };
-      const { accounts, transactions, currentAccountIndex } = getState().wallet;
-      const index: number = accountPK ? accounts.findIndex((account) => account.publicKey === accountPK) : currentAccountIndex;
-      const updatedTransactions = [
-        ...transactions.slice(0, index),
-        { layerId: transactions[index].layerId, data: [{ ...tx }, ...transactions[index].data] },
-        ...transactions.slice(index + 1)
-      ];
-      this.transactions[index].data.push(fullTxToAdd);
+      this.transactions[accountIndex].data.push(fullTxToAdd);
+      StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
       event.sender.send(ipcConsts.SEND_TX_RESPONSE, { error: null, transactions: this.transactions[accountIndex], id });
     } catch (error) {
-      event.sender.send(ipcConsts.SEND_TX_RESPONSE, error.message);
+      event.sender.send(ipcConsts.SEND_TX_RESPONSE, { error, transactions: [], id: '' });
     }
   };
 
@@ -68,6 +58,7 @@ class TransactionManager {
       { ...this.transactions[accountIndex].data[txToUpdateIndex], ...newData },
       ...this.transactions[accountIndex].data.slice(txToUpdateIndex + 1)
     ];
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
     event.sender.send(ipcConsts.UPDATE_TX_RESPONSE, { transactions: this.transactions[accountIndex] });
   };
 
@@ -82,7 +73,7 @@ class TransactionManager {
       let hasConfirmedOutgoingTxs = false;
 
       // for given account and it's tx ids list get full tx data
-      const fullTxDataCollector = async (txIds: Array<string>, collector: Array<Tx>) => {
+      const fullTxDataCollector = async (txIds, collector) => {
         await asyncForEach(txIds, async (txId) => {
           const tx = await this._getTransaction({ id: fromHexString(txId.substring(2)) });
           if (tx) {
@@ -100,23 +91,26 @@ class TransactionManager {
               txs.push(`0x${existingTx.txId}`);
             }
           });
-          const fullDataTxsList = [];
-          await fullTxDataCollector(txs, fullDataTxsList);
-          const response = this._mergeTxStatuses({
-            existingList: this.transactions[index].data,
-            incomingList: fullDataTxsList,
-            address: account.publicKey.substring(24)
-          });
-          const { unifiedTxList } = response;
-          ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = response);
-          this.transactions = [...this.transactions.slice(0, index), { layerId: validatedLayer, data: unifiedTxList }, ...this.transactions.slice(index + 1)];
+          if (txs && txs.length) {
+            const fullDataTxsList = [];
+            await fullTxDataCollector(txs, fullDataTxsList);
+            const response = this._mergeTxStatuses({
+              existingList: this.transactions[index].data,
+              incomingList: fullDataTxsList,
+              address: account.publicKey.substring(24)
+            });
+            const { unifiedTxList } = response;
+            ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = response);
+            this.transactions = [...this.transactions.slice(0, index), { layerId: validatedLayer, data: unifiedTxList }, ...this.transactions.slice(index + 1)];
+            StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+          }
         });
       };
       await txListCollector();
       return [hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs];
     } catch (error) {
       console.error(error); // eslint-disable-line no-console
-      return null;
+      return [false, false];
     }
   };
 
@@ -140,7 +134,7 @@ class TransactionManager {
     }
   };
 
-  _mergeTxStatuses = ({ existingList, incomingList, address }: { existingList: TxList, incomingList: TxList, address: string }) => {
+  _mergeTxStatuses = ({ existingList, incomingList, address }) => {
     const unifiedTxList = [...existingList];
     let hasConfirmedIncomingTxs = false;
     let hasConfirmedOutgoingTxs = false;
@@ -163,11 +157,11 @@ class TransactionManager {
     return { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
   };
 
-  _getAccountRewards = async ({ event, address }) => {
+  getAccountRewards = async ({ event, address, accountIndex }) => {
     try {
-      const { rewards } = await netService._getAccountRewards({ address });
+      const { rewards } = await netService.getAccountRewards({ address });
       if (!rewards || !rewards.length) {
-        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: [] });
+        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: this.rewards, hasNewRewards: false });
       } else {
         const parsedReward = rewards.map((reward) => ({
           layer: parseInt(reward.layer),
@@ -175,49 +169,41 @@ class TransactionManager {
           layerRewardEstimate: parseInt(reward.layerRewardEstimate)
         }));
         parsedReward.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
-        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: parsedReward });
-      }
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error, rewards: [] });
-    }
-  };
-
-  getAccountRewards = ({ notify }: { notify: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-    const { status, rewards, genesisTime, layerDuration } = getState().node;
-    if (status && !status.noConnection) {
-      try {
-        const { accounts, currentAccountIndex } = getState().wallet;
-        const updatedRewards = await netService.getAccountRewards({ address: accounts[currentAccountIndex].publicKey });
         let newRewardsWithTimeStamp = [];
-        if (rewards.length < updatedRewards.length) {
-          notify();
-          const newRewards = [...updatedRewards.slice(rewards.length)];
+        let hasNewRewards = false;
+        if (this.rewards.length < parsedReward.length) {
+          hasNewRewards = true;
+          const newRewards = [...parsedReward.slice(this.rewards.length)];
+          const genesisTime = StoreService.get({ key: 'genesisTime' });
+          const layerDuration = StoreService.get({ key: 'layerDurationSec' });
           newRewardsWithTimeStamp = newRewards.map((reward) => {
             const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
             const tx = {
               txId: 'reward',
               sender: null,
-              receiver: getAddress(accounts[currentAccountIndex].publicKey),
+              receiver: address.substring(24),
               amount: reward.totalReward,
               fee: reward.totalReward - reward.layerRewardEstimate,
               status: TX_STATUSES.CONFIRMED,
               layerId: reward.layer,
               timestamp
             };
-            dispatch(addTransaction({ tx, accountPK: accounts[currentAccountIndex].publicKey }));
+            this.transactions[accountIndex].push(tx);
             return {
               totalReward: reward.totalReward,
               layerRewardEstimate: reward.layerRewardEstimate,
               timestamp
             };
           });
-          const rewardsWithTimeStamps = [...rewards, ...newRewardsWithTimeStamp];
-          localStorageService.set('rewards', rewardsWithTimeStamps);
-          dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards: rewardsWithTimeStamps } });
+          this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];
+          StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards });
+          StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+          event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: this.rewards, hasNewRewards });
         }
-      } catch (err) {
-        throw createError('Error getting account rewards', () => getAccountRewards({ notify }));
+        event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error: null, rewards: this.rewards, hasNewRewards: false });
       }
+    } catch (error) {
+      event.sender.send(ipcConsts.GET_ACCOUNT_REWARDS_RESPONSE, { error, rewards: [] });
     }
   };
 }

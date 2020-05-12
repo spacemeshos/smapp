@@ -71,6 +71,9 @@ class WalletManager {
     ipcMain.on(ipcConsts.GET_ACCOUNT_TXS, async (event, request) => {
       await this.txManager.getAccountTxs({ event, ...request.data });
     });
+    ipcMain.on(ipcConsts.GET_ACCOUNT_REWARDS, async (event, request) => {
+      await this.txManager.getAccountRewards({ event, ...request.data });
+    });
   };
 
   createWalletFile = async ({ event, timestamp, dataToEncrypt, password }) => {
@@ -85,13 +88,14 @@ class WalletManager {
       this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
       const key = FileEncryptionService.createEncryptionKey({ password });
       const encryptedAccountsData = FileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
-      const fileName = `my_wallet_${walletNumber}_${timestamp}.json`;
       const fileContent = {
         meta,
         crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
         contacts: []
       };
-      await writeFileAsync(fileName, JSON.stringify(fileContent));
+      const fileName = `my_wallet_${walletNumber}_${timestamp}.json`;
+      const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
+      await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
       StoreService.set({ key: 'walletNumber', value: walletNumber + 1 });
       event.sender.send(ipcConsts.CREATE_WALLET_FILE_RESPONSE, { error: null, meta });
     } catch (error) {
@@ -105,7 +109,7 @@ class WalletManager {
       const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
-      event.sender.send(ipcConsts.READ_WALLET_FILES_RESPONSE, { error: null, filesWithPath });
+      event.sender.send(ipcConsts.READ_WALLET_FILES_RESPONSE, { error: null, files: filesWithPath });
     } catch (error) {
       event.sender.send(ipcConsts.READ_WALLET_FILES_RESPONSE, { error, filesWithPath: null });
     }

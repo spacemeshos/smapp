@@ -16,6 +16,8 @@ import MenuBuilder from './menu';
 import subscribeToAutoUpdateListeners from './autoUpdateListeners';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
+import NodeManager from './nodeManager';
+import WalletManager from './walletManager';
 
 const debug = require('electron-debug');
 const unhandled = require('electron-unhandled');
@@ -85,6 +87,8 @@ const createWindow = () => {
       nodeIntegration: true
     }
   });
+  new NodeManager(mainWindow); // eslint-disable-line no-new
+  new WalletManager(mainWindow); // eslint-disable-line no-new
   // Add event listeners.
   subscribeToAutoUpdateListeners({ mainWindow });
 };

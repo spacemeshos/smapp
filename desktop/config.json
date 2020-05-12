@@ -1,89 +1,1651 @@
 {
-  "main": {
-    "layer-duration-sec": 300,
-    "layer-average-size": 30,
-    "layers-per-epoch": 6,
-    "block-cache-size": 20,
-    "sync-request-timeout": 60000,
-    "sync-interval": 10,
-    "sync-validation-delta": 30,
-    "hdist": 10,
-    "atxs-per-block": 100,
-    "oracle_server": "http://localhost:3030",
-    "oracle_server_worldid": 0,
-    "genesis-active-size": 50,
-    "genesis-time": "2020-04-30T13:12:50+00:00",
-    "poet-server": "104.154.87.245:8080"
-  },
-  "p2p": {
-    "dial-timeout": "1m",
-    "conn-keepalive": "48h",
-    "response-timeout": "60s",
-    "session-timeout": "15s",
-    "max-pending-connections": 100,
-    "outbound-target": 10,
-    "max-inbound": 32,
-    "buffer-size": 10000,
-    "msg-size-limit": 0,
-    "swarm": {
-      "bucketsize": 20,
-      "alpha": 3,
-      "randcon": 8,
-      "bootnodes": ["spacemesh://BD1bU7ttZD2XgVu1wQoF45G595r9hAHoJwRU2fT7BFqA@34.66.59.76:20000"],
-      "bootstrap": true
+  "environment": {
+    "network": {
+      "name": "tn-ilya",
+      "net-id": 2,
+      "es-snapshot": "{}",
+      "preemptible": false
     },
-    "network-id": 225
-  },
-  "post": {
-    "post-space": 1048576,
-    "post-labels": 10
-  },
-  "reward": {
-    "base-reward": {
-      "abs": 50000000000000
+    "metrics": {
+      "machine-type": "n2d-standard-8",
+      "boot-disk-type": "standard",
+      "boot-disk-size": 100,
+      "amount": 1
+    },
+    "poet": {
+      "amount": 1,
+      "tree-depth": 21,
+      "poets-phase-shift": 0,
+      "tag": "develop",
+      "machine-type": "n2d-highmem-2",
+      "boot-disk-type": "standard",
+      "boot-disk-size": 100,
+      "duration": "1800s"
+    },
+    "miner": {
+      "amount": 50,
+      "bootnodes": 1,
+      "gateways": 1,
+      "genesis-delay": 25,
+      "tag": "v0.1.11",
+      "max-per-machine": 50,
+      "machine-type": "c2-standard-16",
+      "boot-disk-type": "standard",
+      "boot-disk-size": 20
     }
   },
-  "hare": {
-    "hare-committee-size": 30,
-    "hare-max-adversaries": 14,
-    "hare-round-duration-sec": 30,
-    "hare-wakeup-delta": 30,
-    "hare-exp-leaders": 5,
-    "hare-limit-iterations": 10,
-    "hare-limit-concurrent": 5
+  "flags": {
+    "main": {
+      "layer-duration-sec": 300,
+      "layer-average-size": 30,
+      "layers-per-epoch": 6,
+      "block-cache-size": 20,
+      "sync-request-timeout": 60000,
+      "sync-interval": 10,
+      "sync-validation-delta": 30,
+      "hdist": 10,
+      "atxs-per-block": 100,
+      "oracle_server": "http://localhost:3030",
+      "oracle_server_worldid": 0,
+      "genesis-active-size": 50,
+      "genesis-time": "2020-05-11T12:45:05+00:00",
+      "poet-server": "34.69.100.200:8080"
+    },
+    "p2p": {
+      "dial-timeout": "1m",
+      "conn-keepalive": "48h",
+      "response-timeout": "60s",
+      "session-timeout": "15s",
+      "max-pending-connections": 100,
+      "outbound-target": 10,
+      "max-inbound": 32,
+      "buffer-size": 10000,
+      "msg-size-limit": 0,
+      "swarm": {
+        "bucketsize": 20,
+        "alpha": 3,
+        "randcon": 8,
+        "bootnodes": [
+          "spacemesh://4o9s7LErSHUAX6yhwLax8kbCNr7A4Nu3mben1d3Hrx8g@35.223.13.73:20000"
+        ],
+        "bootstrap": true
+      },
+      "network-id": 2
+    },
+    "post": {
+      "post-space": 1048576,
+      "post-labels": 10
+    },
+    "reward": {
+      "base-reward": {
+        "abs": 50000000000000
+      }
+    },
+    "hare": {
+      "hare-committee-size": 30,
+      "hare-max-adversaries": 14,
+      "hare-round-duration-sec": 30,
+      "hare-wakeup-delta": 30,
+      "hare-exp-leaders": 5,
+      "hare-limit-iterations": 10,
+      "hare-limit-concurrent": 5
+    },
+    "hare-eligibility": {
+      "eligibility-confidence-param": 25,
+      "eligibility-epoch-offset": 0
+    },
+    "time": {
+      "max-allowed-time-drift": "10s",
+      "ntp-queries": 5,
+      "default-timeout-latency": "10s",
+      "refresh-ntp-interval": "30m"
+    },
+    "logging": {
+      "app": "info",
+      "p2p": "info",
+      "post": "info",
+      "stateDb": "info",
+      "state": "info",
+      "atxDb": "info",
+      "poetDb": "info",
+      "store": "info",
+      "meshDb": "info",
+      "trtl": "info",
+      "block-eligibility": "info",
+      "mesh": "info",
+      "sync": "info",
+      "block-oracle": "info",
+      "hare-oracle": "info",
+      "hare": "info",
+      "block-builder": "info",
+      "block-listener": "info",
+      "poet": "info",
+      "nipst": "info",
+      "atx-builder": "info",
+      "hare-beacon": "info"
+    }
   },
-  "hare-eligibility": {
-    "eligibility-confidence-param": 25,
-    "eligibility-epoch-offset": 0
+  "machine": {
+    "poet": {
+      "tn-ilya-poet-0": {
+        "count": 1,
+        "ip": "10.128.0.93",
+        "ext_ip": "34.69.100.200"
+      }
+    },
+    "miner": {
+      "tn-ilya-miner-0": {
+        "count": 50,
+        "ip": "10.128.0.109",
+        "ext_ip": "35.223.13.73"
+      }
+    },
+    "metrics": {
+      "tn-ilya-metrics-0": {
+        "count": 1,
+        "ip": "10.128.0.107",
+        "ext_ip": "34.72.74.46"
+      }
+    }
   },
-  "time": {
-    "max-allowed-time-drift": "10s",
-    "ntp-queries": 5,
-    "default-timeout-latency": "10s",
-    "refresh-ntp-interval": "30m"
+  "agent": {
+    "poet": {
+      "tn-ilya-poet-0-0": {
+        "tag": "develop",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "poet",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-poet-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.93",
+          "ext_ip": "34.69.100.200"
+        },
+        "initialduration": "325s",
+        "running": true,
+        "active": true,
+        "gateways": [
+          "10.128.0.109:10000"
+        ],
+        "ports": {
+          "rest": 8080
+        }
+      }
+    },
+    "miner": {
+      "tn-ilya-miner-0-0": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20000,
+          "rest": 30000,
+          "grpc": 10000,
+          "prom": 50000
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": true,
+        "bootnode": true,
+        "gateway": false,
+        "running": true,
+        "miner_id": "1ed5bfd7b5b556b38231b674d78346dc447eab5b9977c9cde9b8d8d0d44351c6",
+        "p2p_id": {
+          "pubKey": "4o9s7LErSHUAX6yhwLax8kbCNr7A4Nu3mben1d3Hrx8g",
+          "priKey": "A9nLn8jDoE1UwHqPEXM2ETNCHXvFezcy6JmyRWhv1VS5"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-1": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20002,
+          "rest": 30002,
+          "grpc": 10002,
+          "prom": 50002
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "1eca270811af4a8b6c5ad1a8db2561de3345af94487b6f1292675f45f18b8387",
+        "p2p_id": {
+          "pubKey": "51uFXuLtmRKiJyW18hg5FkJqgzfGRRAtsVG1Q4Jdk3FL",
+          "priKey": "5JekFkVhuKJ46yoJnAoRTwzJQxTy9MTMsqULBQTH41WB"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-2": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20004,
+          "rest": 30004,
+          "grpc": 10004,
+          "prom": 50004
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "caa14855a283ffb2bd35aacab1d4a188b339fec1f2eff19680b3e7dbc51b3441",
+        "p2p_id": {
+          "pubKey": "Cb6hp9freHaYBHNeM1SzyQrDHjktzZuqtVMKcEkF21Br",
+          "priKey": "8DDotrzjunjVnAWsMpi639yRQFgJQS9Z6XktLy34qwrh"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-3": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20006,
+          "rest": 30006,
+          "grpc": 10006,
+          "prom": 50006
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "4c8f1aad769e70bda2e9b248ba805378d9364178b70a280f533d79bb782c7bbb",
+        "p2p_id": {
+          "pubKey": "6oWEJpsZqNxSrPinomSQFsyu55ahY9Rq6ofVsk4q638N",
+          "priKey": "4iFXWWbJe8xUbqqPFZZnxiYZiZvLzuWhbJ3eRMfqVgRu"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-4": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20008,
+          "rest": 30008,
+          "grpc": 10008,
+          "prom": 50008
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "490937c47bb888f1a9462ce4d199fecee9eeda85104214708d7e7de33e35c405",
+        "p2p_id": {
+          "pubKey": "4FTkxCZgA2FsiJmWMah51xXmtqHxFxqdGevS1tw2tNb6",
+          "priKey": "Dj68W8Xx6PHiWC6hPyeBuu9ctjjJMxMueno2wGdH9JTb"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-5": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20010,
+          "rest": 30010,
+          "grpc": 10010,
+          "prom": 50010
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "6ffb367ea8c73a9cfd77e57a60eb211a4e55f9df5380a19ad51871e54e8d51bf",
+        "p2p_id": {
+          "pubKey": "DMRgWuiTs7Fh5BooBNZjHXhF1qbs8MVW5rXYQCmzkXKa",
+          "priKey": "ertdA978gMi4e6Zif4MVpvKoubsujJ88xX6EUD8r3U7"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-6": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20012,
+          "rest": 30012,
+          "grpc": 10012,
+          "prom": 50012
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "d4ec4a81f36aae4f8ee0c66ba4ca2555814225aaad64f035e4ea97ebc16d37f9",
+        "p2p_id": {
+          "pubKey": "Byk5XnjZLfTkVr4JqqP3GGbZD1YFPzDK95EqRSXBytDp",
+          "priKey": "8M6mrqPD8ZPYm6t8kihLxANWcm27oKM6AfqvVN85KSLA"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-7": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20014,
+          "rest": 30014,
+          "grpc": 10014,
+          "prom": 50014
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "d5727450723ee932d75ad366e3d52c0dc8d18bfe14a9af984b0d46816edd030e",
+        "p2p_id": {
+          "pubKey": "8KGBZRwwG41yJgjttRfgRMJ7HXXLBTqSCH76gc9mxJBv",
+          "priKey": "EGP7FUCTZnTEgWwm5t5pLHvyC9BfDAjkYRVswYhCSvMp"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-8": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20016,
+          "rest": 30016,
+          "grpc": 10016,
+          "prom": 50016
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "590b3d2f434c47de1f68b12660842594d90a4b12d133d90359b2beaa2f36fcf0",
+        "p2p_id": {
+          "pubKey": "7bk2SRMPePWbLDep9jCQvGuurCEkkMibYhdw2U69zn9Y",
+          "priKey": "68Tuy3ouekYiME7tT7BFbo4F82er7NXteKQupS3LobGn"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-9": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20018,
+          "rest": 30018,
+          "grpc": 10018,
+          "prom": 50018
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "b60d641df6cece0baf5e01e5c7bd572fa408c3930f0728e25bd7b2a678c1faa7",
+        "p2p_id": {
+          "pubKey": "9MWFayaVVgzkGsHQxjqwiCaCeDCKjFSazKfY7JGXvgDM",
+          "priKey": "BgSHvnLf9uzs2Xvmw5nsac4sgRsHPL7D9w1Dy88iBeTZ"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-10": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20020,
+          "rest": 30020,
+          "grpc": 10020,
+          "prom": 50020
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "f05cddfd11aaf98e3333d83b7e4104070a367936944dbdbbf82290e00b769191",
+        "p2p_id": {
+          "pubKey": "76Y3Qxx4erVav7PyG8ArMyPkQTnMVhYRD4S1BJVgxaJB",
+          "priKey": "9KAffgDjtDWcQu2WuDJWLjgDzim2tD6WADbi4fQHgG46"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-11": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20022,
+          "rest": 30022,
+          "grpc": 10022,
+          "prom": 50022
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "8b07644c456536f0955b6d9fbab4ef8c7ec345e4319535bdc5c09998e3ade8c3",
+        "p2p_id": {
+          "pubKey": "5ZTSZw9n1ChVC4g9MkV6zxLCVJuKnZLVn7oevKQVV9Sp",
+          "priKey": "2ZwqmJXMapFL8MKAGrwoSpiy33mb2tnzLtHNrKwwjUXr"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-12": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20024,
+          "rest": 30024,
+          "grpc": 10024,
+          "prom": 50024
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "65f8da64aa270156042912b4fcbece38a5646e0a99506204aabb6ba61522a969",
+        "p2p_id": {
+          "pubKey": "2y4R6cYP3MDrak93hj4ukG69rvZHQnG67Q16WTzRjDHZ",
+          "priKey": "58AD6LTrq57NVpmBDTyZmUv6CkkgKqxr2cWoSYibqBf9"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-13": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20026,
+          "rest": 30026,
+          "grpc": 10026,
+          "prom": 50026
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "1e775e03a37d2d455290fe38b78742afe16e2ff6721e31e5dcc18c9b9777d817",
+        "p2p_id": {
+          "pubKey": "3kDxwTGDDUCbvkNoz1wEe3NEQxUMssi4rRG1H1JCSaYX",
+          "priKey": "C7ieUYDuwZRLteDUR3RAF8e1Tsrxre9VhYCHMsiodZxA"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-14": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20028,
+          "rest": 30028,
+          "grpc": 10028,
+          "prom": 50028
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "3c5ee520ed9ef1e1c0ba9372064d4ae7f6d2a99441b667a77a2a922a785c6cd0",
+        "p2p_id": {
+          "pubKey": "fXU8x2aHTAsPNHdCQjg3mNonV3Nvz3BqJqBD3MSwQX5",
+          "priKey": "G9SwWfGsAXVttxWJEzj1BsU3kAydbNhynPmK4LNnkkPg"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-15": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20030,
+          "rest": 30030,
+          "grpc": 10030,
+          "prom": 50030
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "73fc7b28e449b74ba22ffe2d4de6aeb31ea06105c5e7492dbb90967062126226",
+        "p2p_id": {
+          "pubKey": "56S6Ebgm1RjcGfTWJQi32tw6nAJ7dab7E54NtpZQYNzL",
+          "priKey": "DWbZt8fZHMLbQpN5seTeFLiA7hppqc3ANVeTT9SLfapN"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-16": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20032,
+          "rest": 30032,
+          "grpc": 10032,
+          "prom": 50032
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "f15edd0aa9bc913b96eadb44eca62689e684659d632a730e9c39e3503cee1f2c",
+        "p2p_id": {
+          "pubKey": "HVgh14a4qwhhod7DESLe2Tr6AKBXj8RBScS2onW2ab9M",
+          "priKey": "FiG1EFMMqC8SUtmfpAtJvENwFGjka6vdhhGdsUmtak9U"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-17": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20034,
+          "rest": 30034,
+          "grpc": 10034,
+          "prom": 50034
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "257098341a6ec7c0f4a60ca514c31da2c900506c79ca828ac7b6e6f1d07c7eca",
+        "p2p_id": {
+          "pubKey": "CthH7Vfo5bgjzarcAS9g41aAizPmusR9VRdQ8o4mcBX2",
+          "priKey": "F38F4y5FxX3d9SYrjEWWUG4pHmHFm2LxWhAf72cvmMhV"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-18": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20036,
+          "rest": 30036,
+          "grpc": 10036,
+          "prom": 50036
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "d218e54c3253431b2e5fc519c45c7db56583d575b74c04ff4173bf36c00970f1",
+        "p2p_id": {
+          "pubKey": "HeGWcQa3moDKPgUarzMc9dAj41k11H9Kp4vUVXDaxRmh",
+          "priKey": "7KXfr2knR1ZkaUejDVXhZMd7tzTQgnLse91ffMqSYqfV"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-19": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20038,
+          "rest": 30038,
+          "grpc": 10038,
+          "prom": 50038
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "4eebb49f630a8287cfff637aaeae5ba65a07f2647895a8a7d11af5d67d2c30bf",
+        "p2p_id": {
+          "pubKey": "3FB8ts3YHqNHSWV2Hm4nzcEXFgc9YXsjRSVKiYVQrgTA",
+          "priKey": "7K7QZYL5PgqhhJ6KQtiGaM7Dpv8w4MYt2GJbEpQtirpX"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-20": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20040,
+          "rest": 30040,
+          "grpc": 10040,
+          "prom": 50040
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "01a552566dfebd04918af9914e1b20342edd0eb82ca23b2e5f389cd1b7966a39",
+        "p2p_id": {
+          "pubKey": "4YHK8YPLtGdigqgzVQbXYJj17k6ghjoTvNxj7kgsHvyn",
+          "priKey": "5bxrRLQ254RaBCGSsF5UrXogfiUiVh7kDKmFrye7qtUg"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-21": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20042,
+          "rest": 30042,
+          "grpc": 10042,
+          "prom": 50042
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "9bcbb4967372a8a48c42ffdb2088de36a602347f8b6e98dab2c988b3d61d8d8b",
+        "p2p_id": {
+          "pubKey": "AyzEm2AjowpMNTZDACpZio1zm2VrEBbWJpSfM74bMfrm",
+          "priKey": "7NZMnoEpnD89rGkgdxNV2HcrZKNJzpWNkCiohLz33tye"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-22": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20044,
+          "rest": 30044,
+          "grpc": 10044,
+          "prom": 50044
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "4da1b188b96de3e0452b7dcd6b919f034e707fa06c450b9c54158768b4963308",
+        "p2p_id": {
+          "pubKey": "3aB17j2biGBbEeWs4cuh5WU7CoCk5nNDExaKPeSAK4io",
+          "priKey": "A1uFmKRi9HaveuTzyF4k6MK6uUUUbE9SmHzrK8vB2XEY"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-23": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20046,
+          "rest": 30046,
+          "grpc": 10046,
+          "prom": 50046
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "fa3e9c7128cf6f0d5ba6870bcbc00cb9abab3f64740b35a13af294a8a8d7db9f",
+        "p2p_id": {
+          "pubKey": "GZuTm9NxWZDhdzExPnTmf1TJio9hJAySWFqq4yzhLYhu",
+          "priKey": "6DNvdSyHteQaLAQTCm6wLBUz1yM6vDsTdQ3U4TVay42P"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-24": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20048,
+          "rest": 30048,
+          "grpc": 10048,
+          "prom": 50048
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "8144e374e4e98f937f96fd0283bccdc021225d3a613f409e303ae34eb4caea93",
+        "p2p_id": {
+          "pubKey": "7ifDbfi1FnyX9aPUdkvYXdfk6mo5Cx6muFuzMpiiNAgm",
+          "priKey": "46CxFjzn6Q5VLNzntTngP8PMr1fksWgTRqh5z4FX6vmq"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-25": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20050,
+          "rest": 30050,
+          "grpc": 10050,
+          "prom": 50050
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "e9b071f719fcd22aee49634f0c88eff3288dec7192ba61f8897e78818f8b0405",
+        "p2p_id": {
+          "pubKey": "98CfLCB7Vp7WKJw7Sas7TNLrn81RNk7ScxUeaA2CaxwU",
+          "priKey": "9AWLqnVPRCcCs6n7VdFxQ1ykyiWQwURdMJQZVWdUrvFb"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-26": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20052,
+          "rest": 30052,
+          "grpc": 10052,
+          "prom": 50052
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "26d6f56157493206fa2e33b6d62472f37adeedc4535d4e1c78a9cabf607a237e",
+        "p2p_id": {
+          "pubKey": "FhUAyohfy7oAmyi3c7cWqc2LWkoDaTa3pidAaghNGKJa",
+          "priKey": "B9fqe9gNq3Y3eJgLYAExjfCot1shM8GMsxdV6eHKLSfj"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-27": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20054,
+          "rest": 30054,
+          "grpc": 10054,
+          "prom": 50054
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "d47efbaf9c75addc8e87b8d4fa7915772ac6b92d1f1e07bce71e3b88ec13a160",
+        "p2p_id": {
+          "pubKey": "FXEnXRsrjcFuvkX8Jzrzs2ddS6N2ZfS9Da3CxFWhYAwS",
+          "priKey": "DcbXgGxx1AmaJvoZXUGwcmT7cNK2hFj9XFUuG3SRMMCH"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-28": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20056,
+          "rest": 30056,
+          "grpc": 10056,
+          "prom": 50056
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "59acbcc4b58fc662339da2b11bcce7619ffa152a889573f1bb15ff89469ace7b",
+        "p2p_id": {
+          "pubKey": "Dk8f7NSSA1Hn4YduJmaDTUQ8rrbWCNbWMY4n6VzgjxoK",
+          "priKey": "2EhgiAixGSnUf7z4DGgQuLs1ZzV6zHkWiznAGzFwUgqP"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-29": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20058,
+          "rest": 30058,
+          "grpc": 10058,
+          "prom": 50058
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "61b75fc5407ea67bfaf5a138750954ea19db8bffbe5a9e23205725fd421d2973",
+        "p2p_id": {
+          "pubKey": "G5bu3jsCAzXrmLz8zt3gJ4KSbwyHyEF9j9H9unxcyb9s",
+          "priKey": "DH1cR6psLofsaydBRTPYhw6dV2VZs31BYyNbTP6KB1Xo"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-30": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20060,
+          "rest": 30060,
+          "grpc": 10060,
+          "prom": 50060
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "e831c4151d7dfb31fa5e17ce27eab3248253453d7eef8e07b5af202d9ae18873",
+        "p2p_id": {
+          "pubKey": "H8AMwH1RMDjf24gTvqxTB1bupnCMa5UzssW9MHQRfXnq",
+          "priKey": "31U7vJD6aWcLaCS7HrYsGr7MCBfRbrEao9CtC5YW8Umf"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-31": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20062,
+          "rest": 30062,
+          "grpc": 10062,
+          "prom": 50062
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "513e1791c0dc9145f5f2ddd56308d377ece5f1df44537d2a47e1c662ce70e9df",
+        "p2p_id": {
+          "pubKey": "BH27gyZGzeQySpdxy3sVEd1WsFC2k9pTeGCG8XxgZMVQ",
+          "priKey": "AYxxftLghfiUdWJZehQhXpMUW3rFAwrUd8hkDYhFZWzW"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-32": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20064,
+          "rest": 30064,
+          "grpc": 10064,
+          "prom": 50064
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "b023b603bab85ca9843da3388a6f03d6e93667a1b2f6a1a9dd4b023640e24b49",
+        "p2p_id": {
+          "pubKey": "CAtWHC4xVLnifyapCPbchnpoEDZQnD7kwMSvbYum3Khu",
+          "priKey": "DFkKX349iMkj3MfCd9CyWC23XwvU896CBbAWi8t5TpPX"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-33": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20066,
+          "rest": 30066,
+          "grpc": 10066,
+          "prom": 50066
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "977acf9cd6b233738d1907eff17cad861805b32dd4ab6a04f2acdacb41983234",
+        "p2p_id": {
+          "pubKey": "7nfZF7uH9mRp3KfWzDvyeAnh88pUrC77VVZjt5RDZKRU",
+          "priKey": "8eGRBSEc8KjR6mn8bT6sokdYnSGxRmKyfoNhPqqeuZFA"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-34": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20068,
+          "rest": 30068,
+          "grpc": 10068,
+          "prom": 50068
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "ed11b5f4bac00df5c5c8bc4c4dd0a9ac38a7ca4dceed0d7bebe9fbd79f63c945",
+        "p2p_id": {
+          "pubKey": "6b8Q1XJkWNPdT6YSfi6rwzDY4vafsnH1x3dy32JLpsSq",
+          "priKey": "7YW8udzYzwtjrQJzWvtPyZda5gKAt86AbShebJ6Wk39J"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-35": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20070,
+          "rest": 30070,
+          "grpc": 10070,
+          "prom": 50070
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "33ea475d33787fc2aa3d3a947605b7d5c980b2b59878f5b760c6d5183443927d",
+        "p2p_id": {
+          "pubKey": "92qUUUJg516q5hZzZUq2KjWAjZW2eYyY3fo7HHqGoib",
+          "priKey": "5h3FJDx1Xmb1hGpEhboeVRRr2amT6sc2gafU7LrYBVit"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-36": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20072,
+          "rest": 30072,
+          "grpc": 10072,
+          "prom": 50072
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "67b0fe1a09fbfac1f3fbb9fba22884e26bcd5b9323614b85dcc8bb86ebb813a3",
+        "p2p_id": {
+          "pubKey": "7Ni5mq6ArC9qJryQb2UmXeVhdzUH6gzqJMAJMAsEfPz6",
+          "priKey": "3CzjZ5RuZroLxdopNrzgDSHsxQCyiAQ1GFE5LHecJhhe"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-37": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20074,
+          "rest": 30074,
+          "grpc": 10074,
+          "prom": 50074
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "c5b4de028f175d1cc08336ec6a4a3fa3e93675421b71c8cd8df3264c97714a9b",
+        "p2p_id": {
+          "pubKey": "4TSSGyS1RCGvzMovzVJYZNGBYB3p6boEayctUiBw8Zhc",
+          "priKey": "BjcDRcLLLrcqXGQZz8iv4uPWk743xLENq4kr61ZXPiM4"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-38": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20076,
+          "rest": 30076,
+          "grpc": 10076,
+          "prom": 50076
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "009057e9408ffad59e23e4acd84fad32af7c82448778ee960014820b23243e2b",
+        "p2p_id": {
+          "pubKey": "G5K22JLBKhxPiGZf3xfUCGZcqPCQKF53RiXjYFsrUEK4",
+          "priKey": "E2RqRqwQXWMr8mYSgA5X3yWD1JjJZvVJybKMxPtK8TQn"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-39": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20078,
+          "rest": 30078,
+          "grpc": 10078,
+          "prom": 50078
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "6535fd796fa89bebdbaf9f297dd1dbb9d84427727cca15deeceb5c4c27a97fc6",
+        "p2p_id": {
+          "pubKey": "AoovB9De6UvbgaLhcCy1h1Uv1NoshGKkcgZHe2ko6pGt",
+          "priKey": "Ebbg8WVMbnLVmPAPNHKujZGDT6D4fk5PonnbtJGA9jFu"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-40": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20080,
+          "rest": 30080,
+          "grpc": 10080,
+          "prom": 50080
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "76ad858c65eb692557003c79a0086caad2eb3dd8421d6a47888f632d2a4c7b20",
+        "p2p_id": {
+          "pubKey": "58yT21ZTbWHkryrzFRhiXoCvrc8W1RNo39AeDiTdCccJ",
+          "priKey": "2XYNoHhmEynsN6i72vJtBbUJzSs5bNmBNXFczaKNaeyy"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-41": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20082,
+          "rest": 30082,
+          "grpc": 10082,
+          "prom": 50082
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "c74ac1602b41a3de23c5b6560cc71dd220fa20205a928751050743cd85b32eca",
+        "p2p_id": {
+          "pubKey": "BHEiB72HNu37CaqoKkEJVpnsLAGrVMUVmRttNojA7jD3",
+          "priKey": "JD2mjd4ReLfBLgExmHQx9aZtuRCqWJFZNbpPMeyz2dCa"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-42": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20084,
+          "rest": 30084,
+          "grpc": 10084,
+          "prom": 50084
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "820d7a59c8efc6a70ae40116feaac5a7ba058010251a919cb525270a6558a5c8",
+        "p2p_id": {
+          "pubKey": "BBSmwd6MP1SVZ3YacYvHKp6tDNgSswJivniNko1TXTia",
+          "priKey": "6q115C9eHHHb1vjMKtAafC6fSjPFbkUjdd2ca3cPhcuR"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-43": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20086,
+          "rest": 30086,
+          "grpc": 10086,
+          "prom": 50086
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "4e30874b90cbc69eec520190ba3ca8b92e9408a29263db230a825cef02cf55a4",
+        "p2p_id": {
+          "pubKey": "xWaxCCG32o1KuM1frt7zZgowZfGqoPkxhgZrg4dvKEN",
+          "priKey": "8f6rqdWBGXRhZXVKLwfe9x3tXJp67HLzjJqytsFGPSJ4"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-44": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20088,
+          "rest": 30088,
+          "grpc": 10088,
+          "prom": 50088
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "0c9aee5474eaf30214f83f0f46131b980416b5bdf894eae60c986ea50ff58178",
+        "p2p_id": {
+          "pubKey": "DnaaMLY3zpFv9bwPQVSgXaXC6JF5z2rmrqNJLoBm4xzh",
+          "priKey": "Da6bvFEtKY1smmVup6Jxa5ZrfompJ8cPkukaiFb27HVh"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-45": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20090,
+          "rest": 30090,
+          "grpc": 10090,
+          "prom": 50090
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "92f7ab1169550348c89829227d65fad81f3aec8dc1c966d64f2079274a6a84f7",
+        "p2p_id": {
+          "pubKey": "FHQnJYaZqJihgbTKpwuxAC19JruY4aKrCZeXGHmVT68e",
+          "priKey": "E6zhvzJdhzD9pqKA85WDmHLfHHMJAVfk8aBJ3zPX3ecf"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-46": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20092,
+          "rest": 30092,
+          "grpc": 10092,
+          "prom": 50092
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "83f041a624630f03fb79dc58f35268f8a3faf2f3c33aa1044a5cbe7e4c735550",
+        "p2p_id": {
+          "pubKey": "69S1cMSzswoVapuhDfgiJJVXht6rDfpcWc7rpgouhipu",
+          "priKey": "7e8Ys31p4JPDhGAGuwSAwsR7y4J2H8UPbX2U7VAwGxMV"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-47": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20094,
+          "rest": 30094,
+          "grpc": 10094,
+          "prom": 50094
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "e0d26b0339778036b3be123c518fb014feeb45503fabcc3ecc88fd29c865c80b",
+        "p2p_id": {
+          "pubKey": "6MZWXCLW3DfFz8GjMu9RkjhNCe5R6Z1AZbqyTqbK82Hp",
+          "priKey": "EBKMheM5uP8augZiUH7woh1yBQ36NgYf5GQGPTgy5mx8"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-48": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20096,
+          "rest": 30096,
+          "grpc": 10096,
+          "prom": 50096
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "91cc94eaa72ca99dc0c1534d2d5d157e147b43078d9051f5ab1bd6d57bbd3be9",
+        "p2p_id": {
+          "pubKey": "8vNjQg4G6kMzhbDgibHnV4NNSR2z7KSH2yFzZZVv6kyL",
+          "priKey": "2fae527nQpxMqKfAAjYuAYPJAsa9fLghGiZ5Nz3RknhP"
+        },
+        "nat_hash": "55448db011"
+      },
+      "tn-ilya-miner-0-49": {
+        "tag": "v0.1.11",
+        "host": {
+          "ns": "tn-ilya",
+          "app": "miner",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-miner-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.109",
+          "ext_ip": "35.223.13.73"
+        },
+        "ports": {
+          "p2p": 20098,
+          "rest": 30098,
+          "grpc": 10098,
+          "prom": 50098
+        },
+        "poet_server": "10.128.0.93:8080",
+        "coinbase": "0x1234",
+        "bs_node": false,
+        "bootnode": false,
+        "gateway": false,
+        "running": true,
+        "miner_id": "57076441d1dd706cc3fa06c7b7e62edbf7aeda90d7c7873178269350bd6bc360",
+        "p2p_id": {
+          "pubKey": "BchLYiRxr7wPxTJHkbAQGjvs9vjR1TekX5mS7P8vZDYT",
+          "priKey": "EtdMoAgB5hDYPEHQ4Ms2W5EzL4jexWud8YzqsunBP2aT"
+        },
+        "nat_hash": "55448db011"
+      }
+    },
+    "metrics": {
+      "metrics": {
+        "host": {
+          "ns": "tn-ilya",
+          "app": "metrics",
+          "zone": "projects/16534298807/zones/us-central1-a",
+          "name": "tn-ilya-metrics-0.c.spacecraft-id.internal",
+          "ip": "10.128.0.107",
+          "ext_ip": "34.72.74.46"
+        },
+        "config": {
+
+        }
+      }
+    }
   },
-  "logging": {
-    "app": "info",
-    "p2p": "info",
-    "post": "info",
-    "stateDb": "info",
-    "state": "info",
-    "atxDb": "info",
-    "poetDb": "info",
-    "store": "info",
-    "meshDb": "info",
-    "trtl": "info",
-    "block-eligibility": "info",
-    "mesh": "info",
-    "sync": "info",
-    "block-oracle": "info",
-    "hare-oracle": "info",
-    "hare": "info",
-    "block-builder": "info",
-    "block-listener": "info",
-    "poet": "info",
-    "nipst": "info",
-    "atx-builder": "info",
-    "hare-beacon": "info"
-  }
+  "bootnodes": [
+    "tn-ilya-miner-0-0"
+  ],
+  "gateways": [
+    "tn-ilya-miner-0-0"
+  ],
+  "state": "READY",
+  "kibana": "34.72.74.46:5601",
+  "test": false
 }

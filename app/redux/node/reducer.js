@@ -2,7 +2,7 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS } from './actions';
+import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS, SET_ACCOUNT_REWARDS } from './actions';
 
 const initialState = {
   status: null,
@@ -14,6 +14,7 @@ const initialState = {
   layerDuration: 0,
   stateRootHash: null,
   port: '',
+  rewards: [],
   timeTillNextAward: 0,
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
@@ -61,6 +62,10 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { nodeIpAddress }
       } = action;
       return { ...state, nodeIpAddress };
+    }
+    case SET_ACCOUNT_REWARDS: {
+      const { rewards } = action.payload;
+      return { ...state, rewards };
     }
     case LOGOUT:
       return initialState;
