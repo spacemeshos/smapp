@@ -2,8 +2,6 @@
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { setCurrentAccount } from '/redux/wallet/actions';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -11,7 +9,6 @@ import { CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
 import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
 import { backup, leftSideTIcon } from '/assets/images';
-import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
@@ -70,11 +67,6 @@ const RightSection = styled.div`
 `;
 
 type Props = {
-  displayName: string,
-  accounts: Account[],
-  currentAccountIndex: number,
-  setCurrentAccount: Action,
-  status: Object,
   history: RouterHistory
 };
 
@@ -87,12 +79,11 @@ type State = {
 
 class Wallet extends Component<Props, State> {
   render() {
-    const { status, displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
     const hasBackup = !!localStorageService.get('hasBackup');
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview status={status} walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
+          <AccountsOverview />
           {!hasBackup && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
@@ -121,19 +112,6 @@ class Wallet extends Component<Props, State> {
     history.push('/main/backup');
   };
 }
-
-const mapStateToProps = (state) => ({
-  status: state.node.status,
-  displayName: state.wallet.meta.displayName,
-  accounts: state.wallet.accounts,
-  currentAccountIndex: state.wallet.currentAccountIndex
-});
-
-const mapDispatchToProps = {
-  setCurrentAccount
-};
-
-Wallet = connect(mapStateToProps, mapDispatchToProps)(Wallet);
 
 Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;

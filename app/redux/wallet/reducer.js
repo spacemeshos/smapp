@@ -25,6 +25,7 @@ const initialState = {
   isUpdateDownloading: false
 };
 
+// TODO: fix this while fixing contacts feature
 // const getFirst3UniqueAddresses = (txList: TxList, ownAddress): Contact[] => {
 //   const unique = new Set();
 //   for (let i = 0; i < txList.length && i < 10; i += 1) {
