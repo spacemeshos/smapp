@@ -44,7 +44,7 @@ class TransactionManager {
       const fullTxToAdd = { ...txToAdd, txId: id };
       this.transactions[accountIndex].data.push(fullTxToAdd);
       StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
-      return { error: null, transactions: this.transactions[accountIndex], id };
+      return { error: null, transactions: this.transactions, id };
     } catch (error) {
       return { error, transactions: [], id: '' };
     }
@@ -58,12 +58,12 @@ class TransactionManager {
       ...this.transactions[accountIndex].data.slice(txToUpdateIndex + 1)
     ];
     StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
-    return { transactions: this.transactions[accountIndex] };
+    return { transactions: this.transactions };
   };
 
-  getAccountTxs = async ({ accountIndex }) => {
+  getAccountTxs = async () => {
     const [hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs] = await this._retrieveAndUpdateTransactions();
-    return { transactions: this.transactions[accountIndex], hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
+    return { transactions: this.transactions, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
   };
 
   _retrieveAndUpdateTransactions = async () => {

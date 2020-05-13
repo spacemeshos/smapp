@@ -76,8 +76,8 @@ class WalletManager {
       const res = await this.txManager.updateTransaction({ event, ...request });
       return res;
     });
-    ipcMain.handle(ipcConsts.GET_ACCOUNT_TXS, async (event, request) => {
-      const res = await this.txManager.getAccountTxs({ ...request });
+    ipcMain.handle(ipcConsts.GET_ACCOUNT_TXS, async () => {
+      const res = await this.txManager.getAccountTxs();
       return res;
     });
     ipcMain.handle(ipcConsts.GET_ACCOUNT_REWARDS, async (event, request) => {

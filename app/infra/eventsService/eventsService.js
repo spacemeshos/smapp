@@ -61,7 +61,7 @@ class EventsService {
   static updateTransaction = ({ newData, accountIndex, txId }: { newData: string, accountIndex: number, txId?: string }) =>
     ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });
 
-  static getAccountTxs = ({ accountIndex }: { accountIndex: number }) => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_TXS, { accountIndex });
+  static getAccountTxs = () => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_TXS);
 
   /** ************************************   AUTOSTART   ************************************** */
 

@@ -108,8 +108,9 @@ export const setRewardsAddress = ({ address }: { address: string }): Action => a
 
 export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { rewardsAddress } = getState().node;
-  const { currentAccountIndex } = getState().wallet;
-  const { error, hasNewAwards, rewards } = await eventsService.getAccountRewards({ address: rewardsAddress, accountIndex: currentAccountIndex });
+  const { accounts } = getState().wallet;
+  const accountIndex = accounts.findIndex((account) => account.publicKey === rewardsAddress);
+  const { error, hasNewAwards, rewards } = await eventsService.getAccountRewards({ address: rewardsAddress, accountIndex });
   if (error) {
     console.error(error); // eslint-disable-line no-console
   } else {

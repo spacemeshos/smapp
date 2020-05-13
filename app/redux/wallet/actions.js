@@ -195,9 +195,8 @@ export const updateTransaction = ({ newData, txId }: { newData: string, txId?: s
   dispatch(setTransactions({ transactions }));
 };
 
-export const getTxList = ({ approveTxNotifier }: { approveTxNotifier: Function }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { currentAccountIndex } = getState().wallet;
-  const { transactions, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = await eventsService.getAccountTxs({ accountIndex: currentAccountIndex });
+export const getTxList = ({ approveTxNotifier }: { approveTxNotifier: ({ hasConfirmedIncomingTxs: boolean }) => void }): Action => async (dispatch: Dispatch): Dispatch => {
+  const { transactions, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = await eventsService.getAccountTxs();
   if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
     approveTxNotifier({ hasConfirmedIncomingTxs });
   }
