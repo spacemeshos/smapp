@@ -29,49 +29,54 @@ class NodeManager {
     ipcMain.once(ipcConsts.START_NODE, async () => {
       await this.startNode();
     });
-    ipcMain.once(ipcConsts.STOP_NODE, async (event) => {
-      await this.stopNode({ event, browserWindow: mainWindow });
+    ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async (event) => {
+      const res = await this.getNodeSettings({ event });
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_NODE_SETTINGS, async (event) => {
-      await this.getNodeSettings({ event });
+    ipcMain.handle(ipcConsts.GET_NODE_STATUS, async () => {
+      const res = await this.getNodeStatus();
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_NODE_STATUS, async (event) => {
-      await this.getNodeStatus({ event });
+    ipcMain.on(ipcConsts.SET_NODE_PORT, (event, request) => {
+      StoreService.set({ key: 'port', value: request.port });
     });
-    ipcMain.once(ipcConsts.SET_NODE_PORT, (event, request) => {
-      this.setPort({ ...request.data });
+    ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
+      const res = await this.selectPostFolder({ mainWindow });
+      return res;
     });
-    ipcMain.on(ipcConsts.SELECT_POST_FOLDER, async (event) => {
-      await this.selectPostFolder({ event, mainWindow });
+    ipcMain.handle(ipcConsts.GET_MINING_STATUS, async () => {
+      const res = await this.getMiningStatus();
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_MINING_STATUS, async (event) => {
-      await this.getMiningStatus({ event });
+    ipcMain.handle(ipcConsts.INIT_MINING, async (event, request) => {
+      const res = await this.initMining({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.INIT_MINING, async (event, request) => {
-      await this.initMining({ event, ...request.data });
+    ipcMain.handle(ipcConsts.GET_UPCOMING_REWARDS, async () => {
+      const res = await this.getUpcomingRewards();
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_UPCOMING_REWARDS, (event) => {
-      this.getUpcomingRewards({ event });
+    ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
+      const res = await this.setRewardsAddress({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
-      await this.setRewardsAddress({ event, ...request.data });
-    });
-    ipcMain.on(ipcConsts.SET_NODE_IP, (event, request) => {
-      this.setNodeIpAddress({ event, ...request.data });
+    ipcMain.handle(ipcConsts.SET_NODE_IP, (event, request) => {
+      const res = this.setNodeIpAddress({ ...request });
+      return res;
     });
   };
 
   startNode = async () => {
     try {
-      const fetchedGenesisTime = nodeConfig.flags.main['genesis-time'];
+      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
       const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
 
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
 
-      StoreService.set({ key: 'postSize', value: parseInt(nodeConfig.flags.post['post-space']) });
-      const networkId = parseInt(nodeConfig.flags.p2p['network-id']);
+      StoreService.set({ key: 'postSize', value: parseInt(nodeConfig.post['post-space']) });
+      const networkId = parseInt(nodeConfig.p2p['network-id']);
       StoreService.set({ key: 'networkId', value: networkId });
-      StoreService.set({ key: 'layerDurationSec', value: parseInt(nodeConfig.flags.main['layer-duration-sec']) });
+      StoreService.set({ key: 'layerDurationSec', value: parseInt(nodeConfig.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -158,7 +163,7 @@ class NodeManager {
     }
   };
 
-  getNodeSettings = async ({ event }) => {
+  getNodeSettings = async () => {
     try {
       const savedMiningParams = StoreService.get({ key: 'miningParams' });
       const address = savedMiningParams?.coinbase;
@@ -168,13 +173,13 @@ class NodeManager {
       const layerDuration = StoreService.get({ key: 'layerDurationSec' });
       const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
       const { value } = await netService.getStateRoot();
-      event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port });
+      return { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
     } catch (error) {
-      event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { error });
+      return { error };
     }
   };
 
-  getNodeStatus = async ({ event }) => {
+  getNodeStatus = async () => {
     try {
       const status = await netService.getNodeStatus();
       const parsedStatus = {
@@ -186,84 +191,80 @@ class NodeManager {
         currentLayer: parseInt(status.currentLayer),
         verifiedLayer: parseInt(status.verifiedLayer)
       };
-      event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: parsedStatus, error: null });
+      return { status: parsedStatus, error: null };
     } catch (error) {
-      event.sender.send(ipcConsts.GET_NODE_STATUS_RESPONSE, { status: null, error });
+      return { status: null, error };
     }
   };
 
-  setPort = ({ port }) => {
-    StoreService.set({ key: 'port', value: port });
-  };
-
-  selectPostFolder = async ({ event, mainWindow }) => {
+  selectPostFolder = async ({ mainWindow }) => {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
       title: 'Select folder for smeshing',
       defaultPath: app.getPath('documents'),
       properties: ['openDirectory']
     });
     if (canceled || !filePaths.length) {
-      event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: 'no folder selected' });
+      return { error: 'no folder selected' };
     } else {
       try {
         fs.accessSync(filePaths[0], fs.constants.W_OK);
         const diskSpace = await checkDiskSpace(filePaths[0]);
-        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { selectedFolder: filePaths[0], freeSpace: diskSpace.free });
-      } catch (err) {
-        event.sender.send(ipcConsts.SELECT_POST_FOLDER_RESPONSE, { error: err });
+        return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
+      } catch (error) {
+        return { error };
       }
     }
   };
 
-  getMiningStatus = async ({ event }) => {
+  getMiningStatus = async () => {
     try {
       const { status } = await netService.getMiningStatus();
-      event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error: null, status });
+      return { error: null, status };
     } catch (error) {
-      event.sender.send(ipcConsts.GET_MINING_STATUS_RESPONSE, { error, status: null });
+      return { error, status: null };
     }
   };
 
-  initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
+  initMining = async ({ logicalDrive, commitmentSize, coinbase }) => {
     try {
       await netService.initMining({ logicalDrive, commitmentSize, coinbase });
       StoreService.set({ key: 'miningParams', value: { logicalDrive, coinbase } });
-      event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error: null });
+      return { error: null };
     } catch (error) {
-      event.sender.send(ipcConsts.INIT_MINING_RESPONSE, { error });
+      return { error };
     }
   };
 
-  getUpcomingRewards = async ({ event }) => {
+  getUpcomingRewards = async () => {
     try {
       const { layers } = await netService.getUpcomingAwards();
       if (!layers) {
-        event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: null, layers: [] });
+        return { error: null, layers: [] };
       }
       const resolvedLayers = layers || [];
       const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
       parsedLayers.sort((a, b) => a - b);
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: null, layers: parsedLayers });
+      return { error: null, layers: parsedLayers };
     } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_REWARDS_RESPONSE, { error: error.message, layers: null });
+      return { error: error.message, layers: null };
     }
   };
 
-  setRewardsAddress = async ({ event, address }) => {
+  setRewardsAddress = async ({ address }) => {
     try {
       await netService.setAwardsAddress({ address });
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, { error: null });
+      return { error: null };
     } catch (error) {
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_RESPONSE, { error });
+      return { error };
     }
   };
 
-  setNodeIpAddress = ({ event, nodeIpAddress }) => {
+  setNodeIpAddress = ({ nodeIpAddress }) => {
     try {
       netService.setNodeIpAddress({ nodeIpAddress });
-      event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error: null });
+      return { error: null };
     } catch (error) {
-      event.sender.send(ipcConsts.SET_NODE_IP_RESPONSE, { error });
+      return { error };
     }
   };
 }

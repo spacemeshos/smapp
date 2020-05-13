@@ -197,13 +197,11 @@ class NodeSetup extends Component<Props, State> {
   };
 
   openFolderSelectionDialog = async () => {
-    try {
-      const { selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    if (error.error !== 'no folder selected') {
+      this.setState({ hasPermissionError: true });
+    } else {
       this.setState({ selectedFolder, freeSpace: formatBytes(freeSpace), hasPermissionError: false });
-    } catch (err) {
-      if (err.error !== 'no folder selected') {
-        this.setState({ hasPermissionError: true });
-      }
     }
   };
 

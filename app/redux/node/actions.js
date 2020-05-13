@@ -1,5 +1,4 @@
 // @flow
-import { localStorageService } from '/infra/storageService';
 import { eventsService } from '/infra/eventsService';
 import { createError } from '/infra/utils';
 import { nodeConsts } from '/vars';
@@ -45,13 +44,13 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
     console.error(error); // eslint-disable-line no-console
     return nodeConsts.MINING_UNSET;
   } else if (status === nodeConsts.IS_MINING) {
-    if (!localStorageService.get('smesherSmeshingTimestamp')) {
-      localStorageService.set('smesherSmeshingTimestamp', new Date().getTime());
+    if (!localStorage.getItem('smesherSmeshingTimestamp')) {
+      localStorage.setItem('smesherSmeshingTimestamp', new Date().getTime());
     }
   } else if (status === nodeConsts.NOT_MINING) {
-    localStorageService.clearByKey('playedAudio');
-    localStorageService.clearByKey('smesherInitTimestamp');
-    localStorageService.clearByKey('smesherSmeshingTimestamp');
+    localStorage.removeItem('playedAudio');
+    localStorage.removeItem('smesherInitTimestamp');
+    localStorage.removeItem('smesherSmeshingTimestamp');
   }
   dispatch({ type: SET_MINING_STATUS, payload: { status } });
   return status;
@@ -65,8 +64,8 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
     console.error(error); // eslint-disable-line no-console
     throw createError(`Error initiating smeshing: ${error}`, () => dispatch(initMining({ logicalDrive, commitmentSize, address })));
   } else {
-    localStorageService.set('smesherInitTimestamp', new Date().getTime());
-    localStorageService.clearByKey('smesherSmeshingTimestamp');
+    localStorage.setItem('smesherInitTimestamp', new Date().getTime());
+    localStorage.removeItem('smesherSmeshingTimestamp');
     dispatch({ type: INIT_MINING, payload: { address } });
   }
 };

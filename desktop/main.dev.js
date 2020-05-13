@@ -9,11 +9,11 @@
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
+
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import subscribeToAutoUpdateListeners from './autoUpdateListeners';
+import UpdateManager from './updateManager';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
@@ -25,18 +25,10 @@ const unhandled = require('electron-unhandled');
 unhandled();
 
 StoreService.init();
-AutoStartManager.init();
-
-class AppUpdater {
-  constructor() {
-    autoUpdater.logger = null;
-    autoUpdater.autoInstallOnAppQuit = false;
-    autoUpdater.autoDownload = true;
-  }
-}
 
 let mainWindow = null;
 let tray = null;
+let nodeManager;
 
 const installExtensions = () => {
   const installer = require('electron-devtools-installer');
@@ -87,10 +79,6 @@ const createWindow = () => {
       nodeIntegration: true
     }
   });
-  new NodeManager(mainWindow); // eslint-disable-line no-new
-  new WalletManager(mainWindow); // eslint-disable-line no-new
-  // Add event listeners.
-  subscribeToAutoUpdateListeners({ mainWindow });
 };
 
 app.on('ready', async () => {
@@ -112,22 +100,38 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', async (event) => {
     event.preventDefault();
-    mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
+    const savedMiningParams = StoreService.get({ key: 'miningParams' });
+    if (savedMiningParams) {
+      const options = {
+        title: 'Quit App',
+        message:
+          'Quitting stops smeshing and may cause loss of future due smeshing rewards.' +
+          '\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
+          '\n• Click QUIT to close the app and stop smeshing.',
+        buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
+      };
+      const { response } = await dialog.showMessageBox(mainWindow, options);
+      if (response === 0) {
+        mainWindow.webContents.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
+        mainWindow.hide();
+        mainWindow.reload();
+      } else if (response === 1) {
+        mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+        await nodeManager.stopNode({ browserWindow: mainWindow });
+      }
+    } else {
+      mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+      await nodeManager.stopNode({ browserWindow: mainWindow });
+    }
   });
 
-  ipcMain.on(ipcConsts.CHECK_APP_VISIBILITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, mainWindow.isVisible() && mainWindow.isFocused()));
+  ipcMain.handle(ipcConsts.IS_APP_VISIBLE, () => mainWindow.isVisible() && mainWindow.isFocused());
 
-  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => {
-    mainWindow.hide();
-    mainWindow.reload();
-  });
-
-  ipcMain.on(ipcConsts.GET_AUDIO_PATH, (event) => {
-    const audioPath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3');
-    event.sender.send(ipcConsts.GET_AUDIO_PATH_RESPONSE, { error: null, audioPath });
-  });
+  ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
+    path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')
+  );
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
@@ -140,14 +144,6 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
-    AutoStartManager.toggleAutoStart();
-  });
-
-  ipcMain.on(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, (event) => {
-    AutoStartManager.isEnabled({ event });
-  });
-
   ipcMain.on(ipcConsts.HARD_REFRESH, () => {
     mainWindow.reload();
   });
@@ -155,8 +151,10 @@ app.on('ready', async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // eslint-disable-next-line no-new
-  new AppUpdater();
+  nodeManager = new NodeManager(mainWindow);
+  new WalletManager(mainWindow); // eslint-disable-line no-new
+  new AutoStartManager(); // eslint-disable-line no-new
+  new UpdateManager(mainWindow); // eslint-disable-line no-new
 });
 
 app.on('activate', () => {

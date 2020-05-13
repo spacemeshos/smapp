@@ -7,7 +7,6 @@ import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { localStorageService } from '/infra/storageService';
 import { eventsService } from '/infra/eventsService';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
@@ -171,9 +170,9 @@ class Node extends Component<Props, State> {
 
   render() {
     const { rewards } = this.props;
-    let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
+    let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
     smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
-    let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
+    let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
     smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(smesherSmeshingTimestamp) : '';
     return (
       <Wrapper>
@@ -223,13 +222,13 @@ class Node extends Component<Props, State> {
     //     await getUpcomingRewards();
     //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
     //   }
-    const { audioPath } = await eventsService.getAudioPath();
+    const audioPath = await eventsService.getAudioPath();
     this.audio = new Audio(audioPath);
   }
 
   componentDidUpdate() {
     const { rewards } = this.props;
-    const playedAudio = localStorageService.get('playedAudio');
+    const playedAudio = localStorage.getItem('playedAudio');
     this.audio.loop = false;
     if (rewards && rewards.length === 1 && !playedAudio) {
       this.audio.play();

@@ -1,12 +1,12 @@
 // @flow
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
-import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
 import { backup, leftSideTIcon } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
@@ -67,6 +67,7 @@ const RightSection = styled.div`
 `;
 
 type Props = {
+  backupTime: string,
   history: RouterHistory
 };
 
@@ -79,12 +80,12 @@ type State = {
 
 class Wallet extends Component<Props, State> {
   render() {
-    const hasBackup = !!localStorageService.get('hasBackup');
+    const { backupTime } = this.props;
     return (
       <Wrapper>
         <LeftSection>
           <AccountsOverview />
-          {!hasBackup && (
+          {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
               <BackupImage src={backup} />
@@ -112,6 +113,12 @@ class Wallet extends Component<Props, State> {
     history.push('/main/backup');
   };
 }
+
+const mapStateToProps = (state) => ({
+  backupTime: state.wallet.backupTime
+});
+
+Wallet = connect<any, any, _, _, _, _>(mapStateToProps)(Wallet);
 
 Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;

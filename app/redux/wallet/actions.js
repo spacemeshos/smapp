@@ -1,7 +1,6 @@
 // @flow
 import { eventsService } from '/infra/eventsService';
 import { cryptoService } from '/infra/cryptoService';
-import { localStorageService } from '/infra/storageService';
 import { createError, getAddress } from '/infra/utils';
 import { Action, Dispatch, GetState, WalletMeta, Account, AccountTxs, Contact } from '/types';
 import TX_STATUSES from '/vars/enums';
@@ -16,6 +15,8 @@ export const SET_CONTACTS: string = 'SET_CONTACTS';
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE: string = 'SET_BALANCE';
+
+export const SET_BACKUP_TIME: string = 'SET_BACKUP_TIME';
 
 export const SET_UPDATE_DOWNLOADING: string = 'IS_UPDATE_DOWNLOADING';
 
@@ -55,7 +56,7 @@ export const createNewWallet = ({ mnemonic, password }: { mnemonic?: string, pas
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: dataToEncrypt.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    localStorageService.set('accountNumber', 1);
+    localStorage.setItem('accountNumber', 1);
     dispatch(readWalletFiles());
   }
 };
@@ -97,12 +98,12 @@ export const createNewAccount = ({ password }: { password: string }): Action => 
   const { walletFiles, mnemonic, accounts } = getState().wallet;
   const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length });
   const timestamp = new Date().toISOString().replace(/:/, '-');
-  const accountNumber = localStorageService.get('accountNumber');
+  const accountNumber = localStorage.getItem('accountNumber');
   const newAccount = getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey });
   const updatedAccounts = [...accounts, newAccount];
   await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts } });
   dispatch(setAccounts({ accounts: updatedAccounts }));
-  localStorageService.set('accountNumber', accountNumber + 1);
+  localStorage.setItem('accountNumber', accountNumber + 1);
 };
 
 export const updateAccountName = ({ accountIndex, name, password }: { accountIndex: number, name: string, password: string }): Action => async (
@@ -124,18 +125,23 @@ export const addToContacts = ({ contact }: Contact): Action => async (dispatch: 
 
 export const restoreFile = ({ filePath }: { filePath: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { walletFiles } = getState().wallet;
-  const { newFilePath } = await eventsService.copyFile({ filePath });
-  dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [newFilePath, ...walletFiles] : [newFilePath] } });
+  const { error, newFilePath } = await eventsService.copyFile({ filePath });
+  if (error) {
+    console.log(error); // eslint-disable-line no-console
+    throw createError('Error restoring file!', () => dispatch(restoreFile({ filePath })));
+  } else {
+    dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [newFilePath, ...walletFiles] : [newFilePath] } });
+  }
 };
 
 export const backupWallet = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { walletFiles } = getState().wallet;
   const { error } = await eventsService.copyFile({ filePath: walletFiles[0], copyToDocuments: true });
   if (error) {
+    console.log(error); // eslint-disable-line no-console
     throw createError('Error creating wallet backup!', () => dispatch(backupWallet()));
   } else {
-    localStorageService.set('hasBackup', true);
-    localStorageService.set('lastBackupTime', new Date());
+    dispatch({ type: SET_BACKUP_TIME, payload: { backupTime: new Date() } });
   }
 };
 

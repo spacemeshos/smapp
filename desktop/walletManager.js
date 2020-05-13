@@ -31,23 +31,27 @@ class WalletManager {
   }
 
   subscribeToEvents = (mainWindow) => {
-    ipcMain.on(ipcConsts.CREATE_WALLET_FILE, async (event, request) => {
-      await this.createWalletFile({ event, ...request.data });
+    ipcMain.handle(ipcConsts.CREATE_WALLET_FILE, async (event, request) => {
+      const res = await this.createWalletFile({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.READ_WALLET_FILES, async (event) => {
-      await this.readWalletFiles({ event });
+    ipcMain.handle(ipcConsts.READ_WALLET_FILES, async () => {
+      const res = await this.readWalletFiles();
+      return res;
     });
-    ipcMain.on(ipcConsts.UNLOCK_WALLET_FILE, async (event, request) => {
-      await this.unlockWalletFile({ event, ...request.data });
+    ipcMain.handle(ipcConsts.UNLOCK_WALLET_FILE, async (event, request) => {
+      const res = await this.unlockWalletFile({ ...request });
+      return res;
     });
     ipcMain.on(ipcConsts.UPDATE_WALLET_FILE, async (event, request) => {
-      await this.updateWalletFile({ event, ...request.data });
+      await this.updateWalletFile({ ...request });
     });
-    ipcMain.on(ipcConsts.COPY_FILE, async (event, request) => {
-      await this.copyFile({ event, ...request.data });
+    ipcMain.handle(ipcConsts.COPY_FILE, async (event, request) => {
+      const res = await this.copyFile({ ...request });
+      return res;
     });
     ipcMain.on(ipcConsts.SHOW_FILE_IN_FOLDER, (event, request) => {
-      this.showFileInDirectory({ ...request.data });
+      this.showFileInDirectory({ ...request });
     });
     ipcMain.on(ipcConsts.DELETE_FILE, async (event, request) => {
       await this.deleteWalletFile({ browserWindow: mainWindow, ...request });
@@ -56,27 +60,33 @@ class WalletManager {
       await this.wipeOut({ browserWindow: mainWindow });
     });
 
-    ipcMain.on(ipcConsts.GET_BALANCE, async (event, request) => {
-      await this.getBalance({ event, ...request.data });
+    ipcMain.handle(ipcConsts.GET_BALANCE, async (event, request) => {
+      const res = await this.getBalance({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_NONCE, async (event, request) => {
-      await this.getNonce({ event, ...request.data });
+    ipcMain.handle(ipcConsts.GET_NONCE, async (event, request) => {
+      const res = await this.getNonce({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.SEND_TX, async (event, request) => {
-      await this.txManager.sendTx({ event, ...request.data });
+    ipcMain.handle(ipcConsts.SEND_TX, async (event, request) => {
+      const res = await this.txManager.sendTx({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.UPDATE_TX, async (event, request) => {
-      await this.txManager.updateTransaction({ event, ...request.data });
+    ipcMain.handle(ipcConsts.UPDATE_TX, async (event, request) => {
+      const res = await this.txManager.updateTransaction({ event, ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_ACCOUNT_TXS, async (event, request) => {
-      await this.txManager.getAccountTxs({ event, ...request.data });
+    ipcMain.handle(ipcConsts.GET_ACCOUNT_TXS, async (event, request) => {
+      const res = await this.txManager.getAccountTxs({ ...request });
+      return res;
     });
-    ipcMain.on(ipcConsts.GET_ACCOUNT_REWARDS, async (event, request) => {
-      await this.txManager.getAccountRewards({ event, ...request.data });
+    ipcMain.handle(ipcConsts.GET_ACCOUNT_REWARDS, async (event, request) => {
+      const res = await this.txManager.getAccountRewards({ ...request });
+      return res;
     });
   };
 
-  createWalletFile = async ({ event, timestamp, dataToEncrypt, password }) => {
+  createWalletFile = async ({ timestamp, dataToEncrypt, password }) => {
     try {
       const walletNumber = StoreService.get({ key: 'walletNumber' }) || 0;
       const meta = {
@@ -97,25 +107,25 @@ class WalletManager {
       const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
       await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
       StoreService.set({ key: 'walletNumber', value: walletNumber + 1 });
-      event.sender.send(ipcConsts.CREATE_WALLET_FILE_RESPONSE, { error: null, meta });
+      return { error: null, meta };
     } catch (error) {
-      event.sender.send(ipcConsts.CREATE_WALLET_FILE_RESPONSE, { error, meta: null });
+      return { error, meta: null };
     }
   };
 
-  readWalletFiles = async ({ event }) => {
+  readWalletFiles = async () => {
     try {
       const files = await readDirectoryAsync(appFilesDirPath);
       const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
       const filteredFiles = files.filter((file) => file.match(regex));
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
-      event.sender.send(ipcConsts.READ_WALLET_FILES_RESPONSE, { error: null, files: filesWithPath });
+      return { error: null, files: filesWithPath };
     } catch (error) {
-      event.sender.send(ipcConsts.READ_WALLET_FILES_RESPONSE, { error, filesWithPath: null });
+      return { error, files: null };
     }
   };
 
-  unlockWalletFile = async ({ event, path, password }) => {
+  unlockWalletFile = async ({ path, password }) => {
     try {
       const fileContent = await readFileAsync(path);
       const { crypto, meta, contacts } = JSON.parse(fileContent);
@@ -123,31 +133,31 @@ class WalletManager {
       const decryptedDataJSON = FileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic } = JSON.parse(decryptedDataJSON);
       this.txManager.setAccounts({ accounts });
-      event.sender.send(ipcConsts.UNLOCK_WALLET_FILE_RESPONSE, { error: null, accounts, mnemonic, meta, contacts });
+      return { error: null, accounts, mnemonic, meta, contacts };
     } catch (error) {
-      event.sender.send(ipcConsts.UNLOCK_WALLET_FILE_RESPONSE, { error, accounts: null, mnemonic: null, meta: null, contacts: null });
+      return { error, accounts: null, mnemonic: null, meta: null, contacts: null };
     }
   };
 
-  getBalance = async ({ event, address }) => {
+  getBalance = async ({ address }) => {
     try {
       const { value } = await netService.getBalance({ address });
-      event.sender.send(ipcConsts.GET_BALANCE_RESPONSE, { error: null, balance: value });
+      return { error: null, balance: value };
     } catch (error) {
       if (typeof error.message === 'string' && error.message.includes('account does not exist')) {
-        event.sender.send(ipcConsts.GET_BALANCE_RESPONSE, { error: null, balance: 0 });
+        return { error: null, balance: 0 };
       } else {
-        event.sender.send(ipcConsts.GET_BALANCE_RESPONSE, { error, balance: null });
+        return { error, balance: null };
       }
     }
   };
 
-  getNonce = async ({ event, address }) => {
+  getNonce = async ({ address }) => {
     try {
       const { value } = await netService.getNonce({ address });
-      event.sender.send(ipcConsts.GET_NONCE_RESPONSE, { error: null, nonce: value });
+      return { error: null, nonce: value };
     } catch (error) {
-      event.sender.send(ipcConsts.GET_NONCE_RESPONSE, { error, nonce: null });
+      return { error, nonce: null };
     }
   };
 
@@ -170,7 +180,7 @@ class WalletManager {
     }
   };
 
-  copyFile = async ({ event, filePath, copyToDocuments }) => {
+  copyFile = async ({ filePath, copyToDocuments }) => {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
     const walletNumber = StoreService.get({ key: 'walletNumber' });
     const fileName = copyToDocuments ? `Wallet_Backup_${timestamp}.json` : `my_wallet_${walletNumber}-${new Date().toISOString().replace(/:/, '-')}.json`;
@@ -178,9 +188,9 @@ class WalletManager {
     try {
       await copyFileAsync(filePath, newFilePath);
       StoreService.set({ key: 'walletNumber', value: walletNumber + 1 });
-      event.sender.send(ipcConsts.COPY_FILE_RESPONSE, { error: null, newFilePath });
+      return { error: null, newFilePath };
     } catch (error) {
-      event.sender.send(ipcConsts.COPY_FILE_RESPONSE, { error });
+      return { error };
     }
   };
 
@@ -217,6 +227,7 @@ class WalletManager {
     if (response === 0) {
       try {
         this.txManager.clearData();
+        StoreService.remove({ key: 'miningParams' });
         await unlinkFileAsync(fileName);
         browserWindow.reload();
       } catch (err) {

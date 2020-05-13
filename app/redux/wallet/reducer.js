@@ -10,6 +10,7 @@ import {
   SET_TRANSACTIONS,
   SET_CONTACTS,
   SET_CURRENT_ACCOUNT_INDEX,
+  SET_BACKUP_TIME,
   SET_UPDATE_DOWNLOADING
 } from './actions';
 
@@ -22,6 +23,7 @@ const initialState = {
   transactions: {},
   lastUsedContacts: [],
   contacts: [],
+  backupTime: null,
   isUpdateDownloading: false
 };
 
@@ -82,6 +84,10 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_CONTACTS: {
       const { contacts } = action.payload;
       return { ...state, contacts };
+    }
+    case SET_BACKUP_TIME: {
+      const { backupTime } = action.payload;
+      return { ...state, backupTime };
     }
     case SET_UPDATE_DOWNLOADING: {
       const { isUpdateDownloading } = action.payload;

@@ -9,7 +9,6 @@ import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordMod
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { eventsService } from '/infra/eventsService';
-import { localStorageService } from '/infra/storageService';
 import { walletUpdateService } from '/infra/walletUpdateService';
 import { getAddress, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
@@ -65,7 +64,8 @@ type Props = {
   rewardsAddress: string,
   stateRootHash: string,
   port: string,
-  networkId: string
+  networkId: string,
+  backupTime: string
 };
 
 type State = {
@@ -116,7 +116,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId, stateRootHash } = this.props;
+    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -130,7 +130,6 @@ class Settings extends Component<Props, State> {
       changedPort,
       isPortSet
     } = this.state;
-    const lastBackupTime = localStorageService.get('lastBackupTime');
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -154,7 +153,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow upperPart={<ChangePassword />} rowName="Wallet password" />
               <SettingRow
-                upperPartLeft={`Last Backup ${lastBackupTime ? `at ${new Date(lastBackupTime).toLocaleString()}` : 'was never backed-up.'}`}
+                upperPartLeft={`Last Backup ${backupTime ? `at ${new Date(backupTime).toLocaleString()}` : 'was never backed-up.'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"
@@ -197,7 +196,7 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
+                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled />
                 ]}
                 rowName="App Version"
               />
@@ -332,12 +331,12 @@ class Settings extends Component<Props, State> {
 
   deleteWallet = async () => {
     const { walletFiles } = this.props;
-    localStorageService.clear();
+    localStorage.clear();
     await eventsService.deleteWalletFile({ fileName: walletFiles[0] });
   };
 
   cleanAllAppDataAndSettings = async () => {
-    localStorageService.clear();
+    localStorage.clear();
     eventsService.wipeOut();
   };
 
@@ -440,7 +439,8 @@ const mapStateToProps = (state) => ({
   rewardsAddress: state.node.rewardsAddress,
   stateRootHash: state.node.stateRootHash,
   port: state.node.port,
-  networkId: state.node.networkId
+  networkId: state.node.networkId,
+  backupTime: state.wallet.backupTime
 });
 
 const mapDispatchToProps = {
