@@ -246,7 +246,7 @@ class Main extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getBalance, getTxList, miningStatus } = this.props;
+    const { getNodeStatus, getMiningStatus, getBalance, getTxList, getAccountRewards, miningStatus } = this.props;
     await getNodeStatus();
     await getTxList({ approveTxNotifier: this.approveTxNotifier });
     await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
@@ -337,7 +337,8 @@ class Main extends Component<Props, State> {
     notificationsService.notify({
       title: 'Spacemesh',
       notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
-      callback: () => history.push('/main/transactions')
+      callback: () => history.push('/main/transactions'),
+      tag: 1
     });
   }
 
@@ -345,7 +346,8 @@ class Main extends Component<Props, State> {
     notificationsService.notify({
       title: 'Spacemesh',
       notification: 'Received a reward for smeshing!',
-      callback: () => this.handleNavigation({ index: 0 })
+      callback: () => this.handleNavigation({ index: 0 }),
+      tag: 2
     });
   }
 }

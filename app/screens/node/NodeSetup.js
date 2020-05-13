@@ -82,8 +82,6 @@ class NodeSetup extends Component<Props, State> {
 
   header: string;
 
-  formattedCommitmentSize: number;
-
   constructor(props: Props) {
     super(props);
     const { location } = props;
@@ -135,7 +133,7 @@ class NodeSetup extends Component<Props, State> {
             <br />
             Select folder you&#39;d like to use for smeshing.
             <br />
-            {`You need to commit ${this.formattedCommitmentSize}GB of free space.`}
+            {`You need to commit ${formatBytes(commitmentSize)}GB of free space.`}
           </SubHeader>
           <FolderNameWrapper>
             <FolderName>{selectedFolder}</FolderName>
@@ -198,7 +196,7 @@ class NodeSetup extends Component<Props, State> {
 
   openFolderSelectionDialog = async () => {
     const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
-    if (error.error !== 'no folder selected') {
+    if (error) {
       this.setState({ hasPermissionError: true });
     } else {
       this.setState({ selectedFolder, freeSpace: formatBytes(freeSpace), hasPermissionError: false });

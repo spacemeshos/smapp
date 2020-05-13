@@ -10,6 +10,7 @@
  */
 import path from 'path';
 import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
@@ -30,12 +31,30 @@ let mainWindow = null;
 let tray = null;
 let nodeManager;
 
-const installExtensions = () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-
-  return Promise.all(extensions.map((name) => installer.default(installer[name], forceDownload))).catch(console.error); // eslint-disable-line no-console
+const handleClosingApp = async () => {
+  const savedMiningParams = StoreService.get({ key: 'miningParams' });
+  if (savedMiningParams) {
+    const options = {
+      title: 'Quit App',
+      message:
+        'Quitting stops smeshing and may cause loss of future due smeshing rewards.' +
+        '\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
+        '\n• Click QUIT to close the app and stop smeshing.',
+      buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
+    };
+    const { response } = await dialog.showMessageBox(mainWindow, options);
+    if (response === 0) {
+      mainWindow.webContents.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
+      mainWindow.hide();
+      mainWindow.reload();
+    } else if (response === 1) {
+      mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+      await nodeManager.stopNode({ browserWindow: mainWindow });
+    }
+  } else {
+    mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+    await nodeManager.stopNode({ browserWindow: mainWindow });
+  }
 };
 
 app.on('window-all-closed', () => {
@@ -59,8 +78,8 @@ const createTray = () => {
     },
     {
       label: 'Quit',
-      click: () => {
-        mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
+      click: async () => {
+        await handleClosingApp();
       }
     }
   ]);
@@ -84,7 +103,12 @@ const createWindow = () => {
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     debug();
-    await installExtensions();
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`)) // eslint-disable-line no-console
+      .catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    installExtension(REDUX_DEVTOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`)) // eslint-disable-line no-console
+      .catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }
 
   createTray();
@@ -102,29 +126,7 @@ app.on('ready', async () => {
 
   mainWindow.on('close', async (event) => {
     event.preventDefault();
-    const savedMiningParams = StoreService.get({ key: 'miningParams' });
-    if (savedMiningParams) {
-      const options = {
-        title: 'Quit App',
-        message:
-          'Quitting stops smeshing and may cause loss of future due smeshing rewards.' +
-          '\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
-          '\n• Click QUIT to close the app and stop smeshing.',
-        buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
-      };
-      const { response } = await dialog.showMessageBox(mainWindow, options);
-      if (response === 0) {
-        mainWindow.webContents.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
-        mainWindow.hide();
-        mainWindow.reload();
-      } else if (response === 1) {
-        mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-        await nodeManager.stopNode({ browserWindow: mainWindow });
-      }
-    } else {
-      mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-      await nodeManager.stopNode({ browserWindow: mainWindow });
-    }
+    await handleClosingApp();
   });
 
   ipcMain.handle(ipcConsts.IS_APP_VISIBLE, () => mainWindow.isVisible() && mainWindow.isFocused());

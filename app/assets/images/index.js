@@ -42,3 +42,4 @@ export { default as doneIconGreen } from './done_icon_green.png';
 export { default as addContact } from './add_contact.png';
 export { default as searchIcon } from './search_icon.png';
 export { default as fireworks } from './fireworks.gif';
+export { default as icon } from './icon.png';

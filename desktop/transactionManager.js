@@ -57,7 +57,7 @@ class TransactionManager {
       { ...this.transactions[accountIndex].data[txToUpdateIndex], ...newData },
       ...this.transactions[accountIndex].data.slice(txToUpdateIndex + 1)
     ];
-    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions, stringify: true });
     return { transactions: this.transactions };
   };
 
@@ -101,7 +101,7 @@ class TransactionManager {
             const { unifiedTxList } = response;
             ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = response);
             this.transactions = [...this.transactions.slice(0, index), { layerId: validatedLayer, data: unifiedTxList }, ...this.transactions.slice(index + 1)];
-            StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+            StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions, stringify: true });
           }
         });
       };
@@ -187,7 +187,7 @@ class TransactionManager {
               layerId: reward.layer,
               timestamp
             };
-            this.transactions[accountIndex].push(tx);
+            this.transactions[accountIndex].data.push(tx);
             return {
               totalReward: reward.totalReward,
               layerRewardEstimate: reward.layerRewardEstimate,
@@ -195,8 +195,8 @@ class TransactionManager {
             };
           });
           this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];
-          StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards });
-          StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+          StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards, stringify: true });
+          StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions, stringify: true });
           return { error: null, rewards: this.rewards, hasNewRewards };
         }
         return { error: null, rewards: this.rewards, hasNewRewards: false };

@@ -114,7 +114,7 @@ export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: 
   if (error) {
     console.error(error); // eslint-disable-line no-console
   } else {
-    dispatch({ type: SET_ACCOUNT_REWARDS, payload: rewards });
+    dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
     if (hasNewAwards) {
       newRewardsNotifier();
     }

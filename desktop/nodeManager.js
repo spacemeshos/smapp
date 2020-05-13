@@ -198,21 +198,17 @@ class NodeManager {
   };
 
   selectPostFolder = async ({ mainWindow }) => {
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    const { filePaths } = await dialog.showOpenDialog(mainWindow, {
       title: 'Select folder for smeshing',
       defaultPath: app.getPath('documents'),
       properties: ['openDirectory']
     });
-    if (canceled || !filePaths.length) {
-      return { error: 'no folder selected' };
-    } else {
-      try {
-        fs.accessSync(filePaths[0], fs.constants.W_OK);
-        const diskSpace = await checkDiskSpace(filePaths[0]);
-        return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
-      } catch (error) {
-        return { error };
-      }
+    try {
+      fs.accessSync(filePaths[0], fs.constants.W_OK);
+      const diskSpace = await checkDiskSpace(filePaths[0]);
+      return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
+    } catch (error) {
+      return { error };
     }
   };
 
