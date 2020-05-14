@@ -19,8 +19,8 @@ const fromHexString = (hexString) => {
 class TransactionManager {
   constructor() {
     this.networkId = StoreService.get({ key: 'networkId' });
-    const rawTransactions = StoreService.get({ key: `${this.networkId}-transactions` });
-    this.transactions = rawTransactions ? JSON.parse(rawTransactions) : [{ layerId: 0, data: [] }];
+    const storedTransactions = StoreService.get({ key: `${this.networkId}-transactions` });
+    this.transactions = storedTransactions || [{ layerId: 0, data: [] }];
     const rawAwards = StoreService.get({ key: `${this.networkId}-rewards` });
     this.rewards = rawAwards ? JSON.parse(rawAwards) : [];
     this.accounts = [];
@@ -57,7 +57,7 @@ class TransactionManager {
       { ...this.transactions[accountIndex].data[txToUpdateIndex], ...newData },
       ...this.transactions[accountIndex].data.slice(txToUpdateIndex + 1)
     ];
-    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions, stringify: true });
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
     return { transactions: this.transactions };
   };
 
@@ -101,7 +101,7 @@ class TransactionManager {
             const { unifiedTxList } = response;
             ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = response);
             this.transactions = [...this.transactions.slice(0, index), { layerId: validatedLayer, data: unifiedTxList }, ...this.transactions.slice(index + 1)];
-            StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions, stringify: true });
+            StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
           }
         });
       };
@@ -195,8 +195,8 @@ class TransactionManager {
             };
           });
           this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];
-          StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards, stringify: true });
-          StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions, stringify: true });
+          StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards });
+          StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
           return { error: null, rewards: this.rewards, hasNewRewards };
         }
         return { error: null, rewards: this.rewards, hasNewRewards: false };

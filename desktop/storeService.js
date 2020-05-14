@@ -9,8 +9,8 @@ class StoreService {
     }
   }
 
-  static set = ({ key, value, stringify }) => {
-    StoreService.store.set(key, stringify ? JSON.stringify(value) : value);
+  static set = ({ key, value }) => {
+    StoreService.store.set(key, value);
   };
 
   static get = ({ key }) => {
