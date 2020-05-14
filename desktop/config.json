@@ -1,19 +1,19 @@
 {
   "main": {
     "layer-duration-sec": 300,
-    "layer-average-size": 30,
-    "layers-per-epoch": 6,
+    "layer-average-size": 50,
+    "layers-per-epoch": 288,
     "block-cache-size": 20,
     "sync-request-timeout": 60000,
     "sync-interval": 10,
     "sync-validation-delta": 30,
     "hdist": 10,
-    "atxs-per-block": 100,
+    "atxs-per-block": 25,
     "oracle_server": "http://localhost:3030",
     "oracle_server_worldid": 0,
-    "genesis-active-size": 50,
-    "genesis-time": "2020-05-11T12:45:05+00:00",
-    "poet-server": "34.69.100.200:8080"
+    "genesis-active-size": 100,
+    "genesis-time": "2020-05-12T09:18:18+00:00",
+    "poet-server": "34.69.182.161:8080"
   },
   "p2p": {
     "dial-timeout": "1m",
@@ -30,15 +30,20 @@
       "alpha": 3,
       "randcon": 8,
       "bootnodes": [
-        "spacemesh://4o9s7LErSHUAX6yhwLax8kbCNr7A4Nu3mben1d3Hrx8g@35.223.13.73:20000"
+        "spacemesh://ACeMH1qCLMrEkgBzh2sRfXpzBrhLe9xSvYaxsS1PpLVu@35.202.30.188:20000",
+        "spacemesh://AfFSiLb2kqCG37g4ypXNDKBQSJEonw9jXQSwZB8a6VCT@35.202.30.188:20002",
+        "spacemesh://4p1ppDtJGYEvJJG47fdDgVzgLMfvoLV3z15qrW5uw1V3@35.202.30.188:20004",
+        "spacemesh://695C1R7qvSdnRkYz6kS3A1rkiEP3NwSyMktTVce9LeNi@35.202.30.188:20006",
+        "spacemesh://5Re6evmYUakKc6hY4VMbfp5ZMQXTntBr5iqkhdNrXcp1@35.202.30.188:20008",
+        "spacemesh://GGLpmu3JNSXo7CTNea8jgXf42jEHKM1oq3ULfTrtkvCF@35.202.30.188:20010"
       ],
       "bootstrap": true
     },
-    "network-id": 2
+    "network-id": 115
   },
   "post": {
-    "post-space": 1048576,
-    "post-labels": 10
+    "post-space": 4294967296,
+    "post-labels": 50
   },
   "reward": {
     "base-reward": {
@@ -46,8 +51,8 @@
     }
   },
   "hare": {
-    "hare-committee-size": 30,
-    "hare-max-adversaries": 14,
+    "hare-committee-size": 50,
+    "hare-max-adversaries": 24,
     "hare-round-duration-sec": 30,
     "hare-wakeup-delta": 30,
     "hare-exp-leaders": 5,
@@ -55,7 +60,7 @@
     "hare-limit-concurrent": 5
   },
   "hare-eligibility": {
-    "eligibility-confidence-param": 25,
+    "eligibility-confidence-param": 100,
     "eligibility-epoch-offset": 0
   },
   "time": {
