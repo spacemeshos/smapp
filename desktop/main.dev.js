@@ -103,12 +103,8 @@ const createWindow = () => {
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     debug();
-    installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`)) // eslint-disable-line no-console
-      .catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    installExtension(REDUX_DEVTOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`)) // eslint-disable-line no-console
-      .catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }
 
   createTray();
