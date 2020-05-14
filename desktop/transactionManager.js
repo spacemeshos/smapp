@@ -85,12 +85,12 @@ class TransactionManager {
       const txListCollector = async () => {
         await asyncForEach(this.accounts, async (account, index) => {
           const { txs, validatedLayer } = await netService.getAccountTxs({ startLayer: this.transactions[index].layerId, account: account.publicKey });
-          this.transactions[index].data.forEach((existingTx) => {
-            if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
-              txs.push(`0x${existingTx.txId}`);
-            }
-          });
           if (txs && txs.length) {
+            this.transactions[index].data.forEach((existingTx) => {
+              if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
+                txs.push(`0x${existingTx.txId}`);
+              }
+            });
             const fullDataTxsList = [];
             await fullTxDataCollector(txs, fullDataTxsList);
             const response = this._mergeTxStatuses({
