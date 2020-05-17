@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   width: 100%;
   border: 1px dashed ${smColors.darkGray};
   border-radius: 2px;
-  ${({ isDragging, hasError }) => (hasError ? `background-color: rgba(236, 92, 61, 0.1);` : `background-color: ${isDragging ? `rgba(101, 176, 66, 0.1)` : smColors.lightGray}`)}
+  ${({ isDragging, hasError }) => (hasError ? `background-color: rgba(236, 92, 61, 0.1);` : `background-color: ${isDragging ? `rgba(101, 176, 66, 0.1)` : 'transparent'}`)}
 `;
 
 const MsgWrapper = styled.div`

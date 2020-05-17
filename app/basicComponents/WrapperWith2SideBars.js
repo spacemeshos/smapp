@@ -7,6 +7,7 @@ import { smColors } from '/vars';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  position: relative;
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   background-color: ${smColors.black10Alpha};
@@ -30,9 +31,6 @@ const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
   color: ${smColors.realBlack};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 `;
 
 const SubHeader = styled.div`
@@ -44,12 +42,16 @@ const SubHeader = styled.div`
 type Props = {
   header: string,
   width: number,
-  height: number,
+  height?: number,
   children: any,
   style?: Object
 };
 
 class WrapperWith2SideBars extends PureComponent<Props> {
+  static defaultProps = {
+    height: '100%'
+  };
+
   render() {
     const { width, height, header, children, style } = this.props;
     return (

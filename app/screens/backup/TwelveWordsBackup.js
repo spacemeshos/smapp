@@ -18,7 +18,7 @@ const TextWrapper = styled.div`
 
 const Text = styled.span`
   font-size: 14px;
-  line-height: 22px;
+  line-height: 24px;
 `;
 
 const GreenText = styled.span`
@@ -109,7 +109,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   render() {
     const { isTwelveWordsCopied } = this.state;
     return (
-      <WrapperWith2SideBars width={920} height={400} header="YOUR 12 WORDS BACKUP">
+      <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP">
         <SmallHorizontalPanel />
         <TextWrapper>
           <Text>

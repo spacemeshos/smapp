@@ -249,7 +249,7 @@ class Settings extends Component<Props, State> {
                 />
               ) : null}
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
-              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Log" width={180} />} rowName="View log file" />
+              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>
               <SettingRow

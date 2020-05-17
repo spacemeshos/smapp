@@ -52,7 +52,8 @@ type Props = {
   debounceTime?: number,
   style?: Object,
   type?: string,
-  maxLength?: string
+  maxLength?: string,
+  autofocus?: boolean
 };
 
 type State = {
@@ -72,7 +73,7 @@ class Input extends Component<Props, State> {
   };
 
   render() {
-    const { value, isDisabled, placeholder, extraText, style, type, maxLength } = this.props;
+    const { value, isDisabled, placeholder, extraText, style, type, maxLength, autofocus } = this.props;
     const { isFocused } = this.state;
     return (
       <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
@@ -86,6 +87,7 @@ class Input extends Component<Props, State> {
           onBlur={() => this.setState({ isFocused: false })}
           type={type}
           maxLength={maxLength}
+          autoFocus={autofocus}
         />
         {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
       </Wrapper>

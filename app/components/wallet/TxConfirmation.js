@@ -35,6 +35,7 @@ const SubHeader1 = styled(HeaderText)`
 `;
 
 const SubHeader2 = styled.div`
+  margin-bottom: 20px;
   font-family: SourceCodeProBold;
   font-size: 24px;
   line-height: 30px;
@@ -48,7 +49,7 @@ const DetailsRow = styled.div`
   align-items: center;
   padding: 5px 0;
   margin-bottom: 10px;
-  border-bottom: ${({ isLast }) => (isLast ? 'none' : `1px solid ${smColors.black}`)};
+  border-bottom: ${({ isLast }) => (isLast ? 'none' : `1px solid ${smColors.navLinkGrey}`)};
 `;
 
 const DetailsTextRight = styled.div`
@@ -75,7 +76,6 @@ const Footer = styled.div`
   display: flex;
   flex-direction: row;
   flex: 1;
-  justify-content: space-between;
   align-items: flex-end;
 `;
 
@@ -83,6 +83,7 @@ const ComplexButton = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-end;
+  margin-right: 10px;
 `;
 
 const ComplexButtonText = styled.div`

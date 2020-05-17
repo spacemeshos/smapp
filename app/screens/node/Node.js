@@ -84,16 +84,15 @@ const TextWrapper = styled.div`
 `;
 
 const LeftText = styled.div`
-  margin-right: 15px;
+  margin-right: 5px;
   font-size: 16px;
   line-height: 20px;
   color: ${smColors.realBlack};
 `;
 
 const RightText = styled.div`
-  flex: 1;
   margin-right: 0;
-  margin-left: 15px;
+  margin-left: 5px;
   text-align: right;
 `;
 
@@ -101,10 +100,13 @@ const GreenText = styled(RightText)`
   color: ${smColors.green};
 `;
 
-const Dots = styled(LeftText)`
-  margin: 0 auto;
+const Dots = styled.div`
+  flex: 1;
   flex-shrink: 1;
   overflow: hidden;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
 `;
 
 const Fireworks = styled.img`
@@ -320,17 +322,17 @@ class Node extends Component<Props, State> {
       </Status>,
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
-        <Dots>..................</Dots>
+        <Dots>........................................</Dots>
         <GreenText>{formatSmidge(this.calculateRewards(true))}</GreenText>
       </TextWrapper>,
       <TextWrapper key="3">
         <LeftText>Total Fees Rewards</LeftText>
-        <Dots>..................</Dots>
+        <Dots>........................................</Dots>
         <GreenText>{formatSmidge(this.calculateRewards())}</GreenText>
       </TextWrapper>,
       <TextWrapper key="4">
         <LeftText>Rewards Account</LeftText>
-        <Dots>..................</Dots>
+        <Dots>........................................</Dots>
         <GreenText>{getAbbreviatedText(getAddress(rewardsAddress), true, 4)}</GreenText>
         <CopyIcon src={copyToClipboard} onClick={this.copyRewardsAccount} />
       </TextWrapper>,

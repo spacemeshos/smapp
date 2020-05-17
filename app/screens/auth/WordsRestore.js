@@ -70,7 +70,7 @@ class WordsRestore extends Component<Props, State> {
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" style={{ position: 'relative' }}>
+      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE">
         <SmallHorizontalPanel />
         <BackButton action={history.goBack} />
         <Header>Please enter the 12 words in the right order.</Header>
@@ -95,7 +95,13 @@ class WordsRestore extends Component<Props, State> {
       res.push(
         <InputWrapper key={`input${index}`}>
           <InputCounter>{index + 1}</InputCounter>
-          <Input value={words[index]} onChange={({ value }) => this.handleInputChange({ value, index })} isErrorMsgEnabled={false} style={getInputStyle(hasError)} />
+          <Input
+            value={words[index]}
+            onChange={({ value }) => this.handleInputChange({ value, index })}
+            isErrorMsgEnabled={false}
+            style={getInputStyle(hasError)}
+            autofocus={index === 0}
+          />
         </InputWrapper>
       );
     }

@@ -42,8 +42,8 @@ const SmallText = styled.span`
 
 const Bar = styled.div`
   width: 100%;
-  height: 4px;
-  background-color: ${smColors.lightGray};
+  height: 5px;
+  background-color: ${smColors.mediumGray};
   position: relative;
 `;
 

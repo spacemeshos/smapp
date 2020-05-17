@@ -3,9 +3,9 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { restoreFile } from '/redux/wallet/actions';
-import { CorneredContainer, BackButton } from '/components/common';
+import { BackButton } from '/components/common';
 import { DragAndDrop } from '/components/auth';
-import { Button, Link, SmallHorizontalPanel } from '/basicComponents';
+import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -44,7 +44,7 @@ class FileRestore extends Component<Props, State> {
     const { history } = this.props;
     const { fileName, hasError } = this.state;
     return (
-      <CorneredContainer width={800} height={480} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
+      <WrapperWith2SideBars width={800} height={480} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
         <SmallHorizontalPanel />
         <BackButton action={history.goBack} />
         <DdArea>
@@ -54,7 +54,7 @@ class FileRestore extends Component<Props, State> {
           <Link onClick={this.navigateToBackupGuide} text="BACKUP GUIDE" />
           <Button onClick={this.openWalletFile} text="RESTORE" isDisabled={hasError || !fileName} />
         </BottomSection>
-      </CorneredContainer>
+      </WrapperWith2SideBars>
     );
   }
 
