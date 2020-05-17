@@ -109,7 +109,7 @@ class Transactions extends Component<Props, State> {
     return (
       <Wrapper>
         <BackButton action={history.goBack} width={7} height={10} />
-        <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ height: '100%', marginRight: 10 }}>
+        <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
           <Header>Latest transactions</Header>
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (

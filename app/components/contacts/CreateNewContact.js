@@ -54,7 +54,7 @@ const ButtonsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const inputStyle1 = { margin: '10px 0 10px 10px' };
+const inputStyle1 = { margin: '10px 10px 10px 10px' };
 const inputStyle2 = { margin: '10px 0' };
 const inputStyle3 = { marginBottom: '10px' };
 

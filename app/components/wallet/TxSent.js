@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
-import { doneIconGreen, copyToClipboard } from '/assets/images';
+import { fireworksImg, doneIconGreen, copyToClipboard } from '/assets/images';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -14,6 +14,8 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
+  background: url(${fireworksImg}) center center no-repeat;
+  background-size: contain;
   background-color: ${smColors.black02Alpha};
 `;
 
@@ -21,19 +23,19 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-`;
-
-const HeaderText = styled.div`
-  font-family: SourceCodeProBold;
-  font-size: 42px;
-  line-height: 55px;
-  color: ${smColors.green};
   margin-bottom: 20px;
 `;
 
+const HeaderText = styled.div`
+  font-size: 32px;
+  line-height: 40px;
+  color: ${smColors.green};
+`;
+
 const HeaderIcon = styled.img`
-  width: 40px;
-  height: 38px;
+  width: 30px;
+  height: 29px;
+  margin-top: auto;
 `;
 
 const DetailsRow = styled.div`
@@ -43,7 +45,7 @@ const DetailsRow = styled.div`
   align-items: center;
   padding: 5px 0;
   margin-bottom: 10px;
-  border-bottom: ${({ isLast }) => (isLast ? 'none' : `1px solid ${smColors.black}`)};
+  border-bottom: ${({ isLast }) => (isLast ? 'none' : `1px solid ${smColors.navLinkGrey}`)};
 `;
 
 const DetailsTextRight = styled.div`

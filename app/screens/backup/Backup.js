@@ -27,7 +27,7 @@ class Backup extends Component<Props> {
           {routes.backup.map((route) => (
             <Route exact key={route.path} path={route.path} component={route.component} />
           ))}
-          <Redirect to="/main/backup/backup-root" />
+          <Redirect to="/main/backup/backup-options" />
         </Switch>
       </Wrapper>
     );
