@@ -38,8 +38,8 @@ const handleClosingApp = async () => {
       title: 'Quit App',
       message:
         'Quitting stops smeshing and may cause loss of future due smeshing rewards.' +
-        '\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
-        '\n• Click QUIT to close the app and stop smeshing.',
+        '\n\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
+        '\n\n• Click QUIT to close the app and stop smeshing.\n',
       buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
     };
     const { response } = await dialog.showMessageBox(mainWindow, options);

@@ -38,7 +38,8 @@ class NodeManager {
       return res;
     });
     ipcMain.on(ipcConsts.SET_NODE_PORT, (event, request) => {
-      StoreService.set({ key: 'port', value: request.port });
+      const networkId = StoreService.get({ key: 'networkId' });
+      StoreService.set({ key: `${networkId}-port`, value: request.port });
     });
     ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
       const res = await this.selectPostFolder({ mainWindow });
@@ -68,15 +69,15 @@ class NodeManager {
 
   startNode = async () => {
     try {
-      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
-      const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
-
-      const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
-
-      StoreService.set({ key: 'postSize', value: parseInt(nodeConfig.post['post-space']) });
       const networkId = parseInt(nodeConfig.p2p['network-id']);
       StoreService.set({ key: 'networkId', value: networkId });
-      StoreService.set({ key: 'layerDurationSec', value: parseInt(nodeConfig.main['layer-duration-sec']) });
+      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
+      const prevGenesisTime = StoreService.get({ key: `${networkId}-genesisTime` }) || '';
+
+      const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
+
+      StoreService.set({ key: `${networkId}-postSize`, value: parseInt(nodeConfig.post['post-space']) });
+      StoreService.set({ key: `${networkId}-layerDurationSec`, value: parseInt(nodeConfig.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -93,8 +94,7 @@ class NodeManager {
         const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
         exec(command, async (err) => {
           if (!err) {
-            StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
-            StoreService.remove({ key: 'miningParams' });
+            StoreService.set({ key: `${networkId}-genesisTime`, value: fetchedGenesisTime });
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
@@ -108,7 +108,7 @@ class NodeManager {
           }
         });
       } else {
-        const savedMiningParams = StoreService.get({ key: 'miningParams' });
+        const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
         const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}"${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
@@ -165,13 +165,13 @@ class NodeManager {
 
   getNodeSettings = async () => {
     try {
-      const savedMiningParams = StoreService.get({ key: 'miningParams' });
-      const address = savedMiningParams?.coinbase;
-      const genesisTime = StoreService.get({ key: 'genesisTime' });
       const networkId = StoreService.get({ key: 'networkId' });
-      const commitmentSize = StoreService.get({ key: 'postSize' });
-      const layerDuration = StoreService.get({ key: 'layerDurationSec' });
-      const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
+      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+      const address = savedMiningParams?.coinbase;
+      const genesisTime = StoreService.get({ key: `${networkId}-genesisTime` });
+      const commitmentSize = StoreService.get({ key: `${networkId}-postSize` });
+      const layerDuration = StoreService.get({ key: `${networkId}-layerDurationSec` });
+      const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
       const { value } = await netService.getStateRoot();
       return { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
     } catch (error) {
@@ -224,7 +224,8 @@ class NodeManager {
   initMining = async ({ logicalDrive, commitmentSize, coinbase }) => {
     try {
       await netService.initMining({ logicalDrive, commitmentSize, coinbase });
-      StoreService.set({ key: 'miningParams', value: { logicalDrive, coinbase } });
+      const networkId = StoreService.get({ key: 'networkId' });
+      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive, coinbase } });
       return { error: null };
     } catch (error) {
       return { error };
