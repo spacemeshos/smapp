@@ -37,8 +37,8 @@ const handleClosingApp = async () => {
     const options = {
       title: 'Quit App',
       message:
-        'Quitting stops smeshing and may cause loss of future due smeshing rewards.' +
-        '\n\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
+        '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
+        '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
         '\n\n• Click QUIT to close the app and stop smeshing.\n',
       buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
     };
@@ -68,13 +68,15 @@ app.on('window-all-closed', () => {
 const createTray = () => {
   tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
   tray.setToolTip('Spacemesh');
+  const eventHandler = (e) => {
+    e.preventDefault();
+    mainWindow.show();
+    mainWindow.focus();
+  };
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
-      click: () => {
-        mainWindow.show();
-        mainWindow.focus();
-      }
+      click: (e) => eventHandler(e)
     },
     {
       label: 'Quit',
@@ -83,6 +85,8 @@ const createTray = () => {
       }
     }
   ]);
+  tray.on('click', (e) => eventHandler(e));
+  tray.on('double-click', (e) => eventHandler(e));
   tray.setContextMenu(contextMenu);
 };
 
