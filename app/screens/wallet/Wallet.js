@@ -1,17 +1,14 @@
 // @flow
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import styled from 'styled-components';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
-import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
 import { backup, leftSideTIcon } from '/assets/images';
-import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
@@ -70,12 +67,7 @@ const RightSection = styled.div`
 `;
 
 type Props = {
-  displayName: string,
-  accounts: Account[],
-  currentAccountIndex: number,
-  getBalance: Action,
-  setCurrentAccount: Action,
-  status: Object,
+  backupTime: string,
   history: RouterHistory
 };
 
@@ -87,16 +79,13 @@ type State = {
 };
 
 class Wallet extends Component<Props, State> {
-  getBalanceInterval: IntervalID;
-
   render() {
-    const { status, displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
-    const hasBackup = !!localStorageService.get('hasBackup');
+    const { backupTime } = this.props;
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview status={status} walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
-          {!hasBackup && (
+          <AccountsOverview />
+          {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
               <BackupImage src={backup} />
@@ -119,26 +108,6 @@ class Wallet extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const { status, getBalance } = this.props;
-    if (status) {
-      try {
-        await getBalance();
-        this.getBalanceInterval = setInterval(async () => {
-          await getBalance();
-        }, 30000);
-      } catch (error) {
-        this.setState(() => {
-          throw error;
-        });
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    this.getBalanceInterval && clearInterval(this.getBalanceInterval);
-  }
-
   navigateToBackup = () => {
     const { history } = this.props;
     history.push('/main/backup');
@@ -146,18 +115,10 @@ class Wallet extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  status: state.node.status,
-  displayName: state.wallet.meta.displayName,
-  accounts: state.wallet.accounts,
-  currentAccountIndex: state.wallet.currentAccountIndex
+  backupTime: state.wallet.backupTime
 });
 
-const mapDispatchToProps = {
-  getBalance,
-  setCurrentAccount
-};
-
-Wallet = connect(mapStateToProps, mapDispatchToProps)(Wallet);
+Wallet = connect<any, any, _, _, _, _>(mapStateToProps)(Wallet);
 
 Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;

@@ -2,11 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { changeWalletPassword } from '/redux/wallet/actions';
+import { eventsService } from '/infra/eventsService';
 import { ErrorPopup, Input, Link, Loader } from '/basicComponents';
-import { fileEncryptionService } from '/infra/fileEncryptionService';
 import { smColors } from '/vars';
-import type { Action } from '/types';
+import type { Account } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -30,7 +29,9 @@ const RightPart = styled.div`
 `;
 
 type Props = {
-  changeWalletPassword: Action
+  walletFiles: Array<string>,
+  mnemonic: string,
+  accounts: Account[]
 };
 
 type State = {
@@ -122,14 +123,13 @@ class ChangePassword extends Component<Props, State> {
   };
 
   updatePassword = async () => {
-    const { changeWalletPassword } = this.props;
+    const { walletFiles, mnemonic, accounts } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
-          const key = fileEncryptionService.createEncryptionKey({ password });
-          changeWalletPassword({ key });
+          eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts } });
           this.clearFields();
         }, 500);
       } catch (error) {
@@ -141,10 +141,12 @@ class ChangePassword extends Component<Props, State> {
   };
 }
 
-const mapDispatchToProps = {
-  changeWalletPassword
-};
+const mapStateToProps = (state) => ({
+  walletFiles: state.wallet.walletFiles,
+  mnemonic: state.wallet.mnemonic,
+  accounts: state.wallet.accounts
+});
 
-ChangePassword = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(ChangePassword);
+ChangePassword = connect<any, any, _, _, _, _>(mapStateToProps)(ChangePassword);
 
 export default ChangePassword;

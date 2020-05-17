@@ -6,10 +6,8 @@ import { connect } from 'react-redux';
 import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
-import { nodeService } from '/infra/nodeService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { localStorageService } from '/infra/storageService';
-import { fileSystemService } from '/infra/fileSystemService';
+import { eventsService } from '/infra/eventsService';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
@@ -140,6 +138,7 @@ type Props = {
   rewards: TxList,
   // getUpcomingRewards: Action,
   rewardsAddress: string,
+  commitmentSize: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -158,8 +157,6 @@ class Node extends Component<Props, State> {
 
   audio: any;
 
-  formattedCommitmentSize: number;
-
   constructor(props) {
     super(props);
     const { location } = props;
@@ -173,9 +170,9 @@ class Node extends Component<Props, State> {
 
   render() {
     const { rewards } = this.props;
-    let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
+    let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
     smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
-    let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
+    let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
     smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(smesherSmeshingTimestamp) : '';
     return (
       <Wrapper>
@@ -225,15 +222,13 @@ class Node extends Component<Props, State> {
     //     await getUpcomingRewards();
     //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
     //   }
-    const audioUrl = await fileSystemService.getAudioPath();
-    this.audio = new Audio(audioUrl);
-    const commitmentSize = await nodeService.getCommitmentSize();
-    this.formattedCommitmentSize = formatBytes(commitmentSize);
+    const audioPath = await eventsService.getAudioPath();
+    this.audio = new Audio(audioPath);
   }
 
   componentDidUpdate() {
     const { rewards } = this.props;
-    const playedAudio = localStorageService.get('playedAudio');
+    const playedAudio = localStorage.getItem('playedAudio');
     this.audio.loop = false;
     if (rewards && rewards.length === 1 && !playedAudio) {
       this.audio.play();
@@ -291,14 +286,14 @@ class Node extends Component<Props, State> {
   };
 
   renderPreSetup = () => {
-    const { history } = this.props;
+    const { history, commitmentSize } = this.props;
     return [
       <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
       <Text key="3">Setup smeshing to join Spacemesh and earn Smesh rewards.</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">{`Setup requires ${this.formattedCommitmentSize} GB of free disk space.`}</Text>,
+      <Text key="6">{`Setup requires ${formatBytes(commitmentSize)} GB of free disk space.`}</Text>,
       <Text key="7">You will start earning Smesh rewards in about 48 hours.</Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -368,7 +363,7 @@ class Node extends Component<Props, State> {
     const { rewards } = this.props;
     let sum = 0;
     rewards.forEach((reward) => {
-      sum += totalRewards ? reward.layerRewardEstimate : reward.totalReward - reward.layerRewardEstimate;
+      sum += totalRewards ? reward.amount : reward.fee;
     });
     return sum;
   };
@@ -385,10 +380,9 @@ class Node extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
+  commitmentSize: state.node.commitmentSize,
   timeTillNextAward: state.node.timeTillNextAward,
   rewards: state.node.rewards,
-  totalEarnings: state.node.totalEarnings,
-  totalFeesEarnings: state.node.totalFeesEarnings,
   rewardsAddress: state.node.rewardsAddress
 });
 

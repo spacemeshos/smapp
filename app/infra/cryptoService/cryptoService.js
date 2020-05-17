@@ -2,6 +2,8 @@ import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
 import { fromHexString, toHexString } from '/infra/utils';
 
+const DEFAULT_SALT = 'Spacemesh blockmesh';
+
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
 
 class CryptoService {
@@ -39,15 +41,14 @@ class CryptoService {
    *
    * @param mnemonic {string}
    * @param index {int}
-   * @param salt {string}
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
-  deriveNewKeyPair = ({ mnemonic, index, salt }: { mnemonic: string }) => {
+  deriveNewKeyPair = ({ mnemonic, index }: { mnemonic: string }) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
     const enc = new TextEncoder();
-    const saltAsUint8Array = enc.encode(salt);
+    const saltAsUint8Array = enc.encode(DEFAULT_SALT);
     const saveKeys = (pk, sk) => {
       if (pk === null || sk === null) {
         this.stopAndCleanUp();

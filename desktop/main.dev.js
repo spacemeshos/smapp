@@ -9,14 +9,16 @@
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, ipcMain, Tray, Menu } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import subscribeToEventListeners from './eventListners';
-import subscribeToAutoUpdateListeners from './autoUpdateListeners';
+import UpdateManager from './updateManager';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
+import NodeManager from './nodeManager';
+import WalletManager from './walletManager';
 
 const debug = require('electron-debug');
 const unhandled = require('electron-unhandled');
@@ -24,25 +26,35 @@ const unhandled = require('electron-unhandled');
 unhandled();
 
 StoreService.init();
-AutoStartManager.init();
-
-class AppUpdater {
-  constructor() {
-    autoUpdater.logger = null;
-    autoUpdater.autoInstallOnAppQuit = false;
-    autoUpdater.autoDownload = true;
-  }
-}
 
 let mainWindow = null;
 let tray = null;
+let nodeManager;
 
-const installExtensions = () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-
-  return Promise.all(extensions.map((name) => installer.default(installer[name], forceDownload))).catch(console.error); // eslint-disable-line no-console
+const handleClosingApp = async () => {
+  const savedMiningParams = StoreService.get({ key: 'miningParams' });
+  if (savedMiningParams) {
+    const options = {
+      title: 'Quit App',
+      message:
+        '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
+        '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
+        '\n\n• Click QUIT to close the app and stop smeshing.\n',
+      buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
+    };
+    const { response } = await dialog.showMessageBox(mainWindow, options);
+    if (response === 0) {
+      mainWindow.webContents.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
+      mainWindow.hide();
+      mainWindow.reload();
+    } else if (response === 1) {
+      mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+      await nodeManager.stopNode({ browserWindow: mainWindow });
+    }
+  } else {
+    mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+    await nodeManager.stopNode({ browserWindow: mainWindow });
+  }
 };
 
 app.on('window-all-closed', () => {
@@ -56,21 +68,25 @@ app.on('window-all-closed', () => {
 const createTray = () => {
   tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
   tray.setToolTip('Spacemesh');
+  const eventHandler = (e) => {
+    e.preventDefault();
+    mainWindow.show();
+    mainWindow.focus();
+  };
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
-      click: () => {
-        mainWindow.show();
-        mainWindow.focus();
-      }
+      click: (e) => eventHandler(e)
     },
     {
       label: 'Quit',
-      click: () => {
-        mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
+      click: async () => {
+        await handleClosingApp();
       }
     }
   ]);
+  tray.on('click', (e) => eventHandler(e));
+  tray.on('double-click', (e) => eventHandler(e));
   tray.setContextMenu(contextMenu);
 };
 
@@ -86,15 +102,13 @@ const createWindow = () => {
       nodeIntegration: true
     }
   });
-  // Add event listeners.
-  subscribeToEventListeners({ mainWindow });
-  subscribeToAutoUpdateListeners({ mainWindow });
 };
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     debug();
-    await installExtensions();
+    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }
 
   createTray();
@@ -110,23 +124,39 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', async (event) => {
     event.preventDefault();
-    mainWindow.webContents.send(ipcConsts.REQUEST_CLOSE);
+    await handleClosingApp();
   });
 
-  ipcMain.on(ipcConsts.CHECK_APP_VISIBILITY, () => mainWindow.webContents.send(ipcConsts.IS_APP_VISIBLE, mainWindow.isVisible() && mainWindow.isFocused()));
+  ipcMain.handle(ipcConsts.IS_APP_MINIMIZED, () => mainWindow.isMinimized());
 
-  ipcMain.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => {
-    mainWindow.hide();
+  ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
+    path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')
+  );
+
+  ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
+    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
+    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
+    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
+  });
+
+  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  ipcMain.on(ipcConsts.HARD_REFRESH, () => {
     mainWindow.reload();
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // eslint-disable-next-line no-new
-  new AppUpdater();
+  nodeManager = new NodeManager(mainWindow);
+  new WalletManager(mainWindow); // eslint-disable-line no-new
+  new AutoStartManager(); // eslint-disable-line no-new
+  new UpdateManager(mainWindow); // eslint-disable-line no-new
 });
 
 app.on('activate', () => {

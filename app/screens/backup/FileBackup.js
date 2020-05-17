@@ -4,8 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
-import { fileSystemService } from '/infra/fileSystemService';
-import { localStorageService } from '/infra/storageService';
+import { eventsService } from '/infra/eventsService';
 
 const Text = styled.span`
   font-size: 16px;
@@ -45,8 +44,7 @@ class FileBackup extends Component<Props> {
   }
 
   showBackupFile = () => {
-    const lastBackupTime = localStorageService.get('lastBackupTime');
-    fileSystemService.openWalletBackupDirectory({ lastBackupTime });
+    eventsService.showFileInFolder({ isBackupFile: true });
   };
 
   backToWalletRoot = () => {

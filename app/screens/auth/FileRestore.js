@@ -2,7 +2,7 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { copyFile } from '/redux/wallet/actions';
+import { restoreFile } from '/redux/wallet/actions';
 import { CorneredContainer, BackButton } from '/components/common';
 import { DragAndDrop } from '/components/auth';
 import { Button, Link, SmallHorizontalPanel } from '/basicComponents';
@@ -23,7 +23,7 @@ const BottomSection = styled.div`
 `;
 
 type Props = {
-  copyFile: Action,
+  restoreFile: Action,
   history: RouterHistory
 };
 
@@ -67,10 +67,10 @@ class FileRestore extends Component<Props, State> {
   };
 
   openWalletFile = async () => {
-    const { copyFile, history } = this.props;
+    const { restoreFile, history } = this.props;
     const { fileName, filePath } = this.state;
     try {
-      await copyFile({ fileName, filePath });
+      await restoreFile({ fileName, filePath });
       history.push('/auth/unlock');
     } catch {
       this.setState({ hasError: true });
@@ -81,7 +81,7 @@ class FileRestore extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  copyFile
+  restoreFile
 };
 
 FileRestore = connect(null, mapDispatchToProps)(FileRestore);

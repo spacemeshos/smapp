@@ -12,7 +12,7 @@ import { getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { RouterHistory } from 'react-router-dom';
-import type { TxList, Tx } from '/types';
+import type { TxList, Tx, AccountTxs } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -86,7 +86,7 @@ const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }
 
 type Props = {
   publicKey: string,
-  transactions: { data: TxList },
+  transactions: AccountTxs,
   history: RouterHistory
 };
 
