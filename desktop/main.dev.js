@@ -125,7 +125,7 @@ app.on('ready', async () => {
     await handleClosingApp();
   });
 
-  ipcMain.handle(ipcConsts.IS_APP_VISIBLE, () => mainWindow.isVisible() && mainWindow.isFocused());
+  ipcMain.handle(ipcConsts.IS_APP_MINIMIZED, () => mainWindow.isMinimized());
 
   ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
     path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')

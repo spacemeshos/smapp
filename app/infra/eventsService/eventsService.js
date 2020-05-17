@@ -77,7 +77,7 @@ class EventsService {
 
   static print = ({ content }: { content: string }) => ipcRenderer.send(ipcConsts.PRINT, { content });
 
-  static checkAppVisibility = () => ipcRenderer.invoke(ipcConsts.IS_APP_VISIBLE);
+  static isAppMinimized = () => ipcRenderer.invoke(ipcConsts.IS_APP_MINIMIZED);
 
   static notificationWasClicked = () => ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
 }

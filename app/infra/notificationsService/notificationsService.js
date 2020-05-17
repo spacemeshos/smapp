@@ -5,8 +5,8 @@ import { icon } from '/assets/images';
 class NotificationsService {
   static notify = async ({ title, notification, callback, tag }: { title: string, notification: string, callback: () => void, tag?: number }) => {
     const permission = await Notification.requestPermission();
-    const isAppVisible = await eventsService.checkAppVisibility();
-    if (permission === 'granted' && !isAppVisible) {
+    const isAppMinimized = await eventsService.isAppMinimized();
+    if (permission === 'granted' && isAppMinimized) {
       const notificationOptions = {
         body: notification,
         icon,
