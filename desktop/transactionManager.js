@@ -19,10 +19,8 @@ const fromHexString = (hexString) => {
 class TransactionManager {
   constructor() {
     this.networkId = StoreService.get({ key: 'networkId' });
-    const storedTransactions = StoreService.get({ key: `${this.networkId}-transactions` });
-    this.transactions = storedTransactions || [{ layerId: 0, data: [] }];
-    const rawAwards = StoreService.get({ key: `${this.networkId}-rewards` });
-    this.rewards = rawAwards ? JSON.parse(rawAwards) : [];
+    this.transactions = StoreService.get({ key: `${this.networkId}-transactions` }) || [{ layerId: 0, data: [] }];
+    this.rewards = StoreService.get({ key: `${this.networkId}-rewards` }) || [];
     this.accounts = [];
   }
 
@@ -100,7 +98,7 @@ class TransactionManager {
             });
             const { unifiedTxList } = response;
             ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = response);
-            this.transactions = [...this.transactions.slice(0, index), { layerId: validatedLayer, data: unifiedTxList }, ...this.transactions.slice(index + 1)];
+            this.transactions = [...this.transactions.slice(0, index), { layerId: parseInt(validatedLayer), data: unifiedTxList }, ...this.transactions.slice(index + 1)];
             StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
           }
         });
@@ -147,7 +145,12 @@ class TransactionManager {
           !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
         hasConfirmedOutgoingTxs =
           !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
-        unifiedTxList[existingListMap[tx.txId].index] = { ...existingListMap[tx.txId].tx, status: tx.status, layerId: tx.layerId || existingListMap[tx.txId].tx.layerId };
+        unifiedTxList[existingListMap[tx.txId].index] = {
+          ...existingListMap[tx.txId].tx,
+          status: tx.status,
+          layerId: tx.layerId || existingListMap[tx.txId].tx.layerId,
+          timestamp: tx.timestamp || existingListMap[tx.txId].tx.timestamp
+        };
       } else {
         hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
         unifiedTxList.unshift(tx);

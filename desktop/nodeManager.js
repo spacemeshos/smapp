@@ -117,7 +117,6 @@ class NodeManager {
             (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
             console.error(error); // eslint-disable-line no-console
           }
-          console.log('node started with provided params'); // eslint-disable-line no-console
         });
       }
     } catch (e) {
