@@ -190,7 +190,7 @@ class TransactionManager {
               layerId: reward.layer,
               timestamp
             };
-            this.transactions[accountIndex].data.push(tx);
+            this.transactions[accountIndex].data.unshift(tx);
             return tx;
           });
           this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];

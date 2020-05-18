@@ -162,9 +162,9 @@ export const sendTransaction = ({ recipient, amount, fee, note }: { recipient: s
   getState: GetState
 ): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;
-  const accountNonce = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
+  const { nonce } = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
   const { tx } = await cryptoService.signTransaction({
-    accountNonce,
+    accountNonce: nonce,
     recipient,
     price: fee,
     amount,
