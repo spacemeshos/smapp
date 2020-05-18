@@ -227,7 +227,6 @@ class WalletManager {
     if (response === 0) {
       try {
         this.txManager.clearData();
-        StoreService.remove({ key: 'miningParams' });
         await unlinkFileAsync(fileName);
         browserWindow.reload();
       } catch (err) {

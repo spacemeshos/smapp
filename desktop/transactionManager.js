@@ -150,7 +150,7 @@ class TransactionManager {
         unifiedTxList[existingListMap[tx.txId].index] = { ...existingListMap[tx.txId].tx, status: tx.status, layerId: tx.layerId || existingListMap[tx.txId].tx.layerId };
       } else {
         hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-        unifiedTxList.unshift(tx.timestamp ? tx : { ...tx, timestamp: tx.timestamp || new Date().getTime() });
+        unifiedTxList.unshift(tx);
       }
     });
     return { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
@@ -173,8 +173,8 @@ class TransactionManager {
         if (this.rewards.length < parsedReward.length) {
           hasNewRewards = true;
           const newRewards = [...parsedReward.slice(this.rewards.length)];
-          const genesisTime = StoreService.get({ key: 'genesisTime' });
-          const layerDuration = StoreService.get({ key: 'layerDurationSec' });
+          const genesisTime = StoreService.get({ key: `${this.networkId}-genesisTime` });
+          const layerDuration = StoreService.get({ key: `${this.networkId}-layerDurationSec` });
           newRewardsWithTimeStamp = newRewards.map((reward) => {
             const timestamp = new Date(genesisTime).getTime() + layerDuration * 1000 * reward.layer;
             const tx = {
@@ -188,11 +188,7 @@ class TransactionManager {
               timestamp
             };
             this.transactions[accountIndex].data.push(tx);
-            return {
-              totalReward: reward.totalReward,
-              layerRewardEstimate: reward.layerRewardEstimate,
-              timestamp
-            };
+            return tx;
           });
           this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];
           StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards });

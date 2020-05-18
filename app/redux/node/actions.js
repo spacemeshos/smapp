@@ -45,7 +45,7 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
     return nodeConsts.MINING_UNSET;
   } else if (status === nodeConsts.IS_MINING) {
     if (!localStorage.getItem('smesherSmeshingTimestamp')) {
-      localStorage.setItem('smesherSmeshingTimestamp', new Date().getTime());
+      localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
     }
   } else if (status === nodeConsts.NOT_MINING) {
     localStorage.removeItem('playedAudio');
@@ -64,7 +64,7 @@ export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalD
     console.error(error); // eslint-disable-line no-console
     throw createError(`Error initiating smeshing: ${error}`, () => dispatch(initMining({ logicalDrive, commitmentSize, address })));
   } else {
-    localStorage.setItem('smesherInitTimestamp', new Date().getTime());
+    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
     dispatch({ type: INIT_MINING, payload: { address } });
   }

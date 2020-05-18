@@ -11,9 +11,9 @@
     "atxs-per-block": 100,
     "oracle_server": "http://localhost:3030",
     "oracle_server_worldid": 0,
-    "genesis-active-size": 100,
-    "genesis-time": "2020-05-17T12:52:13+00:00",
-    "poet-server": "35.202.153.250:8080"
+    "genesis-active-size": 50,
+    "genesis-time": "2020-05-18T07:34:22+00:00",
+    "poet-server": "35.232.191.56:8080"
   },
   "p2p": {
     "dial-timeout": "1m",
@@ -30,11 +30,11 @@
       "alpha": 3,
       "randcon": 8,
       "bootnodes": [
-        "spacemesh://DcHCdMHTXVBm2dMRMrifzroUAk1mcmnocdHDNWkWZZTw@34.70.147.114:20000"
+        "spacemesh://7g146x9gAxPJrwS3XNTwfyqr3ktRNhZ5HTCfRW58Jg1X@35.225.254.168:20000"
       ],
       "bootstrap": true
     },
-    "network-id": 666
+    "network-id": 10
   },
   "post": {
     "post-space": 1048576,
