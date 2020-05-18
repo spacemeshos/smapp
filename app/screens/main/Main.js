@@ -119,8 +119,6 @@ class Main extends Component<Props, State> {
 
   miningStatusInterval: IntervalID;
 
-  getBalanceInterval: IntervalID;
-
   accountRewardsInterval: IntervalID;
 
   txCollectorInterval: IntervalID;
@@ -250,10 +248,9 @@ class Main extends Component<Props, State> {
     await getNodeStatus();
     await getTxList({ approveTxNotifier: this.approveTxNotifier });
     await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
-    this.txCollectorInterval = setInterval(() => { getTxList({ approveTxNotifier: this.approveTxNotifier }); }, 60000);
-    this.accountRewardsInterval = setInterval(() => { getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); }, 300000);
-    getBalance();
-    this.getBalanceInterval = setInterval(getBalance, 60000);
+    await getBalance();
+    this.txCollectorInterval = setInterval(() => { getTxList({ approveTxNotifier: this.approveTxNotifier }); getNodeStatus(); }, 90000);
+    this.accountRewardsInterval = setInterval(() => { getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); getNodeStatus(); }, 150000);
     this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
     this.initialMiningStatusInterval = setInterval(async () => {
       const status = await getMiningStatus();
@@ -287,7 +284,6 @@ class Main extends Component<Props, State> {
     this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
     this.miningStatusInterval && clearInterval(this.miningStatusInterval);
     this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
-    this.getBalanceInterval && clearInterval(this.getBalanceInterval);
     this.txCollectorInterval && clearInterval(this.txCollectorInterval);
   }
 
