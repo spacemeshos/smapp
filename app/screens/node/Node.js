@@ -173,9 +173,9 @@ class Node extends Component<Props, State> {
   render() {
     const { rewards } = this.props;
     let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
-    smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
+    smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
     let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
-    smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(smesherSmeshingTimestamp) : '';
+    smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
     return (
       <Wrapper>
         <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
@@ -206,8 +206,8 @@ class Node extends Component<Props, State> {
                 <div key={`reward${index}`}>
                   <LogEntry>
                     <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                    <AwardText>Smeshing reward: {formatSmidge(reward.totalReward)}</AwardText>
-                    <AwardText>Smeshing fee reward: {formatSmidge(reward.totalReward - reward.layerRewardEstimate)}</AwardText>
+                    <AwardText>Smeshing reward: {formatSmidge(reward.amount)}</AwardText>
+                    <AwardText>Smeshing fee reward: {formatSmidge(reward.fee)}</AwardText>
                   </LogEntry>
                   <LogEntrySeparator>...</LogEntrySeparator>
                 </div>

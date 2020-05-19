@@ -56,7 +56,7 @@ export const createNewWallet = ({ mnemonic, password }: { mnemonic?: string, pas
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts: dataToEncrypt.accounts }));
     dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    localStorage.setItem('accountNumber', 1);
+    localStorage.setItem('accountNumber', '1');
     dispatch(readWalletFiles());
   }
 };
@@ -98,12 +98,12 @@ export const createNewAccount = ({ password }: { password: string }): Action => 
   const { walletFiles, mnemonic, accounts } = getState().wallet;
   const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length });
   const timestamp = new Date().toISOString().replace(/:/, '-');
-  const accountNumber = localStorage.getItem('accountNumber');
+  const accountNumber = JSON.parse(localStorage.getItem('accountNumber') || '1');
   const newAccount = getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey });
   const updatedAccounts = [...accounts, newAccount];
   await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts } });
   dispatch(setAccounts({ accounts: updatedAccounts }));
-  localStorage.setItem('accountNumber', accountNumber + 1);
+  localStorage.setItem('accountNumber', `${accountNumber + 1}`);
 };
 
 export const updateAccountName = ({ accountIndex, name, password }: { accountIndex: number, name: string, password: string }): Action => async (
@@ -162,9 +162,9 @@ export const sendTransaction = ({ recipient, amount, fee, note }: { recipient: s
   getState: GetState
 ): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;
-  const accountNonce = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
+  const { nonce } = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
   const { tx } = await cryptoService.signTransaction({
-    accountNonce,
+    accountNonce: nonce,
     recipient,
     price: fee,
     amount,

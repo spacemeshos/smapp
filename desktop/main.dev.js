@@ -32,7 +32,8 @@ let tray = null;
 let nodeManager;
 
 const handleClosingApp = async () => {
-  const savedMiningParams = StoreService.get({ key: 'miningParams' });
+  const networkId = StoreService.get({ key: 'networkId' });
+  const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
   if (savedMiningParams) {
     const options = {
       title: 'Quit App',

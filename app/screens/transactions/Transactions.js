@@ -175,7 +175,7 @@ class Transactions extends Component<Props, State> {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
     const startDate = new Date().getTime() - spanInDays[index] * oneDayInMs;
-    return transactions.data.filter((transaction: Tx) => transaction.timestamp >= startDate);
+    return transactions.data.filter((transaction: Tx) => transaction.timestamp >= startDate || !transaction.timestamp);
   };
 
   cancelCreatingNewContact = () => {
