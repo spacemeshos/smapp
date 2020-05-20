@@ -157,32 +157,24 @@ export const getBalance = (): Action => async (dispatch: Dispatch, getState: Get
   }
 };
 
-export const sendTransaction = ({ recipient, amount, fee, note }: { recipient: string, amount: number, fee: number, note: string }): Action => async (
+export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: string, amount: number, fee: number, note: string }): Action => async (
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;
-  const { nonce } = await eventsService.getNonce({ address: accounts[currentAccountIndex].publicKey });
-  const { tx } = await cryptoService.signTransaction({
-    accountNonce: nonce,
-    recipient,
-    price: fee,
-    amount,
-    secretKey: accounts[currentAccountIndex].secretKey
-  });
-  const txToAdd = {
+  const fullTx = {
     sender: getAddress(accounts[currentAccountIndex].publicKey),
-    receiver: recipient,
+    receiver,
     amount,
     fee,
     status: TX_STATUSES.PENDING,
     timestamp: new Date().getTime(),
     note
   };
-  const { error, transactions, id } = await eventsService.sendTx({ tx, accountIndex: currentAccountIndex, txToAdd });
+  const { error, transactions, id } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error sending transaction!', () => dispatch(sendTransaction({ recipient, amount, fee, note })));
+    throw createError('Error sending transaction!', () => dispatch(sendTransaction({ receiver, amount, fee, note })));
   } else {
     dispatch(setTransactions({ transactions }));
     return id;

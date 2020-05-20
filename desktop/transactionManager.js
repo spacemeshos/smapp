@@ -1,6 +1,7 @@
 import TX_STATUSES from '../app/vars/enums';
 import StoreService from './storeService';
 import netService from './netService';
+import cryptoService from './cryptoService';
 
 const asyncForEach = async (array, callback) => {
   for (let index = 0; index < array.length; index += 1) {
@@ -36,13 +37,24 @@ class TransactionManager {
     StoreService.remove({ key: `${this.networkId}-transactions` });
   };
 
-  sendTx = async ({ tx, accountIndex, txToAdd }) => {
+  sendTx = async ({ fullTx, accountIndex }) => {
     try {
-      const { id } = await netService.submitTransaction({ tx });
-      const fullTxToAdd = { ...txToAdd, txId: id };
-      this.transactions[accountIndex].data.push(fullTxToAdd);
-      StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
-      return { error: null, transactions: this.transactions, id };
+      const { error, value } = await netService.getNonce({ address: this.accounts[accountIndex].publicKey });
+      if (!error) {
+        const { receiver, amount, fee } = fullTx;
+        const { tx } = await cryptoService.signTransaction({
+          accountNonce: value,
+          receiver,
+          price: fee,
+          amount,
+          secretKey: this.accounts[accountIndex].secretKey
+        });
+        const { id } = await netService.submitTransaction({ tx });
+        this.transactions[accountIndex].data.unshift({ txId: id, ...fullTx });
+        StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+        return { error: null, transactions: this.transactions, id };
+      }
+      return { error, transactions: [], id: '' };
     } catch (error) {
       return { error, transactions: [], id: '' };
     }

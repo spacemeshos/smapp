@@ -53,10 +53,7 @@ class EventsService {
 
   static getBalance = ({ address }: { address: string }) => ipcRenderer.invoke(ipcConsts.GET_BALANCE, { address });
 
-  static getNonce = ({ address }: { address: string }) => ipcRenderer.invoke(ipcConsts.GET_NONCE, { address });
-
-  static sendTx = ({ tx, accountIndex, txToAdd }: { tx: Uint8Array, accountIndex: number, txToAdd: Object }) =>
-    ipcRenderer.invoke(ipcConsts.SEND_TX, { tx, accountIndex, txToAdd });
+  static sendTx = ({ fullTx, accountIndex }: { fullTx: Object, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SEND_TX, { fullTx, accountIndex });
 
   static updateTransaction = ({ newData, accountIndex, txId }: { newData: string, accountIndex: number, txId?: string }) =>
     ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });

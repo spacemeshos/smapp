@@ -6,7 +6,7 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, formatTxId, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
@@ -140,6 +140,8 @@ const TextArea = styled.textarea`
   border: 1px solid ${smColors.black};
   margin-bottom: 10px;
 `;
+
+const formatTxId = (id) => id && `0x${id.substring(0, 6)}`;
 
 type Props = {
   updateTransaction: Action,

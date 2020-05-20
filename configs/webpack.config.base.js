@@ -42,6 +42,8 @@ export default {
       NODE_ENV: 'production'
     }),
 
-    new webpack.NamedModulesPlugin()
+    new webpack.NamedModulesPlugin(),
+
+    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/)
   ]
 };

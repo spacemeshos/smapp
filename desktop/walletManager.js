@@ -64,10 +64,6 @@ class WalletManager {
       const res = await this.getBalance({ ...request });
       return res;
     });
-    ipcMain.handle(ipcConsts.GET_NONCE, async (event, request) => {
-      const res = await this.getNonce({ ...request });
-      return res;
-    });
     ipcMain.handle(ipcConsts.SEND_TX, async (event, request) => {
       const res = await this.txManager.sendTx({ ...request });
       return res;
@@ -149,15 +145,6 @@ class WalletManager {
       } else {
         return { error, balance: null };
       }
-    }
-  };
-
-  getNonce = async ({ address }) => {
-    try {
-      const { value } = await netService.getNonce({ address });
-      return { error: null, nonce: value };
-    } catch (error) {
-      return { error, nonce: null };
     }
   };
 
