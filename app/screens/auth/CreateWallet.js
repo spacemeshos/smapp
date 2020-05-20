@@ -206,7 +206,7 @@ class CreateWallet extends Component<Props, State> {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          createNewWallet({ mnemonic: location?.state?.mnemonic, password });
+          createNewWallet({ existingMnemonic: location?.state?.mnemonic, password });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
       } catch (err) {

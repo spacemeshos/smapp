@@ -1,6 +1,5 @@
 // @flow
 import { eventsService } from '/infra/eventsService';
-import { cryptoService } from '/infra/cryptoService';
 import { createError, getAddress } from '/infra/utils';
 import { Action, Dispatch, GetState, WalletMeta, Account, AccountTxs, Contact } from '/types';
 import TX_STATUSES from '/vars/enums';
@@ -20,14 +19,6 @@ export const SET_BACKUP_TIME: string = 'SET_BACKUP_TIME';
 
 export const SET_UPDATE_DOWNLOADING: string = 'IS_UPDATE_DOWNLOADING';
 
-const getNewAccountFromTemplate = ({ accountNumber, timestamp, publicKey, secretKey }: { accountNumber: number, timestamp: string, publicKey: string, secretKey: string }) => ({
-  displayName: accountNumber > 0 ? `Account ${accountNumber}` : 'Main Account',
-  created: timestamp,
-  path: `0/0/${accountNumber}`,
-  publicKey,
-  secretKey
-});
-
 export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({ type: SET_WALLET_META, payload: { meta } });
 
 export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({ type: SET_ACCOUNTS, payload: { accounts } });
@@ -40,23 +31,15 @@ export const setTransactions = ({ transactions }: { transactions: AccountTxs }):
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }): Action => ({ type: SET_CONTACTS, payload: { contacts } });
 
-export const createNewWallet = ({ mnemonic, password }: { mnemonic?: string, password: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const resolvedMnemonic = mnemonic || cryptoService.generateMnemonic();
-  const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: resolvedMnemonic });
-  const dataToEncrypt = {
-    mnemonic: resolvedMnemonic,
-    accounts: [getNewAccountFromTemplate({ accountNumber: 0, timestamp, publicKey, secretKey })]
-  };
-  const { error, meta } = await eventsService.createWallet({ timestamp, dataToEncrypt, password });
+export const createNewWallet = ({ existingMnemonic, password }: { existingMnemonic?: string, password: string }): Action => async (dispatch: Dispatch): Dispatch => {
+  const { error, accounts, mnemonic, meta } = await eventsService.createWallet({ password, existingMnemonic });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ mnemonic, password })));
+    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ existingMnemonic, password })));
   } else {
     dispatch(setWalletMeta({ meta }));
-    dispatch(setAccounts({ accounts: dataToEncrypt.accounts }));
-    dispatch(setMnemonic({ mnemonic: resolvedMnemonic }));
-    localStorage.setItem('accountNumber', '1');
+    dispatch(setAccounts({ accounts }));
+    dispatch(setMnemonic({ mnemonic }));
     dispatch(readWalletFiles());
   }
 };
@@ -95,15 +78,14 @@ export const updateWalletName = ({ displayName }: { displayName: string }): Acti
 };
 
 export const createNewAccount = ({ password }: { password: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { walletFiles, mnemonic, accounts } = getState().wallet;
-  const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length });
-  const timestamp = new Date().toISOString().replace(/:/, '-');
-  const accountNumber = JSON.parse(localStorage.getItem('accountNumber') || '1');
-  const newAccount = getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey });
-  const updatedAccounts = [...accounts, newAccount];
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts } });
-  dispatch(setAccounts({ accounts: updatedAccounts }));
-  localStorage.setItem('accountNumber', `${accountNumber + 1}`);
+  const { walletFiles, accounts } = getState().wallet;
+  const { error, newAccount } = await eventsService.createNewAccount({ fileName: walletFiles[0], password });
+  if (error) {
+    console.log(error); // eslint-disable-line no-console
+    throw createError('Failed to create new account', () => dispatch(createNewAccount({ password })));
+  } else {
+    dispatch(setAccounts({ accounts: [...accounts, newAccount] }));
+  }
 };
 
 export const updateAccountName = ({ accountIndex, name, password }: { accountIndex: number, name: string, password: string }): Action => async (
@@ -174,7 +156,9 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   const { error, transactions, id } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error sending transaction!', () => dispatch(sendTransaction({ receiver, amount, fee, note })));
+    throw createError('Error sending transaction!', () => {
+      dispatch(sendTransaction({ receiver, amount, fee, note }));
+    });
   } else {
     dispatch(setTransactions({ transactions }));
     return id;

@@ -3,15 +3,17 @@ import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 
 class EventsService {
-  static createWallet = ({ timestamp, dataToEncrypt, password }: { timestamp: string, dataToEncrypt: Object, password: string }) =>
-    ipcRenderer.invoke(ipcConsts.CREATE_WALLET_FILE, { timestamp, dataToEncrypt, password });
+  static createWallet = ({ password, existingMnemonic }: { password: string, existingMnemonic: string }) =>
+    ipcRenderer.invoke(ipcConsts.CREATE_WALLET_FILE, { password, existingMnemonic });
 
   static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
 
   static unlockWallet = ({ path, password }: { path: string, password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
 
   static updateWallet = ({ fileName, password, data }: { fileName: string, password: string, data: Object }) =>
-    ipcRenderer.invoke(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
+    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
+
+  static createNewAccount = ({ fileName, password }: { fileName: string, password: string }) => ipcRenderer.invoke(ipcConsts.CREATE_NEW_ACCOUNT, { fileName, password });
 
   static copyFile = ({ filePath, copyToDocuments }: { filePath: string, copyToDocuments?: boolean }) => ipcRenderer.invoke(ipcConsts.COPY_FILE, { filePath, copyToDocuments });
 

@@ -9,6 +9,7 @@
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import fs from 'fs';
 import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
@@ -19,8 +20,16 @@ import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
 import WalletManager from './walletManager';
+import './wasm_exec';
 
-const debug = require('electron-debug');
+(async function() {
+  const bytes = fs.readFileSync(path.resolve(app.getAppPath(), 'ed25519.wasm'));
+  // const bytes = await response.arrayBuffer();
+  const go = new Go(); // eslint-disable-line no-undef
+  const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
+  await go.run(instance);
+})();
+
 const unhandled = require('electron-unhandled');
 
 unhandled();
@@ -107,7 +116,6 @@ const createWindow = () => {
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    debug();
     installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
     installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }

@@ -1,10 +1,10 @@
 // @flow
+import * as bip39 from 'bip39';
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { BackButton } from '/components/common';
 import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
-import { cryptoService } from '/infra/cryptoService';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -120,11 +120,18 @@ class WordsRestore extends Component<Props, State> {
     return words.every((word) => !!word && word.trim().length > 0) || hasError;
   };
 
+  validateMnemonic = ({ mnemonic }: { mnemonic: string }) => {
+    if (!mnemonic || !mnemonic.length) {
+      return false;
+    }
+    return bip39.validateMnemonic(mnemonic);
+  };
+
   restoreWith12Words = () => {
     const { history } = this.props;
     const { words } = this.state;
     const mnemonic = Object.values(words).join(' ');
-    if (cryptoService.validateMnemonic({ mnemonic })) {
+    if (this.validateMnemonic({ mnemonic })) {
       history.push('/auth/create', { mnemonic });
     } else {
       this.setState({ hasError: true });

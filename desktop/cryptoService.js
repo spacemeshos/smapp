@@ -13,11 +13,7 @@ const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(1
 
 const DEFAULT_SALT = 'Spacemesh blockmesh';
 
-const sleep = () => new Promise((resolve) => setTimeout(resolve, 1000));
-
 class CryptoService {
-  static stopAndCleanUp = () => __stopAndCleanUp(); // eslint-disable-line no-undef
-
   static generateMnemonic = () => bip39.generateMnemonic();
 
   /**
@@ -26,10 +22,6 @@ class CryptoService {
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
   static generateKeyPair = ({ mnemonic }) => {
-    // eslint-disable-next-line no-undef
-    if (!__generateKeyPair) {
-      sleep();
-    }
     // Generate 64 seed bytes (512 bits) from phrase - this is a wallet's master seed
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let publicKey = new Uint8Array(32);
@@ -42,7 +34,7 @@ class CryptoService {
       publicKey = pk;
       secretKey = sk;
     };
-    __generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
+    global.__generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
     return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
   };
 
@@ -66,7 +58,7 @@ class CryptoService {
       publicKey = pk;
       secretKey = sk;
     };
-    __deriveNewKeyPair(seed.slice(32), index, saltAsUint8Array, saveKeys); // eslint-disable-line no-undef
+    global.__deriveNewKeyPair(seed.slice(32), index, saltAsUint8Array, saveKeys); // eslint-disable-line no-undef
     return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
   };
 
@@ -105,7 +97,7 @@ class CryptoService {
     return new Promise((resolve) => {
       const bufMessageAsUint8Array = new Uint8Array(bufMessage);
       // eslint-disable-next-line no-undef
-      __signTransaction(sk, bufMessageAsUint8Array, (sig) => {
+      global.__signTransaction(sk, bufMessageAsUint8Array, (sig) => {
         const tx = new types.SerializableSignedTransaction({
           InnerSerializableSignedTransaction: message,
           Signature: sig

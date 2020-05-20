@@ -42,14 +42,14 @@ class TransactionManager {
       const { error, value } = await netService.getNonce({ address: this.accounts[accountIndex].publicKey });
       if (!error) {
         const { receiver, amount, fee } = fullTx;
-        const { tx } = await cryptoService.signTransaction({
+        const res = await cryptoService.signTransaction({
           accountNonce: value,
           receiver,
           price: fee,
           amount,
           secretKey: this.accounts[accountIndex].secretKey
         });
-        const { id } = await netService.submitTransaction({ tx });
+        const { id } = await netService.submitTransaction({ tx: res });
         this.transactions[accountIndex].data.unshift({ txId: id, ...fullTx });
         StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
         return { error: null, transactions: this.transactions, id };
