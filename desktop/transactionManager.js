@@ -27,10 +27,17 @@ class TransactionManager {
 
   setAccounts = ({ accounts }) => {
     this.accounts = accounts;
+    if (accounts.length < this.transactions.length) {
+      const diff = accounts.length - this.transactions.length;
+      for (let i = 0; i < diff; i += 1) {
+        this.transactions.push({ layerId: 0, data: [] });
+      }
+    }
   };
 
   addAccount = ({ account }) => {
     this.accounts.push(account);
+    this.transactions.push({ layerId: 0, data: [] });
   };
 
   clearData = () => {
