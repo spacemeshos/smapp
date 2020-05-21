@@ -1,6 +1,7 @@
 import TX_STATUSES from '../app/vars/enums';
 import StoreService from './storeService';
 import netService from './netService';
+import cryptoService from './cryptoService';
 
 const asyncForEach = async (array, callback) => {
   for (let index = 0; index < array.length; index += 1) {
@@ -26,23 +27,41 @@ class TransactionManager {
 
   setAccounts = ({ accounts }) => {
     this.accounts = accounts;
+    if (accounts.length < this.transactions.length) {
+      const diff = accounts.length - this.transactions.length;
+      for (let i = 0; i < diff; i += 1) {
+        this.transactions.push({ layerId: 0, data: [] });
+      }
+    }
   };
 
   addAccount = ({ account }) => {
     this.accounts.push(account);
+    this.transactions.push({ layerId: 0, data: [] });
   };
 
   clearData = () => {
     StoreService.remove({ key: `${this.networkId}-transactions` });
   };
 
-  sendTx = async ({ tx, accountIndex, txToAdd }) => {
+  sendTx = async ({ fullTx, accountIndex }) => {
     try {
-      const { id } = await netService.submitTransaction({ tx });
-      const fullTxToAdd = { ...txToAdd, txId: id };
-      this.transactions[accountIndex].data.push(fullTxToAdd);
-      StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
-      return { error: null, transactions: this.transactions, id };
+      const { error, value } = await netService.getNonce({ address: this.accounts[accountIndex].publicKey });
+      if (!error) {
+        const { receiver, amount, fee } = fullTx;
+        const res = await cryptoService.signTransaction({
+          accountNonce: value,
+          receiver,
+          price: fee,
+          amount,
+          secretKey: this.accounts[accountIndex].secretKey
+        });
+        const { id } = await netService.submitTransaction({ tx: res });
+        this.transactions[accountIndex].data.unshift({ txId: id, ...fullTx });
+        StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+        return { error: null, transactions: this.transactions, id };
+      }
+      return { error, transactions: [], id: '' };
     } catch (error) {
       return { error, transactions: [], id: '' };
     }

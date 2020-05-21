@@ -7,7 +7,8 @@ import { ipcConsts } from '../app/vars';
 import TransactionManager from './transactionManager';
 import StoreService from './storeService';
 import netService from './netService';
-import FileEncryptionService from './fileEncryptionService';
+import fileEncryptionService from './fileEncryptionService';
+import cryptoService from './cryptoService';
 import encryptionConst from './encryptionConst';
 
 const readFileAsync = util.promisify(fs.readFile);
@@ -30,6 +31,14 @@ class WalletManager {
     this.txManager = new TransactionManager();
   }
 
+  __getNewAccountFromTemplate = ({ accountNumber, timestamp, publicKey, secretKey }) => ({
+    displayName: accountNumber > 0 ? `Account ${accountNumber}` : 'Main Account',
+    created: timestamp,
+    path: `0/0/${accountNumber}`,
+    publicKey,
+    secretKey
+  });
+
   subscribeToEvents = (mainWindow) => {
     ipcMain.handle(ipcConsts.CREATE_WALLET_FILE, async (event, request) => {
       const res = await this.createWalletFile({ ...request });
@@ -45,6 +54,10 @@ class WalletManager {
     });
     ipcMain.on(ipcConsts.UPDATE_WALLET_FILE, async (event, request) => {
       await this.updateWalletFile({ ...request });
+    });
+    ipcMain.handle(ipcConsts.CREATE_NEW_ACCOUNT, async (event, request) => {
+      const res = await this.createNewAccount({ ...request });
+      return res;
     });
     ipcMain.handle(ipcConsts.COPY_FILE, async (event, request) => {
       const res = await this.copyFile({ ...request });
@@ -62,10 +75,6 @@ class WalletManager {
 
     ipcMain.handle(ipcConsts.GET_BALANCE, async (event, request) => {
       const res = await this.getBalance({ ...request });
-      return res;
-    });
-    ipcMain.handle(ipcConsts.GET_NONCE, async (event, request) => {
-      const res = await this.getNonce({ ...request });
       return res;
     });
     ipcMain.handle(ipcConsts.SEND_TX, async (event, request) => {
@@ -86,8 +95,15 @@ class WalletManager {
     });
   };
 
-  createWalletFile = async ({ timestamp, dataToEncrypt, password }) => {
+  createWalletFile = async ({ password, existingMnemonic }) => {
     try {
+      const timestamp = new Date().toISOString().replace(/:/g, '-');
+      this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
+      const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: this.mnemonic });
+      const dataToEncrypt = {
+        mnemonic: this.mnemonic,
+        accounts: [this.__getNewAccountFromTemplate({ accountNumber: 0, timestamp, publicKey, secretKey })]
+      };
       const walletNumber = StoreService.get({ key: 'walletNumber' }) || 0;
       const meta = {
         displayName: walletNumber > 0 ? `Wallet ${walletNumber}` : 'Main Wallet',
@@ -96,8 +112,8 @@ class WalletManager {
         meta: { salt: encryptionConst.DEFAULT_SALT }
       };
       this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
-      const key = FileEncryptionService.createEncryptionKey({ password });
-      const encryptedAccountsData = FileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
+      const key = fileEncryptionService.createEncryptionKey({ password });
+      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       const fileContent = {
         meta,
         crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
@@ -107,7 +123,8 @@ class WalletManager {
       const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
       await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
       StoreService.set({ key: 'walletNumber', value: walletNumber + 1 });
-      return { error: null, meta };
+      StoreService.set({ key: 'accountNumber', value: 1 });
+      return { error: null, meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
     } catch (error) {
       return { error, meta: null };
     }
@@ -129,8 +146,8 @@ class WalletManager {
     try {
       const fileContent = await readFileAsync(path);
       const { crypto, meta, contacts } = JSON.parse(fileContent);
-      const key = FileEncryptionService.createEncryptionKey({ password });
-      const decryptedDataJSON = FileEncryptionService.decryptData({ data: crypto.cipherText, key });
+      const key = fileEncryptionService.createEncryptionKey({ password });
+      const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic } = JSON.parse(decryptedDataJSON);
       this.txManager.setAccounts({ accounts });
       return { error: null, accounts, mnemonic, meta, contacts };
@@ -152,15 +169,6 @@ class WalletManager {
     }
   };
 
-  getNonce = async ({ address }) => {
-    try {
-      const { value } = await netService.getNonce({ address });
-      return { error: null, nonce: value };
-    } catch (error) {
-      return { error, nonce: null };
-    }
-  };
-
   updateWalletFile = async ({ fileName, password, data }) => {
     try {
       const rawFileContent = await readFileAsync(fileName);
@@ -169,14 +177,40 @@ class WalletManager {
       let dataToUpdate = data;
       if (password) {
         field = 'crypto';
-        const key = FileEncryptionService.createEncryptionKey({ password });
-        const encryptedAccountsData = FileEncryptionService.encryptData({ data: JSON.stringify(data), key });
+        const key = fileEncryptionService.createEncryptionKey({ password });
+        const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(data), key });
         dataToUpdate = { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData };
         this.txManager.addAccount({ account: data.accounts });
       }
-      await writeFileAsync({ filePath: fileName, fileContent: JSON.stringify({ ...fileContent, [field]: dataToUpdate }) });
+      await writeFileAsync(fileName, JSON.stringify({ ...fileContent, [field]: dataToUpdate }));
     } catch (error) {
       console.log(error); // eslint-disable-line no-console
+    }
+  };
+
+  createNewAccount = async ({ fileName, password }) => {
+    try {
+      const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: this.txManager.accounts.length });
+      const timestamp = new Date().toISOString().replace(/:/, '-');
+      const accountNumber = StoreService.get({ key: 'accountNumber' });
+      const newAccount = this.__getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey });
+      const dataToEncrypt = {
+        mnemonic: this.mnemonic,
+        accounts: [...this.txManager.accounts, newAccount]
+      };
+      const key = fileEncryptionService.createEncryptionKey({ password });
+      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
+
+      const rawFileContent = await readFileAsync(fileName);
+      const fileContent = JSON.parse(rawFileContent);
+      await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
+
+      this.txManager.addAccount({ account: newAccount });
+      StoreService.set({ key: 'accountNumber', value: accountNumber + 1 });
+      return { error: null, newAccount };
+    } catch (error) {
+      console.log(error); // eslint-disable-line no-console
+      return { error };
     }
   };
 

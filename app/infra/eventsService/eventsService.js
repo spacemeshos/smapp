@@ -3,15 +3,17 @@ import { ipcRenderer } from 'electron';
 import { ipcConsts } from '/vars';
 
 class EventsService {
-  static createWallet = ({ timestamp, dataToEncrypt, password }: { timestamp: string, dataToEncrypt: Object, password: string }) =>
-    ipcRenderer.invoke(ipcConsts.CREATE_WALLET_FILE, { timestamp, dataToEncrypt, password });
+  static createWallet = ({ password, existingMnemonic }: { password: string, existingMnemonic: string }) =>
+    ipcRenderer.invoke(ipcConsts.CREATE_WALLET_FILE, { password, existingMnemonic });
 
   static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
 
   static unlockWallet = ({ path, password }: { path: string, password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
 
   static updateWallet = ({ fileName, password, data }: { fileName: string, password: string, data: Object }) =>
-    ipcRenderer.invoke(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
+    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
+
+  static createNewAccount = ({ fileName, password }: { fileName: string, password: string }) => ipcRenderer.invoke(ipcConsts.CREATE_NEW_ACCOUNT, { fileName, password });
 
   static copyFile = ({ filePath, copyToDocuments }: { filePath: string, copyToDocuments?: boolean }) => ipcRenderer.invoke(ipcConsts.COPY_FILE, { filePath, copyToDocuments });
 
@@ -53,10 +55,7 @@ class EventsService {
 
   static getBalance = ({ address }: { address: string }) => ipcRenderer.invoke(ipcConsts.GET_BALANCE, { address });
 
-  static getNonce = ({ address }: { address: string }) => ipcRenderer.invoke(ipcConsts.GET_NONCE, { address });
-
-  static sendTx = ({ tx, accountIndex, txToAdd }: { tx: Uint8Array, accountIndex: number, txToAdd: Object }) =>
-    ipcRenderer.invoke(ipcConsts.SEND_TX, { tx, accountIndex, txToAdd });
+  static sendTx = ({ fullTx, accountIndex }: { fullTx: Object, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SEND_TX, { fullTx, accountIndex });
 
   static updateTransaction = ({ newData, accountIndex, txId }: { newData: string, accountIndex: number, txId?: string }) =>
     ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });

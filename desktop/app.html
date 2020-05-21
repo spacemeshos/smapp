@@ -6,16 +6,6 @@
   </head>
   <body>
     <div id="root" style="height: 100%; width: 100%;"></div>
-    <script src="wasm_exec.js"></script>
-    <script>
-      (async function() {
-        const response = await fetch('./ed25519.wasm');
-        const bytes = await response.arrayBuffer();
-        const go = new Go(); // eslint-disable-line no-undef
-        const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
-        await go.run(instance);
-      })();
-    </script>
     <script>
       {
         const scripts = [];
