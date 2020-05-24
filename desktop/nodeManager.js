@@ -85,10 +85,10 @@ class NodeManager {
         process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data', `${networkId}`);
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-      const configFileLocation = path.resolve(app.getAppPath(), './config.json');
+      const configFileLocation = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
 
       if (prevGenesisTime !== fetchedGenesisTime) {
         const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;

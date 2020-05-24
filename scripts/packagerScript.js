@@ -97,6 +97,7 @@ const getBuildOptions = ({ target, publish }) => {
       ],
       extraFiles: [
         nodeFiles[target],
+        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' },
         { from: path.resolve('resources/sounds'), to: 'sounds/' }
       ],
       mac: {

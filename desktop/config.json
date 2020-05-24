@@ -10,8 +10,8 @@
     "hdist": 10,
     "atxs-per-block": 25,
     "genesis-active-size": 100,
-    "genesis-time": "2020-05-23T11:16:54+00:00",
-    "poet-server": "104.198.178.232:8080"
+    "genesis-time": "2020-05-24T10:03:40+00:00",
+    "poet-server": "35.193.189.175:8080"
   },
   "p2p": {
     "dial-timeout": "1m",
@@ -28,12 +28,12 @@
       "alpha": 3,
       "randcon": 8,
       "bootnodes": [
-        "spacemesh://6E1Yeuev89QN35FM9j2HBAk5nXgF2oPZreQGbZnLJpLj@35.232.64.167:20000",
-        "spacemesh://463xtXKmb6eZLjvf6gAEp5NVWvPggLNZP7eZxHaxom1e@104.197.81.125:20000",
-        "spacemesh://2wYoBdnf2seNhgHpwMM9nTRzySQEkuFFjeywEpyH4MCY@35.238.207.218:20000",
-        "spacemesh://FTnnF7se76y2ChM65NgrCbxjUHPkyXdDKFYpzE1nLTkw@35.202.220.73:20000",
-        "spacemesh://CyAaGV5DWSMgD8XmzmYZR9oEFvD1MhkQPkgRUkFx2wc8@34.69.110.28:20000",
-        "spacemesh://AvJmWa539EoVhxB3HQEs6Lu9Zi48kBsnFL2R9Q87dgxU@34.69.208.82:20000"
+        "spacemesh://ABwsnEevMyng6WyUBaSwNCNf8ZgDJzaqeyNtY3PWZGM1@34.68.132.242:20000",
+        "spacemesh://iqmmJyMxhzyCa2PGj5M2UZFL5MqKg4pcgqcaAYPU8N1@34.69.110.28:20000",
+        "spacemesh://DgrcDMboGw3NeyyjRLeSNMGiyyVdyfgcRsmFhEFghyC7@35.238.91.227:20000",
+        "spacemesh://E35ULVSWiPETriidfLhqYGSaqLjWcL3VHZFYhEcwVyCd@35.225.107.117:20000",
+        "spacemesh://6VTRYDX8antZ5r3y6QgdiC1t8R8WUu27E18Au7Yp1GvZ@130.211.207.214:20000",
+        "spacemesh://4nM4sKkbMGy8JJoq1VZzFWivH8XdQJK1QG5tPFcQmpuh@35.223.236.209:20000"
       ],
       "bootstrap": true
     },
