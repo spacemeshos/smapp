@@ -1,17 +1,17 @@
 {
   "main": {
     "layer-duration-sec": 300,
-    "layer-average-size": 50,
-    "layers-per-epoch": 288,
+    "layer-average-size": 30,
+    "layers-per-epoch": 6,
     "block-cache-size": 20,
     "sync-request-timeout": 60000,
     "sync-interval": 10,
     "sync-validation-delta": 30,
     "hdist": 10,
-    "atxs-per-block": 25,
-    "genesis-active-size": 100,
-    "genesis-time": "2020-05-24T10:03:40+00:00",
-    "poet-server": "35.193.189.175:8080"
+    "atxs-per-block": 100,
+    "genesis-active-size": 50,
+    "genesis-time": "2020-05-26T09:00:38+00:00",
+    "poet-server": "34.70.7.187:8080"
   },
   "p2p": {
     "dial-timeout": "1m",
@@ -28,20 +28,15 @@
       "alpha": 3,
       "randcon": 8,
       "bootnodes": [
-        "spacemesh://ABwsnEevMyng6WyUBaSwNCNf8ZgDJzaqeyNtY3PWZGM1@34.68.132.242:20000",
-        "spacemesh://iqmmJyMxhzyCa2PGj5M2UZFL5MqKg4pcgqcaAYPU8N1@34.69.110.28:20000",
-        "spacemesh://DgrcDMboGw3NeyyjRLeSNMGiyyVdyfgcRsmFhEFghyC7@35.238.91.227:20000",
-        "spacemesh://E35ULVSWiPETriidfLhqYGSaqLjWcL3VHZFYhEcwVyCd@35.225.107.117:20000",
-        "spacemesh://6VTRYDX8antZ5r3y6QgdiC1t8R8WUu27E18Au7Yp1GvZ@130.211.207.214:20000",
-        "spacemesh://4nM4sKkbMGy8JJoq1VZzFWivH8XdQJK1QG5tPFcQmpuh@35.223.236.209:20000"
+        "spacemesh://CvYcuNUjHA53Pr1t2W3fp4RuRMJacDeVZgTbq863WBUB@34.72.55.191:20000"
       ],
       "bootstrap": true
     },
-    "network-id": 115
+    "network-id": 55
   },
   "post": {
-    "post-space": 4294967296,
-    "post-labels": 50
+    "post-space": 1048576,
+    "post-labels": 10
   },
   "reward": {
     "base-reward": {
@@ -49,8 +44,8 @@
     }
   },
   "hare": {
-    "hare-committee-size": 50,
-    "hare-max-adversaries": 24,
+    "hare-committee-size": 30,
+    "hare-max-adversaries": 14,
     "hare-round-duration-sec": 30,
     "hare-wakeup-delta": 30,
     "hare-exp-leaders": 5,
@@ -58,7 +53,7 @@
     "hare-limit-concurrent": 5
   },
   "hare-eligibility": {
-    "eligibility-confidence-param": 100,
+    "eligibility-confidence-param": 25,
     "eligibility-epoch-offset": 0
   },
   "time": {

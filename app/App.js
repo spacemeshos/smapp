@@ -4,16 +4,12 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { logout } from '/redux/auth/actions';
-// import { setUpdateDownloading } from '/redux/wallet/actions';
-// import { walletUpdateService } from '/infra/walletUpdateService';
-import { eventsService } from '/infra/eventsService';
+// import { eventsService } from '/infra/eventsService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
-import { ErrorHandlerModal } from '/components/errorHandler';
 import { OnQuitModal } from '/components/common';
-import { UpdaterModal } from '/components/updater';
 
 const store: Store = configureStore();
 
@@ -23,29 +19,13 @@ const configOptions: $Shape<Object> = {
 
 setConfig(configOptions);
 
-type Props = {};
-
-type State = {
-  error: ?Object,
-  isUpdateDownloaded: boolean
-};
-
-class App extends React.Component<Props, State> {
-  // eslint-disable-next-line react/sort-comp
-  updateCheckInterval: IntervalID;
-
-  state = {
-    error: null,
-    isUpdateDownloaded: false
-  };
+class App extends React.Component<{}> {
+  // updateCheckInterval: IntervalID; // eslint-disable-line react/sort-comp
 
   render() {
-    const { error, isUpdateDownloaded } = this.state;
     return (
       <>
         <GlobalStyle />
-        {error ? <ErrorHandlerModal componentStack={''} explanationText="Wallet update check has failed" error={error} onRefresh={eventsService.hardRefresh} /> : null}
-        {isUpdateDownloaded ? <UpdaterModal onCloseModal={this.closeUpdateModal} /> : null}
         <Provider store={store}>
           <Router>
             <Switch>
@@ -62,37 +42,17 @@ class App extends React.Component<Props, State> {
   }
 
   // TODO: auto update is temporary disabled
-  // async componentDidMount() {
-  //   try {
-  //     walletUpdateService.listenToUpdaterError({
-  //       onUpdaterError: () => {
-  //         throw new Error('Wallet Updater Error.');
-  //       }
-  //     });
-  //     walletUpdateService.listenToDownloadUpdate({
-  //       onDownloadUpdateCompleted: () => {
-  //         store.dispatch(setUpdateDownloading({ isUpdateDownloading: false }));
-  //         this.setState({ isUpdateDownloaded: true });
-  //       },
-  //       onDownloadProgress: () => store.dispatch(setUpdateDownloading({ isUpdateDownloading: true }))
-  //     });
-  //     walletUpdateService.checkForWalletUpdate();
-  //     this.updateCheckInterval = setInterval(async () => {
-  //       walletUpdateService.checkForWalletUpdate();
-  //     }, 86400000);
-  //   } catch (error) {
-  //     this.setState({
-  //       error: new Error('Wallet update check has failed.')
-  //     });
-  //   }
+  // componentDidMount() {
+  //   eventsService.checkForUpdates();
+  //   this.updateCheckInterval = setInterval(() => {
+  //     eventsService.checkForUpdates();
+  //   }, 86400000);
   // }
 
   componentWillUnmount(): void {
-    this.updateCheckInterval && clearInterval(this.updateCheckInterval);
+    // this.updateCheckInterval && clearInterval(this.updateCheckInterval);
     store.dispatch(logout());
   }
-
-  closeUpdateModal = () => this.setState({ isUpdateDownloaded: false });
 }
 
 App = process.env.NODE_ENV === 'development' ? hot(module)(App) : App;

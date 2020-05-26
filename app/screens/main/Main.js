@@ -249,8 +249,8 @@ class Main extends Component<Props, State> {
     await getTxList({ approveTxNotifier: this.approveTxNotifier });
     await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
     await getBalance();
-    this.txCollectorInterval = setInterval(() => { getTxList({ approveTxNotifier: this.approveTxNotifier }); getBalance(); }, 90000);
-    this.accountRewardsInterval = setInterval(() => { getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); getBalance(); }, 150000);
+    this.txCollectorInterval = setInterval(async () => { await getTxList({ approveTxNotifier: this.approveTxNotifier }); await getBalance(); }, 90000);
+    this.accountRewardsInterval = setInterval(async () => { await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); await getBalance(); }, 90000);
     this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
     this.initialMiningStatusInterval = setInterval(async () => {
       const status = await getMiningStatus();
