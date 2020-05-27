@@ -6,10 +6,8 @@ import { connect } from 'react-redux';
 import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
-import { nodeService } from '/infra/nodeService';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { localStorageService } from '/infra/storageService';
-import { fileSystemService } from '/infra/fileSystemService';
+import { eventsService } from '/infra/eventsService';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
 import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
@@ -86,16 +84,15 @@ const TextWrapper = styled.div`
 `;
 
 const LeftText = styled.div`
-  margin-right: 15px;
+  margin-right: 5px;
   font-size: 16px;
   line-height: 20px;
   color: ${smColors.realBlack};
 `;
 
 const RightText = styled.div`
-  flex: 1;
   margin-right: 0;
-  margin-left: 15px;
+  margin-left: 5px;
   text-align: right;
 `;
 
@@ -103,10 +100,13 @@ const GreenText = styled(RightText)`
   color: ${smColors.green};
 `;
 
-const Dots = styled(LeftText)`
-  margin: 0 auto;
+const Dots = styled.div`
+  flex: 1;
   flex-shrink: 1;
   overflow: hidden;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
 `;
 
 const Fireworks = styled.img`
@@ -140,6 +140,7 @@ type Props = {
   rewards: TxList,
   // getUpcomingRewards: Action,
   rewardsAddress: string,
+  commitmentSize: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -158,8 +159,6 @@ class Node extends Component<Props, State> {
 
   audio: any;
 
-  formattedCommitmentSize: number;
-
   constructor(props) {
     super(props);
     const { location } = props;
@@ -173,10 +172,10 @@ class Node extends Component<Props, State> {
 
   render() {
     const { rewards } = this.props;
-    let smesherInitTimestamp = localStorageService.get('smesherInitTimestamp');
-    smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(smesherInitTimestamp) : '';
-    let smesherSmeshingTimestamp = localStorageService.get('smesherSmeshingTimestamp');
-    smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(smesherSmeshingTimestamp) : '';
+    let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
+    smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
+    let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
+    smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
     return (
       <Wrapper>
         <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
@@ -207,8 +206,8 @@ class Node extends Component<Props, State> {
                 <div key={`reward${index}`}>
                   <LogEntry>
                     <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                    <AwardText>Smeshing reward: {formatSmidge(reward.totalReward)}</AwardText>
-                    <AwardText>Smeshing fee reward: {formatSmidge(reward.totalReward - reward.layerRewardEstimate)}</AwardText>
+                    <AwardText>Smeshing reward: {formatSmidge(reward.amount)}</AwardText>
+                    <AwardText>Smeshing fee reward: {formatSmidge(reward.fee)}</AwardText>
                   </LogEntry>
                   <LogEntrySeparator>...</LogEntrySeparator>
                 </div>
@@ -225,15 +224,13 @@ class Node extends Component<Props, State> {
     //     await getUpcomingRewards();
     //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
     //   }
-    const audioUrl = await fileSystemService.getAudioPath();
-    this.audio = new Audio(audioUrl);
-    const commitmentSize = await nodeService.getCommitmentSize();
-    this.formattedCommitmentSize = formatBytes(commitmentSize);
+    const audioPath = await eventsService.getAudioPath();
+    this.audio = new Audio(audioPath);
   }
 
   componentDidUpdate() {
     const { rewards } = this.props;
-    const playedAudio = localStorageService.get('playedAudio');
+    const playedAudio = localStorage.getItem('playedAudio');
     this.audio.loop = false;
     if (rewards && rewards.length === 1 && !playedAudio) {
       this.audio.play();
@@ -291,14 +288,14 @@ class Node extends Component<Props, State> {
   };
 
   renderPreSetup = () => {
-    const { history } = this.props;
+    const { history, commitmentSize } = this.props;
     return [
       <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
       <Text key="3">Setup smeshing to join Spacemesh and earn Smesh rewards.</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">{`Setup requires ${this.formattedCommitmentSize} GB of free disk space.`}</Text>,
+      <Text key="6">{`Setup requires ${formatBytes(commitmentSize)} GB of free disk space.`}</Text>,
       <Text key="7">You will start earning Smesh rewards in about 48 hours.</Text>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
@@ -325,17 +322,17 @@ class Node extends Component<Props, State> {
       </Status>,
       <TextWrapper key="2">
         <LeftText>Total Smeshing Rewards</LeftText>
-        <Dots>..................</Dots>
+        <Dots>........................................</Dots>
         <GreenText>{formatSmidge(this.calculateRewards(true))}</GreenText>
       </TextWrapper>,
       <TextWrapper key="3">
         <LeftText>Total Fees Rewards</LeftText>
-        <Dots>..................</Dots>
+        <Dots>........................................</Dots>
         <GreenText>{formatSmidge(this.calculateRewards())}</GreenText>
       </TextWrapper>,
       <TextWrapper key="4">
         <LeftText>Rewards Account</LeftText>
-        <Dots>..................</Dots>
+        <Dots>........................................</Dots>
         <GreenText>{getAbbreviatedText(getAddress(rewardsAddress), true, 4)}</GreenText>
         <CopyIcon src={copyToClipboard} onClick={this.copyRewardsAccount} />
       </TextWrapper>,
@@ -368,7 +365,7 @@ class Node extends Component<Props, State> {
     const { rewards } = this.props;
     let sum = 0;
     rewards.forEach((reward) => {
-      sum += totalRewards ? reward.layerRewardEstimate : reward.totalReward - reward.layerRewardEstimate;
+      sum += totalRewards ? reward.amount : reward.fee;
     });
     return sum;
   };
@@ -385,10 +382,9 @@ class Node extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
+  commitmentSize: state.node.commitmentSize,
   timeTillNextAward: state.node.timeTillNextAward,
   rewards: state.node.rewards,
-  totalEarnings: state.node.totalEarnings,
-  totalFeesEarnings: state.node.totalFeesEarnings,
   rewardsAddress: state.node.rewardsAddress
 });
 

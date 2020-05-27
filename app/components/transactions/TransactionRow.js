@@ -6,7 +6,7 @@ import { updateTransaction } from '/redux/wallet/actions';
 import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText, formatTxId, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
@@ -141,6 +141,8 @@ const TextArea = styled.textarea`
   margin-bottom: 10px;
 `;
 
+const formatTxId = (id) => id && `0x${id.substring(0, 6)}`;
+
 type Props = {
   updateTransaction: Action,
   tx: Tx,
@@ -188,7 +190,7 @@ class TransactionRow extends Component<Props, State> {
               )}
             </HeaderSection>
             <HeaderSection>
-              <Amount color={color}>{formatSmidge(amount)}</Amount>
+              <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(amount)}`}</Amount>
               <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
             </HeaderSection>
             {wasCopied && <CopiedBanner>Copied!</CopiedBanner>}
@@ -330,7 +332,7 @@ class TransactionRow extends Component<Props, State> {
     const { tx, updateTransaction } = this.props;
     const { note } = this.state;
     try {
-      updateTransaction({ tx: { ...tx, note } });
+      updateTransaction({ newData: { note }, txId: tx.txId });
       this.setState({ isDetailed: false });
     } catch (error) {
       this.setState(() => {

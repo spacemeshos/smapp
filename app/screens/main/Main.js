@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
 import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
-import { getTxList, updateWalletFile } from '/redux/wallet/actions';
+import { getBalance, getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
 import { InfoBanner } from '/components/banners';
@@ -99,8 +99,8 @@ type Props = {
   getNodeStatus: Action,
   getMiningStatus: Action,
   getAccountRewards: Action,
+  getBalance: Action,
   getTxList: Action,
-  updateWalletFile: Action,
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
@@ -122,8 +122,6 @@ class Main extends Component<Props, State> {
   accountRewardsInterval: IntervalID;
 
   txCollectorInterval: IntervalID;
-
-  walletFileUpdateInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -246,33 +244,29 @@ class Main extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getTxList, updateWalletFile, getAccountRewards, miningStatus, history } = this.props;
+    const { getNodeStatus, getMiningStatus, getBalance, getTxList, getAccountRewards, miningStatus } = this.props;
     await getNodeStatus();
-    await getAccountRewards({ notify: () => {} });
-    this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
+    await getTxList({ approveTxNotifier: this.approveTxNotifier });
+    await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
+    await getBalance();
+    this.txCollectorInterval = setInterval(() => { getTxList({ approveTxNotifier: this.approveTxNotifier }); getBalance(); }, 90000);
+    this.accountRewardsInterval = setInterval(() => { getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); getBalance(); }, 150000);
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
     this.initialMiningStatusInterval = setInterval(async () => {
       const status = await getMiningStatus();
       if (status !== nodeConsts.MINING_UNSET) {
         clearInterval(this.initialMiningStatusInterval);
       }
     }, 1000);
-    this.txCollectorInterval = setInterval(() => getTxList({ notify: ({ hasConfirmedIncomingTxs }) => {
-        notificationsService.notify({
-          title: 'Spacemesh',
-          notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
-          callback: () => history.push('/main/transactions')
-        });
-      } }), 30000);
     if (miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(() => {
         getMiningStatus();
       }, 100000);
     }
-    this.walletFileUpdateInterval = setInterval(() => updateWalletFile({}), 500);
   }
 
   componentDidUpdate(prevProps: Props) {
-    const {miningStatus, getMiningStatus, getAccountRewards } = this.props;
+    const {miningStatus, getMiningStatus } = this.props;
     if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(getMiningStatus, 100000);
     }
@@ -284,15 +278,6 @@ class Main extends Component<Props, State> {
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
-    if (miningStatus === nodeConsts.IS_MINING) {
-      this.accountRewardsInterval = setInterval(() => getAccountRewards({ notify: () => {
-          notificationsService.notify({
-            title: 'Spacemesh',
-            notification: 'Received a reward for smeshing!',
-            callback: () => this.handleNavigation({ index: 0 })
-          });
-        } }), 180000);
-    }
   }
 
   componentWillUnmount() {
@@ -300,7 +285,6 @@ class Main extends Component<Props, State> {
     this.miningStatusInterval && clearInterval(this.miningStatusInterval);
     this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
     this.txCollectorInterval && clearInterval(this.txCollectorInterval);
-    this.walletFileUpdateInterval && clearInterval(this.walletFileUpdateInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -343,6 +327,25 @@ class Main extends Component<Props, State> {
       }
     }
   };
+
+  approveTxNotifier = ({ hasConfirmedIncomingTxs }: { hasConfirmedIncomingTxs: boolean }) => {
+    const { history } = this.props;
+    notificationsService.notify({
+      title: 'Spacemesh',
+      notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
+      callback: () => history.push('/main/transactions'),
+      tag: 1
+    });
+  }
+
+  newRewardsNotifier = () => {
+    notificationsService.notify({
+      title: 'Spacemesh',
+      notification: 'Received a reward for smeshing!',
+      callback: () => this.handleNavigation({ index: 0 }),
+      tag: 2
+    });
+  }
 }
 
 const mapStateToProps = (state) => ({
@@ -354,8 +357,8 @@ const mapDispatchToProps = {
   getNodeStatus,
   getMiningStatus,
   getAccountRewards,
+  getBalance,
   getTxList,
-  updateWalletFile,
   logout
 };
 

@@ -1,11 +1,11 @@
 // @flow
+import * as bip39 from 'bip39';
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { WrapperWith2SideBars, Input, Button, Link, SecondaryButton, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
-import { cryptoService } from '/infra/cryptoService';
+import { BackButton } from '/components/common';
+import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { smColors } from '/vars';
-import { chevronLeftWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 
 const Header = styled.div`
@@ -70,9 +70,9 @@ class WordsRestore extends Component<Props, State> {
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" style={{ position: 'relative' }}>
+      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE">
         <SmallHorizontalPanel />
-        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+        <BackButton action={history.goBack} />
         <Header>Please enter the 12 words in the right order.</Header>
         <Table>
           <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>
@@ -95,7 +95,13 @@ class WordsRestore extends Component<Props, State> {
       res.push(
         <InputWrapper key={`input${index}`}>
           <InputCounter>{index + 1}</InputCounter>
-          <Input value={words[index]} onChange={({ value }) => this.handleInputChange({ value, index })} isErrorMsgEnabled={false} style={getInputStyle(hasError)} />
+          <Input
+            value={words[index]}
+            onChange={({ value }) => this.handleInputChange({ value, index })}
+            isErrorMsgEnabled={false}
+            style={getInputStyle(hasError)}
+            autofocus={index === 0}
+          />
         </InputWrapper>
       );
     }
@@ -114,11 +120,18 @@ class WordsRestore extends Component<Props, State> {
     return words.every((word) => !!word && word.trim().length > 0) || hasError;
   };
 
+  validateMnemonic = ({ mnemonic }: { mnemonic: string }) => {
+    if (!mnemonic || !mnemonic.length) {
+      return false;
+    }
+    return bip39.validateMnemonic(mnemonic);
+  };
+
   restoreWith12Words = () => {
     const { history } = this.props;
     const { words } = this.state;
     const mnemonic = Object.values(words).join(' ');
-    if (cryptoService.validateMnemonic({ mnemonic })) {
+    if (this.validateMnemonic({ mnemonic })) {
       history.push('/auth/create', { mnemonic });
     } else {
       this.setState({ hasError: true });

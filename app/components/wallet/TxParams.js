@@ -3,7 +3,7 @@ import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
-import { getAddress } from '/infra/utils';
+import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 
 const Wrapper = styled.div`
@@ -41,33 +41,20 @@ const DetailsRow = styled.div`
   margin-bottom: 20px;
 `;
 
-const ActualInput = styled.input`
-  flex: 1;
-  width: 100%;
-  height: 40px;
-  padding: 8px 10px;
-  border-radius: 0;
-  border: 1px solid ${smColors.black};
-  color: ${smColors.black};
-  font-size: 14px;
-  line-height: 16px;
-  outline: none;
-  &:hover {
-    border: 1px solid ${smColors.purple};
-  }
-`;
-
 const DetailsText = styled.div`
-  flex: 1;
-  margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
   color: ${smColors.realBlack};
 `;
 
-const DetailsText1 = styled(DetailsText)`
-  margin-right: 0;
-  text-align: right;
+const Dots = styled.div`
+  flex: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  margin-right: 12px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.realBlack};
 `;
 
 const Fee = styled.div`
@@ -117,6 +104,7 @@ const fees = [
   }
 ];
 
+const inputStyle = { flex: '0 0 240px' };
 const errorPopupStyle = { top: 3, right: -190, maxWidth: 250 };
 const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
 
@@ -176,32 +164,37 @@ class TxParams extends Component<Props, State> {
         <SubHeader>--</SubHeader>
         <DetailsRow>
           <DetailsText>To</DetailsText>
-          <ActualInput value={address} onChange={this.updateTxAddress} onPaste={this.onPaste} type="text" maxLength="42" />
+          <Dots>....................................</Dots>
+          <Input value={address} onChange={this.updateTxAddress} onPaste={this.onPaste} maxLength="42" style={inputStyle} />
           {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
-          <DetailsText1>{`0x${getAddress(fromAddress)}`}</DetailsText1>
+          <Dots>....................................</Dots>
+          <DetailsText>{getAbbreviatedText(getAddress(fromAddress), true, 10)}</DetailsText>
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Amount</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={{ flex: 1 }} />
+          <Dots>....................................</Dots>
+          <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={inputStyle} />
           {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
         </DetailsRow>
         <DetailsRow>
-          <DetailsText>Confirmation time</DetailsText>
+          <DetailsText>Est. Confirmation time</DetailsText>
+          <Dots>....................................</Dots>
           <DropDown
             data={fees}
             onPress={this.selectFee}
             DdElement={({ label, text, isMain }) => this.renderFeeElement({ label, text, isInDropDown: !isMain })}
             selectedItemIndex={selectedFeeIndex}
             rowHeight={40}
-            style={{ border: `1px solid ${smColors.black}` }}
+            style={{ border: `1px solid ${smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' }}
           />
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Note</DetailsText>
-          <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
+          <Dots>....................................</Dots>
+          <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} />
         </DetailsRow>
         <Footer>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
@@ -224,9 +217,9 @@ class TxParams extends Component<Props, State> {
     updateTxAddress({ value: clipboardValue });
   };
 
-  updateTxAddress = ({ target }: { target: { value: string } }) => {
+  updateTxAddress = ({ value }: { value: string }) => {
     const { updateTxAddress } = this.props;
-    updateTxAddress({ value: target.value });
+    updateTxAddress({ value });
   };
 
   selectFee = ({ index }: { index: number }) => {

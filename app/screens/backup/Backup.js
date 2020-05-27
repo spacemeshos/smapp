@@ -5,8 +5,7 @@ import type { RouterHistory } from 'react-router-dom';
 import routes from '/routes';
 import styled from 'styled-components';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { SecondaryButton } from '/basicComponents';
-import { chevronLeftWhite } from '/assets/images';
+import { BackButton } from '/components/common';
 
 const Wrapper = styled.div`
   display: flex;
@@ -23,12 +22,12 @@ class Backup extends Component<Props> {
     const { history } = this.props;
     return (
       <Wrapper>
-        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
+        <BackButton action={history.goBack} width={7} height={10} />
         <Switch>
           {routes.backup.map((route) => (
             <Route exact key={route.path} path={route.path} component={route.component} />
           ))}
-          <Redirect to="/main/backup/backup-root" />
+          <Redirect to="/main/backup/backup-options" />
         </Switch>
       </Wrapper>
     );

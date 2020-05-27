@@ -17,7 +17,7 @@ const SubHeader = styled.div`
 
 const Text = styled.span`
   font-size: 14px;
-  line-height: 18px;
+  line-height: 24px;
 `;
 
 const WhiteText = styled(Text)`
@@ -27,6 +27,7 @@ const WhiteText = styled(Text)`
 const MiddleSectionRow = styled.div`
   display: flex;
   flex-direction: row;
+  height: 100%;
 `;
 
 const BottomRow = styled(MiddleSectionRow)`
@@ -40,15 +41,14 @@ const BottomRow = styled(MiddleSectionRow)`
 const TestWordsSection = styled.div`
   display: flex;
   flex-direction: column;
-  margin-right: 18px;
+  margin-right: 20px;
   min-width: 190px;
 `;
 
 const WordsSection = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: wrap;
-  height: 140px;
   width: 100%;
 `;
 
@@ -80,6 +80,7 @@ const TestWordDroppable = styled.div`
   margin-bottom: 7px;
   border-radius: 5px;
   margin-right: 20px;
+  margin-bottom: 30px;
 `;
 
 const WordDroppable = styled.div`
@@ -109,6 +110,7 @@ const IndexWrapper = styled.div`
 `;
 
 const Index = styled(Text)`
+  line-height: 26px;
   color: ${smColors.darkGray};
 `;
 
@@ -118,12 +120,12 @@ const WordWrapper = styled.div`
 
 const NotificationBoxOuter = styled(CorneredWrapper)`
   position: absolute;
-  bottom: -75px;
+  bottom: -40px;
   right: 0px;
 `;
 
 const NotificationBox = styled.div`
-  width: 130px;
+  width: 315px;
   padding: 4px 9px;
   background-color: ${smColors.lightGray};
   font-size: 10px;
@@ -181,7 +183,7 @@ class TestMe extends Component<Props, State> {
     const { dropsCounter, matchCounter } = this.state;
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
     return [
-      <WrapperWith2SideBars width={920} height={400} header="CONFIRM YOUR 12 WORDS BACKUP" key="1">
+      <WrapperWith2SideBars width={920} header="CONFIRM YOUR 12 WORDS BACKUP" key="1">
         <SmallHorizontalPanel />
         <SubHeader>Drag each of the four words below to its matching number in your paper backup word list</SubHeader>
         {this.renderDragAndDropArea()}

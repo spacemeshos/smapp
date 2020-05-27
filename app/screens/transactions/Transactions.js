@@ -3,16 +3,16 @@ import React, { Component } from 'react';
 import { shell } from 'electron';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import type { RouterHistory } from 'react-router-dom';
+import { BackButton } from '/components/common';
 import { TransactionRow, TransactionsMeta } from '/components/transactions';
 import { CreateNewContact } from '/components/contacts';
-import { Link, WrapperWith2SideBars, SecondaryButton, CorneredWrapper, DropDown } from '/basicComponents';
-import type { TxList, Tx } from '/types';
+import { Link, WrapperWith2SideBars, CorneredWrapper, DropDown } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { getAddress } from '/infra/utils';
-import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
+import type { RouterHistory } from 'react-router-dom';
+import type { TxList, Tx, AccountTxs } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -86,7 +86,7 @@ const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }
 
 type Props = {
   publicKey: string,
-  transactions: { data: TxList },
+  transactions: AccountTxs,
   history: RouterHistory
 };
 
@@ -108,8 +108,8 @@ class Transactions extends Component<Props, State> {
     const { mined, sent, received, totalMined, totalSent, totalReceived } = this.getCoinStatistics({ filteredTransactions });
     return (
       <Wrapper>
-        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={7} imgHeight={10} style={{ position: 'absolute', left: -35, bottom: 0 }} />
-        <WrapperWith2SideBars width={680} height={480} header="TRANSACTION LOG" style={{ height: '100%', marginRight: 10 }}>
+        <BackButton action={history.goBack} width={7} height={10} />
+        <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
           <Header>Latest transactions</Header>
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
@@ -175,7 +175,7 @@ class Transactions extends Component<Props, State> {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
     const startDate = new Date().getTime() - spanInDays[index] * oneDayInMs;
-    return transactions.data.filter((transaction: Tx) => transaction.timestamp >= startDate);
+    return transactions.data.filter((transaction: Tx) => transaction.timestamp >= startDate || !transaction.timestamp);
   };
 
   cancelCreatingNewContact = () => {

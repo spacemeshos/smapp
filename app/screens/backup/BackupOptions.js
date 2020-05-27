@@ -68,11 +68,11 @@ type Props = {
   history: RouterHistory
 };
 
-class BackupRoot extends Component<Props> {
+class BackupOptions extends Component<Props> {
   render() {
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={300} height={360} header="WALLET" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={300} header="WALLET" style={{ marginRight: 10 }}>
           <BoldText>How would you like to backup your wallet?</BoldText>
           <Text>Your wallet is encrypted using your password. We recommend you backup your wallet for additional security.</Text>
         </WrapperWith2SideBars>
@@ -122,5 +122,5 @@ const mapDispatchToProps = {
   backupWallet
 };
 
-BackupRoot = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(BackupRoot);
-export default BackupRoot;
+BackupOptions = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(BackupOptions);
+export default BackupOptions;

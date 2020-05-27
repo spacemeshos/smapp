@@ -2,11 +2,13 @@
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { setCurrentAccount } from '/redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
-import type { Account } from '/types';
+import type { Account, Action } from '/types';
 
 const AccountDetails = styled.div`
   display: flex;
@@ -106,11 +108,11 @@ const NotSyncedYetText = styled.div`
 `;
 
 type Props = {
-  status: Object,
   walletName: string,
   accounts: Account[],
   currentAccountIndex: number,
-  switchAccount: ({ index: number }) => void
+  setCurrentAccount: Action,
+  status: Object
 };
 
 type State = {
@@ -125,7 +127,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, switchAccount, status } = this.props;
+    const { walletName, accounts, currentAccountIndex, setCurrentAccount, status } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -133,13 +135,13 @@ class AccountsOverview extends Component<Props, State> {
     const { displayName, publicKey, balance } = accounts[currentAccountIndex];
     const { value, unit } = formatSmidge(balance || 0, true);
     return (
-      <WrapperWith2SideBars width={300} height={480} style={{ height: 'calc(100% - 65px)' }} header={walletName}>
+      <WrapperWith2SideBars width={300} style={{ height: 'calc(100% - 65px)' }} header={walletName}>
         <AccountDetails>
           {accounts.length > 1 ? (
             <DropDown
               data={accounts}
               DdElement={({ displayName, publicKey, isMain }) => this.renderAccountRow({ displayName, publicKey, isInDropDown: !isMain })}
-              onPress={switchAccount}
+              onPress={setCurrentAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
             />
@@ -181,5 +183,18 @@ class AccountsOverview extends Component<Props, State> {
     this.setState({ isCopied: true });
   };
 }
+
+const mapStateToProps = (state) => ({
+  status: state.node.status,
+  walletName: state.wallet.meta.displayName,
+  accounts: state.wallet.accounts,
+  currentAccountIndex: state.wallet.currentAccountIndex
+});
+
+const mapDispatchToProps = {
+  setCurrentAccount
+};
+
+AccountsOverview = connect(mapStateToProps, mapDispatchToProps)(AccountsOverview);
 
 export default AccountsOverview;

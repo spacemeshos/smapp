@@ -1,12 +1,12 @@
 // @flow
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { unlockWallet } from '/redux/wallet/actions';
 import { CorneredWrapper, Button, Input, ErrorPopup } from '/basicComponents';
-import { fileEncryptionService } from '/infra/fileEncryptionService';
-import { fileSystemService } from '/infra/fileSystemService';
 import { smColors } from '/vars';
 import { chevronRightBlack } from '/assets/images';
+import type { Action } from '/types';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -64,8 +64,8 @@ const ButtonsWrapper = styled.div`
 `;
 
 type Props = {
-  walletFiles: Array<string>,
-  submitAction: ({ key: string }) => void,
+  unlockWallet: Action,
+  submitAction: ({ password: string }) => void,
   closeModal: () => void
 };
 
@@ -110,24 +110,21 @@ class EnterPasswordModal extends Component<Props, State> {
   };
 
   submitActionWrapper = async () => {
-    const { walletFiles, submitAction } = this.props;
+    const { unlockWallet, submitAction } = this.props;
     const { password } = this.state;
     try {
-      const file = await fileSystemService.readFile({ filePath: walletFiles[0] });
-      const key = fileEncryptionService.createEncryptionKey({ password });
-      const decryptedDataJSON = fileEncryptionService.decryptData({ data: file.crypto.cipherText, key });
-      file.crypto.cipherText = JSON.parse(decryptedDataJSON);
-      submitAction({ key });
+      await unlockWallet({ password });
+      submitAction({ password });
     } catch {
       this.setState({ hasError: true });
     }
   };
 }
 
-const mapStateToProps = (state) => ({
-  walletFiles: state.wallet.walletFiles
-});
+const mapDispatchToProps = {
+  unlockWallet
+};
 
-EnterPasswordModal = connect<any, any, _, _, _, _>(mapStateToProps)(EnterPasswordModal);
+EnterPasswordModal = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(EnterPasswordModal);
 
 export default EnterPasswordModal;

@@ -178,7 +178,7 @@ class SendCoins extends Component<Props, State> {
     const { sendTransaction } = this.props;
     const { address, amount, fee, note } = this.state;
     try {
-      const txId = await sendTransaction({ recipient: address, amount, fee, note });
+      const txId = await sendTransaction({ receiver: address, amount, fee, note });
       this.setState({ mode: 3, txId });
     } catch (error) {
       this.setState(() => {

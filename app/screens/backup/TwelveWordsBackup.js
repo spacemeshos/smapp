@@ -5,9 +5,8 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
+import { eventsService } from '/infra/eventsService';
 import { smColors } from '/vars';
-import { printService } from '/infra/printService';
-import { localStorageService } from '/infra/storageService';
 
 const TextWrapper = styled.div`
   height: 75px;
@@ -19,7 +18,7 @@ const TextWrapper = styled.div`
 
 const Text = styled.span`
   font-size: 14px;
-  line-height: 22px;
+  line-height: 24px;
 `;
 
 const GreenText = styled.span`
@@ -110,7 +109,7 @@ class TwelveWordsBackup extends Component<Props, State> {
   render() {
     const { isTwelveWordsCopied } = this.state;
     return (
-      <WrapperWith2SideBars width={920} height={400} header="YOUR 12 WORDS BACKUP">
+      <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP">
         <SmallHorizontalPanel />
         <TextWrapper>
           <Text>
@@ -148,19 +147,16 @@ class TwelveWordsBackup extends Component<Props, State> {
   navigateToTestMe = () => {
     const { history, mnemonic } = this.props;
     history.push('/main/backup/test-twelve-words-backup', { mnemonic });
-    localStorageService.set('hasBackup', true);
   };
 
   copy12Words = () => {
     const { mnemonic } = this.props;
     clipboard.writeText(mnemonic);
-    localStorageService.set('hasBackup', true);
     this.setState({ isTwelveWordsCopied: true });
   };
 
   print12Words = () => {
-    printService.print({ content: this.twelveWordsPrint });
-    localStorageService.set('hasBackup', true);
+    eventsService.print({ content: this.twelveWordsPrint });
   };
 
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');

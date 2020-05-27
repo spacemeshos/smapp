@@ -1,29 +1,41 @@
+import { ipcMain } from 'electron';
 import AutoLaunch from 'auto-launch';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 
 class AutoStartManager {
-  static manager;
+  constructor() {
+    this.init();
 
-  static init = async () => {
-    if (!AutoStartManager.manager) {
-      AutoStartManager.manager = new AutoLaunch({
+    ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+      await this.toggleAutoStart();
+    });
+
+    ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, async () => {
+      const res = await this.isEnabled();
+      return res;
+    });
+  }
+
+  init = async () => {
+    if (!this.manager) {
+      this.manager = new AutoLaunch({
         name: 'Spacemesh',
         isHidden: true
       });
       if (StoreService.get({ key: 'isAutoStartEnabled' })) {
-        await AutoStartManager.manager.enable();
+        await this.manager.enable();
       }
     }
   };
 
-  static toggleAutoStart = async () => {
+  toggleAutoStart = async () => {
     try {
       const isEnabled = await AutoStartManager.manager.isEnabled();
       if (isEnabled) {
-        await AutoStartManager.manager.disable();
+        await this.manager.disable();
       } else {
-        await AutoStartManager.manager.enable();
+        await this.manager.enable();
       }
       StoreService.set({ key: 'isAutoStartEnabled', value: !isEnabled });
     } catch (error) {
@@ -31,13 +43,13 @@ class AutoStartManager {
     }
   };
 
-  static isEnabled = async ({ event }) => {
+  isEnabled = async () => {
     try {
-      const isEnabled = await AutoStartManager.manager.isEnabled();
+      const isEnabled = await this.manager.isEnabled();
       StoreService.set({ key: 'isAutoStartEnabled', value: isEnabled });
-      event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, isEnabled);
+      return isEnabled;
     } catch (error) {
-      event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, false);
+      return false;
     }
   };
 }

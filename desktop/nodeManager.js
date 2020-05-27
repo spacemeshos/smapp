@@ -1,15 +1,16 @@
 import path from 'path';
 import os from 'os';
-import { app, dialog } from 'electron';
+import fs from 'fs';
+import { app, ipcMain, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
-import FileSystemManager from './fileSystemManager';
 import StoreService from './storeService';
-import NetService from './netService';
+import netService from './netService';
+import nodeConfig from './config.json';
 
 const { exec } = require('child_process');
-const fetch = require('node-fetch');
-const toml = require('toml');
+
 const find = require('find-process');
+const checkDiskSpace = require('check-disk-space');
 
 const osTargetNames = {
   Darwin: 'mac',
@@ -20,21 +21,63 @@ const osTargetNames = {
 const DEFAULT_PORT = '7153';
 
 class NodeManager {
-  static startNode = async () => {
+  constructor(mainWindow) {
+    this.subscribeToEvents(mainWindow);
+  }
+
+  subscribeToEvents = (mainWindow) => {
+    ipcMain.once(ipcConsts.START_NODE, async () => {
+      await this.startNode();
+    });
+    ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async (event) => {
+      const res = await this.getNodeSettings({ event });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.GET_NODE_STATUS, async () => {
+      const res = await this.getNodeStatus();
+      return res;
+    });
+    ipcMain.on(ipcConsts.SET_NODE_PORT, (event, request) => {
+      const networkId = StoreService.get({ key: 'networkId' });
+      StoreService.set({ key: `${networkId}-port`, value: request.port });
+    });
+    ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
+      const res = await this.selectPostFolder({ mainWindow });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.GET_MINING_STATUS, async () => {
+      const res = await this.getMiningStatus();
+      return res;
+    });
+    ipcMain.handle(ipcConsts.INIT_MINING, async (event, request) => {
+      const res = await this.initMining({ ...request });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.GET_UPCOMING_REWARDS, async () => {
+      const res = await this.getUpcomingRewards();
+      return res;
+    });
+    ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
+      const res = await this.setRewardsAddress({ ...request });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.SET_NODE_IP, (event, request) => {
+      const res = this.setNodeIpAddress({ ...request });
+      return res;
+    });
+  };
+
+  startNode = async () => {
     try {
-      const rawData = await fetch('http://ae7809a90692211ea8d4d0ea80dce922-597797094.us-east-1.elb.amazonaws.com/');
-      const tomlData = await rawData.text();
-      const parsedToml = toml.parse(tomlData);
-
-      const fetchedGenesisTime = parsedToml.main['genesis-time'];
-      const prevGenesisTime = StoreService.get({ key: 'genesisTime' }) || '';
-
-      const port = StoreService.get({ key: 'port' }) || DEFAULT_PORT;
-
-      StoreService.set({ key: 'postSize', value: parseInt(parsedToml.post['post-space']) });
-      const networkId = parseInt(parsedToml.p2p['network-id']);
+      const networkId = parseInt(nodeConfig.p2p['network-id']);
       StoreService.set({ key: 'networkId', value: networkId });
-      StoreService.set({ key: 'layerDurationSec', value: parseInt(parsedToml.main['layer-duration-sec']) });
+      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
+      const prevGenesisTime = StoreService.get({ key: `${networkId}-genesisTime` }) || '';
+
+      const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
+
+      StoreService.set({ key: `${networkId}-postSize`, value: parseInt(nodeConfig.post['post-space']) });
+      StoreService.set({ key: `${networkId}-layerDurationSec`, value: parseInt(nodeConfig.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -42,23 +85,17 @@ class NodeManager {
         process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
-      const tomlFileLocation = path.resolve(`${userDataPath}`, 'config.toml');
-      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'spacemeshtestdata');
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-      await FileSystemManager._writeFile({ filePath: `${tomlFileLocation}`, fileContent: tomlData });
+      const configFileLocation = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
 
       if (prevGenesisTime !== fetchedGenesisTime) {
-        const command =
-          os.type() === 'Windows_NT'
-            ? `(if exist ${nodeDataFilesPath} rd /s /q ${nodeDataFilesPath}) && (if exist ${logFilePath} del ${logFilePath})`
-            : `rm -rf ${nodeDataFilesPath} && rm -rf ${logFilePath}`;
+        const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
         exec(command, async (err) => {
           if (!err) {
-            StoreService.set({ key: 'genesisTime', value: fetchedGenesisTime });
-            StoreService.remove({ key: 'miningParams' });
-            await FileSystemManager.cleanWalletFile();
-            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
+            StoreService.set({ key: `${networkId}-genesisTime`, value: fetchedGenesisTime });
+            const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
@@ -71,8 +108,8 @@ class NodeManager {
           }
         });
       } else {
-        const savedMiningParams = StoreService.get({ key: 'miningParams' });
-        const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${tomlFileLocation}"${
+        const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+        const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}"${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
@@ -80,23 +117,16 @@ class NodeManager {
             (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
             console.error(error); // eslint-disable-line no-console
           }
-          console.log('node started with provided params'); // eslint-disable-line no-console
         });
       }
     } catch (e) {
-      if (e.line) {
-        dialog.showErrorBox('Parsing toml failed', `${e}`);
-        console.error(`Parsing error on line ${e.line}, column ${e.column}: ${e.message}`); // eslint-disable-line no-console
-      } else {
-        dialog.showErrorBox('Failed to download settings file.', 'Check your internet connection and restart the app');
-        console.error(`Failed to download settings file: ${e.message}`); // eslint-disable-line no-console
-      }
+      dialog.showErrorBox('Parsing json failed', `${e}`);
+      console.error('Parsing json failed', `${e}`); // eslint-disable-line no-console
     }
   };
 
-  static stopNode = async ({ browserWindow }) => {
+  stopNode = async ({ browserWindow }) => {
     const closeApp = async () => {
-      await FileSystemManager.cleanUp();
       browserWindow.destroy();
       app.quit();
     };
@@ -132,27 +162,106 @@ class NodeManager {
     }
   };
 
-  static getCommitmentSize = ({ event }) => {
-    event.sender.send(ipcConsts.GET_COMMITMENT_SIZE_RESPONSE, { commitmentSize: StoreService.get({ key: 'postSize' }) });
+  getNodeSettings = async () => {
+    try {
+      const networkId = StoreService.get({ key: 'networkId' });
+      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+      const address = savedMiningParams?.coinbase;
+      const genesisTime = StoreService.get({ key: `${networkId}-genesisTime` });
+      const commitmentSize = StoreService.get({ key: `${networkId}-postSize` });
+      const layerDuration = StoreService.get({ key: `${networkId}-layerDurationSec` });
+      const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
+      const { value } = await netService.getStateRoot();
+      return { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
+    } catch (error) {
+      return { error };
+    }
   };
 
-  static getPort = ({ event }) => {
-    event.sender.send(ipcConsts.GET_NODE_PORT_RESPONSE, { port: StoreService.get({ key: 'port' }) || DEFAULT_PORT });
+  getNodeStatus = async () => {
+    try {
+      const status = await netService.getNodeStatus();
+      const parsedStatus = {
+        peers: parseInt(status.peers),
+        minPeers: parseInt(status.minPeers),
+        maxPeers: parseInt(status.maxPeers),
+        synced: status.synced,
+        syncedLayer: parseInt(status.syncedLayer),
+        currentLayer: parseInt(status.currentLayer),
+        verifiedLayer: parseInt(status.verifiedLayer)
+      };
+      return { status: parsedStatus, error: null };
+    } catch (error) {
+      return { status: null, error };
+    }
   };
 
-  static setPort = ({ port }) => {
-    StoreService.set({ key: 'port', value: port });
+  selectPostFolder = async ({ mainWindow }) => {
+    const { filePaths } = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select folder for smeshing',
+      defaultPath: app.getPath('documents'),
+      properties: ['openDirectory']
+    });
+    try {
+      fs.accessSync(filePaths[0], fs.constants.W_OK);
+      const diskSpace = await checkDiskSpace(filePaths[0]);
+      return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
+    } catch (error) {
+      return { error };
+    }
   };
 
-  static getNodeSettings = async ({ event }) => {
-    const savedMiningParams = StoreService.get({ key: 'miningParams' });
-    const address = savedMiningParams?.coinbase;
-    const genesisTime = StoreService.get({ key: 'genesisTime' });
-    const networkId = StoreService.get({ key: 'networkId' });
-    const commitmentSize = StoreService.get({ key: 'postSize' });
-    const layerDuration = StoreService.get({ key: 'layerDurationSec' });
-    const stateRootHash = await NetService.getStateRoot();
-    event.sender.send(ipcConsts.GET_NODE_SETTINGS_RESPONSE, { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash });
+  getMiningStatus = async () => {
+    try {
+      const { status } = await netService.getMiningStatus();
+      return { error: null, status };
+    } catch (error) {
+      return { error, status: null };
+    }
+  };
+
+  initMining = async ({ logicalDrive, commitmentSize, coinbase }) => {
+    try {
+      await netService.initMining({ logicalDrive, commitmentSize, coinbase });
+      const networkId = StoreService.get({ key: 'networkId' });
+      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive, coinbase } });
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  getUpcomingRewards = async () => {
+    try {
+      const { layers } = await netService.getUpcomingAwards();
+      if (!layers) {
+        return { error: null, layers: [] };
+      }
+      const resolvedLayers = layers || [];
+      const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
+      parsedLayers.sort((a, b) => a - b);
+      return { error: null, layers: parsedLayers };
+    } catch (error) {
+      return { error: error.message, layers: null };
+    }
+  };
+
+  setRewardsAddress = async ({ address }) => {
+    try {
+      await netService.setAwardsAddress({ address });
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  setNodeIpAddress = ({ nodeIpAddress }) => {
+    try {
+      netService.setNodeIpAddress({ nodeIpAddress });
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
   };
 }
 

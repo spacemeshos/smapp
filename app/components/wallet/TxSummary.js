@@ -58,7 +58,7 @@ class TxSummary extends PureComponent<Props> {
           --
         </Header>
         <SubHeader>TO</SubHeader>
-        <Text>{address ? getAbbreviatedText(address, true, 4) : '...'}</Text>
+        <Text>{address ? getAbbreviatedText(getAddress(address)) : '...'}</Text>
         <SubHeader>FROM</SubHeader>
         <Text>{getAbbreviatedText(getAddress(fromAddress))}</Text>
         <SubHeader>{unit}</SubHeader>

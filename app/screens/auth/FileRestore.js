@@ -2,11 +2,10 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { copyFile } from '/redux/wallet/actions';
-import { CorneredContainer } from '/components/common';
+import { restoreFile } from '/redux/wallet/actions';
+import { BackButton } from '/components/common';
 import { DragAndDrop } from '/components/auth';
-import { Button, Link, SecondaryButton, SmallHorizontalPanel } from '/basicComponents';
-import { chevronLeftWhite } from '/assets/images';
+import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -24,7 +23,7 @@ const BottomSection = styled.div`
 `;
 
 type Props = {
-  copyFile: Action,
+  restoreFile: Action,
   history: RouterHistory
 };
 
@@ -45,9 +44,9 @@ class FileRestore extends Component<Props, State> {
     const { history } = this.props;
     const { fileName, hasError } = this.state;
     return (
-      <CorneredContainer width={800} height={480} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
+      <WrapperWith2SideBars width={800} height={480} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
         <SmallHorizontalPanel />
-        <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+        <BackButton action={history.goBack} />
         <DdArea>
           <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} />
         </DdArea>
@@ -55,7 +54,7 @@ class FileRestore extends Component<Props, State> {
           <Link onClick={this.navigateToBackupGuide} text="BACKUP GUIDE" />
           <Button onClick={this.openWalletFile} text="RESTORE" isDisabled={hasError || !fileName} />
         </BottomSection>
-      </CorneredContainer>
+      </WrapperWith2SideBars>
     );
   }
 
@@ -68,10 +67,10 @@ class FileRestore extends Component<Props, State> {
   };
 
   openWalletFile = async () => {
-    const { copyFile, history } = this.props;
+    const { restoreFile, history } = this.props;
     const { fileName, filePath } = this.state;
     try {
-      await copyFile({ fileName, filePath });
+      await restoreFile({ fileName, filePath });
       history.push('/auth/unlock');
     } catch {
       this.setState({ hasError: true });
@@ -82,7 +81,7 @@ class FileRestore extends Component<Props, State> {
 }
 
 const mapDispatchToProps = {
-  copyFile
+  restoreFile
 };
 
 FileRestore = connect(null, mapDispatchToProps)(FileRestore);

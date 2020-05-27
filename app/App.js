@@ -6,7 +6,7 @@ import { MemoryRouter as Router, Route, Switch, Redirect } from 'react-router-do
 import { logout } from '/redux/auth/actions';
 // import { setUpdateDownloading } from '/redux/wallet/actions';
 // import { walletUpdateService } from '/infra/walletUpdateService';
-import { nodeService } from '/infra/nodeService';
+import { eventsService } from '/infra/eventsService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
@@ -44,7 +44,7 @@ class App extends React.Component<Props, State> {
     return (
       <>
         <GlobalStyle />
-        {error ? <ErrorHandlerModal componentStack={''} explanationText="Wallet update check has failed" error={error} onRefresh={nodeService.hardRefresh} /> : null}
+        {error ? <ErrorHandlerModal componentStack={''} explanationText="Wallet update check has failed" error={error} onRefresh={eventsService.hardRefresh} /> : null}
         {isUpdateDownloaded ? <UpdaterModal onCloseModal={this.closeUpdateModal} /> : null}
         <Provider store={store}>
           <Router>

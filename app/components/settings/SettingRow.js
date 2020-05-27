@@ -6,7 +6,7 @@ import smColors from '/vars/colors';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 25px;
+  margin-bottom: 75px;
 `;
 
 const UpperPart = styled.div`

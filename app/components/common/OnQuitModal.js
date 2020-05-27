@@ -1,9 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import { connect } from 'react-redux';
-import { CorneredWrapper, Button, Loader } from '/basicComponents';
-import { smColors, ipcConsts, nodeConsts } from '/vars';
+import { CorneredWrapper, Loader } from '/basicComponents';
+import { smColors, ipcConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
 
@@ -33,80 +32,35 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-const Header = styled(Text)`
-  margin-bottom: 20px;
-`;
-
-const ButtonsWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding-top: 30px;
-`;
-
-type Props = {
-  miningStatus: number
-};
-
 type State = {
-  isVisible: boolean,
   isClosing: boolean
 };
 
-class OnQuitModal extends Component<Props, State> {
+class OnQuitModal extends Component<{}, State> {
   state = {
-    isVisible: false,
     isClosing: false
   };
 
   render() {
-    const { isVisible, isClosing } = this.state;
-    return isVisible ? (
+    const { isClosing } = this.state;
+    return isClosing ? (
       <Wrapper>
         <CorneredWrapper>
-          {isClosing ? (
-            <InnerWrapper style={{ height: 550 }}>
-              <Loader size={Loader.sizes.BIG} />
-              <Text style={{ textAlign: 'center' }}>Shutting down, please wait...</Text>
-            </InnerWrapper>
-          ) : (
-            <InnerWrapper>
-              <Header>Quitting stops smeshing and may cause loss of future due smeshing rewards.</Header>
-              <Text>&bull; Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.</Text>
-              <Text>&bull; Click QUIT to close the app and stop smeshing.</Text>
-              <ButtonsWrapper>
-                <Button onClick={() => this.setState({ isVisible: false })} text="CANCEL" isPrimary={false} />
-                <Button onClick={this.handleQuit} text="QUIT" isPrimary={false} />
-                <Button onClick={this.handleKeepInBackground} text="RUN IN BACKGROUND" width={270} />
-              </ButtonsWrapper>
-            </InnerWrapper>
-          )}
+          <InnerWrapper style={{ height: 550 }}>
+            <Loader size={Loader.sizes.BIG} />
+            <Text style={{ textAlign: 'center' }}>Shutting down, please wait...</Text>
+          </InnerWrapper>
         </CorneredWrapper>
       </Wrapper>
     ) : null;
   }
 
   componentDidMount() {
-    const { miningStatus } = this.props;
-    ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => this.handleQuitEvent(miningStatus));
+    ipcRenderer.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => this.handleKeepInBackground());
+    ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
+      this.setState({ isClosing: true });
+    });
   }
-
-  componentDidUpdate(prevProps: Props) {
-    const { miningStatus } = this.props;
-    if (prevProps.miningStatus !== miningStatus) {
-      ipcRenderer.removeAllListeners(ipcConsts.REQUEST_CLOSE);
-      ipcRenderer.on(ipcConsts.REQUEST_CLOSE, () => this.handleQuitEvent(miningStatus));
-    }
-  }
-
-  handleQuitEvent = (miningStatus: number) => {
-    [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus) ? this.setState({ isVisible: true }) : this.handleQuit();
-  };
-
-  handleQuit = () => {
-    this.setState({ isVisible: true, isClosing: true });
-    ipcRenderer.send(ipcConsts.STOP_NODE);
-  };
 
   handleKeepInBackground = () => {
     setTimeout(() => {
@@ -115,14 +69,7 @@ class OnQuitModal extends Component<Props, State> {
         notification: 'Smesher is running in the background.'
       });
     }, 1000);
-    this.setState({ isVisible: false });
-    ipcRenderer.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
   };
 }
 
-const mapStateToProps = (state) => ({
-  miningStatus: state.node.miningStatus
-});
-
-OnQuitModal = connect<any, any, _, _, _, _>(mapStateToProps)(OnQuitModal);
 export default OnQuitModal;

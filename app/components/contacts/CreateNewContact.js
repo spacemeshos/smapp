@@ -54,7 +54,7 @@ const ButtonsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const inputStyle1 = { margin: '10px 0 10px 10px' };
+const inputStyle1 = { margin: '10px 10px 10px 10px' };
 const inputStyle2 = { margin: '10px 0' };
 const inputStyle3 = { marginBottom: '10px' };
 
@@ -146,7 +146,7 @@ class CreateNewContact extends Component<Props, State> {
       const { address, nickname } = this.state;
       try {
         await addToContacts({ contact: { address, nickname } });
-        updateTransaction({ tx: { address, nickname }, updateAll: true });
+        updateTransaction({ newData: { nickname } }); // TODO: fix updating all transactions
         onCompleteAction();
       } catch (error) {
         this.setState(() => {

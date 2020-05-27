@@ -8,11 +8,8 @@ import { setNodeIpAddress } from '/redux/node/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { fileSystemService } from '/infra/fileSystemService';
-import { autoStartService } from '/infra/autoStartService';
-import { localStorageService } from '/infra/storageService';
+import { eventsService } from '/infra/eventsService';
 import { walletUpdateService } from '/infra/walletUpdateService';
-import { nodeService } from '/infra/nodeService';
 import { getAddress, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
@@ -66,7 +63,9 @@ type Props = {
   genesisTime: string,
   rewardsAddress: string,
   stateRootHash: string,
-  networkId: string
+  port: string,
+  networkId: string,
+  backupTime: string
 };
 
 type State = {
@@ -79,7 +78,7 @@ type State = {
   currentSettingIndex: number,
   shouldShowPasswordModal: boolean,
   passwordModalSubmitAction: Function,
-  port: string,
+  changedPort: string,
   isPortSet: boolean
 };
 
@@ -99,14 +98,14 @@ class Settings extends Component<Props, State> {
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
-      isAutoStartEnabled: autoStartService.isAutoStartEnabled(),
+      isAutoStartEnabled: eventsService.isAutoStartEnabled(),
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
       shouldShowPasswordModal: false,
       passwordModalSubmitAction: () => {},
-      port: '',
+      changedPort: props.port,
       isPortSet: false
     };
 
@@ -117,7 +116,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId, stateRootHash } = this.props;
+    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -128,10 +127,9 @@ class Settings extends Component<Props, State> {
       currentSettingIndex,
       shouldShowPasswordModal,
       passwordModalSubmitAction,
-      port,
+      changedPort,
       isPortSet
     } = this.state;
-    const lastBackupTime = localStorageService.get('lastBackupTime');
     return (
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -155,7 +153,7 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow upperPart={<ChangePassword />} rowName="Wallet password" />
               <SettingRow
-                upperPartLeft={`Last Backup ${lastBackupTime ? `at ${new Date(lastBackupTime).toLocaleString()}` : 'was never backed-up.'}`}
+                upperPartLeft={`Last Backup ${backupTime ? `at ${new Date(backupTime).toLocaleString()}` : 'was never backed-up.'}`}
                 isUpperPartLeftText
                 upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
                 rowName="Wallet Backup"
@@ -198,7 +196,7 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled={isUpdateDownloading} />
+                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled />
                 ]}
                 rowName="App Version"
               />
@@ -251,7 +249,7 @@ class Settings extends Component<Props, State> {
                 />
               ) : null}
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
-              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Log" width={180} />} rowName="View log file" />
+              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
             <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>
               <SettingRow
@@ -259,7 +257,7 @@ class Settings extends Component<Props, State> {
                   isPortSet ? (
                     <Text>Please restart application to apply changes</Text>
                   ) : (
-                    <Input value={port} onChange={({ value }) => this.setState({ port: value })} maxLength="10" />
+                    <Input value={changedPort} onChange={({ value }) => this.setState({ changedPort: value })} maxLength="10" />
                   )
                 }
                 upperPartRight={<Button onClick={this.setPort} text="SET PORT" width={180} />}
@@ -284,11 +282,6 @@ class Settings extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const port = await nodeService.getPort();
-    this.setState({ port });
-  }
-
   static getDerivedStateFromProps(props: Props, prevState: State) {
     if (props.accounts && props.accounts.length > prevState.accountDisplayNames.length) {
       const updatedAccountDisplayNames = [...prevState.accountDisplayNames];
@@ -298,11 +291,11 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
-  setPort = () => {
-    const { port } = this.state;
-    const parsedPort = parseInt(port);
+  setPort = async () => {
+    const { changedPort } = this.state;
+    const parsedPort = parseInt(changedPort);
     if (parsedPort && parsedPort > 1024) {
-      nodeService.setPort({ port });
+      await eventsService.setPort({ port: changedPort });
       this.setState({ isPortSet: true });
     }
   };
@@ -311,9 +304,9 @@ class Settings extends Component<Props, State> {
     const { createNewAccount } = this.props;
     this.setState({
       shouldShowPasswordModal: true,
-      passwordModalSubmitAction: ({ key }) => {
+      passwordModalSubmitAction: ({ password }) => {
         this.setState({ shouldShowPasswordModal: false });
-        createNewAccount({ key });
+        createNewAccount({ password });
       }
     });
   };
@@ -338,13 +331,13 @@ class Settings extends Component<Props, State> {
 
   deleteWallet = async () => {
     const { walletFiles } = this.props;
-    localStorageService.clear();
-    fileSystemService.deleteWalletFile({ fileName: walletFiles[0] });
+    localStorage.clear();
+    await eventsService.deleteWalletFile({ fileName: walletFiles[0] });
   };
 
-  cleanAllAppDataAndSettings = () => {
-    localStorageService.clear();
-    fileSystemService.wipeOut();
+  cleanAllAppDataAndSettings = async () => {
+    localStorage.clear();
+    eventsService.wipeOut();
   };
 
   navigateToWalletBackup = () => {
@@ -382,7 +375,7 @@ class Settings extends Component<Props, State> {
 
   toggleAutoStart = () => {
     const { isAutoStartEnabled } = this.state;
-    autoStartService.toggleAutoStart();
+    eventsService.toggleAutoStart();
     this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
   };
 
@@ -398,9 +391,9 @@ class Settings extends Component<Props, State> {
     const { accountDisplayNames } = this.state;
     this.setState({
       shouldShowPasswordModal: true,
-      passwordModalSubmitAction: ({ key }) => {
+      passwordModalSubmitAction: ({ password }) => {
         this.setState({ editedAccountIndex: -1, shouldShowPasswordModal: false });
-        updateAccountName({ accountIndex: index, fieldName: 'displayName', data: accountDisplayNames[index], key });
+        updateAccountName({ accountIndex: index, name: accountDisplayNames[index], password });
       }
     });
   };
@@ -431,7 +424,7 @@ class Settings extends Component<Props, State> {
   };
 
   openLogFile = () => {
-    fileSystemService.openLogFile();
+    eventsService.showFileInFolder({ isLogFile: true });
   };
 }
 
@@ -445,7 +438,9 @@ const mapStateToProps = (state) => ({
   genesisTime: state.node.genesisTime,
   rewardsAddress: state.node.rewardsAddress,
   stateRootHash: state.node.stateRootHash,
-  networkId: state.node.networkId
+  port: state.node.port,
+  networkId: state.node.networkId,
+  backupTime: state.wallet.backupTime
 });
 
 const mapDispatchToProps = {
