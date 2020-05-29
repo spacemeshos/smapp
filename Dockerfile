@@ -15,7 +15,7 @@ COPY --from=spacemesh_node /bin/go-spacemesh node/linux/
 
 RUN npm install && npm run package-linux
 
-FROM ubuntu:18.04 
+FROM ubuntu:20.04 
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y xpra libnss3 libgtk-3-0 libxss1 libasound2 musl desktop-file-utils x11-apps epiphany-browser
 
 RUN adduser --disabled-password --gecos '' spacemesh 
