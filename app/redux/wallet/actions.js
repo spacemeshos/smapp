@@ -17,8 +17,6 @@ export const SET_BALANCE: string = 'SET_BALANCE';
 
 export const SET_BACKUP_TIME: string = 'SET_BACKUP_TIME';
 
-export const SET_UPDATE_DOWNLOADING: string = 'IS_UPDATE_DOWNLOADING';
-
 export const setWalletMeta = ({ meta }: { meta: WalletMeta }): Action => ({ type: SET_WALLET_META, payload: { meta } });
 
 export const setAccounts = ({ accounts }: { accounts: Account[] }): Action => ({ type: SET_ACCOUNTS, payload: { accounts } });
@@ -126,8 +124,6 @@ export const backupWallet = (): Action => async (dispatch: Dispatch, getState: G
     dispatch({ type: SET_BACKUP_TIME, payload: { backupTime: new Date() } });
   }
 };
-
-export const setUpdateDownloading = ({ isUpdateDownloading }: { isUpdateDownloading: boolean }): Action => ({ type: SET_UPDATE_DOWNLOADING, payload: { isUpdateDownloading } });
 
 export const getBalance = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { accounts, currentAccountIndex } = getState().wallet;

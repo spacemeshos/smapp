@@ -3,6 +3,7 @@ import { eventsService } from '/infra/eventsService';
 import { createError } from '/infra/utils';
 import { nodeConsts } from '/vars';
 import { Action, Dispatch, GetState } from '/types';
+import { SET_TRANSACTIONS } from '/redux/wallet/actions';
 
 export const SET_NODE_STATUS: string = 'SET_NODE_STATUS';
 
@@ -110,11 +111,14 @@ export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: 
   const { rewardsAddress } = getState().node;
   const { accounts } = getState().wallet;
   const accountIndex = accounts.findIndex((account) => account.publicKey === rewardsAddress);
-  const { error, hasNewAwards, rewards } = await eventsService.getAccountRewards({ address: rewardsAddress, accountIndex });
+  const { error, hasNewAwards, rewards, transactions } = await eventsService.getAccountRewards({ address: rewardsAddress, accountIndex });
   if (error) {
     console.error(error); // eslint-disable-line no-console
   } else {
     dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
+    if (transactions) {
+      dispatch({ type: SET_TRANSACTIONS, payload: { transactions } });
+    }
     if (hasNewAwards) {
       newRewardsNotifier();
     }

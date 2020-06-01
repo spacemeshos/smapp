@@ -213,7 +213,7 @@ class TransactionManager {
           this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];
           StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards });
           StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
-          return { error: null, rewards: this.rewards, hasNewRewards: true };
+          return { error: null, rewards: this.rewards, transactions: this.transactions, hasNewRewards: true };
         }
         return { error: null, rewards: this.rewards, hasNewRewards: false };
       }
