@@ -6,6 +6,7 @@ import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 import netService from './netService';
 import nodeConfig from './config.json';
+import WalletManager from './walletManager';
 
 const { exec } = require('child_process');
 
@@ -28,6 +29,7 @@ class NodeManager {
   subscribeToEvents = (mainWindow) => {
     ipcMain.once(ipcConsts.START_NODE, async () => {
       await this.startNode();
+      new WalletManager(mainWindow); // eslint-disable-line no-new
     });
     ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async (event) => {
       const res = await this.getNodeSettings({ event });
