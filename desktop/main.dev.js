@@ -19,7 +19,6 @@ import UpdateManager from './updateManager';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
-import WalletManager from './walletManager';
 import './wasm_exec';
 
 (async function() {
@@ -164,7 +163,6 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 
   nodeManager = new NodeManager(mainWindow);
-  new WalletManager(mainWindow); // eslint-disable-line no-new
   new AutoStartManager(); // eslint-disable-line no-new
   new UpdateManager(mainWindow); // eslint-disable-line no-new
 });
