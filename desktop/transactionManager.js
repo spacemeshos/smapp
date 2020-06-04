@@ -17,6 +17,16 @@ const fromHexString = (hexString) => {
   return Uint8Array.from(bytes);
 };
 
+const compare = (a, b) => {
+  if (!a[1].timestamp && !b[1].timestamp) {
+    return 0;
+  } else if (a[1].timestamp && !b[1].timestamp) {
+    return 1;
+  } else if (!a[1].timestamp && b[1].timestamp) {
+    return -1;
+  } else return b[1].timestamp - a[1].timestamp;
+};
+
 class TransactionManager {
   constructor() {
     this.networkId = StoreService.get({ key: 'networkId' });
@@ -89,8 +99,8 @@ class TransactionManager {
       let hasConfirmedOutgoingTxs = false;
 
       // for given account and it's tx ids list get full tx data
-      const fullTxDataCollector = async (txIds, collector) => {
-        await asyncForEach(txIds, async (txId) => {
+      const fullTxDataCollector = async (txIdsSet, collector) => {
+        await asyncForEach(txIdsSet, async (txId) => {
           const tx = await this._getTransaction({ id: fromHexString(txId.substring(2)) });
           if (tx) {
             collector.push(tx);
@@ -103,21 +113,17 @@ class TransactionManager {
         await asyncForEach(this.accounts, async (account, index) => {
           const { txs, validatedLayer } = await netService.getAccountTxs({ startLayer: this.transactions[index].layerId, account: account.publicKey });
           if (txs && txs.length) {
+            const txIdsSet = new Set(txs);
             this.transactions[index].data.forEach((existingTx) => {
-              if (!txs.includes(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
-                txs.push(`0x${existingTx.txId}`);
+              if (!txIdsSet.has(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
+                txIdsSet.add(`0x${existingTx.txId}`);
               }
             });
             const fullDataTxsList = [];
-            await fullTxDataCollector(txs, fullDataTxsList);
-            const response = this._mergeTxStatuses({
-              existingList: this.transactions[index].data,
-              incomingList: fullDataTxsList,
-              address: account.publicKey.substring(24)
-            });
-            const { unifiedTxList } = response;
-            ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = response);
-            this.transactions = [...this.transactions.slice(0, index), { layerId: parseInt(validatedLayer), data: unifiedTxList }, ...this.transactions.slice(index + 1)];
+            await fullTxDataCollector([...txIdsSet], fullDataTxsList);
+            const result = this._mergeTxStatuses({ existingList: this.transactions[index].data, incomingList: fullDataTxsList, address: account.publicKey.substring(24) });
+            ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = result);
+            this.transactions[index] = { layerId: parseInt(validatedLayer), data: result.mergedList };
             StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
           }
         });
@@ -151,31 +157,26 @@ class TransactionManager {
   };
 
   _mergeTxStatuses = ({ existingList, incomingList, address }) => {
-    const unifiedTxList = [...existingList];
     let hasConfirmedIncomingTxs = false;
     let hasConfirmedOutgoingTxs = false;
-    const existingListMap = {};
-    existingList.forEach((tx, index) => {
-      existingListMap[tx.txId] = { index, tx };
+    const existingListMap = new Map();
+    existingList.forEach((existingTx) => {
+      existingListMap.set(existingTx.txId, existingTx);
     });
     incomingList.forEach((tx) => {
-      if (existingListMap[tx.txId]) {
+      if (existingListMap.has(tx.txId)) {
         hasConfirmedIncomingTxs =
-          !hasConfirmedIncomingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
+          !hasConfirmedIncomingTxs && existingListMap.get(tx.txId).status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
         hasConfirmedOutgoingTxs =
-          !hasConfirmedOutgoingTxs && existingListMap[tx.txId].tx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
-        unifiedTxList[existingListMap[tx.txId].index] = {
-          ...existingListMap[tx.txId].tx,
-          status: tx.status,
-          layerId: tx.layerId || existingListMap[tx.txId].tx.layerId,
-          timestamp: tx.timestamp || existingListMap[tx.txId].tx.timestamp
-        };
+          !hasConfirmedOutgoingTxs && existingList.get(tx.txId).status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
+        const existingTx = existingListMap.get(tx.txId);
+        existingListMap.set(tx.txId, { ...existingTx, status: tx.status, layerId: tx.layerId || existingTx.layerId, timestamp: tx.timestamp || existingTx.timestamp });
       } else {
         hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-        unifiedTxList.unshift(tx);
+        existingListMap.set(tx.txId, tx);
       }
     });
-    return { unifiedTxList, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
+    return { mergedList: [...existingListMap.values()].sort(compare), hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
   };
 
   getAccountRewards = async ({ address, accountIndex }) => {
@@ -211,6 +212,7 @@ class TransactionManager {
             return tx;
           });
           this.rewards = [...this.rewards, ...newRewardsWithTimeStamp];
+          this.transactions[accountIndex].data.sort(compare);
           StoreService.set({ key: `${this.networkId}-rewards`, value: this.rewards });
           StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
           return { error: null, rewards: this.rewards, transactions: this.transactions, hasNewRewards: true };
