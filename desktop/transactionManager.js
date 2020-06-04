@@ -165,11 +165,9 @@ class TransactionManager {
     });
     incomingList.forEach((tx) => {
       if (existingListMap.has(tx.txId)) {
-        hasConfirmedIncomingTxs =
-          !hasConfirmedIncomingTxs && existingListMap.get(tx.txId).status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
-        hasConfirmedOutgoingTxs =
-          !hasConfirmedOutgoingTxs && existingList.get(tx.txId).status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
         const existingTx = existingListMap.get(tx.txId);
+        hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && existingTx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
+        hasConfirmedOutgoingTxs = !hasConfirmedOutgoingTxs && existingTx.status !== TX_STATUSES.CONFIRMED && tx.status === TX_STATUSES.CONFIRMED && tx.sender === address;
         existingListMap.set(tx.txId, { ...existingTx, status: tx.status, layerId: tx.layerId || existingTx.layerId, timestamp: tx.timestamp || existingTx.timestamp });
       } else {
         hasConfirmedIncomingTxs = !hasConfirmedIncomingTxs && tx.status === TX_STATUSES.CONFIRMED && tx.receiver === address;
