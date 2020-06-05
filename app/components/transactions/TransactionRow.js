@@ -332,7 +332,7 @@ class TransactionRow extends Component<Props, State> {
     const { tx, updateTransaction } = this.props;
     const { note } = this.state;
     try {
-      updateTransaction({ newData: { note }, txId: tx.txId });
+      updateTransaction({ messageType: 'update-note', newData: { note }, txId: tx.txId });
       this.setState({ isDetailed: false });
     } catch (error) {
       this.setState(() => {

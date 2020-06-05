@@ -77,13 +77,31 @@ class TransactionManager {
     }
   };
 
-  updateTransaction = ({ newData, accountIndex, txId }) => {
+  updateTransaction = ({ messageType, newData, accountIndex, txId }) => {
+    return messageType === 'update-note' ? this.updateTxNote({ newData, accountIndex, txId }) : this.updateTxContact({ newData, accountIndex, txId });
+  };
+
+  updateTxNote = ({ newData, accountIndex, txId }) => {
     const txToUpdateIndex = this.transactions[accountIndex].data.findIndex((tx) => tx.txId === txId);
     this.transactions[accountIndex].data = [
       ...this.transactions[accountIndex].data.slice(0, txToUpdateIndex),
       { ...this.transactions[accountIndex].data[txToUpdateIndex], ...newData },
       ...this.transactions[accountIndex].data.slice(txToUpdateIndex + 1)
     ];
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+    return { transactions: this.transactions };
+  };
+
+  updateTxContact = ({ newData, accountIndex }) => {
+    const { address, nickname } = newData;
+    const addrString = address.substring(2).toLowerCase();
+    this.transactions[accountIndex].data.forEach((tx, index) => {
+      if (tx.sender === addrString) {
+        this.transactions[accountIndex].data[index].sender = nickname;
+      } else if (tx.receiver === addrString) {
+        this.transactions[accountIndex].data[index].receiver = nickname;
+      }
+    });
     StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
     return { transactions: this.transactions };
   };

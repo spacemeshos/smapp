@@ -57,8 +57,8 @@ class EventsService {
 
   static sendTx = ({ fullTx, accountIndex }: { fullTx: Object, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SEND_TX, { fullTx, accountIndex });
 
-  static updateTransaction = ({ newData, accountIndex, txId }: { newData: string, accountIndex: number, txId?: string }) =>
-    ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });
+  static updateTransaction = ({ messageType, newData, accountIndex, txId }: { messageType: string, newData: object, accountIndex: number, txId?: string }) =>
+    ipcRenderer.invoke(ipcConsts.UPDATE_TX, { messageType, newData, accountIndex, txId });
 
   static getAccountTxs = () => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_TXS);
 

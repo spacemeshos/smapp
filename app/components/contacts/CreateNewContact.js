@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { addToContacts, updateTransaction } from '/redux/wallet/actions';
 import styled from 'styled-components';
-import { Input, Link, ErrorPopup } from '/basicComponents';
+import { Input, ErrorPopup, Button } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action } from '/types';
 
@@ -49,6 +49,8 @@ const InputWrapperLowerPart = styled.div`
 `;
 
 const ButtonsWrapper = styled.div`
+  position: relative;
+  top: 15px;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -119,8 +121,8 @@ class CreateNewContact extends Component<Props, State> {
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.disabledGray, marginRight: 15 }} />
-          <Link onClick={this.createContact} text="CREATE" style={{ color: smColors.white }} />
+          <Button onClick={onCancel} text="CANCEL" style={{ color: smColors.disabledGray, marginRight: 15 }} />
+          <Button onClick={this.createContact} text="CREATE" style={{ color: smColors.white }} />
         </ButtonsWrapper>
       </Wrapper>
     );
@@ -146,7 +148,7 @@ class CreateNewContact extends Component<Props, State> {
       const { address, nickname } = this.state;
       try {
         await addToContacts({ contact: { address, nickname } });
-        updateTransaction({ newData: { nickname } }); // TODO: fix updating all transactions
+        updateTransaction({ messageType: 'update-contact', newData: { address, nickname } });
         onCompleteAction();
       } catch (error) {
         this.setState(() => {
@@ -162,7 +164,7 @@ class CreateNewContact extends Component<Props, State> {
     if (nicknameRegex.test(nickname)) {
       return 'Nickname is missing or invalid';
     }
-    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+    const addressRegex = /\b[a-zA-Z0-9]{42}\b/;
     if (!addressRegex.test(address)) {
       return 'Address is invalid';
     }
