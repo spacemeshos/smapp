@@ -161,7 +161,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   }
 };
 
-export const updateTransaction = ({ newData, txId }: { newData: string, txId?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateTransaction = ({ newData, txId }: { newData: object, txId?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { currentAccountIndex } = getState().wallet;
   const { transactions } = await eventsService.updateTransaction({ newData, accountIndex: currentAccountIndex, txId });
   dispatch(setTransactions({ transactions }));
