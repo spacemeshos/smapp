@@ -109,14 +109,12 @@ Example file name: `my_wallet_2020-05-26T09-53-06.105Z.json`.
 
 - The signature scheme used to generate signing keys and to derive new pairs from the seed is [ed25519](https://github.com/spacemeshos/ed25519). Note that this is a custom ed25519 signature scheme developed by Spacemesh and not the standard ed25519 signature scheme.
 
-- To create the first account in a wallet, call `ed25519.GenerateKey` and add the newly created key pairs as hex strings to the account's data.
-
-- To create additional accounts use `ed25519.NewDerivedKeyFromSeed` to create a new key pair, with the following params:
+- To create user accounts in the wallet, use `ed25519.NewDerivedKeyFromSeed` to create a new key pair, with the following params:
     1. `seed` - From calling `bip39.mnemonicToSeedSync`.
     2. `index` - Account's serial number. e.g 0, 1, 2...
     3. `salt` - String "Spacemesh blockmesh" encoding using UTF-8 to a byte array.
 
-> TODO: we should move all account including the first one to be derived in the same way and support a large number of accounts per wallet. We need to change the smapp wallet to the following spec:
+The first wallet's account should be the derived account index 0, the second at 1, etc... Do not use the a master key-pair generated from the seed directly for user accounts. User accounts should always be used using ed25519.NewDerivedKeyFromSeed.
 
 ### Spacemesh BIP32 paths
 `m / 44' / coin_type` / [account] / 0 / [address_index]`
