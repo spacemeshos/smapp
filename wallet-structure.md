@@ -1,77 +1,132 @@
 # Spacemesh app wallet structure
-## Wallet name
-Wallet name is ```my_wallet_<serial number>_<creation timestamp>.json```
-- Serial number - integer starting at 0, number of the current wallet created in the app after it's last installation. Can be 0 constantly.
-- Creation timestamp - date in the format of ISO date string with all `:` replaced with `-`.
+## Version 0.1 - Currently implemented in Smapp.
 
-Example: `my_wallet_0_2020-05-26T09-53-06.105Z`
+## Wallet File Name
+Wallet file name pattern is: ```my_wallet_<serial_number>_<creation_timestamp>.json```.
+- Serial number - An Integer starting at 0. Indicates the number of wallets created by the user in an app instance. Can be 0 constantly. Used to display all available wallets to the user in the app.
+- Creation timestamp - An ISO date string with `:` chars replaced with `-`.
 
-## Wallet structure
+Example file name: `my_wallet_0_2020-05-26T09-53-06.105Z.json`.
+
+---
+
+## Wallet File Contents - Json Syntax
 ```
 {
   "meta": {
     "displayName": <string>,
     "created": <string>,
     "netId": <integer>,
-    "meta": { "salt": "Spacemesh blockmesh" }
+    "meta": {
+        "salt": "Spacemesh blockmesh"
+    }
   },
   "crypto": {
     "cipher": "AES-128-CTR",
     "cipherText": <string>
   },
-  "contacts": <array of Contact objects>
+  "contacts": [
+    {
+        "nickname": "Joe Doe",
+        "address": "0afef01..."
+    },
+    ...
+  ]
 }
 ```
-- `displayName` - wallet name, up to 50 chars.
-- `created` - creation timestamp - same as in wallet file name.
-- `netId` - will be used later to match wallet file to network, current value is constant `0`.
-- `cipher` - indicator for the library used to encrypt/decrypt secret part of the wallet
-- `cipherText` - encrypted part of the wallet. A decrypted object has the following structure:
-    ```
+
+- `displayName` - Wallet's display name, up to 50 chars.
+- `created` - Creation timestamp - same format as the timestamp in the wallet's file name.
+- `netId` - Network id that this wallet is designated to work with. Currently unused. It will be used later to match a wallet file to a specific Spacemesh network. Legal values are 0-255.
+- `cipher` - The name of the encryption algorithm used to encrypt and to decrypt the secret part of the wallet (cipher text).
+- `cipherText` - Encrypted wallet's data. Hex string.
+- `contacts` - array of contact objects. Contact object syntax:
+    - `nickname` - Contact friendly name. String up to 50 characters.
+    - `address` - 40 hex chars representing contact's 20 bytes address.
+
+---
+
+ A decrypted cipherText data has the following json syntax:
+
+```
+{
+    mnemonic: <string>,
+    accounts: [
         {
-            mnemonic: <string>,
-            accounts: [
-                {
-                    displayName: <string>,
-                    created: <string>,
-                    path: <string>,
-                    publicKey: <string>,
-                    secretKey: <string>
-                }
-            ]
+            displayName: <string>,
+            created: <string>,
+            path: <string>,
+            publicKey: <string>,
+            secretKey: <string>
+        },
+        ...
+    ]
+}
+```
+
+- `mnemonic` - 12 words concatenated in single string with single space between each word.
+- `accounts` - array of account objects. Each object consists of:
+    - `displayName` - account name up to 50 chars.
+    - `created` - creation timestamp in the same format as in file name and the wallet's `created` timestamp field.
+    - `path` - string in the form `0/0/<account number>`, where `account number` is integer representing serial number of accounts created in this wallet.
+    - `publicKey` - hex string of the account's public key byte array.
+    - `secretKey` - hex string of the account's secret key byte array.
+
+---
+
+## Minimal Wallet Json Example
+```
+{
+    "meta":  {
+        "displayName":"Main Wallet",
+        "created": "2020-05-24T12-56-44.897Z",
+        "netId": 0,
+        "meta":{
+            "salt": "Spacemesh blockmesh"
         }
-  ```
-  - `mnemonic` - 12 words concatenated in single string with single space between each word. See `Mnemonic and secret/public keys` section.
-  - `accounts` - array of account objects. Each object consists of:
-    1. `displayName` - account name up to 50 chars.
-    2. `created` - creation timestamp in the same format as in file name and wallet creation timestamp.
-    3. `path` - string of the form `0/0/<account number>`, where `account number` is integer representing serial number of account created in this wallet. Not in use right now.
-    4. `publicKey` - hex string of public key byte array. See `Mnemonic and secret/public keys` section.
-    5. `secretKey` - hex string of secret key. See `Mnemonic and secret/public keys` section.
-  - `contacts` - array of Contact objects: 
-    1. `address` - 40 hex chars string representing contact's address (public key - last 40 chars of hex string representation of byte array).
-    2. `nickname` - string up to 50 characters.
-    
-## Mnemonic and secret/public keys
-Library used for creating mnemonic [bip39](https://github.com/bitcoinjs/bip39)
-Library used for creating/deriving new public/secret key pair [ed25519](https://github.com/spacemeshos/ed25519)
-- mnemonic is generated by calling `bip39.generateMnemonic`. Result is 12 words string separated by white space.
-- secret/public key pair generation:
-    - call `bip39.mnemonicToSeedSync` with generated mnemonic to generate seed.
-    - use seed to call `ed25519.GenerateKey` to get secret and public keys as byte arrays. Add those to newly created account as hex strings.
-- to derive new secret/public key pair call `ed25519.NewDerivedKeyFromSeed` with params:
-    1. `seed` - from calling `bip39.mnemonicToSeedSync`
-    2. `index` - account's serial number.
-    3. `salt` - string "Spacemesh blockmesh" as byte array
-- to validate mnemonic call `bip39.validateMnemonic`
+    },
+    "crypto": {
+        "cipher":"AES-128-CTR",
+        "cipherText": "0fbd900ce9cc02682..."
+    },
+    "contacts":[]
+}
+```
+
+## TODO: add example of decrypted cipher text with 2 accounts here...
+
+---
+
+## Mnemonic and accounts key-pair generation
+- The nemonic is created using the [bip39] spec.
+
+- The library used in Smapp is [bip39](https://github.com/bitcoinjs/bip39).
+
+- The mnemonic is generated by calling `bip39.generateMnemonic`. Result is 12 words string separated by white space.
+
+- To validate mnemonic call `bip39.validateMnemonic`.
 
 
-## Signing and encoding outgoing transaction
-Library used for signing outgoing transaction [ed25519](https://github.com/spacemeshos/ed25519)
-Library used for encoding transaction [js-xdr](https://github.com/stellar/js-xdr)
+## Account Generation
 
-- Translate secret key to bytes array.
-- Create xdr types by calling:
+- call `bip39.mnemonicToSeedSync` with a generated mnemonic to generate a seed.
+
+- The signature scheme used to generate signing keys and to derive new pairs from the seed is [ed25519](https://github.com/spacemeshos/ed25519). Note that this is a custom ed25519 signature scheme developed by Spacemesh and not the standard ed25519 signature scheme.
+
+- To create the first account, call `ed25519.GenerateKey` to get private and public keys as byte arrays. Add these to a newly created account as hex strings.
+
+- To create additional accounts use `ed25519.NewDerivedKeyFromSeed` to create a new key pair, with the following params:
+    1. `seed` - From calling `bip39.mnemonicToSeedSync`.
+    2. `index` - Account's serial number. e.g 0, 1, 2...
+    3. `salt` - String "Spacemesh blockmesh" encoding using UTF-8 to a byte array.
+
+---
+
+## Signing and encoding a simple coin transfer transaction
+- Library used for signing a new transaction is [ed25519](https://github.com/spacemeshos/ed25519). Note that this is a custom ed25519 developed by Spacemesh and not the standard ed25519 library.
+- Library used for encoding a transaction is [js-xdr](https://github.com/stellar/js-xdr).
+1. Create xdr types by calling:
+
 ```
 xdr.config((xdr1) => {
  xdr1.struct('InnerSerializableSignedTransaction', [
@@ -87,7 +142,9 @@ xdr.config((xdr1) => {
  ]);
 });
 ```
-- Create `message` by calling:
+
+2. Create a `message` for the transaction data by calling:
+
 ```
 new types.InnerSerializableSignedTransaction({
   AccountNonce: xdr.UnsignedHyper.fromString(<accountNonce>),
@@ -99,46 +156,59 @@ new types.InnerSerializableSignedTransaction({
 ```
 
 with following parameters:
-1. `accountNonce` - integer acquired from node before sending transaction.
-2. `receiver` - 40 hex chars string (last 20 bytes of bytes array of receiver public key).
-3. `limit` - string, currently fixed `5`.
-4. `price` - fee + amount to send string.
-5. `amount` - string - amount to be send.
 
-- Translate the `message` to byte array by calling ```message.toXDR()```.
-- Sign `message` by calling ```ed25519.Sign2``` with `secretKey` and `message` as parameters.
-- Create transaction using received `signature` and `message`:
+    1. `accountNonce` - The current integer account counter obtained from a full node.
+    2. `receiver` - 40 hex chars string (last 20 bytes of bytes array of receiver's public key).
+    3. `limit` - Provided transaction gas limit fee in smidge units. string, currently fixed `5`.
+    4. `price` - Transaction fee in smidge units provided by user. Should change to indicate gas price and work together with the limit field. e.g. `3`.
+    5. `amount` - Amount to be send in the transaction in integer smidge units formatted as string. e.g. `20`.
+
+
+
+3. Create a transaction with `message`:
+
+    1. Translate the `message` to a byte array by calling `message.toXDR()`.
+    2. Generate `signature` by signing the byte array by calling `ed25519.Sign2` with `secretKey` and the message's by array as parameters.
+    3. Create a transaction using the `signature` and `message`:
+
 ```
 new types.SerializableSignedTransaction({
   InnerSerializableSignedTransaction: message,
   Signature: signature
 })
 ```
-- Serialize transaction as xdr by calling ```transaction.toXDR()```.
-- Send transaction to node.
-    
-    
-    
+
+4. Sending a Transaction to a Full Node
+
+    1. Serialize transaction as xdr by calling `transaction.toXDR()`.
+    2. Send the serialized transaction to node using the node's API service.
+
+
 ---
-## Creating encryption/decryption key
-User types in a password - at least 8 unicode characters.
-By utilising this library [pbkdf2](https://github.com/crypto-browserify/pbkdf2) and it's method with following parameters:
 
-```pbkdf2.pbkdf2Sync(password, "Spacemesh blockmesh", 1000000, 32, "sha512")```
+## Wallet Creation Flows
 
-the encryption key is created. This key is used to encrypt and decrypt secret part of wallet file.
+### Obtain Encryption / Decryption Key from User's Password
+1. User provides a password - at least 8 unicode characters.
+2. We use [pbkdf2](https://github.com/crypto-browserify/pbkdf2) to derive an encryption key using the following method:
 
-## Encryption and decryption
-The encryption is done by this library [aes-js](https://github.com/ricmoo/aes-js) in the following way:
+```
+pbkdf2.pbkdf2Sync(password, "Spacemesh blockmesh", 1000000, 32, "sha512")
+```
+This key is used to encrypt and decrypt the wallet's file cipher-text binary data.
+
+### Encrypt and Decrypt Wallet data
+Only AES is currently supported and we use [aes-js](https://github.com/ricmoo/aes-js) in the following way:
+
 ### Encryption
-- calling ```aes.utils.utf8.toBytes``` on stringified data to be encrypted gives us byte array representation
-- calling ```aes.ModeOfOperation.ctr(key, new aes.Counter(5))``` where ```key ``` is the encryption key we created before
-- calling ```aes.encrypt``` with byte array from step 1 as function parameter
-- calling ```aes.utils.hex.fromBytes``` on encryption result to get hex string representation of bytes array to be saved in wallet file
+1. Call `aes.utils.utf8.toBytes` on stringified json data to be encrypted to get the byte array representation of the data.
+1. Call 'aes.ModeOfOperation.ctr(key, new aes.Counter(5))` where `key` is the encryption key we have created.
+1. Call `aes.encrypt()` with byte array from step 1.
+1. Call `aes.utils.hex.fromBytes` on the encrypted data result to get hex string representation to be saved in the wallet's file.
+
 ### Decryption
-- calling ```aes.ModeOfOperation.ctr(key, new aes.Counter(5))``` where ```key ``` is the encryption key we created before
-- calling ```aes.utils.hex.toBytes``` on encrypted string to get bytes array representation of encrypted data
-- calling ```aes.decrypt``` decrypt the bytes array
-- calling ```aes.utils.utf8.fromBytes``` get stringified representation of decrypted wallet data
-
-
+1. Call aes.ModeOfOperation.ctr(key, new aes.Counter(5))` where `key` is the encryption key we created before.
+1. Call `aes.utils.hex.toBytes` on the encrypted hex string to get bytes array representation of the encrypted data.
+1. Call `aes.decrypt` to decrypt the bytes array.
+1. Call `aes.utils.utf8.fromBytes` to get a json stringified representation of decrypted wallet data.
+1. Get the json data from the json string.
