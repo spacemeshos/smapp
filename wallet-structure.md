@@ -106,16 +106,31 @@ Example file name: `my_wallet_0_2020-05-26T09-53-06.105Z.json`.
 
 ## Account Generation
 
-- call `bip39.mnemonicToSeedSync` with a generated mnemonic to generate a seed.
+- Call `bip39.mnemonicToSeedSync` with a mnemonic to generate a seed.
 
 - The signature scheme used to generate signing keys and to derive new pairs from the seed is [ed25519](https://github.com/spacemeshos/ed25519). Note that this is a custom ed25519 signature scheme developed by Spacemesh and not the standard ed25519 signature scheme.
 
-- To create the first account, call `ed25519.GenerateKey` to get private and public keys as byte arrays. Add these to a newly created account as hex strings.
+- To create the first account in a wallet, call `ed25519.GenerateKey` and add the newly created key pairs as hex strings to the account's data.
 
 - To create additional accounts use `ed25519.NewDerivedKeyFromSeed` to create a new key pair, with the following params:
     1. `seed` - From calling `bip39.mnemonicToSeedSync`.
     2. `index` - Account's serial number. e.g 0, 1, 2...
     3. `salt` - String "Spacemesh blockmesh" encoding using UTF-8 to a byte array.
+
+> TODO: we should move all account including the first one to be derived in the same way and support a large number of accounts per wallet. We need to change the smapp wallet to the following spec:
+
+### Spacemesh BIP32 paths
+`m / 44' / coin_type` / [account] / 0 / [address_index]`
+
+- Account should be constant 0 for now. May be used in the future for additional functionality.
+- Coin type is `1` for a Spacemesh Testnet and `540` for Spacemesh mainent.
+- The first mainent account should be at path `m / 44` / 540` / 0 / 0 / 0`.
+- The second mainent account should be at path  `m / 44` / 540` / 0 / 0 / 1`.
+- The first testnet account should be at path `m / 44` / 1` / 0 / 0 / 0.
+- The second testnet account should be at path  `m / 44` / 1` / 0 / 0 / 1.
+- We have registered to have 540 for Spacemesh. see: https://github.com/satoshilabs/slips/pull/943
+- `address_index` is int32 so there can be up to 2^32 addresses per wallet.
+
 
 ---
 
