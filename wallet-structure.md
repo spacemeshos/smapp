@@ -38,7 +38,7 @@ Example file name: `my_wallet_0_2020-05-26T09-53-06.105Z.json`.
 - `displayName` - Wallet's display name, up to 50 chars.
 - `created` - Creation timestamp - same format as the timestamp in the wallet's file name.
 - `netId` - Network id that this wallet is designated to work with. Currently unused. It will be used later to match a wallet file to a specific Spacemesh network. Legal values are 0-255.
-- `cipher` - The name of the encryption algorithm used to encrypt and to decrypt the secret part of the wallet (cipher text).
+- `cipher` - The name of the encryption algorithm used to encrypt and to decrypt the secret part of the wallet (cipher text). Currently only `AES-128-CTR` is supported.
 - `cipherText` - Encrypted wallet's data. Hex string.
 - `contacts` - array of contact objects. Contact object syntax:
     - `nickname` - Contact friendly name. String up to 50 characters.
