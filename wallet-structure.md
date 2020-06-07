@@ -2,11 +2,10 @@
 ## Version 0.1 - Currently implemented in Smapp.
 
 ## Wallet File Name
-Wallet file name pattern is: `my_wallet_<serial_number>_<creation_timestamp>.json`.
-- Serial number - An Integer starting at 0. Indicating the wallet's number created by the user in an app instance. Used to display all available wallets to the user in the app.
+Wallet file name pattern is: `my_wallet__<creation_timestamp>.json`.
 - Creation timestamp - An ISO date string with `:` chars replaced with `-`.
 
-Example file name: `my_wallet_0_2020-05-26T09-53-06.105Z.json`.
+Example file name: `my_wallet_2020-05-26T09-53-06.105Z.json`.
 
 ---
 
