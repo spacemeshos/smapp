@@ -250,7 +250,7 @@ class NodeManager {
 
   setRewardsAddress = async ({ address }) => {
     try {
-      await netService.setAwardsAddress({ address });
+      await netService.setRewardsAddress({ address });
       return { error: null };
     } catch (error) {
       return { error };

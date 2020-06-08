@@ -18,13 +18,13 @@ const fromHexString = (hexString) => {
 };
 
 const compare = (a, b) => {
-  if (!a[1].timestamp && !b[1].timestamp) {
+  if (!a.timestamp && !b.timestamp) {
     return 0;
-  } else if (a[1].timestamp && !b[1].timestamp) {
+  } else if (a.timestamp && !b.timestamp) {
     return 1;
-  } else if (!a[1].timestamp && b[1].timestamp) {
+  } else if (!a.timestamp && b.timestamp) {
     return -1;
-  } else return b[1].timestamp - a[1].timestamp;
+  } else return b.timestamp - a.timestamp;
 };
 
 class TransactionManager {
