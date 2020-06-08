@@ -9,7 +9,6 @@ import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordMod
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { eventsService } from '/infra/eventsService';
-import { walletUpdateService } from '/infra/walletUpdateService';
 import { getAddress, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
@@ -59,7 +58,6 @@ type Props = {
   status: Object,
   history: RouterHistory,
   nodeIpAddress: string,
-  isUpdateDownloading: boolean,
   genesisTime: string,
   rewardsAddress: string,
   stateRootHash: string,
@@ -72,6 +70,7 @@ type State = {
   walletDisplayName: string,
   canEditDisplayName: boolean,
   isAutoStartEnabled: boolean,
+  isUpdateDownloading: boolean,
   editedAccountIndex: number,
   accountDisplayNames: Array<string>,
   nodeIp: string,
@@ -98,7 +97,8 @@ class Settings extends Component<Props, State> {
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
-      isAutoStartEnabled: eventsService.isAutoStartEnabled(),
+      isAutoStartEnabled: false,
+      isUpdateDownloading: false,
       editedAccountIndex: -1,
       accountDisplayNames,
       nodeIp: nodeIpAddress,
@@ -116,11 +116,12 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, status, isUpdateDownloading, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
+    const { displayName, accounts, setNodeIpAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
       isAutoStartEnabled,
+      isUpdateDownloading,
       accountDisplayNames,
       editedAccountIndex,
       nodeIp,
@@ -196,7 +197,7 @@ class Settings extends Component<Props, State> {
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={walletUpdateService.checkForWalletUpdate} text="CHECK FOR UPDATES" isDisabled />
+                  <Link key="2" style={{ width: 144 }} onClick={eventsService.checkForUpdates} text="CHECK FOR UPDATES" isDisabled />
                 ]}
                 rowName="App Version"
               />
@@ -280,6 +281,12 @@ class Settings extends Component<Props, State> {
         {shouldShowPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>
     );
+  }
+
+  async componentDidMount() {
+    const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
+    const isUpdateDownloading = await eventsService.isUpdateDownloading();
+    this.setState({ isAutoStartEnabled, isUpdateDownloading });
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {

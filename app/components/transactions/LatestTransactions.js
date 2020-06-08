@@ -64,15 +64,14 @@ const Amount = styled.div`
 
 type Props = {
   publicKey: string,
-  currentAccountIndex: number,
   transactions: { data: TxList },
   navigateToAllTransactions: () => void
 };
 
 class LatestTransactions extends PureComponent<Props> {
   render() {
-    const { transactions, currentAccountIndex, navigateToAllTransactions } = this.props;
-    const latestTransactions = transactions[currentAccountIndex] && transactions[currentAccountIndex].data.length > 0 ? transactions[currentAccountIndex].data.slice(0, 3) : [];
+    const { transactions, navigateToAllTransactions } = this.props;
+    const latestTransactions = transactions && transactions.data.length > 0 ? transactions.data.slice(0, 3) : [];
     return (
       <Wrapper>
         <Header>
@@ -119,8 +118,7 @@ class LatestTransactions extends PureComponent<Props> {
 }
 
 const mapStateToProps = (state) => ({
-  currentAccountIndex: state.wallet.currentAccountIndex,
-  transactions: state.wallet.transactions
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
 });
 
 LatestTransactions = connect<any, any, _, _, _, _>(mapStateToProps)(LatestTransactions);

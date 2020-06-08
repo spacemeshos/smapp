@@ -68,11 +68,15 @@ class EventsService {
 
   static toggleAutoStart = () => ipcRenderer.send(ipcConsts.TOGGLE_AUTO_START);
 
+  /** *************************************  AUTO UPDATE  ***************************************** */
+
+  static checkForUpdates = () => ipcRenderer.send(ipcConsts.CHECK_WALLET_UPDATE);
+
+  static isUpdateDownloading = () => ipcRenderer.invoke(ipcConsts.IS_UPDATE_DOWNLOADING);
+
   /** **************************************   MISC   ***************************************** */
 
   static getAudioPath = () => ipcRenderer.invoke(ipcConsts.GET_AUDIO_PATH);
-
-  static hardRefresh = () => ipcRenderer.send(ipcConsts.HARD_REFRESH);
 
   static print = ({ content }: { content: string }) => ipcRenderer.send(ipcConsts.PRINT, { content });
 

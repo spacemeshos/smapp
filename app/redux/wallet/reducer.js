@@ -1,18 +1,6 @@
-// @flow
 import type { Action, StoreStateType } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import {
-  SAVE_WALLET_FILES,
-  SET_WALLET_META,
-  SET_BALANCE,
-  SET_ACCOUNTS,
-  SET_MNEMONIC,
-  SET_TRANSACTIONS,
-  SET_CONTACTS,
-  SET_CURRENT_ACCOUNT_INDEX,
-  SET_BACKUP_TIME,
-  SET_UPDATE_DOWNLOADING
-} from './actions';
+import { SAVE_WALLET_FILES, SET_WALLET_META, SET_BALANCE, SET_ACCOUNTS, SET_MNEMONIC, SET_TRANSACTIONS, SET_CONTACTS, SET_CURRENT_ACCOUNT_INDEX, SET_BACKUP_TIME } from './actions';
 
 const initialState = {
   walletFiles: null,
@@ -20,11 +8,10 @@ const initialState = {
   mnemonic: null,
   accounts: [],
   currentAccountIndex: 0,
-  transactions: {},
+  transactions: [{ layerId: 0, data: [] }],
   lastUsedContacts: [],
   contacts: [],
-  backupTime: null,
-  isUpdateDownloading: false
+  backupTime: null
 };
 
 // TODO: fix this while fixing contacts feature
@@ -88,10 +75,6 @@ const reducer = (state: StoreStateType = initialState, action: Action) => {
     case SET_BACKUP_TIME: {
       const { backupTime } = action.payload;
       return { ...state, backupTime };
-    }
-    case SET_UPDATE_DOWNLOADING: {
-      const { isUpdateDownloading } = action.payload;
-      return { ...state, isUpdateDownloading };
     }
     case LOGOUT: {
       return initialState;
