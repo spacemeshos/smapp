@@ -76,7 +76,7 @@ class NetService {
       });
     });
 
-  setAwardsAddress = ({ address }) =>
+  setRewardsAddress = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.SetAwardsAddress({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
