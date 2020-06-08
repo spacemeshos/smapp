@@ -1,5 +1,6 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
+import encryptionConst from './encryptionConst';
 
 const fromHexString = (hexString) => {
   const bytes = [];
@@ -10,8 +11,6 @@ const fromHexString = (hexString) => {
 };
 
 const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-
-const DEFAULT_SALT = 'Spacemesh blockmesh';
 
 class CryptoService {
   static generateMnemonic = () => bip39.generateMnemonic();
@@ -49,7 +48,7 @@ class CryptoService {
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
     const enc = new TextEncoder();
-    const saltAsUint8Array = enc.encode(DEFAULT_SALT);
+    const saltAsUint8Array = enc.encode(encryptionConst.DEFAULT_SALT);
     const saveKeys = (pk, sk) => {
       if (pk === null || sk === null) {
         this.stopAndCleanUp();
