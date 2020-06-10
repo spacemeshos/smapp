@@ -169,14 +169,12 @@ class WalletManager {
     }
   };
 
-  updateWalletFile = async ({ fileName, password, data }) => {
+  updateWalletFile = async ({ fileName, password, data, field }) => {
     try {
       const rawFileContent = await readFileAsync(fileName);
       const fileContent = JSON.parse(rawFileContent);
-      let field = 'meta';
       let dataToUpdate = data;
       if (password) {
-        field = 'crypto';
         const key = fileEncryptionService.createEncryptionKey({ password });
         const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(data), key });
         dataToUpdate = { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData };

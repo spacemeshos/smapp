@@ -71,7 +71,7 @@ export const unlockWallet = ({ password }: { password: string }): Action => asyn
 export const updateWalletName = ({ displayName }: { displayName: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { walletFiles, meta } = getState().wallet;
   const updatedMeta = { ...meta, displayName };
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: { meta } });
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: updatedMeta, field: 'meta' });
   dispatch(setWalletMeta({ meta: updatedMeta }));
 };
 
@@ -93,14 +93,15 @@ export const updateAccountName = ({ accountIndex, name, password }: { accountInd
   const { walletFiles, accounts, mnemonic } = getState().wallet;
   const updatedAccount = { ...accounts[accountIndex], displayName: name };
   const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts } });
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts }, field: 'crypto' });
   dispatch(setAccounts({ accounts: updatedAccounts }));
 };
 
 export const addToContacts = ({ contact }: Contact): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { contacts } = getState().wallet;
+  const { walletFiles, contacts } = getState().wallet;
   const updatedContacts = [contact, ...contacts];
-  dispatch(setContacts({ contacts: updatedContacts })); // TODO: update the wallet file and rescan transactions
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: updatedContacts, field: 'contacts' });
+  dispatch(setContacts({ contacts: updatedContacts }));
 };
 
 export const restoreFile = ({ filePath }: { filePath: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
@@ -139,7 +140,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const { accounts, currentAccountIndex } = getState().wallet;
+  const { accounts, currentAccountIndex, contacts } = getState().wallet;
   const fullTx = {
     sender: getAddress(accounts[currentAccountIndex].publicKey),
     receiver,
@@ -149,6 +150,11 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
     timestamp: new Date().getTime(),
     note
   };
+  contacts.forEach((contact) => {
+    if (contact.address.substring(2) === fullTx.sender || contact.address.substring(2) === fullTx.receiver) {
+      fullTx.nickname = contact.nickname;
+    }
+  });
   const { error, transactions, id } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
@@ -161,7 +167,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   }
 };
 
-export const updateTransaction = ({ newData, txId }: { newData: string, txId?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateTransaction = ({ newData, txId }: { newData: object, txId?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { currentAccountIndex } = getState().wallet;
   const { transactions } = await eventsService.updateTransaction({ newData, accountIndex: currentAccountIndex, txId });
   dispatch(setTransactions({ transactions }));
