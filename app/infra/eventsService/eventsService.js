@@ -10,8 +10,8 @@ class EventsService {
 
   static unlockWallet = ({ path, password }: { path: string, password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
 
-  static updateWalletFile = ({ fileName, password, data, field }: { fileName: string, password: string, data: Object, field: string }) =>
-    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data, field });
+  static updateWalletFile = ({ fileName, password, data }: { fileName: string, password: string, data: Object, field: string }) =>
+    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
 
   static createNewAccount = ({ fileName, password }: { fileName: string, password: string }) => ipcRenderer.invoke(ipcConsts.CREATE_NEW_ACCOUNT, { fileName, password });
 
@@ -57,7 +57,7 @@ class EventsService {
 
   static sendTx = ({ fullTx, accountIndex }: { fullTx: Object, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SEND_TX, { fullTx, accountIndex });
 
-  static updateTransaction = ({ newData, accountIndex, txId }: { newData: object, accountIndex: number, txId?: string }) =>
+  static updateTransaction = ({ newData, accountIndex, txId }: { newData: Object, accountIndex: number, txId?: string }) =>
     ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });
 
   static getAccountTxs = () => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_TXS);
