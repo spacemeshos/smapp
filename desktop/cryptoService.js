@@ -62,7 +62,7 @@ class CryptoService {
   };
 
   /**
-   * Signs message to be sent to node.
+   * Serializes and signs transaction to be sent to node.
    * @param secretKey - string
    * @param accountNonce - account's next nonce value
    * @param receiver - receiver's address
@@ -102,6 +102,24 @@ class CryptoService {
           Signature: sig
         });
         resolve(tx.toXDR());
+      });
+    });
+  };
+
+  /**
+   * Signs message to be sent to node.
+   * @param secretKey - string
+   * @param message - utf8 string representation of message
+   * @return {Promise} when resolved returns signature as Uint8Array(64)
+   */
+  static signMessage = ({ message, secretKey }) => {
+    const sk = fromHexString(secretKey);
+    return new Promise((resolve) => {
+      const enc = new TextEncoder();
+      const messageAsUint8Array = enc.encode(message);
+      // eslint-disable-next-line no-undef
+      global.__signTransaction(sk, messageAsUint8Array, (sig) => {
+        resolve(toHexString(sig));
       });
     });
   };
