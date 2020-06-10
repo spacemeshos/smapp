@@ -140,7 +140,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const { accounts, currentAccountIndex } = getState().wallet;
+  const { accounts, currentAccountIndex, contacts } = getState().wallet;
   const fullTx = {
     sender: getAddress(accounts[currentAccountIndex].publicKey),
     receiver,
@@ -150,6 +150,11 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
     timestamp: new Date().getTime(),
     note
   };
+  contacts.forEach((contact) => {
+    if (contact.address.substring(2) === fullTx.sender || contact.address.substring(2) === fullTx.receiver) {
+      fullTx.nickname = contact.nickname;
+    }
+  });
   const { error, transactions, id } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
