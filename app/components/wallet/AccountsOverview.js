@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setCurrentAccount } from '/redux/wallet/actions';
-import { DropDown, WrapperWith2SideBars } from '/basicComponents';
+import { DropDown, WrapperWith2SideBars, Link } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
@@ -112,7 +112,8 @@ type Props = {
   accounts: Account[],
   currentAccountIndex: number,
   setCurrentAccount: Action,
-  status: Object
+  status: Object,
+  navigateToAccountCommands: () => void
 };
 
 type State = {
@@ -127,7 +128,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, setCurrentAccount, status } = this.props;
+    const { walletName, accounts, currentAccountIndex, setCurrentAccount, status, navigateToAccountCommands } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -150,6 +151,7 @@ class AccountsOverview extends Component<Props, State> {
           )}
         </AccountDetails>
         {isCopied && <CopiedText>COPIED</CopiedText>}
+        <Link onClick={navigateToAccountCommands} text="account commands" />
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (
@@ -163,6 +165,10 @@ class AccountsOverview extends Component<Props, State> {
         </Footer>
       </WrapperWith2SideBars>
     );
+  }
+
+  componentWillUnmount() {
+    this.copiedTimeout && clearTimeout(this.copiedTimeout);
   }
 
   renderAccountRow = ({ displayName, publicKey, isInDropDown }: { displayName: string, publicKey: string, isInDropDown?: boolean }) => (
@@ -195,6 +201,6 @@ const mapDispatchToProps = {
   setCurrentAccount
 };
 
-AccountsOverview = connect(mapStateToProps, mapDispatchToProps)(AccountsOverview);
+AccountsOverview = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(AccountsOverview);
 
 export default AccountsOverview;

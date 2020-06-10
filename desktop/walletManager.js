@@ -5,7 +5,6 @@ import os from 'os';
 import { app, dialog, shell, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import TransactionManager from './transactionManager';
-import StoreService from './storeService';
 import netService from './netService';
 import fileEncryptionService from './fileEncryptionService';
 import cryptoService from './cryptoService';
@@ -31,10 +30,10 @@ class WalletManager {
     this.txManager = new TransactionManager();
   }
 
-  __getNewAccountFromTemplate = ({ accountNumber, timestamp, publicKey, secretKey }) => ({
-    displayName: accountNumber > 0 ? `Account ${accountNumber}` : 'Main Account',
+  __getNewAccountFromTemplate = ({ index, timestamp, publicKey, secretKey }) => ({
+    displayName: index > 0 ? `Account ${index}` : 'Main Account',
     created: timestamp,
-    path: `0/0/${accountNumber}`,
+    path: `0/0/${index}`,
     publicKey,
     secretKey
   });
@@ -93,20 +92,25 @@ class WalletManager {
       const res = await this.txManager.getAccountRewards({ ...request });
       return res;
     });
+
+    ipcMain.handle(ipcConsts.SIGN_MESSAGE, async (event, request) => {
+      const { message, accountIndex } = request;
+      const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
+      return res;
+    });
   };
 
   createWalletFile = async ({ password, existingMnemonic }) => {
     try {
       const timestamp = new Date().toISOString().replace(/:/g, '-');
       this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
-      const { publicKey, secretKey } = cryptoService.generateKeyPair({ mnemonic: this.mnemonic });
+      const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
       const dataToEncrypt = {
         mnemonic: this.mnemonic,
-        accounts: [this.__getNewAccountFromTemplate({ accountNumber: 0, timestamp, publicKey, secretKey })]
+        accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })]
       };
-      const walletNumber = StoreService.get({ key: 'walletNumber' }) || 0;
       const meta = {
-        displayName: walletNumber > 0 ? `Wallet ${walletNumber}` : 'Main Wallet',
+        displayName: 'Main Wallet',
         created: timestamp,
         netId: 0,
         meta: { salt: encryptionConst.DEFAULT_SALT }
@@ -119,11 +123,9 @@ class WalletManager {
         crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
         contacts: []
       };
-      const fileName = `my_wallet_${walletNumber}_${timestamp}.json`;
+      const fileName = `my_wallet_${timestamp}.json`;
       const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
       await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
-      StoreService.set({ key: 'walletNumber', value: walletNumber + 1 });
-      StoreService.set({ key: 'accountNumber', value: 1 });
       return { error: null, meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
     } catch (error) {
       return { error, meta: null };
@@ -150,6 +152,7 @@ class WalletManager {
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic } = JSON.parse(decryptedDataJSON);
       this.txManager.setAccounts({ accounts });
+      this.mnemonic = mnemonic;
       return { error: null, accounts, mnemonic, meta, contacts };
     } catch (error) {
       return { error, accounts: null, mnemonic: null, meta: null, contacts: null };
@@ -190,8 +193,7 @@ class WalletManager {
     try {
       const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: this.txManager.accounts.length });
       const timestamp = new Date().toISOString().replace(/:/, '-');
-      const accountNumber = StoreService.get({ key: 'accountNumber' });
-      const newAccount = this.__getNewAccountFromTemplate({ accountNumber, timestamp, publicKey, secretKey });
+      const newAccount = this.__getNewAccountFromTemplate({ index: this.txManager.accounts.length, timestamp, publicKey, secretKey });
       const dataToEncrypt = {
         mnemonic: this.mnemonic,
         accounts: [...this.txManager.accounts, newAccount]
@@ -204,7 +206,6 @@ class WalletManager {
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
 
       this.txManager.addAccount({ account: newAccount });
-      StoreService.set({ key: 'accountNumber', value: accountNumber + 1 });
       return { error: null, newAccount };
     } catch (error) {
       console.log(error); // eslint-disable-line no-console
@@ -214,12 +215,10 @@ class WalletManager {
 
   copyFile = async ({ filePath, copyToDocuments }) => {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
-    const walletNumber = StoreService.get({ key: 'walletNumber' });
-    const fileName = copyToDocuments ? `Wallet_Backup_${timestamp}.json` : `my_wallet_${walletNumber}-${new Date().toISOString().replace(/:/, '-')}.json`;
+    const fileName = copyToDocuments ? `wallet_backup_${timestamp}.json` : `my_wallet_${new Date().toISOString().replace(/:/, '-')}.json`;
     const newFilePath = copyToDocuments ? path.join(documentsDirPath, fileName) : path.join(appFilesDirPath, fileName);
     try {
       await copyFileAsync(filePath, newFilePath);
-      StoreService.set({ key: 'walletNumber', value: walletNumber + 1 });
       return { error: null, newFilePath };
     } catch (error) {
       return { error };
@@ -230,7 +229,7 @@ class WalletManager {
     if (isBackupFile) {
       try {
         const files = await readDirectoryAsync(documentsDirPath);
-        const regex = new RegExp('(Wallet_Backup_).*.(json)', 'ig');
+        const regex = new RegExp('(wallet_backup_).*.(json)', 'ig');
         const filteredFiles = files.filter((file) => file.match(regex));
         const filesWithPath = filteredFiles.map((file) => path.join(documentsDirPath, file));
         if (filesWithPath && filesWithPath[0]) {

@@ -98,10 +98,12 @@ export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): 
   }
 };
 
-export const setRewardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
+export const setRewardsAddress = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { accounts, currentAccountIndex } = getState().wallet;
+  const address = accounts[currentAccountIndex].publicKey;
   const { error } = await eventsService.setRewardsAddress({ address });
   if (error) {
-    throw createError('Error setting rewards address', () => dispatch(setRewardsAddress({ address })));
+    throw createError('Error setting rewards address', () => dispatch(setRewardsAddress()));
   } else {
     dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
   }

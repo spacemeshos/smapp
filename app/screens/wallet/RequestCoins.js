@@ -154,7 +154,7 @@ class RequestCoins extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    clearTimeout(this.copiedTimeout);
+    this.copiedTimeout && clearTimeout(this.copiedTimeout);
   }
 
   copyPublicAddress = () => {
