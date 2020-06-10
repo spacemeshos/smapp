@@ -119,8 +119,8 @@ class CreateNewContact extends Component<Props, State> {
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.disabledGray, marginRight: 15 }} />
-          <Link onClick={this.createContact} text="CREATE" style={{ color: smColors.white }} />
+          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange, marginRight: 15 }} />
+          <Link onClick={this.createContact} text="CREATE" style={{ color: smColors.green }} />
         </ButtonsWrapper>
       </Wrapper>
     );
@@ -146,7 +146,7 @@ class CreateNewContact extends Component<Props, State> {
       const { address, nickname } = this.state;
       try {
         await addToContacts({ contact: { address, nickname } });
-        updateTransaction({ newData: { nickname } }); // TODO: fix updating all transactions
+        updateTransaction({ newData: { address, nickname } });
         onCompleteAction();
       } catch (error) {
         this.setState(() => {
@@ -162,7 +162,7 @@ class CreateNewContact extends Component<Props, State> {
     if (nicknameRegex.test(nickname)) {
       return 'Nickname is missing or invalid';
     }
-    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+    const addressRegex = /\b0[xX][a-zA-Z0-9]{40}\b/;
     if (!addressRegex.test(address)) {
       return 'Address is invalid';
     }
