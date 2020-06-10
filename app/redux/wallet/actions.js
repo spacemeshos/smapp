@@ -1,7 +1,7 @@
 // @flow
 import { eventsService } from '/infra/eventsService';
 import { createError, getAddress } from '/infra/utils';
-import { Action, Dispatch, GetState, WalletMeta, Account, AccountTxs, Contact } from '/types';
+import { Action, Dispatch, GetState, WalletMeta, Account, AccountTxs, Contact, Tx } from '/types';
 import TX_STATUSES from '/vars/enums';
 
 export const SET_WALLET_META: string = 'SET_WALLET_META';
@@ -71,7 +71,7 @@ export const unlockWallet = ({ password }: { password: string }): Action => asyn
 export const updateWalletName = ({ displayName }: { displayName: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { walletFiles, meta } = getState().wallet;
   const updatedMeta = { ...meta, displayName };
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: updatedMeta, field: 'meta' });
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: updatedMeta });
   dispatch(setWalletMeta({ meta: updatedMeta }));
 };
 
@@ -90,17 +90,17 @@ export const updateAccountName = ({ accountIndex, name, password }: { accountInd
   dispatch: Dispatch,
   getState: GetState
 ): Dispatch => {
-  const { walletFiles, accounts, mnemonic } = getState().wallet;
+  const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedAccount = { ...accounts[accountIndex], displayName: name };
   const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts }, field: 'crypto' });
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts, contacts } });
   dispatch(setAccounts({ accounts: updatedAccounts }));
 };
 
-export const addToContacts = ({ contact }: Contact): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { walletFiles, contacts } = getState().wallet;
+export const addToContacts = ({ contact, password }: { contact: Contact, password: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = [contact, ...contacts];
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: updatedContacts, field: 'contacts' });
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { accounts, mnemonic, contacts: updatedContacts } });
   dispatch(setContacts({ contacts: updatedContacts }));
 };
 
@@ -141,7 +141,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   getState: GetState
 ): Dispatch => {
   const { accounts, currentAccountIndex, contacts } = getState().wallet;
-  const fullTx = {
+  const fullTx: Tx = {
     sender: getAddress(accounts[currentAccountIndex].publicKey),
     receiver,
     amount,
@@ -167,7 +167,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   }
 };
 
-export const updateTransaction = ({ newData, txId }: { newData: object, txId?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+export const updateTransaction = ({ newData, txId }: { newData: Object, txId?: string }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   const { currentAccountIndex } = getState().wallet;
   const { transactions } = await eventsService.updateTransaction({ newData, accountIndex: currentAccountIndex, txId });
   dispatch(setTransactions({ transactions }));

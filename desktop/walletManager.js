@@ -107,7 +107,8 @@ class WalletManager {
       const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
       const dataToEncrypt = {
         mnemonic: this.mnemonic,
-        accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })]
+        accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
+        contacts: []
       };
       const meta = {
         displayName: 'Main Wallet',
@@ -120,8 +121,7 @@ class WalletManager {
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       const fileContent = {
         meta,
-        crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
-        contacts: []
+        crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
       };
       const fileName = `my_wallet_${timestamp}.json`;
       const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
@@ -147,10 +147,10 @@ class WalletManager {
   unlockWalletFile = async ({ path, password }) => {
     try {
       const fileContent = await readFileAsync(path);
-      const { crypto, meta, contacts } = JSON.parse(fileContent);
+      const { crypto, meta } = JSON.parse(fileContent);
       const key = fileEncryptionService.createEncryptionKey({ password });
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
-      const { accounts, mnemonic } = JSON.parse(decryptedDataJSON);
+      const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
       return { error: null, accounts, mnemonic, meta, contacts };
@@ -172,16 +172,18 @@ class WalletManager {
     }
   };
 
-  updateWalletFile = async ({ fileName, password, data, field }) => {
+  updateWalletFile = async ({ fileName, password, data }) => {
     try {
       const rawFileContent = await readFileAsync(fileName);
       const fileContent = JSON.parse(rawFileContent);
+      let field = 'meta';
       let dataToUpdate = data;
       if (password) {
+        field = 'crypto';
         const key = fileEncryptionService.createEncryptionKey({ password });
         const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(data), key });
         dataToUpdate = { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData };
-        this.txManager.addAccount({ account: data.accounts });
+        this.txManager.setAccounts({ accounts: data.accounts });
       }
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, [field]: dataToUpdate }));
     } catch (error) {
@@ -191,18 +193,21 @@ class WalletManager {
 
   createNewAccount = async ({ fileName, password }) => {
     try {
-      const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: this.txManager.accounts.length });
-      const timestamp = new Date().toISOString().replace(/:/, '-');
-      const newAccount = this.__getNewAccountFromTemplate({ index: this.txManager.accounts.length, timestamp, publicKey, secretKey });
-      const dataToEncrypt = {
-        mnemonic: this.mnemonic,
-        accounts: [...this.txManager.accounts, newAccount]
-      };
       const key = fileEncryptionService.createEncryptionKey({ password });
-      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
-
       const rawFileContent = await readFileAsync(fileName);
       const fileContent = JSON.parse(rawFileContent);
+      const decryptedDataJSON = fileEncryptionService.decryptData({ data: fileContent.crypto.cipherText, key });
+      const { mnemonic, accounts, contacts } = decryptedDataJSON;
+
+      const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length });
+      const timestamp = new Date().toISOString().replace(/:/, '-');
+      const newAccount = this.__getNewAccountFromTemplate({ index: accounts.length, timestamp, publicKey, secretKey });
+      const dataToEncrypt = {
+        mnemonic,
+        accounts: [...accounts, newAccount],
+        contacts
+      };
+      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
 
       this.txManager.addAccount({ account: newAccount });
