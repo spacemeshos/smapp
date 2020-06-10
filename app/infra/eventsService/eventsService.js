@@ -83,6 +83,8 @@ class EventsService {
   static isAppMinimized = () => ipcRenderer.invoke(ipcConsts.IS_APP_MINIMIZED);
 
   static notificationWasClicked = () => ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
+
+  static signMessage = ({ message, accountIndex }: { message: string, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SIGN_MESSAGE, { message, accountIndex });
 }
 
 export default EventsService;

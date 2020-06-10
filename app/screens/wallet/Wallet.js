@@ -68,7 +68,8 @@ const RightSection = styled.div`
 
 type Props = {
   backupTime: string,
-  history: RouterHistory
+  history: RouterHistory,
+  location: { pathname: string }
 };
 
 type State = {
@@ -84,7 +85,7 @@ class Wallet extends Component<Props, State> {
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview />
+          <AccountsOverview navigateToAccountCommands={this.navigateToAccountCommands} />
           {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={leftSideTIcon} />
@@ -107,6 +108,13 @@ class Wallet extends Component<Props, State> {
       </Wrapper>
     );
   }
+
+  navigateToAccountCommands = () => {
+    const { history, location } = this.props;
+    if (location.pathname !== '/main/wallet/account-commands') {
+      history.push('/main/wallet/account-commands');
+    }
+  };
 
   navigateToBackup = () => {
     const { history } = this.props;
