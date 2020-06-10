@@ -215,7 +215,7 @@ class WalletManager {
 
   copyFile = async ({ filePath, copyToDocuments }) => {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
-    const fileName = copyToDocuments ? `wallet_backup_${timestamp}.json` : `my_wallet_${new Date().toISOString().replace(/:/, '-')}.json`;
+    const fileName = copyToDocuments ? `wallet_backup_${timestamp}.json` : `my_wallet_${timestamp}.json`;
     const newFilePath = copyToDocuments ? path.join(documentsDirPath, fileName) : path.join(appFilesDirPath, fileName);
     try {
       await copyFileAsync(filePath, newFilePath);
