@@ -10,8 +10,8 @@ class EventsService {
 
   static unlockWallet = ({ path, password }: { path: string, password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
 
-  static updateWallet = ({ fileName, password, data }: { fileName: string, password: string, data: Object }) =>
-    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
+  static updateWalletFile = ({ fileName, password, data, field }: { fileName: string, password: string, data: Object, field: string }) =>
+    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data, field });
 
   static createNewAccount = ({ fileName, password }: { fileName: string, password: string }) => ipcRenderer.invoke(ipcConsts.CREATE_NEW_ACCOUNT, { fileName, password });
 

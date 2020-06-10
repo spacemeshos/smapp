@@ -129,7 +129,7 @@ class ChangePassword extends Component<Props, State> {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
-          eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts } });
+          eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts }, field: 'crypto' });
           this.clearFields();
         }, 500);
       } catch (error) {
