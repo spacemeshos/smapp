@@ -97,10 +97,8 @@ class TransactionManager {
     const addrString = address.substring(2).toLowerCase();
     this.transactions.forEach((account, accountIndex) => {
       account.data.forEach((tx, index) => {
-        if (tx.sender === addrString) {
-          this.transactions[accountIndex].data[index].sender = nickname;
-        } else if (tx.receiver === addrString) {
-          this.transactions[accountIndex].data[index].receiver = nickname;
+        if (tx.sender === addrString || tx.receiver === addrString) {
+          this.transactions[accountIndex].data[index].nickname = nickname;
         }
       });
     });
