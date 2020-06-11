@@ -3,7 +3,7 @@ import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setCurrentAccount } from '/redux/wallet/actions';
+import { setCurrentAccount, getBalance } from '/redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars, Link } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
@@ -111,6 +111,7 @@ type Props = {
   walletName: string,
   accounts: Account[],
   currentAccountIndex: number,
+  getBalance: Action,
   setCurrentAccount: Action,
   status: Object,
   navigateToAccountCommands: () => void
@@ -128,7 +129,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, setCurrentAccount, status, navigateToAccountCommands } = this.props;
+    const { walletName, accounts, currentAccountIndex, status, navigateToAccountCommands } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -142,7 +143,7 @@ class AccountsOverview extends Component<Props, State> {
             <DropDown
               data={accounts}
               DdElement={({ displayName, publicKey, isMain }) => this.renderAccountRow({ displayName, publicKey, isInDropDown: !isMain })}
-              onPress={setCurrentAccount}
+              onPress={this.setCurrentAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
             />
@@ -181,6 +182,12 @@ class AccountsOverview extends Component<Props, State> {
     </AccountWrapper>
   );
 
+  setCurrentAccount = async ({ index }: { index: number }) => {
+    const { setCurrentAccount, getBalance } = this.props;
+    setCurrentAccount({ index });
+    await getBalance();
+  };
+
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
@@ -198,7 +205,8 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  setCurrentAccount
+  setCurrentAccount,
+  getBalance
 };
 
 AccountsOverview = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(AccountsOverview);

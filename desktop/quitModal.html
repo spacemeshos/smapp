@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quit Modal</title>
+    <style type="text/css">
+        html, body, div {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default;
+            font-family: SourceCodePro, sans-serif;
+        }
+
+        #main {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.6);
+            z-index: 2;
+        }
+
+        #inner {
+            position: relative;
+            margin: 8px;
+        }
+
+        #topLeftCorner {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 8px;
+            height: 8px;
+        }
+
+        #topRightCorner {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 8px;
+            height: 8px;
+        }
+
+        #bottomLeftCorner {
+            position: absolute;
+            bottom: -8px;
+            left: -8px;
+            width: 8px;
+            height: 8px;
+        }
+
+        #bottomRightCorner {
+            position: absolute;
+            bottom: -8px;
+            right: -8px;
+            width: 8px;
+            height: 8px;
+        }
+
+        #inner1 {
+            width: 700px;
+            height: 550px;
+            padding: 25px;
+            background-color: #EEEEEE;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        #loaderImg {
+            display: block;
+            height: 500px;
+            width: 500px;
+        }
+
+        #text {
+            font-size: 16px;
+            line-height: 22px;
+            color: #EC5C3D;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
+    <script>
+      import { notificationsService } from '/infra/notificationsService';
+      import { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner, loader } from '/assets/images';
+
+
+      const handleKeepInBackground = () => {
+        setTimeout(() => {
+          notificationsService.notify({
+            title: 'Spacemesh',
+            notification: 'Smesher is running in the background.'
+          });
+        }, 1000);
+      };
+
+    </script>
+</head>
+<body>
+    <div id="main">
+        <div id="inner">
+            <img id="topLeftCorner" src={topLeftCorner} alt="" />
+            <img id="topRightCorner" src={topRightCorner} alt="" />
+            <img id="bottomLeftCorner" src={bottomLeftCorner} alt="" />
+            <img id="bottomRightCorner" src={bottomRightCorner} alt="" />
+            <div id="inner1">
+                <div id="loader">
+                    <img id="loaderImg" src={loader} alt="Loading" />
+                </div>
+                <div id="text">Shutting down, please wait...</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

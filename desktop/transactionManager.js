@@ -42,12 +42,14 @@ class TransactionManager {
       for (let i = 0; i < diff; i += 1) {
         this.transactions.push({ layerId: 0, data: [] });
       }
+      StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
     }
   };
 
   addAccount = ({ account }) => {
     this.accounts.push(account);
     this.transactions.push({ layerId: 0, data: [] });
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
   };
 
   clearData = () => {
