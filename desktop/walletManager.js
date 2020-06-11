@@ -197,7 +197,7 @@ class WalletManager {
       const rawFileContent = await readFileAsync(fileName);
       const fileContent = JSON.parse(rawFileContent);
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: fileContent.crypto.cipherText, key });
-      const { mnemonic, accounts, contacts } = decryptedDataJSON;
+      const { mnemonic, accounts, contacts } = JSON.parse(decryptedDataJSON);
 
       const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic, index: accounts.length });
       const timestamp = new Date().toISOString().replace(/:/, '-');
