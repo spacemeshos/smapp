@@ -139,7 +139,7 @@ class SignMessage extends Component<Props, State> {
           </MiddleSectionHeader>
           <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(account.publicKey))}</MiddleSectionText>
           <InputWrapper>
-            <Input value={message} placeholder="Enter text to sign" onChange={({ value }) => this.setState({ message: value.trim() })} maxLength="64" style={inputStyle} />
+            <Input value={message} placeholder="Enter text to sign" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
             <CopyIcon src={copyToClipboard} onClick={this.copyMessage} />
           </InputWrapper>
           <FakeInput hasText={!!signedMessage}>
@@ -161,7 +161,7 @@ class SignMessage extends Component<Props, State> {
   signText = async () => {
     const { currentAccountIndex } = this.props;
     const { message } = this.state;
-    const signedMessage = await eventsService.signMessage({ message, accountIndex: currentAccountIndex });
+    const signedMessage = await eventsService.signMessage({ message: message.trim(), accountIndex: currentAccountIndex });
     this.setState({ signedMessage });
   };
 
