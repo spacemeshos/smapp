@@ -151,7 +151,7 @@ class AccountsOverview extends Component<Props, State> {
           )}
         </AccountDetails>
         {isCopied && <CopiedText>COPIED</CopiedText>}
-        <Link onClick={navigateToAccountCommands} text="account commands" />
+        <Link onClick={navigateToAccountCommands} text="account commands" style={{ marginLeft: 5 }} />
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (

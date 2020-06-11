@@ -41,6 +41,26 @@ const MiddleSectionText = styled.div`
   color: ${smColors.black};
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  margin-bottom: 20px;
+`;
+
+const CopyIcon = styled.img`
+  position: absolute;
+  top: 12px;
+  right: 17px;
+  width: 16px;
+  height: 15px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
+`;
+
 const FakeInput = styled.div`
   display: flex;
   flex-direction: row;
@@ -61,7 +81,7 @@ const FakeInput = styled.div`
   text-overflow: ellipsis;
 `;
 
-const CopyIcon = styled.img`
+const CopyIcon1 = styled.img`
   width: 16px;
   height: 15px;
   margin: 12px 6px 12px auto;
@@ -75,14 +95,15 @@ const CopyIcon = styled.img`
 `;
 
 const CopiedText = styled.div`
+  margin-top: 10px;
   text-align: left;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 16px;
   height: 20px;
   color: ${smColors.green};
 `;
 
-const inputStyle = { marginBottom: '20px' };
+const inputStyle = { paddingRight: 35, backgroundColor: smColors.white };
 
 type Props = {
   account: Account,
@@ -117,10 +138,13 @@ class SignMessage extends Component<Props, State> {
             --
           </MiddleSectionHeader>
           <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(account.publicKey))}</MiddleSectionText>
-          <Input value={message} placeholder="paste text here to sign" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
+          <InputWrapper>
+            <Input value={message} placeholder="Enter text to sign" onChange={({ value }) => this.setState({ message: value.trim() })} maxLength="64" style={inputStyle} />
+            <CopyIcon src={copyToClipboard} onClick={this.copyMessage} />
+          </InputWrapper>
           <FakeInput hasText={!!signedMessage}>
             {signedMessage ? `${getAbbreviatedText(signedMessage, true, 33)}` : 'click "sign" to create a signature'}
-            <CopyIcon src={copyToClipboard} onClick={this.copySignedText} />
+            <CopyIcon1 src={copyToClipboard} onClick={this.copySignedText} />
           </FakeInput>
           <Button onClick={this.signText} text="Sign" width={150} isPrimary={false} isDisabled={!message} />
           {isCopied && <CopiedText>COPIED</CopiedText>}
@@ -139,6 +163,16 @@ class SignMessage extends Component<Props, State> {
     const { message } = this.state;
     const signedMessage = await eventsService.signMessage({ message, accountIndex: currentAccountIndex });
     this.setState({ signedMessage });
+  };
+
+  copyMessage = () => {
+    const { message } = this.state;
+    if (message) {
+      clearTimeout(this.copiedTimeout);
+      clipboard.writeText(message);
+      this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
+      this.setState({ isCopied: true });
+    }
   };
 
   copySignedText = () => {

@@ -1,18 +1,18 @@
 // @flow
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { addToContacts, updateTransaction, unlockWallet } from '/redux/wallet/actions';
+import { addToContacts, updateTransaction } from '/redux/wallet/actions';
 import styled from 'styled-components';
+import { EnterPasswordModal } from '/components/settings';
 import { Input, Link, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action } from '/types';
-import { chevronRightBlack } from '/assets/images';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: ${({ isStandalone }) => (isStandalone ? '215px' : '100%')};
-  height: ${({ isStandalone }) => (isStandalone ? '100%' : '185px')};
+  height: ${({ isStandalone }) => (isStandalone ? '100%' : '140px')};
   ${({ isStandalone }) => isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
 `;
 
@@ -55,27 +55,6 @@ const ButtonsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const InputSection = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  margin-bottom: 15px;
-`;
-
-const Chevron = styled.img`
-  width: 8px;
-  height: 13px;
-  margin-right: 10px;
-  align-self: center;
-`;
-
-const ErrorSection = styled.div`
-  position: relative;
-  display: flex;
-  flex: 1;
-  margin-left: 10px;
-`;
-
 const inputStyle1 = { margin: '10px 10px 10px 10px' };
 const inputStyle2 = { margin: '10px 0' };
 const inputStyle3 = { marginBottom: '10px' };
@@ -84,7 +63,6 @@ type Props = {
   isStandalone: boolean,
   addToContacts: Action,
   updateTransaction: Action,
-  unlockWallet: Action,
   initialAddress?: string,
   onCompleteAction: () => void,
   onCancel: () => void
@@ -96,8 +74,7 @@ type State = {
   nickname: string,
   hasError: boolean,
   errorMsg: string,
-  password: string,
-  hasError1: boolean
+  shouldShowPasswordModal: boolean
 };
 
 class CreateNewContact extends Component<Props, State> {
@@ -109,14 +86,13 @@ class CreateNewContact extends Component<Props, State> {
       nickname: '',
       hasError: false,
       errorMsg: '',
-      password: '',
-      hasError1: false
+      shouldShowPasswordModal: false
     };
   }
 
   render() {
     const { isStandalone, onCancel } = this.props;
-    const { address, nickname, hasError, errorMsg, password, hasError1 } = this.state;
+    const { address, nickname, hasError, errorMsg, shouldShowPasswordModal } = this.state;
     return (
       <Wrapper isStandalone={isStandalone}>
         <Header isStandalone={isStandalone}>
@@ -145,17 +121,11 @@ class CreateNewContact extends Component<Props, State> {
           </InputWrapperUpperPart>
           <InputWrapperLowerPart />
         </InputsWrapper>
-        <InputSection>
-          <Chevron src={chevronRightBlack} />
-          <Input type="password" placeholder="ENTER PASSWORD" value={password} onChange={this.handlePasswordTyping} />
-          <ErrorSection>
-            {hasError1 && <ErrorPopup onClick={() => this.setState({ password: '', hasError1: false })} text="sorry, this password doesn't ring a bell, please try again" />}
-          </ErrorSection>
-        </InputSection>
         <ButtonsWrapper>
           <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange, marginRight: 15 }} />
-          <Link onClick={this.createContact} text="CREATE" style={{ color: smColors.green }} />
+          <Link onClick={this.preCreateContact} text="CREATE" style={{ color: smColors.green }} />
         </ButtonsWrapper>
+        {shouldShowPasswordModal && <EnterPasswordModal submitAction={this.createContact} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>
     );
   }
@@ -171,26 +141,21 @@ class CreateNewContact extends Component<Props, State> {
     target.select();
   };
 
-  handlePasswordTyping = ({ value }: { value: string }) => {
-    this.setState({ password: value });
-  };
-
-  createContact = async () => {
-    const { unlockWallet, addToContacts, onCompleteAction, updateTransaction } = this.props;
+  preCreateContact = () => {
     const errorMsg = this.validate();
     if (errorMsg) {
       this.setState({ hasError: true, errorMsg });
     } else {
-      const { password, address, nickname } = this.state;
-      try {
-        await unlockWallet({ password });
-        await addToContacts({ password, contact: { address, nickname } });
-        updateTransaction({ newData: { address, nickname } });
-        onCompleteAction();
-      } catch (error) {
-        this.setState({ hasError1: true });
-      }
+      this.setState({ shouldShowPasswordModal: true });
     }
+  };
+
+  createContact = async ({ password }: { password: string }) => {
+    const { addToContacts, onCompleteAction, updateTransaction } = this.props;
+    const { address, nickname } = this.state;
+    await addToContacts({ password, contact: { address, nickname } });
+    updateTransaction({ newData: { address, nickname } });
+    onCompleteAction();
   };
 
   validate = () => {
@@ -209,8 +174,7 @@ class CreateNewContact extends Component<Props, State> {
 
 const mapDispatchToProps = {
   addToContacts,
-  updateTransaction,
-  unlockWallet
+  updateTransaction
 };
 
 CreateNewContact = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(CreateNewContact);
