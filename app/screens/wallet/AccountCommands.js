@@ -56,9 +56,9 @@ class AccountCommands extends Component<Props> {
             <br />
             --
           </MiddleSectionHeader>
-          <Button onClick={this.navigateToSignMessage} text="Sign message" width={250} style={{ margin: '30px 0' }} />
-          <Button onClick={setRewardsAddress} text="Set as coinbase" width={250} isDisabled={account.publicKey === rewardsAddress} />
-          {account.publicKey === rewardsAddress && <Text>This account is the coinbase</Text>}
+          <Button onClick={this.navigateToSignMessage} text="SIGN TEXT" width={250} style={{ margin: '30px 0' }} />
+          <Button onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" width={250} isDisabled={account.publicKey === rewardsAddress} />
+          {account.publicKey === rewardsAddress && <Text>This account is your rewards account.</Text>}
           <Link onClick={history.goBack} text="BACK" style={{ margin: 'auto auto 0 0', color: smColors.orange }} />
         </MiddleSection>
       </Wrapper>

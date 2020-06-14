@@ -10,8 +10,8 @@
     "hdist": 10,
     "atxs-per-block": 100,
     "genesis-active-size": 50,
-    "genesis-time": "2020-06-10T13:52:28+00:00",
-    "poet-server": "34.72.94.128:8080"
+    "genesis-time": "2020-06-14T13:32:59+00:00",
+    "poet-server": "130.211.124.50:8080"
   },
   "p2p": {
     "dial-timeout": "1m",
@@ -28,11 +28,11 @@
       "alpha": 3,
       "randcon": 8,
       "bootnodes": [
-        "spacemesh://7KgUff6o4GB972uQ4wcb9GaV9rPbjA6XoV6qzcvFyok5@34.69.94.150:20000"
+        "spacemesh://332n8S7u7t739erfG85K36Qd59iF9Rhf4khmcuL9toNN@34.71.112.193:20000"
       ],
       "bootstrap": true
     },
-    "network-id": 44
+    "network-id": 45
   },
   "post": {
     "post-space": 1048576,
