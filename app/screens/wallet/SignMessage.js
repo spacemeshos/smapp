@@ -139,14 +139,14 @@ class SignMessage extends Component<Props, State> {
           </MiddleSectionHeader>
           <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(account.publicKey))}</MiddleSectionText>
           <InputWrapper>
-            <Input value={message} placeholder="Enter text to sign" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
+            <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
             <CopyIcon src={copyToClipboard} onClick={this.copyMessage} />
           </InputWrapper>
           <FakeInput hasText={!!signedMessage}>
-            {signedMessage ? `${getAbbreviatedText(signedMessage, true, 33)}` : 'click "sign" to create a signature'}
+            {signedMessage ? `${getAbbreviatedText(signedMessage, true, 33)}` : 'CLICK "SIGN" TO CREATE A SIGNATURE'}
             <CopyIcon1 src={copyToClipboard} onClick={this.copySignedText} />
           </FakeInput>
-          <Button onClick={this.signText} text="Sign" width={150} isPrimary={false} isDisabled={!message} />
+          <Button onClick={this.signText} text="SIGN" width={150} isPrimary={false} isDisabled={!message} />
           {isCopied && <CopiedText>COPIED</CopiedText>}
           <Link onClick={this.returnToMainScreen} text="Cancel" style={{ margin: 'auto auto 0 0', color: smColors.orange }} />
         </MiddleSection>
