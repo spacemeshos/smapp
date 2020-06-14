@@ -114,7 +114,7 @@ class Transactions extends Component<Props, State> {
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
               filteredTransactions.map((tx, index) => (
-                <TransactionRow key={index} publicKey={publicKey} tx={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: address })} />
+                <TransactionRow key={index} publicKey={publicKey} tx={tx} addAddressToContacts={({ address }) => this.setState({ addressToAdd: `0x${address}` })} />
               ))
             ) : (
               <Text>No transactions yet.</Text>
