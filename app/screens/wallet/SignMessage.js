@@ -100,7 +100,7 @@ class SignMessage extends Component<Props, State> {
     const { message } = this.state;
     const signedMessage = await eventsService.signMessage({ message: message.trim(), accountIndex: currentAccountIndex });
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(`{ "text": "${message}", "signedText": "0x${signedMessage}", "publicKey": "0x${account.publicKey}"`);
+    clipboard.writeText(`{ "text": "${message}", "signedText": "0x${signedMessage}", "publicKey": "0x${account.publicKey}" }`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };
