@@ -16,6 +16,16 @@ class NetService {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
+  isServiceReady = () =>
+    new Promise((resolve, reject) => {
+      this.service.Echo({}, { deadline: new Date().setSeconds(new Date().getSeconds() + 200) }, (error) => {
+        if (error) {
+          reject();
+        }
+        resolve();
+      });
+    });
+
   getNodeStatus = () =>
     new Promise((resolve, reject) => {
       this.service.GetNodeStatus({}, { deadline: getDeadline() }, (error, response) => {
