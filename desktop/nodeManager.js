@@ -27,6 +27,14 @@ class NodeManager {
   }
 
   subscribeToEvents = (mainWindow) => {
+    ipcMain.handle(ipcConsts.IS_SERVICE_READY, async () => {
+      try {
+        await netService.isServiceReady();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
     ipcMain.once(ipcConsts.START_NODE, async () => {
       await this.startNode();
       new WalletManager(mainWindow); // eslint-disable-line no-new

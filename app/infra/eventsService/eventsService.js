@@ -85,6 +85,8 @@ class EventsService {
   static notificationWasClicked = () => ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
 
   static signMessage = ({ message, accountIndex }: { message: string, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SIGN_MESSAGE, { message, accountIndex });
+
+  static isServiceReady = () => ipcRenderer.invoke(ipcConsts.IS_SERVICE_READY);
 }
 
 export default EventsService;
