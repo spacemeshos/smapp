@@ -67,7 +67,7 @@ const DropdownRow = styled.div`
 `;
 
 type Props = {
-  onPress: ({ index: number }) => void,
+  onPress: ({ index: number }) => void | Promise,
   DdElement: Object | Function,
   data: Object[],
   selectedItemIndex: number,

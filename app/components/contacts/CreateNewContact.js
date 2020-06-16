@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { EnterPasswordModal } from '/components/settings';
 import { Input, Link, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
-import type { Action } from '/types';
+import type { Action, Contact } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -61,6 +61,7 @@ const inputStyle3 = { marginBottom: '10px' };
 
 type Props = {
   isStandalone: boolean,
+  contacts: Contact[],
   addToContacts: Action,
   updateTransaction: Action,
   initialAddress?: string,
@@ -159,6 +160,7 @@ class CreateNewContact extends Component<Props, State> {
   };
 
   validate = () => {
+    const { contacts } = this.props;
     const { nickname, address } = this.state;
     const nicknameRegex = /^([a-zA-Z0-9_-])$/;
     if (nicknameRegex.test(nickname)) {
@@ -168,15 +170,25 @@ class CreateNewContact extends Component<Props, State> {
     if (!addressRegex.test(address)) {
       return 'Address is invalid';
     }
-    return '';
+    let retVal = '';
+    contacts.forEach((contact) => {
+      if (contact.nickname === nickname) {
+        retVal = 'Nickname should be unique';
+      }
+    });
+    return retVal;
   };
 }
+
+const mapStateToProps = (state) => ({
+  contacts: state.wallet.contacts
+});
 
 const mapDispatchToProps = {
   addToContacts,
   updateTransaction
 };
 
-CreateNewContact = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(CreateNewContact);
+CreateNewContact = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(CreateNewContact);
 
 export default CreateNewContact;

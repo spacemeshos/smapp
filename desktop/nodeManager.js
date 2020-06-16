@@ -27,6 +27,14 @@ class NodeManager {
   }
 
   subscribeToEvents = (mainWindow) => {
+    ipcMain.handle(ipcConsts.IS_SERVICE_READY, async () => {
+      try {
+        await netService.isServiceReady();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    });
     ipcMain.once(ipcConsts.START_NODE, async () => {
       await this.startNode();
       new WalletManager(mainWindow); // eslint-disable-line no-new
@@ -251,6 +259,9 @@ class NodeManager {
   setRewardsAddress = async ({ address }) => {
     try {
       await netService.setRewardsAddress({ address });
+      const networkId = StoreService.get({ key: 'networkId' });
+      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive: savedMiningParams.logicalDrive, coinbase: address } });
       return { error: null };
     } catch (error) {
       return { error };
