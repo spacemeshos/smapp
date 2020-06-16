@@ -7,6 +7,7 @@ import StoreService from './storeService';
 import netService from './netService';
 import nodeConfig from './config.json';
 import WalletManager from './walletManager';
+import { writeInfo, writeError } from './logger';
 
 const { exec } = require('child_process');
 
@@ -41,10 +42,12 @@ class NodeManager {
     });
     ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async (event) => {
       const res = await this.getNodeSettings({ event });
+      writeInfo(`NodeManager`, `ipc GET_NODE_SETTINGS channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.GET_NODE_STATUS, async () => {
       const res = await this.getNodeStatus();
+      writeInfo(`NodeManager`, `ipc GET_NODE_STATUS channel`, { res });
       return res;
     });
     ipcMain.on(ipcConsts.SET_NODE_PORT, (event, request) => {
@@ -53,26 +56,32 @@ class NodeManager {
     });
     ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
       const res = await this.selectPostFolder({ mainWindow });
+      writeInfo(`NodeManager`, `ipc SELECT_POST_FOLDER channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.GET_MINING_STATUS, async () => {
       const res = await this.getMiningStatus();
+      writeInfo(`NodeManager`, `ipc GET_MINING_STATUS channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.INIT_MINING, async (event, request) => {
       const res = await this.initMining({ ...request });
+      writeInfo(`NodeManager`, `ipc INIT_MINING channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.GET_UPCOMING_REWARDS, async () => {
       const res = await this.getUpcomingRewards();
+      writeInfo(`NodeManager`, `ipc GET_UPCOMING_REWARDS channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
       const res = await this.setRewardsAddress({ ...request });
+      writeInfo(`NodeManager`, `ipc SET_REWARDS_ADDRESS channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.SET_NODE_IP, (event, request) => {
       const res = this.setNodeIpAddress({ ...request });
+      writeInfo(`NodeManager`, `ipc SET_NODE_IP channel`, { res }, { request });
       return res;
     });
   };
@@ -109,12 +118,12 @@ class NodeManager {
             exec(nodePathWithParams, (error) => {
               if (error) {
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
-                console.error(error); // eslint-disable-line no-console
+                writeError('nodeManager', 'startNode', error);
               }
             });
           } else {
             dialog.showErrorBox('Old data files removal failed', `${err}`);
-            console.error(err); // eslint-disable-line no-console
+            writeError('nodeManager', 'startNode', err);
           }
         });
       } else {
@@ -125,13 +134,13 @@ class NodeManager {
         exec(nodePathWithParams, (error) => {
           if (error) {
             (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
-            console.error(error); // eslint-disable-line no-console
+            writeError('nodeManager', 'startNode', error);
           }
         });
       }
     } catch (e) {
       dialog.showErrorBox('Parsing json failed', `${e}`);
-      console.error('Parsing json failed', `${e}`); // eslint-disable-line no-console
+      writeError('nodeManager', 'startNode', e);
     }
   };
 
@@ -158,7 +167,7 @@ class NodeManager {
       if (nodeProcesses && nodeProcesses.length) {
         exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err) => {
           if (err) {
-            console.error(err); // eslint-disable-line no-console
+            writeError('nodeManager', 'stopNode', err);
           }
           await stopNodeCycle(0);
         });
@@ -167,7 +176,7 @@ class NodeManager {
       }
     } catch (err) {
       // could not find or kill node process
-      console.error(err); // eslint-disable-line no-console
+      writeError('nodeManager', 'stopNode', err);
       await closeApp();
     }
   };
@@ -217,6 +226,7 @@ class NodeManager {
       const diskSpace = await checkDiskSpace(filePaths[0]);
       return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
     } catch (error) {
+      writeError('nodeManager', 'selectPostFolder', error);
       return { error };
     }
   };
