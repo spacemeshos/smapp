@@ -36,8 +36,6 @@ const nodeFiles = {
   linux: { from: path.resolve('node/linux/'), to: 'node/' }
 };
 
-console.log(path.resolve('node/mac/go-spacemesh'));
-
 const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
 try {
   const dirname = path.dirname(artifactsToPublishFile);
