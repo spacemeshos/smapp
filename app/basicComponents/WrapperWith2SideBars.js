@@ -42,7 +42,7 @@ const SubHeader = styled.div`
 type Props = {
   header: string,
   width: number,
-  height?: number,
+  height?: number | string,
   children: any,
   style?: Object
 };

@@ -12,6 +12,8 @@ type Props = {
 };
 
 class SplashScreen extends PureComponent<Props> {
+  interval: IntervalID;
+
   render() {
     return <Loader size={Loader.sizes.BIG} />;
   }
@@ -23,8 +25,23 @@ class SplashScreen extends PureComponent<Props> {
       history.push('/auth');
     } else {
       await eventsService.startNode();
-      setTimeout(() => history.push('/auth'), 10000);
+      const isReady = await eventsService.isServiceReady();
+      if (isReady) {
+        history.push('/auth');
+      } else {
+        this.interval = setInterval(async () => {
+          const isReady = await eventsService.isServiceReady();
+          if (isReady) {
+            clearInterval(this.interval);
+            history.push('/auth');
+          }
+        }, 200);
+      }
     }
+  }
+
+  componentWillUnmount() {
+    this.interval && clearInterval(this.interval);
   }
 }
 

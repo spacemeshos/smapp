@@ -97,7 +97,7 @@ class EnterPasswordModal extends Component<Props, State> {
             </InputSection>
             <ButtonsWrapper>
               <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={this.submitActionWrapper} />
-              <Button text="Cancel" isPrimary={false} onClick={closeModal} />
+              <Button text="CANCEL" isPrimary={false} onClick={closeModal} />
             </ButtonsWrapper>
           </InnerWrapper>
         </CorneredWrapper>

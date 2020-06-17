@@ -42,12 +42,14 @@ class TransactionManager {
       for (let i = 0; i < diff; i += 1) {
         this.transactions.push({ layerId: 0, data: [] });
       }
+      StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
     }
   };
 
   addAccount = ({ account }) => {
     this.accounts.push(account);
     this.transactions.push({ layerId: 0, data: [] });
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
   };
 
   clearData = () => {
@@ -78,12 +80,30 @@ class TransactionManager {
   };
 
   updateTransaction = ({ newData, accountIndex, txId }) => {
+    return txId ? this.updateTxNote({ newData, accountIndex, txId }) : this.updateTxContact({ newData });
+  };
+
+  updateTxNote = ({ newData, accountIndex, txId }) => {
     const txToUpdateIndex = this.transactions[accountIndex].data.findIndex((tx) => tx.txId === txId);
     this.transactions[accountIndex].data = [
       ...this.transactions[accountIndex].data.slice(0, txToUpdateIndex),
       { ...this.transactions[accountIndex].data[txToUpdateIndex], ...newData },
       ...this.transactions[accountIndex].data.slice(txToUpdateIndex + 1)
     ];
+    StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
+    return { transactions: this.transactions };
+  };
+
+  updateTxContact = ({ newData }) => {
+    const { address, nickname } = newData;
+    const addrString = address.substring(2).toLowerCase();
+    this.transactions.forEach((account, accountIndex) => {
+      account.data.forEach((tx, index) => {
+        if (tx.sender === addrString || tx.receiver === addrString) {
+          this.transactions[accountIndex].data[index].nickname = nickname;
+        }
+      });
+    });
     StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
     return { transactions: this.transactions };
   };

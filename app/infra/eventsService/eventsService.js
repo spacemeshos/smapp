@@ -10,7 +10,7 @@ class EventsService {
 
   static unlockWallet = ({ path, password }: { path: string, password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
 
-  static updateWallet = ({ fileName, password, data }: { fileName: string, password: string, data: Object }) =>
+  static updateWalletFile = ({ fileName, password, data }: { fileName: string, password: string, data: Object, field: string }) =>
     ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
 
   static createNewAccount = ({ fileName, password }: { fileName: string, password: string }) => ipcRenderer.invoke(ipcConsts.CREATE_NEW_ACCOUNT, { fileName, password });
@@ -57,7 +57,7 @@ class EventsService {
 
   static sendTx = ({ fullTx, accountIndex }: { fullTx: Object, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SEND_TX, { fullTx, accountIndex });
 
-  static updateTransaction = ({ newData, accountIndex, txId }: { newData: string, accountIndex: number, txId?: string }) =>
+  static updateTransaction = ({ newData, accountIndex, txId }: { newData: Object, accountIndex: number, txId?: string }) =>
     ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });
 
   static getAccountTxs = () => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_TXS);
@@ -83,6 +83,10 @@ class EventsService {
   static isAppMinimized = () => ipcRenderer.invoke(ipcConsts.IS_APP_MINIMIZED);
 
   static notificationWasClicked = () => ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
+
+  static signMessage = ({ message, accountIndex }: { message: string, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SIGN_MESSAGE, { message, accountIndex });
+
+  static isServiceReady = () => ipcRenderer.invoke(ipcConsts.IS_SERVICE_READY);
 }
 
 export default EventsService;

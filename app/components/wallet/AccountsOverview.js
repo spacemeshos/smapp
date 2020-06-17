@@ -3,8 +3,8 @@ import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { setCurrentAccount } from '/redux/wallet/actions';
-import { DropDown, WrapperWith2SideBars } from '/basicComponents';
+import { setCurrentAccount, getBalance } from '/redux/wallet/actions';
+import { DropDown, WrapperWith2SideBars, Link } from '/basicComponents';
 import { copyToClipboard } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
@@ -111,8 +111,10 @@ type Props = {
   walletName: string,
   accounts: Account[],
   currentAccountIndex: number,
+  getBalance: Action,
   setCurrentAccount: Action,
-  status: Object
+  status: Object,
+  navigateToAccountCommands: () => void
 };
 
 type State = {
@@ -127,7 +129,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, setCurrentAccount, status } = this.props;
+    const { walletName, accounts, currentAccountIndex, status, navigateToAccountCommands } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -141,7 +143,7 @@ class AccountsOverview extends Component<Props, State> {
             <DropDown
               data={accounts}
               DdElement={({ displayName, publicKey, isMain }) => this.renderAccountRow({ displayName, publicKey, isInDropDown: !isMain })}
-              onPress={setCurrentAccount}
+              onPress={this.setCurrentAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
             />
@@ -150,6 +152,7 @@ class AccountsOverview extends Component<Props, State> {
           )}
         </AccountDetails>
         {isCopied && <CopiedText>COPIED</CopiedText>}
+        <Link onClick={navigateToAccountCommands} text="COMMANDS" style={{ marginLeft: 5 }} />
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (
@@ -165,6 +168,10 @@ class AccountsOverview extends Component<Props, State> {
     );
   }
 
+  componentWillUnmount() {
+    this.copiedTimeout && clearTimeout(this.copiedTimeout);
+  }
+
   renderAccountRow = ({ displayName, publicKey, isInDropDown }: { displayName: string, publicKey: string, isInDropDown?: boolean }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
@@ -174,6 +181,12 @@ class AccountsOverview extends Component<Props, State> {
       </Address>
     </AccountWrapper>
   );
+
+  setCurrentAccount = async ({ index }: { index: number }) => {
+    const { setCurrentAccount, getBalance } = this.props;
+    setCurrentAccount({ index });
+    await getBalance();
+  };
 
   copyPublicAddress = () => {
     const { accounts, currentAccountIndex } = this.props;
@@ -192,9 +205,10 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  setCurrentAccount
+  setCurrentAccount,
+  getBalance
 };
 
-AccountsOverview = connect(mapStateToProps, mapDispatchToProps)(AccountsOverview);
+AccountsOverview = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(AccountsOverview);
 
 export default AccountsOverview;

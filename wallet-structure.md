@@ -1,4 +1,9 @@
 # Spacemesh app wallet structure
+
+## MOVED TO SMIP: https://github.com/spacemeshos/SMIPS/issues/17
+
+---
+
 ## Version 0.1 - Currently implemented in Smapp.
 
 ## Wallet File Name

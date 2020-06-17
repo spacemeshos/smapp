@@ -18,7 +18,7 @@ const Wrapper = styled.div`
 const MiddleSection = styled.div`
   display: flex;
   flex-direction: column;
-  width: 350px;
+  width: 450px;
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
@@ -35,7 +35,7 @@ const MiddleSectionHeader = styled.div`
 
 const MiddleSectionText = styled.div`
   flex: 1;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 20px;
   color: ${smColors.black};
 `;
