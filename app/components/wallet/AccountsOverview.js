@@ -97,7 +97,7 @@ const CopiedText = styled.div`
   font-size: 16px;
   line-height: 20px;
   height: 20px;
-  margin-left: 6px;
+  margin: -20px 0 5px 6px;
   color: ${smColors.green};
 `;
 
@@ -151,7 +151,7 @@ class AccountsOverview extends Component<Props, State> {
             this.renderAccountRow({ displayName, publicKey })
           )}
         </AccountDetails>
-        {isCopied && <CopiedText>COPIED</CopiedText>}
+        <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
         <Link onClick={navigateToAccountCommands} text="COMMANDS" style={{ marginLeft: 5 }} />
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
@@ -188,7 +188,8 @@ class AccountsOverview extends Component<Props, State> {
     await getBalance();
   };
 
-  copyPublicAddress = () => {
+  copyPublicAddress = (e) => {
+    e.stopPropagation();
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
     clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);
