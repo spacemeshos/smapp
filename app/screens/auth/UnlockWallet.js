@@ -7,9 +7,13 @@ import { CorneredContainer } from '/components/common';
 import { LoggedOutBanner } from '/components/banners';
 import { Link, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
-import { smallInnerSideBar, chevronRightBlack } from '/assets/images';
+import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const color = isDarkModeOn ? smColors.white : smColors.black;
+const chevronIcon = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,7 +25,7 @@ const Text = styled.div`
   margin: -15px 0 15px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${color};
 `;
 
 const Indicator = styled.div`
@@ -30,7 +34,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ hasError }) => (hasError ? smColors.orange : smColors.black)};
+  background-color: ${({ hasError }) => (hasError ? smColors.orange : color)};
 `;
 
 const SmallSideBar = styled.img`
@@ -115,7 +119,7 @@ class UnlockWallet extends Component<Props, State> {
           <Indicator hasError={hasError} />
           <SmallSideBar src={smallInnerSideBar} />
           <InputSection>
-            <Chevron src={chevronRightBlack} />
+            <Chevron src={chevronIcon} />
             <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
             <ErrorSection>
               {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="Sorry, this password doesn't ring a bell, please try again." />}

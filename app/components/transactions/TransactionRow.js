@@ -3,13 +3,17 @@ import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateTransaction } from '/redux/wallet/actions';
-import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
+import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
+const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -53,11 +57,11 @@ const HeaderSection = styled.div`
 const Text = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.darkGray50Alpha};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray50Alpha};
 `;
 
 const BlackText = styled(Text)`
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const Dots = styled(Text)`
@@ -67,11 +71,11 @@ const Dots = styled(Text)`
 
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
-  color: ${({ color }) => color};
+  color: ${({ color }) => (color || isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const DarkGrayText = styled(Text)`
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
   cursor: inherit;
 `;
 
@@ -132,7 +136,7 @@ const TextArea = styled.textarea`
   padding: 8px 10px;
   border-radius: 0;
   border: none;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   font-size: 14px;
   line-height: 16px;
   outline: none;
@@ -180,7 +184,7 @@ class TransactionRow extends Component<Props, State> {
     return (
       <Wrapper isDetailed={isDetailed}>
         <Header onClick={this.toggleTxDetails}>
-          <Icon src={isSent ? chevronRightBlack : chevronLeftBlack} />
+          <Icon src={isSent ? chevronRight : chevronLeft} />
           <HeaderInner>
             <HeaderSection>
               {txId === 'reward' ? (
@@ -204,11 +208,12 @@ class TransactionRow extends Component<Props, State> {
   renderDetails = () => {
     const {
       tx,
-      tx: { txId, nickname, status, color, layerId, sender, receiver, amount, fee },
+      tx: { txId, nickname, status, layerId, sender, receiver, amount, fee },
       publicKey
     } = this.props;
-    const isSent = sender === getAddress(publicKey);
     const { note } = this.state;
+    const isSent = sender === getAddress(publicKey);
+    const color = this.getColor({ status, isSent });
     if (txId === 'reward') {
       return (
         <DetailsSection>
@@ -216,29 +221,29 @@ class TransactionRow extends Component<Props, State> {
             <TextRow>
               <BlackText>STATUS</BlackText>
               <Dots>............</Dots>
-              <BoldText color={color}>{this.statuses[status]}</BoldText>
+              <BoldText color={smColors.darkerGreen}>{this.statuses[status]}</BoldText>
             </TextRow>
             {layerId ? (
               <TextRow>
                 <BlackText>LAYER ID</BlackText>
                 <Dots>............</Dots>
-                <BoldText color={smColors.realBlack}>{layerId}</BoldText>
+                <BoldText>{layerId}</BoldText>
               </TextRow>
             ) : null}
             <TextRow>
               <BlackText>TO</BlackText>
               <Dots>............</Dots>
-              <BoldText color={smColors.realBlack}>ME</BoldText>
+              <BoldText>ME</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>SMESHING REWARD</BlackText>
               <Dots>............</Dots>
-              <BoldText color={smColors.realBlack}>{formatSmidge(amount)}</BoldText>
+              <BoldText>{formatSmidge(amount)}</BoldText>
             </TextRow>
             <TextRow>
               <BlackText>SMESHING FEE REWARD</BlackText>
               <Dots>............</Dots>
-              <BoldText color={smColors.realBlack}>{formatSmidge(fee || 0)}</BoldText>
+              <BoldText>{formatSmidge(fee || 0)}</BoldText>
             </TextRow>
           </LeftDetails>
           <RightDetails />
@@ -251,9 +256,7 @@ class TransactionRow extends Component<Props, State> {
           <TextRow>
             <BlackText>TRANSACTION ID</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack} onClick={() => this.copyAddress({ id: txId })}>
-              {formatTxId(txId)}
-            </BoldText>
+            <BoldText onClick={() => this.copyAddress({ id: txId })}>{formatTxId(txId)}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>STATUS</BlackText>
@@ -264,13 +267,13 @@ class TransactionRow extends Component<Props, State> {
             <TextRow>
               <BlackText>LAYER ID</BlackText>
               <Dots>............</Dots>
-              <BoldText color={smColors.realBlack}>{layerId}</BoldText>
+              <BoldText>{layerId}</BoldText>
             </TextRow>
           ) : null}
           <TextRow>
             <BlackText>FROM</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack} onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
+            <BoldText onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
               {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
               {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
             </BoldText>
@@ -278,7 +281,7 @@ class TransactionRow extends Component<Props, State> {
           <TextRow>
             <BlackText>TO</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack} onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
+            <BoldText onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
               {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
               {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
             </BoldText>
@@ -286,12 +289,12 @@ class TransactionRow extends Component<Props, State> {
           <TextRow>
             <BlackText>VALUE</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack}>{formatSmidge(amount)}</BoldText>
+            <BoldText>{formatSmidge(amount)}</BoldText>
           </TextRow>
           <TextRow>
             <BlackText>TRANSACTION FEE</BlackText>
             <Dots>............</Dots>
-            <BoldText color={smColors.realBlack}>{formatSmidge(fee || 0)}</BoldText>
+            <BoldText>{formatSmidge(fee || 0)}</BoldText>
           </TextRow>
         </LeftDetails>
         <RightDetails>

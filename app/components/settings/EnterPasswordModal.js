@@ -5,8 +5,13 @@ import { connect } from 'react-redux';
 import { unlockWallet } from '/redux/wallet/actions';
 import { CorneredWrapper, Button, Input, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
-import { chevronRightBlack } from '/assets/images';
+import { chevronRightBlack, chevronRightWhite } from '/assets/images';
 import type { Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const bgColor = isDarkModeOn ? smColors.dMBlack1 : smColors.lightGray;
+const color = isDarkModeOn ? smColors.white : smColors.black;
+const chevronIcon = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   position: fixed;
@@ -26,13 +31,13 @@ const InnerWrapper = styled.div`
   flex-direction: column;
   width: 415px;
   padding: 25px;
-  background-color: ${smColors.lightGray};
+  background-color: ${bgColor};
 `;
 
 const Header = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
+  color: ${color};
   margin-bottom: 20px;
 `;
 
@@ -89,7 +94,7 @@ class EnterPasswordModal extends Component<Props, State> {
           <InnerWrapper>
             <Header>Enter password to complete the action</Header>
             <InputSection>
-              <Chevron src={chevronRightBlack} />
+              <Chevron src={chevronIcon} />
               <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.submitActionWrapper} onChange={this.handlePasswordTyping} />
               <ErrorSection>
                 {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="sorry, this password doesn't ring a bell, please try again" />}

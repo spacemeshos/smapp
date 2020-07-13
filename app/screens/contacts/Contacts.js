@@ -11,6 +11,8 @@ import { searchIcon, addContact } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 import type { Contact } from '/types';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const SearchWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -35,7 +37,7 @@ const SubHeader = styled.div`
 const SubHeaderText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const SubHeaderInner = styled.div`
@@ -137,7 +139,7 @@ const ContactsSubHeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   margin-right: 20px;
 `;
 
@@ -162,7 +164,7 @@ const ContactText = styled.div`
   flex: 1;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   text-align: left;
   margin-right: 10px;
 `;
@@ -246,6 +248,7 @@ class Contacts extends Component<Props, State> {
             DdElement={this.renderSortElementElement}
             selectedItemIndex={selectedSorting}
             style={{ flex: '0 0 150px', borderBottom: '1px solid' }}
+            bgColor={smColors.white}
           />
         </ContactsSubHeader>
         <ContactsList>

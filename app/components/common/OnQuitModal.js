@@ -6,6 +6,8 @@ import { smColors, ipcConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   position: fixed;
   top: 0;
@@ -21,7 +23,7 @@ const Wrapper = styled.div`
 
 const InnerWrapper = styled.div`
   padding: 25px;
-  background-color: ${smColors.lightGray};
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.lightGray};
   width: 700px;
 `;
 

@@ -21,7 +21,7 @@ import StoreService from './storeService';
 import NodeManager from './nodeManager';
 import './wasm_exec';
 
-(async function() {
+(async function () {
   const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
   const bytes = fs.readFileSync(filePath);
   // const bytes = await response.arrayBuffer();
@@ -155,7 +155,7 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  ipcMain.on(ipcConsts.HARD_REFRESH, () => {
+  ipcMain.on(ipcConsts.RELOAD_APP, () => {
     mainWindow.reload();
   });
 

@@ -9,7 +9,7 @@ const Wrapper = styled.div`
   position: absolute;
   padding: 10px 15px;
   background-color: ${smColors.lightGray};
-  border: 1px solid ${smColors.black};
+  border: 1px solid ${smColors.white};
   z-index: 10;
 `;
 
@@ -25,7 +25,7 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${smColors.black};
+  color: ${smColors.white};
 `;
 
 type Props = {

@@ -4,25 +4,28 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
 import { getAddress } from '/infra/utils';
-import { copyToClipboard } from '/assets/images';
+import { copyBlack, copyWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Account } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 640px;
+  width: 710px;
   height: 100%;
   padding: 15px 25px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const SubHeader = styled.div`
@@ -34,14 +37,14 @@ const SubHeader = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   cursor: inherit;
 `;
 
 const TextElement = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   cursor: inherit;
 `;
 
@@ -117,7 +120,7 @@ class RequestCoins extends Component<Props, State> {
           <Text>Request SMH by sharing your wallet&apos;s address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
             <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
-            <CopyIcon src={copyToClipboard} />
+            <CopyIcon src={copy} />
             {isCopied && <CopiedText>Copied!</CopiedText>}
           </AddressWrapper>
         </SubHeader>

@@ -10,6 +10,8 @@ import smColors from '/vars/colors';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account } from '/types';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -22,7 +24,7 @@ const MiddleSection = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionHeader = styled.div`
@@ -30,14 +32,14 @@ const MiddleSectionHeader = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const MiddleSectionText = styled.div`
   flex: 1;
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 type Props = {

@@ -8,11 +8,7 @@ import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalP
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 
-const Header = styled.div`
-  font-size: 18px;
-  line-height: 22px;
-  color: ${smColors.realBlack};
-`;
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Table = styled.div`
   display: flex;
@@ -37,7 +33,7 @@ const InputCounter = styled.div`
   width: 25px;
   font-size: 18px;
   line-height: 22px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   margin-right: 10px;
 `;
 
@@ -70,10 +66,9 @@ class WordsRestore extends Component<Props, State> {
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE">
+      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order.">
         <SmallHorizontalPanel />
         <BackButton action={history.goBack} />
-        <Header>Please enter the 12 words in the right order.</Header>
         <Table>
           <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>
           <TableColumn>{this.renderInputs({ start: 4 })}</TableColumn>

@@ -6,15 +6,22 @@ import { createNewWallet } from '/redux/wallet/actions';
 import { CorneredContainer, BackButton } from '/components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
 import { eventsService } from '/infra/eventsService';
-import { chevronRightBlack } from '/assets/images';
+import { chevronRightBlack, chevronRightWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import { nodeConsts } from '/vars';
+import { smColors, nodeConsts } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+`;
+
+const SubHeader = styled.div`
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const UpperPart = styled.div`
@@ -119,11 +126,11 @@ class CreateWallet extends Component<Props, State> {
               <UpperPart>
                 <Inputs>
                   <InputSection>
-                    <Chevron src={chevronRightBlack} />
+                    <Chevron src={chevronRight} />
                     <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
                   </InputSection>
                   <InputSection>
-                    <Chevron src={chevronRightBlack} />
+                    <Chevron src={chevronRight} />
                     <Input value={verifiedPassword} type="password" placeholder="VERIFY PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordVerifyTyping} />
                   </InputSection>
                 </Inputs>
@@ -147,14 +154,14 @@ class CreateWallet extends Component<Props, State> {
 
   renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
-      <span>Enter a new wallet password. It must be at least 8 characters.</span>
+      <SubHeader>Enter a new wallet password. It must be at least 8 characters.</SubHeader>
     ) : (
-      <div>
+      <SubHeader>
         For future reference, a wallet restore file was created.
         <br />
         <br />
         <Link onClick={() => eventsService.showFileInFolder({})} text="Browse file location" />
-      </div>
+      </SubHeader>
     );
   };
 

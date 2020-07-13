@@ -3,12 +3,17 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
-// import { Button, Link, Tooltip } from '/basicComponents';
-// import { bigInnerSideBar, laptop, power, setup, tooltip } from '/assets/images';
 import { Button, Link } from '/basicComponents';
-import { bigInnerSideBar, laptop, power, setup } from '/assets/images';
+import { bigInnerSideBar, laptop, power, setup, laptopWhite, powerWhite, setupWhite } from '/assets/images';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const backgroundColor = isDarkModeOn ? smColors.white : smColors.black;
+const color = isDarkModeOn ? smColors.white : smColors.black;
+const laptopImg = isDarkModeOn ? laptopWhite : laptop;
+const powerImg = isDarkModeOn ? powerWhite : power;
+const setupImg = isDarkModeOn ? setupWhite : setup;
 
 const SideBar = styled.img`
   position: absolute;
@@ -24,7 +29,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${smColors.black};
+  background-color: ${backgroundColor};
 `;
 
 const Row = styled.div`
@@ -44,7 +49,7 @@ const Icon = styled.img`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${color};
 `;
 
 const BottomPart = styled.div`
@@ -65,38 +70,19 @@ const ComplexLink = styled.div`
 const Text = styled.span`
   font-size: 14px;
   line-height: 17px;
-  color: ${smColors.darkGray};
+  color: ${smColors.disabledGray};
   margin-right: 15px;
 `;
 
-// const TooltipIcon = styled.img`
-//   width: 13px;
-//   height: 13px;
-// `;
-
-// const CustomTooltip = styled(Tooltip)`
-//   top: -2px;
-//   right: -175px;
-// `;
-
-// const TooltipWrapper = styled.div`
-//   position: absolute;
-//   top: -4px;
-//   right: -14px;
-//   &:hover ${CustomTooltip} {
-//     display: block;
-//   }
-// `;
-
 const subHeader = (
-  <span>
+  <RowText>
     <span>Thank you for downloading the Spacemesh App.</span>
     <br />
     <br />
     <span>This App lets you you join the Spacemesh decentralized Testnet,</span>
     <br />
     <span>use free disk space to earn Smesh, and make Smesh transactions using a built-in wallet.</span>
-  </span>
+  </RowText>
 );
 
 type Props = {
@@ -111,15 +97,15 @@ class Welcome extends PureComponent<Props> {
         <SideBar src={bigInnerSideBar} />
         <Indicator />
         <Row>
-          <Icon src={laptop} />
+          <Icon src={laptopImg} />
           <RowText>Use a desktop computer, not a laptop.</RowText>
         </Row>
         <Row>
-          <Icon src={power} />
+          <Icon src={powerImg} />
           <RowText>Leave your desktop computer on 24/7.</RowText>
         </Row>
         <Row>
-          <Icon src={setup} />
+          <Icon src={setupImg} />
           <RowText>You should start earning Smesh rewards in about 48 hours.</RowText>
         </Row>
         <BottomPart>

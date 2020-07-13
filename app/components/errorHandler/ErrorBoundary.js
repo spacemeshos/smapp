@@ -4,6 +4,8 @@ import { CorneredWrapper, Button } from '/basicComponents';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   position: fixed;
   top: 0;
@@ -18,7 +20,7 @@ const Wrapper = styled.div`
 
 const InnerWrapper = styled.div`
   padding: 25px;
-  background-color: ${smColors.lightGray};
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.lightGray};
 `;
 
 const Text = styled.div`

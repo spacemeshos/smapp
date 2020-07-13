@@ -6,9 +6,11 @@ import { connect } from 'react-redux';
 import { eventsService } from '/infra/eventsService';
 import { Input, Button, Link } from '/basicComponents';
 import { getAbbreviatedText, getAddress } from '/infra/utils';
-import smColors from '/vars/colors';
+import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -22,7 +24,7 @@ const MiddleSection = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionHeader = styled.div`
@@ -30,14 +32,14 @@ const MiddleSectionHeader = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const MiddleSectionText = styled.div`
   margin-bottom: 45px;
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const CopiedText = styled.div`
@@ -83,7 +85,7 @@ class SignMessage extends Component<Props, State> {
           </MiddleSectionHeader>
           <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(account.publicKey))}</MiddleSectionText>
           <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
-          <Button onClick={this.signText} text="SIGN" width={150} isPrimary={false} isDisabled={!message} />
+          <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
           {isCopied && <CopiedText>COPIED</CopiedText>}
           <Link onClick={this.returnToMainScreen} text="Cancel" style={{ margin: 'auto auto 0 0', color: smColors.orange }} />
         </MiddleSection>

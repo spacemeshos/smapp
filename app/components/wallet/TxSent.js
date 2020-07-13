@@ -4,8 +4,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
-import { fireworksImg, doneIconGreen, copyToClipboard } from '/assets/images';
+import { fireworksImg, doneIconGreen, copyBlack } from '/assets/images';
 import { smColors } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,7 +18,7 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background: url(${fireworksImg}) center center no-repeat;
   background-size: contain;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
@@ -53,7 +55,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`
@@ -142,7 +144,7 @@ class TxSent extends Component<Props, State> {
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
             <span>{getAbbreviatedText(txId, true, 8)}</span>
-            <CopyIcon src={copyToClipboard} onClick={this.copyTxId} />
+            <CopyIcon src={copyBlack} onClick={this.copyTxId} />
           </ComplexText>
         </DetailsRow>
         {isCopied && <CopiedText>Tx ID copied to clipboard!</CopiedText>}
