@@ -4,14 +4,18 @@ import styled from 'styled-components';
 import { formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled.span`
   font-family: SourceCodeProBold;
   margin-bottom: 18px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const TextRow = styled.div`
@@ -37,13 +41,13 @@ const ProgressBar = styled.div`
 const SmallText = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
 `;
 
 const Bar = styled.div`
   width: 100%;
   height: 5px;
-  background-color: ${smColors.mediumGray};
+  background-color: ${isDarkModeOn ? smColors.white : smColors.mediumGray};
   position: relative;
 `;
 

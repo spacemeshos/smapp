@@ -3,6 +3,11 @@ import styled from 'styled-components';
 import { CorneredWrapper } from '/basicComponents';
 import { smColors } from '/vars';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const backgroundColor = isDarkModeOn ? smColors.dmBlack2 : smColors.lightGray;
+const color1 = isDarkModeOn ? smColors.white : smColors.realBlack;
+const color2 = isDarkModeOn ? smColors.white : smColors.black;
+
 const Wrapper = styled(CorneredWrapper)`
   display: flex;
   flex-direction: column;
@@ -10,20 +15,20 @@ const Wrapper = styled(CorneredWrapper)`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
-  background-color: ${smColors.lightGray};
+  background-color: ${backgroundColor};
 `;
 
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${smColors.realBlack};
+  color: ${color1};
 `;
 
 const SubHeader = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${color2};
 `;
 
 type Props = {

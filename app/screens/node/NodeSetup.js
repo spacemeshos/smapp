@@ -14,6 +14,8 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -23,7 +25,7 @@ const SubHeader = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const Footer = styled.div`
@@ -48,7 +50,7 @@ const FolderNameWrapper = styled.div`
 const FolderName = styled.div`
   font-size: 20px;
   line-height: 25px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const PermissionError = styled.div`

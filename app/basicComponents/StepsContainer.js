@@ -1,8 +1,14 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { sidePanelRightMed, sidePanelLeftMed, checkIconWhite } from '/assets/images';
+import { sidePanelRightMed, sidePanelRightMedWhite, sidePanelLeftMed, sidePanelLeftMedWhite, checkBlack, checkWhite } from '/assets/images';
 import { smColors } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const leftImg = isDarkModeOn ? sidePanelLeftMedWhite : sidePanelLeftMed;
+const rightImg = isDarkModeOn ? sidePanelRightMedWhite : sidePanelRightMed;
+const checkIcon = isDarkModeOn ? checkWhite : checkBlack;
+const color = isDarkModeOn ? smColors.white : smColors.realBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,7 +16,7 @@ const Wrapper = styled.div`
   width: 290px;
   height: 190px;
   margin-right: 15px;
-  background-color: ${smColors.black10Alpha};
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
 const SideBar = styled.img`
@@ -31,7 +37,7 @@ const Header = styled.div`
   margin-bottom: 10px;
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   font-family: SourceCodeProBold;
 `;
 
@@ -47,7 +53,7 @@ const StepContainer = styled.div`
 const StepText = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ isCompleted, isCurrent }) => (isCompleted || !isCurrent ? smColors.realBlack : smColors.purple)};
+  color: ${({ isCompleted, isCurrent }) => (isCompleted || !isCurrent ? color : smColors.purple)};
   font-family: ${({ isCompleted }) => (isCompleted ? 'SourceCodePro' : 'SourceCodeProBold')};
   text-align: right;
 `;
@@ -59,14 +65,15 @@ const Indicator = styled.div`
   width: 15px;
   height: 15px;
   margin-left: 10px;
-  color: ${smColors.white};
+  color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
-  background-color: ${({ isCompleted, isCurrent }) => (isCompleted || !isCurrent ? smColors.realBlack : smColors.purple)};
+  background-color: ${({ isCurrent }) => (isCurrent ? smColors.purple : color)};
 `;
 
 const Icon = styled.img`
-  width: 10px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
+  margin-left: 10px;
 `;
 
 type Props = {
@@ -80,7 +87,7 @@ class StepsContainer extends PureComponent<Props> {
     const { steps, header, currentStep } = this.props;
     return (
       <Wrapper>
-        <SideBar src={sidePanelLeftMed} />
+        <SideBar src={leftImg} />
         <InnerWrapper>
           <Header>{header}</Header>
           {steps.map((step, index) => (
@@ -88,13 +95,11 @@ class StepsContainer extends PureComponent<Props> {
               <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>
                 {step}
               </StepText>
-              <Indicator isCompleted={index < currentStep} isCurrent={index === currentStep}>
-                {index < currentStep ? <Icon src={checkIconWhite} /> : index + 1}
-              </Indicator>
+              {index < currentStep ? <Icon src={checkIcon} /> : <Indicator isCurrent={index === currentStep}>{index + 1}</Indicator>}
             </StepContainer>
           ))}
         </InnerWrapper>
-        <SideBar src={sidePanelRightMed} />
+        <SideBar src={rightImg} />
       </Wrapper>
     );
   }

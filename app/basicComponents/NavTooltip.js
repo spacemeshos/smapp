@@ -14,7 +14,7 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${smColors.black};
+  color: ${smColors.white};
   text-align: center;
 `;
 

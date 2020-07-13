@@ -5,10 +5,13 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setCurrentAccount, getBalance } from '/redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars, Link } from '/basicComponents';
-import { copyToClipboard } from '/assets/images';
+import { copyBlack, copyWhite } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account, Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
 
 const AccountDetails = styled.div`
   display: flex;
@@ -33,7 +36,7 @@ const AccountName = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   cursor: inherit;
 `;
 
@@ -42,7 +45,7 @@ const Address = styled.div`
   flex-direction: row;
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   cursor: inherit;
 `;
 
@@ -71,7 +74,7 @@ const BalanceHeader = styled.div`
   margin-bottom: 10px;
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const BalanceWrapper = styled.div`
@@ -177,7 +180,7 @@ class AccountsOverview extends Component<Props, State> {
       <AccountName>{displayName}</AccountName>
       <Address>
         {getAbbreviatedText(getAddress(publicKey))}
-        <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
+        <CopyIcon src={copy} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
   );

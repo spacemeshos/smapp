@@ -5,6 +5,8 @@ import { Button } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Contact } from '/types';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -16,7 +18,7 @@ const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
-  color: smColors.realBlack;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const MainWrapper = styled.div`
@@ -36,7 +38,7 @@ const MainWrapperUpperPart = styled.div`
   align-items: center;
   width: calc(100% - 5px);
   padding: 10px 15px;
-  background-color: ${smColors.black};
+  background-color: ${isDarkModeOn ? smColors.white : smColors.black};
   z-index: 1;
 `;
 
@@ -46,7 +48,7 @@ const MainWrapperLowerPart = styled.div`
   left: 0;
   width: calc(100% - 5px);
   height: 65px;
-  border: 1px solid ${smColors.black};
+  border: 1px solid ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const Text = styled.div`

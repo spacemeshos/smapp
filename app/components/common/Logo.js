@@ -1,8 +1,11 @@
 // @flow
 import { shell } from 'electron';
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { logo } from '/assets/images';
+import { logo, logoWhite } from '/assets/images';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const logoImg = isDarkModeOn ? logoWhite : logo;
 
 const LogoImg = styled.img`
   position: absolute;
@@ -13,12 +16,6 @@ const LogoImg = styled.img`
   cursor: pointer;
 `;
 
-type Props = {};
-
-class Logo extends PureComponent<Props> {
-  render() {
-    return <LogoImg src={logo} onClick={() => shell.openExternal('https://spacemesh.io')} />;
-  }
-}
+const Logo = () => <LogoImg src={logoImg} onClick={() => shell.openExternal('https://spacemesh.io')} />;
 
 export default Logo;

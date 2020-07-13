@@ -4,9 +4,11 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setRewardsAddress } from '/redux/node/actions';
 import { Button, Link } from '/basicComponents';
-import smColors from '/vars/colors';
+import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -20,7 +22,7 @@ const MiddleSection = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionHeader = styled.div`
@@ -28,7 +30,7 @@ const MiddleSectionHeader = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const Text = styled.div`
@@ -56,8 +58,8 @@ class AccountCommands extends Component<Props> {
             <br />
             --
           </MiddleSectionHeader>
-          <Button onClick={this.navigateToSignMessage} text="SIGN TEXT" width={250} style={{ margin: '30px 0' }} />
-          <Button onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" width={250} isDisabled={account.publicKey === rewardsAddress} />
+          <Button onClick={this.navigateToSignMessage} text="SIGN TEXT" isPrimary={false} width={250} style={{ margin: '30px 0' }} />
+          <Button onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" isPrimary={false} width={250} isDisabled={account.publicKey === rewardsAddress} />
           {account.publicKey === rewardsAddress && <Text>This account is your rewards account.</Text>}
           <Link onClick={history.goBack} text="BACK" style={{ margin: 'auto auto 0 0', color: smColors.orange }} />
         </MiddleSection>

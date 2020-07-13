@@ -3,11 +3,15 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { chevronLeftBlack, chevronRightBlack } from '/assets/images';
+import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite } from '/assets/images';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { TxList, Tx } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
+const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -15,14 +19,14 @@ const Wrapper = styled.div`
   width: 250px;
   height: 100%;
   padding: 20px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   margin-bottom: 10px;
 `;
 
@@ -51,11 +55,11 @@ const Section = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
 `;
 
 const NickName = styled(Text)`
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const Amount = styled.div`
@@ -92,7 +96,7 @@ class LatestTransactions extends PureComponent<Props> {
     const color = this.getColor({ status, isSent });
     return (
       <TxWrapper key={index}>
-        <Icon src={isSent ? chevronRightBlack : chevronLeftBlack} />
+        <Icon src={isSent ? chevronRight : chevronLeft} />
         <MainWrapper>
           <Section>
             <NickName>{txId === 'reward' ? 'Smeshing reward' : nickname || getAbbreviatedText(sender)}</NickName>

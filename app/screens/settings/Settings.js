@@ -15,6 +15,8 @@ import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -40,7 +42,7 @@ const AllSettingsInnerWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const GreenText = styled(Text)`
@@ -165,6 +167,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"
               />
+              <SettingRow upperPartRight={<Button onClick={this.toggleDarkMode} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
               <SettingRow
                 upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
@@ -378,6 +381,11 @@ class Settings extends Component<Props, State> {
       default:
         break;
     }
+  };
+
+  toggleDarkMode = () => {
+    localStorage.setItem('dmMode', localStorage.getItem('dmMode') ? null : 'true');
+    eventsService.reloadApp();
   };
 
   toggleAutoStart = () => {

@@ -4,6 +4,7 @@ import { app } from 'electron';
 const logger = require('electron-log');
 
 logger.transports.file.file = path.join(app.getPath('userData'), '/app-logs.txt');
+logger.transports.console.level = false;
 
 export const writeInfo = (file, fn, res, args) =>
   logger.info(`In ${file}, in ${fn}, received: ${JSON.stringify(res)}${args ? `, called with arguments: ${JSON.stringify(args)}` : ''}`);

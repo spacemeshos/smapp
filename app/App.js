@@ -11,6 +11,10 @@ import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
 import { OnQuitModal } from '/components/common';
 
+const logger = require('electron-log');
+
+logger.transports.console.level = false;
+
 const store: Store = configureStore();
 
 const configOptions: $Shape<Object> = {
