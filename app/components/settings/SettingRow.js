@@ -52,12 +52,13 @@ type Props = {
   upperPartLeft: any,
   isUpperPartLeftText?: boolean,
   upperPartRight: any,
-  rowName: string
+  rowName: string,
+  bottomPart?: any
 };
 
 class SettingRow extends PureComponent<Props> {
   render() {
-    const { upperPart, upperPartLeft, isUpperPartLeftText, upperPartRight, rowName } = this.props;
+    const { upperPart, upperPartLeft, isUpperPartLeftText, upperPartRight, rowName, bottomPart } = this.props;
     return (
       <Wrapper>
         <UpperPart>
@@ -69,6 +70,7 @@ class SettingRow extends PureComponent<Props> {
           )}
         </UpperPart>
         <Name>{rowName}</Name>
+        {bottomPart}
       </Wrapper>
     );
   }

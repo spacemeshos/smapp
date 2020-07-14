@@ -8,11 +8,13 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { DropResult } from 'react-beautiful-dnd';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const SubHeader = styled.div`
   margin-bottom: 25px;
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const Text = styled.span`
@@ -56,7 +58,6 @@ const WordContainer = styled.div`
   border: ${({ isDraggingOver }) => (isDraggingOver ? `none` : `1px dashed ${smColors.darkGray}`)};
   height: 27px;
   width: 155px;
-  margin-bottom: 7px;
   border-radius: 5px;
   margin-right: 20px;
   padding-left: 16px;
@@ -75,9 +76,8 @@ const TestWordContainer = styled(WordContainer)`
 
 const TestWordDroppable = styled.div`
   border: 1px solid ${smColors.darkGray};
-  height: 27px;
-  width: 155px;
-  margin-bottom: 7px;
+  height: 29px;
+  width: 157px;
   border-radius: 5px;
   margin-right: 20px;
   margin-bottom: 30px;
@@ -86,7 +86,6 @@ const TestWordDroppable = styled.div`
 const WordDroppable = styled.div`
   height: 27px;
   width: 155px;
-  margin-bottom: 7px;
   border-radius: 5px;
   margin-right: 20px;
   transform: none !important;
@@ -111,7 +110,7 @@ const IndexWrapper = styled.div`
 
 const Index = styled(Text)`
   line-height: 26px;
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
 `;
 
 const WordWrapper = styled.div`

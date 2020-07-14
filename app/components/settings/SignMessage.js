@@ -7,12 +7,24 @@ import { eventsService } from '/infra/eventsService';
 import { Input, Button, Link } from '/basicComponents';
 import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
-import type { RouterHistory } from 'react-router-dom';
 import type { Account } from '/types';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.6);
+  z-index: 2;
+`;
+
+const InnerWrapper = styled.div`
   display: flex;
   flex-direction: row;
 `;
@@ -54,9 +66,9 @@ const CopiedText = styled.div`
 const inputStyle = { marginBottom: 20 };
 
 type Props = {
-  account: Account,
-  currentAccountIndex: number,
-  history: RouterHistory
+  accounts: Account[],
+  index: number,
+  close: () => void
 };
 
 type State = {
@@ -73,22 +85,24 @@ class SignMessage extends Component<Props, State> {
   };
 
   render() {
-    const { account } = this.props;
+    const { accounts, index, close } = this.props;
     const { message, isCopied } = this.state;
     return (
       <Wrapper>
-        <MiddleSection>
-          <MiddleSectionHeader>
-            sign text
-            <br />
-            --
-          </MiddleSectionHeader>
-          <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(account.publicKey))}</MiddleSectionText>
-          <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
-          <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
-          {isCopied && <CopiedText>COPIED</CopiedText>}
-          <Link onClick={this.returnToMainScreen} text="Cancel" style={{ margin: 'auto auto 0 0', color: smColors.orange }} />
-        </MiddleSection>
+        <InnerWrapper>
+          <MiddleSection>
+            <MiddleSectionHeader>
+              sign text
+              <br />
+              --
+            </MiddleSectionHeader>
+            <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(accounts[index].publicKey))}</MiddleSectionText>
+            <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
+            <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
+            {isCopied && <CopiedText>COPIED</CopiedText>}
+            <Link onClick={close} text="Cancel" style={{ margin: '30px auto 15px 0', color: smColors.orange }} />
+          </MiddleSection>
+        </InnerWrapper>
       </Wrapper>
     );
   }
@@ -98,24 +112,18 @@ class SignMessage extends Component<Props, State> {
   }
 
   signText = async () => {
-    const { account, currentAccountIndex } = this.props;
+    const { accounts, index } = this.props;
     const { message } = this.state;
-    const signedMessage = await eventsService.signMessage({ message: message.trim(), accountIndex: currentAccountIndex });
+    const signedMessage = await eventsService.signMessage({ message: message.trim(), accountIndex: index });
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(`{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${account.publicKey}" }`);
+    clipboard.writeText(`{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${accounts[index].publicKey}" }`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
-  };
-
-  returnToMainScreen = () => {
-    const { history } = this.props;
-    history.push('/main/wallet/overview');
   };
 }
 
 const mapStateToProps = (state) => ({
-  account: state.wallet.accounts[state.wallet.currentAccountIndex],
-  currentAccountIndex: state.wallet.currentAccountIndex
+  accounts: state.wallet.accounts
 });
 
 SignMessage = connect<any, any, _, _, _, _>(mapStateToProps)(SignMessage);

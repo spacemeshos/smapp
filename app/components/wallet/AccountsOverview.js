@@ -25,7 +25,8 @@ const AccountWrapper = styled.div`
   align-items: flex-start;
   margin: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; color: ${smColors.realBlack};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -36,7 +37,6 @@ const AccountName = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   cursor: inherit;
 `;
 
@@ -45,7 +45,6 @@ const Address = styled.div`
   flex-direction: row;
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
   cursor: inherit;
 `;
 
@@ -149,6 +148,7 @@ class AccountsOverview extends Component<Props, State> {
               onPress={this.setCurrentAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
+              whiteIcon={isDarkModeOn}
             />
           ) : (
             this.renderAccountRow({ displayName, publicKey })

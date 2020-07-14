@@ -6,8 +6,10 @@ import type { RouterHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { backupWallet } from '/redux/wallet/actions';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
+import { smColors } from '/vars';
 import type { Action } from '/types';
-import smColors from '/vars/colors';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -19,6 +21,7 @@ const SmallText = styled.span`
   line-height: 20px;
   margin-bottom: 6px;
   flex: 1;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const GreenText = styled(SmallText)`
@@ -28,6 +31,7 @@ const GreenText = styled(SmallText)`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled(Text)`
@@ -47,7 +51,7 @@ const MiddleSection = styled.div`
   width: 500px;
   height: 100%;
   padding: 25px 15px 15px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionRow = styled.div`

@@ -8,6 +8,8 @@ import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basic
 import { eventsService } from '/infra/eventsService';
 import { smColors } from '/vars';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const TextWrapper = styled.div`
   height: 75px;
   margin-bottom: 40px;
@@ -19,6 +21,7 @@ const TextWrapper = styled.div`
 const Text = styled.span`
   font-size: 14px;
   line-height: 24px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const GreenText = styled.span`
@@ -71,7 +74,7 @@ const IndexWrapper = styled.div`
 `;
 
 const Index = styled(Text)`
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
 `;
 
 const WordWrapper = styled.div`

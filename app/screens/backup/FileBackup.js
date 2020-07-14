@@ -5,11 +5,15 @@ import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basicComponents';
 import { eventsService } from '/infra/eventsService';
+import { smColors } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Text = styled.span`
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 22px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const MiddleSectionRow = styled.div`
