@@ -53,7 +53,7 @@ class TransactionManager {
   };
 
   clearData = () => {
-    StoreService.remove({ key: `${this.networkId}-transactions` });
+    StoreService.clear();
   };
 
   sendTx = async ({ fullTx, accountIndex }) => {
