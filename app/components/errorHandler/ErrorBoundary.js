@@ -53,7 +53,7 @@ class ErrorBoundary extends Component<Props, State> {
       const explanationText = `${retryFunction ? 'Retry failed action or refresh page.' : 'Try to refresh page.'}`;
       return (
         <Wrapper>
-          <CorneredContainer width={500} height={300} header="Something`s wrong here...">
+          <CorneredContainer width={520} height={300} header="Something`s wrong here...">
             {explanationText && <Text>{explanationText}</Text>}
             <ButtonsWrapper hasSingleButton={!retryFunction}>
               <Button onClick={() => this.setState({ error: null })} text="REFRESH" />
