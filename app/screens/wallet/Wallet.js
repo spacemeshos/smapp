@@ -88,7 +88,7 @@ class Wallet extends Component<Props, State> {
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview navigateToAccountCommands={this.navigateToAccountCommands} />
+          <AccountsOverview />
           {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={icon} />
@@ -111,13 +111,6 @@ class Wallet extends Component<Props, State> {
       </Wrapper>
     );
   }
-
-  navigateToAccountCommands = () => {
-    const { history, location } = this.props;
-    if (location.pathname !== '/main/wallet/account-commands') {
-      history.push('/main/wallet/account-commands');
-    }
-  };
 
   navigateToBackup = () => {
     const { history } = this.props;

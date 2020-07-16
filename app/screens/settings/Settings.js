@@ -52,6 +52,12 @@ const Name = styled.div`
   margin-left: 10px;
 `;
 
+const RewardAccount = styled.div`
+  font-size: 16px;
+  line-height: 15px;
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
+`;
+
 const GreenText = styled(Text)`
   color: ${smColors.green};
 `;
@@ -60,6 +66,13 @@ const AccountCmdBtnWrapper = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: 30px;
+`;
+
+const AccountCmdBtnSeparator = styled.div`
+  width: 2px;
+  height: 20px;
+  background-color: ${smColors.blue};
+  margin: auto 15px;
 `;
 
 type Props = {
@@ -237,21 +250,21 @@ class Settings extends Component<Props, State> {
                       <Input value={accountDisplayNames[index]} onChange={({ value }) => this.editAccountDisplayName({ value, index })} maxLength="100" />
                     )
                   }
-                  upperPartRight={
-                    editedAccountIndex === index ? (
-                      [
-                        <Link onClick={() => this.saveEditedAccountDisplayName({ index })} text="SAVE" style={{ marginRight: 15 }} key="save" />,
-                        <Link onClick={() => this.cancelEditingAccountDisplayName({ index })} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
-                      ]
-                    ) : (
-                      <Link onClick={() => this.startEditingAccountDisplayName({ index })} text="RENAME" />
-                    )
-                  }
                   rowName={`0x${getAddress(account.publicKey)}`}
                   bottomPart={
                     <AccountCmdBtnWrapper>
-                      <Button onClick={() => this.toggleSignMessageModal({ index })} text="SIGN TEXT" isPrimary={false} width={250} style={{ margin: '0 30px 0 0' }} />
-                      {account.publicKey !== rewardsAddress && <Button onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" isPrimary={false} width={250} />}
+                      {editedAccountIndex === index ? (
+                        [
+                          <Link onClick={() => this.saveEditedAccountDisplayName({ index })} text="SAVE" style={{ marginRight: 15 }} key="save" />,
+                          <Link onClick={() => this.cancelEditingAccountDisplayName({ index })} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+                        ]
+                      ) : (
+                        <Link onClick={() => this.startEditingAccountDisplayName({ index })} text="RENAME" />
+                      )}
+                      <AccountCmdBtnSeparator />
+                      <Link onClick={() => this.toggleSignMessageModal({ index })} text="SIGN TEXT" />
+                      <AccountCmdBtnSeparator />
+                      {account.publicKey !== rewardsAddress ? <Link onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" /> : <RewardAccount>rewards account</RewardAccount>}
                     </AccountCmdBtnWrapper>
                   }
                   key={account.publicKey}
@@ -260,7 +273,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="MESH INFO" refProp={this.myRef3}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards address" />
+              <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
               {status && !status.noConnection ? (
                 <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />

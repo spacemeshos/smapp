@@ -60,7 +60,7 @@ const ItemsWrapper = styled.div`
 
 const DropdownRow = styled.div`
   display: flex;
-  justify-content: center;
+  ${({ rowContentCentered }) => rowContentCentered && `justify-content: center;`}
   align-items: center;
   height: ${({ height }) => height}px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
@@ -72,6 +72,7 @@ type Props = {
   data: Object[],
   selectedItemIndex: number,
   rowHeight?: number,
+  rowContentCentered?: boolean,
   isDisabled?: boolean,
   bgColor?: string,
   style?: Object,
@@ -85,6 +86,7 @@ type State = {
 class DropDown extends Component<Props, State> {
   static defaultProps = {
     rowHeight: 44,
+    rowContentCentered: true,
     whiteIcon: false
   };
 
@@ -93,7 +95,7 @@ class DropDown extends Component<Props, State> {
   };
 
   render() {
-    const { data, DdElement, selectedItemIndex, rowHeight, isDisabled, bgColor, style, whiteIcon } = this.props;
+    const { data, DdElement, selectedItemIndex, rowHeight, rowContentCentered, isDisabled, bgColor, style, whiteIcon } = this.props;
     const { isOpened } = this.state;
     const isDisabledComputed = isDisabled || !data || !data.length;
     const icon = whiteIcon ? chevronBottomWhite : chevronBottomBlack;
@@ -110,7 +112,7 @@ class DropDown extends Component<Props, State> {
           <DdElement isDisabled={isDisabled} {...data[selectedItemIndex]} isMain />
           <Icon isOpened={isOpened} src={icon} />
         </HeaderWrapper>
-        {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => this.renderRow({ item, index, rowHeight }))}</ItemsWrapper>}
+        {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => this.renderRow({ item, index, rowHeight, rowContentCentered }))}</ItemsWrapper>}
       </Wrapper>
     );
   }
@@ -126,10 +128,11 @@ class DropDown extends Component<Props, State> {
     });
   }
 
-  renderRow = ({ item, index, rowHeight }: { item: Object, index: number, rowHeight?: number }) => {
+  renderRow = ({ item, index, rowHeight, rowContentCentered }: { item: Object, index: number, rowHeight?: number, rowContentCentered: boolean }) => {
     const { onPress, DdElement } = this.props;
     return (
       <DropdownRow
+        rowContentCentered={rowContentCentered}
         isDisabled={item.isDisabled}
         key={`${item.label}${index}`}
         onClick={

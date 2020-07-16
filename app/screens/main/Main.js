@@ -13,12 +13,13 @@ import { InfoBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
-import { rightDecoration, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
+import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
 const settings = isDarkModeOn ? settingsIconBlack : settingsIcon;
 const getCoins = isDarkModeOn ? getCoinsIconBlack : getCoinsIcon;
 const help = isDarkModeOn ? helpIconBlack : helpIcon;
@@ -75,6 +76,7 @@ const NavBarLink = styled.div`
 const RightDecoration = styled.img`
   display: block;
   height: 100%;
+  margin-right: -1px;
 `;
 
 const RoutesWrapper = styled.div`
@@ -249,7 +251,7 @@ class Main extends Component<Props, State> {
             </Switch>
           </RoutesWrapper>
         </InnerWrapper>
-        <RightDecoration src={rightDecoration} />
+        <RightDecoration src={img} />
       </Wrapper>
     );
   }

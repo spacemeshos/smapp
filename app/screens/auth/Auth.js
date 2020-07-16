@@ -9,10 +9,13 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
-import { rightDecoration } from '/assets/images';
+import { rightDecoration, rightDecorationWhite } from '/assets/images';
 import type { Action } from '/types';
 import { nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
 
 const Wrapper = styled.div`
   position: relative;
@@ -26,6 +29,7 @@ const Wrapper = styled.div`
 const RightDecoration = styled.img`
   display: block;
   height: 100%;
+  margin-right: -1px;
 `;
 
 const InnerWrapper = styled.div`
@@ -69,7 +73,7 @@ class Auth extends Component<Props> {
             <Loader size={Loader.sizes.BIG} />
           )}
         </InnerWrapper>
-        <RightDecoration src={rightDecoration} />
+        <RightDecoration src={img} />
       </Wrapper>
     );
   }

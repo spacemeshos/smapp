@@ -15,7 +15,6 @@ import {
   Overview,
   SendCoins,
   RequestCoins,
-  AccountCommands,
   Backup,
   BackupOptions,
   FileBackup,
@@ -111,10 +110,6 @@ const wallet = [
   {
     path: '/main/wallet/request-coins',
     component: RequestCoins
-  },
-  {
-    path: '/main/wallet/account-commands',
-    component: AccountCommands
   }
 ];
 

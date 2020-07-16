@@ -4,12 +4,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { eventsService } from '/infra/eventsService';
-import { Input, Button, Link } from '/basicComponents';
+import { CorneredContainer } from '/components/common';
+import { Input, Button } from '/basicComponents';
 import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -24,34 +23,11 @@ const Wrapper = styled.div`
   z-index: 2;
 `;
 
-const InnerWrapper = styled.div`
+const ButtonsWrapper = styled.div`
   display: flex;
   flex-direction: row;
-`;
-
-const MiddleSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 700px;
-  height: 100%;
-  margin-right: 10px;
-  padding: 25px 15px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
-`;
-
-const MiddleSectionHeader = styled.div`
-  margin-bottom: 10px;
-  font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-`;
-
-const MiddleSectionText = styled.div`
-  margin-bottom: 45px;
-  font-size: 15px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  justify-content: space-between;
+  margin: 30px 0 15px 0;
 `;
 
 const CopiedText = styled.div`
@@ -89,20 +65,14 @@ class SignMessage extends Component<Props, State> {
     const { message, isCopied } = this.state;
     return (
       <Wrapper>
-        <InnerWrapper>
-          <MiddleSection>
-            <MiddleSectionHeader>
-              sign text
-              <br />
-              --
-            </MiddleSectionHeader>
-            <MiddleSectionText>sign text with account {getAbbreviatedText(getAddress(accounts[index].publicKey))}</MiddleSectionText>
-            <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
+        <CorneredContainer width={700} height={300} header="SIGN TEXT" subHeader={`sign text with account ${getAbbreviatedText(getAddress(accounts[index].publicKey))}`}>
+          <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
+          <ButtonsWrapper>
             <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
-            {isCopied && <CopiedText>COPIED</CopiedText>}
-            <Link onClick={close} text="Cancel" style={{ margin: '30px auto 15px 0', color: smColors.orange }} />
-          </MiddleSection>
-        </InnerWrapper>
+            <Button onClick={close} isPrimary={false} text="Cancel" />
+          </ButtonsWrapper>
+          <CopiedText>{isCopied ? 'COPIED' : ' '}</CopiedText>
+        </CorneredContainer>
       </Wrapper>
     );
   }
