@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setCurrentAccount, getBalance } from '/redux/wallet/actions';
-import { DropDown, WrapperWith2SideBars, Link } from '/basicComponents';
+import { DropDown, WrapperWith2SideBars } from '/basicComponents';
 import { copyBlack, copyWhite } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
@@ -115,8 +115,7 @@ type Props = {
   currentAccountIndex: number,
   getBalance: Action,
   setCurrentAccount: Action,
-  status: Object,
-  navigateToAccountCommands: () => void
+  status: Object
 };
 
 type State = {
@@ -131,7 +130,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, status, navigateToAccountCommands } = this.props;
+    const { walletName, accounts, currentAccountIndex, status } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -149,13 +148,13 @@ class AccountsOverview extends Component<Props, State> {
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
               whiteIcon={isDarkModeOn}
+              rowContentCentered={false}
             />
           ) : (
             this.renderAccountRow({ displayName, publicKey })
           )}
         </AccountDetails>
         <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
-        <Link onClick={navigateToAccountCommands} text="COMMANDS" style={{ marginLeft: 5 }} />
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (

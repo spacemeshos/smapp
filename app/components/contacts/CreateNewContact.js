@@ -126,8 +126,8 @@ class CreateNewContact extends Component<Props, State> {
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange, marginRight: 15 }} />
-          <Link onClick={this.preCreateContact} text="CREATE" style={{ color: smColors.green }} />
+          <Link onClick={this.preCreateContact} text="CREATE" style={{ color: smColors.green, marginRight: 15 }} />
+          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange }} />
         </ButtonsWrapper>
         {shouldShowPasswordModal && <EnterPasswordModal submitAction={this.createContact} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>
