@@ -11,7 +11,7 @@
     "atxs-per-block": 25,
     "genesis-active-size": 100,
     "genesis-time": "2020-06-05T17:15:52+00:00",
-    "poet-server": "34.71.204.0:8080"
+    "poet-server": "35.193.98.51:8080"
   },
   "p2p": {
     "dial-timeout": "1m",

@@ -11,7 +11,7 @@
 import path from 'path';
 import fs from 'fs';
 import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
-import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
@@ -21,7 +21,7 @@ import StoreService from './storeService';
 import NodeManager from './nodeManager';
 import './wasm_exec';
 
-(async function() {
+(async function () {
   const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
   const bytes = fs.readFileSync(filePath);
   // const bytes = await response.arrayBuffer();
@@ -116,7 +116,7 @@ const createWindow = () => {
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console // TODO: investigate error on downloading
     installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }
 
@@ -155,7 +155,7 @@ app.on('ready', async () => {
     mainWindow.focus();
   });
 
-  ipcMain.on(ipcConsts.HARD_REFRESH, () => {
+  ipcMain.on(ipcConsts.RELOAD_APP, () => {
     mainWindow.reload();
   });
 

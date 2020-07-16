@@ -6,6 +6,8 @@ import { smColors, ipcConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   position: fixed;
   top: 0;
@@ -20,15 +22,17 @@ const Wrapper = styled.div`
 `;
 
 const InnerWrapper = styled.div`
-  padding: 25px;
-  background-color: ${smColors.lightGray};
   width: 700px;
+  height: 550px;
+  padding: 25px;
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.lightGray};
 `;
 
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
   color: ${smColors.orange};
+  text-align: center;
   margin-bottom: 10px;
 `;
 
@@ -46,9 +50,9 @@ class OnQuitModal extends Component<{}, State> {
     return isClosing ? (
       <Wrapper>
         <CorneredWrapper>
-          <InnerWrapper style={{ height: 550 }}>
+          <InnerWrapper>
             <Loader size={Loader.sizes.BIG} />
-            <Text style={{ textAlign: 'center' }}>Shutting down, please wait...</Text>
+            <Text>Shutting down, please wait...</Text>
           </InnerWrapper>
         </CorneredWrapper>
       </Wrapper>

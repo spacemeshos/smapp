@@ -8,6 +8,9 @@ import { Input, Link, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const color = isDarkModeOn ? smColors.white : smColors.realBlack;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,7 +23,7 @@ const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ isStandalone }) => (isStandalone ? smColors.white : smColors.realBlack)};
+  color: ${({ isStandalone }) => (isStandalone ? smColors.white : color)};
 `;
 
 const InputsWrapper = styled.div`
@@ -123,8 +126,8 @@ class CreateNewContact extends Component<Props, State> {
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange, marginRight: 15 }} />
-          <Link onClick={this.preCreateContact} text="CREATE" style={{ color: smColors.green }} />
+          <Link onClick={this.preCreateContact} text="CREATE" style={{ color: smColors.green, marginRight: 15 }} />
+          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange }} />
         </ButtonsWrapper>
         {shouldShowPasswordModal && <EnterPasswordModal submitAction={this.createContact} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>

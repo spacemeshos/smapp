@@ -9,6 +9,7 @@ import netService from './netService';
 import fileEncryptionService from './fileEncryptionService';
 import cryptoService from './cryptoService';
 import encryptionConst from './encryptionConst';
+import { writeInfo, writeError } from './logger';
 
 const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
@@ -41,14 +42,17 @@ class WalletManager {
   subscribeToEvents = (mainWindow) => {
     ipcMain.handle(ipcConsts.CREATE_WALLET_FILE, async (event, request) => {
       const res = await this.createWalletFile({ ...request });
+      writeInfo(`WalletManager`, `ipc CREATE_WALLET_FILE channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.READ_WALLET_FILES, async () => {
       const res = await this.readWalletFiles();
+      writeInfo(`WalletManager`, `ipc READ_WALLET_FILES channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.UNLOCK_WALLET_FILE, async (event, request) => {
       const res = await this.unlockWalletFile({ ...request });
+      writeInfo(`WalletManager`, `ipc UNLOCK_WALLET_FILE channel`, { res }, { request });
       return res;
     });
     ipcMain.on(ipcConsts.UPDATE_WALLET_FILE, async (event, request) => {
@@ -56,10 +60,12 @@ class WalletManager {
     });
     ipcMain.handle(ipcConsts.CREATE_NEW_ACCOUNT, async (event, request) => {
       const res = await this.createNewAccount({ ...request });
+      writeInfo(`WalletManager`, `ipc CREATE_NEW_ACCOUNT channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.COPY_FILE, async (event, request) => {
       const res = await this.copyFile({ ...request });
+      writeInfo(`WalletManager`, `ipc COPY_FILE channel`, { res }, { request });
       return res;
     });
     ipcMain.on(ipcConsts.SHOW_FILE_IN_FOLDER, (event, request) => {
@@ -74,28 +80,34 @@ class WalletManager {
 
     ipcMain.handle(ipcConsts.GET_BALANCE, async (event, request) => {
       const res = await this.getBalance({ ...request });
+      writeInfo(`WalletManager`, `ipc GET_BALANCE channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.SEND_TX, async (event, request) => {
       const res = await this.txManager.sendTx({ ...request });
+      writeInfo(`WalletManager`, `ipc SEND_TX channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.UPDATE_TX, async (event, request) => {
       const res = await this.txManager.updateTransaction({ event, ...request });
+      writeInfo(`WalletManager`, `ipc UPDATE_TX channel`, { res }, { request });
       return res;
     });
     ipcMain.handle(ipcConsts.GET_ACCOUNT_TXS, async () => {
       const res = await this.txManager.getAccountTxs();
+      writeInfo(`WalletManager`, `ipc GET_ACCOUNT_TXS channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.GET_ACCOUNT_REWARDS, async (event, request) => {
       const res = await this.txManager.getAccountRewards({ ...request });
+      writeInfo(`WalletManager`, `ipc GET_ACCOUNT_REWARDS channel`, { res }, { request });
       return res;
     });
 
     ipcMain.handle(ipcConsts.SIGN_MESSAGE, async (event, request) => {
       const { message, accountIndex } = request;
       const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
+      writeInfo(`WalletManager`, `ipc SIGN_MESSAGE channel`, { res }, { request });
       return res;
     });
   };
@@ -128,6 +140,7 @@ class WalletManager {
       await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
       return { error: null, meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
     } catch (error) {
+      writeError('WalletManager', 'ipcMain createWalletFile', error);
       return { error, meta: null };
     }
   };
@@ -140,6 +153,7 @@ class WalletManager {
       const filesWithPath = filteredFiles.map((file) => path.join(appFilesDirPath, file));
       return { error: null, files: filesWithPath };
     } catch (error) {
+      writeError('WalletManager', 'ipcMain readWalletFiles', error);
       return { error, files: null };
     }
   };
@@ -155,6 +169,7 @@ class WalletManager {
       this.mnemonic = mnemonic;
       return { error: null, accounts, mnemonic, meta, contacts };
     } catch (error) {
+      writeError('WalletManager', 'ipcMain unlockWalletFile', error);
       return { error, accounts: null, mnemonic: null, meta: null, contacts: null };
     }
   };
@@ -187,7 +202,7 @@ class WalletManager {
       }
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, [field]: dataToUpdate }));
     } catch (error) {
-      console.log(error); // eslint-disable-line no-console
+      writeError('WalletManager', 'ipcMain updateWalletFile', error);
     }
   };
 
@@ -213,7 +228,7 @@ class WalletManager {
       this.txManager.addAccount({ account: newAccount });
       return { error: null, newAccount };
     } catch (error) {
-      console.log(error); // eslint-disable-line no-console
+      writeError('WalletManager', 'ipcMain createNewAccount', error);
       return { error };
     }
   };
@@ -226,6 +241,7 @@ class WalletManager {
       await copyFileAsync(filePath, newFilePath);
       return { error: null, newFilePath };
     } catch (error) {
+      writeError('WalletManager', 'ipcMain copyFile', error);
       return { error };
     }
   };
@@ -243,7 +259,7 @@ class WalletManager {
           shell.openItem(documentsDirPath);
         }
       } catch (error) {
-        console.log(error); // eslint-disable-line no-console
+        writeError('WalletManager', 'ipcMain showFileInDirectory', error);
       }
     } else if (isLogFile) {
       const logFilePath = path.resolve(appFilesDirPath, 'spacemesh-log.txt');
@@ -265,8 +281,8 @@ class WalletManager {
         this.txManager.clearData();
         await unlinkFileAsync(fileName);
         browserWindow.reload();
-      } catch (err) {
-        console.error('Error deleting wallet file'); // eslint-disable-line no-console
+      } catch (error) {
+        writeError('WalletManager', 'ipcMain deleteWalletFile', error);
       }
     }
   };
@@ -285,7 +301,7 @@ class WalletManager {
       const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
       exec(command, (error) => {
         if (error) {
-          console.error(error); // eslint-disable-line no-console
+          writeError('WalletManager', 'ipcMain wipeOut', error);
         }
         console.log('deleted'); // eslint-disable-line no-console
       });

@@ -37,7 +37,7 @@ class TransactionManager {
 
   setAccounts = ({ accounts }) => {
     this.accounts = accounts;
-    if (accounts.length < this.transactions.length) {
+    if (accounts.length > this.transactions.length) {
       const diff = accounts.length - this.transactions.length;
       for (let i = 0; i < diff; i += 1) {
         this.transactions.push({ layerId: 0, data: [] });
@@ -53,7 +53,7 @@ class TransactionManager {
   };
 
   clearData = () => {
-    StoreService.remove({ key: `${this.networkId}-transactions` });
+    StoreService.clear();
   };
 
   sendTx = async ({ fullTx, accountIndex }) => {

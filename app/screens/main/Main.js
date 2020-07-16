@@ -13,10 +13,17 @@ import { InfoBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
-import { rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
+import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
+const settings = isDarkModeOn ? settingsIconBlack : settingsIcon;
+const getCoins = isDarkModeOn ? getCoinsIconBlack : getCoinsIcon;
+const help = isDarkModeOn ? helpIconBlack : helpIcon;
+const signOut = isDarkModeOn ? signOutIconBlack : signOutIcon;
 
 const Wrapper = styled.div`
   position: relative;
@@ -69,6 +76,7 @@ const NavBarLink = styled.div`
 const RightDecoration = styled.img`
   display: block;
   height: 100%;
+  margin-right: -1px;
 `;
 
 const RoutesWrapper = styled.div`
@@ -92,6 +100,7 @@ const TooltipWrapper = styled.div`
 `;
 
 const bntStyle = { marginRight: 15, marginTop: 10 };
+const bgColor = isDarkModeOn ? smColors.white : smColors.black;
 
 type Props = {
   status: Object,
@@ -178,52 +187,56 @@ class Main extends Component<Props, State> {
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={() => this.handleNavigation({ index: 3 })}
-                  img={settingsIcon}
+                  img={settings}
                   imgHeight={30}
                   imgWidth={30}
                   isPrimary={activeRouteIndex === 3}
                   width={35}
                   height={35}
                   style={bntStyle}
+                  bgColor={bgColor}
                 />
                 <CustomTooltip text="SETTINGS" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={() => this.handleNavigation({ index: 4 })}
-                  img={getCoinsIcon}
+                  img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
+                  bgColor={bgColor}
                 />
                 <CustomTooltip text="GET SMESH" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={() => this.handleNavigation({ index: 5 })}
-                  img={helpIcon}
+                  img={help}
                   imgHeight={30}
                   imgWidth={30}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
+                  bgColor={bgColor}
                 />
                 <CustomTooltip text="HELP" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={() => this.handleNavigation({ index: 6 })}
-                  img={signOutIcon}
+                  img={signOut}
                   imgHeight={30}
                   imgWidth={30}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
+                  bgColor={bgColor}
                 />
                 <CustomTooltip text="LOGOUT" withIcon={false} />
               </TooltipWrapper>
@@ -238,7 +251,7 @@ class Main extends Component<Props, State> {
             </Switch>
           </RoutesWrapper>
         </InnerWrapper>
-        <RightDecoration src={rightDecoration} />
+        <RightDecoration src={img} />
       </Wrapper>
     );
   }

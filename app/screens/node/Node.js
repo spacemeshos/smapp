@@ -9,11 +9,14 @@ import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { eventsService } from '/infra/eventsService';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
-import { playIcon, pauseIcon, fireworks, copyToClipboard } from '/assets/images';
+import { fireworks, copyBlack, copyWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { TxList } from '/types';
 // import type { Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -38,7 +41,7 @@ const LogEntry = styled.div`
 const LogText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const AwardText = styled(LogText)`
@@ -53,7 +56,7 @@ const LogEntrySeparator = styled(LogText)`
 const Text = styled.div`
   font-size: 16px;
   line-height: 23px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled(Text)`
@@ -87,7 +90,7 @@ const LeftText = styled.div`
   margin-right: 5px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const RightText = styled.div`
@@ -106,7 +109,7 @@ const Dots = styled.div`
   overflow: hidden;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const Fireworks = styled.img`
@@ -164,7 +167,6 @@ class Node extends Component<Props, State> {
     const { location } = props;
     this.state = {
       showIntro: !!location?.state?.showIntro,
-      isMiningPaused: false,
       showFireworks: !!location?.state?.showIntro,
       copied: false
     };
@@ -315,7 +317,7 @@ class Node extends Component<Props, State> {
 
   renderNodeDashboard = () => {
     const { status, rewardsAddress } = this.props;
-    const { isMiningPaused, copied } = this.state;
+    const { copied } = this.state;
     return [
       <Status key="status" status={status}>
         {status ? 'Your Smesher is online.' : 'Not connected!'}
@@ -334,23 +336,13 @@ class Node extends Component<Props, State> {
         <LeftText>Rewards Account</LeftText>
         <Dots>........................................</Dots>
         <GreenText>{getAbbreviatedText(getAddress(rewardsAddress), true, 4)}</GreenText>
-        <CopyIcon src={copyToClipboard} onClick={this.copyRewardsAccount} />
+        <CopyIcon src={copy} onClick={this.copyRewardsAccount} />
       </TextWrapper>,
       <TextWrapper key="5">
         <GreenText>{copied ? 'Copied' : ' '}</GreenText>
       </TextWrapper>,
       <Footer key="footer">
         <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
-        {false && (
-          <Button
-            onClick={this.pauseResumeMining}
-            text={isMiningPaused ? 'RESUME SMESHING' : 'PAUSE SMESHING'}
-            width={175}
-            imgPosition="before"
-            img={isMiningPaused ? playIcon : pauseIcon}
-            isDisabled
-          />
-        )}
       </Footer>
     ];
   };

@@ -4,11 +4,14 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { setCurrentAccount, getBalance } from '/redux/wallet/actions';
-import { DropDown, WrapperWith2SideBars, Link } from '/basicComponents';
-import { copyToClipboard } from '/assets/images';
+import { DropDown, WrapperWith2SideBars } from '/basicComponents';
+import { copyBlack, copyWhite } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account, Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
 
 const AccountDetails = styled.div`
   display: flex;
@@ -22,7 +25,8 @@ const AccountWrapper = styled.div`
   align-items: flex-start;
   margin: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; color: ${smColors.realBlack};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -33,7 +37,6 @@ const AccountName = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.realBlack};
   cursor: inherit;
 `;
 
@@ -42,7 +45,6 @@ const Address = styled.div`
   flex-direction: row;
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
   cursor: inherit;
 `;
 
@@ -71,7 +73,7 @@ const BalanceHeader = styled.div`
   margin-bottom: 10px;
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const BalanceWrapper = styled.div`
@@ -97,7 +99,7 @@ const CopiedText = styled.div`
   font-size: 16px;
   line-height: 20px;
   height: 20px;
-  margin-left: 6px;
+  margin: -20px 0 5px 6px;
   color: ${smColors.green};
 `;
 
@@ -113,8 +115,7 @@ type Props = {
   currentAccountIndex: number,
   getBalance: Action,
   setCurrentAccount: Action,
-  status: Object,
-  navigateToAccountCommands: () => void
+  status: Object
 };
 
 type State = {
@@ -129,7 +130,7 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, status, navigateToAccountCommands } = this.props;
+    const { walletName, accounts, currentAccountIndex, status } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
@@ -146,13 +147,14 @@ class AccountsOverview extends Component<Props, State> {
               onPress={this.setCurrentAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
+              whiteIcon={isDarkModeOn}
+              rowContentCentered={false}
             />
           ) : (
             this.renderAccountRow({ displayName, publicKey })
           )}
         </AccountDetails>
-        {isCopied && <CopiedText>COPIED</CopiedText>}
-        <Link onClick={navigateToAccountCommands} text="COMMANDS" style={{ marginLeft: 5 }} />
+        <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (
@@ -177,7 +179,7 @@ class AccountsOverview extends Component<Props, State> {
       <AccountName>{displayName}</AccountName>
       <Address>
         {getAbbreviatedText(getAddress(publicKey))}
-        <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
+        <CopyIcon src={copy} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
   );
@@ -188,7 +190,8 @@ class AccountsOverview extends Component<Props, State> {
     await getBalance();
   };
 
-  copyPublicAddress = () => {
+  copyPublicAddress = (e) => {
+    e.stopPropagation();
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
     clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);

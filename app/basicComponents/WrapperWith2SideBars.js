@@ -1,8 +1,12 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { sidePanelRightLong, sidePanelLeftLong } from '/assets/images';
+import { sidePanelRightLong, sidePanelRightLongWhite, sidePanelLeftLong, sidePanelLeftLongWhite } from '/assets/images';
 import { smColors } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const leftImg = isDarkModeOn ? sidePanelLeftLongWhite : sidePanelLeftLong;
+const rightImg = isDarkModeOn ? sidePanelRightLongWhite : sidePanelRightLong;
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,7 +14,7 @@ const Wrapper = styled.div`
   position: relative;
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
-  background-color: ${smColors.black10Alpha};
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
 const SideBar = styled.img`
@@ -30,17 +34,18 @@ const MainWrapperInner = styled.div`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const SubHeader = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 type Props = {
   header: string,
+  subHeader?: string,
   width: number,
   height?: number | string,
   children: any,
@@ -53,16 +58,23 @@ class WrapperWith2SideBars extends PureComponent<Props> {
   };
 
   render() {
-    const { width, height, header, children, style } = this.props;
+    const { width, height, header, subHeader, children, style } = this.props;
     return (
       <Wrapper width={width} height={height} style={style}>
-        <SideBar src={sidePanelRightLong} />
+        <SideBar src={leftImg} />
         <MainWrapperInner>
           <Header>{header}</Header>
           <SubHeader>--</SubHeader>
+          {subHeader && (
+            <SubHeader>
+              {subHeader}
+              <br />
+              <br />
+            </SubHeader>
+          )}
           {children}
         </MainWrapperInner>
-        <SideBar src={sidePanelLeftLong} />
+        <SideBar src={rightImg} />
       </Wrapper>
     );
   }

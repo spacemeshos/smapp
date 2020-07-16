@@ -32,11 +32,10 @@ const ActualInput = styled.input`
 `;
 
 const ExtraTxt = styled.div`
-  padding: 8px 10px 9px 0;
+  padding: 10px 10px 10px 0;
   font-size: 14px;
   line-height: 16px;
   color: ${smColors.black};
-  font-size: 14px;
   background-color: ${smColors.white};
 `;
 

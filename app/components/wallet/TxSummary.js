@@ -4,27 +4,29 @@ import styled from 'styled-components';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 175px;
   height: 100%;
   padding: 10px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   margin-bottom: 15px;
 `;
 
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   margin-bottom: 20px;
   word-break: break-all;
 `;

@@ -8,8 +8,11 @@ import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
 import smColors from '/vars/colors';
-import { backup, leftSideTIcon } from '/assets/images';
+import { backup, leftSideTIcon, leftSideTIconWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const icon = isDarkModeOn ? leftSideTIconWhite : leftSideTIcon;
 
 const Wrapper = styled.div`
   display: flex;
@@ -33,7 +36,7 @@ const BackupReminder = styled.div`
   height: 50px;
   margin-top: 10px;
   padding: 0 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black02Alpha};
   cursor: pointer;
 `;
 
@@ -85,10 +88,10 @@ class Wallet extends Component<Props, State> {
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview navigateToAccountCommands={this.navigateToAccountCommands} />
+          <AccountsOverview />
           {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
-              <FullCrossIcon src={leftSideTIcon} />
+              <FullCrossIcon src={icon} />
               <BackupImage src={backup} />
               <BackupText>BACKUP YOUR WALLET</BackupText>
             </BackupReminder>
@@ -108,13 +111,6 @@ class Wallet extends Component<Props, State> {
       </Wrapper>
     );
   }
-
-  navigateToAccountCommands = () => {
-    const { history, location } = this.props;
-    if (location.pathname !== '/main/wallet/account-commands') {
-      history.push('/main/wallet/account-commands');
-    }
-  };
 
   navigateToBackup = () => {
     const { history } = this.props;
