@@ -12,7 +12,9 @@
 
 This repo includes the source code for the `Spacemesh App`. A desktop application for Windows 10, OS X and Linux which includes a Smesher and a basic wallet. The main artifects of this repo are the app and an app installer for all supported platforms.
 
-![](https://github.com/spacemeshos/smapp/blob/develop/resources/smapp_wallet_desktop.png)
+![](https://github.com/spacemeshos/smapp/blob/develop/resources/smapp_app_smesher.png)
+
+![](https://github.com/spacemeshos/smapp/blob/develop/resources/smapp_app_wallet.png)
 
 
 
