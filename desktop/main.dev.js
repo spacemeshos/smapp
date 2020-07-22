@@ -78,15 +78,14 @@ app.on('window-all-closed', () => {
 const createTray = () => {
   tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
   tray.setToolTip('Spacemesh');
-  const eventHandler = (e) => {
-    e.preventDefault();
+  const eventHandler = () => {
     mainWindow.show();
     mainWindow.focus();
   };
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
-      click: (e) => eventHandler(e)
+      click: () => eventHandler()
     },
     {
       label: 'Quit',
@@ -95,8 +94,7 @@ const createTray = () => {
       }
     }
   ]);
-  tray.on('click', (e) => eventHandler(e));
-  tray.on('double-click', (e) => eventHandler(e));
+  tray.on('double-click', () => eventHandler());
   tray.setContextMenu(contextMenu);
 };
 
