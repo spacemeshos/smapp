@@ -159,7 +159,8 @@ const getBuildOptions = ({ target, publish }) => {
           console.error(error.message);
           process.exit(1);
         }
-      }
+      },
+      npmRebuild: false
     }
   };
 

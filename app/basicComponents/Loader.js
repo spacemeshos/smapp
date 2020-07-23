@@ -1,7 +1,10 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { loader } from '/assets/images';
+import { loader, loaderWhite } from '/assets/images';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const img = isDarkModeOn ? loaderWhite : loader;
 
 const Wrapper = styled.div`
   position: fixed;
@@ -39,7 +42,7 @@ class Loader extends PureComponent<Props> {
     const { size } = this.props;
     return (
       <Wrapper>
-        <AnimatedIcon size={size || Loader.sizes.SMALL} src={loader} alt="Loading" />
+        <AnimatedIcon size={size || Loader.sizes.SMALL} src={img} alt="Loading" />
       </Wrapper>
     );
   }

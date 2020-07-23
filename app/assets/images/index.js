@@ -1,4 +1,5 @@
-export { default as loader } from './loading.gif';
+export { default as loader } from './loader.gif';
+export { default as loaderWhite } from './loader_white.gif';
 export { default as rightDecoration } from './right_decoration.svg';
 export { default as rightDecorationWhite } from './right_decoration_white.svg';
 export { default as sidePanelLeftLong } from './side_panel_left_long.svg';

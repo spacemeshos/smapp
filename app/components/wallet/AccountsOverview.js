@@ -26,11 +26,16 @@ const AccountWrapper = styled.div`
   margin: 5px;
   cursor: inherit;
   color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; color: ${smColors.realBlack};`}
   &:hover {
     opacity: 1;
-    color: ${smColors.darkGray50Alpha};
+    color: ${isDarkModeOn ? smColors.lightGray : smColors.darkGray50Alpha};
   }
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
+    opacity: 1;
+    color: ${isDarkModeOn ? smColors.darkGray50Alpha : smColors.darkGray50Alpha};
+  }`}
 `;
 
 const AccountName = styled.div`
