@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray } from '/assets/images';
 import { smColors } from '/vars';
-import { formatBytes } from '/infra/utils';
 
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
@@ -111,20 +110,21 @@ const SlideWrapper = styled.div`
 const TextWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
-  justify-content: space-between;
   cursor: inherit;
 `;
 
 const Text = styled.div`
+  margin-bottom: 5px;
   font-size: 13px;
-  line-height: 17px;
+  line-height: 15px;
   color: ${smColors.white};
   cursor: inherit;
+  text-transform: uppercase;
 `;
 
 type Props = {
-  data: Array<{ label: string, availableDiskSpace: number }>,
+  data: Array<{ company: string, type: string, estimation: string }>,
+  selectedItemIndex: number,
   onClick: ({ index: number }) => void,
   style?: Object
 };
@@ -137,31 +137,33 @@ type State = {
 };
 
 class Carousel extends Component<Props, State> {
-  state = {
-    selectedItemIndex: -1,
-    leftSlideIndex: 0,
-    isLeftBtnEnabled: false,
-    isRightBtnEnabled: this.props.data.length > 3 // eslint-disable-line react/destructuring-assignment
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      leftSlideIndex: 0,
+      isLeftBtnEnabled: false,
+      isRightBtnEnabled: this.props.data.length > 3 // eslint-disable-line react/destructuring-assignment
+    };
+  }
 
   render() {
-    const { data, style } = this.props;
-    const { selectedItemIndex, leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
+    const { data, selectedItemIndex, style } = this.props;
+    const { leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
     return (
       <Wrapper>
         <Button src={isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray} onClick={isLeftBtnEnabled ? this.slideLeft : null} isDisabled={!isLeftBtnEnabled} />
         <OuterWrapper style={style}>
           <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
             {data.map((element, index) => (
-              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.label}>
+              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.type}>
                 <SlideUpperPart isSelected={selectedItemIndex === index}>
                   <TextWrapper>
-                    <Text>{element.label} hard drive</Text>
-                    <Text>
-                      FREE SPACE...
-                      <br />
-                      {formatBytes(element.availableDiskSpace)}
-                    </Text>
+                    <Text>{element.company}</Text>
+                    <Text>{element.type}</Text>
+                  </TextWrapper>
+                  <TextWrapper>
+                    <Text>~{element.estimation}</Text>
+                    <Text>TO SAVE DATA</Text>
                   </TextWrapper>
                 </SlideUpperPart>
                 <SlideMiddlePart />
@@ -178,7 +180,6 @@ class Carousel extends Component<Props, State> {
   handleSelection = ({ index }: { index: number }) => {
     const { onClick } = this.props;
     onClick({ index });
-    this.setState({ selectedItemIndex: index });
   };
 
   slideLeft = () => {
