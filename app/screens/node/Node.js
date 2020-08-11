@@ -251,7 +251,7 @@ class Node extends Component<Props, State> {
         <TextWrapper>
           <Text>Progress</Text>
           <Dots>........................................</Dots>
-          <ProgressBar progress={30} />
+          <ProgressBar progress={0.3} />
           <Text> 30% 150GB / 200GB</Text>
         </TextWrapper>
 
