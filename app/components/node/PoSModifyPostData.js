@@ -2,10 +2,10 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { Tooltip, Button } from '/basicComponents';
-import { tooltip } from '/assets/images';
 import { smColors } from '/vars';
 
-// const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const color = isDarkModeOn ? smColors.white : smColors.black;
 
 const Wrapper = styled.div`
   display: flex;
@@ -29,28 +29,7 @@ const Row = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
-`;
-
-const TooltipIcon = styled.img`
-  width: 13px;
-  height: 13px;
-`;
-
-const CustomTooltip = styled(Tooltip)`
-  top: -2px;
-  left: -3px;
-  width: 200px;
-  background-color: ${smColors.disabledGray};
-  border: 1px solid ${smColors.realBlack};
-`;
-
-const TooltipWrapper = styled.div`
-  position: relative;
-  margin-left: 5px;
-  &:hover ${CustomTooltip} {
-    display: block;
-  }
+  color: ${color};
 `;
 
 const Dots = styled.div`
@@ -60,7 +39,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${color};
 `;
 
 type Props = {
@@ -76,19 +55,13 @@ class PoSModifyPostData extends PureComponent<Props> {
         <Wrapper>
           <Row>
             <Text>Change your PoS data</Text>
-            <TooltipWrapper>
-              <TooltipIcon src={tooltip} />
-              <CustomTooltip text="Some text" />
-            </TooltipWrapper>
+            <Tooltip top={-2} left={-3} width={200} text="Some text" />
             <Dots>.....................................................</Dots>
             <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
           </Row>
           <Row>
             <Text>Stop smeshing and delete PoS data</Text>
-            <TooltipWrapper>
-              <TooltipIcon src={tooltip} />
-              <CustomTooltip text="Some text" />
-            </TooltipWrapper>
+            <Tooltip top={-2} left={-3} width={200} text="Some text" />
             <Dots>.....................................................</Dots>
             <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
           </Row>

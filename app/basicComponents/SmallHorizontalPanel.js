@@ -1,7 +1,10 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { horizontalPanelSmall } from '/assets/images';
+import { horizontalPanelBlack, horizontalPanelWhite } from '/assets/images';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const icon = isDarkModeOn ? horizontalPanelWhite : horizontalPanelBlack;
 
 const Wrapper = styled.img`
   position: absolute;
@@ -15,7 +18,7 @@ type Props = {};
 
 class SmallHorizontalPanel extends PureComponent<Props> {
   render() {
-    return <Wrapper src={horizontalPanelSmall} />;
+    return <Wrapper src={icon} />;
   }
 }
 

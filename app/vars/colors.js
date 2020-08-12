@@ -9,6 +9,7 @@ const smColors = {
   mediumGray: '#828282',
   black: '#252429',
   disabledGray: '#BCBCBD',
+  disabledGray10Alpha: 'rgba(188, 188, 189, 0.1)',
   purple: '#AA58B1',
   darkerPurple: '#814387',
   blue: '#1776E3',

@@ -7,6 +7,7 @@ import { CorneredContainer, BackButton } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { StepsContainer, SmallHorizontalPanel } from '/basicComponents';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProcessor, PoSSummary } from '/components/node';
+import { posIcon } from '/assets/images';
 import { formatBytes } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
@@ -41,7 +42,7 @@ type State = {
   freeSpace: number,
   commitment: number,
   processor: Object,
-  pauseOnUsage: boolean
+  isPausedOnUsage: boolean
 };
 
 class NodeSetup extends Component<Props, State> {
@@ -50,7 +51,8 @@ class NodeSetup extends Component<Props, State> {
     const { location } = props;
     this.state = {
       mode: location?.state?.modifyPostData ? 0 : 1,
-      folder: props.posDataPath || ''
+      folder: props.posDataPath || '',
+      isPausedOnUsage: false
     };
     this.formattedCommitmentSize = formatBytes(props.commitmentSize);
   }
@@ -63,7 +65,7 @@ class NodeSetup extends Component<Props, State> {
     return (
       <Wrapper>
         <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} />
-        <CorneredContainer width={650} height={450} header={headers[mode]} subHeader={subHeader}>
+        <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
           <SmallHorizontalPanel />
           {hasBackButton && <BackButton action={this.handlePrevAction} />}
           {this.renderRightSection()}
@@ -74,7 +76,7 @@ class NodeSetup extends Component<Props, State> {
 
   renderRightSection = () => {
     const { status, commitmentSize } = this.props;
-    const { mode, folder, freeSpace, commitment, processor, pauseOnUsage } = this.state;
+    const { mode, folder, freeSpace, commitment, processor, isPausedOnUsage } = this.state;
     const formattedCommitmentSize = formatBytes(commitmentSize);
     switch (mode) {
       case 0:
@@ -84,14 +86,14 @@ class NodeSetup extends Component<Props, State> {
       case 2:
         return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} />;
       case 3:
-        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} status={status} />;
+        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} isPausedOnUsage={isPausedOnUsage} status={status} />;
       case 4:
         return (
           <PoSSummary
             folder={folder}
             commitment={commitment}
             processor={processor}
-            pauseOnUsage={pauseOnUsage}
+            isPausedOnUsage={isPausedOnUsage}
             nextAction={this.handleNextAction}
             switchMode={({ mode }) => this.setState({ mode })}
             status={status}
@@ -104,9 +106,9 @@ class NodeSetup extends Component<Props, State> {
 
   setupAndInitMining = async () => {
     const { initMining, accounts, commitmentSize, history } = this.props;
-    const { folder, commitment, processor, pauseOnUsage } = this.state;
+    const { folder, commitment, processor, isPausedOnUsage } = this.state;
     try {
-      await initMining({ logicalDrive: folder, commitmentSize, address: accounts[0].publicKey, commitment, processor, pauseOnUsage }); // TODO: use actual user selected commitment
+      await initMining({ logicalDrive: folder, commitmentSize, address: accounts[0].publicKey, commitment, processor, isPausedOnUsage }); // TODO: use user selected commitment
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {
@@ -115,7 +117,7 @@ class NodeSetup extends Component<Props, State> {
     }
   };
 
-  handleNextAction = ({ folder, freeSpace, commitment, processor, pauseOnUsage }) => {
+  handleNextAction = ({ folder, freeSpace, commitment, processor, isPausedOnUsage }) => {
     const { mode } = this.state;
     switch (mode) {
       case 0: {
@@ -131,7 +133,7 @@ class NodeSetup extends Component<Props, State> {
         break;
       }
       case 3: {
-        this.setState({ mode: 4, processor, pauseOnUsage });
+        this.setState({ mode: 4, processor, isPausedOnUsage });
         break;
       }
       case 4: {

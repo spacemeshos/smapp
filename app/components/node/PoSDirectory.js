@@ -2,26 +2,40 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from '/basicComponents';
+import { posDirectoryBlack, posDirectoryWhite } from '/assets/images';
 import { eventsService } from '/infra/eventsService';
 import { formatBytes } from '/infra/utils';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
 
-// const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const icon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
 
 const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
-  background-color: ${smColors.disabledGray};
-  border-top: 1px solid ${smColors.realBlack};
+  background-color: ${smColors.disabledGray10Alpha};
+  border-top: 1px solid ${isDarkModeOn ? smColors.white : smColors.realBlack};
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 5% 100%, 0% 85%);
 `;
 
-const SelectorHeader = styled.div`
+const HeaderWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+`;
+
+const HeaderIcon = styled.img`
+  width: 19px;
+  height: 20px;
+  margin-right: 5px;
+`;
+
+const Header = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const ErrorText = styled.div`
@@ -36,7 +50,7 @@ const FreeSpaceHeader = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const FreeSpace = styled.div`
@@ -46,7 +60,10 @@ const FreeSpace = styled.div`
     if (error) {
       return `color: ${smColors.orange}`;
     }
-    return `color: ${selected ? smColors.green : smColors.black}`;
+    if (selected) {
+      return `color: ${smColors.green}`;
+    }
+    return `color: ${isDarkModeOn ? smColors.white : smColors.black}`;
   }}
 `;
 
@@ -82,7 +99,10 @@ class PoSDirectory extends Component<Props, State> {
     return (
       <>
         <Wrapper>
-          <SelectorHeader>PoS data folder directory:</SelectorHeader>
+          <HeaderWrapper>
+            <HeaderIcon src={icon} />
+            <Header>PoS data folder directory:</Header>
+          </HeaderWrapper>
           <Link onClick={this.openFolderSelectionDialog} text={folder || 'CLICK TO SELECT'} style={linkStyle} />
           <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
           <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>

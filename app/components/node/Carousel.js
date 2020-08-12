@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray } from '/assets/images';
+import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray, posGpu, posGpuActive, posCpu, posCpuActive } from '/assets/images';
 import { smColors } from '/vars';
 
 const SLIDE_WIDTH = 170;
@@ -18,8 +18,13 @@ const Wrapper = styled.div`
 const Button = styled.img`
   width: 10px;
   height: 17px;
-  margin: 0 15px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  &:first-child {
+    margin-right: 15px;
+  }
+  &:last-child {
+    margin-left: 15px;
+  }
 `;
 
 const OuterWrapper = styled.div`
@@ -32,6 +37,7 @@ const InnerWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   width: ${({ slidesCount }) => slidesCount * SLIDE_WIDTH + (slidesCount - 1) * SLIDE_MARGIN}px;
   height: 100%;
   transform: translate3d(-${({ leftSlideIndex }) => leftSlideIndex * SLIDE_WIDTH + (leftSlideIndex - 1) * SLIDE_MARGIN}px, 0, 0);
@@ -105,6 +111,9 @@ const SlideWrapper = styled.div`
   &:active ${SlideLowerPart} {
     background-color: ${smColors.black};
   }
+  &:last-child {
+    margin-right: 0;
+  }
 `;
 
 const TextWrapper = styled.div`
@@ -122,8 +131,18 @@ const Text = styled.div`
   text-transform: uppercase;
 `;
 
+const GpuIcon = styled.img`
+  width: 30px;
+  height: 25px;
+`;
+
+const CpuIcon = styled.img`
+  width: 30px;
+  height: 30px;
+`;
+
 type Props = {
-  data: Array<{ company: string, type: string, estimation: string }>,
+  data: Array<{ company: string, name: string, isGPU: boolean, estimation: string }>,
   selectedItemIndex: number,
   onClick: ({ index: number }) => void,
   style?: Object
@@ -155,16 +174,18 @@ class Carousel extends Component<Props, State> {
         <OuterWrapper style={style}>
           <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
             {data.map((element, index) => (
-              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.type}>
+              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.name}>
                 <SlideUpperPart isSelected={selectedItemIndex === index}>
                   <TextWrapper>
                     <Text>{element.company}</Text>
-                    <Text>{element.type}</Text>
+                    <Text>{element.name}</Text>
+                    <Text>--</Text>
                   </TextWrapper>
                   <TextWrapper>
                     <Text>~{element.estimation}</Text>
                     <Text>TO SAVE DATA</Text>
                   </TextWrapper>
+                  {element.isGPU ? <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} /> : <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
                 </SlideUpperPart>
                 <SlideMiddlePart />
                 <SlideLowerPart isSelected={selectedItemIndex === index} />

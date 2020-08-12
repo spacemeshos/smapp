@@ -2,10 +2,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '/basicComponents';
-import { tooltip } from '/assets/images';
 import { smColors } from '/vars';
 import Carousel from './Carousel';
+import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const PauseSelector = styled.div`
   display: flex;
@@ -16,45 +18,25 @@ const PauseSelector = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
-`;
-
-const TooltipIcon = styled.img`
-  width: 13px;
-  height: 13px;
-`;
-
-const CustomTooltip = styled(Tooltip)`
-  top: -2px;
-  left: -3px;
-  width: 200px;
-  background-color: ${smColors.disabledGray};
-  border: 1px solid ${smColors.realBlack};
-`;
-
-const TooltipWrapper = styled.div`
-  position: relative;
-  margin-left: 5px;
-  &:hover ${CustomTooltip} {
-    display: block;
-  }
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const data = [
-  { company: 'nvidia geforce', type: 'rtx 2700 (cuda)', estimation: '24 hours' },
-  { company: 'nvidia geforce', type: 'rtx 2700 (vulkan)', estimation: 'xx hours' },
-  { company: 'amd phenom ii', type: 'x4 955 cpu', estimation: 'xx hours' }
+  { company: 'nvidia geforce', name: 'rtx 2700 (cuda)', isGPU: true, estimation: '24 hours' },
+  { company: 'nvidia geforce', name: 'rtx 2700 (vulkan)', isGPU: true, estimation: 'xx hours' },
+  { company: 'amd phenom ii', name: 'x4 955 cpu', isGPU: false, estimation: 'xx hours' }
 ];
 
 type Props = {
   processor: Object,
+  isPausedOnUsage: boolean,
   nextAction: () => void,
   status: Object
 };
 
 type State = {
   selectedProcessorIndex: number,
-  pauseOnUsage: boolean
+  isPausedOnUsage: boolean
 };
 
 class PoSProcessor extends Component<Props, State> {
@@ -62,24 +44,22 @@ class PoSProcessor extends Component<Props, State> {
     super(props);
     this.state = {
       selectedProcessorIndex: props.processor ? data.findIndex(({ company, type }) => company === props.processor.company && type === props.processor.type) : -1,
-      pauseOnUsage: false
+      isPausedOnUsage: props.isPausedOnUsage
     };
   }
 
   render() {
     const { nextAction, status } = this.props;
-    const { selectedProcessorIndex, pauseOnUsage } = this.state;
+    const { selectedProcessorIndex, isPausedOnUsage } = this.state;
     return (
       <>
         <Carousel data={data} onClick={this.setProcessor} selectedItemIndex={selectedProcessorIndex} />
         <PauseSelector>
+          <Checkbox isChecked={isPausedOnUsage} check={() => this.setState({ isPausedOnUsage: !isPausedOnUsage })} />
           <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
-          <TooltipWrapper>
-            <TooltipIcon src={tooltip} />
-            <CustomTooltip text="Some text" />
-          </TooltipWrapper>
+          <Tooltip top={-2} left={-3} width={200} text="Some text" />
         </PauseSelector>
-        <PoSFooter action={() => nextAction({ processor: data[selectedProcessorIndex], pauseOnUsage })} isDisabled={selectedProcessorIndex === -1 || !status} />
+        <PoSFooter action={() => nextAction({ processor: data[selectedProcessorIndex], isPausedOnUsage })} isDisabled={selectedProcessorIndex === -1 || !status} />
       </>
     );
   }

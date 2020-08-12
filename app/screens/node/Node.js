@@ -1,15 +1,13 @@
 // @flow
-import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getUpcomingRewards } from '/redux/node/actions';
-import { SmesherLog } from '/components/node';
-import { WrapperWith2SideBars, Link, Button, ProgressBar } from '/basicComponents';
+import { SmesherIntro, SmesherLog } from '/components/node';
+import { WrapperWith2SideBars, Button, ProgressBar } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { eventsService } from '/infra/eventsService';
 import { getFormattedTimestamp } from '/infra/utils';
-import { fireworks } from '/assets/images';
+import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { TxList } from '/types';
@@ -32,7 +30,8 @@ const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
 `;
 
-const GreenText = styled(Text)`
+const SubHeader = styled(Text)`
+  margin-bottom: 15px;
   color: ${smColors.green};
 `;
 
@@ -41,10 +40,6 @@ const Footer = styled.div`
   flex-direction: row;
   flex: 1;
   align-items: flex-end;
-`;
-
-const Footer1 = styled(Footer)`
-  justify-content: space-between;
 `;
 
 const SmesherId = styled.span`
@@ -59,7 +54,7 @@ const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `;
 
 const Dots = styled.div`
@@ -72,22 +67,22 @@ const Dots = styled.div`
   color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
-const Fireworks = styled.img`
-  position: absolute;
-  top: -40px;
-  max-width: 100%;
-  max-height: 100%;
-  cursor: inherit;
+const PosSmesherIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
 `;
 
-const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
+const PosFolderIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+`;
 
 type Props = {
   status: Object,
   miningStatus: number,
-  // timeTillNextAward: number,
   rewards: TxList,
-  // getUpcomingRewards: Action,
   posDataPath: string,
   commitmentSize: number,
   networkId: string,
@@ -103,18 +98,13 @@ type State = {
 };
 
 class Node extends Component<Props, State> {
-  getUpcomingAwardsInterval: IntervalID;
-
-  fireworksTimeout: TimeoutID;
-
   audio: any;
 
   constructor(props) {
     super(props);
     const { location } = props;
     this.state = {
-      showIntro: !!location?.state?.showIntro,
-      showFireworks: !!location?.state?.showIntro
+      showIntro: !!location?.state?.showIntro
     };
   }
 
@@ -126,7 +116,7 @@ class Node extends Component<Props, State> {
     this.smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={450} header="SMESHER">
+        <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
         <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} />
@@ -135,11 +125,6 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    //   const { status, miningStatus, getUpcomingRewards } = this.props;
-    //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
-    //     await getUpcomingRewards();
-    //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
-    //   }
     const audioPath = await eventsService.getAudioPath();
     this.audio = new Audio(audioPath);
   }
@@ -153,70 +138,33 @@ class Node extends Component<Props, State> {
     }
   }
 
-  componentWillUnmount() {
-    // this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
-    this.fireworksTimeout && clearTimeout(this.fireworksTimeout);
-  }
-
   renderMainSection = () => {
-    const { miningStatus, history } = this.props;
-    const { showIntro, showFireworks } = this.state;
+    const { miningStatus, history, status, networkId } = this.props;
+    const { showIntro } = this.state;
     if (showIntro) {
-      return showFireworks ? this.renderFireworks() : this.renderIntro();
+      return <SmesherIntro hideIntro={() => this.setState({ showIntro: false })} />;
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return (
         <>
-          <BoldText>Proof of Space Status</BoldText>
-          <br />
+          <SubHeader>
+            Smesher
+            <SmesherId> 0x12344...244AF </SmesherId>
+            <Status status={status}>{status ? 'ONLINE' : 'OFFLINE'} </Status>
+            on Network {networkId}.
+          </SubHeader>
+          <TextWrapper>
+            <PosSmesherIcon src={posSmesher} />
+            <BoldText>Proof of Space Status</BoldText>
+          </TextWrapper>
           <Text>Proof of Space data is not setup yet</Text>
           <br />
-          <Button onClick={() => history.push('/main/node-setup')} text="SETUP POS" width={175} />
+          <Button onClick={() => history.push('/main/node-setup')} text="SETUP PROOF OF SPACE" width={250} />
         </>
       );
     } else if (miningStatus === nodeConsts.MINING_UNSET) {
-      return (
-        <>
-          <BoldText>SMESHER</BoldText>
-          <br />
-          <Text>Please wait for smeshing status…</Text>
-          <Footer1>
-            <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
-          </Footer1>
-        </>
-      );
+      return <Text>Please wait for smeshing status…</Text>;
     }
     return this.renderNodeDashboard();
-  };
-
-  renderFireworks = () => {
-    this.fireworksTimeout = setTimeout(() => {
-      this.setState({ showFireworks: false });
-    }, 1500);
-    return <Fireworks key="fireworks" src={fireworks} />;
-  };
-
-  renderIntro = () => {
-    return (
-      <>
-        <BoldText>Your proof of space data is being created!</BoldText>
-        <Text>* You will get a desktop notification when the setup is complete</Text>
-        <Text>* Your app will start smeshing automatically when the setup is complete</Text>
-        <br />
-        <br />
-        <BoldText>Important</BoldText>
-        <Text>* Leave your computer on 24/7 to finish setup and start smeshing</Text>
-        <Text>
-          * <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={inlineLinkStyle} />
-        </Text>
-        <Text>
-          * <Link onClick={this.navigateToNetConfigGuide} text="Configure your network to accept incoming app connections." style={inlineLinkStyle} />
-        </Text>
-        <Footer1>
-          <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
-          <Button onClick={() => this.setState({ showIntro: false })} text="GOT IT" width={175} />
-        </Footer1>
-      </>
-    );
   };
 
   renderNodeDashboard = () => {
@@ -224,20 +172,23 @@ class Node extends Component<Props, State> {
     const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
     return (
       <>
-        <GreenText>
+        <SubHeader>
           Smesher
           <SmesherId> 0x12344...244AF </SmesherId>
           <Status status={status}>{status ? 'ONLINE' : 'OFFLINE'} </Status>
           on Network {networkId}.
-        </GreenText>
+        </SubHeader>
         <br />
-        <BoldText>Proof of Space Status</BoldText>
-        <br />
-        <Text>
-          {posDataPath} with {commitmentSize}GB allocated
-        </Text>
-        <br />
-        <br />
+        <TextWrapper>
+          <PosSmesherIcon src={posSmesher} />
+          <BoldText>Proof of Space Status</BoldText>
+        </TextWrapper>
+        <TextWrapper>
+          <PosFolderIcon src={isDarkModeOn ? posDirectoryWhite : posDirectoryBlack} />
+          <Text>
+            {posDataPath} with {commitmentSize}GB allocated
+          </Text>
+        </TextWrapper>
         <TextWrapper>
           <Text>Status</Text>
           <Dots>........................................</Dots>
@@ -267,12 +218,6 @@ class Node extends Component<Props, State> {
       </>
     );
   };
-
-  navigateToMiningGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
-
-  navigateToNetConfigGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/netconfig');
-
-  navigateToPreventComputerSleep = () => shell.openExternal('https://testnet.spacemesh.io/#/no_sleep');
 }
 
 const mapStateToProps = (state) => ({
@@ -281,16 +226,11 @@ const mapStateToProps = (state) => ({
   posDataPath: state.node.posDataPath,
   commitmentSize: state.node.commitmentSize,
   miningStatus: state.node.miningStatus,
-  timeTillNextAward: state.node.timeTillNextAward,
   rewards: state.node.rewards,
   rewardsAddress: state.node.rewardsAddress
 });
 
-const mapDispatchToProps = {
-  getUpcomingRewards
-};
-
-Node = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Node);
+Node = connect<any, any, _, _, _, _>(mapStateToProps)(Node);
 
 Node = ScreenErrorBoundary(Node);
 export default Node;

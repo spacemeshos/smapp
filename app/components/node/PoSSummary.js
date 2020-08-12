@@ -5,7 +5,8 @@ import { Link } from '/basicComponents';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
 
-// const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const color = isDarkModeOn ? smColors.white : smColors.black;
 
 const Row = styled.div`
   display: flex;
@@ -23,7 +24,7 @@ const Row = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${color};
   text-transform: uppercase;
 `;
 
@@ -34,7 +35,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${color};
 `;
 
 const linkStyle = { textTransform: 'uppercase', fontSize: '15px', lineHeight: '17px' };
@@ -43,7 +44,7 @@ type Props = {
   folder: string,
   commitment: string,
   processor: string,
-  pauseOnUsage: boolean,
+  isPausedOnUsage: boolean,
   nextAction: () => void,
   switchMode: ({ mode: number }) => void,
   status: Object
@@ -59,7 +60,7 @@ class PoSSummary extends Component<Props, State> {
   };
 
   render() {
-    const { folder, commitment, processor, pauseOnUsage, switchMode, status } = this.props;
+    const { folder, commitment, processor, isPausedOnUsage, switchMode, status } = this.props;
     const { isProcessing } = this.state;
     return (
       <>
@@ -86,7 +87,7 @@ class PoSSummary extends Component<Props, State> {
         <Row>
           <Text>pause when pc is in use</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 3 })} text={pauseOnUsage ? 'on' : 'off'} style={linkStyle} isDisabled={isProcessing} />
+          <Link onClick={() => switchMode({ mode: 3 })} text={isPausedOnUsage ? 'on' : 'off'} style={linkStyle} isDisabled={isProcessing} />
         </Row>
         <PoSFooter action={this.nextAction} isDisabled={isProcessing || !status} isLastMode />
       </>

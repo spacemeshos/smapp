@@ -2,11 +2,12 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '/basicComponents';
-import { tooltip } from '/assets/images';
+import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '/assets/images';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const posDirectoryIcon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
 
 const Row = styled.div`
   display: flex;
@@ -21,10 +22,28 @@ const Row = styled.div`
   }
 `;
 
+const Icon1 = styled.img`
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+`;
+
+const Icon2 = styled.img`
+  width: 15px;
+  height: 20px;
+  margin-right: 10px;
+`;
+
+const Icon3 = styled.img`
+  width: 18px;
+  height: 17px;
+  margin-right: 7px;
+`;
+
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const Dots = styled.div`
@@ -34,7 +53,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const RewardText = styled(Text)`
@@ -43,27 +62,6 @@ const RewardText = styled(Text)`
 
 const GreenText = styled(Text)`
   color: ${smColors.green};
-`;
-
-const TooltipIcon = styled.img`
-  width: 13px;
-  height: 13px;
-`;
-
-const CustomTooltip = styled(Tooltip)`
-  top: -2px;
-  left: -3px;
-  width: 200px;
-  background-color: ${smColors.disabledGray};
-  border: 1px solid ${smColors.realBlack};
-`;
-
-const TooltipWrapper = styled.div`
-  position: relative;
-  margin-left: 5px;
-  &:hover ${CustomTooltip} {
-    display: block;
-  }
 `;
 
 const CommitmentWrapper = styled.div`
@@ -124,11 +122,9 @@ class PoSSize extends Component<Props, State> {
     return (
       <>
         <Row>
+          <Icon1 src={posSpace} />
           <Text>Proof of space size</Text>
-          <TooltipWrapper>
-            <TooltipIcon src={tooltip} />
-            <CustomTooltip text="Some text" />
-          </TooltipWrapper>
+          <Tooltip top={-2} left={-3} width={200} text="Some text" />
           <Dots>.....................................................</Dots>
           <DropDown
             data={commitments}
@@ -141,15 +137,14 @@ class PoSSize extends Component<Props, State> {
           />
         </Row>
         <Row>
+          <Icon2 src={posRewardEst} />
           <Text>Estimated coin reward</Text>
-          <TooltipWrapper>
-            <TooltipIcon src={tooltip} />
-            <CustomTooltip text="Some text" />
-          </TooltipWrapper>
+          <Tooltip top={-2} left={-3} width={200} text="Some text" />
           <Dots>.....................................................</Dots>
           <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? '10 SMESH / MONTH' : '0 SMESH / MONTH'}</RewardText>
         </Row>
         <Row>
+          <Icon3 src={posDirectoryIcon} />
           <Text>PoS data folder</Text>
           <Dots>.....................................................</Dots>
           <GreenText>{folder}</GreenText>
