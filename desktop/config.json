@@ -1,94 +1,70 @@
 {
-  "main": {
-    "layer-duration-sec": 300,
-    "layer-average-size": 50,
-    "layers-per-epoch": 288,
-    "block-cache-size": 20,
-    "sync-request-timeout": 60000,
-    "sync-interval": 10,
-    "sync-validation-delta": 30,
-    "hdist": 10,
-    "atxs-per-block": 25,
-    "genesis-active-size": 100,
-    "genesis-time": "2020-06-05T17:15:52+00:00",
-    "poet-server": "35.193.98.51:8080"
-  },
-  "p2p": {
-    "dial-timeout": "1m",
-    "conn-keepalive": "48h",
-    "response-timeout": "60s",
-    "session-timeout": "15s",
-    "max-pending-connections": 100,
-    "outbound-target": 10,
-    "max-inbound": 32,
-    "buffer-size": 10000,
-    "msg-size-limit": 0,
-    "swarm": {
-      "bucketsize": 20,
-      "alpha": 3,
-      "randcon": 8,
-      "bootnodes": [
-        "spacemesh://4xRYhhKCxTwKKvNffwsS23EkevXEmZd7y5cHbie1UvQG@35.223.119.33:20000",
-        "spacemesh://5PTkgTHsGBkEfzKw7eu6JkqwWQbFhErBXvUQvDYqjcmQ@35.223.119.33:20002",
-        "spacemesh://DsJ6Tj1nykSenzWKYLDiGShFDRxGudeVVH8P2aPwJdXA@35.223.119.33:20004",
-        "spacemesh://9wvPx5jZskHQk4uoUCiV2hfkVSWtUWKg47Dv77yWte8w@35.223.119.33:20006",
-        "spacemesh://HUgabxxdzqonRpr3ikUvZtiUKHsHgHTtpAQq3gUAz9Dt@35.238.91.227:20000",
-        "spacemesh://8Kv1mw5ExMUde4WAVGpAKGBf22y6kAWeW3eSkpm3mrMw@35.238.91.227:20002"
-      ],
-      "bootstrap": true
+    "hare": {
+        "hare-committee-size": "50",
+        "hare-exp-leaders": "5",
+        "hare-limit-concurrent": "5",
+        "hare-limit-iterations": "10",
+        "hare-max-adversaries": "24",
+        "hare-round-duration-sec": "30",
+        "hare-wakeup-delta": "30"
     },
-    "network-id": 116
-  },
-  "post": {
-    "post-space": 4294967296,
-    "post-labels": 50
-  },
-  "reward": {
-    "base-reward": {
-      "abs": 50000000000000
+    "hare-eligibility": {
+        "eligibility-confidence-param": "100",
+        "eligibility-epoch-offset": "0"
+    },
+    "main": {
+        "atxs-per-block": "25",
+        "block-cache-size": "20",
+        "genesis-active-size": "100",
+        "genesis-time": "2020-08-26T01:21:04.504+00:00",
+        "hdist": "10",
+        "layer-average-size": "50",
+        "layer-duration-sec": "300",
+        "layers-per-epoch": "288",
+        "poet-server": "35.184.10.214:8080",
+        "sync-interval": "10",
+        "sync-request-timeout": "60000",
+        "sync-validation-delta": "30"
+    },
+    "p2p": {
+        "buffer-size": "10000",
+        "conn-keepalive": "48h",
+        "dial-timeout": "1m",
+        "max-inbound": "32",
+        "max-pending-connections": "100",
+        "msg-size-limit": "0",
+        "network-id": "117",
+        "outbound-target": "10",
+        "response-timeout": "60s",
+        "session-timeout": "15s",
+        "swarm": {
+            "alpha": "3",
+            "bootnodes": [
+                "spacemesh://FR7N7nmycyZ1crvk4Buc2CvtY1Wdvs65LsBSg1ymjdAZ@35.239.0.119:11012",
+                "spacemesh://296GgpjewHiSojnJceQ1vCfZ8Tafhkj68G3cUL1akZLx@35.226.31.191:11093",
+                "spacemesh://AvFiCUhfeJT4tVY431cXxXGuJmd5tK3iZ3MgKmCyBez9@104.198.42.27:11071",
+                "spacemesh://GpKmAL4fwJDuhmowozJtAKZKk6gutKP1GKXvdNYLWSLw@35.188.147.54:11091",
+                "spacemesh://6yXE5kLEh1kRNeZDNCR4exbWmPELvj3A2CWE5w8LCKEm@34.68.204.223:11041",
+                "spacemesh://XZFLbieJwWYes5mU36AkSPx7t8ZzfhKDLnMLQiBR1kN@34.121.147.205:11070"
+            ],
+            "bootstrap": true,
+            "bucketsize": "20",
+            "randcon": "8"
+        }
+    },
+    "post": {
+        "post-labels": "50",
+        "post-space": "4294967296"
+    },
+    "reward": {
+        "base-reward": {
+            "abs": "50000000000000"
+        }
+    },
+    "time": {
+        "default-timeout-latency": "10s",
+        "max-allowed-time-drift": "10s",
+        "ntp-queries": "5",
+        "refresh-ntp-interval": "30m"
     }
-  },
-  "hare": {
-    "hare-committee-size": 50,
-    "hare-max-adversaries": 24,
-    "hare-round-duration-sec": 30,
-    "hare-wakeup-delta": 30,
-    "hare-exp-leaders": 5,
-    "hare-limit-iterations": 10,
-    "hare-limit-concurrent": 5
-  },
-  "hare-eligibility": {
-    "eligibility-confidence-param": 100,
-    "eligibility-epoch-offset": 0
-  },
-  "time": {
-    "max-allowed-time-drift": "10s",
-    "ntp-queries": 5,
-    "default-timeout-latency": "10s",
-    "refresh-ntp-interval": "30m"
-  },
-  "logging": {
-    "app": "info",
-    "p2p": "info",
-    "post": "info",
-    "stateDb": "info",
-    "state": "info",
-    "atxDb": "info",
-    "poetDb": "info",
-    "store": "info",
-    "meshDb": "info",
-    "trtl": "info",
-    "block-eligibility": "info",
-    "mesh": "info",
-    "sync": "info",
-    "block-oracle": "info",
-    "hare-oracle": "info",
-    "hare": "info",
-    "block-builder": "info",
-    "block-listener": "info",
-    "poet": "info",
-    "nipst": "info",
-    "atx-builder": "info",
-    "hare-beacon": "info"
-  }
 }
