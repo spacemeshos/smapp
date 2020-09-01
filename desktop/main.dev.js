@@ -15,7 +15,6 @@ import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
-import UpdateManager from './updateManager';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
@@ -162,7 +161,6 @@ app.on('ready', async () => {
 
   nodeManager = new NodeManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
-  new UpdateManager(mainWindow); // eslint-disable-line no-new
 });
 
 app.on('activate', () => {
