@@ -324,8 +324,7 @@ class Settings extends Component<Props, State> {
 
   async componentDidMount() {
     const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
-    const isUpdateDownloading = await eventsService.isUpdateDownloading();
-    this.setState({ isAutoStartEnabled, isUpdateDownloading });
+    this.setState({ isAutoStartEnabled });
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -488,7 +487,6 @@ const mapStateToProps = (state) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
-  isUpdateDownloading: state.wallet.isUpdateDownloading,
   nodeIpAddress: state.node.nodeIpAddress,
   genesisTime: state.node.genesisTime,
   rewardsAddress: state.node.rewardsAddress,
