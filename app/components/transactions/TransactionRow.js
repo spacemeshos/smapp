@@ -136,7 +136,7 @@ const TextArea = styled.textarea`
   padding: 8px 10px;
   border-radius: 0;
   border: none;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${smColors.black};
   font-size: 14px;
   line-height: 16px;
   outline: none;
