@@ -24,7 +24,7 @@
         "layer-average-size": "50",
         "layer-duration-sec": "300",
         "layers-per-epoch": "288",
-        "poet-server": "35.226.91.216:8080",
+        "poet-server": "35.222.224.200:8080",
         "sync-interval": "10",
         "sync-request-timeout": "60000",
         "sync-validation-delta": "30"
