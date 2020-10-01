@@ -84,11 +84,11 @@ type State = {
 
 class Wallet extends Component<Props, State> {
   render() {
-    const { backupTime } = this.props;
+    const { backupTime, history } = this.props;
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview />
+          <AccountsOverview history={history} />
           {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
               <FullCrossIcon src={icon} />

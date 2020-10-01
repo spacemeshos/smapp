@@ -22,7 +22,8 @@ import {
   Transactions,
   Settings,
   Contacts,
-  TestMe
+  TestMe,
+  Vault
 } from '/screens';
 
 const app = [
@@ -102,6 +103,10 @@ const wallet = [
   {
     path: '/main/wallet/overview',
     component: Overview
+  },
+  {
+    path: '/main/wallet/vault',
+    component: Vault
   },
   {
     path: '/main/wallet/send-coins',

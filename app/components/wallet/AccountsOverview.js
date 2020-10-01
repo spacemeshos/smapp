@@ -9,6 +9,8 @@ import { copyBlack, copyWhite } from '/assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account, Action } from '/types';
+import type { RouterHistory } from 'react-router-dom';
+import Link from '../../basicComponents/Link';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const copy = isDarkModeOn ? copyWhite : copyBlack;
@@ -120,7 +122,8 @@ type Props = {
   currentAccountIndex: number,
   getBalance: Action,
   setCurrentAccount: Action,
-  status: Object
+  status: Object,
+  history: RouterHistory
 };
 
 type State = {
@@ -161,6 +164,7 @@ class AccountsOverview extends Component<Props, State> {
         </AccountDetails>
         <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
         <Footer>
+          <Link onClick={this.navigateToVault} text="Open Vault" style={{ marginRight: 'auto' }} />
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (
             <BalanceWrapper>
@@ -193,6 +197,11 @@ class AccountsOverview extends Component<Props, State> {
     const { setCurrentAccount, getBalance } = this.props;
     setCurrentAccount({ index });
     await getBalance();
+  };
+
+  navigateToVault = () => {
+    const { history } = this.props;
+    history.push('/main/wallet/vault');
   };
 
   copyPublicAddress = (e) => {
