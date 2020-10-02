@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { vault } from '/assets/images';
 import { smColors } from '/vars';
 import Input from '../../../basicComponents/Input';
+import Tooltip from '../../../basicComponents/Tooltip';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
@@ -81,11 +82,13 @@ class VaultType extends Component<Props, State> {
           <Label>
             <Input type="radio" checked={type === 'single'} name="single" value={'single'} onChange={(e) => handleChangeType(e)} />
             <InputTitle>Simple Vault</InputTitle>
+            <Tooltip top="-2" left="-3" width="250" text="Simple Vault" />
           </Label>
           <InputSubTitle>A vault controlled by a single master account.</InputSubTitle>
           <Label>
             <Input type="radio" checked={type === 'multi-sig'} name="multi-sig" value={'multi-sig'} onChange={(e) => handleChangeType(e)} />
             <InputTitle>Multi-sig Vault</InputTitle>
+            <Tooltip top="-2" left="-3" width="250" text="Multi-sig Vault" />
           </Label>
           <InputSubTitle>A 2/3 multi-sig vault which is controlled by 3 master accounts and requires 2 signatures on each operation.</InputSubTitle>
         </CheckboxWrap>

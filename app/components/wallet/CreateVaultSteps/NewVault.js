@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import { vault } from '/assets/images';
 import { smColors } from '/vars';
 import Input from '../../../basicComponents/Input';
-import QuestionMarkTooltip from '../../../basicComponents/QuestionMarkTooltip';
-import { tooltip } from '../../../assets/images';
+import Tooltip from '../../../basicComponents/Tooltip';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
@@ -62,18 +61,6 @@ const Dots = styled.div`
   color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
-const ToolTipIcon = styled.img`
-  margin-left: 5px;
-  width: 13px;
-`;
-
-const TooltipWrap = styled.div`
-  position: relative;
-  &:hover .questionMark {
-    display: block;
-  }
-`;
-
 const inputStyle = { flex: '0 0 240px' };
 
 type Props = {
@@ -94,26 +81,24 @@ class NewVault extends Component<Props, State> {
         <Header>
           <HeaderIcon src={vault} />
           <HeaderText>New Vault</HeaderText>
-          <TooltipWrap>
-            <ToolTipIcon src={tooltip} />
-            <QuestionMarkTooltip
-              className="questionMark"
-              text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
-            />
-          </TooltipWrap>
+          <Tooltip
+            top="-2"
+            left="-3"
+            width="250"
+            text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
+          />
         </Header>
         <SubHeader>
           -- <br /> A vault is enhanced account with extra and spending features.
         </SubHeader>
         <DetailsRow>
           <DetailsText>Vault Name</DetailsText>
-          <TooltipWrap>
-            <ToolTipIcon src={tooltip} />
-            <QuestionMarkTooltip
-              className="questionMark"
-              text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
-            />
-          </TooltipWrap>
+          <Tooltip
+            top="-2"
+            left="-3"
+            width="250"
+            text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
+          />
           <Dots>....................................</Dots>
           <Input type="text" value={vaultName} onChange={onChangeVaultName} placeholder="MY VAULT NAME" maxLength={50} style={inputStyle} />
         </DetailsRow>
