@@ -31,6 +31,42 @@ const ActualInput = styled.input`
   outline: none;
 `;
 
+const RadioInput = styled.input`
+  position: relative;
+  height: 18px;
+  width: 18px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  }
+  ::before {
+    content: '';
+    position: absolute;
+    top: 70%;
+    left: calc(50% - 10px);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    border: 1px solid #000;
+  }
+  :checked::after {
+    content: '';
+    position: absolute;
+    top: 70%;
+    left: calc(50% - 10px);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #65B042;
+    transform: translate(-50%, -50%);
+    visibility: visible;
+  }
+`;
+
 const ExtraTxt = styled.div`
   padding: 10px 10px 10px 0;
   font-size: 14px;
@@ -45,6 +81,8 @@ type Props = {
   onEnterPress?: () => void | Promise<any>,
   onFocus?: ({ target: Object }) => void,
   value: string,
+  checked?: boolean,
+  name?: string,
   isDisabled?: boolean,
   placeholder?: string,
   extraText?: string,
@@ -72,9 +110,22 @@ class Input extends Component<Props, State> {
   };
 
   render() {
-    const { value, isDisabled, placeholder, extraText, style, type, maxLength, autofocus } = this.props;
+    const { value, isDisabled, placeholder, extraText, style, type, maxLength, autofocus, checked, name } = this.props;
     const { isFocused } = this.state;
     return (
+      type === 'radio' ? (
+      <RadioInput
+        value={value}
+        checked={checked}
+        name={name}
+        onKeyPress={this.onEnterPress}
+        onChange={this.onChange}
+        onFocus={this.handleFocus}
+        onBlur={() => this.setState({ isFocused: false })}
+        type={type}
+        autoFocus={autofocus}
+      />
+    ) : (
       <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
         <ActualInput
           value={value}
@@ -90,6 +141,7 @@ class Input extends Component<Props, State> {
         />
         {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
       </Wrapper>
+      )
     );
   }
 

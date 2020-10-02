@@ -77,7 +77,8 @@ const TooltipWrap = styled.div`
 const inputStyle = { flex: '0 0 240px' };
 
 type Props = {
-  currentStep: number
+  vaultName: string,
+  onChangeVaultName: () => void
 };
 
 type State = {
@@ -85,20 +86,8 @@ type State = {
 };
 
 class NewVault extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      vaultName: ''
-    };
-  }
-
   render() {
-    const { currentStep } = this.props;
-    const { vaultName } = this.state;
-
-    if (currentStep !== 1) {
-      return null;
-    }
+    const { vaultName, onChangeVaultName } = this.props;
 
     return (
       <>
@@ -126,15 +115,11 @@ class NewVault extends Component<Props, State> {
             />
           </TooltipWrap>
           <Dots>....................................</Dots>
-          <Input type="text" value={vaultName} onChange={this.handleInputChange} placeholder="MY VAULT NAME" maxLength={50} style={inputStyle} />
+          <Input type="text" value={vaultName} onChange={onChangeVaultName} placeholder="MY VAULT NAME" maxLength={50} style={inputStyle} />
         </DetailsRow>
       </>
     );
   }
-
-  handleInputChange = ({ value }: { value: string }) => {
-    this.setState({ vaultName: value });
-  };
 }
 
 export default NewVault;

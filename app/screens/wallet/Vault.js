@@ -31,6 +31,7 @@ const Footer = styled.div`
 type Props = {};
 
 type State = {
+  mode: 1 | 2 | 3 | 4 | 5 | 6,
   currentStep: number
 };
 
@@ -38,37 +39,57 @@ class Vault extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      currentStep: 1
+      mode: 1,
+      name: '',
+      type: 'single'
     };
     this.handleNext = this.handleNext.bind(this);
   }
 
   render() {
-    const { currentStep } = this.state;
+    const { mode, name } = this.state;
     return (
       <Wrapper>
-        <form onSubmit={this.handleSubmit}>
-          <NewVault currentStep={currentStep} />
-          <VaultType currentStep={currentStep} />
-        </form>
+        {this.renderVaultSteps(mode)}
         <Footer>
           <Link onClick={this.navigateToVaultSetup} text="VAULT SETUP GIDE" />
-          <Button text="NEXT" onClick={this.handleNext} isDisabled={false} style={{ marginTop: 'auto' }} />
+          <Button text="NEXT" onClick={this.handleNext} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />
         </Footer>
       </Wrapper>
     );
   }
 
-  handleSubmit() {
-    return this.state;
-  }
+  renderVaultSteps = (mode) => {
+    const { name, type } = this.state;
+    switch (mode) {
+      case 1: {
+        return <NewVault vaultName={name} onChangeVaultName={this.handleChangeVaultName} />;
+      }
+      case 2: {
+        return <VaultType handleChangeType={this.handleChangeType} type={type} />;
+      }
+      case 3: {
+        return <VaultType />;
+      }
+      case 4: {
+        return <VaultType />;
+      }
+      default: {
+        return null;
+      }
+    }
+  };
 
-  handleNext() {
-    const { currentStep } = this.state;
+  handleChangeVaultName = ({ value }: { value: string }) => this.setState({ name: value });
+
+  handleChangeType = ({ value }: { value: string }) => this.setState({ type: value });
+
+  handleNext = () => {
+    const { mode } = this.state;
     this.setState({
-      currentStep: currentStep >= 2 ? 3 : currentStep + 1
+      mode: mode + 1
     });
-  }
+  };
 
   navigateToVaultSetup = () => shell.openExternal('https://product.spacemesh.io/#/smapp_vaults');
 }
