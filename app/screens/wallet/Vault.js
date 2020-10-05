@@ -2,7 +2,6 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import { NewVault, VaultType, VaultMasterAccount } from '/components/vault';
-import { smColors } from '/vars';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
 import { vault } from '/assets/images';
@@ -19,12 +18,16 @@ const Footer = styled.div`
 type Props = {};
 
 type State = {
-  mode: 1 | 2 | 3 | 4 | 5 | 6,
+  mode: 0 | 1 | 2 | 3 | 4 | 5,
   currentStep: number
 };
 
-const headers = ['NEW VAULT', 'VAULT TYPE'];
-const subHeader = ['A vault is an enhanced account with extra security and spending features.', 'Select vault’s type from one of the options below.'];
+const headers = ['NEW VAULT', 'VAULT TYPE', 'VAULT MASTER ACCOUNT'];
+const subHeader = [
+  'A vault is an enhanced account with extra security and spending features.',
+  'Select vault’s type from one of the options below.',
+  'The master account is the account that will be used to perform vault operations such as withdrawing funds.'
+];
 
 class Vault extends Component<Props, State> {
   constructor(props: Props) {
@@ -61,13 +64,13 @@ class Vault extends Component<Props, State> {
         return <VaultType handleChangeType={this.handleChangeType} type={type} />;
       }
       case 2: {
-        return <VaultType handleChangeType={this.handleChangeType} type={type} />;
-      }
-      case 3: {
         return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={this.selectedAccountIndex} />;
       }
+      case 3: {
+        return null;
+      }
       case 4: {
-        return <VaultType />;
+        return null;
       }
       default: {
         return null;

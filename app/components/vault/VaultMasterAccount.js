@@ -1,40 +1,10 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { vault } from '/assets/images';
 import { smColors } from '/vars';
 import { DropDown, Tooltip } from '/basicComponents';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  margin: 10px 0 20px 0;
-`;
-
-const HeaderText = styled.div`
-  font-size: 32px;
-  line-height: 25px;
-  text-transform: uppercase;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-`;
-
-const HeaderIcon = styled.img`
-  width: 30px;
-  height: 29px;
-  margin: auto 0;
-  margin-right: 5px;
-`;
-
-const SubHeader = styled.div`
-  margin-bottom: 20px;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-};
-`;
 
 const DetailsRow = styled.div`
   position: relative;
@@ -110,14 +80,6 @@ class VaultMasterAccount extends Component<Props, State> {
 
     return (
       <>
-        <Header>
-          <HeaderIcon src={vault} />
-          <HeaderText>Vault Master Account</HeaderText>
-        </Header>
-        <SubHeader>
-          -- <br />
-          The master account is the account that will be used to perform vault operations such as withdrawing funds.
-        </SubHeader>
         <DetailsRow>
           <DetailsRow>
             <DetailsText>Vault Name</DetailsText>
