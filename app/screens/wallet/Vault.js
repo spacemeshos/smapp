@@ -4,21 +4,9 @@ import React, { Component } from 'react';
 import { NewVault, VaultType, VaultMasterAccount } from '/components/vault';
 import { smColors } from '/vars';
 import styled from 'styled-components';
-import Link from '/basicComponents/Link';
-import Button from '/basicComponents/Button';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 600px;
-  height: 100%;
-  margin-right: 10px;
-  padding: 10px 15px;
-  background-size: contain;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
-`;
+import { CorneredContainer } from '/components/common';
+import { vault } from '/assets/images';
+import { Link, Button } from '/basicComponents';
 
 const Footer = styled.div`
   display: flex;
@@ -35,11 +23,14 @@ type State = {
   currentStep: number
 };
 
+const headers = ['NEW VAULT', 'VAULT TYPE'];
+const subHeader = ['A vault is an enhanced account with extra security and spending features.', 'Select vault’s type from one of the options below.'];
+
 class Vault extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      mode: 1,
+      mode: 0,
       name: '',
       type: 'single',
       masterAccountIndex: 0
@@ -50,21 +41,24 @@ class Vault extends Component<Props, State> {
   render() {
     const { mode, name } = this.state;
     return (
-      <Wrapper>
+      <CorneredContainer header={headers[mode]} headerIcon={vault} subHeader={subHeader[mode]} useEmptyWrap>
         {this.renderVaultSteps(mode)}
         <Footer>
           <Link onClick={this.navigateToVaultSetup} text="VAULT SETUP GIDE" />
           <Button text="NEXT" onClick={this.handleNext} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />
         </Footer>
-      </Wrapper>
+      </CorneredContainer>
     );
   }
 
   renderVaultSteps = (mode) => {
     const { name, type, masterAccountIndex } = this.state;
     switch (mode) {
-      case 1: {
+      case 0: {
         return <NewVault vaultName={name} onChangeVaultName={this.handleChangeVaultName} />;
+      }
+      case 1: {
+        return <VaultType handleChangeType={this.handleChangeType} type={type} />;
       }
       case 2: {
         return <VaultType handleChangeType={this.handleChangeType} type={type} />;

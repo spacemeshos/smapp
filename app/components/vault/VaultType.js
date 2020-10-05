@@ -1,46 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { vault } from '/assets/images';
 import { smColors } from '/vars';
-import Tooltip from '/basicComponents/Tooltip';
-import RadioButton from '/basicComponents/RadioButton';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  margin-bottom: 20px;
-`;
-
-const HeaderText = styled.div`
-  font-size: 32px;
-  line-height: 40px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-`;
-
-const HeaderIcon = styled.img`
-  width: 30px;
-  height: 29px;
-  margin: auto 0;
-  margin-right: 5px;
-`;
-
-const SubHeader = styled.div`
-  margin-bottom: 20px;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-  };
-`;
-
-const CheckboxWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 10px 0 0 7px;
-`;
+import { Tooltip, RadioButton } from '/basicComponents';
 
 const Label = styled.div`
   display: flex;
@@ -71,27 +33,18 @@ class VaultType extends Component<Props, State> {
     const { type, handleChangeType } = this.props;
     return (
       <>
-        <Header>
-          <HeaderIcon src={vault} />
-          <HeaderText>VAULT TYPE</HeaderText>
-        </Header>
-        <SubHeader>
-          -- <br /> Select vault type from one of the options below
-        </SubHeader>
-        <CheckboxWrap>
-          <Label>
-            <RadioButton checked={type === 'single'} name="single" value={'single'} onChange={(e) => handleChangeType(e)} />
-            <InputTitle>Simple Vault</InputTitle>
-            <Tooltip top="-2" left="-3" width="250" text="Simple Vault" />
-          </Label>
-          <InputSubTitle>A vault controlled by a single master account.</InputSubTitle>
-          <Label>
-            <RadioButton checked={type === 'multi-sig'} name="multi-sig" value={'multi-sig'} onChange={(e) => handleChangeType(e)} />
-            <InputTitle>Multi-sig Vault</InputTitle>
-            <Tooltip top="-2" left="-3" width="250" text="Multi-sig Vault" />
-          </Label>
-          <InputSubTitle>A 2/3 multi-sig vault which is controlled by 3 master accounts and requires 2 signatures on each operation.</InputSubTitle>
-        </CheckboxWrap>
+        <Label>
+          <RadioButton checked={type === 'single'} name="single" value={'single'} onChange={(e) => handleChangeType(e)} />
+          <InputTitle>Simple Vault</InputTitle>
+          <Tooltip top="-2" left="-3" width="250" text="Simple Vault" />
+        </Label>
+        <InputSubTitle>A vault controlled by a single master account.</InputSubTitle>
+        <Label>
+          <RadioButton checked={type === 'multi-sig'} name="multi-sig" value={'multi-sig'} onChange={(e) => handleChangeType(e)} />
+          <InputTitle>Multi-sig Vault</InputTitle>
+          <Tooltip top="-2" left="-3" width="250" text="Multi-sig Vault" />
+        </Label>
+        <InputSubTitle>A 2/3 multi-sig vault which is controlled by 3 master accounts and requires 2 signatures on each operation.</InputSubTitle>
       </>
     );
   }
