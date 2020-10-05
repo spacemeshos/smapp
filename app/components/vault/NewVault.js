@@ -1,41 +1,10 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { vault } from '/assets/images';
 import { smColors } from '/vars';
-import Input from '/basicComponents/Input';
-import Tooltip from '/basicComponents/Tooltip';
+import { Tooltip, Input } from '/basicComponents';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  margin: 10px 0 20px 0;
-`;
-
-const HeaderText = styled.div`
-  font-size: 32px;
-  line-height: 25px;
-  text-transform: uppercase;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-`;
-
-const HeaderIcon = styled.img`
-  width: 30px;
-  height: 29px;
-  margin: auto 0;
-  margin-right: 5px;
-`;
-
-const SubHeader = styled.div`
-  margin-bottom: 20px;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-};
-`;
 
 const DetailsRow = styled.div`
   position: relative;
@@ -78,19 +47,6 @@ class NewVault extends Component<Props, State> {
 
     return (
       <>
-        <Header>
-          <HeaderIcon src={vault} />
-          <HeaderText>New Vault</HeaderText>
-          <Tooltip
-            top="-2"
-            left="-3"
-            width="250"
-            text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
-          />
-        </Header>
-        <SubHeader>
-          -- <br /> A vault is enhanced account with extra and spending features.
-        </SubHeader>
         <DetailsRow>
           <DetailsText>Vault Name</DetailsText>
           <Tooltip

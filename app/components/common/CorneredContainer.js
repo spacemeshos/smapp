@@ -18,6 +18,16 @@ const Wrapper = styled(CorneredWrapper)`
   background-color: ${backgroundColor};
 `;
 
+const DivWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: ${({ width }) => width}px;
+  height: ${({ height }) => height}px;
+  padding: 20px;
+  background-color: ${backgroundColor};
+`;
+
 const HeaderWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -49,13 +59,30 @@ type Props = {
   height: number,
   header: string,
   headerIcon?: Object,
-  subHeader?: string
+  subHeader?: string,
+  useEmptyWrap: boolean
 };
 
 class CorneredContainer extends PureComponent<Props> {
   render() {
-    const { children, width, height, header, headerIcon, subHeader } = this.props;
+    const { children, width, height, header, headerIcon, subHeader, useEmptyWrap } = this.props;
+
     return (
+      useEmptyWrap ? ( <DivWrapper width={width} height={height} >
+        <HeaderWrapper>
+          {headerIcon && <HeaderIcon src={headerIcon} />}
+          <Header>{header}</Header>
+        </HeaderWrapper>
+        {subHeader && (
+          <SubHeader>
+            --
+            <br />
+            {subHeader}
+          </SubHeader>
+        )}
+        {children}
+      </DivWrapper>
+    ) : (
       <Wrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
@@ -70,6 +97,7 @@ class CorneredContainer extends PureComponent<Props> {
         )}
         {children}
       </Wrapper>
+      )
     );
   }
 }
