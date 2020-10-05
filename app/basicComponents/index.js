@@ -3,6 +3,7 @@ export { default as Loader } from './Loader';
 export { default as Button } from './Button';
 export { default as SecondaryButton } from './SecondaryButton';
 export { default as Input } from './Input';
+export { default as RadioButton } from './RadioButton';
 export { default as Link } from './Link';
 export { default as ErrorPopup } from './ErrorPopup';
 export { default as CorneredWrapper } from './CorneredWrapper';

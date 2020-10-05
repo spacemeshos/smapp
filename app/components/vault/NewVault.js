@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { vault } from '/assets/images';
 import { smColors } from '/vars';
-import Input from '../../../basicComponents/Input';
-import Tooltip from '../../../basicComponents/Tooltip';
+import Input from '/basicComponents/Input';
+import Tooltip from '/basicComponents/Tooltip';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 

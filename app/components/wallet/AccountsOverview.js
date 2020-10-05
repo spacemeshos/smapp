@@ -10,7 +10,7 @@ import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import Link from '../../basicComponents/Link';
+import Link from '/basicComponents/Link';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const copy = isDarkModeOn ? copyWhite : copyBlack;
@@ -199,6 +199,7 @@ class AccountsOverview extends Component<Props, State> {
     await getBalance();
   };
 
+  // TODO temporary solution - link to vault
   navigateToVault = () => {
     const { history } = this.props;
     history.push('/main/wallet/vault');

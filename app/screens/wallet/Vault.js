@@ -1,11 +1,11 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { NewVault, VaultType } from '/components/wallet';
+import { NewVault, VaultType } from '/components/vault';
 import { smColors } from '/vars';
 import styled from 'styled-components';
-import Link from '../../basicComponents/Link';
-import Button from '../../basicComponents/Button';
+import Link from '/basicComponents/Link';
+import Button from '/basicComponents/Button';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
