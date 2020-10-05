@@ -18,6 +18,18 @@ const Wrapper = styled(CorneredWrapper)`
   background-color: ${backgroundColor};
 `;
 
+const HeaderWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const HeaderIcon = styled.img`
+  width: 35px;
+  height: 27px;
+  margin-right: 5px;
+`;
+
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
@@ -36,15 +48,19 @@ type Props = {
   width: number,
   height: number,
   header: string,
+  headerIcon?: Object,
   subHeader?: string
 };
 
 class CorneredContainer extends PureComponent<Props> {
   render() {
-    const { children, width, height, header, subHeader } = this.props;
+    const { children, width, height, header, headerIcon, subHeader } = this.props;
     return (
       <Wrapper width={width} height={height}>
-        <Header>{header}</Header>
+        <HeaderWrapper>
+          {headerIcon && <HeaderIcon src={headerIcon} />}
+          <Header>{header}</Header>
+        </HeaderWrapper>
         {subHeader && (
           <SubHeader>
             --
