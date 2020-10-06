@@ -67,8 +67,8 @@ class CorneredContainer extends PureComponent<Props> {
   render() {
     const { children, width, height, header, headerIcon, subHeader, useEmptyWrap } = this.props;
 
-    return (
-      useEmptyWrap ? ( <DivWrapper width={width} height={height} >
+    return useEmptyWrap ? (
+      <DivWrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
           <Header>{header}</Header>
@@ -97,7 +97,6 @@ class CorneredContainer extends PureComponent<Props> {
         )}
         {children}
       </Wrapper>
-      )
     );
   }
 }
