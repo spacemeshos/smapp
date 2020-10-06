@@ -29,9 +29,9 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case SET_NODE_SETTINGS: {
       const {
-        payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port }
+        payload: { address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port }
       } = action;
-      return { ...state, rewardsAddress: address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port };
+      return { ...state, rewardsAddress: address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port };
     }
     case SET_MINING_STATUS: {
       const {

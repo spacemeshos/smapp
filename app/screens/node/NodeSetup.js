@@ -1,173 +1,114 @@
 // @flow
-import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { initMining } from '/redux/node/actions';
 import { CorneredContainer, BackButton } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { StepsContainer, Button, Link, SmallHorizontalPanel } from '/basicComponents';
-import { CommitmentSelector } from '/components/node';
-import { eventsService } from '/infra/eventsService';
+import { StepsContainer, SmallHorizontalPanel } from '/basicComponents';
+import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProcessor, PoSSummary } from '/components/node';
+import { posIcon } from '/assets/images';
 import { formatBytes } from '/infra/utils';
-import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
 `;
 
-const SubHeader = styled.div`
-  margin-bottom: 20px;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
-`;
-
-const Footer = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
-`;
-
-const DriveName = styled.span`
-  color: ${smColors.darkerGreen};
-`;
-
-const FolderNameWrapper = styled.div`
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
-  height: 50px;
-`;
-
-const FolderName = styled.div`
-  font-size: 20px;
-  line-height: 25px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
-`;
-
-const PermissionError = styled.div`
-  font-size: 16px;
-  line-height: 20px;
-  color: ${smColors.red};
-`;
+const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'PROOF OF SPACE PROCESSOR', 'PROOF OF SPACE SETUP'];
+const subHeaders = [
+  '',
+  '',
+  'Select how much free space to commit to Spacemesh.\nThe more space you commit, the higher your smeshing rewards will be.',
+  'Select a supported graphic processor to use for creating your proof of space',
+  'Review your proof of space data creation options.\nClick a link to go back and edit that item.'
+];
 
 type Props = {
   accounts: Account[],
   initMining: Action,
   status: Object,
+  posDataPath: string,
   commitmentSize: string,
   history: RouterHistory,
-  location: { state?: { isOnlyNodeSetup: boolean, isWalletCreation: boolean } }
+  location: { state?: { modifyPostData: boolean } }
 };
 
 type State = {
-  selectedFolder: string,
-  hasPermissionError: boolean,
+  mode: number,
+  folder: string,
   freeSpace: number,
-  subMode: 2 | 3,
-  // selectedCommitmentSize: number,
-  isSubmitting: boolean
+  commitment: number,
+  processor: Object,
+  isPausedOnUsage: boolean
 };
 
 class NodeSetup extends Component<Props, State> {
-  isOnlyNodeSetup: boolean;
-
-  steps: Array<string>;
-
-  header: string;
-
   constructor(props: Props) {
     super(props);
     const { location } = props;
-    this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
-    this.header = this.isOnlyNodeSetup ? 'SETUP SMESHER' : 'SETUP WALLET + SMESHER';
-    this.steps = ['SELECT DRIVE', 'COMMIT SPACE'];
-    if (!this.isOnlyNodeSetup) {
-      this.steps = ['PROTECT WALLET'].concat(this.steps);
-    }
     this.state = {
-      subMode: 2,
-      selectedFolder: '',
-      freeSpace: 0,
-      hasPermissionError: false,
-      // selectedCommitmentSize: 0,
-      isSubmitting: false
+      mode: location?.state?.modifyPostData ? 0 : 1,
+      folder: props.posDataPath || '',
+      isPausedOnUsage: false
     };
+    this.formattedCommitmentSize = formatBytes(props.commitmentSize);
   }
 
   render() {
-    const { status, location } = this.props;
-    const { subMode, selectedFolder, hasPermissionError, isSubmitting } = this.state;
-    const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
-    const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || isSubmitting || !status;
+    const { location } = this.props;
+    const { mode } = this.state;
+    const subHeader = mode !== 1 ? subHeaders[mode] : `Select a directory to save your proof og space data.\nMinimum ${this.formattedCommitmentSize} of free space is required`;
+    const hasBackButton = location?.state?.modifyPostData || mode !== 1;
     return (
       <Wrapper>
-        <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
-        <CorneredContainer width={650} height={400} header={this.steps[adjustedSubStep]}>
+        <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} />
+        <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
           <SmallHorizontalPanel />
-          {location?.state?.isOnlyNodeSetup && <BackButton action={this.handleBackBtn} />}
-          {this.renderSubMode()}
-          <Footer>
-            <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />
-            <Button onClick={this.nextAction} text="NEXT" isDisabled={isNextBtnDisabled} />
-          </Footer>
+          {hasBackButton && <BackButton action={this.handlePrevAction} />}
+          {this.renderRightSection()}
         </CorneredContainer>
       </Wrapper>
     );
   }
 
-  renderSubMode = () => {
-    const { commitmentSize } = this.props;
-    const { subMode, selectedFolder, hasPermissionError, freeSpace } = this.state;
-    if (subMode === 2) {
-      return (
-        <>
-          <SubHeader>
-            --
-            <br />
-            Select folder you&#39;d like to use for smeshing.
-            <br />
-            {`You need to commit ${formatBytes(commitmentSize)}GB of free space.`}
-          </SubHeader>
-          <FolderNameWrapper>
-            <FolderName>{selectedFolder}</FolderName>
-            {hasPermissionError && <PermissionError>Invalid folder, please select another</PermissionError>}
-          </FolderNameWrapper>
-          <Button onClick={this.openFolderSelectionDialog} text="Select folder" width={200} />
-        </>
-      );
+  renderRightSection = () => {
+    const { status, commitmentSize } = this.props;
+    const { mode, folder, freeSpace, commitment, processor, isPausedOnUsage } = this.state;
+    const formattedCommitmentSize = formatBytes(commitmentSize);
+    switch (mode) {
+      case 0:
+        return <PoSModifyPostData modify={this.handleNextAction} deleteData={() => {}} />;
+      case 1:
+        return <PoSDirectory nextAction={this.handleNextAction} commitmentSize={formattedCommitmentSize} folder={folder} freeSpace={freeSpace} status={status} />;
+      case 2:
+        return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} />;
+      case 3:
+        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} isPausedOnUsage={isPausedOnUsage} status={status} />;
+      case 4:
+        return (
+          <PoSSummary
+            folder={folder}
+            commitment={commitment}
+            processor={processor}
+            isPausedOnUsage={isPausedOnUsage}
+            nextAction={this.handleNextAction}
+            switchMode={({ mode }) => this.setState({ mode })}
+            status={status}
+          />
+        );
+      default:
+        return null;
     }
-    return (
-      <>
-        <SubHeader>
-          --
-          <br />
-          Set how much space on <DriveName>{selectedFolder}</DriveName> you would
-          <br />
-          like to commit for smeshing
-        </SubHeader>
-        <CommitmentSelector commitmentSize={formatBytes(commitmentSize)} freeSpace={freeSpace} onClick={() => {}} />
-      </>
-    );
   };
 
   setupAndInitMining = async () => {
     const { initMining, accounts, commitmentSize, history } = this.props;
-    const { selectedFolder } = this.state;
+    const { folder, commitment, processor, isPausedOnUsage } = this.state;
     try {
-      await initMining({
-        logicalDrive: selectedFolder,
-        commitmentSize,
-        address: accounts[0].publicKey
-      });
+      await initMining({ logicalDrive: folder, commitmentSize, address: accounts[0].publicKey, commitment, processor, isPausedOnUsage }); // TODO: use user selected commitment
       history.push('/main/node', { showIntro: true });
     } catch (error) {
       this.setState(() => {
@@ -176,42 +117,48 @@ class NodeSetup extends Component<Props, State> {
     }
   };
 
-  handleBackBtn = () => {
+  handleNextAction = ({ folder, freeSpace, commitment, processor, isPausedOnUsage }) => {
+    const { mode } = this.state;
+    switch (mode) {
+      case 0: {
+        this.setState({ mode: 1 });
+        break;
+      }
+      case 1: {
+        this.setState({ mode: 2, folder, freeSpace });
+        break;
+      }
+      case 2: {
+        this.setState({ mode: 3, commitment });
+        break;
+      }
+      case 3: {
+        this.setState({ mode: 4, processor, isPausedOnUsage });
+        break;
+      }
+      case 4: {
+        this.setupAndInitMining();
+        break;
+      }
+      default:
+        break;
+    }
+  };
+
+  handlePrevAction = () => {
     const { history } = this.props;
-    const { subMode } = this.state;
-    if (subMode === 2) {
+    const { mode } = this.state;
+    if (mode === 0) {
       history.goBack();
     } else {
-      this.setState({ subMode: 2 });
+      this.setState({ mode: mode - 1 });
     }
   };
-
-  nextAction = () => {
-    const { subMode } = this.state;
-    if (subMode === 2) {
-      this.setState({ subMode: 3 });
-    } else if (subMode === 3) {
-      this.setState({ isSubmitting: true });
-      this.setupAndInitMining();
-    }
-  };
-
-  openFolderSelectionDialog = async () => {
-    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
-    if (error) {
-      this.setState({ hasPermissionError: true });
-    } else {
-      this.setState({ selectedFolder, freeSpace: formatBytes(freeSpace), hasPermissionError: false });
-    }
-  };
-
-  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
-
-  navigateToNodeSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup?id=step-2-full-node-amp-mining-setup');
 }
 
 const mapStateToProps = (state) => ({
   status: state.node.status,
+  posDataPath: state.node.posDataPath,
   commitmentSize: state.node.commitmentSize,
   accounts: state.wallet.accounts
 });

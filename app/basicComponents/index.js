@@ -14,3 +14,4 @@ export { default as WrapperWith2SideBars } from './WrapperWith2SideBars';
 export { default as DropDown } from './DropDown';
 export { default as Banner } from './Banner';
 export { default as SmallHorizontalPanel } from './SmallHorizontalPanel';
+export { default as ProgressBar } from './ProgressBar';

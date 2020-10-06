@@ -19,7 +19,7 @@ const getAddress = (key: string) => (key ? key.substring(24) : null);
 
 const formatBytes = (bytes) => {
   if (bytes === 0) return 0;
-  return parseFloat((bytes / 1073741824).toFixed(4));
+  return parseFloat((bytes / 1073741824).toFixed(2));
 };
 
 // Internal helper - returns the value and the unit of a smidge coin amount.

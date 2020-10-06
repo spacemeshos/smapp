@@ -51,7 +51,10 @@ const DetailsRow = styled.div`
   align-items: center;
   padding: 5px 0;
   margin-bottom: 10px;
-  border-bottom: ${({ isLast }) => (isLast ? 'none' : `1px solid ${smColors.navLinkGrey}`)};
+  border-bottom: 1px solid ${smColors.navLinkGrey};
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const DetailsTextRight = styled.div`
@@ -126,30 +129,32 @@ class TxConfirmation extends PureComponent<Props> {
         </Header>
         <SubHeader1>--</SubHeader1>
         <SubHeader2>SUMMARY</SubHeader2>
-        <DetailsRow>
-          <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeft>{`0x${getAddress(fromAddress)}`}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeft>{`0x${address}`}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Note</DetailsTextRight>
-          <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>{unit}</DetailsTextRight>
-          <DetailsTextLeft>{value}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Fee</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(fee)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow isLast>
-          <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{formatSmidge(amount + fee)}</TotalText>
-        </DetailsRow>
+        <>
+          <DetailsRow>
+            <DetailsTextRight>Sent from</DetailsTextRight>
+            <DetailsTextLeft>{`0x${getAddress(fromAddress)}`}</DetailsTextLeft>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Sent to</DetailsTextRight>
+            <DetailsTextLeft>{`0x${address}`}</DetailsTextLeft>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Note</DetailsTextRight>
+            <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>{unit}</DetailsTextRight>
+            <DetailsTextLeft>{value}</DetailsTextLeft>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Fee</DetailsTextRight>
+            <DetailsTextLeft>{formatSmidge(fee)}</DetailsTextLeft>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Total</DetailsTextRight>
+            <TotalText>{formatSmidge(amount + fee)}</TotalText>
+          </DetailsRow>
+        </>
         <Footer>
           <ComplexButton>
             <SecondaryButton onClick={editTx} img={chevronLeftWhite} imgWidth={10} imgHeight={15} />

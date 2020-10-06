@@ -186,12 +186,13 @@ class NodeManager {
       const networkId = StoreService.get({ key: 'networkId' });
       const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
       const address = savedMiningParams?.coinbase;
+      const posDataPath = savedMiningParams?.logicalDrive;
       const genesisTime = StoreService.get({ key: `${networkId}-genesisTime` });
       const commitmentSize = StoreService.get({ key: `${networkId}-postSize` });
       const layerDuration = StoreService.get({ key: `${networkId}-layerDurationSec` });
       const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
       const { value } = await netService.getStateRoot();
-      return { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
+      return { address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
     } catch (error) {
       return { error };
     }

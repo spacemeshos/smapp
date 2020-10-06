@@ -1,9 +1,8 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray } from '/assets/images';
+import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray, posGpu, posGpuActive, posCpu, posCpuActive } from '/assets/images';
 import { smColors } from '/vars';
-import { formatBytes } from '/infra/utils';
 
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
@@ -19,8 +18,13 @@ const Wrapper = styled.div`
 const Button = styled.img`
   width: 10px;
   height: 17px;
-  margin: 0 15px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  &:first-child {
+    margin-right: 15px;
+  }
+  &:last-child {
+    margin-left: 15px;
+  }
 `;
 
 const OuterWrapper = styled.div`
@@ -33,6 +37,7 @@ const InnerWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   width: ${({ slidesCount }) => slidesCount * SLIDE_WIDTH + (slidesCount - 1) * SLIDE_MARGIN}px;
   height: 100%;
   transform: translate3d(-${({ leftSlideIndex }) => leftSlideIndex * SLIDE_WIDTH + (leftSlideIndex - 1) * SLIDE_MARGIN}px, 0, 0);
@@ -106,25 +111,39 @@ const SlideWrapper = styled.div`
   &:active ${SlideLowerPart} {
     background-color: ${smColors.black};
   }
+  &:last-child {
+    margin-right: 0;
+  }
 `;
 
 const TextWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
-  justify-content: space-between;
   cursor: inherit;
 `;
 
 const Text = styled.div`
+  margin-bottom: 5px;
   font-size: 13px;
-  line-height: 17px;
+  line-height: 15px;
   color: ${smColors.white};
   cursor: inherit;
+  text-transform: uppercase;
+`;
+
+const GpuIcon = styled.img`
+  width: 30px;
+  height: 25px;
+`;
+
+const CpuIcon = styled.img`
+  width: 30px;
+  height: 30px;
 `;
 
 type Props = {
-  data: Array<{ label: string, availableDiskSpace: number }>,
+  data: Array<{ company: string, name: string, isGPU: boolean, estimation: string }>,
+  selectedItemIndex: number,
   onClick: ({ index: number }) => void,
   style?: Object
 };
@@ -137,32 +156,36 @@ type State = {
 };
 
 class Carousel extends Component<Props, State> {
-  state = {
-    selectedItemIndex: -1,
-    leftSlideIndex: 0,
-    isLeftBtnEnabled: false,
-    isRightBtnEnabled: this.props.data.length > 3 // eslint-disable-line react/destructuring-assignment
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      leftSlideIndex: 0,
+      isLeftBtnEnabled: false,
+      isRightBtnEnabled: this.props.data.length > 3 // eslint-disable-line react/destructuring-assignment
+    };
+  }
 
   render() {
-    const { data, style } = this.props;
-    const { selectedItemIndex, leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
+    const { data, selectedItemIndex, style } = this.props;
+    const { leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
     return (
       <Wrapper>
         <Button src={isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray} onClick={isLeftBtnEnabled ? this.slideLeft : null} isDisabled={!isLeftBtnEnabled} />
         <OuterWrapper style={style}>
           <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
             {data.map((element, index) => (
-              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.label}>
+              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.name}>
                 <SlideUpperPart isSelected={selectedItemIndex === index}>
                   <TextWrapper>
-                    <Text>{element.label} hard drive</Text>
-                    <Text>
-                      FREE SPACE...
-                      <br />
-                      {formatBytes(element.availableDiskSpace)}
-                    </Text>
+                    <Text>{element.company}</Text>
+                    <Text>{element.name}</Text>
+                    <Text>--</Text>
                   </TextWrapper>
+                  <TextWrapper>
+                    <Text>~{element.estimation}</Text>
+                    <Text>TO SAVE DATA</Text>
+                  </TextWrapper>
+                  {element.isGPU ? <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} /> : <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
                 </SlideUpperPart>
                 <SlideMiddlePart />
                 <SlideLowerPart isSelected={selectedItemIndex === index} />
@@ -178,7 +201,6 @@ class Carousel extends Component<Props, State> {
   handleSelection = ({ index }: { index: number }) => {
     const { onClick } = this.props;
     onClick({ index });
-    this.setState({ selectedItemIndex: index });
   };
 
   slideLeft = () => {

@@ -67,6 +67,7 @@ class RadioButton extends Component<Props, State> {
   render() {
     const { value, autofocus, checked, name } = this.props;
     const { isFocused } = this.state;
+
     return (
       <Input
         value={value}
@@ -76,7 +77,7 @@ class RadioButton extends Component<Props, State> {
         onChange={this.onChange}
         onFocus={this.handleFocus}
         type="radio"
-        onBlur={() => this.setState({ isFocused: false })}
+        onBlur={() => this.setState({ isFocused })}
         autoFocus={autofocus}
       />
     );
