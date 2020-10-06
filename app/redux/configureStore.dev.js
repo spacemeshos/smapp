@@ -5,6 +5,7 @@ import createRootReducer from './configReducers';
 import * as authActions from './auth/actions';
 import * as walletActions from './wallet/actions';
 import * as nodeActions from './node/actions';
+import * as smesherActions from './smesher/actions';
 
 const rootReducer = createRootReducer();
 
@@ -20,7 +21,8 @@ const configureStore = (initialState?: StoreStateType) => {
   const actionCreators = {
     ...authActions,
     ...walletActions,
-    ...nodeActions
+    ...nodeActions,
+    ...smesherActions
   };
   // If Redux DevTools Extension is installed use it, otherwise use Redux compose
   /* eslint-disable no-underscore-dangle */

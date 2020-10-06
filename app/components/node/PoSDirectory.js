@@ -7,6 +7,7 @@ import { eventsService } from '/infra/eventsService';
 import { formatBytes } from '/infra/utils';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
+import type { NodeStatus } from '/types';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const icon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
@@ -72,15 +73,15 @@ const linkStyle = { fontSize: '17px', lineHeight: '19px', marginBottom: 5 };
 type Props = {
   nextAction: () => void,
   folder: string,
-  freeSpace: string,
-  commitmentSize: string,
-  status: Object
+  minCommitmentSize: string,
+  status: NodeStatus
 };
 
 type State = {
   folder: string,
   freeSpace: number,
-  hasPermissionError: boolean
+  formattedFreeSpace: string,
+  errorMessage: string
 };
 
 class PoSDirectory extends Component<Props, State> {
@@ -88,14 +89,15 @@ class PoSDirectory extends Component<Props, State> {
     super(props);
     this.state = {
       folder: props.folder || '',
-      freeSpace: props.freeSpace || 0,
-      hasPermissionError: false
+      freeSpace: 0,
+      formattedFreeSpace: '',
+      errorMessage: ''
     };
   }
 
   render() {
-    const { commitmentSize, nextAction, status } = this.props;
-    const { folder, freeSpace, hasPermissionError } = this.state;
+    const { nextAction, status } = this.props;
+    const { folder, freeSpace, formattedFreeSpace, errorMessage } = this.state;
     return (
       <>
         <Wrapper>
@@ -104,23 +106,34 @@ class PoSDirectory extends Component<Props, State> {
             <Header>PoS data folder directory:</Header>
           </HeaderWrapper>
           <Link onClick={this.openFolderSelectionDialog} text={folder || 'CLICK TO SELECT'} style={linkStyle} />
-          <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
+          <ErrorText>{errorMessage}</ErrorText>
           <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>
-          <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
-            {freeSpace ? `${freeSpace} GB` : 'UNDESIGNATED'}
+          <FreeSpace error={!!errorMessage} selected={!!freeSpace}>
+            {formattedFreeSpace || 'UNDESIGNATED'}
           </FreeSpace>
         </Wrapper>
-        <PoSFooter action={() => nextAction({ folder, freeSpace })} isDisabled={!folder || hasPermissionError || !status} />
+        <PoSFooter action={() => nextAction({ folder, freeSpace })} isDisabled={!folder || errorMessage || !status} />
       </>
     );
   }
 
+  async componentDidMount() {
+    const { folder } = this.props;
+    if (folder) {
+      const { freeSpace } = await eventsService.checkDiskSpace({ folder });
+      this.setState({ freeSpace, formattedFreeSpace: formatBytes(freeSpace) });
+    }
+  }
+
   openFolderSelectionDialog = async () => {
+    const { minCommitmentSize } = this.props;
     const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
     if (error) {
-      this.setState({ hasPermissionError: true });
+      this.setState({ errorMessage: `SELECTED FOLDER HAS NO WRITING PERMISSIONS` });
+    } else if (freeSpace < minCommitmentSize) {
+      this.setState({ errorMessage: `SELECT FOLDER WITH MINIMUM ${formatBytes(minCommitmentSize)} TO PROCEED` });
     } else {
-      this.setState({ folder: selectedFolder, freeSpace: formatBytes(freeSpace), hasPermissionError: false });
+      this.setState({ folder: selectedFolder, freeSpace, formattedFreeSpace: formatBytes(freeSpace), errorMessage: '' });
     }
   };
 }

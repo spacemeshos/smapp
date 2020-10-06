@@ -4,7 +4,9 @@ import styled from 'styled-components';
 import { Tooltip, DropDown } from '/basicComponents';
 import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '/assets/images';
 import { smColors } from '/vars';
+import { eventsService } from '/infra/eventsService';
 import PoSFooter from './PoSFooter';
+import type { NodeStatus } from '/types';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const posDirectoryIcon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
@@ -56,6 +58,10 @@ const Dots = styled.div`
   color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
+const ErrorText = styled(Text)`
+  color: ${smColors.red};
+`;
+
 const RewardText = styled(Text)`
   color: ${({ selected }) => (selected ? smColors.green : smColors.orange)};
 `;
@@ -93,32 +99,40 @@ const Commitment = styled.div`
   cursor: inherit;
 `;
 
-const commitments = [{ size: '100 GB' }, { size: '200 GB' }, { size: '300 GB' }];
+const commitments = [
+  { size: '100 GB', bytes: 100073741824 },
+  { size: '200 GB', bytes: 200147483648 },
+  { size: '300 GB', bytes: 300221225472 },
+  { size: '400 GB', bytes: 400294967296 }
+];
 const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 125px' };
 
 type Props = {
   folder: string,
-  commitment: string,
+  commitment: number,
   freeSpace: number,
   nextAction: () => void,
-  status: Object
+  status: NodeStatus
 };
 
 type State = {
-  selectedCommitmentIndex: number
+  selectedCommitmentIndex: number,
+  hasErrorFetchingEstimatedRewards: boolean
 };
 
 class PoSSize extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCommitmentIndex: props.commitment ? commitments.findIndex((commitment) => commitment.size === props.commitment) : 0
+      selectedCommitmentIndex: props.commitment ? commitments.findIndex((commitment) => commitment.bytes === props.commitment) : 0,
+      hasErrorFetchingEstimatedRewards: false
     };
+    this.estimatedRewards = { amount: 0 };
   }
 
   render() {
     const { folder, freeSpace, nextAction, status } = this.props;
-    const { selectedCommitmentIndex } = this.state;
+    const { selectedCommitmentIndex, hasErrorFetchingEstimatedRewards } = this.state;
     return (
       <>
         <Row>
@@ -141,7 +155,13 @@ class PoSSize extends Component<Props, State> {
           <Text>Estimated coin reward</Text>
           <Tooltip top={-2} left={-3} width={200} text="Some text" />
           <Dots>.....................................................</Dots>
-          <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? '10 SMESH / MONTH' : '0 SMESH / MONTH'}</RewardText>
+          {hasErrorFetchingEstimatedRewards ? (
+            <ErrorText>Failed to load estimated rewards. Please return to previous step</ErrorText>
+          ) : (
+            <RewardText selected={selectedCommitmentIndex !== -1}>
+              {selectedCommitmentIndex !== -1 ? `${this.estimatedRewards.amount * selectedCommitmentIndex} SMESH / EPOCH` : '0 SMESH / EPOCH'}
+            </RewardText>
+          )}
         </Row>
         <Row>
           <Icon3 src={posDirectoryIcon} />
@@ -154,9 +174,18 @@ class PoSSize extends Component<Props, State> {
           <Dots>.....................................................</Dots>
           <GreenText>{freeSpace} GB</GreenText>
         </Row>
-        <PoSFooter action={() => nextAction({ commitment: commitments[selectedCommitmentIndex].size })} isDisabled={selectedCommitmentIndex === -1 || !status} />
+        <PoSFooter action={() => nextAction({ commitment: commitments[selectedCommitmentIndex].bytes })} isDisabled={selectedCommitmentIndex === -1 || !status} />
       </>
     );
+  }
+
+  async componentDidMount() {
+    const { error, estimatedRewards } = eventsService.getEstimatedRewards();
+    if (error) {
+      this.setState({ hasErrorFetchingEstimatedRewards: true });
+    } else {
+      this.estimatedRewards = estimatedRewards;
+    }
   }
 
   renderDDRow = ({ size, isInDropDown }: { size: string, isInDropDown: boolean }) => (
@@ -166,7 +195,10 @@ class PoSSize extends Component<Props, State> {
   );
 
   selectCommitment = ({ index }: { index: number }) => {
-    this.setState({ selectedCommitmentIndex: index });
+    const { freeSpace } = this.props;
+    if (freeSpace <= commitments[index].bytes) {
+      this.setState({ selectedCommitmentIndex: index });
+    }
   };
 }
 

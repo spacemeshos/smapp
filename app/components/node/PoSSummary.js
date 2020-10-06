@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Link } from '/basicComponents';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
+import type { NodeStatus } from '/types';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const color = isDarkModeOn ? smColors.white : smColors.black;
@@ -43,60 +44,60 @@ const linkStyle = { textTransform: 'uppercase', fontSize: '15px', lineHeight: '1
 type Props = {
   folder: string,
   commitment: string,
-  processor: string,
-  isPausedOnUsage: boolean,
+  processor: { id: number, model: string, computeApi: string, performance: number },
+  throttle: boolean,
   nextAction: () => void,
   switchMode: ({ mode: number }) => void,
-  status: Object
+  status: NodeStatus
 };
 
 type State = {
-  isProcessing: boolean
+  isSubmitting: boolean
 };
 
 class PoSSummary extends Component<Props, State> {
   state = {
-    isProcessing: false
+    isSubmitting: false
   };
 
   render() {
-    const { folder, commitment, processor, isPausedOnUsage, switchMode, status } = this.props;
-    const { isProcessing } = this.state;
+    const { folder, commitment, processor, throttle, switchMode, status } = this.props;
+    const { isSubmitting } = this.state;
     return (
       <>
         <Row>
           <Text>data directory</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 1 })} text={folder} style={linkStyle} isDisabled={isProcessing} />
+          <Link onClick={() => switchMode({ mode: 1 })} text={folder} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>data size</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 2 })} text={`${commitment} GB`} style={linkStyle} isDisabled={isProcessing} />
+          <Link onClick={() => switchMode({ mode: 2 })} text={`${commitment} GB`} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>processor</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 3 })} text={`${processor.company} ${processor.type}`} style={linkStyle} isDisabled={isProcessing} />
+          <Link onClick={() => switchMode({ mode: 3 })} text={`${processor.model} ${processor.computeApi}`} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>estimated time</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 3 })} text={processor.estimation} style={linkStyle} isDisabled={isProcessing} />
+          <Link onClick={() => switchMode({ mode: 3 })} text={processor.performance} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>pause when pc is in use</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 3 })} text={isPausedOnUsage ? 'on' : 'off'} style={linkStyle} isDisabled={isProcessing} />
+          <Link onClick={() => switchMode({ mode: 3 })} text={throttle ? 'on' : 'off'} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
-        <PoSFooter action={this.nextAction} isDisabled={isProcessing || !status} isLastMode />
+        <PoSFooter action={this.nextAction} isDisabled={isSubmitting || !status} isLastMode />
       </>
     );
   }
 
   nextAction = () => {
     const { nextAction } = this.props;
-    this.setState({ isProcessing: true });
+    this.setState({ isSubmitting: true });
     nextAction({});
   };
 }

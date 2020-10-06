@@ -28,28 +28,32 @@ class EventsService {
 
   static startNode = () => ipcRenderer.send(ipcConsts.START_NODE);
 
-  static stopNode = () => ipcRenderer.send(ipcConsts.STOP_NODE);
-
   static getNodeStatus = () => ipcRenderer.invoke(ipcConsts.GET_NODE_STATUS);
 
   static getNodeSettings = () => ipcRenderer.invoke(ipcConsts.GET_NODE_SETTINGS);
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
 
-  static selectPostFolder = () => ipcRenderer.invoke(ipcConsts.SELECT_POST_FOLDER);
-
-  static initMining = ({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string, commitmentSize: number, coinbase: string }) =>
-    ipcRenderer.invoke(ipcConsts.INIT_MINING, { logicalDrive, commitmentSize, coinbase });
-
-  static getMiningStatus = () => ipcRenderer.invoke(ipcConsts.GET_MINING_STATUS);
-
-  static getUpcomingRewards = () => ipcRenderer.invoke(ipcConsts.GET_UPCOMING_REWARDS);
-
   static getAccountRewards = ({ address, accountIndex }: { address: string, accountIndex: number }) => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_REWARDS, { address, accountIndex });
 
-  static setRewardsAddress = ({ address }: { address: string }) => ipcRenderer.invoke(ipcConsts.SET_REWARDS_ADDRESS, { address });
-
   static setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }) => ipcRenderer.invoke(ipcConsts.SET_NODE_IP, { nodeIpAddress });
+
+  /** ************************************   SMESHER   ****************************************** */
+  static getSmesherSettings = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_SETTINGS);
+
+  static selectPostFolder = () => ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);
+
+  static checkFreeSpace = ({ folder }: { folder: string }) => ipcRenderer.invoke(ipcConsts.SMESHER_CHECK_FREE_SPACE, { folder });
+
+  static getEstimatedRewards = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
+
+  static getPostComputeProviders = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_COMPUTE_PROVIDERS);
+
+  static createPosData = ({ }) = ipcRenderer.invoke(ipcConsts.SMESHER_CREATE_POST_DATA, {});
+
+  static stopCreatingPosData = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_POST_DATA_CREATION, { deleteFiles });
+
+  static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
 
   /** **********************************   TRANSACTIONS   ************************************** */
 

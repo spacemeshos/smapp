@@ -142,10 +142,9 @@ const CpuIcon = styled.img`
 `;
 
 type Props = {
-  data: Array<{ company: string, name: string, isGPU: boolean, estimation: string }>,
+  data: [{ id: number, model: string, computeApi: string, performance: number }],
   selectedItemIndex: number,
-  onClick: ({ index: number }) => void,
-  style?: Object
+  onClick: ({ index: number }) => void
 };
 
 type State = {
@@ -166,26 +165,30 @@ class Carousel extends Component<Props, State> {
   }
 
   render() {
-    const { data, selectedItemIndex, style } = this.props;
+    const { data, selectedItemIndex } = this.props;
     const { leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
     return (
       <Wrapper>
         <Button src={isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray} onClick={isLeftBtnEnabled ? this.slideLeft : null} isDisabled={!isLeftBtnEnabled} />
-        <OuterWrapper style={style}>
+        <OuterWrapper>
           <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
             {data.map((element, index) => (
-              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.name}>
+              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.id}>
                 <SlideUpperPart isSelected={selectedItemIndex === index}>
                   <TextWrapper>
-                    <Text>{element.company}</Text>
-                    <Text>{element.name}</Text>
+                    <Text>{element.model}</Text>
+                    {element.computeApi === '0' && <Text>(UNSPECIFIED)</Text>}
+                    {element.computeApi === '1' && <Text>(CPU)</Text>}
+                    {element.computeApi === '2' && <Text>(CUDA)</Text>}
+                    {element.computeApi === '3' && <Text>(VULCAN)</Text>}
                     <Text>--</Text>
                   </TextWrapper>
                   <TextWrapper>
-                    <Text>~{element.estimation}</Text>
+                    <Text>~{element.performance} hashes per second</Text>
                     <Text>TO SAVE DATA</Text>
                   </TextWrapper>
-                  {element.isGPU ? <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} /> : <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
+                  {element.computeApi === 1 && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
+                  {(element.computeApi === 2 || element.computeApi === 3) && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} />}
                 </SlideUpperPart>
                 <SlideMiddlePart />
                 <SlideLowerPart isSelected={selectedItemIndex === index} />

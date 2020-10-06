@@ -1,16 +1,7 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
 import encryptionConst from './encryptionConst';
-
-const fromHexString = (hexString) => {
-  const bytes = [];
-  for (let i = 0; i < hexString.length; i += 2) {
-    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
-  }
-  return Uint8Array.from(bytes);
-};
-
-const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+import { fromHexString, toHexString } from './utils';
 
 class CryptoService {
   static generateMnemonic = () => bip39.generateMnemonic();

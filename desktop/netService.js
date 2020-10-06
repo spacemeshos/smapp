@@ -53,42 +53,6 @@ class NetService {
       });
     });
 
-  getMiningStatus = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetMiningStats({}, { deadline: getDeadline() }, (error, response) => {
-        if (error) {
-          writeError('netService', 'grpc getMiningStatus', error);
-          reject(error);
-        }
-        writeInfo('netService', 'grpc getMiningStatus', { response });
-        resolve(response);
-      });
-    });
-
-  initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
-    new Promise((resolve, reject) => {
-      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, { deadline: getDeadline() }, (error, response) => {
-        if (error) {
-          writeError('netService', 'grpc initMining', error);
-          reject(error);
-        }
-        writeInfo('netService', 'grpc initMining', { response }, { logicalDrive, commitmentSize, coinbase });
-        resolve(response);
-      });
-    });
-
-  getUpcomingAwards = () =>
-    new Promise((resolve, reject) => {
-      this.service.GetUpcomingAwards({}, { deadline: getDeadline() }, (error, response) => {
-        if (error) {
-          writeError('netService', 'grpc getUpcomingAwards', error);
-          reject(error);
-        }
-        writeInfo('netService', 'grpc getUpcomingAwards', { response });
-        resolve(response);
-      });
-    });
-
   getAccountRewards = ({ address }) =>
     new Promise((resolve, reject) => {
       this.service.GetAccountRewards({ address }, { deadline: getDeadline() }, (error, response) => {
@@ -97,18 +61,6 @@ class NetService {
           reject(error);
         }
         writeInfo('netService', 'grpc getAccountRewards', { response }, { address });
-        resolve(response);
-      });
-    });
-
-  setRewardsAddress = ({ address }) =>
-    new Promise((resolve, reject) => {
-      this.service.SetAwardsAddress({ address }, { deadline: getDeadline() }, (error, response) => {
-        if (error) {
-          writeError('netService', 'grpc setRewardsAddress', error);
-          reject(error);
-        }
-        writeInfo('netService', 'grpc setRewardsAddress', { response }, { address });
         resolve(response);
       });
     });

@@ -88,7 +88,7 @@ type Props = {
   history: RouterHistory,
   nodeIpAddress: string,
   genesisTime: string,
-  rewardsAddress: string,
+  coinbase: string,
   stateRootHash: string,
   port: string,
   networkId: string,
@@ -147,7 +147,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
+    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, coinbase, networkId, stateRootHash, backupTime } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -264,7 +264,7 @@ class Settings extends Component<Props, State> {
                       <AccountCmdBtnSeparator />
                       <Link onClick={() => this.toggleSignMessageModal({ index })} text="SIGN TEXT" />
                       <AccountCmdBtnSeparator />
-                      {account.publicKey !== rewardsAddress ? <Link onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" /> : <RewardAccount>rewards account</RewardAccount>}
+                      {account.publicKey !== coinbase ? <Link onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" /> : <RewardAccount>rewards account</RewardAccount>}
                     </AccountCmdBtnWrapper>
                   }
                   key={account.publicKey}
@@ -273,7 +273,7 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="MESH INFO" refProp={this.myRef3}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
+              <SettingRow upperPartLeft={coinbase ? `0x${getAddress(coinbase)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
               {status && !status.noConnection ? (
                 <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
@@ -488,11 +488,11 @@ const mapStateToProps = (state) => ({
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
   nodeIpAddress: state.node.nodeIpAddress,
-  genesisTime: state.node.genesisTime,
-  rewardsAddress: state.node.rewardsAddress,
+  genesisTime: state.smesher.genesisTime,
+  coinbase: state.smesher.coinbase,
+  networkId: state.smesher.networkId,
   stateRootHash: state.node.stateRootHash,
   port: state.node.port,
-  networkId: state.node.networkId,
   backupTime: state.wallet.backupTime
 });
 

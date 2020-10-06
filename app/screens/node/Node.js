@@ -6,11 +6,11 @@ import { SmesherIntro, SmesherLog } from '/components/node';
 import { WrapperWith2SideBars, Button, ProgressBar } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { eventsService } from '/infra/eventsService';
-import { getFormattedTimestamp } from '/infra/utils';
+import { getFormattedTimestamp, formatBytes } from '/infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { TxList } from '/types';
+import type { TxList, NodeStatus } from '/types';
 // import type { Action } from '/types';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
@@ -80,11 +80,11 @@ const PosFolderIcon = styled.img`
 `;
 
 type Props = {
-  status: Object,
+  status: NodeStatus,
   miningStatus: number,
   rewards: TxList,
-  posDataPath: string,
-  commitmentSize: number,
+  dataDir: string,
+  commitmentSize: string,
   networkId: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
@@ -168,7 +168,7 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { history, status, miningStatus, posDataPath, commitmentSize, networkId } = this.props;
+    const { history, status, miningStatus, dataDir, commitmentSize, networkId } = this.props;
     const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
     return (
       <>
@@ -186,7 +186,7 @@ class Node extends Component<Props, State> {
         <TextWrapper>
           <PosFolderIcon src={isDarkModeOn ? posDirectoryWhite : posDirectoryBlack} />
           <Text>
-            {posDataPath} with {commitmentSize}GB allocated
+            {dataDir} with {commitmentSize} allocated
           </Text>
         </TextWrapper>
         <TextWrapper>
@@ -222,12 +222,12 @@ class Node extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   status: state.node.status,
-  networkId: state.node.networkId,
-  posDataPath: state.node.posDataPath,
-  commitmentSize: state.node.commitmentSize,
-  miningStatus: state.node.miningStatus,
-  rewards: state.node.rewards,
-  rewardsAddress: state.node.rewardsAddress
+  networkId: state.smesher.networkId,
+  dataDir: state.smesher.dataDir,
+  commitmentSize: formatBytes(state.smesher.commitmentSize),
+  miningStatus: state.smesher.miningStatus,
+  coinbase: state.smesher.coinbase,
+  rewards: state.node.rewards
 });
 
 Node = connect<any, any, _, _, _, _>(mapStateToProps)(Node);

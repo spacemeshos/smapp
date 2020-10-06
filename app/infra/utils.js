@@ -19,7 +19,10 @@ const getAddress = (key: string) => (key ? key.substring(24) : null);
 
 const formatBytes = (bytes) => {
   if (bytes === 0) return 0;
-  return parseFloat((bytes / 1073741824).toFixed(2));
+  if (bytes >= 1099511627776) {
+    return `${parseFloat((bytes / 1099511627776).toFixed(2))} TB`;
+  }
+  return `${parseFloat((bytes / 1073741824).toFixed(2))} GB`;
 };
 
 // Internal helper - returns the value and the unit of a smidge coin amount.

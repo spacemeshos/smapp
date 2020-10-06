@@ -6,16 +6,9 @@ import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS
 
 const initialState = {
   status: null,
-  miningStatus: nodeConsts.MINING_UNSET,
-  rewardsAddress: null,
-  genesisTime: 0,
-  networkId: 0,
-  commitmentSize: 0,
-  layerDuration: 0,
   stateRootHash: null,
   port: '',
   rewards: [],
-  timeTillNextAward: 0,
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
@@ -29,9 +22,9 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case SET_NODE_SETTINGS: {
       const {
-        payload: { address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port }
+        payload: { stateRootHash, port }
       } = action;
-      return { ...state, rewardsAddress: address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port };
+      return { ...state, stateRootHash, port };
     }
     case SET_MINING_STATUS: {
       const {
@@ -43,7 +36,7 @@ const reducer = (state: any = initialState, action: Action) => {
       const {
         payload: { address }
       } = action;
-      return { ...state, rewardsAddress: address, miningStatus: nodeConsts.IN_SETUP };
+      return { ...state, coinbase: address, miningStatus: nodeConsts.IN_SETUP };
     }
     case SET_UPCOMING_REWARDS: {
       const {
@@ -55,7 +48,7 @@ const reducer = (state: any = initialState, action: Action) => {
       const {
         payload: { address }
       } = action;
-      return { ...state, rewardsAddress: address };
+      return { ...state, coinbase: address };
     }
     case SET_NODE_IP: {
       const {

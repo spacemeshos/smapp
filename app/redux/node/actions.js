@@ -30,12 +30,12 @@ export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch 
 };
 
 export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatch => {
-  const { error, address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port } = await eventsService.getNodeSettings();
+  const { error, stateRootHash, port } = await eventsService.getNodeSettings();
   if (error) {
     console.error(error); // eslint-disable-line no-console
     dispatch(getNodeSettings());
   } else {
-    dispatch({ type: SET_NODE_SETTINGS, payload: { address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port } });
+    dispatch({ type: SET_NODE_SETTINGS, payload: { stateRootHash, port } });
   }
 };
 
@@ -55,38 +55,6 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
   }
   dispatch({ type: SET_MINING_STATUS, payload: { status } });
   return status;
-};
-
-export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
-  dispatch: Dispatch
-): Dispatch => {
-  const { error } = await eventsService.initMining({ logicalDrive, commitmentSize, coinbase: address });
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(initMining({ logicalDrive, commitmentSize, address })));
-  } else {
-    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
-    localStorage.removeItem('smesherSmeshingTimestamp');
-    dispatch({ type: INIT_MINING, payload: { address } });
-  }
-};
-
-export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const awardLayerNumbers = await eventsService.getUpcomingRewards();
-    if (awardLayerNumbers.length === 0) {
-      dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: 0 } });
-    } else {
-      const { status, layerDuration } = getState().node;
-      const currentLayer = status?.currentLayer || 0;
-      const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer > currentLayer);
-      if (futureAwardLayerNumbers.length) {
-        dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((layerDuration * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
-      }
-    }
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-  }
 };
 
 export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
@@ -110,10 +78,10 @@ export const setRewardsAddress = (): Action => async (dispatch: Dispatch, getSta
 };
 
 export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  const { rewardsAddress } = getState().node;
+  const { coinbase } = getState().node;
   const { accounts } = getState().wallet;
-  const accountIndex = accounts.findIndex((account) => account.publicKey === rewardsAddress);
-  const { error, hasNewAwards, rewards, transactions } = await eventsService.getAccountRewards({ address: rewardsAddress, accountIndex });
+  const accountIndex = accounts.findIndex((account) => account.publicKey === coinbase);
+  const { error, hasNewAwards, rewards, transactions } = await eventsService.getAccountRewards({ address: coinbase, accountIndex });
   if (error) {
     console.error(error); // eslint-disable-line no-console
   } else {

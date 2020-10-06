@@ -18,6 +18,7 @@ import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
+import SmesherService from './smesherService';
 import './wasm_exec';
 
 (async function () {
@@ -38,6 +39,7 @@ StoreService.init();
 let mainWindow = null;
 let tray = null;
 let nodeManager;
+let smesherService;
 
 const handleClosingApp = async () => {
   const networkId = StoreService.get({ key: 'networkId' });
@@ -133,6 +135,11 @@ app.on('ready', async () => {
   mainWindow.on('close', async (event) => {
     event.preventDefault();
     await handleClosingApp();
+  });
+
+  ipcMain.on(ipcConsts.START_SMESHER_SERVICE, () => {
+    smesherService = new SmesherService();
+    smesherService.subscribeToEvents(mainWindow);
   });
 
   ipcMain.handle(ipcConsts.IS_APP_MINIMIZED, () => mainWindow.isMinimized());

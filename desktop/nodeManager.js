@@ -1,6 +1,5 @@
 import path from 'path';
 import os from 'os';
-import fs from 'fs';
 import { app, ipcMain, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
@@ -12,7 +11,6 @@ import { writeInfo, writeError } from './logger';
 const { exec } = require('child_process');
 
 const find = require('find-process');
-const checkDiskSpace = require('check-disk-space');
 
 const osTargetNames = {
   Darwin: 'mac',
@@ -54,31 +52,6 @@ class NodeManager {
       const networkId = StoreService.get({ key: 'networkId' });
       StoreService.set({ key: `${networkId}-port`, value: request.port });
     });
-    ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
-      const res = await this.selectPostFolder({ mainWindow });
-      writeInfo(`NodeManager`, `ipc SELECT_POST_FOLDER channel`, { res });
-      return res;
-    });
-    ipcMain.handle(ipcConsts.GET_MINING_STATUS, async () => {
-      const res = await this.getMiningStatus();
-      writeInfo(`NodeManager`, `ipc GET_MINING_STATUS channel`, { res });
-      return res;
-    });
-    ipcMain.handle(ipcConsts.INIT_MINING, async (event, request) => {
-      const res = await this.initMining({ ...request });
-      writeInfo(`NodeManager`, `ipc INIT_MINING channel`, { res }, { request });
-      return res;
-    });
-    ipcMain.handle(ipcConsts.GET_UPCOMING_REWARDS, async () => {
-      const res = await this.getUpcomingRewards();
-      writeInfo(`NodeManager`, `ipc GET_UPCOMING_REWARDS channel`, { res });
-      return res;
-    });
-    ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
-      const res = await this.setRewardsAddress({ ...request });
-      writeInfo(`NodeManager`, `ipc SET_REWARDS_ADDRESS channel`, { res }, { request });
-      return res;
-    });
     ipcMain.handle(ipcConsts.SET_NODE_IP, (event, request) => {
       const res = this.setNodeIpAddress({ ...request });
       writeInfo(`NodeManager`, `ipc SET_NODE_IP channel`, { res }, { request });
@@ -95,7 +68,7 @@ class NodeManager {
 
       const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
 
-      StoreService.set({ key: `${networkId}-postSize`, value: parseInt(nodeConfig.post['post-space']) });
+      StoreService.set({ key: `${networkId}-minCommitmentSize`, value: parseInt(nodeConfig.post['post-space']) });
       StoreService.set({ key: `${networkId}-layerDurationSec`, value: parseInt(nodeConfig.main['layer-duration-sec']) });
 
       const userDataPath = app.getPath('userData');
@@ -127,9 +100,9 @@ class NodeManager {
           }
         });
       } else {
-        const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+        const savedSmeshingParams = StoreService.get({ key: `${networkId}-smeshingParams` });
         const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}"${
-          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
+          savedSmeshingParams ? ` --coinbase 0x${savedSmeshingParams.coinbase} --start-mining --post-datadir "${savedSmeshingParams.dataDir}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
@@ -184,15 +157,9 @@ class NodeManager {
   getNodeSettings = async () => {
     try {
       const networkId = StoreService.get({ key: 'networkId' });
-      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
-      const address = savedMiningParams?.coinbase;
-      const posDataPath = savedMiningParams?.logicalDrive;
-      const genesisTime = StoreService.get({ key: `${networkId}-genesisTime` });
-      const commitmentSize = StoreService.get({ key: `${networkId}-postSize` });
-      const layerDuration = StoreService.get({ key: `${networkId}-layerDurationSec` });
       const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
       const { value } = await netService.getStateRoot();
-      return { address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
+      return { stateRootHash: value, port };
     } catch (error) {
       return { error };
     }
@@ -213,69 +180,6 @@ class NodeManager {
       return { status: parsedStatus, error: null };
     } catch (error) {
       return { status: null, error };
-    }
-  };
-
-  selectPostFolder = async ({ mainWindow }) => {
-    const { filePaths } = await dialog.showOpenDialog(mainWindow, {
-      title: 'Select folder for smeshing',
-      defaultPath: app.getPath('documents'),
-      properties: ['openDirectory']
-    });
-    try {
-      fs.accessSync(filePaths[0], fs.constants.W_OK);
-      const diskSpace = await checkDiskSpace(filePaths[0]);
-      return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
-    } catch (error) {
-      writeError('nodeManager', 'selectPostFolder', error);
-      return { error };
-    }
-  };
-
-  getMiningStatus = async () => {
-    try {
-      const { status } = await netService.getMiningStatus();
-      return { error: null, status };
-    } catch (error) {
-      return { error, status: null };
-    }
-  };
-
-  initMining = async ({ logicalDrive, commitmentSize, coinbase }) => {
-    try {
-      await netService.initMining({ logicalDrive, commitmentSize, coinbase });
-      const networkId = StoreService.get({ key: 'networkId' });
-      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive, coinbase } });
-      return { error: null };
-    } catch (error) {
-      return { error };
-    }
-  };
-
-  getUpcomingRewards = async () => {
-    try {
-      const { layers } = await netService.getUpcomingAwards();
-      if (!layers) {
-        return { error: null, layers: [] };
-      }
-      const resolvedLayers = layers || [];
-      const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
-      parsedLayers.sort((a, b) => a - b);
-      return { error: null, layers: parsedLayers };
-    } catch (error) {
-      return { error: error.message, layers: null };
-    }
-  };
-
-  setRewardsAddress = async ({ address }) => {
-    try {
-      await netService.setRewardsAddress({ address });
-      const networkId = StoreService.get({ key: 'networkId' });
-      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
-      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive: savedMiningParams.logicalDrive, coinbase: address } });
-      return { error: null };
-    } catch (error) {
-      return { error };
     }
   };
 
