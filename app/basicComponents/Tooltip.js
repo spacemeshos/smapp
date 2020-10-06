@@ -13,9 +13,9 @@ const InnerWrapper = styled.div`
   top: ${({ top }) => top}px;
   left: ${({ left }) => left}px;
   width: ${({ width }) => width}px;
-  padding: 15px 20px;
-  background-color: ${smColors.lightGray};
-  border: 1px solid ${smColors.white};
+  padding: 10px 15px;
+  background-color: ${smColors.disabledGray};
+  border: 1px solid ${smColors.realBlack};
   z-index: 10;
 `;
 

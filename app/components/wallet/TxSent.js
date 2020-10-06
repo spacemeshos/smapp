@@ -47,7 +47,10 @@ const DetailsRow = styled.div`
   align-items: center;
   padding: 5px 0;
   margin-bottom: 10px;
-  border-bottom: ${({ isLast }) => (isLast ? 'none' : `1px solid ${smColors.navLinkGrey}`)};
+  border-bottom: 1px solid ${smColors.navLinkGrey};
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const DetailsTextRight = styled.div`
@@ -128,25 +131,27 @@ class TxSent extends Component<Props, State> {
           <HeaderText>{unit} SENT!</HeaderText>
           <HeaderIcon src={doneIconGreen} />
         </Header>
-        <DetailsRow>
-          <DetailsTextRight>{unit}</DetailsTextRight>
-          <DetailsTextLeft>{value}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Sent from</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${getAddress(fromAddress)}`}</DetailsTextLeftBold>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${address}`}</DetailsTextLeftBold>
-        </DetailsRow>
-        <DetailsRow isLast>
-          <DetailsTextRight>Transaction ID</DetailsTextRight>
-          <ComplexText>
-            <span>{getAbbreviatedText(txId, true, 8)}</span>
-            <CopyIcon src={copyBlack} onClick={this.copyTxId} />
-          </ComplexText>
-        </DetailsRow>
+        <>
+          <DetailsRow>
+            <DetailsTextRight>{unit}</DetailsTextRight>
+            <DetailsTextLeft>{value}</DetailsTextLeft>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Sent from</DetailsTextRight>
+            <DetailsTextLeftBold>{`0x${getAddress(fromAddress)}`}</DetailsTextLeftBold>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Sent to</DetailsTextRight>
+            <DetailsTextLeftBold>{`0x${address}`}</DetailsTextLeftBold>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextRight>Transaction ID</DetailsTextRight>
+            <ComplexText>
+              <span>{getAbbreviatedText(txId, true, 8)}</span>
+              <CopyIcon src={copyBlack} onClick={this.copyTxId} />
+            </ComplexText>
+          </DetailsRow>
+        </>
         {isCopied && <CopiedText>Tx ID copied to clipboard!</CopiedText>}
         <Footer>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" />
