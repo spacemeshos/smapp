@@ -18,15 +18,29 @@ const Footer = styled.div`
 type Props = {};
 
 type State = {
-  mode: 0 | 1 | 2 | 3 | 4 | 5,
+  mode: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7,
   currentStep: number
 };
 
-const headers = ['NEW VAULT', 'VAULT TYPE', 'VAULT MASTER ACCOUNT'];
+const headers = [
+  'NEW VAULT',
+  'VAULT TYPE',
+  'VAULT MASTER ACCOUNT',
+  'VAULT MASTER ACCOUNTS',
+  'DAILY SPENDING',
+  'CREATE VAULT TRANSACTION',
+  'REVIEW NEW VAULT',
+  'NEW VAULT SUBMITTED!'
+];
 const subHeader = [
   'A vault is an enhanced account with extra security and spending features.',
   'Select vault’s type from one of the options below.',
-  'The master account is the account that will be used to perform vault operations such as withdrawing funds.'
+  'The master account is the account that will be used to perform vault operations such as withdrawing funds.',
+  'Set your vault’s 3 master addresses. Approval of 2 out of 3 address’ owners is needed to use this vault.',
+  'You can set a daily spending limit which only requires one account to withdraw up to a daily spending limit from your vault.',
+  'Select a wallet’s account to execute the create vault transaction and set an amount to transfer from the account to the new vault.',
+  'Review your new vault information.',
+  ''
 ];
 
 class Vault extends Component<Props, State> {
@@ -70,6 +84,15 @@ class Vault extends Component<Props, State> {
         return null;
       }
       case 4: {
+        return null;
+      }
+      case 5: {
+        return null;
+      }
+      case 6: {
+        return null;
+      }
+      case 7: {
         return null;
       }
       default: {
