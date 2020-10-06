@@ -48,7 +48,7 @@ const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.
 
 type Props = {
   masterAccountIndex: number,
-  selectedAccountIndex: () => void
+  selectAccountIndex: () => void
 };
 
 type State = {
@@ -76,7 +76,7 @@ const masterAccounts = [
 
 class VaultMasterAccounts extends Component<Props, State> {
   render() {
-    const { masterAccountIndex, selectedAccountIndex } = this.props;
+    const { masterAccountIndex, selectAccountIndex } = this.props;
 
     return (
       <>
@@ -86,7 +86,7 @@ class VaultMasterAccounts extends Component<Props, State> {
           <Dots>....................................</Dots>
           <DropDown
             data={masterAccounts}
-            onPress={selectedAccountIndex}
+            onPress={selectAccountIndex}
             DdElement={({ label, text, isMain }) => this.renderAccElement({ label, text, isInDropDown: !isMain })}
             selectedItemIndex={masterAccountIndex}
             rowHeight={40}
@@ -100,7 +100,7 @@ class VaultMasterAccounts extends Component<Props, State> {
           <Dots>....................................</Dots>
           <DropDown
             data={masterAccounts}
-            onPress={selectedAccountIndex}
+            onPress={selectAccountIndex}
             DdElement={({ label, text, isMain }) => this.renderAccElement({ label, text, isInDropDown: !isMain })}
             selectedItemIndex={masterAccountIndex}
             rowHeight={40}
@@ -114,7 +114,7 @@ class VaultMasterAccounts extends Component<Props, State> {
           <Dots>....................................</Dots>
           <DropDown
             data={masterAccounts}
-            onPress={selectedAccountIndex}
+            onPress={selectAccountIndex}
             DdElement={({ label, text, isMain }) => this.renderAccElement({ label, text, isInDropDown: !isMain })}
             selectedItemIndex={masterAccountIndex}
             rowHeight={40}
