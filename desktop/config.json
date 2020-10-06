@@ -1,4 +1,7 @@
 {
+    "api": {
+        "grpc": "node,mesh,globalstate,transaction,smesher"
+    },
     "hare": {
         "hare-committee-size": "50",
         "hare-exp-leaders": "5",
@@ -16,12 +19,12 @@
         "atxs-per-block": "25",
         "block-cache-size": "20",
         "genesis-active-size": "100",
-        "genesis-time": "2020-08-26T01:21:04.504+00:00",
+        "genesis-time": "2020-09-16T22:39:13.647+00:00",
         "hdist": "10",
         "layer-average-size": "50",
         "layer-duration-sec": "300",
         "layers-per-epoch": "288",
-        "poet-server": "35.184.10.214:8080",
+        "poet-server": "35.222.224.200:8080",
         "sync-interval": "10",
         "sync-request-timeout": "60000",
         "sync-validation-delta": "30"
@@ -33,19 +36,20 @@
         "max-inbound": "32",
         "max-pending-connections": "100",
         "msg-size-limit": "0",
-        "network-id": "117",
+        "network-id": "118",
         "outbound-target": "10",
         "response-timeout": "60s",
         "session-timeout": "15s",
         "swarm": {
             "alpha": "3",
             "bootnodes": [
-                "spacemesh://FR7N7nmycyZ1crvk4Buc2CvtY1Wdvs65LsBSg1ymjdAZ@35.239.0.119:11012",
-                "spacemesh://296GgpjewHiSojnJceQ1vCfZ8Tafhkj68G3cUL1akZLx@35.226.31.191:11093",
-                "spacemesh://AvFiCUhfeJT4tVY431cXxXGuJmd5tK3iZ3MgKmCyBez9@104.198.42.27:11071",
-                "spacemesh://GpKmAL4fwJDuhmowozJtAKZKk6gutKP1GKXvdNYLWSLw@35.188.147.54:11091",
-                "spacemesh://6yXE5kLEh1kRNeZDNCR4exbWmPELvj3A2CWE5w8LCKEm@34.68.204.223:11041",
-                "spacemesh://XZFLbieJwWYes5mU36AkSPx7t8ZzfhKDLnMLQiBR1kN@34.121.147.205:11070"
+                "spacemesh://9PzjGaei8MCjrqQLbkQoFCHK2KowMYpmUjaq8ftKr22m@34.122.225.168:11025",
+                "spacemesh://FoguUwudY9BWk2g2w3Z2TWn4cmq5mvDoHrQ18BNoJ4TK@34.68.219.247:11030",
+                "spacemesh://JAC9ngCLkC7HnR9omvVajWmKLjuzhymrDTxMdoxz2VNU@34.121.217.6:11067",
+                "spacemesh://9M6mUbKF7KfosUgfDG56Xz5aXYqUbFffuJSh6oQHFp6T@35.222.190.247:11050",
+                "spacemesh://7TEe7zefw2eCXyagKWpEfbU1CkyYFQzJS87uTthLytoj@104.197.200.200:11013",
+                "spacemesh://48Hwo5P5AjDMvM5Jwcbse2K4LDAKZd4iFy7D8fXewyCb@35.184.31.98:11029",
+                "spacemesh://BMabXAxko4sTGJaQSACQnfqT1zAsDNkbGP9pPmKbcbfU@34.123.7.242:11100"
             ],
             "bootstrap": true,
             "bucketsize": "20",
