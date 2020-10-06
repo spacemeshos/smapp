@@ -114,7 +114,7 @@ class CreateWallet extends Component<Props, State> {
     return (
       <Wrapper>
         <StepsContainer
-          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'COMMIT SPACE']}
+          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SETUP PROOF OF SPACE']}
           header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
         />
@@ -201,7 +201,7 @@ class CreateWallet extends Component<Props, State> {
       if (isWalletOnlySetup) {
         history.push('/main/wallet');
       } else {
-        history.push('/main/node-setup', { isWalletCreation: true });
+        history.push('/main/node-setup');
       }
     }
   };
