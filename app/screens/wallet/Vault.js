@@ -1,7 +1,7 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { NewVault, VaultType } from '/components/vault';
+import { NewVault, VaultType, VaultMasterAccounts } from '/components/vault';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
 import { vault } from '/assets/images';
@@ -22,8 +22,12 @@ type State = {
   currentStep: number
 };
 
-const headers = ['NEW VAULT', 'VAULT TYPE'];
-const subHeader = ['A vault is an enhanced account with extra security and spending features.', 'Select vault’s type from one of the options below.'];
+const headers = ['NEW VAULT', 'VAULT TYPE', 'VAULT MASTER ACCOUNTS'];
+const subHeader = [
+  'A vault is an enhanced account with extra security and spending features.',
+  'Select vault’s type from one of the options below.',
+  'Set your vault’s 3 master addresses. Approval of 2 out of 3 address’ owners is needed to use this vault.'
+];
 
 class Vault extends Component<Props, State> {
   constructor(props: Props) {
@@ -62,7 +66,7 @@ class Vault extends Component<Props, State> {
         return <VaultType handleChangeType={this.handleChangeType} type={type} />;
       }
       case 3: {
-        return <VaultType handleChangeType={this.handleChangeType} type={type} />;
+        return <VaultMasterAccounts handleChangeType={this.handleChangeType} type={type} />;
       }
       default: {
         return null;
