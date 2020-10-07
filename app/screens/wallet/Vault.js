@@ -1,7 +1,7 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { NewVault, VaultType, VaultMasterAccounts } from '/components/vault';
+import { NewVault, VaultType } from '/components/vault';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
 import { vault } from '/assets/images';
