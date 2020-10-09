@@ -120,7 +120,15 @@ class UnlockWallet extends Component<Props, State> {
           <SmallSideBar src={smallInnerSideBar} />
           <InputSection>
             <Chevron src={chevronIcon} />
-            <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={this.decryptWallet} onChange={this.handlePasswordTyping} style={{ flex: 1 }} />
+            <Input
+              type="password"
+              placeholder="ENTER PASSWORD"
+              value={password}
+              onEnterPress={this.decryptWallet}
+              onChange={this.handlePasswordTyping}
+              style={{ flex: 1 }}
+              autofocus
+            />
             <ErrorSection>
               {hasError && <ErrorPopup onClick={() => this.setState({ password: '', hasError: false })} text="Sorry, this password doesn't ring a bell, please try again." />}
             </ErrorSection>

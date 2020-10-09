@@ -268,7 +268,7 @@ class Node extends Component<Props, State> {
     return [
       <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
       <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
-      <Text key="3">* You can close this window and choose to keep smeshing the background</Text>,
+      <Text key="3">* You can close this window and choose to keep smeshing in the background</Text>,
       <BoldText key="4">Important</BoldText>,
       <Text key="5">* Leave your computer on 24/7 to smesh and to earn smeshing rewards</Text>,
       <Text key="6">

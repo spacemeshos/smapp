@@ -68,12 +68,6 @@ class EventsService {
 
   static toggleAutoStart = () => ipcRenderer.send(ipcConsts.TOGGLE_AUTO_START);
 
-  /** *************************************  AUTO UPDATE  ***************************************** */
-
-  static checkForUpdates = () => ipcRenderer.send(ipcConsts.CHECK_WALLET_UPDATE);
-
-  static isUpdateDownloading = () => ipcRenderer.invoke(ipcConsts.IS_UPDATE_DOWNLOADING);
-
   /** **************************************   MISC   ***************************************** */
 
   static reloadApp = () => ipcRenderer.send(ipcConsts.RELOAD_APP);
