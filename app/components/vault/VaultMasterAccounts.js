@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { DropDown, Tooltip } from '/basicComponents';
+import { DropDown, Tooltip, Dots } from '/basicComponents';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
@@ -15,16 +15,6 @@ const DetailsRow = styled.div`
 `;
 
 const DetailsText = styled.div`
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
-`;
-
-const Dots = styled.div`
-  flex: 1;
-  flex-shrink: 1;
-  overflow: hidden;
-  margin-right: 12px;
   font-size: 16px;
   line-height: 20px;
   color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
@@ -83,7 +73,7 @@ class VaultMasterAccounts extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Address 1</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={masterAccounts}
             onPress={selectAccountIndex}
@@ -97,7 +87,7 @@ class VaultMasterAccounts extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Address 2</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={masterAccounts}
             onPress={selectAccountIndex}
@@ -111,7 +101,7 @@ class VaultMasterAccounts extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Address 3</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={masterAccounts}
             onPress={selectAccountIndex}

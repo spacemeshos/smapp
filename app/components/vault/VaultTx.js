@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { DropDown, Tooltip } from '/basicComponents';
+import { DropDown, Tooltip, Dots } from '/basicComponents';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
@@ -15,16 +15,6 @@ const DetailsRow = styled.div`
 `;
 
 const DetailsText = styled.div`
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
-`;
-
-const Dots = styled.div`
-  flex: 1;
-  flex-shrink: 1;
-  overflow: hidden;
-  margin-right: 12px;
   font-size: 16px;
   line-height: 20px;
   color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
@@ -98,7 +88,7 @@ class VaultTx extends Component<Props> {
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Tooltip 1" />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={accounts}
             onPress={selectAccountIndex}
@@ -112,7 +102,7 @@ class VaultTx extends Component<Props> {
         <DetailsRow>
           <DetailsText>Fund Amount</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Tooltip 2" />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={accounts}
             onPress={selectFundAmount}
@@ -126,7 +116,7 @@ class VaultTx extends Component<Props> {
         <DetailsRow>
           <DetailsText>Max Gas Units</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Tooltip 3" />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={gasUnit}
             onPress={selectGasUnits}
@@ -140,7 +130,7 @@ class VaultTx extends Component<Props> {
         <DetailsRow>
           <DetailsText>Gas Unit Price</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Tooltip 4" />
-          <Dots>....................................</Dots>
+          <Dots />
           <DropDown
             data={unitPrice}
             onPress={selectGasPrice}

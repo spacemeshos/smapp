@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-import { DropDown, Tooltip } from '/basicComponents';
+import { DropDown, Tooltip, Dots } from '/basicComponents';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
@@ -15,16 +15,6 @@ const DetailsRow = styled.div`
 `;
 
 const DetailsText = styled.div`
-  font-size: 16px;
-  line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
-`;
-
-const Dots = styled.div`
-  flex: 1;
-  flex-shrink: 1;
-  overflow: hidden;
-  margin-right: 12px;
   font-size: 16px;
   line-height: 20px;
   color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
@@ -101,7 +91,7 @@ class DailySpending extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Tooltip 1" />
-          <Dots>...........................</Dots>
+          <Dots />
           <DropDown
             data={accounts}
             onPress={selectAccountIndex}
@@ -115,7 +105,7 @@ class DailySpending extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Daily Spending Limit</DetailsText>
           <Tooltip top="-2" left="-3" width="250" text="Tooltip 2" />
-          <Dots>...........................</Dots>
+          <Dots />
           <DropDown
             data={limits}
             onPress={selectAccountIndex}

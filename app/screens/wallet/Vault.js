@@ -1,7 +1,7 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { NewVault, VaultType, VaultMasterAccount } from '/components/vault';
+import { NewVault, VaultType, VaultMasterAccount, VaultMasterAccounts, DailySpending, VaultTx, ReviewNewVault, VaultFinish } from '/components/vault';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
 import { vault } from '/assets/images';
@@ -81,19 +81,19 @@ class Vault extends Component<Props, State> {
         return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={this.selectedAccountIndex} />;
       }
       case 3: {
-        return null;
+        return <VaultMasterAccounts />;
       }
       case 4: {
-        return null;
+        return <DailySpending />;
       }
       case 5: {
-        return null;
+        return <VaultTx />;
       }
       case 6: {
-        return null;
+        return <ReviewNewVault />;
       }
       case 7: {
-        return null;
+        return <VaultFinish />;
       }
       default: {
         return null;
