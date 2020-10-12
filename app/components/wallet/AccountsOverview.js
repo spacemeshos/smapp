@@ -10,7 +10,6 @@ import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import Link from '/basicComponents/Link';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const copy = isDarkModeOn ? copyWhite : copyBlack;
@@ -164,7 +163,6 @@ class AccountsOverview extends Component<Props, State> {
         </AccountDetails>
         <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
         <Footer>
-          <Link onClick={this.navigateToVault} text="Open Vault" style={{ marginRight: 'auto' }} />
           <BalanceHeader>BALANCE</BalanceHeader>
           {status?.synced ? (
             <BalanceWrapper>
