@@ -31,7 +31,7 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${smColors.white};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const OuterIcon = styled.img`
@@ -42,7 +42,7 @@ const OuterIcon = styled.img`
 const Wrapper = styled.div`
   position: relative;
   margin-left: 5px;
-  margin-top: 2px;
+  margin-top: ${({ wrapTop }) => wrapTop}px;
   &:hover ${InnerWrapper} {
     display: block;
   }
@@ -52,14 +52,15 @@ type Props = {
   top: number,
   left: number,
   width: number,
+  wrapTop?: number,
   text: string
 };
 
 class Tooltip extends PureComponent<Props> {
   render() {
-    const { top, left, width, text } = this.props;
+    const { top, left, width, text, wrapTop } = this.props;
     return (
-      <Wrapper>
+      <Wrapper wrapTop={wrapTop || 2}>
         <OuterIcon src={icon} />
         <InnerWrapper top={top} left={left} width={width}>
           <InnerIcon src={icon} />

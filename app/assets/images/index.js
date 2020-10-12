@@ -70,6 +70,8 @@ export { default as searchIcon } from './search_icon.png';
 export { default as fireworks } from './fireworks.gif';
 export { default as fireworksWhite } from './fireworks_white.gif';
 export { default as fireworksImg } from './fireworks.png';
+export { default as vault } from './vault.svg';
+export { default as icon } from './icon.png';
 export { default as posIcon } from './pos.svg';
 export { default as posAwake } from './pos_awake.svg';
 export { default as posComputer } from './pos_computer.svg';
