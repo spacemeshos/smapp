@@ -5,3 +5,4 @@ export { default as VaultMasterAccounts } from './VaultMasterAccounts';
 export { default as DailySpending } from './DailySpending';
 export { default as VaultTx } from './VaultTx';
 export { default as VaultFinish } from './VaultFinish';
+export { default as ReviewNewVault } from './ReviewNewVault';
