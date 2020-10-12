@@ -1,7 +1,7 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { NewVault, VaultType } from '/components/vault';
+import { NewVault, VaultType, VaultMasterAccount } from '/components/vault';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
 import { vault } from '/assets/images';
@@ -49,7 +49,8 @@ class Vault extends Component<Props, State> {
     this.state = {
       mode: 0,
       name: '',
-      type: 'single'
+      type: 'single',
+      masterAccountIndex: 0
     };
     this.handleNext = this.handleNext.bind(this);
   }
@@ -68,7 +69,7 @@ class Vault extends Component<Props, State> {
   }
 
   renderVaultSteps = (mode) => {
-    const { name, type } = this.state;
+    const { name, type, masterAccountIndex } = this.state;
     switch (mode) {
       case 0: {
         return <NewVault vaultName={name} onChangeVaultName={this.handleChangeVaultName} />;
@@ -77,7 +78,7 @@ class Vault extends Component<Props, State> {
         return <VaultType handleChangeType={this.handleChangeType} type={type} />;
       }
       case 2: {
-        return null;
+        return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={this.selectedAccountIndex} />;
       }
       case 3: {
         return null;
@@ -110,6 +111,8 @@ class Vault extends Component<Props, State> {
       mode: mode + 1
     });
   };
+
+  selectedAccountIndex = ({ index }: { index: number }) => this.setState({ masterAccountIndex: index });
 
   navigateToVaultSetup = () => shell.openExternal('https://product.spacemesh.io/#/smapp_vaults');
 }
