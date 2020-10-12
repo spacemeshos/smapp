@@ -13,7 +13,7 @@ const DetailsRow = styled.div`
   flex-direction: row;
   align-items: end;
   color: ${textColor};
-  margin-bottom: ${({ mb }) => mb}px;
+  margin-bottom: 15px;
 `;
 
 const LockIcon = styled.img`
@@ -42,15 +42,15 @@ class VaultFinish extends Component<Props, State> {
       <>
         <LockIcon src={isDarkModeOn ? vaultSecondWhite : vaultSecond} />
         <GreenText>Your new vault transaction has been submitted to the mesh and is being created.</GreenText>
-        <DetailsRow mb={15}>
+        <DetailsRow>
           <Icon src={circle} />
           Track creation progress in your transactions log.
         </DetailsRow>
-        <DetailsRow mb={15}>
+        <DetailsRow>
           <Icon src={wallet} />
           Your new vault will be added to in your wallet’s accounts.
         </DetailsRow>
-        <DetailsRow mb={15}>
+        <DetailsRow>
           <Icon src={vault} />
           To work with your new vault, select it from your wallet’s accounts list drop-down (left side).
         </DetailsRow>
