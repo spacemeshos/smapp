@@ -36,10 +36,6 @@ type Props = {
   children: React.node
 };
 
-type State = {
-  isClosing: boolean
-};
-
 class Modal extends Component<Props, State> {
   render() {
     const { header, subHeader, hasError, children } = this.props;
