@@ -5,7 +5,7 @@ import { smColors } from '/vars';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const backgroundColor = isDarkModeOn ? smColors.dmBlack2 : smColors.lightGray;
-const color1 = isDarkModeOn ? smColors.white : smColors.realBlack;
+const headerColor = isDarkModeOn ? smColors.white : smColors.realBlack;
 const color2 = isDarkModeOn ? smColors.white : smColors.black;
 
 const Wrapper = styled(CorneredWrapper)`
@@ -60,19 +60,19 @@ type Props = {
   header: string,
   headerIcon?: Object,
   subHeader?: string,
-  hasError?: boolean,
+  isErrorModal?: boolean,
   useEmptyWrap: boolean
 };
 
 class CorneredContainer extends PureComponent<Props> {
   render() {
-    const { children, width, height, header, headerIcon, subHeader, hasError, useEmptyWrap } = this.props;
+    const { children, width, height, header, headerIcon, subHeader, isErrorModal, useEmptyWrap } = this.props;
 
     return useEmptyWrap ? (
       <DivWrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={hasError ? smColors.orange : color1}>{header}</Header>
+          <Header color={isErrorModal ? smColors.orange : headerColor}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
@@ -87,7 +87,7 @@ class CorneredContainer extends PureComponent<Props> {
       <Wrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={hasError ? smColors.orange : color1}>{header}</Header>
+          <Header color={isErrorModal ? smColors.orange : headerColor}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
