@@ -32,7 +32,7 @@ const Indicator = styled.div`
 type Props = {
   header: string,
   subHeader: string,
-  hasError: boolean,
+  hasError?: boolean,
   children: React.node
 };
 
@@ -41,7 +41,7 @@ class Modal extends Component<Props, State> {
     const { header, subHeader, hasError, children } = this.props;
     return (
       <Wrapper>
-        <CorneredContainer width={520} height={310} header={header} subHeader={subHeader}>
+        <CorneredContainer width={520} height={310} header={header} subHeader={subHeader} hasError={hasError}>
           <Indicator hasError={hasError} />
           {children}
         </CorneredContainer>

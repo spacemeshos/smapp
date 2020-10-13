@@ -4,24 +4,11 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { eventsService } from '/infra/eventsService';
-import { CorneredContainer } from '/components/common';
+import { Modal } from '/components/common';
 import { Input, Button } from '/basicComponents';
 import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 import type { Account } from '/types';
-
-const Wrapper = styled.div`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.6);
-  z-index: 2;
-`;
 
 const ButtonsWrapper = styled.div`
   display: flex;
@@ -64,16 +51,14 @@ class SignMessage extends Component<Props, State> {
     const { accounts, index, close } = this.props;
     const { message, isCopied } = this.state;
     return (
-      <Wrapper>
-        <CorneredContainer width={700} height={300} header="SIGN TEXT" subHeader={`sign text with account ${getAbbreviatedText(getAddress(accounts[index].publicKey))}`}>
-          <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
-          <ButtonsWrapper>
-            <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
-            <Button onClick={close} isPrimary={false} text="Cancel" />
-          </ButtonsWrapper>
-          <CopiedText>{isCopied ? 'COPIED' : ' '}</CopiedText>
-        </CorneredContainer>
-      </Wrapper>
+      <Modal header="SIGN TEXT" subHeader={`sign text with account ${getAbbreviatedText(getAddress(accounts[index].publicKey))}`}>
+        <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => this.setState({ message: value })} maxLength="64" style={inputStyle} />
+        <ButtonsWrapper>
+          <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
+          <Button onClick={close} isPrimary={false} text="Cancel" />
+        </ButtonsWrapper>
+        <CopiedText>{isCopied ? 'COPIED' : ' '}</CopiedText>
+      </Modal>
     );
   }
 

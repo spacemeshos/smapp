@@ -1,25 +1,12 @@
 // @flow
 import React, { Component } from 'react';
 import { ipcRenderer } from 'electron';
-import { CorneredWrapper, Loader } from '/basicComponents';
+import { Modal, Loader } from '/basicComponents';
 import { smColors, ipcConsts } from '/vars';
 import styled from 'styled-components';
 import { notificationsService } from '/infra/notificationsService';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
-const Wrapper = styled.div`
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.6);
-  z-index: 2;
-`;
 
 const InnerWrapper = styled.div`
   width: 700px;
@@ -48,14 +35,12 @@ class OnQuitModal extends Component<{}, State> {
   render() {
     const { isClosing } = this.state;
     return isClosing ? (
-      <Wrapper>
-        <CorneredWrapper>
-          <InnerWrapper>
-            <Loader size={Loader.sizes.BIG} />
-            <Text>Shutting down, please wait...</Text>
-          </InnerWrapper>
-        </CorneredWrapper>
-      </Wrapper>
+      <Modal>
+        <InnerWrapper>
+          <Loader size={Loader.sizes.BIG} />
+          <Text>Shutting down, please wait...</Text>
+        </InnerWrapper>
+      </Modal>
     ) : null;
   }
 

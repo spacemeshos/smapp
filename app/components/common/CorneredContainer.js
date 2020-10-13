@@ -43,7 +43,7 @@ const HeaderIcon = styled.img`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${color1};
+  color: ${({ color }) => color};
 `;
 
 const SubHeader = styled.div`
@@ -60,18 +60,19 @@ type Props = {
   header: string,
   headerIcon?: Object,
   subHeader?: string,
+  hasError?: boolean,
   useEmptyWrap: boolean
 };
 
 class CorneredContainer extends PureComponent<Props> {
   render() {
-    const { children, width, height, header, headerIcon, subHeader, useEmptyWrap } = this.props;
+    const { children, width, height, header, headerIcon, subHeader, hasError, useEmptyWrap } = this.props;
 
     return useEmptyWrap ? (
       <DivWrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header>{header}</Header>
+          <Header color={hasError ? smColors.orange : color1}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
@@ -86,7 +87,7 @@ class CorneredContainer extends PureComponent<Props> {
       <Wrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header>{header}</Header>
+          <Header color={hasError ? smColors.orange : color1}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
