@@ -61,7 +61,6 @@ type Props = {
   headerColor?: string,
   headerIcon?: Object,
   subHeader?: string,
-  isErrorModal?: boolean,
   useEmptyWrap: boolean
 };
 
@@ -71,13 +70,13 @@ class CorneredContainer extends PureComponent<Props> {
   };
 
   render() {
-    const { children, width, height, header, headerColor, headerIcon, subHeader, isErrorModal, useEmptyWrap } = this.props;
+    const { children, width, height, header, headerColor, headerIcon, subHeader, useEmptyWrap } = this.props;
 
     return useEmptyWrap ? (
       <DivWrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={isErrorModal ? smColors.orange : headerColor}>{header}</Header>
+          <Header color={headerColor}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
@@ -92,7 +91,7 @@ class CorneredContainer extends PureComponent<Props> {
       <Wrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={isErrorModal ? smColors.orange : headerColor}>{header}</Header>
+          <Header color={headerColor}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
