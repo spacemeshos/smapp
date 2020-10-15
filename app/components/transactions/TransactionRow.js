@@ -1,5 +1,5 @@
 // @flow
-import { clipboard } from 'electron';
+import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateTransaction } from '/redux/wallet/actions';
@@ -233,7 +233,7 @@ class TransactionRow extends Component<Props, State> {
               />
             </InputSection>
             <ButtonsWrapper>
-              <Link onClick={() => {}} text="TRANSACTION GUIDE" />
+              <Link onClick={() => shell.openExternal('https://testnet.spacemesh.io/#/send_coin')} text="TRANSACTION GUIDE" />
               <RightButton>
                 <Link style={{ color: smColors.orange, marginRight: '10px' }} onClick={() => this.setState({ showNoteModal: false })} text="CANCEL" />
                 <Button text="NEXT" isDisabled={note === tx.note} onClick={this.save} />
