@@ -93,22 +93,11 @@ const CopiedBanner = styled.div`
 
 const DetailsSection = styled.div`
   display: flex;
-  flex-direction: row;
+  width: 100%;
+  flex-direction: column;
   justify-content: space-between;
   padding: 6px 12px 12px 20px;
   background-color: ${isDarkModeOn ? smColors.black : 'transparent'};
-`;
-
-const LeftDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-
-const RightDetails = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
 `;
 
 const TextRow = styled.div`
@@ -256,44 +245,9 @@ class TransactionRow extends Component<Props, State> {
     if (txId === 'reward') {
       return (
         <DetailsSection>
-          <LeftDetails>
-            <TextRow>
-              <BlackText>STATUS</BlackText>
-              <BoldText color={smColors.darkerGreen}>{this.statuses[status]}</BoldText>
-            </TextRow>
-            {layerId ? (
-              <TextRow>
-                <BlackText>LAYER ID</BlackText>
-                <BoldText>{layerId}</BoldText>
-              </TextRow>
-            ) : null}
-            <TextRow>
-              <BlackText>TO</BlackText>
-              <BoldText>ME</BoldText>
-            </TextRow>
-            <TextRow>
-              <BlackText>SMESHING REWARD</BlackText>
-              <BoldText>{formatSmidge(amount)}</BoldText>
-            </TextRow>
-            <TextRow>
-              <BlackText>SMESHING FEE REWARD</BlackText>
-              <BoldText>{formatSmidge(fee || 0)}</BoldText>
-            </TextRow>
-          </LeftDetails>
-          <RightDetails />
-        </DetailsSection>
-      );
-    }
-    return (
-      <DetailsSection>
-        <LeftDetails>
-          <TextRow>
-            <BlackText>TRANSACTION ID</BlackText>
-            <BoldText onClick={() => this.copyAddress({ id: txId })}>{formatTxId(txId)}</BoldText>
-          </TextRow>
           <TextRow>
             <BlackText>STATUS</BlackText>
-            <BoldText color={color}>{this.statuses[status]}</BoldText>
+            <BoldText color={smColors.darkerGreen}>{this.statuses[status]}</BoldText>
           </TextRow>
           {layerId ? (
             <TextRow>
@@ -302,35 +256,65 @@ class TransactionRow extends Component<Props, State> {
             </TextRow>
           ) : null}
           <TextRow>
-            <BlackText>FROM</BlackText>
-            <BoldText onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
-              {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
-              {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
-            </BoldText>
-          </TextRow>
-          <TextRow>
             <BlackText>TO</BlackText>
-            <BoldText onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
-              {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
-              {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
-            </BoldText>
+            <BoldText>ME</BoldText>
           </TextRow>
           <TextRow>
-            <BlackText>VALUE</BlackText>
+            <BlackText>SMESHING REWARD</BlackText>
             <BoldText>{formatSmidge(amount)}</BoldText>
           </TextRow>
           <TextRow>
-            <BlackText>TRANSACTION FEE</BlackText>
+            <BlackText>SMESHING FEE REWARD</BlackText>
             <BoldText>{formatSmidge(fee || 0)}</BoldText>
           </TextRow>
+        </DetailsSection>
+      );
+    }
+    return (
+      <DetailsSection>
+        <TextRow>
+          <BlackText>TRANSACTION ID</BlackText>
+          <BoldText onClick={() => this.copyAddress({ id: txId })}>{formatTxId(txId)}</BoldText>
+        </TextRow>
+        <TextRow>
+          <BlackText>STATUS</BlackText>
+          <BoldText color={color}>{this.statuses[status]}</BoldText>
+        </TextRow>
+        {layerId ? (
           <TextRow>
-            <BlackText>NOTE</BlackText>
-            <BlackText>
-              {note ? `${note}` : `NO NOTE`}
-              <LinkEdit onClick={() => this.setState({ showNoteModal: true })}>EDIT</LinkEdit>
-            </BlackText>
+            <BlackText>LAYER ID</BlackText>
+            <BoldText>{layerId}</BoldText>
           </TextRow>
-        </LeftDetails>
+        ) : null}
+        <TextRow>
+          <BlackText>FROM</BlackText>
+          <BoldText onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
+            {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
+            {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
+          </BoldText>
+        </TextRow>
+        <TextRow>
+          <BlackText>TO</BlackText>
+          <BoldText onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
+            {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
+            {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
+          </BoldText>
+        </TextRow>
+        <TextRow>
+          <BlackText>VALUE</BlackText>
+          <BoldText>{formatSmidge(amount)}</BoldText>
+        </TextRow>
+        <TextRow>
+          <BlackText>TRANSACTION FEE</BlackText>
+          <BoldText>{formatSmidge(fee || 0)}</BoldText>
+        </TextRow>
+        <TextRow>
+          <BlackText>NOTE</BlackText>
+          <BlackText>
+            {note ? `${note}` : `NO NOTE`}
+            <LinkEdit onClick={() => this.setState({ showNoteModal: true })}>EDIT</LinkEdit>
+          </BlackText>
+        </TextRow>
       </DetailsSection>
     );
   };
