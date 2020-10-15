@@ -3,6 +3,7 @@ const smColors = {
   background: '#F3F3F3',
   white: '#FFFFFF',
   lightGray: '#EEEEEE',
+  lighterGray: '#D4D4D4',
   darkGray: '#585858',
   darkerGray: '#404040',
   green: '#65B042',
