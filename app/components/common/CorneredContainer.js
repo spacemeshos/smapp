@@ -5,7 +5,7 @@ import { smColors } from '/vars';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const backgroundColor = isDarkModeOn ? smColors.dmBlack2 : smColors.lightGray;
-const headerColor = isDarkModeOn ? smColors.white : smColors.realBlack;
+const color1 = isDarkModeOn ? smColors.white : smColors.realBlack;
 const color2 = isDarkModeOn ? smColors.white : smColors.black;
 
 const Wrapper = styled(CorneredWrapper)`
@@ -58,6 +58,7 @@ type Props = {
   width: number,
   height: number,
   header: string,
+  headerColor?: string,
   headerIcon?: Object,
   subHeader?: string,
   isErrorModal?: boolean,
@@ -65,8 +66,12 @@ type Props = {
 };
 
 class CorneredContainer extends PureComponent<Props> {
+  static defaultProps = {
+    headerColor: color1
+  };
+
   render() {
-    const { children, width, height, header, headerIcon, subHeader, isErrorModal, useEmptyWrap } = this.props;
+    const { children, width, height, header, headerColor, headerIcon, subHeader, isErrorModal, useEmptyWrap } = this.props;
 
     return useEmptyWrap ? (
       <DivWrapper width={width} height={height}>
