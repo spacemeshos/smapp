@@ -57,4 +57,14 @@ const formatSmidge = (amount: number, separateResult) => {
   return separateResult ? { value: res.value, unit: res.unit } : `${res.value} ${res.unit}`;
 };
 
-export { formatSmidge, createError, getAbbreviatedText, getFormattedTimestamp, getAddress, formatBytes };
+const getNodeStatusText = (status) => {
+  if (status.synced) {
+    return 'SYNCED';
+  } else if (status.error) {
+    return 'SYNC STOPPED';
+  } else {
+    return 'SYNCING';
+  }
+};
+
+export { formatSmidge, createError, getAbbreviatedText, getFormattedTimestamp, getAddress, formatBytes, getNodeStatusText };

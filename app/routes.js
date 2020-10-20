@@ -22,6 +22,7 @@ import {
   Transactions,
   Settings,
   Contacts,
+  Network,
   TestMe,
   Vault
 } from '/screens';
@@ -72,6 +73,10 @@ const main = [
   {
     path: '/main/wallet',
     component: Wallet
+  },
+  {
+    path: '/main/network',
+    component: Network
   },
   {
     path: '/main/node-setup',

@@ -31,6 +31,18 @@ const MainWrapperInner = styled.div`
   width: calc(100% - 56px);
 `;
 
+const HeaderWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const HeaderIcon = styled.img`
+  width: 35px;
+  height: 27px;
+  margin-right: 5px;
+`;
+
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
@@ -46,6 +58,7 @@ const SubHeader = styled.div`
 type Props = {
   header: string,
   subHeader?: string,
+  headerIcon?: string,
   width: number,
   height?: number | string,
   children: any,
@@ -58,12 +71,15 @@ class WrapperWith2SideBars extends PureComponent<Props> {
   };
 
   render() {
-    const { width, height, header, subHeader, children, style } = this.props;
+    const { width, height, header, headerIcon, subHeader, children, style } = this.props;
     return (
       <Wrapper width={width} height={height} style={style}>
         <SideBar src={leftImg} />
         <MainWrapperInner>
-          <Header>{header}</Header>
+          <HeaderWrapper>
+            {headerIcon && <HeaderIcon src={headerIcon} />}
+            <Header>{header}</Header>
+          </HeaderWrapper>
           <SubHeader>--</SubHeader>
           {subHeader && (
             <SubHeader>
