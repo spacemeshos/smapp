@@ -17,7 +17,6 @@ import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack,
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import { getNodeStatusColor } from '/infra/utils';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
@@ -117,7 +116,8 @@ type Props = {
   getTxList: Action,
   logout: Action,
   history: RouterHistory,
-  location: { pathname: string, hash: string }
+  location: { pathname: string, hash: string },
+  nodeIndicator: Object
 };
 
 type State = {
@@ -162,6 +162,7 @@ class Main extends Component<Props, State> {
 
   render() {
     const { activeRouteIndex } = this.state;
+    const { nodeIndicator } = this.props;
     return (
       <Wrapper>
         <Logo />
@@ -177,7 +178,7 @@ class Main extends Component<Props, State> {
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
-                    <NetworkIndicator status={status}/>
+                    <NetworkIndicator color={nodeIndicator.color}/>
                     NETWORK
                   </NavBarLink>
                   <CustomTooltip text="NETWORK" withIcon={false} isLinkTooltip />
@@ -377,7 +378,8 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   status: state.node.status,
-  miningStatus: state.node.miningStatus
+  miningStatus: state.node.miningStatus,
+  nodeIndicator: state.node.nodeIndicator
 });
 
 const mapDispatchToProps = {

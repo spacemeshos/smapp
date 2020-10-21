@@ -16,7 +16,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: space-around;
+  justify-content: space-between;
 `;
 
 const DetailsWrap = styled.div`
@@ -29,9 +29,10 @@ const FooterWrap = styled.div`
   flex-direction: row;
 `;
 
-const ErrorMessage = styled.div`
+const Message = styled.div`
   display: flex;
   flex-direction: row;
+  color: ${({ color }) => color};
 `;
 
 const DetailsRow = styled.div`
@@ -77,8 +78,9 @@ const ProgressLabel = styled.div`
 `;
 
 type Props = {
-  node: object,
-  status: object,
+  node: Object,
+  status: Object,
+  nodeIndicator: Object,
   history: RouterHistory
 };
 
@@ -89,45 +91,15 @@ class Network extends Component<Props, State> {
 
   color;
 
-  errorText = null;
-
   render() {
-    const { node, status } = this.props;
+    const { node, status, nodeIndicator } = this.props;
 
     const networkName = 'TweedleDee 0.1.0';
-
-    if (this.startUpDelay === 10) {
-      this.color = smColors.red;
-      this.errorText = 'Offline. Please quit and start the app again.';
-    } else if (!status || status.noConnection) {
-      this.color = smColors.orange;
-      this.errorText = 'Waiting for smesher response...';
-    } else if (!status.peers) {
-      this.startUpDelay = 0;
-      if (this.noPeersCounter === 15) {
-        this.color = smColors.red;
-        this.errorText = "Can't connect to the p2p network.";
-      } else {
-        this.color = smColors.orange;
-        this.errorText = 'Connecting to the p2p network...';
-        this.noPeersCounter += 1;
-      }
-    } else if (!status.synced) {
-      this.startUpDelay = 0;
-      this.noPeersCounter = 0;
-      this.color = smColors.orange;
-      this.errorText = `Syncing the mesh... Layer ${status.syncedLayer || 0} / ${status.currentLayer}`;
-    } else {
-      this.startUpDelay = 0;
-      this.noPeersCounter = 0;
-      this.color = smColors.blue;
-      this.errorText = `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`;
-    }
 
     return (
       <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={networkName}>
         <Container>
-          {this.errorText && <ErrorMessage>{this.errorText}</ErrorMessage>}
+          <Message color={nodeIndicator.color}>{nodeIndicator.message}</Message>
           <DetailsWrap>
             <DetailsRow>
               <DetailsTextWrap>
@@ -183,20 +155,13 @@ class Network extends Component<Props, State> {
     );
   }
 
-  shouldComponentUpdate(nextProps: Props) {
-    const { status } = this.props;
-    if (nextProps.status.noConnection) {
-      this.startUpDelay += 1;
-    }
-    return (nextProps.status !== status && !nextProps.status.noConnection) || this.startUpDelay === 10;
-  }
-
   renderSyncingStatus = (status) => {
+    const { nodeIndicator } = this.props;
     const progress = this.getSyncLabelPercentage(status) / 10;
     return (
       <>
-        <NetworkIndicator color={this.color} />
-        <ProgressLabel>{getNodeStatusText(status)}</ProgressLabel>
+        <NetworkIndicator color={nodeIndicator.color} />
+        <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
         <ProgressLabel>{this.getSyncLabelPercentage(status)}%</ProgressLabel>
         <ProgressLabel>{this.getSyncIndicator(status)}</ProgressLabel>
         <Progress>
@@ -233,7 +198,8 @@ class Network extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   node: state.node,
-  status: state.node.status
+  status: state.node.status,
+  nodeIndicator: state.node.nodeIndicator
 });
 
 Network = connect(mapStateToProps)(Network);
