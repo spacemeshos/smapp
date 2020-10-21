@@ -1,7 +1,7 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { nodeConsts, smColors } from '/vars';
+import { nodeConsts } from '/vars';
 import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS, SET_ACCOUNT_REWARDS } from './actions';
 
 const initialState = {
@@ -20,52 +20,11 @@ const initialState = {
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
-let startUpDelay = 0;
-let noPeersCounter = 0;
-
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
     case SET_NODE_STATUS: {
-      const nodeIndicator = {};
-      const nodeStatus = action.payload.status;
-
-      if (nodeStatus.noConnection) {
-        startUpDelay += 1;
-      }
-
-      if (startUpDelay === 10) {
-        nodeIndicator.color = smColors.red;
-        nodeIndicator.message = 'Offline. Please quit and start the app again.';
-        nodeIndicator.statusText = 'sync stopped';
-      } else if (!nodeStatus || nodeStatus.noConnection) {
-        nodeIndicator.color = smColors.orange;
-        nodeIndicator.message = 'Waiting for smesher response...';
-        nodeIndicator.statusText = 'syncing';
-      } else if (!nodeStatus.peers) {
-        if (noPeersCounter === 15) {
-          nodeIndicator.color = smColors.red;
-          nodeIndicator.message = "Can't connect to the p2p network.";
-          nodeIndicator.statusText = 'sync stopped';
-        } else {
-          nodeIndicator.color = smColors.orange;
-          nodeIndicator.message = 'Connecting to the p2p network...';
-          noPeersCounter += 1;
-          nodeIndicator.statusText = 'syncing';
-        }
-      } else if (!nodeStatus.synced) {
-        noPeersCounter = 0;
-        nodeIndicator.color = smColors.orange;
-        nodeIndicator.message = `Syncing the mesh... Layer ${nodeStatus.syncedLayer || 0} / ${nodeStatus.currentLayer}`;
-        nodeIndicator.statusText = 'syncing';
-      } else {
-        noPeersCounter = 0;
-        nodeIndicator.color = smColors.blue;
-        nodeIndicator.message = `Synced with the mesh. Current layer ${nodeStatus.currentLayer}. Verified layer ${nodeStatus.verifiedLayer}`;
-        nodeIndicator.statusText = 'synced';
-      }
-
       const {
-        payload: { status }
+        payload: { status, nodeIndicator }
       } = action;
 
       return { ...state, status, nodeIndicator };
