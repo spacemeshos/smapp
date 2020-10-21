@@ -18,7 +18,7 @@ export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
 export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
-let startUpDelay = 0;
+let startUpDelay = 5;
 let noPeersCounter = 0;
 
 export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
