@@ -20,21 +20,20 @@ const initialState = {
   nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
+let startUpDelay = 0;
+let noPeersCounter = 0;
+
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
     case SET_NODE_STATUS: {
       const nodeIndicator = {};
-
-      let startUpDelay = 0;
-      let noPeersCounter = 0;
-
       const nodeStatus = action.payload.status;
 
       if (nodeStatus.noConnection) {
         startUpDelay += 1;
       }
 
-      if (startUpDelay === 2) {
+      if (startUpDelay === 10) {
         nodeIndicator.color = smColors.red;
         nodeIndicator.message = 'Offline. Please quit and start the app again.';
         nodeIndicator.statusText = 'sync stopped';
