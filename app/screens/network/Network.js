@@ -7,7 +7,7 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { WrapperWith2SideBars, Link, NetworkIndicator, Tooltip, ProgressBar } from '/basicComponents';
 import { smColors } from '/vars';
 import { network } from '/assets/images';
-import { getNodeStatusText, getFormattedTimestamp } from '/infra/utils';
+import { getFormattedTimestamp } from '/infra/utils';
 import { eventsService } from '/infra/eventsService';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
@@ -78,21 +78,15 @@ const ProgressLabel = styled.div`
 `;
 
 type Props = {
-  node: Object,
+  genesisTime: string,
   status: Object,
   nodeIndicator: Object,
   history: RouterHistory
 };
 
 class Network extends Component<Props, State> {
-  startUpDelay = 5; // eslint-disable-line react/sort-comp
-
-  noPeersCounter = 0; // eslint-disable-line react/sort-comp
-
-  color;
-
   render() {
-    const { node, status, nodeIndicator } = this.props;
+    const { status, nodeIndicator, genesisTime } = this.props;
 
     const networkName = 'TweedleDee 0.1.0';
 
@@ -106,28 +100,28 @@ class Network extends Component<Props, State> {
                 <DetailsText>Age</DetailsText>
                 <Tooltip width="250" text="tooltip age" />
               </DetailsTextWrap>
-              <GrayText>{getFormattedTimestamp(node.genesisTime)}</GrayText>
+              <GrayText>{getFormattedTimestamp(genesisTime)}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Status</DetailsText>
                 <Tooltip width="250" text="tooltip Status" />
               </DetailsTextWrap>
-              <GrayText>{this.renderSyncingStatus(status)}</GrayText>
+              <GrayText>{nodeIndicator.hasError ? this.renderStatus() : this.renderSyncingStatus()}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Current Layer</DetailsText>
                 <Tooltip width="250" text="tooltip Current Layer" />
               </DetailsTextWrap>
-              <GrayText>{node.status.currentLayer}</GrayText>
+              <GrayText>{status.currentLayer}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Verified Layer</DetailsText>
                 <Tooltip width="250" text="tooltip Verified Layer" />
               </DetailsTextWrap>
-              <GrayText>{node.status.verifiedLayer}</GrayText>
+              <GrayText>{status.verifiedLayer}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
@@ -155,15 +149,15 @@ class Network extends Component<Props, State> {
     );
   }
 
-  renderSyncingStatus = (status) => {
-    const { nodeIndicator } = this.props;
+  renderSyncingStatus = () => {
+    const { nodeIndicator, status } = this.props;
     const progress = this.getSyncLabelPercentage(status) / 10;
     return (
       <>
         <NetworkIndicator color={nodeIndicator.color} />
         <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
         <ProgressLabel>{this.getSyncLabelPercentage(status)}%</ProgressLabel>
-        <ProgressLabel>{this.getSyncIndicator(status)}</ProgressLabel>
+        <ProgressLabel>{`${status.syncedLayer || 0} / ${status.currentLayer}`}</ProgressLabel>
         <Progress>
           <ProgressBar progress={progress} />
         </Progress>
@@ -171,15 +165,14 @@ class Network extends Component<Props, State> {
     );
   };
 
-  renderStatus = (status) => (
-    <>
-      <NetworkIndicator status={status} />
-      <ProgressLabel>{getNodeStatusText(status)}</ProgressLabel>
-    </>
-  );
-
-  getSyncIndicator = (status) => {
-    return `${status.syncedLayer || 0} / ${status.currentLayer}`;
+  renderStatus = () => {
+    const { nodeIndicator } = this.props;
+    return (
+      <>
+        <NetworkIndicator color={nodeIndicator.color} />
+        <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
+      </>
+    );
   };
 
   getSyncLabelPercentage = (status) => {
@@ -197,8 +190,8 @@ class Network extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  node: state.node,
   status: state.node.status,
+  genesisTime: state.node.genesisTime,
   nodeIndicator: state.node.nodeIndicator
 });
 
