@@ -6,6 +6,7 @@ import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS
 
 const initialState = {
   status: null,
+  nodeIndicator: null,
   miningStatus: nodeConsts.MINING_UNSET,
   rewardsAddress: null,
   genesisTime: 0,
@@ -23,9 +24,10 @@ const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
     case SET_NODE_STATUS: {
       const {
-        payload: { status }
+        payload: { status, nodeIndicator }
       } = action;
-      return { ...state, status };
+
+      return { ...state, status, nodeIndicator };
     }
     case SET_NODE_SETTINGS: {
       const {

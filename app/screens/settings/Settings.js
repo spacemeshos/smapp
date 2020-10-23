@@ -323,6 +323,10 @@ class Settings extends Component<Props, State> {
   }
 
   async componentDidMount() {
+    const { history } = this.props;
+    if (history.location.state && history.location.state.currentSettingIndex) {
+      this.scrollToRef({ index: history.location.state.currentSettingIndex });
+    }
     const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
     this.setState({ isAutoStartEnabled });
   }

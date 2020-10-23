@@ -10,7 +10,7 @@ import { getBalance, getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
 import { InfoBanner } from '/components/banners';
-import { SecondaryButton, NavTooltip } from '/basicComponents';
+import { SecondaryButton, NavTooltip, NetworkIndicator } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
 import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
@@ -64,6 +64,9 @@ const NavLinksWrapper = styled.div`
 `;
 
 const NavBarLink = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-right: 15px;
   font-family: SourceCodeProBold;
   font-size: 12px;
@@ -113,7 +116,8 @@ type Props = {
   getTxList: Action,
   logout: Action,
   history: RouterHistory,
-  location: { pathname: string, hash: string }
+  location: { pathname: string, hash: string },
+  nodeIndicator: Object
 };
 
 type State = {
@@ -139,7 +143,7 @@ class Main extends Component<Props, State> {
     super(props);
     const { location, history } = props;
     const isWalletLocation = location.pathname.includes('/wallet');
-    const activeRouteIndex = isWalletLocation ? 1 : 0;
+    const activeRouteIndex = isWalletLocation ? 2 : 0;
     this.state = {
       activeRouteIndex,
       isOfflineBannerVisible: true
@@ -147,6 +151,7 @@ class Main extends Component<Props, State> {
 
     this.navMap = [
       () => history.push('/main/node'),
+      () => history.push('/main/network'),
       () => history.push('/main/wallet'),
       () => history.push('/main/contacts'),
       () => history.push('/main/settings'),
@@ -157,6 +162,7 @@ class Main extends Component<Props, State> {
 
   render() {
     const { activeRouteIndex } = this.state;
+    const { nodeIndicator } = this.props;
     return (
       <Wrapper>
         <Logo />
@@ -172,12 +178,19 @@ class Main extends Component<Props, State> {
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                    <NetworkIndicator color={nodeIndicator.color}/>
+                    NETWORK
+                  </NavBarLink>
+                  <CustomTooltip text="NETWORK" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
                     WALLET
                   </NavBarLink>
                   <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
                 </TooltipWrapper>
                 <TooltipWrapper>
-                  <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 3 })} isActive={activeRouteIndex === 3}>
                     CONTACTS
                   </NavBarLink>
                   <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
@@ -187,11 +200,11 @@ class Main extends Component<Props, State> {
             <NavBarPart>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 3 })}
+                  onClick={() => this.handleNavigation({ index: 4 })}
                   img={settings}
                   imgHeight={30}
                   imgWidth={30}
-                  isPrimary={activeRouteIndex === 3}
+                  isPrimary={activeRouteIndex === 4}
                   width={35}
                   height={35}
                   style={bntStyle}
@@ -201,7 +214,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 4 })}
+                  onClick={() => this.handleNavigation({ index: 5 })}
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -215,7 +228,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 5 })}
+                  onClick={() => this.handleNavigation({ index: 6 })}
                   img={help}
                   imgHeight={30}
                   imgWidth={30}
@@ -229,7 +242,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 6 })}
+                  onClick={() => this.handleNavigation({ index: 7 })}
                   img={signOut}
                   imgHeight={30}
                   imgWidth={30}
@@ -243,7 +256,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          <InfoBanner />
+          <InfoBanner/>
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (
@@ -321,17 +334,18 @@ class Main extends Component<Props, State> {
         case 0:
         case 1:
         case 2:
-        case 3: {
+        case 3:
+        case 4: {
           this.setState({ activeRouteIndex: index });
           this.navMap[index]();
           break;
         }
-        case 4:
-        case 5: {
+        case 5:
+        case 6: {
           this.navMap[index]();
           break;
         }
-        case 6: {
+        case 7: {
           history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;
@@ -364,7 +378,8 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   status: state.node.status,
-  miningStatus: state.node.miningStatus
+  miningStatus: state.node.miningStatus,
+  nodeIndicator: state.node.nodeIndicator
 });
 
 const mapDispatchToProps = {

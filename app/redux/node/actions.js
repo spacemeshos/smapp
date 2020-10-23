@@ -1,7 +1,7 @@
 // @flow
 import { eventsService } from '/infra/eventsService';
 import { createError } from '/infra/utils';
-import { nodeConsts } from '/vars';
+import { nodeConsts, smColors } from '/vars';
 import { Action, Dispatch, GetState } from '/types';
 import { SET_TRANSACTIONS } from '/redux/wallet/actions';
 
@@ -18,13 +18,18 @@ export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
 export const SET_NODE_IP: string = 'SET_NODE_IP';
 export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
+let startUpDelay = 5;
+let noPeersCounter = 0;
+
 export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
   const { error, status } = await eventsService.getNodeStatus();
   if (error) {
-    dispatch({ type: SET_NODE_STATUS, payload: { status: { noConnection: true } } });
+    const nodeIndicator = makeErrorNodeIndicator();
+    dispatch({ type: SET_NODE_STATUS, payload: { status: { noConnection: true }, nodeIndicator } });
     return null;
   } else {
-    dispatch({ type: SET_NODE_STATUS, payload: { status } });
+    const nodeIndicator = makeNodeIndicator(status);
+    dispatch({ type: SET_NODE_STATUS, payload: { status, nodeIndicator } });
     return status;
   }
 };
@@ -124,5 +129,60 @@ export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: 
     if (hasNewAwards) {
       newRewardsNotifier();
     }
+  }
+};
+
+const makeErrorNodeIndicator = () => {
+  if (startUpDelay === 10) {
+    return {
+      color: smColors.red,
+      message: 'Offline. Please quit and start the app again.',
+      statusText: 'sync stopped',
+      hasError: true
+    };
+  }
+  startUpDelay += 1;
+  return {
+    color: smColors.orange,
+    message: 'Waiting for smesher response...',
+    statusText: 'syncing',
+    hasError: true
+  };
+};
+
+const makeNodeIndicator = (status) => {
+  if (!status.peers) {
+    if (noPeersCounter === 15) {
+      return {
+        color: smColors.red,
+        message: "Can't connect to the p2p network.",
+        statusText: 'sync stopped',
+        hasError: false
+      };
+    } else {
+      noPeersCounter += 1;
+      return {
+        color: smColors.orange,
+        message: 'Connecting to the p2p network...',
+        statusText: 'syncing',
+        hasError: false
+      };
+    }
+  } else if (!status.synced) {
+    noPeersCounter = 0;
+    return {
+      color: smColors.orange,
+      message: `Syncing the mesh... Layer ${status.syncedLayer || 0} / ${status.currentLayer}`,
+      statusText: 'syncing',
+      hasError: false
+    };
+  } else {
+    noPeersCounter = 0;
+    return {
+      color: smColors.green,
+      message: `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`,
+      statusText: 'synced',
+      hasError: false
+    };
   }
 };

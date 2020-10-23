@@ -16,3 +16,4 @@ export { default as Banner } from './Banner';
 export { default as SmallHorizontalPanel } from './SmallHorizontalPanel';
 export { default as ProgressBar } from './ProgressBar';
 export { default as Dots } from './Dots';
+export { default as NetworkIndicator } from './NetworkIndicator';

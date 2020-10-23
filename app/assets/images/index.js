@@ -89,3 +89,4 @@ export { default as posSmesher } from './pos_smesher.svg';
 export { default as posSpace } from './pos_space.svg';
 export { default as circle } from './circle.svg';
 export { default as wallet } from './wallet.svg';
+export { default as network } from './network.svg';
