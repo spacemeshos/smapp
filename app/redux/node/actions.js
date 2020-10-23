@@ -179,7 +179,7 @@ const makeNodeIndicator = (status) => {
   } else {
     noPeersCounter = 0;
     return {
-      color: smColors.blue,
+      color: smColors.green,
       message: `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`,
       statusText: 'synced',
       hasError: false
