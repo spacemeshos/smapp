@@ -108,7 +108,7 @@ const commitments = [
 const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 125px' };
 
 type Props = {
-  folder: string,
+  dataDir: string,
   commitment: number,
   freeSpace: number,
   nextAction: () => void,
@@ -131,7 +131,7 @@ class PoSSize extends Component<Props, State> {
   }
 
   render() {
-    const { folder, freeSpace, nextAction, status } = this.props;
+    const { dataDir, freeSpace, nextAction, status } = this.props;
     const { selectedCommitmentIndex, hasErrorFetchingEstimatedRewards } = this.state;
     return (
       <>
@@ -167,7 +167,7 @@ class PoSSize extends Component<Props, State> {
           <Icon3 src={posDirectoryIcon} />
           <Text>PoS data folder</Text>
           <Dots>.....................................................</Dots>
-          <GreenText>{folder}</GreenText>
+          <GreenText>{dataDir}</GreenText>
         </Row>
         <Row>
           <Text>Free space</Text>

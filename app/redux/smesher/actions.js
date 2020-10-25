@@ -18,14 +18,14 @@ export const getSmesherSettings = (): Action => async (dispatch: Dispatch): Disp
   }
 };
 
-export const createPosData = ({ path, commitmentSize, append, throttle, providerId }): Action => async (dispatch: Dispatch): Dispatch => {
-  const { error, status } = await eventsService.createPosData({ path, commitmentSize, append, throttle, providerId });
+export const createPosData = ({ coinbase, dataDir, commitmentSize, append, throttle, provider }): Action => async (dispatch: Dispatch): Dispatch => {
+  const { error } = await eventsService.createPosData({ path: dataDir, commitmentSize, append, throttle, providerId: provider.id });
   if (error) {
-    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(createPosData({ path, commitmentSize, append, throttle, providerId })));
+    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(createPosData({ coinbase, dataDir, commitmentSize, append, throttle, provider })));
   } else {
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
-    dispatch({ type: STARTED_CREATING_POS_DATA, payload: { coinbase, commitmentSize,  } });
+    dispatch({ type: STARTED_CREATING_POS_DATA, payload: { coinbase, commitmentSize, throttle, provider } });
   }
 };
 

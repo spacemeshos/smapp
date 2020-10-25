@@ -30,7 +30,7 @@ const ErrorText = styled.div`
 `;
 
 type Props = {
-  processor: { id: number, model: string, computeApi: string, performance: number },
+  provider: { id: number, model: string, computeApi: string, performance: number },
   throttle: boolean,
   nextAction: () => void,
   status: NodeStatus
@@ -38,29 +38,29 @@ type Props = {
 
 type State = {
   postComputeProviders: [{ id: number, model: string, computeApi: string, performance: number }] | null,
-  selectedProcessorIndex: number,
+  selectedProviderIndex: number,
   throttle: boolean
 };
 
-class PoSProcessor extends Component<Props, State> {
+class PoSProvider extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
       postComputeProviders: null,
-      selectedProcessorIndex: -1,
+      selectedProviderIndex: -1,
       throttle: props.throttle
     };
   }
 
   render() {
     const { nextAction, status } = this.props;
-    const { postComputeProviders, selectedProcessorIndex, throttle } = this.state;
+    const { postComputeProviders, selectedProviderIndex, throttle } = this.state;
     return (
       <>
         {!postComputeProviders ? (
           <Text>CALCULATING POS PROCESSORS</Text>
         ) : (
-          <Carousel data={postComputeProviders} onClick={this.setProcessor} selectedItemIndex={selectedProcessorIndex} />
+          <Carousel data={postComputeProviders} onClick={this.setProvider} selectedItemIndex={selectedProviderIndex} />
         )}
         {postComputeProviders && postComputeProviders.length === 0 && <ErrorText>NO SUPPORTED PROCESSOR DETECTED</ErrorText>}
         <PauseSelector>
@@ -68,24 +68,24 @@ class PoSProcessor extends Component<Props, State> {
           <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
           <Tooltip top={-2} left={-3} width={200} text="Some text" />
         </PauseSelector>
-        <PoSFooter action={() => nextAction({ processor: postComputeProviders[selectedProcessorIndex], throttle })} isDisabled={selectedProcessorIndex === -1 || !status} />
+        <PoSFooter action={() => nextAction({ provider: postComputeProviders[selectedProviderIndex], throttle })} isDisabled={selectedProviderIndex === -1 || !status} />
       </>
     );
   }
 
   async componentDidMount() {
-    const { processor } = this.props;
+    const { provider } = this.props;
     const { error, postComputeProviders } = await eventsService.getPostComputeProviders();
     if (error) {
       this.setState({ postComputeProviders: [] });
     } else {
-      this.setState({ postComputeProviders, selectedProcessorIndex: processor ? postComputeProviders.find((curProcessor) => curProcessor.model === processor.model) : -1 });
+      this.setState({ postComputeProviders, selectedProviderIndex: provider ? postComputeProviders.find((curProcessor) => curProcessor.model === provider.model) : -1 });
     }
   }
 
-  setProcessor = ({ index }: { index: number }) => {
-    this.setState({ selectedProcessorIndex: index });
+  setProvider = ({ index }: { index: number }) => {
+    this.setState({ selectedProviderIndex: index });
   };
 }
 
-export default PoSProcessor;
+export default PoSProvider;

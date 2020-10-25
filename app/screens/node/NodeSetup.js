@@ -6,7 +6,7 @@ import { createPosData, deletePosData } from '/redux/smesher/actions';
 import { CorneredContainer, BackButton } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { StepsContainer, SmallHorizontalPanel } from '/basicComponents';
-import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProcessor, PoSSummary } from '/components/node';
+import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '/components/node';
 import { posIcon } from '/assets/images';
 import { formatBytes } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
@@ -31,7 +31,7 @@ type Props = {
   createPosData: Action,
   deletePosData: Action,
   status: NodeStatus,
-  dataPath: string,
+  dataDir: string,
   commitmentSize: number,
   minCommitmentSize: number,
   history: RouterHistory,
@@ -40,10 +40,10 @@ type Props = {
 
 type State = {
   mode: number,
-  folder: string,
+  dataDir: string,
   freeSpace: number,
   commitment: number,
-  processor: { id: number, model: string, computeApi: string, performance: number },
+  provider: { id: number, model: string, computeApi: string, performance: number },
   throttle: boolean
 };
 
@@ -53,7 +53,7 @@ class NodeSetup extends Component<Props, State> {
     const { location } = props;
     this.state = {
       mode: location?.state?.modifyPostData ? 0 : 1,
-      folder: props.dataPath || '',
+      dataDir: props.dataDir || '',
       commitment: props.commitmentSize || 0,
       throttle: false
     };
@@ -79,22 +79,22 @@ class NodeSetup extends Component<Props, State> {
 
   renderRightSection = () => {
     const { status, minCommitmentSize } = this.props;
-    const { mode, folder, freeSpace, commitment, processor, throttle } = this.state;
+    const { mode, dataDir, freeSpace, commitment, provider, throttle } = this.state;
     switch (mode) {
       case 0:
         return <PoSModifyPostData modify={this.handleNextAction} deleteData={this.deletePosData} />;
       case 1:
-        return <PoSDirectory nextAction={this.handleNextAction} minCommitmentSize={minCommitmentSize} folder={folder} status={status} />;
+        return <PoSDirectory nextAction={this.handleNextAction} minCommitmentSize={minCommitmentSize} dataDir={dataDir} status={status} />;
       case 2:
-        return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} />;
+        return <PoSSize nextAction={this.handleNextAction} dataDir={dataDir} freeSpace={freeSpace} commitment={commitment} status={status} />;
       case 3:
-        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} throttle={throttle} status={status} />;
+        return <PoSProvider nextAction={this.handleNextAction} provider={provider} throttle={throttle} status={status} />;
       case 4:
         return (
           <PoSSummary
-            folder={folder}
+            dataDir={dataDir}
             commitment={commitment}
-            processor={processor}
+            provider={provider}
             throttle={throttle}
             nextAction={this.handleNextAction}
             switchMode={({ mode }) => this.setState({ mode })}
@@ -106,21 +106,7 @@ class NodeSetup extends Component<Props, State> {
     }
   };
 
-  setupAndInitMining = async () => {
-    const { createPosData, accounts, history } = this.props;
-    const { folder, commitment, processor, throttle } = this.state;
-    try {
-      await createPosData({ coinbase: accounts[0].publicKey, dataDir: folder, commitmentSize: commitment, throttle, providerId: processor.id });
-      // path, commitmentSize, append, throttle, providerId
-      history.push('/main/node', { showIntro: true });
-    } catch (error) {
-      this.setState(() => {
-        throw error;
-      });
-    }
-  };
-
-  handleNextAction = ({ folder, freeSpace, commitment, processor, throttle }) => {
+  handleNextAction = ({ dataDir, freeSpace, commitment, provider, throttle }) => {
     const { mode } = this.state;
     switch (mode) {
       case 0: {
@@ -128,7 +114,7 @@ class NodeSetup extends Component<Props, State> {
         break;
       }
       case 1: {
-        this.setState({ mode: 2, folder, freeSpace });
+        this.setState({ mode: 2, dataDir, freeSpace });
         break;
       }
       case 2: {
@@ -136,11 +122,11 @@ class NodeSetup extends Component<Props, State> {
         break;
       }
       case 3: {
-        this.setState({ mode: 4, processor, throttle });
+        this.setState({ mode: 4, provider, throttle });
         break;
       }
       case 4: {
-        this.setupAndInitMining();
+        this.startCreatingPosData();
         break;
       }
       default:
@@ -158,6 +144,19 @@ class NodeSetup extends Component<Props, State> {
     }
   };
 
+  startCreatingPosData = async () => {
+    const { createPosData, accounts, history } = this.props;
+    const { dataDir, commitment, provider, throttle } = this.state;
+    try {
+      await createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize: commitment, throttle, provider });
+      history.push('/main/node', { showIntro: true });
+    } catch (error) {
+      this.setState(() => {
+        throw error;
+      });
+    }
+  };
+
   deletePosData = async () => {
     const { deletePosData, history } = this.props;
     await deletePosData();
@@ -167,7 +166,7 @@ class NodeSetup extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   status: state.node.status,
-  dataPath: state.smesher.dataPath,
+  dataDir: state.smesher.dataDir,
   commitmentSize: state.smesher.commitmentSize,
   minCommitmentSize: state.smesher.minCommitmentSize,
   accounts: state.wallet.accounts

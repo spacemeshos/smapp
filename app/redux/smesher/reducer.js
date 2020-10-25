@@ -2,10 +2,11 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { SET_SMESHER_SETTINGS, DELETED_POS_DATA } from './actions';
+import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_CREATING_POS_DATA } from './actions';
 
 const initialState = {
-  dataDir: '',
+  coinbase: null,
+  dataDir: null,
   minCommitmentSize: 0,
   commitmentSize: 0,
   genesisTime: 0,
@@ -21,6 +22,12 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { coinbase, dataDir, genesisTime, minCommitmentSize, networkId }
       } = action;
       return { ...state, coinbase, dataDir, genesisTime, minCommitmentSize, networkId };
+    }
+    case STARTED_CREATING_POS_DATA: {
+      const {
+        payload: { coinbase, commitmentSize, throttle, provider }
+      } = action;
+      return { ...state, coinbase, commitmentSize, throttle, provider };
     }
     case DELETED_POS_DATA: {
       return initialState;

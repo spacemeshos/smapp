@@ -127,12 +127,12 @@ class Node extends Component<Props, State> {
   async componentDidMount() {
     const audioPath = await eventsService.getAudioPath();
     this.audio = new Audio(audioPath);
+    this.audio.loop = false;
   }
 
   componentDidUpdate() {
     const { rewards } = this.props;
     const playedAudio = localStorage.getItem('playedAudio');
-    this.audio.loop = false;
     if (rewards && rewards.length === 1 && !playedAudio) {
       this.audio.play();
     }

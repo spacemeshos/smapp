@@ -42,9 +42,9 @@ const Dots = styled.div`
 const linkStyle = { textTransform: 'uppercase', fontSize: '15px', lineHeight: '17px' };
 
 type Props = {
-  folder: string,
+  dataDir: string,
   commitment: string,
-  processor: { id: number, model: string, computeApi: string, performance: number },
+  provider: { id: number, model: string, computeApi: string, performance: number },
   throttle: boolean,
   nextAction: () => void,
   switchMode: ({ mode: number }) => void,
@@ -61,14 +61,22 @@ class PoSSummary extends Component<Props, State> {
   };
 
   render() {
-    const { folder, commitment, processor, throttle, switchMode, status } = this.props;
+    const { dataDir, commitment, provider, throttle, switchMode, status } = this.props;
     const { isSubmitting } = this.state;
+    let providerType = 'UNSPECIFIED';
+    if (provider.computeApi === '1') {
+      providerType = 'CPU';
+    } else if (provider.computeApi === '2') {
+      providerType = 'CUDA';
+    } else if (provider.computeApi === '3') {
+      providerType = 'VULKAN';
+    }
     return (
       <>
         <Row>
           <Text>data directory</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 1 })} text={folder} style={linkStyle} isDisabled={isSubmitting} />
+          <Link onClick={() => switchMode({ mode: 1 })} text={dataDir} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>data size</Text>
@@ -76,14 +84,14 @@ class PoSSummary extends Component<Props, State> {
           <Link onClick={() => switchMode({ mode: 2 })} text={`${commitment} GB`} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
-          <Text>processor</Text>
+          <Text>provider</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 3 })} text={`${processor.model} ${processor.computeApi}`} style={linkStyle} isDisabled={isSubmitting} />
+          <Link onClick={() => switchMode({ mode: 3 })} text={`${provider.model} (${providerType})`} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>estimated time</Text>
           <Dots>.....................................................</Dots>
-          <Link onClick={() => switchMode({ mode: 3 })} text={processor.performance} style={linkStyle} isDisabled={isSubmitting} />
+          <Link onClick={() => switchMode({ mode: 3 })} text={`${provider.performance} hashes per second`} style={linkStyle} isDisabled={isSubmitting} />
         </Row>
         <Row>
           <Text>pause when pc is in use</Text>

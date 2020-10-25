@@ -72,13 +72,13 @@ const linkStyle = { fontSize: '17px', lineHeight: '19px', marginBottom: 5 };
 
 type Props = {
   nextAction: () => void,
-  folder: string,
+  dataDir: string,
   minCommitmentSize: string,
   status: NodeStatus
 };
 
 type State = {
-  folder: string,
+  dataDir: string,
   freeSpace: number,
   formattedFreeSpace: string,
   errorMessage: string
@@ -88,7 +88,7 @@ class PoSDirectory extends Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      folder: props.folder || '',
+      dataDir: props.dataDir || '',
       freeSpace: 0,
       formattedFreeSpace: '',
       errorMessage: ''
@@ -97,7 +97,7 @@ class PoSDirectory extends Component<Props, State> {
 
   render() {
     const { nextAction, status } = this.props;
-    const { folder, freeSpace, formattedFreeSpace, errorMessage } = this.state;
+    const { dataDir, freeSpace, formattedFreeSpace, errorMessage } = this.state;
     return (
       <>
         <Wrapper>
@@ -105,35 +105,35 @@ class PoSDirectory extends Component<Props, State> {
             <HeaderIcon src={icon} />
             <Header>PoS data folder directory:</Header>
           </HeaderWrapper>
-          <Link onClick={this.openFolderSelectionDialog} text={folder || 'CLICK TO SELECT'} style={linkStyle} />
+          <Link onClick={this.openFolderSelectionDialog} text={dataDir || 'CLICK TO SELECT'} style={linkStyle} />
           <ErrorText>{errorMessage}</ErrorText>
           <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>
           <FreeSpace error={!!errorMessage} selected={!!freeSpace}>
             {formattedFreeSpace || 'UNDESIGNATED'}
           </FreeSpace>
         </Wrapper>
-        <PoSFooter action={() => nextAction({ folder, freeSpace })} isDisabled={!folder || errorMessage || !status} />
+        <PoSFooter action={() => nextAction({ dataDir, freeSpace })} isDisabled={!dataDir || errorMessage || !status} />
       </>
     );
   }
 
   async componentDidMount() {
-    const { folder } = this.props;
-    if (folder) {
-      const { freeSpace } = await eventsService.checkDiskSpace({ folder });
+    const { dataDir } = this.props;
+    if (dataDir) {
+      const { freeSpace } = await eventsService.checkDiskSpace({ dataDir });
       this.setState({ freeSpace, formattedFreeSpace: formatBytes(freeSpace) });
     }
   }
 
   openFolderSelectionDialog = async () => {
     const { minCommitmentSize } = this.props;
-    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    const { error, dataDir, freeSpace } = await eventsService.selectPostFolder();
     if (error) {
       this.setState({ errorMessage: `SELECTED FOLDER HAS NO WRITING PERMISSIONS` });
     } else if (freeSpace < minCommitmentSize) {
       this.setState({ errorMessage: `SELECT FOLDER WITH MINIMUM ${formatBytes(minCommitmentSize)} TO PROCEED` });
     } else {
-      this.setState({ folder: selectedFolder, freeSpace, formattedFreeSpace: formatBytes(freeSpace), errorMessage: '' });
+      this.setState({ dataDir, freeSpace, formattedFreeSpace: formatBytes(freeSpace), errorMessage: '' });
     }
   };
 }

@@ -172,23 +172,23 @@ class Carousel extends Component<Props, State> {
         <Button src={isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray} onClick={isLeftBtnEnabled ? this.slideLeft : null} isDisabled={!isLeftBtnEnabled} />
         <OuterWrapper>
           <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
-            {data.map((element, index) => (
-              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.id}>
+            {data.map((provider, index) => (
+              <SlideWrapper onClick={() => this.handleSelection({ index })} key={provider.id}>
                 <SlideUpperPart isSelected={selectedItemIndex === index}>
                   <TextWrapper>
-                    <Text>{element.model}</Text>
-                    {element.computeApi === '0' && <Text>(UNSPECIFIED)</Text>}
-                    {element.computeApi === '1' && <Text>(CPU)</Text>}
-                    {element.computeApi === '2' && <Text>(CUDA)</Text>}
-                    {element.computeApi === '3' && <Text>(VULCAN)</Text>}
+                    <Text>{provider.model}</Text>
+                    {provider.computeApi === '0' && <Text>(UNSPECIFIED)</Text>}
+                    {provider.computeApi === '1' && <Text>(CPU)</Text>}
+                    {provider.computeApi === '2' && <Text>(CUDA)</Text>}
+                    {provider.computeApi === '3' && <Text>(VULCAN)</Text>}
                     <Text>--</Text>
                   </TextWrapper>
                   <TextWrapper>
-                    <Text>~{element.performance} hashes per second</Text>
+                    <Text>~{provider.performance} hashes per second</Text>
                     <Text>TO SAVE DATA</Text>
                   </TextWrapper>
-                  {element.computeApi === 1 && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
-                  {(element.computeApi === 2 || element.computeApi === 3) && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} />}
+                  {provider.computeApi === '1' && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
+                  {(provider.computeApi === '2' || provider.computeApi === '3') && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} />}
                 </SlideUpperPart>
                 <SlideMiddlePart />
                 <SlideLowerPart isSelected={selectedItemIndex === index} />

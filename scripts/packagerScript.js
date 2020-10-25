@@ -111,6 +111,7 @@ const getBuildOptions = ({ target, publish }) => {
           height: '380'
         },
         background: path.join(__dirname, '..', 'resources', 'background.png'),
+        icon: path.join(__dirname, '..', 'resources', 'icon.png'),
         contents: [
           {
             x: 245,
@@ -144,7 +145,7 @@ const getBuildOptions = ({ target, publish }) => {
       linux: {
         target: ['deb'],
         category: 'Utility',
-        icon: path.join(__dirname, '..', 'resources', 'icons')
+        icon: path.join(__dirname, '..', 'resources', 'icons', '512x512.png')
       },
       directories: {
         buildResources: path.join(__dirname, '..', 'resources'),

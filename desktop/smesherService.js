@@ -101,21 +101,21 @@ class SmesherService extends NetServiceFactory {
       defaultPath: app.getPath('documents'),
       properties: ['openDirectory']
     });
-    const res = await this.checkDiskSpace({ folderPath: filePaths[0] });
+    const res = await this.checkDiskSpace({ dataDir: filePaths[0] });
     if (res.error) {
       return { error: res.error };
     }
-    return { selectedFolder: filePaths[0], freeSpace: res.freeSpace };
+    return { dataDir: filePaths[0], freeSpace: res.freeSpace };
   };
 
-  checkDiskSpace = async ({ folder }) => {
+  checkDiskSpace = async ({ dataDir }) => {
     try {
-      fs.accessSync(folder, fs.constants.W_OK);
-      const diskSpace = await checkDiskSpace(folder);
-      logger.log(`checkDiskSpace`, diskSpace.free, { folder });
+      fs.accessSync(dataDir, fs.constants.W_OK);
+      const diskSpace = await checkDiskSpace(dataDir);
+      logger.log(`checkDiskSpace`, diskSpace.free, { dataDir });
       return { freeSpace: diskSpace.free };
     } catch (error) {
-      logger.error('checkDiskSpace', error, { folder });
+      logger.error('checkDiskSpace', error, { dataDir });
       return { error };
     }
   };
@@ -190,7 +190,7 @@ class SmesherService extends NetServiceFactory {
 
   setCoinbase = ({ coinbase }) =>
     new Promise((resolve) => {
-      this.service.SetCoinbase({ id: { address: fromHexString(coinbase.substring(2)) } }, { deadline: getDeadline() }, (error, response) => {
+      this.service.SetCoinbase({ id: { address: fromHexString(coinbase) } }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           logger.error('grpc SetCoinbase', error, { coinbase });
           resolve({ error });
@@ -318,27 +318,29 @@ class SmesherService extends NetServiceFactory {
     //         FILES_STATUS_COMPLETE = 3; // Expected data files are available and verified
     //     }
     //     enum ErrorType {
-    //         ERROR_TYPE_UNSPECIFIED = 0; // Lane's favorite imposible value
+    //         ERROR_TYPE_UNSPECIFIED = 0; // Lane's favorite impossible value
     //         ERROR_TYPE_FILE_NOT_FOUND = 1; // All expected post data files not found in expected path
     //         ERROR_TYPE_READ_ERROR = 2; // Failure to read from a data file
     //         ERROR_TYPE_WRITE_ERROR = 3; // Failure to write to a data file
     //     }
-    const stream = this.service.PostDataCreationProgressStream({});
-    stream.on('data', (response) => {
-      const {
-        status: { files_status, init_in_progress, bytes_written, error_message, error_type } // eslint-disable-line camelcase
-      } = response;
-      const status = { filesStatus: files_status, initInProgress: init_in_progress, bytesWritten: parseInt(bytes_written), errorMessage: error_message, errorType: error_type };
-      logger.log('grpc PostDataCreationProgressStream', status);
-      ipcMain.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { status });
-    });
-    stream.on('error', (error) => {
-      logger.error('grpc PostDataCreationProgressStream', error);
-      ipcMain.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { error });
-    });
-    stream.on('end', () => {
-      console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
-    });
+    if (!this.stream) {
+      this.stream = this.service.PostDataCreationProgressStream({});
+      this.stream.on('data', (response) => {
+        const {
+          status: { files_status, init_in_progress, bytes_written, error_message, error_type } // eslint-disable-line camelcase
+        } = response;
+        const status = { filesStatus: files_status, initInProgress: init_in_progress, bytesWritten: parseInt(bytes_written), errorMessage: error_message, errorType: error_type };
+        logger.log('grpc PostDataCreationProgressStream', status);
+        ipcMain.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { status });
+      });
+      this.stream.on('error', (error) => {
+        logger.error('grpc PostDataCreationProgressStream', error);
+        ipcMain.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { error });
+      });
+      this.stream.on('end', () => {
+        console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
+      });
+    }
   };
 }
 
