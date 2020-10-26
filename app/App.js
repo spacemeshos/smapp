@@ -7,15 +7,12 @@ import { logout } from '/redux/auth/actions';
 // import { eventsService } from '/infra/eventsService';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
-import type { Store } from '/types';
-import { configureStore } from './redux/configureStore';
+import store from './redux/configureStore';
 import { OnQuitModal } from '/components/common';
 
 const logger = require('electron-log');
 
 logger.transports.console.level = false;
-
-const store: Store = configureStore();
 
 const configOptions: $Shape<Object> = {
   showReactDomPatchNotification: false

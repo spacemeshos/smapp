@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getNodeStatus, getMiningStatus, getNodeSettings } from '/redux/node/actions';
-import { getSmesherSettings } from '/redux/smesher/actions';
+import { getNodeStatus, getNodeSettings } from '/redux/node/actions';
+import { getSmesherSettings, getPostStatus, isSmeshing } from '/redux/smesher/actions';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
@@ -12,7 +12,6 @@ import { Loader } from '/basicComponents';
 import routes from '/routes';
 import { rightDecoration, rightDecorationWhite } from '/assets/images';
 import type { Action } from '/types';
-import { nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
@@ -45,19 +44,17 @@ const InnerWrapper = styled.div`
 
 type Props = {
   getNodeStatus: Action,
-  getMiningStatus: Action,
   getNodeSettings: Action,
   readWalletFiles: Action,
   getSmesherSettings: Action,
+  getPostStatus: Action,
+  isSmeshing: Action,
   walletFiles: Array<string>,
-  history: RouterHistory,
-  location: { pathname: string, state?: { presetMode: number } }
+  history: RouterHistory
 };
 
 class Auth extends Component<Props> {
   getNodeStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
-
-  getMiningStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
 
   render() {
     const { walletFiles } = this.props;
@@ -82,28 +79,20 @@ class Auth extends Component<Props> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getNodeSettings, readWalletFiles, getSmesherSettings, history, location } = this.props;
+    const { getNodeStatus, getNodeSettings, readWalletFiles, getSmesherSettings, getPostStatus, isSmeshing, history } = this.props;
     const files = await readWalletFiles();
-    if (files.length && location.pathname !== '/auth/restore') {
+    if (files.length) {
       history.push('/auth/unlock');
     }
     await getNodeStatus();
     this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
-    const status = await getMiningStatus();
-    if (status === nodeConsts.MINING_UNSET) {
-      this.getMiningStatusInterval = setInterval(async () => {
-        const status = await getMiningStatus();
-        if (status !== nodeConsts.MINING_UNSET) {
-          this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
-        }
-      }, 1000);
-    }
+    await getPostStatus();
     await getNodeSettings();
     await getSmesherSettings();
+    await isSmeshing();
   }
 
   componentWillUnmount(): void {
-    this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
     this.getNodeStatusInterval && clearInterval(this.getNodeStatusInterval);
   }
 }
@@ -114,10 +103,11 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   getNodeStatus,
-  getMiningStatus,
   getNodeSettings,
   readWalletFiles,
-  getSmesherSettings
+  getSmesherSettings,
+  getPostStatus,
+  isSmeshing
 };
 
 Auth = connect(mapStateToProps, mapDispatchToProps)(Auth);

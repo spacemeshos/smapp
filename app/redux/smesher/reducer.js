@@ -1,8 +1,7 @@
 // @flow
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
-import { nodeConsts } from '/vars';
-import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_CREATING_POS_DATA } from './actions';
+import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_CREATING_POS_DATA, SET_POST_DATA_CREATION_STATUS, SET_IS_SMESHING } from './actions';
 
 const initialState = {
   coinbase: null,
@@ -11,8 +10,9 @@ const initialState = {
   commitmentSize: 0,
   genesisTime: 0,
   networkId: 0,
-  isCreatingPosData: false,
-  isSmeshing: false
+  isSmeshing: false,
+  postProgress: {},
+  postProgressError: null
 };
 
 const reducer = (state: any = initialState, action: Action) => {
@@ -31,6 +31,21 @@ const reducer = (state: any = initialState, action: Action) => {
     }
     case DELETED_POS_DATA: {
       return initialState;
+    }
+    case SET_IS_SMESHING: {
+      const {
+        payload: { isSmeshing }
+      } = action;
+      return { ...state, isSmeshing };
+    }
+    case SET_POST_DATA_CREATION_STATUS: {
+      const {
+        payload: { error, filesStatus, bytesWritten, errorMessage, errorType }
+      } = action;
+      if (error) {
+        return { ...state, postProgressError: error, postProgress: {} };
+      }
+      return { ...state, postProgress: { filesStatus, bytesWritten, errorMessage, errorType }, postProgressError: null };
     }
     case LOGOUT:
       return initialState;

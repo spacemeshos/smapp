@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
 import { getAddress } from '/infra/utils';
 import { copyBlack, copyWhite } from '/assets/images';
-import { smColors, nodeConsts } from '/vars';
+import { smColors } from '/vars';
 import type { Account } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
@@ -86,7 +86,7 @@ const Footer = styled.div`
 `;
 
 type Props = {
-  location: { state: { account: Account, miningStatus: string } },
+  location: { state: { account: Account, isSmeshing: string } },
   history: RouterHistory
 };
 
@@ -104,7 +104,7 @@ class RequestCoins extends Component<Props, State> {
   render() {
     const {
       location: {
-        state: { account, miningStatus }
+        state: { account, isSmeshing }
       },
       history
     } = this.props;
@@ -132,7 +132,7 @@ class RequestCoins extends Component<Props, State> {
           <TextElement>.</TextElement>
         </ComplexText>
         <br />
-        {miningStatus === nodeConsts.NOT_MINING && (
+        {!isSmeshing && (
           <ComplexText>
             <Text>To earn Smesh&nbsp;</Text>
             <Link onClick={this.navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />

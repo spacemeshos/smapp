@@ -11,6 +11,7 @@ import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite } from '/asse
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { TxList, NodeStatus } from '/types';
+import { fileStatusEnums } from '../../vars';
 // import type { Action } from '/types';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
@@ -168,8 +169,8 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { history, status, miningStatus, dataDir, commitmentSize, networkId } = this.props;
-    const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
+    const { history, status, postProgress, isSmeshing, dataDir, commitmentSize, networkId } = this.props;
+    const isCreatingPoSData = postProgress.filesStatus !== fileStatusEnums.FILES_STATUS_COMPLETE;
     return (
       <>
         <SubHeader>
@@ -192,7 +193,7 @@ class Node extends Component<Props, State> {
         <TextWrapper>
           <Text>Status</Text>
           <Dots>........................................</Dots>
-          <Text>{isCreatingPoSData ? 'Creating PoS data' : 'Smeshing'}</Text>
+          <Text>{isSmeshing ? 'Smeshing' : 'Creating PoS data'}</Text>
         </TextWrapper>
         <TextWrapper>
           <Text>Started creating</Text>
@@ -225,7 +226,9 @@ const mapStateToProps = (state) => ({
   networkId: state.smesher.networkId,
   dataDir: state.smesher.dataDir,
   commitmentSize: formatBytes(state.smesher.commitmentSize),
-  miningStatus: state.smesher.miningStatus,
+  postProgress: state.smesher.postProgress,
+  postProgressError: state.smesher.postProgressError,
+  isSmeshing: state.smesher.isSmeshing,
   coinbase: state.smesher.coinbase,
   rewards: state.node.rewards
 });

@@ -49,9 +49,25 @@ class EventsService {
 
   static getPostComputeProviders = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_COMPUTE_PROVIDERS);
 
-  static createPosData = ({ }) = ipcRenderer.invoke(ipcConsts.SMESHER_CREATE_POST_DATA, {});
+  static createPosData = ({
+    coinbase,
+    dataDir,
+    commitmentSize,
+    throttle,
+    providerId
+  }: {
+    coinbase: string,
+    dataDir: string,
+    commitmentSize: number,
+    throttle: boolean,
+    providerId: number
+  }) => ipcRenderer.invoke(ipcConsts.SMESHER_CREATE_POST_DATA, { coinbase, dataDir, commitmentSize, throttle, providerId });
+
+  static getPostStatus = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_STATUS);
 
   static stopCreatingPosData = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_POST_DATA_CREATION, { deleteFiles });
+
+  static isSmeshing = () => ipcRenderer.invoke(ipcConsts.SMESHER_IS_SMESHING);
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
 

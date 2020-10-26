@@ -85,8 +85,8 @@ class SmesherService extends NetServiceFactory {
       const res = await this.getPostComputeProviders();
       return res;
     });
-    ipcMain.handle(ipcConsts.SMESHER_CREATE_POST_DATA, async () => {
-      const res = await this.createPostData();
+    ipcMain.handle(ipcConsts.SMESHER_CREATE_POST_DATA, async (event, request) => {
+      const res = await this.createPostData({ ...request });
       return res;
     });
     ipcMain.handle(ipcConsts.SMESHER_STOP_POST_DATA_CREATION, async (event, request) => {
@@ -230,18 +230,6 @@ class SmesherService extends NetServiceFactory {
     });
 
   getPostStatus = () =>
-    //     enum FilesStatus {
-    //         FILES_STATUS_UNSPECIFIED = 0; // Lane's favorite impossible value
-    //         FILES_STATUS_NOT_FOUND = 1; // Expected data files do not exist
-    //         FILES_STATUS_PARTIAL = 2; // Some files exist and init can be continued (and may be in progress)
-    //         FILES_STATUS_COMPLETE = 3; // Expected data files are available and verified
-    //     }
-    //     enum ErrorType {
-    //         ERROR_TYPE_UNSPECIFIED = 0; // Lane's favorite impossible value
-    //         ERROR_TYPE_FILE_NOT_FOUND = 1; // All expected post data files not found in expected path
-    //         ERROR_TYPE_READ_ERROR = 2; // Failure to read from a data file
-    //         ERROR_TYPE_WRITE_ERROR = 3; // Failure to write to a data file
-    //     }
     new Promise((resolve) => {
       this.service.PostStatus({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
@@ -281,7 +269,7 @@ class SmesherService extends NetServiceFactory {
     });
 
   createPostData = ({ path, commitmentSize, append, throttle, providerId }) =>
-    // string path = 1; // User provided path to create the post data files at
+    //     string path = 1; // User provided path to create the post data files at
     //     uint64 data_size = 2; // Requested post data size
     //     bool   append = 3; // Append to existing files if they exist. Otherwise overwrite.
     //     bool   throttle = 4; // Throttle down setup phase computations while user is interactive on system
@@ -299,11 +287,11 @@ class SmesherService extends NetServiceFactory {
     });
 
   stopPostDataCreationSession = ({ deleteFiles }) =>
-    new Promise((resolve, reject) => {
+    new Promise((resolve) => {
       this.service.StopPostDataCreationSession({ delete_files: deleteFiles }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
           logger.error('grpc StopPostDataCreationSession', error, { deleteFiles });
-          reject(error);
+          resolve({ error });
         }
         logger.log('grpc StopPostDataCreationSession', response.status, { deleteFiles });
         resolve({ status: response.status });
@@ -311,18 +299,6 @@ class SmesherService extends NetServiceFactory {
     });
 
   postDataCreationProgressStream = () => {
-    //     enum FilesStatus {
-    //         FILES_STATUS_UNSPECIFIED = 0; // Lane's favorite impossible value
-    //         FILES_STATUS_NOT_FOUND = 1; // Expected data files do not exist
-    //         FILES_STATUS_PARTIAL = 2; // Some files exist and init can be continued (and may be in progress)
-    //         FILES_STATUS_COMPLETE = 3; // Expected data files are available and verified
-    //     }
-    //     enum ErrorType {
-    //         ERROR_TYPE_UNSPECIFIED = 0; // Lane's favorite impossible value
-    //         ERROR_TYPE_FILE_NOT_FOUND = 1; // All expected post data files not found in expected path
-    //         ERROR_TYPE_READ_ERROR = 2; // Failure to read from a data file
-    //         ERROR_TYPE_WRITE_ERROR = 3; // Failure to write to a data file
-    //     }
     if (!this.stream) {
       this.stream = this.service.PostDataCreationProgressStream({});
       this.stream.on('data', (response) => {

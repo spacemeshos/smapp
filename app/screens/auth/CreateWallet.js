@@ -9,7 +9,7 @@ import { eventsService } from '/infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import { smColors, nodeConsts } from '/vars';
+import { smColors } from '/vars';
 
 const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
@@ -74,7 +74,6 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  miningStatus: number,
   createNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
@@ -100,7 +99,7 @@ class CreateWallet extends Component<Props, State> {
   };
 
   render() {
-    const { history, location, miningStatus } = this.props;
+    const { history, location } = this.props;
     const { isLoaderVisible, subMode, password, verifiedPassword, passwordError, verifyPasswordError } = this.state;
     if (isLoaderVisible) {
       return (
@@ -110,7 +109,7 @@ class CreateWallet extends Component<Props, State> {
       );
     }
     const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
-    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
+    const isWalletOnlySetup = !!location?.state?.withoutNode;
     return (
       <Wrapper>
         <StepsContainer
@@ -192,9 +191,9 @@ class CreateWallet extends Component<Props, State> {
   };
 
   nextAction = () => {
-    const { history, location, miningStatus } = this.props;
+    const { history, location } = this.props;
     const { subMode } = this.state;
-    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
+    const isWalletOnlySetup = !!location?.state?.withoutNode;
     if (subMode === 1 && this.validate()) {
       this.createWallet();
     } else if (subMode === 2) {
@@ -227,14 +226,10 @@ class CreateWallet extends Component<Props, State> {
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 }
 
-const mapStateToProps = (state) => ({
-  miningStatus: state.node.miningStatus
-});
-
 const mapDispatchToProps = {
   createNewWallet
 };
 
-CreateWallet = connect(mapStateToProps, mapDispatchToProps)(CreateWallet);
+CreateWallet = connect(null, mapDispatchToProps)(CreateWallet);
 
 export default CreateWallet;

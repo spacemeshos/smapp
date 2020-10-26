@@ -1,16 +1,12 @@
 // @flow
 import { eventsService } from '/infra/eventsService';
 import { createError } from '/infra/utils';
-import { nodeConsts } from '/vars';
 import { Action, Dispatch, GetState } from '/types';
 import { SET_TRANSACTIONS } from '/redux/wallet/actions';
 
 export const SET_NODE_STATUS: string = 'SET_NODE_STATUS';
 
 export const SET_NODE_SETTINGS: string = 'SET_NODE_SETTINGS';
-
-export const SET_MINING_STATUS: string = 'SET_MINING_STATUS';
-export const INIT_MINING: string = 'INIT_MINING';
 
 export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
 export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
@@ -37,24 +33,6 @@ export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatc
   } else {
     dispatch({ type: SET_NODE_SETTINGS, payload: { stateRootHash, port } });
   }
-};
-
-export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
-  const { error, status } = await eventsService.getMiningStatus();
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-    return nodeConsts.MINING_UNSET;
-  } else if (status === nodeConsts.IS_MINING) {
-    if (!localStorage.getItem('smesherSmeshingTimestamp')) {
-      localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
-    }
-  } else if (status === nodeConsts.NOT_MINING) {
-    localStorage.removeItem('playedAudio');
-    localStorage.removeItem('smesherInitTimestamp');
-    localStorage.removeItem('smesherSmeshingTimestamp');
-  }
-  dispatch({ type: SET_MINING_STATUS, payload: { status } });
-  return status;
 };
 
 export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {

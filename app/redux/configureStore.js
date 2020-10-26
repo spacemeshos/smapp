@@ -1,7 +1,9 @@
 // @flow
 import configureStoreDev from './configureStore.dev';
 import configureStoreProd from './configureStore.prod';
+import type { Store } from '/types';
 
 const selectedConfigureStore = process.env.NODE_ENV === 'production' ? configureStoreProd : configureStoreDev;
 
-export const { configureStore } = selectedConfigureStore; // eslint-disable-line import/prefer-default-export
+const store: Store = selectedConfigureStore();
+export default store;

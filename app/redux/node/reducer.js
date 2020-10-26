@@ -2,7 +2,7 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS, SET_ACCOUNT_REWARDS } from './actions';
+import { SET_NODE_SETTINGS, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS, SET_ACCOUNT_REWARDS } from './actions';
 
 const initialState = {
   status: null,
@@ -25,18 +25,6 @@ const reducer = (state: any = initialState, action: Action) => {
         payload: { stateRootHash, port }
       } = action;
       return { ...state, stateRootHash, port };
-    }
-    case SET_MINING_STATUS: {
-      const {
-        payload: { status }
-      } = action;
-      return { ...state, miningStatus: status };
-    }
-    case INIT_MINING: {
-      const {
-        payload: { address }
-      } = action;
-      return { ...state, coinbase: address, miningStatus: nodeConsts.IN_SETUP };
     }
     case SET_UPCOMING_REWARDS: {
       const {

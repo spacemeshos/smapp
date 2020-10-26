@@ -5,7 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
+import { getNodeStatus, getAccountRewards } from '/redux/node/actions';
 import { getBalance, getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { Logo } from '/components/common';
@@ -105,9 +105,7 @@ const bgColor = isDarkModeOn ? smColors.white : smColors.black;
 
 type Props = {
   status: Object,
-  miningStatus: number,
   getNodeStatus: Action,
-  getMiningStatus: Action,
   getAccountRewards: Action,
   getBalance: Action,
   getTxList: Action,
@@ -258,7 +256,7 @@ class Main extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getBalance, getTxList, getAccountRewards, miningStatus } = this.props;
+    const { getNodeStatus, getBalance, getTxList, getAccountRewards } = this.props;
     await getNodeStatus();
     await getTxList({ approveTxNotifier: this.approveTxNotifier });
     await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
@@ -266,37 +264,9 @@ class Main extends Component<Props, State> {
     this.txCollectorInterval = setInterval(async () => { await getTxList({ approveTxNotifier: this.approveTxNotifier }); await getBalance(); }, 90000);
     this.accountRewardsInterval = setInterval(async () => { await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); await getBalance(); }, 90000);
     this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
-    this.initialMiningStatusInterval = setInterval(async () => {
-      const status = await getMiningStatus();
-      if (status !== nodeConsts.MINING_UNSET) {
-        clearInterval(this.initialMiningStatusInterval);
-      }
-    }, 1000);
-    if (miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => {
-        getMiningStatus();
-      }, 100000);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const {miningStatus, getMiningStatus } = this.props;
-    if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(getMiningStatus, 100000);
-    }
-    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
-      clearInterval(this.miningStatusInterval);
-      notificationsService.notify({
-        title: 'Spacemesh',
-        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
-        callback: () => this.handleNavigation({ index: 0 })
-      });
-    }
   }
 
   componentWillUnmount() {
-    this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
-    this.miningStatusInterval && clearInterval(this.miningStatusInterval);
     this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
     this.txCollectorInterval && clearInterval(this.txCollectorInterval);
   }
@@ -363,13 +333,11 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  status: state.node.status,
-  miningStatus: state.node.miningStatus
+  status: state.node.status
 });
 
 const mapDispatchToProps = {
   getNodeStatus,
-  getMiningStatus,
   getAccountRewards,
   getBalance,
   getTxList,
