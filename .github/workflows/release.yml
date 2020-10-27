@@ -20,14 +20,14 @@ jobs:
 
     steps:
       - id: latestNode
-        uses: pozetroninc/github-action-get-latest-release@master
+        uses: pozetroninc/github-action-get-latest-release@v0.5.0
         with:
           repository: spacemeshos/go-spacemesh
-          excludes: prerelease, draft
+      
       - name: echo latest node repo
         run: |
           echo ${{steps.latestNode.outputs.release}}
-      
+
       - name: Check out Git repository
         uses: actions/checkout@v2
 
