@@ -3,8 +3,8 @@ name: Publish Release
 on:
   pull_request:
     types: [ opened, closed ]
-      branches:
-        - dev
+    branches:
+      - dev
   push:
     branches:
       - add-github-actions
@@ -43,5 +43,5 @@ jobs:
           npm run package-linux
 
       - if: matrix.os == 'windows-latest'
-        run |
+        run: |
           npm run package-win
