@@ -1,0 +1,42 @@
+name: Lint And App Build
+
+on:
+  pull_request:
+    branches-ignore:
+      - 'master'
+      tags-ignore:
+        - v0.*
+  push:
+    branches:
+      branches-ignore:
+        - 'master'
+      tags-ignore:
+        - v0.*
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js, NPM
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: npm install
+        run: |
+          npm install
+      - name: npm lint and build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run lint-ci
+          npm run build-dll

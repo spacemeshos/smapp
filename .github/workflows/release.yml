@@ -23,7 +23,7 @@ jobs:
         uses: pozetroninc/github-action-get-latest-release@v0.5.0
         with:
           repository: spacemeshos/go-spacemesh
-      
+
       - name: echo latest node repo
         run: |
           echo ${{ steps.latestNode.outputs.release }}
@@ -49,19 +49,19 @@ jobs:
       - if: matrix.os == 'ubuntu-latest'
         name: download linux node binary
         run: |
-          curl --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh-linux
+          curl --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-linux
           npm run package-linux
 
       - if: matrix.os == 'windows-latest'
         name: download windows node binary
         run: |
-          curl --output ./node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh.exe
+          curl --output ./node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh.exe
           npm run package-win
 
       - if: matrix.os == 'macos-latest'
         name: download macos node binary
         run: |
-          curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh-osx
+          curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-osx
           npm run package-mac
         env:
           APPLEID: ${{ secrets.APPLE_ID }}

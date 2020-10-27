@@ -73,7 +73,7 @@
     "electron": "10.1.5",
     "electron-builder": "22.9.1",
     "electron-devtools-installer": "3.1.1",
-    "electron-notarize": "0.3.0",
+    "electron-notarize": "1.0.0",
     "electron-unhandled": "3.0.2",
     "eslint": "7.4.0",
     "eslint-config-airbnb": "18.2.0",
