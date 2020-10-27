@@ -1,17 +1,11 @@
 name: Lint And App Build
 
 on:
-  pull_request:
+  push:
     branches-ignore:
       - 'master'
-      tags-ignore:
-        - v0.*
-  push:
-    branches:
-      branches-ignore:
-        - 'master'
-      tags-ignore:
-        - v0.*
+    tags-ignore:
+      - v0.*
   workflow_dispatch:
 
 jobs:
