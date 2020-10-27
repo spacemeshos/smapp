@@ -55,13 +55,13 @@ class PoSModifyPostData extends PureComponent<Props> {
         <Wrapper>
           <Row>
             <Text>Change your PoS data</Text>
-            <Tooltip top={-2} left={-3} width={200} text="Some text" />
+            <Tooltip width={200} text="Some text" />
             <Dots>.....................................................</Dots>
             <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
           </Row>
           <Row>
             <Text>Stop smeshing and delete PoS data</Text>
-            <Tooltip top={-2} left={-3} width={200} text="Some text" />
+            <Tooltip width={200} text="Some text" />
             <Dots>.....................................................</Dots>
             <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
           </Row>

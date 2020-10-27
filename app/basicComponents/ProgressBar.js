@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -31,17 +31,14 @@ type Props = {
   progress: number
 };
 
-class ProgressBar extends PureComponent<Props> {
-  render() {
-    const { progress } = this.props;
-    const adjustedProgress = Math.floor(progress * 10) + 1;
-    return (
-      <Wrapper>
-        <Base>░░░░░░░░░░░░░░░░░░░░░░</Base>
-        <Progress progress={adjustedProgress} />
-      </Wrapper>
-    );
-  }
-}
+const ProgressBar = ({ progress }: Props) => {
+  const adjustedProgress = Math.floor(progress * 10) + 1;
+  return (
+    <Wrapper>
+      <Base>░░░░░░░░░░░░░░░░░░░░░░</Base>
+      <Progress progress={adjustedProgress} />
+    </Wrapper>
+  );
+};
 
 export default ProgressBar;

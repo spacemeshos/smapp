@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { horizontalPanelBlack, horizontalPanelWhite } from '/assets/images';
 
@@ -14,12 +14,6 @@ const Wrapper = styled.img`
   height: 15px;
 `;
 
-type Props = {};
-
-class SmallHorizontalPanel extends PureComponent<Props> {
-  render() {
-    return <Wrapper src={icon} />;
-  }
-}
+const SmallHorizontalPanel = () => <Wrapper src={icon} />;
 
 export default SmallHorizontalPanel;

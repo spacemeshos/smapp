@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { tooltip, tooltipWhite } from '/assets/images';
 import { smColors } from '/vars';
@@ -42,7 +42,7 @@ const OuterIcon = styled.img`
 const Wrapper = styled.div`
   position: relative;
   margin-left: 5px;
-  margin-top: ${({ wrapTop }) => wrapTop}px;
+  margin-top: ${({ marginTop }) => marginTop}px;
   &:hover ${InnerWrapper} {
     display: block;
   }
@@ -52,23 +52,18 @@ type Props = {
   top: number,
   left: number,
   width: number,
-  wrapTop?: number,
+  marginTop?: number,
   text: string
 };
 
-class Tooltip extends PureComponent<Props> {
-  render() {
-    const { top, left, width, text, wrapTop } = this.props;
-    return (
-      <Wrapper wrapTop={wrapTop || 2}>
-        <OuterIcon src={icon} />
-        <InnerWrapper top={top} left={left} width={width}>
-          <InnerIcon src={icon} />
-          <Text>{text}</Text>
-        </InnerWrapper>
-      </Wrapper>
-    );
-  }
-}
+const Tooltip = ({ top = -2, left = -3, width, text, marginTop = 2 }: Props) => (
+  <Wrapper marginTop={marginTop}>
+    <OuterIcon src={icon} />
+    <InnerWrapper top={top} left={left} width={width}>
+      <InnerIcon src={icon} />
+      <Text>{text}</Text>
+    </InnerWrapper>
+  </Wrapper>
+);
 
 export default Tooltip;

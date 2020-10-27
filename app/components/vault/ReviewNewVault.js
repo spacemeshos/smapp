@@ -45,14 +45,14 @@ class ReviewNewVault extends Component {
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Configuration</DetailsText>
-            <Tooltip top="-2" left="-3" width="250" text="tooltip 1" />
+            <Tooltip width="250" text="tooltip 1" />
           </DetailsTextWrap>
           <GrayText>2 / 3 Multi-Signature</GrayText>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Master Accounts</DetailsText>
-            <Tooltip top="-2" left="-3" width="250" text="tooltip 2" />
+            <Tooltip width="250" text="tooltip 2" />
           </DetailsTextWrap>
           <GrayText>0X1234...1234, 0X1234...1234, 0X1234...1234</GrayText>
         </DetailsRow>

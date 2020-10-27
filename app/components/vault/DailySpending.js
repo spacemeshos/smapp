@@ -90,7 +90,7 @@ class DailySpending extends Component<Props, State> {
       <>
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
-          <Tooltip top="-2" left="-3" width="250" text="Tooltip 1" />
+          <Tooltip width="250" text="Tooltip 1" />
           <Dots />
           <DropDown
             data={accounts}
@@ -104,7 +104,7 @@ class DailySpending extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Daily Spending Limit</DetailsText>
-          <Tooltip top="-2" left="-3" width="250" text="Tooltip 2" />
+          <Tooltip width="250" text="Tooltip 2" />
           <Dots />
           <DropDown
             data={limits}
