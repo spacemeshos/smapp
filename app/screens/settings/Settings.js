@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletName, updateAccountName, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress, setRewardsAddress } from '/redux/node/actions';
+import { switchTheme } from '/redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -14,8 +15,6 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,20 +41,20 @@ const AllSettingsInnerWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Name = styled.div`
   font-size: 14px;
   line-height: 40px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   margin-left: 10px;
 `;
 
 const RewardAccount = styled.div`
   font-size: 16px;
   line-height: 15px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const GreenText = styled(Text)`
@@ -84,6 +83,7 @@ type Props = {
   createNewAccount: Action,
   setNodeIpAddress: Action,
   setRewardsAddress: Action,
+  switchTheme: Action,
   status: Object,
   history: RouterHistory,
   nodeIpAddress: string,
@@ -147,7 +147,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
+    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -197,7 +197,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"
               />
-              <SettingRow upperPartRight={<Button onClick={this.toggleDarkMode} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
+              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
               <SettingRow
                 upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
@@ -422,11 +422,6 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  toggleDarkMode = () => {
-    localStorage.getItem('dmMode') ? localStorage.removeItem('dmMode') : localStorage.setItem('dmMode', 'true');
-    eventsService.reloadApp();
-  };
-
   toggleAutoStart = () => {
     const { isAutoStartEnabled } = this.state;
     eventsService.toggleAutoStart();
@@ -505,7 +500,8 @@ const mapDispatchToProps = {
   updateAccountName,
   createNewAccount,
   setNodeIpAddress,
-  setRewardsAddress
+  setRewardsAddress,
+  switchTheme
 };
 
 Settings = connect(mapStateToProps, mapDispatchToProps)(Settings);

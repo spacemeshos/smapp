@@ -14,9 +14,6 @@ import type { Action } from '/types';
 import { nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
-
 const Wrapper = styled.div`
   position: relative;
   display: flex;
@@ -47,6 +44,7 @@ type Props = {
   getMiningStatus: Action,
   getNodeSettings: Action,
   readWalletFiles: Action,
+  isDarkModeOn: boolean,
   walletFiles: Array<string>,
   history: RouterHistory,
   location: { pathname: string, state?: { presetMode: number } }
@@ -58,7 +56,7 @@ class Auth extends Component<Props> {
   getMiningStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
 
   render() {
-    const { walletFiles } = this.props;
+    const { walletFiles, isDarkModeOn } = this.props;
     return (
       <Wrapper>
         <Logo />
@@ -74,7 +72,7 @@ class Auth extends Component<Props> {
             <Loader size={Loader.sizes.BIG} />
           )}
         </InnerWrapper>
-        <RightDecoration src={img} />
+        <RightDecoration src={isDarkModeOn ? rightDecorationWhite : rightDecoration} />
       </Wrapper>
     );
   }
@@ -106,7 +104,8 @@ class Auth extends Component<Props> {
 }
 
 const mapStateToProps = (state) => ({
-  walletFiles: state.wallet.walletFiles
+  walletFiles: state.wallet.walletFiles,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

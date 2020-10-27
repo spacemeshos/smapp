@@ -4,17 +4,13 @@ import styled from 'styled-components';
 import { sidePanelRightLong, sidePanelRightLongWhite, sidePanelLeftLong, sidePanelLeftLongWhite } from '/assets/images';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const leftImg = isDarkModeOn ? sidePanelLeftLongWhite : sidePanelLeftLong;
-const rightImg = isDarkModeOn ? sidePanelRightLongWhite : sidePanelRightLong;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   position: relative;
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
-  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black10Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dMBlack1 : smColors.black10Alpha)};
 `;
 
 const SideBar = styled.img`
@@ -46,13 +42,13 @@ const HeaderIcon = styled.img`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const SubHeader = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.Black)};
 `;
 
 type Props = {
@@ -62,7 +58,8 @@ type Props = {
   width: number,
   height?: number | string,
   children: any,
-  style?: Object
+  style?: Object,
+  isDarkModeOn?: boolean
 };
 
 class WrapperWith2SideBars extends PureComponent<Props> {
@@ -71,7 +68,9 @@ class WrapperWith2SideBars extends PureComponent<Props> {
   };
 
   render() {
-    const { width, height, header, headerIcon, subHeader, children, style } = this.props;
+    const { width, height, header, headerIcon, subHeader, children, style, isDarkModeOn } = this.props;
+    const leftImg = isDarkModeOn ? sidePanelLeftLongWhite : sidePanelLeftLong;
+    const rightImg = isDarkModeOn ? sidePanelRightLongWhite : sidePanelRightLong;
     return (
       <Wrapper width={width} height={height} style={style}>
         <SideBar src={leftImg} />

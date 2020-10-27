@@ -8,8 +8,6 @@ import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalP
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Table = styled.div`
   display: flex;
   flex-direction: row;
@@ -33,7 +31,7 @@ const InputCounter = styled.div`
   width: 25px;
   font-size: 18px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
   margin-right: 10px;
 `;
 

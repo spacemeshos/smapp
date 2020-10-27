@@ -14,8 +14,6 @@ import TX_STATUSES from '/vars/enums';
 import type { RouterHistory } from 'react-router-dom';
 import type { TxList, Tx, AccountTxs } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -25,13 +23,13 @@ const Wrapper = styled.div`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Header = styled.span`
   font-family: SourceCodeProBold;
   margin-bottom: 25px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const TransactionsListWrapper = styled.div`
@@ -43,7 +41,7 @@ const TransactionsListWrapper = styled.div`
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
   display: flex;
   flex-direction: column;
   width: 260px;

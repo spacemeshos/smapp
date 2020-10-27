@@ -10,8 +10,6 @@ import { network } from '/assets/images';
 import { getFormattedTimestamp } from '/infra/utils';
 import { eventsService } from '/infra/eventsService';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -41,14 +39,14 @@ const DetailsRow = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border-bottom: ${({ isLast }) => (isLast ? `0px` : `1px solid ${isDarkModeOn ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkModeOn ? smColors.white : smColors.darkGray10Alpha};`)};
 `;
 
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
   margin: 10px 0;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const GrayText = styled.div`

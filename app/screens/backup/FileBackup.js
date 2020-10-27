@@ -7,13 +7,11 @@ import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '/basic
 import { eventsService } from '/infra/eventsService';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Text = styled.span`
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const MiddleSectionRow = styled.div`

@@ -11,9 +11,6 @@ import smColors from '/vars/colors';
 import { backup, leftSideTIcon, leftSideTIconWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const icon = isDarkModeOn ? leftSideTIconWhite : leftSideTIcon;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -36,7 +33,7 @@ const BackupReminder = styled.div`
   height: 50px;
   margin-top: 10px;
   padding: 0 15px;
-  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black02Alpha};
+  background-color:: ${({ theme }) => (theme.isDarkModeOn ? smColors.dMBlack1 : smColors.black02Alpha)};
   cursor: pointer;
 `;
 
@@ -70,6 +67,7 @@ const RightSection = styled.div`
 `;
 
 type Props = {
+  isDarkModeOn: boolean,
   backupTime: string,
   history: RouterHistory,
   location: { pathname: string }
@@ -84,7 +82,9 @@ type State = {
 
 class Wallet extends Component<Props, State> {
   render() {
-    const { backupTime } = this.props;
+    const { backupTime, isDarkModeOn } = this.props;
+    const icon = isDarkModeOn ? leftSideTIconWhite : leftSideTIcon;
+
     return (
       <Wrapper>
         <LeftSection>
@@ -119,7 +119,8 @@ class Wallet extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  backupTime: state.wallet.backupTime
+  backupTime: state.wallet.backupTime,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 Wallet = connect<any, any, _, _, _, _>(mapStateToProps)(Wallet);

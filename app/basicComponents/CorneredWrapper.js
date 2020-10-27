@@ -49,20 +49,20 @@ const BottomRightCorner = styled.img`
   height: 8px;
 `;
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
-const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
-const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
-const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
-
 type Props = {
   children: any,
-  className?: string
+  className?: string,
+  isDarkModeOn?: boolean
 };
 
 class CorneredWrapper extends PureComponent<Props> {
   render() {
-    const { children, className } = this.props;
+    const { children, className, isDarkModeOn } = this.props;
+    const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
+    const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
+    const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
+    const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
+
     return (
       <Wrapper className={className}>
         <TopLeftCorner src={topLeft} />

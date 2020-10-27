@@ -1,5 +1,6 @@
 // @flow
 import { clipboard, shell } from 'electron';
+import { connect } from 'react-redux';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
@@ -9,23 +10,20 @@ import { smColors, nodeConsts } from '/vars';
 import type { Account } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const copy = isDarkModeOn ? copyWhite : copyBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 710px;
   height: 100%;
   padding: 15px 25px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const SubHeader = styled.div`
@@ -37,14 +35,14 @@ const SubHeader = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   cursor: inherit;
 `;
 
 const TextElement = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   cursor: inherit;
 `;
 
@@ -86,6 +84,7 @@ const Footer = styled.div`
 `;
 
 type Props = {
+  isDarkModeOn: boolean,
   location: { state: { account: Account, miningStatus: string } },
   history: RouterHistory
 };
@@ -102,6 +101,8 @@ class RequestCoins extends Component<Props, State> {
   };
 
   render() {
+    const { isDarkModeOn } = this.props;
+    const copy = isDarkModeOn ? copyWhite : copyBlack;
     const {
       location: {
         state: { account, miningStatus }
@@ -181,4 +182,9 @@ class RequestCoins extends Component<Props, State> {
   navigateToTap = () => shell.openExternal('https://discord.gg/ASpy52C');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+RequestCoins = connect<any, any, _, _, _, _>(mapStateToProps)(RequestCoins);
 export default RequestCoins;

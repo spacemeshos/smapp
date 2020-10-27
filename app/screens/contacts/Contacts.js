@@ -11,8 +11,6 @@ import { searchIcon, addContact } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 import type { Contact } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const SearchWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -37,7 +35,7 @@ const SubHeader = styled.div`
 const SubHeaderText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const SubHeaderInner = styled.div`
@@ -139,7 +137,7 @@ const ContactsSubHeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
   margin-right: 20px;
 `;
 
@@ -164,7 +162,7 @@ const ContactText = styled.div`
   flex: 1;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   text-align: left;
   margin-right: 10px;
 `;

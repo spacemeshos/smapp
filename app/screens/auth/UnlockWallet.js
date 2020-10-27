@@ -11,10 +11,6 @@ import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '/assets
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const color = isDarkModeOn ? smColors.white : smColors.black;
-const chevronIcon = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -25,7 +21,7 @@ const Text = styled.div`
   margin: -15px 0 15px;
   font-size: 16px;
   line-height: 20px;
-  color: ${color};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Indicator = styled.div`
@@ -34,7 +30,10 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ hasError }) => (hasError ? smColors.orange : color)};
+  background-color: ${({ hasError, theme }) => {
+    if (hasError) return smColors.orange;
+    return theme.isDarkModeOn ? smColors.white : smColors.black;
+  }};
 `;
 
 const SmallSideBar = styled.img`
@@ -86,6 +85,7 @@ const GrayText = styled.div`
 `;
 
 type Props = {
+  isDarkModeOn: boolean,
   history: RouterHistory,
   unlockWallet: Action,
   location: { state?: { isLoggedOut: boolean } }
@@ -109,8 +109,9 @@ class UnlockWallet extends Component<Props, State> {
   }
 
   render() {
-    const { history } = this.props;
+    const { history, isDarkModeOn } = this.props;
     const { isLoggedOutBannerVisible, password, hasError } = this.state;
+    const chevronIcon = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
     return (
       <Wrapper>
         {isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />}
@@ -174,10 +175,14 @@ class UnlockWallet extends Component<Props, State> {
   navigateToSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
 const mapDispatchToProps = {
   unlockWallet
 };
 
-UnlockWallet = connect(null, mapDispatchToProps)(UnlockWallet);
+UnlockWallet = connect(mapStateToProps, mapDispatchToProps)(UnlockWallet);
 
 export default UnlockWallet;
