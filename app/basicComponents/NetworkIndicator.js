@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Round = styled.div`
@@ -14,11 +14,6 @@ type Props = {
   color: string
 };
 
-class NetworkIndicator extends Component<Props> {
-  render() {
-    const { color } = this.props;
-    return <Round color={color} />;
-  }
-}
+const NetworkIndicator = ({ color }: Props) => <Round color={color} />;
 
 export default NetworkIndicator;

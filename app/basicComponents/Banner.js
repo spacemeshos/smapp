@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -8,6 +8,7 @@ const Wrapper = styled.div`
   width: 785px;
   height: 60px;
   margin: ${({ margin }) => margin};
+  visibility: ${({ visibility }) => (visibility ? 'visible' : 'hidden')};
 `;
 
 const UpperPart = styled.div`
@@ -34,24 +35,16 @@ const LowerPart = styled.div`
 
 type Props = {
   children: any,
+  visibility?: boolean,
   margin?: string,
   color: string
 };
 
-class Banner extends PureComponent<Props> {
-  static defaultProps = {
-    margin: '0'
-  };
-
-  render() {
-    const { children, margin, color } = this.props;
-    return (
-      <Wrapper margin={margin}>
-        <UpperPart color={color}>{children}</UpperPart>
-        <LowerPart color={color} />
-      </Wrapper>
-    );
-  }
-}
+const Banner = ({ children, visibility = true, margin = '0', color }: Props) => (
+  <Wrapper margin={margin} visibility={visibility}>
+    <UpperPart color={color}>{children}</UpperPart>
+    <LowerPart color={color} />
+  </Wrapper>
+);
 
 export default Banner;

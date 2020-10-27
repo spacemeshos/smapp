@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -103,7 +103,7 @@ const Wrapper = styled.div`
       border: 1px solid ${smColors.black};
       }
     `}
-    cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
 `;
 
 type Props = {
@@ -119,35 +119,23 @@ type Props = {
   style?: Object
 };
 
-class Button extends PureComponent<Props> {
-  static defaultProps = {
-    isPrimary: true,
-    isDisabled: false,
-    width: 100,
-    height: 40
-  };
-
-  render() {
-    const { onClick, isPrimary, isDisabled, width, height, text, img, imgPosition, style, isContainerFullWidth } = this.props;
-    return (
-      <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} isContainerFullWidth={isContainerFullWidth} style={style}>
-        <UpperPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled}>
-          {img && imgPosition === 'before' && (
-            <ImageWrapper>
-              <Image src={img} />
-            </ImageWrapper>
-          )}
-          <Text height={height}>{text}</Text>
-          {img && imgPosition === 'after' && (
-            <ImageWrapper>
-              <Image src={img} />
-            </ImageWrapper>
-          )}
-        </UpperPart>
-        <LowerPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled} />
-      </Wrapper>
-    );
-  }
-}
+const Button = ({ onClick, isPrimary = true, isDisabled = false, width = 100, height = 40, text, img, imgPosition, style, isContainerFullWidth }: Props) => (
+  <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} isContainerFullWidth={isContainerFullWidth} style={style}>
+    <UpperPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled}>
+      {img && imgPosition === 'before' && (
+        <ImageWrapper>
+          <Image src={img} />
+        </ImageWrapper>
+      )}
+      <Text height={height}>{text}</Text>
+      {img && imgPosition === 'after' && (
+        <ImageWrapper>
+          <Image src={img} />
+        </ImageWrapper>
+      )}
+    </UpperPart>
+    <LowerPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled} />
+  </Wrapper>
+);
 
 export default Button;

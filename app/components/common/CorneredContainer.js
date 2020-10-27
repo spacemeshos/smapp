@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { CorneredWrapper } from '/basicComponents';
 import { smColors } from '/vars';
@@ -54,7 +54,7 @@ const SubHeader = styled.div`
 `;
 
 type Props = {
-  children: any,
+  children: React.node,
   width: number,
   height: number,
   header: string,
@@ -64,46 +64,26 @@ type Props = {
   useEmptyWrap: boolean
 };
 
-class CorneredContainer extends PureComponent<Props> {
-  static defaultProps = {
-    headerColor: color1
-  };
-
-  render() {
-    const { children, width, height, header, headerColor, headerIcon, subHeader, useEmptyWrap } = this.props;
-
-    return useEmptyWrap ? (
-      <DivWrapper width={width} height={height}>
+const CorneredContainer = ({ children, width, height, header, headerColor = color1, headerIcon, subHeader, useEmptyWrap }: Props) => {
+  const ResolvedWrapper = useEmptyWrap ? DivWrapper : Wrapper;
+  return (
+    <ResolvedWrapper width={width} height={height}>
+      {header && (
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
           <Header color={headerColor}>{header}</Header>
         </HeaderWrapper>
-        {subHeader && (
-          <SubHeader>
-            --
-            <br />
-            {subHeader}
-          </SubHeader>
-        )}
-        {children}
-      </DivWrapper>
-    ) : (
-      <Wrapper width={width} height={height}>
-        <HeaderWrapper>
-          {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={headerColor}>{header}</Header>
-        </HeaderWrapper>
-        {subHeader && (
-          <SubHeader>
-            --
-            <br />
-            {subHeader}
-          </SubHeader>
-        )}
-        {children}
-      </Wrapper>
-    );
-  }
-}
+      )}
+      {subHeader && (
+        <SubHeader>
+          --
+          <br />
+          {subHeader}
+        </SubHeader>
+      )}
+      {children}
+    </ResolvedWrapper>
+  );
+};
 
 export default CorneredContainer;

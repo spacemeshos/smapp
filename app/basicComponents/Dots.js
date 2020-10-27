@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -21,10 +21,6 @@ const Dot = styled.div`
     }
 `;
 
-class Dots extends PureComponent<Props> {
-  render() {
-    return <Dot />;
-  }
-}
+const Dots = () => <Dot />;
 
 export default Dots;

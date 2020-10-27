@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   topLeftCorner,
@@ -60,19 +60,14 @@ type Props = {
   className?: string
 };
 
-class CorneredWrapper extends PureComponent<Props> {
-  render() {
-    const { children, className } = this.props;
-    return (
-      <Wrapper className={className}>
-        <TopLeftCorner src={topLeft} />
-        <TopRightCorner src={topRight} />
-        <BottomLeftCorner src={bottomLeft} />
-        <BottomRightCorner src={bottomRight} />
-        {children}
-      </Wrapper>
-    );
-  }
-}
+const CorneredWrapper = ({ children, className }: Props) => (
+  <Wrapper className={className}>
+    <TopLeftCorner src={topLeft} />
+    <TopRightCorner src={topRight} />
+    <BottomLeftCorner src={bottomLeft} />
+    <BottomRightCorner src={bottomRight} />
+    {children}
+  </Wrapper>
+);
 
 export default CorneredWrapper;

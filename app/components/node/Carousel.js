@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray, posGpu, posGpuActive, posCpu, posCpuActive } from '/assets/images';
 import { smColors } from '/vars';
@@ -148,78 +148,65 @@ type Props = {
   style?: Object
 };
 
-type State = {
-  selectedItemIndex: number,
-  leftSlideIndex: number,
-  isLeftBtnEnabled: boolean,
-  isRightBtnEnabled: boolean
-};
+const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
+  const [carouselState, setCarouselState] = useState({ leftSlideIndex: 0, isLeftBtnEnabled: false, isRightBtnEnabled: data.length > 3 });
 
-class Carousel extends Component<Props, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      leftSlideIndex: 0,
-      isLeftBtnEnabled: false,
-      isRightBtnEnabled: this.props.data.length > 3 // eslint-disable-line react/destructuring-assignment
-    };
-  }
-
-  render() {
-    const { data, selectedItemIndex, style } = this.props;
-    const { leftSlideIndex, isLeftBtnEnabled, isRightBtnEnabled } = this.state;
-    return (
-      <Wrapper>
-        <Button src={isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray} onClick={isLeftBtnEnabled ? this.slideLeft : null} isDisabled={!isLeftBtnEnabled} />
-        <OuterWrapper style={style}>
-          <InnerWrapper leftSlideIndex={leftSlideIndex} slidesCount={data.length}>
-            {data.map((element, index) => (
-              <SlideWrapper onClick={() => this.handleSelection({ index })} key={element.name}>
-                <SlideUpperPart isSelected={selectedItemIndex === index}>
-                  <TextWrapper>
-                    <Text>{element.company}</Text>
-                    <Text>{element.name}</Text>
-                    <Text>--</Text>
-                  </TextWrapper>
-                  <TextWrapper>
-                    <Text>~{element.estimation}</Text>
-                    <Text>TO SAVE DATA</Text>
-                  </TextWrapper>
-                  {element.isGPU ? <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} /> : <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
-                </SlideUpperPart>
-                <SlideMiddlePart />
-                <SlideLowerPart isSelected={selectedItemIndex === index} />
-              </SlideWrapper>
-            ))}
-          </InnerWrapper>
-        </OuterWrapper>
-        <Button src={isRightBtnEnabled ? chevronRightBlack : chevronRightGray} onClick={isRightBtnEnabled ? this.slideRight : null} isDisabled={!isRightBtnEnabled} />
-      </Wrapper>
-    );
-  }
-
-  handleSelection = ({ index }: { index: number }) => {
-    const { onClick } = this.props;
+  const handleSelection = ({ index }: { index: number }) => {
     onClick({ index });
   };
 
-  slideLeft = () => {
-    const { data } = this.props;
-    const { leftSlideIndex } = this.state;
-    if (leftSlideIndex > 0) {
-      this.setState({ leftSlideIndex: leftSlideIndex - 2, isLeftBtnEnabled: leftSlideIndex - 2 > 0, isRightBtnEnabled: data.length > 3 });
+  const slideLeft = () => {
+    const { leftSlideIndex } = carouselState;
+    if (carouselState.leftSlideIndex > 0) {
+      setCarouselState({ leftSlideIndex: leftSlideIndex - 2, isLeftBtnEnabled: leftSlideIndex - 2 > 0, isRightBtnEnabled: data.length > 3 });
     }
   };
 
-  slideRight = () => {
-    const { data } = this.props;
-    const { leftSlideIndex } = this.state;
+  const slideRight = () => {
+    const { leftSlideIndex } = carouselState;
     if (leftSlideIndex + 2 < data.length - 1) {
-      this.setState({ leftSlideIndex: leftSlideIndex + 2, isLeftBtnEnabled: true, isRightBtnEnabled: data.length - 1 < leftSlideIndex + 2 });
+      setCarouselState({ leftSlideIndex: leftSlideIndex + 2, isLeftBtnEnabled: true, isRightBtnEnabled: data.length - 1 < leftSlideIndex + 2 });
     } else if (leftSlideIndex + 1 < data.length - 1) {
-      this.setState({ leftSlideIndex: leftSlideIndex + 1, isLeftBtnEnabled: true, isRightBtnEnabled: data.length - 1 < leftSlideIndex + 1 });
+      setCarouselState({ leftSlideIndex: leftSlideIndex + 1, isLeftBtnEnabled: true, isRightBtnEnabled: data.length - 1 < leftSlideIndex + 1 });
     }
   };
-}
+
+  return (
+    <Wrapper>
+      <Button
+        src={carouselState.isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray}
+        onClick={carouselState.isLeftBtnEnabled ? slideLeft : null}
+        isDisabled={!carouselState.isLeftBtnEnabled}
+      />
+      <OuterWrapper style={style}>
+        <InnerWrapper leftSlideIndex={carouselState.leftSlideIndex} slidesCount={data.length}>
+          {data.map((element, index) => (
+            <SlideWrapper onClick={() => handleSelection({ index })} key={element.name}>
+              <SlideUpperPart isSelected={selectedItemIndex === index}>
+                <TextWrapper>
+                  <Text>{element.company}</Text>
+                  <Text>{element.name}</Text>
+                  <Text>--</Text>
+                </TextWrapper>
+                <TextWrapper>
+                  <Text>~{element.estimation}</Text>
+                  <Text>TO SAVE DATA</Text>
+                </TextWrapper>
+                {element.isGPU ? <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} /> : <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
+              </SlideUpperPart>
+              <SlideMiddlePart />
+              <SlideLowerPart isSelected={selectedItemIndex === index} />
+            </SlideWrapper>
+          ))}
+        </InnerWrapper>
+      </OuterWrapper>
+      <Button
+        src={carouselState.isRightBtnEnabled ? chevronRightBlack : chevronRightGray}
+        onClick={carouselState.isRightBtnEnabled ? slideRight : null}
+        isDisabled={!carouselState.isRightBtnEnabled}
+      />
+    </Wrapper>
+  );
+};
 
 export default Carousel;

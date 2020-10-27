@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { sidePanelRightLong, sidePanelRightLongWhite, sidePanelLeftLong, sidePanelLeftLongWhite } from '/assets/images';
 import { smColors } from '/vars';
@@ -65,34 +65,26 @@ type Props = {
   style?: Object
 };
 
-class WrapperWith2SideBars extends PureComponent<Props> {
-  static defaultProps = {
-    height: '100%'
-  };
+const WrapperWith2SideBars = ({ width, height = '100%', header, headerIcon, subHeader, children, style }: Props) => (
+  <Wrapper width={width} height={height} style={style}>
+    <SideBar src={leftImg} />
+    <MainWrapperInner>
+      <HeaderWrapper>
+        {headerIcon && <HeaderIcon src={headerIcon} />}
+        <Header>{header}</Header>
+      </HeaderWrapper>
+      <SubHeader>--</SubHeader>
+      {subHeader && (
+        <SubHeader>
+          {subHeader}
+          <br />
+          <br />
+        </SubHeader>
+      )}
+      {children}
+    </MainWrapperInner>
+    <SideBar src={rightImg} />
+  </Wrapper>
+);
 
-  render() {
-    const { width, height, header, headerIcon, subHeader, children, style } = this.props;
-    return (
-      <Wrapper width={width} height={height} style={style}>
-        <SideBar src={leftImg} />
-        <MainWrapperInner>
-          <HeaderWrapper>
-            {headerIcon && <HeaderIcon src={headerIcon} />}
-            <Header>{header}</Header>
-          </HeaderWrapper>
-          <SubHeader>--</SubHeader>
-          {subHeader && (
-            <SubHeader>
-              {subHeader}
-              <br />
-              <br />
-            </SubHeader>
-          )}
-          {children}
-        </MainWrapperInner>
-        <SideBar src={rightImg} />
-      </Wrapper>
-    );
-  }
-}
 export default WrapperWith2SideBars;

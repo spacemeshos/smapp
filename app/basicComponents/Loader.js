@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { loader, loaderWhite } from '/assets/images';
 
@@ -31,21 +31,16 @@ type Props = {
   size?: number
 };
 
-class Loader extends PureComponent<Props> {
-  static sizes = {
-    SMALL: 50,
-    MEDIUM: 250,
-    BIG: 500
-  };
+const Loader = ({ size = Loader.sizes.SMALL }: Props) => (
+  <Wrapper>
+    <AnimatedIcon size={size || Loader.sizes.SMALL} src={img} alt="Loading" />
+  </Wrapper>
+);
 
-  render() {
-    const { size } = this.props;
-    return (
-      <Wrapper>
-        <AnimatedIcon size={size || Loader.sizes.SMALL} src={img} alt="Loading" />
-      </Wrapper>
-    );
-  }
-}
+Loader.sizes = {
+  SMALL: 50,
+  MEDIUM: 250,
+  BIG: 500
+};
 
 export default Loader;

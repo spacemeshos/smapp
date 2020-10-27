@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -29,11 +29,6 @@ type Props = {
   check: () => void
 };
 
-class Checkbox extends PureComponent<Props> {
-  render() {
-    const { isChecked, check } = this.props;
-    return <Wrapper onClick={check}>{isChecked && <InnerWrapper />}</Wrapper>;
-  }
-}
+const Checkbox = ({ isChecked, check }: Props) => <Wrapper onClick={check}>{isChecked && <InnerWrapper />}</Wrapper>;
 
 export default Checkbox;

@@ -1,0 +1,64 @@
+name: Publish Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+      - id: latestNode
+        uses: pozetroninc/github-action-get-latest-release@v0.5.0
+        with:
+          repository: spacemeshos/go-spacemesh
+
+      - name: echo latest node repo
+        run: |
+          echo ${{ steps.latestNode.outputs.release }}
+
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js, NPM
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: npm install
+        run: |
+          npm install
+      - name: npm lint and build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run lint-ci
+          npm run build-dll
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: download linux node binary
+        run: |
+          curl --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-linux
+          npm run package-linux
+
+      - if: matrix.os == 'windows-latest'
+        name: download windows node binary
+        run: |
+          curl --output ./node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh.exe
+          npm run package-win
+
+#      - if: matrix.os == 'macos-latest'
+#        name: download macos node binary
+#        run: |
+#          curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-osx
+#          npm run package-mac
+#        env:
+#          APPLEID: ${{ secrets.APPLE_ID }}
+#          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}

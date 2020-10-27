@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -20,7 +20,7 @@ const Wrapper = styled.div`
       color: ${smColors.black};
       }
     `}
-    cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
 `;
 
 type Props = {
@@ -31,20 +31,10 @@ type Props = {
   style?: Object
 };
 
-class Link extends PureComponent<Props> {
-  static defaultProps = {
-    isPrimary: true,
-    isDisabled: false
-  };
-
-  render() {
-    const { onClick, isPrimary, isDisabled, text, style } = this.props;
-    return (
-      <Wrapper onClick={isDisabled ? null : onClick} isPrimary={isPrimary} isDisabled={isDisabled} style={style}>
-        {text}
-      </Wrapper>
-    );
-  }
-}
+const Link = ({ onClick, isPrimary = true, isDisabled = false, text, style }: Props) => (
+  <Wrapper onClick={isDisabled ? null : onClick} isPrimary={isPrimary} isDisabled={isDisabled} style={style}>
+    {text}
+  </Wrapper>
+);
 
 export default Link;

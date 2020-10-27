@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 import { CorneredWrapper } from '/basicComponents';
@@ -25,15 +25,10 @@ type Props = {
   className?: string
 };
 
-class NavTooltip extends PureComponent<Props> {
-  render() {
-    const { text, className } = this.props;
-    return (
-      <Wrapper className={className}>
-        <Text>{text}</Text>
-      </Wrapper>
-    );
-  }
-}
+const NavTooltip = ({ text, className }: Props) => (
+  <Wrapper className={className}>
+    <Text>{text}</Text>
+  </Wrapper>
+);
 
 export default NavTooltip;

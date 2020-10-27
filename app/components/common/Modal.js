@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React from 'react';
 import { CorneredContainer } from '/components/common';
 import styled from 'styled-components';
 import { smColors } from '/vars';
@@ -26,7 +26,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ hasError }) => (hasError ? smColors.orange : color)};
+  background-color: ${({ indColor }) => indColor};
 `;
 
 type Props = {
@@ -34,27 +34,17 @@ type Props = {
   subHeader: string,
   width?: number,
   height?: number,
-  isErrorModal?: boolean,
+  headerColor?: boolean,
   children: React.node
 };
 
-class Modal extends Component<Props> {
-  static defaultProps = {
-    width: 520,
-    height: 310
-  };
-
-  render() {
-    const { header, subHeader, isErrorModal, children, width, height } = this.props;
-    return (
-      <Wrapper>
-        <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} isErrorModal={isErrorModal}>
-          <Indicator hasError={isErrorModal} />
-          {children}
-        </CorneredContainer>
-      </Wrapper>
-    );
-  }
-}
+const Modal = ({ header, subHeader, headerColor, children, width = 520, height = 310 }: Props) => (
+  <Wrapper>
+    <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} headerColor={headerColor}>
+      <Indicator indColor={headerColor || color} />
+      {children}
+    </CorneredContainer>
+  </Wrapper>
+);
 
 export default Modal;

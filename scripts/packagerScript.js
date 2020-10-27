@@ -124,6 +124,7 @@ const getBuildOptions = ({ target, publish }) => {
             type: 'file'
           }
         ],
+        icon: path.join(__dirname, '..', 'resources', 'icon.ico'),
         title: 'Spacemesh'
       },
       win: {
