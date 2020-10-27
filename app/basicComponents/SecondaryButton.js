@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -71,7 +71,7 @@ const Wrapper = styled.div`
       border: 1px solid ${bgColor};
       }
     `}
-    cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
 `;
 
 type Props = {
@@ -87,26 +87,13 @@ type Props = {
   style?: Object
 };
 
-class SecondaryButton extends PureComponent<Props> {
-  static defaultProps = {
-    width: 25,
-    height: 25,
-    isPrimary: true,
-    isDisabled: false,
-    bgColor: smColors.black
-  };
-
-  render() {
-    const { onClick, width, height, isPrimary, isDisabled, imgWidth, imgHeight, img, style, bgColor } = this.props;
-    return (
-      <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} style={style} bgColor={bgColor}>
-        <UpperPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} bgColor={bgColor}>
-          <Image src={img} imgWidth={imgWidth} imgHeight={imgHeight} />
-        </UpperPart>
-        <LowerPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} bgColor={bgColor} />
-      </Wrapper>
-    );
-  }
-}
+const SecondaryButton = ({ onClick, width = 25, height = 25, isPrimary = true, isDisabled = false, imgWidth, imgHeight, img, style, bgColor = smColors.black }: Props) => (
+  <Wrapper onClick={isDisabled ? null : onClick} width={width} height={height} isDisabled={isDisabled} style={style} bgColor={bgColor}>
+    <UpperPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} bgColor={bgColor}>
+      <Image src={img} imgWidth={imgWidth} imgHeight={imgHeight} />
+    </UpperPart>
+    <LowerPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} bgColor={bgColor} />
+  </Wrapper>
+);
 
 export default SecondaryButton;
