@@ -9,6 +9,7 @@
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
+import fs from 'fs';
 import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
 import 'regenerator-runtime/runtime';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
@@ -103,6 +104,13 @@ const createWindow = () => {
 };
 
 app.on('ready', async () => {
+  const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
+  const bytes = fs.readFileSync(filePath);
+  // const bytes = await response.arrayBuffer();
+  const go = new Go(); // eslint-disable-line no-undef
+  const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
+  await go.run(instance);
+
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
     installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
