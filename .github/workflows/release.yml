@@ -18,6 +18,13 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
+      - id: latestNode
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: spacemeshos/go-spacemesh
+          excludes: prerelease, draft
+      - name: echo latest node repo
+        run: echo ${{steps.latestNode.outputs.release}}
       - name: Check out Git repository
         uses: actions/checkout@v2
 
@@ -47,3 +54,12 @@ jobs:
         run: |
           curl --output ./node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh.exe
           npm run package-win
+
+      - if: matrix.os == 'macos-latest;
+        name: download macos node binary
+        run: |
+          curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh-osx
+          npm run package-mac
+        env:
+          APPLEID: ${{secret.APPLE_ID}}
+          APPLEIDPASS: ${{secret.APPLE_ID_PASS}}
