@@ -2,12 +2,13 @@ name: Publish Release
 
 on:
   pull_request:
-    types: [ opened, closed ]
+    types: [ closed ]
     branches:
-      - dev
+      - master
   push:
     branches:
       - add-github-actions
+  workflow_dispatch:
 
 jobs:
   release:
@@ -24,7 +25,9 @@ jobs:
           repository: spacemeshos/go-spacemesh
           excludes: prerelease, draft
       - name: echo latest node repo
-        run: echo ${{steps.latestNode.outputs.release}}
+        run: |
+          echo ${{steps.latestNode.outputs.release}}
+      
       - name: Check out Git repository
         uses: actions/checkout@v2
 
