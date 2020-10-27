@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -38,20 +38,11 @@ type Props = {
   color: string
 };
 
-class Banner extends PureComponent<Props> {
-  static defaultProps = {
-    margin: '0'
-  };
-
-  render() {
-    const { children, margin, color } = this.props;
-    return (
-      <Wrapper margin={margin}>
-        <UpperPart color={color}>{children}</UpperPart>
-        <LowerPart color={color} />
-      </Wrapper>
-    );
-  }
-}
+const Banner = ({ children, margin = '0', color }: Props) => (
+  <Wrapper margin={margin}>
+    <UpperPart color={color}>{children}</UpperPart>
+    <LowerPart color={color} />
+  </Wrapper>
+);
 
 export default Banner;

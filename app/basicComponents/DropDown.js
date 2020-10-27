@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 import { chevronBottomBlack, chevronBottomWhite } from '/assets/images';
@@ -79,91 +79,66 @@ type Props = {
   whiteIcon?: boolean
 };
 
-type State = {
-  isOpened: boolean
-};
-
-class DropDown extends Component<Props, State> {
-  static defaultProps = {
-    rowHeight: 44,
-    rowContentCentered: true,
-    whiteIcon: false
-  };
-
-  state = {
-    isOpened: false
-  };
-
-  render() {
-    const { data, DdElement, selectedItemIndex, rowHeight, rowContentCentered, isDisabled, bgColor, style, whiteIcon } = this.props;
-    const { isOpened } = this.state;
-    const isDisabledComputed = isDisabled || !data || !data.length;
-    const icon = whiteIcon ? chevronBottomWhite : chevronBottomBlack;
-    return (
-      <Wrapper
-        isDisabled={isDisabledComputed}
-        style={style}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
-        <HeaderWrapper isOpened={isOpened} bgColor={bgColor} onClick={isDisabledComputed ? null : this.handleToggle} rowHeight={rowHeight}>
-          <DdElement isDisabled={isDisabled} {...data[selectedItemIndex]} isMain />
-          <Icon isOpened={isOpened} src={icon} />
-        </HeaderWrapper>
-        {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => this.renderRow({ item, index, rowHeight, rowContentCentered }))}</ItemsWrapper>}
-      </Wrapper>
-    );
-  }
-
-  componentDidUpdate() {
-    const { isOpened } = this.state;
+const DropDown = ({ data, DdElement, onPress, selectedItemIndex, rowHeight = 44, rowContentCentered = true, isDisabled, bgColor, style, whiteIcon = false }: Props) => {
+  const [isOpened, setIsOpened] = useState(false);
+  useEffect(() => {
     requestAnimationFrame(() => {
       if (isOpened) {
-        window.addEventListener('click', this.closeDropdown);
+        window.addEventListener('click', closeDropdown);
       } else {
-        window.removeEventListener('click', this.closeDropdown);
+        window.removeEventListener('click', closeDropdown);
       }
     });
-  }
+  }, [isOpened]);
 
-  renderRow = ({ item, index, rowHeight, rowContentCentered }: { item: Object, index: number, rowHeight?: number, rowContentCentered: boolean }) => {
-    const { onPress, DdElement } = this.props;
-    return (
-      <DropdownRow
-        rowContentCentered={rowContentCentered}
-        isDisabled={item.isDisabled}
-        key={`${item.label}${index}`}
-        onClick={
-          item.isDisabled
-            ? null
-            : (e: Event) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onPress({ index });
-                this.closeDropdown();
-              }
-        }
-        height={rowHeight}
-      >
-        <DdElement isDisabled={item.isDisabled} {...item} />
-      </DropdownRow>
-    );
+  const closeDropdown = () => {
+    setIsOpened(false);
   };
 
-  handleToggle = () => {
-    const { isOpened } = this.state;
-    if (isOpened) {
-      this.closeDropdown();
-    } else {
-      this.openDropdown();
-    }
+  const isDisabledComputed = isDisabled || !data || !data.length;
+  const icon = whiteIcon ? chevronBottomWhite : chevronBottomBlack;
+
+  const renderRow = ({ item, index, rowHeight, rowContentCentered }: { item: Object, index: number, rowHeight?: number, rowContentCentered: boolean }) => (
+    <DropdownRow
+      rowContentCentered={rowContentCentered}
+      isDisabled={item.isDisabled}
+      key={`${item.label}${index}`}
+      onClick={
+        item.isDisabled
+          ? null
+          : (e: Event) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onPress({ index });
+              setIsOpened(false);
+            }
+      }
+      height={rowHeight}
+    >
+      <DdElement isDisabled={item.isDisabled} {...item} />
+    </DropdownRow>
+  );
+
+  const handleToggle = () => {
+    setIsOpened(!isOpened);
   };
 
-  closeDropdown = () => this.setState({ isOpened: false });
-
-  openDropdown = () => this.setState({ isOpened: true });
-}
+  return (
+    <Wrapper
+      isDisabled={isDisabledComputed}
+      style={style}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      <HeaderWrapper isOpened={isOpened} bgColor={bgColor} onClick={isDisabledComputed ? null : handleToggle} rowHeight={rowHeight}>
+        <DdElement isDisabled={isDisabled} {...data[selectedItemIndex]} isMain />
+        <Icon isOpened={isOpened} src={icon} />
+      </HeaderWrapper>
+      {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item, index) => renderRow({ item, index, rowHeight, rowContentCentered }))}</ItemsWrapper>}
+    </Wrapper>
+  );
+};
 
 export default DropDown;
