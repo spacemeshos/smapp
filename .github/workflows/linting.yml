@@ -1,11 +1,6 @@
 name: Lint And App Build
 
 on:
-  pull_request:
-    branches-ignore:
-      - 'master'
-    tags-ignore:
-      - v0.*
   push:
     branches-ignore:
       - 'master'
