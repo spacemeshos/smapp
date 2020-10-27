@@ -8,6 +8,7 @@ const Wrapper = styled.div`
   width: 785px;
   height: 60px;
   margin: ${({ margin }) => margin};
+  visibility: ${({ visibility }) => (visibility ? 'visible' : 'hidden')};
 `;
 
 const UpperPart = styled.div`
@@ -34,12 +35,13 @@ const LowerPart = styled.div`
 
 type Props = {
   children: any,
+  visibility?: boolean,
   margin?: string,
   color: string
 };
 
-const Banner = ({ children, margin = '0', color }: Props) => (
-  <Wrapper margin={margin}>
+const Banner = ({ children, visibility = true, margin = '0', color }: Props) => (
+  <Wrapper margin={margin} visibility={visibility}>
     <UpperPart color={color}>{children}</UpperPart>
     <LowerPart color={color} />
   </Wrapper>

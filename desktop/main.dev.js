@@ -21,6 +21,15 @@ import StoreService from './storeService';
 import NodeManager from './nodeManager';
 import './wasm_exec';
 
+(async function () {
+  const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
+  const bytes = fs.readFileSync(filePath);
+  // const bytes = await response.arrayBuffer();
+  const go = new Go(); // eslint-disable-line no-undef
+  const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
+  await go.run(instance);
+})();
+
 const unhandled = require('electron-unhandled');
 
 unhandled();
@@ -104,13 +113,6 @@ const createWindow = () => {
 };
 
 app.on('ready', async () => {
-  const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
-  const bytes = fs.readFileSync(filePath);
-  // const bytes = await response.arrayBuffer();
-  const go = new Go(); // eslint-disable-line no-undef
-  const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
-  await go.run(instance);
-
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
     installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console

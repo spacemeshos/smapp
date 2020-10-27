@@ -1,9 +1,7 @@
 // @flow
-import React, { Component } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-
-const DEFAULT_DEBOUNCE_TIME = 500;
 
 const Input = styled.input`
   position: relative;
@@ -42,80 +40,23 @@ const Input = styled.input`
 `;
 
 type Props = {
-  onChange?: ({ value: string }) => void,
-  onChangeDebounced?: ({ value: string }) => void,
-  onEnterPress?: () => void | Promise<any>,
-  onFocus?: ({ target: Object }) => void,
+  onChange: ({ value: string }) => void,
   value: string,
   checked?: boolean,
-  name?: string,
-  debounceTime?: number,
-  autofocus?: boolean
+  name?: string
 };
 
-type State = {
-  isFocused: boolean
-};
-
-class RadioButton extends Component<Props, State> {
-  debounce: TimeoutID;
-
-  state = {
-    isFocused: false
-  };
-
-  render() {
-    const { value, autofocus, checked, name } = this.props;
-    const { isFocused } = this.state;
-
-    return (
-      <Input
-        value={value}
-        checked={checked}
-        name={name}
-        onKeyPress={this.onEnterPress}
-        onChange={this.onChange}
-        onFocus={this.handleFocus}
-        type="radio"
-        onBlur={() => this.setState({ isFocused })}
-        autoFocus={autofocus}
-      />
-    );
-  }
-
-  componentWillUnmount(): void {
-    const { onChangeDebounced } = this.props;
-    onChangeDebounced && clearTimeout(this.debounce);
-  }
-
-  onEnterPress = ({ key }: { key: string }) => {
-    const { onEnterPress } = this.props;
-    if (key === 'Enter' && !!onEnterPress) {
-      onEnterPress();
-    }
-  };
-
-  onChange = ({ target }: { target: { value: string } }) => {
-    const { onChangeDebounced, debounceTime, onChange } = this.props;
-    const { value } = target;
-    onChange && onChange({ value });
-    if (onChangeDebounced) {
-      clearTimeout(this.debounce);
-      if (!value) {
-        onChangeDebounced({ value });
-      } else {
-        this.debounce = setTimeout(() => onChangeDebounced({ value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
-      }
-    }
-  };
-
-  handleFocus = (event: Event) => {
-    const { onFocus } = this.props;
-    const target = event.target;
-    this.setState({ isFocused: true }, () => {
-      onFocus && onFocus({ target });
-    });
-  };
-}
+const RadioButton = ({ onChange, value, checked, name }: Props) => (
+  <Input
+    value={value}
+    checked={checked}
+    name={name}
+    onChange={({ target }: { target: { value: string } }) => {
+      const { value } = target;
+      onChange({ value });
+    }}
+    type="radio"
+  />
+);
 
 export default RadioButton;
