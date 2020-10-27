@@ -39,11 +39,11 @@ jobs:
       - if: matrix.os == 'ubuntu-latest'
         name: download linux node binary
         run: |
-          curl -o ../node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh-linux
+          curl --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh-linux
           npm run package-linux
 
       - if: matrix.os == 'windows-latest'
         name: download windows node binary
         run: |
-          -o ../node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh.exe
+          curl --output ./node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh.exe
           npm run package-win
