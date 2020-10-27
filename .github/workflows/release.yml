@@ -1,13 +1,9 @@
 name: Publish Release
 
 on:
-  pull_request:
-    types: [ closed ]
-    branches:
-      - master
   push:
     branches:
-      - add-github-actions
+      - master
   workflow_dispatch:
 
 jobs:
