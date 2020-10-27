@@ -4,14 +4,13 @@ on:
   pull_request:
     branches-ignore:
       - 'master'
-      tags-ignore:
-        - v0.*
+    tags-ignore:
+      - v0.*
   push:
-    branches:
-      branches-ignore:
-        - 'master'
-      tags-ignore:
-        - v0.*
+    branches-ignore:
+      - 'master'
+    tags-ignore:
+      - v0.*
   workflow_dispatch:
 
 jobs:
