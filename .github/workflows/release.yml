@@ -3,7 +3,7 @@ name: Publish Release
 on:
   pull_request:
   push:
-    branches: 
+    branches:
       - add-github-actions
 
 jobs:
@@ -32,3 +32,13 @@ jobs:
         run: |
           npm run lint-ci
           npm run build-dll
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: download linux node binary
+
+        run: |
+          npm run package-linux
+
+      - if: matrix.os == 'windows-latest'
+        run |
+          npm run package-win
