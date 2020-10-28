@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { CorneredWrapper } from '/basicComponents';
 import { smColors } from '/vars';
@@ -49,7 +49,7 @@ const SubHeader = styled.div`
 `;
 
 type Props = {
-  children: any,
+  children: React.node,
   width: number,
   height: number,
   header: string,
@@ -60,47 +60,28 @@ type Props = {
   isDarkModeOn: boolean
 };
 
-class CorneredContainer extends PureComponent<Props> {
-  static defaultProps = {
-    headerColor: smColors.white
-  };
+const CorneredContainer = ({ children, width, height, header, headerColor, headerIcon, subHeader, useEmptyWrap, isDarkModeOn }: Props) => {
+  const ResolvedWrapper = useEmptyWrap ? DivWrapper : Wrapper;
+  const color = headerColor || isDarkModeOn ? smColors.white : smColors.realBlack;
 
-  render() {
-    const { children, width, height, header, headerColor, headerIcon, subHeader, useEmptyWrap, isDarkModeOn } = this.props;
-    const color = headerColor || isDarkModeOn ? smColors.white : smColors.realBlack;
-
-    return useEmptyWrap ? (
-      <DivWrapper width={width} height={height}>
+  return (
+    <ResolvedWrapper width={width} height={height}>
+      {header && (
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
           <Header color={color}>{header}</Header>
         </HeaderWrapper>
-        {subHeader && (
-          <SubHeader>
-            --
-            <br />
-            {subHeader}
-          </SubHeader>
-        )}
-        {children}
-      </DivWrapper>
-    ) : (
-      <Wrapper width={width} height={height} isDarkModeOn={isDarkModeOn}>
-        <HeaderWrapper>
-          {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={color}>{header}</Header>
-        </HeaderWrapper>
-        {subHeader && (
-          <SubHeader>
-            --
-            <br />
-            {subHeader}
-          </SubHeader>
-        )}
-        {children}
-      </Wrapper>
-    );
-  }
-}
+      )}
+      {subHeader && (
+        <SubHeader>
+          --
+          <br />
+          {subHeader}
+        </SubHeader>
+      )}
+      {children}
+    </ResolvedWrapper>
+  );
+};
 
 export default CorneredContainer;

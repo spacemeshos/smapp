@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   topLeftCorner,
@@ -55,24 +55,20 @@ type Props = {
   isDarkModeOn?: boolean
 };
 
-class CorneredWrapper extends PureComponent<Props> {
-  render() {
-    const { children, className, isDarkModeOn } = this.props;
-    const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
-    const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
-    const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
-    const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
-
-    return (
-      <Wrapper className={className}>
-        <TopLeftCorner src={topLeft} />
-        <TopRightCorner src={topRight} />
-        <BottomLeftCorner src={bottomLeft} />
-        <BottomRightCorner src={bottomRight} />
-        {children}
-      </Wrapper>
-    );
-  }
-}
+const CorneredWrapper = ({ children, className, isDarkModeOn}: Props) => {
+  const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
+  const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
+  const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
+  const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
+  return (
+    <Wrapper className={className}>
+      <TopLeftCorner src={topLeft} />
+      <TopRightCorner src={topRight} />
+      <BottomLeftCorner src={bottomLeft} />
+      <BottomRightCorner src={bottomRight} />
+      {children}
+    </Wrapper>
+  )
+};
 
 export default CorneredWrapper;

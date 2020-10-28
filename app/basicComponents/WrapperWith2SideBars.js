@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { sidePanelRightLong, sidePanelRightLongWhite, sidePanelLeftLong, sidePanelLeftLongWhite } from '/assets/images';
 import { smColors } from '/vars';
@@ -62,36 +62,31 @@ type Props = {
   isDarkModeOn?: boolean
 };
 
-class WrapperWith2SideBars extends PureComponent<Props> {
-  static defaultProps = {
-    height: '100%'
-  };
+const WrapperWith2SideBars = ({ width, height = '100%', header, headerIcon, subHeader, children, style, isDarkModeOn }: Props) => {
+const leftImg = isDarkModeOn ? sidePanelLeftLongWhite : sidePanelLeftLong;
+const rightImg = isDarkModeOn ? sidePanelRightLongWhite : sidePanelRightLong;
 
-  render() {
-    const { width, height, header, headerIcon, subHeader, children, style, isDarkModeOn } = this.props;
-    const leftImg = isDarkModeOn ? sidePanelLeftLongWhite : sidePanelLeftLong;
-    const rightImg = isDarkModeOn ? sidePanelRightLongWhite : sidePanelRightLong;
-    return (
-      <Wrapper width={width} height={height} style={style}>
-        <SideBar src={leftImg} />
-        <MainWrapperInner>
-          <HeaderWrapper>
-            {headerIcon && <HeaderIcon src={headerIcon} />}
-            <Header>{header}</Header>
-          </HeaderWrapper>
-          <SubHeader>--</SubHeader>
-          {subHeader && (
-            <SubHeader>
-              {subHeader}
-              <br />
-              <br />
-            </SubHeader>
-          )}
-          {children}
-        </MainWrapperInner>
-        <SideBar src={rightImg} />
-      </Wrapper>
-    );
-  }
-}
+return (
+  <Wrapper width={width} height={height} style={style}>
+    <SideBar src={leftImg} />
+    <MainWrapperInner>
+      <HeaderWrapper>
+        {headerIcon && <HeaderIcon src={headerIcon} />}
+        <Header>{header}</Header>
+      </HeaderWrapper>
+      <SubHeader>--</SubHeader>
+      {subHeader && (
+        <SubHeader>
+          {subHeader}
+          <br />
+          <br />
+        </SubHeader>
+      )}
+      {children}
+    </MainWrapperInner>
+    <SideBar src={rightImg} />
+  </Wrapper>
+)
+};
+
 export default WrapperWith2SideBars;

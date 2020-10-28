@@ -124,7 +124,7 @@ class PoSSize extends Component<Props, State> {
         <Row>
           <Icon1 src={posSpace} />
           <Text>Proof of space size</Text>
-          <Tooltip top={-2} left={-3} width={200} text="Some text" />
+          <Tooltip width={200} text="Some text" />
           <Dots>.....................................................</Dots>
           <DropDown
             data={commitments}
@@ -139,7 +139,7 @@ class PoSSize extends Component<Props, State> {
         <Row>
           <Icon2 src={posRewardEst} />
           <Text>Estimated coin reward</Text>
-          <Tooltip top={-2} left={-3} width={200} text="Some text" />
+          <Tooltip width={200} text="Some text" />
           <Dots>.....................................................</Dots>
           <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? '10 SMESH / MONTH' : '0 SMESH / MONTH'}</RewardText>
         </Row>

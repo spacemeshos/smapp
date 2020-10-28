@@ -87,7 +87,7 @@ class VaultTx extends Component<Props> {
       <>
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
-          <Tooltip top="-2" left="-3" width="250" text="Tooltip 1" />
+          <Tooltip width="250" text="Tooltip 1" />
           <Dots />
           <DropDown
             data={accounts}
@@ -101,7 +101,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Fund Amount</DetailsText>
-          <Tooltip top="-2" left="-3" width="250" text="Tooltip 2" />
+          <Tooltip width="250" text="Tooltip 2" />
           <Dots />
           <DropDown
             data={accounts}
@@ -115,7 +115,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Max Gas Units</DetailsText>
-          <Tooltip top="-2" left="-3" width="250" text="Tooltip 3" />
+          <Tooltip width="250" text="Tooltip 3" />
           <Dots />
           <DropDown
             data={gasUnit}
@@ -129,7 +129,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Gas Unit Price</DetailsText>
-          <Tooltip top="-2" left="-3" width="250" text="Tooltip 4" />
+          <Tooltip width="250" text="Tooltip 4" />
           <Dots />
           <DropDown
             data={unitPrice}

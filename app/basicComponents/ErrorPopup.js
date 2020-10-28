@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { closePopup } from '/assets/images';
 import { smColors } from '/vars';
@@ -34,16 +34,11 @@ type Props = {
   style?: Object
 };
 
-class ErrorPopup extends PureComponent<Props> {
-  render() {
-    const { onClick, text, style } = this.props;
-    return (
-      <Wrapper onClick={onClick} style={style}>
-        <CloseImg src={closePopup} />
-        <PopupText>{text}</PopupText>
-      </Wrapper>
-    );
-  }
-}
+const ErrorPopup = ({ onClick, text, style }: Props) => (
+  <Wrapper onClick={onClick} style={style}>
+    <CloseImg src={closePopup} />
+    <PopupText>{text}</PopupText>
+  </Wrapper>
+);
 
 export default ErrorPopup;

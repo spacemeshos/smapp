@@ -11,7 +11,8 @@
 import path from 'path';
 import fs from 'fs';
 import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
-import installExtension, { REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import 'regenerator-runtime/runtime';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
@@ -113,7 +114,7 @@ const createWindow = () => {
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console // TODO: investigate error on downloading
+    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
     installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }
 

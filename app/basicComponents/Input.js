@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
@@ -55,77 +55,70 @@ type Props = {
   autofocus?: boolean
 };
 
-type State = {
-  isFocused: boolean
-};
+const Input = ({
+  onChange,
+  onChangeDebounced,
+  onFocus,
+  onEnterPress,
+  value,
+  isDisabled,
+  placeholder = '',
+  extraText,
+  debounceTime,
+  style,
+  type = 'text',
+  maxLength,
+  autofocus
+}: Props) => {
+  const [isFocused, setIsFocused] = useState(false);
+  useEffect(() => {
+    return () => {
+      clearTimeout(debounce);
+    };
+  }, []);
 
-class Input extends Component<Props, State> {
-  debounce: TimeoutID;
+  let debounce: TimeoutID = null;
 
-  static defaultProps = {
-    type: 'text',
-    placeholder: ''
-  };
-
-  state = {
-    isFocused: false
-  };
-
-  render() {
-    const { value, isDisabled, placeholder, extraText, style, type, maxLength, autofocus } = this.props;
-    const { isFocused } = this.state;
-    return (
-      <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
-        <ActualInput
-          value={value}
-          readOnly={isDisabled}
-          placeholder={placeholder}
-          onKeyPress={this.onEnterPress}
-          onChange={this.onChange}
-          onFocus={this.handleFocus}
-          onBlur={() => this.setState({ isFocused: false })}
-          type={type}
-          maxLength={maxLength}
-          autoFocus={autofocus}
-        />
-        {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
-      </Wrapper>
-    );
-  }
-
-  componentWillUnmount(): void {
-    const { onChangeDebounced } = this.props;
-    onChangeDebounced && clearTimeout(this.debounce);
-  }
-
-  onEnterPress = ({ key }: { key: string }) => {
-    const { onEnterPress } = this.props;
+  const handleEnterPress = ({ key }: { key: string }) => {
     if (key === 'Enter' && !!onEnterPress) {
       onEnterPress();
     }
   };
 
-  onChange = ({ target }: { target: { value: string } }) => {
-    const { onChangeDebounced, debounceTime, onChange } = this.props;
+  const handleChange = ({ target }: { target: { value: string } }) => {
     const { value } = target;
     onChange && onChange({ value });
     if (onChangeDebounced) {
-      clearTimeout(this.debounce);
+      clearTimeout(debounce);
       if (!value) {
         onChangeDebounced({ value });
       } else {
-        this.debounce = setTimeout(() => onChangeDebounced({ value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
+        debounce = setTimeout(() => onChangeDebounced({ value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
       }
     }
   };
 
-  handleFocus = (event: Event) => {
-    const { onFocus } = this.props;
-    const target = event.target;
-    this.setState({ isFocused: true }, () => {
-      onFocus && onFocus({ target });
-    });
+  const handleFocus = (event: Event) => {
+    onFocus && onFocus({ target: event.target });
   };
-}
+
+  return (
+    <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
+      <ActualInput
+        value={value}
+        readOnly={isDisabled}
+        placeholder={placeholder}
+        onKeyPress={handleEnterPress}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={() => setIsFocused(false)}
+        type={type}
+        maxLength={maxLength}
+        autoFocus={autofocus}
+      />
+      {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
+    </Wrapper>
+  );
+};
 
 export default Input;

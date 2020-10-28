@@ -1,6 +1,6 @@
 // @flow
 import React, { Component } from 'react';
-import { RouterHistory } from 'react-router-dom';
+import type { RouterHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -55,7 +55,7 @@ const GrayText = styled.div`
   align-items: center;
   font-size: 14px;
   text-transform: uppercase;
-  color: ${smColors.dark75Alpha};
+  color: ${isDarkModeOn ? smColors.white : smColors.dark75Alpha};
 `;
 
 const DetailsTextWrap = styled.div`
@@ -82,7 +82,7 @@ type Props = {
   history: RouterHistory
 };
 
-class Network extends Component<Props, State> {
+class Network extends Component<Props> {
   render() {
     const { status, nodeIndicator, genesisTime } = this.props;
 

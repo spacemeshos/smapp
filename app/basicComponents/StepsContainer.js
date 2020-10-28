@@ -1,5 +1,5 @@
 // @flow
-import React, { PureComponent } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { sidePanelRightMed, sidePanelRightMedWhite, sidePanelLeftMed, sidePanelLeftMedWhite, checkBlack, checkWhite } from '/assets/images';
 import { smColors } from '/vars';
@@ -82,27 +82,22 @@ type Props = {
   currentStep: number
 };
 
-class StepsContainer extends PureComponent<Props> {
-  render() {
-    const { steps, header, currentStep } = this.props;
-    return (
-      <Wrapper>
-        <SideBar src={leftImg} />
-        <InnerWrapper>
-          <Header>{header}</Header>
-          {steps.map((step, index) => (
-            <StepContainer key={step} isFuture={index > currentStep}>
-              <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>
-                {step}
-              </StepText>
-              {index < currentStep ? <Icon src={checkIcon} /> : <Indicator isCurrent={index === currentStep}>{index + 1}</Indicator>}
-            </StepContainer>
-          ))}
-        </InnerWrapper>
-        <SideBar src={rightImg} />
-      </Wrapper>
-    );
-  }
-}
+const StepsContainer = ({ steps, header, currentStep }: Props) => (
+  <Wrapper>
+    <SideBar src={leftImg} />
+    <InnerWrapper>
+      <Header>{header}</Header>
+      {steps.map((step, index) => (
+        <StepContainer key={step} isFuture={index > currentStep}>
+          <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>
+            {step}
+          </StepText>
+          {index < currentStep ? <Icon src={checkIcon} /> : <Indicator isCurrent={index === currentStep}>{index + 1}</Indicator>}
+        </StepContainer>
+      ))}
+    </InnerWrapper>
+    <SideBar src={rightImg} />
+  </Wrapper>
+);
 
 export default StepsContainer;

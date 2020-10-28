@@ -318,9 +318,9 @@ class Main extends Component<Props, State> {
     if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
       return { activeRouteIndex: -1 };
     } else if (pathname.indexOf('contacts') !== -1) {
+      return { activeRouteIndex: 3 };
+    } else if (pathname.indexOf('send-coins') !== -1 && prevState.activeRouteIndex === 3) {
       return { activeRouteIndex: 2 };
-    } else if (pathname.indexOf('send-coins') !== -1 && prevState.activeRouteIndex === 2) {
-      return { activeRouteIndex: 1 };
     }
     return null;
   }
