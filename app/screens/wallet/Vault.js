@@ -1,6 +1,7 @@
 // @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { NewVault, VaultType, VaultMasterAccount, VaultMasterAccounts, DailySpending, VaultTx, ReviewNewVault, VaultFinish } from '/components/vault';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
@@ -15,7 +16,9 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
-type Props = {};
+type Props = {
+  isDarkModeOn: boolean
+};
 
 type State = {
   mode: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7,
@@ -57,8 +60,9 @@ class Vault extends Component<Props, State> {
 
   render() {
     const { mode, name } = this.state;
+    const { isDarkModeOn } = this.props;
     return (
-      <CorneredContainer header={headers[mode]} headerIcon={vault} subHeader={subHeader[mode]} useEmptyWrap>
+      <CorneredContainer header={headers[mode]} headerIcon={vault} subHeader={subHeader[mode]} isDarkModeOn={isDarkModeOn} useEmptyWrap>
         {this.renderVaultSteps(mode)}
         <Footer>
           <Link onClick={this.navigateToVaultSetup} text="VAULT SETUP GIDE" />
@@ -117,4 +121,9 @@ class Vault extends Component<Props, State> {
   navigateToVaultSetup = () => shell.openExternal('https://product.spacemesh.io/#/smapp_vaults');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+Vault = connect(mapStateToProps, null)(Vault);
 export default Vault;

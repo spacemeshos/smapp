@@ -35,6 +35,7 @@ type Props = {
   width?: number,
   height?: number,
   isErrorModal?: boolean,
+  isDarkModeOn: boolean,
   children: React.node
 };
 
@@ -45,10 +46,10 @@ class Modal extends Component<Props> {
   };
 
   render() {
-    const { header, subHeader, isErrorModal, children, width, height } = this.props;
+    const { header, subHeader, isErrorModal, children, width, height, isDarkModeOn } = this.props;
     return (
       <Wrapper>
-        <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} isErrorModal={isErrorModal}>
+        <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} isErrorModal={isErrorModal} isDarkModeOn={isDarkModeOn}>
           <Indicator hasError={isErrorModal} />
           {children}
         </CorneredContainer>

@@ -115,7 +115,7 @@ class UnlockWallet extends Component<Props, State> {
     return (
       <Wrapper>
         {isLoggedOutBannerVisible && <LoggedOutBanner key="banner" />}
-        <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main">
+        <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkModeOn={isDarkModeOn}>
           <Text>Please enter your wallet password.</Text>
           <Indicator hasError={hasError} />
           <SmallSideBar src={smallInnerSideBar} />

@@ -108,7 +108,7 @@ class Node extends Component<Props, State> {
   }
 
   render() {
-    const { rewards } = this.props;
+    const { rewards, isDarkModeOn } = this.props;
     const smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
     this.smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
     const smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
@@ -118,7 +118,7 @@ class Node extends Component<Props, State> {
         <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} />
+        <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} isDarkModeOn={isDarkModeOn}/>
       </Wrapper>
     );
   }

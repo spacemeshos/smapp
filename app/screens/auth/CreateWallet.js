@@ -118,7 +118,7 @@ class CreateWallet extends Component<Props, State> {
           header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
         />
-        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)} isDarkModeOn={isDarkModeOn}>
           <SmallHorizontalPanel />
           {subMode === 1 && (
             <>

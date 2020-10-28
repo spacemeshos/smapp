@@ -3,11 +3,6 @@ import styled from 'styled-components';
 import { CorneredWrapper } from '/basicComponents';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const backgroundColor = isDarkModeOn ? smColors.dmBlack2 : smColors.lightGray;
-const color1 = isDarkModeOn ? smColors.white : smColors.realBlack;
-const color2 = isDarkModeOn ? smColors.white : smColors.black;
-
 const Wrapper = styled(CorneredWrapper)`
   display: flex;
   flex-direction: column;
@@ -15,7 +10,7 @@ const Wrapper = styled(CorneredWrapper)`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const DivWrapper = styled.div`
@@ -25,7 +20,7 @@ const DivWrapper = styled.div`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const HeaderWrapper = styled.div`
@@ -50,7 +45,7 @@ const SubHeader = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${color2};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 type Props = {
@@ -61,22 +56,24 @@ type Props = {
   headerColor?: string,
   headerIcon?: Object,
   subHeader?: string,
-  useEmptyWrap: boolean
+  useEmptyWrap: boolean,
+  isDarkModeOn: boolean
 };
 
 class CorneredContainer extends PureComponent<Props> {
   static defaultProps = {
-    headerColor: color1
+    headerColor: smColors.white
   };
 
   render() {
-    const { children, width, height, header, headerColor, headerIcon, subHeader, useEmptyWrap } = this.props;
+    const { children, width, height, header, headerColor, headerIcon, subHeader, useEmptyWrap, isDarkModeOn } = this.props;
+    const color = headerColor || isDarkModeOn ? smColors.white : smColors.realBlack;
 
     return useEmptyWrap ? (
       <DivWrapper width={width} height={height}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={headerColor}>{header}</Header>
+          <Header color={color}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
@@ -88,10 +85,10 @@ class CorneredContainer extends PureComponent<Props> {
         {children}
       </DivWrapper>
     ) : (
-      <Wrapper width={width} height={height}>
+      <Wrapper width={width} height={height} isDarkModeOn={isDarkModeOn}>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={headerColor}>{header}</Header>
+          <Header color={color}>{header}</Header>
         </HeaderWrapper>
         {subHeader && (
           <SubHeader>
