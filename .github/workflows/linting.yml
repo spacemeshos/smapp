@@ -37,7 +37,7 @@ jobs:
       - if: matrix.os == 'macos-latest'
         name: download macos node binary
         run: |
-          curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-osx
+          curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/v0.1.15-a/go-spacemesh-osx
           npm run package-mac
         env:
           CSC_LINK: ${{ secrets.SIGNING_CERTIFICATE_P12_DATA }}
