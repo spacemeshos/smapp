@@ -118,7 +118,7 @@ class Node extends Component<Props, State> {
         <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} isDarkModeOn={isDarkModeOn}/>
+        <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} isDarkModeOn={isDarkModeOn} />
       </Wrapper>
     );
   }

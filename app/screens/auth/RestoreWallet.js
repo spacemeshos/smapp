@@ -30,7 +30,6 @@ class RestoreWallet extends PureComponent<Props> {
   navigateToWalletGuide = () => shell.openExternal('https://testnet.spacemesh.io/');
 }
 
-
 const mapStateToProps = (state) => ({
   isDarkModeOn: state.ui.isDarkMode
 });

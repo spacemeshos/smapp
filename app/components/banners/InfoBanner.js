@@ -25,6 +25,6 @@ const mapStateToProps = (state) => ({
   nodeIndicator: state.node.nodeIndicator
 });
 
-const ConnectedInfoBanner = connect<any, any, _, _, _, _>(mapStateToProps)(InfoBanner);
+const ConnectedInfoBanner = connect(mapStateToProps)(InfoBanner);
 
 export default ConnectedInfoBanner;

@@ -10,7 +10,7 @@
  */
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow, ipcMain, Tray, Menu, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, Tray, Menu, dialog, nativeTheme } from 'electron';
 import 'regenerator-runtime/runtime';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
@@ -137,6 +137,8 @@ app.on('ready', async () => {
   });
 
   ipcMain.handle(ipcConsts.IS_APP_MINIMIZED, () => mainWindow.isMinimized());
+
+  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
 
   ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
     path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')

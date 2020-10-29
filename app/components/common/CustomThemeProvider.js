@@ -1,6 +1,6 @@
 // @flow
-import React, { Component } from 'react';
-import { remote } from 'electron';
+import React, { useEffect, useState } from 'react';
+import { eventsService } from '/infra/eventsService';
 import { connect } from 'react-redux';
 import { ThemeProvider, withTheme } from 'styled-components';
 import { switchTheme } from '/redux/ui/actions';
@@ -12,19 +12,26 @@ type Props = {
   switchTheme: Action
 };
 
-class CustomThemeProvider extends Component<Props> {
-  render() {
-    const { isDarkModeOn, children } = this.props;
+const CustomThemeProvider = (props: Props) => {
+  const { isDarkModeOn, children, switchTheme } = props;
 
-    return <ThemeProvider theme={{ isDarkModeOn }}>{children}</ThemeProvider>;
-  }
+  const [useDarkColor, setUseDarkColor] = useState(false);
 
-  componentDidMount() {
-    const { switchTheme } = this.props;
-    // Set dark theme if OS use it
-    remote.nativeTheme.shouldUseDarkColors && switchTheme();
-  }
-}
+  useEffect(() => {
+    const fetchOSThemeColor = async () => {
+      const result = await eventsService.getOsThemeColor();
+      setUseDarkColor(result);
+    };
+
+    fetchOSThemeColor().catch();
+  }, []);
+
+  useEffect(() => {
+    useDarkColor && switchTheme();
+  }, [useDarkColor]);
+
+  return <ThemeProvider theme={{ isDarkModeOn }}>{children}</ThemeProvider>;
+};
 
 const mapStateToProps = (state) => ({
   isDarkModeOn: state.ui.isDarkMode
@@ -34,6 +41,4 @@ const mapDispatchToProps = {
   switchTheme
 };
 
-CustomThemeProvider = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(withTheme(CustomThemeProvider));
-
-export default CustomThemeProvider;
+export default connect(mapStateToProps, mapDispatchToProps)(withTheme(CustomThemeProvider));

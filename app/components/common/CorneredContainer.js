@@ -10,7 +10,7 @@ const Wrapper = styled(CorneredWrapper)`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
-  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.lightGray)};
 `;
 
 const DivWrapper = styled.div`

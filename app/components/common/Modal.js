@@ -1,11 +1,9 @@
 // @flow
 import React from 'react';
+import { connect } from 'react-redux';
 import { CorneredContainer } from '/components/common';
 import styled from 'styled-components';
 import { smColors } from '/vars';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const color = isDarkModeOn ? smColors.white : smColors.black;
 
 const Wrapper = styled.div`
   position: fixed;
@@ -39,13 +37,20 @@ type Props = {
   children: React.node
 };
 
-const Modal = ({ header, subHeader, headerColor, children, isDarkModeOn, width = 520, height = 310 }: Props) => (
-  <Wrapper>
-    <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} headerColor={headerColor} isDarkModeOn={isDarkModeOn}>
-      <Indicator indColor={headerColor || color} />
-      {children}
-    </CorneredContainer>
-  </Wrapper>
-);
+const Modal = ({ header, subHeader, headerColor, children, isDarkModeOn, width = 520, height = 310 }: Props) => {
+  const color = isDarkModeOn ? smColors.white : smColors.black;
+  return (
+    <Wrapper>
+      <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} headerColor={headerColor} isDarkModeOn={isDarkModeOn}>
+        <Indicator indColor={headerColor || color} />
+        {children}
+      </CorneredContainer>
+    </Wrapper>
+  );
+};
 
-export default Modal;
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+export default connect(mapStateToProps, null)(Modal);

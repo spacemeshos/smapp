@@ -55,7 +55,7 @@ const GrayText = styled.div`
   align-items: center;
   font-size: 14px;
   text-transform: uppercase;
-  color: ${isDarkModeOn ? smColors.white : smColors.dark75Alpha};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.dark75Alpha)};
 `;
 
 const DetailsTextWrap = styled.div`
@@ -79,17 +79,18 @@ type Props = {
   genesisTime: string,
   status: Object,
   nodeIndicator: Object,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 class Network extends Component<Props> {
   render() {
-    const { status, nodeIndicator, genesisTime } = this.props;
+    const { status, nodeIndicator, genesisTime, isDarkModeOn } = this.props;
 
     const networkName = 'TweedleDee 0.1.0';
 
     return (
-      <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={networkName}>
+      <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={networkName} isDarkModeOn={isDarkModeOn}>
         <Container>
           <Message color={nodeIndicator.color}>{nodeIndicator.message}</Message>
           <DetailsWrap>
@@ -190,7 +191,8 @@ class Network extends Component<Props> {
 const mapStateToProps = (state) => ({
   status: state.node.status,
   genesisTime: state.node.genesisTime,
-  nodeIndicator: state.node.nodeIndicator
+  nodeIndicator: state.node.nodeIndicator,
+  isDarkModeOn: state.ui.isDarkModeOn
 });
 
 Network = connect(mapStateToProps)(Network);

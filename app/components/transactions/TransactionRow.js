@@ -134,6 +134,7 @@ const LinkEdit = styled.span`
   color: ${smColors.blue};
   text-decoration: underline;
   margin-left: 5px;
+  cursor: pointer;
 `;
 
 const ButtonsWrapper = styled.div`
