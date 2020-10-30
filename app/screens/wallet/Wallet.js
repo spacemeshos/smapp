@@ -33,7 +33,7 @@ const BackupReminder = styled.div`
   height: 50px;
   margin-top: 10px;
   padding: 0 15px;
-  background-color:: ${({ theme }) => (theme.isDarkModeOn ? smColors.dMBlack1 : smColors.black02Alpha)};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dMBlack1 : smColors.black02Alpha)};
   cursor: pointer;
 `;
 

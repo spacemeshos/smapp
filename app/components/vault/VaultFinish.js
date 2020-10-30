@@ -4,15 +4,12 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { vaultSecond, vaultSecondWhite, vault, circle, wallet } from '/assets/images';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const textColor = isDarkModeOn ? smColors.white : smColors.black;
-
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: end;
-  color: ${textColor};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   margin-bottom: 15px;
 `;
 
@@ -36,8 +33,13 @@ const GreenText = styled.div`
   color: ${smColors.green};
 `;
 
-class VaultFinish extends Component<Props, State> {
+type Props = {
+  isDarkModeOn: boolean
+};
+
+class VaultFinish extends Component<Props> {
   render() {
+    const { isDarkModeOn } = this.props;
     return (
       <>
         <LockIcon src={isDarkModeOn ? vaultSecondWhite : vaultSecond} />

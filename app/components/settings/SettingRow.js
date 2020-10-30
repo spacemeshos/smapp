@@ -3,8 +3,6 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -16,15 +14,15 @@ const UpperPart = styled.div`
   flex-direction: row;
   margin-bottom: 10px;
   padding: 10px 0;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
-  border-bottom: 1px solid ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
+  border-bottom: ${({ theme }) => `1px solid ${theme.isDarkModeOn ? smColors.white : smColors.realBlack}`};
 `;
 
 const UpperPartLeft = styled.div`
   display: flex;
   align-items: center;
   flex: 2;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const UpperPartRight = styled.div`
@@ -38,13 +36,13 @@ const UpperPartRight = styled.div`
 const Name = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 type Props = {

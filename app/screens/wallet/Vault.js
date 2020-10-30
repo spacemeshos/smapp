@@ -74,30 +74,31 @@ class Vault extends Component<Props, State> {
 
   renderVaultSteps = (mode) => {
     const { name, type, masterAccountIndex } = this.state;
+    const { isDarkModeOn } = this.props;
     switch (mode) {
       case 0: {
-        return <NewVault vaultName={name} onChangeVaultName={this.handleChangeVaultName} />;
+        return <NewVault vaultName={name} onChangeVaultName={this.handleChangeVaultName} isDarkModeOn={isDarkModeOn} />;
       }
       case 1: {
         return <VaultType handleChangeType={this.handleChangeType} type={type} />;
       }
       case 2: {
-        return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={this.selectedAccountIndex} />;
+        return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={this.selectedAccountIndex} isDarkModeOn={isDarkModeOn} />;
       }
       case 3: {
-        return <VaultMasterAccounts />;
+        return <VaultMasterAccounts isDarkModeOn={isDarkModeOn} />;
       }
       case 4: {
-        return <DailySpending />;
+        return <DailySpending isDarkModeOn={isDarkModeOn} />;
       }
       case 5: {
-        return <VaultTx />;
+        return <VaultTx isDarkModeOn={isDarkModeOn} />;
       }
       case 6: {
-        return <ReviewNewVault />;
+        return <ReviewNewVault isDarkModeOn={isDarkModeOn} />;
       }
       case 7: {
-        return <VaultFinish />;
+        return <VaultFinish isDarkModeOn={isDarkModeOn} />;
       }
       default: {
         return null;

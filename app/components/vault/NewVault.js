@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { Tooltip, Input, Dots } from '/basicComponents';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
@@ -17,7 +15,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const inputStyle = { flex: '0 0 240px' };

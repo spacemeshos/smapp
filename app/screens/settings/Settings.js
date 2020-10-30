@@ -92,7 +92,8 @@ type Props = {
   stateRootHash: string,
   port: string,
   networkId: string,
-  backupTime: string
+  backupTime: string,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -147,7 +148,20 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme } = this.props;
+    const {
+      displayName,
+      accounts,
+      setNodeIpAddress,
+      setRewardsAddress,
+      status,
+      genesisTime,
+      rewardsAddress,
+      networkId,
+      stateRootHash,
+      backupTime,
+      switchTheme,
+      isDarkModeOn
+    } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -169,7 +183,7 @@ class Settings extends Component<Props, State> {
         <AllSettingsWrapper>
           <SmallHorizontalPanel />
           <AllSettingsInnerWrapper>
-            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1}>
+            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkModeOn={isDarkModeOn}>
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -235,7 +249,7 @@ class Settings extends Component<Props, State> {
                 rowName="App Version"
               />
             </SettingsSection>
-            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
+            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkModeOn={isDarkModeOn}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
                 upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
@@ -271,7 +285,7 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection title="MESH INFO" refProp={this.myRef3}>
+            <SettingsSection title="MESH INFO" refProp={this.myRef3} isDarkModeOn={isDarkModeOn}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
               <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
@@ -290,7 +304,7 @@ class Settings extends Component<Props, State> {
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
-            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>
+            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4} isDarkModeOn={isDarkModeOn}>
               <SettingRow
                 upperPartLeft={
                   isPortSet ? (
@@ -492,7 +506,8 @@ const mapStateToProps = (state) => ({
   stateRootHash: state.node.stateRootHash,
   port: state.node.port,
   networkId: state.node.networkId,
-  backupTime: state.wallet.backupTime
+  backupTime: state.wallet.backupTime,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

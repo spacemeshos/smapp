@@ -192,7 +192,7 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   genesisTime: state.node.genesisTime,
   nodeIndicator: state.node.nodeIndicator,
-  isDarkModeOn: state.ui.isDarkModeOn
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 Network = connect(mapStateToProps)(Network);

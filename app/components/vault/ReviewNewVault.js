@@ -4,22 +4,20 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { Tooltip } from '/basicComponents';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border-bottom: ${({ isLast }) => (isLast ? `0px` : `1px solid ${isDarkModeOn ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkModeOn ? smColors.white : smColors.darkGray10Alpha};`)};
 `;
 
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
   margin: 10px 0;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const DetailsTextWrap = styled.div`

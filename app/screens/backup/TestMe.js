@@ -323,7 +323,7 @@ class TestMe extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isDarkModeOn: state.ui.isDarkModeOn
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 TestMe = connect<any, any, _, _, _, _>(mapStateToProps, null)(TestMe);

@@ -6,8 +6,6 @@ import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
 import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -15,7 +13,7 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const Header = styled.div`
@@ -28,7 +26,7 @@ const HeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const SubHeader = styled(HeaderText)`
@@ -46,7 +44,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Dots = styled.div`
@@ -56,7 +54,7 @@ const Dots = styled.div`
   margin-right: 12px;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Fee = styled.div`
@@ -109,7 +107,6 @@ const fees = [
 const inputStyle = { flex: '0 0 240px' };
 const errorPopupStyle = { top: 3, right: -190, maxWidth: 250 };
 const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
-const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
 
 type Props = {
   fromAddress: string,
@@ -126,7 +123,8 @@ type Props = {
   updateTxNote: ({ value: string }) => void,
   nextAction: () => void,
   cancelTx: () => void,
-  status: Object
+  status: Object,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -155,9 +153,12 @@ class TxParams extends Component<Props, State> {
       updateTxNote,
       nextAction,
       cancelTx,
-      status
+      status,
+      isDarkModeOn
     } = this.props;
     const { selectedFeeIndex } = this.state;
+    const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
+
     return (
       <Wrapper>
         <Header>

@@ -363,7 +363,7 @@ class Main extends Component<Props, State> {
       callback: () => history.push('/main/transactions'),
       tag: 1
     });
-  }
+  };
 
   newRewardsNotifier = () => {
     notificationsService.notify({
