@@ -91,7 +91,8 @@ const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }
 type Props = {
   publicKey: string,
   transactions: AccountTxs,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -106,14 +107,14 @@ class Transactions extends Component<Props, State> {
   };
 
   render() {
-    const { history, publicKey, transactions } = this.props;
+    const { history, publicKey, transactions, isDarkModeOn } = this.props;
     const { selectedItemIndex, addressToAdd } = this.state;
     const filteredTransactions = this.filterTransactions({ index: selectedItemIndex, transactions });
     const { mined, sent, received, totalMined, totalSent, totalReceived } = this.getCoinStatistics({ filteredTransactions });
     return (
       <Wrapper>
         <BackButton action={history.goBack} width={7} height={10} />
-        <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }} isDarkModeOn={isDarkModeOn}>
           <Header>Latest transactions</Header>
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
@@ -197,7 +198,8 @@ class Transactions extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   publicKey: state.wallet.accounts[state.wallet.currentAccountIndex].publicKey,
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex],
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 Transactions = connect(mapStateToProps)(Transactions);

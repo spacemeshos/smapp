@@ -57,7 +57,7 @@ class PoSProcessor extends Component<Props, State> {
         <PauseSelector>
           <Checkbox isChecked={isPausedOnUsage} check={() => this.setState({ isPausedOnUsage: !isPausedOnUsage })} />
           <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
-          <Tooltip width={200} text="Some text" />
+          <Tooltip width={200} text="Some text" isDarkModeOn={isDarkModeOn} />
         </PauseSelector>
         <PoSFooter action={() => nextAction({ processor: data[selectedProcessorIndex], isPausedOnUsage })} isDisabled={selectedProcessorIndex === -1 || !status} />
       </>

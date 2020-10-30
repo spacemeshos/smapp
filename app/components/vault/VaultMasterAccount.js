@@ -71,7 +71,7 @@ class VaultMasterAccount extends Component<Props, State> {
         <DetailsRow>
           <DetailsRow>
             <DetailsText>Vault Name</DetailsText>
-            <Tooltip width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+            <Tooltip width="250" isDarkModeOn={isDarkModeOn} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
             <Dots />
             <DropDown
               data={masterAccounts}

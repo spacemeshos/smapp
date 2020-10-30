@@ -81,7 +81,7 @@ class BackupOptions extends Component<Props> {
           <Text>Your wallet is encrypted using your password. We recommend you backup your wallet for additional security.</Text>
         </WrapperWith2SideBars>
         <RightSection isDarkModeOn={isDarkModeOn}>
-          <SmallHorizontalPanel />
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           <MiddleSection>
             <MiddleSectionRow>
               <SmallText style={{ marginRight: 22 }}>Basic Security</SmallText>

@@ -97,9 +97,9 @@ class Wallet extends Component<Props, State> {
             </BackupReminder>
           )}
         </LeftSection>
-        <CorneredWrapper>
+        <CorneredWrapper isDarkModeOn={isDarkModeOn}>
           <RightSection>
-            <SmallHorizontalPanel />
+            <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
             <Switch>
               {routes.wallet.map((route) => (
                 <Route exact key={route.path} path={route.path} component={route.component} />

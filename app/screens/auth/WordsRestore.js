@@ -2,6 +2,7 @@
 import * as bip39 from 'bip39';
 import { shell } from 'electron';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { BackButton } from '/components/common';
 import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
@@ -43,7 +44,8 @@ const BottomSection = styled.div`
 `;
 
 type Props = {
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -60,12 +62,12 @@ class WordsRestore extends Component<Props, State> {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, isDarkModeOn } = this.props;
     const { hasError } = this.state;
     const isDoneDisabled = !this.isDoneEnabled();
     return (
-      <WrapperWith2SideBars width={800} height={480} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order.">
-        <SmallHorizontalPanel />
+      <WrapperWith2SideBars width={800} height={480} isDarkModeOn={isDarkModeOn} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order.">
+        <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <BackButton action={history.goBack} />
         <Table>
           <TableColumn>{this.renderInputs({ start: 0 })}</TableColumn>
@@ -134,4 +136,9 @@ class WordsRestore extends Component<Props, State> {
   navigateTo12WordRestoreGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+WordsRestore = connect(mapStateToProps, null)(WordsRestore);
 export default WordsRestore;

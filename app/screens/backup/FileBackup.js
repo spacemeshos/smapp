@@ -1,5 +1,6 @@
 // @flow
 import { shell } from 'electron';
+import { connect } from 'react-redux';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import type { RouterHistory } from 'react-router-dom';
@@ -28,14 +29,16 @@ const BottomRow = styled(MiddleSectionRow)`
 `;
 
 type Props = {
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 class FileBackup extends Component<Props> {
   render() {
+    const { isDarkModeOn } = this.props;
     return (
-      <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved.">
-        <SmallHorizontalPanel />
+      <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkModeOn={isDarkModeOn}>
+        <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <Text>A restore file has been created in your documents folder.</Text>
         <Link onClick={this.showBackupFile} text="Browse file location" />
         <Text>You can use this file to restore your spacemesh wallet on any computer.</Text>
@@ -59,4 +62,9 @@ class FileBackup extends Component<Props> {
   openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+FileBackup = connect<any, any, _, _, _, _>(mapStateToProps, null)(FileBackup);
 export default FileBackup;

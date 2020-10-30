@@ -144,7 +144,7 @@ class AccountsOverview extends Component<Props, State> {
     const { value, unit } = formatSmidge(balance || 0, true);
 
     return (
-      <WrapperWith2SideBars width={300} style={{ height: 'calc(100% - 65px)' }} header={walletName}>
+      <WrapperWith2SideBars width={300} style={{ height: 'calc(100% - 65px)' }} header={walletName} isDarkModeOn={isDarkModeOn}>
         <AccountDetails>
           {accounts.length > 1 ? (
             <DropDown

@@ -81,7 +81,8 @@ const WordWrapper = styled.div`
 
 type Props = {
   history: RouterHistory,
-  mnemonic: string
+  mnemonic: string,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -109,9 +110,10 @@ class TwelveWordsBackup extends Component<Props, State> {
 
   render() {
     const { isTwelveWordsCopied } = this.state;
+    const { isDarkModeOn } = this.props;
     return (
-      <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP">
-        <SmallHorizontalPanel />
+      <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP" isDarkModeOn={isDarkModeOn}>
+        <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <TextWrapper>
           <Text>
             A paper backup is a numbered list of words written down on a paper Write down or print this numbered word list and store the paper in a a safe place, or copy & paste it
@@ -164,7 +166,8 @@ class TwelveWordsBackup extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  mnemonic: state.wallet.mnemonic
+  mnemonic: state.wallet.mnemonic,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 TwelveWordsBackup = connect<any, any, _, _, _, _>(mapStateToProps)(TwelveWordsBackup);

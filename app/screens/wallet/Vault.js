@@ -80,7 +80,7 @@ class Vault extends Component<Props, State> {
         return <NewVault vaultName={name} onChangeVaultName={this.handleChangeVaultName} isDarkModeOn={isDarkModeOn} />;
       }
       case 1: {
-        return <VaultType handleChangeType={this.handleChangeType} type={type} />;
+        return <VaultType handleChangeType={this.handleChangeType} type={type} isDarkModeOn={isDarkModeOn} />;
       }
       case 2: {
         return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={this.selectedAccountIndex} isDarkModeOn={isDarkModeOn} />;

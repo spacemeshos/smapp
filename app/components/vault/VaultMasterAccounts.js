@@ -70,7 +70,7 @@ class VaultMasterAccounts extends Component<Props, State> {
       <>
         <DetailsRow>
           <DetailsText>Address 1</DetailsText>
-          <Tooltip width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+          <Tooltip width="250" isDarkModeOn={isDarkModeOn} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
           <Dots />
           <DropDown
             data={masterAccounts}
@@ -84,7 +84,7 @@ class VaultMasterAccounts extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Address 2</DetailsText>
-          <Tooltip width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+          <Tooltip width="250" isDarkModeOn={isDarkModeOn} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
           <Dots />
           <DropDown
             data={masterAccounts}
@@ -98,7 +98,7 @@ class VaultMasterAccounts extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Address 3</DetailsText>
-          <Tooltip width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+          <Tooltip width="250" isDarkModeOn={isDarkModeOn} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
           <Dots />
           <DropDown
             data={masterAccounts}

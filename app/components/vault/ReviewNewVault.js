@@ -32,8 +32,13 @@ const GrayText = styled.div`
   color: ${smColors.dark75Alpha};
 `;
 
-class ReviewNewVault extends Component {
+type Props = {
+  isDarkModeOn: boolean
+};
+
+class ReviewNewVault extends Component<Props> {
   render() {
+    const { isDarkModeOn } = this.props;
     return (
       <>
         <DetailsRow>
@@ -43,14 +48,14 @@ class ReviewNewVault extends Component {
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Configuration</DetailsText>
-            <Tooltip width="250" text="tooltip 1" />
+            <Tooltip width="250" text="tooltip 1" isDarkModeOn={isDarkModeOn} />
           </DetailsTextWrap>
           <GrayText>2 / 3 Multi-Signature</GrayText>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Master Accounts</DetailsText>
-            <Tooltip width="250" text="tooltip 2" />
+            <Tooltip width="250" text="tooltip 2" isDarkModeOn={isDarkModeOn} />
           </DetailsTextWrap>
           <GrayText>0X1234...1234, 0X1234...1234, 0X1234...1234</GrayText>
         </DetailsRow>

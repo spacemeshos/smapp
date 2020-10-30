@@ -197,7 +197,8 @@ const sortOptions = [
 type Props = {
   contacts: Contact[],
   lastUsedContacts: Contact[],
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -222,10 +223,10 @@ class Contacts extends Component<Props, State> {
   };
 
   render() {
-    const { contacts } = this.props;
+    const { contacts, isDarkModeOn } = this.props;
     const { tmpSearchTerm, searchTerm, selectedSorting } = this.state;
     return (
-      <WrapperWith2SideBars width={1000} height={500} header="CONTACTS">
+      <WrapperWith2SideBars width={1000} height={500} header="CONTACTS" isDarkModeOn={isDarkModeOn}>
         <SearchWrapper>
           <SearchIcon src={searchIcon} />
           <Input
@@ -379,7 +380,8 @@ class Contacts extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   contacts: state.wallet.contacts,
-  lastUsedContacts: state.wallet.lastUsedContacts
+  lastUsedContacts: state.wallet.lastUsedContacts,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 Contacts = connect(mapStateToProps)(Contacts);

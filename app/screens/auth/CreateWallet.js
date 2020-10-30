@@ -105,7 +105,7 @@ class CreateWallet extends Component<Props, State> {
     if (isLoaderVisible) {
       return (
         <LoaderWrapper>
-          <Loader size={Loader.sizes.BIG} />
+          <Loader size={Loader.sizes.BIG} isDarkModeOn={isDarkModeOn} />
         </LoaderWrapper>
       );
     }
@@ -117,9 +117,10 @@ class CreateWallet extends Component<Props, State> {
           steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SETUP PROOF OF SPACE']}
           header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
+          isDarkModeOn={isDarkModeOn}
         />
         <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)} isDarkModeOn={isDarkModeOn}>
-          <SmallHorizontalPanel />
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           {subMode === 1 && (
             <>
               <BackButton action={history.goBack} />

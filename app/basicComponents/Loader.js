@@ -3,9 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { loader, loaderWhite } from '/assets/images';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const img = isDarkModeOn ? loaderWhite : loader;
-
 const Wrapper = styled.div`
   position: fixed;
   top: 0;
@@ -28,12 +25,13 @@ const AnimatedIcon = styled.img`
 `;
 
 type Props = {
-  size?: number
+  size?: number,
+  isDarkModeOn: boolean
 };
 
-const Loader = ({ size = Loader.sizes.SMALL }: Props) => (
+const Loader = ({ size = Loader.sizes.SMALL, isDarkModeOn }: Props) => (
   <Wrapper>
-    <AnimatedIcon size={size || Loader.sizes.SMALL} src={img} alt="Loading" />
+    <AnimatedIcon size={size || Loader.sizes.SMALL} src={isDarkModeOn ? loaderWhite : loader} alt="Loading" />
   </Wrapper>
 );
 

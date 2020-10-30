@@ -184,7 +184,7 @@ class TestMe extends Component<Props, State> {
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
     return [
       <WrapperWith2SideBars width={920} header="CONFIRM YOUR 12 WORDS BACKUP" key="1" isDarkModeOn={isDarkModeOn}>
-        <SmallHorizontalPanel />
+        <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <SubHeader>Drag each of the four words below to its matching number in your paper backup word list</SubHeader>
         {this.renderDragAndDropArea()}
         <BottomRow>

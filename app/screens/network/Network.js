@@ -97,51 +97,51 @@ class Network extends Component<Props> {
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Age</DetailsText>
-                <Tooltip width="250" text="tooltip age" />
+                <Tooltip width="250" text="tooltip age" isDarkModeOn={isDarkModeOn} />
               </DetailsTextWrap>
               <GrayText>{getFormattedTimestamp(genesisTime)}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Status</DetailsText>
-                <Tooltip width="250" text="tooltip Status" />
+                <Tooltip width="250" text="tooltip Status" isDarkModeOn={isDarkModeOn} />
               </DetailsTextWrap>
               <GrayText>{nodeIndicator.hasError ? this.renderStatus() : this.renderSyncingStatus()}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Current Layer</DetailsText>
-                <Tooltip width="250" text="tooltip Current Layer" />
+                <Tooltip width="250" text="tooltip Current Layer" isDarkModeOn={isDarkModeOn} />
               </DetailsTextWrap>
               <GrayText>{status.currentLayer}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Verified Layer</DetailsText>
-                <Tooltip width="250" text="tooltip Verified Layer" />
+                <Tooltip width="250" text="tooltip Verified Layer" isDarkModeOn={isDarkModeOn} />
               </DetailsTextWrap>
               <GrayText>{status.verifiedLayer}</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Connection Type</DetailsText>
-                <Tooltip width="250" text="tooltip Connection Type" />
+                <Tooltip width="250" text="tooltip Connection Type" isDarkModeOn={isDarkModeOn} />
               </DetailsTextWrap>
               <GrayText>Managed p2p node</GrayText>
             </DetailsRow>
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Connected neighbors</DetailsText>
-                <Tooltip width="250" text="tooltip Connected neighbors" />
+                <Tooltip width="250" text="tooltip Connected neighbors" isDarkModeOn={isDarkModeOn} />
               </DetailsTextWrap>
               <GrayText>8</GrayText>
             </DetailsRow>
           </DetailsWrap>
           <FooterWrap>
             <Link onClick={this.navigateToChangeNetwork} text="CHANGE NETWORK" />
-            <Tooltip width="250" text="tooltip CHANGE NETWORK" />
+            <Tooltip width="250" text="tooltip CHANGE NETWORK" isDarkModeOn={isDarkModeOn} />
             <Link onClick={this.openLogFile} text="BROWSE LOG FILE" style={{ marginLeft: '50px' }} />
-            <Tooltip width="250" text="tooltip BROWSE LOG FILE" />
+            <Tooltip width="250" text="tooltip BROWSE LOG FILE" isDarkModeOn={isDarkModeOn} />
           </FooterWrap>
         </Container>
       </WrapperWith2SideBars>

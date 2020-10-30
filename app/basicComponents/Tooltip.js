@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { tooltip, tooltipWhite } from '/assets/images';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const icon = isDarkModeOn ? tooltipWhite : tooltip;
+// const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+// const icon = isDarkModeOn ? tooltipWhite : tooltip;
 
 const InnerWrapper = styled.div`
   display: none;
@@ -31,7 +31,7 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const OuterIcon = styled.img`
@@ -53,14 +53,15 @@ type Props = {
   left: number,
   width: number,
   marginTop?: number,
-  text: string
+  text: string,
+  isDarkModeOn: boolean
 };
 
-const Tooltip = ({ top = -2, left = -3, width, text, marginTop = 2 }: Props) => (
+const Tooltip = ({ top = -2, left = -3, width, text, marginTop = 2, isDarkModeOn }: Props) => (
   <Wrapper marginTop={marginTop}>
-    <OuterIcon src={icon} />
+    <OuterIcon src={isDarkModeOn ? tooltipWhite : tooltip} />
     <InnerWrapper top={top} left={left} width={width}>
-      <InnerIcon src={icon} />
+      <InnerIcon src={isDarkModeOn ? tooltipWhite : tooltip} />
       <Text>{text}</Text>
     </InnerWrapper>
   </Wrapper>

@@ -86,7 +86,7 @@ class VaultTx extends Component<Props> {
       <>
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
-          <Tooltip width="250" text="Tooltip 1" />
+          <Tooltip width="250" text="Tooltip 1" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={accounts}
@@ -100,7 +100,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Fund Amount</DetailsText>
-          <Tooltip width="250" text="Tooltip 2" />
+          <Tooltip width="250" text="Tooltip 2" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={accounts}
@@ -114,7 +114,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Max Gas Units</DetailsText>
-          <Tooltip width="250" text="Tooltip 3" />
+          <Tooltip width="250" text="Tooltip 3" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={gasUnit}
@@ -128,7 +128,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Gas Unit Price</DetailsText>
-          <Tooltip width="250" text="Tooltip 4" />
+          <Tooltip width="250" text="Tooltip 4" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={unitPrice}

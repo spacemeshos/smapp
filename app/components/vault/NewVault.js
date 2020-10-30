@@ -22,7 +22,8 @@ const inputStyle = { flex: '0 0 240px' };
 
 type Props = {
   vaultName: string,
-  onChangeVaultName: () => void
+  onChangeVaultName: () => void,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -31,7 +32,7 @@ type State = {
 
 class NewVault extends Component<Props, State> {
   render() {
-    const { vaultName, onChangeVaultName } = this.props;
+    const { vaultName, onChangeVaultName, isDarkModeOn } = this.props;
 
     return (
       <>
@@ -41,6 +42,7 @@ class NewVault extends Component<Props, State> {
             top="-2"
             left="-3"
             width="250"
+            isDarkModeOn={isDarkModeOn}
             text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
           />
           <Dots />

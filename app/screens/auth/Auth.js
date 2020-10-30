@@ -69,7 +69,7 @@ class Auth extends Component<Props> {
               <Redirect to="/auth/welcome" />
             </Switch>
           ) : (
-            <Loader size={Loader.sizes.BIG} />
+            <Loader size={Loader.sizes.BIG} isDarkModeOn={isDarkModeOn} />
           )}
         </InnerWrapper>
         <RightDecoration src={isDarkModeOn ? rightDecorationWhite : rightDecoration} />

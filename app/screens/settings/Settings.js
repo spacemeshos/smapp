@@ -181,7 +181,7 @@ class Settings extends Component<Props, State> {
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
-          <SmallHorizontalPanel />
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           <AllSettingsInnerWrapper>
             <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkModeOn={isDarkModeOn}>
               <SettingRow
