@@ -1,11 +1,9 @@
-// @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { SmesherIntro, SmesherLog } from '/components/node';
 import { WrapperWith2SideBars, Button, ProgressBar } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { eventsService } from '/infra/eventsService';
 import { getFormattedTimestamp } from '/infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
@@ -124,20 +122,6 @@ class Node extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const audioPath = await eventsService.getAudioPath();
-    this.audio = new Audio(audioPath);
-  }
-
-  componentDidUpdate() {
-    const { rewards } = this.props;
-    const playedAudio = localStorage.getItem('playedAudio');
-    this.audio.loop = false;
-    if (rewards && rewards.length === 1 && !playedAudio) {
-      this.audio.play();
-    }
-  }
-
   renderMainSection = () => {
     const { miningStatus, history, status, networkId } = this.props;
     const { showIntro } = this.state;
@@ -230,7 +214,7 @@ const mapStateToProps = (state) => ({
   rewardsAddress: state.node.rewardsAddress
 });
 
-Node = connect<any, any, _, _, _, _>(mapStateToProps)(Node);
+Node = connect(mapStateToProps)(Node);
 
 Node = ScreenErrorBoundary(Node);
 export default Node;

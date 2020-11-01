@@ -3,6 +3,24 @@ const path = require('path');
 const crypto = require('crypto');
 
 const { Platform, build } = require('electron-builder');
+require('dotenv').config();
+const { notarize } = require('electron-notarize');
+
+async function notarizing(context) {
+  const { electronPlatformName, appOutDir } = context;
+  if (electronPlatformName !== 'darwin') {
+    return;
+  }
+
+  const appName = context.packager.appInfo.productFilename;
+
+  return await notarize({
+    appBundleId: 'com.spacemesh.wallet',
+    appPath: `${appOutDir}/${appName}.app`,
+    appleId: process.env.APPLEID,
+    appleIdPassword: process.env.APPLEIDPASS,
+  });
+}
 
 const args = process.argv.slice(2);
 if (args.length < 2 || args[0] !== '--target' || !['mac', 'windows', 'linux', 'mwl'].includes(args[1])) {
@@ -95,8 +113,7 @@ const getBuildOptions = ({ target, publish }) => {
       ],
       extraFiles: [
         nodeFiles[target],
-        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' },
-        { from: path.resolve('resources/sounds'), to: 'sounds/' }
+        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' }
       ],
       mac: {
         hardenedRuntime: true,
@@ -151,8 +168,7 @@ const getBuildOptions = ({ target, publish }) => {
         buildResources: path.join(__dirname, '..', 'resources'),
         output: path.join(__dirname, '..', 'release')
       },
-      afterSign: path.join(__dirname, 'notarize.js'),
-      afterAllArtifactBuild: async (buildResult) => {
+      afterAllArtifactBuild: (buildResult) => {
         try {
           compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
           return [artifactsToPublishFile];
@@ -164,6 +180,10 @@ const getBuildOptions = ({ target, publish }) => {
       npmRebuild: false
     }
   };
+
+  if (target === 'mac') {
+    buildOptions.config.afterSign = notarizing;
+  }
 
   if (publish !== 'never') {
     buildOptions.config.publish = {
