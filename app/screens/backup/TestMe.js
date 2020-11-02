@@ -7,14 +7,13 @@ import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPan
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { DropResult } from 'react-beautiful-dnd';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+import { connect } from 'react-redux';
 
 const SubHeader = styled.div`
   margin-bottom: 25px;
   font-size: 15px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Text = styled.span`
@@ -110,7 +109,7 @@ const IndexWrapper = styled.div`
 
 const Index = styled(Text)`
   line-height: 26px;
-  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.darkGray)};
 `;
 
 const WordWrapper = styled.div`
@@ -156,6 +155,7 @@ const getInitialState = (mnemonic: string) => ({
 });
 
 type Props = {
+  isDarkModeOn: boolean,
   history: RouterHistory,
   location: { state: { mnemonic: string } }
 };
@@ -180,10 +180,11 @@ class TestMe extends Component<Props, State> {
 
   render() {
     const { dropsCounter, matchCounter } = this.state;
+    const { isDarkModeOn } = this.props;
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
     return [
-      <WrapperWith2SideBars width={920} header="CONFIRM YOUR 12 WORDS BACKUP" key="1">
-        <SmallHorizontalPanel />
+      <WrapperWith2SideBars width={920} header="CONFIRM YOUR 12 WORDS BACKUP" key="1" isDarkModeOn={isDarkModeOn}>
+        <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <SubHeader>Drag each of the four words below to its matching number in your paper backup word list</SubHeader>
         {this.renderDragAndDropArea()}
         <BottomRow>
@@ -192,7 +193,7 @@ class TestMe extends Component<Props, State> {
         </BottomRow>
       </WrapperWith2SideBars>,
       dropsCounter === 4 && (
-        <NotificationBoxOuter key="2">
+        <NotificationBoxOuter key="2" isDarkModeOn={isDarkModeOn}>
           <NotificationBox color={isTestSuccess ? smColors.green : smColors.orange}>
             {isTestSuccess ? 'All right! Your 12 word backup is confirmed.' : 'That confirmation isn’t correct, please try again'}
           </NotificationBox>
@@ -321,4 +322,9 @@ class TestMe extends Component<Props, State> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+TestMe = connect<any, any, _, _, _, _>(mapStateToProps, null)(TestMe);
 export default TestMe;

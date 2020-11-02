@@ -7,8 +7,6 @@ import Carousel from './Carousel';
 import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const PauseSelector = styled.div`
   display: flex;
   flex-direction: row;
@@ -18,7 +16,7 @@ const PauseSelector = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const data = [
@@ -31,7 +29,8 @@ type Props = {
   processor: Object,
   isPausedOnUsage: boolean,
   nextAction: () => void,
-  status: Object
+  status: Object,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -49,7 +48,7 @@ class PoSProcessor extends Component<Props, State> {
   }
 
   render() {
-    const { nextAction, status } = this.props;
+    const { nextAction, status, isDarkModeOn } = this.props;
     const { selectedProcessorIndex, isPausedOnUsage } = this.state;
     return (
       <>
@@ -57,7 +56,7 @@ class PoSProcessor extends Component<Props, State> {
         <PauseSelector>
           <Checkbox isChecked={isPausedOnUsage} check={() => this.setState({ isPausedOnUsage: !isPausedOnUsage })} />
           <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
-          <Tooltip width={200} text="Some text" />
+          <Tooltip width={200} text="Some text" isDarkModeOn={isDarkModeOn} />
         </PauseSelector>
         <PoSFooter action={() => nextAction({ processor: data[selectedProcessorIndex], isPausedOnUsage })} isDisabled={selectedProcessorIndex === -1 || !status} />
       </>

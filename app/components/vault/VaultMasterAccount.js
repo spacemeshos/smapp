@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { DropDown, Tooltip, Dots } from '/basicComponents';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
@@ -17,7 +15,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const AccItem = styled.div`
@@ -34,11 +32,10 @@ const AccItem = styled.div`
   }
 `;
 
-const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
-
 type Props = {
   masterAccountIndex: number,
-  selectedAccountIndex: () => void
+  selectedAccountIndex: () => void,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -66,14 +63,15 @@ const masterAccounts = [
 
 class VaultMasterAccount extends Component<Props, State> {
   render() {
-    const { masterAccountIndex, selectedAccountIndex } = this.props;
+    const { masterAccountIndex, selectedAccountIndex, isDarkModeOn } = this.props;
+    const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
 
     return (
       <>
         <DetailsRow>
           <DetailsRow>
             <DetailsText>Vault Name</DetailsText>
-            <Tooltip width="250" text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+            <Tooltip width="250" isDarkModeOn={isDarkModeOn} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
             <Dots />
             <DropDown
               data={masterAccounts}

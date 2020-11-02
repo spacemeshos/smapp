@@ -7,8 +7,6 @@ import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { fireworksImg, doneIconGreen, copyBlack } from '/assets/images';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,7 +16,7 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background: url(${fireworksImg}) center center no-repeat;
   background-size: contain;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const Header = styled.div`
@@ -58,7 +56,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`

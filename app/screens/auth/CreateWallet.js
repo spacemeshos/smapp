@@ -11,9 +11,6 @@ import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 import { smColors, nodeConsts } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -21,7 +18,7 @@ const Wrapper = styled.div`
 `;
 
 const SubHeader = styled.div`
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const UpperPart = styled.div`
@@ -74,6 +71,7 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
+  isDarkModeOn: boolean,
   miningStatus: number,
   createNewWallet: Action,
   history: RouterHistory,
@@ -100,12 +98,14 @@ class CreateWallet extends Component<Props, State> {
   };
 
   render() {
-    const { history, location, miningStatus } = this.props;
+    const { history, location, miningStatus, isDarkModeOn } = this.props;
     const { isLoaderVisible, subMode, password, verifiedPassword, passwordError, verifyPasswordError } = this.state;
+
+    const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
     if (isLoaderVisible) {
       return (
         <LoaderWrapper>
-          <Loader size={Loader.sizes.BIG} />
+          <Loader size={Loader.sizes.BIG} isDarkModeOn={isDarkModeOn} />
         </LoaderWrapper>
       );
     }
@@ -117,9 +117,10 @@ class CreateWallet extends Component<Props, State> {
           steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SETUP PROOF OF SPACE']}
           header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
+          isDarkModeOn={isDarkModeOn}
         />
-        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
-          <SmallHorizontalPanel />
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)} isDarkModeOn={isDarkModeOn}>
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           {subMode === 1 && (
             <>
               <BackButton action={history.goBack} />
@@ -228,7 +229,8 @@ class CreateWallet extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  miningStatus: state.node.miningStatus
+  miningStatus: state.node.miningStatus,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

@@ -49,25 +49,26 @@ const BottomRightCorner = styled.img`
   height: 8px;
 `;
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
-const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
-const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
-const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
-
 type Props = {
   children: any,
-  className?: string
+  className?: string,
+  isDarkModeOn?: boolean
 };
 
-const CorneredWrapper = ({ children, className }: Props) => (
-  <Wrapper className={className}>
-    <TopLeftCorner src={topLeft} />
-    <TopRightCorner src={topRight} />
-    <BottomLeftCorner src={bottomLeft} />
-    <BottomRightCorner src={bottomRight} />
-    {children}
-  </Wrapper>
-);
+const CorneredWrapper = ({ children, className, isDarkModeOn }: Props) => {
+  const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
+  const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
+  const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
+  const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
+  return (
+    <Wrapper className={className}>
+      <TopLeftCorner src={topLeft} />
+      <TopRightCorner src={topRight} />
+      <BottomLeftCorner src={bottomLeft} />
+      <BottomRightCorner src={bottomRight} />
+      {children}
+    </Wrapper>
+  );
+};
 
 export default CorneredWrapper;

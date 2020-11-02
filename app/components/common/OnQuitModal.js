@@ -1,5 +1,6 @@
 // @flow
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { ipcRenderer } from 'electron';
 import { Modal } from '/components/common';
 import { Loader } from '/basicComponents';
@@ -15,7 +16,13 @@ const Text = styled.div`
   margin-bottom: 10px;
 `;
 
-const OnQuitModal = () => {
+type Props = {
+  isDarkModeOn: boolean
+};
+
+const OnQuitModal = (props: Props) => {
+  // eslint-disable-next-line react/prop-types
+  const { isDarkModeOn } = props;
   const [isClosing, setIsClosing] = useState(false);
   ipcRenderer.on(ipcConsts.KEEP_RUNNING_IN_BACKGROUND, () => {
     setTimeout(() => {
@@ -31,10 +38,14 @@ const OnQuitModal = () => {
 
   return isClosing ? (
     <Modal width={600} height={600}>
-      <Loader size={Loader.sizes.BIG} />
+      <Loader size={Loader.sizes.BIG} isDarkModeOn={isDarkModeOn} />
       <Text>Shutting down, please wait...</Text>
     </Modal>
   ) : null;
 };
 
-export default OnQuitModal;
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+export default connect<any, any, _, _, _, _>(mapStateToProps)(OnQuitModal);

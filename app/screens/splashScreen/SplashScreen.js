@@ -8,14 +8,16 @@ import type { Action } from '/types';
 
 type Props = {
   getNodeStatus: Action,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 class SplashScreen extends PureComponent<Props> {
   interval: IntervalID;
 
   render() {
-    return <Loader size={Loader.sizes.BIG} />;
+    const { isDarkModeOn } = this.props;
+    return <Loader size={Loader.sizes.BIG} isDarkModeOn={isDarkModeOn} />;
   }
 
   async componentDidMount() {
@@ -45,10 +47,14 @@ class SplashScreen extends PureComponent<Props> {
   }
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
 const mapDispatchToProps = {
   getNodeStatus
 };
 
-SplashScreen = connect(null, mapDispatchToProps)(SplashScreen);
+SplashScreen = connect(mapStateToProps, mapDispatchToProps)(SplashScreen);
 
 export default SplashScreen;

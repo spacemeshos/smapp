@@ -6,9 +6,6 @@ import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '/a
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const posDirectoryIcon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
-
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -43,7 +40,7 @@ const Icon3 = styled.img`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Dots = styled.div`
@@ -53,7 +50,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const RewardText = styled(Text)`
@@ -72,10 +69,10 @@ const CommitmentWrapper = styled.div`
   margin: 5px;
   cursor: inherit;
   opacity: 0.5;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
   &:hover {
     opacity: 1;
-    color: ${isDarkModeOn ? smColors.lightGray : smColors.darkGray50Alpha};
+    color: ${({ theme }) => (theme.isDarkModeOn ? smColors.lightGray : smColors.darkGray50Alpha)};
   }
   ${({ isInDropDown }) =>
     isInDropDown &&
@@ -94,14 +91,14 @@ const Commitment = styled.div`
 `;
 
 const commitments = [{ size: '100 GB' }, { size: '200 GB' }, { size: '300 GB' }];
-const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 125px' };
 
 type Props = {
   folder: string,
   commitment: string,
   freeSpace: number,
   nextAction: () => void,
-  status: Object
+  status: Object,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -117,14 +114,18 @@ class PoSSize extends Component<Props, State> {
   }
 
   render() {
-    const { folder, freeSpace, nextAction, status } = this.props;
+    const { folder, freeSpace, nextAction, status, isDarkModeOn } = this.props;
     const { selectedCommitmentIndex } = this.state;
+
+    const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 125px' };
+    const posDirectoryIcon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
+
     return (
       <>
         <Row>
           <Icon1 src={posSpace} />
           <Text>Proof of space size</Text>
-          <Tooltip width={200} text="Some text" />
+          <Tooltip width={200} text="Some text" isDarkModeOn={isDarkModeOn} />
           <Dots>.....................................................</Dots>
           <DropDown
             data={commitments}
@@ -139,7 +140,7 @@ class PoSSize extends Component<Props, State> {
         <Row>
           <Icon2 src={posRewardEst} />
           <Text>Estimated coin reward</Text>
-          <Tooltip width={200} text="Some text" />
+          <Tooltip width={200} text="Some text" isDarkModeOn={isDarkModeOn} />
           <Dots>.....................................................</Dots>
           <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? '10 SMESH / MONTH' : '0 SMESH / MONTH'}</RewardText>
         </Row>

@@ -4,9 +4,6 @@ import { Link } from '/basicComponents';
 import { smColors } from '/vars';
 import { upload, uploadWhite, incorrectFile } from '/assets/images';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const uploadImg = isDarkModeOn ? uploadWhite : upload;
-
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
@@ -34,7 +31,7 @@ const Image = styled.img`
 const Text = styled.span`
   font-size: 15px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
   margin-bottom: 10px;
 `;
 
@@ -46,7 +43,8 @@ const LinkWrapper = styled.div`
 type Props = {
   onFilesAdded: Function,
   fileName: string,
-  hasError: boolean
+  hasError: boolean,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -63,7 +61,7 @@ class DragAndDrop extends Component<Props, State> {
   }
 
   render() {
-    const { fileName, hasError } = this.props;
+    const { fileName, hasError, isDarkModeOn } = this.props;
     const { isDragging } = this.state;
     let preLinkText;
     let linkText;
@@ -77,6 +75,8 @@ class DragAndDrop extends Component<Props, State> {
       preLinkText = 'or';
       linkText = 'locate file on your computer';
     }
+
+    const uploadImg = isDarkModeOn ? uploadWhite : upload;
     return (
       <Wrapper onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop} isDragging={isDragging} hasError={hasError}>
         <input ref={this.fileInputRef} type="file" onChange={this.onFilesAdded} style={{ display: 'none' }} />

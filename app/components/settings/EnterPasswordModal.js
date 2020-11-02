@@ -8,9 +8,6 @@ import { Button, Input, ErrorPopup } from '/basicComponents';
 import { chevronRightBlack, chevronRightWhite } from '/assets/images';
 import type { Action } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const chevronIcon = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
-
 const InputSection = styled.div`
   display: flex;
   flex-direction: row;
@@ -41,7 +38,8 @@ const ButtonsWrapper = styled.div`
 type Props = {
   unlockWallet: Action,
   submitAction: ({ password: string }) => void,
-  closeModal: () => void
+  closeModal: () => void,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -56,8 +54,10 @@ class EnterPasswordModal extends Component<Props, State> {
   };
 
   render() {
-    const { closeModal } = this.props;
+    const { closeModal, isDarkModeOn } = this.props;
     const { password, hasError } = this.state;
+    const chevronIcon = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
+
     return (
       <Modal header="PASSWORD" subHeader="enter password to complete the action">
         <InputSection>
@@ -91,10 +91,14 @@ class EnterPasswordModal extends Component<Props, State> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
 const mapDispatchToProps = {
   unlockWallet
 };
 
-EnterPasswordModal = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(EnterPasswordModal);
+EnterPasswordModal = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(EnterPasswordModal);
 
 export default EnterPasswordModal;

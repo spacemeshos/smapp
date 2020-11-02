@@ -8,14 +8,11 @@ import { formatBytes } from '/infra/utils';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const icon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
-
 const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: 1px solid ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  border-top: 1px solid ${({ theme }) => `1px solid ${theme.isDarkModeOn ? smColors.white : smColors.realBlack}`};
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 5% 100%, 0% 85%);
 `;
 
@@ -35,7 +32,7 @@ const Header = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const ErrorText = styled.div`
@@ -50,20 +47,20 @@ const FreeSpaceHeader = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const FreeSpace = styled.div`
   font-size: 17px;
   line-height: 19px;
-  ${({ error, selected }) => {
+  ${({ error, selected, theme }) => {
     if (error) {
       return `color: ${smColors.orange}`;
     }
     if (selected) {
       return `color: ${smColors.green}`;
     }
-    return `color: ${isDarkModeOn ? smColors.white : smColors.black}`;
+    return `color: ${theme.isDarkModeOn ? smColors.white : smColors.black}`;
   }}
 `;
 
@@ -74,7 +71,8 @@ type Props = {
   folder: string,
   freeSpace: string,
   commitmentSize: string,
-  status: Object
+  status: Object,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -94,8 +92,10 @@ class PoSDirectory extends Component<Props, State> {
   }
 
   render() {
-    const { commitmentSize, nextAction, status } = this.props;
+    const { commitmentSize, nextAction, status, isDarkModeOn } = this.props;
     const { folder, freeSpace, hasPermissionError } = this.state;
+    const icon = isDarkModeOn ? posDirectoryWhite : posDirectoryBlack;
+
     return (
       <>
         <Wrapper>

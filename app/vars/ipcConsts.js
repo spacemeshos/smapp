@@ -39,7 +39,9 @@ const ipcConsts = {
   GET_BALANCE: 'GET_BALANCE',
   SEND_TX: 'SEND_TX',
   UPDATE_TX: 'UPDATE_TX',
-  GET_ACCOUNT_TXS: 'GET_ACCOUNT_TXS'
+  GET_ACCOUNT_TXS: 'GET_ACCOUNT_TXS',
+  // Theme
+  GET_OS_THEME_COLOR: 'GET_OS_THEME_COLOR'
 };
 
 export default ipcConsts;

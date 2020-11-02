@@ -9,24 +9,20 @@ import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { TxList, Tx } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
-const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 250px;
   height: 100%;
   padding: 20px 15px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   margin-bottom: 10px;
 `;
 
@@ -55,11 +51,11 @@ const Section = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.darkGray)};
 `;
 
 const NickName = styled(Text)`
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Amount = styled.div`
@@ -69,7 +65,8 @@ const Amount = styled.div`
 type Props = {
   publicKey: string,
   transactions: { data: TxList },
-  navigateToAllTransactions: () => void
+  navigateToAllTransactions: () => void,
+  isDarkModeOn: boolean
 };
 
 class LatestTransactions extends PureComponent<Props> {
@@ -90,10 +87,12 @@ class LatestTransactions extends PureComponent<Props> {
   }
 
   renderTransaction = ({ tx, index }: { tx: Tx, index: number }) => {
-    const { publicKey } = this.props;
+    const { publicKey, isDarkModeOn } = this.props;
     const { txId, status, amount, sender, timestamp, nickname } = tx;
     const isSent = sender === getAddress(publicKey);
     const color = this.getColor({ status, isSent });
+    const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
+    const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
     return (
       <TxWrapper key={index}>
         <Icon src={isSent ? chevronRight : chevronLeft} />
@@ -122,7 +121,8 @@ class LatestTransactions extends PureComponent<Props> {
 }
 
 const mapStateToProps = (state) => ({
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex],
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 LatestTransactions = connect<any, any, _, _, _, _>(mapStateToProps)(LatestTransactions);

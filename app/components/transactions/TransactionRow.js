@@ -12,10 +12,6 @@ import { smColors } from '/vars';
 import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
-const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -29,9 +25,9 @@ const Header = styled.div`
   flex-direction: row;
   padding: 10px 0 15px;
   cursor: pointer;
-  background-color: ${isDarkModeOn ? smColors.black : 'transparent'};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.black : 'transparent')};
   &:hover {
-    background-color: ${isDarkModeOn ? smColors.dark75Alpha : smColors.disabledGray};
+    background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dark75Alpha : smColors.disabledGray)};
   }
 `;
 
@@ -59,20 +55,20 @@ const HeaderSection = styled.div`
 const Text = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.darkGray50Alpha};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.darkGray50Alpha)};
 `;
 
 const BlackText = styled(Text)`
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
-  color: ${({ color }) => (color || isDarkModeOn ? smColors.white : smColors.realBlack)};
+  color: ${({ color, theme }) => (color || theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const DarkGrayText = styled(Text)`
-  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.darkGray)};
   cursor: inherit;
 `;
 
@@ -97,7 +93,7 @@ const DetailsSection = styled.div`
   flex-direction: column;
   justify-content: space-between;
   padding: 6px 12px 12px 20px;
-  background-color: ${isDarkModeOn ? smColors.black : 'transparent'};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.black : 'transparent')};
 `;
 
 const TextRow = styled.div`
@@ -107,7 +103,7 @@ const TextRow = styled.div`
   overflow: hidden;
   white-space: nowrap;
   padding: 5px 0;
-  border-bottom: ${({ isLast }) => (isLast ? `0px` : `1px solid ${isDarkModeOn ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkModeOn ? smColors.white : smColors.darkGray10Alpha};`)};
 `;
 
 const AddToContactsImg = styled.img`
@@ -134,6 +130,7 @@ const LinkEdit = styled.span`
   color: ${smColors.blue};
   text-decoration: underline;
   margin-left: 5px;
+  cursor: pointer;
 `;
 
 const ButtonsWrapper = styled.div`
@@ -155,7 +152,8 @@ type Props = {
   updateTransaction: Action,
   tx: Tx,
   publicKey: string,
-  addAddressToContacts: ({ address: string }) => void
+  addAddressToContacts: ({ address: string }) => void,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -182,11 +180,14 @@ class TransactionRow extends Component<Props, State> {
     const {
       tx,
       tx: { txId, sender, status, amount, timestamp, nickname },
-      publicKey
+      publicKey,
+      isDarkModeOn
     } = this.props;
     const { isDetailed, wasCopied, showNoteModal, note } = this.state;
     const isSent = sender === getAddress(publicKey);
     const color = this.getColor({ status, isSent });
+    const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
+    const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
     return (
       <Wrapper isDetailed={isDetailed}>
         <Header onClick={this.toggleTxDetails}>
@@ -358,10 +359,14 @@ class TransactionRow extends Component<Props, State> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
 const mapDispatchToProps = {
   updateTransaction
 };
 
-TransactionRow = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(TransactionRow);
+TransactionRow = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(TransactionRow);
 
 export default TransactionRow;

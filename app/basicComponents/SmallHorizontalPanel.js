@@ -3,9 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { horizontalPanelBlack, horizontalPanelWhite } from '/assets/images';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const icon = isDarkModeOn ? horizontalPanelWhite : horizontalPanelBlack;
-
 const Wrapper = styled.img`
   position: absolute;
   top: -25px;
@@ -13,7 +10,10 @@ const Wrapper = styled.img`
   width: 60px;
   height: 15px;
 `;
+type Props = {
+  isDarkModeOn: boolean
+};
 
-const SmallHorizontalPanel = () => <Wrapper src={icon} />;
+const SmallHorizontalPanel = ({ isDarkModeOn }: Props) => <Wrapper src={isDarkModeOn ? horizontalPanelWhite : horizontalPanelBlack} />;
 
 export default SmallHorizontalPanel;

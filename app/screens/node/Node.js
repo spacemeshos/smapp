@@ -13,8 +13,6 @@ import type { RouterHistory } from 'react-router-dom';
 import type { TxList } from '/types';
 // import type { Action } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -23,7 +21,7 @@ const Wrapper = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const BoldText = styled(Text)`
@@ -64,7 +62,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const PosSmesherIcon = styled.img`
@@ -86,6 +84,7 @@ type Props = {
   posDataPath: string,
   commitmentSize: number,
   networkId: string,
+  isDarkModeOn: boolean,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
@@ -109,17 +108,17 @@ class Node extends Component<Props, State> {
   }
 
   render() {
-    const { rewards } = this.props;
+    const { rewards, isDarkModeOn } = this.props;
     const smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
     this.smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
     const smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
     this.smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon}>
+        <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon} isDarkModeOn={isDarkModeOn}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} />
+        <SmesherLog rewards={rewards} initTimestamp={this.smesherInitTimestamp} smesherTimestamp={this.smesherSmeshingTimestamp} isDarkModeOn={isDarkModeOn} />
       </Wrapper>
     );
   }
@@ -139,10 +138,10 @@ class Node extends Component<Props, State> {
   }
 
   renderMainSection = () => {
-    const { miningStatus, history, status, networkId } = this.props;
+    const { miningStatus, history, status, networkId, isDarkModeOn } = this.props;
     const { showIntro } = this.state;
     if (showIntro) {
-      return <SmesherIntro hideIntro={() => this.setState({ showIntro: false })} />;
+      return <SmesherIntro hideIntro={() => this.setState({ showIntro: false })} isDarkModeOn={isDarkModeOn} />;
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return (
         <>
@@ -168,7 +167,7 @@ class Node extends Component<Props, State> {
   };
 
   renderNodeDashboard = () => {
-    const { history, status, miningStatus, posDataPath, commitmentSize, networkId } = this.props;
+    const { history, status, miningStatus, posDataPath, commitmentSize, networkId, isDarkModeOn } = this.props;
     const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
     return (
       <>
@@ -227,7 +226,8 @@ const mapStateToProps = (state) => ({
   commitmentSize: state.node.commitmentSize,
   miningStatus: state.node.miningStatus,
   rewards: state.node.rewards,
-  rewardsAddress: state.node.rewardsAddress
+  rewardsAddress: state.node.rewardsAddress,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 Node = connect<any, any, _, _, _, _>(mapStateToProps)(Node);

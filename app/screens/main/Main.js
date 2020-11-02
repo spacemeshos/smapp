@@ -18,13 +18,6 @@ import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
-const settings = isDarkModeOn ? settingsIconBlack : settingsIcon;
-const getCoins = isDarkModeOn ? getCoinsIconBlack : getCoinsIcon;
-const help = isDarkModeOn ? helpIconBlack : helpIcon;
-const signOut = isDarkModeOn ? signOutIconBlack : signOutIcon;
-
 const Wrapper = styled.div`
   position: relative;
   display: flex;
@@ -103,9 +96,6 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-const bntStyle = { marginRight: 15, marginTop: 10 };
-const bgColor = isDarkModeOn ? smColors.white : smColors.black;
-
 type Props = {
   status: Object,
   miningStatus: number,
@@ -117,7 +107,8 @@ type Props = {
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string },
-  nodeIndicator: Object
+  nodeIndicator: Object,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -162,10 +153,18 @@ class Main extends Component<Props, State> {
 
   render() {
     const { activeRouteIndex } = this.state;
-    const { nodeIndicator } = this.props;
+    const { nodeIndicator, isDarkModeOn } = this.props;
+    const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
+    const settings = isDarkModeOn ? settingsIconBlack : settingsIcon;
+    const getCoins = isDarkModeOn ? getCoinsIconBlack : getCoinsIcon;
+    const help = isDarkModeOn ? helpIconBlack : helpIcon;
+    const signOut = isDarkModeOn ? signOutIconBlack : signOutIcon;
+    const bntStyle = { marginRight: 15, marginTop: 10 };
+    const bgColor = isDarkModeOn ? smColors.white : smColors.black;
+
     return (
       <Wrapper>
-        <Logo />
+        <Logo isDarkModeOn={isDarkModeOn} />
         <InnerWrapper>
           <NavBar>
             <NavBarPart>
@@ -364,7 +363,7 @@ class Main extends Component<Props, State> {
       callback: () => history.push('/main/transactions'),
       tag: 1
     });
-  }
+  };
 
   newRewardsNotifier = () => {
     notificationsService.notify({
@@ -379,7 +378,8 @@ class Main extends Component<Props, State> {
 const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
-  nodeIndicator: state.node.nodeIndicator
+  nodeIndicator: state.node.nodeIndicator,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

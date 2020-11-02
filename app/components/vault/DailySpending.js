@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { DropDown, Tooltip, Dots } from '/basicComponents';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
@@ -17,7 +15,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const AccItem = styled.div`
@@ -34,11 +32,10 @@ const AccItem = styled.div`
   }
 `;
 
-const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
-
 type Props = {
   masterAccountIndex: number,
-  selectAccountIndex: () => void
+  selectAccountIndex: () => void,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -84,13 +81,14 @@ const limits = [
 
 class DailySpending extends Component<Props, State> {
   render() {
-    const { masterAccountIndex, selectAccountIndex } = this.props;
+    const { masterAccountIndex, selectAccountIndex, isDarkModeOn } = this.props;
+    const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
 
     return (
       <>
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
-          <Tooltip width="250" text="Tooltip 1" />
+          <Tooltip width="250" text="Tooltip 1" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={accounts}
@@ -104,7 +102,7 @@ class DailySpending extends Component<Props, State> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Daily Spending Limit</DetailsText>
-          <Tooltip width="250" text="Tooltip 2" />
+          <Tooltip width="250" text="Tooltip 2" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={limits}

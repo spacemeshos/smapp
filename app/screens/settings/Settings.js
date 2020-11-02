@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { updateWalletName, updateAccountName, createNewAccount } from '/redux/wallet/actions';
 import { setNodeIpAddress, setRewardsAddress } from '/redux/node/actions';
+import { switchTheme } from '/redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '/components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
@@ -14,8 +15,6 @@ import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,20 +41,20 @@ const AllSettingsInnerWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Name = styled.div`
   font-size: 14px;
   line-height: 40px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   margin-left: 10px;
 `;
 
 const RewardAccount = styled.div`
   font-size: 16px;
   line-height: 15px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const GreenText = styled(Text)`
@@ -84,6 +83,7 @@ type Props = {
   createNewAccount: Action,
   setNodeIpAddress: Action,
   setRewardsAddress: Action,
+  switchTheme: Action,
   status: Object,
   history: RouterHistory,
   nodeIpAddress: string,
@@ -92,7 +92,8 @@ type Props = {
   stateRootHash: string,
   port: string,
   networkId: string,
-  backupTime: string
+  backupTime: string,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -147,7 +148,20 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime } = this.props;
+    const {
+      displayName,
+      accounts,
+      setNodeIpAddress,
+      setRewardsAddress,
+      status,
+      genesisTime,
+      rewardsAddress,
+      networkId,
+      stateRootHash,
+      backupTime,
+      switchTheme,
+      isDarkModeOn
+    } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -167,9 +181,9 @@ class Settings extends Component<Props, State> {
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
-          <SmallHorizontalPanel />
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           <AllSettingsInnerWrapper>
-            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1}>
+            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkModeOn={isDarkModeOn}>
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -197,7 +211,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
                 rowName="Wallet Restore"
               />
-              <SettingRow upperPartRight={<Button onClick={this.toggleDarkMode} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
+              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
               <SettingRow
                 upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
@@ -235,7 +249,7 @@ class Settings extends Component<Props, State> {
                 rowName="App Version"
               />
             </SettingsSection>
-            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2}>
+            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkModeOn={isDarkModeOn}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
                 upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
@@ -271,7 +285,7 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection title="MESH INFO" refProp={this.myRef3}>
+            <SettingsSection title="MESH INFO" refProp={this.myRef3} isDarkModeOn={isDarkModeOn}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
               <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
@@ -290,7 +304,7 @@ class Settings extends Component<Props, State> {
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
-            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4}>
+            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4} isDarkModeOn={isDarkModeOn}>
               <SettingRow
                 upperPartLeft={
                   isPortSet ? (
@@ -422,11 +436,6 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  toggleDarkMode = () => {
-    localStorage.getItem('dmMode') ? localStorage.removeItem('dmMode') : localStorage.setItem('dmMode', 'true');
-    eventsService.reloadApp();
-  };
-
   toggleAutoStart = () => {
     const { isAutoStartEnabled } = this.state;
     eventsService.toggleAutoStart();
@@ -497,7 +506,8 @@ const mapStateToProps = (state) => ({
   stateRootHash: state.node.stateRootHash,
   port: state.node.port,
   networkId: state.node.networkId,
-  backupTime: state.wallet.backupTime
+  backupTime: state.wallet.backupTime,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {
@@ -505,7 +515,8 @@ const mapDispatchToProps = {
   updateAccountName,
   createNewAccount,
   setNodeIpAddress,
-  setRewardsAddress
+  setRewardsAddress,
+  switchTheme
 };
 
 Settings = connect(mapStateToProps, mapDispatchToProps)(Settings);
