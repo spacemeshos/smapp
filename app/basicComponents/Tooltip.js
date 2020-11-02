@@ -4,9 +4,6 @@ import styled from 'styled-components';
 import { tooltip, tooltipWhite } from '/assets/images';
 import { smColors } from '/vars';
 
-// const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-// const icon = isDarkModeOn ? tooltipWhite : tooltip;
-
 const InnerWrapper = styled.div`
   display: none;
   position: absolute;

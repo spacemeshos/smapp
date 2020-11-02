@@ -59,7 +59,7 @@ class Auth extends Component<Props> {
     const { walletFiles, isDarkModeOn } = this.props;
     return (
       <Wrapper>
-        <Logo />
+        <Logo isDarkModeOn={isDarkModeOn} />
         <InnerWrapper>
           {walletFiles ? (
             <Switch>

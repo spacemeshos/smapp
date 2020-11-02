@@ -164,7 +164,7 @@ class Main extends Component<Props, State> {
 
     return (
       <Wrapper>
-        <Logo />
+        <Logo isDarkModeOn={isDarkModeOn} />
         <InnerWrapper>
           <NavBar>
             <NavBarPart>

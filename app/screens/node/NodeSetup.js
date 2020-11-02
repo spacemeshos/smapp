@@ -76,18 +76,27 @@ class NodeSetup extends Component<Props, State> {
   }
 
   renderRightSection = () => {
-    const { status, commitmentSize } = this.props;
+    const { status, commitmentSize, isDarkModeOn } = this.props;
     const { mode, folder, freeSpace, commitment, processor, isPausedOnUsage } = this.state;
     const formattedCommitmentSize = formatBytes(commitmentSize);
     switch (mode) {
       case 0:
-        return <PoSModifyPostData modify={this.handleNextAction} deleteData={() => {}} />;
+        return <PoSModifyPostData modify={this.handleNextAction} deleteData={() => {}} isDarkModeOn={isDarkModeOn} />;
       case 1:
-        return <PoSDirectory nextAction={this.handleNextAction} commitmentSize={formattedCommitmentSize} folder={folder} freeSpace={freeSpace} status={status} />;
+        return (
+          <PoSDirectory
+            nextAction={this.handleNextAction}
+            commitmentSize={formattedCommitmentSize}
+            folder={folder}
+            freeSpace={freeSpace}
+            status={status}
+            isDarkModeOn={isDarkModeOn}
+          />
+        );
       case 2:
-        return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} />;
+        return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} isDarkModeOn={isDarkModeOn} />;
       case 3:
-        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} isPausedOnUsage={isPausedOnUsage} status={status} />;
+        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} isPausedOnUsage={isPausedOnUsage} status={status} isDarkModeOn={isDarkModeOn} />;
       case 4:
         return (
           <PoSSummary

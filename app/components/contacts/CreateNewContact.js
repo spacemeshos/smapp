@@ -8,9 +8,6 @@ import { Input, Link, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
 import type { Action, Contact } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const color = isDarkModeOn ? smColors.white : smColors.realBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -23,7 +20,13 @@ const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ isStandalone }) => (isStandalone ? smColors.white : color)};
+  color: ${({ isStandalone, theme }) => {
+    if (isStandalone) {
+      return smColors.white;
+    } else {
+      return theme.isDarkModeOn ? smColors.white : smColors.realBlack;
+    }
+  }};
 `;
 
 const InputsWrapper = styled.div`

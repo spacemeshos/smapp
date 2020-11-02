@@ -5,9 +5,6 @@ import { Link } from '/basicComponents';
 import { smColors } from '/vars';
 import PoSFooter from './PoSFooter';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const color = isDarkModeOn ? smColors.white : smColors.black;
-
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -24,7 +21,7 @@ const Row = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${color};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
   text-transform: uppercase;
 `;
 
@@ -35,7 +32,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${color};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const linkStyle = { textTransform: 'uppercase', fontSize: '15px', lineHeight: '17px' };

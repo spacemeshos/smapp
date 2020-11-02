@@ -49,7 +49,7 @@ class FileRestore extends Component<Props, State> {
         <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <BackButton action={history.goBack} />
         <DdArea>
-          <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} />
+          <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} isDarkModeOn={isDarkModeOn} />
         </DdArea>
         <BottomSection>
           <Link onClick={this.navigateToBackupGuide} text="BACKUP GUIDE" />

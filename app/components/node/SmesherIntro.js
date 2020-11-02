@@ -6,8 +6,6 @@ import { Link, Button } from '/basicComponents';
 import { posIcon, fireworks, fireworksWhite, posNotification, posComputer, posAwake } from '/assets/images';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Fireworks = styled.img`
   width: 150px;
   height: 150px;
@@ -24,7 +22,7 @@ const TextWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 15px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const GreenText = styled.div`
@@ -78,12 +76,13 @@ const PosAwakeIcon = styled.img`
 const inlineLinkStyle = { display: 'inline', fontSize: '13px', lineHeight: '20px' };
 
 type Props = {
-  hideIntro: () => void
+  hideIntro: () => void,
+  isDarkModeOn: boolean
 };
 
 class SmesherIntro extends Component<Props> {
   render() {
-    const { hideIntro } = this.props;
+    const { hideIntro, isDarkModeOn } = this.props;
     return (
       <>
         <Fireworks src={isDarkModeOn ? fireworksWhite : fireworks} />

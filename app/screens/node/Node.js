@@ -138,10 +138,10 @@ class Node extends Component<Props, State> {
   }
 
   renderMainSection = () => {
-    const { miningStatus, history, status, networkId } = this.props;
+    const { miningStatus, history, status, networkId, isDarkModeOn } = this.props;
     const { showIntro } = this.state;
     if (showIntro) {
-      return <SmesherIntro hideIntro={() => this.setState({ showIntro: false })} />;
+      return <SmesherIntro hideIntro={() => this.setState({ showIntro: false })} isDarkModeOn={isDarkModeOn} />;
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return (
         <>
