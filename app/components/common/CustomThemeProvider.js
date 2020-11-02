@@ -19,6 +19,7 @@ const CustomThemeProvider = (props: Props) => {
 
   useEffect(() => {
     const fetchOSThemeColor = async () => {
+      // TODO find better solution to determine theme color
       const result = await eventsService.getOsThemeColor();
       setUseDarkColor(result);
     };
