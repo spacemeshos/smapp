@@ -24,7 +24,8 @@ import {
   Contacts,
   Network,
   TestMe,
-  Vault
+  Vault,
+  Dashboard
 } from '/screens';
 
 const app = [
@@ -77,6 +78,10 @@ const main = [
   {
     path: '/main/network',
     component: Network
+  },
+  {
+    path: '/main/dash',
+    component: Dashboard
   },
   {
     path: '/main/node-setup',

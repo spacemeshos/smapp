@@ -10,6 +10,10 @@ class EventsService {
 
   static getOsThemeColor = () => ipcRenderer.invoke(ipcConsts.GET_OS_THEME_COLOR);
 
+  static openBrowserView = () => ipcRenderer.invoke(ipcConsts.OPEN_BROWSER_VIEW);
+
+  static destroyBrowserView = () => ipcRenderer.invoke(ipcConsts.DESTROY_BROWSER_VIEW);
+
   static unlockWallet = ({ path, password }: { path: string, password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
 
   static updateWalletFile = ({ fileName, password, data }: { fileName: string, password: string, data: Object, field: string }) =>
