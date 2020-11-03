@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { CreateNewContact, CreatedNewContact } from '/components/contacts';
+import { CreateNewContact, CreatedNewContact, DeleteContact } from '/components/contacts';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { WrapperWith2SideBars, Input, DropDown } from '/basicComponents';
 import { smColors } from '/vars';
@@ -326,10 +326,11 @@ class Contacts extends Component<Props, State> {
     }
     const sortedContacts = filteredContacts.sort(this.sortContacts);
     return sortedContacts.map((contact) => (
-      <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => this.navigateToSendCoins({ contact })}>
-        <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
-        <ContactText>{getAbbreviatedText(contact.address)}</ContactText>
+      <ContactRow key={`${contact.nickname}_${contact.address}`}>
+        <ContactText onClick={() => this.navigateToSendCoins({ contact })}>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
+        <ContactText onClick={() => this.navigateToSendCoins({ contact })}>{getAbbreviatedText(contact.address)}</ContactText>
         {!contact.nickname && <CreateNewContactImg onClick={(e) => this.openAddNewContactModal(e, contact)} src={addContact} />}
+        <DeleteContact contact={contact} />
       </ContactRow>
     ));
   };

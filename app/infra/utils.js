@@ -4,7 +4,10 @@ const createError = (message, func) => ({
 });
 
 const getAbbreviatedText = (address: string, addPrefix: boolean = true, tailSize: number = 4) =>
-  `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
+  `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize + 2 * address.startsWith('0x'))}...${address.substring(
+    address.length - tailSize,
+    address.length
+  )}`;
 
 const getFormattedTimestamp = (timestamp: string) => {
   if (timestamp) {
