@@ -159,7 +159,10 @@ app.on('ready', async () => {
     return browserView.webContents.loadURL(url);
   });
 
-  ipcMain.handle(ipcConsts.DESTROY_BROWSER_VIEW, () => browserView.destroy());
+  ipcMain.handle(ipcConsts.DESTROY_BROWSER_VIEW, () => {
+    browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    browserView.destroy();
+  });
 
   ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
     path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')

@@ -11,8 +11,12 @@ const AnimatedIcon = styled.img`
   width: ${({ size }) => `${size}px`};
 `;
 
-const Dashboard = () => {
-  const isDarkModeOn = true;
+type Props = {
+  isDarkModeOn: boolean
+};
+
+const Dashboard = (props: Props) => {
+  const { isDarkModeOn } = props;
 
   useEffect(() => {
     eventsService.openBrowserView();
