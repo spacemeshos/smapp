@@ -1,9 +1,11 @@
 // @flow
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
+import styled from 'styled-components';
 import { eventsService } from '/infra/eventsService';
 import { loader, loaderWhite } from '/assets/images';
-import styled from 'styled-components';
+import ipcConsts from '/vars/ipcConsts';
 
 const AnimatedIcon = styled.img`
   display: block;
@@ -19,7 +21,11 @@ const Dashboard = (props: Props) => {
   const { isDarkModeOn } = props;
 
   useEffect(() => {
-    eventsService.openBrowserView();
+    ipcRenderer.send(ipcConsts.SEND_THEME_COLOR, { isDarkModeOn });
+  }, [isDarkModeOn]);
+
+  useEffect(() => {
+    eventsService.openBrowserView(isDarkModeOn);
     return () => eventsService.destroyBrowserView();
   }, []);
 

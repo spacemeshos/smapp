@@ -40,6 +40,7 @@ let mainWindow = null;
 let browserView = null;
 let tray = null;
 let nodeManager;
+let isDarkModeOn = nativeTheme.shouldUseDarkColors;
 
 const handleClosingApp = async () => {
   const networkId = StoreService.get({ key: 'networkId' });
@@ -155,7 +156,7 @@ app.on('ready', async () => {
     const contentBounds = mainWindow.getContentBounds();
     browserView.setBounds({ x: 0, y: 100, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-    const url = nativeTheme.shouldUseDarkColors ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
+    const url = isDarkModeOn ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
     return browserView.webContents.loadURL(url);
   });
 
@@ -167,6 +168,10 @@ app.on('ready', async () => {
   ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
     path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')
   );
+
+  ipcMain.on(ipcConsts.SEND_THEME_COLOR, (event, request) => {
+    isDarkModeOn = request.isDarkModeOn;
+  });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
