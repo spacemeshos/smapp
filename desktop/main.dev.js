@@ -152,7 +152,8 @@ app.on('ready', async () => {
   ipcMain.handle(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
     mainWindow.setBrowserView(browserView);
-    browserView.setBounds({ x: 0, y: 100, width: 1280, height: 600 });
+    const contentBounds = mainWindow.getContentBounds();
+    browserView.setBounds({ x: 0, y: 100, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
     return browserView.webContents.loadURL('https://stage-dash.spacemesh.io/?hide-right-line');
   });
