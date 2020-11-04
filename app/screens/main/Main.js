@@ -206,11 +206,11 @@ class Main extends Component<Props, State> {
             <NavBarPart>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 4 })}
+                  onClick={() => this.handleNavigation({ index: 5 })}
                   img={settings}
                   imgHeight={30}
                   imgWidth={30}
-                  isPrimary={activeRouteIndex === 4}
+                  isPrimary={activeRouteIndex === 5}
                   width={35}
                   height={35}
                   style={bntStyle}
@@ -220,7 +220,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 5 })}
+                  onClick={() => this.handleNavigation({ index: 6 })}
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -234,7 +234,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 6 })}
+                  onClick={() => this.handleNavigation({ index: 7 })}
                   img={help}
                   imgHeight={30}
                   imgWidth={30}
@@ -248,7 +248,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 7 })}
+                  onClick={() => this.handleNavigation({ index: 8 })}
                   img={signOut}
                   imgHeight={30}
                   imgWidth={30}

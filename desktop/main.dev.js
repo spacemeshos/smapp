@@ -155,7 +155,8 @@ app.on('ready', async () => {
     const contentBounds = mainWindow.getContentBounds();
     browserView.setBounds({ x: 0, y: 100, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-    return browserView.webContents.loadURL('https://stage-dash.spacemesh.io/?hide-right-line');
+    const url = nativeTheme.shouldUseDarkColors ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
+    return browserView.webContents.loadURL(url);
   });
 
   ipcMain.handle(ipcConsts.DESTROY_BROWSER_VIEW, () => browserView.destroy());
