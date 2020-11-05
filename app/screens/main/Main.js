@@ -145,6 +145,7 @@ class Main extends Component<Props, State> {
       () => history.push('/main/network'),
       () => history.push('/main/wallet'),
       () => history.push('/main/contacts'),
+      () => history.push('/main/dash'),
       () => history.push('/main/settings'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/help')
@@ -194,16 +195,22 @@ class Main extends Component<Props, State> {
                   </NavBarLink>
                   <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
                 </TooltipWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 4 })} isActive={activeRouteIndex === 4}>
+                    DASH
+                  </NavBarLink>
+                  <CustomTooltip text="DASHBOARD" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
               </NavLinksWrapper>
             </NavBarPart>
             <NavBarPart>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 4 })}
+                  onClick={() => this.handleNavigation({ index: 5 })}
                   img={settings}
                   imgHeight={30}
                   imgWidth={30}
-                  isPrimary={activeRouteIndex === 4}
+                  isPrimary={activeRouteIndex === 5}
                   width={35}
                   height={35}
                   style={bntStyle}
@@ -213,7 +220,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 5 })}
+                  onClick={() => this.handleNavigation({ index: 6 })}
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -227,7 +234,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 6 })}
+                  onClick={() => this.handleNavigation({ index: 7 })}
                   img={help}
                   imgHeight={30}
                   imgWidth={30}
@@ -241,7 +248,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 7 })}
+                  onClick={() => this.handleNavigation({ index: 8 })}
                   img={signOut}
                   imgHeight={30}
                   imgWidth={30}
@@ -334,17 +341,18 @@ class Main extends Component<Props, State> {
         case 1:
         case 2:
         case 3:
-        case 4: {
+        case 4:
+        case 5: {
           this.setState({ activeRouteIndex: index });
           this.navMap[index]();
           break;
         }
-        case 5:
-        case 6: {
+        case 6:
+        case 7: {
           this.navMap[index]();
           break;
         }
-        case 7: {
+        case 8: {
           history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;

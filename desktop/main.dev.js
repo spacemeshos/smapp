@@ -10,7 +10,7 @@
  */
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow, ipcMain, Tray, Menu, dialog, nativeTheme } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme } from 'electron';
 import 'regenerator-runtime/runtime';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
@@ -37,8 +37,10 @@ unhandled();
 StoreService.init();
 
 let mainWindow = null;
+let browserView = null;
 let tray = null;
 let nodeManager;
+let isDarkModeOn = nativeTheme.shouldUseDarkColors;
 
 const handleClosingApp = async () => {
   const networkId = StoreService.get({ key: 'networkId' });
@@ -112,6 +114,14 @@ const createWindow = () => {
   });
 };
 
+const createBrowserView = () => {
+  browserView = new BrowserView({
+    webPreferences: {
+      nodeIntegration: false
+    }
+  });
+};
+
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
@@ -140,9 +150,28 @@ app.on('ready', async () => {
 
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
 
+  ipcMain.handle(ipcConsts.OPEN_BROWSER_VIEW, () => {
+    createBrowserView();
+    mainWindow.setBrowserView(browserView);
+    const contentBounds = mainWindow.getContentBounds();
+    browserView.setBounds({ x: 0, y: 100, width: contentBounds.width - 35, height: 600 });
+    browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
+    const url = isDarkModeOn ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
+    return browserView.webContents.loadURL(url);
+  });
+
+  ipcMain.handle(ipcConsts.DESTROY_BROWSER_VIEW, () => {
+    browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    browserView.destroy();
+  });
+
   ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
     path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')
   );
+
+  ipcMain.on(ipcConsts.SEND_THEME_COLOR, (event, request) => {
+    isDarkModeOn = request.isDarkModeOn;
+  });
 
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });

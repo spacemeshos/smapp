@@ -20,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: ${({ theme }) => (theme.isDarkModeOn ? '#000000' : '#F3F3F3')};
+        background-color: ${({ theme }) => (theme.isDarkModeOn ? '#252429' : '#F3F3F3')};
     }
     
     html, body, div, span, applet, object, iframe,
