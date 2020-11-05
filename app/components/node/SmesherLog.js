@@ -6,8 +6,6 @@ import { getFormattedTimestamp, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
 import type { TxList } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -27,7 +25,7 @@ const LogEntry = styled.div`
 const LogText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const AwardText = styled(LogText)`
@@ -42,14 +40,15 @@ const LogEntrySeparator = styled(LogText)`
 type Props = {
   initTimestamp: string,
   smeshingTimestamp: string,
-  rewards: TxList
+  rewards: TxList,
+  isDarkModeOn: boolean
 };
 
 class SmesherLog extends PureComponent<Props> {
   render() {
-    const { initTimestamp, smeshingTimestamp, rewards } = this.props;
+    const { initTimestamp, smeshingTimestamp, rewards, isDarkModeOn } = this.props;
     return (
-      <CorneredContainer width={310} height={450} header="SMESHER LOG">
+      <CorneredContainer width={310} height={450} header="SMESHER LOG" isDarkModeOn={isDarkModeOn}>
         <Wrapper>
           {initTimestamp ? (
             <>

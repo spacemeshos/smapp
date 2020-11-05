@@ -7,8 +7,6 @@ import { getAddress, formatSmidge } from '/infra/utils';
 import { chevronLeftWhite } from '/assets/images';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -16,7 +14,7 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const Header = styled.div`
@@ -29,7 +27,7 @@ const HeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const SubHeader1 = styled(HeaderText)`
@@ -41,7 +39,7 @@ const SubHeader2 = styled.div`
   font-family: SourceCodeProBold;
   font-size: 24px;
   line-height: 30px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const DetailsRow = styled.div`
@@ -62,7 +60,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`
@@ -74,7 +72,7 @@ const TotalText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 24px;
   line-height: 30px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Footer = styled.div`
@@ -96,7 +94,7 @@ const ComplexButtonText = styled.div`
   font-size: 13px;
   line-height: 17px;
   text-decoration: underline;
-  color: ${isDarkModeOn ? smColors.white : smColors.mediumGray};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.mediumGray)};
 `;
 
 const NotSyncedExplanation = styled.div`

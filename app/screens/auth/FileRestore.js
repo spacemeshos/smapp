@@ -24,7 +24,8 @@ const BottomSection = styled.div`
 
 type Props = {
   restoreFile: Action,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -41,14 +42,14 @@ class FileRestore extends Component<Props, State> {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, isDarkModeOn } = this.props;
     const { fileName, hasError } = this.state;
     return (
-      <WrapperWith2SideBars width={800} height={480} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
-        <SmallHorizontalPanel />
+      <WrapperWith2SideBars width={800} height={480} isDarkModeOn={isDarkModeOn} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
+        <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
         <BackButton action={history.goBack} />
         <DdArea>
-          <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} />
+          <DragAndDrop onFilesAdded={this.addFile} fileName={fileName} hasError={hasError} isDarkModeOn={isDarkModeOn} />
         </DdArea>
         <BottomSection>
           <Link onClick={this.navigateToBackupGuide} text="BACKUP GUIDE" />
@@ -80,10 +81,14 @@ class FileRestore extends Component<Props, State> {
   navigateToBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
 const mapDispatchToProps = {
   restoreFile
 };
 
-FileRestore = connect(null, mapDispatchToProps)(FileRestore);
+FileRestore = connect(mapStateToProps, mapDispatchToProps)(FileRestore);
 
 export default FileRestore;

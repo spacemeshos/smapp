@@ -10,6 +10,9 @@ export type StoreStateType = {
     wallet: Wallet,
     accounts: Account[],
     transactions: []
+  },
+  +ui: {
+    isDarkMode: boolean
   }
 };
 

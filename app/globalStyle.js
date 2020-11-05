@@ -2,9 +2,6 @@ import { createGlobalStyle } from 'styled-components';
 import srcReg from './assets/fonts/SourceCodePro-Regular.ttf';
 import srcBold from './assets/fonts/SourceCodePro-Bold.ttf';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const backgroundColor = isDarkModeOn ? '#000000' : '#F3F3F3';
-
 const GlobalStyle = createGlobalStyle`
     @font-face {
       font-family: SourceCodePro;
@@ -23,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: ${backgroundColor};
+        background-color: ${({ theme }) => (theme.isDarkModeOn ? '#252429' : '#F3F3F3')};
     }
     
     html, body, div, span, applet, object, iframe,

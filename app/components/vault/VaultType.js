@@ -23,26 +23,27 @@ const InputSubTitle = styled.div`
 
 type Props = {
   type: string,
-  handleChangeType: () => void
+  handleChangeType: () => void,
+  isDarkModeOn: boolean
 };
 
 type State = {};
 
 class VaultType extends Component<Props, State> {
   render() {
-    const { type, handleChangeType } = this.props;
+    const { type, handleChangeType, isDarkModeOn } = this.props;
     return (
       <>
         <Label>
           <RadioButton checked={type === 'single'} name="single" value={'single'} onChange={(e) => handleChangeType(e)} />
           <InputTitle>Simple Vault</InputTitle>
-          <Tooltip width="250" text="Simple Vault" />
+          <Tooltip width="250" text="Simple Vault" isDarkModeOn={isDarkModeOn} />
         </Label>
         <InputSubTitle>A vault controlled by a single master account.</InputSubTitle>
         <Label>
           <RadioButton checked={type === 'multi-sig'} name="multi-sig" value={'multi-sig'} onChange={(e) => handleChangeType(e)} />
           <InputTitle>Multi-sig Vault</InputTitle>
-          <Tooltip width="250" text="Multi-sig Vault" />
+          <Tooltip width="250" text="Multi-sig Vault" isDarkModeOn={isDarkModeOn} />
         </Label>
         <InputSubTitle>A 2/3 multi-sig vault which is controlled by 3 master accounts and requires 2 signatures on each operation.</InputSubTitle>
       </>

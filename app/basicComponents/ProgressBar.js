@@ -25,8 +25,6 @@ const Base = styled.div`
   color: ${smColors.realBlack};
 `;
 
-// const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 type Props = {
   progress: number
 };

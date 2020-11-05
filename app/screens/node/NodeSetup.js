@@ -33,7 +33,8 @@ type Props = {
   posDataPath: string,
   commitmentSize: string,
   history: RouterHistory,
-  location: { state?: { modifyPostData: boolean } }
+  location: { state?: { modifyPostData: boolean } },
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -58,15 +59,15 @@ class NodeSetup extends Component<Props, State> {
   }
 
   render() {
-    const { location } = this.props;
+    const { location, isDarkModeOn } = this.props;
     const { mode } = this.state;
     const subHeader = mode !== 1 ? subHeaders[mode] : `Select a directory to save your proof og space data.\nMinimum ${this.formattedCommitmentSize} of free space is required`;
     const hasBackButton = location?.state?.modifyPostData || mode !== 1;
     return (
       <Wrapper>
-        <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} />
+        <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkModeOn={isDarkModeOn} />
         <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
-          <SmallHorizontalPanel />
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           {hasBackButton && <BackButton action={this.handlePrevAction} />}
           {this.renderRightSection()}
         </CorneredContainer>
@@ -75,18 +76,27 @@ class NodeSetup extends Component<Props, State> {
   }
 
   renderRightSection = () => {
-    const { status, commitmentSize } = this.props;
+    const { status, commitmentSize, isDarkModeOn } = this.props;
     const { mode, folder, freeSpace, commitment, processor, isPausedOnUsage } = this.state;
     const formattedCommitmentSize = formatBytes(commitmentSize);
     switch (mode) {
       case 0:
-        return <PoSModifyPostData modify={this.handleNextAction} deleteData={() => {}} />;
+        return <PoSModifyPostData modify={this.handleNextAction} deleteData={() => {}} isDarkModeOn={isDarkModeOn} />;
       case 1:
-        return <PoSDirectory nextAction={this.handleNextAction} commitmentSize={formattedCommitmentSize} folder={folder} freeSpace={freeSpace} status={status} />;
+        return (
+          <PoSDirectory
+            nextAction={this.handleNextAction}
+            commitmentSize={formattedCommitmentSize}
+            folder={folder}
+            freeSpace={freeSpace}
+            status={status}
+            isDarkModeOn={isDarkModeOn}
+          />
+        );
       case 2:
-        return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} />;
+        return <PoSSize nextAction={this.handleNextAction} folder={folder} freeSpace={freeSpace} commitment={commitment} status={status} isDarkModeOn={isDarkModeOn} />;
       case 3:
-        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} isPausedOnUsage={isPausedOnUsage} status={status} />;
+        return <PoSProcessor nextAction={this.handleNextAction} processor={processor} isPausedOnUsage={isPausedOnUsage} status={status} isDarkModeOn={isDarkModeOn} />;
       case 4:
         return (
           <PoSSummary
@@ -160,7 +170,8 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   posDataPath: state.node.posDataPath,
   commitmentSize: state.node.commitmentSize,
-  accounts: state.wallet.accounts
+  accounts: state.wallet.accounts,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

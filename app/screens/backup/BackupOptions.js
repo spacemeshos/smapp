@@ -9,8 +9,6 @@ import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPan
 import { smColors } from '/vars';
 import type { Action } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -21,7 +19,7 @@ const SmallText = styled.span`
   line-height: 20px;
   margin-bottom: 6px;
   flex: 1;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const GreenText = styled(SmallText)`
@@ -31,7 +29,7 @@ const GreenText = styled(SmallText)`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const BoldText = styled(Text)`
@@ -51,7 +49,7 @@ const MiddleSection = styled.div`
   width: 500px;
   height: 100%;
   padding: 25px 15px 15px 15px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const MiddleSectionRow = styled.div`
@@ -69,19 +67,21 @@ const BottomRow = styled(MiddleSectionRow)`
 
 type Props = {
   backupWallet: Action,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 class BackupOptions extends Component<Props> {
   render() {
+    const { isDarkModeOn } = this.props;
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={300} header="WALLET" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={300} header="WALLET" style={{ marginRight: 10 }} isDarkModeOn={isDarkModeOn}>
           <BoldText>How would you like to backup your wallet?</BoldText>
           <Text>Your wallet is encrypted using your password. We recommend you backup your wallet for additional security.</Text>
         </WrapperWith2SideBars>
-        <RightSection>
-          <SmallHorizontalPanel />
+        <RightSection isDarkModeOn={isDarkModeOn}>
+          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
           <MiddleSection>
             <MiddleSectionRow>
               <SmallText style={{ marginRight: 22 }}>Basic Security</SmallText>
@@ -126,5 +126,9 @@ const mapDispatchToProps = {
   backupWallet
 };
 
-BackupOptions = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(BackupOptions);
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+BackupOptions = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(BackupOptions);
 export default BackupOptions;

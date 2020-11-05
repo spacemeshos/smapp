@@ -11,9 +11,6 @@ import { smColors } from '/vars';
 import type { Account, Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const copy = isDarkModeOn ? copyWhite : copyBlack;
-
 const AccountDetails = styled.div`
   display: flex;
   flex-direction: row;
@@ -26,16 +23,16 @@ const AccountWrapper = styled.div`
   align-items: flex-start;
   margin: 5px;
   cursor: inherit;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
   &:hover {
     opacity: 1;
-    color: ${isDarkModeOn ? smColors.lightGray : smColors.darkGray50Alpha};
+    color: ${({ theme }) => (theme.isDarkModeOn ? smColors.lightGray : smColors.darkGray50Alpha)};
   }
   ${({ isInDropDown }) =>
     isInDropDown &&
     `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
     opacity: 1;
-    color: ${isDarkModeOn ? smColors.darkGray50Alpha : smColors.darkGray50Alpha};
+    color: ${({ theme }) => (theme.isDarkModeOn ? smColors.darkGray50Alpha : smColors.darkGray50Alpha)};
   }`}
 `;
 
@@ -79,7 +76,7 @@ const BalanceHeader = styled.div`
   margin-bottom: 10px;
   font-size: 13px;
   line-height: 17px;
-  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const BalanceWrapper = styled.div`
@@ -122,7 +119,8 @@ type Props = {
   getBalance: Action,
   setCurrentAccount: Action,
   status: Object,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -137,15 +135,16 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, status } = this.props;
+    const { walletName, accounts, currentAccountIndex, status, isDarkModeOn } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
     }
     const { displayName, publicKey, balance } = accounts[currentAccountIndex];
     const { value, unit } = formatSmidge(balance || 0, true);
+
     return (
-      <WrapperWith2SideBars width={300} style={{ height: 'calc(100% - 65px)' }} header={walletName}>
+      <WrapperWith2SideBars width={300} style={{ height: 'calc(100% - 65px)' }} header={walletName} isDarkModeOn={isDarkModeOn}>
         <AccountDetails>
           {accounts.length > 1 ? (
             <DropDown
@@ -181,12 +180,12 @@ class AccountsOverview extends Component<Props, State> {
     this.copiedTimeout && clearTimeout(this.copiedTimeout);
   }
 
-  renderAccountRow = ({ displayName, publicKey, isInDropDown }: { displayName: string, publicKey: string, isInDropDown?: boolean }) => (
+  renderAccountRow = ({ displayName, publicKey, isInDropDown, isDarkModeOn }: { displayName: string, publicKey: string, isInDropDown?: boolean, isDarkModeOn: boolean }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
         {getAbbreviatedText(getAddress(publicKey))}
-        <CopyIcon src={copy} onClick={this.copyPublicAddress} />
+        <CopyIcon src={isDarkModeOn ? copyWhite : copyBlack} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
   );
@@ -217,7 +216,8 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   walletName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
-  currentAccountIndex: state.wallet.currentAccountIndex
+  currentAccountIndex: state.wallet.currentAccountIndex,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

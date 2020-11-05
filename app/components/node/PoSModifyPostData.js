@@ -4,9 +4,6 @@ import styled from 'styled-components';
 import { Tooltip, Button } from '/basicComponents';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const color = isDarkModeOn ? smColors.white : smColors.black;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -29,7 +26,7 @@ const Row = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${color};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Dots = styled.div`
@@ -39,29 +36,30 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${color};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 type Props = {
   modify: () => void,
-  deleteData: () => void
+  deleteData: () => void,
+  isDarkModeOn: boolean
 };
 
 class PoSModifyPostData extends PureComponent<Props> {
   render() {
-    const { modify, deleteData } = this.props;
+    const { modify, deleteData, isDarkModeOn } = this.props;
     return (
       <>
         <Wrapper>
           <Row>
             <Text>Change your PoS data</Text>
-            <Tooltip width={200} text="Some text" />
+            <Tooltip width={200} text="Some text" isDarkModeOn={isDarkModeOn} />
             <Dots>.....................................................</Dots>
             <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
           </Row>
           <Row>
             <Text>Stop smeshing and delete PoS data</Text>
-            <Tooltip width={200} text="Some text" />
+            <Tooltip width={200} text="Some text" isDarkModeOn={isDarkModeOn} />
             <Dots>.....................................................</Dots>
             <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
           </Row>

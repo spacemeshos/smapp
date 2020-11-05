@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { smColors } from '/vars';
 import { DropDown, Tooltip, Dots } from '/basicComponents';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const DetailsRow = styled.div`
   position: relative;
   display: flex;
@@ -17,7 +15,7 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const AccItem = styled.div`
@@ -34,15 +32,12 @@ const AccItem = styled.div`
   }
 `;
 
-const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 340px' };
-const ddStyleGasUnit = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 140px' };
-const ddStyleGasPrice = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 200px' };
-
 type Props = {
   selectAccountIndex: () => void,
   selectFundAmount: () => void,
   selectGasUnits: () => void,
-  selectGasPrice: () => void
+  selectGasPrice: () => void,
+  isDarkModeOn: boolean
 };
 
 // TODO add auto update data
@@ -81,13 +76,17 @@ const unitPrice = [
 
 class VaultTx extends Component<Props> {
   render() {
-    const { selectAccountIndex, selectFundAmount, selectGasUnits, selectGasPrice } = this.props;
+    const { selectAccountIndex, selectFundAmount, selectGasUnits, selectGasPrice, isDarkModeOn } = this.props;
+
+    const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 340px' };
+    const ddStyleGasUnit = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 140px' };
+    const ddStyleGasPrice = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 200px' };
 
     return (
       <>
         <DetailsRow>
           <DetailsText>Daily Spending Accnt</DetailsText>
-          <Tooltip width="250" text="Tooltip 1" />
+          <Tooltip width="250" text="Tooltip 1" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={accounts}
@@ -101,7 +100,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Fund Amount</DetailsText>
-          <Tooltip width="250" text="Tooltip 2" />
+          <Tooltip width="250" text="Tooltip 2" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={accounts}
@@ -115,7 +114,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Max Gas Units</DetailsText>
-          <Tooltip width="250" text="Tooltip 3" />
+          <Tooltip width="250" text="Tooltip 3" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={gasUnit}
@@ -129,7 +128,7 @@ class VaultTx extends Component<Props> {
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Gas Unit Price</DetailsText>
-          <Tooltip width="250" text="Tooltip 4" />
+          <Tooltip width="250" text="Tooltip 4" isDarkModeOn={isDarkModeOn} />
           <Dots />
           <DropDown
             data={unitPrice}

@@ -2,9 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '/vars';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const color = isDarkModeOn ? smColors.white : smColors.realBlack;
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -12,7 +9,7 @@ const Wrapper = styled.div`
   align-items: center;
   width: 18px;
   height: 18px;
-  border: 2px solid ${color};
+  border: ${({ theme }) => `2px solid ${theme.isDarkModeOn ? smColors.white : smColors.realBlack}`};
   margin-right: 5px;
   cursor: pointer;
 `;

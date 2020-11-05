@@ -13,19 +13,13 @@ import {
 } from '/assets/images';
 import smColors from '/vars/colors';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
-const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
-const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
-const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
-
 const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
   margin-bottom: 12px;
   padding: 30px;
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
 `;
 
 const TopLeftCorner = styled.img`
@@ -63,25 +57,30 @@ const BottomRightCorner = styled.img`
 const Header = styled.div`
   font-size: 42px;
   line-height: 55px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const SubHeader = styled.div`
   font-size: 20px;
   line-height: 30px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
   margin-bottom: 20px;
 `;
 
 type Props = {
   title: string,
   refProp: Object,
-  children: any
+  children: any,
+  isDarkModeOn: boolean
 };
 
 class SettingsSection extends PureComponent<Props> {
   render() {
-    const { refProp, title, children } = this.props;
+    const { refProp, title, children, isDarkModeOn } = this.props;
+    const topLeft = isDarkModeOn ? topLeftCornerWhite : topLeftCorner;
+    const topRight = isDarkModeOn ? topRightCornerWhite : topRightCorner;
+    const bottomLeft = isDarkModeOn ? bottomLeftCornerWhite : bottomLeftCorner;
+    const bottomRight = isDarkModeOn ? bottomRightCornerWhite : bottomRightCorner;
     return (
       <Wrapper ref={refProp}>
         <Header>{title}</Header>

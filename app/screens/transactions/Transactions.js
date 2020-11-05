@@ -14,8 +14,6 @@ import TX_STATUSES from '/vars/enums';
 import type { RouterHistory } from 'react-router-dom';
 import type { TxList, Tx, AccountTxs } from '/types';
 
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -25,13 +23,13 @@ const Wrapper = styled.div`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const Header = styled.span`
   font-family: SourceCodeProBold;
   margin-bottom: 25px;
-  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const TransactionsListWrapper = styled.div`
@@ -43,7 +41,7 @@ const TransactionsListWrapper = styled.div`
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
-  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha)};
   display: flex;
   flex-direction: column;
   width: 260px;
@@ -93,7 +91,8 @@ const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }
 type Props = {
   publicKey: string,
   transactions: AccountTxs,
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -108,14 +107,14 @@ class Transactions extends Component<Props, State> {
   };
 
   render() {
-    const { history, publicKey, transactions } = this.props;
+    const { history, publicKey, transactions, isDarkModeOn } = this.props;
     const { selectedItemIndex, addressToAdd } = this.state;
     const filteredTransactions = this.filterTransactions({ index: selectedItemIndex, transactions });
     const { mined, sent, received, totalMined, totalSent, totalReceived } = this.getCoinStatistics({ filteredTransactions });
     return (
       <Wrapper>
         <BackButton action={history.goBack} width={7} height={10} />
-        <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }} isDarkModeOn={isDarkModeOn}>
           <Header>Latest transactions</Header>
           <TransactionsListWrapper>
             {filteredTransactions && filteredTransactions.length ? (
@@ -199,7 +198,8 @@ class Transactions extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   publicKey: state.wallet.accounts[state.wallet.currentAccountIndex].publicKey,
-  transactions: state.wallet.transactions[state.wallet.currentAccountIndex]
+  transactions: state.wallet.transactions[state.wallet.currentAccountIndex],
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 Transactions = connect(mapStateToProps)(Transactions);

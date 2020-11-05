@@ -6,5 +6,6 @@ export { Backup, BackupOptions, TwelveWordsBackup, TestMe, FileBackup } from './
 export { Transactions } from './transactions';
 export { Contacts } from './contacts';
 export { Network } from './network';
+export { Dashboard } from './dashboard';
 export { Settings } from './settings';
 export { SplashScreen } from './splashScreen';

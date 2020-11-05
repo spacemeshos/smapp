@@ -15,7 +15,8 @@ type Props = {
   sendTransaction: Action,
   history: RouterHistory,
   status: Object,
-  location: { state?: { contact: Contact } }
+  location: { state?: { contact: Contact } },
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -88,7 +89,7 @@ class SendCoins extends Component<Props, State> {
   }
 
   renderTxParamsMode = () => {
-    const { currentAccount, lastUsedContacts, contacts, history, status } = this.props;
+    const { currentAccount, lastUsedContacts, contacts, history, status, isDarkModeOn } = this.props;
     const { address, hasAddressError, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
@@ -110,6 +111,7 @@ class SendCoins extends Component<Props, State> {
         nextAction={this.proceedToMode2}
         status={status}
         key="params"
+        isDarkModeOn={isDarkModeOn}
       />,
       isCreateNewContactOn ? (
         <CreateNewContact
@@ -192,7 +194,8 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   contacts: state.wallet.contacts,
-  lastUsedContacts: state.wallet.lastUsedContacts
+  lastUsedContacts: state.wallet.lastUsedContacts,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

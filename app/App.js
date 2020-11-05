@@ -9,7 +9,7 @@ import routes from './routes';
 import GlobalStyle from './globalStyle';
 import type { Store } from '/types';
 import { configureStore } from './redux/configureStore';
-import { OnQuitModal } from '/components/common';
+import { OnQuitModal, CustomThemeProvider } from '/components/common';
 
 const logger = require('electron-log');
 
@@ -29,17 +29,19 @@ class App extends React.Component<{}> {
   render() {
     return (
       <>
-        <GlobalStyle />
         <Provider store={store}>
-          <Router>
-            <Switch>
-              {routes.app.map((route) => (
-                <Route key={route.path} path={route.path} component={route.component} />
-              ))}
-              <Redirect to="/pre" />
-            </Switch>
-          </Router>
-          <OnQuitModal />
+          <CustomThemeProvider>
+            <GlobalStyle />
+            <Router>
+              <Switch>
+                {routes.app.map((route) => (
+                  <Route key={route.path} path={route.path} component={route.component} />
+                ))}
+                <Redirect to="/pre" />
+              </Switch>
+            </Router>
+            <OnQuitModal />
+          </CustomThemeProvider>
         </Provider>
       </>
     );

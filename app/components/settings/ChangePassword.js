@@ -32,7 +32,8 @@ type Props = {
   walletFiles: Array<string>,
   mnemonic: string,
   accounts: Account[],
-  contacts: Contact
+  contacts: Contact,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -57,9 +58,10 @@ class ChangePassword extends Component<Props, State> {
   };
 
   render() {
+    const { isDarkModeOn } = this.props;
     const { isEditMode, password, verifiedPassword, isLoaderVisible, passwordError, verifyPasswordError } = this.state;
     if (isLoaderVisible) {
-      return <Loader size={Loader.sizes.BIG} />;
+      return <Loader size={Loader.sizes.BIG} isDarkModeOn={isDarkModeOn} />;
     }
     return (
       <Wrapper>
@@ -146,7 +148,8 @@ const mapStateToProps = (state) => ({
   walletFiles: state.wallet.walletFiles,
   mnemonic: state.wallet.mnemonic,
   accounts: state.wallet.accounts,
-  contacts: state.wallet.contacts
+  contacts: state.wallet.contacts,
+  isDarkModeOn: state.ui.isDarkMode
 });
 
 ChangePassword = connect<any, any, _, _, _, _>(mapStateToProps)(ChangePassword);

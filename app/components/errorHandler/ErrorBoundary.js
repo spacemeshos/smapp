@@ -1,5 +1,6 @@
 // @flow
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Modal } from '/components/common';
 import { Button } from '/basicComponents';
 import styled from 'styled-components';
@@ -20,7 +21,8 @@ const ButtonsWrapper = styled.div`
 `;
 
 type Props = {
-  children: any
+  children: any,
+  isDarkModeOn: boolean
 };
 
 type State = {
@@ -33,14 +35,14 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   render() {
-    const { children } = this.props;
+    const { children, isDarkModeOn } = this.props;
     const { error } = this.state;
 
     if (error) {
       const { retryFunction } = error;
       const explanationText = `${retryFunction ? 'Retry failed action or refresh page.' : 'Try to refresh page.'}`;
       return (
-        <Modal header="Something`s wrong here..." headerColor={smColors.orange}>
+        <Modal header="Something`s wrong here..." headerColor={smColors.orange} isDarkModeOn={isDarkModeOn}>
           {explanationText && <Text>{explanationText}</Text>}
           <ButtonsWrapper hasSingleButton={!retryFunction}>
             <Button onClick={() => this.setState({ error: null })} text="REFRESH" />
@@ -64,4 +66,9 @@ class ErrorBoundary extends Component<Props, State> {
   };
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+ErrorBoundary = connect(mapStateToProps, null)(ErrorBoundary);
 export default ErrorBoundary;

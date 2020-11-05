@@ -1,19 +1,13 @@
 // @flow
 import { shell } from 'electron';
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
 import { Button, Link } from '/basicComponents';
 import { bigInnerSideBar, laptop, power, setup, laptopWhite, powerWhite, setupWhite } from '/assets/images';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-
-const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
-const backgroundColor = isDarkModeOn ? smColors.white : smColors.black;
-const color = isDarkModeOn ? smColors.white : smColors.black;
-const laptopImg = isDarkModeOn ? laptopWhite : laptop;
-const powerImg = isDarkModeOn ? powerWhite : power;
-const setupImg = isDarkModeOn ? setupWhite : setup;
 
 const SideBar = styled.img`
   position: absolute;
@@ -29,7 +23,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const Row = styled.div`
@@ -49,7 +43,7 @@ const Icon = styled.img`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${color};
+  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
 `;
 
 const BottomPart = styled.div`
@@ -86,14 +80,19 @@ const subHeader = (
 );
 
 type Props = {
-  history: RouterHistory
+  history: RouterHistory,
+  isDarkModeOn: boolean
 };
 
 class Welcome extends PureComponent<Props> {
   render() {
-    const { history } = this.props;
+    const { history, isDarkModeOn } = this.props;
+    const laptopImg = isDarkModeOn ? laptopWhite : laptop;
+    const powerImg = isDarkModeOn ? powerWhite : power;
+    const setupImg = isDarkModeOn ? setupWhite : setup;
+
     return (
-      <CorneredContainer width={760} height={400} header="WELCOME" subHeader={subHeader}>
+      <CorneredContainer width={760} height={400} header="WELCOME" subHeader={subHeader} isDarkModeOn={isDarkModeOn}>
         <SideBar src={bigInnerSideBar} />
         <Indicator />
         <Row>
@@ -137,4 +136,9 @@ class Welcome extends PureComponent<Props> {
   navigateToSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 }
 
+const mapStateToProps = (state) => ({
+  isDarkModeOn: state.ui.isDarkMode
+});
+
+Welcome = connect(mapStateToProps, null)(Welcome);
 export default Welcome;
