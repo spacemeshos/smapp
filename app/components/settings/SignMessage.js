@@ -57,7 +57,7 @@ class SignMessage extends Component<Props, State> {
           <Button onClick={this.signText} text="SIGN" width={150} isDisabled={!message} />
           <Button onClick={close} isPrimary={false} text="Cancel" />
         </ButtonsWrapper>
-        <CopiedText>{isCopied ? 'COPIED' : ' '}</CopiedText>
+        <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ' '}</CopiedText>
       </Modal>
     );
   }
