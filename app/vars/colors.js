@@ -20,6 +20,8 @@ const smColors = {
   orange: '#EC5C3D',
   realBlack: '#000000',
   black10Alpha: 'rgba(0, 0, 0, 0.1)',
+  black20Alpha: 'rgba(0, 0, 0, 0.2)',
+  black30Alpha: 'rgba(0, 0, 0, 0.3)',
   black02Alpha: 'rgba(0, 0, 0, 0.02)',
   darkGray50Alpha: 'rgba(64, 64, 64, 0.5)',
   darkGray10Alpha: 'rgba(64, 64, 64, 0.1)',

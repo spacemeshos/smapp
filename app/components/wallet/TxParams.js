@@ -2,7 +2,7 @@
 import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
+import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '/basicComponents';
 import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
 
@@ -111,6 +111,7 @@ const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
 type Props = {
   fromAddress: string,
   address: string,
+  contacts: Array<object>,
   hasAddressError: boolean,
   updateTxAddress: ({ value: string }) => void,
   resetAddressError: () => void,
@@ -154,7 +155,8 @@ class TxParams extends Component<Props, State> {
       nextAction,
       cancelTx,
       status,
-      isDarkModeOn
+      isDarkModeOn,
+      contacts
     } = this.props;
     const { selectedFeeIndex } = this.state;
     const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
@@ -169,7 +171,17 @@ class TxParams extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>To</DetailsText>
           <Dots>....................................</Dots>
-          <Input value={address} onChange={this.updateTxAddress} onPaste={this.onPaste} maxLength="42" style={inputStyle} />
+          <AutocompleteDropdown
+            isDarkModeOn
+            getItemValue={(item) => item.address}
+            id="address"
+            name="address"
+            placeholder="Address"
+            data={contacts || []}
+            value={address}
+            onChange={(value) => this.updateTxAddress({ value })}
+            onEnter={(value) => this.updateTxAddress({ value: value.target.value })}
+          />
           {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
