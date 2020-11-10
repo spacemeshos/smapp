@@ -199,7 +199,7 @@ class TxParams extends Component<Props, State> {
         <DetailsRow>
           <DetailsText>Note</DetailsText>
           <Dots>....................................</Dots>
-          <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} />
+          <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} placeholder="Only visible to you." />
         </DetailsRow>
         <Footer>
           <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
