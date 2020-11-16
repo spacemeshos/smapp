@@ -72,10 +72,10 @@ type Props = {
   items: Array<string>;
   currentItem: number;
   onClick: ({ index }: { index: number }) => void;
-  isDarkMode: boolean;
+  isDarkMode?: boolean;
 };
 
-const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
+const SideMenu = ({ items, currentItem, onClick, isDarkMode = false }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   return (

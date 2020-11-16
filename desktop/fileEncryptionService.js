@@ -10,7 +10,7 @@ class FileEncryptionService {
    * @return {Uint8Array} derived key.
    * @throws error if password is missing or empty string.
    */
-  static createEncryptionKey = ({ password }: { password: string }) => {
+  static createEncryptionKey = ({ password }) => {
     if (!password || !password.length) {
       throw new Error('missing password');
     }
@@ -25,7 +25,7 @@ class FileEncryptionService {
    * @return {string} encrypted string.
    * @throws error if one of params is invalid.
    */
-  static encryptData = ({ data, key }: { data: string, key: Buffer }) => {
+  static encryptData = ({ data, key }) => {
     if (!data || !data.length) {
       throw new Error('missing data to encrypt');
     }
@@ -46,7 +46,7 @@ class FileEncryptionService {
    * @return {string} decrypted string.
    * @throws error if one of params is invalid.
    */
-  static decryptData = ({ data, key }: { data: string, key: Uint8Array }) => {
+  static decryptData = ({ data, key }) => {
     if (!data || !data.length) {
       throw new Error('missing data to decrypt');
     }

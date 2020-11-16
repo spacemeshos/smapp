@@ -2,16 +2,18 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { updateWalletName, updateAccountName, createNewAccount } from '/redux/wallet/actions';
-import { setNodeIpAddress, setRewardsAddress } from '/redux/node/actions';
-import { switchTheme } from '/redux/ui/actions';
-import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '/components/settings';
-import { Input, Link, Button, SmallHorizontalPanel } from '/basicComponents';
-import { ScreenErrorBoundary } from '/components/errorHandler';
-import { eventsService } from '/infra/eventsService';
-import { getAddress, getFormattedTimestamp } from '/infra/utils';
-import { smColors } from '/vars';
+import { HashRouter } from 'react-router-dom';
+import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
+import { setNodeIpAddress, setRewardsAddress } from '../../redux/node/actions';
+import { switchTheme } from '../../redux/ui/actions';
+import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
+import { Input, Link, Button, SmallHorizontalPanel } from '../../basicComponents';
+import { ScreenErrorBoundary } from '../../components/errorHandler';
+import { eventsService } from '../../infra/eventsService';
+import { getAddress, getFormattedTimestamp } from '../../infra/utils';
+import { smColors } from '../../vars';
 import { version } from '../../../package.json';
+import { Account, AppThDispatch, RootState, Status } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -71,41 +73,63 @@ const AccountCmdBtnSeparator = styled.div`
   margin: auto 15px;
 `;
 
-// type Props = {
-//   displayName: string,
-//   accounts: Account[],
-//   walletFiles: Array<string>,
-//   updateWalletName: Action,
-//   updateAccountName: Action,
-//   createNewAccount: Action,
-//   setNodeIpAddress: Action,
-//   setRewardsAddress: Action,
-//   switchTheme: Action,
-//   status: Object,
-//   history: RouterHistory,
-//   nodeIpAddress: string,
-//   genesisTime: string,
-//   rewardsAddress: string,
-//   stateRootHash: string,
-//   port: string,
-//   networkId: string,
-//   backupTime: string,
-//   isDarkMode: boolean
-// };
+type Props = {
+  displayName: string;
+  accounts: Account[];
+  walletFiles: Array<string>;
+  updateWalletName: AppThDispatch;
+  updateAccountName: AppThDispatch;
+  createNewAccount: AppThDispatch;
+  setNodeIpAddress: AppThDispatch;
+  setRewardsAddress: AppThDispatch;
+  switchTheme: AppThDispatch;
+  status: Status;
+  history: HashRouter;
+  nodeIpAddress: string;
+  genesisTime: number;
+  rewardsAddress: string;
+  stateRootHash: string;
+  port: string;
+  networkId: string;
+  backupTime: string;
+  isDarkMode: boolean;
+  location: {
+    hash: string;
+    pathname: string;
+    search: string;
+    state: { currentSettingIndex: string };
+  };
+};
 
-class Settings extends Component {
-  myRef1; // eslint-disable-line react/sort-comp
+type State = {
+  walletDisplayName: string;
+  canEditDisplayName: boolean;
+  isAutoStartEnabled: boolean;
+  isUpdateDownloading: boolean;
+  editedAccountIndex: number;
+  accountDisplayNames: Array<string>;
+  nodeIp: string;
+  currentSettingIndex: number;
+  showPasswordModal: boolean;
+  passwordModalSubmitAction: ({ password }: { password: string }) => void;
+  changedPort: string;
+  isPortSet: boolean;
+  signMessageModalAccountIndex: number;
+};
 
-  myRef2; // eslint-disable-line react/sort-comp
+class Settings extends Component<Props, State> {
+  myRef1: any; // eslint-disable-line react/sort-comp
 
-  myRef3; // eslint-disable-line react/sort-comp
+  myRef2: any; // eslint-disable-line react/sort-comp
 
-  myRef4; // eslint-disable-line react/sort-comp
+  myRef3: any; // eslint-disable-line react/sort-comp
 
-  constructor(props) {
+  myRef4: any; // eslint-disable-line react/sort-comp
+
+  constructor(props: Props) {
     super(props);
     const { displayName, accounts, nodeIpAddress } = props;
-    const accountDisplayNames = accounts.map((account) => account.displayName);
+    const accountDisplayNames = accounts.map((account: Account) => account.displayName);
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
@@ -225,7 +249,7 @@ class Settings extends Component {
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={eventsService.checkForUpdates} text="CHECK FOR UPDATES" isDisabled />
+                  <Link key="2" style={{ width: 144 }} onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />
                 ]}
                 rowName="App Version"
               />
@@ -233,7 +257,7 @@ class Settings extends Component {
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
-                upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
+                upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" />}
                 rowName="Add a new account"
               />
               {accounts.map((account, index) => (
@@ -305,6 +329,8 @@ class Settings extends Component {
               />
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
                 rowName="Change Node IP Address"
               />
@@ -318,15 +344,15 @@ class Settings extends Component {
   }
 
   async componentDidMount() {
-    const { history } = this.props;
-    if (history.location.state && history.location.state.currentSettingIndex) {
-      this.scrollToRef({ index: history.location.state.currentSettingIndex });
+    const { location } = this.props;
+    if (location.state && location.state.currentSettingIndex) {
+      this.scrollToRef({ index: parseInt(location.state.currentSettingIndex) });
     }
     const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
     this.setState({ isAutoStartEnabled });
   }
 
-  static getDerivedStateFromProps(props, prevState) {
+  static getDerivedStateFromProps(props: Props, prevState: State) {
     if (props.accounts && props.accounts.length > prevState.accountDisplayNames.length) {
       const updatedAccountDisplayNames = [...prevState.accountDisplayNames];
       updatedAccountDisplayNames.push(props.accounts[props.accounts.length - 1].displayName);
@@ -348,14 +374,16 @@ class Settings extends Component {
     const { createNewAccount } = this.props;
     this.setState({
       showPasswordModal: true,
-      passwordModalSubmitAction: ({ password }) => {
+      passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ showPasswordModal: false });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         createNewAccount({ password });
       }
     });
   };
 
-  editWalletDisplayName = ({ value }) => this.setState({ walletDisplayName: value });
+  editWalletDisplayName = ({ value }: { value: string }) => this.setState({ walletDisplayName: value });
 
   startEditingWalletDisplayName = () => this.setState({ canEditDisplayName: true });
 
@@ -364,6 +392,8 @@ class Settings extends Component {
     const { walletDisplayName } = this.state;
     this.setState({ canEditDisplayName: false });
     if (!!walletDisplayName && !!walletDisplayName.trim() && walletDisplayName !== displayName) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updateWalletName({ displayName: walletDisplayName });
     }
   };
@@ -386,15 +416,19 @@ class Settings extends Component {
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     history.push('/main/backup');
   };
 
   navigateToWalletRestore = () => {
     const { history } = this.props;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     history.push('/auth/restore');
   };
 
-  externalNavigation = ({ to }) => {
+  externalNavigation = ({ to }: { to: string }) => {
     switch (to) {
       case 'terms': {
         shell.openExternal('https://testnet.spacemesh.io/#/terms');
@@ -423,26 +457,28 @@ class Settings extends Component {
     this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
   };
 
-  editAccountDisplayName = ({ value, index }) => {
+  editAccountDisplayName = ({ value, index }: { value: string; index: number }) => {
     const { accountDisplayNames } = this.state;
     const updatedAccountDisplayNames = [...accountDisplayNames];
     updatedAccountDisplayNames[index] = value;
     this.setState({ accountDisplayNames: updatedAccountDisplayNames });
   };
 
-  saveEditedAccountDisplayName = ({ index }) => {
+  saveEditedAccountDisplayName = ({ index }: { index: number }) => {
     const { updateAccountName } = this.props;
     const { accountDisplayNames } = this.state;
     this.setState({
       showPasswordModal: true,
-      passwordModalSubmitAction: ({ password }) => {
+      passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ editedAccountIndex: -1, showPasswordModal: false });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         updateAccountName({ accountIndex: index, name: accountDisplayNames[index], password });
       }
     });
   };
 
-  cancelEditingAccountDisplayName = ({ index }) => {
+  cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
     const { accounts } = this.props;
     const { accountDisplayNames } = this.state;
     const updatedAccountDisplayNames = [...accountDisplayNames];
@@ -450,7 +486,7 @@ class Settings extends Component {
     this.setState({ editedAccountIndex: -1, accountDisplayNames: updatedAccountDisplayNames });
   };
 
-  startEditingAccountDisplayName = ({ index }) => {
+  startEditingAccountDisplayName = ({ index }: { index: number }) => {
     const { editedAccountIndex } = this.state;
     if (editedAccountIndex !== -1) {
       this.cancelEditingAccountDisplayName({ index: editedAccountIndex });
@@ -458,7 +494,7 @@ class Settings extends Component {
     this.setState({ editedAccountIndex: index });
   };
 
-  scrollToRef = ({ index }) => {
+  scrollToRef = ({ index }: { index: number }) => {
     const ref = [this.myRef1, this.myRef2, this.myRef3, this.myRef4][index];
     this.setState({ currentSettingIndex: index });
     ref.current.scrollIntoView({
@@ -471,12 +507,12 @@ class Settings extends Component {
     eventsService.showFileInFolder({ isLogFile: true });
   };
 
-  toggleSignMessageModal = ({ index }) => {
+  toggleSignMessageModal = ({ index }: { index: number }) => {
     this.setState({ signMessageModalAccountIndex: index });
   };
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   status: state.node.status,
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
@@ -500,7 +536,8 @@ const mapDispatchToProps = {
   switchTheme
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 Settings = connect(mapStateToProps, mapDispatchToProps)(Settings);
 
-Settings = ScreenErrorBoundary(Settings);
-export default Settings;
+export default ScreenErrorBoundary(Settings);

@@ -6,13 +6,6 @@ import path from 'path';
 import webpack from 'webpack';
 import { dependencies as externals } from '../package.json';
 
-// 1. import default from the plugin module
-const createStyledComponentsTransformer = require('typescript-plugin-styled-components').default;
-
-// 2. create a transformer;
-// the factory additionally accepts an options object which described below
-const styledComponentsTransformer = createStyledComponentsTransformer();
-
 export default {
   externals: [...Object.keys(externals || {})],
 
@@ -24,18 +17,17 @@ export default {
         use: {
           loader: 'babel-loader',
           options: {
-            cacheDirectory: true,
-            getCustomTransformers: () => ({ before: [styledComponentsTransformer] })
-          },
-        },
-      },
-    ],
+            cacheDirectory: true
+          }
+        }
+      }
+    ]
   },
 
   output: {
     path: path.join(__dirname, '..', 'app'),
     // https://github.com/webpack/webpack/issues/1114
-    libraryTarget: 'commonjs2',
+    libraryTarget: 'commonjs2'
   },
 
   /**
@@ -54,6 +46,8 @@ export default {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
     }),
-  ],
+
+    new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/)
+  ]
 };
 

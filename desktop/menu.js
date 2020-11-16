@@ -1,9 +1,9 @@
-import { app, Menu, BrowserWindow, shell } from 'electron';
+import { app, Menu, shell } from 'electron';
 
 class MenuBuilder {
-  mainWindow: BrowserWindow;
+  mainWindow;
 
-  constructor(mainWindow: BrowserWindow) {
+  constructor(mainWindow) {
     this.mainWindow = mainWindow;
   }
 

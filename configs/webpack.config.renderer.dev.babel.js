@@ -19,9 +19,7 @@ const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;
 const dll = path.join(__dirname, '..', 'dll');
 const manifest = path.resolve(dll, 'renderer.json');
-const requiredByDLLConfig = module.parent.filename.includes(
-  'webpack.config.renderer.dev.dll'
-);
+const requiredByDLLConfig = module.parent.filename.includes('webpack.config.renderer.dev.dll');
 
 /**
  * Warn if the DLL is not built
@@ -90,21 +88,21 @@ export default merge(baseConfig, {
 
   resolve: {
     alias: {
-      'react-dom': '@hot-loader/react-dom',
-    },
+      'react-dom': '@hot-loader/react-dom'
+    }
   },
 
   plugins: [
     requiredByDLLConfig
       ? null
       : new webpack.DllReferencePlugin({
-        context: path.join(__dirname, '..', 'dll'),
-        manifest: require(manifest),
-        sourceType: 'var',
-      }),
+          context: path.join(__dirname, '..', 'dll'),
+          manifest: require(manifest),
+          sourceType: 'var'
+        }),
 
     new webpack.HotModuleReplacementPlugin({
-      multiStep: true,
+      multiStep: true
     }),
 
     new webpack.NoEmitOnErrorsPlugin(),
@@ -122,17 +120,17 @@ export default merge(baseConfig, {
      * 'staging', for example, by changing the ENV variables in the npm scripts
      */
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'development',
+      NODE_ENV: 'development'
     }),
 
     new webpack.LoaderOptionsPlugin({
-      debug: true,
-    }),
+      debug: true
+    })
   ],
 
   node: {
     __dirname: false,
-    __filename: false,
+    __filename: false
   },
 
   devServer: {
@@ -153,7 +151,7 @@ export default merge(baseConfig, {
     },
     historyApiFallback: {
       verbose: true,
-      disableDotRule: false,
+      disableDotRule: false
     },
     before() {
       if (process.env.START_HOT) {
@@ -161,11 +159,11 @@ export default merge(baseConfig, {
         spawn('npm', ['run', 'start-main-dev'], {
           shell: true,
           env: process.env,
-          stdio: 'inherit',
+          stdio: 'inherit'
         })
           .on('close', (code) => process.exit(code))
           .on('error', (spawnError) => console.error(spawnError));
       }
-    },
+    }
   }
 });

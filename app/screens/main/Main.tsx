@@ -1,19 +1,31 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { logout } from '/redux/auth/actions';
-import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
-import { getBalance, getTxList } from '/redux/wallet/actions';
-import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo } from '/components/common';
-import { InfoBanner } from '/components/banners';
-import { SecondaryButton, NavTooltip, NetworkIndicator } from '/basicComponents';
-import routes from '/routes';
-import { notificationsService } from '/infra/notificationsService';
-import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
-import { smColors, nodeConsts } from '/vars';
+import { logout } from '../../redux/auth/actions';
+import { getNodeStatus, getMiningStatus, getAccountRewards } from '../../redux/node/actions';
+import { getBalance, getTxList } from '../../redux/wallet/actions';
+import { ScreenErrorBoundary } from '../../components/errorHandler';
+import { Logo } from '../../components/common';
+import { InfoBanner } from '../../components/banners';
+import { SecondaryButton, NavTooltip, NetworkIndicator } from '../../basicComponents';
+import routes from '../../routes';
+import { notificationsService } from '../../infra/notificationsService';
+import {
+  rightDecoration,
+  rightDecorationWhite,
+  settingsIcon,
+  settingsIconBlack,
+  getCoinsIcon,
+  getCoinsIconBlack,
+  helpIcon,
+  helpIconBlack,
+  signOutIcon,
+  signOutIconBlack
+} from '../../assets/images';
+import { smColors, nodeConsts } from '../../vars';
+import { RootState, Status } from '../../types';
 
 const Wrapper = styled.div`
   position: relative;
@@ -53,7 +65,7 @@ const NavLinksWrapper = styled.div`
   margin-left: 140px;
 `;
 
-const NavBarLink = styled.div`
+const NavBarLink = styled.div<{ isActive?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -93,54 +105,65 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-// type Props = {
-//   status: Object,
-//   miningStatus: number,
-//   getNodeStatus: Action,
-//   getMiningStatus: Action,
-//   getAccountRewards: Action,
-//   getBalance: Action,
-//   getTxList: Action,
-//   logout: Action,
-//   history: RouterHistory,
-//   location: { pathname: string, hash: string },
-//   nodeIndicator: Object,
-//   isDarkMode: boolean
-// };
+type Props = {
+  status: Status;
+  miningStatus: number;
+  getNodeStatus: any;
+  getMiningStatus: any;
+  getAccountRewards: any;
+  getBalance: any;
+  getTxList: any;
+  logout: any;
+  history: RouteComponentProps;
+  location: { pathname: string; hash: string };
+  nodeIndicator: { hasError: false; color: ''; message: ''; statusText: '' };
+  isDarkMode: boolean;
+};
 
-// type State = {
-//   activeRouteIndex: number,
-//   isOfflineBannerVisible: boolean
-// };
+type State = {
+  activeRouteIndex: number;
+};
 
-class Main extends Component {
-  // eslint-disable-next-line react/sort-comp
-  getNodeStatusInterval = null;
+class Main extends Component<Props, State> {
+  getNodeStatusInterval: ReturnType<typeof setInterval> | null = null; // eslint-disable-line react/sort-comp
 
-  initialMiningStatusInterval = null;
+  initialMiningStatusInterval: any = null; // eslint-disable-line react/sort-comp
 
-  miningStatusInterval = null;
+  miningStatusInterval: any = null; // eslint-disable-line react/sort-comp
 
-  accountRewardsInterval = null;
+  accountRewardsInterval: any = null; // eslint-disable-line react/sort-comp
 
-  txCollectorInterval = null;
+  txCollectorInterval: any = null; // eslint-disable-line react/sort-comp
 
-  constructor(props) {
+  navMap: Array<() => void>; // eslint-disable-line react/sort-comp
+
+  constructor(props: Props) {
     super(props);
     const { location, history } = props;
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 2 : 0;
     this.state = {
-      activeRouteIndex,
-      isOfflineBannerVisible: true
+      activeRouteIndex
     };
 
     this.navMap = [
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       () => history.push('/main/node'),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       () => history.push('/main/network'),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       () => history.push('/main/wallet'),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       () => history.push('/main/contacts'),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       () => history.push('/main/dash'),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       () => history.push('/main/settings'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/help')
@@ -169,32 +192,32 @@ class Main extends Component {
                   <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
                     SMESHING
                   </NavBarLink>
-                  <CustomTooltip text="MANAGE SMESHING" withIcon={false} isLinkTooltip />
+                  <CustomTooltip text="MANAGE SMESHING" />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
-                    <NetworkIndicator color={nodeIndicator.color}/>
+                    <NetworkIndicator color={nodeIndicator.color} />
                     NETWORK
                   </NavBarLink>
-                  <CustomTooltip text="NETWORK" withIcon={false} isLinkTooltip />
+                  <CustomTooltip text="NETWORK" />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
                     WALLET
                   </NavBarLink>
-                  <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
+                  <CustomTooltip text="SEND / RECEIVE SMH" />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 3 })} isActive={activeRouteIndex === 3}>
                     CONTACTS
                   </NavBarLink>
-                  <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
+                  <CustomTooltip text="MANAGE CONTACTS" />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 4 })} isActive={activeRouteIndex === 4}>
                     DASH
                   </NavBarLink>
-                  <CustomTooltip text="DASHBOARD" withIcon={false} isLinkTooltip />
+                  <CustomTooltip text="DASHBOARD" />
                 </TooltipWrapper>
               </NavLinksWrapper>
             </NavBarPart>
@@ -211,7 +234,7 @@ class Main extends Component {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="SETTINGS" withIcon={false} />
+                <CustomTooltip text="SETTINGS" />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -225,7 +248,7 @@ class Main extends Component {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="GET SMESH" withIcon={false} />
+                <CustomTooltip text="GET SMESH" />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -239,7 +262,7 @@ class Main extends Component {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="HELP" withIcon={false} />
+                <CustomTooltip text="HELP" />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -253,11 +276,11 @@ class Main extends Component {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="LOGOUT" withIcon={false} />
+                <CustomTooltip text="LOGOUT" />
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          <InfoBanner/>
+          <InfoBanner />
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (
@@ -277,9 +300,17 @@ class Main extends Component {
     await getTxList({ approveTxNotifier: this.approveTxNotifier });
     await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
     await getBalance();
-    this.txCollectorInterval = setInterval(async () => { await getTxList({ approveTxNotifier: this.approveTxNotifier }); await getBalance(); }, 90000);
-    this.accountRewardsInterval = setInterval(async () => { await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); await getBalance(); }, 90000);
-    this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
+    this.txCollectorInterval = setInterval(async () => {
+      await getTxList({ approveTxNotifier: this.approveTxNotifier });
+      await getBalance();
+    }, 90000);
+    this.accountRewardsInterval = setInterval(async () => {
+      await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
+      await getBalance();
+    }, 90000);
+    this.getNodeStatusInterval = setInterval(() => {
+      getNodeStatus();
+    }, 30000);
     this.initialMiningStatusInterval = setInterval(async () => {
       const status = await getMiningStatus();
       if (status !== nodeConsts.MINING_UNSET) {
@@ -293,10 +324,12 @@ class Main extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
-    const {miningStatus, getMiningStatus } = this.props;
+  componentDidUpdate(prevProps: Props) {
+    const { miningStatus, getMiningStatus } = this.props;
     if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(getMiningStatus, 100000);
+      this.miningStatusInterval = setInterval(() => {
+        getMiningStatus();
+      }, 100000);
     }
     if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
@@ -309,14 +342,30 @@ class Main extends Component {
   }
 
   componentWillUnmount() {
-    this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
-    this.miningStatusInterval && clearInterval(this.miningStatusInterval);
-    this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
-    this.txCollectorInterval && clearInterval(this.txCollectorInterval);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (this.initialMiningStatusInterval) {
+      clearInterval(this.initialMiningStatusInterval);
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (this.miningStatusInterval) {
+      clearInterval(this.miningStatusInterval);
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (this.accountRewardsInterval) {
+      clearInterval(this.accountRewardsInterval);
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (this.txCollectorInterval) {
+      clearInterval(this.txCollectorInterval);
+    }
   }
 
-  static getDerivedStateFromProps(props, prevState) {
-    const pathname = props.location.pathname;
+  static getDerivedStateFromProps(props: Props, prevState: State) {
+    const { pathname } = props.location;
     if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
       return { activeRouteIndex: -1 };
     } else if (pathname.indexOf('contacts') !== -1) {
@@ -327,7 +376,7 @@ class Main extends Component {
     return null;
   }
 
-  handleNavigation = ({ index }) => {
+  handleNavigation = ({ index }: { index: number }) => {
     const { history } = this.props;
     const { activeRouteIndex } = this.state;
     if (index !== activeRouteIndex) {
@@ -348,6 +397,8 @@ class Main extends Component {
           break;
         }
         case 8: {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;
@@ -358,11 +409,13 @@ class Main extends Component {
     }
   };
 
-  approveTxNotifier = ({ hasConfirmedIncomingTxs }) => {
+  approveTxNotifier = ({ hasConfirmedIncomingTxs }: { hasConfirmedIncomingTxs: boolean }) => {
     const { history } = this.props;
     notificationsService.notify({
       title: 'Spacemesh',
       notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       callback: () => history.push('/main/transactions'),
       tag: 1
     });
@@ -375,10 +428,10 @@ class Main extends Component {
       callback: () => this.handleNavigation({ index: 0 }),
       tag: 2
     });
-  }
+  };
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: RootState) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
   nodeIndicator: state.node.nodeIndicator,
@@ -394,7 +447,8 @@ const mapDispatchToProps = {
   logout
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 Main = connect(mapStateToProps, mapDispatchToProps)(Main);
 
-Main = ScreenErrorBoundary(Main);
-export default Main;
+export default ScreenErrorBoundary(Main);

@@ -8,6 +8,7 @@
  * When running `npm run build` or `npm run build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
+import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme } from 'electron';
@@ -40,7 +41,7 @@ StoreService.init();
 
 let mainWindow: BrowserWindow;
 let browserView: BrowserView;
-let tray: Tray | null = null;
+let tray: Tray;
 let nodeManager: NodeManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 

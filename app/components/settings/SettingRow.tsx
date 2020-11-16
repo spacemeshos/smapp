@@ -46,14 +46,14 @@ const Text = styled.div`
 
 type Props = {
   upperPart?: any;
-  upperPartLeft: any;
+  upperPartLeft?: any;
   isUpperPartLeftText?: boolean;
-  upperPartRight: any;
+  upperPartRight?: any;
   rowName: string;
   bottomPart?: any;
 };
 
-const SettingRow = ({ upperPart = null, upperPartLeft, isUpperPartLeftText = false, upperPartRight, rowName, bottomPart = null }: Props) => (
+const SettingRow = ({ upperPart = null, upperPartLeft = null, isUpperPartLeftText = false, upperPartRight = null, rowName, bottomPart = null }: Props) => (
   <Wrapper>
     <UpperPart>
       {upperPart || (

@@ -41,7 +41,7 @@ const SmesherId = styled.span`
   color: ${smColors.blue};
 `;
 
-const Status = styled.span<{ status?: Status | null }>`
+const StatusSpan = styled.span<{ status?: Status | null }>`
   color: ${({ status }) => (status ? smColors.green : smColors.orange)};
 `;
 
@@ -107,7 +107,7 @@ const Node = ({ history, location }: Props) => {
         <SubHeader>
           Smesher
           <SmesherId> 0x12344...244AF </SmesherId>
-          <Status status={status}>{status ? 'ONLINE' : 'OFFLINE'} </Status>
+          <StatusSpan status={status}>{status ? 'ONLINE' : 'OFFLINE'} </StatusSpan>
           on Network {networkId}.
         </SubHeader>
         <br />
@@ -160,7 +160,7 @@ const Node = ({ history, location }: Props) => {
           <SubHeader>
             Smesher
             <SmesherId> 0x12344...244AF </SmesherId>
-            <Status status={status}>{status ? 'ONLINE' : 'OFFLINE'} </Status>
+            <StatusSpan status={status}>{status ? 'ONLINE' : 'OFFLINE'} </StatusSpan>
             on Network {networkId}.
           </SubHeader>
           <TextWrapper>
