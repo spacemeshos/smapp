@@ -69,11 +69,6 @@ class NodeManager {
       writeInfo(`NodeManager`, `ipc INIT_MINING channel`, { res }, { request });
       return res;
     });
-    ipcMain.handle(ipcConsts.GET_UPCOMING_REWARDS, async () => {
-      const res = await this.getUpcomingRewards();
-      writeInfo(`NodeManager`, `ipc GET_UPCOMING_REWARDS channel`, { res });
-      return res;
-    });
     ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
       const res = await this.setRewardsAddress({ ...request });
       writeInfo(`NodeManager`, `ipc SET_REWARDS_ADDRESS channel`, { res }, { request });
@@ -117,6 +112,7 @@ class NodeManager {
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
                 writeError('nodeManager', 'startNode', error);
               }
@@ -133,6 +129,7 @@ class NodeManager {
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
           if (error) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
             writeError('nodeManager', 'startNode', error);
           }
@@ -249,21 +246,6 @@ class NodeManager {
       return { error: null };
     } catch (error) {
       return { error };
-    }
-  };
-
-  getUpcomingRewards = async () => {
-    try {
-      const { layers } = await netService.getUpcomingAwards();
-      if (!layers) {
-        return { error: null, layers: [] };
-      }
-      const resolvedLayers = layers || [];
-      const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
-      parsedLayers.sort((a, b) => a - b);
-      return { error: null, layers: parsedLayers };
-    } catch (error) {
-      return { error: error.message, layers: null };
     }
   };
 

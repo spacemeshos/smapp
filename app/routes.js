@@ -1,4 +1,3 @@
-// @flow
 import {
   SplashScreen,
   Auth,

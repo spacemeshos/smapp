@@ -1,4 +1,3 @@
-// @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
@@ -12,8 +11,6 @@ import { ScreenErrorBoundary } from '/components/errorHandler';
 import { eventsService } from '/infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '/infra/utils';
 import { smColors } from '/vars';
-import type { RouterHistory } from 'react-router-dom';
-import type { Account, Action } from '/types';
 import { version } from '../../../package.json';
 
 const Wrapper = styled.div`
@@ -41,20 +38,20 @@ const AllSettingsInnerWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
 const Name = styled.div`
   font-size: 14px;
   line-height: 40px;
-  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
   margin-left: 10px;
 `;
 
 const RewardAccount = styled.div`
   font-size: 16px;
   line-height: 15px;
-  color: ${({ theme }) => (theme.isDarkModeOn ? smColors.white : smColors.black)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
 const GreenText = styled(Text)`
@@ -74,52 +71,36 @@ const AccountCmdBtnSeparator = styled.div`
   margin: auto 15px;
 `;
 
-type Props = {
-  displayName: string,
-  accounts: Account[],
-  walletFiles: Array<string>,
-  updateWalletName: Action,
-  updateAccountName: Action,
-  createNewAccount: Action,
-  setNodeIpAddress: Action,
-  setRewardsAddress: Action,
-  switchTheme: Action,
-  status: Object,
-  history: RouterHistory,
-  nodeIpAddress: string,
-  genesisTime: string,
-  rewardsAddress: string,
-  stateRootHash: string,
-  port: string,
-  networkId: string,
-  backupTime: string,
-  isDarkModeOn: boolean
-};
+// type Props = {
+//   displayName: string,
+//   accounts: Account[],
+//   walletFiles: Array<string>,
+//   updateWalletName: Action,
+//   updateAccountName: Action,
+//   createNewAccount: Action,
+//   setNodeIpAddress: Action,
+//   setRewardsAddress: Action,
+//   switchTheme: Action,
+//   status: Object,
+//   history: RouterHistory,
+//   nodeIpAddress: string,
+//   genesisTime: string,
+//   rewardsAddress: string,
+//   stateRootHash: string,
+//   port: string,
+//   networkId: string,
+//   backupTime: string,
+//   isDarkMode: boolean
+// };
 
-type State = {
-  walletDisplayName: string,
-  canEditDisplayName: boolean,
-  isAutoStartEnabled: boolean,
-  isUpdateDownloading: boolean,
-  editedAccountIndex: number,
-  accountDisplayNames: Array<string>,
-  nodeIp: string,
-  currentSettingIndex: number,
-  showPasswordModal: boolean,
-  passwordModalSubmitAction: Function,
-  changedPort: string,
-  isPortSet: boolean,
-  signMessageModalAccountIndex: number
-};
+class Settings extends Component {
+  myRef1; // eslint-disable-line react/sort-comp
 
-class Settings extends Component<Props, State> {
-  myRef1: any;
+  myRef2; // eslint-disable-line react/sort-comp
 
-  myRef2: any;
+  myRef3; // eslint-disable-line react/sort-comp
 
-  myRef3: any;
-
-  myRef4: any;
+  myRef4; // eslint-disable-line react/sort-comp
 
   constructor(props) {
     super(props);
@@ -160,7 +141,7 @@ class Settings extends Component<Props, State> {
       stateRootHash,
       backupTime,
       switchTheme,
-      isDarkModeOn
+      isDarkMode
     } = this.props;
     const {
       walletDisplayName,
@@ -181,9 +162,9 @@ class Settings extends Component<Props, State> {
       <Wrapper>
         <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
-          <SmallHorizontalPanel isDarkModeOn={isDarkModeOn} />
+          <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <AllSettingsInnerWrapper>
-            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkModeOn={isDarkModeOn}>
+            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -249,7 +230,7 @@ class Settings extends Component<Props, State> {
                 rowName="App Version"
               />
             </SettingsSection>
-            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkModeOn={isDarkModeOn}>
+            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
                 upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
@@ -285,7 +266,7 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection title="MESH INFO" refProp={this.myRef3} isDarkModeOn={isDarkModeOn}>
+            <SettingsSection title="MESH INFO" refProp={this.myRef3} isDarkMode={isDarkMode}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
               <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
@@ -304,7 +285,7 @@ class Settings extends Component<Props, State> {
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
-            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4} isDarkModeOn={isDarkModeOn}>
+            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={
                   isPortSet ? (
@@ -345,7 +326,7 @@ class Settings extends Component<Props, State> {
     this.setState({ isAutoStartEnabled });
   }
 
-  static getDerivedStateFromProps(props: Props, prevState: State) {
+  static getDerivedStateFromProps(props, prevState) {
     if (props.accounts && props.accounts.length > prevState.accountDisplayNames.length) {
       const updatedAccountDisplayNames = [...prevState.accountDisplayNames];
       updatedAccountDisplayNames.push(props.accounts[props.accounts.length - 1].displayName);
@@ -413,7 +394,7 @@ class Settings extends Component<Props, State> {
     history.push('/auth/restore');
   };
 
-  externalNavigation = ({ to }: { to: string }) => {
+  externalNavigation = ({ to }) => {
     switch (to) {
       case 'terms': {
         shell.openExternal('https://testnet.spacemesh.io/#/terms');
@@ -442,14 +423,14 @@ class Settings extends Component<Props, State> {
     this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
   };
 
-  editAccountDisplayName = ({ value, index }: { value: string, index: number }) => {
+  editAccountDisplayName = ({ value, index }) => {
     const { accountDisplayNames } = this.state;
     const updatedAccountDisplayNames = [...accountDisplayNames];
     updatedAccountDisplayNames[index] = value;
     this.setState({ accountDisplayNames: updatedAccountDisplayNames });
   };
 
-  saveEditedAccountDisplayName = ({ index }: { index: number }) => {
+  saveEditedAccountDisplayName = ({ index }) => {
     const { updateAccountName } = this.props;
     const { accountDisplayNames } = this.state;
     this.setState({
@@ -461,7 +442,7 @@ class Settings extends Component<Props, State> {
     });
   };
 
-  cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
+  cancelEditingAccountDisplayName = ({ index }) => {
     const { accounts } = this.props;
     const { accountDisplayNames } = this.state;
     const updatedAccountDisplayNames = [...accountDisplayNames];
@@ -469,7 +450,7 @@ class Settings extends Component<Props, State> {
     this.setState({ editedAccountIndex: -1, accountDisplayNames: updatedAccountDisplayNames });
   };
 
-  startEditingAccountDisplayName = ({ index }: { index: number }) => {
+  startEditingAccountDisplayName = ({ index }) => {
     const { editedAccountIndex } = this.state;
     if (editedAccountIndex !== -1) {
       this.cancelEditingAccountDisplayName({ index: editedAccountIndex });
@@ -490,7 +471,7 @@ class Settings extends Component<Props, State> {
     eventsService.showFileInFolder({ isLogFile: true });
   };
 
-  toggleSignMessageModal = ({ index }: { index: number }) => {
+  toggleSignMessageModal = ({ index }) => {
     this.setState({ signMessageModalAccountIndex: index });
   };
 }
@@ -507,7 +488,7 @@ const mapStateToProps = (state) => ({
   port: state.node.port,
   networkId: state.node.networkId,
   backupTime: state.wallet.backupTime,
-  isDarkModeOn: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {

@@ -1,4 +1,3 @@
-// @flow
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router-dom';
@@ -15,8 +14,6 @@ import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
 import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
-import type { Action } from '/types';
-import type { RouterHistory } from 'react-router-dom';
 
 const Wrapper = styled.div`
   position: relative;
@@ -96,41 +93,39 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-type Props = {
-  status: Object,
-  miningStatus: number,
-  getNodeStatus: Action,
-  getMiningStatus: Action,
-  getAccountRewards: Action,
-  getBalance: Action,
-  getTxList: Action,
-  logout: Action,
-  history: RouterHistory,
-  location: { pathname: string, hash: string },
-  nodeIndicator: Object,
-  isDarkModeOn: boolean
-};
+// type Props = {
+//   status: Object,
+//   miningStatus: number,
+//   getNodeStatus: Action,
+//   getMiningStatus: Action,
+//   getAccountRewards: Action,
+//   getBalance: Action,
+//   getTxList: Action,
+//   logout: Action,
+//   history: RouterHistory,
+//   location: { pathname: string, hash: string },
+//   nodeIndicator: Object,
+//   isDarkMode: boolean
+// };
 
-type State = {
-  activeRouteIndex: number,
-  isOfflineBannerVisible: boolean
-};
+// type State = {
+//   activeRouteIndex: number,
+//   isOfflineBannerVisible: boolean
+// };
 
-class Main extends Component<Props, State> {
+class Main extends Component {
   // eslint-disable-next-line react/sort-comp
-  getNodeStatusInterval: IntervalID;
+  getNodeStatusInterval = null;
 
-  initialMiningStatusInterval: IntervalID;
+  initialMiningStatusInterval = null;
 
-  miningStatusInterval: IntervalID;
+  miningStatusInterval = null;
 
-  accountRewardsInterval: IntervalID;
+  accountRewardsInterval = null;
 
-  txCollectorInterval: IntervalID;
+  txCollectorInterval = null;
 
-  navMap: Array<() => void>;
-
-  constructor(props: Props) {
+  constructor(props) {
     super(props);
     const { location, history } = props;
     const isWalletLocation = location.pathname.includes('/wallet');
@@ -154,18 +149,18 @@ class Main extends Component<Props, State> {
 
   render() {
     const { activeRouteIndex } = this.state;
-    const { nodeIndicator, isDarkModeOn } = this.props;
-    const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
-    const settings = isDarkModeOn ? settingsIconBlack : settingsIcon;
-    const getCoins = isDarkModeOn ? getCoinsIconBlack : getCoinsIcon;
-    const help = isDarkModeOn ? helpIconBlack : helpIcon;
-    const signOut = isDarkModeOn ? signOutIconBlack : signOutIcon;
+    const { nodeIndicator, isDarkMode } = this.props;
+    const img = isDarkMode ? rightDecorationWhite : rightDecoration;
+    const settings = isDarkMode ? settingsIconBlack : settingsIcon;
+    const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
+    const help = isDarkMode ? helpIconBlack : helpIcon;
+    const signOut = isDarkMode ? signOutIconBlack : signOutIcon;
     const bntStyle = { marginRight: 15, marginTop: 10 };
-    const bgColor = isDarkModeOn ? smColors.white : smColors.black;
+    const bgColor = isDarkMode ? smColors.white : smColors.black;
 
     return (
       <Wrapper>
-        <Logo isDarkModeOn={isDarkModeOn} />
+        <Logo isDarkMode={isDarkMode} />
         <InnerWrapper>
           <NavBar>
             <NavBarPart>
@@ -298,7 +293,7 @@ class Main extends Component<Props, State> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps) {
     const {miningStatus, getMiningStatus } = this.props;
     if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
       this.miningStatusInterval = setInterval(getMiningStatus, 100000);
@@ -320,7 +315,7 @@ class Main extends Component<Props, State> {
     this.txCollectorInterval && clearInterval(this.txCollectorInterval);
   }
 
-  static getDerivedStateFromProps(props: Props, prevState: State) {
+  static getDerivedStateFromProps(props, prevState) {
     const pathname = props.location.pathname;
     if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
       return { activeRouteIndex: -1 };
@@ -332,7 +327,7 @@ class Main extends Component<Props, State> {
     return null;
   }
 
-  handleNavigation = ({ index }: { index: number }) => {
+  handleNavigation = ({ index }) => {
     const { history } = this.props;
     const { activeRouteIndex } = this.state;
     if (index !== activeRouteIndex) {
@@ -363,7 +358,7 @@ class Main extends Component<Props, State> {
     }
   };
 
-  approveTxNotifier = ({ hasConfirmedIncomingTxs }: { hasConfirmedIncomingTxs: boolean }) => {
+  approveTxNotifier = ({ hasConfirmedIncomingTxs }) => {
     const { history } = this.props;
     notificationsService.notify({
       title: 'Spacemesh',
@@ -387,7 +382,7 @@ const mapStateToProps = (state) => ({
   status: state.node.status,
   miningStatus: state.node.miningStatus,
   nodeIndicator: state.node.nodeIndicator,
-  isDarkModeOn: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {
@@ -399,7 +394,7 @@ const mapDispatchToProps = {
   logout
 };
 
-Main = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Main);
+Main = connect(mapStateToProps, mapDispatchToProps)(Main);
 
 Main = ScreenErrorBoundary(Main);
 export default Main;

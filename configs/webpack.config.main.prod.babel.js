@@ -11,36 +11,37 @@ import baseConfig from './webpack.config.base';
 
 checkNodeEnv('production');
 
-export default merge.smart(baseConfig, {
-  devtool: 'source-map',
+export default merge(baseConfig, {
+  devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
 
   mode: 'production',
 
   target: 'electron-main',
 
-  entry: './desktop/main.dev',
+  entry: './app/main.dev.ts',
 
   output: {
     path: path.join(__dirname, '..'),
-    filename: './desktop/main.prod.js'
+    filename: './app/main.prod.js',
   },
 
   optimization: {
     minimizer: process.env.E2E_BUILD
       ? []
       : [
-          new TerserPlugin({
-            parallel: true,
-            sourceMap: true,
-            cache: true
-          })
-        ]
+        new TerserPlugin({
+          parallel: true,
+          sourceMap: true,
+          cache: true,
+        }),
+      ],
   },
 
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+      analyzerMode:
+        process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
+      openAnalyzer: process.env.OPEN_ANALYZER === 'true',
     }),
 
     /**
@@ -55,8 +56,9 @@ export default merge.smart(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: false,
-      START_MINIMIZED: false
-    })
+      START_MINIMIZED: false,
+      E2E_BUILD: false,
+    }),
   ],
 
   /**
@@ -66,6 +68,6 @@ export default merge.smart(baseConfig, {
    */
   node: {
     __dirname: false,
-    __filename: false
-  }
+    __filename: false,
+  },
 });
