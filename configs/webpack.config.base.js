@@ -25,7 +25,7 @@ export default {
   },
 
   output: {
-    path: path.join(__dirname, '..', 'desktop'),
+    path: path.join(__dirname, '..', 'app'),
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'
   },
@@ -35,16 +35,16 @@ export default {
    */
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [path.join(__dirname, '..', 'app'), path.join(__dirname, '..', 'desktop'), 'node_modules'],
+    modules: [path.join(__dirname, '..', 'desktop'), path.join(__dirname, '..', 'app'), 'node_modules']
   },
 
   optimization: {
-    namedModules: true,
+    namedModules: true
   },
 
   plugins: [
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
+      NODE_ENV: 'production'
     }),
 
     new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/)

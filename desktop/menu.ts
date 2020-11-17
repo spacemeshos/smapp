@@ -21,10 +21,8 @@ class MenuBuilder {
   }
 
   addInspectElementMenu() {
-    setTimeout(() => {
-      // @ts-ignore
-      this.mainWindow.openDevTools();
-    }, 10000);
+    // @ts-ignore
+    this.mainWindow.openDevTools();
     this.mainWindow.webContents.on('context-menu', (_e, props) => {
       const { x, y } = props;
 

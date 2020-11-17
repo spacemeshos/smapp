@@ -15,7 +15,7 @@ const Text = styled.div`
 const InfoBanner = () => {
   const nodeIndicator = useSelector((state: RootState) => state.node.nodeIndicator);
   return (
-    <Banner margin={'30px 0 30px 0'} color={nodeIndicator.color} visibility={nodeIndicator.hasError}>
+    <Banner margin={'30px 0 30px 0'} color={nodeIndicator.color} visibility={!!nodeIndicator.hasError}>
       <Text>{nodeIndicator.message}</Text>
     </Banner>
   );

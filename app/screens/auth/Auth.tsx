@@ -10,7 +10,7 @@ import { Loader } from '../../basicComponents';
 import routes from '../../routes';
 import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { nodeConsts } from '../../vars';
-import { CustomAction } from '../../types';
+import { CustomAction, RootState } from '../../types';
 
 const Wrapper = styled.div`
   position: relative;
@@ -113,6 +113,11 @@ class Auth extends Component<Props> {
     }
   }
 }
+
+const mapStateToProps = (state: RootState) => ({
+  walletFiles: state.wallet.walletFiles,
+  isDarkMode: state.ui.isDarkMode
+});
 
 const mapDispatchToProps = {
   getNodeStatus,

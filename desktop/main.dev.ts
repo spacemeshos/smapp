@@ -5,7 +5,7 @@
  * electron renderer process from here and communicate with the other processes
  * through IPC.
  *
- * When running `npm run build` or `npm run build-main`, this file is compiled to
+ * When running `yarn build` or `yarn build-main`, this file is compiled to
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import 'core-js/stable';
@@ -37,6 +37,11 @@ const unhandled = require('electron-unhandled');
 unhandled();
 
 StoreService.init();
+
+if (process.env.NODE_ENV === 'production') {
+  const sourceMapSupport = require('source-map-support');
+  sourceMapSupport.install();
+}
 
 let mainWindow: BrowserWindow;
 let browserView: BrowserView;
