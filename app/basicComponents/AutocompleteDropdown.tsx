@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { smColors } from '/vars';
-import { chevronBottomBlack, chevronBottomWhite } from '/assets/images';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText } from '../infra/utils';
+import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
+import { smColors } from '../vars';
 
-const AutocompleteField = styled.div`
+const AutocompleteField = styled.div<{ icon: any }>`
   position: relative;
   background-color: ${smColors.white};
 `;
 
-const InputField = styled.div`
+const InputField = styled.div<{ isFocused?: boolean; isDisabled?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -21,7 +21,7 @@ const InputField = styled.div`
   background-color: ${smColors.white};
 `;
 
-const ActualInput = styled.input`
+const ActualInput = styled.input<{ isDisabled?: boolean }>`
   flex: 1;
   width: 100%;
   height: 36px;
@@ -34,13 +34,13 @@ const ActualInput = styled.input`
   outline: none;
 `;
 
-const AutocompleteList = styled.div`
+const AutocompleteList = styled.div<{ show?: boolean }>`
   position: absolute;
   top: 2em;
   width: 100%;
   background: ${smColors.white};
   overflow: auto;
-  height: ${(props) => (props.show ? 'unset' : '0')};
+  height: ${({ show }) => (show ? 'unset' : '0')};
   max-height: 214px;
   z-index: 9;
   -webkit-box-shadow: 0 2px 3px ${smColors.black30Alpha};
@@ -66,7 +66,7 @@ const AutocompleteList = styled.div`
   }
 `;
 
-const Icon = styled.img`
+const Icon = styled.img<{ isOpened?: boolean }>`
   height: 11px;
   width: 22px;
   margin: 0 10px;
@@ -76,35 +76,38 @@ const Icon = styled.img`
 `;
 
 type Props = {
-  isDarkModeOn: boolean,
-  getItemValue: () => void,
-  id: string,
-  name: string,
-  value: string,
-  placeholder: string,
-  data: Array,
-  onChange: () => void,
-  onEnter: () => void
+  isDarkModeOn: boolean;
+  getItemValue: (item: any) => string;
+  id: string;
+  name: string;
+  value: string;
+  placeholder: string;
+  data: Array<any>;
+  onChange: (value: string) => void;
+  onEnter: (p: any) => void;
 };
 
 const AutocompleteDropdown = (props: Props) => {
   const { value } = props;
-  let inputBlurTimer = null;
+  let inputBlurTimer: number;
   const [isOpen, setIsOpen] = useState(false);
-  const [list, setList] = useState([]);
+  const [list, setList] = useState<Array<any>>([]);
   const [isFocus, setIsFocus] = useState(-1);
   const [editField, setEditField] = useState(value || '');
-  const [move, setMove] = useState(0);
+  const [move, setMove] = useState<string | null>(null);
 
-  const inputField = useRef({});
-  const listContainer = useRef({});
+  const inputField = useRef<HTMLInputElement | null>(null);
+  const listContainer = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    return clearTimeout(inputBlurTimer);
-  }, []);
+    return () => {
+      inputBlurTimer && clearTimeout(inputBlurTimer);
+    };
+  });
 
   const filterList = () => {
     const { data, getItemValue } = props;
+    // @ts-ignore
     const { value } = inputField.current || {};
     let list = [];
 
@@ -114,12 +117,13 @@ const AutocompleteDropdown = (props: Props) => {
     return list;
   };
 
-  const handleSelectOption = (data) => {
+  const handleSelectOption = (data: string) => {
     const { onChange, getItemValue } = props;
 
     onChange(getItemValue(data));
     setEditField(getItemValue(data));
     setList([]);
+    // @ts-ignore
     setIsFocus(list.indexOf(data));
     setIsOpen(false);
   };
@@ -145,7 +149,22 @@ const AutocompleteDropdown = (props: Props) => {
     setIsOpen(!isOpen);
   };
 
-  const handleInputKeyUp = (e) => {
+  const pressEnterKey = (e: KeyboardEvent) => {
+    const { onChange, getItemValue, onEnter } = props;
+    const data = list[isFocus];
+
+    const value = (data && getItemValue(data)) || editField;
+
+    onChange(value);
+    setEditField(value);
+    setList([]);
+    setIsOpen(false);
+
+    // @ts-ignore
+    onEnter(e.target.value);
+  };
+
+  const handleInputKeyUp = (e: any) => {
     const { keyCode } = e;
 
     e.stopPropagation();
@@ -172,39 +191,31 @@ const AutocompleteDropdown = (props: Props) => {
     }
   };
 
-  const pressEnterKey = (e) => {
-    const { onChange, getItemValue, onEnter } = props;
-    const data = list[isFocus];
-
-    const value = (data && getItemValue(data)) || editField;
-
-    onChange(value);
-    setEditField(value);
-    setList([]);
-    setIsOpen(false);
-
-    onEnter(e);
-  };
-
   const scrollListContainer = () => {
     const c = listContainer.current;
 
     if (c) {
+      // @ts-ignore
       if (c.children[0]) {
+        // @ts-ignore
         const nh = c.offsetHeight;
+        // @ts-ignore
         const ch = c.children[0].offsetHeight;
+        // @ts-ignore
         const st = c.scrollTop;
 
         if (move === 'down') {
           const moveBottom = (isFocus + 1) * ch;
 
           if (moveBottom - st > nh) {
+            // @ts-ignore
             c.scrollTo(0, moveBottom - nh);
           }
         } else if (move === 'up') {
           const moveTop = isFocus * ch;
 
           if (moveTop < st) {
+            // @ts-ignore
             c.scrollTo(0, moveTop);
           }
         }
@@ -212,8 +223,8 @@ const AutocompleteDropdown = (props: Props) => {
     }
   };
 
-  const renderItem = (item) => (
-    <div role="button" tabIndex="-1">
+  const renderItem = (item: any) => (
+    <div role="button" tabIndex={-1}>
       {item.nickname} - {getAbbreviatedText(item.address)}
     </div>
   );
@@ -236,7 +247,7 @@ const AutocompleteDropdown = (props: Props) => {
     return menus;
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { target } = e;
     const { value } = target;
     const { onChange } = props;
