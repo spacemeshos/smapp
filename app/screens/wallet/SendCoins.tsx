@@ -30,7 +30,7 @@ const SendCoins = ({ history, location }: Props) => {
 
   const status = useSelector((state: RootState) => state.node.status);
   const currentAccount = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
-  // const contacts = useSelector((state: RootState) => state.wallet.contacts);
+  const contacts = useSelector((state: RootState) => state.wallet.contacts);
   // const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
@@ -109,6 +109,7 @@ const SendCoins = ({ history, location }: Props) => {
         cancelTx={history.goBack}
         nextAction={proceedToMode2}
         status={status}
+        contacts={contacts}
         key="params"
         isDarkMode={isDarkMode}
       />,

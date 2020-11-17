@@ -1,10 +1,10 @@
-import { shell, clipboard } from 'electron';
+import { shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link, Input, DropDown, Button, ErrorPopup } from '../../basicComponents';
+import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '../../basicComponents';
 import { getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Status } from '../../types';
+import { Contact, Status } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -124,6 +124,7 @@ type Props = {
   nextAction: () => void;
   cancelTx: () => void;
   status: Status | null;
+  contacts: Contact[];
   isDarkMode: boolean;
 };
 
@@ -143,6 +144,7 @@ const TxParams = ({
   nextAction,
   cancelTx,
   status,
+  contacts,
   isDarkMode
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
@@ -153,15 +155,6 @@ const TxParams = ({
       {label} {text}
     </Fee>
   );
-
-  const onPaste = () => {
-    const clipboardValue = clipboard.readText();
-    updateTxAddress({ value: clipboardValue });
-  };
-
-  const handleUpdateTxAddress = ({ value }: { value: string }) => {
-    updateTxAddress({ value });
-  };
 
   const selectFee = ({ index }: { index: number }) => {
     updateFee({ fee: fees[index].fee });
@@ -180,7 +173,17 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>To</DetailsText>
         <Dots>....................................</Dots>
-        <Input value={address} onChange={handleUpdateTxAddress} onPaste={onPaste} maxLength="42" style={inputStyle} />
+        <AutocompleteDropdown
+          isDarkModeOn
+          getItemValue={(item: { address: string }) => item.address}
+          id="address"
+          name="address"
+          placeholder="Address"
+          data={contacts || []}
+          value={address}
+          onChange={(value: string) => updateTxAddress({ value })}
+          onEnter={(value: string) => updateTxAddress({ value })}
+        />
         {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
       </DetailsRow>
       <DetailsRow>
