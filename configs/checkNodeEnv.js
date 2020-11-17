@@ -1,5 +1,4 @@
-// @flow
-export default function checkNodeEnv(expectedEnv: string) {
+export default function checkNodeEnv(expectedEnv) {
   if (!expectedEnv) {
     throw new Error('"expectedEnv" not set');
   }

@@ -1,4 +1,3 @@
-// @flow
 import {
   SplashScreen,
   Auth,
@@ -26,7 +25,7 @@ import {
   TestMe,
   Vault,
   Dashboard
-} from '/screens';
+} from './screens';
 
 const app = [
   {
@@ -147,12 +146,6 @@ const backup = [
   }
 ];
 
-const routes = {
-  app,
-  auth,
-  main,
-  wallet,
-  backup
-};
+const routes = { app, auth, main, wallet, backup };
 
 export default routes;
