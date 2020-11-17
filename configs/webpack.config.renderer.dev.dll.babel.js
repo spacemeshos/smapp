@@ -4,7 +4,7 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import merge from 'webpack-merge';
+import { merge } from 'webpack-merge';
 import { dependencies } from '../package.json';
 import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
@@ -13,7 +13,7 @@ checkNodeEnv('development');
 
 const dist = path.join(__dirname, '..', 'dll');
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   context: path.join(__dirname, '..'),
 
   devtool: 'eval',
