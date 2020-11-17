@@ -12,22 +12,26 @@ import checkNodeEnv from './checkNodeEnv';
 
 checkNodeEnv('production');
 
-export default merge.smart(baseConfig, {
-  devtool: 'source-map',
+export default merge(baseConfig, {
+  devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
 
   mode: 'production',
 
-  target: 'electron-renderer',
+  target:
+    process.env.E2E_BUILD || process.env.ERB_SECURE !== 'true'
+      ? 'electron-renderer'
+      : 'electron-preload',
 
   entry: [
+    'core-js',
     'regenerator-runtime/runtime',
-    path.join(__dirname, '..', 'app/index')
+    path.join(__dirname, '..', 'app/index.tsx'),
   ],
 
   output: {
-    path: path.join(__dirname, '..', 'desktop/dist'),
+    path: path.join(__dirname, '..', 'app/dist'),
     publicPath: './dist/',
-    filename: 'renderer.prod.js'
+    filename: 'renderer.prod.js',
   },
 
   module: {
@@ -70,12 +74,12 @@ export default merge.smart(baseConfig, {
     minimizer: process.env.E2E_BUILD
       ? []
       : [
-          new TerserPlugin({
-            parallel: true,
-            sourceMap: true,
-            cache: true
-          })
-        ]
+        new TerserPlugin({
+          parallel: true,
+          sourceMap: true,
+          cache: true,
+        })
+      ]
   },
 
   plugins: [
@@ -89,13 +93,15 @@ export default merge.smart(baseConfig, {
      * development checks
      */
     new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      DEBUG_PROD: false,
+      E2E_BUILD: false,
     }),
 
     new BundleAnalyzerPlugin({
       analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
-    })
+      openAnalyzer: process.env.OPEN_ANALYZER === 'true',
+    }),
   ]
 });
