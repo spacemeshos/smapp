@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Wrapper = styled.div<{ margin: string; visibility: boolean }>`
+const Wrapper = styled.div<{ margin: string; visible: boolean }>`
   flex: 0 0 60px;
   position: relative;
   width: 785px;
   height: 60px;
   margin: ${({ margin }) => margin};
-  visibility: ${({ visibility }) => (visibility ? 'visible' : 'hidden')};
+  visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
 `;
 
 const UpperPart = styled.div<{ color: string }>`
@@ -40,7 +40,7 @@ type Props = {
 };
 
 const Banner = ({ children, visibility = true, margin = '0', color }: Props) => (
-  <Wrapper margin={margin} visibility={visibility}>
+  <Wrapper margin={margin} visible={visibility}>
     <UpperPart color={color}>{children}</UpperPart>
     <LowerPart color={color} />
   </Wrapper>

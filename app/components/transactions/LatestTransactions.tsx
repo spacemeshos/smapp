@@ -66,7 +66,7 @@ type Props = {
 };
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
-  const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex].publicKey);
+  const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey);
   const transactions = useSelector((state: RootState) => state.wallet.transactions[state.wallet.currentAccountIndex]);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
