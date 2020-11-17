@@ -25,7 +25,7 @@
     "postinstall": "electron-builder install-app-deps && npm run build-dll",
     "postlint-fix": "prettier --ignore-path .eslintignore --single-quote --write 'app/.'",
     "prestart": "npm run build",
-    "start": "cross-env NODE_ENV=production electron ./desktop/main.prod.js",
+    "start": "cross-env START_HOT=1 node -r @babel/register && cross-env START_HOT=1 npm run start-renderer-dev",
     "start-main-dev": "cross-env START_HOT=1 NODE_ENV=development electron -r ./configs/babelRegister ./desktop/main.dev.ts",
     "start-renderer-dev": "cross-env NODE_ENV=development webpack-dev-server --config ./configs/webpack.config.renderer.dev.babel.js"
   },

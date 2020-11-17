@@ -10,8 +10,8 @@ import fs from 'fs';
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
-import baseConfig from './webpack.config.base';
 import checkNodeEnv from './checkNodeEnv';
+import baseConfig from './webpack.config.base';
 
 checkNodeEnv('development');
 
@@ -47,7 +47,7 @@ export default merge(baseConfig, {
 
   output: {
     publicPath: `http://localhost:${port}/dist/`,
-    filename: 'renderer.dev.js',
+    filename: 'renderer.dev.js'
   },
 
   module: {
