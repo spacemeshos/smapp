@@ -210,7 +210,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Note</DetailsText>
         <Dots>....................................</Dots>
-        <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} />
+        <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} placeholder="Only visible to you." />
       </DetailsRow>
       <Footer>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
