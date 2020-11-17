@@ -186,32 +186,32 @@ class Main extends Component<Props, State> {
                   <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
                     SMESHING
                   </NavBarLink>
-                  <CustomTooltip text="MANAGE SMESHING" />
+                  <CustomTooltip text="MANAGE SMESHING" isDarkMode={isDarkMode} />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
                     <NetworkIndicator color={nodeIndicator.color} />
                     NETWORK
                   </NavBarLink>
-                  <CustomTooltip text="NETWORK" />
+                  <CustomTooltip text="NETWORK" isDarkMode={isDarkMode} />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
                     WALLET
                   </NavBarLink>
-                  <CustomTooltip text="SEND / RECEIVE SMH" />
+                  <CustomTooltip text="SEND / RECEIVE SMH" isDarkMode={isDarkMode} />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 3 })} isActive={activeRouteIndex === 3}>
                     CONTACTS
                   </NavBarLink>
-                  <CustomTooltip text="MANAGE CONTACTS" />
+                  <CustomTooltip text="MANAGE CONTACTS" isDarkMode={isDarkMode} />
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 4 })} isActive={activeRouteIndex === 4}>
                     DASH
                   </NavBarLink>
-                  <CustomTooltip text="DASHBOARD" />
+                  <CustomTooltip text="DASHBOARD" isDarkMode={isDarkMode} />
                 </TooltipWrapper>
               </NavLinksWrapper>
             </NavBarPart>
@@ -228,7 +228,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="SETTINGS" />
+                <CustomTooltip text="SETTINGS" isDarkMode={isDarkMode} />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -242,7 +242,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="GET SMESH" />
+                <CustomTooltip text="GET SMESH" isDarkMode={isDarkMode} />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -256,7 +256,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="HELP" />
+                <CustomTooltip text="HELP" isDarkMode={isDarkMode} />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -270,7 +270,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="LOGOUT" />
+                <CustomTooltip text="LOGOUT" isDarkMode={isDarkMode} />
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
