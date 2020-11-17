@@ -91,6 +91,7 @@ module.exports = {
     '@typescript-eslint/no-throw-literal': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/ban-ts-comment': 0,
+    '@typescript-eslint/no-unused-expressions': 0,
     'react/prop-types': 0
   },
   parserOptions: {
