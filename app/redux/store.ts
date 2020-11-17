@@ -28,11 +28,9 @@ function configureMiddleware() {
       ...uiActions
     };
     // If Redux DevTools Extension is installed use it, otherwise use Redux compose
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+      ? // @ts-ignore
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
           // Options: http://extension.remotedev.io/docs/API/Arguments.html
           actionCreators

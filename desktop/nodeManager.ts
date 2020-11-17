@@ -1,13 +1,15 @@
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import { app, ipcMain, dialog } from 'electron';
+import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 import netService from './netService';
 import nodeConfig from './config.json';
 import WalletManager from './walletManager';
-import { writeInfo, writeError } from './logger';
+import Logger from './logger';
+
+const logger = Logger({ className: 'NodeManager' });
 
 const { exec } = require('child_process');
 
@@ -23,11 +25,11 @@ const osTargetNames = {
 const DEFAULT_PORT = '7153';
 
 class NodeManager {
-  constructor(mainWindow) {
+  constructor(mainWindow: BrowserWindow) {
     this.subscribeToEvents(mainWindow);
   }
 
-  subscribeToEvents = (mainWindow) => {
+  subscribeToEvents = (mainWindow: BrowserWindow) => {
     ipcMain.handle(ipcConsts.IS_SERVICE_READY, async () => {
       try {
         await netService.isServiceReady();
@@ -40,43 +42,43 @@ class NodeManager {
       await this.startNode();
       new WalletManager(mainWindow); // eslint-disable-line no-new
     });
-    ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async (event) => {
-      const res = await this.getNodeSettings({ event });
-      writeInfo(`NodeManager`, `ipc GET_NODE_SETTINGS channel`, { res });
+    ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async () => {
+      const res = await this.getNodeSettings();
+      logger.log('GET_NODE_SETTINGS channel', res);
       return res;
     });
     ipcMain.handle(ipcConsts.GET_NODE_STATUS, async () => {
       const res = await this.getNodeStatus();
-      writeInfo(`NodeManager`, `ipc GET_NODE_STATUS channel`, { res });
+      logger.log(`NodeManager`, `ipc GET_NODE_STATUS channel`, { res });
       return res;
     });
-    ipcMain.on(ipcConsts.SET_NODE_PORT, (event, request) => {
+    ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
       const networkId = StoreService.get({ key: 'networkId' });
       StoreService.set({ key: `${networkId}-port`, value: request.port });
     });
     ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
       const res = await this.selectPostFolder({ mainWindow });
-      writeInfo(`NodeManager`, `ipc SELECT_POST_FOLDER channel`, { res });
+      logger.log(`NodeManager`, `ipc SELECT_POST_FOLDER channel`, { res });
       return res;
     });
     ipcMain.handle(ipcConsts.GET_MINING_STATUS, async () => {
       const res = await this.getMiningStatus();
-      writeInfo(`NodeManager`, `ipc GET_MINING_STATUS channel`, { res });
+      logger.log(`NodeManager`, `ipc GET_MINING_STATUS channel`, { res });
       return res;
     });
-    ipcMain.handle(ipcConsts.INIT_MINING, async (event, request) => {
+    ipcMain.handle(ipcConsts.INIT_MINING, async (_event, request) => {
       const res = await this.initMining({ ...request });
-      writeInfo(`NodeManager`, `ipc INIT_MINING channel`, { res }, { request });
+      logger.log(`INIT_MINING channel`, { res }, { request });
       return res;
     });
-    ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
+    ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (_event, request) => {
       const res = await this.setRewardsAddress({ ...request });
-      writeInfo(`NodeManager`, `ipc SET_REWARDS_ADDRESS channel`, { res }, { request });
+      logger.log('SET_REWARDS_ADDRESS channel', res, { request });
       return res;
     });
-    ipcMain.handle(ipcConsts.SET_NODE_IP, (event, request) => {
+    ipcMain.handle(ipcConsts.SET_NODE_IP, (_event, request) => {
       const res = this.setNodeIpAddress({ ...request });
-      writeInfo(`NodeManager`, `ipc SET_NODE_IP channel`, { res }, { request });
+      logger.log('SET_NODE_IP channel', res, { request });
       return res;
     });
   };
@@ -96,7 +98,9 @@ class NodeManager {
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
         app.getAppPath(),
+        // @ts-ignore
         process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
+        // @ts-ignore
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
       const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
@@ -106,20 +110,20 @@ class NodeManager {
 
       if (prevGenesisTime !== fetchedGenesisTime) {
         const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
-        exec(command, async (err) => {
+        exec(command, async (err: any) => {
           if (!err) {
             StoreService.set({ key: `${networkId}-genesisTime`, value: fetchedGenesisTime });
             const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-            exec(nodePathWithParams, (error) => {
+            exec(nodePathWithParams, (error: any) => {
               if (error) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
-                writeError('nodeManager', 'startNode', error);
+                logger.error('nodeManager', 'startNode', error);
               }
             });
           } else {
             dialog.showErrorBox('Old data files removal failed', `${err}`);
-            writeError('nodeManager', 'startNode', err);
+            logger.error('nodeManager', 'startNode', err);
           }
         });
       } else {
@@ -127,26 +131,26 @@ class NodeManager {
         const nodePathWithParams = `"${nodePath}" --grpc-server --json-server --tcp-port ${port} --config "${configFileLocation}"${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
-        exec(nodePathWithParams, (error) => {
+        exec(nodePathWithParams, (error: any) => {
           if (error) {
             // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
-            writeError('nodeManager', 'startNode', error);
+            logger.error('nodeManager', 'startNode', error);
           }
         });
       }
     } catch (e) {
       dialog.showErrorBox('Parsing json failed', `${e}`);
-      writeError('nodeManager', 'startNode', e);
+      logger.error('nodeManager', 'startNode', e);
     }
   };
 
-  stopNode = async ({ browserWindow }) => {
+  stopNode = async ({ browserWindow }: { browserWindow: BrowserWindow }) => {
     const closeApp = async () => {
       browserWindow.destroy();
       app.quit();
     };
-    const stopNodeCycle = async (attempt) => {
+    const stopNodeCycle = async (attempt: number) => {
       const nodeProcesses = await find('name', 'go-spacemesh');
       if (attempt > 15) {
         if (nodeProcesses && nodeProcesses.length) {
@@ -162,9 +166,9 @@ class NodeManager {
     try {
       const nodeProcesses = await find('name', 'go-spacemesh');
       if (nodeProcesses && nodeProcesses.length) {
-        exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err) => {
+        exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err: any) => {
           if (err) {
-            writeError('nodeManager', 'stopNode', err);
+            logger.error('nodeManager', 'stopNode', err);
           }
           await stopNodeCycle(0);
         });
@@ -173,7 +177,7 @@ class NodeManager {
       }
     } catch (err) {
       // could not find or kill node process
-      writeError('nodeManager', 'stopNode', err);
+      logger.error('nodeManager', 'stopNode', err);
       await closeApp();
     }
   };
@@ -188,6 +192,7 @@ class NodeManager {
       const commitmentSize = StoreService.get({ key: `${networkId}-postSize` });
       const layerDuration = StoreService.get({ key: `${networkId}-layerDurationSec` });
       const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
+      // @ts-ignore
       const { value } = await netService.getStateRoot();
       return { address, posDataPath, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
     } catch (error) {
@@ -199,12 +204,19 @@ class NodeManager {
     try {
       const status = await netService.getNodeStatus();
       const parsedStatus = {
+        // @ts-ignore
         peers: parseInt(status.peers),
+        // @ts-ignore
         minPeers: parseInt(status.minPeers),
+        // @ts-ignore
         maxPeers: parseInt(status.maxPeers),
+        // @ts-ignore
         synced: status.synced,
-        syncedLayer: parseInt(status.syncedLayer),
+        // @ts-ignore
         currentLayer: parseInt(status.currentLayer),
+        // @ts-ignore
+        syncedLayer: parseInt(status.syncedLayer),
+        // @ts-ignore
         verifiedLayer: parseInt(status.verifiedLayer)
       };
       return { status: parsedStatus, error: null };
@@ -213,7 +225,7 @@ class NodeManager {
     }
   };
 
-  selectPostFolder = async ({ mainWindow }) => {
+  selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {
     const { filePaths } = await dialog.showOpenDialog(mainWindow, {
       title: 'Select folder for smeshing',
       defaultPath: app.getPath('documents'),
@@ -224,13 +236,14 @@ class NodeManager {
       const diskSpace = await checkDiskSpace(filePaths[0]);
       return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
     } catch (error) {
-      writeError('nodeManager', 'selectPostFolder', error);
+      logger.error('nodeManager', 'selectPostFolder', error);
       return { error };
     }
   };
 
   getMiningStatus = async () => {
     try {
+      // @ts-ignore
       const { status } = await netService.getMiningStatus();
       return { error: null, status };
     } catch (error) {
@@ -238,7 +251,7 @@ class NodeManager {
     }
   };
 
-  initMining = async ({ logicalDrive, commitmentSize, coinbase }) => {
+  initMining = async ({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string; commitmentSize: number; coinbase: string }) => {
     try {
       await netService.initMining({ logicalDrive, commitmentSize, coinbase });
       const networkId = StoreService.get({ key: 'networkId' });
@@ -249,7 +262,7 @@ class NodeManager {
     }
   };
 
-  setRewardsAddress = async ({ address }) => {
+  setRewardsAddress = async ({ address }: { address: Uint8Array }) => {
     try {
       await netService.setRewardsAddress({ address });
       const networkId = StoreService.get({ key: 'networkId' });
@@ -261,7 +274,7 @@ class NodeManager {
     }
   };
 
-  setNodeIpAddress = ({ nodeIpAddress }) => {
+  setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }) => {
     try {
       netService.setNodeIpAddress({ nodeIpAddress });
       return { error: null };

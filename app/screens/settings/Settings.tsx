@@ -329,7 +329,6 @@ class Settings extends Component<Props, State> {
               />
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
                 rowName="Change Node IP Address"
@@ -376,7 +375,6 @@ class Settings extends Component<Props, State> {
       showPasswordModal: true,
       passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ showPasswordModal: false });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         createNewAccount({ password });
       }
@@ -392,7 +390,6 @@ class Settings extends Component<Props, State> {
     const { walletDisplayName } = this.state;
     this.setState({ canEditDisplayName: false });
     if (!!walletDisplayName && !!walletDisplayName.trim() && walletDisplayName !== displayName) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       updateWalletName({ displayName: walletDisplayName });
     }
@@ -416,14 +413,12 @@ class Settings extends Component<Props, State> {
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     history.push('/main/backup');
   };
 
   navigateToWalletRestore = () => {
     const { history } = this.props;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     history.push('/auth/restore');
   };
@@ -471,7 +466,6 @@ class Settings extends Component<Props, State> {
       showPasswordModal: true,
       passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ editedAccountIndex: -1, showPasswordModal: false });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         updateAccountName({ accountIndex: index, name: accountDisplayNames[index], password });
       }
@@ -536,7 +530,6 @@ const mapDispatchToProps = {
   switchTheme
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 Settings = connect(mapStateToProps, mapDispatchToProps)(Settings);
 

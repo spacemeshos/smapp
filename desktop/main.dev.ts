@@ -26,7 +26,6 @@ import './wasm_exec';
   const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
   const bytes = fs.readFileSync(filePath);
   // const bytes = await response.arrayBuffer();
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const go = new Go(); // eslint-disable-line no-undef
   const { instance } = await WebAssembly.instantiate(bytes, go.importObject);

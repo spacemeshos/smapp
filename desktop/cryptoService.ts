@@ -1,62 +1,50 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
 import encryptionConst from './encryptionConst';
-
-const fromHexString = (hexString) => {
-  const bytes = [];
-  for (let i = 0; i < hexString.length; i += 2) {
-    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
-  }
-  return Uint8Array.from(bytes);
-};
-
-const toHexString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+import { fromHexString, toHexString } from './utils';
 
 class CryptoService {
   static generateMnemonic = () => bip39.generateMnemonic();
 
   /**
    * Generates new master key pair using as seed 12 words mnemonic (128 bits of entropy) as per BIP39.
-   * Inside call to function "generateKeyPair" is made - it's exposed from compiled WASM and generates keys following ed25519 protocol
+   * Inside call to function "__generateKeyPair" is made - it's exposed from compiled WASM and generates keys following ed25519 protocol
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
-  static generateKeyPair = ({ mnemonic }) => {
+  static generateKeyPair = ({ mnemonic }: { mnemonic: string }) => {
     // Generate 64 seed bytes (512 bits) from phrase - this is a wallet's master seed
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
-    const saveKeys = (pk, sk) => {
+    const saveKeys = (pk: Uint8Array, sk: Uint8Array) => {
       if (pk === null || sk === null) {
-        this.stopAndCleanUp();
         throw new Error('key generation failed');
       }
       publicKey = pk;
       secretKey = sk;
     };
+    // @ts-ignore
     global.__generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
     return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
   };
 
   /**
-   *
-   * @param mnemonic {string}
-   * @param index {int}
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
-  static deriveNewKeyPair = ({ mnemonic, index }) => {
+  static deriveNewKeyPair = ({ mnemonic, index }: { mnemonic: string; index: number }) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
     const enc = new TextEncoder();
     const saltAsUint8Array = enc.encode(encryptionConst.DEFAULT_SALT);
-    const saveKeys = (pk, sk) => {
+    const saveKeys = (pk: Uint8Array, sk: Uint8Array) => {
       if (pk === null || sk === null) {
-        this.stopAndCleanUp();
         throw new Error('key generation failed');
       }
       publicKey = pk;
       secretKey = sk;
     };
+    // @ts-ignore
     global.__deriveNewKeyPair(seed.slice(32), index, saltAsUint8Array, saveKeys); // eslint-disable-line no-undef
     return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
   };
@@ -70,9 +58,9 @@ class CryptoService {
    * @param amount - amount to transfer in SMC cents
    * @return {Promise} when resolved returns signature as Uint8Array(64)
    */
-  static signTransaction = ({ accountNonce, receiver, price, amount, secretKey }) => {
+  static signTransaction = ({ accountNonce, receiver, price, amount, secretKey }: { accountNonce: number; receiver: string; price: number; amount: number; secretKey: string }) => {
     const sk = fromHexString(secretKey);
-    const types = xdr.config((xdr1) => {
+    const types = xdr.config((xdr1: { struct: (arg0: string, arg1: any[][]) => void; uhyper: () => any; opaque: (arg0: number) => any; lookup: (arg0: string) => any }) => {
       xdr1.struct('InnerSerializableSignedTransaction', [
         ['AccountNonce', xdr1.uhyper()],
         ['Recipient', xdr1.opaque(20)],
@@ -95,7 +83,7 @@ class CryptoService {
     const bufMessage = message.toXDR();
     return new Promise((resolve) => {
       const bufMessageAsUint8Array = new Uint8Array(bufMessage);
-      // eslint-disable-next-line no-undef
+      // @ts-ignore
       global.__signTransaction(sk, bufMessageAsUint8Array, (sig) => {
         const tx = new types.SerializableSignedTransaction({
           InnerSerializableSignedTransaction: message,
@@ -112,12 +100,12 @@ class CryptoService {
    * @param message - utf8 string representation of message
    * @return {Promise} when resolved returns signature as Uint8Array(64)
    */
-  static signMessage = ({ message, secretKey }) => {
+  static signMessage = ({ message, secretKey }: { message: string; secretKey: string }) => {
     const sk = fromHexString(secretKey);
     return new Promise((resolve) => {
       const enc = new TextEncoder();
       const messageAsUint8Array = enc.encode(message);
-      // eslint-disable-next-line no-undef
+      // @ts-ignore
       global.__signTransaction(sk, messageAsUint8Array, (sig) => {
         resolve(toHexString(sig));
       });
@@ -128,7 +116,7 @@ class CryptoService {
    * @param mnemonic - string to be validated as mnemonic per BIP39 standard.
    * @return {*|boolean} true if string is a valid mnemonic, false else.
    */
-  validateMnemonic = ({ mnemonic }) => {
+  validateMnemonic = ({ mnemonic }: { mnemonic: string }) => {
     if (!mnemonic || !mnemonic.length) {
       return false;
     }

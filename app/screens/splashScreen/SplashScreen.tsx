@@ -14,7 +14,6 @@ const SplashScreen = ({ history }: RouteComponentProps) => {
     let interval: any = null;
     const startNode = async () => {
       const status = await dispatch(getNodeStatus());
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (status && !status?.noConnection) {
         history.push('/auth');

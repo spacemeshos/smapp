@@ -77,28 +77,22 @@ class Auth extends Component<Props> {
 
   async componentDidMount() {
     const { getNodeStatus, getMiningStatus, getNodeSettings, readWalletFiles, history, location } = this.props;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const files = await readWalletFiles();
     if (files.length && location.pathname !== '/auth/restore') {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       history.push('/auth/unlock');
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await getNodeStatus();
     this.getNodeStatusInterval = setInterval(async () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       await getNodeStatus();
     }, 20000);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const status = await getMiningStatus();
     if (status === nodeConsts.MINING_UNSET) {
       this.getMiningStatusInterval = setInterval(async () => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const status = await getMiningStatus();
         if (status !== nodeConsts.MINING_UNSET && this.getMiningStatusInterval) {
@@ -106,7 +100,6 @@ class Auth extends Component<Props> {
         }
       }, 1000);
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await getNodeSettings();
   }
@@ -128,7 +121,6 @@ const mapDispatchToProps = {
   readWalletFiles
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 Auth = connect(mapStateToProps, mapDispatchToProps)(Auth);
 

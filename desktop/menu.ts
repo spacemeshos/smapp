@@ -1,9 +1,9 @@
-import { app, Menu, shell } from 'electron';
+import { app, Menu, shell, BrowserWindow } from 'electron';
 
 class MenuBuilder {
-  mainWindow;
+  mainWindow: BrowserWindow;
 
-  constructor(mainWindow) {
+  constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
   }
 
@@ -15,30 +15,33 @@ class MenuBuilder {
     }
 
     const template = this.buildMenuTemplate();
+    // @ts-ignore
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
   }
 
   addInspectElementMenu() {
     setTimeout(() => {
+      // @ts-ignore
       this.mainWindow.openDevTools();
     }, 10000);
-    this.mainWindow.webContents.on('context-menu', (e, props) => {
+    this.mainWindow.webContents.on('context-menu', (_e, props) => {
       const { x, y } = props;
 
       Menu.buildFromTemplate([
         {
           label: 'Inspect element',
           click: () => {
+            // @ts-ignore
             this.mainWindow.inspectElement(x, y);
           }
-        }
+        } // @ts-ignore
       ]).popup(this.mainWindow);
     });
   }
 
   addInputAndSelectionMenu() {
-    const selectionMenu = Menu.buildFromTemplate([{ role: 'copy' }, { type: 'separator' }, { role: 'selectall' }]);
+    const selectionMenu = Menu.buildFromTemplate([{ role: 'copy' }, { type: 'separator' }, { role: 'selectAll' }]);
 
     const inputMenu = Menu.buildFromTemplate([
       { role: 'undo' },
@@ -48,14 +51,16 @@ class MenuBuilder {
       { role: 'copy' },
       { role: 'paste' },
       { type: 'separator' },
-      { role: 'selectall' }
+      { role: 'selectAll' }
     ]);
 
-    this.mainWindow.webContents.on('context-menu', (e, props) => {
+    this.mainWindow.webContents.on('context-menu', (_e, props) => {
       const { selectionText, isEditable } = props;
       if (isEditable) {
+        // @ts-ignore
         inputMenu.popup(this.mainWindow);
       } else if (selectionText && selectionText.trim() !== '') {
+        // @ts-ignore
         selectionMenu.popup(this.mainWindow);
       }
     });

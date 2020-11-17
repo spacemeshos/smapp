@@ -36,7 +36,6 @@ class ErrorBoundary extends Component<Props, State> {
     const { error } = this.state;
 
     if (error) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const { retryFunction } = error;
       const explanationText = `${retryFunction ? 'Retry failed action or refresh page.' : 'Try to refresh page.'}`;
@@ -61,10 +60,8 @@ class ErrorBoundary extends Component<Props, State> {
   handleRetry = () => {
     const { error } = this.state;
     this.setState({ error: null });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (error && error.retryFunction) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       error.retryFunction();
     }

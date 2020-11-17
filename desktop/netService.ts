@@ -1,6 +1,8 @@
 import path from 'path';
 import { nodeConsts } from '../app/vars';
-import { writeInfo, writeError } from './logger';
+import Logger from './logger';
+
+const logger = Logger({ className: 'NetService' });
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -13,167 +15,170 @@ const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 const getDeadline = () => new Date().setSeconds(new Date().getSeconds() + 120000);
 
 class NetService {
+  // @ts-ignore
+  private service: spacemeshProto.pb.SpacemeshService;
+
   constructor(url = nodeConsts.DEFAULT_URL) {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
   isServiceReady = () =>
-    new Promise((resolve, reject) => {
-      this.service.Echo({}, { deadline: new Date().setSeconds(new Date().getSeconds() + 200) }, (error) => {
+    new Promise<void>((resolve, reject) => {
+      this.service.Echo({}, { deadline: new Date().setSeconds(new Date().getSeconds() + 200) }, (error: any) => {
         if (error) {
-          writeError('netService', 'grpc isServiceReady', error);
+          logger.error('isServiceReady', error);
           reject();
         }
-        writeInfo('netService', 'grpc isServiceReady', 'true');
+        logger.log('isServiceReady', true);
         resolve();
       });
     });
 
   getNodeStatus = () =>
     new Promise((resolve, reject) => {
-      this.service.GetNodeStatus({}, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetNodeStatus({}, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getNodeStatus', error);
+          logger.error('getNodeStatus', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getNodeStatus', { response });
+        logger.log('getNodeStatus', response);
         resolve(response);
       });
     });
 
   getStateRoot = () =>
     new Promise((resolve, reject) => {
-      this.service.GetStateRoot({}, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetStateRoot({}, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getStateRoot', error);
+          logger.error('getStateRoot', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getStateRoot', { response });
+        logger.log('getStateRoot', response);
         resolve(response);
       });
     });
 
   getMiningStatus = () =>
     new Promise((resolve, reject) => {
-      this.service.GetMiningStats({}, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetMiningStats({}, { deadline: getDeadline() }, (error: any, response: any) => {
         if (error) {
-          writeError('netService', 'grpc getMiningStatus', error);
+          logger.error('getMiningStatus', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getMiningStatus', { response });
+        logger.log('getMiningStatus', response);
         resolve(response);
       });
     });
 
-  initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
+  initMining = ({ logicalDrive, commitmentSize, coinbase }: { logicalDrive: string; commitmentSize: number; coinbase: string }) =>
     new Promise((resolve, reject) => {
-      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, { deadline: getDeadline() }, (error, response) => {
+      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc initMining', error);
+          logger.error('initMining', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc initMining', { response }, { logicalDrive, commitmentSize, coinbase });
+        logger.log('initMining', response, { logicalDrive, commitmentSize, coinbase });
         resolve(response);
       });
     });
 
   getUpcomingAwards = () =>
     new Promise((resolve, reject) => {
-      this.service.GetUpcomingAwards({}, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetUpcomingAwards({}, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getUpcomingAwards', error);
+          logger.error('getUpcomingAwards', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getUpcomingAwards', { response });
+        logger.log('getUpcomingAwards', response);
         resolve(response);
       });
     });
 
-  getAccountRewards = ({ address }) =>
+  getAccountRewards = ({ address }: { address: Uint8Array }) =>
     new Promise((resolve, reject) => {
-      this.service.GetAccountRewards({ address }, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetAccountRewards({ address }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getAccountRewards', error);
+          logger.error('getAccountRewards', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getAccountRewards', { response }, { address });
+        logger.log('getAccountRewards', response, { address });
         resolve(response);
       });
     });
 
-  setRewardsAddress = ({ address }) =>
+  setRewardsAddress = ({ address }: { address: Uint8Array }) =>
     new Promise((resolve, reject) => {
-      this.service.SetAwardsAddress({ address }, { deadline: getDeadline() }, (error, response) => {
+      this.service.SetAwardsAddress({ address }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc setRewardsAddress', error);
+          logger.error('setRewardsAddress', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc setRewardsAddress', { response }, { address });
+        logger.log('setRewardsAddress', response, { address });
         resolve(response);
       });
     });
 
-  getNonce = ({ address }) =>
+  getNonce = ({ address }: { address: Uint8Array }) =>
     new Promise((resolve, reject) => {
-      this.service.GetNonce({ address }, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetNonce({ address }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getNonce', error);
+          logger.error('getNonce', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getNonce', { response }, { address });
+        logger.log('getNonce', response, { address });
         resolve(response);
       });
     });
 
-  getBalance = ({ address }) =>
+  getBalance = ({ address }: { address: Uint8Array }) =>
     new Promise((resolve, reject) => {
-      this.service.GetBalance({ address }, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetBalance({ address }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getBalance', error);
+          logger.error('getBalance', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getBalance', { response }, { address });
+        logger.log('getBalance', response, { address });
         resolve(response);
       });
     });
 
-  submitTransaction = ({ tx }) =>
+  submitTransaction = ({ tx }: { tx: any }) =>
     new Promise((resolve, reject) => {
-      this.service.SubmitTransaction({ tx }, { deadline: getDeadline() }, (error, response) => {
+      this.service.SubmitTransaction({ tx }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc submitTransaction', error);
+          logger.error('netService', 'grpc submitTransaction', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc submitTransaction', { response }, { tx });
+        logger.log('submitTransaction', response, { tx });
         resolve(response);
       });
     });
 
-  getAccountTxs = ({ account, startLayer }) =>
+  getAccountTxs = ({ account, startLayer }: { account: any; startLayer: number }) =>
     new Promise((resolve, reject) => {
-      this.service.GetAccountTxs({ account: { address: account }, startLayer }, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetAccountTxs({ account: { address: account }, startLayer }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getAccountTxs', error);
+          logger.error('getAccountTxs', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getAccountTxs', { response }, { account, startLayer });
+        logger.log('getAccountTxs', response, { account, startLayer });
         resolve(response);
       });
     });
 
-  getTransaction = ({ id }) =>
+  getTransaction = ({ id }: { id: Uint8Array }) =>
     new Promise((resolve, reject) => {
-      this.service.GetTransaction({ id }, { deadline: getDeadline() }, (error, response) => {
+      this.service.GetTransaction({ id }, { deadline: getDeadline() }, (error: any, response: unknown) => {
         if (error) {
-          writeError('netService', 'grpc getTransaction', error);
+          logger.error('getTransaction', error);
           reject(error);
         }
-        writeInfo('netService', 'grpc getTransaction', { response }, { id });
+        logger.log('getTransaction', response, { id });
         resolve(response);
       });
     });
 
-  setNodeIpAddress = ({ nodeIpAddress }) => {
+  setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }) => {
     this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
   };
 }

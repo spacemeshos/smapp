@@ -1,7 +1,7 @@
 const Store = require('electron-store');
 
 class StoreService {
-  static store;
+  static store: typeof Store;
 
   static init() {
     if (!StoreService.store) {
@@ -9,15 +9,15 @@ class StoreService {
     }
   }
 
-  static set = ({ key, value }) => {
+  static set = ({ key, value }: { key: string; value: any }) => {
     StoreService.store.set(key, value);
   };
 
-  static get = ({ key }) => {
+  static get = ({ key }: { key: string }) => {
     return StoreService.store.get(key);
   };
 
-  static remove = ({ key }) => {
+  static remove = ({ key }: { key: string }) => {
     StoreService.store.delete(key);
   };
 

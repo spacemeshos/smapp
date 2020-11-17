@@ -2,22 +2,15 @@ import TX_STATUSES from '../app/vars/enums';
 import StoreService from './storeService';
 import netService from './netService';
 import cryptoService from './cryptoService';
+import { fromHexString, toHexString } from './utils';
 
-const asyncForEach = async (array, callback) => {
+const asyncForEach = async (array: Array<any>, callback: (obj: any, index: number, array: Array<any>) => void) => {
   for (let index = 0; index < array.length; index += 1) {
     await callback(array[index], index, array); // eslint-disable-line no-await-in-loop
   }
 };
 
-const fromHexString = (hexString) => {
-  const bytes = [];
-  for (let i = 0; i < hexString.length; i += 2) {
-    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
-  }
-  return Uint8Array.from(bytes);
-};
-
-const compare = (a, b) => {
+const compare = (a: any, b: any) => {
   if (!a.timestamp && !b.timestamp) {
     return 0;
   } else if (a.timestamp && !b.timestamp) {
@@ -28,6 +21,14 @@ const compare = (a, b) => {
 };
 
 class TransactionManager {
+  private readonly networkId: any;
+
+  private readonly transactions: any;
+
+  private rewards: any;
+
+  accounts: any;
+
   constructor() {
     this.networkId = StoreService.get({ key: 'networkId' });
     this.transactions = StoreService.get({ key: `${this.networkId}-transactions` }) || [{ layerId: 0, data: [] }];
@@ -35,7 +36,7 @@ class TransactionManager {
     this.accounts = [];
   }
 
-  setAccounts = ({ accounts }) => {
+  setAccounts = ({ accounts }: { accounts: Array<any> }) => {
     this.accounts = accounts;
     if (accounts.length > this.transactions.length) {
       const diff = accounts.length - this.transactions.length;
@@ -46,7 +47,7 @@ class TransactionManager {
     }
   };
 
-  addAccount = ({ account }) => {
+  addAccount = ({ account }: { account: any }) => {
     this.accounts.push(account);
     this.transactions.push({ layerId: 0, data: [] });
     StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
@@ -56,8 +57,9 @@ class TransactionManager {
     StoreService.clear();
   };
 
-  sendTx = async ({ fullTx, accountIndex }) => {
+  sendTx = async ({ fullTx, accountIndex }: { fullTx: any; accountIndex: number }) => {
     try {
+      // @ts-ignore
       const { error, value } = await netService.getNonce({ address: this.accounts[accountIndex].publicKey });
       if (!error) {
         const { receiver, amount, fee } = fullTx;
@@ -68,6 +70,7 @@ class TransactionManager {
           amount,
           secretKey: this.accounts[accountIndex].secretKey
         });
+        // @ts-ignore
         const { id } = await netService.submitTransaction({ tx: res });
         this.transactions[accountIndex].data.unshift({ txId: id, ...fullTx });
         StoreService.set({ key: `${this.networkId}-transactions`, value: this.transactions });
@@ -79,12 +82,12 @@ class TransactionManager {
     }
   };
 
-  updateTransaction = ({ newData, accountIndex, txId }) => {
+  updateTransaction = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId: string }) => {
     return txId ? this.updateTxNote({ newData, accountIndex, txId }) : this.updateTxContact({ newData });
   };
 
-  updateTxNote = ({ newData, accountIndex, txId }) => {
-    const txToUpdateIndex = this.transactions[accountIndex].data.findIndex((tx) => tx.txId === txId);
+  updateTxNote = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId: string }) => {
+    const txToUpdateIndex = this.transactions[accountIndex].data.findIndex((tx: any) => tx.txId === txId);
     this.transactions[accountIndex].data = [
       ...this.transactions[accountIndex].data.slice(0, txToUpdateIndex),
       { ...this.transactions[accountIndex].data[txToUpdateIndex], ...newData },
@@ -94,11 +97,11 @@ class TransactionManager {
     return { transactions: this.transactions };
   };
 
-  updateTxContact = ({ newData }) => {
+  updateTxContact = ({ newData }: { newData: any }) => {
     const { address, nickname } = newData;
     const addrString = address.substring(2).toLowerCase();
-    this.transactions.forEach((account, accountIndex) => {
-      account.data.forEach((tx, index) => {
+    this.transactions.forEach((account: any, accountIndex: number) => {
+      account.data.forEach((tx: any, index: number) => {
         if (tx.sender === addrString || tx.receiver === addrString) {
           this.transactions[accountIndex].data[index].nickname = nickname;
         }
@@ -119,7 +122,7 @@ class TransactionManager {
       let hasConfirmedOutgoingTxs = false;
 
       // for given account and it's tx ids list get full tx data
-      const fullTxDataCollector = async (txIdsSet, collector) => {
+      const fullTxDataCollector = async (txIdsSet: any, collector: any) => {
         await asyncForEach(txIdsSet, async (txId) => {
           const tx = await this._getTransaction({ id: fromHexString(txId.substring(2)) });
           if (tx) {
@@ -131,15 +134,16 @@ class TransactionManager {
       // get all tx ids for every account, then for each account get full tx data for the list
       const txListCollector = async () => {
         await asyncForEach(this.accounts, async (account, index) => {
+          // @ts-ignore
           const { txs, validatedLayer } = await netService.getAccountTxs({ startLayer: this.transactions[index].layerId, account: account.publicKey });
           if (txs && txs.length) {
             const txIdsSet = new Set(txs);
-            this.transactions[index].data.forEach((existingTx) => {
+            this.transactions[index].data.forEach((existingTx: any) => {
               if (!txIdsSet.has(`0x${existingTx.txId}`) && existingTx.status === TX_STATUSES.PENDING) {
                 txIdsSet.add(`0x${existingTx.txId}`);
               }
             });
-            const fullDataTxsList = [];
+            const fullDataTxsList: Array<any> = [];
             await fullTxDataCollector([...txIdsSet], fullDataTxsList);
             const result = this._mergeTxStatuses({ existingList: this.transactions[index].data, incomingList: fullDataTxsList, address: account.publicKey.substring(24) });
             ({ hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = result);
@@ -156,12 +160,13 @@ class TransactionManager {
     }
   };
 
-  _getTransaction = async ({ id }) => {
+  _getTransaction = async ({ id }: { id: Uint8Array }) => {
     try {
       const tx = await netService.getTransaction({ id });
+      // @ts-ignore
       const { txId, sender, receiver, amount, fee, status, layerId, timestamp } = tx;
       return {
-        txId: txId.id.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), ''),
+        txId: toHexString(txId.id),
         sender: sender.address,
         receiver: receiver.address,
         amount: parseInt(amount),
@@ -176,7 +181,7 @@ class TransactionManager {
     }
   };
 
-  _mergeTxStatuses = ({ existingList, incomingList, address }) => {
+  _mergeTxStatuses = ({ existingList, incomingList, address }: { existingList: Array<any>; incomingList: Array<any>; address: string }) => {
     let hasConfirmedIncomingTxs = false;
     let hasConfirmedOutgoingTxs = false;
     const existingListMap = new Map();
@@ -197,18 +202,19 @@ class TransactionManager {
     return { mergedList: [...existingListMap.values()].sort(compare), hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs };
   };
 
-  getAccountRewards = async ({ address, accountIndex }) => {
+  getAccountRewards = async ({ address, accountIndex }: { address: string; accountIndex: number }) => {
     try {
+      // @ts-ignore
       const { rewards } = await netService.getAccountRewards({ address });
       if (!rewards || !rewards.length) {
         return { error: null, rewards: this.rewards, hasNewRewards: false };
       } else {
-        const parsedReward = rewards.map((reward) => ({
+        const parsedReward = rewards.map((reward: { layer: string; totalReward: string; layerRewardEstimate: string }) => ({
           layer: parseInt(reward.layer),
           totalReward: parseInt(reward.totalReward),
           layerRewardEstimate: parseInt(reward.layerRewardEstimate)
         }));
-        parsedReward.sort((rewardA, rewardB) => rewardA.layer - rewardB.layer);
+        parsedReward.sort((rewardA: { layer: number }, rewardB: { layer: number }) => rewardA.layer - rewardB.layer);
         let newRewardsWithTimeStamp = [];
         if (this.rewards.length < parsedReward.length) {
           const newRewards = [...parsedReward.slice(this.rewards.length)];

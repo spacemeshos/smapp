@@ -147,22 +147,16 @@ class Main extends Component<Props, State> {
     };
 
     this.navMap = [
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       () => history.push('/main/node'),
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       () => history.push('/main/network'),
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       () => history.push('/main/wallet'),
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       () => history.push('/main/contacts'),
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       () => history.push('/main/dash'),
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       () => history.push('/main/settings'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin'),
@@ -342,22 +336,18 @@ class Main extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (this.initialMiningStatusInterval) {
       clearInterval(this.initialMiningStatusInterval);
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (this.miningStatusInterval) {
       clearInterval(this.miningStatusInterval);
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (this.accountRewardsInterval) {
       clearInterval(this.accountRewardsInterval);
     }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (this.txCollectorInterval) {
       clearInterval(this.txCollectorInterval);
@@ -397,7 +387,6 @@ class Main extends Component<Props, State> {
           break;
         }
         case 8: {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           history.push('/auth/unlock', { isLoggedOut: true });
           logout();
@@ -414,7 +403,6 @@ class Main extends Component<Props, State> {
     notificationsService.notify({
       title: 'Spacemesh',
       notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       callback: () => history.push('/main/transactions'),
       tag: 1
@@ -447,7 +435,6 @@ const mapDispatchToProps = {
   logout
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 Main = connect(mapStateToProps, mapDispatchToProps)(Main);
 

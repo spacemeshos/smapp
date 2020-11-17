@@ -90,7 +90,6 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
   // }
 
   const handleFocus = ({ target }: { target: EventTarget | null }) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     target?.select();
   };

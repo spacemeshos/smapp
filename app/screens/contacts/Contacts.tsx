@@ -264,7 +264,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const renderLastUsedContacts = () => {
     if (lastUsedContacts && lastUsedContacts.length) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       return lastUsedContacts.map((contact: Contact) => (
         <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => navigateToSendCoins({ contact })} key={contact.address}>

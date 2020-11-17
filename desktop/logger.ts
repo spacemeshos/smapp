@@ -6,7 +6,9 @@ const logger = require('electron-log');
 logger.transports.file.file = path.join(app.getPath('userData'), '/app-logs.txt');
 logger.transports.console.level = false;
 
-export const writeInfo = (file, fn, res, args) =>
-  logger.info(`In ${file}, in ${fn}, received: ${JSON.stringify(res)}${args ? `, called with arguments: ${JSON.stringify(args)}` : ''}`);
+const Logger = ({ className }: { className: string }) => ({
+  log: (fn: string, res: any, args?: any) => logger.info(`${className}, in ${fn}, output: ${JSON.stringify(res)} ${args ? `; args: ${JSON.stringify(args)}` : ''}`),
+  error: (fn: string, err: any, args?: any) => logger.error(`${className}, in ${fn}, error: ${JSON.stringify(err)} ${args ? `; args: ${JSON.stringify(args)}` : ''}`)
+});
 
-export const writeError = (file, fn, err) => logger.error(`In ${file}, in ${fn}, error is: ${err}`);
+export default Logger;

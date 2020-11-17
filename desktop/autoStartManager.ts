@@ -4,6 +4,9 @@ import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 
 class AutoStartManager {
+  // @ts-ignore
+  private manager;
+
   constructor() {
     this.init();
 
@@ -31,7 +34,7 @@ class AutoStartManager {
 
   toggleAutoStart = async () => {
     try {
-      const isEnabled = await AutoStartManager.manager.isEnabled();
+      const isEnabled = await this.manager.isEnabled();
       if (isEnabled) {
         await this.manager.disable();
       } else {

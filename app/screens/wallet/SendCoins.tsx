@@ -56,7 +56,6 @@ const SendCoins = ({ history, location }: Props) => {
   const validateAddress = () => {
     const trimmedValue = address ? address.trim() : '';
     return (
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       trimmedValue && (trimmedValue.startsWith('0x') !== -1 ? trimmedValue.length === 42 : trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
     );
