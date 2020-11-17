@@ -172,7 +172,7 @@ const AccountsOverview = () => {
           renderAccountRow({ displayName, publicKey })
         )}
       </AccountDetails>
-      <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
+      <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ''}</CopiedText>
       <Footer>
         <BalanceHeader>BALANCE</BalanceHeader>
         {status?.synced ? (
