@@ -20,6 +20,7 @@ import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
+import NotificationManager from './NotificationManager';
 import './wasm_exec';
 
 (async function () {
@@ -47,6 +48,7 @@ let mainWindow: BrowserWindow;
 let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
+let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 const handleClosingApp = async () => {
@@ -63,7 +65,12 @@ const handleClosingApp = async () => {
     };
     const { response } = await dialog.showMessageBox(mainWindow, options);
     if (response === 0) {
-      mainWindow.webContents.send(ipcConsts.KEEP_RUNNING_IN_BACKGROUND);
+      setTimeout(() => {
+        notificationManager.showNotification({
+          title: 'Spacemesh',
+          body: 'Smesher is running in the background.'
+        });
+      }, 1000);
       mainWindow.hide();
       mainWindow.reload();
     } else if (response === 1) {
@@ -153,8 +160,6 @@ app.on('ready', async () => {
     await handleClosingApp();
   });
 
-  ipcMain.handle(ipcConsts.IS_APP_MINIMIZED, () => mainWindow.isMinimized());
-
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
@@ -182,11 +187,6 @@ app.on('ready', async () => {
     printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
   });
 
-  ipcMain.on(ipcConsts.NOTIFICATION_CLICK, () => {
-    mainWindow.show();
-    mainWindow.focus();
-  });
-
   ipcMain.on(ipcConsts.RELOAD_APP, () => {
     mainWindow.reload();
   });
@@ -195,6 +195,7 @@ app.on('ready', async () => {
   menuBuilder.buildMenu();
 
   nodeManager = new NodeManager(mainWindow);
+  notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
 });
 

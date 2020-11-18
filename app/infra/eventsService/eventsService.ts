@@ -89,10 +89,6 @@ class EventsService {
 
   static print = ({ content }: { content: string }) => ipcRenderer.send(ipcConsts.PRINT, { content });
 
-  static isAppMinimized = () => ipcRenderer.invoke(ipcConsts.IS_APP_MINIMIZED);
-
-  static notificationWasClicked = () => ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
-
   static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SIGN_MESSAGE, { message, accountIndex });
 
   static isServiceReady = () => ipcRenderer.invoke(ipcConsts.IS_SERVICE_READY);

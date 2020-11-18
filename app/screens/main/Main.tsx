@@ -11,7 +11,6 @@ import { Logo } from '../../components/common';
 import { InfoBanner } from '../../components/banners';
 import { SecondaryButton, NavTooltip, NetworkIndicator } from '../../basicComponents';
 import routes from '../../routes';
-import { notificationsService } from '../../infra/notificationsService';
 import {
   rightDecoration,
   rightDecorationWhite,
@@ -327,31 +326,20 @@ class Main extends Component<Props, State> {
     }
     if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
-      notificationsService.notify({
-        title: 'Spacemesh',
-        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
-        callback: () => this.handleNavigation({ index: 0 })
-      });
+      // TODO: move to main process when API 2.0 is ready
+      // notificationsService.notify({
+      //   title: 'Spacemesh',
+      //   notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
+      //   callback: () => this.handleNavigation({ index: 0 })
+      // });
     }
   }
 
   componentWillUnmount() {
-    // @ts-ignore
-    if (this.initialMiningStatusInterval) {
-      clearInterval(this.initialMiningStatusInterval);
-    }
-    // @ts-ignore
-    if (this.miningStatusInterval) {
-      clearInterval(this.miningStatusInterval);
-    }
-    // @ts-ignore
-    if (this.accountRewardsInterval) {
-      clearInterval(this.accountRewardsInterval);
-    }
-    // @ts-ignore
-    if (this.txCollectorInterval) {
-      clearInterval(this.txCollectorInterval);
-    }
+    this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
+    this.miningStatusInterval && clearInterval(this.miningStatusInterval);
+    this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
+    this.txCollectorInterval && clearInterval(this.txCollectorInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -398,24 +386,26 @@ class Main extends Component<Props, State> {
     }
   };
 
-  approveTxNotifier = ({ hasConfirmedIncomingTxs }: { hasConfirmedIncomingTxs: boolean }) => {
-    const { history } = this.props;
-    notificationsService.notify({
-      title: 'Spacemesh',
-      notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
-      // @ts-ignore
-      callback: () => history.push('/main/transactions'),
-      tag: 1
-    });
+  approveTxNotifier = () => {
+    // TODO: move to main process when API 2.0 is ready
+    // const { history } = this.props;
+    // notificationsService.notify({
+    //   title: 'Spacemesh',
+    //   notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
+    //   // @ts-ignore
+    //   callback: () => history.push('/main/transactions'),
+    //   tag: 1
+    // });
   };
 
   newRewardsNotifier = () => {
-    notificationsService.notify({
-      title: 'Spacemesh',
-      notification: 'Received a reward for smeshing!',
-      callback: () => this.handleNavigation({ index: 0 }),
-      tag: 2
-    });
+    // TODO: move to main process when API 2.0 is ready
+    // notificationsService.notify({
+    //   title: 'Spacemesh',
+    //   notification: 'Received a reward for smeshing!',
+    //   callback: () => this.handleNavigation({ index: 0 }),
+    //   tag: 2
+    // });
   };
 }
 
