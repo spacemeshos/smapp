@@ -4,6 +4,8 @@
   <p align="center">Smesher UI + Wallet</p>
 </h1>
 
+![Lint And Build Pass](https://github.com/spacemeshos/smapp/workflows/Lint%20And%20App%20Build/badge.svg)
+
 <p align="center">
 <a href="https://gitcoin.co/profile/spacemeshos" title="Push Open Source Forward">
     <img src="https://gitcoin.co/static/v2/images/promo_buttons/slice_02.png" width="267px" height="52px" alt="Browse Gitcoin Bounties"/>
