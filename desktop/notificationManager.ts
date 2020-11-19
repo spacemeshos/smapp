@@ -1,5 +1,5 @@
 import { BrowserWindow, Notification } from 'electron';
-import { icon } from '../app/assets/images';
+// import { icon } from ;
 
 class NotificationManager {
   mainWindow: BrowserWindow;
@@ -10,7 +10,7 @@ class NotificationManager {
 
   showNotification = ({ title, body }: { title: string; body: string }) => {
     if (Notification.isSupported() && this.mainWindow.isMinimized()) {
-      const options = { title, body, icon };
+      const options = { title, body, icon: '../app/assets/images/icon.png' };
       const notification = new Notification(options);
       notification.show();
       notification.once('click', () => {

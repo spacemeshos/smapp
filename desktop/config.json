@@ -19,12 +19,12 @@
         "atxs-per-block": "25",
         "block-cache-size": "20",
         "genesis-active-size": "100",
-        "genesis-time": "2020-09-16T22:39:13.647+00:00",
+        "genesis-time": "2020-11-19T06:31:08.616+00:00",
         "hdist": "10",
         "layer-average-size": "50",
         "layer-duration-sec": "300",
         "layers-per-epoch": "288",
-        "poet-server": "35.222.224.200:8080",
+        "poet-server": "35.222.104.73:8080",
         "sync-interval": "10",
         "sync-request-timeout": "60000",
         "sync-validation-delta": "30"
@@ -36,20 +36,20 @@
         "max-inbound": "32",
         "max-pending-connections": "100",
         "msg-size-limit": "0",
-        "network-id": "118",
+        "network-id": "120",
         "outbound-target": "10",
         "response-timeout": "60s",
         "session-timeout": "15s",
         "swarm": {
             "alpha": "3",
             "bootnodes": [
-                "spacemesh://9PzjGaei8MCjrqQLbkQoFCHK2KowMYpmUjaq8ftKr22m@34.122.225.168:11025",
-                "spacemesh://FoguUwudY9BWk2g2w3Z2TWn4cmq5mvDoHrQ18BNoJ4TK@34.68.219.247:11030",
-                "spacemesh://JAC9ngCLkC7HnR9omvVajWmKLjuzhymrDTxMdoxz2VNU@34.121.217.6:11067",
-                "spacemesh://9M6mUbKF7KfosUgfDG56Xz5aXYqUbFffuJSh6oQHFp6T@35.222.190.247:11050",
-                "spacemesh://7TEe7zefw2eCXyagKWpEfbU1CkyYFQzJS87uTthLytoj@104.197.200.200:11013",
-                "spacemesh://48Hwo5P5AjDMvM5Jwcbse2K4LDAKZd4iFy7D8fXewyCb@35.184.31.98:11029",
-                "spacemesh://BMabXAxko4sTGJaQSACQnfqT1zAsDNkbGP9pPmKbcbfU@34.123.7.242:11100"
+                "spacemesh://4UAju7nAZ3gRTfA8MmpnHSpZDS1ym7Pkih9hD4zHnXb7@35.232.204.180:11041",
+                "spacemesh://CL3n4RULHciLtLeDayCPCiwBwAranmzsGuE5YG6x6Nsf@35.184.56.5:11042",
+                "spacemesh://BsRvnGzGucHurUF5HLFuvZKQA9q5VDBB22BMbkKxgtL7@34.122.45.176:11013",
+                "spacemesh://Hgo8Ci6smE2vBdBV6p8bMhE3JQbv1o7hgEzWiDh6T9B8@104.197.45.79:11068",
+                "spacemesh://1kfYWN7mbBHBtE5nQnHbjex4BfuNNFsYrMsuHkSfZL2@35.224.161.124:11045",
+                "spacemesh://9drzmgZnsa3UMhXUtN8KGw5PgmXuPqH69gzce1AiWnfw@34.69.95.160:11002",
+                "spacemesh://tPfRKCSFuhuQ6m4ivDdoDNubvF7boaDHbtskzoTX9rE@34.122.44.222:11057"
             ],
             "bootstrap": true,
             "bucketsize": "20",
@@ -64,6 +64,11 @@
         "base-reward": {
             "abs": "50000000000000"
         }
+    },
+    "telemetry": {
+        "channels": "discovery,epoch",
+        "enabled": true,
+        "endpoint": "https://us-central1-spacecraft-id.cloudfunctions.net/tweedlelite6"
     },
     "time": {
         "default-timeout-latency": "10s",
