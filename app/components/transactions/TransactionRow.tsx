@@ -1,4 +1,4 @@
-import { clipboard, shell } from 'electron';
+import { clipboard } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,6 +10,7 @@ import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } f
 import { smColors } from '../../vars';
 import TX_STATUSES from '../../vars/enums';
 import { RootState, Tx } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -312,7 +313,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             />
           </InputSection>
           <ButtonsWrapper>
-            <Link onClick={() => shell.openExternal('https://testnet.spacemesh.io/#/send_coin')} text="TRANSACTION GUIDE" />
+            <Link onClick={() => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' })} text="TRANSACTION GUIDE" />
             <RightButton>
               <Link style={{ color: smColors.orange, marginRight: '10px' }} onClick={() => setShowNoteModal(false)} text="CANCEL" />
               <Button text="NEXT" isDisabled={note === tx.note} onClick={save} />

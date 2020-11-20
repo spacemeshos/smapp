@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -7,6 +6,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const SubHeader = styled.div`
   margin-bottom: 25px;
@@ -175,7 +175,7 @@ const TestMe = ({ history, location }: Props) => {
     setMatchCounter(0);
   };
 
-  const openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
 
   const navigateToWallet = () => {
     history.push('/main/wallet/overview');

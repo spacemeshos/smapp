@@ -1,10 +1,11 @@
-import { clipboard, shell } from 'electron';
+import { clipboard } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
 import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen, copyBlack } from '../../assets/images';
 import { smColors } from '../../vars';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,7 +118,7 @@ const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxLi
     setIsCopied(true);
   };
 
-  const navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/send_coin');
+  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
 
   const { value, unit }: any = formatSmidge(amount, true);
   return (

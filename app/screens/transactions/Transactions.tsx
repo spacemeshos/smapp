@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { shell } from 'electron';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -12,6 +11,7 @@ import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import TX_STATUSES from '../../vars/enums';
 import { RootState, Tx, TxList } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -129,7 +129,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   //   history.push('/main/contacts');
   // };
 
-  const navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
+  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/wallet' });
 
   const filteredTransactions = filterTransactions();
   const { mined, sent, received, totalMined, totalSent, totalReceived } = getCoinStatistics({ filteredTransactions });

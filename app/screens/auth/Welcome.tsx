@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -8,6 +7,7 @@ import { Button, Link } from '../../basicComponents';
 import { bigInnerSideBar, laptop, power, setup, laptopWhite, powerWhite, setupWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const SideBar = styled.img`
   position: absolute;
@@ -82,7 +82,7 @@ const subHeader = (
 const Welcome = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 
   const laptopImg = isDarkMode ? laptopWhite : laptop;
   const powerImg = isDarkMode ? powerWhite : power;

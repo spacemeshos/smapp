@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,6 +9,7 @@ import { Link, Button, Input, ErrorPopup } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -120,7 +120,7 @@ const UnlockWallet = ({ history, location }: Props) => {
     }
   };
 
-  const navigateToSetupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 
   return (
     <Wrapper>

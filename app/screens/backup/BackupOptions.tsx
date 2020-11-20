@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
@@ -7,6 +6,7 @@ import { backupWallet } from '../../redux/wallet/actions';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -77,7 +77,7 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
     history.push('/main/backup/file-backup');
   };
 
-  const openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
 
   return (
     <Wrapper>

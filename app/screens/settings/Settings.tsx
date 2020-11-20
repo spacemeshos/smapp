@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -426,19 +425,19 @@ class Settings extends Component<Props, State> {
   externalNavigation = ({ to }: { to: string }) => {
     switch (to) {
       case 'terms': {
-        shell.openExternal('https://testnet.spacemesh.io/#/terms');
+        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/terms' });
         break;
       }
       case 'disclaimer': {
-        shell.openExternal('https://testnet.spacemesh.io/#/disclaimer');
+        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/disclaimer' });
         break;
       }
       case 'privacy': {
-        shell.openExternal('https://testnet.spacemesh.io/#/privacy');
+        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/privacy' });
         break;
       }
       case 'userGuide': {
-        shell.openExternal('https://testnet.spacemesh.io');
+        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io' });
         break;
       }
       default:

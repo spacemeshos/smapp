@@ -7,6 +7,7 @@ import { CorneredContainer } from '../../components/common';
 import { vault } from '../../assets/images';
 import { Link, Button } from '../../basicComponents';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Footer = styled.div`
   display: flex;
@@ -101,7 +102,7 @@ const Vault = () => {
     }
   };
 
-  const navigateToVaultSetup = () => shell.openExternal('https://product.spacemesh.io/#/smapp_vaults');
+  const navigateToVaultSetup = () => eventsService.openExternalLink({ link: 'https://product.spacemesh.io/#/smapp_vaults' });
 
   return (
     <CorneredContainer width={650} height={400} header={headers[mode]} headerIcon={vault} subHeader={subHeader[mode]} isDarkMode={isDarkMode} useEmptyWrap>

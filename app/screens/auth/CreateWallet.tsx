@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -156,7 +155,7 @@ const CreateWallet = ({ history, location }: Props) => {
     }
   };
 
-  const navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
   if (isLoaderVisible) {

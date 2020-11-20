@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
@@ -175,6 +175,10 @@ app.on('ready', async () => {
   ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
     browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     browserView.destroy();
+  });
+
+  ipcMain.on(ipcConsts.OPEN_EXTERNAL_LINK, (_event, request) => {
+    shell.openExternal(request.link);
   });
 
   ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {

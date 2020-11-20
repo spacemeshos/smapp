@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -39,7 +38,7 @@ const FileBackup = ({ history }: RouteComponentProps) => {
     history.push('/main/wallet');
   };
 
-  const openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
 
   return (
     <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkMode={isDarkMode}>
