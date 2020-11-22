@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button } from '../../basicComponents';
@@ -6,6 +5,7 @@ import { getAddress, formatSmidge } from '../../infra/utils';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { Status } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -116,7 +116,7 @@ type Props = {
 };
 
 const TxConfirmation = ({ fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx, status }: Props) => {
-  const navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/send_coin');
+  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
   const { value, unit }: any = formatSmidge(amount, true);
   return (
     <Wrapper>

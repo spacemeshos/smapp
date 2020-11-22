@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,6 +7,7 @@ import { BackButton } from '../../components/common';
 import { DragAndDrop } from '../../components/auth';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '../../basicComponents';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const DdArea = styled.div`
   display: flex;
@@ -45,7 +45,7 @@ const FileRestore = ({ history }: RouteComponentProps) => {
     history.push('/auth/unlock');
   };
 
-  const navigateToBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file');
+  const navigateToBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file' });
 
   return (
     <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">

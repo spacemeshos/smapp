@@ -1,4 +1,3 @@
-import { clipboard } from 'electron';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -131,10 +130,10 @@ const AccountsOverview = () => {
     dispatch(getBalance());
   };
 
-  const copyPublicAddress = (e: React.MouseEvent) => {
+  const copyPublicAddress = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    clearTimeout(copiedTimeout);
-    clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);
+    copiedTimeout && clearTimeout(copiedTimeout);
+    await navigator.clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);
     copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
     setIsCopied(true);
   };

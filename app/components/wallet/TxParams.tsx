@@ -1,10 +1,10 @@
-import { shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '../../basicComponents';
 import { getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Contact, Status } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -161,7 +161,7 @@ const TxParams = ({
     setSelectedFeeIndex(index);
   };
 
-  const navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/send_coin');
+  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
 
   return (
     <Wrapper>

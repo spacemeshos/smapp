@@ -1,4 +1,3 @@
-import { clipboard, shell } from 'electron';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -8,6 +7,7 @@ import { getAddress } from '../../infra/utils';
 import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors, nodeConsts } from '../../vars';
 import { Account, RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -100,7 +100,7 @@ const RequestCoins = ({ history, location }: Props) => {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    clipboard.writeText(`0x${getAddress(account.publicKey)}`);
+    navigator.clipboard.writeText(`0x${getAddress(account.publicKey)}`);
     return () => {
       clearTimeout(copiedTimeout);
     };
@@ -110,8 +110,8 @@ const RequestCoins = ({ history, location }: Props) => {
 
   const copy = isDarkMode ? copyWhite : copyBlack;
 
-  const copyPublicAddress = () => {
-    clipboard.writeText(`0x${getAddress(account.publicKey)}`);
+  const copyPublicAddress = async () => {
+    await navigator.clipboard.writeText(`0x${getAddress(account.publicKey)}`);
     copiedTimeout = setTimeout(() => setIsCopied(false), 3000);
     setIsCopied(true);
   };
@@ -120,9 +120,9 @@ const RequestCoins = ({ history, location }: Props) => {
     history.push('/main/node-setup');
   };
 
-  const navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');
+  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/get_coin' });
 
-  const navigateToTap = () => shell.openExternal('https://discord.gg/ASpy52C');
+  const navigateToTap = () => eventsService.openExternalLink({ link: 'https://discord.gg/ASpy52C' });
 
   return (
     <Wrapper>

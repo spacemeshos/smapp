@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -8,6 +7,7 @@ import { Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const Overview = ({ history }: RouteComponentProps) => {
     history.push('/main/transactions');
   };
 
-  const navigateToWalletGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/wallet');
+  const navigateToWalletGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/wallet' });
 
   return (
     <Wrapper>

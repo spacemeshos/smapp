@@ -40,3 +40,4 @@ ct-libc/
 .env
 .vscode
 /node/
+/desktop/dist

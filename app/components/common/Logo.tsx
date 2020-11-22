@@ -1,7 +1,7 @@
-import { shell } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 import { logo, logoWhite } from '../../assets/images';
+import { eventsService } from '../../infra/eventsService';
 
 const LogoImg = styled.img`
   position: absolute;
@@ -16,6 +16,6 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const Logo = ({ isDarkMode }: Props) => <LogoImg src={isDarkMode ? logoWhite : logo} onClick={() => shell.openExternal('https://spacemesh.io')} />;
+const Logo = ({ isDarkMode }: Props) => <LogoImg src={isDarkMode ? logoWhite : logo} onClick={() => eventsService.openExternalLink({ link: 'https://spacemesh.io' })} />;
 
 export default Logo;

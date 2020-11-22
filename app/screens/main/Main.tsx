@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React, { Component } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
@@ -25,6 +24,7 @@ import {
 } from '../../assets/images';
 import { smColors, nodeConsts } from '../../vars';
 import { RootState, Status } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   position: relative;
@@ -158,8 +158,8 @@ class Main extends Component<Props, State> {
       () => history.push('/main/dash'),
       // @ts-ignore
       () => history.push('/main/settings'),
-      () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin'),
-      () => shell.openExternal('https://testnet.spacemesh.io/#/help')
+      () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/get_coin' }),
+      () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/help' })
     ];
   }
 

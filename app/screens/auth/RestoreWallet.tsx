@@ -1,17 +1,17 @@
-import { shell } from 'electron';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, SmallHorizontalPanel } from '../../basicComponents';
 import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const btnStyle = { margin: '30px 0 15px' };
 
 const RestoreWallet = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToWalletGuide = () => shell.openExternal('https://testnet.spacemesh.io/');
+  const navigateToWalletGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/' });
 
   return (
     <CorneredContainer width={650} height={400} header="RESTORE AN EXISTING WALLET" subHeader="Choose how you&#39;d like to restore your wallet." isDarkMode={isDarkMode}>

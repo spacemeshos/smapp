@@ -1,4 +1,3 @@
-import { clipboard } from 'electron';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -46,8 +45,8 @@ const SignMessage = ({ index, close }: Props) => {
 
   const signText = async () => {
     const signedMessage = await eventsService.signMessage({ message: message.trim(), accountIndex: index });
-    clearTimeout(copiedTimeout);
-    await clipboard.writeText(`{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${accounts[index].publicKey}" }`);
+    copiedTimeout && clearTimeout(copiedTimeout);
+    await navigator.clipboard.writeText(`{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${accounts[index].publicKey}" }`);
     copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
     setIsCopied(true);
   };

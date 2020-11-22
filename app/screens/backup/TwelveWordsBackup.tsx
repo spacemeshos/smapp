@@ -1,4 +1,3 @@
-import { clipboard, shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -96,8 +95,8 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
     history.push('/main/backup/test-twelve-words-backup', { mnemonic });
   };
 
-  const copy12Words = () => {
-    clipboard.writeText(mnemonic);
+  const copy12Words = async () => {
+    await navigator.clipboard.writeText(mnemonic);
     setIsCopied(true);
   };
 
@@ -105,7 +104,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
     eventsService.print({ content: twelveWordsPrint });
   };
 
-  const openBackupGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
 
   return (
     <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP" isDarkMode={isDarkMode}>

@@ -1,7 +1,7 @@
-import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
+import { eventsService } from '../../infra/eventsService';
 
 const Footer = styled.div`
   display: flex;
@@ -29,7 +29,7 @@ class PoSFooter extends PureComponent<Props> {
     );
   }
 
-  navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
+  navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 }
 
 export default PoSFooter;

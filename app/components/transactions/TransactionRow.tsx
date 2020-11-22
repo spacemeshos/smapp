@@ -1,4 +1,3 @@
-import { clipboard, shell } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -10,6 +9,7 @@ import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } f
 import { smColors } from '../../vars';
 import TX_STATUSES from '../../vars/enums';
 import { RootState, Tx } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -179,8 +179,8 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
-  const copyAddress = ({ id }: { id: string }) => {
-    clipboard.writeText(`0x${id}`);
+  const copyAddress = async ({ id }: { id: string }) => {
+    await navigator.clipboard.writeText(`0x${id}`);
     setIsCopied(true);
   };
 
@@ -248,14 +248,14 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
           <BlackText>FROM</BlackText>
           <BoldText onClick={!isSent ? () => copyAddress({ id: sender }) : () => {}}>
             {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
-            {!isSent && !nickname && <AddToContactsImg onClick={(e) => handleAddToContacts(e, sender)} src={addContact} />}
+            {!isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, sender)} src={addContact} />}
           </BoldText>
         </TextRow>
         <TextRow>
           <BlackText>TO</BlackText>
           <BoldText onClick={isSent ? () => copyAddress({ id: receiver }) : () => {}}>
             {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
-            {isSent && !nickname && <AddToContactsImg onClick={(e) => handleAddToContacts(e, receiver)} src={addContact} />}
+            {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, receiver)} src={addContact} />}
           </BoldText>
         </TextRow>
         <TextRow>
@@ -312,7 +312,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             />
           </InputSection>
           <ButtonsWrapper>
-            <Link onClick={() => shell.openExternal('https://testnet.spacemesh.io/#/send_coin')} text="TRANSACTION GUIDE" />
+            <Link onClick={() => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' })} text="TRANSACTION GUIDE" />
             <RightButton>
               <Link style={{ color: smColors.orange, marginRight: '10px' }} onClick={() => setShowNoteModal(false)} text="CANCEL" />
               <Button text="NEXT" isDisabled={note === tx.note} onClick={save} />
