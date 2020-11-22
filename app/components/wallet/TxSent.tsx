@@ -1,4 +1,3 @@
-import { clipboard } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
@@ -113,8 +112,8 @@ type Props = {
 const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxList }: Props) => {
   const [isCopied, setIsCopied] = useState(false);
 
-  const copyTxId = () => {
-    clipboard.writeText(txId);
+  const copyTxId = async () => {
+    await navigator.clipboard.writeText(txId);
     setIsCopied(true);
   };
 

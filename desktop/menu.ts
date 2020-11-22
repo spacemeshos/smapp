@@ -1,5 +1,4 @@
-import { app, Menu, BrowserWindow } from 'electron';
-import { eventsService } from '../app/infra/eventsService';
+import { app, Menu, shell, BrowserWindow } from 'electron';
 
 class MenuBuilder {
   mainWindow: BrowserWindow;
@@ -75,7 +74,7 @@ class MenuBuilder {
               {
                 label: 'About',
                 click: () => {
-                  eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/' });
+                  shell.openExternal('https://testnet.spacemesh.io/');
                 }
               },
               { type: 'separator' },
@@ -88,7 +87,7 @@ class MenuBuilder {
               {
                 label: 'About',
                 click: () => {
-                  eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/' });
+                  shell.openExternal('https://testnet.spacemesh.io/');
                 }
               },
               { type: 'separator' },

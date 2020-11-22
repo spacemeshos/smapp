@@ -1,4 +1,3 @@
-import { clipboard } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -96,8 +95,8 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
     history.push('/main/backup/test-twelve-words-backup', { mnemonic });
   };
 
-  const copy12Words = () => {
-    clipboard.writeText(mnemonic);
+  const copy12Words = async () => {
+    await navigator.clipboard.writeText(mnemonic);
     setIsCopied(true);
   };
 

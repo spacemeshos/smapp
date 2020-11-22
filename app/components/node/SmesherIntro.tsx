@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
