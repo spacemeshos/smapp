@@ -104,6 +104,13 @@ export const addToContacts = ({ contact, password }: { contact: Contact; passwor
   dispatch(setContacts({ contacts: updatedContacts }));
 };
 
+export const removeFromContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
+  const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
+  const updatedContacts = contacts.filter((item) => contact.address !== item.address);
+  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { accounts, mnemonic, contacts: updatedContacts } });
+  dispatch(setContacts({ contacts: updatedContacts }));
+};
+
 export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
   const { error, newFilePath } = await eventsService.copyFile({ filePath });
