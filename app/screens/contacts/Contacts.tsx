@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CreateNewContact, CreatedNewContact } from '../../components/contacts';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
@@ -9,6 +9,8 @@ import { smColors } from '../../vars';
 import { getAbbreviatedText } from '../../infra/utils';
 import { searchIcon, addContact } from '../../assets/images';
 import { Contact, RootState } from '../../types';
+import { EnterPasswordModal } from '../../components/settings';
+import { removeFromContacts } from '../../redux/wallet/actions';
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -154,7 +156,6 @@ const ContactRow = styled.div`
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid ${smColors.disabledGray};
-  cursor: pointer;
 `;
 
 const ContactText = styled.div`
@@ -164,6 +165,18 @@ const ContactText = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
   text-align: left;
   margin-right: 10px;
+  cursor: pointer;
+`;
+
+const DeleteText = styled.div`
+  flex: 1;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: end;
+  margin-right: 10px;
+  color: ${smColors.orange};
+  cursor: pointer;
+  text-decoration: underline;
 `;
 
 const SortingElement = styled.div<{ isInDropDown?: boolean }>`
@@ -202,6 +215,9 @@ const Contacts = ({ history }: RouteComponentProps) => {
   const [showCreateNewContactModal, setShowCreateNewContactModal] = useState(false);
   const [selectedSorting, setSelectedSorting] = useState(0);
   const [isNewContactCreated, setIsNewContactCreated] = useState(false);
+  const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
+  const [contactForDelete, setContactForDelete] = useState({ address: '', nickname: '' });
+  const dispatch = useDispatch();
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
@@ -262,6 +278,16 @@ const Contacts = ({ history }: RouteComponentProps) => {
     history.push('/main/wallet/send-coins', { contact });
   };
 
+  const handleDeleteButton = (contact: Contact) => {
+    setContactForDelete(contact);
+    setShouldShowPasswordModal(true);
+  };
+
+  const deleteContact = async ({ password }: { password: string }) => {
+    await dispatch(removeFromContacts({ password, contact: contactForDelete }));
+    setShouldShowPasswordModal(false);
+  };
+
   const renderLastUsedContacts = () => {
     if (lastUsedContacts && lastUsedContacts.length) {
       // @ts-ignore
@@ -270,7 +296,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
           <SubHeaderBtnUpperPart color={smColors.black} hoverColor={smColors.realBlack}>
             <LastUsedNickname>{contact.nickname || 'UNKNOWN ADDRESS'}</LastUsedNickname>
             <LastUsedAddress>{getAbbreviatedText(contact.address)}</LastUsedAddress>
-            {!contact.nickname && <LastUsedAddContact onClick={(e) => openAddNewContactModal(e, contact)}>+</LastUsedAddContact>}
+            {!contact.nickname && <LastUsedAddContact onClick={(e: MouseEvent) => openAddNewContactModal(e, contact)}>+</LastUsedAddContact>}
           </SubHeaderBtnUpperPart>
           <SubHeaderBtnLowerPart color={smColors.black} hoverColor={smColors.realBlack} />
         </SubHeaderBtnWrapper>
@@ -323,10 +349,12 @@ const Contacts = ({ history }: RouteComponentProps) => {
     }
     const sortedContacts = filteredContacts.sort(sortContacts);
     return sortedContacts.map((contact: Contact) => (
-      <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => navigateToSendCoins({ contact })}>
-        <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
-        <ContactText>{getAbbreviatedText(contact.address)}</ContactText>
-        {!contact.nickname && <CreateNewContactImg onClick={(e) => openAddNewContactModal(e, contact)} src={addContact} />}
+      <ContactRow key={`${contact.nickname}_${contact.address}`}>
+        <ContactText onClick={() => navigateToSendCoins({ contact })}>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
+        <ContactText onClick={() => navigateToSendCoins({ contact })}>{getAbbreviatedText(contact.address)}</ContactText>
+        <DeleteText onClick={() => handleDeleteButton(contact)}>DELETE</DeleteText>
+        {shouldShowPasswordModal && <EnterPasswordModal submitAction={deleteContact} closeModal={() => setShouldShowPasswordModal(false)} />}
+        {!contact.nickname && <CreateNewContactImg onClick={(e: MouseEvent) => openAddNewContactModal(e, contact)} src={addContact} />}
       </ContactRow>
     ));
   };
