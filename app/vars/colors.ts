@@ -22,6 +22,7 @@ const smColors = {
   black20Alpha: 'rgba(0, 0, 0, 0.2)',
   black30Alpha: 'rgba(0, 0, 0, 0.3)',
   black02Alpha: 'rgba(0, 0, 0, 0.02)',
+  grey100Alpha: 'rgba(141, 141, 141, 1)',
   darkGray50Alpha: 'rgba(64, 64, 64, 0.5)',
   darkGray10Alpha: 'rgba(64, 64, 64, 0.1)',
   dark75Alpha: 'rgba(37, 36, 41, 0.75)',
