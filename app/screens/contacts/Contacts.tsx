@@ -357,7 +357,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
     await navigator.clipboard.writeText(address);
   };
 
-  const openExplorerLink = (address: string) => eventsService.openExternalLink({ link: `https://stage-explore.spacemesh.io/accounts/${address}` });
+  const openExplorerLink = (address: string) => eventsService.openExplorerLink({ uri: `/accounts/${address}` });
 
   const renderLastUsedContacts = () => {
     if (lastUsedContacts && lastUsedContacts.length) {

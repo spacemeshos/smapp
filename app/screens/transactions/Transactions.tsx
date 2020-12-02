@@ -88,7 +88,7 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
 const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
 
 const Transactions = ({ history }: RouteComponentProps) => {
-  const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
 
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex].publicKey);
