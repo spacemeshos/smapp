@@ -197,7 +197,7 @@ class Settings extends Component<Props, State> {
                       <Link onClick={this.cancelEditingWalletDisplayName} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
                     ]
                   ) : (
-                    <Link onClick={this.startEditingWalletDisplayName} text="RENAME" />
+                    <Button onClick={this.startEditingWalletDisplayName} text="RENAME" width={180} />
                   )
                 }
                 rowName="Display name"
@@ -206,13 +206,13 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={`Last Backup ${backupTime ? `at ${new Date(backupTime).toLocaleString()}` : 'was never backed-up.'}`}
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
+                upperPartRight={<Button onClick={this.navigateToWalletBackup} text="BACKUP NOW" width={180} />}
                 rowName="Wallet Backup"
               />
               <SettingRow
                 upperPartLeft="Restore wallet from backup file or 12 words"
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
+                upperPartRight={<Button onClick={this.navigateToWalletRestore} text="RESTORE" width={180} />}
                 rowName="Wallet Restore"
               />
               <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
@@ -235,20 +235,20 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft="Learn more in our extensive user guide"
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" />}
+                upperPartRight={<Button onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" width={180} />}
                 rowName="User Guide"
               />
               <SettingRow
                 upperPartLeft="Create a new wallet. You will be signed out of current wallet"
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
+                upperPartRight={<Button onClick={() => {}} text="CREATE" width={180} isDisabled />}
                 rowName="Create a new wallet"
               />
               <SettingRow
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />
+                  <Button key="2" onClick={() => {}} text="CHECK FOR UPDATES" width={144} isDisabled />
                 ]}
                 rowName="App Version"
               />
@@ -256,7 +256,7 @@ class Settings extends Component<Props, State> {
             <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
-                upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" />}
+                upperPartRight={<Button onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
                 rowName="Add a new account"
               />
               {accounts.map((account, index) => (
@@ -329,7 +329,7 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
                 // @ts-ignore
-                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
+                upperPartRight={<Button onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
                 rowName="Change Node IP Address"
               />
             </SettingsSection>
