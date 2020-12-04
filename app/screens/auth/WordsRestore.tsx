@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -77,6 +77,23 @@ const WordsRestore = ({ history }: RouteComponentProps) => {
       setHasError(true);
     }
   };
+
+  const handleKeyUp = useCallback(
+    (e) => {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        restoreWith12Words();
+      }
+    },
+    [restoreWith12Words]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keyup', handleKeyUp, false);
+    return () => {
+      window.removeEventListener('keyup', handleKeyUp, false);
+    };
+  }, [handleKeyUp]);
 
   const navigateTo12WordRestoreGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list' });
 
