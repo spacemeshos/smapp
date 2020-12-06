@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateTransaction } from '../../redux/wallet/actions';
-import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact } from '../../assets/images';
+import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact, explorer } from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
@@ -145,6 +145,13 @@ const RightButton = styled.div`
   align-items: flex-end;
 `;
 
+const ExplorerIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  margin-left: 5px;
+  cursor: pointer;
+`;
+
 const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 
 type Props = {
@@ -232,7 +239,10 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       <DetailsSection>
         <TextRow>
           <BlackText>TRANSACTION ID</BlackText>
-          <BoldText onClick={() => copyAddress({ id: txId })}>{formatTxId(txId)}</BoldText>
+          <BoldText onClick={() => copyAddress({ id: txId })}>
+            {formatTxId(txId)}
+            <ExplorerIcon src={explorer} onClick={() => eventsService.openExplorerLink({ uri: `txs/${txId}` })} />
+          </BoldText>
         </TextRow>
         <TextRow>
           <BlackText>STATUS</BlackText>

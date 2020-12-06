@@ -6,9 +6,10 @@ import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar } from '../../basicComponents';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getFormattedTimestamp } from '../../infra/utils';
-import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
+import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer } from '../../assets/images';
 import { smColors, nodeConsts } from '../../vars';
 import { RootState, Status } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -17,6 +18,7 @@ const Wrapper = styled.div`
 
 const Text = styled.div`
   font-size: 15px;
+  display: flex;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
@@ -38,6 +40,7 @@ const Footer = styled.div`
 `;
 
 const SmesherId = styled.span`
+  margin: 0 5px;
   color: ${smColors.blue};
 `;
 
@@ -72,6 +75,13 @@ const PosFolderIcon = styled.img`
   width: 20px;
   height: 20px;
   margin-right: 5px;
+`;
+
+const ExplorerIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  cursor: pointer;
 `;
 
 interface Props extends RouteComponentProps {
@@ -151,6 +161,9 @@ const Node = ({ history, location }: Props) => {
     );
   };
 
+  const openExplorerLink = (id: string) => eventsService.openExplorerLink({ uri: `smeshers/${id}` });
+
+  // TODO Need to insert real smesher id
   const renderMainSection = () => {
     if (showIntro) {
       return <SmesherIntro hideIntro={() => setShowIntro(false)} isDarkMode={isDarkMode} />;
@@ -160,6 +173,7 @@ const Node = ({ history, location }: Props) => {
           <SubHeader>
             Smesher
             <SmesherId> 0x12344...244AF </SmesherId>
+            <ExplorerIcon src={explorer} onClick={() => openExplorerLink('0x12344')} />
             <StatusSpan status={status}>{status ? 'ONLINE' : 'OFFLINE'} </StatusSpan>
             on Network {networkId}.
           </SubHeader>

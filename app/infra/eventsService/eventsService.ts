@@ -14,6 +14,8 @@ class EventsService {
 
   static openExternalLink = ({ link }: { link: string }) => ipcRenderer.send(ipcConsts.OPEN_EXTERNAL_LINK, { link });
 
+  static openExplorerLink = ({ uri }: { uri: string }) => ipcRenderer.send(ipcConsts.OPEN_EXPLORER_LINK, { uri });
+
   static updateBrowserViewTheme = ({ isDarkMode }: { isDarkMode: boolean }) => ipcRenderer.send(ipcConsts.SEND_THEME_COLOR, { isDarkMode });
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);

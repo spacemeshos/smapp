@@ -181,6 +181,18 @@ app.on('ready', async () => {
     shell.openExternal(request.link);
   });
 
+  ipcMain.on(ipcConsts.OPEN_EXPLORER_LINK, (_event, request) => {
+    if (!request.uri) {
+      _event.preventDefault();
+    }
+    const explorerUrl = 'https://stage-explore.spacemesh.io';
+    const darkMode = isDarkMode ? 'isDarkMode' : '';
+    const uri = request.uri;
+
+    const url = darkMode ? `${explorerUrl}/${uri}` : `${explorerUrl}/${uri}?${darkMode}`;
+    shell.openExternal(url);
+  });
+
   ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
     isDarkMode = request.isDarkMode;
   });
