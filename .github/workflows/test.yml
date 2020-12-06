@@ -1,4 +1,4 @@
-name: push to dockerhub
+name: test gcp
 
 on:
   pull_request:
