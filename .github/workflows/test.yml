@@ -6,7 +6,7 @@ on:
     - '**.md'
 
 jobs:
-  dockerpush:
+  gcp:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Cloud SDK
