@@ -1,12 +1,20 @@
 name: Publish Release
 
+# on:
+#   push:
+#     branches:
+#       - master
+#   pull_request:
+#     paths-ignore:
+#     - '**.md'
+#   workflow_dispatch:
+
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    paths-ignore:
-    - '**.md'
+    branches-ignore:
+      - 'master'
+    tags-ignore:
+      - v0.*
   workflow_dispatch:
 
 jobs:
