@@ -41,11 +41,18 @@ jobs:
         run: |
           yarn lint
           yarn build-dll
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - if: matrix.os == 'ubuntu-latest'
         name: download linux node binary
         run: |
           curl --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-linux
           yarn package-linux
+        run: ls ../
 
       - if: matrix.os == 'windows-latest'
         name: download windows node binary
