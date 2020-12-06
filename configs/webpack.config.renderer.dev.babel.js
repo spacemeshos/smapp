@@ -8,7 +8,7 @@
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
-import merge from 'webpack-merge';
+import { merge } from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
 import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
@@ -25,18 +25,25 @@ const requiredByDLLConfig = module.parent.filename.includes('webpack.config.rend
  * Warn if the DLL is not built
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log('The DLL files are missing. Sit back while we build them for you with "npm run build-dll"');
+  console.log('The DLL files are missing. Sit back while we build them for you with "yarn build-dll"');
   execSync('npm run build-dll');
 }
 
-export default merge.smart(baseConfig, {
+export default merge(baseConfig, {
   devtool: 'inline-source-map',
 
   mode: 'development',
 
   target: 'electron-renderer',
 
-  entry: ['react-hot-loader/patch', `webpack-dev-server/client?http://localhost:${port}/`, 'webpack/hot/only-dev-server', require.resolve('../app/index')],
+  entry: [
+    'core-js',
+    'regenerator-runtime/runtime',
+    ...(process.env.PLAIN_HMR ? [] : ['react-hot-loader/patch']),
+    `webpack-dev-server/client?http://localhost:${port}/`,
+    'webpack/hot/only-dev-server',
+    require.resolve('../app/index.tsx'),
+  ],
 
   output: {
     publicPath: `http://localhost:${port}/dist/`,
@@ -130,7 +137,7 @@ export default merge.smart(baseConfig, {
     port,
     publicPath,
     compress: true,
-    noInfo: true,
+    noInfo: false,
     stats: 'errors-only',
     inline: true,
     lazy: false,
@@ -138,9 +145,9 @@ export default merge.smart(baseConfig, {
     headers: { 'Access-Control-Allow-Origin': '*' },
     contentBase: path.join(__dirname, 'dist'),
     watchOptions: {
-      aggregateTimeout: 1500,
-      ignored: ['node_modules', 'proto', 'release', 'resources', 'dll'],
-      poll: 1000
+      aggregateTimeout: 300,
+      ignored: /node_modules/,
+      poll: 100,
     },
     historyApiFallback: {
       verbose: true,

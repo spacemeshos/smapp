@@ -1,4 +1,3 @@
-// @flow
 import {
   SplashScreen,
   Auth,
@@ -22,8 +21,11 @@ import {
   Transactions,
   Settings,
   Contacts,
-  TestMe
-} from '/screens';
+  Network,
+  TestMe,
+  Vault,
+  Dashboard
+} from './screens';
 
 const app = [
   {
@@ -73,6 +75,14 @@ const main = [
     component: Wallet
   },
   {
+    path: '/main/network',
+    component: Network
+  },
+  {
+    path: '/main/dash',
+    component: Dashboard
+  },
+  {
     path: '/main/node-setup',
     component: NodeSetup
   },
@@ -104,6 +114,10 @@ const wallet = [
     component: Overview
   },
   {
+    path: '/main/wallet/vault',
+    component: Vault
+  },
+  {
     path: '/main/wallet/send-coins',
     component: SendCoins
   },
@@ -132,12 +146,6 @@ const backup = [
   }
 ];
 
-const routes = {
-  app,
-  auth,
-  main,
-  wallet,
-  backup
-};
+const routes = { app, auth, main, wallet, backup };
 
 export default routes;

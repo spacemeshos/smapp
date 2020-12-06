@@ -24,8 +24,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea/
-dll/
-flow-typed/
 
 ct-libc/
 /dll/
@@ -39,4 +37,5 @@ ct-libc/
 /release
 .env
 .vscode
-/node/
+/desktop/dist
+/app/dist/

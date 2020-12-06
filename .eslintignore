@@ -55,7 +55,6 @@ __snapshots__
 
 # Package.json
 package.json
-.travis.yml
 /babel.config.js
 /configs/
 /proto/
