@@ -68,7 +68,8 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
-      - uses: google-github-actions/setup-gcloud@master
+      - name: setup gcloud
+        uses: google-github-actions/setup-gcloud@master
         with:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
