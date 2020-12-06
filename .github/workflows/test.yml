@@ -21,4 +21,4 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@main
         with:
           path: ./myfile.txt
-          destination: ${{ GCP_BUCKET }}/myfile.txt
+          destination: ${{ secrets.GCP_BUCKET }}/myfile.txt
