@@ -6,7 +6,6 @@ import { getNodeStatus, getMiningStatus, getNodeSettings } from '../../redux/nod
 import { readWalletFiles } from '../../redux/wallet/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
-import { Loader } from '../../basicComponents';
 import routes from '../../routes';
 import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { nodeConsts } from '../../vars';
@@ -43,7 +42,6 @@ type Props = {
   getNodeSettings: CustomAction;
   readWalletFiles: CustomAction;
   isDarkMode: boolean;
-  walletFiles: Array<string>;
   history: RouteComponentProps;
   location: { pathname: string; state?: { presetMode: number } };
 };
@@ -54,21 +52,17 @@ class Auth extends Component<Props> {
   getMiningStatusInterval: ReturnType<typeof setInterval> | null = null; // eslint-disable-line react/sort-comp
 
   render() {
-    const { walletFiles, isDarkMode } = this.props;
+    const { isDarkMode } = this.props;
     return (
       <Wrapper>
         <Logo isDarkMode={isDarkMode} />
         <InnerWrapper>
-          {walletFiles.length > 0 ? (
-            <Switch>
-              {routes.auth.map((route) => (
-                <Route exact key={route.path} path={route.path} component={route.component} />
-              ))}
-              <Redirect to="/auth/welcome" />
-            </Switch>
-          ) : (
-            <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
-          )}
+          <Switch>
+            {routes.auth.map((route) => (
+              <Route exact key={route.path} path={route.path} component={route.component} />
+            ))}
+            <Redirect to="/auth/welcome" />
+          </Switch>
         </InnerWrapper>
         <RightDecoration src={isDarkMode ? rightDecorationWhite : rightDecoration} />
       </Wrapper>
@@ -115,7 +109,6 @@ class Auth extends Component<Props> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  walletFiles: state.wallet.walletFiles,
   isDarkMode: state.ui.isDarkMode
 });
 
