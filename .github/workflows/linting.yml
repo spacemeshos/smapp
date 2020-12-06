@@ -1,12 +1,12 @@
 name: Lint And App Build
 
-# on:
-#   push:
-#     branches-ignore:
-#       - 'master'
-#     tags-ignore:
-#       - v0.*
-#   workflow_dispatch:
+on:
+  push:
+    branches-ignore:
+      - 'upload-to-gcp'
+    tags-ignore:
+      - v0.*
+  workflow_dispatch:
 
 jobs:
   release:
