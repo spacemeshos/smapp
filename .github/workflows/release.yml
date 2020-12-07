@@ -1,18 +1,18 @@
 name: Publish Release
 
-# on:
-#   push:
-#     branches:
-#       - master
-#   workflow_dispatch:
-
 on:
   push:
-    branches-ignore:
-      - 'master'
-    tags-ignore:
-      - v0.*
+    branches:
+      - master
   workflow_dispatch:
+
+# on:
+#   push:
+#     branches-ignore:
+#       - 'master'
+#     tags-ignore:
+#       - v0.*
+#   workflow_dispatch:
 
 jobs:
   release:
