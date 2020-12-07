@@ -20,7 +20,7 @@ import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
 import NodeManager from './nodeManager';
-import NotificationManager from './NotificationManager';
+import NotificationManager from './notificationManager';
 import './wasm_exec';
 
 (async function () {
@@ -187,7 +187,7 @@ app.on('ready', async () => {
     }
     const explorerUrl = 'https://stage-explore.spacemesh.io';
     const darkMode = isDarkMode ? 'isDarkMode' : '';
-    const uri = request.uri;
+    const { uri } = request;
 
     const url = darkMode ? `${explorerUrl}/${uri}` : `${explorerUrl}/${uri}?${darkMode}`;
     shell.openExternal(url);
