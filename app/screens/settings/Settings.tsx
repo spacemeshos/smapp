@@ -125,6 +125,8 @@ class Settings extends Component<Props, State> {
 
   myRef4: any; // eslint-disable-line react/sort-comp
 
+  myRef5: any; // eslint-disable-line react/sort-comp
+
   constructor(props: Props) {
     super(props);
     const { displayName, accounts, nodeIpAddress } = props;
@@ -149,6 +151,7 @@ class Settings extends Component<Props, State> {
     this.myRef2 = React.createRef();
     this.myRef3 = React.createRef();
     this.myRef4 = React.createRef();
+    this.myRef5 = React.createRef();
   }
 
   render() {
@@ -183,11 +186,30 @@ class Settings extends Component<Props, State> {
     } = this.state;
     return (
       <Wrapper>
-        <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
+        <SideMenu items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
           <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <AllSettingsInnerWrapper>
-            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkMode={isDarkMode}>
+            <SettingsSection title="GENERAL" refProp={this.myRef1} isDarkMode={isDarkMode}>
+              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
+              <SettingRow
+                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
+                rowName="Wallet Auto Start"
+              />
+              <SettingRow
+                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
+                rowName="Legal"
+              />
+              <SettingRow
+                upperPartLeft="Learn more in our extensive user guide"
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" width={180} />}
+                rowName="User Guide"
+              />
+            </SettingsSection>
+            <SettingsSection title="WALLETS" refProp={this.myRef2} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -215,28 +237,11 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Button onClick={this.navigateToWalletRestore} text="RESTORE" width={180} />}
                 rowName="Wallet Restore"
               />
-              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
-              <SettingRow
-                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
-                isUpperPartLeftText
-                upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
-                rowName="Wallet Auto Start"
-              />
               <SettingRow
                 upperPartLeft="Use at your own risk!"
                 isUpperPartLeftText
                 upperPartRight={<Button onClick={this.deleteWallet} text="DELETE WALLET" width={180} />}
                 rowName="Delete Wallet"
-              />
-              <SettingRow
-                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
-                rowName="Legal"
-              />
-              <SettingRow
-                upperPartLeft="Learn more in our extensive user guide"
-                isUpperPartLeftText
-                upperPartRight={<Button onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" width={180} />}
-                rowName="User Guide"
               />
               <SettingRow
                 upperPartLeft="Create a new wallet. You will be signed out of current wallet"
@@ -253,7 +258,7 @@ class Settings extends Component<Props, State> {
                 rowName="App Version"
               />
             </SettingsSection>
-            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkMode={isDarkMode}>
+            <SettingsSection title="ACCOUNTS" refProp={this.myRef3} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
                 upperPartRight={<Button onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
@@ -289,7 +294,7 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection title="MESH INFO" refProp={this.myRef3} isDarkMode={isDarkMode}>
+            <SettingsSection title="INFO" refProp={this.myRef4} isDarkMode={isDarkMode}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
               <SettingRow upperPartLeft={rewardsAddress ? `0x${getAddress(rewardsAddress)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
@@ -308,7 +313,7 @@ class Settings extends Component<Props, State> {
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
-            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4} isDarkMode={isDarkMode}>
+            <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={
                   isPortSet ? (
@@ -488,7 +493,7 @@ class Settings extends Component<Props, State> {
   };
 
   scrollToRef = ({ index }: { index: number }) => {
-    const ref = [this.myRef1, this.myRef2, this.myRef3, this.myRef4][index];
+    const ref = [this.myRef1, this.myRef2, this.myRef3, this.myRef4, this.myRef5][index];
     this.setState({ currentSettingIndex: index });
     ref.current.scrollIntoView({
       behavior: 'smooth',
