@@ -13,6 +13,7 @@ import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { version } from '../../../package.json';
 import { Account, AppThDispatch, RootState, Status } from '../../types';
+import { Modal } from '../../components/common';
 
 const Wrapper = styled.div`
   display: flex;
@@ -72,6 +73,13 @@ const AccountCmdBtnSeparator = styled.div`
   margin: auto 15px;
 `;
 
+const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 30px 0 15px 0;
+`;
+
 type Props = {
   displayName: string;
   accounts: Account[];
@@ -107,13 +115,13 @@ type State = {
   isUpdateDownloading: boolean;
   editedAccountIndex: number;
   accountDisplayNames: Array<string>;
-  nodeIp: string;
   currentSettingIndex: number;
   showPasswordModal: boolean;
   passwordModalSubmitAction: ({ password }: { password: string }) => void;
   changedPort: string;
   isPortSet: boolean;
   signMessageModalAccountIndex: number;
+  showModal: boolean;
 };
 
 class Settings extends Component<Props, State> {
@@ -127,7 +135,7 @@ class Settings extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const { displayName, accounts, nodeIpAddress } = props;
+    const { displayName, accounts } = props;
     const accountDisplayNames = accounts.map((account: Account) => account.displayName);
     this.state = {
       walletDisplayName: displayName,
@@ -136,13 +144,13 @@ class Settings extends Component<Props, State> {
       isUpdateDownloading: false,
       editedAccountIndex: -1,
       accountDisplayNames,
-      nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
       showPasswordModal: false,
       passwordModalSubmitAction: () => {},
       changedPort: props.port,
       isPortSet: false,
-      signMessageModalAccountIndex: -1
+      signMessageModalAccountIndex: -1,
+      showModal: false
     };
 
     this.myRef1 = React.createRef();
@@ -152,20 +160,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const {
-      displayName,
-      accounts,
-      setNodeIpAddress,
-      setRewardsAddress,
-      status,
-      genesisTime,
-      rewardsAddress,
-      networkId,
-      stateRootHash,
-      backupTime,
-      switchTheme,
-      isDarkMode
-    } = this.props;
+    const { displayName, accounts, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme, isDarkMode } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -173,13 +168,13 @@ class Settings extends Component<Props, State> {
       isUpdateDownloading,
       accountDisplayNames,
       editedAccountIndex,
-      nodeIp,
       currentSettingIndex,
       showPasswordModal,
       passwordModalSubmitAction,
       changedPort,
       isPortSet,
-      signMessageModalAccountIndex
+      signMessageModalAccountIndex,
+      showModal
     } = this.state;
     return (
       <Wrapper>
@@ -318,7 +313,7 @@ class Settings extends Component<Props, State> {
                   )
                 }
                 upperPartRight={<Button onClick={this.setPort} text="SET PORT" width={180} />}
-                rowName="Set new TCP/UDP port for smesher. Please select port number greater than 1024"
+                rowName="Local Smesher TCP and UDP port numbers"
               />
               <SettingRow
                 upperPartLeft="Delete all wallets and app data, and restart it"
@@ -326,17 +321,18 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
                 rowName="Reinstall App"
               />
-              <SettingRow
-                upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                // @ts-ignore
-                upperPartRight={<Button onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
-                rowName="Change Node IP Address"
-              />
             </SettingsSection>
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
         {showPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />}
         {signMessageModalAccountIndex !== -1 && <SignMessage index={signMessageModalAccountIndex} close={() => this.toggleSignMessageModal({ index: -1 })} />}
+        {showModal && (
+          <Modal header="Error" subHeader={'number must be >= 1024'}>
+            <ButtonsWrapper>
+              <Button onClick={() => this.setState({ showModal: false })} isPrimary text="OK" />
+            </ButtonsWrapper>
+          </Modal>
+        )}
       </Wrapper>
     );
   }
@@ -365,6 +361,8 @@ class Settings extends Component<Props, State> {
     if (parsedPort && parsedPort > 1024) {
       await eventsService.setPort({ port: changedPort });
       this.setState({ isPortSet: true });
+    } else {
+      this.setState({ showModal: true });
     }
   };
 
