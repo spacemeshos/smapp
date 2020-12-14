@@ -46,7 +46,7 @@ const BackupImage = styled.img`
 const BackupText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.orange};
+  color: ${smColors.darkOrange};
   cursor: inherit;
 `;
 
