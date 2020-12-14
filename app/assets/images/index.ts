@@ -90,5 +90,6 @@ export { default as posSpace } from './pos_space.svg';
 export { default as circle } from './circle.svg';
 export { default as wallet } from './wallet.svg';
 export { default as network } from './network.svg';
+export { default as networkPink } from './network_pink.svg';
 export { default as explorer } from './explorer_icon.svg';
 export { default as clock } from './clock.svg';
