@@ -90,6 +90,7 @@ const NodeSetup = ({ history, location }: Props) => {
             setFreeSpace={setFreeSpace}
             status={status}
             isDarkMode={isDarkMode}
+            skipAction={() => history.push('/main/wallet')}
           />
         );
       case 2:
@@ -136,7 +137,7 @@ const NodeSetup = ({ history, location }: Props) => {
   return (
     <Wrapper>
       <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
+      <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader} isDarkMode={isDarkMode}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {hasBackButton && <BackButton action={handlePrevAction} />}
         {renderRightSection()}
