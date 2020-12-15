@@ -12,7 +12,6 @@ import { RootState, Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
