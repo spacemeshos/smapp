@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar } from '../../basicComponents';
@@ -10,6 +10,8 @@ import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer } f
 import { smColors, nodeConsts } from '../../vars';
 import { RootState, Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
+import { hideSmesherLeftPanel } from '../../redux/ui/actions';
+
 
 const Wrapper = styled.div`
   display: flex;
@@ -109,6 +111,7 @@ const Node = ({ history, location }: Props) => {
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
+  const dispatch = useDispatch();
 
   const renderNodeDashboard = () => {
     const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
@@ -163,6 +166,11 @@ const Node = ({ history, location }: Props) => {
 
   const openExplorerLink = (id: string) => eventsService.openExplorerLink({ uri: `smeshers/${id}` });
 
+  const buttonHandler = () => {
+    dispatch(hideSmesherLeftPanel());
+    history.push('/main/node-setup');
+  };
+
   // TODO Need to insert real smesher id
   const renderMainSection = () => {
     if (showIntro) {
@@ -174,8 +182,9 @@ const Node = ({ history, location }: Props) => {
             Smesher
             <SmesherId> 0x12344...244AF </SmesherId>
             <ExplorerIcon src={explorer} onClick={() => openExplorerLink('0x12344')} />
+            &nbsp;is&nbsp;
             <StatusSpan status={status}>{status ? 'ONLINE' : 'OFFLINE'} </StatusSpan>
-            on Network {networkId}.
+            &nbsp;on Network {networkId}.
           </SubHeader>
           <TextWrapper>
             <PosSmesherIcon src={posSmesher} />
@@ -183,7 +192,7 @@ const Node = ({ history, location }: Props) => {
           </TextWrapper>
           <Text>Proof of Space data is not setup yet</Text>
           <br />
-          <Button onClick={() => history.push('/main/node-setup')} text="SETUP PROOF OF SPACE" width={250} />
+          <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
         </>
       );
     } else if (miningStatus === nodeConsts.MINING_UNSET) {
