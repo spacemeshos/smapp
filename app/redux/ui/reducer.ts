@@ -2,7 +2,8 @@ import { UiState, CustomAction } from '../../types';
 import { SET_OS_THEME, THEME_SWITCHER, HIDE_LEFT_PANEL } from './actions';
 
 const initialState = {
-  isDarkMode: false
+  isDarkMode: false,
+  hideSmesherLeftPanel: false
 };
 
 const reducer = (state: UiState = initialState, action: CustomAction) => {
