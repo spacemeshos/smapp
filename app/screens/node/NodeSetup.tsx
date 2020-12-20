@@ -40,7 +40,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const posDataPath = useSelector((state: RootState) => state.node.posDataPath);
   const commitmentSize = useSelector((state: RootState) => state.node.commitmentSize);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
+  const hideSmesherLeftPanel = useSelector((state: RootState) => state.ui.hideSmesherLeftPanel);
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
   const [folder, setFolder] = useState(posDataPath || '');
   const [freeSpace, setFreeSpace] = useState(0);
@@ -135,8 +135,8 @@ const NodeSetup = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
+      {!hideSmesherLeftPanel && <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />}
+      <CorneredContainer width={!hideSmesherLeftPanel ? 650 : 800} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {hasBackButton && <BackButton action={handlePrevAction} />}
         {renderRightSection()}
