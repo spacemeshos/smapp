@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateTransaction } from '../../redux/wallet/actions';
-import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact, explorer } from '../../assets/images';
+import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
@@ -15,14 +15,13 @@ const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
   flex-direction: column;
   ${({ isDetailed }) => isDetailed && `background-color: ${smColors.lighterGray};`}
-  border-bottom: 1px solid ${smColors.disabledGray};
   cursor: pointer;
 `;
 
 const Header = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 10px 0 15px;
+  padding: 10px 10px 15px 10px;
   cursor: pointer;
   background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : 'transparent')};
   &:hover {
@@ -63,7 +62,13 @@ const BlackText = styled(Text)`
 
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
-  color: ${({ color, theme }) => (color || theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ color, theme }) => {
+    if (color) {
+      return color;
+    } else {
+      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+    }
+  }};
 `;
 
 const DarkGrayText = styled(Text)`
@@ -72,6 +77,8 @@ const DarkGrayText = styled(Text)`
 `;
 
 const Amount = styled.div`
+  font-size: 13px;
+  margin: 2px 0px;
   text-align: right;
   color: ${({ color }) => color};
   cursor: inherit;
@@ -102,7 +109,13 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   overflow: hidden;
   white-space: nowrap;
   padding: 5px 0;
-  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha};`)};
+  :first-child {
+    border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha};`};
+  }
+  :last-child {
+    border-bottom: none;
+  }
 `;
 
 const AddToContactsImg = styled.img`
@@ -150,6 +163,13 @@ const ExplorerIcon = styled.img`
   height: 20px;
   margin-left: 5px;
   cursor: pointer;
+`;
+
+const CopyIcon = styled.img`
+  width: 16px;
+  height: 15px;
+  margin-left: 5px;
+  cursor: inherit;
 `;
 
 const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
@@ -241,6 +261,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
           <BlackText>TRANSACTION ID</BlackText>
           <BoldText onClick={() => copyAddress({ id: txId })}>
             {formatTxId(txId)}
+            <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
             <ExplorerIcon src={explorer} onClick={() => eventsService.openExplorerLink({ uri: `txs/${txId}` })} />
           </BoldText>
         </TextRow>
