@@ -1,12 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { RouteComponentProps } from 'react-router-dom';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
-import { WrapperWith2SideBars, Link, NetworkIndicator, Tooltip, ProgressBar } from '../../basicComponents';
+import { WrapperWith2SideBars, Link, NetworkIndicator, Tooltip, ProgressBar, CustomTimeAgo } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
-import { getFormattedTimestamp } from '../../infra/utils';
 import { eventsService } from '../../infra/eventsService';
 import { RootState } from '../../types';
 
@@ -25,12 +23,6 @@ const DetailsWrap = styled.div`
 const FooterWrap = styled.div`
   display: flex;
   flex-direction: row;
-`;
-
-const Message = styled.div`
-  display: flex;
-  flex-direction: row;
-  color: ${({ color }) => color};
 `;
 
 const DetailsRow = styled.div<{ isLast?: boolean }>`
@@ -75,7 +67,7 @@ const ProgressLabel = styled.div`
   margin-left: 10px;
 `;
 
-const Network = ({ history }: RouteComponentProps) => {
+const Network = () => {
   const status = useSelector((state: RootState) => state.node.status);
   const genesisTime = useSelector((state: RootState) => state.node.genesisTime);
   const nodeIndicator = useSelector((state: RootState) => state.node.nodeIndicator);
@@ -91,16 +83,26 @@ const Network = ({ history }: RouteComponentProps) => {
   };
 
   const renderSyncingStatus = () => {
-    const progress = getSyncLabelPercentage() / 10;
+    const progress = getSyncLabelPercentage();
+
     return (
       <>
-        <NetworkIndicator color={nodeIndicator.color} />
-        <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
-        <ProgressLabel>{getSyncLabelPercentage()}%</ProgressLabel>
-        <ProgressLabel>{`${status?.syncedLayer || 0} / ${status?.currentLayer || 0}`}</ProgressLabel>
-        <Progress>
-          <ProgressBar progress={progress} />
-        </Progress>
+        {getSyncLabelPercentage() === 100 ? (
+          <>
+            <NetworkIndicator color={nodeIndicator.color} />
+            <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
+          </>
+        ) : (
+          <>
+            <NetworkIndicator color={nodeIndicator.color} />
+            <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
+            <ProgressLabel>{getSyncLabelPercentage()}%</ProgressLabel>
+            <ProgressLabel>{`${status?.syncedLayer || 0} / ${status?.currentLayer || 0}`}</ProgressLabel>
+            <Progress>
+              <ProgressBar progress={progress} />
+            </Progress>
+          </>
+        )}
       </>
     );
   };
@@ -116,21 +118,18 @@ const Network = ({ history }: RouteComponentProps) => {
     eventsService.showFileInFolder({ isBackupFile: true });
   };
 
-  const navigateToChangeNetwork = () => {
-    history.push('/main/settings/', { currentSettingIndex: 3 });
-  };
-
   return (
     <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={networkName} isDarkMode={isDarkMode}>
       <Container>
-        <Message color={nodeIndicator.color}>{nodeIndicator.message}</Message>
         <DetailsWrap>
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Age</DetailsText>
               <Tooltip width={250} text="tooltip age" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>{getFormattedTimestamp(genesisTime)}</GrayText>
+            <GrayText>
+              <CustomTimeAgo time={genesisTime} />
+            </GrayText>
           </DetailsRow>
           <DetailsRow>
             <DetailsTextWrap>
@@ -169,9 +168,7 @@ const Network = ({ history }: RouteComponentProps) => {
           </DetailsRow>
         </DetailsWrap>
         <FooterWrap>
-          <Link onClick={navigateToChangeNetwork} text="CHANGE NETWORK" />
-          <Tooltip width={250} text="tooltip CHANGE NETWORK" isDarkMode={isDarkMode} />
-          <Link onClick={openLogFile} text="BROWSE LOG FILE" style={{ marginLeft: '50px' }} />
+          <Link onClick={openLogFile} text="BROWSE LOG FILE" />
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
         </FooterWrap>
       </Container>

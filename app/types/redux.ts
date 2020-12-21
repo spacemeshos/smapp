@@ -33,6 +33,7 @@ export interface WalletState {
 
 export interface UiState {
   isDarkMode: boolean;
+  hideSmesherLeftPanel: boolean;
 }
 
 export interface RootState {
