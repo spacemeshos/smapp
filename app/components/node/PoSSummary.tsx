@@ -82,7 +82,7 @@ const PoSSummary = ({ folder, commitment, processor, isPausedOnUsage, nextAction
         <Dots>.....................................................</Dots>
         <Link onClick={() => switchMode({ mode: 3 })} text={isPausedOnUsage ? 'on' : 'off'} style={linkStyle} isDisabled={isProcessing} />
       </Row>
-      <PoSFooter action={handleNextAction} isDisabled={isProcessing || !status} isLastMode />
+      <PoSFooter action={handleNextAction} isDisabled={isProcessing || !status} />
     </>
   );
 };

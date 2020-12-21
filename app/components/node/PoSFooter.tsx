@@ -22,20 +22,19 @@ const ButtonWrap = styled.div`
 type Props = {
   action: () => void;
   isDisabled: boolean;
-  isLastMode?: boolean;
   isFirstMode?: boolean;
-  skipAction: () => void;
+  skipAction?: () => void;
 };
 
 class PoSFooter extends PureComponent<Props> {
   render() {
-    const { action, isDisabled, isLastMode, isFirstMode, skipAction } = this.props;
+    const { action, isDisabled, skipAction } = this.props;
     return (
       <Footer>
         <Link onClick={this.navigateToExplanation} text="POST SETUP GUIDE" />
         <ButtonWrap>
-          {isFirstMode && <Button isPrimary={false} onClick={skipAction} text={'SKIP'} />}
-          <Button style={{ marginLeft: '20px' }} onClick={action} text={isLastMode ? 'CREATE DATA' : 'NEXT'} isDisabled={isDisabled} />
+          {skipAction && <Button isPrimary={false} onClick={skipAction} text={'SKIP'} />}
+          <Button style={{ marginLeft: '20px' }} onClick={action} text={skipAction ? 'CREATE DATA' : 'NEXT'} isDisabled={isDisabled} />
         </ButtonWrap>
       </Footer>
     );
