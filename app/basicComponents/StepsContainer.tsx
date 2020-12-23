@@ -83,7 +83,7 @@ const Icon = styled.img`
 
 type Props = {
   steps: Array<string>;
-  header: string;
+  header?: string;
   currentStep: number;
   isDarkMode: boolean;
 };

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { Status } from '../../types';
 import PoSFooter from './PoSFooter';
@@ -10,6 +9,17 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
+  position: relative;
+  justify-content: space-between;
+  &:not(:last-child):after {
+    position: absolute;
+    bottom: -10px;
+    content: '';
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: ${({ theme }) => (theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black)};
+  }
   &:first-child {
     margin-bottom: 10px;
   }
@@ -25,17 +35,17 @@ const Text = styled.div`
   text-transform: uppercase;
 `;
 
-const Dots = styled.div`
-  flex: 1;
-  flex-shrink: 1;
-  overflow: hidden;
-  margin: 0 5px;
-  font-size: 15px;
-  line-height: 17px;
+const Link = styled.div`
+  text-transform: uppercase;
+  text-decoration: none;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  fontsize: 15px;
+  line-height: 17px;
+  cursor: pointer;
+  &:hover {
+    color: ${smColors.blue};
+  }
 `;
-
-const linkStyle = { textTransform: 'uppercase', fontSize: '15px', lineHeight: '17px' };
 
 type Props = {
   folder: string;
@@ -59,28 +69,23 @@ const PoSSummary = ({ folder, commitment, processor, isPausedOnUsage, nextAction
     <>
       <Row>
         <Text>data directory</Text>
-        <Dots>.....................................................</Dots>
-        <Link onClick={() => switchMode({ mode: 1 })} text={folder} style={linkStyle} isDisabled={isProcessing} />
+        <Link onClick={() => switchMode({ mode: 1 })}>{folder}</Link>
       </Row>
       <Row>
         <Text>data size</Text>
-        <Dots>.....................................................</Dots>
-        <Link onClick={() => switchMode({ mode: 2 })} text={`${commitment} GB`} style={linkStyle} isDisabled={isProcessing} />
+        <Link onClick={() => switchMode({ mode: 2 })}>{`${commitment} GB`}</Link>
       </Row>
       <Row>
         <Text>processor</Text>
-        <Dots>.....................................................</Dots>
-        <Link onClick={() => switchMode({ mode: 3 })} text={`${processor.company} ${processor.type}`} style={linkStyle} isDisabled={isProcessing} />
+        <Link onClick={() => switchMode({ mode: 3 })}>{`${processor.company} ${processor.type}`}</Link>
       </Row>
       <Row>
         <Text>estimated time</Text>
-        <Dots>.....................................................</Dots>
-        <Link onClick={() => switchMode({ mode: 3 })} text={processor.estimation} style={linkStyle} isDisabled={isProcessing} />
+        <Link onClick={() => switchMode({ mode: 3 })}>{processor.estimation}</Link>
       </Row>
       <Row>
         <Text>pause when pc is in use</Text>
-        <Dots>.....................................................</Dots>
-        <Link onClick={() => switchMode({ mode: 3 })} text={isPausedOnUsage ? 'on' : 'off'} style={linkStyle} isDisabled={isProcessing} />
+        <Link onClick={() => switchMode({ mode: 3 })}>{isPausedOnUsage ? 'on' : 'off'}</Link>
       </Row>
       <PoSFooter action={handleNextAction} isDisabled={isProcessing || !status} isLastMode />
     </>

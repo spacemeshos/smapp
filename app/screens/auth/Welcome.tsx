@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { bigInnerSideBar, posSmesher, networkPink } from '../../assets/images';
+import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
@@ -12,9 +12,9 @@ import { eventsService } from '../../infra/eventsService';
 const SideBar = styled.img`
   position: absolute;
   bottom: 0px;
-  right: -30px;
-  width: 15px;
-  height: 55px;
+  right: -40px;
+  width: 25px;
+  height: 140px;
 `;
 
 const Indicator = styled.div`
@@ -107,7 +107,7 @@ const Welcome = ({ history }: RouteComponentProps) => {
       <SideBar src={bigInnerSideBar} />
       <Indicator />
       <Row>
-        <Icon src={networkPink} />
+        <Icon src={walletSecond} />
         <RowText>Set up a wallet,</RowText>
       </Row>
       <Row>
@@ -142,7 +142,7 @@ const Welcome = ({ history }: RouteComponentProps) => {
           <Link onClick={() => history.push('/auth/restore')} text="RESTORE AN EXISTING WALLET" />
           <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
           <ButtonMargin>
-            <Button text="SETUP" onClick={() => history.push('/auth/config-wallet', { withoutNode: false })} />
+            <Button text="SETUP" onClick={() => history.push('/auth/new-wallet', { withoutNode: false })} />
           </ButtonMargin>
         </ComplexLink>
       </BottomPart>

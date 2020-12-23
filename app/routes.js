@@ -11,7 +11,9 @@ import {
   Node,
   NodeSetup,
   Wallet,
-  ConfigNewWallet,
+  NewWallet,
+  SetupWallet,
+  Leaving,
   Overview,
   SendCoins,
   RequestCoins,
@@ -57,8 +59,16 @@ const auth = [
     component: CreateWallet
   },
   {
-    path: '/auth/config-wallet',
-    component: ConfigNewWallet
+    path: '/auth/leaving',
+    component: Leaving
+  },
+  {
+    path: '/auth/new-wallet',
+    component: NewWallet
+  },
+  {
+    path: '/auth/setup-wallet',
+    component: SetupWallet
   },
   {
     path: '/auth/restore',

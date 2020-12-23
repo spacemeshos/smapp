@@ -8,6 +8,7 @@ const smColors = {
   green: '#65B042',
   darkerGreen: '#549237',
   mediumGray: '#828282',
+  mediumGraySecond: '#b7b7b7',
   black: '#252429',
   black80Alpha2: 'rgba(37, 36, 41, 0.8)',
   disabledGray: '#BCBCBD',

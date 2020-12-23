@@ -1,4 +1,4 @@
-export { Auth, Welcome, ConfigNewWallet, CreateWallet, UnlockWallet, RestoreWallet, FileRestore, WordsRestore } from './auth';
+export { Auth, Welcome, NewWallet, SetupWallet, CreateWallet, UnlockWallet, Leaving, RestoreWallet, FileRestore, WordsRestore } from './auth';
 export { Main } from './main';
 export { Node, NodeSetup } from './node';
 export { Wallet, Overview, SendCoins, RequestCoins, Vault } from './wallet';

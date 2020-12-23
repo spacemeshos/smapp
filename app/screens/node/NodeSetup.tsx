@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   flex-direction: row;
 `;
 
-const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'PROOF OF SPACE PROCESSOR', 'PROOF OF SPACE SETUP'];
+const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'POS PROCESSOR', 'POS SETUP'];
 const subHeaders = [
   '',
   '',
@@ -135,8 +135,8 @@ const NodeSetup = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      {!hideSmesherLeftPanel && <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />}
-      <CorneredContainer width={!hideSmesherLeftPanel ? 650 : 800} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
+      {!hideSmesherLeftPanel && <StepsContainer steps={['SETUP WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />}
+      <CorneredContainer isDarkMode={isDarkMode} width={!hideSmesherLeftPanel ? 650 : 760} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {hasBackButton && <BackButton action={handlePrevAction} />}
         {renderRightSection()}
