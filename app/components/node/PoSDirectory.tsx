@@ -108,7 +108,7 @@ const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, se
           {freeSpace ? `${freeSpace} GB` : 'UNDESIGNATED'}
         </FreeSpace>
       </Wrapper>
-      <PoSFooter skipAction={skipAction} isFirstMode action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
+      <PoSFooter skipAction={skipAction} action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
     </>
   );
 };
