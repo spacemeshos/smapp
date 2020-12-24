@@ -90,6 +90,7 @@ const NodeSetup = ({ history, location }: Props) => {
             setFreeSpace={setFreeSpace}
             status={status}
             isDarkMode={isDarkMode}
+            skipAction={() => history.push('/main/wallet')}
           />
         );
       case 2:
