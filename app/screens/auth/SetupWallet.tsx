@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, Loader, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
@@ -105,14 +106,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-interface Props {
-  history: {
-    push(url: string, ob?: any): void;
-    goBack: () => void;
-  };
-}
-
-const SetupWallet = ({ history }: Props) => {
+const SetupWallet = ({ history }: RouteComponentProps) => {
   const [subMode] = useState(1);
   const [isLoaderVisible] = useState(false);
 

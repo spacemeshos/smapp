@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
@@ -62,7 +63,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const Leaving = ({ history }) => {
+const Leaving = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
