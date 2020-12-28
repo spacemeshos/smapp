@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { ipcRenderer } from 'electron';
+import { eventsService } from '../../infra/eventsService';
 import { Loader } from '../../basicComponents';
-import { ipcConsts } from '../../vars';
 import { RootState } from '../../types';
 import Modal from './Modal';
 
@@ -10,11 +9,9 @@ const OnQuitModal = () => {
   const [isClosing, setIsClosing] = useState(false);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   useEffect(() => {
-    ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
-      setIsClosing(true);
-    });
+    eventsService.closeApp(() => setIsClosing(true));
     return () => {
-      ipcRenderer.removeAllListeners(ipcConsts.CLOSING_APP);
+      eventsService.removeAllListeners();
     };
   }, []);
 
