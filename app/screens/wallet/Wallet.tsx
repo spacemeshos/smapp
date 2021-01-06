@@ -75,10 +75,14 @@ const Wallet = ({ history }: RouteComponentProps) => {
     history.push('/main/backup');
   };
 
+  const navigateToVault = () => {
+    history.push('/main/wallet/vault');
+  };
+
   return (
     <Wrapper>
       <LeftSection>
-        <AccountsOverview />
+        <AccountsOverview navigateToVault={navigateToVault} />
         {!backupTime && (
           <BackupReminder onClick={navigateToBackup}>
             <FullCrossIcon src={icon} />
