@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: 1px solid ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 5% 100%, 0% 85%);
 `;
 

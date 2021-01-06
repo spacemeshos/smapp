@@ -13,6 +13,7 @@ const Progress = styled.div<{ progress: number }>`
 
 const Base = styled.div`
   position: relative;
+  min-width: 100px;
   width: 100%;
   font-size: 20px;
   line-height: 20px;

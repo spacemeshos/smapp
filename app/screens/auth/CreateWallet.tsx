@@ -169,12 +169,7 @@ const CreateWallet = ({ history, location }: Props) => {
   const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
   return (
     <Wrapper>
-      <StepsContainer
-        steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SETUP PROOF OF SPACE']}
-        header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
-        currentStep={0}
-        isDarkMode={isDarkMode}
-      />
+      <StepsContainer steps={isWalletOnlySetup ? ['SETUP WALLET'] : ['SETUP WALLET', 'SETUP PROOF OF SPACE']} currentStep={0} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header={header} subHeader={renderSubHeader(subMode)} isDarkMode={isDarkMode}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {subMode === 1 && (
