@@ -4,6 +4,8 @@ import { CorneredContainer } from '../common';
 import { getFormattedTimestamp, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { TxList } from '../../types';
+import { SmallHorizontalPanel } from '../../basicComponents';
+import { bottomRightCorner, bottomRightCornerWhite, leftSideTIcon, leftSideTIconWhite, topRightCorner, topRightCornerWhite } from '../../assets/images';
 
 const Wrapper = styled.div`
   display: flex;
@@ -36,6 +38,37 @@ const LogEntrySeparator = styled(LogText)`
   line-height: 16px;
 `;
 
+const FullCrossIcon = styled.img`
+  position: absolute;
+
+  left: -10px;
+  width: 12px;
+  height: 12px;
+  &.top {
+    top: -10px;
+    transform: rotate(-90deg);
+  }
+  &.bottom {
+    bottom: -10px;
+    transform: rotate(90deg);
+  }
+`;
+const TopRightCorner = styled.img`
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 8px;
+  height: 8px;
+`;
+
+const BottomRightCorner = styled.img`
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 8px;
+  height: 8px;
+`;
+
 type Props = {
   initTimestamp: string | null;
   smeshingTimestamp: string | null;
@@ -43,40 +76,52 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const SmesherLog = ({ initTimestamp, smeshingTimestamp, rewards, isDarkMode }: Props) => (
-  <CorneredContainer width={310} height={450} header="SMESHER LOG" isDarkMode={isDarkMode}>
-    <Wrapper>
-      {initTimestamp ? (
-        <>
-          <LogEntry>
-            <LogText>{initTimestamp}</LogText>
-            <LogText>Initializing smesher</LogText>
-          </LogEntry>
-          <LogEntrySeparator>...</LogEntrySeparator>
-        </>
-      ) : null}
-      {smeshingTimestamp ? (
-        <>
-          <LogEntry>
-            <LogText>{smeshingTimestamp}</LogText>
-            <LogText>Started smeshing</LogText>
-          </LogEntry>
-          <LogEntrySeparator>...</LogEntrySeparator>
-        </>
-      ) : null}
-      {rewards &&
-        rewards.map((reward, index) => (
-          <div key={`reward${index}`}>
+const SmesherLog = ({ initTimestamp, smeshingTimestamp, rewards, isDarkMode }: Props) => {
+  const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
+  const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
+  const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
+  return (
+    <CorneredContainer useEmptyWrap width={310} height={450} header="SMESHER LOG" isDarkMode={isDarkMode}>
+      <FullCrossIcon className="top" src={icon} />
+      <FullCrossIcon className="bottom" src={icon} />
+      <TopRightCorner src={topRight} />
+      <BottomRightCorner src={bottomRight} />
+      <SmallHorizontalPanel isDarkMode={isDarkMode} />
+
+      <LogText>--</LogText>
+      <Wrapper>
+        {initTimestamp ? (
+          <>
             <LogEntry>
-              <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-              <AwardText>Smeshing reward: {formatSmidge(reward.amount)}</AwardText>
-              <AwardText>Smeshing fee reward: {formatSmidge(reward.fee)}</AwardText>
+              <LogText>{initTimestamp}</LogText>
+              <LogText>Initializing smesher</LogText>
             </LogEntry>
             <LogEntrySeparator>...</LogEntrySeparator>
-          </div>
-        ))}
-    </Wrapper>
-  </CorneredContainer>
-);
+          </>
+        ) : null}
+        {smeshingTimestamp ? (
+          <>
+            <LogEntry>
+              <LogText>{smeshingTimestamp}</LogText>
+              <LogText>Started smeshing</LogText>
+            </LogEntry>
+            <LogEntrySeparator>...</LogEntrySeparator>
+          </>
+        ) : null}
+        {rewards &&
+          rewards.map((reward, index) => (
+            <div key={`reward${index}`}>
+              <LogEntry>
+                <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
+                <AwardText>Smeshing reward: {formatSmidge(reward.amount)}</AwardText>
+                <AwardText>Smeshing fee reward: {formatSmidge(reward.fee)}</AwardText>
+              </LogEntry>
+              <LogEntrySeparator>...</LogEntrySeparator>
+            </div>
+          ))}
+      </Wrapper>
+    </CorneredContainer>
+  );
+};
 
 export default SmesherLog;

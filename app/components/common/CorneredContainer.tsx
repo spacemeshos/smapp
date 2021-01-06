@@ -10,11 +10,14 @@ const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
+  margin-left: 8px;
   background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray)};
 `;
 
 const DivWrapper = styled.div<{ width: number; height: number }>`
   display: flex;
+  position: relative;
+  margin-left: 8px;
   flex-direction: column;
   justify-content: space-between;
   width: ${({ width }) => width}px;
