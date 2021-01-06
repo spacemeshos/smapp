@@ -20,7 +20,7 @@ const DivWrapper = styled.div<{ width: number; height: number }>`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray)};
 `;
 
 const HeaderWrapper = styled.div`
@@ -65,7 +65,7 @@ const CorneredContainer = ({ children, width, height, header, headerColor = '', 
   const color = headerColor || isDarkMode ? smColors.white : smColors.realBlack;
 
   return (
-    <ResolvedWrapper width={width} height={height}>
+    <ResolvedWrapper width={width} height={height} isDarkMode={isDarkMode}>
       {header && (
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}

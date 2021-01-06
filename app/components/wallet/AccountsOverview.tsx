@@ -117,7 +117,11 @@ const ExplorerIcon = styled.img`
   cursor: pointer;
 `;
 
-const AccountsOverview = () => {
+type Props = {
+  navigateToVault: () => void;
+};
+
+const AccountsOverview = (props: Props) => {
   let copiedTimeout: any = null;
   const [isCopied, setIsCopied] = useState(false);
   useEffect(() => {
@@ -187,6 +191,7 @@ const AccountsOverview = () => {
       </AccountDetails>
       <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ''}</CopiedText>
       <Footer>
+        <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
         {status?.synced ? (
           <BalanceWrapper>
