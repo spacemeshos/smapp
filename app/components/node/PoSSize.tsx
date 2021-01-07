@@ -11,12 +11,16 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
-  &:first-child {
+  :first-child {
     margin-bottom: 10px;
   }
-  &:last-child {
-    margin-bottom: 0;
+  :last-child {
+    margin-bottom: 30px;
   }
+`;
+
+const BottomRow = styled(Row)`
+  margin: 5px 0;
 `;
 
 const Icon1 = styled.img`
@@ -69,7 +73,7 @@ const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
   margin: 5px;
   cursor: inherit;
   opacity: 0.5;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${smColors.realBlack};
   &:hover {
     opacity: 1;
     color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha)};
@@ -136,7 +140,6 @@ const PoSSize = ({ folder, commitment, setCommitment, freeSpace, nextAction, sta
           onClick={selectCommitment}
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}
-          whiteIcon={isDarkMode}
           style={ddStyle}
         />
       </Row>
@@ -147,17 +150,15 @@ const PoSSize = ({ folder, commitment, setCommitment, freeSpace, nextAction, sta
         <Dots>.....................................................</Dots>
         <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? '10 SMESH / MONTH' : '0 SMESH / MONTH'}</RewardText>
       </Row>
-      <Row>
+      <BottomRow>
         <Icon3 src={posDirectoryIcon} />
-        <Text>PoS data folder</Text>
-        <Dots>.....................................................</Dots>
+        <Text>PoS data folder: </Text>
         <GreenText>{folder}</GreenText>
-      </Row>
-      <Row>
-        <Text>Free space</Text>
-        <Dots>.....................................................</Dots>
+      </BottomRow>
+      <BottomRow>
+        <Text>Free space: </Text>
         <GreenText>{freeSpace} GB</GreenText>
-      </Row>
+      </BottomRow>
       <PoSFooter action={nextAction} isDisabled={selectedCommitmentIndex === -1 || !status} />
     </>
   );
