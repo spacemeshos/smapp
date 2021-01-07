@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar } from '../../basicComponents';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getFormattedTimestamp } from '../../infra/utils';
-import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer } from '../../assets/images';
+import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon } from '../../assets/images';
 import { smColors, nodeConsts } from '../../vars';
 import { RootState, Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
+import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,6 +22,9 @@ const Text = styled.div`
   display: flex;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  &.progress {
+    min-width: 170px;
+  }
 `;
 
 const BoldText = styled(Text)`
@@ -29,7 +33,7 @@ const BoldText = styled(Text)`
 
 const SubHeader = styled(Text)`
   margin-bottom: 15px;
-  color: ${smColors.green};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
 const Footer = styled.div`
@@ -42,6 +46,7 @@ const Footer = styled.div`
 const SmesherId = styled.span`
   margin: 0 5px;
   color: ${smColors.blue};
+  text-decoration: underline;
 `;
 
 const StatusSpan = styled.span<{ status?: Status | null }>`
@@ -52,17 +57,22 @@ const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  justify-content: space-between;
+  width: 100%;
 `;
-
-const Dots = styled.div`
-  flex: 1;
-  flex-shrink: 1;
-  overflow: hidden;
-  margin: 0 5px;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+const LineWrap = styled.div`
+  position: relative;
+  width: 100%;
+  &:after {
+    position: absolute;
+    bottom: 5px;
+    content: '';
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: ${({ theme }) => (theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black)};
+  }
 `;
 
 const PosSmesherIcon = styled.img`
@@ -75,6 +85,11 @@ const PosFolderIcon = styled.img`
   width: 20px;
   height: 20px;
   margin-right: 5px;
+`;
+
+const PathDir = styled.span`
+  color: ${smColors.blue};
+  text-decoration: underline;
 `;
 
 const ExplorerIcon = styled.img`
@@ -109,6 +124,7 @@ const Node = ({ history, location }: Props) => {
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
+  const dispatch = useDispatch();
 
   const renderNodeDashboard = () => {
     const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
@@ -117,51 +133,75 @@ const Node = ({ history, location }: Props) => {
         <SubHeader>
           Smesher
           <SmesherId> 0x12344...244AF </SmesherId>
-          <StatusSpan status={status}>{status ? 'ONLINE' : 'OFFLINE'} </StatusSpan>
-          on Network {networkId}.
+          is&nbsp;
+          <StatusSpan status={status}> {status ? 'ONLINE' : ' OFFLINE'} </StatusSpan>
+          &nbsp;on Network {networkId} (Testnet).
         </SubHeader>
         <br />
         <TextWrapper>
-          <PosSmesherIcon src={posSmesher} />
-          <BoldText>Proof of Space Status</BoldText>
-        </TextWrapper>
-        <TextWrapper>
-          <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
           <Text>
-            {posDataPath} with {commitmentSize}GB allocated
+            <PosSmesherIcon src={posSmesher} />
+            <BoldText>Proof of Space Status</BoldText>
           </Text>
         </TextWrapper>
-        <TextWrapper>
-          <Text>Status</Text>
-          <Dots>........................................</Dots>
-          <Text>{isCreatingPoSData ? 'Creating PoS data' : 'Smeshing'}</Text>
-        </TextWrapper>
-        <TextWrapper>
-          <Text>Started creating</Text>
-          <Dots>........................................</Dots>
-          <Text>{smesherInitTimestamp}</Text>
-        </TextWrapper>
-        <TextWrapper>
-          <Text>Progress</Text>
-          <Dots>........................................</Dots>
-          <ProgressBar progress={0.3} />
-          <Text> 30% 150GB / 200GB</Text>
-        </TextWrapper>
+        <LineWrap>
+          <TextWrapper>
+            <Text>
+              <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
+              <PathDir>{posDataPath} </PathDir> - {commitmentSize}GB allocated
+            </Text>
+          </TextWrapper>
+        </LineWrap>
+        <LineWrap>
+          <TextWrapper>
+            <Text>Status</Text>
+            <Text>{isCreatingPoSData ? 'Creating PoS data' : 'Smeshing'}</Text>
+          </TextWrapper>
+        </LineWrap>
+        <LineWrap>
+          <TextWrapper>
+            <Text>Started creating</Text>
+            <Text>{smesherInitTimestamp}</Text>
+          </TextWrapper>
+        </LineWrap>
+        <LineWrap>
+          <TextWrapper>
+            <Text>Progress</Text>
+            <Text>
+              <Text className="progress">150GB / 200GB, 30%</Text>
+              <ProgressBar progress={30} />
+            </Text>
+          </TextWrapper>
+        </LineWrap>
 
         <TextWrapper>
           <Text>{isCreatingPoSData ? 'Estimated finish time' : 'Finished creating'}</Text>
-          <Dots>........................................</Dots>
           <Text>{smesherSmeshingTimestamp}</Text>
         </TextWrapper>
         <Footer>
-          <Button onClick={() => history.push('/main/node-setup', { modifyPostData: true })} text="MODIFY POST DATA" isPrimary={false} style={{ marginRight: 15 }} width={130} />
-          {miningStatus === nodeConsts.IN_SETUP && <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" isPrimary={false} width={200} />}
+          <Button
+            onClick={() => history.push('/main/node-setup', { modifyPostData: true })}
+            img={posDirectoryWhite}
+            text="MODIFY POST DATA"
+            isPrimary={false}
+            style={{ marginRight: 15 }}
+            imgPosition="before"
+            width={180}
+          />
+          {miningStatus === nodeConsts.IN_SETUP && (
+            <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
+          )}
         </Footer>
       </>
     );
   };
 
   const openExplorerLink = (id: string) => eventsService.openExplorerLink({ uri: `smeshers/${id}` });
+
+  const buttonHandler = () => {
+    dispatch(hideSmesherLeftPanel());
+    history.push('/main/node-setup');
+  };
 
   // TODO Need to insert real smesher id
   const renderMainSection = () => {
@@ -174,8 +214,9 @@ const Node = ({ history, location }: Props) => {
             Smesher
             <SmesherId> 0x12344...244AF </SmesherId>
             <ExplorerIcon src={explorer} onClick={() => openExplorerLink('0x12344')} />
-            <StatusSpan status={status}>{status ? 'ONLINE' : 'OFFLINE'} </StatusSpan>
-            on Network {networkId}.
+            &nbsp;is&nbsp;
+            <StatusSpan status={status}>{status ? 'ONLINE ' : 'OFFLINE '} </StatusSpan>
+            &nbsp; on Network {networkId} (Testnet).
           </SubHeader>
           <TextWrapper>
             <PosSmesherIcon src={posSmesher} />
@@ -183,7 +224,7 @@ const Node = ({ history, location }: Props) => {
           </TextWrapper>
           <Text>Proof of Space data is not setup yet</Text>
           <br />
-          <Button onClick={() => history.push('/main/node-setup')} text="SETUP PROOF OF SPACE" width={250} />
+          <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
         </>
       );
     } else if (miningStatus === nodeConsts.MINING_UNSET) {

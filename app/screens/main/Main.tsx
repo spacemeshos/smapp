@@ -40,7 +40,7 @@ const InnerWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   flex: 1;
-  padding: 0 0 30px 30px;
+  padding: 0 0 0 30px;
 `;
 
 const NavBar = styled.div`
@@ -102,6 +102,11 @@ const TooltipWrapper = styled.div`
   &:hover ${CustomTooltip} {
     display: block;
   }
+`;
+
+const EmptySpace = styled.div`
+  width: 100%;
+  margin: 30px;
 `;
 
 type Props = {
@@ -273,7 +278,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          <InfoBanner />
+          {nodeIndicator.hasError ? <InfoBanner /> : <EmptySpace />}
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (

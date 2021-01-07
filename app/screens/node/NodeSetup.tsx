@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   flex-direction: row;
 `;
 
-const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'PROOF OF SPACE PROCESSOR', 'PROOF OF SPACE SETUP'];
+const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'POS PROCESSOR', 'POS SETUP'];
 const subHeaders = [
   '',
   '',
@@ -40,7 +40,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const posDataPath = useSelector((state: RootState) => state.node.posDataPath);
   const commitmentSize = useSelector((state: RootState) => state.node.commitmentSize);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
+  const hideSmesherLeftPanel = useSelector((state: RootState) => state.ui.hideSmesherLeftPanel);
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
   const [folder, setFolder] = useState(posDataPath || '');
   const [freeSpace, setFreeSpace] = useState(0);
@@ -90,6 +90,7 @@ const NodeSetup = ({ history, location }: Props) => {
             setFreeSpace={setFreeSpace}
             status={status}
             isDarkMode={isDarkMode}
+            skipAction={() => history.push('/main/wallet')}
           />
         );
       case 2:
@@ -135,8 +136,8 @@ const NodeSetup = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
+      {!hideSmesherLeftPanel && <StepsContainer steps={['SETUP WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />}
+      <CorneredContainer isDarkMode={isDarkMode} width={!hideSmesherLeftPanel ? 650 : 760} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {hasBackButton && <BackButton action={handlePrevAction} />}
         {renderRightSection()}

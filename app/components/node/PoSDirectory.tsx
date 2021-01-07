@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: 1px solid ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 5% 100%, 0% 85%);
 `;
 
@@ -75,9 +75,10 @@ type Props = {
   commitmentSize: number;
   status: Status | null;
   isDarkMode: boolean;
+  skipAction: () => void;
 };
 
-const PoSDirectory = ({ nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
+const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
@@ -107,7 +108,7 @@ const PoSDirectory = ({ nextAction, folder, setFolder, freeSpace, setFreeSpace, 
           {freeSpace ? `${freeSpace} GB` : 'UNDESIGNATED'}
         </FreeSpace>
       </Wrapper>
-      <PoSFooter action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
+      <PoSFooter skipAction={skipAction} action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
     </>
   );
 };

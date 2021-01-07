@@ -46,7 +46,7 @@ const BackupImage = styled.img`
 const BackupText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.orange};
+  color: ${smColors.darkOrange};
   cursor: inherit;
 `;
 
@@ -75,10 +75,14 @@ const Wallet = ({ history }: RouteComponentProps) => {
     history.push('/main/backup');
   };
 
+  const navigateToVault = () => {
+    history.push('/main/wallet/vault');
+  };
+
   return (
     <Wrapper>
       <LeftSection>
-        <AccountsOverview />
+        <AccountsOverview navigateToVault={navigateToVault} />
         {!backupTime && (
           <BackupReminder onClick={navigateToBackup}>
             <FullCrossIcon src={icon} />
