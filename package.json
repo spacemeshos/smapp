@@ -15,11 +15,11 @@
     "build-main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js --colors",
     "build-renderer": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.renderer.prod.babel.js --colors",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx --format=pretty",
-    "package-all": "npm run build && node ./scripts/packagerScript.js --target mwl",
-    "package-mac": "npm run build && node ./scripts/packagerScript.js --target mac",
-    "package-win": "npm run build && node ./scripts/packagerScript.js --target windows",
-    "package-linux": "npm run build && node ./scripts/packagerScript.js --target linux",
-    "package-ci": "npm run build && node ./scripts/packagerScript.js --target mwl --publish always",
+    "package-all": "yarn build && node ./scripts/packagerScript.js --target mwl",
+    "package-mac": "yarn build && node ./scripts/packagerScript.js --target mac",
+    "package-win": "yarn build && node ./scripts/packagerScript.js --target windows",
+    "package-linux": "yarn build && node ./scripts/packagerScript.js --target linux",
+    "package-ci": "yarn build && node ./scripts/packagerScript.js --target mwl --publish always",
     "postinstall": "electron-builder install-app-deps && yarn build-dll",
     "prestart": "yarn build",
     "start": "cross-env START_HOT=1 node -r @babel/register ./configs/checkPortInUse.js && cross-env START_HOT=1 yarn start-renderer-dev",
@@ -36,6 +36,7 @@
   "bugs": {
     "url": "https://github.com/spacemeshos/smapp/issues"
   },
+  "main": "./desktop/main.prod.js",
   "keywords": [
     "Apps",
     "Seed",

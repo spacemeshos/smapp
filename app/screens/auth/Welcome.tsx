@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer } from '../../components/common';
-import { Button, Link } from '../../basicComponents';
-import { bigInnerSideBar, laptop, power, setup, laptopWhite, powerWhite, setupWhite } from '../../assets/images';
+import { Button, Link, Tooltip } from '../../basicComponents';
+import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
@@ -12,9 +12,9 @@ import { eventsService } from '../../infra/eventsService';
 const SideBar = styled.img`
   position: absolute;
   bottom: 0px;
-  right: -30px;
-  width: 15px;
-  height: 55px;
+  right: -40px;
+  width: 25px;
+  height: 140px;
 `;
 
 const Indicator = styled.div`
@@ -30,7 +30,6 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 15px;
 `;
 
 const Icon = styled.img`
@@ -57,25 +56,44 @@ const BottomPart = styled.div`
 const ComplexLink = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   position: relative;
 `;
 
-const Text = styled.span`
-  font-size: 14px;
-  line-height: 17px;
-  color: ${smColors.disabledGray};
+const LinkText = styled.span`
+  color: ${smColors.blue};
+  text-decoration: underline;
   margin-right: 15px;
+  cursor: pointer;
+  &:hover {
+    color: ${smColors.darkerBlue};
+  }
+`;
+
+const GreenText = styled.span`
+  color: ${smColors.green};
+  margin-left: 15px;
+`;
+
+const LearnMoreText = styled.div`
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  margin-top: 20px;
+`;
+
+const ButtonMargin = styled.div`
+  margin-left: 30px;
 `;
 
 const subHeader = (
   <RowText>
-    <span>Thank you for downloading the Spacemesh App.</span>
-    <br />
-    <br />
-    <span>This App lets you you join the Spacemesh decentralized Testnet,</span>
-    <br />
-    <span>use free disk space to earn Smesh, and make Smesh transactions using a built-in wallet.</span>
+    <span>
+      Thank you for installing the Spacemesh App for
+      <GreenText>TweedleDee Testnet 0.1.0</GreenText>
+      <br />
+      <br />
+      <span>Use this app to:</span>
+      <br />
+    </span>
   </RowText>
 );
 
@@ -84,26 +102,26 @@ const Welcome = ({ history }: RouteComponentProps) => {
 
   const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 
-  const laptopImg = isDarkMode ? laptopWhite : laptop;
-  const powerImg = isDarkMode ? powerWhite : power;
-  const setupImg = isDarkMode ? setupWhite : setup;
-
   return (
     <CorneredContainer width={760} height={400} header="WELCOME" subHeader={subHeader} isDarkMode={isDarkMode}>
       <SideBar src={bigInnerSideBar} />
       <Indicator />
       <Row>
-        <Icon src={laptopImg} />
-        <RowText>Use a desktop computer, not a laptop.</RowText>
+        <Icon src={walletSecond} />
+        <RowText>Set up a wallet,</RowText>
       </Row>
       <Row>
-        <Icon src={powerImg} />
-        <RowText>Leave your desktop computer on 24/7.</RowText>
+        <Icon src={networkPink} />
+        <RowText>join a network,</RowText>
       </Row>
       <Row>
-        <Icon src={setupImg} />
-        <RowText>You should start earning Smesh rewards in about 48 hours.</RowText>
+        <Icon src={posSmesher} />
+        <RowText>smesh and more</RowText>
       </Row>
+      <LearnMoreText>
+        <LinkText onClick={navigateToSetupGuide}>click here</LinkText>
+        to learn more.
+      </LearnMoreText>
       <BottomPart>
         <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
         {
@@ -121,10 +139,12 @@ const Welcome = ({ history }: RouteComponentProps) => {
           // </ComplexLink>
         }
         <ComplexLink>
-          <Text>GOT A WALLET?</Text>
-          <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />
+          <Link onClick={() => history.push('/auth/restore')} text="RESTORE AN EXISTING WALLET" />
+          <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
+          <ButtonMargin>
+            <Button text="SETUP" onClick={() => history.push('/auth/new-wallet', { withoutNode: false })} />
+          </ButtonMargin>
         </ComplexLink>
-        <Button text="SETUP" onClick={() => history.push('/auth/create', { withoutNode: false })} />
       </BottomPart>
     </CorneredContainer>
   );

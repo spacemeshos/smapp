@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray, posGpu, posGpuActive, posCpu, posCpuActive } from '../../assets/images';
+import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray, posGpuGrey, posGpuActive, posCpuGrey, posCpuActive } from '../../assets/images';
 import { smColors } from '../../vars';
 
 const SLIDE_WIDTH = 170;
@@ -57,10 +57,10 @@ const SlideUpperPart = styled.div<{ isSelected: boolean }>`
   width: 165px;
   height: 165px;
   padding: 10px 15px 20px;
-  background-color: ${({ isSelected }) => (isSelected ? smColors.realBlack : smColors.darkGray)};
+  background-color: ${({ isSelected }) => (isSelected ? smColors.white : smColors.mediumGraySecond)};
   cursor: inherit;
   &:hover {
-    background-color: ${smColors.realBlack};
+    background-color: ${smColors.white};
   }
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
 `;
@@ -74,7 +74,7 @@ const SlideMiddlePart = styled.div`
   right: 6px;
   width: 163px;
   height: 163px;
-  background-color: ${smColors.white};
+  background-color: ${smColors.realBlack};
   cursor: inherit;
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
 `;
@@ -88,10 +88,10 @@ const SlideLowerPart = styled.div<{ isSelected: boolean }>`
   right: 5px;
   width: 165px;
   height: 165px;
-  background-color: ${({ isSelected }) => (isSelected ? smColors.realBlack : smColors.darkGray)};
+  background-color: ${({ isSelected }) => (isSelected ? smColors.white : smColors.white)};
   cursor: inherit;
   &:hover {
-    background-color: ${smColors.realBlack};
+    background-color: ${smColors.white};
   }
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
 `;
@@ -105,7 +105,7 @@ const SlideWrapper = styled.div`
   &:active ${SlideUpperPart} {
     transform: translate3d(-5px, 5px, 0);
     transition: transform 0.2s cubic-bezier;
-    background-color: ${smColors.black};
+    background-color: ${smColors.mediumGraySecond};
   }
   &:active ${SlideLowerPart} {
     background-color: ${smColors.black};
@@ -125,7 +125,7 @@ const Text = styled.div`
   margin-bottom: 5px;
   font-size: 13px;
   line-height: 15px;
-  color: ${smColors.white};
+  color: ${smColors.darkerGray};
   cursor: inherit;
   text-transform: uppercase;
 `;
@@ -191,7 +191,11 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
                   <Text>~{element.estimation}</Text>
                   <Text>TO SAVE DATA</Text>
                 </TextWrapper>
-                {element.isGPU ? <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} /> : <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
+                {element.isGPU ? (
+                  <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />
+                ) : (
+                  <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />
+                )}
               </SlideUpperPart>
               <SlideMiddlePart />
               <SlideLowerPart isSelected={selectedItemIndex === index} />

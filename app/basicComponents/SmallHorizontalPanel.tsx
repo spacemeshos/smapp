@@ -8,12 +8,13 @@ const Wrapper = styled.img`
   right: 0px;
   width: 60px;
   height: 15px;
+  transform: ${({ reflection }) => (reflection ? `scale(-1, 1)` : `none`)};
 `;
 
 type Props = {
   isDarkMode: boolean;
 };
 
-const SmallHorizontalPanel = ({ isDarkMode }: Props) => <Wrapper src={isDarkMode ? horizontalPanelWhite : horizontalPanelBlack} />;
+const SmallHorizontalPanel = ({ isDarkMode }: Props) => <Wrapper reflection={isDarkMode} src={isDarkMode ? horizontalPanelBlack : horizontalPanelWhite} />;
 
 export default SmallHorizontalPanel;

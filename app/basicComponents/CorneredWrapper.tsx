@@ -13,37 +13,36 @@ import {
 
 const Wrapper = styled.div`
   position: relative;
-  margin: 8px;
 `;
 
 const TopLeftCorner = styled.img`
   position: absolute;
-  top: -8px;
-  left: -8px;
+  top: -10px;
+  left: -10px;
   width: 8px;
   height: 8px;
 `;
 
 const TopRightCorner = styled.img`
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: -10px;
+  right: -10px;
   width: 8px;
   height: 8px;
 `;
 
 const BottomLeftCorner = styled.img`
   position: absolute;
-  bottom: -8px;
-  left: -8px;
+  bottom: -10px;
+  left: -10px;
   width: 8px;
   height: 8px;
 `;
 
 const BottomRightCorner = styled.img`
   position: absolute;
-  bottom: -8px;
-  right: -8px;
+  bottom: -10px;
+  right: -10px;
   width: 8px;
   height: 8px;
 `;
