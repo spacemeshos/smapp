@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -87,15 +87,16 @@ const CreateWallet = ({ history, location }: Props) => {
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
   const miningStatus = useSelector((state: RootState) => state.node.miningStatus);
+  const walletName = useSelector((state: RootState) => state.wallet.meta);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
   const renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
-      <SubHeader>Enter a new wallet password. It must be at least 8 characters.</SubHeader>
+      <SubHeader>Protect your wallet with a password. You will need it to access latter</SubHeader>
     ) : (
       <SubHeader>
-        For future reference, a wallet restore file was created.
+        Your wallet was created and saved in a password-protected file
         <br />
         <br />
         <Link onClick={() => eventsService.showFileInFolder({})} text="Browse file location" />
@@ -120,11 +121,14 @@ const CreateWallet = ({ history, location }: Props) => {
       setIsLoaderVisible(true);
       await setTimeout(async () => {
         dispatch(await createNewWallet({ existingMnemonic: location?.state?.mnemonic, password }));
-        setIsLoaderVisible(false);
         setSubMode(2);
       }, 500);
     }
   };
+
+  useEffect(() => {
+    setIsLoaderVisible(false);
+  }, [walletName]);
 
   const handleEnterPress = () => {
     if (validate()) {
@@ -165,7 +169,7 @@ const CreateWallet = ({ history, location }: Props) => {
       </LoaderWrapper>
     );
   }
-  const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
+  const header = subMode === 1 ? 'SET NEW WALLET PASSWORD' : `${walletName.displayName} CREATED`;
   const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
   return (
     <Wrapper>

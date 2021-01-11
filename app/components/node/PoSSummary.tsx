@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { Status } from '../../types';
+import { Tooltip } from '../../basicComponents';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -28,6 +29,10 @@ const Row = styled.div`
   }
 `;
 
+const TooltipWrap = styled.div`
+  display: flex;
+`;
+
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
@@ -45,6 +50,13 @@ const Link = styled.div`
   &:hover {
     color: ${smColors.blue};
   }
+  &.blue {
+    text-decoration: underline;
+    color: ${smColors.blue};
+    &:hover {
+      color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+    }
+  }
 `;
 
 type Props = {
@@ -55,9 +67,10 @@ type Props = {
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
   status: Status | null;
+  isDarkMode: boolean;
 };
 
-const PoSSummary = ({ folder, commitment, processor, isPausedOnUsage, nextAction, switchMode, status }: Props) => {
+const PoSSummary = ({ folder, commitment, isDarkMode, processor, isPausedOnUsage, nextAction, switchMode, status }: Props) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleNextAction = () => {
@@ -69,7 +82,9 @@ const PoSSummary = ({ folder, commitment, processor, isPausedOnUsage, nextAction
     <>
       <Row>
         <Text>data directory</Text>
-        <Link onClick={() => switchMode({ mode: 1 })}>{folder}</Link>
+        <Link className="blue" onClick={() => switchMode({ mode: 1 })}>
+          {folder}
+        </Link>
       </Row>
       <Row>
         <Text>data size</Text>
@@ -80,7 +95,10 @@ const PoSSummary = ({ folder, commitment, processor, isPausedOnUsage, nextAction
         <Link onClick={() => switchMode({ mode: 3 })}>{`${processor.company} ${processor.type}`}</Link>
       </Row>
       <Row>
-        <Text>estimated time</Text>
+        <TooltipWrap>
+          <Text>estimated setup time</Text>
+          <Tooltip width={100} text="Placeholder text" isDarkMode={isDarkMode} />
+        </TooltipWrap>
         <Link onClick={() => switchMode({ mode: 3 })}>{processor.estimation}</Link>
       </Row>
       <Row>

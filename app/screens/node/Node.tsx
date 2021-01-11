@@ -61,6 +61,16 @@ const TextWrapper = styled.div`
   justify-content: space-between;
   width: 100%;
 `;
+
+const TextWrapperFirst = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 15px;
+  justify-content: flex-start;
+  width: 100%;
+`;
+
 const LineWrap = styled.div`
   position: relative;
   width: 100%;
@@ -218,10 +228,10 @@ const Node = ({ history, location }: Props) => {
             <StatusSpan status={status}>{status ? 'ONLINE ' : 'OFFLINE '} </StatusSpan>
             &nbsp; on Network {networkId} (Testnet).
           </SubHeader>
-          <TextWrapper>
+          <TextWrapperFirst>
             <PosSmesherIcon src={posSmesher} />
             <BoldText>Proof of Space Status</BoldText>
-          </TextWrapper>
+          </TextWrapperFirst>
           <Text>Proof of Space data is not setup yet</Text>
           <br />
           <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
