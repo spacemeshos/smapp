@@ -96,12 +96,6 @@ class EventsService {
   static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SIGN_MESSAGE, { message, accountIndex });
 
   static isServiceReady = () => ipcRenderer.invoke(ipcConsts.IS_SERVICE_READY);
-
-  /** ************************************** CLOSING APP ************************************** */
-
-  static closeApp = (cb) => ipcRenderer.on(ipcConsts.CLOSING_APP, cb);
-
-  static removeAllListeners = () => ipcRenderer.removeAllListeners(ipcConsts.CLOSING_APP);
 }
 
 export default EventsService;
