@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Spacemesh</title>
+</head>
+<style>
+    @font-face {
+        font-family: SourceCodePro;
+        src: url(../app/assets/fonts/SourceCodePro-Regular.ttf);
+    }
+    .header {
+        font-family: SourceCodePro, sans-serif;
+        font-size: 32px;
+        line-height: 40px;
+        text-align: center;
+    }
+    .animationImg {
+        display: block;
+        margin: 0 auto;
+        height: 400px;
+        width: 400px;
+    }
+
+</style>
+<body>
+<div class="wrap" id="root">
+    <h2 id="header" class="header">Shutting down, please wait...</h2>
+    <img id="img" class="animationImg" src="../app/assets/images/loader.gif" alt="Spacemesh">
+</div>
+<script>
+  if (typeof process === 'object') {
+    const scripts = [];
+
+    if (process.env.NODE_ENV === 'development') {
+      // Dynamically insert the DLL script in development env in the
+      // renderer process
+      scripts.push('../dll/renderer.dev.dll.js');
+    }
+    if (process.env.START_HOT) {
+      // Dynamically insert the bundled app script in the renderer process
+      const port = process.env.PORT || 1212;
+      scripts.push(`http://localhost:${port}/dist/renderer.dev.js`);
+    } else {
+      scripts.push('./dist/renderer.prod.js');
+    }
+
+    if (scripts.length) {
+      document.write(
+        scripts
+          .map(script => `<script defer src="${script}"><\/script>`)
+          .join('')
+      );
+    }
+  }
+
+</script>
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const isDarkMode = JSON.parse(urlParams.get('darkMode'));
+
+  window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("img").src = isDarkMode ? "../app/assets/images/loader_white.gif" : "../app/assets/images/loader.gif";
+    document.getElementById("header").style.color = isDarkMode ? '#fff' : '#000';
+  });
+</script>
+</body>
+</html>
