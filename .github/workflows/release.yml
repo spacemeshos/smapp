@@ -82,23 +82,23 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
           
-      # - if: matrix.os == 'macos-latest'
-      #   name: upload macos build
-      #   uses: google-github-actions/upload-cloud-storage@main
-      #   with:
-      #     path: ./smapp.app
-      #     destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}/macos.app
+      - if: matrix.os == 'macos-latest'
+        name: upload macos build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.current-version }}.dmg
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}
 
-      # - if: matrix.os == 'windows-latest'
-      #   name: upload windows build
-      #   uses: google-github-actions/upload-cloud-storage@main
-      #   with:
-      #     path: release/win-unpacked
-      #     destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}/windows
+      - if: matrix.os == 'windows-latest'
+        name: upload windows build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.current-version }}.exe
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}
       
       - if: matrix.os == 'ubuntu-latest'
         name: upload linux build
         uses: google-github-actions/upload-cloud-storage@main
         with:
           path: ./release/spacemesh_app_${{ steps.package-version.outputs.current-version }}_amd64.deb
-          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.package-version.outputs.current-version }}/ubuntu.deb
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.package-version.outputs.current-version }}
