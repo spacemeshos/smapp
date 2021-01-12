@@ -117,6 +117,9 @@ jobs:
     steps:
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
+      - name: get-smapp-version
+        id: package-version
+        uses: tyankatsu0105/read-package-version-actions@v1
       - name: Create Release
         uses: actions/create-release@v1
         env:
