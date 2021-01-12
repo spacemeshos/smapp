@@ -126,7 +126,7 @@ jobs:
           release_name: Release ${{ steps.tagName.outputs.tag }}
           body: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
+            - Windows: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh%20Setup%20${{ steps.package-version.outputs.version }}.exe
             - Linux: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
             - Mac: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
           draft: true
