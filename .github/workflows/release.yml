@@ -78,9 +78,16 @@ jobs:
           APPLEID: ${{ secrets.APPLE_ID }}
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
           
-      # - if: matrix.os == 'macos-latest'
-      #   name: upload macos build
-      #   uses: google-github-actions/upload-cloud-storage@main
-      #   with:
-      #     path: ./smapp.app
-      #     destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}/macos.app
+      - if: matrix.os == 'macos-latest'
+        name: upload macos build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./smapp.app
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}/macos.app
+
+      - if: matrix.os == 'windows-latest'
+        name: upload macos build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: release/win-unpacked
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.latestNode.outputs.release }}/windows
