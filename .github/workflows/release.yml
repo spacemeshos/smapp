@@ -115,6 +115,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-upload
     steps:
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
       - name: Create Release
         uses: actions/create-release@v1
         env:
