@@ -6,18 +6,18 @@ name: Publish Release
 #       - master
 #   workflow_dispatch:
 
-on:
-  push:
-    branches-ignore:
-      - 'master'
-    tags-ignore:
-      - v0.*
-  workflow_dispatch:
-
-# on:  
+# on:
 #   push:
-#     tags:
-#       - '*'
+#     branches-ignore:
+#       - 'master'
+#     tags-ignore:
+#       - v0.*
+#   workflow_dispatch:
+
+on:  
+  push:
+    tags:
+      - '*'
 
 jobs:
   build-and-upload:
