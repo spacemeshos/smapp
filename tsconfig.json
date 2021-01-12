@@ -29,7 +29,7 @@
     "release",
     "desktop/main.prod.js",
     "desktop/renderer.prod.js",
-    "desktop/dist",
+    "dist",
     "dll",
     "configs",
     "node",

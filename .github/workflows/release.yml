@@ -1,18 +1,31 @@
 name: Publish Release
 
-on:
+# on:
+#   push:
+#     branches:
+#       - master
+#   workflow_dispatch:
+
+# on:
+#   push:
+#     branches-ignore:
+#       - 'master'
+#     tags-ignore:
+#       - v0.*
+#   workflow_dispatch:
+
+on:  
   push:
-    branches:
-      - master
-  workflow_dispatch:
+    tags:
+      - '*'
 
 jobs:
-  release:
+  build-and-upload:
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
       - id: latestNode
@@ -23,6 +36,9 @@ jobs:
       - name: echo latest node repo
         run: |
           echo ${{ steps.latestNode.outputs.release }}
+
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
 
       - name: Check out Git repository
         uses: actions/checkout@v2
@@ -41,21 +57,26 @@ jobs:
         run: |
           yarn lint
           yarn build-dll
-
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
       - if: matrix.os == 'ubuntu-latest'
-        name: download linux node binary
+        name: build linux app
         run: |
           curl --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-linux
           yarn package-linux
 
       - if: matrix.os == 'windows-latest'
-        name: download windows node binary
+        name: build windows app
         run: |
           curl --output ./node/windows/go-spacemesh.exe --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh.exe
           yarn package-win
 
       - if: matrix.os == 'macos-latest'
-        name: download macos node binary
+        name: build mac app
         run: |
           curl --output ./node/mac/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-osx
           yarn package-mac
@@ -64,3 +85,52 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+
+      - name: get-smapp-version
+        id: package-version
+        uses: tyankatsu0105/read-package-version-actions@v1
+          
+      - if: matrix.os == 'macos-latest'
+        name: upload macos build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}
+
+      - if: matrix.os == 'windows-latest'
+        name: upload windows build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}
+      
+      - if: matrix.os == 'ubuntu-latest'
+        name: upload linux build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}
+  
+  release:
+    runs-on: ubuntu-latest
+    needs: build-and-upload
+    steps:
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
+      - name: get-smapp-version
+        id: package-version
+        uses: tyankatsu0105/read-package-version-actions@v1
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.tagName.outputs.tag }}
+          body: |
+            ## Compiled Binaries
+            - Windows: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh%20Setup%20${{ steps.package-version.outputs.version }}.exe
+            - Linux: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+            - Mac: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
+          draft: true
+          prerelease: true
