@@ -113,7 +113,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 3,
       header: 'DAILY SPENDING',
       subHeader: 'Select vault’s type from one of the options below.',
-      component: <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />,
+      component: <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} accountsOption={accountsOption} isDarkMode={isDarkMode} />,
       nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
       finishButton: <Link onClick={handleModeUp} text="SKIP" />
     },
@@ -180,7 +180,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 3,
       header: 'DAILY SPENDING',
       subHeader: 'Select vault’s type from one of the options below.',
-      component: <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />,
+      component: <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} accountsOption={accountsOption} isDarkMode={isDarkMode} />,
       nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
       finishButton: <Link onClick={handleModeUp} text="SKIP" />
     },
@@ -250,7 +250,7 @@ const Vault = ({ history }: RouteComponentProps) => {
   return (
     <WrapperVault>
       <CorneredContainer
-        width={650}
+        width={700}
         height={412}
         header={Steps.get(type)[vaultMode].header}
         headerIcon={vault}
