@@ -99,13 +99,13 @@ const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, se
       <Wrapper>
         <HeaderWrapper>
           <HeaderIcon src={icon} />
-          <Header>PoS data folder directory:</Header>
+          <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
-        <Link onClick={openFolderSelectionDialog} text={folder || 'CLICK TO SELECT'} style={linkStyle} />
+        <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
         <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
-        <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>
+        {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
-          {freeSpace ? `${freeSpace} GB` : 'UNDESIGNATED'}
+          {freeSpace ? `${freeSpace} GB` : ''}
         </FreeSpace>
       </Wrapper>
       <PoSFooter skipAction={skipAction} action={nextAction} isDisabled={!folder || hasPermissionError || !status} />

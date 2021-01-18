@@ -98,6 +98,9 @@ const NodeSetup = ({ history, location }: Props) => {
           <PoSSize
             nextAction={handleNextAction}
             folder={folder}
+            commitmentSize={formattedCommitmentSize}
+            setFolder={setFolder}
+            setFreeSpace={setFreeSpace}
             freeSpace={freeSpace}
             commitment={commitment}
             setCommitment={setCommitment}
@@ -123,6 +126,7 @@ const NodeSetup = ({ history, location }: Props) => {
             folder={folder}
             commitment={commitment}
             processor={processor}
+            isDarkMode={isDarkMode}
             isPausedOnUsage={isPausedOnUsage}
             nextAction={handleNextAction}
             switchMode={({ mode }) => setMode(mode)}

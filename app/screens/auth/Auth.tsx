@@ -27,6 +27,19 @@ const RightDecoration = styled.img`
   margin-right: -1px;
 `;
 
+const SetupSpan = styled.span`
+  color: #a14736;
+  text-transform: uppercase;
+  top: 17px;
+  left: 145px;
+  right: 0;
+  position: absolute;
+  width: 130px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 15px;
+`;
+
 const InnerWrapper = styled.div`
   display: flex;
   flex: 1;
@@ -52,10 +65,12 @@ class Auth extends Component<Props> {
   getMiningStatusInterval: ReturnType<typeof setInterval> | null = null; // eslint-disable-line react/sort-comp
 
   render() {
-    const { isDarkMode } = this.props;
+    const { isDarkMode, location } = this.props;
+    const isWelcomeScreen = location.pathname.includes('/auth/welcome');
     return (
       <Wrapper>
         <Logo isDarkMode={isDarkMode} />
+        {isWelcomeScreen && <SetupSpan>Setup</SetupSpan>}
         <InnerWrapper>
           <Switch>
             {routes.auth.map((route) => (

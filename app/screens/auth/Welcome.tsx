@@ -103,7 +103,7 @@ const Welcome = ({ history }: RouteComponentProps) => {
   const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 
   return (
-    <CorneredContainer width={760} height={400} header="WELCOME" subHeader={subHeader} isDarkMode={isDarkMode}>
+    <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" subHeader={subHeader} isDarkMode={isDarkMode}>
       <SideBar src={bigInnerSideBar} />
       <Indicator />
       <Row>
