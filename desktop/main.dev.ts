@@ -74,12 +74,10 @@ const handleClosingApp = async () => {
       mainWindow.hide();
       mainWindow.reload();
     } else if (response === 1) {
-      mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-      await nodeManager.stopNode({ browserWindow: mainWindow });
+      await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
     }
   } else {
-    mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-    await nodeManager.stopNode({ browserWindow: mainWindow });
+    await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
   }
 };
 
