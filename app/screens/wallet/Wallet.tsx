@@ -1,14 +1,16 @@
 import React from 'react';
 import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import routes from '../../routes';
 import { AccountsOverview } from '../../components/wallet';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
-import { CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
+import { SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { backup, leftSideTIcon, leftSideTIconWhite } from '../../assets/images';
 import { RootState } from '../../types';
+import { BackButton } from '../../components/common';
+import { setCurrentMode } from '../../redux/wallet/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,9 +67,11 @@ const RightSection = styled.div`
   height: 100%;
 `;
 
-const Wallet = ({ history }: RouteComponentProps) => {
+const Wallet = ({ history, location }: RouteComponentProps) => {
   const backupTime = useSelector((state: RootState) => state.wallet.backupTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
+  const dispatch = useDispatch();
 
   const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
 
@@ -76,12 +80,20 @@ const Wallet = ({ history }: RouteComponentProps) => {
   };
 
   const navigateToVault = () => {
+    dispatch(setCurrentMode({ mode: 0 }));
     history.push('/main/wallet/vault');
   };
 
+  const handleModeBack = () => {
+    if (vaultMode === 0) history.goBack();
+    else dispatch(setCurrentMode({ mode: vaultMode - 1 }));
+  };
+
+  const hasBackButton = location.pathname.includes('vault');
   return (
     <Wrapper>
       <LeftSection>
+        {hasBackButton && <BackButton action={handleModeBack} />}
         <AccountsOverview navigateToVault={navigateToVault} />
         {!backupTime && (
           <BackupReminder onClick={navigateToBackup}>
@@ -91,7 +103,7 @@ const Wallet = ({ history }: RouteComponentProps) => {
           </BackupReminder>
         )}
       </LeftSection>
-      <CorneredWrapper isDarkMode={isDarkMode}>
+      <Wrapper>
         <RightSection>
           <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <Switch>
@@ -101,7 +113,7 @@ const Wallet = ({ history }: RouteComponentProps) => {
             <Redirect to="/main/wallet/overview" />
           </Switch>
         </RightSection>
-      </CorneredWrapper>
+      </Wrapper>
     </Wrapper>
   );
 };

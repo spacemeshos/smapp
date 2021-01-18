@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { NewVault, VaultType, VaultMasterAccount, VaultMasterAccounts, DailySpending, VaultTx, ReviewNewVault, VaultFinish } from '../../components/vault';
 import { CorneredContainer } from '../../components/common';
 import { vault } from '../../assets/images';
 import { Link, Button } from '../../basicComponents';
-import { RootState } from '../../types';
+import { Account, RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
+import { setCurrentMode } from '../../redux/wallet/actions';
+import { formatSmidge } from '../../infra/utils';
 
 const Footer = styled.div`
   display: flex;
@@ -16,34 +19,45 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
-const headers = [
-  'NEW VAULT',
-  'VAULT TYPE',
-  'VAULT MASTER ACCOUNT',
-  'VAULT MASTER ACCOUNTS',
-  'DAILY SPENDING',
-  'CREATE VAULT TRANSACTION',
-  'REVIEW NEW VAULT',
-  'NEW VAULT SUBMITTED!'
-];
-const subHeader = [
-  'A vault is an enhanced account with extra security and spending features.',
-  'Select vault’s type from one of the options below.',
-  'The master account is the account that will be used to perform vault operations such as withdrawing funds.',
-  'Set your vault’s 3 master addresses. Approval of 2 out of 3 address’ owners is needed to use this vault.',
-  'You can set a daily spending limit which only requires one account to withdraw up to a daily spending limit from your vault.',
-  'Select a wallet’s account to execute the create vault transaction and set an amount to transfer from the account to the new vault.',
-  'Review your new vault information.',
-  ''
-];
+const WrapperVault = styled.div`
+  & > div {
+    height: auto;
+    min-height: 100%;
+    &::-webkit-scrollbar {
+      width: 0;
+    }
+  }
+`;
 
-const Vault = () => {
-  const [mode, setMode] = useState(0);
-  const [name, setName] = useState('');
+const WrapperLink = styled.div`
+  display: flex;
+  align-items: flex-end;
+  & > div:first-child {
+    margin-right: 10px;
+  }
+`;
+
+const Vault = ({ history }: RouteComponentProps) => {
+  const [name, setName] = useState('My Vault');
   const [type, setType] = useState('single');
+  const [accountsOption, setAccountsOption] = useState<Array<any>>([]);
   const [masterAccountIndex, setMasterAccountIndex] = useState(0);
-
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
+  const accounts: Account[] = useSelector((state: RootState) => state.wallet.accounts);
+
+  const dispatch = useDispatch();
+
+  const createOptionArray = () => {
+    const objOption = accounts.map((elem, index: number) => ({
+      account: index,
+      label: elem.displayName,
+      text: formatSmidge(elem.balance)
+    }));
+    setAccountsOption(objOption);
+  };
+
+  useEffect(() => createOptionArray(), []);
 
   const handleChangeVaultName = ({ value }: { value: string }) => {
     setName(value);
@@ -53,47 +67,179 @@ const Vault = () => {
     setType(value);
   };
 
-  const handleNext = () => {
-    setMode(mode + 1);
+  const saveAndFinish = () => {
+    dispatch(setCurrentMode({ mode: 0 }));
+  };
+
+  const handleModeUp = () => {
+    dispatch(setCurrentMode({ mode: vaultMode + 1 }));
   };
 
   const selectAccountIndex = ({ index }: { index: number }) => {
     setMasterAccountIndex(index);
   };
 
+  const navigateToVaultSetup = () => eventsService.openExternalLink({ link: 'https://product.spacemesh.io/#/smapp_vaults' });
+
+  const Steps = new Map();
+
+  // Each step has different configuration depending on the type
+  Steps.set('single', [
+    {
+      step: 0,
+      header: 'NEW VAULT',
+      subHeader: 'A vault is an enhanced account with extra security and spending features.',
+      component: <NewVault vaultName={name} onChangeVaultName={handleChangeVaultName} isDarkMode={isDarkMode} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    },
+    {
+      step: 1,
+      header: 'VAULT TYPE',
+      subHeader: 'Select vault’s type from one of the options below.',
+      component: <VaultType handleChangeType={handleChangeType} type={type} isDarkMode={isDarkMode} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    },
+    {
+      step: 2,
+      header: 'VAULT MASTER ACCOUNT',
+      subHeader: 'The master account is the account that will be used to perform vault operations such as withdrawing funds.',
+      component: <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} accountsOption={accountsOption} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    },
+    {
+      step: 3,
+      header: 'DAILY SPENDING',
+      subHeader: 'Select vault’s type from one of the options below.',
+      component: <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Link onClick={handleModeUp} text="SKIP" />
+    },
+    {
+      step: 4,
+      header: 'CREATE VAULT TRANSACTION',
+      subHeader: 'Select a wallet’s account to execute the create vault transaction and set an amount to transfer from the account to the new vault.',
+      component: (
+        <VaultTx
+          selectAccountIndex={selectAccountIndex}
+          selectFundAmount={selectAccountIndex}
+          selectGasPrice={selectAccountIndex}
+          selectGasUnits={selectAccountIndex}
+          isDarkMode={isDarkMode}
+        />
+      ),
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Link onClick={saveAndFinish} text="SAVE AND FINISH LATER" />
+    },
+    {
+      step: 5,
+      header: 'REVIEW NEW VAULT',
+      subHeader: 'Review your new vault information.',
+      component: <ReviewNewVault isDarkMode={isDarkMode} />,
+      nextButton: <Button text="CREATE VAULT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Button text="CANCEL" onClick={history.goBack} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} isPrimary={false} />
+    },
+    {
+      step: 6,
+      header: 'NEW VAULT SUBMITTED!',
+      subHeader: '',
+      component: <VaultFinish isDarkMode={isDarkMode} />,
+      nextButton: <Button text="DONE" onClick={history.goBack} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    }
+  ]);
+
+  Steps.set('multi-sig', [
+    {
+      step: 0,
+      header: 'NEW VAULT',
+      subHeader: 'A vault is an enhanced account with extra security and spending features.',
+      component: <NewVault vaultName={name} onChangeVaultName={handleChangeVaultName} isDarkMode={isDarkMode} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    },
+    {
+      step: 1,
+      header: 'VAULT TYPE',
+      subHeader: 'Select vault’s type from one of the options below.',
+      component: <VaultType handleChangeType={handleChangeType} type={type} isDarkMode={isDarkMode} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    },
+    {
+      step: 2,
+      header: 'VAULT MASTER ACCOUNT',
+      subHeader: 'The master account is the account that will be used to perform vault operations such as withdrawing funds.',
+      component: <VaultMasterAccounts masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} accountsOption={accountsOption} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Link onClick={saveAndFinish} text="SAVE AND FINISH LATER" />
+    },
+    {
+      step: 3,
+      header: 'DAILY SPENDING',
+      subHeader: 'Select vault’s type from one of the options below.',
+      component: <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />,
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Link onClick={handleModeUp} text="SKIP" />
+    },
+    {
+      step: 4,
+      header: 'CREATE VAULT TRANSACTION',
+      subHeader: 'Select a wallet’s account to execute the create vault transaction and set an amount to transfer from the account to the new vault.',
+      component: (
+        <VaultTx
+          selectAccountIndex={selectAccountIndex}
+          selectFundAmount={selectAccountIndex}
+          selectGasPrice={selectAccountIndex}
+          selectGasUnits={selectAccountIndex}
+          isDarkMode={isDarkMode}
+        />
+      ),
+      nextButton: <Button text="NEXT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Link onClick={saveAndFinish} text="SAVE AND FINISH LATER" />
+    },
+    {
+      step: 5,
+      header: 'REVIEW NEW VAULT',
+      subHeader: 'Review your new vault information.',
+      component: <ReviewNewVault isDarkMode={isDarkMode} />,
+      nextButton: <Button text="CREATE VAULT" onClick={handleModeUp} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: <Button text="CANCEL" onClick={history.goBack} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} isPrimary={false} />
+    },
+    {
+      step: 6,
+      header: 'NEW VAULT SUBMITTED!',
+      subHeader: '',
+      component: <VaultFinish isDarkMode={isDarkMode} />,
+      nextButton: <Button text="DONE" onClick={history.goBack} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />,
+      finishButton: null
+    }
+  ]);
+
   const renderVaultSteps = () => {
-    switch (mode) {
+    switch (vaultMode) {
       case 0: {
-        return <NewVault vaultName={name} onChangeVaultName={handleChangeVaultName} isDarkMode={isDarkMode} />;
+        return Steps.get(type)[0].component;
       }
       case 1: {
-        return <VaultType handleChangeType={handleChangeType} type={type} isDarkMode={isDarkMode} />;
+        return Steps.get(type)[1].component;
       }
       case 2: {
-        return <VaultMasterAccount masterAccountIndex={masterAccountIndex} selectedAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />;
+        return Steps.get(type)[2].component;
       }
       case 3: {
-        return <VaultMasterAccounts masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />;
+        return Steps.get(type)[3].component;
       }
       case 4: {
-        return <DailySpending masterAccountIndex={masterAccountIndex} selectAccountIndex={selectAccountIndex} isDarkMode={isDarkMode} />;
+        return Steps.get(type)[4].component;
       }
       case 5: {
-        return (
-          <VaultTx
-            selectAccountIndex={selectAccountIndex}
-            selectFundAmount={selectAccountIndex}
-            selectGasPrice={selectAccountIndex}
-            selectGasUnits={selectAccountIndex}
-            isDarkMode={isDarkMode}
-          />
-        );
+        return Steps.get(type)[5].component;
       }
       case 6: {
-        return <ReviewNewVault isDarkMode={isDarkMode} />;
-      }
-      case 7: {
-        return <VaultFinish isDarkMode={isDarkMode} />;
+        return Steps.get(type)[6].component;
       }
       default: {
         return null;
@@ -101,16 +247,27 @@ const Vault = () => {
     }
   };
 
-  const navigateToVaultSetup = () => eventsService.openExternalLink({ link: 'https://product.spacemesh.io/#/smapp_vaults' });
-
   return (
-    <CorneredContainer width={650} height={400} header={headers[mode]} headerIcon={vault} subHeader={subHeader[mode]} isDarkMode={isDarkMode} useEmptyWrap>
-      {renderVaultSteps()}
-      <Footer>
-        <Link onClick={navigateToVaultSetup} text="VAULT SETUP GIDE" />
-        <Button text="NEXT" onClick={handleNext} isDisabled={name.length === 0} style={{ marginTop: 'auto' }} />
-      </Footer>
-    </CorneredContainer>
+    <WrapperVault>
+      <CorneredContainer
+        width={650}
+        height={412}
+        header={Steps.get(type)[vaultMode].header}
+        headerIcon={vault}
+        subHeader={Steps.get(type)[vaultMode].subHeader}
+        isDarkMode={isDarkMode}
+        useEmptyWrap
+      >
+        {renderVaultSteps()}
+        <Footer>
+          <Link onClick={navigateToVaultSetup} text="VAULT SETUP GIDE" />
+          <WrapperLink>
+            {Steps.get(type)[vaultMode].finishButton}
+            {Steps.get(type)[vaultMode].nextButton}
+          </WrapperLink>
+        </Footer>
+      </CorneredContainer>
+    </WrapperVault>
   );
 };
 
