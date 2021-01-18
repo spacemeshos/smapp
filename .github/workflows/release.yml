@@ -52,7 +52,7 @@ jobs:
         name: build linux app
         run: |
           curl -L --output ./node/linux/go-spacemesh --create-dirs https://github.com/spacemeshos/go-spacemesh/releases/download/${{ steps.latestNode.outputs.release }}/go-spacemesh-linux
-          cd ./node/mac
+          cd ./node/linux
           chmod -R +x * .
           cd ../..
           yarn package-linux
