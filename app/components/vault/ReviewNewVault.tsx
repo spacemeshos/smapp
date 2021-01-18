@@ -28,7 +28,7 @@ const DetailsTextWrap = styled.div`
 const GrayText = styled.div`
   font-size: 14px;
   text-transform: uppercase;
-  color: ${smColors.dark75Alpha};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.dark75Alpha)};
 `;
 
 type Props = {

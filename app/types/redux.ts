@@ -29,6 +29,7 @@ export interface WalletState {
   lastUsedContacts: Array<Contact> | [];
   contacts: Array<Contact> | [];
   backupTime: string;
+  vaultMode: number;
 }
 
 export interface UiState {

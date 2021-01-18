@@ -86,7 +86,7 @@ const DailySpending = ({ masterAccountIndex, selectAccountIndex, isDarkMode }: P
   return (
     <>
       <DetailsRow>
-        <DetailsText>Daily Spending Accnt</DetailsText>
+        <DetailsText>Daily Spending Account</DetailsText>
         <Tooltip width={250} text="Tooltip 1" isDarkMode={isDarkMode} />
         <Dots />
         <DropDown

@@ -22,7 +22,7 @@ const Input = styled.input`
     -webkit-transform: translate(-50%,-50%);
     -ms-transform: translate(-50%,-50%);
     transform: translate(-50%,-50%);
-    border: 1px solid ${smColors.black};
+    border: 1px solid ${smColors.white};
   }
   :checked::after {
     content: '';
