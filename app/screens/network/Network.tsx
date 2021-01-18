@@ -2,11 +2,12 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
-import { WrapperWith2SideBars, Link, Tooltip, NetworkStatus, CustomTimeAgo } from '../../basicComponents';
+import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { eventsService } from '../../infra/eventsService';
 import { RootState } from '../../types';
+import { NetworkStatus } from '../../components/NetworkStatus';
 
 const Container = styled.div`
   display: flex;

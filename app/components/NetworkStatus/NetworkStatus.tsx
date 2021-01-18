@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NetworkIndicator, ProgressBar } from './index';
+import { NetworkIndicator, ProgressBar } from '../../basicComponents';
 
 const ProgressLabel = styled.div`
   margin-left: 10px;
