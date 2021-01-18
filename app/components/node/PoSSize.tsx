@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown } from '../../basicComponents';
+import { Tooltip, DropDown, Link } from '../../basicComponents';
 import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { Status } from '../../types';
+import { eventsService } from '../../infra/eventsService';
+import { formatBytes } from '../../infra/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -57,12 +59,18 @@ const Dots = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
-const RewardText = styled(Text)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? smColors.green : smColors.orange)};
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
 `;
 
-const GreenText = styled(Text)`
-  color: ${smColors.green};
+const RewardText = styled(Text)<{ selected: boolean }>`
+  color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
+`;
+
+const WhiteText = styled(Text)`
+  color: ${smColors.white};
 `;
 
 const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
@@ -87,6 +95,18 @@ const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
     }`}
 `;
 
+const ErrorText = styled.div`
+  height: 20px;
+  font-size: 15px;
+  line-height: 17px;
+  color: ${smColors.orange};
+  position: absolute;
+  left: 15px;
+  bottom: -15px;
+  width: 100%;
+}
+`;
+
 const Commitment = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
@@ -99,26 +119,40 @@ const commitments = [
   { label: '200 GB', size: 200 },
   { label: '300 GB', size: 300 }
 ];
+const linkStyle = { fontSize: '17px', lineHeight: '19px', marginBottom: 5 };
 
 type Props = {
   folder: string;
   commitment: number;
+  commitmentSize: number;
+  setFolder: (folder: string) => void;
   setCommitment: (commitment: number) => void;
   freeSpace: number;
+  setFreeSpace: (freeSpace: number) => void;
   nextAction: () => void;
   status: Status | null;
   isDarkMode: boolean;
 };
 
-const PoSSize = ({ folder, commitment, setCommitment, freeSpace, nextAction, status, isDarkMode }: Props) => {
+const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace, nextAction, setFolder, setFreeSpace, status, isDarkMode }: Props) => {
   const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(commitment ? commitments.findIndex((com) => com.size === commitment) : 0);
+  const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const renderDDRow = ({ label, isInDropDown }: { label: string; isInDropDown: boolean }) => (
     <CommitmentWrapper isInDropDown={isInDropDown}>
       <Commitment>{label}</Commitment>
     </CommitmentWrapper>
   );
-
+  const openFolderSelectionDialog = async () => {
+    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    if (error) {
+      setHasPermissionError(true);
+    } else {
+      setFolder(selectedFolder);
+      setFreeSpace(formatBytes(freeSpace));
+      setHasPermissionError(false);
+    }
+  };
   const selectCommitment = ({ index }: { index: number }) => {
     setSelectedCommitmentIndex(index);
     setCommitment(commitments[selectedCommitmentIndex].size);
@@ -153,11 +187,14 @@ const PoSSize = ({ folder, commitment, setCommitment, freeSpace, nextAction, sta
       <BottomRow>
         <Icon3 src={posDirectoryIcon} />
         <Text>PoS data folder: </Text>
-        <GreenText>{folder}</GreenText>
+        <Wrapper>
+          <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
+          <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
+        </Wrapper>
       </BottomRow>
       <BottomRow>
         <Text>Free space: </Text>
-        <GreenText>{freeSpace} GB</GreenText>
+        <WhiteText>{freeSpace} GB</WhiteText>
       </BottomRow>
       <PoSFooter action={nextAction} isDisabled={selectedCommitmentIndex === -1 || !status} />
     </>

@@ -145,17 +145,27 @@ class NodeManager {
     }
   };
 
-  stopNode = async ({ browserWindow }: { browserWindow: BrowserWindow }) => {
+  stopNode = async ({ browserWindow, isDarkMode }: { browserWindow: BrowserWindow; isDarkMode: boolean }) => {
     const closeApp = async () => {
       browserWindow.destroy();
       app.quit();
     };
+
+    const showCloseAppModal = () => {
+      const child = new BrowserWindow({ parent: browserWindow, modal: true, show: false });
+      child.loadURL(`file://${__dirname}/closeAppModal.html?darkMode=${isDarkMode}`);
+      child.once('ready-to-show', () => {
+        child.show();
+      });
+    };
+
     const stopNodeCycle = async (attempt: number) => {
       const nodeProcesses = await find('name', 'go-spacemesh');
       if (attempt > 15) {
         if (nodeProcesses && nodeProcesses.length) {
           exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`);
         }
+        showCloseAppModal();
         await closeApp();
       } else if (!nodeProcesses || !nodeProcesses.length) {
         await closeApp();
@@ -167,6 +177,7 @@ class NodeManager {
       const nodeProcesses = await find('name', 'go-spacemesh');
       if (nodeProcesses && nodeProcesses.length) {
         exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err: any) => {
+          showCloseAppModal();
           if (err) {
             logger.error('nodeManager', 'stopNode', err);
           }
