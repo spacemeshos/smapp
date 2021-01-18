@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { DropDown, Tooltip, Dots } from '../../basicComponents';
+import { Account } from '../../types';
 
 const DetailsRow = styled.div`
   position: relative;
@@ -35,27 +36,10 @@ type Props = {
   masterAccountIndex: number;
   selectAccountIndex: ({ index }: { index: number }) => void;
   isDarkMode: boolean;
+  accountsOption: Account[];
 };
 
 // TODO add auto update for master accounts
-const accounts = [
-  {
-    account: 1,
-    label: 'acc 1',
-    text: 'vault 1'
-  },
-  {
-    account: 2,
-    label: 'acc 2',
-    text: 'vault 2'
-  },
-  {
-    account: 3,
-    label: 'acc 3',
-    text: 'vault 3'
-  }
-];
-
 const limits = [
   {
     limit: 1,
@@ -74,7 +58,7 @@ const limits = [
   }
 ];
 
-const DailySpending = ({ masterAccountIndex, selectAccountIndex, isDarkMode }: Props) => {
+const DailySpending = ({ masterAccountIndex, selectAccountIndex, accountsOption, isDarkMode }: Props) => {
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
 
   const renderAccElement = ({ label, text, isInDropDown }: { label: string; text: string; isInDropDown: boolean }) => (
@@ -90,7 +74,7 @@ const DailySpending = ({ masterAccountIndex, selectAccountIndex, isDarkMode }: P
         <Tooltip width={250} text="Tooltip 1" isDarkMode={isDarkMode} />
         <Dots />
         <DropDown
-          data={accounts}
+          data={accountsOption}
           onClick={selectAccountIndex}
           DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
           selectedItemIndex={masterAccountIndex}
