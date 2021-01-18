@@ -136,7 +136,7 @@ const NewWallet = ({ history, location }: Props) => {
             <RowText>Setup a wallet that uses a publick</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/wallet', { withoutNode: true })} />
+          <Button text="WALLET ONLY" width={150} onClick={() => {}} isDisabled />
         </RowSecond>
 
         {subMode === 1 && (
