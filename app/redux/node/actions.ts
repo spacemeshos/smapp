@@ -68,7 +68,7 @@ const makeNodeIndicator = (status: Status) => {
     return {
       color: smColors.green,
       message: `Synced with the mesh. Current layer ${status.currentLayer}. Verified layer ${status.verifiedLayer}`,
-      statusText: 'syncing',
+      statusText: 'synced',
       hasError: false
     };
   }
