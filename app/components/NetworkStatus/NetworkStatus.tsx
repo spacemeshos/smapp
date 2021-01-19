@@ -30,7 +30,7 @@ const NetworkStatus = ({ nodeIndicator, status }: Props) => {
     const progress = getSyncLabelPercentage();
     return (
       <>
-        {progress === 100 ? (
+        {progress >= 100 ? (
           <>
             <NetworkIndicator color={nodeIndicator.color} />
             <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
