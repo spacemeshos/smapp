@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { CorneredWrapper } from '../../basicComponents';
+import { CorneredWrapper, Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
 
 const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
@@ -56,6 +56,7 @@ type Props = {
   width: number;
   height: number;
   header: string;
+  tooltipMessage?: string;
   headerColor?: string;
   headerIcon?: any;
   subHeader?: any;
@@ -63,7 +64,18 @@ type Props = {
   isDarkMode?: boolean;
 };
 
-const CorneredContainer = ({ children, width, height, header, headerColor = '', headerIcon = null, subHeader = '', useEmptyWrap = false, isDarkMode = false }: Props) => {
+const CorneredContainer = ({
+  children,
+  width,
+  height,
+  header,
+  tooltipMessage,
+  headerColor = '',
+  headerIcon = null,
+  subHeader = '',
+  useEmptyWrap = false,
+  isDarkMode = false
+}: Props) => {
   const ResolvedWrapper: any = useEmptyWrap ? DivWrapper : Wrapper;
   const color = headerColor || isDarkMode ? smColors.white : smColors.realBlack;
 
@@ -80,6 +92,7 @@ const CorneredContainer = ({ children, width, height, header, headerColor = '', 
           --
           <br />
           {subHeader}
+          {tooltipMessage && <Tooltip text={tooltipMessage} isDarkMode width={200} />}
         </SubHeader>
       )}
       {children}

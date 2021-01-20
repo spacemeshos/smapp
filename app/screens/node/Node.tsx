@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro, SmesherLog } from '../../components/node';
-import { WrapperWith2SideBars, Button, ProgressBar } from '../../basicComponents';
+import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getFormattedTimestamp } from '../../infra/utils';
-import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon } from '../../assets/images';
+import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors, nodeConsts } from '../../vars';
 import { RootState, Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
@@ -118,6 +118,44 @@ interface Props extends RouteComponentProps {
   };
 }
 
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 25px;
+`;
+
+const Icon = styled.img`
+  display: flex;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+`;
+
+const IconSmesher = styled.img`
+  display: flex;
+  width: 40px;
+  height: 25px;
+  margin-right: 5px;
+  color: ${smColors.darkOrange};
+`;
+
+const RowText = styled.div`
+  display: flex;
+  font-size: 16px;
+  font-weight: ${({ weight }) => weight};
+  line-height: 20px;
+  color: ${({ color }) => color};
+`;
+
+const BottomPart = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+`;
+
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
 
@@ -134,6 +172,9 @@ const Node = ({ history, location }: Props) => {
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
+  let isWalletOnlySetup = localStorage.getItem('isWalletOnlySetup');
+  isWalletOnlySetup = isWalletOnlySetup ? JSON.parse(isWalletOnlySetup) : false;
+
   const dispatch = useDispatch();
 
   const renderNodeDashboard = () => {
@@ -243,10 +284,34 @@ const Node = ({ history, location }: Props) => {
     return renderNodeDashboard();
   };
 
+  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+
+  const renderWalletOnlyMode = () => {
+    return (
+      <>
+        <Row>
+          <RowText color={smColors.purple} weight={700}>
+            <Icon src={walletSecond} /> You app is currently in wallet-only mode and smeshing is not set up
+          </RowText>
+        </Row>
+        <Row>
+          <RowText color={smColors.darkOrange} weight={400}>
+            <IconSmesher src={posSmesherOrange} />
+            You can switch and start using a local Spacemesh full p2p node managed by this app and start smeshing and getting smeshing rewards.
+          </RowText>
+        </Row>
+        <BottomPart>
+          <Link onClick={navigateToExplanation} text="SMESHER GUIDE" />
+          <Button width={120} onClick={() => history.push('/main/node-setup')} text="SETUP SMESHER" />
+        </BottomPart>
+      </>
+    );
+  };
+
   return (
     <Wrapper>
       <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon} isDarkMode={isDarkMode}>
-        {renderMainSection()}
+        {isWalletOnlySetup ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
       <SmesherLog rewards={rewards} initTimestamp={smesherInitTimestamp} smeshingTimestamp={smesherSmeshingTimestamp} isDarkMode={isDarkMode} />
     </Wrapper>

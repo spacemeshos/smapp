@@ -7,4 +7,5 @@ export { default as FileRestore } from './FileRestore';
 export { default as WordsRestore } from './WordsRestore';
 export { default as NewWallet } from './NewWallet';
 export { default as SetupWallet } from './SetupWallet';
+export { default as ConnectWallet } from './ConnectWallet';
 export { default as Leaving } from './Leaving';
