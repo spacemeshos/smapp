@@ -5,7 +5,7 @@ import { updateTransaction } from '../../redux/wallet/actions';
 import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
-import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
+import { getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import TX_STATUSES from '../../vars/enums';
 import { RootState, Tx } from '../../types';
@@ -278,14 +278,16 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
         <TextRow>
           <BlackText>FROM</BlackText>
           <BoldText onClick={!isSent ? () => copyAddress({ id: sender }) : () => {}}>
-            {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
+            {isSent ? `${getAddress(publicKey)} (Me)` : nickname || sender}
+            <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
             {!isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, sender)} src={addContact} />}
           </BoldText>
         </TextRow>
         <TextRow>
           <BlackText>TO</BlackText>
           <BoldText onClick={isSent ? () => copyAddress({ id: receiver }) : () => {}}>
-            {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
+            {isSent ? nickname || receiver : `${getAddress(publicKey)} (Me)`}
+            {isSent && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />}
             {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, receiver)} src={addContact} />}
           </BoldText>
         </TextRow>
