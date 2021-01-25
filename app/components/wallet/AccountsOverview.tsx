@@ -27,8 +27,8 @@ const AccountWrapper = styled.div<{ isInDropDown: boolean }>`
     color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha)};
   }
   ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
+          isInDropDown &&
+          `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
     opacity: 1;
     color: ${(theme: any) => (theme.isDarkMode ? smColors.darkGray50Alpha : smColors.darkGray50Alpha)};
   }`}
@@ -189,7 +189,7 @@ const AccountsOverview = (props: Props) => {
           renderAccountRow({ displayName, publicKey })
         )}
       </AccountDetails>
-      <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ''}</CopiedText>
+      <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
