@@ -183,7 +183,9 @@ const AccountsOverview = (props: Props) => {
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}
             whiteIcon={isDarkMode}
+            isDarkMode={isDarkMode}
             rowContentCentered={false}
+            bgColor={isDarkMode ? smColors.black : smColors.white}
           />
         ) : (
           renderAccountRow({ displayName, publicKey })
