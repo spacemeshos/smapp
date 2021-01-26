@@ -54,7 +54,7 @@ const ItemsWrapper = styled.div<{ rowHeight: number }>`
   transition: all 0.2s linear;
   overflow-y: scroll;
   box-shadow: 0 3px 6px ${smColors.black02Alpha};
-  background-color: ${smColors.white};
+  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : smColors.white)};
 `;
 
 const DropdownRow = styled.div<{ onClick: (e?: React.MouseEvent) => void; rowContentCentered: boolean; height: number; isDisabled: boolean; key: string }>`
@@ -70,6 +70,7 @@ type Props = {
   DdElement: React.ElementType;
   data: any;
   selectedItemIndex: number;
+  isDarkMode?: boolean;
   rowHeight?: number;
   rowContentCentered?: boolean;
   isDisabled?: boolean;
@@ -83,6 +84,7 @@ const DropDown = ({
   DdElement,
   onClick,
   selectedItemIndex,
+  isDarkMode,
   rowHeight = 44,
   rowContentCentered = true,
   isDisabled = false,
@@ -102,7 +104,7 @@ const DropDown = ({
   }, [isOpened]);
 
   const isDisabledComputed = isDisabled || !data || !data.length;
-  const icon = whiteIcon ? chevronBottomWhite : chevronBottomBlack;
+  const icon = whiteIcon || isDarkMode ? chevronBottomWhite : chevronBottomBlack;
 
   const renderRow = ({
     item,
