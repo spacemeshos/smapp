@@ -154,6 +154,7 @@ const SendCoins = ({ history, location }: Props) => {
           amount={amount}
           txId={txId}
           doneAction={history.goBack}
+          isDarkMode={isDarkMode}
           navigateToTxList={() => history.replace('/main/transactions')}
         />
       );
