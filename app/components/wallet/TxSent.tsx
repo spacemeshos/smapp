@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
 import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
-import { fireworksImg, doneIconGreen, copyBlack } from '../../assets/images';
+import { fireworksImg, doneIconGreen, copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { eventsService } from '../../infra/eventsService';
 
@@ -105,17 +105,20 @@ type Props = {
   address: string;
   amount: string;
   txId: string;
+  isDarkMode: boolean;
   doneAction: () => void;
   navigateToTxList: () => void;
 };
 
-const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxList }: Props) => {
+const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, navigateToTxList }: Props) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const copyTxId = async () => {
     await navigator.clipboard.writeText(txId);
     setIsCopied(true);
   };
+
+  const copyIcon = isDarkMode ? copyWhite : copyBlack;
 
   const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
 
@@ -142,8 +145,8 @@ const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxLi
         <DetailsRow>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
-            <span>{getAbbreviatedText(txId, true, 8)}</span>
-            <CopyIcon src={copyBlack} onClick={copyTxId} />
+            <DetailsTextLeft>{getAbbreviatedText(txId, true, 8)}</DetailsTextLeft>
+            <CopyIcon src={copyIcon} onClick={copyTxId} />
           </ComplexText>
         </DetailsRow>
       </>
