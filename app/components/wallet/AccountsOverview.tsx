@@ -189,7 +189,7 @@ const AccountsOverview = (props: Props) => {
           renderAccountRow({ displayName, publicKey })
         )}
       </AccountDetails>
-      <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ''}</CopiedText>
+      <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
