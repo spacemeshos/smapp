@@ -183,13 +183,15 @@ const AccountsOverview = (props: Props) => {
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}
             whiteIcon={isDarkMode}
+            isDarkMode={isDarkMode}
             rowContentCentered={false}
+            bgColor={isDarkMode ? smColors.black : smColors.white}
           />
         ) : (
           renderAccountRow({ displayName, publicKey })
         )}
       </AccountDetails>
-      <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ''}</CopiedText>
+      <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
