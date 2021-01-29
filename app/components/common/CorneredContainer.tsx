@@ -48,7 +48,7 @@ const SubHeader = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
 `;
 
 type Props = {
