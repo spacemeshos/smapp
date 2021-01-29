@@ -48,9 +48,7 @@ const ButtonsSection = styled.div`
 
 const WordsSection = styled.div`
   display: flex;
-  flex-direction: column;
   flex-wrap: wrap;
-  height: 140px;
   width: 100%;
 `;
 
@@ -76,6 +74,15 @@ const Index = styled(Text)`
 
 const WordWrapper = styled.div`
   display: flex;
+  &:not(:nth-child(1n)) {
+    margin-bottom: 20px;
+  }
+  &:not(:nth-child(2n)) {
+    margin-bottom: 20px;
+  }
+  &:not(:nth-child(3n)) {
+    margin-bottom: 20px;
+  }
 `;
 
 const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
@@ -117,8 +124,8 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
       </TextWrapper>
       <MiddleSectionRow>
         <ButtonsSection>
-          <Button onClick={print12Words} text="PRINT WORDS" width={172} isPrimary={false} style={{ marginBottom: 12 }} />
-          <Button onClick={copy12Words} text="COPY WORDS" width={172} isPrimary={false} style={{ marginBottom: 12 }} />
+          <Button onClick={print12Words} text="PRINT WORDS" width={172} isPrimary={false} style={{ marginBottom: 35 }} />
+          <Button onClick={copy12Words} text="COPY WORDS" width={172} isPrimary={false} style={{ marginBottom: 35 }} />
           {isCopied && <GreenText>Copied to clipboard</GreenText>}
         </ButtonsSection>
         <WordsSection>
