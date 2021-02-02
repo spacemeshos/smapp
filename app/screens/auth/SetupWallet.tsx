@@ -61,14 +61,13 @@ const RowSecond = styled.div`
   justify-content: space-between;
   margin-top: 60px;
   position: relative;
-  align-items: flex-end;
   &:after {
     content: '';
     position: absolute;
     background-color: ${({ theme }) => (theme.isDarkMode ? smColors.darkerGray : smColors.black)};
     width: 100%;
     top: -29px;
-    left: 0px;
+    left: 0;
     height: 1px;
   }
 `;
@@ -106,9 +105,19 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const SetupWallet = ({ history }: RouteComponentProps) => {
+interface Props extends RouteComponentProps {
+  location: {
+    hash: string;
+    pathname: string;
+    search: string;
+    state: { mnemonic?: string; withoutNode?: boolean };
+  };
+}
+
+const SetupWallet = ({ history, location }: Props) => {
   const [subMode] = useState(1);
   const [isLoaderVisible] = useState(false);
+  const withoutNode = location?.state?.withoutNode || false;
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
@@ -137,7 +146,7 @@ const SetupWallet = ({ history }: RouteComponentProps) => {
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
-          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={() => history.push('/auth/create', { withoutNode: false })} />
+          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={() => history.push('/auth/create', { withoutNode })} />
         </RowJust>
         <RowSecond>
           <RowColumn>

@@ -89,6 +89,7 @@ export { default as posNotification } from './pos_notif.svg';
 export { default as posRewardEst } from './pos_reward_est.svg';
 export { default as posSmesher } from './pos_smesher.svg';
 export { default as posSmesherWhite } from './pos_smesher_white.svg';
+export { default as posSmesherOrange } from './pos_smesher_orange.svg';
 export { default as posSpace } from './pos_space.svg';
 export { default as circle } from './circle.svg';
 export { default as wallet } from './wallet.svg';
