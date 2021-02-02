@@ -32,7 +32,9 @@ const smColors = {
   red: '#EC0000',
   dMBlack1: '#323031',
   dmBlack2: '#353439',
-  restoreGreen: 'rgba(198, 210, 197)'
+  restoreGreen: 'rgba(198, 210, 197)',
+  vaultDarkGrey: '#CCCCCC',
+  vaultLightGrey: '#676767'
 };
 
 export default smColors;

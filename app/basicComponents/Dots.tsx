@@ -6,6 +6,7 @@ const Dot = styled.div`
   flex: 1;
   flex-shrink: 1;
   overflow: hidden;
+  margin-right: 28px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
   }
   ::before {
