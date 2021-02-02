@@ -181,7 +181,7 @@ class Settings extends Component<Props, State> {
     } = this.state;
     return (
       <Wrapper>
-        <SideMenu items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
+        <SideMenu isDarkMode={isDarkMode} items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
           <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <AllSettingsInnerWrapper>
