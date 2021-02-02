@@ -27,7 +27,8 @@ import {
   Network,
   TestMe,
   Vault,
-  Dashboard
+  Dashboard,
+  ConnectWallet
 } from './screens';
 
 const app = [
@@ -81,6 +82,10 @@ const auth = [
   {
     path: '/auth/words-restore',
     component: WordsRestore
+  },
+  {
+    path: '/auth/connect-wallet',
+    component: ConnectWallet
   }
 ];
 

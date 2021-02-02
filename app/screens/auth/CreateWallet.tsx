@@ -152,6 +152,7 @@ const CreateWallet = ({ history, location }: Props) => {
       createWallet();
     } else if (subMode === 2) {
       if (isWalletOnlySetup) {
+        localStorage.setItem('isWalletOnlySetup', JSON.stringify(isWalletOnlySetup));
         history.push('/main/wallet');
       } else {
         history.push('/main/node-setup');

@@ -9,7 +9,7 @@ const Wrapper = styled.div<{ width: number; height: number | string }>`
   position: relative;
   width: ${({ width }) => width}px;
   height: ${({ height }) => (typeof height === 'string' ? height : `${height}px`)};
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
+  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black10Alpha)};
 `;
 
 const SideBar = styled.img`

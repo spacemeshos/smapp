@@ -55,6 +55,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
+    localStorage.setItem('isWalletOnlySetup', 'false');
     await dispatch(initMining({ logicalDrive: folder, address: accounts[0].publicKey, commitment, processor, isPausedOnUsage })); // TODO: use user selected commitment
     history.push('/main/node', { showIntro: true });
   };

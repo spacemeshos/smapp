@@ -69,10 +69,6 @@ const RewardText = styled(Text)<{ selected: boolean }>`
   color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
 `;
 
-const WhiteText = styled(Text)`
-  color: ${smColors.white};
-`;
-
 const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
   display: flex;
   flex-direction: column;
@@ -193,8 +189,7 @@ const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace,
         </Wrapper>
       </BottomRow>
       <BottomRow>
-        <Text>Free space: </Text>
-        <WhiteText>{freeSpace} GB</WhiteText>
+        <Text>Free space: {freeSpace} GB</Text>
       </BottomRow>
       <PoSFooter action={nextAction} isDisabled={selectedCommitmentIndex === -1 || !status} />
     </>

@@ -115,6 +115,7 @@ const ExplorerIcon = styled.img`
   width: 20px;
   height: 20px;
   cursor: pointer;
+  margin-top: 2px;
 `;
 
 type Props = {
