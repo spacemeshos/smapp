@@ -31,7 +31,9 @@ const smColors = {
   navLinkGrey: '#CFCFCF',
   red: '#EC0000',
   dMBlack1: '#323031',
-  dmBlack2: '#353439'
+  dmBlack2: '#353439',
+  vaultDarkGrey: '#CCCCCC',
+  vaultLightGrey: '#676767'
 };
 
 export default smColors;
