@@ -8,11 +8,13 @@ import { DragAndDrop } from '../../components/auth';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '../../basicComponents';
 import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
+import { smColors } from '../../vars';
 
 const DdArea = styled.div`
   display: flex;
   flex: 1;
   margin-bottom: 20px;
+  background-color: ${smColors.restoreGreen};
 `;
 
 const BottomSection = styled.div`
