@@ -99,3 +99,5 @@ export { default as network } from './network.svg';
 export { default as networkPink } from './network_pink.svg';
 export { default as explorer } from './explorer_icon.svg';
 export { default as clock } from './clock.svg';
+export { default as walletSecondBlack } from './wallet_second_black.svg';
+export { default as posSmesherBlack } from './pos_smesher_black.svg.svg';
