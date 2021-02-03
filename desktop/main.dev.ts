@@ -177,7 +177,7 @@ app.on('ready', async () => {
     createBrowserView();
     mainWindow.setBrowserView(browserView);
     const contentBounds = mainWindow.getContentBounds();
-    browserView.setBounds({ x: 0, y: 70, width: contentBounds.width - 35, height: 600 });
+    browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
     const url = isDarkMode ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
     browserView.webContents.loadURL(url);
