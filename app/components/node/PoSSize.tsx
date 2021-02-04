@@ -73,10 +73,8 @@ const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  margin: 5px;
+  margin: 5px 5px 5px 10px;
   cursor: inherit;
-  opacity: 0.5;
   color: ${smColors.realBlack};
   &:hover {
     opacity: 1;
@@ -84,7 +82,7 @@ const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
   }
   ${({ isInDropDown }) =>
     isInDropDown &&
-    `color: ${smColors.realBlack}; border-bottom: 1px solid ${smColors.disabledGray};
+    `
      &:hover {
       opacity: 1;
       color: ${smColors.darkGray50Alpha};
@@ -108,6 +106,7 @@ const Commitment = styled.div`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
 const commitments = [
@@ -154,7 +153,12 @@ const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace,
     setCommitment(commitments[selectedCommitmentIndex].size);
   };
 
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 125px' };
+  const ddStyle = {
+    color: isDarkMode ? smColors.white : smColors.black,
+    marginLeft: 'auto',
+    flex: '0 0 125px'
+  };
+
   const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   return (
@@ -171,6 +175,9 @@ const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace,
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}
           style={ddStyle}
+          bgColor={isDarkMode ? smColors.black : smColors.white}
+          isDarkMode={isDarkMode}
+          rowContentCentered={false}
         />
       </Row>
       <Row>
