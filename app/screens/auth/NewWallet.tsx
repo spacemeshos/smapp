@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, Loader, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { posSmesherWhite, walletSecondWhite } from '../../assets/images';
+import { posSmesherWhite, walletSecondWhite, walletSecondBlack, posSmesherBlack } from '../../assets/images';
 
 import { smColors, nodeConsts } from '../../vars';
 import { RootState } from '../../types';
@@ -117,7 +117,7 @@ const NewWallet = ({ history, location }: Props) => {
         <RowJust>
           <RowColumn>
             <Row>
-              <Icon src={posSmesherWhite} />
+              <Icon src={`${isDarkMode ? posSmesherWhite : posSmesherBlack}`} />
               <RowTitle>WALLET + NODE</RowTitle>
               <Tooltip width={100} text="WALLET + NODE" isDarkMode={isDarkMode} />
             </Row>
@@ -129,14 +129,14 @@ const NewWallet = ({ history, location }: Props) => {
         <RowSecond>
           <RowColumn>
             <Row>
-              <IconWallet src={walletSecondWhite} />
+              <IconWallet src={`${isDarkMode ? walletSecondWhite : walletSecondBlack}`} />
               <RowTitle>WALLET ONLY</RowTitle>
               <Tooltip width={100} text="Wallet only" isDarkMode={isDarkMode} />
             </Row>
             <RowText>Setup a wallet that uses a publick</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/connect-wallet')} />
+          <Button text="WALLET ONLY" width={150} onClick={() => {}} isDisabled />
         </RowSecond>
 
         {subMode === 1 && (

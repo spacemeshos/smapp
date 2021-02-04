@@ -7,7 +7,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 290px;
-  height: 190px;
   margin-right: 15px;
   background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
 `;
@@ -93,7 +92,7 @@ const StepsContainer = ({ steps, header, currentStep, isDarkMode }: Props) => {
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   const checkIcon = isDarkMode ? checkWhite : checkBlack;
   return (
-    <Wrapper>
+    <Wrapper style={{ height: `${steps.length <= 1 ? '190px' : '110px'}` }}>
       <SideBar src={leftImg} />
       <InnerWrapper>
         <Header>{header}</Header>
