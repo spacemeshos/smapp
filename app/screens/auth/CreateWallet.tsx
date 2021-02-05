@@ -170,7 +170,7 @@ const CreateWallet = ({ history, location }: Props) => {
       </LoaderWrapper>
     );
   }
-  const header = subMode === 1 ? 'SET NEW WALLET PASSWORD' : 'MAIN WALLET CREATED';
+  const header = subMode === 1 ? 'SET NEW WALLET PASSWORD' : `${walletName.displayName} CREATED`;
   const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
   return (
     <Wrapper>
