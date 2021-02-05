@@ -15,7 +15,7 @@ import { setCurrentMode } from '../../redux/wallet/actions';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: 100%;
+  height: 500px;
 `;
 
 const LeftSection = styled.div`

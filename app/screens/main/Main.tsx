@@ -40,7 +40,7 @@ const InnerWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   flex: 1;
-  padding: 0 0 0 30px;
+  padding: 0 32px 32px 32px;
 `;
 
 const NavBar = styled.div`
