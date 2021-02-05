@@ -37,9 +37,10 @@ const ButtonsWrapper = styled.div`
 type Props = {
   submitAction: ({ password }: { password: string }) => void;
   closeModal: () => void;
+  walletName?: string;
 };
 
-const EnterPasswordModal = ({ submitAction, closeModal }: Props) => {
+const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
 
@@ -68,7 +69,7 @@ const EnterPasswordModal = ({ submitAction, closeModal }: Props) => {
   };
 
   return (
-    <Modal header="PASSWORD" subHeader="enter password to complete the action">
+    <Modal header="PASSWORD" subHeader={`Enter wallet ${walletName} password to complete this action.`}>
       <InputSection>
         <Chevron src={chevronIcon} />
         <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} />
