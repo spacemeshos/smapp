@@ -100,6 +100,7 @@ type Props = {
   networkId: string;
   backupTime: string;
   isDarkMode: boolean;
+  walletName: string;
   location: {
     hash: string;
     pathname: string;
@@ -163,7 +164,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme, isDarkMode } = this.props;
+    const { displayName, accounts, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme, isDarkMode, walletName } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -179,6 +180,7 @@ class Settings extends Component<Props, State> {
       signMessageModalAccountIndex,
       showModal
     } = this.state;
+
     return (
       <Wrapper>
         <SideMenu isDarkMode={isDarkMode} items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
@@ -329,7 +331,9 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
-        {showPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />}
+        {showPasswordModal && (
+          <EnterPasswordModal walletName={walletName} submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />
+        )}
         {signMessageModalAccountIndex !== -1 && <SignMessage index={signMessageModalAccountIndex} close={() => this.toggleSignMessageModal({ index: -1 })} />}
         {showModal && (
           <Modal header="Error" subHeader={'number must be >= 1024'}>
@@ -520,7 +524,8 @@ const mapStateToProps = (state: RootState) => ({
   port: state.node.port,
   networkId: state.node.networkId,
   backupTime: state.wallet.backupTime,
-  isDarkMode: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode,
+  walletName: state.wallet.meta.displayName
 });
 
 const mapDispatchToProps = {
