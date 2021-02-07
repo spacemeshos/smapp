@@ -2,27 +2,36 @@
 import type { Action } from '/types';
 import { LOGOUT } from '/redux/auth/actions';
 import { nodeConsts } from '/vars';
-import { CHECK_NODE_CONNECTION, SET_MINING_STATUS, INIT_MINING, SET_GENESIS_TIME, SET_UPCOMING_AWARDS, SET_AWARDS_ADDRESS, SET_NODE_IP } from './actions';
-
-const DEFAULT_URL = 'localhost:9091';
+import { SET_MINING_STATUS, SET_NODE_SETTINGS, INIT_MINING, SET_UPCOMING_REWARDS, SET_REWARDS_ADDRESS, SET_NODE_IP, SET_NODE_STATUS, SET_ACCOUNT_REWARDS } from './actions';
 
 const initialState = {
-  isConnected: false,
-  miningStatus: nodeConsts.NOT_MINING,
+  status: null,
+  miningStatus: nodeConsts.MINING_UNSET,
+  rewardsAddress: null,
   genesisTime: 0,
+  networkId: 0,
+  commitmentSize: 0,
+  layerDuration: 0,
+  stateRootHash: null,
+  port: '',
+  rewards: [],
   timeTillNextAward: 0,
-  totalEarnings: 0,
-  awardsAddress: null,
-  nodeIpAddress: DEFAULT_URL
+  nodeIpAddress: nodeConsts.DEFAULT_URL
 };
 
 const reducer = (state: any = initialState, action: Action) => {
   switch (action.type) {
-    case CHECK_NODE_CONNECTION: {
+    case SET_NODE_STATUS: {
       const {
-        payload: { isConnected }
+        payload: { status }
       } = action;
-      return { ...state, isConnected };
+      return { ...state, status };
+    }
+    case SET_NODE_SETTINGS: {
+      const {
+        payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port }
+      } = action;
+      return { ...state, rewardsAddress: address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port };
     }
     case SET_MINING_STATUS: {
       const {
@@ -34,31 +43,29 @@ const reducer = (state: any = initialState, action: Action) => {
       const {
         payload: { address }
       } = action;
-      return { ...state, awardsAddress: address, miningStatus: nodeConsts.IN_SETUP };
+      return { ...state, rewardsAddress: address, miningStatus: nodeConsts.IN_SETUP };
     }
-    case SET_GENESIS_TIME: {
-      const {
-        payload: { genesisTime }
-      } = action;
-      return { ...state, genesisTime };
-    }
-    case SET_UPCOMING_AWARDS: {
+    case SET_UPCOMING_REWARDS: {
       const {
         payload: { timeTillNextAward }
       } = action;
       return { ...state, timeTillNextAward };
     }
-    case SET_AWARDS_ADDRESS: {
+    case SET_REWARDS_ADDRESS: {
       const {
         payload: { address }
       } = action;
-      return { ...state, awardsAddress: address };
+      return { ...state, rewardsAddress: address };
     }
     case SET_NODE_IP: {
       const {
         payload: { nodeIpAddress }
       } = action;
       return { ...state, nodeIpAddress };
+    }
+    case SET_ACCOUNT_REWARDS: {
+      const { rewards } = action.payload;
+      return { ...state, rewards };
     }
     case LOGOUT:
       return initialState;

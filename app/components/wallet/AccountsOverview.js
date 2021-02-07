@@ -2,11 +2,16 @@
 import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { setCurrentAccount, getBalance } from '/redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars } from '/basicComponents';
-import { copyToClipboard } from '/assets/images';
-import { getAbbreviatedText } from '/infra/utils';
+import { copyBlack, copyWhite } from '/assets/images';
+import { getAbbreviatedText, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
-import type { Account } from '/types';
+import type { Account, Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
 
 const AccountDetails = styled.div`
   display: flex;
@@ -20,17 +25,23 @@ const AccountWrapper = styled.div`
   align-items: flex-start;
   margin: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   &:hover {
     opacity: 1;
-    color: ${smColors.darkGray50Alpha};
+    color: ${isDarkModeOn ? smColors.lightGray : smColors.darkGray50Alpha};
   }
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
+    opacity: 1;
+    color: ${isDarkModeOn ? smColors.darkGray50Alpha : smColors.darkGray50Alpha};
+  }`}
 `;
 
 const AccountName = styled.div`
+  font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.realBlack};
   cursor: inherit;
 `;
 
@@ -39,7 +50,6 @@ const Address = styled.div`
   flex-direction: row;
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
   cursor: inherit;
 `;
 
@@ -68,7 +78,7 @@ const BalanceHeader = styled.div`
   margin-bottom: 10px;
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const BalanceWrapper = styled.div`
@@ -83,7 +93,7 @@ const BalanceAmount = styled.div`
   color: ${smColors.green};
 `;
 
-const SmcText = styled.div`
+const SmhText = styled.div`
   font-size: 17px;
   line-height: 32px;
   color: ${smColors.green};
@@ -94,15 +104,23 @@ const CopiedText = styled.div`
   font-size: 16px;
   line-height: 20px;
   height: 20px;
-  margin-left: 6px;
+  margin: -20px 0 5px 6px;
   color: ${smColors.green};
+`;
+
+const NotSyncedYetText = styled.div`
+  font-size: 15px;
+  line-height: 32px;
+  color: ${smColors.orange};
 `;
 
 type Props = {
   walletName: string,
   accounts: Account[],
   currentAccountIndex: number,
-  switchAccount: ({ index: number }) => void
+  getBalance: Action,
+  setCurrentAccount: Action,
+  status: Object
 };
 
 type State = {
@@ -117,56 +135,88 @@ class AccountsOverview extends Component<Props, State> {
   };
 
   render() {
-    const { walletName, accounts, currentAccountIndex, switchAccount } = this.props;
+    const { walletName, accounts, currentAccountIndex, status } = this.props;
     const { isCopied } = this.state;
     if (!accounts || !accounts.length) {
       return null;
     }
-    const { displayName, pk, balance } = accounts[currentAccountIndex];
+    const { displayName, publicKey, balance } = accounts[currentAccountIndex];
+    const { value, unit } = formatSmidge(balance || 0, true);
     return (
-      <WrapperWith2SideBars width={300} height={480} header={walletName}>
+      <WrapperWith2SideBars width={300} style={{ height: 'calc(100% - 65px)' }} header={walletName}>
         <AccountDetails>
           {accounts.length > 1 ? (
             <DropDown
               data={accounts}
-              DdElement={({ displayName, pk, isMain }) => this.renderAccountRow({ displayName, pk, isInDropDown: !isMain })}
-              onPress={switchAccount}
+              DdElement={({ displayName, publicKey, isMain }) => this.renderAccountRow({ displayName, publicKey, isInDropDown: !isMain })}
+              onPress={this.setCurrentAccount}
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
+              whiteIcon={isDarkModeOn}
+              rowContentCentered={false}
             />
           ) : (
-            this.renderAccountRow({ displayName, pk })
+            this.renderAccountRow({ displayName, publicKey })
           )}
         </AccountDetails>
-        {isCopied && <CopiedText>COPIED</CopiedText>}
+        <CopiedText>{isCopied ? 'COPIED' : ''}</CopiedText>
         <Footer>
           <BalanceHeader>BALANCE</BalanceHeader>
-          <BalanceWrapper>
-            <BalanceAmount>{balance}</BalanceAmount>
-            <SmcText>SMC</SmcText>
-          </BalanceWrapper>
+          {status?.synced ? (
+            <BalanceWrapper>
+              <BalanceAmount>{value}</BalanceAmount>
+              <SmhText>{unit}</SmhText>
+            </BalanceWrapper>
+          ) : (
+            <NotSyncedYetText>Syncing...</NotSyncedYetText>
+          )}
         </Footer>
       </WrapperWith2SideBars>
     );
   }
 
-  renderAccountRow = ({ displayName, pk, isInDropDown }: { displayName: string, pk: string, isInDropDown?: boolean }) => (
+  componentWillUnmount() {
+    this.copiedTimeout && clearTimeout(this.copiedTimeout);
+  }
+
+  renderAccountRow = ({ displayName, publicKey, isInDropDown }: { displayName: string, publicKey: string, isInDropDown?: boolean }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
-        {getAbbreviatedText(pk)}
-        <CopyIcon src={copyToClipboard} onClick={this.copyPublicAddress} />
+        {getAbbreviatedText(getAddress(publicKey))}
+        <CopyIcon src={copy} onClick={this.copyPublicAddress} />
       </Address>
     </AccountWrapper>
   );
 
-  copyPublicAddress = () => {
+  setCurrentAccount = async ({ index }: { index: number }) => {
+    const { setCurrentAccount, getBalance } = this.props;
+    setCurrentAccount({ index });
+    await getBalance();
+  };
+
+  copyPublicAddress = (e) => {
+    e.stopPropagation();
     const { accounts, currentAccountIndex } = this.props;
     clearTimeout(this.copiedTimeout);
-    clipboard.writeText(`0x${accounts[currentAccountIndex].pk}`);
+    clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 10000);
     this.setState({ isCopied: true });
   };
 }
+
+const mapStateToProps = (state) => ({
+  status: state.node.status,
+  walletName: state.wallet.meta.displayName,
+  accounts: state.wallet.accounts,
+  currentAccountIndex: state.wallet.currentAccountIndex
+});
+
+const mapDispatchToProps = {
+  setCurrentAccount,
+  getBalance
+};
+
+AccountsOverview = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(AccountsOverview);
 
 export default AccountsOverview;

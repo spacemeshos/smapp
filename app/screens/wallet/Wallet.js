@@ -1,22 +1,23 @@
 // @flow
 import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getBalance, setCurrentAccount } from '/redux/wallet/actions';
+import styled from 'styled-components';
 import routes from '/routes';
 import { AccountsOverview } from '/components/wallet';
 import { ScreenErrorBoundary } from '/components/errorHandler';
 import { CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
-import { localStorageService } from '/infra/storageService';
 import smColors from '/vars/colors';
-import { backup, leftSideTIcon } from '/assets/images';
-import type { Account, Action } from '/types';
+import { backup, leftSideTIcon, leftSideTIconWhite } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const icon = isDarkModeOn ? leftSideTIconWhite : leftSideTIcon;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+  height: 100%;
 `;
 
 const LeftSection = styled.div`
@@ -30,11 +31,12 @@ const BackupReminder = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  width: 100%;
+  align-self: flex-end;
+  width: 230px;
   height: 50px;
   margin-top: 10px;
-  padding-left: 25px;
-  background-color: ${smColors.black02Alpha};
+  padding: 0 15px;
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black02Alpha};
   cursor: pointer;
 `;
 
@@ -68,13 +70,9 @@ const RightSection = styled.div`
 `;
 
 type Props = {
-  displayName: string,
-  accounts: Account[],
-  currentAccountIndex: number,
-  getBalance: Action,
-  setCurrentAccount: Action,
-  isConnected: boolean,
-  history: RouterHistory
+  backupTime: string,
+  history: RouterHistory,
+  location: { pathname: string }
 };
 
 type State = {
@@ -85,18 +83,15 @@ type State = {
 };
 
 class Wallet extends Component<Props, State> {
-  getBalanceInterval: IntervalID;
-
   render() {
-    const { displayName, accounts, currentAccountIndex, setCurrentAccount } = this.props;
-    const hasBackup = !!localStorageService.get('hasBackup');
+    const { backupTime } = this.props;
     return (
       <Wrapper>
         <LeftSection>
-          <AccountsOverview walletName={displayName} accounts={accounts} currentAccountIndex={currentAccountIndex} switchAccount={setCurrentAccount} />
-          {!hasBackup && (
+          <AccountsOverview />
+          {!backupTime && (
             <BackupReminder onClick={this.navigateToBackup}>
-              <FullCrossIcon src={leftSideTIcon} />
+              <FullCrossIcon src={icon} />
               <BackupImage src={backup} />
               <BackupText>BACKUP YOUR WALLET</BackupText>
             </BackupReminder>
@@ -117,26 +112,6 @@ class Wallet extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const { isConnected, getBalance } = this.props;
-    if (isConnected) {
-      try {
-        await getBalance();
-        this.getBalanceInterval = setInterval(async () => {
-          await getBalance();
-        }, 60000);
-      } catch (error) {
-        this.setState(() => {
-          throw error;
-        });
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    this.getBalanceInterval && clearInterval(this.getBalanceInterval);
-  }
-
   navigateToBackup = () => {
     const { history } = this.props;
     history.push('/main/backup');
@@ -144,21 +119,10 @@ class Wallet extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
-  displayName: state.wallet.meta.displayName,
-  accounts: state.wallet.accounts,
-  currentAccountIndex: state.wallet.currentAccountIndex
+  backupTime: state.wallet.backupTime
 });
 
-const mapDispatchToProps = {
-  getBalance,
-  setCurrentAccount
-};
-
-Wallet = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Wallet);
+Wallet = connect<any, any, _, _, _, _>(mapStateToProps)(Wallet);
 
 Wallet = ScreenErrorBoundary(Wallet);
 export default Wallet;

@@ -8,6 +8,7 @@
 <PROJECT_ROOT>/dll/.*
 <PROJECT_ROOT>/git/.*
 <PROJECT_ROOT>/node_modules/.*
+<PROJECT_ROOT>/node/.*
 
 [include]
 
@@ -18,9 +19,10 @@ type-def-libs
 [options]
 module.name_mapper='^/\(.*\)' -> '<PROJECT_ROOT>/app/\1'
 esproposal.optional_chaining=enable
+suppress_comment= \\(.\\|\n\\)*\\$FlowStyledIssue
 
 [lints]
 deprecated-utility=off
 
 [version]
-0.106.2
+0.129.0

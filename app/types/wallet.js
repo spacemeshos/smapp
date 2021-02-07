@@ -4,10 +4,8 @@ export type Account = {
   displayName: string,
   created: number,
   path: string,
-  balance: number,
-  pk: string,
-  sk: string,
-  layerId: number
+  publicKey: string,
+  secretKey: string
 };
 
 export type WalletMeta = {
@@ -20,6 +18,7 @@ export type WalletMeta = {
   crypto: {
     cipher: string,
     cipherText: {
+      accounts: Array<Account>,
       mnemonic: string
     }
   }

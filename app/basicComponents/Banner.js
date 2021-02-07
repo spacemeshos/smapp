@@ -3,11 +3,11 @@ import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  position: absolute;
-  top: ${({ top }) => top}px;
-  left: calc(50% - 390px);
+  flex: 0 0 60px;
+  position: relative;
   width: 785px;
   height: 60px;
+  margin: ${({ margin }) => margin};
 `;
 
 const UpperPart = styled.div`
@@ -34,19 +34,19 @@ const LowerPart = styled.div`
 
 type Props = {
   children: any,
-  top?: number,
+  margin?: string,
   color: string
 };
 
 class Banner extends PureComponent<Props> {
   static defaultProps = {
-    top: 10
+    margin: '0'
   };
 
   render() {
-    const { children, top, color } = this.props;
+    const { children, margin, color } = this.props;
     return (
-      <Wrapper top={top}>
+      <Wrapper margin={margin}>
         <UpperPart color={color}>{children}</UpperPart>
         <LowerPart color={color} />
       </Wrapper>

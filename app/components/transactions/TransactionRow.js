@@ -1,61 +1,36 @@
 // @flow
+import { clipboard } from 'electron';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { updateTransaction } from '/redux/wallet/actions';
-import { chevronLeftBlack, chevronRightBlack, addContact } from '/assets/images';
+import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact } from '/assets/images';
 import styled from 'styled-components';
 import { Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
+import TX_STATUSES from '/vars/enums';
 import type { Tx, Action } from '/types';
 
-const getDateText = (date: string) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  const dateObj = new Date(date);
-  const localeDateString = dateObj.toLocaleDateString('en-US', options);
-  return `${localeDateString.replace(',', '')} - ${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}`;
-};
-
-const getTxStatus = ({ isPending, isRejected }: { isPending: boolean, isRejected: boolean }) => {
-  if (isRejected) {
-    return 'REJECTED';
-  }
-  if (isPending) {
-    return 'PENDING';
-  }
-  return 'SUCCESS';
-};
-
-const getColor = ({ isSent, isPending, isRejected }: { isSent: boolean, isPending: boolean, isRejected: boolean }) => {
-  if (isPending) {
-    return smColors.darkGray;
-  } else if (isRejected) {
-    return smColors.darkGray;
-  }
-  return isSent ? smColors.green : smColors.orange;
-};
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const chevronLeft = isDarkModeOn ? chevronLeftWhite : chevronLeftBlack;
+const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  ${({ isDetailed }) =>
-    isDetailed &&
-    `
-    background-color: ${smColors.disabledGray};  
-  `}
+  ${({ isDetailed }) => isDetailed && `background-color: ${smColors.disabledGray};`}
   border-bottom: 1px solid ${smColors.disabledGray};
+  cursor: pointer;
 `;
 
-const RowWrapper = styled.div`
+const Header = styled.div`
   display: flex;
-  height: 48px;
   flex-direction: row;
+  padding: 10px 0 15px;
+  cursor: pointer;
   &:hover {
     background-color: ${smColors.disabledGray};
   }
-  padding-top: 6px;
-  padding-right: 12px;
-  cursor: pointer;
 `;
 
 const Icon = styled.img`
@@ -64,26 +39,29 @@ const Icon = styled.img`
   margin-right: 10px;
 `;
 
-const MainWrapper = styled.div`
+const HeaderInner = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  position: relative;
   width: 100%;
+  cursor: inherit;
 `;
 
-const Section = styled.div`
+const HeaderSection = styled.div`
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 `;
 
 const Text = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.darkGray50Alpha};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray50Alpha};
 `;
 
 const BlackText = styled(Text)`
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const Dots = styled(Text)`
@@ -93,16 +71,27 @@ const Dots = styled(Text)`
 
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
-  color: ${({ color }) => color};
+  color: ${({ color }) => (color || isDarkModeOn ? smColors.white : smColors.realBlack)};
 `;
 
 const DarkGrayText = styled(Text)`
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
+  cursor: inherit;
 `;
 
 const Amount = styled.div`
   text-align: right;
   color: ${({ color }) => color};
+  cursor: inherit;
+`;
+
+const CopiedBanner = styled.div`
+  position: absolute;
+  left: 48%;
+  top: 15px;
+  font-size: 15px;
+  line-height: 20px;
+  color: ${smColors.darkerGreen};
 `;
 
 const DetailsSection = styled.div`
@@ -156,109 +145,197 @@ const TextArea = styled.textarea`
   margin-bottom: 10px;
 `;
 
+const formatTxId = (id) => id && `0x${id.substring(0, 6)}`;
+
 type Props = {
   updateTransaction: Action,
-  transaction: Tx,
+  tx: Tx,
+  publicKey: string,
   addAddressToContacts: ({ address: string }) => void
 };
 
 type State = {
   isDetailed: boolean,
-  note: string
+  note: string,
+  wasCopied: boolean
 };
 
 class TransactionRow extends Component<Props, State> {
+  statuses: Array<string>;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       isDetailed: false,
-      note: props.transaction.note
+      note: props.tx.note,
+      wasCopied: false
     };
+    this.statuses = Object.keys(TX_STATUSES);
   }
 
   render() {
-    const { isDetailed, note } = this.state;
     const {
-      transaction: { id, isSent, isPending, isRejected, amount, address, date, isSavedContact, nickname }
+      tx: { txId, sender, status, amount, timestamp, nickname },
+      publicKey
     } = this.props;
-    const color = getColor({ isSent, isPending, isRejected });
-    const detailRows = [
-      { title: 'TRANSACTION ID', value: getAbbreviatedText(id) },
-      { title: 'STATUS', value: getTxStatus({ isPending, isRejected }), color: getColor({ isSent, isPending, isRejected }) },
-      { title: 'BLOCK', value: 7701538 }, // TODO: needs real value
-      { title: 'FROM', value: isSent ? 'Me' : getAbbreviatedText(address) },
-      { title: 'TO', value: isSent ? getAbbreviatedText(address) : 'Me' },
-      { title: 'VALUE', value: `${amount}` },
-      { title: 'TRANSACTION FEE', value: 0.03 } // TODO: needs real value
-    ];
+    const { isDetailed, wasCopied } = this.state;
+    const isSent = sender === getAddress(publicKey);
+    const color = this.getColor({ status, isSent });
     return (
       <Wrapper isDetailed={isDetailed}>
-        <RowWrapper onClick={this.toggleTxDetails}>
-          <Icon src={isSent ? chevronLeftBlack : chevronRightBlack} />
-          <MainWrapper>
-            <Section>
-              {isSavedContact && nickname && <DarkGrayText>{nickname.toUpperCase()}</DarkGrayText>}
-              <Text>{getAbbreviatedText(id)}</Text>
-            </Section>
-            <Section>
-              <Amount color={color}>{amount}</Amount>
-              <DarkGrayText>{getDateText(date)}</DarkGrayText>
-            </Section>
-          </MainWrapper>
-        </RowWrapper>
-        {isDetailed && (
-          <DetailsSection>
-            <LeftDetails>
-              {detailRows.map((detailRow) => (
-                <TextRow key={detailRow.title}>
-                  <BlackText>{detailRow.title}</BlackText>
-                  <Dots>...............</Dots>
-                  <BoldText color={detailRow.color || smColors.realBlack}>
-                    {detailRow.value} {this.renderAddToContactIcon({ isSent, isSavedContact, title: detailRow.title })}
-                  </BoldText>
-                </TextRow>
-              ))}
-            </LeftDetails>
-            <RightDetails>
-              <BlackText style={{ marginBottom: 4 }}>Note</BlackText>
-              <TextArea
-                type="text"
-                numberOfLines={5}
-                value={note}
-                placeholder="Enter a note"
-                onChange={({ target }: { target: { value: string } }) => {
-                  const { value } = target;
-                  this.setState({ note: value });
-                }}
-                maxLength="50"
-              />
-              <Button onClick={this.save} text="SAVE" style={{ alignSelf: 'flex-end' }} />
-            </RightDetails>
-          </DetailsSection>
-        )}
+        <Header onClick={this.toggleTxDetails}>
+          <Icon src={isSent ? chevronRight : chevronLeft} />
+          <HeaderInner>
+            <HeaderSection>
+              {txId === 'reward' ? (
+                <DarkGrayText>SMESHING REWARD</DarkGrayText>
+              ) : (
+                [nickname && <DarkGrayText key="nickname">{nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{formatTxId(txId)}</Text>]
+              )}
+            </HeaderSection>
+            <HeaderSection>
+              <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(amount)}`}</Amount>
+              <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
+            </HeaderSection>
+            {wasCopied && <CopiedBanner>Copied!</CopiedBanner>}
+          </HeaderInner>
+        </Header>
+        {isDetailed && this.renderDetails()}
       </Wrapper>
     );
   }
 
-  renderAddToContactIcon = ({ isSent, isSavedContact, title }: { isSent: boolean, isSavedContact: boolean, title: string }) => {
-    const isFieldToOrFrom = (isSent && title === 'TO') || (!isSent && title === 'FROM');
-    return !isSavedContact && isFieldToOrFrom && <AddToContactsImg onClick={this.handleAddToContacts} src={addContact} />;
+  renderDetails = () => {
+    const {
+      tx,
+      tx: { txId, nickname, status, layerId, sender, receiver, amount, fee },
+      publicKey
+    } = this.props;
+    const { note } = this.state;
+    const isSent = sender === getAddress(publicKey);
+    const color = this.getColor({ status, isSent });
+    if (txId === 'reward') {
+      return (
+        <DetailsSection>
+          <LeftDetails>
+            <TextRow>
+              <BlackText>STATUS</BlackText>
+              <Dots>............</Dots>
+              <BoldText color={smColors.darkerGreen}>{this.statuses[status]}</BoldText>
+            </TextRow>
+            {layerId ? (
+              <TextRow>
+                <BlackText>LAYER ID</BlackText>
+                <Dots>............</Dots>
+                <BoldText>{layerId}</BoldText>
+              </TextRow>
+            ) : null}
+            <TextRow>
+              <BlackText>TO</BlackText>
+              <Dots>............</Dots>
+              <BoldText>ME</BoldText>
+            </TextRow>
+            <TextRow>
+              <BlackText>SMESHING REWARD</BlackText>
+              <Dots>............</Dots>
+              <BoldText>{formatSmidge(amount)}</BoldText>
+            </TextRow>
+            <TextRow>
+              <BlackText>SMESHING FEE REWARD</BlackText>
+              <Dots>............</Dots>
+              <BoldText>{formatSmidge(fee || 0)}</BoldText>
+            </TextRow>
+          </LeftDetails>
+          <RightDetails />
+        </DetailsSection>
+      );
+    }
+    return (
+      <DetailsSection>
+        <LeftDetails>
+          <TextRow>
+            <BlackText>TRANSACTION ID</BlackText>
+            <Dots>............</Dots>
+            <BoldText onClick={() => this.copyAddress({ id: txId })}>{formatTxId(txId)}</BoldText>
+          </TextRow>
+          <TextRow>
+            <BlackText>STATUS</BlackText>
+            <Dots>............</Dots>
+            <BoldText color={color}>{this.statuses[status]}</BoldText>
+          </TextRow>
+          {layerId ? (
+            <TextRow>
+              <BlackText>LAYER ID</BlackText>
+              <Dots>............</Dots>
+              <BoldText>{layerId}</BoldText>
+            </TextRow>
+          ) : null}
+          <TextRow>
+            <BlackText>FROM</BlackText>
+            <Dots>............</Dots>
+            <BoldText onClick={!isSent ? () => this.copyAddress({ id: sender }) : null}>
+              {isSent ? `${getAbbreviatedText(getAddress(publicKey))} (Me)` : nickname || getAbbreviatedText(sender)}
+              {!isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, sender)} src={addContact} />}
+            </BoldText>
+          </TextRow>
+          <TextRow>
+            <BlackText>TO</BlackText>
+            <Dots>............</Dots>
+            <BoldText onClick={isSent ? () => this.copyAddress({ id: receiver }) : null}>
+              {isSent ? nickname || getAbbreviatedText(receiver) : `${getAbbreviatedText(getAddress(publicKey))} (Me)`}
+              {isSent && !nickname && <AddToContactsImg onClick={(e) => this.handleAddToContacts(e, receiver)} src={addContact} />}
+            </BoldText>
+          </TextRow>
+          <TextRow>
+            <BlackText>VALUE</BlackText>
+            <Dots>............</Dots>
+            <BoldText>{formatSmidge(amount)}</BoldText>
+          </TextRow>
+          <TextRow>
+            <BlackText>TRANSACTION FEE</BlackText>
+            <Dots>............</Dots>
+            <BoldText>{formatSmidge(fee || 0)}</BoldText>
+          </TextRow>
+        </LeftDetails>
+        <RightDetails>
+          <BlackText style={{ marginBottom: 4 }}>Note</BlackText>
+          <TextArea
+            type="text"
+            numberOfLines={5}
+            value={note}
+            placeholder="Enter a note"
+            onChange={({ target }: { target: { value: string } }) => {
+              const { value } = target;
+              this.setState({ note: value });
+            }}
+            maxLength="50"
+          />
+          {note !== tx.note && <Button onClick={this.save} text="SAVE" style={{ alignSelf: 'flex-end' }} />}
+        </RightDetails>
+      </DetailsSection>
+    );
   };
 
-  handleAddToContacts = (event: Event) => {
+  getColor = ({ status, isSent }: { status: string, isSent: boolean }) => {
+    if (status === TX_STATUSES.PENDING) {
+      return smColors.orange;
+    } else if (status === TX_STATUSES.REJECTED) {
+      return smColors.orange;
+    }
+    return isSent ? smColors.blue : smColors.darkerGreen;
+  };
+
+  handleAddToContacts = (event: Event, address: string) => {
     event.stopPropagation();
-    const {
-      transaction: { address },
-      addAddressToContacts
-    } = this.props;
+    const { addAddressToContacts } = this.props;
     addAddressToContacts({ address });
   };
 
   save = async () => {
-    const { transaction, updateTransaction } = this.props;
+    const { tx, updateTransaction } = this.props;
     const { note } = this.state;
     try {
-      await updateTransaction({ tx: { ...transaction, note } });
+      updateTransaction({ newData: { note }, txId: tx.txId });
       this.setState({ isDetailed: false });
     } catch (error) {
       this.setState(() => {
@@ -271,15 +348,17 @@ class TransactionRow extends Component<Props, State> {
     const { isDetailed } = this.state;
     this.setState({ isDetailed: !isDetailed });
   };
+
+  copyAddress = ({ id }: { id: string }) => {
+    clipboard.writeText(`0x${id}`);
+    this.setState({ wasCopied: true });
+  };
 }
 
 const mapDispatchToProps = {
   updateTransaction
 };
 
-TransactionRow = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(TransactionRow);
+TransactionRow = connect<any, any, _, _, _, _>(null, mapDispatchToProps)(TransactionRow);
 
 export default TransactionRow;

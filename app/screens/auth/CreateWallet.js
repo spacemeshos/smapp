@@ -2,19 +2,26 @@ import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { generateEncryptionKey, saveNewWallet } from '/redux/wallet/actions';
-import { CorneredContainer } from '/components/common';
-import { StepsContainer, Input, Button, SecondaryButton, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
-import { fileSystemService } from '/infra/fileSystemService';
-import { chevronRightBlack, chevronLeftWhite } from '/assets/images';
+import { createNewWallet } from '/redux/wallet/actions';
+import { CorneredContainer, BackButton } from '/components/common';
+import { StepsContainer, Input, Button, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '/basicComponents';
+import { eventsService } from '/infra/eventsService';
+import { chevronRightBlack, chevronRightWhite } from '/assets/images';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
-import { nodeConsts } from '/vars';
+import { smColors, nodeConsts } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const chevronRight = isDarkModeOn ? chevronRightWhite : chevronRightBlack;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+`;
+
+const SubHeader = styled.div`
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const UpperPart = styled.div`
@@ -67,9 +74,8 @@ const BottomPart = styled.div`
 `;
 
 type Props = {
-  generateEncryptionKey: Action,
   miningStatus: number,
-  saveNewWallet: Action,
+  createNewWallet: Action,
   history: RouterHistory,
   location: { state: { mnemonic?: string, withoutNode?: boolean } }
 };
@@ -108,23 +114,23 @@ class CreateWallet extends Component<Props, State> {
     return (
       <Wrapper>
         <StepsContainer
-          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']}
-          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + FULL NODE'}
+          steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SELECT DRIVE', 'COMMIT SPACE']}
+          header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
           currentStep={0}
         />
-        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode, isWalletOnlySetup)}>
+        <CorneredContainer width={650} height={400} header={header} subHeader={this.renderSubHeader(subMode)}>
           <SmallHorizontalPanel />
           {subMode === 1 && (
             <>
-              <SecondaryButton onClick={history.goBack} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={{ position: 'absolute', bottom: 0, left: -35 }} />
+              <BackButton action={history.goBack} />
               <UpperPart>
                 <Inputs>
                   <InputSection>
-                    <Chevron src={chevronRightBlack} />
+                    <Chevron src={chevronRight} />
                     <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordTyping} />
                   </InputSection>
                   <InputSection>
-                    <Chevron src={chevronRightBlack} />
+                    <Chevron src={chevronRight} />
                     <Input value={verifiedPassword} type="password" placeholder="VERIFY PASSWORD" onEnterPress={this.handleEnterPress} onChange={this.handlePasswordVerifyTyping} />
                   </InputSection>
                 </Inputs>
@@ -146,26 +152,16 @@ class CreateWallet extends Component<Props, State> {
     );
   }
 
-  renderSubHeader = (subMode: number, isWalletOnlySetup: boolean) => {
+  renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
-      <span>
-        Enter your password
-        <br />
-        It must be at least 8 characters
-      </span>
+      <SubHeader>Enter a new wallet password. It must be at least 8 characters.</SubHeader>
     ) : (
-      <div>
-        For future reference, a restore file is now on your computer
+      <SubHeader>
+        For future reference, a wallet restore file was created.
         <br />
-        <Link onClick={this.openWalletBackupDirectory} text="Browse file location" />
-        {!isWalletOnlySetup && (
-          <span>
-            Next, you&#39;re going to commit storage space from your hard
-            <br />
-            drive in order for it to be used while mining
-          </span>
-        )}
-      </div>
+        <br />
+        <Link onClick={() => eventsService.showFileInFolder({})} text="Browse file location" />
+      </SubHeader>
     );
   };
 
@@ -188,8 +184,9 @@ class CreateWallet extends Component<Props, State> {
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
     const hasPasswordError = !password || (!!password && password.length < pasMinLength);
     const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
-    const passwordError = hasPasswordError ? `Password has to be ${pasMinLength} characters or more.` : '';
-    const verifyPasswordError = hasVerifyPasswordError ? "these passwords don't match, please try again " : '';
+    // eslint-disable-next-line no-template-curly-in-string
+    const passwordError = hasPasswordError ? 'Password has to be ${pasMinLength} characters or more.' : '';
+    const verifyPasswordError = hasVerifyPasswordError ? "These passwords don't match, please try again." : '';
     this.setState({ passwordError, verifyPasswordError });
     return !passwordError && !verifyPasswordError;
   };
@@ -204,20 +201,19 @@ class CreateWallet extends Component<Props, State> {
       if (isWalletOnlySetup) {
         history.push('/main/wallet');
       } else {
-        history.push('/main/node-setup');
+        history.push('/main/node-setup', { isWalletCreation: true });
       }
     }
   };
 
   createWallet = async () => {
-    const { generateEncryptionKey, saveNewWallet, location } = this.props;
+    const { createNewWallet, location } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (!isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         await setTimeout(async () => {
-          await generateEncryptionKey({ password });
-          saveNewWallet({ mnemonic: location?.state?.mnemonic });
+          createNewWallet({ existingMnemonic: location?.state?.mnemonic, password });
           this.setState({ isLoaderVisible: false, subMode: 2 });
         }, 500);
       } catch (err) {
@@ -229,10 +225,6 @@ class CreateWallet extends Component<Props, State> {
   };
 
   navigateToExplanation = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
-
-  openWalletBackupDirectory = () => {
-    fileSystemService.openWalletBackupDirectory({});
-  };
 }
 
 const mapStateToProps = (state) => ({
@@ -240,13 +232,9 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  generateEncryptionKey,
-  saveNewWallet
+  createNewWallet
 };
 
-CreateWallet = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateWallet);
+CreateWallet = connect(mapStateToProps, mapDispatchToProps)(CreateWallet);
 
 export default CreateWallet;

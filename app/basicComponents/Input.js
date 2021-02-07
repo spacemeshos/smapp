@@ -32,18 +32,17 @@ const ActualInput = styled.input`
 `;
 
 const ExtraTxt = styled.div`
-  padding: 8px 10px 9px 0;
+  padding: 10px 10px 10px 0;
   font-size: 14px;
   line-height: 16px;
   color: ${smColors.black};
-  font-size: 14px;
   background-color: ${smColors.white};
 `;
 
 type Props = {
   onChange?: ({ value: string }) => void,
   onChangeDebounced?: ({ value: string }) => void,
-  onEnterPress?: () => void,
+  onEnterPress?: () => void | Promise<any>,
   onFocus?: ({ target: Object }) => void,
   value: string,
   isDisabled?: boolean,
@@ -52,7 +51,8 @@ type Props = {
   debounceTime?: number,
   style?: Object,
   type?: string,
-  maxLength?: string
+  maxLength?: string,
+  autofocus?: boolean
 };
 
 type State = {
@@ -72,7 +72,7 @@ class Input extends Component<Props, State> {
   };
 
   render() {
-    const { value, isDisabled, placeholder, extraText, style, type, maxLength } = this.props;
+    const { value, isDisabled, placeholder, extraText, style, type, maxLength, autofocus } = this.props;
     const { isFocused } = this.state;
     return (
       <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
@@ -86,6 +86,7 @@ class Input extends Component<Props, State> {
           onBlur={() => this.setState({ isFocused: false })}
           type={type}
           maxLength={maxLength}
+          autoFocus={autofocus}
         />
         {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
       </Wrapper>

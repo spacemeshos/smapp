@@ -3,14 +3,19 @@ import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
+import { getNodeStatus, getMiningStatus, getNodeSettings } from '/redux/node/actions';
 import { readWalletFiles } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo, QuitDialog } from '/components/common';
+import { Logo } from '/components/common';
 import { Loader } from '/basicComponents';
 import routes from '/routes';
-import { rightDecoration } from '/assets/images';
+import { rightDecoration, rightDecorationWhite } from '/assets/images';
 import type { Action } from '/types';
+import { nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
 
 const Wrapper = styled.div`
   position: relative;
@@ -19,11 +24,13 @@ const Wrapper = styled.div`
   flex: 1;
   width: 100%;
   height: 100%;
+  overflow-x: hidden;
 `;
 
 const RightDecoration = styled.img`
   display: block;
   height: 100%;
+  margin-right: -1px;
 `;
 
 const InnerWrapper = styled.div`
@@ -36,13 +43,20 @@ const InnerWrapper = styled.div`
 `;
 
 type Props = {
-  history: RouterHistory,
+  getNodeStatus: Action,
+  getMiningStatus: Action,
+  getNodeSettings: Action,
   readWalletFiles: Action,
   walletFiles: Array<string>,
+  history: RouterHistory,
   location: { pathname: string, state?: { presetMode: number } }
 };
 
 class Auth extends Component<Props> {
+  getNodeStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
+
+  getMiningStatusInterval: IntervalID; // eslint-disable-line react/sort-comp
+
   render() {
     const { walletFiles } = this.props;
     return (
@@ -60,18 +74,34 @@ class Auth extends Component<Props> {
             <Loader size={Loader.sizes.BIG} />
           )}
         </InnerWrapper>
-        <RightDecoration src={rightDecoration} />
-        <QuitDialog />
+        <RightDecoration src={img} />
       </Wrapper>
     );
   }
 
   async componentDidMount() {
-    const { readWalletFiles, history, location } = this.props;
+    const { getNodeStatus, getMiningStatus, getNodeSettings, readWalletFiles, history, location } = this.props;
     const files = await readWalletFiles();
     if (files.length && location.pathname !== '/auth/restore') {
       history.push('/auth/unlock');
     }
+    await getNodeStatus();
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 20000);
+    const status = await getMiningStatus();
+    if (status === nodeConsts.MINING_UNSET) {
+      this.getMiningStatusInterval = setInterval(async () => {
+        const status = await getMiningStatus();
+        if (status !== nodeConsts.MINING_UNSET) {
+          this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
+        }
+      }, 1000);
+    }
+    await getNodeSettings();
+  }
+
+  componentWillUnmount(): void {
+    this.getMiningStatusInterval && clearInterval(this.getMiningStatusInterval);
+    this.getNodeStatusInterval && clearInterval(this.getNodeStatusInterval);
   }
 }
 
@@ -80,13 +110,13 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
+  getNodeStatus,
+  getMiningStatus,
+  getNodeSettings,
   readWalletFiles
 };
 
-Auth = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Auth);
+Auth = connect(mapStateToProps, mapDispatchToProps)(Auth);
 
 Auth = ScreenErrorBoundary(Auth);
 export default Auth;

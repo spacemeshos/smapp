@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { sendTransaction } from '/redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '/components/wallet';
 import { CreateNewContact } from '/components/contacts';
-import { cryptoConsts } from '/vars';
+import { getAddress } from '/infra/utils';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Contact, Action } from '/types';
 
@@ -14,7 +14,7 @@ type Props = {
   currentAccount: Account,
   sendTransaction: Action,
   history: RouterHistory,
-  isConnected: boolean,
+  status: Object,
   location: { state?: { contact: Contact } }
 };
 
@@ -22,7 +22,7 @@ type State = {
   mode: 1 | 2 | 3,
   address: string,
   hasAddressError: boolean,
-  amount: number,
+  amount: number | string,
   hasAmountError: boolean,
   note: string,
   fee: number,
@@ -41,14 +41,14 @@ class SendCoins extends Component<Props, State> {
       amount: 0,
       hasAmountError: false,
       note: '',
-      fee: 0.001,
+      fee: 1,
       txId: '',
       isCreateNewContactOn: false
     };
   }
 
   render() {
-    const { currentAccount, history, isConnected } = this.props;
+    const { currentAccount, history, status } = this.props;
     const { mode, address, amount, fee, note, txId } = this.state;
     switch (mode) {
       case 1: {
@@ -58,12 +58,12 @@ class SendCoins extends Component<Props, State> {
         return (
           <TxConfirmation
             address={address}
-            fromAddress={currentAccount.pk}
+            fromAddress={currentAccount.publicKey}
             amount={amount}
             fee={fee}
             note={note}
             doneAction={this.sendTransaction}
-            isConnected={isConnected}
+            status={status}
             editTx={() => this.setState({ mode: 1 })}
             cancelTx={history.goBack}
           />
@@ -73,7 +73,7 @@ class SendCoins extends Component<Props, State> {
         return (
           <TxSent
             address={address}
-            fromAddress={currentAccount.pk}
+            fromAddress={currentAccount.publicKey}
             amount={amount}
             txId={txId}
             doneAction={history.goBack}
@@ -88,26 +88,27 @@ class SendCoins extends Component<Props, State> {
   }
 
   renderTxParamsMode = () => {
-    const { currentAccount, lastUsedContacts, contacts, history, location } = this.props;
+    const { currentAccount, lastUsedContacts, contacts, history, status } = this.props;
     const { address, hasAddressError, amount, hasAmountError, fee, note, isCreateNewContactOn } = this.state;
     return [
       <TxParams
-        fromAddress={currentAccount.pk}
-        initialAddress={location?.state?.contact.address || ''}
+        fromAddress={currentAccount.publicKey}
+        address={address}
         contacts={lastUsedContacts.concat(contacts)}
         hasAddressError={hasAddressError}
         updateTxAddress={this.updateTxAddress}
-        resetAddressError={() => this.setState({ address: '', hasAddressError: false })}
+        resetAddressError={() => this.setState({ hasAddressError: false })}
         amount={amount}
         updateTxAmount={this.updateTxAmount}
         hasAmountError={hasAmountError}
-        resetAmountError={() => this.setState({ amount: 0, hasAmountError: false })}
+        resetAmountError={() => this.setState({ hasAmountError: false })}
         updateFee={this.updateFee}
         note={note}
         updateTxNote={this.updateTxNote}
         cancelTx={history.goBack}
         openCreateNewContact={() => this.setState({ isCreateNewContactOn: true })}
         nextAction={this.proceedToMode2}
+        status={status}
         key="params"
       />,
       isCreateNewContactOn ? (
@@ -119,41 +120,52 @@ class SendCoins extends Component<Props, State> {
           key="newContact"
         />
       ) : (
-        <TxSummary address={address} fromAddress={currentAccount.pk} amount={amount} fee={fee} note={note} key="summary" />
+        <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={amount} fee={fee} note={note} key="summary" />
       )
     ];
   };
 
-  updateTxAddress = ({ address }: { address: string }) => {
-    if (address.length === 64) {
-      this.setState({ address, hasAddressError: false });
-    }
+  updateTxAddress = ({ value }: { value: string }) => {
+    this.setState({ address: value, hasAddressError: false });
   };
 
   updateTxAmount = ({ value }: { value: string }) => {
-    if (value && value.trim()) {
-      const integerValue = parseInt(value);
-      this.setState({ amount: integerValue });
-    } else {
-      this.setState({ amount: 0 });
-    }
+    this.setState({ amount: value, hasAmountError: false });
   };
 
   updateTxNote = ({ value }: { value: string }) => this.setState({ note: value });
 
   updateFee = ({ fee }: { fee: number }) => this.setState({ fee });
 
-  proceedToMode2 = () => {
+  validateAddress = () => {
+    const { currentAccount } = this.props;
+    const { address } = this.state;
+    const trimmedValue = address ? address.trim() : '';
+    return (
+      trimmedValue && (trimmedValue.startsWith('0x') !== -1 ? trimmedValue.length === 42 : trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
+    );
+  };
+
+  validateAmount = () => {
     const {
       currentAccount: { balance }
     } = this.props;
-    const { address, amount, fee, hasAddressError, hasAmountError } = this.state;
-    if (!!address && !!amount && !hasAddressError && !hasAmountError) {
-      this.setState({ mode: 2 });
-    } else if (!address || address.length !== cryptoConsts.PUB_KEY_LENGTH) {
+    const { amount, fee } = this.state;
+    const intAmount = parseInt(amount);
+    return !!intAmount && intAmount + fee < balance;
+  };
+
+  proceedToMode2 = () => {
+    const { address, amount } = this.state;
+    if (!this.validateAddress()) {
       this.setState({ hasAddressError: true });
-    } else if (!amount || amount + fee > balance) {
+    }
+    if (!this.validateAmount()) {
       this.setState({ hasAmountError: true });
+    } else {
+      let trimmedAddress = address.trim();
+      trimmedAddress = trimmedAddress.startsWith('0x') ? trimmedAddress.substring(2) : trimmedAddress;
+      this.setState({ address: trimmedAddress, amount: parseInt(amount), mode: 2 });
     }
   };
 
@@ -166,7 +178,7 @@ class SendCoins extends Component<Props, State> {
     const { sendTransaction } = this.props;
     const { address, amount, fee, note } = this.state;
     try {
-      const txId = await sendTransaction({ recipient: address, amount, price: fee, note });
+      const txId = await sendTransaction({ receiver: address, amount, fee, note });
       this.setState({ mode: 3, txId });
     } catch (error) {
       this.setState(() => {
@@ -177,7 +189,7 @@ class SendCoins extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   currentAccount: state.wallet.accounts[state.wallet.currentAccountIndex],
   contacts: state.wallet.contacts,
   lastUsedContacts: state.wallet.lastUsedContacts
@@ -187,9 +199,6 @@ const mapDispatchToProps = {
   sendTransaction
 };
 
-SendCoins = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(SendCoins);
+SendCoins = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(SendCoins);
 
 export default SendCoins;

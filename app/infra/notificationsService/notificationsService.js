@@ -1,19 +1,20 @@
 // @flow
-import path from 'path';
-import { ipcRenderer } from 'electron';
-import { ipcConsts } from '/vars';
+import { eventsService } from '/infra/eventsService';
+import { icon } from '/assets/images';
 
 class NotificationsService {
-  static notify = async ({ title, notification, callback }: { title: string, notification: string, callback: () => void }) => {
-    const isPermitted = await Notification.requestPermission();
-    if (isPermitted) {
-      const notificationOptions: any = {
+  static notify = async ({ title, notification, callback, tag }: { title: string, notification: string, callback: () => void, tag?: number }) => {
+    const permission = await Notification.requestPermission();
+    const isAppMinimized = await eventsService.isAppMinimized();
+    if (permission === 'granted' && isAppMinimized) {
+      const notificationOptions = {
         body: notification,
-        icon: path.join(__dirname, '..', 'resources', 'icon.png')
+        icon,
+        tag: `message-group-${tag || 0}`
       };
       const desktopNotification = new Notification(title || 'Alert', notificationOptions);
       desktopNotification.onclick = () => {
-        ipcRenderer.send(ipcConsts.NOTIFICATION_CLICK);
+        eventsService.notificationWasClicked();
         callback && callback();
       };
     }

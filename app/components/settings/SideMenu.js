@@ -1,8 +1,13 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
-import { sidePanelRightMed, sidePanelLeftMed } from '/assets/images';
+import { sidePanelRightMed, sidePanelRightMedWhite, sidePanelLeftMed, sidePanelLeftMedWhite } from '/assets/images';
 import { smColors } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const leftImg = isDarkModeOn ? sidePanelLeftMedWhite : sidePanelLeftMed;
+const rightImg = isDarkModeOn ? sidePanelRightMedWhite : sidePanelRightMed;
+const color = isDarkModeOn ? smColors.white : smColors.realBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,7 +15,7 @@ const Wrapper = styled.div`
   width: 250px;
   height: 150px;
   margin-right: 15px;
-  background-color: ${smColors.black10Alpha};
+  background-color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
 const SideBar = styled.img`
@@ -38,7 +43,7 @@ const Container = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ isCurrent }) => (!isCurrent ? smColors.realBlack : smColors.purple)};
+  color: ${({ isCurrent }) => (!isCurrent ? color : smColors.purple)};
   font-family: ${({ isCurrent }) => (isCurrent ? 'SourceCodeProBold' : 'SourceCodePro')};
   text-align: right;
   cursor: pointer;
@@ -51,9 +56,9 @@ const Indicator = styled.div`
   width: 15px;
   height: 15px;
   margin-left: 10px;
-  color: ${smColors.white};
+  color: ${isDarkModeOn ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
-  background-color: ${({ isCurrent }) => (isCurrent ? smColors.purple : smColors.realBlack)};
+  background-color: ${({ isCurrent }) => (isCurrent ? smColors.purple : color)};
   cursor: pointer;
 `;
 
@@ -68,7 +73,7 @@ class SideMenu extends PureComponent<Props> {
     const { items, currentItem, onClick } = this.props;
     return (
       <Wrapper>
-        <SideBar src={sidePanelLeftMed} />
+        <SideBar src={leftImg} />
         <InnerWrapper>
           {items.map((item, index) => (
             <Container onClick={() => onClick({ index })} key={index}>
@@ -77,7 +82,7 @@ class SideMenu extends PureComponent<Props> {
             </Container>
           ))}
         </InnerWrapper>
-        <SideBar src={sidePanelRightMed} />
+        <SideBar src={rightImg} />
       </Wrapper>
     );
   }

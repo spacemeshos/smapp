@@ -5,17 +5,25 @@ import { Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '/redux/auth/actions';
-import { getMiningStatus, getGenesisTime } from '/redux/node/actions';
+import { getNodeStatus, getMiningStatus, getAccountRewards } from '/redux/node/actions';
+import { getBalance, getTxList } from '/redux/wallet/actions';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { Logo, QuitDialog } from '/components/common';
-import { OfflineBanner } from '/components/banners';
+import { Logo } from '/components/common';
+import { InfoBanner } from '/components/banners';
 import { SecondaryButton, NavTooltip } from '/basicComponents';
 import routes from '/routes';
 import { notificationsService } from '/infra/notificationsService';
-import { rightDecoration, settingsIcon, getCoinsIcon, helpIcon, signOutIcon } from '/assets/images';
+import { rightDecoration, rightDecorationWhite, settingsIcon, settingsIconBlack, getCoinsIcon, getCoinsIconBlack, helpIcon, helpIconBlack, signOutIcon, signOutIconBlack } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { Action } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const img = isDarkModeOn ? rightDecorationWhite : rightDecoration;
+const settings = isDarkModeOn ? settingsIconBlack : settingsIcon;
+const getCoins = isDarkModeOn ? getCoinsIconBlack : getCoinsIcon;
+const help = isDarkModeOn ? helpIconBlack : helpIcon;
+const signOut = isDarkModeOn ? signOutIconBlack : signOutIcon;
 
 const Wrapper = styled.div`
   position: relative;
@@ -23,19 +31,23 @@ const Wrapper = styled.div`
   flex-direction: row;
   width: 100%;
   height: 100%;
+  overflow-x: hidden;
 `;
 
 const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   flex: 1;
-  padding: 5px 0 30px 30px;
+  padding: 0 0 30px 30px;
 `;
 
 const NavBar = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  width: 100%;
+  margin-top: 9px;
 `;
 
 const NavBarPart = styled.div`
@@ -65,15 +77,14 @@ const NavBarLink = styled.div`
 const RightDecoration = styled.img`
   display: block;
   height: 100%;
+  margin-right: -1px;
 `;
 
 const RoutesWrapper = styled.div`
   position: relative;
   display: flex;
-  flex: 1;
   justify-content: center;
-  align-items: center;
-  height: 100%;
+  height: calc(100% - 200px);
 `;
 
 const CustomTooltip = styled(NavTooltip)`
@@ -90,12 +101,16 @@ const TooltipWrapper = styled.div`
 `;
 
 const bntStyle = { marginRight: 15, marginTop: 10 };
+const bgColor = isDarkModeOn ? smColors.white : smColors.black;
 
 type Props = {
-  isConnected: boolean,
+  status: Object,
   miningStatus: number,
+  getNodeStatus: Action,
   getMiningStatus: Action,
-  getGenesisTime: Action,
+  getAccountRewards: Action,
+  getBalance: Action,
+  getTxList: Action,
   logout: Action,
   history: RouterHistory,
   location: { pathname: string, hash: string }
@@ -107,7 +122,16 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
+  // eslint-disable-next-line react/sort-comp
+  getNodeStatusInterval: IntervalID;
+
+  initialMiningStatusInterval: IntervalID;
+
   miningStatusInterval: IntervalID;
+
+  accountRewardsInterval: IntervalID;
+
+  txCollectorInterval: IntervalID;
 
   navMap: Array<() => void>;
 
@@ -126,98 +150,101 @@ class Main extends Component<Props, State> {
       () => history.push('/main/wallet'),
       () => history.push('/main/contacts'),
       () => history.push('/main/settings'),
-      () => shell.openExternal('https://testnet.spacemesh.io/#/tap'),
+      () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin'),
       () => shell.openExternal('https://testnet.spacemesh.io/#/help')
     ];
   }
 
   render() {
-    const { isConnected } = this.props;
-    const { activeRouteIndex, isOfflineBannerVisible } = this.state;
+    const { activeRouteIndex } = this.state;
     return (
       <Wrapper>
         <Logo />
         <InnerWrapper>
           <NavBar>
-          <NavBarPart>
-            <NavLinksWrapper>
+            <NavBarPart>
+              <NavLinksWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
+                    SMESHING
+                  </NavBarLink>
+                  <CustomTooltip text="MANAGE SMESHING" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                    WALLET
+                  </NavBarLink>
+                  <CustomTooltip text="SEND / RECEIVE SMH" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+                <TooltipWrapper>
+                  <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
+                    CONTACTS
+                  </NavBarLink>
+                  <CustomTooltip text="MANAGE CONTACTS" withIcon={false} isLinkTooltip />
+                </TooltipWrapper>
+              </NavLinksWrapper>
+            </NavBarPart>
+            <NavBarPart>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
-                  MINING
-                </NavBarLink>
-                <CustomTooltip text="SETUP OR MANAGE YOUR MINING" withIcon={false} isLinkTooltip />
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 3 })}
+                  img={settings}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={activeRouteIndex === 3}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                  bgColor={bgColor}
+                />
+                <CustomTooltip text="SETTINGS" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
-                  WALLET
-                </NavBarLink>
-                <CustomTooltip text="SEND / RECEIVE SMC" withIcon={false} isLinkTooltip />
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 4 })}
+                  img={getCoins}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                  bgColor={bgColor}
+                />
+                <CustomTooltip text="GET SMESH" withIcon={false} />
               </TooltipWrapper>
               <TooltipWrapper>
-                <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
-                  CONTACTS
-                </NavBarLink>
-                <CustomTooltip text="MANAGE YOUR CONTACTS" withIcon={false} isLinkTooltip />
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 5 })}
+                  img={help}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                  bgColor={bgColor}
+                />
+                <CustomTooltip text="HELP" withIcon={false} />
               </TooltipWrapper>
-            </NavLinksWrapper>
-          </NavBarPart>
-          <NavBarPart>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 3 })}
-                img={settingsIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={activeRouteIndex === 3}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="SETTINGS" withIcon={false} />
-            </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 4 })}
-                img={getCoinsIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="GET COINS" withIcon={false} />
-            </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 5 })}
-                img={helpIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="HELP" withIcon={false} />
-            </TooltipWrapper>
-            <TooltipWrapper>
-              <SecondaryButton
-                onClick={() => this.handleNavigation({ index: 6 })}
-                img={signOutIcon}
-                imgHeight={30}
-                imgWidth={30}
-                isPrimary={false}
-                width={35}
-                height={35}
-                style={bntStyle}
-              />
-              <CustomTooltip text="LOGOUT" withIcon={false} />
-            </TooltipWrapper>
-          </NavBarPart>
+              <TooltipWrapper>
+                <SecondaryButton
+                  onClick={() => this.handleNavigation({ index: 6 })}
+                  img={signOut}
+                  imgHeight={30}
+                  imgWidth={30}
+                  isPrimary={false}
+                  width={35}
+                  height={35}
+                  style={bntStyle}
+                  bgColor={bgColor}
+                />
+                <CustomTooltip text="LOGOUT" withIcon={false} />
+              </TooltipWrapper>
+            </NavBarPart>
           </NavBar>
+          <InfoBanner />
           <RoutesWrapper>
-            {!isConnected && isOfflineBannerVisible && <OfflineBanner closeBanner={() => this.setState({ isOfflineBannerVisible: false })} />}
             <Switch>
               {routes.main.map((route) => (
                 <Route key={route.path} path={route.path} component={route.component} />
@@ -225,36 +252,63 @@ class Main extends Component<Props, State> {
             </Switch>
           </RoutesWrapper>
         </InnerWrapper>
-        <RightDecoration src={rightDecoration} />
-        <QuitDialog />
+        <RightDecoration src={img} />
       </Wrapper>
     );
   }
 
+  async componentDidMount() {
+    const { getNodeStatus, getMiningStatus, getBalance, getTxList, getAccountRewards, miningStatus } = this.props;
+    await getNodeStatus();
+    await getTxList({ approveTxNotifier: this.approveTxNotifier });
+    await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
+    await getBalance();
+    this.txCollectorInterval = setInterval(async () => { await getTxList({ approveTxNotifier: this.approveTxNotifier }); await getBalance(); }, 90000);
+    this.accountRewardsInterval = setInterval(async () => { await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier }); await getBalance(); }, 90000);
+    this.getNodeStatusInterval = setInterval(getNodeStatus, 30000);
+    this.initialMiningStatusInterval = setInterval(async () => {
+      const status = await getMiningStatus();
+      if (status !== nodeConsts.MINING_UNSET) {
+        clearInterval(this.initialMiningStatusInterval);
+      }
+    }, 1000);
+    if (miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(() => {
+        getMiningStatus();
+      }, 100000);
+    }
+  }
+
   componentDidUpdate(prevProps: Props) {
-    const { isConnected, miningStatus, getMiningStatus, getGenesisTime } = this.props;
-    if (isConnected && [nodeConsts.IN_SETUP, nodeConsts.IS_MINING].includes(miningStatus)) {
-      getGenesisTime();
+    const {miningStatus, getMiningStatus } = this.props;
+    if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
+      this.miningStatusInterval = setInterval(getMiningStatus, 100000);
     }
-    if (isConnected && prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => { isConnected && getMiningStatus(); }, 3600000);
-    }
-    if (isConnected && [nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
+    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
       clearInterval(this.miningStatusInterval);
       notificationsService.notify({
         title: 'Spacemesh',
-        notification: 'Your full node setup is complete! You are now participating in the Spacemesh network…!',
+        notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
         callback: () => this.handleNavigation({ index: 0 })
       });
     }
+  }
+
+  componentWillUnmount() {
+    this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
+    this.miningStatusInterval && clearInterval(this.miningStatusInterval);
+    this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
+    this.txCollectorInterval && clearInterval(this.txCollectorInterval);
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
     const pathname = props.location.pathname;
     if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
       return { activeRouteIndex: -1 };
-    } else if (pathname.indexOf('contacts') !== -1 && prevState.activeRouteIndex === -1) {
+    } else if (pathname.indexOf('contacts') !== -1) {
       return { activeRouteIndex: 2 };
+    } else if (pathname.indexOf('send-coins') !== -1 && prevState.activeRouteIndex === 2) {
+      return { activeRouteIndex: 1 };
     }
     return null;
   }
@@ -287,23 +341,42 @@ class Main extends Component<Props, State> {
       }
     }
   };
+
+  approveTxNotifier = ({ hasConfirmedIncomingTxs }: { hasConfirmedIncomingTxs: boolean }) => {
+    const { history } = this.props;
+    notificationsService.notify({
+      title: 'Spacemesh',
+      notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
+      callback: () => history.push('/main/transactions'),
+      tag: 1
+    });
+  }
+
+  newRewardsNotifier = () => {
+    notificationsService.notify({
+      title: 'Spacemesh',
+      notification: 'Received a reward for smeshing!',
+      callback: () => this.handleNavigation({ index: 0 }),
+      tag: 2
+    });
+  }
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   miningStatus: state.node.miningStatus
 });
 
 const mapDispatchToProps = {
+  getNodeStatus,
   getMiningStatus,
-  getGenesisTime,
+  getAccountRewards,
+  getBalance,
+  getTxList,
   logout
 };
 
-Main = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(Main);
+Main = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Main);
 
 Main = ScreenErrorBoundary(Main);
 export default Main;

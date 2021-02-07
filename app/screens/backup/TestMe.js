@@ -2,16 +2,24 @@
 import { shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '/basicComponents';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { DropResult } from 'react-beautiful-dnd';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
+const SubHeader = styled.div`
+  margin-bottom: 25px;
+  font-size: 15px;
+  line-height: 20px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
+`;
+
 const Text = styled.span`
   font-size: 14px;
-  line-height: 18px;
+  line-height: 24px;
 `;
 
 const WhiteText = styled(Text)`
@@ -21,6 +29,7 @@ const WhiteText = styled(Text)`
 const MiddleSectionRow = styled.div`
   display: flex;
   flex-direction: row;
+  height: 100%;
 `;
 
 const BottomRow = styled(MiddleSectionRow)`
@@ -34,15 +43,14 @@ const BottomRow = styled(MiddleSectionRow)`
 const TestWordsSection = styled.div`
   display: flex;
   flex-direction: column;
-  margin-right: 18px;
+  margin-right: 20px;
   min-width: 190px;
 `;
 
 const WordsSection = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: wrap;
-  height: 140px;
   width: 100%;
 `;
 
@@ -50,7 +58,6 @@ const WordContainer = styled.div`
   border: ${({ isDraggingOver }) => (isDraggingOver ? `none` : `1px dashed ${smColors.darkGray}`)};
   height: 27px;
   width: 155px;
-  margin-bottom: 7px;
   border-radius: 5px;
   margin-right: 20px;
   padding-left: 16px;
@@ -69,17 +76,16 @@ const TestWordContainer = styled(WordContainer)`
 
 const TestWordDroppable = styled.div`
   border: 1px solid ${smColors.darkGray};
-  height: 27px;
-  width: 155px;
-  margin-bottom: 7px;
+  height: 29px;
+  width: 157px;
   border-radius: 5px;
   margin-right: 20px;
+  margin-bottom: 30px;
 `;
 
 const WordDroppable = styled.div`
   height: 27px;
   width: 155px;
-  margin-bottom: 7px;
   border-radius: 5px;
   margin-right: 20px;
   transform: none !important;
@@ -103,7 +109,8 @@ const IndexWrapper = styled.div`
 `;
 
 const Index = styled(Text)`
-  color: ${smColors.darkGray};
+  line-height: 26px;
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
 `;
 
 const WordWrapper = styled.div`
@@ -112,12 +119,12 @@ const WordWrapper = styled.div`
 
 const NotificationBoxOuter = styled(CorneredWrapper)`
   position: absolute;
-  bottom: -75px;
+  bottom: -40px;
   right: 0px;
 `;
 
 const NotificationBox = styled.div`
-  width: 130px;
+  width: 315px;
   padding: 4px 9px;
   background-color: ${smColors.lightGray};
   font-size: 10px;
@@ -150,7 +157,7 @@ const getInitialState = (mnemonic: string) => ({
 
 type Props = {
   history: RouterHistory,
-  mnemonic: string
+  location: { state: { mnemonic: string } }
 };
 
 type State = {
@@ -163,7 +170,11 @@ type State = {
 class TestMe extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const { mnemonic } = props;
+    const {
+      location: {
+        state: { mnemonic }
+      }
+    } = props;
     this.state = { ...getInitialState(mnemonic) };
   }
 
@@ -171,14 +182,9 @@ class TestMe extends Component<Props, State> {
     const { dropsCounter, matchCounter } = this.state;
     const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
     return [
-      <WrapperWith2SideBars
-        width={920}
-        height={400}
-        header="CONFIRM YOUR 12 WORDS BACKUP"
-        subHeader="Drag each of the four words below to its matching number in your paper backup word list"
-        key="1"
-      >
+      <WrapperWith2SideBars width={920} header="CONFIRM YOUR 12 WORDS BACKUP" key="1">
         <SmallHorizontalPanel />
+        <SubHeader>Drag each of the four words below to its matching number in your paper backup word list</SubHeader>
         {this.renderDragAndDropArea()}
         <BottomRow>
           <Link onClick={this.openBackupGuide} text="BACKUP GUIDE" />
@@ -299,7 +305,11 @@ class TestMe extends Component<Props, State> {
   };
 
   resetTest = () => {
-    const { mnemonic } = this.props;
+    const {
+      location: {
+        state: { mnemonic }
+      }
+    } = this.props;
     this.setState({ ...getInitialState(mnemonic) });
   };
 
@@ -311,9 +321,4 @@ class TestMe extends Component<Props, State> {
   };
 }
 
-const mapStateToProps = (state) => ({
-  mnemonic: state.wallet.mnemonic
-});
-
-TestMe = connect<any, any, _, _, _, _>(mapStateToProps)(TestMe);
 export default TestMe;

@@ -66,6 +66,8 @@
       {
         "order": [
           "type-annotations",
+          "defaultProps",
+          "static-variables",
           "static-methods",
           "state",
           "constructor",

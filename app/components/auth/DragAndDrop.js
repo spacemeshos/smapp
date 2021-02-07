@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link } from '/basicComponents';
 import { smColors } from '/vars';
-import { upload, incorrectFile } from '/assets/images';
+import { upload, uploadWhite, incorrectFile } from '/assets/images';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const uploadImg = isDarkModeOn ? uploadWhite : upload;
 
 const Wrapper = styled.div`
   display: flex;
@@ -12,7 +15,7 @@ const Wrapper = styled.div`
   width: 100%;
   border: 1px dashed ${smColors.darkGray};
   border-radius: 2px;
-  ${({ isDragging, hasError }) => (hasError ? `background-color: rgba(236, 92, 61, 0.1);` : `background-color: ${isDragging ? `rgba(101, 176, 66, 0.1)` : smColors.lightGray}`)}
+  ${({ isDragging, hasError }) => (hasError ? `background-color: rgba(236, 92, 61, 0.1);` : `background-color: ${isDragging ? `rgba(101, 176, 66, 0.1)` : 'transparent'}`)}
 `;
 
 const MsgWrapper = styled.div`
@@ -31,7 +34,7 @@ const Image = styled.img`
 const Text = styled.span`
   font-size: 15px;
   line-height: 17px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   margin-bottom: 10px;
 `;
 
@@ -71,14 +74,14 @@ class DragAndDrop extends Component<Props, State> {
       preLinkText = 'or browse for';
       linkText = 'another file';
     } else {
-      preLinkText = 'or click to';
-      linkText = 'browse computer';
+      preLinkText = 'or';
+      linkText = 'locate file on your computer';
     }
     return (
       <Wrapper onDragOver={this.onDragOver} onDragLeave={this.onDragLeave} onDrop={this.onDrop} isDragging={isDragging} hasError={hasError}>
         <input ref={this.fileInputRef} type="file" onChange={this.onFilesAdded} style={{ display: 'none' }} />
         <MsgWrapper>
-          {!fileName && <Image src={hasError ? incorrectFile : upload} />}
+          {!fileName && <Image src={hasError ? incorrectFile : uploadImg} />}
           <Text>{hasError ? 'incorrect file' : fileName || 'Drop a wallet restore file here'}</Text>
           <LinkWrapper>
             <Text>{preLinkText}&nbsp;</Text>

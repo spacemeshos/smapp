@@ -8,7 +8,9 @@ import { Button, Link } from '/basicComponents';
 import { sendIcon, requestIcon } from '/assets/images';
 import smColors from '/vars/colors';
 import type { RouterHistory } from 'react-router-dom';
-import type { Account, TxList } from '/types';
+import type { Account } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,11 +20,11 @@ const Wrapper = styled.div`
 const MiddleSection = styled.div`
   display: flex;
   flex-direction: column;
-  width: 350px;
+  width: 450px;
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionHeader = styled.div`
@@ -30,21 +32,20 @@ const MiddleSectionHeader = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const MiddleSectionText = styled.div`
   flex: 1;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 type Props = {
   account: Account,
-  currentAccountIndex: number,
-  transactions: { data: TxList },
-  history: RouterHistory
+  history: RouterHistory,
+  miningStatus: string
 };
 
 type State = {
@@ -56,25 +57,21 @@ type State = {
 
 class Overview extends Component<Props, State> {
   render() {
-    const { currentAccountIndex, transactions } = this.props;
-    const latestTransactions =
-      transactions[currentAccountIndex] && transactions[currentAccountIndex].data && transactions[currentAccountIndex].data.length > 0
-        ? transactions[currentAccountIndex].data.slice(0, 3)
-        : [];
+    const { account } = this.props;
     return (
       <Wrapper>
         <MiddleSection>
           <MiddleSectionHeader>
-            send/request
+            Send or Request
             <br />
             --
           </MiddleSectionHeader>
-          <MiddleSectionText>Send or request SMC to / from anyone in your contacts list or by using their address</MiddleSectionText>
+          <MiddleSectionText>Send SMH to anyone, or request to receive SMH.</MiddleSectionText>
           <Button onClick={this.navigateToSendCoins} text="SEND" isPrimary={false} width={225} img={sendIcon} imgPosition="after" style={{ marginBottom: 20 }} />
           <Button onClick={this.navigateToRequestCoins} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
           <Link onClick={this.navigateToWalletGuide} text="WALLET GUIDE" style={{ marginRight: 'auto' }} />
         </MiddleSection>
-        <LatestTransactions transactions={latestTransactions} navigateToAllTransactions={this.navigateToAllTransactions} />
+        <LatestTransactions publicKey={account.publicKey} navigateToAllTransactions={this.navigateToAllTransactions} />
       </Wrapper>
     );
   }
@@ -85,8 +82,8 @@ class Overview extends Component<Props, State> {
   };
 
   navigateToRequestCoins = () => {
-    const { history, account } = this.props;
-    history.push('/main/wallet/request-coins', { account });
+    const { history, account, miningStatus } = this.props;
+    history.push('/main/wallet/request-coins', { account, miningStatus });
   };
 
   navigateToAllTransactions = () => {
@@ -99,8 +96,7 @@ class Overview extends Component<Props, State> {
 
 const mapStateToProps = (state) => ({
   account: state.wallet.accounts[state.wallet.currentAccountIndex],
-  currentAccountIndex: state.wallet.currentAccountIndex,
-  transactions: state.wallet.transactions
+  miningStatus: state.node.miningStatus
 });
 
 Overview = connect<any, any, _, _, _, _>(mapStateToProps)(Overview);

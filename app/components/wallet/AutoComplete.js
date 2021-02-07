@@ -168,7 +168,7 @@ class AutoComplete extends Component<Props, State> {
       <DropdownRow onClick={(event) => this.handleSelection({ event, item })} key={`${item.label}${index}`}>
         <DdElement isFirst={index === 0}>
           <Nickname>{item.nickname || 'Unknown Address'}</Nickname>
-          <Address>{getAbbreviatedText(item.address)}</Address>
+          <Address>{getAbbreviatedText(item.address.substring(12))}</Address>
         </DdElement>
       </DropdownRow>
     );

@@ -1,21 +1,26 @@
 // @flow
-import { shell } from 'electron';
+import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { getUpcomingAwards } from '/redux/node/actions';
+import { getUpcomingRewards } from '/redux/node/actions';
 import { CorneredContainer } from '/components/common';
 import { WrapperWith2SideBars, Link, Button } from '/basicComponents';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { playIcon, pauseIcon } from '/assets/images';
+import { eventsService } from '/infra/eventsService';
+import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge, formatBytes } from '/infra/utils';
+import { fireworks, copyBlack, copyWhite } from '/assets/images';
 import { smColors, nodeConsts } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
-import type { Action } from '/types';
+import type { TxList } from '/types';
+// import type { Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
 `;
 
 const LogInnerWrapper = styled.div`
@@ -25,6 +30,7 @@ const LogInnerWrapper = styled.div`
   height: 100%;
   overflow-y: visible;
   overflow-x: hidden;
+  padding: 0 10px;
 `;
 
 const LogEntry = styled.div`
@@ -35,7 +41,7 @@ const LogEntry = styled.div`
 const LogText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const AwardText = styled(LogText)`
@@ -50,7 +56,7 @@ const LogEntrySeparator = styled(LogText)`
 const Text = styled.div`
   font-size: 16px;
   line-height: 23px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled(Text)`
@@ -69,7 +75,7 @@ const Footer = styled.div`
 const Status = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ isConnected }) => (isConnected ? smColors.green : smColors.orange)};
+  color: ${({ status }) => (status ? smColors.green : smColors.orange)};
   margin-bottom: 30px;
 `;
 
@@ -81,16 +87,15 @@ const TextWrapper = styled.div`
 `;
 
 const LeftText = styled.div`
-  margin-right: 15px;
+  margin-right: 5px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const RightText = styled.div`
-  flex: 1;
   margin-right: 0;
-  margin-left: 15px;
+  margin-left: 5px;
   text-align: right;
 `;
 
@@ -98,61 +103,117 @@ const GreenText = styled(RightText)`
   color: ${smColors.green};
 `;
 
-const Dots = styled(LeftText)`
+const Dots = styled.div`
+  flex: 1;
   flex-shrink: 1;
   overflow: hidden;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
+const Fireworks = styled.img`
+  position: absolute;
+  top: -40px;
+  max-width: 100%;
+  max-height: 100%;
+  cursor: inherit;
+`;
+
+const CopyIcon = styled.img`
+  align-self: flex-end;
+  width: 16px;
+  height: 15px;
+  margin: 6px 0 6px 6px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
+`;
+
+const inlineLinkStyle = { display: 'inline', fontSize: '16px', lineHeight: '20px' };
+
 type Props = {
-  isConnected: boolean,
+  status: Object,
   miningStatus: number,
-  timeTillNextAward: number,
-  totalEarnings: number,
-  getUpcomingAwards: Action,
+  // timeTillNextAward: number,
+  rewards: TxList,
+  // getUpcomingRewards: Action,
+  rewardsAddress: string,
+  commitmentSize: string,
   history: RouterHistory,
   location: { state?: { showIntro?: boolean } }
 };
 
 type State = {
   showIntro: boolean,
-  isMiningPaused: boolean
+  isMiningPaused: boolean,
+  showFireworks: boolean,
+  copied: boolean
 };
 
 class Node extends Component<Props, State> {
   getUpcomingAwardsInterval: IntervalID;
+
+  fireworksTimeout: TimeoutID;
+
+  audio: any;
 
   constructor(props) {
     super(props);
     const { location } = props;
     this.state = {
       showIntro: !!location?.state?.showIntro,
-      isMiningPaused: false
+      showFireworks: !!location?.state?.showIntro,
+      copied: false
     };
   }
 
   render() {
+    const { rewards } = this.props;
+    let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
+    smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
+    let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
+    smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
     return (
       <Wrapper>
-        <WrapperWith2SideBars width={650} height={480} header="SPACEMESH FULL NODE" style={{ marginRight: 10 }}>
+        <WrapperWith2SideBars width={650} height={480} header="SMESHER" style={{ marginRight: 10 }}>
           {this.renderMainSection()}
         </WrapperWith2SideBars>
-        <CorneredContainer width={250} height={480} header="FULL NODE LOG">
+        <CorneredContainer width={310} height={480} header="SMESHER LOG">
           <LogInnerWrapper>
-            <LogEntry>
-              <LogText>12.09.19 - 13:00</LogText>
-              <LogText>Initializing</LogText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
-            <LogEntry>
-              <LogText>12.09.19 - 13:10</LogText>
-              <AwardText>Network award: 2SMC</AwardText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
-            <LogEntry>
-              <LogText>12.09.19 - 13:20</LogText>
-              <LogText>Network checkup</LogText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
+            {smesherInitTimestamp ? (
+              <>
+                <LogEntry>
+                  <LogText>{smesherInitTimestamp}</LogText>
+                  <LogText>Initializing smesher</LogText>
+                </LogEntry>
+                <LogEntrySeparator>...</LogEntrySeparator>
+              </>
+            ) : null}
+            {smesherSmeshingTimestamp ? (
+              <>
+                <LogEntry>
+                  <LogText>{smesherSmeshingTimestamp}</LogText>
+                  <LogText>Started smeshing</LogText>
+                </LogEntry>
+                <LogEntrySeparator>...</LogEntrySeparator>
+              </>
+            ) : null}
+            {rewards &&
+              rewards.map((reward, index) => (
+                <div key={`reward${index}`}>
+                  <LogEntry>
+                    <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
+                    <AwardText>Smeshing reward: {formatSmidge(reward.amount)}</AwardText>
+                    <AwardText>Smeshing fee reward: {formatSmidge(reward.fee)}</AwardText>
+                  </LogEntry>
+                  <LogEntrySeparator>...</LogEntrySeparator>
+                </div>
+              ))}
           </LogInnerWrapper>
         </CorneredContainer>
       </Wrapper>
@@ -160,96 +221,145 @@ class Node extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { isConnected, miningStatus, getUpcomingAwards } = this.props;
-    if (isConnected && miningStatus === nodeConsts.IS_MINING) {
-      await getUpcomingAwards();
-      this.getUpcomingAwardsInterval = setInterval(getUpcomingAwards, nodeConsts.TIME_BETWEEN_LAYERS);
+    //   const { status, miningStatus, getUpcomingRewards } = this.props;
+    //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
+    //     await getUpcomingRewards();
+    //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
+    //   }
+    const audioPath = await eventsService.getAudioPath();
+    this.audio = new Audio(audioPath);
+  }
+
+  componentDidUpdate() {
+    const { rewards } = this.props;
+    const playedAudio = localStorage.getItem('playedAudio');
+    this.audio.loop = false;
+    if (rewards && rewards.length === 1 && !playedAudio) {
+      this.audio.play();
     }
   }
 
-  componentWillUnmount(): * {
-    this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
+  componentWillUnmount() {
+    // this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);
+    this.fireworksTimeout && clearTimeout(this.fireworksTimeout);
   }
 
   renderMainSection = () => {
     const { miningStatus } = this.props;
-    const { showIntro } = this.state;
+    const { showIntro, showFireworks } = this.state;
     if (showIntro) {
-      return this.renderIntro();
+      return showFireworks ? this.renderFireworks() : this.renderIntro();
     } else if (miningStatus === nodeConsts.NOT_MINING) {
       return this.renderPreSetup();
+    } else if (miningStatus === nodeConsts.MINING_UNSET) {
+      return this.renderMiningUnset();
     }
     return this.renderNodeDashboard();
   };
 
+  renderFireworks = () => {
+    this.fireworksTimeout = setTimeout(() => {
+      this.setState({ showFireworks: false });
+    }, 1500);
+    return <Fireworks key="fireworks" src={fireworks} />;
+  };
+
   renderIntro = () => {
     return [
-      <BoldText key="1">Success! You are now a Spacemesh testnet member!</BoldText>,
-      <Text key="2">* You will receive a desktop notification about your mining awards</Text>,
-      <Text key="3">* You can close this app, Mining still happens in the background</Text>,
-      <BoldText key="4">Important:</BoldText>,
-      <Text key="5">* Leave your computer on 24/7 to mine</Text>,
-      <Text key="6">* Disable your computer from going to sleep</Text>,
+      <BoldText key="1">Success! You are now a Spacemesh Testnet member!</BoldText>,
+      <Text key="2">* You will get a desktop notification about your smeshing rewards in about 48 hours</Text>,
+      <Text key="3">* You can close this window and choose to keep smeshing in the background</Text>,
+      <BoldText key="4">Important</BoldText>,
+      <Text key="5">* Leave your computer on 24/7 to smesh and to earn smeshing rewards</Text>,
+      <Text key="6">
+        * <Link onClick={this.navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={inlineLinkStyle} />
+      </Text>,
       <Text key="7">
-        * Important: configure your network to accept incoming app connections.
-        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={{ display: 'inline', fontSize: '16px', lineHeight: '20px' }} />
+        * Configure your network to accept incoming app connections.
+        <Link onClick={this.navigateToNetConfigGuide} text="Learn more." style={inlineLinkStyle} />
       </Text>,
       <Text key="8" style={{ display: 'flex', flexDirection: 'row' }}>
         *&nbsp;
-        <Link onClick={this.navigateToMiningGuide} text="Learn more about Spacemesh Mining" style={{ fontSize: '16px', lineHeight: '20px' }} />
+        <Link onClick={this.navigateToMiningGuide} text="Learn more about smeshing" style={inlineLinkStyle} />
       </Text>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => this.setState({ showIntro: false })} text="GOT IT" width={175} />
       </Footer>
     ];
   };
 
   renderPreSetup = () => {
-    const { history } = this.props;
+    const { history, commitmentSize } = this.props;
     return [
-      <BoldText key="1">You are not mining yet.</BoldText>,
+      <BoldText key="1">You are not smeshing yet.</BoldText>,
       <br key="2" />,
-      <Text key="3">You can start earning SMC to your wallet as soon as you complete the setup</Text>,
+      <Text key="3">Setup smeshing to join Spacemesh and earn Smesh rewards.</Text>,
       <br key="4" />,
       <br key="5" />,
-      <Text key="6">This setup uses 5 GB and takes just a few minutes to complete</Text>,
+      <Text key="6">{`Setup requires ${formatBytes(commitmentSize)} GB of free disk space.`}</Text>,
+      <Text key="7">You will start earning Smesh rewards in about 48 hours.</Text>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
         <Button onClick={() => history.push('/main/node-setup', { isOnlyNodeSetup: true })} text="BEGIN SETUP" width={175} />
       </Footer>
     ];
   };
 
+  renderMiningUnset = () => [
+    <BoldText key="1">SMESHER</BoldText>,
+    <br key="2" />,
+    <Text key="3">Please wait for smeshing status…</Text>,
+    <Footer key="footer">
+      <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
+    </Footer>
+  ];
+
   renderNodeDashboard = () => {
-    const { isConnected, timeTillNextAward, totalEarnings } = this.props;
-    const { isMiningPaused } = this.state;
+    const { status, rewardsAddress } = this.props;
+    const { copied } = this.state;
     return [
-      <Status key="status" isConnected={isConnected}>
-        {isConnected ? 'Connected!' : 'Not connected!'}
+      <Status key="status" status={status}>
+        {status ? 'Your Smesher is online.' : 'Not connected!'}
       </Status>,
-      <TextWrapper key="1">
-        <LeftText>Upcoming award in</LeftText>
-        <Dots>....................................</Dots>
-        <RightText>{Math.floor(timeTillNextAward / 1000)} min</RightText>
-      </TextWrapper>,
       <TextWrapper key="2">
-        <LeftText>Total Awards</LeftText>
-        <Dots>....................................</Dots>
-        <GreenText>{totalEarnings} SMC</GreenText>
+        <LeftText>Total Smeshing Rewards</LeftText>
+        <Dots>........................................</Dots>
+        <GreenText>{formatSmidge(this.calculateRewards(true))}</GreenText>
+      </TextWrapper>,
+      <TextWrapper key="3">
+        <LeftText>Total Fees Rewards</LeftText>
+        <Dots>........................................</Dots>
+        <GreenText>{formatSmidge(this.calculateRewards())}</GreenText>
+      </TextWrapper>,
+      <TextWrapper key="4">
+        <LeftText>Rewards Account</LeftText>
+        <Dots>........................................</Dots>
+        <GreenText>{getAbbreviatedText(getAddress(rewardsAddress), true, 4)}</GreenText>
+        <CopyIcon src={copy} onClick={this.copyRewardsAccount} />
+      </TextWrapper>,
+      <TextWrapper key="5">
+        <GreenText>{copied ? 'Copied' : ' '}</GreenText>
       </TextWrapper>,
       <Footer key="footer">
-        <Link onClick={this.navigateToMiningGuide} text="MINING GUIDE" />
-        <Button
-          onClick={this.pauseResumeMining}
-          text={isMiningPaused ? 'RESUME MINING' : 'PAUSE MINING'}
-          width={175}
-          imgPosition="before"
-          img={isMiningPaused ? playIcon : pauseIcon}
-          isDisabled
-        />
+        <Link onClick={this.navigateToMiningGuide} text="SMESHING GUIDE" />
       </Footer>
     ];
+  };
+
+  copyRewardsAccount = () => {
+    const { rewardsAddress } = this.props;
+    clipboard.writeText(`0x${getAddress(rewardsAddress)}`);
+    this.setState({ copied: true });
+  };
+
+  calculateRewards = (totalRewards?: boolean) => {
+    const { rewards } = this.props;
+    let sum = 0;
+    rewards.forEach((reward) => {
+      sum += totalRewards ? reward.amount : reward.fee;
+    });
+    return sum;
   };
 
   pauseResumeMining = () => {};
@@ -257,23 +367,24 @@ class Node extends Component<Props, State> {
   navigateToMiningGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/guide/setup');
 
   navigateToNetConfigGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/netconfig');
+
+  navigateToPreventComputerSleep = () => shell.openExternal('https://testnet.spacemesh.io/#/no_sleep');
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
   miningStatus: state.node.miningStatus,
+  commitmentSize: state.node.commitmentSize,
   timeTillNextAward: state.node.timeTillNextAward,
-  totalEarnings: state.node.totalEarnings
+  rewards: state.node.rewards,
+  rewardsAddress: state.node.rewardsAddress
 });
 
 const mapDispatchToProps = {
-  getUpcomingAwards
+  getUpcomingRewards
 };
 
-Node = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(Node);
+Node = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(Node);
 
 Node = ScreenErrorBoundary(Node);
 export default Node;

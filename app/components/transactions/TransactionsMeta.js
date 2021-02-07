@@ -1,16 +1,21 @@
 // @flow
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
+import { formatSmidge } from '/infra/utils';
 import { smColors } from '/vars';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled.span`
   font-family: SourceCodeProBold;
   margin-bottom: 18px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const TextRow = styled.div`
@@ -36,13 +41,13 @@ const ProgressBar = styled.div`
 const SmallText = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.darkGray};
+  color: ${isDarkModeOn ? smColors.white : smColors.darkGray};
 `;
 
 const Bar = styled.div`
   width: 100%;
-  height: 4px;
-  background-color: ${smColors.lightGray};
+  height: 5px;
+  background-color: ${isDarkModeOn ? smColors.white : smColors.mediumGray};
   position: relative;
 `;
 
@@ -67,17 +72,25 @@ class TransactionsMeta extends PureComponent<Props> {
   render() {
     const { mined, sent, received, totalMined, totalSent, totalReceived, filterName } = this.props;
     const totalFilteredCoins = mined + sent + received;
-    const coinsMeta = [{ title: 'MINED', coins: mined }, { title: 'SENT', coins: sent }, { title: 'RECEIVED', coins: received }];
-    const totalCoinsMeta = [{ title: 'TOTAL MINED', coins: totalMined }, { title: 'TOTAL SENT', coins: totalSent }, { title: 'TOTAL RECEIVED', coins: totalReceived }];
+    const coinsMeta = [
+      { title: 'SMESHED', coins: mined },
+      { title: 'SENT', coins: sent },
+      { title: 'RECEIVED', coins: received }
+    ];
+    const totalCoinsMeta = [
+      { title: 'SMESHED', coins: totalMined },
+      { title: 'SENT', coins: totalSent },
+      { title: 'RECEIVED', coins: totalReceived }
+    ];
 
     return (
       <>
         <BoldText>activity</BoldText>
         <BoldText>--</BoldText>
-        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${totalFilteredCoins}`}</Text>
+        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
         {coinsMeta.map((coinMeta) => (
           <ProgressBar key={coinMeta.title}>
-            <SmallText>{`${coinMeta.title} ${coinMeta.coins}`}</SmallText>
+            <SmallText>{`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}</SmallText>
             <Bar>
               <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
             </Bar>
@@ -89,7 +102,7 @@ class TransactionsMeta extends PureComponent<Props> {
           <TextRow key={totalMeta.title}>
             <Text>{totalMeta.title}</Text>
             <Dots>...................</Dots>
-            <Text>{`${totalMeta.coins} SMC`}</Text>
+            <Text>{formatSmidge(totalMeta.coins)}</Text>
           </TextRow>
         ))}
       </>

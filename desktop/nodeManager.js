@@ -1,9 +1,18 @@
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
+import { app, ipcMain, dialog } from 'electron';
 import { ipcConsts } from '../app/vars';
+import StoreService from './storeService';
+import netService from './netService';
+import nodeConfig from './config.json';
+import WalletManager from './walletManager';
+import { writeInfo, writeError } from './logger';
 
-const child = require('child_process').execFile;
+const { exec } = require('child_process');
+
 const find = require('find-process');
+const checkDiskSpace = require('check-disk-space');
 
 const osTargetNames = {
   Darwin: 'mac',
@@ -11,50 +20,270 @@ const osTargetNames = {
   Windows_NT: 'windows'
 };
 
-const getPidByName = ({ name }) => {
-  return find('name', name).then((list) => {
-    return list.length && list[0].pid ? list[0].pid : null;
-  });
-};
+const DEFAULT_PORT = '7153';
 
 class NodeManager {
-  static startNode = async ({ event }) => {
-    const isDevMode = process.env.NODE_ENV === 'development';
-    if (Object.keys(osTargetNames).indexOf(os.type()) < 0) {
-      event.sender.send(ipcConsts.START_NODE_FAILURE, 'OS not supported.');
-    }
-    const osTarget = osTargetNames[os.type()];
-    // TODO: remove this and change to binary file path when dev mode uses binary node file
-    const devPath = './miniMesh.sh';
-    // TODO: should change prodPath to actual executable file path in prod.
-    const prodPath = path.resolve(`${process.resourcesPath}/../node/${osTarget}/${osTarget === 'windows' ? '' : osTarget}go-spacemesh${osTarget === 'windows' ? '.exe' : ''}`);
-    const executablePath = isDevMode ? devPath : prodPath;
-    child(executablePath, (err) => {
-      if (err) {
-        event.sender.send(ipcConsts.START_NODE_FAILURE, err.message);
+  constructor(mainWindow) {
+    this.subscribeToEvents(mainWindow);
+  }
+
+  subscribeToEvents = (mainWindow) => {
+    ipcMain.handle(ipcConsts.IS_SERVICE_READY, async () => {
+      try {
+        await netService.isServiceReady();
+        return true;
+      } catch (e) {
+        return false;
       }
-      event.sender.send(ipcConsts.START_NODE_SUCCESS);
+    });
+    ipcMain.once(ipcConsts.START_NODE, async () => {
+      await this.startNode();
+      new WalletManager(mainWindow); // eslint-disable-line no-new
+    });
+    ipcMain.handle(ipcConsts.GET_NODE_SETTINGS, async (event) => {
+      const res = await this.getNodeSettings({ event });
+      writeInfo(`NodeManager`, `ipc GET_NODE_SETTINGS channel`, { res });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.GET_NODE_STATUS, async () => {
+      const res = await this.getNodeStatus();
+      writeInfo(`NodeManager`, `ipc GET_NODE_STATUS channel`, { res });
+      return res;
+    });
+    ipcMain.on(ipcConsts.SET_NODE_PORT, (event, request) => {
+      const networkId = StoreService.get({ key: 'networkId' });
+      StoreService.set({ key: `${networkId}-port`, value: request.port });
+    });
+    ipcMain.handle(ipcConsts.SELECT_POST_FOLDER, async () => {
+      const res = await this.selectPostFolder({ mainWindow });
+      writeInfo(`NodeManager`, `ipc SELECT_POST_FOLDER channel`, { res });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.GET_MINING_STATUS, async () => {
+      const res = await this.getMiningStatus();
+      writeInfo(`NodeManager`, `ipc GET_MINING_STATUS channel`, { res });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.INIT_MINING, async (event, request) => {
+      const res = await this.initMining({ ...request });
+      writeInfo(`NodeManager`, `ipc INIT_MINING channel`, { res }, { request });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.GET_UPCOMING_REWARDS, async () => {
+      const res = await this.getUpcomingRewards();
+      writeInfo(`NodeManager`, `ipc GET_UPCOMING_REWARDS channel`, { res });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.SET_REWARDS_ADDRESS, async (event, request) => {
+      const res = await this.setRewardsAddress({ ...request });
+      writeInfo(`NodeManager`, `ipc SET_REWARDS_ADDRESS channel`, { res }, { request });
+      return res;
+    });
+    ipcMain.handle(ipcConsts.SET_NODE_IP, (event, request) => {
+      const res = this.setNodeIpAddress({ ...request });
+      writeInfo(`NodeManager`, `ipc SET_NODE_IP channel`, { res }, { request });
+      return res;
     });
   };
 
-  static hardRefresh = ({ browserWindow }) => browserWindow.reload();
-
-  static killNodeProcess = async ({ event }) => {
+  startNode = async () => {
     try {
-      const isDevMode = process.env.NODE_ENV === 'development';
-      if (isDevMode) {
-        // eslint-disable-next-line no-param-reassign
-        event.returnValue = null;
+      const networkId = parseInt(nodeConfig.p2p['network-id']);
+      StoreService.set({ key: 'networkId', value: networkId });
+      const fetchedGenesisTime = nodeConfig.main['genesis-time'];
+      const prevGenesisTime = StoreService.get({ key: `${networkId}-genesisTime` }) || '';
+
+      const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
+
+      StoreService.set({ key: `${networkId}-postSize`, value: parseInt(nodeConfig.post['post-space']) });
+      StoreService.set({ key: `${networkId}-layerDurationSec`, value: parseInt(nodeConfig.main['layer-duration-sec']) });
+
+      const userDataPath = app.getPath('userData');
+      const nodePath = path.resolve(
+        app.getAppPath(),
+        process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
+        `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
+      );
+      const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
+      const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
+
+      const configFileLocation = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
+
+      if (prevGenesisTime !== fetchedGenesisTime) {
+        const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
+        exec(command, async (err) => {
+          if (!err) {
+            StoreService.set({ key: `${networkId}-genesisTime`, value: fetchedGenesisTime });
+            const nodePathWithParams = `"${nodePath}" --grpc-server --grpc-port-new --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
+            exec(nodePathWithParams, (error) => {
+              if (error) {
+                (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
+                writeError('nodeManager', 'startNode', error);
+              }
+            });
+          } else {
+            dialog.showErrorBox('Old data files removal failed', `${err}`);
+            writeError('nodeManager', 'startNode', err);
+          }
+        });
       } else {
-        const pid = await getPidByName({ name: 'go-spacemesh' });
-        process.kill(pid, 'SIGINT');
-        // eslint-disable-next-line no-param-reassign
-        event.returnValue = pid;
+        const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+        const nodePathWithParams = `"${nodePath}" --grpc-server --grpc-port-new --json-server --tcp-port ${port} --config "${configFileLocation}"${
+          savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
+        } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
+        exec(nodePathWithParams, (error) => {
+          if (error) {
+            (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
+            writeError('nodeManager', 'startNode', error);
+          }
+        });
+      }
+    } catch (e) {
+      dialog.showErrorBox('Parsing json failed', `${e}`);
+      writeError('nodeManager', 'startNode', e);
+    }
+  };
+
+  stopNode = async ({ browserWindow }) => {
+    const closeApp = async () => {
+      browserWindow.destroy();
+      app.quit();
+    };
+    const stopNodeCycle = async (attempt) => {
+      const nodeProcesses = await find('name', 'go-spacemesh');
+      if (attempt > 15) {
+        if (nodeProcesses && nodeProcesses.length) {
+          exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`);
+        }
+        await closeApp();
+      } else if (!nodeProcesses || !nodeProcesses.length) {
+        await closeApp();
+      } else {
+        setTimeout(() => stopNodeCycle(attempt + 1), 3000);
+      }
+    };
+    try {
+      const nodeProcesses = await find('name', 'go-spacemesh');
+      if (nodeProcesses && nodeProcesses.length) {
+        exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -s INT ${nodeProcesses[1].pid}`, async (err) => {
+          if (err) {
+            writeError('nodeManager', 'stopNode', err);
+          }
+          await stopNodeCycle(0);
+        });
+      } else {
+        await closeApp();
       }
     } catch (err) {
       // could not find or kill node process
-      // eslint-disable-next-line no-param-reassign
-      event.returnValue = null;
+      writeError('nodeManager', 'stopNode', err);
+      await closeApp();
+    }
+  };
+
+  getNodeSettings = async () => {
+    try {
+      const networkId = StoreService.get({ key: 'networkId' });
+      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+      const address = savedMiningParams?.coinbase;
+      const genesisTime = StoreService.get({ key: `${networkId}-genesisTime` });
+      const commitmentSize = StoreService.get({ key: `${networkId}-postSize` });
+      const layerDuration = StoreService.get({ key: `${networkId}-layerDurationSec` });
+      const port = StoreService.get({ key: `${networkId}-port` }) || DEFAULT_PORT;
+      const { value } = await netService.getStateRoot();
+      return { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash: value, port };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  getNodeStatus = async () => {
+    try {
+      const status = await netService.getNodeStatus();
+      const parsedStatus = {
+        peers: parseInt(status.peers),
+        minPeers: parseInt(status.minPeers),
+        maxPeers: parseInt(status.maxPeers),
+        synced: status.synced,
+        syncedLayer: parseInt(status.syncedLayer),
+        currentLayer: parseInt(status.currentLayer),
+        verifiedLayer: parseInt(status.verifiedLayer)
+      };
+      return { status: parsedStatus, error: null };
+    } catch (error) {
+      return { status: null, error };
+    }
+  };
+
+  selectPostFolder = async ({ mainWindow }) => {
+    const { filePaths } = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select folder for smeshing',
+      defaultPath: app.getPath('documents'),
+      properties: ['openDirectory']
+    });
+    try {
+      fs.accessSync(filePaths[0], fs.constants.W_OK);
+      const diskSpace = await checkDiskSpace(filePaths[0]);
+      return { selectedFolder: filePaths[0], freeSpace: diskSpace.free };
+    } catch (error) {
+      writeError('nodeManager', 'selectPostFolder', error);
+      return { error };
+    }
+  };
+
+  getMiningStatus = async () => {
+    try {
+      const { status } = await netService.getMiningStatus();
+      return { error: null, status };
+    } catch (error) {
+      return { error, status: null };
+    }
+  };
+
+  initMining = async ({ logicalDrive, commitmentSize, coinbase }) => {
+    try {
+      await netService.initMining({ logicalDrive, commitmentSize, coinbase });
+      const networkId = StoreService.get({ key: 'networkId' });
+      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive, coinbase } });
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  getUpcomingRewards = async () => {
+    try {
+      const { layers } = await netService.getUpcomingAwards();
+      if (!layers) {
+        return { error: null, layers: [] };
+      }
+      const resolvedLayers = layers || [];
+      const parsedLayers = resolvedLayers.map((layer) => parseInt(layer));
+      parsedLayers.sort((a, b) => a - b);
+      return { error: null, layers: parsedLayers };
+    } catch (error) {
+      return { error: error.message, layers: null };
+    }
+  };
+
+  setRewardsAddress = async ({ address }) => {
+    try {
+      await netService.setRewardsAddress({ address });
+      const networkId = StoreService.get({ key: 'networkId' });
+      const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
+      StoreService.set({ key: `${networkId}-miningParams`, value: { logicalDrive: savedMiningParams.logicalDrive, coinbase: address } });
+      return { error: null };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  setNodeIpAddress = ({ nodeIpAddress }) => {
+    try {
+      netService.setNodeIpAddress({ nodeIpAddress });
+      return { error: null };
+    } catch (error) {
+      return { error };
     }
   };
 }

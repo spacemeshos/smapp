@@ -1,12 +1,12 @@
 // @flow
-import { shell } from 'electron';
+import { shell, clipboard } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
+import { getAbbreviatedText, getAddress } from '/infra/utils';
 import { smColors } from '/vars';
-import type { Contact } from '/types';
-import AutoComplete from './AutoComplete';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
@@ -28,7 +28,7 @@ const HeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const SubHeader = styled(HeaderText)`
@@ -44,16 +44,19 @@ const DetailsRow = styled.div`
 `;
 
 const DetailsText = styled.div`
-  flex: 1;
-  margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
-const DetailsText1 = styled(DetailsText)`
-  margin-right: 0;
-  text-align: right;
+const Dots = styled.div`
+  flex: 1;
+  flex-shrink: 1;
+  overflow: hidden;
+  margin-right: 12px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const Fee = styled.div`
@@ -77,33 +80,42 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
+const NotSyncedExplanation = styled.div`
+  flex: 1;
+  font-size: 11px;
+  line-height: 15px;
+  color: ${smColors.orange};
+`;
+
 // TODO add auto update for fee ranges
 const fees = [
   {
-    fee: 0.001,
+    fee: 1,
     label: '~ 10 min',
-    text: '(FEE 0.001 SMC)'
+    text: '(FEE 1 Smidge)'
   },
   {
-    fee: 0.003,
+    fee: 2,
     label: '~ 5 min',
-    text: '(FEE 0.003 SMC)'
+    text: '(FEE 2 Smidge)'
   },
   {
-    fee: 0.005,
+    fee: 3,
     label: '~ 1 min',
-    text: '(FEE 0.005 SMC)'
+    text: '(FEE 3 Smidge)'
   }
 ];
 
-const errorPopupStyle = { top: -5, right: -255, maxWidth: 250 };
+const inputStyle = { flex: '0 0 240px' };
+const errorPopupStyle = { top: 3, right: -190, maxWidth: 250 };
+const errorPopupStyle1 = { top: -5, right: -255, maxWidth: 250 };
+const ddStyle = { border: `1px solid ${isDarkModeOn ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
 
 type Props = {
   fromAddress: string,
-  initialAddress: string,
-  contacts: Contact[],
+  address: string,
   hasAddressError: boolean,
-  updateTxAddress: ({ address: string }) => void,
+  updateTxAddress: ({ value: string }) => void,
   resetAddressError: () => void,
   amount: string,
   updateTxAmount: ({ value: string }) => void,
@@ -112,9 +124,9 @@ type Props = {
   updateFee: ({ fee: number }) => void,
   note: string,
   updateTxNote: ({ value: string }) => void,
-  openCreateNewContact: () => void,
   nextAction: () => void,
-  cancelTx: () => void
+  cancelTx: () => void,
+  status: Object
 };
 
 type State = {
@@ -122,17 +134,18 @@ type State = {
 };
 
 class TxParams extends Component<Props, State> {
-  state = {
-    selectedFeeIndex: 0
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      selectedFeeIndex: 0
+    };
+  }
 
   render() {
     const {
       fromAddress,
-      initialAddress,
-      contacts,
       hasAddressError,
-      updateTxAddress,
+      address,
       resetAddressError,
       amount,
       hasAmountError,
@@ -140,54 +153,57 @@ class TxParams extends Component<Props, State> {
       resetAmountError,
       note,
       updateTxNote,
-      openCreateNewContact,
       nextAction,
-      cancelTx
+      cancelTx,
+      status
     } = this.props;
     const { selectedFeeIndex } = this.state;
     return (
       <Wrapper>
         <Header>
-          <HeaderText>Send SMC</HeaderText>
+          <HeaderText>Send SMH</HeaderText>
           <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
         </Header>
         <SubHeader>--</SubHeader>
         <DetailsRow>
-          <DetailsText>Send to</DetailsText>
-          <AutoComplete initialAddress={initialAddress} onChange={updateTxAddress} contacts={contacts} openCreateNewContact={openCreateNewContact} />
-          {hasAddressError && <ErrorPopup onClick={resetAddressError} text="this address is invalid" style={errorPopupStyle} />}
+          <DetailsText>To</DetailsText>
+          <Dots>....................................</Dots>
+          <Input value={address} onChange={this.updateTxAddress} onPaste={this.onPaste} maxLength="42" style={inputStyle} />
+          {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>From</DetailsText>
-          <DetailsText1>{getAbbreviatedText(fromAddress)}</DetailsText1>
+          <Dots>....................................</Dots>
+          <DetailsText>{getAbbreviatedText(getAddress(fromAddress), true, 10)}</DetailsText>
         </DetailsRow>
         <DetailsRow>
-          <DetailsText>Amount to send</DetailsText>
-          <Input value={amount} onChange={updateTxAmount} extraText="SMC" style={{ flex: 1 }} />
-          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="you don't have enough SMC in your wallet" style={errorPopupStyle} />}
+          <DetailsText>Amount</DetailsText>
+          <Dots>....................................</Dots>
+          <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={inputStyle} />
+          {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
         </DetailsRow>
         <DetailsRow>
           <DetailsText>Est. Confirmation time</DetailsText>
+          <Dots>....................................</Dots>
           <DropDown
             data={fees}
             onPress={this.selectFee}
             DdElement={({ label, text, isMain }) => this.renderFeeElement({ label, text, isInDropDown: !isMain })}
             selectedItemIndex={selectedFeeIndex}
             rowHeight={40}
-            style={{ border: `1px solid ${smColors.black}` }}
+            style={ddStyle}
+            bgColor={smColors.white}
           />
         </DetailsRow>
         <DetailsRow>
-          <DetailsText>
-            Note
-            <br />
-            (Only you can see this)
-          </DetailsText>
-          <Input value={note} onChange={updateTxNote} maxLength="50" style={{ flex: 1 }} />
+          <DetailsText>Note</DetailsText>
+          <Dots>....................................</Dots>
+          <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} />
         </DetailsRow>
         <Footer>
-          <Link onClick={this.navigateToGuide} text="SEND SMC GUIDE" />
-          <Button onClick={nextAction} text="NEXT" />
+          <Link onClick={this.navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
+          {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+          <Button onClick={nextAction} text="NEXT" isDisabled={!status.synced} />
         </Footer>
       </Wrapper>
     );
@@ -198,6 +214,17 @@ class TxParams extends Component<Props, State> {
       {label} {text}
     </Fee>
   );
+
+  onPaste = () => {
+    const { updateTxAddress } = this.props;
+    const clipboardValue = clipboard.readText();
+    updateTxAddress({ value: clipboardValue });
+  };
+
+  updateTxAddress = ({ value }: { value: string }) => {
+    const { updateTxAddress } = this.props;
+    updateTxAddress({ value });
+  };
 
   selectFee = ({ index }: { index: number }) => {
     const { updateFee } = this.props;

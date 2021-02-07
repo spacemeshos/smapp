@@ -1,16 +1,18 @@
 // @flow
 
 export type Tx = {
-  id: string,
-  isSent?: boolean,
-  isPending?: boolean,
-  isRejected?: boolean,
+  txId: string,
+  sender: string,
+  receiver: string,
   amount: number,
-  address: string,
+  fee: number,
+  status: number,
+  layerId: number,
+  timestamp: number,
   nickname?: string,
-  date: string,
-  isSavedContact: boolean,
   note?: string
 };
 
 export type TxList = Tx[];
+
+export type AccountTxs = Array<{ layerId: number, data: TxList }>;

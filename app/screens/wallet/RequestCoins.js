@@ -3,26 +3,29 @@ import { clipboard, shell } from 'electron';
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '/basicComponents';
-import { getAbbreviatedText } from '/infra/utils';
-import { copyToClipboard } from '/assets/images';
-import { smColors } from '/vars';
+import { getAddress } from '/infra/utils';
+import { copyBlack, copyWhite } from '/assets/images';
+import { smColors, nodeConsts } from '/vars';
 import type { Account } from '/types';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const copy = isDarkModeOn ? copyWhite : copyBlack;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 610px;
+  width: 710px;
   height: 100%;
   padding: 15px 25px;
-  background-color: ${smColors.black02Alpha};
+  background-color: ${isDarkModeOn ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const SubHeader = styled.div`
@@ -34,7 +37,14 @@ const SubHeader = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
+  cursor: inherit;
+`;
+
+const TextElement = styled.span`
+  font-size: 16px;
+  line-height: 22px;
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   cursor: inherit;
 `;
 
@@ -58,7 +68,7 @@ const CopyIcon = styled.img`
 `;
 
 const CopiedText = styled(Text)`
-  font-weight: SourceCodeProBold;
+  font-family: SourceCodeProBold;
   color: ${smColors.green};
 `;
 
@@ -76,7 +86,7 @@ const Footer = styled.div`
 `;
 
 type Props = {
-  location: { state: { account: Account } },
+  location: { state: { account: Account, miningStatus: string } },
   history: RouterHistory
 };
 
@@ -94,7 +104,7 @@ class RequestCoins extends Component<Props, State> {
   render() {
     const {
       location: {
-        state: { account }
+        state: { account, miningStatus }
       },
       history
     } = this.props;
@@ -102,27 +112,35 @@ class RequestCoins extends Component<Props, State> {
     return (
       <Wrapper>
         <Header>
-          Request SMC
+          Request SMH
           <br />
           --
         </Header>
         <SubHeader>
-          <Text>Request SMC by sharing this address:</Text>
+          <Text>Request SMH by sharing your wallet&apos;s address:</Text>
           <AddressWrapper onClick={this.copyPublicAddress}>
-            <AddressText>{getAbbreviatedText(account.pk)}</AddressText>
-            <CopyIcon src={copyToClipboard} />
-            {isCopied && <CopiedText>Address copied!</CopiedText>}
+            <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
+            <CopyIcon src={copy} />
+            {isCopied && <CopiedText>Copied!</CopiedText>}
           </AddressWrapper>
         </SubHeader>
-        <Text>* This address is public and safe to share</Text>
-        <Text>* Send this address to anyone you want to receive a SMC from</Text>
-        <Text>* Copy + paste to share via email or a text messaging session</Text>
+        <Text>* This address is public and safe to share with anyone.</Text>
+        <Text>* Send this address to anyone you want to receive Smesh from.</Text>
         <ComplexText>
-          <Text>* You can mine Spacemesh Coins (SMC) by setting up mining&nbsp;</Text>
-          <Link onClick={this.navigateToNodeSetup} text="Setup now" style={{ fontSize: 16, lineHeight: '22px' }} />
+          <Text>* You may also paste this address in the&nbsp;</Text>
+          <Link onClick={this.navigateToTap} text="Testnet Tap" style={{ fontSize: 16, lineHeight: '22px' }} />
+          <TextElement>.</TextElement>
         </ComplexText>
+        <br />
+        {miningStatus === nodeConsts.NOT_MINING && (
+          <ComplexText>
+            <Text>To earn Smesh&nbsp;</Text>
+            <Link onClick={this.navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />
+            <TextElement>.</TextElement>
+          </ComplexText>
+        )}
         <Footer>
-          <Link onClick={this.navigateToGuide} text="REQUEST SMC GUIDE" />
+          <Link onClick={this.navigateToGuide} text="REQUEST SMH GUIDE" />
           <Button onClick={history.goBack} text="DONE" />
         </Footer>
       </Wrapper>
@@ -135,11 +153,11 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(`0x${account.pk}`);
+    clipboard.writeText(`0x${getAddress(account.publicKey)}`);
   }
 
   componentWillUnmount() {
-    clearTimeout(this.copiedTimeout);
+    this.copiedTimeout && clearTimeout(this.copiedTimeout);
   }
 
   copyPublicAddress = () => {
@@ -148,7 +166,7 @@ class RequestCoins extends Component<Props, State> {
         state: { account }
       }
     } = this.props;
-    clipboard.writeText(`0x${account.pk}`);
+    clipboard.writeText(`0x${getAddress(account.publicKey)}`);
     this.setState({ isCopied: true });
     this.copiedTimeout = setTimeout(() => this.setState({ isCopied: false }), 3000);
   };
@@ -159,6 +177,8 @@ class RequestCoins extends Component<Props, State> {
   };
 
   navigateToGuide = () => shell.openExternal('https://testnet.spacemesh.io/#/get_coin');
+
+  navigateToTap = () => shell.openExternal('https://discord.gg/ASpy52C');
 }
 
 export default RequestCoins;

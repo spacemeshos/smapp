@@ -1,86 +1,128 @@
 // @flow
-import { httpService } from '/infra/httpService';
+import { eventsService } from '/infra/eventsService';
 import { createError } from '/infra/utils';
 import { nodeConsts } from '/vars';
 import { Action, Dispatch, GetState } from '/types';
+import { SET_TRANSACTIONS } from '/redux/wallet/actions';
 
-export const CHECK_NODE_CONNECTION: string = 'CHECK_NODE_CONNECTION';
+export const SET_NODE_STATUS: string = 'SET_NODE_STATUS';
+
+export const SET_NODE_SETTINGS: string = 'SET_NODE_SETTINGS';
 
 export const SET_MINING_STATUS: string = 'SET_MINING_STATUS';
 export const INIT_MINING: string = 'INIT_MINING';
 
-export const SET_GENESIS_TIME: string = 'SET_GENESIS_TIME';
-export const SET_UPCOMING_AWARDS: string = 'SET_UPCOMING_AWARDS';
+export const SET_UPCOMING_REWARDS: string = 'SET_UPCOMING_REWARDS';
+export const SET_ACCOUNT_REWARDS: string = 'SET_ACCOUNT_REWARDS';
 
 export const SET_NODE_IP: string = 'SET_NODE_IP';
-export const SET_AWARDS_ADDRESS: string = 'SET_AWARDS_ADDRESS';
+export const SET_REWARDS_ADDRESS: string = 'SET_REWARDS_ADDRESS';
 
-export const checkNodeConnection = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.checkNodeConnection();
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: true } });
-    return true;
-  } catch (err) {
-    dispatch({ type: CHECK_NODE_CONNECTION, payload: { isConnected: false } });
-    return false;
+export const getNodeStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
+  const { error, status } = await eventsService.getNodeStatus();
+  if (error) {
+    dispatch({ type: SET_NODE_STATUS, payload: { status: { noConnection: true } } });
+    return null;
+  } else {
+    dispatch({ type: SET_NODE_STATUS, payload: { status } });
+    return status;
+  }
+};
+
+export const getNodeSettings = (): Action => async (dispatch: Dispatch): Dispatch => {
+  const { error, address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port } = await eventsService.getNodeSettings();
+  if (error) {
+    console.error(error); // eslint-disable-line no-console
+    dispatch(getNodeSettings());
+  } else {
+    dispatch({ type: SET_NODE_SETTINGS, payload: { address, genesisTime, networkId, commitmentSize, layerDuration, stateRootHash, port } });
   }
 };
 
 export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    const status = await httpService.getMiningStatus();
-    dispatch({ type: SET_MINING_STATUS, payload: { status } });
-  } catch (error) {
+  const { error, status } = await eventsService.getMiningStatus();
+  if (error) {
     console.error(error); // eslint-disable-line no-console
+    return nodeConsts.MINING_UNSET;
+  } else if (status === nodeConsts.IS_MINING) {
+    if (!localStorage.getItem('smesherSmeshingTimestamp')) {
+      localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
+    }
+  } else if (status === nodeConsts.NOT_MINING) {
+    localStorage.removeItem('playedAudio');
+    localStorage.removeItem('smesherInitTimestamp');
+    localStorage.removeItem('smesherSmeshingTimestamp');
   }
+  dispatch({ type: SET_MINING_STATUS, payload: { status } });
+  return status;
 };
 
 export const initMining = ({ logicalDrive, commitmentSize, address }: { logicalDrive: string, commitmentSize: number, address: string }): Action => async (
   dispatch: Dispatch
 ): Dispatch => {
-  try {
-    await httpService.initMining({ logicalDrive, commitmentSize, coinbase: address });
+  const { error } = await eventsService.initMining({ logicalDrive, commitmentSize, coinbase: address });
+  if (error) {
+    console.error(error); // eslint-disable-line no-console
+    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(initMining({ logicalDrive, commitmentSize, address })));
+  } else {
+    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
+    localStorage.removeItem('smesherSmeshingTimestamp');
     dispatch({ type: INIT_MINING, payload: { address } });
-  } catch (err) {
-    throw createError('Error initiating mining', () => initMining({ logicalDrive, commitmentSize, address }));
   }
 };
 
-export const getGenesisTime = (): Action => async (dispatch: Dispatch): Dispatch => {
+export const getUpcomingRewards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
   try {
-    const genesisTime = await httpService.getGenesisTime();
-    dispatch({ type: SET_GENESIS_TIME, payload: { genesisTime: new Date(genesisTime).getTime() } });
-  } catch (err) {
-    console.error(err); // eslint-disable-line no-console
-  }
-};
-
-export const getUpcomingAwards = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
-  try {
-    const awardLayerNumbers = await httpService.getUpcomingAwards();
-    const { genesisTime } = getState().node;
-    const currentLayer = Math.floor((new Date().getTime() - genesisTime) / nodeConsts.TIME_BETWEEN_LAYERS);
-    const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer >= currentLayer);
-    dispatch({ type: SET_UPCOMING_AWARDS, payload: { timeTillNextAward: nodeConsts.TIME_BETWEEN_LAYERS * (futureAwardLayerNumbers[0] - currentLayer) } });
+    const awardLayerNumbers = await eventsService.getUpcomingRewards();
+    if (awardLayerNumbers.length === 0) {
+      dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: 0 } });
+    } else {
+      const { status, layerDuration } = getState().node;
+      const currentLayer = status?.currentLayer || 0;
+      const futureAwardLayerNumbers = awardLayerNumbers.filter((layer) => layer > currentLayer);
+      if (futureAwardLayerNumbers.length) {
+        dispatch({ type: SET_UPCOMING_REWARDS, payload: { timeTillNextAward: Math.floor((layerDuration * (futureAwardLayerNumbers[0] - currentLayer)) / 6000) } });
+      }
+    }
   } catch (err) {
     console.error(err); // eslint-disable-line no-console
   }
 };
 
 export const setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.setNodeIpAddress({ nodeIpAddress });
+  const { error } = await eventsService.setNodeIpAddress({ nodeIpAddress });
+  if (error) {
+    throw createError('Error setting node IP address', () => dispatch(setNodeIpAddress({ nodeIpAddress })));
+  } else {
     dispatch({ type: SET_NODE_IP, payload: { nodeIpAddress } });
-  } catch (err) {
-    throw createError('Error setting node IP address', () => setNodeIpAddress({ nodeIpAddress }));
   }
 };
 
-export const setAwardsAddress = ({ address }: { address: string }): Action => async (dispatch: Dispatch): Dispatch => {
-  try {
-    await httpService.setAwardsAddress({ address });
-    dispatch({ type: SET_AWARDS_ADDRESS, payload: { address } });
-  } catch (err) {
-    throw createError('Error setting awards address', () => setAwardsAddress({ address }));
+export const setRewardsAddress = (): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { accounts, currentAccountIndex } = getState().wallet;
+  const address = accounts[currentAccountIndex].publicKey;
+  const { error } = await eventsService.setRewardsAddress({ address });
+  if (error) {
+    throw createError('Error setting rewards address', () => dispatch(setRewardsAddress()));
+  } else {
+    dispatch({ type: SET_REWARDS_ADDRESS, payload: { address } });
+  }
+};
+
+export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: () => void }): Action => async (dispatch: Dispatch, getState: GetState): Dispatch => {
+  const { rewardsAddress } = getState().node;
+  const { accounts } = getState().wallet;
+  const accountIndex = accounts.findIndex((account) => account.publicKey === rewardsAddress);
+  const { error, hasNewAwards, rewards, transactions } = await eventsService.getAccountRewards({ address: rewardsAddress, accountIndex });
+  if (error) {
+    console.error(error); // eslint-disable-line no-console
+  } else {
+    dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
+    if (transactions) {
+      dispatch({ type: SET_TRANSACTIONS, payload: { transactions } });
+    }
+    if (hasNewAwards) {
+      newRewardsNotifier();
+    }
   }
 };

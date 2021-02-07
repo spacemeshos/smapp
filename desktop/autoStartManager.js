@@ -1,44 +1,57 @@
+import { ipcMain } from 'electron';
 import AutoLaunch from 'auto-launch';
 import { ipcConsts } from '../app/vars';
+import StoreService from './storeService';
 
-const Store = require('electron-store');
-
-const store = new Store();
-
-class WalletAutoStarter {
+class AutoStartManager {
   constructor() {
-    this.walletAutoStarter = new AutoLaunch({
-      name: 'Spacemesh',
-      isHidden: true
+    this.init();
+
+    ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+      await this.toggleAutoStart();
     });
-    if (store.get('isAutoStartEnabled')) {
-      this.walletAutoStarter.enable();
-    }
+
+    ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, async () => {
+      const res = await this.isEnabled();
+      return res;
+    });
   }
+
+  init = async () => {
+    if (!this.manager) {
+      this.manager = new AutoLaunch({
+        name: 'Spacemesh',
+        isHidden: true
+      });
+      if (StoreService.get({ key: 'isAutoStartEnabled' })) {
+        await this.manager.enable();
+      }
+    }
+  };
 
   toggleAutoStart = async () => {
     try {
-      const isEnabled = await this.walletAutoStarter.isEnabled();
+      const isEnabled = await AutoStartManager.manager.isEnabled();
       if (isEnabled) {
-        this.walletAutoStarter.disable();
+        await this.manager.disable();
       } else {
-        this.walletAutoStarter.enable();
+        await this.manager.enable();
       }
-      store.set('isAutoStartEnabled', !isEnabled);
+      StoreService.set({ key: 'isAutoStartEnabled', value: !isEnabled });
     } catch (error) {
       console.error(error); // eslint-disable-line no-console
     }
   };
 
-  isEnabled = async ({ event }) => {
+  isEnabled = async () => {
     try {
-      const isEnabled = await this.walletAutoStarter.isEnabled();
-      store.set('isAutoStartEnabled', isEnabled);
-      event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, isEnabled);
+      const isEnabled = await this.manager.isEnabled();
+      StoreService.set({ key: 'isAutoStartEnabled', value: isEnabled });
+      return isEnabled;
     } catch (error) {
-      event.sender.send(ipcConsts.IS_AUTO_START_ENABLED_REQUEST_RESPONSE, false);
+      return false;
     }
   };
 }
 
-export default new WalletAutoStarter();
+export default AutoStartManager;

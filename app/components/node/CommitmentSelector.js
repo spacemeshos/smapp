@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Tooltip, ErrorPopup } from '/basicComponents';
 import { tooltip } from '/assets/images';
-import { smColors, nodeConsts } from '/vars';
+import { smColors } from '/vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,8 +117,9 @@ const ErrorPopupWrapper = styled.div`
 `;
 
 type Props = {
-  onClick: ({ index: number }) => void,
-  freeSpace: number
+  onClick: ({ commitment: number }) => void,
+  freeSpace: number,
+  commitmentSize: number
 };
 
 type State = {
@@ -145,18 +146,19 @@ class CommitmentSelector extends Component<Props, State> {
   }
 
   renderSelector = () => {
+    const { commitmentSize } = this.props;
     const { selectedCommitmentIndex, hasInsufficientSpace } = this.state;
     const selectors = [];
-    for (let i = 0; i < 3; i += 1) {
-      const clickHandler = i === 0 ? () => this.handleClick({ index: i }) : null;
+    // TODO: for Testnet 0.1 purposes only showing one valid space commitment
+    for (let i = 0; i < 1; i += 1) {
       selectors.push(
-        <SelectorWrapper onClick={clickHandler} key={i} style={{ zIndex: 3 - i }} isDisabled={i !== 0}>
+        <SelectorWrapper onClick={() => this.handleClick({ index: i })} key={i} style={{ zIndex: 1 - i }} isDisabled={i !== 0}>
           <SelectorUpperPart hasError={hasInsufficientSpace && selectedCommitmentIndex === i} isSelected={selectedCommitmentIndex === i} isDisabled={i !== 0}>
             <TextWrapper>
-              <Text>{nodeConsts.COMMITMENT_SIZE * (i + 1)} GB</Text>
+              <Text>{commitmentSize * (i + 1)} GB</Text>
               <TooltipWrapper>
                 <TooltipIcon src={tooltip} />
-                <CustomTooltip text="The download of spacemesh requires 5GB of space in addition to the amount you choose to allocate for mining" />
+                <CustomTooltip text={`The download of spacemesh requires ${commitmentSize}GB of space in addition to the amount you choose to commit for smeshing`} />
               </TooltipWrapper>
             </TextWrapper>
           </SelectorUpperPart>
@@ -168,15 +170,15 @@ class CommitmentSelector extends Component<Props, State> {
   };
 
   handleClick = ({ index }: { index: number }) => {
-    const { freeSpace, onClick } = this.props;
-    const totalRequiredSpace = nodeConsts.COMMITMENT_SIZE * (index + 1);
-    onClick({ index: freeSpace < totalRequiredSpace ? 0 : totalRequiredSpace });
+    const { commitmentSize, freeSpace, onClick } = this.props;
+    const totalRequiredSpace = commitmentSize * (index + 1);
+    onClick({ commitment: freeSpace < totalRequiredSpace ? 0 : totalRequiredSpace });
     this.setState({ selectedCommitmentIndex: index, hasInsufficientSpace: freeSpace < totalRequiredSpace });
   };
 
   closeErrorPopup = () => {
     const { onClick } = this.props;
-    onClick({ index: -1 });
+    onClick({ commitment: 0 });
     this.setState({ selectedCommitmentIndex: -1, hasInsufficientSpace: false });
   };
 }

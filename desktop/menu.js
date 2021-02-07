@@ -20,7 +20,9 @@ class MenuBuilder {
   }
 
   addInspectElementMenu() {
-    this.mainWindow.openDevTools();
+    setTimeout(() => {
+      this.mainWindow.openDevTools();
+    }, 10000);
     this.mainWindow.webContents.on('context-menu', (e, props) => {
       const { x, y } = props;
 
@@ -64,7 +66,7 @@ class MenuBuilder {
     return [
       isMac
         ? {
-            label: isMac ? app.getName() : '&File',
+            label: isMac ? app.name : '&File',
             submenu: [
               {
                 label: 'About',

@@ -3,9 +3,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { addToContacts, updateTransaction } from '/redux/wallet/actions';
 import styled from 'styled-components';
+import { EnterPasswordModal } from '/components/settings';
 import { Input, Link, ErrorPopup } from '/basicComponents';
 import { smColors } from '/vars';
-import type { Action } from '/types';
+import type { Action, Contact } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const color = isDarkModeOn ? smColors.white : smColors.realBlack;
 
 const Wrapper = styled.div`
   display: flex;
@@ -19,7 +23,7 @@ const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ isStandalone }) => (isStandalone ? smColors.white : smColors.realBlack)};
+  color: ${({ isStandalone }) => (isStandalone ? smColors.white : color)};
 `;
 
 const InputsWrapper = styled.div`
@@ -54,12 +58,13 @@ const ButtonsWrapper = styled.div`
   justify-content: flex-end;
 `;
 
-const inputStyle1 = { margin: '10px 0 10px 10px' };
+const inputStyle1 = { margin: '10px 10px 10px 10px' };
 const inputStyle2 = { margin: '10px 0' };
 const inputStyle3 = { marginBottom: '10px' };
 
 type Props = {
   isStandalone: boolean,
+  contacts: Contact[],
   addToContacts: Action,
   updateTransaction: Action,
   initialAddress?: string,
@@ -72,7 +77,8 @@ type State = {
   initialAddress: string,
   nickname: string,
   hasError: boolean,
-  errorMsg: string
+  errorMsg: string,
+  shouldShowPasswordModal: boolean
 };
 
 class CreateNewContact extends Component<Props, State> {
@@ -83,17 +89,18 @@ class CreateNewContact extends Component<Props, State> {
       initialAddress: props.initialAddress || '',
       nickname: '',
       hasError: false,
-      errorMsg: ''
+      errorMsg: '',
+      shouldShowPasswordModal: false
     };
   }
 
   render() {
     const { isStandalone, onCancel } = this.props;
-    const { address, nickname, hasError, errorMsg } = this.state;
+    const { address, nickname, hasError, errorMsg, shouldShowPasswordModal } = this.state;
     return (
       <Wrapper isStandalone={isStandalone}>
         <Header isStandalone={isStandalone}>
-          Create new contact
+          Create a new contact
           <br />
           --
         </Header>
@@ -119,9 +126,10 @@ class CreateNewContact extends Component<Props, State> {
           <InputWrapperLowerPart />
         </InputsWrapper>
         <ButtonsWrapper>
-          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.disabledGray, marginRight: 15 }} />
-          <Link onClick={this.createContact} text="CREATE" style={{ color: smColors.white }} />
+          <Link onClick={this.preCreateContact} text="CREATE" style={{ color: smColors.green, marginRight: 15 }} />
+          <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange }} />
         </ButtonsWrapper>
+        {shouldShowPasswordModal && <EnterPasswordModal submitAction={this.createContact} closeModal={() => this.setState({ shouldShowPasswordModal: false })} />}
       </Wrapper>
     );
   }
@@ -137,47 +145,53 @@ class CreateNewContact extends Component<Props, State> {
     target.select();
   };
 
-  createContact = async () => {
-    const { addToContacts, onCompleteAction, updateTransaction } = this.props;
+  preCreateContact = () => {
     const errorMsg = this.validate();
     if (errorMsg) {
       this.setState({ hasError: true, errorMsg });
     } else {
-      const { address, nickname } = this.state;
-      try {
-        await addToContacts({ contact: { address, nickname } });
-        await updateTransaction({ tx: { address, nickname, isSavedContact: true }, updateAll: true });
-        onCompleteAction();
-      } catch (error) {
-        this.setState(() => {
-          throw error;
-        });
-      }
+      this.setState({ shouldShowPasswordModal: true });
     }
   };
 
+  createContact = async ({ password }: { password: string }) => {
+    const { addToContacts, onCompleteAction, updateTransaction } = this.props;
+    const { address, nickname } = this.state;
+    await addToContacts({ password, contact: { address, nickname } });
+    updateTransaction({ newData: { address, nickname } });
+    onCompleteAction();
+  };
+
   validate = () => {
+    const { contacts } = this.props;
     const { nickname, address } = this.state;
     const nicknameRegex = /^([a-zA-Z0-9_-])$/;
     if (nicknameRegex.test(nickname)) {
       return 'Nickname is missing or invalid';
     }
-    const addressRegex = /\b[a-zA-Z0-9]{64}\b/;
+    const addressRegex = /\b0[xX][a-zA-Z0-9]{40}\b/;
     if (!addressRegex.test(address)) {
       return 'Address is invalid';
     }
-    return '';
+    let retVal = '';
+    contacts.forEach((contact) => {
+      if (contact.nickname === nickname) {
+        retVal = 'Nickname should be unique';
+      }
+    });
+    return retVal;
   };
 }
+
+const mapStateToProps = (state) => ({
+  contacts: state.wallet.contacts
+});
 
 const mapDispatchToProps = {
   addToContacts,
   updateTransaction
 };
 
-CreateNewContact = connect<any, any, _, _, _, _>(
-  null,
-  mapDispatchToProps
-)(CreateNewContact);
+CreateNewContact = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(CreateNewContact);
 
 export default CreateNewContact;

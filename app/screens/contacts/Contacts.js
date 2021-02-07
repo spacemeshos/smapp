@@ -11,6 +11,8 @@ import { searchIcon, addContact } from '/assets/images';
 import type { RouterHistory } from 'react-router-dom';
 import type { Contact } from '/types';
 
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+
 const SearchWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -35,7 +37,7 @@ const SubHeader = styled.div`
 const SubHeaderText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
 const SubHeaderInner = styled.div`
@@ -52,7 +54,7 @@ const SubHeaderBtnUpperPart = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 135px;
+  width: 140px;
   height: 60px;
   background-color: ${({ color }) => color};
   z-index: 1;
@@ -67,7 +69,7 @@ const SubHeaderBtnLowerPart = styled.div`
   position: absolute;
   top: 5px;
   left: 0;
-  width: 135px;
+  width: 140px;
   height: 60px;
   border: 1px solid ${({ color }) => color};
   &:hover {
@@ -101,6 +103,7 @@ const LastUsedNickname = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.white};
+  cursor: inherit;
 `;
 
 const LastUsedAddress = styled.div`
@@ -108,18 +111,20 @@ const LastUsedAddress = styled.div`
   line-height: 17px;
   color: ${smColors.mediumGray};
   text-decoration: underline;
+  cursor: inherit;
 `;
 
 const LastUsedAddContact = styled.div`
   position: absolute;
-  top: 2;
-  right: 2;
+  top: -1px;
+  right: -1px;
   width: 19px;
   height: 19px;
-  font-size: 19px;
-  line-height: 19px;
+  font-size: 25px;
+  line-height: 25px;
   color: ${smColors.white};
   cursor: pointer;
+  z-index: 10;
 `;
 
 const ContactsSubHeader = styled.div`
@@ -134,7 +139,7 @@ const ContactsSubHeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.realBlack};
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
   margin-right: 20px;
 `;
 
@@ -159,7 +164,7 @@ const ContactText = styled.div`
   flex: 1;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
   text-align: left;
   margin-right: 10px;
 `;
@@ -186,7 +191,10 @@ const CreateNewContactImg = styled.img`
   cursor: pointer;
 `;
 
-const sortOptions = [{ id: 1, label: 'Sort by A-Z' }, { id: 2, label: 'Sort by Z-A' }];
+const sortOptions = [
+  { id: 1, label: 'Sort by A-Z' },
+  { id: 2, label: 'Sort by Z-A' }
+];
 
 type Props = {
   contacts: Contact[],
@@ -219,7 +227,7 @@ class Contacts extends Component<Props, State> {
     const { contacts } = this.props;
     const { tmpSearchTerm, searchTerm, selectedSorting } = this.state;
     return (
-      <WrapperWith2SideBars width={1000} height={600} header="CONTACTS">
+      <WrapperWith2SideBars width={1000} height={500} header="CONTACTS">
         <SearchWrapper>
           <SearchIcon src={searchIcon} />
           <Input
@@ -240,6 +248,7 @@ class Contacts extends Component<Props, State> {
             DdElement={this.renderSortElementElement}
             selectedItemIndex={selectedSorting}
             style={{ flex: '0 0 150px', borderBottom: '1px solid' }}
+            bgColor={smColors.white}
           />
         </ContactsSubHeader>
         <ContactsList>
@@ -290,13 +299,11 @@ class Contacts extends Component<Props, State> {
     const { lastUsedContacts } = this.props;
     if (lastUsedContacts && lastUsedContacts.length) {
       return lastUsedContacts.map((contact) => (
-        <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => this.navigateToSendCoins({ contact })}>
+        <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => this.navigateToSendCoins({ contact })} key={contact.address}>
           <SubHeaderBtnUpperPart color={smColors.black} hoverColor={smColors.realBlack}>
             <LastUsedNickname>{contact.nickname || 'UNKNOWN ADDRESS'}</LastUsedNickname>
             <LastUsedAddress>{getAbbreviatedText(contact.address)}</LastUsedAddress>
-            {!contact.nickname && (
-              <LastUsedAddContact onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })}>+</LastUsedAddContact>
-            )}
+            {!contact.nickname && <LastUsedAddContact onClick={(e) => this.openAddNewContactModal(e, contact)}>+</LastUsedAddContact>}
           </SubHeaderBtnUpperPart>
           <SubHeaderBtnLowerPart color={smColors.black} hoverColor={smColors.realBlack} />
         </SubHeaderBtnWrapper>
@@ -323,7 +330,7 @@ class Contacts extends Component<Props, State> {
       <ContactRow key={`${contact.nickname}_${contact.address}`} onClick={() => this.navigateToSendCoins({ contact })}>
         <ContactText>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
         <ContactText>{getAbbreviatedText(contact.address)}</ContactText>
-        {!contact.nickname && <CreateNewContactImg onClick={() => this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true })} src={addContact} />}
+        {!contact.nickname && <CreateNewContactImg onClick={(e) => this.openAddNewContactModal(e, contact)} src={addContact} />}
       </ContactRow>
     ));
   };
@@ -350,6 +357,11 @@ class Contacts extends Component<Props, State> {
       return selectedSorting === 0 ? -1 : 1;
     }
     return 0;
+  };
+
+  openAddNewContactModal = (e: Event, contact: Contact) => {
+    e.stopPropagation();
+    this.setState({ addressToAdd: contact.address, shouldShowCreateNewContactModal: true });
   };
 
   createdNewContact = () => {

@@ -1,5 +1,6 @@
 import path from 'path';
-import { ipcConsts } from '../app/vars';
+import { nodeConsts } from '../app/vars';
+import { writeInfo, writeError } from './logger';
 
 const protoLoader = require('@grpc/proto-loader');
 
@@ -9,217 +10,173 @@ const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 const spacemeshProto = grpc.loadPackageDefinition(packageDefinition);
 
-// const DEFAULT_URL = '192.168.30.233:9091';
-const DEFAULT_URL = 'localhost:9091';
+const getDeadline = () => new Date().setSeconds(new Date().getSeconds() + 120000);
 
 class NetService {
-  constructor(url = DEFAULT_URL) {
+  constructor(url = nodeConsts.DEFAULT_URL) {
     this.service = new spacemeshProto.pb.SpacemeshService(url, grpc.credentials.createInsecure());
   }
 
-  _checkNetworkConnection = () =>
+  isServiceReady = () =>
     new Promise((resolve, reject) => {
-      this.service.Echo({}, (error, response) => {
+      this.service.Echo({}, { deadline: new Date().setSeconds(new Date().getSeconds() + 200) }, (error) => {
         if (error) {
+          writeError('netService', 'grpc isServiceReady', error);
+          reject();
+        }
+        writeInfo('netService', 'grpc isServiceReady', 'true');
+        resolve();
+      });
+    });
+
+  getNodeStatus = () =>
+    new Promise((resolve, reject) => {
+      this.service.GetNodeStatus({}, { deadline: getDeadline() }, (error, response) => {
+        if (error) {
+          writeError('netService', 'grpc getNodeStatus', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getNodeStatus', { response });
         resolve(response);
       });
     });
 
-  _getMiningStatus = () =>
+  getStateRoot = () =>
     new Promise((resolve, reject) => {
-      this.service.GetMiningStats({}, (error, response) => {
+      this.service.GetStateRoot({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc getStateRoot', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getStateRoot', { response });
         resolve(response);
       });
     });
 
-  _initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
+  getMiningStatus = () =>
     new Promise((resolve, reject) => {
-      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, (error, response) => {
+      this.service.GetMiningStats({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc getMiningStatus', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getMiningStatus', { response });
         resolve(response);
       });
     });
 
-  _getGenesisTime = () =>
+  initMining = ({ logicalDrive, commitmentSize, coinbase }) =>
     new Promise((resolve, reject) => {
-      this.service.GetGenesisTime({}, (error, response) => {
+      this.service.StartMining({ logicalDrive, commitmentSize, coinbase }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc initMining', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc initMining', { response }, { logicalDrive, commitmentSize, coinbase });
         resolve(response);
       });
     });
 
-  _getUpcomingAwards = () =>
+  getUpcomingAwards = () =>
     new Promise((resolve, reject) => {
-      this.service.GetUpcomingAwards({}, (error, response) => {
+      this.service.GetUpcomingAwards({}, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc getUpcomingAwards', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getUpcomingAwards', { response });
         resolve(response);
       });
     });
 
-  _setAwardsAddress = ({ address }) =>
+  getAccountRewards = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.SetAwardsAddress({ address }, (error, response) => {
+      this.service.GetAccountRewards({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc getAccountRewards', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getAccountRewards', { response }, { address });
         resolve(response);
       });
     });
 
-  _getNonce = ({ address }) =>
+  setRewardsAddress = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.GetNonce({ address }, (error, response) => {
+      this.service.SetAwardsAddress({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc setRewardsAddress', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc setRewardsAddress', { response }, { address });
         resolve(response);
       });
     });
 
-  _getBalance = ({ address }) =>
+  getNonce = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.GetBalance({ address }, (error, response) => {
+      this.service.GetNonce({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc getNonce', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getNonce', { response }, { address });
         resolve(response);
       });
     });
 
-  _submitTransaction = ({ tx }) =>
+  getBalance = ({ address }) =>
     new Promise((resolve, reject) => {
-      this.service.SubmitTransaction({ tx }, (error, response) => {
+      this.service.GetBalance({ address }, { deadline: getDeadline() }, (error, response) => {
         if (error) {
+          writeError('netService', 'grpc getBalance', error);
           reject(error);
         }
+        writeInfo('netService', 'grpc getBalance', { response }, { address });
         resolve(response);
       });
     });
 
-  _getTxList = ({ address, layerId }) =>
+  submitTransaction = ({ tx }) =>
     new Promise((resolve, reject) => {
-      let transactions = [];
-      const stream = this.service.GetTxList({ address, layerId });
-      stream.on('data', (data) => {
-        transactions = transactions.concat(data);
-      });
-      stream.on('end', function() {
-        resolve(transactions);
-      });
-      stream.on('error', function(error) {
-        reject(error);
+      this.service.SubmitTransaction({ tx }, { deadline: getDeadline() }, (error, response) => {
+        if (error) {
+          writeError('netService', 'grpc submitTransaction', error);
+          reject(error);
+        }
+        writeInfo('netService', 'grpc submitTransaction', { response }, { tx });
+        resolve(response);
       });
     });
 
-  checkNetworkConnection = async ({ event }) => {
-    try {
-      const { value } = await this._checkNetworkConnection();
-      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.CHECK_NODE_CONNECTION_FAILURE, error.message);
-    }
-  };
+  getAccountTxs = ({ account, startLayer }) =>
+    new Promise((resolve, reject) => {
+      this.service.GetAccountTxs({ account: { address: account }, startLayer }, { deadline: getDeadline() }, (error, response) => {
+        if (error) {
+          writeError('netService', 'grpc getAccountTxs', error);
+          reject(error);
+        }
+        writeInfo('netService', 'grpc getAccountTxs', { response }, { account, startLayer });
+        resolve(response);
+      });
+    });
 
-  getMiningStatus = async ({ event }) => {
-    try {
-      const { status } = await this._getMiningStatus();
-      event.sender.send(ipcConsts.GET_MINING_STATUS_SUCCESS, status);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_MINING_STATUS_FAILURE, error.message);
-    }
-  };
+  getTransaction = ({ id }) =>
+    new Promise((resolve, reject) => {
+      this.service.GetTransaction({ id }, { deadline: getDeadline() }, (error, response) => {
+        if (error) {
+          writeError('netService', 'grpc getTransaction', error);
+          reject(error);
+        }
+        writeInfo('netService', 'grpc getTransaction', { response }, { id });
+        resolve(response);
+      });
+    });
 
-  initMining = async ({ event, logicalDrive, commitmentSize, coinbase }) => {
-    try {
-      const { value } = await this._initMining({ logicalDrive, commitmentSize, coinbase });
-      event.sender.send(ipcConsts.INIT_MINING_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.INIT_MINING_FAILURE, error.message);
-    }
-  };
-
-  getGenesisTime = async ({ event }) => {
-    try {
-      const { value } = await this._getGenesisTime();
-      event.sender.send(ipcConsts.GET_GENESIS_TIME_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_GENESIS_TIME_FAILURE, error.message);
-    }
-  };
-
-  getUpcomingAwards = async ({ event }) => {
-    try {
-      const { value } = await this._getUpcomingAwards();
-      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_UPCOMING_AWARDS_FAILURE, error.message);
-    }
-  };
-
-  setNodeIpAddress = ({ event, nodeIpAddress }) => {
-    try {
-      this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
-      event.sender.send(ipcConsts.SET_NODE_IP_SUCCESS, nodeIpAddress);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_NODE_IP_FAILURE, error.message);
-    }
-  };
-
-  setAwardsAddress = async ({ event, address }) => {
-    try {
-      const { value } = await this._setAwardsAddress({ address });
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.SET_AWARDS_ADDRESS_FAILURE, error.message);
-    }
-  };
-
-  getBalance = async ({ event, address }) => {
-    try {
-      const { value } = await this._getBalance({ address });
-      event.sender.send(ipcConsts.GET_BALANCE_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_BALANCE_FAILURE, error.message);
-    }
-  };
-
-  getNonce = async ({ event, address }) => {
-    try {
-      const { value } = await this._getNonce({ address });
-      event.sender.send(ipcConsts.GET_NONCE_SUCCESS, value);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_NONCE_FAILURE, error.message);
-    }
-  };
-
-  sendTx = async ({ event, tx }) => {
-    try {
-      const { id } = await this._submitTransaction({ tx });
-      event.sender.send(ipcConsts.SEND_TX_SUCCESS, id);
-    } catch (error) {
-      event.sender.send(ipcConsts.SEND_TX_FAILURE, error.message);
-    }
-  };
-
-  getTxList = async ({ event, address, layerId }) => {
-    try {
-      const { transactions } = await this._getTxList({ address, layerId });
-      event.sender.send(ipcConsts.GET_TX_LIST_SUCCESS, transactions);
-    } catch (error) {
-      event.sender.send(ipcConsts.GET_TX_LIST_FAILURE, error.message);
-    }
+  setNodeIpAddress = ({ nodeIpAddress }) => {
+    this.service = new spacemeshProto.pb.SpacemeshService(nodeIpAddress, grpc.credentials.createInsecure());
   };
 }
 
-export default new NetService();
+const NodeNetService = new NetService();
+export default NodeNetService;

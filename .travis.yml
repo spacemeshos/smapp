@@ -1,18 +1,12 @@
 language: node_js
 node_js:
-  - 'lts/*'
+  - '10.15.3'
 
 matrix:
   include:
     - os: osx
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
     - os: linux
-      env:
-        - ELECTRON_CACHE=$HOME/.cache/electron
-        - ELECTRON_BUILDER_CACHE=$HOME/.cache/electron-builder
 
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
@@ -23,8 +17,8 @@ cache:
     - $HOME/.cache/electron-builder
 
 before_install:
-  - npm i -g npm@6.12.0
-  - sh ./fetchNodeBinaries.sh
+  - npm i -g npm@6.14.4
+  - sh ./scripts/fetchNodeBinaries.sh
 
 install:
   - npm install

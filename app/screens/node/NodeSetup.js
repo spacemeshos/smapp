@@ -4,15 +4,17 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { initMining } from '/redux/node/actions';
-import { CorneredContainer } from '/components/common';
+import { CorneredContainer, BackButton } from '/components/common';
 import { ScreenErrorBoundary } from '/components/errorHandler';
-import { StepsContainer, Button, SecondaryButton, Link, SmallHorizontalPanel } from '/basicComponents';
-import { Carousel, CommitmentSelector } from '/components/node';
-import { diskStorageService } from '/infra/diskStorageService';
-import { chevronLeftWhite } from '/assets/images';
-import { smColors, nodeConsts } from '/vars';
+import { StepsContainer, Button, Link, SmallHorizontalPanel } from '/basicComponents';
+import { CommitmentSelector } from '/components/node';
+import { eventsService } from '/infra/eventsService';
+import { formatBytes } from '/infra/utils';
+import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
 import type { Account, Action } from '/types';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
 
 const Wrapper = styled.div`
   display: flex;
@@ -23,7 +25,7 @@ const SubHeader = styled.div`
   margin-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${isDarkModeOn ? smColors.white : smColors.black};
 `;
 
 const Footer = styled.div`
@@ -38,32 +40,41 @@ const DriveName = styled.span`
   color: ${smColors.darkerGreen};
 `;
 
-const EmptyState = styled.div`
-  display: flex;
+const FolderNameWrapper = styled.div`
+  flex: 1;
   flex-direction: row;
+  justify-content: space-between;
+  height: 50px;
 `;
 
-const Text = styled.div`
-  font-size: 14px;
-  line-height: 18px;
-  color: ${smColors.black};
+const FolderName = styled.div`
+  font-size: 20px;
+  line-height: 25px;
+  color: ${isDarkModeOn ? smColors.white : smColors.realBlack};
 `;
 
-const bntStyle = { position: 'absolute', bottom: 0, left: -35 };
+const PermissionError = styled.div`
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.red};
+`;
 
 type Props = {
   accounts: Account[],
   initMining: Action,
-  isConnected: boolean,
+  status: Object,
+  commitmentSize: string,
   history: RouterHistory,
-  location: { state?: { isOnlyNodeSetup: boolean } }
+  location: { state?: { isOnlyNodeSetup: boolean, isWalletCreation: boolean } }
 };
 
 type State = {
-  drives: { id: string, label: string, mountPoint: string, availableDiskSpace: string }[],
+  selectedFolder: string,
+  hasPermissionError: boolean,
+  freeSpace: number,
   subMode: 2 | 3,
-  selectedDriveIndex: number,
-  selectedCommitmentSize: number
+  // selectedCommitmentSize: number,
+  isSubmitting: boolean
 };
 
 class NodeSetup extends Component<Props, State> {
@@ -77,70 +88,60 @@ class NodeSetup extends Component<Props, State> {
     super(props);
     const { location } = props;
     this.isOnlyNodeSetup = !!location?.state?.isOnlyNodeSetup;
-    this.header = this.isOnlyNodeSetup ? 'SETUP NODE' : 'SETUP WALLET + FULL NODE';
-    this.steps = ['SELECT DRIVE', 'ALLOCATE SPACE'];
+    this.header = this.isOnlyNodeSetup ? 'SETUP SMESHER' : 'SETUP WALLET + SMESHER';
+    this.steps = ['SELECT DRIVE', 'COMMIT SPACE'];
     if (!this.isOnlyNodeSetup) {
       this.steps = ['PROTECT WALLET'].concat(this.steps);
     }
     this.state = {
-      drives: [],
       subMode: 2,
-      selectedDriveIndex: -1,
-      selectedCommitmentSize: 0
+      selectedFolder: '',
+      freeSpace: 0,
+      hasPermissionError: false,
+      // selectedCommitmentSize: 0,
+      isSubmitting: false
     };
   }
 
   render() {
-    const { isConnected } = this.props;
-    const { subMode, selectedDriveIndex, selectedCommitmentSize } = this.state;
+    const { status, location } = this.props;
+    const { subMode, selectedFolder, hasPermissionError, isSubmitting } = this.state;
     const adjustedSubStep = this.isOnlyNodeSetup ? subMode % 2 : subMode - 1;
+    const isNextBtnDisabled = (subMode === 2 && (!selectedFolder || hasPermissionError)) || isSubmitting || !status;
     return (
       <Wrapper>
         <StepsContainer header={this.header} steps={this.steps} currentStep={adjustedSubStep} />
         <CorneredContainer width={650} height={400} header={this.steps[adjustedSubStep]}>
           <SmallHorizontalPanel />
-          <SecondaryButton onClick={this.handleBackBtn} img={chevronLeftWhite} imgWidth={10} imgHeight={15} style={bntStyle} />
+          {location?.state?.isOnlyNodeSetup && <BackButton action={this.handleBackBtn} />}
           {this.renderSubMode()}
           <Footer>
-            <Link onClick={this.navigateToExplanation} text="SETUP GUIDE" />
-            <Button
-              onClick={this.nextAction}
-              text="NEXT"
-              isDisabled={(subMode === 2 && selectedDriveIndex === -1) || ((subMode === 3 && selectedCommitmentSize === 0) || !isConnected)}
-            />
+            <Link onClick={this.navigateToExplanation} text="LEARN MORE ABOUT SMESHING" />
+            <Button onClick={this.nextAction} text="NEXT" isDisabled={isNextBtnDisabled} />
           </Footer>
         </CorneredContainer>
       </Wrapper>
     );
   }
 
-  async componentDidMount() {
-    const drives = await diskStorageService.getDriveList();
-    const selectedDriveIndex = drives.length ? 0 : -1;
-    const selectedCommitmentSize = drives.length ? nodeConsts.COMMITMENT_SIZE : 0;
-    this.setState({ drives, selectedDriveIndex, selectedCommitmentSize });
-  }
-
   renderSubMode = () => {
-    const { subMode, drives, selectedDriveIndex } = this.state;
+    const { commitmentSize } = this.props;
+    const { subMode, selectedFolder, hasPermissionError, freeSpace } = this.state;
     if (subMode === 2) {
       return (
         <>
           <SubHeader>
             --
             <br />
-            Select the hard drive you&#39;d like to use for mining
+            Select folder you&#39;d like to use for smeshing.
             <br />
-            {`You will need at least ${nodeConsts.COMMITMENT_SIZE} GB free space to setup full node`}
+            {`You need to commit ${formatBytes(commitmentSize)}GB of free space.`}
           </SubHeader>
-          {drives.length ? (
-            <Carousel data={drives} onClick={({ index }) => this.setState({ selectedDriveIndex: index })} />
-          ) : (
-            <EmptyState>
-              <Text>Insufficient disk space. You need a local hard drive with at least 256GB of free space to setup mining.</Text>
-              <Link onClick={this.navigateToNodeSetupGuide} text="Learn more..." />
-            </EmptyState>
-          )}
+          <FolderNameWrapper>
+            <FolderName>{selectedFolder}</FolderName>
+            {hasPermissionError && <PermissionError>Invalid folder, please select another</PermissionError>}
+          </FolderNameWrapper>
+          <Button onClick={this.openFolderSelectionDialog} text="Select folder" width={200} />
         </>
       );
     }
@@ -149,23 +150,23 @@ class NodeSetup extends Component<Props, State> {
         <SubHeader>
           --
           <br />
-          Allocate how much space on <DriveName>{drives[selectedDriveIndex].label}</DriveName> you would
+          Set how much space on <DriveName>{selectedFolder}</DriveName> you would
           <br />
-          like the mining node to use
+          like to commit for smeshing
         </SubHeader>
-        <CommitmentSelector freeSpace={drives[selectedDriveIndex].availableDiskSpace} onClick={({ index }) => this.setState({ selectedCommitmentSize: index })} />
+        <CommitmentSelector commitmentSize={formatBytes(commitmentSize)} freeSpace={freeSpace} onClick={() => {}} />
       </>
     );
   };
 
   setupAndInitMining = async () => {
-    const { initMining, accounts, history } = this.props;
-    const { drives, selectedCommitmentSize, selectedDriveIndex } = this.state;
+    const { initMining, accounts, commitmentSize, history } = this.props;
+    const { selectedFolder } = this.state;
     try {
       await initMining({
-        logicalDrive: drives[selectedDriveIndex].mountPoint,
-        commitmentSize: selectedCommitmentSize * 1073741824,
-        address: accounts[0].pk
+        logicalDrive: selectedFolder,
+        commitmentSize,
+        address: accounts[0].publicKey
       });
       history.push('/main/node', { showIntro: true });
     } catch (error) {
@@ -190,7 +191,17 @@ class NodeSetup extends Component<Props, State> {
     if (subMode === 2) {
       this.setState({ subMode: 3 });
     } else if (subMode === 3) {
+      this.setState({ isSubmitting: true });
       this.setupAndInitMining();
+    }
+  };
+
+  openFolderSelectionDialog = async () => {
+    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    if (error) {
+      this.setState({ hasPermissionError: true });
+    } else {
+      this.setState({ selectedFolder, freeSpace: formatBytes(freeSpace), hasPermissionError: false });
     }
   };
 
@@ -200,7 +211,8 @@ class NodeSetup extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  isConnected: state.node.isConnected,
+  status: state.node.status,
+  commitmentSize: state.node.commitmentSize,
   accounts: state.wallet.accounts
 });
 
@@ -208,10 +220,7 @@ const mapDispatchToProps = {
   initMining
 };
 
-NodeSetup = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(NodeSetup);
+NodeSetup = connect<any, any, _, _, _, _>(mapStateToProps, mapDispatchToProps)(NodeSetup);
 
 NodeSetup = ScreenErrorBoundary(NodeSetup);
 export default NodeSetup;

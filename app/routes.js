@@ -1,5 +1,6 @@
 // @flow
 import {
+  SplashScreen,
   Auth,
   Welcome,
   UnlockWallet,
@@ -15,7 +16,7 @@ import {
   SendCoins,
   RequestCoins,
   Backup,
-  BackupRoot,
+  BackupOptions,
   FileBackup,
   TwelveWordsBackup,
   Transactions,
@@ -25,6 +26,10 @@ import {
 } from '/screens';
 
 const app = [
+  {
+    path: '/pre',
+    component: SplashScreen
+  },
   {
     path: '/auth',
     component: Auth
@@ -110,8 +115,8 @@ const wallet = [
 
 const backup = [
   {
-    path: '/main/backup/backup-root',
-    component: BackupRoot
+    path: '/main/backup/backup-options',
+    component: BackupOptions
   },
   {
     path: '/main/backup/twelve-words-backup',

@@ -3,10 +3,17 @@ import { shell } from 'electron';
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
 import { CorneredContainer } from '/components/common';
-import { Button, Link, Tooltip } from '/basicComponents';
-import { bigInnerSideBar, laptop, power, setup, tooltip } from '/assets/images';
+import { Button, Link } from '/basicComponents';
+import { bigInnerSideBar, laptop, power, setup, laptopWhite, powerWhite, setupWhite } from '/assets/images';
 import { smColors } from '/vars';
 import type { RouterHistory } from 'react-router-dom';
+
+const isDarkModeOn = localStorage.getItem('dmMode') === 'true';
+const backgroundColor = isDarkModeOn ? smColors.white : smColors.black;
+const color = isDarkModeOn ? smColors.white : smColors.black;
+const laptopImg = isDarkModeOn ? laptopWhite : laptop;
+const powerImg = isDarkModeOn ? powerWhite : power;
+const setupImg = isDarkModeOn ? setupWhite : setup;
 
 const SideBar = styled.img`
   position: absolute;
@@ -22,7 +29,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${smColors.black};
+  background-color: ${backgroundColor};
 `;
 
 const Row = styled.div`
@@ -42,7 +49,7 @@ const Icon = styled.img`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${smColors.black};
+  color: ${color};
 `;
 
 const BottomPart = styled.div`
@@ -63,39 +70,19 @@ const ComplexLink = styled.div`
 const Text = styled.span`
   font-size: 14px;
   line-height: 17px;
-  color: ${smColors.darkGray};
-  margin-right: 5px;
-`;
-
-const TooltipIcon = styled.img`
-  width: 13px;
-  height: 13px;
-`;
-
-const CustomTooltip = styled(Tooltip)`
-  top: -2px;
-  right: -175px;
-`;
-
-const TooltipWrapper = styled.div`
-  position: absolute;
-  top: -4px;
-  right: -14px;
-  &:hover ${CustomTooltip} {
-    display: block;
-  }
+  color: ${smColors.disabledGray};
+  margin-right: 15px;
 `;
 
 const subHeader = (
-  <span>
-    <span>Thank you for downloading the spacemesh mining app</span>
+  <RowText>
+    <span>Thank you for downloading the Spacemesh App.</span>
     <br />
-    <span>This app will be use free disk space from your computer to mine SMC,</span>
     <br />
-    <span>so you can make transactions and test our technology</span>
+    <span>This App lets you you join the Spacemesh decentralized Testnet,</span>
     <br />
-    <span>We`re happy to have you on our testnet</span>
-  </span>
+    <span>use free disk space to earn Smesh, and make Smesh transactions using a built-in wallet.</span>
+  </RowText>
 );
 
 type Props = {
@@ -110,27 +97,33 @@ class Welcome extends PureComponent<Props> {
         <SideBar src={bigInnerSideBar} />
         <Indicator />
         <Row>
-          <Icon src={laptop} />
-          <RowText>Don&#39;t use a laptop, only use a desktop</RowText>
+          <Icon src={laptopImg} />
+          <RowText>Use a desktop computer, not a laptop.</RowText>
         </Row>
         <Row>
-          <Icon src={power} />
-          <RowText>Leave your desktop on 24/7, at least until setup is fully complete</RowText>
+          <Icon src={powerImg} />
+          <RowText>Leave your desktop computer on 24/7.</RowText>
         </Row>
         <Row>
-          <Icon src={setup} />
-          <RowText>Setup will use your GPU and may take up to 48 hours</RowText>
+          <Icon src={setupImg} />
+          <RowText>You should start earning Smesh rewards in about 48 hours.</RowText>
         </Row>
         <BottomPart>
           <Link onClick={this.navigateToSetupGuide} text="SETUP GUIDE" />
-          <ComplexLink>
-            <Text>NO DESKTOP?</Text>
-            <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
-            <TooltipWrapper>
-              <TooltipIcon src={tooltip} />
-              <CustomTooltip text="set up only a wallet, you can set up the full node later" />
-            </TooltipWrapper>
-          </ComplexLink>
+          {
+            // TODO: Spacemesh 0.1 does not offer a wallet-only mode
+            // <ComplexLink>
+            // eslint-disable-next-line no-irregular-whitespace
+            //   <Text>NO DESKTOP?</Text>
+            // eslint-disable-next-line no-irregular-whitespace
+            //   <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
+            //   <TooltipWrapper>
+            //     <TooltipIcon src={tooltip} />
+            // eslint-disable-next-line no-irregular-whitespace
+            //     <CustomTooltip text="set up only a wallet, you can set up the Smesher later" />
+            //   </TooltipWrapper>
+            // </ComplexLink>
+          }
           <ComplexLink>
             <Text>GOT A WALLET?</Text>
             <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />

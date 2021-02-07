@@ -2,10 +2,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { generateEncryptionKey, updateAccountsInFile } from '/redux/wallet/actions';
+import { eventsService } from '/infra/eventsService';
 import { ErrorPopup, Input, Link, Loader } from '/basicComponents';
 import { smColors } from '/vars';
-import type { Action, Account } from '/types';
+import type { Account, Contact } from '/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -29,9 +29,10 @@ const RightPart = styled.div`
 `;
 
 type Props = {
-  generateEncryptionKey: Action,
-  updateAccountsInFile: Action,
-  accounts: Account[]
+  walletFiles: Array<string>,
+  mnemonic: string,
+  accounts: Account[],
+  contacts: Contact
 };
 
 type State = {
@@ -123,14 +124,13 @@ class ChangePassword extends Component<Props, State> {
   };
 
   updatePassword = async () => {
-    const { generateEncryptionKey, updateAccountsInFile, accounts } = this.props;
+    const { walletFiles, mnemonic, accounts, contacts } = this.props;
     const { password, isLoaderVisible } = this.state;
     if (this.validate() && !isLoaderVisible) {
       this.setState({ isLoaderVisible: true });
       try {
         this.timeOut = await setTimeout(async () => {
-          generateEncryptionKey({ password });
-          await updateAccountsInFile({ accounts });
+          eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts, contacts } });
           this.clearFields();
         }, 500);
       } catch (error) {
@@ -143,17 +143,12 @@ class ChangePassword extends Component<Props, State> {
 }
 
 const mapStateToProps = (state) => ({
-  accounts: state.wallet.accounts
+  walletFiles: state.wallet.walletFiles,
+  mnemonic: state.wallet.mnemonic,
+  accounts: state.wallet.accounts,
+  contacts: state.wallet.contacts
 });
 
-const mapDispatchToProps = {
-  generateEncryptionKey,
-  updateAccountsInFile
-};
-
-ChangePassword = connect<any, any, _, _, _, _>(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChangePassword);
+ChangePassword = connect<any, any, _, _, _, _>(mapStateToProps)(ChangePassword);
 
 export default ChangePassword;
