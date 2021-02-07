@@ -36,11 +36,10 @@ jobs:
       - name: yarn install
         run: |
           yarn install
-      - name: yarn lint and build
+      - name: yarn build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn lint
           yarn build-dll
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
