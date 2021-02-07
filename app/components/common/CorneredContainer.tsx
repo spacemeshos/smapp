@@ -42,6 +42,7 @@ const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
   color: ${({ color }) => color};
+  text-transform: uppercase;
 `;
 
 const SubHeader = styled.div`

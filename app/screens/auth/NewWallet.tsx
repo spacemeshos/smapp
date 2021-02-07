@@ -133,7 +133,7 @@ const NewWallet = ({ history, location }: Props) => {
               <RowTitle>WALLET ONLY</RowTitle>
               <Tooltip width={100} text="Wallet only" isDarkMode={isDarkMode} />
             </Row>
-            <RowText>Setup a wallet that uses a publick</RowText>
+            <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
           <Button text="WALLET ONLY" width={150} onClick={() => {}} isDisabled />
