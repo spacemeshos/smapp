@@ -2,11 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../vars';
 
-const Wrapper = styled.div`
-  position: relative;
-  overflow-x: hidden;
-`;
-
 const Progress = styled.div<{ progress: number }>`
   position: absolute;
   width: ${({ progress }) => progress}%;
@@ -17,11 +12,13 @@ const Progress = styled.div<{ progress: number }>`
 `;
 
 const Base = styled.div`
-  font-family: 'Helvetica Neue';
+  position: relative;
+  min-width: 100px;
   width: 100%;
   font-size: 20px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  height: 20px;
+  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.darkGray : smColors.disabledGray)};
 `;
 
 type Props = {
@@ -29,12 +26,10 @@ type Props = {
 };
 
 const ProgressBar = ({ progress }: Props) => {
-  const adjustedProgress = Math.floor(progress * 10) + 1;
   return (
-    <Wrapper>
-      <Base>░░░░░░░░░░░░░░░░░░░░░░</Base>
-      <Progress progress={adjustedProgress} />
-    </Wrapper>
+    <Base>
+      <Progress progress={progress} />
+    </Base>
   );
 };
 

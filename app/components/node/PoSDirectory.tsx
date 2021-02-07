@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: 1px solid ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
   clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 5% 100%, 0% 85%);
 `;
 
@@ -75,8 +75,10 @@ type Props = {
   minCommitmentSize: string;
   status: Status | null;
   isDarkMode: boolean;
+  skipAction: () => void;
 };
 
+const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
 const PoSDirectory = ({ nextAction, dataDir, setDataDir, freeSpace, setFreeSpace, minCommitmentSize, status, isDarkMode }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
@@ -98,15 +100,19 @@ const PoSDirectory = ({ nextAction, dataDir, setDataDir, freeSpace, setFreeSpace
       <Wrapper>
         <HeaderWrapper>
           <HeaderIcon src={icon} />
-          <Header>PoS data folder directory:</Header>
+          <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
+        <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
+        <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
+        {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <Link onClick={openFolderSelectionDialog} text={dataDir || 'CLICK TO SELECT'} style={linkStyle} />
         <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${minCommitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
         <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
-          {freeSpace ? `${freeSpace} GB` : 'UNDESIGNATED'}
+          {freeSpace ? `${freeSpace} GB` : ''}
         </FreeSpace>
       </Wrapper>
+      <PoSFooter skipAction={skipAction} action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
       <PoSFooter action={nextAction} isDisabled={!dataDir || hasPermissionError || !status} />
     </>
   );

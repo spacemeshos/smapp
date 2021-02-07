@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentAccount, getBalance } from '../../redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars } from '../../basicComponents';
-import { copyBlack, copyWhite } from '../../assets/images';
+import { copyBlack, copyWhite, explorer } from '../../assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import type { RootState } from '../../types';
+import { RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const AccountDetails = styled.div`
   display: flex;
@@ -43,16 +44,17 @@ const AccountName = styled.div`
 const Address = styled.div`
   display: flex;
   flex-direction: row;
+  align-self: center;
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;
 `;
 
 const CopyIcon = styled.img`
-  align-self: flex-end;
+  align-self: center;
   width: 16px;
   height: 15px;
-  margin: 6px;
+  margin: 0 3px;
   cursor: pointer;
   &:hover {
     opacity: 0.5;
@@ -109,7 +111,18 @@ const NotSyncedYetText = styled.div`
   color: ${smColors.orange};
 `;
 
-const AccountsOverview = () => {
+const ExplorerIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-top: 2px;
+`;
+
+type Props = {
+  navigateToVault: () => void;
+};
+
+const AccountsOverview = (props: Props) => {
   let copiedTimeout: any = null;
   const [isCopied, setIsCopied] = useState(false);
   useEffect(() => {
@@ -138,12 +151,18 @@ const AccountsOverview = () => {
     setIsCopied(true);
   };
 
+  const openExplorerLink = (e: React.MouseEvent, publicKey: string) => {
+    e.stopPropagation();
+    eventsService.openExplorerLink({ uri: `accounts/${publicKey}` });
+  };
+
   const renderAccountRow = ({ displayName, publicKey, isInDropDown = false }: { displayName: string; publicKey: string; isInDropDown?: boolean }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address>
         {getAbbreviatedText(getAddress(publicKey))}
         <CopyIcon src={isDarkMode ? copyWhite : copyBlack} onClick={copyPublicAddress} />
+        <ExplorerIcon src={explorer} onClick={(e: React.MouseEvent) => openExplorerLink(e, `0x${getAddress(publicKey)}`)} />
       </Address>
     </AccountWrapper>
   );
@@ -165,14 +184,17 @@ const AccountsOverview = () => {
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}
             whiteIcon={isDarkMode}
+            isDarkMode={isDarkMode}
             rowContentCentered={false}
+            bgColor={isDarkMode ? smColors.black : smColors.white}
           />
         ) : (
           renderAccountRow({ displayName, publicKey })
         )}
       </AccountDetails>
-      <CopiedText>{isCopied ? 'Signature data copied to clipboard. You can paste it anywhere' : ''}</CopiedText>
+      <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
+        <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
         {status?.synced ? (
           <BalanceWrapper>

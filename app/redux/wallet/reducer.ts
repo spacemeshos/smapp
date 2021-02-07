@@ -1,6 +1,17 @@
 import type { WalletState, CustomAction } from 'types';
 import { LOGOUT } from '../auth/actions';
-import { SAVE_WALLET_FILES, SET_WALLET_META, SET_BALANCE, SET_ACCOUNTS, SET_MNEMONIC, SET_TRANSACTIONS, SET_CONTACTS, SET_CURRENT_ACCOUNT_INDEX, SET_BACKUP_TIME } from './actions';
+import {
+  SAVE_WALLET_FILES,
+  SET_WALLET_META,
+  SET_BALANCE,
+  SET_ACCOUNTS,
+  SET_MNEMONIC,
+  SET_TRANSACTIONS,
+  SET_CONTACTS,
+  SET_CURRENT_ACCOUNT_INDEX,
+  SET_BACKUP_TIME,
+  SET_CURRENT_MODE
+} from './actions';
 
 const initialState = {
   walletFiles: [],
@@ -11,7 +22,8 @@ const initialState = {
   transactions: [{ layerId: 0, data: [] }],
   lastUsedContacts: [],
   contacts: [],
-  backupTime: ''
+  backupTime: '',
+  vaultMode: 0
 };
 
 // TODO: fix this while fixing contacts feature
@@ -55,6 +67,10 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
         return { ...state, currentAccountIndex: index };
       }
       return state;
+    }
+    case SET_CURRENT_MODE: {
+      const { mode } = action.payload;
+      return { ...state, vaultMode: mode };
     }
     case SET_BALANCE: {
       const { balance } = action.payload;

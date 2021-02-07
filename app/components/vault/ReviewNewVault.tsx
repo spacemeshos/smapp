@@ -9,14 +9,14 @@ const DetailsRow = styled.div<{ isLast?: boolean }>`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};`)};
 `;
 
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
   margin: 10px 0;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
 `;
 
 const DetailsTextWrap = styled.div`
@@ -28,7 +28,7 @@ const DetailsTextWrap = styled.div`
 const GrayText = styled.div`
   font-size: 14px;
   text-transform: uppercase;
-  color: ${smColors.dark75Alpha};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
 `;
 
 type Props = {

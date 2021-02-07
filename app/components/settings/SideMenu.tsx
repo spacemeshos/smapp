@@ -7,7 +7,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 250px;
-  height: 150px;
+  height: 190px;
   margin-right: 15px;
   background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
 `;
@@ -22,7 +22,8 @@ const InnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 25px 5px;
+  padding: 25px 15px;
+  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
 `;
 
 const Container = styled.div`
@@ -75,7 +76,7 @@ type Props = {
   isDarkMode?: boolean;
 };
 
-const SideMenu = ({ items, currentItem, onClick, isDarkMode = false }: Props) => {
+const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   return (

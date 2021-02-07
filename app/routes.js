@@ -11,6 +11,9 @@ import {
   Node,
   NodeSetup,
   Wallet,
+  NewWallet,
+  SetupWallet,
+  Leaving,
   Overview,
   SendCoins,
   RequestCoins,
@@ -24,7 +27,8 @@ import {
   Network,
   TestMe,
   Vault,
-  Dashboard
+  Dashboard,
+  ConnectWallet
 } from './screens';
 
 const app = [
@@ -56,6 +60,18 @@ const auth = [
     component: CreateWallet
   },
   {
+    path: '/auth/leaving',
+    component: Leaving
+  },
+  {
+    path: '/auth/new-wallet',
+    component: NewWallet
+  },
+  {
+    path: '/auth/setup-wallet',
+    component: SetupWallet
+  },
+  {
     path: '/auth/restore',
     component: RestoreWallet
   },
@@ -66,6 +82,10 @@ const auth = [
   {
     path: '/auth/words-restore',
     component: WordsRestore
+  },
+  {
+    path: '/auth/connect-wallet',
+    component: ConnectWallet
   }
 ];
 

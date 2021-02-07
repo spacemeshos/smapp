@@ -149,7 +149,7 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
           />
           <Input
             value={address}
-            placeholder="Wallet address"
+            placeholder="Account address 0x24f7..."
             onChange={({ value }) => {
               setAddress(value);
               setHasError(false);

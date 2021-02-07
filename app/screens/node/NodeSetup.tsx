@@ -17,7 +17,7 @@ const Wrapper = styled.div`
   flex-direction: row;
 `;
 
-const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'PROOF OF SPACE PROCESSOR', 'PROOF OF SPACE SETUP'];
+const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'POS PROCESSOR', 'POS SETUP'];
 const subHeaders = [
   '',
   '',
@@ -41,7 +41,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const existingDataDir = useSelector((state: RootState) => state.smesher.dataDir);
   const minCommitmentSize = useSelector((state: RootState) => state.smesher.minCommitmentSize);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
+  const hideSmesherLeftPanel = useSelector((state: RootState) => state.ui.hideSmesherLeftPanel);
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
   const [dataDir, setDataDir] = useState(existingDataDir || '');
   const [freeSpace, setFreeSpace] = useState('');
@@ -67,6 +67,8 @@ const NodeSetup = ({ history, location }: Props) => {
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
+    localStorage.setItem('isWalletOnlySetup', 'false');
+    await dispatch(initMining({ logicalDrive: folder, address: accounts[0].publicKey, commitment, processor, isPausedOnUsage })); // TODO: use user selected commitment
     await dispatch(createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, throttle, providerId: provider.id }));
     history.push('/main/node', { showIntro: true });
   };
@@ -107,12 +109,17 @@ const NodeSetup = ({ history, location }: Props) => {
             setFreeSpace={setFreeSpace}
             status={status}
             isDarkMode={isDarkMode}
+            skipAction={() => history.push('/main/wallet')}
           />
         );
       case 2:
         return (
           <PoSSize
             nextAction={handleNextAction}
+            folder={folder}
+            commitmentSize={formattedCommitmentSize}
+            setFolder={setFolder}
+            setFreeSpace={setFreeSpace}
             dataDir={dataDir}
             freeSpace={freeSpace}
             commitmentSize={commitmentSize}
@@ -137,6 +144,11 @@ const NodeSetup = ({ history, location }: Props) => {
       case 4:
         return (
           <PoSSummary
+            folder={folder}
+            commitment={commitment}
+            processor={processor}
+            isDarkMode={isDarkMode}
+            isPausedOnUsage={isPausedOnUsage}
             dataDir={dataDir}
             commitmentSize={formatBytes(commitmentSize)}
             provider={provider}
@@ -153,8 +165,8 @@ const NodeSetup = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      <StepsContainer header="SETUP PROOF OF SPACE" steps={['PROTECT WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
+      {!hideSmesherLeftPanel && <StepsContainer steps={['SETUP WALLET', 'SETUP PROOF OF SPACE']} currentStep={1} isDarkMode={isDarkMode} />}
+      <CorneredContainer isDarkMode={isDarkMode} width={!hideSmesherLeftPanel ? 650 : 760} height={450} header={headers[mode]} headerIcon={posIcon} subHeader={subHeader}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {hasBackButton && <BackButton action={handlePrevAction} />}
         {renderRightSection()}

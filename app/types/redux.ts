@@ -22,6 +22,7 @@ export interface WalletState {
   lastUsedContacts: Array<Contact> | [];
   contacts: Array<Contact> | [];
   backupTime: string;
+  vaultMode: number;
 }
 
 export interface SmesherState {
@@ -40,6 +41,7 @@ export interface SmesherState {
 
 export interface UiState {
   isDarkMode: boolean;
+  hideSmesherLeftPanel: boolean;
 }
 
 export interface RootState {

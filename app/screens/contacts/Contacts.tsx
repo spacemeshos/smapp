@@ -7,10 +7,11 @@ import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { WrapperWith2SideBars, Input, DropDown } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { getAbbreviatedText } from '../../infra/utils';
-import { searchIcon, addContact } from '../../assets/images';
+import { searchIcon, addContact, explorer, copyWhite, copyBlack, clock } from '../../assets/images';
 import { Contact, RootState } from '../../types';
 import { EnterPasswordModal } from '../../components/settings';
 import { removeFromContacts } from '../../redux/wallet/actions';
+import { eventsService } from '../../infra/eventsService';
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -30,7 +31,7 @@ const SearchIcon = styled.img`
 const SubHeader = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 25px;
+  margin-bottom: 45px;
 `;
 
 const SubHeaderText = styled.div`
@@ -53,8 +54,8 @@ const SubHeaderBtnUpperPart = styled.div<{ color?: string; hoverColor?: string }
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 140px;
-  height: 60px;
+  width: 200px;
+  height: 80px;
   background-color: ${({ color }) => color};
   z-index: 1;
   &:hover {
@@ -68,8 +69,8 @@ const SubHeaderBtnLowerPart = styled.div<{ hoverColor?: string }>`
   position: absolute;
   top: 5px;
   left: 0;
-  width: 140px;
-  height: 60px;
+  width: 200px;
+  height: 80px;
   border: 1px solid ${({ color }) => color};
   &:hover {
     border: 1px solid ${({ hoverColor }) => hoverColor};
@@ -79,7 +80,7 @@ const SubHeaderBtnLowerPart = styled.div<{ hoverColor?: string }>`
 
 const SubHeaderBtnWrapper = styled.div`
   position: relative;
-  width: 140px;
+  width: 200px;
   height: 65px;
   &:hover ${SubHeaderBtnUpperPart} {
     background-color: ${({ color }) => color};
@@ -147,6 +148,18 @@ const ContactsList = styled.div`
   flex-direction: column;
   overflow-x: hidden;
   overflow-y: scroll;
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: ${smColors.darkGray};
+    outline: 1px solid ${smColors.darkGray};
+    border-radius: 2px;
+  }
 `;
 
 const ContactRow = styled.div`
@@ -155,27 +168,52 @@ const ContactRow = styled.div`
   flex-direction: row;
   align-items: center;
   padding: 10px 0;
+  margin-right: 10px;
   border-bottom: 1px solid ${smColors.disabledGray};
 `;
 
 const ContactText = styled.div`
+  position: relative;
+  display: flex;
   flex: 1;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
-  text-align: left;
-  margin-right: 10px;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.grey100Alpha)};
+  :nth-child(3) {
+    justify-content: center;
+  }
+  :last-child {
+    justify-content: center;
+  }
+`;
+
+const TextCursorPointer = styled.div`
   cursor: pointer;
 `;
 
+const ContactHeader = styled(ContactText)`
+  flex: 1;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  :nth-child(2) {
+    flex: unset;
+    width: 420px;
+    justify-content: center;
+  }
+  :nth-child(3) {
+    justify-content: center;
+  }
+  :last-child {
+    justify-content: flex-end;
+  }
+`;
+
 const DeleteText = styled.div`
+  display: flex;
+  justify-content: flex-end;
   flex: 1;
   font-size: 14px;
   line-height: 20px;
-  text-align: end;
-  margin-right: 10px;
   color: ${smColors.orange};
-  cursor: pointer;
   text-decoration: underline;
 `;
 
@@ -199,6 +237,32 @@ const CreateNewContactImg = styled.img`
   width: 31px;
   height: 28px;
   cursor: pointer;
+`;
+
+const ExplorerIcon = styled.img`
+  width: 31px;
+  height: 28px;
+  cursor: pointer;
+`;
+
+const CopyIcon = styled.img`
+  align-self: flex-end;
+  height: 15px;
+  margin-left: 6px;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.5;
+  }
+  &:active {
+    transform: translate3d(2px, 2px, 0);
+  }
+`;
+
+const ClockImg = styled.img`
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: 16px;
 `;
 
 const sortOptions = [
@@ -288,15 +352,23 @@ const Contacts = ({ history }: RouteComponentProps) => {
     setShouldShowPasswordModal(false);
   };
 
+  const copyAddress = async (e: React.MouseEvent, address: string) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(address);
+  };
+
+  const openExplorerLink = (address: string) => eventsService.openExplorerLink({ uri: `/accounts/${address}` });
+
   const renderLastUsedContacts = () => {
     if (lastUsedContacts && lastUsedContacts.length) {
       // @ts-ignore
       return lastUsedContacts.map((contact: Contact) => (
         <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => navigateToSendCoins({ contact })} key={contact.address}>
           <SubHeaderBtnUpperPart color={smColors.black} hoverColor={smColors.realBlack}>
+            <ClockImg src={clock} />
             <LastUsedNickname>{contact.nickname || 'UNKNOWN ADDRESS'}</LastUsedNickname>
             <LastUsedAddress>{getAbbreviatedText(contact.address)}</LastUsedAddress>
-            {!contact.nickname && <LastUsedAddContact onClick={(e: MouseEvent) => openAddNewContactModal(e, contact)}>+</LastUsedAddContact>}
+            {!contact.nickname && <LastUsedAddContact onClick={(e: React.MouseEvent) => openAddNewContactModal(e, contact)}>+</LastUsedAddContact>}
           </SubHeaderBtnUpperPart>
           <SubHeaderBtnLowerPart color={smColors.black} hoverColor={smColors.realBlack} />
         </SubHeaderBtnWrapper>
@@ -348,15 +420,36 @@ const Contacts = ({ history }: RouteComponentProps) => {
       return <ContactText>{`No contacts matching criteria "${searchTerm}" found`}</ContactText>;
     }
     const sortedContacts = filteredContacts.sort(sortContacts);
-    return sortedContacts.map((contact: Contact) => (
-      <ContactRow key={`${contact.nickname}_${contact.address}`}>
-        <ContactText onClick={() => navigateToSendCoins({ contact })}>{contact.nickname || 'UNKNOWN ADDRESS'}</ContactText>
-        <ContactText onClick={() => navigateToSendCoins({ contact })}>{getAbbreviatedText(contact.address)}</ContactText>
-        <DeleteText onClick={() => handleDeleteButton(contact)}>DELETE</DeleteText>
-        {shouldShowPasswordModal && <EnterPasswordModal submitAction={deleteContact} closeModal={() => setShouldShowPasswordModal(false)} />}
-        {!contact.nickname && <CreateNewContactImg onClick={(e: MouseEvent) => openAddNewContactModal(e, contact)} src={addContact} />}
-      </ContactRow>
-    ));
+    return (
+      <>
+        <ContactRow>
+          <ContactHeader>NAME</ContactHeader>
+          <ContactHeader>ADDRESS</ContactHeader>
+          <ContactHeader>EXPLORER</ContactHeader>
+          <ContactHeader>ACTION</ContactHeader>
+        </ContactRow>
+        <ContactsList>
+          {sortedContacts.map((contact: Contact) => (
+            <ContactRow key={`${contact.nickname}_${contact.address}`}>
+              <ContactText onClick={() => navigateToSendCoins({ contact })}>
+                <TextCursorPointer>{contact.nickname || 'UNKNOWN ADDRESS'}</TextCursorPointer>
+              </ContactText>
+              <ContactText>
+                {contact.address}
+                <CopyIcon src={isDarkMode ? copyWhite : copyBlack} onClick={(e: React.MouseEvent) => copyAddress(e, contact.address)} />
+              </ContactText>
+              <ContactText onClick={() => openExplorerLink(contact.address)}>
+                <ExplorerIcon src={explorer} />
+              </ContactText>
+              <DeleteText onClick={() => handleDeleteButton(contact)}>
+                <TextCursorPointer>DELETE</TextCursorPointer>
+              </DeleteText>
+              {!contact.nickname && <CreateNewContactImg onClick={(e: React.MouseEvent) => openAddNewContactModal(e, contact)} src={addContact} />}
+            </ContactRow>
+          ))}
+        </ContactsList>
+      </>
+    );
   };
 
   return (
@@ -388,9 +481,8 @@ const Contacts = ({ history }: RouteComponentProps) => {
           bgColor={smColors.white}
         />
       </ContactsSubHeader>
-      <ContactsList>
-        {contacts && contacts.length ? renderContacts() : <ContactText>{searchTerm ? 'No contacts matching criteria' : 'No contacts added yet'}</ContactText>}
-      </ContactsList>
+      {contacts && contacts.length ? renderContacts() : <ContactText>{searchTerm ? 'No contacts matching criteria' : 'No contacts added yet'}</ContactText>}
+      {shouldShowPasswordModal && <EnterPasswordModal submitAction={deleteContact} closeModal={() => setShouldShowPasswordModal(false)} />}
     </WrapperWith2SideBars>
   );
 };

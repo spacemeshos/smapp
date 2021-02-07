@@ -60,4 +60,4 @@ const formatSmidge = (amount: string, separateResult?: boolean): string | { valu
   return separateResult ? { value: res.value, unit: res.unit } : `${res.value} ${res.unit}`;
 };
 
-export { formatSmidge, createError, getAbbreviatedText, getFormattedTimestamp, getAddress, formatBytes };
+export { formatSmidge, getValueAndUnit, createError, getAbbreviatedText, getFormattedTimestamp, getAddress, formatBytes };

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
-import { vaultSecond, vaultSecondWhite, vault, circle, wallet } from '../../assets/images';
+import { vault, circle, wallet, fireworksWhite, fireworks } from '../../assets/images';
 
 const DetailsRow = styled.div`
   position: relative;
@@ -12,19 +12,17 @@ const DetailsRow = styled.div`
   margin-bottom: 15px;
 `;
 
-const LockIcon = styled.img`
-  width: 65px;
-  height: 65px;
-  margin-right: 5px;
-  margin-left: -2px;
-`;
-
 const Icon = styled.img`
   width: 15px;
   height: 15px;
   margin-right: 15px;
 `;
 
+const Fireworks = styled.img`
+  width: 150px;
+  height: 150px;
+  margin-top: -25px;
+`;
 const GreenText = styled.div`
   font-size: 16px;
   line-height: 20px;
@@ -38,7 +36,7 @@ type Props = {
 
 const VaultFinish = ({ isDarkMode }: Props) => (
   <>
-    <LockIcon src={isDarkMode ? vaultSecondWhite : vaultSecond} />
+    <Fireworks src={isDarkMode ? fireworksWhite : fireworks} />
     <GreenText>Your new vault transaction has been submitted to the mesh and is being created.</GreenText>
     <DetailsRow>
       <Icon src={circle} />

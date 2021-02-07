@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { DropDown, Tooltip, Dots } from '../../basicComponents';
+import { Account } from '../../types';
 
 const DetailsRow = styled.div`
   position: relative;
@@ -35,28 +36,10 @@ type Props = {
   masterAccountIndex: number;
   selectAccountIndex: ({ index }: { index: number }) => void;
   isDarkMode: boolean;
+  accountsOption: Account[];
 };
 
-// TODO add auto update for master accounts
-const masterAccounts = [
-  {
-    account: 1,
-    label: 'acc 1',
-    text: 'vault 1'
-  },
-  {
-    account: 2,
-    label: 'acc 2',
-    text: 'vault 2'
-  },
-  {
-    account: 3,
-    label: 'acc 3',
-    text: 'vault 3'
-  }
-];
-
-const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMode }: Props) => {
+const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMode, accountsOption }: Props) => {
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
 
   const renderAccElement = ({ label, text, isInDropDown }: { label: string; text: string; isInDropDown: boolean }) => (
@@ -72,7 +55,7 @@ const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMod
         <Tooltip width={250} isDarkMode={isDarkMode} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
         <Dots />
         <DropDown
-          data={masterAccounts}
+          data={accountsOption}
           onClick={selectAccountIndex}
           DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
           selectedItemIndex={masterAccountIndex}
@@ -86,7 +69,7 @@ const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMod
         <Tooltip width={250} isDarkMode={isDarkMode} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
         <Dots />
         <DropDown
-          data={masterAccounts}
+          data={accountsOption}
           onClick={selectAccountIndex}
           DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
           selectedItemIndex={masterAccountIndex}
@@ -100,7 +83,7 @@ const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMod
         <Tooltip width={250} isDarkMode={isDarkMode} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
         <Dots />
         <DropDown
-          data={masterAccounts}
+          data={accountsOption}
           onClick={selectAccountIndex}
           DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
           selectedItemIndex={masterAccountIndex}

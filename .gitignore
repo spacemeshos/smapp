@@ -38,4 +38,3 @@ ct-libc/
 .env
 .vscode
 /desktop/dist
-/app/dist/

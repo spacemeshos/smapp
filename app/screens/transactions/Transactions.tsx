@@ -51,7 +51,7 @@ const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin: 5px;
+  margin: 5px 5px 5px 15px;
   cursor: pointer;
   text-align: left;
   ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
@@ -60,8 +60,6 @@ const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
     color: ${smColors.darkGray50Alpha};
   }
 `;
-
-const ddStyle = { width: 120, position: 'absolute', right: 12, top: 5 };
 
 const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string; transactions: Tx[] }) => {
   const coins = {
@@ -88,7 +86,7 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
 const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
 
 const Transactions = ({ history }: RouteComponentProps) => {
-  const [selectedItemIndex, setSelectedItemIndex] = useState(-1);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
 
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex].publicKey);
@@ -131,6 +129,8 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/wallet' });
 
+  const ddStyle = { width: 120, position: 'absolute', right: 12, top: 5, color: isDarkMode ? smColors.white : smColors.black };
+
   const filteredTransactions = filterTransactions();
   const { mined, sent, received, totalMined, totalSent, totalReceived } = getCoinStatistics({ filteredTransactions });
   return (
@@ -158,9 +158,11 @@ const Transactions = ({ history }: RouteComponentProps) => {
             DdElement={({ label, isMain }) => <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>}
             onClick={handlePress}
             selectedItemIndex={selectedItemIndex}
-            rowHeight={55}
+            rowHeight={40}
             style={ddStyle}
-            bgColor={smColors.white}
+            bgColor={isDarkMode ? smColors.black : smColors.white}
+            rowContentCentered={false}
+            isDarkMode={isDarkMode}
           />
           <TransactionsMeta
             mined={mined}

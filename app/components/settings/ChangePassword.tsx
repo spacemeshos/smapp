@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { eventsService } from '../../infra/eventsService';
-import { ErrorPopup, Input, Link, Loader } from '../../basicComponents';
+import { ErrorPopup, Input, Link, Loader, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 
@@ -121,7 +121,7 @@ const ChangePassword = () => {
             <Link onClick={clearFields} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
           ]
         ) : (
-          <Link onClick={startUpdatingPassword} text="CHANGE" />
+          <Button onClick={startUpdatingPassword} text="CHANGE" width={180} />
         )}
       </RightPart>
     </Wrapper>

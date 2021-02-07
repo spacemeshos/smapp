@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -88,15 +88,17 @@ const CreateWallet = ({ history, location }: Props) => {
 
   const isCreatingPosData = useSelector((state: RootState) => state.smesher.isCreatingPosData);
   const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
+  const miningStatus = useSelector((state: RootState) => state.node.miningStatus);
+  const walletName = useSelector((state: RootState) => state.wallet.meta);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
   const renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
-      <SubHeader>Enter a new wallet password. It must be at least 8 characters.</SubHeader>
+      <SubHeader>Protect your wallet with a password. You will need it to access latter</SubHeader>
     ) : (
       <SubHeader>
-        For future reference, a wallet restore file was created.
+        Your wallet was created and saved in a password-protected file
         <br />
         <br />
         <Link onClick={() => eventsService.showFileInFolder({})} text="Browse file location" />
@@ -121,11 +123,14 @@ const CreateWallet = ({ history, location }: Props) => {
       setIsLoaderVisible(true);
       await setTimeout(async () => {
         dispatch(await createNewWallet({ existingMnemonic: location?.state?.mnemonic, password }));
-        setIsLoaderVisible(false);
         setSubMode(2);
       }, 500);
     }
   };
+
+  useEffect(() => {
+    setIsLoaderVisible(false);
+  }, [walletName]);
 
   const handleEnterPress = () => {
     if (validate()) {
@@ -149,6 +154,7 @@ const CreateWallet = ({ history, location }: Props) => {
       createWallet();
     } else if (subMode === 2) {
       if (isWalletOnlySetup) {
+        localStorage.setItem('isWalletOnlySetup', JSON.stringify(isWalletOnlySetup));
         history.push('/main/wallet');
       } else {
         history.push('/main/node-setup');
@@ -168,14 +174,11 @@ const CreateWallet = ({ history, location }: Props) => {
   }
   const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   const isWalletOnlySetup = !!location?.state?.withoutNode || isSmeshing || isCreatingPosData;
+  const header = subMode === 1 ? 'SET NEW WALLET PASSWORD' : `${walletName.displayName} CREATED`;
+  const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
   return (
     <Wrapper>
-      <StepsContainer
-        steps={isWalletOnlySetup ? ['PROTECT WALLET'] : ['PROTECT WALLET', 'SETUP PROOF OF SPACE']}
-        header={isWalletOnlySetup ? 'SETUP WALLET' : 'SETUP WALLET + SMESHER'}
-        currentStep={0}
-        isDarkMode={isDarkMode}
-      />
+      <StepsContainer steps={isWalletOnlySetup ? ['SETUP WALLET'] : ['SETUP WALLET', 'SETUP PROOF OF SPACE']} currentStep={0} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header={header} subHeader={renderSubHeader(subMode)} isDarkMode={isDarkMode}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {subMode === 1 && (

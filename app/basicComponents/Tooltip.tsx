@@ -38,6 +38,7 @@ const OuterIcon = styled.img`
 const Wrapper = styled.div<{ marginTop: number }>`
   position: relative;
   margin-left: 5px;
+  display: inline-block;
   margin-top: ${({ marginTop }) => marginTop}px;
   &:hover ${InnerWrapper} {
     display: block;

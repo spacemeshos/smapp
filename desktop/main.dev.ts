@@ -22,6 +22,7 @@ import StoreService from './storeService';
 import NodeManager from './nodeManager';
 import NotificationManager from './notificationManager';
 import SmesherService from './smesherService';
+import NotificationManager from './notificationManager';
 import './wasm_exec';
 
 (async function () {
@@ -76,12 +77,10 @@ const handleClosingApp = async () => {
       mainWindow.hide();
       mainWindow.reload();
     } else if (response === 1) {
-      mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-      await nodeManager.stopNode({ browserWindow: mainWindow });
+      await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
     }
   } else {
-    mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-    await nodeManager.stopNode({ browserWindow: mainWindow });
+    await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
   }
 };
 
@@ -120,9 +119,9 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 1280,
-    height: 800,
-    minWidth: 1024,
-    minHeight: 800,
+    height: 700,
+    minWidth: 1100,
+    minHeight: 680,
     center: true,
     webPreferences: {
       nodeIntegration: true
@@ -137,6 +136,19 @@ const createBrowserView = () => {
     }
   });
 };
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
 
 app.on('ready', async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
@@ -168,7 +180,7 @@ app.on('ready', async () => {
     createBrowserView();
     mainWindow.setBrowserView(browserView);
     const contentBounds = mainWindow.getContentBounds();
-    browserView.setBounds({ x: 0, y: 100, width: contentBounds.width - 35, height: 600 });
+    browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
     const url = isDarkMode ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
     browserView.webContents.loadURL(url);
@@ -186,6 +198,18 @@ app.on('ready', async () => {
 
   ipcMain.on(ipcConsts.OPEN_EXTERNAL_LINK, (_event, request) => {
     shell.openExternal(request.link);
+  });
+
+  ipcMain.on(ipcConsts.OPEN_EXPLORER_LINK, (_event, request) => {
+    if (!request.uri) {
+      _event.preventDefault();
+    }
+    const explorerUrl = 'https://stage-explore.spacemesh.io';
+    const darkMode = isDarkMode ? 'isDarkMode' : '';
+    const { uri } = request;
+
+    const url = darkMode ? `${explorerUrl}/${uri}` : `${explorerUrl}/${uri}?${darkMode}`;
+    shell.openExternal(url);
   });
 
   ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {

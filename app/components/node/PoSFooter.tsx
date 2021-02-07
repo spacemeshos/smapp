@@ -12,19 +12,30 @@ const Footer = styled.div`
   margin-top: 25px;
 `;
 
+const ButtonWrap = styled.div`
+  display: flex;
+  width: 250px;
+  justify-content: flex-end;
+  flex-direction: row;
+`;
+
 type Props = {
   action: () => void;
   isDisabled: boolean;
   isLastMode?: boolean;
+  skipAction?: () => void;
 };
 
 class PoSFooter extends PureComponent<Props> {
   render() {
-    const { action, isDisabled, isLastMode } = this.props;
+    const { action, isDisabled, isLastMode, skipAction } = this.props;
     return (
       <Footer>
         <Link onClick={this.navigateToExplanation} text="POST SETUP GUIDE" />
-        <Button onClick={action} text={isLastMode ? 'CREATE DATA' : 'NEXT'} isDisabled={isDisabled} />
+        <ButtonWrap>
+          {skipAction && <Button isPrimary={false} onClick={skipAction} text={'SKIP'} />}
+          <Button style={{ marginLeft: '20px' }} onClick={action} text={isLastMode ? 'CREATE DATA' : 'NEXT'} isDisabled={isDisabled} />
+        </ButtonWrap>
       </Footer>
     );
   }

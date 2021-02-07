@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
+import { Tooltip, DropDown, Link } from '../../basicComponents';
 import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { Status } from '../../types';
+import { eventsService } from '../../infra/eventsService';
+import { formatBytes } from '../../infra/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -12,12 +15,16 @@ const Row = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
-  &:first-child {
+  :first-child {
     margin-bottom: 10px;
   }
-  &:last-child {
-    margin-bottom: 0;
+  :last-child {
+    margin-bottom: 30px;
   }
+`;
+
+const BottomRow = styled(Row)`
+  margin: 5px 0;
 `;
 
 const Icon1 = styled.img`
@@ -54,38 +61,50 @@ const Dots = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
+
 const ErrorText = styled(Text)`
   color: ${smColors.red};
 `;
 
 const RewardText = styled(Text)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? smColors.green : smColors.orange)};
-`;
-
-const GreenText = styled(Text)`
-  color: ${smColors.green};
+  color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
 `;
 
 const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  margin: 5px;
+  margin: 5px 5px 5px 10px;
   cursor: inherit;
-  opacity: 0.5;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${smColors.realBlack};
   &:hover {
     opacity: 1;
     color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha)};
   }
   ${({ isInDropDown }) =>
     isInDropDown &&
-    `color: ${smColors.realBlack}; border-bottom: 1px solid ${smColors.disabledGray};
+    `
      &:hover {
       opacity: 1;
       color: ${smColors.darkGray50Alpha};
     }`}
+`;
+
+const ErrorText = styled.div`
+  height: 20px;
+  font-size: 15px;
+  line-height: 17px;
+  color: ${smColors.orange};
+  position: absolute;
+  left: 15px;
+  bottom: -15px;
+  width: 100%;
+}
 `;
 
 const Commitment = styled.div`
@@ -93,6 +112,7 @@ const Commitment = styled.div`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
 const commitments = [
@@ -100,8 +120,16 @@ const commitments = [
   { label: '200 GB', size: 200 },
   { label: '300 GB', size: 300 }
 ];
+const linkStyle = { fontSize: '17px', lineHeight: '19px', marginBottom: 5 };
 
 type Props = {
+  folder: string;
+  commitment: number;
+  commitmentSize: number;
+  setFolder: (folder: string) => void;
+  setCommitment: (commitment: number) => void;
+  freeSpace: number;
+  setFreeSpace: (freeSpace: number) => void;
   dataDir: string;
   commitmentSize: number;
   setCommitmentSize: (commitment: number) => void;
@@ -129,19 +157,36 @@ const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAc
   useEffect(() => {
     loadEstimatedRewards();
   }, []);
+const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace, nextAction, setFolder, setFreeSpace, status, isDarkMode }: Props) => {
+  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(commitment ? commitments.findIndex((com) => com.size === commitment) : 0);
+  const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const renderDDRow = ({ label, isInDropDown }: { label: string; isInDropDown: boolean }) => (
     <CommitmentWrapper isInDropDown={isInDropDown}>
       <Commitment>{label}</Commitment>
     </CommitmentWrapper>
   );
-
+  const openFolderSelectionDialog = async () => {
+    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    if (error) {
+      setHasPermissionError(true);
+    } else {
+      setFolder(selectedFolder);
+      setFreeSpace(formatBytes(freeSpace));
+      setHasPermissionError(false);
+    }
+  };
   const selectCommitment = ({ index }: { index: number }) => {
     setSelectedCommitmentIndex(index);
     setCommitmentSize(commitments[selectedCommitmentIndex].size);
   };
 
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 125px' };
+  const ddStyle = {
+    color: isDarkMode ? smColors.white : smColors.black,
+    marginLeft: 'auto',
+    flex: '0 0 125px'
+  };
+
   const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   return (
@@ -157,8 +202,10 @@ const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAc
           onClick={selectCommitment}
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}
-          whiteIcon={isDarkMode}
           style={ddStyle}
+          bgColor={isDarkMode ? smColors.black : smColors.white}
+          isDarkMode={isDarkMode}
+          rowContentCentered={false}
         />
       </Row>
       <Row>
@@ -174,8 +221,17 @@ const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAc
           </RewardText>
         )}
       </Row>
-      <Row>
+      <BottomRow>
         <Icon3 src={posDirectoryIcon} />
+        <Text>PoS data folder: </Text>
+        <Wrapper>
+          <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
+          <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
+        </Wrapper>
+      </BottomRow>
+      <BottomRow>
+        <Text>Free space: {freeSpace} GB</Text>
+      </BottomRow>
         <Text>PoS data folder</Text>
         <Dots>.....................................................</Dots>
         <GreenText>{dataDir}</GreenText>

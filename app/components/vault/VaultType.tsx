@@ -11,6 +11,7 @@ const Label = styled.div`
 const InputTitle = styled.span`
   text-transform: uppercase;
   font-size: 16px;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
 const InputSubTitle = styled.div`

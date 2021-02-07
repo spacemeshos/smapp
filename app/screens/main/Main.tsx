@@ -40,7 +40,7 @@ const InnerWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   flex: 1;
-  padding: 0 0 30px 30px;
+  padding: 0 32px 32px 32px;
 `;
 
 const NavBar = styled.div`
@@ -104,6 +104,12 @@ const TooltipWrapper = styled.div`
   }
 `;
 
+const EmptySpace = styled.div`
+  width: 100%;
+  margin: 30px;
+`;
+
+type Props = {
 interface Props extends RouteComponentProps {
   status: Status;
   getAccountRewards: any;
@@ -262,7 +268,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          <InfoBanner />
+          {nodeIndicator.hasError ? <InfoBanner /> : <EmptySpace />}
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (

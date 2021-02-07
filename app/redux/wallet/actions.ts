@@ -6,6 +6,8 @@ import TX_STATUSES from '../../vars/enums';
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
 export const SET_CURRENT_ACCOUNT_INDEX = 'SET_CURRENT_ACCOUNT_INDEX';
+export const SET_CURRENT_MODE = 'SET_CURRENT_MODE';
+
 export const SET_MNEMONIC = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 export const SET_CONTACTS = 'SET_CONTACTS';
@@ -27,6 +29,8 @@ export const setMnemonic = ({ mnemonic }: { mnemonic: string }) => ({ type: SET_
 export const setTransactions = ({ transactions }: { transactions: AccountTxs }) => ({ type: SET_TRANSACTIONS, payload: { transactions } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }) => ({ type: SET_CONTACTS, payload: { contacts } });
+
+export const setCurrentMode = ({ mode }: { mode: number }) => ({ type: SET_CURRENT_MODE, payload: { mode } });
 
 export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   const { error, files } = await eventsService.readWalletFiles();

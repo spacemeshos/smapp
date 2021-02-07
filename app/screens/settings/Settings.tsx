@@ -13,6 +13,7 @@ import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { version } from '../../../package.json';
 import { Account, AppThDispatch, RootState, Status } from '../../types';
+import { Modal } from '../../components/common';
 
 const Wrapper = styled.div`
   display: flex;
@@ -72,6 +73,13 @@ const AccountCmdBtnSeparator = styled.div`
   margin: auto 15px;
 `;
 
+const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 30px 0 15px 0;
+`;
+
 type Props = {
   displayName: string;
   accounts: Account[];
@@ -92,6 +100,7 @@ type Props = {
   networkId: string;
   backupTime: string;
   isDarkMode: boolean;
+  walletName: string;
   location: {
     hash: string;
     pathname: string;
@@ -119,13 +128,13 @@ type State = {
   isUpdateDownloading: boolean;
   editedAccountIndex: number;
   accountDisplayNames: Array<string>;
-  nodeIp: string;
   currentSettingIndex: number;
   showPasswordModal: boolean;
   passwordModalSubmitAction: ({ password }: { password: string }) => void;
   changedPort: string;
   isPortSet: boolean;
   signMessageModalAccountIndex: number;
+  showModal: boolean;
 };
 
 class Settings extends Component<Props, State> {
@@ -137,9 +146,11 @@ class Settings extends Component<Props, State> {
 
   myRef4: any; // eslint-disable-line react/sort-comp
 
+  myRef5: any; // eslint-disable-line react/sort-comp
+
   constructor(props: Props) {
     super(props);
-    const { displayName, accounts, nodeIpAddress } = props;
+    const { displayName, accounts } = props;
     const accountDisplayNames = accounts.map((account: Account) => account.displayName);
     this.state = {
       walletDisplayName: displayName,
@@ -148,22 +159,24 @@ class Settings extends Component<Props, State> {
       isUpdateDownloading: false,
       editedAccountIndex: -1,
       accountDisplayNames,
-      nodeIp: nodeIpAddress,
       currentSettingIndex: 0,
       showPasswordModal: false,
       passwordModalSubmitAction: () => {},
       changedPort: props.port,
       isPortSet: false,
-      signMessageModalAccountIndex: -1
+      signMessageModalAccountIndex: -1,
+      showModal: false
     };
 
     this.myRef1 = React.createRef();
     this.myRef2 = React.createRef();
     this.myRef3 = React.createRef();
     this.myRef4 = React.createRef();
+    this.myRef5 = React.createRef();
   }
 
   render() {
+    const { displayName, accounts, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme, isDarkMode, walletName } = this.props;
     const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, coinbase, networkId, stateRootHash, backupTime } = this.props;
     const {
       displayName,
@@ -186,21 +199,41 @@ class Settings extends Component<Props, State> {
       isUpdateDownloading,
       accountDisplayNames,
       editedAccountIndex,
-      nodeIp,
       currentSettingIndex,
       showPasswordModal,
       passwordModalSubmitAction,
       changedPort,
       isPortSet,
-      signMessageModalAccountIndex
+      signMessageModalAccountIndex,
+      showModal
     } = this.state;
+
     return (
       <Wrapper>
-        <SideMenu items={['WALLET SETTINGS', 'ACCOUNTS SETTINGS', 'MESH INFO', 'ADVANCED SETTINGS']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
+        <SideMenu isDarkMode={isDarkMode} items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
           <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <AllSettingsInnerWrapper>
-            <SettingsSection title="WALLET SETTINGS" refProp={this.myRef1} isDarkMode={isDarkMode}>
+            <SettingsSection title="GENERAL" refProp={this.myRef1} isDarkMode={isDarkMode}>
+              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
+              <SettingRow
+                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
+                rowName="Wallet Auto Start"
+              />
+              <SettingRow
+                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
+                rowName="Legal"
+              />
+              <SettingRow
+                upperPartLeft="Learn more in our extensive user guide"
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" width={180} />}
+                rowName="User Guide"
+              />
+            </SettingsSection>
+            <SettingsSection title="WALLETS" refProp={this.myRef2} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -210,7 +243,7 @@ class Settings extends Component<Props, State> {
                       <Link onClick={this.cancelEditingWalletDisplayName} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
                     ]
                   ) : (
-                    <Link onClick={this.startEditingWalletDisplayName} text="RENAME" />
+                    <Button onClick={this.startEditingWalletDisplayName} text="RENAME" width={180} />
                   )
                 }
                 rowName="Display name"
@@ -219,21 +252,14 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={`Last Backup ${backupTime ? `at ${new Date(backupTime).toLocaleString()}` : 'was never backed-up.'}`}
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={this.navigateToWalletBackup} text="BACKUP NOW" />}
+                upperPartRight={<Button onClick={this.navigateToWalletBackup} text="BACKUP NOW" width={180} />}
                 rowName="Wallet Backup"
               />
               <SettingRow
                 upperPartLeft="Restore wallet from backup file or 12 words"
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={this.navigateToWalletRestore} text="RESTORE" />}
+                upperPartRight={<Button onClick={this.navigateToWalletRestore} text="RESTORE" width={180} />}
                 rowName="Wallet Restore"
-              />
-              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
-              <SettingRow
-                upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
-                isUpperPartLeftText
-                upperPartRight={<Button onClick={this.toggleAutoStart} text="TOGGLE AUTO START" width={180} />}
-                rowName="Wallet Auto Start"
               />
               <SettingRow
                 upperPartLeft="Use at your own risk!"
@@ -242,34 +268,24 @@ class Settings extends Component<Props, State> {
                 rowName="Delete Wallet"
               />
               <SettingRow
-                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
-                rowName="Legal"
-              />
-              <SettingRow
-                upperPartLeft="Learn more in our extensive user guide"
-                isUpperPartLeftText
-                upperPartRight={<Link onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" />}
-                rowName="User Guide"
-              />
-              <SettingRow
                 upperPartLeft="Create a new wallet. You will be signed out of current wallet"
                 isUpperPartLeftText
-                upperPartRight={<Link onClick={() => {}} text="CREATE" isDisabled />}
+                upperPartRight={<Button onClick={() => {}} text="CREATE" width={180} isDisabled />}
                 rowName="Create a new wallet"
               />
               <SettingRow
                 upperPartLeft={version}
                 upperPartRight={[
                   <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Link key="2" style={{ width: 144 }} onClick={() => {}} text="CHECK FOR UPDATES" isDisabled />
+                  <Button key="2" onClick={() => {}} text="CHECK FOR UPDATES" width={144} isDisabled />
                 ]}
                 rowName="App Version"
               />
             </SettingsSection>
-            <SettingsSection title="ACCOUNTS SETTINGS" refProp={this.myRef2} isDarkMode={isDarkMode}>
+            <SettingsSection title="ACCOUNTS" refProp={this.myRef3} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={[<Text key={1}>New accounts will be added to&nbsp;</Text>, <GreenText key={2}>{displayName}</GreenText>]}
-                upperPartRight={<Link onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" />}
+                upperPartRight={<Button onClick={this.createNewAccountWrapper} text="ADD ACCOUNT" width={180} />}
                 rowName="Add a new account"
               />
               {accounts.map((account, index) => (
@@ -302,7 +318,7 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection title="MESH INFO" refProp={this.myRef3} isDarkMode={isDarkMode}>
+            <SettingsSection title="INFO" refProp={this.myRef4} isDarkMode={isDarkMode}>
               <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
               <SettingRow upperPartLeft={coinbase ? `0x${getAddress(coinbase)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
               {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
@@ -321,7 +337,7 @@ class Settings extends Component<Props, State> {
               {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
-            <SettingsSection title="ADVANCED SETTINGS" refProp={this.myRef4} isDarkMode={isDarkMode}>
+            <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={
                   isPortSet ? (
@@ -331,7 +347,7 @@ class Settings extends Component<Props, State> {
                   )
                 }
                 upperPartRight={<Button onClick={this.setPort} text="SET PORT" width={180} />}
-                rowName="Set new TCP/UDP port for smesher. Please select port number greater than 1024"
+                rowName="Local Smesher TCP and UDP port numbers"
               />
               <SettingRow
                 upperPartLeft="Delete all wallets and app data, and restart it"
@@ -339,17 +355,20 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Button onClick={this.cleanAllAppDataAndSettings} text="REINSTALL" width={180} />}
                 rowName="Reinstall App"
               />
-              <SettingRow
-                upperPartLeft={<Input value={nodeIp} onChange={({ value }) => this.setState({ nodeIp: value })} />}
-                // @ts-ignore
-                upperPartRight={<Link onClick={() => setNodeIpAddress({ nodeIpAddress: nodeIp })} text="CONNECT" isDisabled={!nodeIp || nodeIp.trim() === 0 || !status} />}
-                rowName="Change Node IP Address"
-              />
             </SettingsSection>
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
-        {showPasswordModal && <EnterPasswordModal submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />}
+        {showPasswordModal && (
+          <EnterPasswordModal walletName={walletName} submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />
+        )}
         {signMessageModalAccountIndex !== -1 && <SignMessage index={signMessageModalAccountIndex} close={() => this.toggleSignMessageModal({ index: -1 })} />}
+        {showModal && (
+          <Modal header="Error" subHeader={'number must be >= 1024'}>
+            <ButtonsWrapper>
+              <Button onClick={() => this.setState({ showModal: false })} isPrimary text="OK" />
+            </ButtonsWrapper>
+          </Modal>
+        )}
       </Wrapper>
     );
   }
@@ -378,6 +397,8 @@ class Settings extends Component<Props, State> {
     if (parsedPort && parsedPort > 1024) {
       await eventsService.setPort({ port: changedPort });
       this.setState({ isPortSet: true });
+    } else {
+      this.setState({ showModal: true });
     }
   };
 
@@ -501,7 +522,7 @@ class Settings extends Component<Props, State> {
   };
 
   scrollToRef = ({ index }: { index: number }) => {
-    const ref = [this.myRef1, this.myRef2, this.myRef3, this.myRef4][index];
+    const ref = [this.myRef1, this.myRef2, this.myRef3, this.myRef4, this.myRef5][index];
     this.setState({ currentSettingIndex: index });
     ref.current.scrollIntoView({
       behavior: 'smooth',
@@ -533,6 +554,8 @@ const mapStateToProps = (state: RootState) => ({
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode
   backupTime: state.wallet.backupTime
+  isDarkMode: state.ui.isDarkMode,
+  walletName: state.wallet.meta.displayName
 });
 
 const mapDispatchToProps = {

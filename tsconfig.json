@@ -24,7 +24,8 @@
     "baseUrl": "./app",
     "paths": {
       "app/*": ["./app/*"]
-    }
+    },
+    "noImplicitAny": false
   },
   "exclude": [
     "node_modules",
@@ -32,7 +33,7 @@
     "release",
     "desktop/main.prod.js",
     "desktop/renderer.prod.js",
-    "desktop/dist",
+    "dist",
     "dll",
     "configs",
     "node",
