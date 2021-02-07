@@ -114,7 +114,7 @@ class NodeManager {
         exec(command, async (err) => {
           if (!err) {
             StoreService.set({ key: `${networkId}-genesisTime`, value: fetchedGenesisTime });
-            const nodePathWithParams = `"${nodePath}" --grpc-server --grpc-port-new --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
+            const nodePathWithParams = `"${nodePath}" --grpc-server --grpc-port-new 9092 --json-server --tcp-port ${port} --config "${configFileLocation}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
             exec(nodePathWithParams, (error) => {
               if (error) {
                 (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
@@ -128,7 +128,7 @@ class NodeManager {
         });
       } else {
         const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
-        const nodePathWithParams = `"${nodePath}" --grpc-server --grpc-port-new --json-server --tcp-port ${port} --config "${configFileLocation}"${
+        const nodePathWithParams = `"${nodePath}" --grpc-server --grpc-port-new 9092 --json-server --tcp-port ${port} --config "${configFileLocation}"${
           savedMiningParams ? ` --coinbase 0x${savedMiningParams.coinbase} --start-mining --post-datadir "${savedMiningParams.logicalDrive}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
         exec(nodePathWithParams, (error) => {
