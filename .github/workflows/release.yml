@@ -50,7 +50,7 @@ jobs:
       - if: matrix.os == 'ubuntu-latest'
         name: build linux app
         run: |
-          curl -L --output ./node/linux/go-spacemesh --create-dirs https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.23/ubuntu-latest/go-spacemesh
+          curl -L --output ./node/linux/go-spacemesh --create-dirs https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.24/ubuntu-latest/go-spacemesh
           cd ./node/linux
           chmod -R +x * .
           cd ../..
@@ -58,12 +58,12 @@ jobs:
       - if: matrix.os == 'windows-latest'
         name: build windows app
         run: |
-          curl -L --output ./node/windows/go-spacemesh.exe --create-dirs https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.23/windows-latest/go-spacemesh.exe
+          curl -L --output ./node/windows/go-spacemesh.exe --create-dirs https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.24/windows-latest/go-spacemesh.exe
           yarn package-win
       - if: matrix.os == 'macos-latest'
         name: build mac app
         run: |
-          curl -L --output ./node/mac/go-spacemesh --create-dirs  https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.23/macos-latest/go-spacemesh
+          curl -L --output ./node/mac/go-spacemesh --create-dirs  https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.24/macos-latest/go-spacemesh
           cd ./node/mac
           chmod -R +x * .
           cd ../..
