@@ -1,4 +1,9 @@
 {
+  "logging": {
+      "p2p": "debug",
+      "hare": "debug",
+      "sync": "debug"
+  },
   "api": {
       "grpc": "node,mesh,globalstate,transaction,smesher"
   },
