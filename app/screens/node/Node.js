@@ -160,8 +160,6 @@ class Node extends Component<Props, State> {
 
   fireworksTimeout: TimeoutID;
 
-  audio: any;
-
   constructor(props) {
     super(props);
     const { location } = props;
@@ -220,24 +218,13 @@ class Node extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
+  // async componentDidMount() {
     //   const { status, miningStatus, getUpcomingRewards } = this.props;
     //   if (status?.synced && miningStatus === nodeConsts.IS_MINING) {
     //     await getUpcomingRewards();
     //     this.getUpcomingAwardsInterval = setInterval(getUpcomingRewards, 30000);
     //   }
-    const audioPath = await eventsService.getAudioPath();
-    this.audio = new Audio(audioPath);
-  }
-
-  componentDidUpdate() {
-    const { rewards } = this.props;
-    const playedAudio = localStorage.getItem('playedAudio');
-    this.audio.loop = false;
-    if (rewards && rewards.length === 1 && !playedAudio) {
-      this.audio.play();
-    }
-  }
+  // }
 
   componentWillUnmount() {
     // this.getUpcomingAwardsInterval && clearInterval(this.getUpcomingAwardsInterval);

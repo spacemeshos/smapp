@@ -72,8 +72,6 @@ class EventsService {
 
   static reloadApp = () => ipcRenderer.send(ipcConsts.RELOAD_APP);
 
-  static getAudioPath = () => ipcRenderer.invoke(ipcConsts.GET_AUDIO_PATH);
-
   static print = ({ content }: { content: string }) => ipcRenderer.send(ipcConsts.PRINT, { content });
 
   static isAppMinimized = () => ipcRenderer.invoke(ipcConsts.IS_APP_MINIMIZED);

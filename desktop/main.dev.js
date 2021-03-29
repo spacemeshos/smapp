@@ -137,10 +137,6 @@ app.on('ready', async () => {
 
   ipcMain.handle(ipcConsts.IS_APP_MINIMIZED, () => mainWindow.isMinimized());
 
-  ipcMain.handle(ipcConsts.GET_AUDIO_PATH, () =>
-    path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? '../resources/sounds' : '../../sounds', 'smesh_reward.mp3')
-  );
-
   ipcMain.on(ipcConsts.PRINT, (event, request: { content: string }) => {
     const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
     const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;

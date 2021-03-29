@@ -95,8 +95,7 @@ const getBuildOptions = ({ target, publish }) => {
       ],
       extraFiles: [
         nodeFiles[target],
-        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' },
-        { from: path.resolve('resources/sounds'), to: 'sounds/' }
+        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' }
       ],
       mac: {
         hardenedRuntime: true,
@@ -124,7 +123,7 @@ const getBuildOptions = ({ target, publish }) => {
             type: 'file'
           }
         ],
-        title: 'Spacemesh'
+        title: 'Spacemesh (${version})'
       },
       win: {
         target: 'nsis'
@@ -142,7 +141,7 @@ const getBuildOptions = ({ target, publish }) => {
         uninstallDisplayName: 'Spacemesh (${version})'
       },
       linux: {
-        target: ['deb'],
+        target: ['deb', 'snap', 'AppImage'],
         category: 'Utility',
         icon: path.join(__dirname, '..', 'resources', 'icons')
       },

@@ -4,7 +4,7 @@ import { writeInfo, writeError } from './logger';
 
 const protoLoader = require('@grpc/proto-loader');
 
-const grpc = require('grpc');
+const grpc = require('@grpc/grpc-js');
 
 const PROTO_PATH = path.join(__dirname, '..', 'proto/api.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH);

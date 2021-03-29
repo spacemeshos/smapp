@@ -49,7 +49,6 @@ export const getMiningStatus = (): Action => async (dispatch: Dispatch): Dispatc
       localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
     }
   } else if (status === nodeConsts.NOT_MINING) {
-    localStorage.removeItem('playedAudio');
     localStorage.removeItem('smesherInitTimestamp');
     localStorage.removeItem('smesherSmeshingTimestamp');
   }
