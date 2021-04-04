@@ -77,6 +77,18 @@
       "default-timeout-latency": "10s",
       "max-allowed-time-drift": "10s",
       "ntp-queries": "5",
-      "refresh-ntp-interval": "30m"
+      "refresh-ntp-interval": "30m",
+      "ntp-servers": [
+        "0.cn.pool.ntp.org",
+        "1.cn.pool.ntp.org",
+        "2.cn.pool.ntp.org",
+        "3.cn.pool.ntp.org",
+        "time1.cloud.tencent.com",
+        "time2.cloud.tencent.com",
+        "time3.cloud.tencent.com",
+        "time4.cloud.tencent.com",
+        "ntp2.aliyun.com",
+        "ntp4.aliyun.com"
+      ]
   }
 }
