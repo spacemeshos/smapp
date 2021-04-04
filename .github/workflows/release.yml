@@ -40,7 +40,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          yarn lint
           yarn build-dll
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
