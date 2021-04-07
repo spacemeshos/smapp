@@ -1,5 +1,6 @@
 syntax = "proto3";
 package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 
 message SimpleInt {
     uint64 value = 1;
@@ -101,7 +102,9 @@ message Reward {
 
 message Block {
     bytes id = 1; // block hash
-    repeated Transaction transactions = 2;
+    repeated Transaction transactions = 2; // block transactions
+    ActivationId activation_id = 3; // the smesher's activation that this block refers to
+    SmesherId smesher_id = 4; // the id of the smesher who submitted this block
 }
 
 message Layer {

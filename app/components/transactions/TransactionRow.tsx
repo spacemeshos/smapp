@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
-import { updateTransaction } from '../../redux/wallet/actions';
+import { useSelector } from 'react-redux';
 import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
@@ -186,8 +185,8 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const [isCopied, setIsCopied] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
 
+  const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const dispatch = useDispatch();
 
   const { txId, nickname, status, layerId, sender, receiver, amount, fee, timestamp } = tx;
   const statuses: Array<string> = Object.keys(TX_STATUSES);
@@ -217,7 +216,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   };
 
   const save = async () => {
-    dispatch(updateTransaction({ newData: { note }, txId: tx.txId }));
+    await eventsService.updateTransaction({ newData: { note }, accountIndex: currentAccountIndex, txId: tx.txId });
     setIsDetailed(false);
     setShowNoteModal(false);
   };

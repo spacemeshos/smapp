@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '../../basicComponents';
 import { getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Contact, Status } from '../../types';
+import { Contact } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
@@ -78,13 +78,6 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
-const NotSyncedExplanation = styled.div`
-  flex: 1;
-  font-size: 11px;
-  line-height: 15px;
-  color: ${smColors.orange};
-`;
-
 // TODO add auto update for fee ranges
 const fees = [
   {
@@ -123,7 +116,6 @@ type Props = {
   updateTxNote: ({ value }: { value: string }) => void;
   nextAction: () => void;
   cancelTx: () => void;
-  status: Status | null;
   contacts: Contact[];
   isDarkMode: boolean;
 };
@@ -143,7 +135,6 @@ const TxParams = ({
   updateFee,
   nextAction,
   cancelTx,
-  status,
   contacts,
   isDarkMode
 }: Props) => {
@@ -217,8 +208,7 @@ const TxParams = ({
       </DetailsRow>
       <Footer>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
-        {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
-        <Button onClick={nextAction} text="NEXT" isDisabled={!status?.synced} />
+        <Button onClick={nextAction} text="NEXT" />
       </Footer>
     </Wrapper>
   );

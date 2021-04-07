@@ -33,11 +33,12 @@ const BottomPart = styled.div`
 `;
 
 const AccItem = styled.div<{ isInDropDown: boolean }>`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
   width: 100%;
+  padding: 5px;
+  line-height: 17px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: ${smColors.black};
   cursor: inherit;
   ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
@@ -49,22 +50,25 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
 const publicServices = [
   {
     label: 'SPACEMESH COMMUNITY PUBIC SERVER',
-    text: 'HTTPS://SM.IO/API/V1'
+    text: 'HTTPS://SM.IO/API/V1',
+    ip: 'https://sm.io/api/v1',
+    port: ''
   },
   {
     label: 'SPACEMESH COMMUNITY PUBIC SERVER',
-    text: 'HTTPS://SM.IO/API/V2'
+    text: 'HTTPS://SM.IO/API/V2',
+    ip: 'https://sm.io/api/v2',
+    port: ''
   }
 ];
 
-const ConnectWallet = ({ history }: RouteComponentProps) => {
+const ConnectToApi = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
   const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
-  const header = 'CONNECT TO SPACEMESH';
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
@@ -74,13 +78,23 @@ const ConnectWallet = ({ history }: RouteComponentProps) => {
     </AccItem>
   );
 
+  const handleNext = async () => {
+    const response = await eventsService.activateWalletManager({ url: publicServices[selectedItemIndex].text, port: '' });
+    if (response.activated) {
+      const { ip, port } = publicServices[selectedItemIndex];
+      history.push('/auth/wallet-type', { ip, port });
+    } else {
+      throw response.error;
+    }
+  };
+
   return (
     <Wrapper>
-      <StepsContainer steps={['SETUP WALLET', 'SETUP PROF OF SPACE']} header={''} currentStep={1} isDarkMode={isDarkMode} />
+      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} header={''} currentStep={0} isDarkMode={isDarkMode} />
       <CorneredContainer
         width={650}
         height={400}
-        header={header}
+        header="CONNECT TO SPACEMESH"
         subHeader="Select a Spacemesh API public service to connect you wallet to."
         tooltipMessage="test"
         isDarkMode={isDarkMode}
@@ -101,11 +115,11 @@ const ConnectWallet = ({ history }: RouteComponentProps) => {
         <BackButton action={history.goBack} />
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          <Button onClick={() => history.push('/auth/setup-wallet', { withoutNode: true })} text="NEXT" />
+          <Button onClick={handleNext} text="NEXT" />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>
   );
 };
 
-export default ConnectWallet;
+export default ConnectToApi;

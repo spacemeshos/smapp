@@ -6,10 +6,7 @@ import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_CREATING_POS_DATA, SET_
 const initialState = {
   coinbase: '',
   dataDir: '',
-  minCommitmentSize: 0,
   commitmentSize: 0,
-  genesisTime: 0,
-  networkId: 0,
   isSmeshing: false,
   isCreatingPosData: false,
   postProgress: {},
@@ -21,9 +18,9 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_SMESHER_SETTINGS: {
       const {
-        payload: { coinbase, dataDir, genesisTime, minCommitmentSize, networkId }
+        payload: { coinbase, dataDir }
       } = action;
-      return { ...state, coinbase, dataDir, genesisTime, minCommitmentSize, networkId };
+      return { ...state, coinbase, dataDir };
     }
     case STARTED_CREATING_POS_DATA: {
       const {

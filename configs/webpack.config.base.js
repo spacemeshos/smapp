@@ -41,10 +41,6 @@ export default {
     modules: [path.join(__dirname, '..', 'desktop'), path.join(__dirname, '..', 'app'), 'node_modules']
   },
 
-  optimization: {
-    namedModules: true
-  },
-
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'

@@ -3095,7 +3095,7 @@ proto.spacemesh.v1.StopSmeshingRequest.serializeBinaryToWriter = function(messag
 
 
 /**
- * optional bool delete_files = 1;
+ * optional bool W_M_SHOW_DELETE_FILEs = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
@@ -3239,7 +3239,7 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.serializeBinaryToWriter = 
 
 
 /**
- * optional bool delete_files = 1;
+ * optional bool W_M_SHOW_DELETE_FILEs = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}

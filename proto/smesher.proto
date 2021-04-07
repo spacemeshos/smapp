@@ -1,6 +1,6 @@
 syntax = "proto3";
 package spacemesh.v1;
-
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 import "google/protobuf/empty.proto";
 import "smesher_types.proto";
 

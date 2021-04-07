@@ -1,10 +1,6 @@
-import { ipcRenderer } from 'electron';
-import { useDispatch } from 'react-redux';
-import { eventsService } from 'infra/eventsService';
-import { createError } from 'infra/utils';
-import { ipcConsts } from 'vars';
-import { AppThDispatch, CustomAction, GetState } from 'types';
-import { SET_TRANSACTIONS } from '../wallet/actions';
+import { eventsService } from '../../infra/eventsService';
+import { createError } from '../../infra/utils';
+import { AppThDispatch, CustomAction, GetState, Reward } from '../../types';
 
 export const SET_SMESHER_SETTINGS = 'SET_SMESHER_SETTINGS';
 export const STARTED_CREATING_POS_DATA = 'STARTED_CREATING_POS_DATA';
@@ -14,13 +10,15 @@ export const SET_IS_SMESHING = 'SET_IS_SMESHING';
 
 export const SET_ACCOUNT_REWARDS = 'SET_ACCOUNT_REWARDS';
 
+export const setRewards = ({ rewards }: { rewards: Reward[] }) => ({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
+
 export const getSmesherSettings = () => async (dispatch: AppThDispatch) => {
-  const { error, coinbase, dataDir, genesisTime, minCommitmentSize, networkId } = await eventsService.getSmesherSettings();
+  const { error, coinbase, dataDir } = await eventsService.getSmesherSettings();
   if (error) {
     console.error(error); // eslint-disable-line no-console
     dispatch(getSmesherSettings());
   } else {
-    dispatch({ type: SET_SMESHER_SETTINGS, payload: { coinbase, dataDir, genesisTime, minCommitmentSize, networkId } });
+    dispatch({ type: SET_SMESHER_SETTINGS, payload: { coinbase, dataDir } });
   }
 };
 // notificationsService.notify({
@@ -101,26 +99,8 @@ export const deletePosData = () => async (dispatch: AppThDispatch, getState: Get
   }
 };
 
-ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
-  const { error, status } = request;
-  const dispatch = useDispatch();
-  dispatch(_setPostStatus({ error, status }));
-});
-
-export const getAccountRewards = ({ newRewardsNotifier }: { newRewardsNotifier: () => void }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { coinbase } = getState().smesher;
-  const { accounts } = getState().wallet;
-  const accountIndex = accounts.findIndex((account) => account.publicKey === coinbase);
-  const { error, hasNewAwards, rewards, transactions } = await eventsService.getAccountRewards({ address: coinbase, accountIndex });
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-  } else {
-    dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
-    if (transactions) {
-      dispatch({ type: SET_TRANSACTIONS, payload: { transactions } });
-    }
-    if (hasNewAwards) {
-      newRewardsNotifier();
-    }
-  }
-};
+// ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
+//   const { error, status } = request;
+//   const dispatch = useDispatch();
+//   dispatch(_setPostStatus({ error, status }));
+// });

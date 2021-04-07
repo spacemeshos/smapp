@@ -11,7 +11,7 @@ import baseConfig from './webpack.config.base';
 
 checkNodeEnv('development');
 
-const dist = path.join(__dirname, '..', 'dll');
+const dist = path.join(__dirname, '../dll');
 
 export default merge(baseConfig, {
   context: path.join(__dirname, '..'),
@@ -62,9 +62,9 @@ export default merge(baseConfig, {
     new webpack.LoaderOptionsPlugin({
       debug: true,
       options: {
-        context: path.join(__dirname, '..', 'app'),
+        context: path.join(__dirname, '../app'),
         output: {
-          path: path.join(__dirname, '..', 'dll')
+          path: path.join(__dirname, '../dll')
         }
       }
     })

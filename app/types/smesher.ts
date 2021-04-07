@@ -6,3 +6,11 @@ export type ComputeProvider = {
 };
 
 export type ComputeProviders = Array<ComputeProvider>;
+
+export type Reward = {
+  total: number;
+  layerReward: number;
+  layerComputed: number;
+  coinbase: string;
+  smesher: string;
+};

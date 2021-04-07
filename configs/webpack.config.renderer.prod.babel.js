@@ -25,11 +25,11 @@ export default merge(baseConfig, {
   entry: [
     'core-js',
     'regenerator-runtime/runtime',
-    path.join(__dirname, '..', 'app/index.tsx'),
+    path.join(__dirname, '../app/index.tsx'),
   ],
 
   output: {
-    path: path.join(__dirname, '..', 'desktop/dist'),
+    path: path.join(__dirname, '../desktop/dist'),
     publicPath: './desktop/dist/',
     filename: 'renderer.prod.js',
   },
@@ -71,15 +71,12 @@ export default merge(baseConfig, {
   },
 
   optimization: {
-    minimizer: process.env.E2E_BUILD
-      ? []
-      : [
-        new TerserPlugin({
-          parallel: true,
-          sourceMap: true,
-          cache: true,
-        })
-      ]
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+      })
+    ]
   },
 
   plugins: [
@@ -94,8 +91,7 @@ export default merge(baseConfig, {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
-      DEBUG_PROD: false,
-      E2E_BUILD: false,
+      DEBUG_PROD: false
     }),
 
     new BundleAnalyzerPlugin({

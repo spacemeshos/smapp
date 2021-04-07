@@ -11,19 +11,25 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
+import util from 'util';
 import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
-import NodeManager from './nodeManager';
+import WalletManager from './WalletManager';
+import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
-import SmesherService from './smesherService';
-import NotificationManager from './notificationManager';
+import SmesherManager from './SmesherManager';
 import './wasm_exec';
+
+const writeFileAsync = util.promisify(fs.writeFile);
+
+const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
 
 (async function () {
   const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
@@ -50,14 +56,12 @@ let mainWindow: BrowserWindow;
 let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
-let smesherService: SmesherService;
 let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 const handleClosingApp = async () => {
-  const networkId = StoreService.get({ key: 'networkId' });
-  const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
-  if (savedMiningParams) {
+  const isSmeshing = StoreService.get('smeshingParams');
+  if (isSmeshing) {
     const options = {
       title: 'Quit App',
       message:
@@ -78,9 +82,16 @@ const handleClosingApp = async () => {
       mainWindow.reload();
     } else if (response === 1) {
       await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
+      mainWindow.destroy();
+      app.quit();
     }
   } else {
-    await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
+    const isRunningLocalNode = StoreService.get('localNode');
+    if (isRunningLocalNode) {
+      await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
+    }
+    mainWindow.destroy();
+    app.quit();
   }
 };
 
@@ -137,6 +148,55 @@ const createBrowserView = () => {
   });
 };
 
+const addIpcEventListeners = () => {
+  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
+
+  ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
+    createBrowserView();
+    mainWindow.setBrowserView(browserView);
+    const contentBounds = mainWindow.getContentBounds();
+    browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
+    browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
+    const url = isDarkMode ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
+    browserView.webContents.loadURL(url);
+  });
+
+  ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
+    browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    browserView.destroy();
+  });
+
+  ipcMain.on(ipcConsts.OPEN_EXTERNAL_LINK, (_event, request) => {
+    shell.openExternal(request.link);
+  });
+
+  ipcMain.on(ipcConsts.OPEN_EXPLORER_LINK, (_event, request) => {
+    if (!request.uri) {
+      _event.preventDefault();
+    }
+    const explorerUrl = 'https://stage-explore.spacemesh.io';
+    const darkMode = isDarkMode ? 'isDarkMode' : '';
+    const { uri } = request;
+
+    const url = darkMode ? `${explorerUrl}/${uri}` : `${explorerUrl}/${uri}?${darkMode}`;
+    shell.openExternal(url);
+  });
+
+  ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
+    isDarkMode = request.isDarkMode;
+  });
+
+  ipcMain.on(ipcConsts.PRINT, (_event, request: { content: string }) => {
+    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
+    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
+    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
+  });
+
+  ipcMain.on(ipcConsts.RELOAD_APP, () => {
+    mainWindow.reload();
+  });
+};
+
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
@@ -174,62 +234,34 @@ app.on('ready', async () => {
     await handleClosingApp();
   });
 
-  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
-
-  ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
-    createBrowserView();
-    mainWindow.setBrowserView(browserView);
-    const contentBounds = mainWindow.getContentBounds();
-    browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
-    browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-    const url = isDarkMode ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
-    browserView.webContents.loadURL(url);
-  });
-
-  ipcMain.on(ipcConsts.START_SMESHER_SERVICE, () => {
-    smesherService = new SmesherService();
-    smesherService.subscribeToEvents(mainWindow);
-  });
-
-  ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
-    browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-    browserView.destroy();
-  });
-
-  ipcMain.on(ipcConsts.OPEN_EXTERNAL_LINK, (_event, request) => {
-    shell.openExternal(request.link);
-  });
-
-  ipcMain.on(ipcConsts.OPEN_EXPLORER_LINK, (_event, request) => {
-    if (!request.uri) {
-      _event.preventDefault();
-    }
-    const explorerUrl = 'https://stage-explore.spacemesh.io';
-    const darkMode = isDarkMode ? 'isDarkMode' : '';
-    const { uri } = request;
-
-    const url = darkMode ? `${explorerUrl}/${uri}` : `${explorerUrl}/${uri}?${darkMode}`;
-    shell.openExternal(url);
-  });
-
-  ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
-    isDarkMode = request.isDarkMode;
-  });
-
-  ipcMain.on(ipcConsts.PRINT, (_event, request: { content: string }) => {
-    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
-    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
-    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
-  });
-
-  ipcMain.on(ipcConsts.RELOAD_APP, () => {
-    mainWindow.reload();
-  });
+  addIpcEventListeners();
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  nodeManager = new NodeManager(mainWindow);
+  const res = await fetch(DISCOVERY_URL);
+  const initialConfig = await res.json();
+  const savedNetId = StoreService.get('netSettings.netId');
+  const cleanStart = savedNetId !== initialConfig.netID;
+  const configFilePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
+  if (cleanStart) {
+    StoreService.clear();
+    StoreService.set({ netSettings: { netId: initialConfig.netID } });
+    StoreService.set({ netSettings: { netName: initialConfig.netName } });
+    StoreService.set({ netSettings: { explorerUrl: initialConfig.explorer } });
+    StoreService.set({ netSettings: { dashUrl: initialConfig.dash } });
+    const res2 = await fetch(initialConfig.conf);
+    const netConfig = await res2.json();
+    StoreService.set({ netSettings: { minCommitmentSize: parseInt(netConfig.post['post-space']) } });
+    StoreService.set({ netSettings: { layerDurationSec: parseInt(netConfig.main['layer-duration-sec']) } });
+    StoreService.set({ netSettings: { genesisTime: parseInt(netConfig.main['genesis-time']) } });
+    await writeFileAsync(configFilePath, JSON.stringify(netConfig));
+  }
+  // eslint-disable-next-line no-new
+  new WalletManager(mainWindow);
+  nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
+  // eslint-disable-next-line no-new
+  new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
 });

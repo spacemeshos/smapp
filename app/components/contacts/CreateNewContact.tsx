@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { addToContacts, updateTransaction } from '../../redux/wallet/actions';
+import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { Contact, RootState } from '../../types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
   display: flex;
@@ -80,6 +81,7 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
+  const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
   const dispatch = useDispatch();
 
   // static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -123,8 +125,8 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
   };
 
   const createContact = async ({ password }: { password: string }) => {
-    await dispatch(addToContacts({ password, contact: { address, nickname } }));
-    dispatch(updateTransaction({ newData: { address, nickname } }));
+    await dispatch(await addToContacts({ password, contact: { address, nickname } }));
+    await eventsService.updateTransaction({ newData: { address, nickname }, accountIndex: currentAccountIndex, txId: '' });
     onCompleteAction();
   };
 

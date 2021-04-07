@@ -4,12 +4,15 @@ import path from 'path';
 import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
+import MeshService from './MeshService';
+import GlobalStateService from './GlobalStateService';
 import TransactionManager from './transactionManager';
-import netService from './netService';
 import fileEncryptionService from './fileEncryptionService';
 import cryptoService from './cryptoService';
 import encryptionConst from './encryptionConst';
 import Logger from './logger';
+import StoreService from './storeService';
+import TransactionService from './TransactionService';
 
 const logger = Logger({ className: 'WalletManager' });
 
@@ -28,14 +31,22 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class WalletManager {
+  private meshService: any;
+
+  private glStateService: any;
+
+  private txService: any;
+
   private txManager: TransactionManager;
 
-  private mnemonic: string;
+  private mnemonic = '';
 
   constructor(mainWindow: BrowserWindow) {
     this.subscribeToEvents(mainWindow);
-    this.txManager = new TransactionManager();
-    this.mnemonic = '';
+    this.meshService = new MeshService();
+    this.glStateService = new GlobalStateService();
+    this.txService = new TransactionService();
+    this.txManager = new TransactionManager(this.meshService, this.glStateService, this.txService, mainWindow);
   }
 
   __getNewAccountFromTemplate = ({ index, timestamp, publicKey, secretKey }: { index: number; timestamp: string; publicKey: string; secretKey: string }) => ({
@@ -47,79 +58,96 @@ class WalletManager {
   });
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
-    ipcMain.handle(ipcConsts.CREATE_WALLET_FILE, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_ACTIVATE, async (_event, request) => {
+      try {
+        this.activateWalletManager({ url: request.url, port: request.port });
+        logger.log('W_M_ACTIVATE channel', true, request);
+        return { activated: true, error: null };
+      } catch (e) {
+        logger.error('W_M_ACTIVATE channel', true, request);
+        return { activated: false, error: e };
+      }
+    });
+    ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, async () => {
+      const netId = StoreService.get('netSettings.netId');
+      const netName = StoreService.get('netSettings.netName');
+      const genesisTime = StoreService.get('netSettings.genesisTime');
+      const minCommitmentSize = StoreService.get('netSettings.minCommitmentSize');
+      return { netId, netName, genesisTime, minCommitmentSize };
+    });
+    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, async () => {
+      const { error, currentLayer } = this.meshService.getCurrentLayer();
+      return error ? { currentLayer: -1 } : { currentLayer };
+    });
+    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, async () => {
+      const { error, layer, rootHash } = this.glStateService.getGlobalStateHash();
+      return error ? { layer: -1, rootHash: '' } : { layer, rootHash };
+    });
+    ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, async (_event, request) => {
       const res = await this.createWalletFile({ ...request });
-      logger.log('CREATE_WALLET_FILE channel', res, request);
+      if (res.error) {
+        logger.error('W_M_CREATE_WALLET channel', res, request);
+      }
       return res;
     });
-    ipcMain.handle(ipcConsts.READ_WALLET_FILES, async () => {
+    ipcMain.handle(ipcConsts.W_M_READ_WALLET_FILES, async () => {
       const res = await this.readWalletFiles();
-      logger.log('READ_WALLET_FILES channel', { res });
+      logger.log('W_M_READ_WALLET_FILES channel', { res });
       return res;
     });
-    ipcMain.handle(ipcConsts.UNLOCK_WALLET_FILE, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_UNLOCK_WALLET, async (_event, request) => {
       const res = await this.unlockWalletFile({ ...request });
-      logger.log('UNLOCK_WALLET_FILE channel', res, request);
+      logger.log('W_M_UNLOCK_WALLET channel', res, request);
       return res;
     });
-    ipcMain.on(ipcConsts.UPDATE_WALLET_FILE, async (_event, request) => {
+    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET, async (_event, request) => {
       await this.updateWalletFile({ ...request });
     });
-    ipcMain.handle(ipcConsts.CREATE_NEW_ACCOUNT, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, request) => {
       const res = await this.createNewAccount({ ...request });
-      logger.log('CREATE_NEW_ACCOUNT channel', res, request);
+      logger.log('W_M_CREATE_NEW_ACCOUNT channel', res, request);
       return res;
     });
-    ipcMain.handle(ipcConsts.COPY_FILE, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_COPY_FILE, async (_event, request) => {
       const res = await this.copyFile({ ...request });
-      logger.log('COPY_FILE channel', res, request);
+      logger.log('W_M_COPY_FILE channel', res, request);
       return res;
     });
-    ipcMain.on(ipcConsts.SHOW_FILE_IN_FOLDER, (_event, request) => {
+    ipcMain.on(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, (_event, request) => {
       this.showFileInDirectory({ ...request });
     });
-    ipcMain.on(ipcConsts.DELETE_FILE, async (_event, request) => {
+    ipcMain.on(ipcConsts.W_M_SHOW_DELETE_FILE, async (_event, request) => {
       await this.deleteWalletFile({ browserWindow: mainWindow, ...request });
     });
-    ipcMain.on(ipcConsts.WIPE_OUT, async () => {
+    ipcMain.on(ipcConsts.W_M_WIPE_OUT, async () => {
       await this.wipeOut({ browserWindow: mainWindow });
     });
 
-    ipcMain.handle(ipcConsts.GET_BALANCE, async (_event, request) => {
-      const res = await this.getBalance({ ...request });
-      logger.log('GET_BALANCE channel', res, request);
-      return res;
-    });
-    ipcMain.handle(ipcConsts.SEND_TX, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_SEND_TX, async (_event, request) => {
       const res = await this.txManager.sendTx({ ...request });
-      logger.log('SEND_TX channel', res, request);
+      logger.log('W_M_SEND_TX channel', res, request);
       return res;
     });
-    ipcMain.handle(ipcConsts.UPDATE_TX, async (event, request) => {
+    ipcMain.handle(ipcConsts.W_M_UPDATE_TX, async (event, request) => {
       const res = await this.txManager.updateTransaction({ event, ...request });
-      logger.log('UPDATE_TX channel', res, request);
+      logger.log('W_M_UPDATE_TX channel', res, request);
       return res;
     });
-    ipcMain.handle(ipcConsts.GET_ACCOUNT_TXS, async () => {
-      const res = await this.txManager.getAccountTxs();
-      logger.log('GET_ACCOUNT_TXS channel', res);
-      return res;
-    });
-    ipcMain.handle(ipcConsts.GET_ACCOUNT_REWARDS, async (_event, request) => {
-      const res = await this.txManager.getAccountRewards({ ...request });
-      logger.log('GET_ACCOUNT_REWARDS channel', res, request);
-      return res;
-    });
-
-    ipcMain.handle(ipcConsts.SIGN_MESSAGE, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
       const { message, accountIndex } = request;
       const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
-      logger.log('SIGN_MESSAGE channel', res, request);
+      logger.log('W_M_SIGN_MESSAGE channel', res, request);
       return res;
     });
   };
 
-  createWalletFile = async ({ password, existingMnemonic }: { password: string; existingMnemonic: string }) => {
+  activateWalletManager = ({ url, port }: { url: string; port: string }) => {
+    this.meshService.createService(url, port);
+    this.glStateService.createService(url, port);
+    this.txService.createService(url, port);
+  };
+
+  createWalletFile = async ({ password, existingMnemonic, isWalletOnly }: { password: string; existingMnemonic: string; isWalletOnly: boolean }) => {
     try {
       const timestamp = new Date().toISOString().replace(/:/g, '-');
       this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
@@ -133,6 +161,7 @@ class WalletManager {
         displayName: 'Main Wallet',
         created: timestamp,
         netId: 0,
+        isWalletOnly,
         meta: { salt: encryptionConst.DEFAULT_SALT }
       };
       this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
@@ -179,20 +208,6 @@ class WalletManager {
     } catch (error) {
       logger.error('unlockWalletFile', error, { path, password });
       return { error, accounts: null, mnemonic: null, meta: null, contacts: null };
-    }
-  };
-
-  getBalance = async ({ address }: { address: string }) => {
-    try {
-      // @ts-ignore
-      const { value } = await netService.getBalance({ address });
-      return { error: null, balance: value };
-    } catch (error) {
-      if (typeof error.message === 'string' && error.message.includes('account does not exist')) {
-        return { error: null, balance: 0 };
-      } else {
-        return { error, balance: null };
-      }
     }
   };
 
@@ -291,7 +306,7 @@ class WalletManager {
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
       try {
-        this.txManager.clearData();
+        StoreService.clear();
         await unlinkFileAsync(fileName);
         browserWindow.reload();
       } catch (error) {
@@ -310,7 +325,7 @@ class WalletManager {
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
       browserWindow.destroy();
-      this.txManager.clearData();
+      StoreService.clear();
       const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${appFilesDirPath}'` : `rm -rf '${appFilesDirPath}'`;
       exec(command, (error: any) => {
         if (error) {

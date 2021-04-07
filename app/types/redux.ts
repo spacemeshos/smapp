@@ -3,13 +3,21 @@ import { Status } from './common';
 import { TxList, AccountTxs } from './transactions';
 import { Account, WalletMeta, Contact } from './wallet';
 
+export interface NetworkState {
+  netId: string;
+  netName: string;
+  genesisTime: string;
+  currentLayer: number;
+  rootHash: string;
+  minCommitmentSize: number;
+}
+
 export interface NodeState {
   status: Status | null;
-  nodeIndicator: { hasError: boolean; color: string; message: string; statusText: string };
-  layerDuration: number;
-  stateRootHash: string;
+  version: string;
+  build: string;
   port: string;
-  nodeIpAddress: string;
+  error: number;
 }
 
 export interface WalletState {
@@ -28,10 +36,7 @@ export interface WalletState {
 export interface SmesherState {
   coinbase: string;
   dataDir: string;
-  minCommitmentSize: number;
   commitmentSize: number;
-  genesisTime: number;
-  networkId: number;
   isSmeshing: boolean;
   isCreatingPosData: boolean;
   postProgress: any;
@@ -45,6 +50,7 @@ export interface UiState {
 }
 
 export interface RootState {
+  network: NetworkState;
   node: NodeState;
   wallet: WalletState;
   smesher: SmesherState;

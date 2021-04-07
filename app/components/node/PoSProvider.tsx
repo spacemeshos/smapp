@@ -27,7 +27,7 @@ const ErrorText = styled.div`
 
 type Props = {
   providers: ComputeProviders;
-  provider: ComputeProvider;
+  provider: ComputeProvider | undefined;
   setProvider: (provider: ComputeProvider) => void;
   throttle: boolean;
   setThrottle: (throttle: boolean) => void;

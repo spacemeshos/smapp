@@ -3,7 +3,6 @@
 const developmentEnvironments = ['development', 'test'];
 
 const developmentPlugins = [
-  require('react-hot-loader/babel'),
   require('@babel/plugin-transform-runtime'),
   require('babel-plugin-styled-components')
 ];

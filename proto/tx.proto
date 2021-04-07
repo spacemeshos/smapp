@@ -1,0 +1,29 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+
+import "tx_types.proto";
+
+// Provides clients a way to submit a tx to the network for processing, and to
+// check or follow the "journey" of a tx from mempool to block inclusion to
+// mesh to STF processing. This service is separate from the Mesh and
+// GlobalState services because txs move across both.
+service TransactionService {
+    // Submit a new tx to the node for processing. The response
+    // TransactionState message contains both the txid of the new tx, as well
+    // as whether or not it was admitted into the mempool.
+    rpc SubmitTransaction(SubmitTransactionRequest) returns (SubmitTransactionResponse);
+
+    // Returns current tx state for one or more txs which indicates if a tx is
+    // on the mesh, on its way to the mesh or was rejected and will never get
+    // to the mesh
+    rpc TransactionsState(TransactionsStateRequest) returns (TransactionsStateResponse);
+
+    ////////// Streams
+    // Streams return live, new data as it becomes available to the node and
+    // not historical data.
+
+    // Returns tx state for one or more txs every time the tx state changes for
+    // one of these txs20
+    rpc TransactionsStateStream(TransactionsStateStreamRequest) returns (stream TransactionsStateStreamResponse);
+}

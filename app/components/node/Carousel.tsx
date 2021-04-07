@@ -194,13 +194,8 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
                   <Text>~{provider.performance} hashes per second</Text>
                   <Text>TO SAVE DATA</Text>
                 </TextWrapper>
-                {element.isGPU ? (
-                  <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />
-                ) : (
-                  <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />
-                )}
-                {provider.computeApi === '1' && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpu} />}
-                {(provider.computeApi === '2' || provider.computeApi === '3') && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpu} />}
+                {provider.computeApi === '1' && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />}
+                {(provider.computeApi === '2' || provider.computeApi === '3') && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />}
               </SlideUpperPart>
               <SlideMiddlePart />
               <SlideLowerPart isSelected={selectedItemIndex === index} />

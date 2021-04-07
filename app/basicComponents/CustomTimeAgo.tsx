@@ -22,11 +22,7 @@ const enString = {
   wordSeparator: ' '
 };
 
-type Props = {
-  time: number;
-};
-
-const CustomTimeAgo = ({ time }: Props) => {
+const CustomTimeAgo = ({ time }: { time: string }) => {
   const jsDate = new Date(time).getTime();
 
   const formatter = buildFormatter(enString);

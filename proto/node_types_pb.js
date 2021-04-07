@@ -1265,9 +1265,9 @@ proto.spacemesh.v1.NodeStatus.toObject = function(includeInstance, msg) {
   var f, obj = {
     connectedPeers: jspb.Message.getFieldWithDefault(msg, 1, 0),
     isSynced: jspb.Message.getFieldWithDefault(msg, 2, false),
-    syncedLayer: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    topLayer: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    verifiedLayer: jspb.Message.getFieldWithDefault(msg, 5, 0)
+    syncedLayer: (f = msg.getSyncedLayer()) && types_pb.LayerNumber.toObject(includeInstance, f),
+    topLayer: (f = msg.getTopLayer()) && types_pb.LayerNumber.toObject(includeInstance, f),
+    verifiedLayer: (f = msg.getVerifiedLayer()) && types_pb.LayerNumber.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1313,15 +1313,18 @@ proto.spacemesh.v1.NodeStatus.deserializeBinaryFromReader = function(msg, reader
       msg.setIsSynced(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = new types_pb.LayerNumber;
+      reader.readMessage(value,types_pb.LayerNumber.deserializeBinaryFromReader);
       msg.setSyncedLayer(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = new types_pb.LayerNumber;
+      reader.readMessage(value,types_pb.LayerNumber.deserializeBinaryFromReader);
       msg.setTopLayer(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readUint64());
+      var value = new types_pb.LayerNumber;
+      reader.readMessage(value,types_pb.LayerNumber.deserializeBinaryFromReader);
       msg.setVerifiedLayer(value);
       break;
     default:
@@ -1368,24 +1371,27 @@ proto.spacemesh.v1.NodeStatus.serializeBinaryToWriter = function(message, writer
     );
   }
   f = message.getSyncedLayer();
-  if (f !== 0) {
-    writer.writeUint64(
+  if (f != null) {
+    writer.writeMessage(
       3,
-      f
+      f,
+      types_pb.LayerNumber.serializeBinaryToWriter
     );
   }
   f = message.getTopLayer();
-  if (f !== 0) {
-    writer.writeUint64(
+  if (f != null) {
+    writer.writeMessage(
       4,
-      f
+      f,
+      types_pb.LayerNumber.serializeBinaryToWriter
     );
   }
   f = message.getVerifiedLayer();
-  if (f !== 0) {
-    writer.writeUint64(
+  if (f != null) {
+    writer.writeMessage(
       5,
-      f
+      f,
+      types_pb.LayerNumber.serializeBinaryToWriter
     );
   }
 };
@@ -1424,47 +1430,92 @@ proto.spacemesh.v1.NodeStatus.prototype.setIsSynced = function(value) {
 
 
 /**
- * optional uint64 synced_layer = 3;
- * @return {number}
+ * optional LayerNumber synced_layer = 3;
+ * @return {?proto.spacemesh.v1.LayerNumber}
  */
 proto.spacemesh.v1.NodeStatus.prototype.getSyncedLayer = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  return /** @type{?proto.spacemesh.v1.LayerNumber} */ (
+    jspb.Message.getWrapperField(this, types_pb.LayerNumber, 3));
 };
 
 
-/** @param {number} value */
+/** @param {?proto.spacemesh.v1.LayerNumber|undefined} value */
 proto.spacemesh.v1.NodeStatus.prototype.setSyncedLayer = function(value) {
-  jspb.Message.setProto3IntField(this, 3, value);
+  jspb.Message.setWrapperField(this, 3, value);
+};
+
+
+proto.spacemesh.v1.NodeStatus.prototype.clearSyncedLayer = function() {
+  this.setSyncedLayer(undefined);
 };
 
 
 /**
- * optional uint64 top_layer = 4;
- * @return {number}
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.spacemesh.v1.NodeStatus.prototype.hasSyncedLayer = function() {
+  return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional LayerNumber top_layer = 4;
+ * @return {?proto.spacemesh.v1.LayerNumber}
  */
 proto.spacemesh.v1.NodeStatus.prototype.getTopLayer = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+  return /** @type{?proto.spacemesh.v1.LayerNumber} */ (
+    jspb.Message.getWrapperField(this, types_pb.LayerNumber, 4));
 };
 
 
-/** @param {number} value */
+/** @param {?proto.spacemesh.v1.LayerNumber|undefined} value */
 proto.spacemesh.v1.NodeStatus.prototype.setTopLayer = function(value) {
-  jspb.Message.setProto3IntField(this, 4, value);
+  jspb.Message.setWrapperField(this, 4, value);
+};
+
+
+proto.spacemesh.v1.NodeStatus.prototype.clearTopLayer = function() {
+  this.setTopLayer(undefined);
 };
 
 
 /**
- * optional uint64 verified_layer = 5;
- * @return {number}
+ * Returns whether this field is set.
+ * @return {!boolean}
  */
-proto.spacemesh.v1.NodeStatus.prototype.getVerifiedLayer = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+proto.spacemesh.v1.NodeStatus.prototype.hasTopLayer = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
-/** @param {number} value */
+/**
+ * optional LayerNumber verified_layer = 5;
+ * @return {?proto.spacemesh.v1.LayerNumber}
+ */
+proto.spacemesh.v1.NodeStatus.prototype.getVerifiedLayer = function() {
+  return /** @type{?proto.spacemesh.v1.LayerNumber} */ (
+    jspb.Message.getWrapperField(this, types_pb.LayerNumber, 5));
+};
+
+
+/** @param {?proto.spacemesh.v1.LayerNumber|undefined} value */
 proto.spacemesh.v1.NodeStatus.prototype.setVerifiedLayer = function(value) {
-  jspb.Message.setProto3IntField(this, 5, value);
+  jspb.Message.setWrapperField(this, 5, value);
+};
+
+
+proto.spacemesh.v1.NodeStatus.prototype.clearVerifiedLayer = function() {
+  this.setVerifiedLayer(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.spacemesh.v1.NodeStatus.prototype.hasVerifiedLayer = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 

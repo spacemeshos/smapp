@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { HashRouter } from 'react-router-dom';
 import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
-import { setNodeIpAddress, setRewardsAddress } from '../../redux/node/actions';
+import { getGlobalStateHash } from '../../redux/network/actions';
 import { switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
 import { Input, Link, Button, SmallHorizontalPanel } from '../../basicComponents';
@@ -50,12 +50,6 @@ const Name = styled.div`
   margin-left: 10px;
 `;
 
-const RewardAccount = styled.div`
-  font-size: 16px;
-  line-height: 15px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
-`;
-
 const GreenText = styled(Text)`
   color: ${smColors.green};
 `;
@@ -80,46 +74,29 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
-type Props = {
+interface Props {
   displayName: string;
   accounts: Account[];
   walletFiles: Array<string>;
   updateWalletName: AppThDispatch;
   updateAccountName: AppThDispatch;
   createNewAccount: AppThDispatch;
-  setNodeIpAddress: AppThDispatch;
-  setRewardsAddress: AppThDispatch;
+  getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
   status: Status;
   history: HashRouter;
-  nodeIpAddress: string;
   genesisTime: number;
-  rewardsAddress: string;
-  stateRootHash: string;
+  rootHash: string;
   port: string;
-  networkId: string;
   backupTime: string;
   isDarkMode: boolean;
-  walletName: string;
   location: {
     hash: string;
     pathname: string;
     search: string;
     state: { currentSettingIndex: string };
   };
-  displayName: string,
-  accounts: Account[],
-  walletFiles: Array<string>,
-  status: Object,
-  history: RouterHistory,
-  nodeIpAddress: string,
-  genesisTime: string,
-  coinbase: string,
-  stateRootHash: string,
-  port: string,
-  networkId: string,
-  backupTime: string
-};
+}
 
 type State = {
   walletDisplayName: string;
@@ -176,22 +153,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, setRewardsAddress, status, genesisTime, rewardsAddress, networkId, stateRootHash, backupTime, switchTheme, isDarkMode, walletName } = this.props;
-    const { displayName, accounts, setNodeIpAddress, setRewardsAddress, status, genesisTime, coinbase, networkId, stateRootHash, backupTime } = this.props;
-    const {
-      displayName,
-      accounts,
-      setNodeIpAddress,
-      setRewardsAddress,
-      status,
-      genesisTime,
-      rewardsAddress,
-      networkId,
-      stateRootHash,
-      backupTime,
-      switchTheme,
-      isDarkMode
-    } = this.props;
+    const { displayName, accounts, status, genesisTime, rootHash, backupTime, switchTheme, isDarkMode } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -311,7 +273,6 @@ class Settings extends Component<Props, State> {
                       <AccountCmdBtnSeparator />
                       <Link onClick={() => this.toggleSignMessageModal({ index })} text="SIGN TEXT" />
                       <AccountCmdBtnSeparator />
-                      {account.publicKey !== coinbase ? <Link onClick={setRewardsAddress} text="SET AS REWARDS ACCOUNT" /> : <RewardAccount>rewards account</RewardAccount>}
                     </AccountCmdBtnWrapper>
                   }
                   key={account.publicKey}
@@ -319,22 +280,15 @@ class Settings extends Component<Props, State> {
               ))}
             </SettingsSection>
             <SettingsSection title="INFO" refProp={this.myRef4} isDarkMode={isDarkMode}>
-              <SettingRow upperPartLeft={genesisTime ? getFormattedTimestamp(genesisTime) : 'Smeshing not set.'} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPartLeft={coinbase ? `0x${getAddress(coinbase)}` : 'Smeshing not set.'} isUpperPartLeftText rowName="Rewards account" />
-              {networkId ? <SettingRow upperPartLeft={networkId} isUpperPartLeftText rowName="Network id" /> : null}
-              {status && !status.noConnection ? (
-                <SettingRow upperPartLeft={`Peers: ${status.peers}. Min peers: ${status.minPeers}. Max peers: ${status.maxPeers}.`} isUpperPartLeftText rowName="Network status" />
-              ) : null}
-              {status && !status.noConnection ? (
-                <SettingRow
-                  upperPartLeft={`Synced: ${status.synced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.currentLayer}. Verified layer: ${
-                    status.verifiedLayer
-                  }.`}
-                  isUpperPartLeftText
-                  rowName="Sync status"
-                />
-              ) : null}
-              {stateRootHash ? <SettingRow upperPart={stateRootHash} isUpperPartLeftText rowName="Node state root hash" /> : null}
+              <SettingRow upperPartLeft={getFormattedTimestamp(genesisTime)} isUpperPartLeftText rowName="Genesis time" />
+              <SettingRow
+                upperPartLeft={`Synced: ${status.isSynced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.topLayer}. Verified layer: ${
+                  status.verifiedLayer
+                }.`}
+                isUpperPartLeftText
+                rowName="Sync status"
+              />
+              <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
@@ -359,7 +313,7 @@ class Settings extends Component<Props, State> {
           </AllSettingsInnerWrapper>
         </AllSettingsWrapper>
         {showPasswordModal && (
-          <EnterPasswordModal walletName={walletName} submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />
+          <EnterPasswordModal walletName={displayName} submitAction={passwordModalSubmitAction} closeModal={() => this.setState({ showPasswordModal: false })} />
         )}
         {signMessageModalAccountIndex !== -1 && <SignMessage index={signMessageModalAccountIndex} close={() => this.toggleSignMessageModal({ index: -1 })} />}
         {showModal && (
@@ -374,10 +328,12 @@ class Settings extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { location } = this.props;
+    const { location, getGlobalStateHash } = this.props;
     if (location.state && location.state.currentSettingIndex) {
       this.scrollToRef({ index: parseInt(location.state.currentSettingIndex) });
     }
+    // @ts-ignore
+    await getGlobalStateHash();
     const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
     this.setState({ isAutoStartEnabled });
   }
@@ -544,26 +500,18 @@ const mapStateToProps = (state: RootState) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,
-  nodeIpAddress: state.node.nodeIpAddress,
-  genesisTime: state.smesher.genesisTime,
-  coinbase: state.smesher.coinbase,
-  networkId: state.smesher.networkId,
-  stateRootHash: state.node.stateRootHash,
+  genesisTime: state.network.genesisTime,
+  rootHash: state.network.rootHash,
   port: state.node.port,
-  networkId: state.node.networkId,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode
-  backupTime: state.wallet.backupTime
-  isDarkMode: state.ui.isDarkMode,
-  walletName: state.wallet.meta.displayName
 });
 
 const mapDispatchToProps = {
+  getGlobalStateHash,
   updateWalletName,
   updateAccountName,
   createNewAccount,
-  setNodeIpAddress,
-  setRewardsAddress,
   switchTheme
 };
 

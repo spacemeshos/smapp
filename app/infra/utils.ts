@@ -10,6 +10,7 @@ const getFormattedTimestamp = (timestamp: number) => {
   if (timestamp) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
     const dateObj = new Date(timestamp);
+    // @ts-ignore
     return dateObj.toLocaleDateString('en-US', options).replace(',', '');
   }
   return null;

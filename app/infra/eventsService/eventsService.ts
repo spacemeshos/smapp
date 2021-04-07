@@ -1,12 +1,16 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '../../vars';
 import { Tx } from '../../types';
+import { setNodeError, setNodeStatus } from '../../redux/node/actions';
+import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
+import { setRewards } from '../../redux/smesher/actions';
+import store from '../../redux/store';
 
 class EventsService {
-  static createWallet = ({ password, existingMnemonic }: { password: string; existingMnemonic: string }) =>
-    ipcRenderer.invoke(ipcConsts.CREATE_WALLET_FILE, { password, existingMnemonic });
+  static createWallet = ({ password, existingMnemonic, ip, port }: { password: string; existingMnemonic: string; ip?: string; port?: string }) =>
+    ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, { password, existingMnemonic, ip, port });
 
-  static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
+  static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.W_M_READ_WALLET_FILES);
 
   static getOsThemeColor = () => ipcRenderer.invoke(ipcConsts.GET_OS_THEME_COLOR);
 
@@ -20,35 +24,21 @@ class EventsService {
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
-  static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.UNLOCK_WALLET_FILE, { path, password });
+  static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
 
   static updateWalletFile = ({ fileName, password, data }: { fileName: string; password?: string; data: any }) =>
-    ipcRenderer.send(ipcConsts.UPDATE_WALLET_FILE, { fileName, password, data });
+    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET, { fileName, password, data });
 
-  static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.CREATE_NEW_ACCOUNT, { fileName, password });
+  static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 
-  static copyFile = ({ filePath, copyToDocuments }: { filePath: string; copyToDocuments?: boolean }) => ipcRenderer.invoke(ipcConsts.COPY_FILE, { filePath, copyToDocuments });
+  static copyFile = ({ filePath, copyToDocuments }: { filePath: string; copyToDocuments?: boolean }) => ipcRenderer.invoke(ipcConsts.W_M_COPY_FILE, { filePath, copyToDocuments });
 
   static showFileInFolder = ({ isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) =>
-    ipcRenderer.send(ipcConsts.SHOW_FILE_IN_FOLDER, { isBackupFile, isLogFile });
+    ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { isBackupFile, isLogFile });
 
-  static deleteWalletFile = ({ fileName }: { fileName: string }) => ipcRenderer.send(ipcConsts.DELETE_FILE, { fileName });
+  static deleteWalletFile = ({ fileName }: { fileName: string }) => ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, { fileName });
 
-  static wipeOut = () => ipcRenderer.send(ipcConsts.WIPE_OUT);
-
-  /** ************************************   NODE   ****************************************** */
-
-  static startNode = () => ipcRenderer.send(ipcConsts.START_NODE);
-
-  static getNodeStatus = () => ipcRenderer.invoke(ipcConsts.GET_NODE_STATUS);
-
-  static getNodeSettings = () => ipcRenderer.invoke(ipcConsts.GET_NODE_SETTINGS);
-
-  static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
-
-  static getAccountRewards = ({ address, accountIndex }: { address: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_REWARDS, { address, accountIndex });
-
-  static setNodeIpAddress = ({ nodeIpAddress }: { nodeIpAddress: string }) => ipcRenderer.invoke(ipcConsts.SET_NODE_IP, { nodeIpAddress });
+  static wipeOut = () => ipcRenderer.send(ipcConsts.W_M_WIPE_OUT);
 
   /** ************************************   SMESHER   ****************************************** */
   static getSmesherSettings = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_SETTINGS);
@@ -87,14 +77,10 @@ class EventsService {
 
   /** **********************************   TRANSACTIONS   ************************************** */
 
-  static getBalance = ({ address }: { address: string }) => ipcRenderer.invoke(ipcConsts.GET_BALANCE, { address });
-
-  static sendTx = ({ fullTx, accountIndex }: { fullTx: Tx; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SEND_TX, { fullTx, accountIndex });
+  static sendTx = ({ fullTx, accountIndex }: { fullTx: Tx; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SEND_TX, { fullTx, accountIndex });
 
   static updateTransaction = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId?: string }) =>
-    ipcRenderer.invoke(ipcConsts.UPDATE_TX, { newData, accountIndex, txId });
-
-  static getAccountTxs = () => ipcRenderer.invoke(ipcConsts.GET_ACCOUNT_TXS);
+    ipcRenderer.invoke(ipcConsts.W_M_UPDATE_TX, { newData, accountIndex, txId });
 
   /** ************************************   AUTOSTART   ************************************** */
 
@@ -108,9 +94,45 @@ class EventsService {
 
   static print = ({ content }: { content: string }) => ipcRenderer.send(ipcConsts.PRINT, { content });
 
-  static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.SIGN_MESSAGE, { message, accountIndex });
+  static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
-  static isServiceReady = () => ipcRenderer.invoke(ipcConsts.IS_SERVICE_READY);
+  /** **************************************  WALLET MANAGER  **************************************** */
+
+  static activateWalletManager = ({ url, port }: { url: string; port: string }) => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { url, port });
+
+  static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
+
+  static getCurrentLayer = () => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
+
+  static getGlobalStateHash = () => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
+
+  /** **************************************  NODE MANAGER  **************************************** */
+
+  static activateNodeManager = () => ipcRenderer.send(ipcConsts.N_M_ACTIVATE_NODE);
+
+  static getVersionAndBuild = () => ipcRenderer.invoke(ipcConsts.N_M_GET_VERSION_AND_BUILD);
+
+  static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
 }
+
+ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, request) => {
+  store.dispatch(setNodeStatus({ status: request.status }));
+});
+
+ipcRenderer.on(ipcConsts.N_M_SET_NODE_ERROR, (_event, request) => {
+  store.dispatch(setNodeError({ error: request.error }));
+});
+
+ipcRenderer.on(ipcConsts.T_M_UPDATE_ACCOUNT, (_event, request) => {
+  store.dispatch(updateAccountData({ account: request.account }));
+});
+
+ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
+  store.dispatch(setTransactions({ txs: request.data }));
+});
+
+ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
+  store.dispatch(setRewards({ rewards: request.rewards }));
+});
 
 export default EventsService;

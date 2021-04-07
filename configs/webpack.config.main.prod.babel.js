@@ -26,15 +26,11 @@ export default merge(baseConfig, {
   },
 
   optimization: {
-    minimizer: process.env.E2E_BUILD
-      ? []
-      : [
-        new TerserPlugin({
-          parallel: true,
-          sourceMap: true,
-          cache: true,
-        }),
-      ],
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+      }),
+    ]
   },
 
   plugins: [
@@ -56,8 +52,7 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: false,
-      START_MINIMIZED: false,
-      E2E_BUILD: false,
+      START_MINIMIZED: false
     }),
   ],
 

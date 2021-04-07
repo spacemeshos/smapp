@@ -1,0 +1,49 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+import "mesh_types.proto";
+
+// Readonly API for basic mesh info
+service MeshService {
+    // Network genesis time as unix epoch time
+    rpc GenesisTime(GenesisTimeRequest) returns (GenesisTimeResponse);
+
+    // Current layer number
+    rpc CurrentLayer(CurrentLayerRequest) returns (CurrentLayerResponse);
+
+    // Current epoch number
+    rpc CurrentEpoch(CurrentEpochRequest) returns (CurrentEpochResponse);
+
+    // Network ID
+    rpc NetID(NetIDRequest) returns (NetIDResponse);
+
+    // Number of layers per epoch (a network parameter)
+    rpc EpochNumLayers(EpochNumLayersRequest) returns (EpochNumLayersResponse);
+
+    // Layer duration (a network parameter)
+    rpc LayerDuration(LayerDurationRequest) returns (LayerDurationResponse);
+
+    // Number of transactions per second (a network parameter)
+    rpc MaxTransactionsPerSecond(MaxTransactionsPerSecondRequest) returns (MaxTransactionsPerSecondResponse);
+
+    ////////// Queries
+    // Queries return paginated, historical data.
+
+    // Get account data query
+    rpc AccountMeshDataQuery(AccountMeshDataQueryRequest) returns (AccountMeshDataQueryResponse);
+
+    // Layers data query
+    rpc LayersQuery(LayersQueryRequest) returns (LayersQueryResponse);
+
+    ////////// Streams
+    // Streams return live, new data as it becomes available to the node and not
+    // historical data.
+
+    // A stream of transactions and activations from an account.
+    // Includes simple coin transactions with the account as the destination.
+    rpc AccountMeshDataStream(AccountMeshDataStreamRequest) returns (stream AccountMeshDataStreamResponse);
+
+    // Layer with blocks, transactions and activations
+    // Sent each time layer data changes. Designed for heavy-duty clients.
+    rpc LayerStream(LayerStreamRequest) returns (stream LayerStreamResponse);
+}

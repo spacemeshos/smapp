@@ -101,6 +101,7 @@ const getBuildOptions = ({ target, publish }) => {
       files: [
         'desktop/dist/',
         'desktop/app.html',
+        'desktop/closeAppModal.html',
         'desktop/main.prod.js',
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
@@ -142,7 +143,6 @@ const getBuildOptions = ({ target, publish }) => {
             type: 'file'
           }
         ],
-        icon: path.join(__dirname, '..', 'resources', 'icon.ico'),
         title: 'Spacemesh'
       },
       win: {

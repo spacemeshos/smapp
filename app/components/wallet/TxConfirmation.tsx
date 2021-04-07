@@ -4,7 +4,6 @@ import { SecondaryButton, Link, Button } from '../../basicComponents';
 import { getAddress, formatSmidge } from '../../infra/utils';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
-import { Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
@@ -97,12 +96,6 @@ const ComplexButtonText = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.mediumGray)};
 `;
 
-const NotSyncedExplanation = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.orange};
-`;
-
 type Props = {
   fromAddress: string;
   address: string;
@@ -112,10 +105,9 @@ type Props = {
   doneAction: () => void;
   editTx: () => void;
   cancelTx: () => void;
-  status: Status | null;
 };
 
-const TxConfirmation = ({ fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx, status }: Props) => {
+const TxConfirmation = ({ fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx }: Props) => {
   const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
   const { value, unit }: any = formatSmidge(amount, true);
   return (
@@ -158,8 +150,7 @@ const TxConfirmation = ({ fromAddress, address, amount, fee, note, doneAction, e
           <ComplexButtonText>EDIT TRANSACTION</ComplexButtonText>
         </ComplexButton>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
-        <Button onClick={doneAction} text="SEND" isDisabled={!status?.synced} style={{ marginLeft: 'auto' }} />
-        {!status?.synced && <NotSyncedExplanation>Please wait until your app is synced with the mesh</NotSyncedExplanation>}
+        <Button onClick={doneAction} text="SEND" style={{ marginLeft: 'auto' }} />
       </Footer>
     </Wrapper>
   );

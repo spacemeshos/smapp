@@ -48,16 +48,14 @@ const Vault = ({ history }: RouteComponentProps) => {
 
   const dispatch = useDispatch();
 
-  const createOptionArray = () => {
+  useEffect(() => {
     const objOption = accounts.map((elem, index: number) => ({
       account: index,
       label: elem.displayName,
       text: formatSmidge(elem.balance)
     }));
     setAccountsOption(objOption);
-  };
-
-  useEffect(() => createOptionArray(), []);
+  }, [accounts, setAccountsOption]);
 
   const handleChangeVaultName = ({ value }: { value: string }) => {
     setName(value);

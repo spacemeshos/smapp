@@ -1,9 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NetworkIndicator, ProgressBar } from '../../basicComponents';
+import { Status } from '../../types';
+import { smColors } from '../../vars';
 
 const ProgressLabel = styled.div`
   margin-left: 10px;
+  text-transform: uppercase;
 `;
 
 const Progress = styled.div`
@@ -14,14 +17,14 @@ const Progress = styled.div`
 `;
 
 type Props = {
-  nodeIndicator: { hasError: boolean; color: string; message: string; statusText: string };
-  status?: any;
+  status: Status | null;
+  error: any;
 };
 
-const NetworkStatus = ({ nodeIndicator, status }: Props) => {
+const NetworkStatus = ({ status, error }: Props) => {
   const getSyncLabelPercentage = (): number => {
-    if (status && status.syncedLayer && status.currentLayer) {
-      return Math.round((parseInt(status.syncedLayer) * 100) / parseInt(status.currentLayer));
+    if (status && status.syncedLayer && status.topLayer) {
+      return Math.round((status.syncedLayer * 100) / status.topLayer);
     }
     return 0;
   };
@@ -32,15 +35,15 @@ const NetworkStatus = ({ nodeIndicator, status }: Props) => {
       <>
         {progress >= 100 ? (
           <>
-            <NetworkIndicator color={nodeIndicator.color} />
-            <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
+            <NetworkIndicator color={smColors.green} />
+            <ProgressLabel>synced</ProgressLabel>
           </>
         ) : (
           <>
-            <NetworkIndicator color={nodeIndicator.color} />
-            <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
+            <NetworkIndicator color={status?.isSynced ? smColors.green : smColors.orange} />
+            <ProgressLabel>syncing</ProgressLabel>
             <ProgressLabel>{getSyncLabelPercentage()}%</ProgressLabel>
-            <ProgressLabel>{`${status?.syncedLayer || 0} / ${status?.currentLayer || 0}`}</ProgressLabel>
+            <ProgressLabel>{`${status?.syncedLayer || 0} / ${status?.topLayer || 0}`}</ProgressLabel>
             <Progress>
               <ProgressBar progress={progress} />
             </Progress>
@@ -50,14 +53,14 @@ const NetworkStatus = ({ nodeIndicator, status }: Props) => {
     );
   };
 
-  const renderStatus = () => (
+  const renderError = () => (
     <>
-      <NetworkIndicator color={nodeIndicator.color} />
-      <ProgressLabel>{nodeIndicator.statusText}</ProgressLabel>
+      <NetworkIndicator color={smColors.red} />
+      <ProgressLabel>Please restart node</ProgressLabel>
     </>
   );
 
-  return nodeIndicator.hasError ? renderStatus() : renderSyncingStatus();
+  return error ? renderError() : renderSyncingStatus();
 };
 
 export default NetworkStatus;

@@ -1,4 +1,4 @@
-import type { WalletState, CustomAction } from 'types';
+import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
 import {
   SAVE_WALLET_FILES,

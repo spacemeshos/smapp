@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { createPosData, deletePosData } from 'redux/smesher/actions';
+import { createPosData, deletePosData } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
@@ -39,7 +39,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const status = useSelector((state: RootState) => state.node.status);
   const existingDataDir = useSelector((state: RootState) => state.smesher.dataDir);
-  const minCommitmentSize = useSelector((state: RootState) => state.smesher.minCommitmentSize);
+  const minCommitmentSize = useSelector((state: RootState) => state.network.minCommitmentSize);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const hideSmesherLeftPanel = useSelector((state: RootState) => state.ui.hideSmesherLeftPanel);
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
@@ -47,7 +47,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const [freeSpace, setFreeSpace] = useState('');
   const [commitmentSize, setCommitmentSize] = useState(0);
   const [providers, setProviders] = useState<ComputeProviders>([]);
-  const [provider, setProvider] = useState<ComputeProvider>(null!);
+  const [provider, setProvider] = useState<ComputeProvider>();
   const [throttle, setThrottle] = useState(false);
 
   const dispatch = useDispatch();
@@ -67,9 +67,8 @@ const NodeSetup = ({ history, location }: Props) => {
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
-    localStorage.setItem('isWalletOnlySetup', 'false');
-    await dispatch(initMining({ logicalDrive: folder, address: accounts[0].publicKey, commitment, processor, isPausedOnUsage })); // TODO: use user selected commitment
-    await dispatch(createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, throttle, providerId: provider.id }));
+    // @ts-ignore
+    dispatch(await createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, throttle, providerId: provider.id }));
     history.push('/main/node', { showIntro: true });
   };
 
@@ -82,7 +81,7 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handleDeletePosData = async () => {
-    dispatch(deletePosData());
+    dispatch(await deletePosData());
     history.push('/main/wallet/');
   };
 
@@ -116,10 +115,6 @@ const NodeSetup = ({ history, location }: Props) => {
         return (
           <PoSSize
             nextAction={handleNextAction}
-            folder={folder}
-            commitmentSize={formattedCommitmentSize}
-            setFolder={setFolder}
-            setFreeSpace={setFreeSpace}
             dataDir={dataDir}
             freeSpace={freeSpace}
             commitmentSize={commitmentSize}
@@ -144,11 +139,7 @@ const NodeSetup = ({ history, location }: Props) => {
       case 4:
         return (
           <PoSSummary
-            folder={folder}
-            commitment={commitment}
-            processor={processor}
             isDarkMode={isDarkMode}
-            isPausedOnUsage={isPausedOnUsage}
             dataDir={dataDir}
             commitmentSize={formatBytes(commitmentSize)}
             provider={provider}

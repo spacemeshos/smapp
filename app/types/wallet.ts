@@ -11,6 +11,7 @@ export interface WalletMeta {
   displayName: string;
   created: string;
   netId: number; // 0 - test net, 1 - main net, etc
+  isWalletOnly: boolean; // true if wallet configured to work with local node, false else
   meta: {
     salt: string;
   };

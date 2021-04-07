@@ -12,6 +12,8 @@ export const SET_MNEMONIC = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 export const SET_CONTACTS = 'SET_CONTACTS';
 
+const UPDATE_ACCOUNT_DATA = 'UPDATE_ACCOUNT_DATA';
+
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BALANCE = 'SET_BALANCE';
@@ -26,7 +28,9 @@ export const setCurrentAccount = ({ index }: { index: number }) => ({ type: SET_
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }) => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
-export const setTransactions = ({ transactions }: { transactions: AccountTxs }) => ({ type: SET_TRANSACTIONS, payload: { transactions } });
+export const updateAccountData = ({ account }: { account: any }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account } });
+
+export const setTransactions = ({ txs }: { txs: AccountTxs }) => ({ type: SET_TRANSACTIONS, payload: { txs } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }) => ({ type: SET_CONTACTS, payload: { contacts } });
 
@@ -43,11 +47,13 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   return files;
 };
 
-export const createNewWallet = ({ existingMnemonic = '', password }: { existingMnemonic?: string | undefined; password: string }) => async (dispatch: AppThDispatch) => {
-  const { error, accounts, mnemonic, meta } = await eventsService.createWallet({ password, existingMnemonic });
+export const createNewWallet = ({ existingMnemonic = '', password, ip, port }: { existingMnemonic?: string | undefined; password: string; ip?: string; port?: string }) => async (
+  dispatch: AppThDispatch
+) => {
+  const { error, accounts, mnemonic, meta } = await eventsService.createWallet({ password, existingMnemonic, ip, port });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ existingMnemonic, password })));
+    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ existingMnemonic, password, ip, port })));
   } else {
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts }));
@@ -137,16 +143,6 @@ export const backupWallet = () => async (dispatch: AppThDispatch, getState: GetS
   }
 };
 
-export const getBalance = () => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { accounts, currentAccountIndex } = getState().wallet;
-  const { error, balance } = await eventsService.getBalance({ address: accounts[currentAccountIndex].publicKey });
-  if (error) {
-    console.log(error); // eslint-disable-line no-console
-  } else {
-    dispatch({ type: SET_BALANCE, payload: { balance } });
-  }
-};
-
 export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: string; amount: string; fee: string; note: string }) => async (
   dispatch: AppThDispatch,
   getState: GetState
@@ -167,30 +163,13 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
       fullTx.nickname = contact.nickname;
     }
   });
-  const { error, transactions, id } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
+  const { error, tx, state } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     throw createError('Error sending transaction!', () => {
       dispatch(sendTransaction({ receiver, amount, fee, note }));
     });
   } else {
-    dispatch(setTransactions({ transactions }));
-    return id;
+    return { txId: tx.id, state };
   }
-};
-
-export const updateTransaction = ({ newData, txId }: { newData: any; txId?: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentAccountIndex } = getState().wallet;
-  const { transactions } = await eventsService.updateTransaction({ newData, accountIndex: currentAccountIndex, txId });
-  dispatch(setTransactions({ transactions }));
-};
-
-export const getTxList = ({ approveTxNotifier }: { approveTxNotifier: ({ hasConfirmedIncomingTxs }: { hasConfirmedIncomingTxs: boolean }) => void }) => async (
-  dispatch: AppThDispatch
-) => {
-  const { transactions, hasConfirmedIncomingTxs, hasConfirmedOutgoingTxs } = await eventsService.getAccountTxs();
-  if (hasConfirmedIncomingTxs || hasConfirmedOutgoingTxs) {
-    approveTxNotifier({ hasConfirmedIncomingTxs });
-  }
-  dispatch(setTransactions({ transactions }));
 };

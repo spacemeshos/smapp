@@ -78,8 +78,8 @@ type Props = {
   skipAction: () => void;
 };
 
-const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
-const PoSDirectory = ({ nextAction, dataDir, setDataDir, freeSpace, setFreeSpace, minCommitmentSize, status, isDarkMode }: Props) => {
+// const PoSDirectory = ({ , nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
+const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, setFreeSpace, minCommitmentSize, status, isDarkMode }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
@@ -102,18 +102,14 @@ const PoSDirectory = ({ nextAction, dataDir, setDataDir, freeSpace, setFreeSpace
           <HeaderIcon src={icon} />
           <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
-        <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
-        <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
-        {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
-        <Link onClick={openFolderSelectionDialog} text={dataDir || 'CLICK TO SELECT'} style={linkStyle} />
+        <Link onClick={openFolderSelectionDialog} text={dataDir || 'SELECT DIRECTORY'} style={linkStyle} />
         <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${minCommitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
-        <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>
+        {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
           {freeSpace ? `${freeSpace} GB` : ''}
         </FreeSpace>
       </Wrapper>
-      <PoSFooter skipAction={skipAction} action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
-      <PoSFooter action={nextAction} isDisabled={!dataDir || hasPermissionError || !status} />
+      <PoSFooter action={nextAction} skipAction={skipAction} isDisabled={!dataDir || hasPermissionError || !status} />
     </>
   );
 };

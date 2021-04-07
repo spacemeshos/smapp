@@ -69,14 +69,14 @@ const WordsRestore = ({ history }: RouteComponentProps) => {
     return bip39.validateMnemonic(mnemonic);
   };
 
-  const restoreWith12Words = () => {
+  const restoreWith12Words = useCallback(() => {
     const mnemonic = Object.values(words).join(' ');
     if (validateMnemonic({ mnemonic })) {
       history.push('/auth/create', { mnemonic });
     } else {
       setHasError(true);
     }
-  };
+  }, [words, history, setHasError]);
 
   const handleKeyUp = useCallback(
     (e) => {
@@ -98,7 +98,7 @@ const WordsRestore = ({ history }: RouteComponentProps) => {
   const navigateTo12WordRestoreGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list' });
 
   const renderInputs = ({ start }: { start: number }) => {
-    const res = [];
+    const res: Array<any> = [];
     for (let index = start; index < start + 4; index += 1) {
       res.push(
         <InputWrapper key={`input${index}`}>

@@ -1,41 +1,30 @@
-// import { nodeConsts } from '../../vars';
 import type { NodeState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
-import { SET_NODE_SETTINGS, SET_NODE_IP, SET_NODE_STATUS } from './actions';
+import { SET_NODE_STATUS, SET_NODE_ERROR, SET_NODE_VERSION_AND_BUILD } from './actions';
 
 const initialState = {
   status: null,
-  nodeIndicator: { hasError: false, color: '', message: '', statusText: '' },
-  genesisTime: 0,
-  networkId: 0,
-  commitmentSize: 0,
-  layerDuration: 0,
-  stateRootHash: '',
+  version: '',
+  build: '',
   port: '',
-  posDataPath: '',
-  nodeIpAddress: ''
+  error: 0
 };
 
 const reducer = (state: NodeState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_NODE_STATUS: {
-      const {
-        payload: { status, nodeIndicator }
-      } = action;
-
-      return { ...state, status, nodeIndicator };
+      const { status } = action.payload;
+      return { ...state, status };
     }
-    case SET_NODE_SETTINGS: {
-      const {
-        payload: { stateRootHash, port }
-      } = action;
-      return { ...state, stateRootHash, port };
+    case SET_NODE_ERROR: {
+      const { error } = action.payload;
+      return { ...state, error };
     }
-    case SET_NODE_IP: {
+    case SET_NODE_VERSION_AND_BUILD: {
       const {
-        payload: { nodeIpAddress }
+        payload: { version, build }
       } = action;
-      return { ...state, nodeIpAddress };
+      return { ...state, version, build };
     }
     case LOGOUT:
       return initialState;

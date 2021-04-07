@@ -1,6 +1,6 @@
 syntax = "proto3";
 package spacemesh.v1;
-
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 import "types.proto";
 import "google/rpc/status.proto";
 
@@ -36,9 +36,9 @@ message ShutdownResponse {
 message NodeStatus {
     uint64 connected_peers = 1; // number of connected neighbors
     bool   is_synced = 2; // true when meshed is synced
-    uint64 synced_layer = 3; // the last layer node has synced
-    uint64 top_layer = 4; // top layer is the tip
-    uint64 verified_layer = 5; // the last layer node has verified
+    LayerNumber synced_layer = 3; // the last layer node has synced
+    LayerNumber top_layer = 4; // top layer is the tip
+    LayerNumber verified_layer = 5; // the last layer node has verified
 }
 
 message StatusRequest {}

@@ -1,6 +1,6 @@
 syntax = "proto3";
 package spacemesh.v1;
-
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
 import "types.proto";
 import "google/rpc/status.proto";
 
@@ -93,11 +93,11 @@ message CreatePostDataRequest {
 
 // Param passed to methods to indicate a request to delete data files
 message StopSmeshingRequest {
-    bool delete_files = 1;
+    bool W_M_SHOW_DELETE_FILEs = 1;
 }
 
 message StopPostDataCreationSessionRequest {
-    bool delete_files = 1;
+    bool W_M_SHOW_DELETE_FILEs = 1;
 }
 
 // Proof of space data status

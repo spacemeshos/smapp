@@ -3223,7 +3223,9 @@ proto.spacemesh.v1.Block.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: msg.getId_asB64(),
     transactionsList: jspb.Message.toObjectList(msg.getTransactionsList(),
-    proto.spacemesh.v1.Transaction.toObject, includeInstance)
+    proto.spacemesh.v1.Transaction.toObject, includeInstance),
+    activationId: (f = msg.getActivationId()) && proto.spacemesh.v1.ActivationId.toObject(includeInstance, f),
+    smesherId: (f = msg.getSmesherId()) && proto.spacemesh.v1.SmesherId.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -3269,6 +3271,16 @@ proto.spacemesh.v1.Block.deserializeBinaryFromReader = function(msg, reader) {
       reader.readMessage(value,proto.spacemesh.v1.Transaction.deserializeBinaryFromReader);
       msg.addTransactions(value);
       break;
+    case 3:
+      var value = new proto.spacemesh.v1.ActivationId;
+      reader.readMessage(value,proto.spacemesh.v1.ActivationId.deserializeBinaryFromReader);
+      msg.setActivationId(value);
+      break;
+    case 4:
+      var value = new proto.spacemesh.v1.SmesherId;
+      reader.readMessage(value,proto.spacemesh.v1.SmesherId.deserializeBinaryFromReader);
+      msg.setSmesherId(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3311,6 +3323,22 @@ proto.spacemesh.v1.Block.serializeBinaryToWriter = function(message, writer) {
       2,
       f,
       proto.spacemesh.v1.Transaction.serializeBinaryToWriter
+    );
+  }
+  f = message.getActivationId();
+  if (f != null) {
+    writer.writeMessage(
+      3,
+      f,
+      proto.spacemesh.v1.ActivationId.serializeBinaryToWriter
+    );
+  }
+  f = message.getSmesherId();
+  if (f != null) {
+    writer.writeMessage(
+      4,
+      f,
+      proto.spacemesh.v1.SmesherId.serializeBinaryToWriter
     );
   }
 };
@@ -3383,6 +3411,66 @@ proto.spacemesh.v1.Block.prototype.addTransactions = function(opt_value, opt_ind
 
 proto.spacemesh.v1.Block.prototype.clearTransactionsList = function() {
   this.setTransactionsList([]);
+};
+
+
+/**
+ * optional ActivationId activation_id = 3;
+ * @return {?proto.spacemesh.v1.ActivationId}
+ */
+proto.spacemesh.v1.Block.prototype.getActivationId = function() {
+  return /** @type{?proto.spacemesh.v1.ActivationId} */ (
+    jspb.Message.getWrapperField(this, proto.spacemesh.v1.ActivationId, 3));
+};
+
+
+/** @param {?proto.spacemesh.v1.ActivationId|undefined} value */
+proto.spacemesh.v1.Block.prototype.setActivationId = function(value) {
+  jspb.Message.setWrapperField(this, 3, value);
+};
+
+
+proto.spacemesh.v1.Block.prototype.clearActivationId = function() {
+  this.setActivationId(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.spacemesh.v1.Block.prototype.hasActivationId = function() {
+  return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional SmesherId smesher_id = 4;
+ * @return {?proto.spacemesh.v1.SmesherId}
+ */
+proto.spacemesh.v1.Block.prototype.getSmesherId = function() {
+  return /** @type{?proto.spacemesh.v1.SmesherId} */ (
+    jspb.Message.getWrapperField(this, proto.spacemesh.v1.SmesherId, 4));
+};
+
+
+/** @param {?proto.spacemesh.v1.SmesherId|undefined} value */
+proto.spacemesh.v1.Block.prototype.setSmesherId = function(value) {
+  jspb.Message.setWrapperField(this, 4, value);
+};
+
+
+proto.spacemesh.v1.Block.prototype.clearSmesherId = function() {
+  this.setSmesherId(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {!boolean}
+ */
+proto.spacemesh.v1.Block.prototype.hasSmesherId = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
