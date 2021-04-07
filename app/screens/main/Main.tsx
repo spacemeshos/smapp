@@ -3,8 +3,8 @@ import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
-import { getNodeStatus, getMiningStatus, getAccountRewards } from '../../redux/node/actions';
-import { getBalance, getTxList } from '../../redux/wallet/actions';
+import { getNetworkDefinitions } from '../../redux/network/actions';
+import { getVersionAndBuild } from '../../redux/node/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
 import { InfoBanner } from '../../components/banners';
@@ -22,7 +22,7 @@ import {
   signOutIcon,
   signOutIconBlack
 } from '../../assets/images';
-import { smColors, nodeConsts } from '../../vars';
+import { smColors } from '../../vars';
 import { RootState, Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 
@@ -109,37 +109,25 @@ const EmptySpace = styled.div`
   margin: 30px;
 `;
 
-type Props = {
+interface Props extends RouteComponentProps {
   status: Status;
-  miningStatus: number;
-  getNodeStatus: any;
-  getMiningStatus: any;
-  getAccountRewards: any;
-  getBalance: any;
-  getTxList: any;
   logout: any;
-  history: RouteComponentProps;
-  location: { pathname: string; hash: string };
-  nodeIndicator: { hasError: false; color: ''; message: ''; statusText: '' };
+  location: {
+    hash: string;
+    pathname: string;
+    search: string;
+    state: unknown;
+  };
+  nodeError: any;
   isDarkMode: boolean;
-};
+}
 
 type State = {
   activeRouteIndex: number;
 };
 
 class Main extends Component<Props, State> {
-  getNodeStatusInterval: ReturnType<typeof setInterval> | null = null; // eslint-disable-line react/sort-comp
-
-  initialMiningStatusInterval: any = null; // eslint-disable-line react/sort-comp
-
-  miningStatusInterval: any = null; // eslint-disable-line react/sort-comp
-
-  accountRewardsInterval: any = null; // eslint-disable-line react/sort-comp
-
-  txCollectorInterval: any = null; // eslint-disable-line react/sort-comp
-
-  navMap: Array<() => void>; // eslint-disable-line react/sort-comp
+  private readonly navMap: Array<() => void>; // eslint-disable-line react/sort-comp
 
   constructor(props: Props) {
     super(props);
@@ -151,17 +139,11 @@ class Main extends Component<Props, State> {
     };
 
     this.navMap = [
-      // @ts-ignore
       () => history.push('/main/node'),
-      // @ts-ignore
       () => history.push('/main/network'),
-      // @ts-ignore
       () => history.push('/main/wallet'),
-      // @ts-ignore
       () => history.push('/main/contacts'),
-      // @ts-ignore
       () => history.push('/main/dash'),
-      // @ts-ignore
       () => history.push('/main/settings'),
       () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/get_coin' }),
       () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/help' })
@@ -170,7 +152,7 @@ class Main extends Component<Props, State> {
 
   render() {
     const { activeRouteIndex } = this.state;
-    const { nodeIndicator, isDarkMode } = this.props;
+    const { nodeError, status, isDarkMode } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
     const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
@@ -194,7 +176,8 @@ class Main extends Component<Props, State> {
                 </TooltipWrapper>
                 <TooltipWrapper>
                   <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
-                    <NetworkIndicator color={nodeIndicator.color} />
+                    {/* eslint-disable-next-line no-nested-ternary */}
+                    <NetworkIndicator color={nodeError ? smColors.red : status?.isSynced ? smColors.green : smColors.orange} />
                     NETWORK
                   </NavBarLink>
                   <CustomTooltip text="NETWORK" isDarkMode={isDarkMode} />
@@ -278,7 +261,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          {nodeIndicator.hasError ? <InfoBanner /> : <EmptySpace />}
+          {nodeError ? <InfoBanner /> : <EmptySpace />}
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (
@@ -292,59 +275,9 @@ class Main extends Component<Props, State> {
     );
   }
 
-  async componentDidMount() {
-    const { getNodeStatus, getMiningStatus, getBalance, getTxList, getAccountRewards, miningStatus } = this.props;
-    await getNodeStatus();
-    await getTxList({ approveTxNotifier: this.approveTxNotifier });
-    await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
-    await getBalance();
-    this.txCollectorInterval = setInterval(async () => {
-      await getTxList({ approveTxNotifier: this.approveTxNotifier });
-      await getBalance();
-    }, 90000);
-    this.accountRewardsInterval = setInterval(async () => {
-      await getAccountRewards({ newRewardsNotifier: this.newRewardsNotifier });
-      await getBalance();
-    }, 90000);
-    this.getNodeStatusInterval = setInterval(() => {
-      getNodeStatus();
-    }, 30000);
-    this.initialMiningStatusInterval = setInterval(async () => {
-      const status = await getMiningStatus();
-      if (status !== nodeConsts.MINING_UNSET) {
-        clearInterval(this.initialMiningStatusInterval);
-      }
-    }, 1000);
-    if (miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => {
-        getMiningStatus();
-      }, 100000);
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const { miningStatus, getMiningStatus } = this.props;
-    if (prevProps.miningStatus === nodeConsts.NOT_MINING && miningStatus === nodeConsts.IN_SETUP) {
-      this.miningStatusInterval = setInterval(() => {
-        getMiningStatus();
-      }, 100000);
-    }
-    if ([nodeConsts.NOT_MINING, nodeConsts.IN_SETUP].includes(prevProps.miningStatus) && miningStatus === nodeConsts.IS_MINING) {
-      clearInterval(this.miningStatusInterval);
-      // TODO: move to main process when API 2.0 is ready
-      // notificationsService.notify({
-      //   title: 'Spacemesh',
-      //   notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
-      //   callback: () => this.handleNavigation({ index: 0 })
-      // });
-    }
-  }
-
-  componentWillUnmount() {
-    this.initialMiningStatusInterval && clearInterval(this.initialMiningStatusInterval);
-    this.miningStatusInterval && clearInterval(this.miningStatusInterval);
-    this.accountRewardsInterval && clearInterval(this.accountRewardsInterval);
-    this.txCollectorInterval && clearInterval(this.txCollectorInterval);
+  componentDidMount() {
+    getNetworkDefinitions();
+    getVersionAndBuild();
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -391,42 +324,38 @@ class Main extends Component<Props, State> {
     }
   };
 
-  approveTxNotifier = () => {
-    // TODO: move to main process when API 2.0 is ready
-    // const { history } = this.props;
-    // notificationsService.notify({
-    //   title: 'Spacemesh',
-    //   notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
-    //   // @ts-ignore
-    //   callback: () => history.push('/main/transactions'),
-    //   tag: 1
-    // });
-  };
-
-  newRewardsNotifier = () => {
-    // TODO: move to main process when API 2.0 is ready
-    // notificationsService.notify({
-    //   title: 'Spacemesh',
-    //   notification: 'Received a reward for smeshing!',
-    //   callback: () => this.handleNavigation({ index: 0 }),
-    //   tag: 2
-    // });
-  };
+  // approveTxNotifier = () => {
+  //   // TODO: move to main process when API 2.0 is ready
+  //   // const { history } = this.props;
+  //   // notificationsService.notify({
+  //   //   title: 'Spacemesh',
+  //   //   notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
+  //   //   // @ts-ignore
+  //   //   callback: () => history.push('/main/transactions'),
+  //   //   tag: 1
+  //   // });
+  // };
+  //
+  // newRewardsNotifier = () => {
+  //   // TODO: move to main process when API 2.0 is ready
+  //   // notificationsService.notify({
+  //   //   title: 'Spacemesh',
+  //   //   notification: 'Received a reward for smeshing!',
+  //   //   callback: () => this.handleNavigation({ index: 0 }),
+  //   //   tag: 2
+  //   // });
+  // };
 }
 
 const mapStateToProps = (state: RootState) => ({
   status: state.node.status,
-  miningStatus: state.node.miningStatus,
-  nodeIndicator: state.node.nodeIndicator,
+  nodeError: state.node.error,
   isDarkMode: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {
-  getNodeStatus,
-  getMiningStatus,
-  getAccountRewards,
-  getBalance,
-  getTxList,
+  getNetworkDefinitions,
+  getVersionAndBuild,
   logout
 };
 

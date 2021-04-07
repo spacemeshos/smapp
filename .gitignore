@@ -37,3 +37,4 @@ ct-libc/
 /release
 .env
 .vscode
+/desktop/dist

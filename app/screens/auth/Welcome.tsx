@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
+import { eventsService } from '../../infra/eventsService';
 import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const SideBar = styled.img`
   position: absolute;
@@ -124,25 +124,11 @@ const Welcome = ({ history }: RouteComponentProps) => {
       </LearnMoreText>
       <BottomPart>
         <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
-        {
-          // TODO: Spacemesh 0.1 does not offer a wallet-only mode
-          // <ComplexLink>
-          // eslint-disable-next-line no-irregular-whitespace
-          //   <Text>NO DESKTOP?</Text>
-          // eslint-disable-next-line no-irregular-whitespace
-          //   <Link onClick={() => history.push('/auth/create', { withoutNode: true })} text="SETUP WALLET ONLY" />
-          //   <TooltipWrapper>
-          //     <TooltipIcon src={tooltip} />
-          // eslint-disable-next-line no-irregular-whitespace
-          //     <CustomTooltip text="set up only a wallet, you can set up the Smesher later" />
-          //   </TooltipWrapper>
-          // </ComplexLink>
-        }
         <ComplexLink>
           <Link onClick={() => history.push('/auth/restore')} text="RESTORE AN EXISTING WALLET" />
           <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
           <ButtonMargin>
-            <Button text="SETUP" onClick={() => history.push('/auth/new-wallet', { withoutNode: false })} />
+            <Button text="SETUP" onClick={() => history.push('/auth/wallet-connection-type')} />
           </ButtonMargin>
         </ComplexLink>
       </BottomPart>

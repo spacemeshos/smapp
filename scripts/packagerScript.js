@@ -101,6 +101,7 @@ const getBuildOptions = ({ target, publish }) => {
       files: [
         'desktop/dist/',
         'desktop/app.html',
+        'desktop/closeAppModal.html',
         'desktop/main.prod.js',
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
@@ -128,6 +129,7 @@ const getBuildOptions = ({ target, publish }) => {
           height: '380'
         },
         background: path.join(__dirname, '..', 'resources', 'background.png'),
+        icon: path.join(__dirname, '..', 'resources', 'icon.png'),
         contents: [
           {
             x: 245,
@@ -141,7 +143,6 @@ const getBuildOptions = ({ target, publish }) => {
             type: 'file'
           }
         ],
-        icon: path.join(__dirname, '..', 'resources', 'icon.ico'),
         title: 'Spacemesh'
       },
       win: {
@@ -162,7 +163,7 @@ const getBuildOptions = ({ target, publish }) => {
       linux: {
         target: ['deb'],
         category: 'Utility',
-        icon: path.join(__dirname, '..', 'resources', 'icons')
+        icon: path.join(__dirname, '..', 'resources', 'icons', '512x512.png')
       },
       directories: {
         buildResources: path.join(__dirname, '..', 'resources'),

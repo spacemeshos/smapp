@@ -41,14 +41,15 @@ const MiddleSectionText = styled.div`
 
 const Overview = ({ history }: RouteComponentProps) => {
   const account = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
-  const miningStatus = useSelector((state: RootState) => state.node.miningStatus);
+  const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
+  const isCreatingPosData = useSelector((state: RootState) => state.smesher.isCreatingPosData);
 
   const navigateToSendCoins = () => {
     history.push('/main/wallet/send-coins');
   };
 
   const navigateToRequestCoins = () => {
-    history.push('/main/wallet/request-coins', { account, miningStatus });
+    history.push('/main/wallet/request-coins', { account, isSmesherActive: isCreatingPosData || isSmeshing });
   };
 
   const navigateToAllTransactions = () => {

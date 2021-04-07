@@ -1,5 +1,9 @@
 const Store = require('electron-store');
 
+// data schema:
+//
+//
+
 class StoreService {
   static store: typeof Store;
 
@@ -9,11 +13,11 @@ class StoreService {
     }
   }
 
-  static set = ({ key, value }: { key: string; value: any }) => {
-    StoreService.store.set(key, value);
+  static set = (object: any) => {
+    StoreService.store.set(object);
   };
 
-  static get = ({ key }: { key: string }) => {
+  static get = (key: string) => {
     return StoreService.store.get(key);
   };
 

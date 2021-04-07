@@ -68,28 +68,29 @@ const linkStyle = { fontSize: '17px', lineHeight: '19px', marginBottom: 5 };
 
 type Props = {
   nextAction: () => void;
-  folder: string;
-  setFolder: (folder: string) => void;
-  freeSpace: number;
-  setFreeSpace: (freeSpace: number) => void;
-  commitmentSize: number;
+  dataDir: string;
+  setDataDir: (dataDir: string) => void;
+  freeSpace: string;
+  setFreeSpace: (freeSpace: string) => void;
+  minCommitmentSize: string;
   status: Status | null;
   isDarkMode: boolean;
   skipAction: () => void;
 };
 
-const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
+// const PoSDirectory = ({ , nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
+const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, setFreeSpace, minCommitmentSize, status, isDarkMode }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   const openFolderSelectionDialog = async () => {
-    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
+    const { error, selectedFolder, calculatedFreeSpace } = await eventsService.selectPostFolder();
     if (error) {
       setHasPermissionError(true);
     } else {
-      setFolder(selectedFolder);
-      setFreeSpace(formatBytes(freeSpace));
+      setDataDir(selectedFolder);
+      setFreeSpace(formatBytes(calculatedFreeSpace));
       setHasPermissionError(false);
     }
   };
@@ -101,14 +102,14 @@ const PoSDirectory = ({ skipAction, nextAction, folder, setFolder, freeSpace, se
           <HeaderIcon src={icon} />
           <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
-        <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
-        <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
+        <Link onClick={openFolderSelectionDialog} text={dataDir || 'SELECT DIRECTORY'} style={linkStyle} />
+        <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${minCommitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
         {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
           {freeSpace ? `${freeSpace} GB` : ''}
         </FreeSpace>
       </Wrapper>
-      <PoSFooter skipAction={skipAction} action={nextAction} isDisabled={!folder || hasPermissionError || !status} />
+      <PoSFooter action={nextAction} skipAction={skipAction} isDisabled={!dataDir || hasPermissionError || !status} />
     </>
   );
 };

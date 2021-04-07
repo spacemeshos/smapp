@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown, Link } from '../../basicComponents';
+import { Tooltip, DropDown } from '../../basicComponents';
+import { eventsService } from '../../infra/eventsService';
 import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { Status } from '../../types';
-import { eventsService } from '../../infra/eventsService';
-import { formatBytes } from '../../infra/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -59,12 +58,6 @@ const Dots = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: relative;
-`;
-
 const RewardText = styled(Text)<{ selected: boolean }>`
   color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
 `;
@@ -109,48 +102,68 @@ const Commitment = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
+const Link = styled.div`
+  text-transform: uppercase;
+  text-decoration: none;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  font-size: 17px;
+  line-height: 19px;
+  cursor: pointer;
+  &:hover {
+    color: ${smColors.blue};
+  }
+  &.blue {
+    text-decoration: underline;
+    color: ${smColors.blue};
+    &:hover {
+      color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+    }
+  }
+`;
+
 const commitments = [
   { label: '100 GB', size: 100 },
   { label: '200 GB', size: 200 },
   { label: '300 GB', size: 300 }
 ];
-const linkStyle = { fontSize: '17px', lineHeight: '19px', marginBottom: 5 };
 
 type Props = {
-  folder: string;
-  commitment: number;
+  dataDir: string;
   commitmentSize: number;
-  setFolder: (folder: string) => void;
-  setCommitment: (commitment: number) => void;
-  freeSpace: number;
-  setFreeSpace: (freeSpace: number) => void;
+  setCommitmentSize: (commitment: number) => void;
+  freeSpace: string;
   nextAction: () => void;
   status: Status | null;
   isDarkMode: boolean;
 };
 
-const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace, nextAction, setFolder, setFreeSpace, status, isDarkMode }: Props) => {
-  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(commitment ? commitments.findIndex((com) => com.size === commitment) : 0);
-  const [hasPermissionError, setHasPermissionError] = useState(false);
+const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAction, status, isDarkMode }: Props) => {
+  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(commitmentSize ? commitments.findIndex((com) => com.size === commitmentSize) : 0);
+  const [hasErrorFetchingEstimatedRewards, setHasErrorFetchingEstimatedRewards] = useState(false);
+  const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
+
+  useEffect(() => {
+    const loadEstimatedRewards = async () => {
+      const { error, estimatedRewards } = await eventsService.getEstimatedRewards();
+      if (error) {
+        setHasErrorFetchingEstimatedRewards(true);
+      } else {
+        setLoadedEstimatedRewards(estimatedRewards);
+        setHasErrorFetchingEstimatedRewards(false);
+      }
+    };
+    loadEstimatedRewards();
+  }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
 
   const renderDDRow = ({ label, isInDropDown }: { label: string; isInDropDown: boolean }) => (
     <CommitmentWrapper isInDropDown={isInDropDown}>
       <Commitment>{label}</Commitment>
     </CommitmentWrapper>
   );
-  const openFolderSelectionDialog = async () => {
-    const { error, selectedFolder, freeSpace } = await eventsService.selectPostFolder();
-    if (error) {
-      setHasPermissionError(true);
-    } else {
-      setFolder(selectedFolder);
-      setFreeSpace(formatBytes(freeSpace));
-      setHasPermissionError(false);
-    }
-  };
+
   const selectCommitment = ({ index }: { index: number }) => {
     setSelectedCommitmentIndex(index);
-    setCommitment(commitments[selectedCommitmentIndex].size);
+    setCommitmentSize(commitments[selectedCommitmentIndex].size);
   };
 
   const ddStyle = {
@@ -185,15 +198,19 @@ const PoSSize = ({ folder, commitment, setCommitment, commitmentSize, freeSpace,
         <Text>Estimated coin reward</Text>
         <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
         <Dots>.....................................................</Dots>
-        <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? '10 SMESH / MONTH' : '0 SMESH / MONTH'}</RewardText>
+        {hasErrorFetchingEstimatedRewards ? (
+          <ErrorText>Failed to load estimated rewards. Please return to previous step</ErrorText>
+        ) : (
+          <RewardText selected={selectedCommitmentIndex !== -1}>
+            {selectedCommitmentIndex !== -1 ? `${loadedEstimatedRewards.amount * selectedCommitmentIndex} SMESH / EPOCH` : '0 SMESH / EPOCH'}
+          </RewardText>
+        )}
       </Row>
       <BottomRow>
         <Icon3 src={posDirectoryIcon} />
-        <Text>PoS data folder: </Text>
-        <Wrapper>
-          <Link onClick={openFolderSelectionDialog} text={folder || 'SELECT DIRECTORY'} style={linkStyle} />
-          <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${commitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
-        </Wrapper>
+        <Text>PoS data folder</Text>
+        <Dots>.....................................................</Dots>
+        <Link>{dataDir}</Link>
       </BottomRow>
       <BottomRow>
         <Text>Free space: {freeSpace} GB</Text>

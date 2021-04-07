@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
-import { smColors, nodeConsts } from '../../vars';
+import { smColors } from '../../vars';
 import { RootState } from '../../types';
 
 const Wrapper = styled.div`
@@ -74,7 +74,7 @@ interface Props extends RouteComponentProps {
     hash: string;
     pathname: string;
     search: string;
-    state: { mnemonic?: string; withoutNode?: boolean };
+    state: { mnemonic?: string; ip?: string; port?: string };
   };
 }
 
@@ -86,8 +86,6 @@ const CreateWallet = ({ history, location }: Props) => {
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
-  const miningStatus = useSelector((state: RootState) => state.node.miningStatus);
-  const walletName = useSelector((state: RootState) => state.wallet.meta);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -119,16 +117,11 @@ const CreateWallet = ({ history, location }: Props) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      await setTimeout(async () => {
-        dispatch(await createNewWallet({ existingMnemonic: location?.state?.mnemonic, password }));
-        setSubMode(2);
-      }, 500);
+      dispatch(await createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
+      setSubMode(2);
+      setIsLoaderVisible(false);
     }
   };
-
-  useEffect(() => {
-    setIsLoaderVisible(false);
-  }, [walletName]);
 
   const handleEnterPress = () => {
     if (validate()) {
@@ -147,12 +140,10 @@ const CreateWallet = ({ history, location }: Props) => {
   };
 
   const nextAction = () => {
-    const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
     if (subMode === 1 && validate()) {
       createWallet();
     } else if (subMode === 2) {
-      if (isWalletOnlySetup) {
-        localStorage.setItem('isWalletOnlySetup', JSON.stringify(isWalletOnlySetup));
+      if (location?.state?.ip) {
         history.push('/main/wallet');
       } else {
         history.push('/main/node-setup');
@@ -170,11 +161,10 @@ const CreateWallet = ({ history, location }: Props) => {
       </LoaderWrapper>
     );
   }
-  const header = subMode === 1 ? 'SET NEW WALLET PASSWORD' : `${walletName.displayName} CREATED`;
-  const isWalletOnlySetup = !!location?.state?.withoutNode || miningStatus !== nodeConsts.NOT_MINING;
+  const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   return (
     <Wrapper>
-      <StepsContainer steps={isWalletOnlySetup ? ['SETUP WALLET'] : ['SETUP WALLET', 'SETUP PROOF OF SPACE']} currentStep={0} isDarkMode={isDarkMode} />
+      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={2} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header={header} subHeader={renderSubHeader(subMode)} isDarkMode={isDarkMode}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {subMode === 1 && (

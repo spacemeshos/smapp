@@ -7,7 +7,7 @@ import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComp
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getFormattedTimestamp } from '../../infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
-import { smColors, nodeConsts } from '../../vars';
+import { smColors } from '../../vars';
 import { RootState, Status } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
@@ -140,7 +140,7 @@ const IconSmesher = styled.img`
   color: ${smColors.darkOrange};
 `;
 
-const RowText = styled.div`
+const RowText = styled.div<{ weight: number }>`
   display: flex;
   font-size: 16px;
   font-weight: ${({ weight }) => weight};
@@ -160,11 +160,12 @@ const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
 
   const status = useSelector((state: RootState) => state.node.status);
-  const networkId = useSelector((state: RootState) => state.node.networkId);
-  const posDataPath = useSelector((state: RootState) => state.node.posDataPath);
-  const commitmentSize = useSelector((state: RootState) => state.node.commitmentSize);
-  const miningStatus = useSelector((state: RootState) => state.node.miningStatus);
-  const rewards = useSelector((state: RootState) => state.node.rewards);
+  const networkId = useSelector((state: RootState) => state.network.netId);
+  const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
+  const commitmentSize = useSelector((state: RootState) => state.smesher.commitmentSize);
+  const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
+  const isCreatingPosData = useSelector((state: RootState) => state.smesher.isCreatingPosData);
+  const rewards = useSelector((state: RootState) => state.smesher.rewards);
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
@@ -172,13 +173,11 @@ const Node = ({ history, location }: Props) => {
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
-  let isWalletOnlySetup = localStorage.getItem('isWalletOnlySetup');
-  isWalletOnlySetup = isWalletOnlySetup ? JSON.parse(isWalletOnlySetup) : false;
 
   const dispatch = useDispatch();
 
   const renderNodeDashboard = () => {
-    const isCreatingPoSData = miningStatus === nodeConsts.IN_SETUP;
+    const isCreatingPoSData = !isSmeshing && isCreatingPosData;
     return (
       <>
         <SubHeader>
@@ -239,9 +238,8 @@ const Node = ({ history, location }: Props) => {
             imgPosition="before"
             width={180}
           />
-          {miningStatus === nodeConsts.IN_SETUP && (
-            <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
-          )}
+          <Button onClick={() => history.push('/main/node-setup', { modifyPostData: true })} text="MODIFY POST DATA" isPrimary={false} style={{ marginRight: 15 }} width={130} />
+          {isCreatingPoSData && <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />}
         </Footer>
       </>
     );
@@ -258,7 +256,7 @@ const Node = ({ history, location }: Props) => {
   const renderMainSection = () => {
     if (showIntro) {
       return <SmesherIntro hideIntro={() => setShowIntro(false)} isDarkMode={isDarkMode} />;
-    } else if (miningStatus === nodeConsts.NOT_MINING) {
+    } else if (!isSmeshing && !isCreatingPosData) {
       return (
         <>
           <SubHeader>
@@ -278,8 +276,6 @@ const Node = ({ history, location }: Props) => {
           <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
         </>
       );
-    } else if (miningStatus === nodeConsts.MINING_UNSET) {
-      return <Text>Please wait for smeshing status…</Text>;
     }
     return renderNodeDashboard();
   };
@@ -311,7 +307,7 @@ const Node = ({ history, location }: Props) => {
   return (
     <Wrapper>
       <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon} isDarkMode={isDarkMode}>
-        {isWalletOnlySetup ? renderWalletOnlyMode() : renderMainSection()}
+        {false ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
       <SmesherLog rewards={rewards} initTimestamp={smesherInitTimestamp} smeshingTimestamp={smesherSmeshingTimestamp} isDarkMode={isDarkMode} />
     </Wrapper>

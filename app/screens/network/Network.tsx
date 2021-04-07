@@ -1,13 +1,14 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
+import { eventsService } from '../../infra/eventsService';
+import { getCurrentLayer } from '../../redux/network/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
+import { NetworkStatus } from '../../components/NetworkStatus';
 import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
-import { eventsService } from '../../infra/eventsService';
 import { RootState } from '../../types';
-import { NetworkStatus } from '../../components/NetworkStatus';
 
 const Container = styled.div`
   display: flex;
@@ -58,9 +59,19 @@ const DetailsTextWrap = styled.div`
 `;
 
 const Network = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const asyncGetCurrentLayer = async () => {
+      dispatch(await getCurrentLayer());
+    };
+    asyncGetCurrentLayer();
+  }, [dispatch]);
+
+  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
-  const genesisTime = useSelector((state: RootState) => state.node.genesisTime);
-  const nodeIndicator = useSelector((state: RootState) => state.node.nodeIndicator);
+  const nodeError = useSelector((state: RootState) => state.node.error);
+  const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const networkName = 'TweedleDee 0.1.0';
@@ -82,21 +93,23 @@ const Network = () => {
               <CustomTimeAgo time={genesisTime} />
             </GrayText>
           </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Status</DetailsText>
-              <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>
-              <NetworkStatus nodeIndicator={nodeIndicator} status={status} />
-            </GrayText>
-          </DetailsRow>
+          {!isWalletOnly && (
+            <DetailsRow>
+              <DetailsTextWrap>
+                <DetailsText>Status</DetailsText>
+                <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
+              </DetailsTextWrap>
+              <GrayText>
+                <NetworkStatus status={status} error={nodeError} />
+              </GrayText>
+            </DetailsRow>
+          )}
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Current Layer</DetailsText>
               <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>{status?.currentLayer || 0}</GrayText>
+            <GrayText>{status?.topLayer || 0}</GrayText>
           </DetailsRow>
           <DetailsRow>
             <DetailsTextWrap>
@@ -110,15 +123,17 @@ const Network = () => {
               <DetailsText>Connection Type</DetailsText>
               <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>Managed p2p node</GrayText>
+            <GrayText>{isWalletOnly ? 'Remote Gateway' : 'Managed p2p node'}</GrayText>
           </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Connected neighbors</DetailsText>
-              <Tooltip width={250} text="tooltip Connected neighbors" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>8</GrayText>
-          </DetailsRow>
+          {!isWalletOnly && (
+            <DetailsRow>
+              <DetailsTextWrap>
+                <DetailsText>Connected neighbors</DetailsText>
+                <Tooltip width={250} text="tooltip Connected neighbors" isDarkMode={isDarkMode} />
+              </DetailsTextWrap>
+              <GrayText>8</GrayText>
+            </DetailsRow>
+          )}
         </DetailsWrap>
         <FooterWrap>
           <Link onClick={openLogFile} text="BROWSE LOG FILE" />

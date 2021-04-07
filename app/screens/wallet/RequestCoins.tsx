@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Link, Button } from '../../basicComponents';
 import { getAddress } from '../../infra/utils';
 import { copyBlack, copyWhite } from '../../assets/images';
-import { smColors, nodeConsts } from '../../vars';
+import { smColors } from '../../vars';
 import { Account, RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 
@@ -87,14 +87,14 @@ interface Props extends RouteComponentProps {
     hash: string;
     pathname: string;
     search: string;
-    state: { account: Account; miningStatus: number };
+    state: { account: Account; isSmesherActive: boolean };
   };
 }
 
 const RequestCoins = ({ history, location }: Props) => {
   let copiedTimeout: any = null;
   const {
-    state: { account, miningStatus }
+    state: { account, isSmesherActive }
   } = location;
 
   const [isCopied, setIsCopied] = useState(false);
@@ -147,7 +147,7 @@ const RequestCoins = ({ history, location }: Props) => {
         <TextElement>.</TextElement>
       </ComplexText>
       <br />
-      {miningStatus === nodeConsts.NOT_MINING && (
+      {!isSmesherActive && (
         <ComplexText>
           <Text>To earn Smesh&nbsp;</Text>
           <Link onClick={navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />

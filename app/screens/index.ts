@@ -1,4 +1,4 @@
-export { Auth, Welcome, NewWallet, SetupWallet, CreateWallet, UnlockWallet, Leaving, RestoreWallet, FileRestore, WordsRestore, ConnectWallet } from './auth';
+export { Auth, Welcome, WalletConnectionType, WalletType, CreateWallet, UnlockWallet, Leaving, RestoreWallet, FileRestore, WordsRestore, ConnectToApi } from './auth';
 export { Main } from './main';
 export { Node, NodeSetup } from './node';
 export { Wallet, Overview, SendCoins, RequestCoins, Vault } from './wallet';
@@ -8,4 +8,3 @@ export { Contacts } from './contacts';
 export { Network } from './network';
 export { Dashboard } from './dashboard';
 export { Settings } from './settings';
-export { SplashScreen } from './splashScreen';

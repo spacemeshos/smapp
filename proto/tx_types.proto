@@ -1,0 +1,55 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+import "google/rpc/status.proto";
+import "types.proto";
+
+message TransactionsIds {
+    repeated TransactionId transaction_id = 1;
+}
+
+message SubmitTransactionRequest {
+    bytes  transaction = 1;  // signed binary transaction
+}
+
+message SubmitTransactionResponse {
+    google.rpc.Status status = 1;
+    TransactionState txstate = 2;
+}
+
+message TransactionsStateRequest {
+    repeated TransactionId transaction_id = 1;
+    bool include_transactions = 2; // when true response will include matching transactions in addition to state
+}
+
+message TransactionsStateResponse {
+    repeated TransactionState transactions_state = 1;
+    repeated Transaction transactions = 2;
+}
+
+message TransactionsStateStreamRequest {
+    repeated TransactionId transaction_id = 1;
+    bool include_transactions = 2; // when true response will include matching transactions in addition to state
+}
+
+message TransactionsStateStreamResponse {
+    TransactionState transaction_state = 1;
+    Transaction transaction = 2;
+}
+
+// TransactionState is the "journey" of a tx from mempool to block inclusion to
+// mesh to STF processing. To know whether or not the tx actually succeeded,
+// and its side effects, check the Receipt in the GlobalStateService.
+message TransactionState {
+    TransactionId id = 1;
+    enum TransactionState {
+        TRANSACTION_STATE_UNSPECIFIED = 0; // default state
+        TRANSACTION_STATE_REJECTED = 1; // rejected from mempool due to, e.g., invalid syntax
+        TRANSACTION_STATE_INSUFFICIENT_FUNDS = 2; // rejected from mempool by funds check
+        TRANSACTION_STATE_CONFLICTING = 3; // rejected from mempool due to conflicting counter
+        TRANSACTION_STATE_MEMPOOL = 4; // in mempool but not on the mesh yet
+        TRANSACTION_STATE_MESH = 5; // submitted to the mesh
+        TRANSACTION_STATE_PROCESSED = 6; // processed by STF; check Receipt for success or failure
+    }
+    TransactionState state = 2;
+}

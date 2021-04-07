@@ -1,5 +1,4 @@
 import {
-  SplashScreen,
   Auth,
   Welcome,
   UnlockWallet,
@@ -11,8 +10,8 @@ import {
   Node,
   NodeSetup,
   Wallet,
-  NewWallet,
-  SetupWallet,
+  WalletConnectionType,
+  WalletType,
   Leaving,
   Overview,
   SendCoins,
@@ -28,14 +27,10 @@ import {
   TestMe,
   Vault,
   Dashboard,
-  ConnectWallet
+  ConnectToApi
 } from './screens';
 
 const app = [
-  {
-    path: '/pre',
-    component: SplashScreen
-  },
   {
     path: '/auth',
     component: Auth
@@ -52,24 +47,28 @@ const auth = [
     component: Welcome
   },
   {
-    path: '/auth/unlock',
-    component: UnlockWallet
+    path: '/auth/wallet-connection-type',
+    component: WalletConnectionType
   },
   {
-    path: '/auth/create',
-    component: CreateWallet
+    path: '/auth/connect-to-api',
+    component: ConnectToApi
   },
   {
     path: '/auth/leaving',
     component: Leaving
   },
   {
-    path: '/auth/new-wallet',
-    component: NewWallet
+    path: '/auth/wallet-type',
+    component: WalletType
   },
   {
-    path: '/auth/setup-wallet',
-    component: SetupWallet
+    path: '/auth/create',
+    component: CreateWallet
+  },
+  {
+    path: '/auth/unlock',
+    component: UnlockWallet
   },
   {
     path: '/auth/restore',
@@ -82,10 +81,6 @@ const auth = [
   {
     path: '/auth/words-restore',
     component: WordsRestore
-  },
-  {
-    path: '/auth/connect-wallet',
-    component: ConnectWallet
   }
 ];
 

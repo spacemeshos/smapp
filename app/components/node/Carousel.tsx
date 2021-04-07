@@ -141,7 +141,7 @@ const CpuIcon = styled.img`
 `;
 
 type Props = {
-  data: Array<{ company: string; name: string; isGPU: boolean; estimation: string }>;
+  data: { id: number; model: string; computeApi: string; performance: number }[];
   selectedItemIndex: number;
   onClick: ({ index }: { index: number }) => void;
   style?: any;
@@ -179,23 +179,23 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
       />
       <OuterWrapper style={style}>
         <InnerWrapper leftSlideIndex={carouselState.leftSlideIndex} slidesCount={data.length}>
-          {data.map((element, index) => (
-            <SlideWrapper onClick={() => handleSelection({ index })} key={element.name}>
+          {data.map((provider, index) => (
+            <SlideWrapper onClick={() => handleSelection({ index })} key={provider.id}>
               <SlideUpperPart isSelected={selectedItemIndex === index}>
                 <TextWrapper>
-                  <Text>{element.company}</Text>
-                  <Text>{element.name}</Text>
+                  <Text>{provider.model}</Text>
+                  {provider.computeApi === '0' && <Text>(UNSPECIFIED)</Text>}
+                  {provider.computeApi === '1' && <Text>(CPU)</Text>}
+                  {provider.computeApi === '2' && <Text>(CUDA)</Text>}
+                  {provider.computeApi === '3' && <Text>(VULCAN)</Text>}
                   <Text>--</Text>
                 </TextWrapper>
                 <TextWrapper>
-                  <Text>~{element.estimation}</Text>
+                  <Text>~{provider.performance} hashes per second</Text>
                   <Text>TO SAVE DATA</Text>
                 </TextWrapper>
-                {element.isGPU ? (
-                  <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />
-                ) : (
-                  <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />
-                )}
+                {provider.computeApi === '1' && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />}
+                {(provider.computeApi === '2' || provider.computeApi === '3') && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />}
               </SlideUpperPart>
               <SlideMiddlePart />
               <SlideLowerPart isSelected={selectedItemIndex === index} />

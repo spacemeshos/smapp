@@ -11,17 +11,25 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
+import util from 'util';
 import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
-import NodeManager from './nodeManager';
+import WalletManager from './WalletManager';
+import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
+import SmesherManager from './SmesherManager';
 import './wasm_exec';
+
+const writeFileAsync = util.promisify(fs.writeFile);
+
+const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
 
 (async function () {
   const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
@@ -52,9 +60,8 @@ let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 const handleClosingApp = async () => {
-  const networkId = StoreService.get({ key: 'networkId' });
-  const savedMiningParams = StoreService.get({ key: `${networkId}-miningParams` });
-  if (savedMiningParams) {
+  const isSmeshing = StoreService.get('smeshingParams');
+  if (isSmeshing) {
     const options = {
       title: 'Quit App',
       message:
@@ -75,9 +82,16 @@ const handleClosingApp = async () => {
       mainWindow.reload();
     } else if (response === 1) {
       await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
+      mainWindow.destroy();
+      app.quit();
     }
   } else {
-    await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
+    const isRunningLocalNode = StoreService.get('localNode');
+    if (isRunningLocalNode) {
+      await nodeManager.stopNode({ browserWindow: mainWindow, isDarkMode });
+    }
+    mainWindow.destroy();
+    app.quit();
   }
 };
 
@@ -134,43 +148,7 @@ const createBrowserView = () => {
   });
 };
 
-const gotTheLock = app.requestSingleInstanceLock();
-
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-}
-
-app.on('ready', async () => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-  }
-
-  createTray();
-  createWindow();
-
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
-
-  mainWindow.once('ready-to-show', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    mainWindow.show();
-    mainWindow.focus();
-  });
-
-  mainWindow.on('close', async (event) => {
-    event.preventDefault();
-    await handleClosingApp();
-  });
-
+const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
@@ -217,11 +195,73 @@ app.on('ready', async () => {
   ipcMain.on(ipcConsts.RELOAD_APP, () => {
     mainWindow.reload();
   });
+};
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
+app.on('ready', async () => {
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+  }
+
+  createTray();
+  createWindow();
+
+  mainWindow.loadURL(`file://${__dirname}/app.html`);
+
+  mainWindow.once('ready-to-show', () => {
+    if (!mainWindow) {
+      throw new Error('"mainWindow" is not defined');
+    }
+    mainWindow.show();
+    mainWindow.focus();
+  });
+
+  mainWindow.on('close', async (event) => {
+    event.preventDefault();
+    await handleClosingApp();
+  });
+
+  addIpcEventListeners();
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  nodeManager = new NodeManager(mainWindow);
+  const res = await fetch(DISCOVERY_URL);
+  const initialConfig = await res.json();
+  const savedNetId = StoreService.get('netSettings.netId');
+  const cleanStart = savedNetId !== initialConfig.netID;
+  const configFilePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
+  if (cleanStart) {
+    StoreService.clear();
+    StoreService.set({ netSettings: { netId: initialConfig.netID } });
+    StoreService.set({ netSettings: { netName: initialConfig.netName } });
+    StoreService.set({ netSettings: { explorerUrl: initialConfig.explorer } });
+    StoreService.set({ netSettings: { dashUrl: initialConfig.dash } });
+    const res2 = await fetch(initialConfig.conf);
+    const netConfig = await res2.json();
+    StoreService.set({ netSettings: { minCommitmentSize: parseInt(netConfig.post['post-space']) } });
+    StoreService.set({ netSettings: { layerDurationSec: parseInt(netConfig.main['layer-duration-sec']) } });
+    StoreService.set({ netSettings: { genesisTime: parseInt(netConfig.main['genesis-time']) } });
+    await writeFileAsync(configFilePath, JSON.stringify(netConfig));
+  }
+  // eslint-disable-next-line no-new
+  new WalletManager(mainWindow);
+  nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
+  // eslint-disable-next-line no-new
+  new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
 });

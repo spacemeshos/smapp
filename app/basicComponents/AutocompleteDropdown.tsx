@@ -89,7 +89,7 @@ type Props = {
 
 const AutocompleteDropdown = (props: Props) => {
   const { value } = props;
-  let inputBlurTimer: number;
+  let inputBlurTimer: any;
   const [isOpen, setIsOpen] = useState(false);
   const [list, setList] = useState<Array<any>>([]);
   const [isFocus, setIsFocus] = useState(-1);
@@ -109,7 +109,7 @@ const AutocompleteDropdown = (props: Props) => {
     const { data, getItemValue } = props;
     // @ts-ignore
     const { value } = inputField.current || {};
-    let list = [];
+    let list: any = [];
 
     if (value && value.trim()) {
       list = data.filter((d) => getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1);

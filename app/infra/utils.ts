@@ -10,6 +10,7 @@ const getFormattedTimestamp = (timestamp: number) => {
   if (timestamp) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
     const dateObj = new Date(timestamp);
+    // @ts-ignore
     return dateObj.toLocaleDateString('en-US', options).replace(',', '');
   }
   return null;
@@ -18,8 +19,11 @@ const getFormattedTimestamp = (timestamp: number) => {
 const getAddress = (key: string) => key.substring(24);
 
 const formatBytes = (bytes: number) => {
-  if (bytes === 0) return 0;
-  return parseFloat((bytes / 1073741824).toFixed(2));
+  if (bytes === 0) return '0';
+  if (bytes >= 1099511627776) {
+    return `${parseFloat((bytes / 1099511627776).toFixed(2))} TB`;
+  }
+  return `${parseFloat((bytes / 1073741824).toFixed(2))} GB`;
 };
 
 // Internal helper - returns the value and the unit of a smidge coin amount.

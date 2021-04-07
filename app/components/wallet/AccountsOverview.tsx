@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentAccount, getBalance } from '../../redux/wallet/actions';
+import { setCurrentAccount } from '../../redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars } from '../../basicComponents';
 import { copyBlack, copyWhite, explorer } from '../../assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
@@ -140,7 +140,6 @@ const AccountsOverview = (props: Props) => {
 
   const handleSetCurrentAccount = ({ index }: { index: number }) => {
     dispatch(setCurrentAccount({ index }));
-    dispatch(getBalance());
   };
 
   const copyPublicAddress = async (e: React.MouseEvent) => {
@@ -196,7 +195,7 @@ const AccountsOverview = (props: Props) => {
       <Footer>
         <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
-        {status?.synced ? (
+        {status?.isSynced ? (
           <BalanceWrapper>
             <BalanceAmount>{value}</BalanceAmount>
             <SmhText>{unit}</SmhText>

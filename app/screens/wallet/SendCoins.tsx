@@ -28,7 +28,6 @@ const SendCoins = ({ history, location }: Props) => {
   const [txId, setTxId] = useState('');
   const [isCreateNewContactOn, setIsCreateNewContactOn] = useState(false);
 
-  const status = useSelector((state: RootState) => state.node.status);
   const currentAccount = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   // const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
@@ -86,7 +85,7 @@ const SendCoins = ({ history, location }: Props) => {
   // };
 
   const handleSendTransaction = async () => {
-    const txId: any = await dispatch(sendTransaction({ receiver: address, amount, fee, note }));
+    const txId: any = dispatch(await sendTransaction({ receiver: address, amount, fee, note }));
     setMode(3);
     setTxId(txId);
   };
@@ -108,7 +107,6 @@ const SendCoins = ({ history, location }: Props) => {
         updateTxNote={updateTxNote}
         cancelTx={history.goBack}
         nextAction={proceedToMode2}
-        status={status}
         contacts={contacts}
         key="params"
         isDarkMode={isDarkMode}
@@ -140,7 +138,6 @@ const SendCoins = ({ history, location }: Props) => {
           fee={fee}
           note={note}
           doneAction={handleSendTransaction}
-          status={status}
           editTx={() => setMode(1)}
           cancelTx={history.goBack}
         />

@@ -85,7 +85,7 @@ const Leaving = ({ history }: RouteComponentProps) => {
               <Tooltip width={100} text="SETUP WALLET ONLY" isDarkMode={isDarkMode} />
             </Row>
           </ComplexLink>
-          <Button text="LEAVE SETUP" onClick={() => history.push('/auth/welcome', { withoutNode: false })} />
+          <Button text="LEAVE SETUP" onClick={() => history.push('/auth/welcome')} />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

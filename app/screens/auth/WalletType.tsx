@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { StepsContainer, Button, Link, Loader, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
+import { StepsContainer, Button, Link, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { walletSecondWhite } from '../../assets/images';
 
@@ -89,14 +89,6 @@ const IconWallet = styled.img`
   margin-right: 3px;
 `;
 
-const LoaderWrapper = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
 const BottomPart = styled.div`
   display: flex;
   flex: 1;
@@ -110,33 +102,21 @@ interface Props extends RouteComponentProps {
     hash: string;
     pathname: string;
     search: string;
-    state: { mnemonic?: string; withoutNode?: boolean };
+    state: { mnemonic?: string; ip?: string; port?: string };
   };
 }
 
-const SetupWallet = ({ history, location }: Props) => {
-  const [subMode] = useState(1);
-  const [isLoaderVisible] = useState(false);
-  const withoutNode = location?.state?.withoutNode || false;
-
+const WalletType = ({ history, location }: Props) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
 
-  if (isLoaderVisible) {
-    return (
-      <LoaderWrapper>
-        <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
-      </LoaderWrapper>
-    );
-  }
-  const header = 'WALLET SETUP';
-
   return (
     <Wrapper>
-      <StepsContainer steps={['SETUP WALLET + MINER', 'PROTECT WALLET', 'SELECT DRIVE', 'ALLOCATE SPACE']} header={''} currentStep={1} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={400} header={header} subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
+      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} header={''} currentStep={1} isDarkMode={isDarkMode} />
+      <CorneredContainer width={650} height={400} header="WALLET SETUP" subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
+        <BackButton action={history.goBack} />
         <RowJust>
           <RowColumn>
             <Row>
@@ -146,7 +126,7 @@ const SetupWallet = ({ history, location }: Props) => {
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
-          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={() => history.push('/auth/create', { withoutNode })} />
+          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={() => history.push('/auth/create', { ip: location?.state?.ip, port: location?.state?.port })} />
         </RowJust>
         <RowSecond>
           <RowColumn>
@@ -160,23 +140,15 @@ const SetupWallet = ({ history, location }: Props) => {
           </RowColumn>
           <Button text="HARDWARE WALLET" onClick={() => {}} width={150} isDisabled />
         </RowSecond>
-
-        {subMode === 1 && (
-          <>
-            <BackButton action={history.goBack} />
-          </>
-        )}
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          {subMode === 1 && (
-            <Row>
-              <Link onClick={() => history.push('/auth/restore')} text="RESTORE  WALLET" /> <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
-            </Row>
-          )}
+          <Row>
+            <Link onClick={() => history.push('/auth/restore')} text="RESTORE  WALLET" /> <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
+          </Row>
         </BottomPart>
       </CorneredContainer>
     </Wrapper>
   );
 };
 
-export default SetupWallet;
+export default WalletType;

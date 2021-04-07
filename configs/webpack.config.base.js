@@ -34,12 +34,11 @@ export default {
    * Determine the array of extensions that should be used to resolve modules.
    */
   resolve: {
+    alias: {
+      client: path.resolve(__dirname, 'app/')
+    },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [path.join(__dirname, '..', 'desktop'), path.join(__dirname, '..', 'app'), 'node_modules']
-  },
-
-  optimization: {
-    namedModules: true
   },
 
   plugins: [

@@ -26,7 +26,7 @@ class AutoStartManager {
         name: 'Spacemesh',
         isHidden: true
       });
-      if (StoreService.get({ key: 'isAutoStartEnabled' })) {
+      if (StoreService.get('isAutoStartEnabled')) {
         await this.manager.enable();
       }
     }
@@ -40,7 +40,7 @@ class AutoStartManager {
       } else {
         await this.manager.enable();
       }
-      StoreService.set({ key: 'isAutoStartEnabled', value: !isEnabled });
+      StoreService.set({ isAutoStartEnabled: !isEnabled });
     } catch (error) {
       console.error(error); // eslint-disable-line no-console
     }
@@ -49,7 +49,7 @@ class AutoStartManager {
   isEnabled = async () => {
     try {
       const isEnabled = await this.manager.isEnabled();
-      StoreService.set({ key: 'isAutoStartEnabled', value: isEnabled });
+      StoreService.set({ isAutoStartEnabled: isEnabled });
       return isEnabled;
     } catch (error) {
       return false;
