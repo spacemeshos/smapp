@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-20.04, ubuntu-18.04, windows-latest]
 
     steps:
       - id: latestNode
@@ -47,7 +47,15 @@ jobs:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-      - if: matrix.os == 'ubuntu-latest'
+      - if: matrix.os == 'ubuntu-20.04'
+        name: build linux app
+        run: |
+          curl -L --output ./node/linux/go-spacemesh --create-dirs https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.28/ubuntu-latest/go-spacemesh
+          cd ./node/linux
+          chmod -R +x * .
+          cd ../..
+          yarn package-linux
+      - if: matrix.os == 'ubuntu-18.04'
         name: build linux app
         run: |
           curl -L --output ./node/linux/go-spacemesh --create-dirs https://storage.googleapis.com/go-spacemesh-release-builds/v0.1.28/ubuntu-latest/go-spacemesh
@@ -92,12 +100,19 @@ jobs:
           path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
           destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}
       
-      - if: matrix.os == 'ubuntu-latest'
+      - if: matrix.os == 'ubuntu-20.04'
         name: upload linux build
         uses: google-github-actions/upload-cloud-storage@main
         with:
           path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
-          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/ubuntu20_04
+
+      - if: matrix.os == 'ubuntu-18.04'
+        name: upload linux build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+          destination: ${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/ubuntu18_04
   
   release:
     runs-on: ubuntu-latest
@@ -120,7 +135,8 @@ jobs:
           body: |
             ## Compiled Binaries
             - Windows: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh%20Setup%20${{ steps.package-version.outputs.version }}.exe
-            - Linux: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+            - Ubuntu 20.04: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/ubuntu20_04/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+            - Ubuntu 18.04: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/ubuntu18_04/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
             - Mac: https://storage.googleapis.com/${{ secrets.GCP_BUCKET }}/${{ steps.tagName.outputs.tag }}/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
           draft: true
           prerelease: true

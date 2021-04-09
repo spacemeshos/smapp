@@ -19,12 +19,12 @@
       "atxs-per-block": "25",
       "block-cache-size": "20",
       "genesis-active-size": "100",
-      "genesis-time": "2021-04-04T09:59:47.398+00:00",
+      "genesis-time": "2021-04-08T07:27:32.735+00:00",
       "hdist": "10",
       "layer-average-size": "50",
       "layer-duration-sec": "300",
       "layers-per-epoch": "288",
-      "poet-server": "34.72.16.168:8080",
+      "poet-server": "35.184.17.222:8080",
       "sync-interval": "10",
       "sync-request-timeout": "60000",
       "sync-validation-delta": "30"
@@ -36,23 +36,23 @@
       "max-inbound": "32",
       "max-pending-connections": "100",
       "msg-size-limit": "0",
-      "network-id": "127",
+      "network-id": "28",
       "outbound-target": "10",
       "response-timeout": "60s",
       "session-timeout": "15s",
       "swarm": {
           "alpha": "3",
           "bootnodes": [
-              "spacemesh://65agdpz95i5jQKySWwm7irC9mWZoeYegDddWJjZf2ym1@34.123.124.68:11002",
-              "spacemesh://78rauWWhc8yRu3TtVZa5wv1dDjPjSo3MqBXunC1rdwDK@35.239.63.254:11004",
-              "spacemesh://HCu9QQDDM2YYQ98bbabM9Tizy9HrMQUW1Uu91ciekDXY@34.123.27.14:11008",
-              "spacemesh://Co5dv3XoyH1bmbMjZPrECCBdz6XqiU1WpzkVrHVde5Lo@34.67.96.2:11009",
-              "spacemesh://CuRivQWNGV6igAzVQEFbvy63rC8pc4C4364B3NyQHzqU@34.67.96.2:11006",
-              "spacemesh://CyMUnQeDXGZSr3upUURPFZswvKc6V4sUhvT3GAwZDeeb@34.123.27.14:11001",
-              "spacemesh://tBVTAWkpjYZ6bc5oKbvoNsTTwsjtJ8sH3XqiyMLCq2q@35.239.63.254:11007",
-              "spacemesh://3GaSw1E2XC4iHF6VfbWyENkE1iDGn3HViJchbsR7E64U@34.71.222.138:11010",
-              "spacemesh://APCpDsUrPn3iQqrk4DsVMSotadhWBSEDFcfjz717Wiph@34.123.27.14:11005",
-              "spacemesh://6193LmvRjAAvjFoMjwBr4WPQcziMkyKMvAbabEwKhxrV@34.67.96.2:11003"
+              "spacemesh://FNvaEDjDshE5AC7foDd29VU8gEMdm5kEgqWx9KXHFMDY@34.70.202.250:11001",
+              "spacemesh://97Qiw8LKKmUygVCiYSS47VnmDdo7UZTamyMLnc68PSiW@104.155.137.105:11010",
+              "spacemesh://BJGEtoCD4aqfYD7Hom3XspjaMrPWshuo8E3GsRrh4m6o@34.67.124.219:11003",
+              "spacemesh://6MiwkWxKRs68x6zyT89cQK6Z1caJLNPf3UXyMzex9Cj9@34.70.202.250:11008",
+              "spacemesh://BMeVa35MVur6WxbmKBvwxH1icdj8RPhgBukErhkT8Sxb@34.67.124.219:11009",
+              "spacemesh://E1iAS44cttUsyUwhJjWCjqqrWwLEQuN4QiLJLRC1xH9W@35.223.45.249:11002",
+              "spacemesh://27z15w1DgWSr5ozcxSQFKD4WKmKLadfL72WpFpDZJng6@34.70.202.250:11006",
+              "spacemesh://FzwJhSrFr6YadP5hZpsaRsmEeAFDoiH7fR74y4PMm5UR@35.223.45.249:11005",
+              "spacemesh://ATzrDKZUsrQzUAhm4eG2Wheq2jQejdB2tCU63QLi1c6R@35.226.196.9:11007",
+              "spacemesh://3sqsmsR12uG4EA6NLxfQ44pw59RqYa4682WEE2K5XJzF@35.226.196.9:11004"
           ],
           "bootstrap": true,
           "bucketsize": "20",
@@ -71,24 +71,12 @@
   "telemetry": {
       "channels": "discovery,epoch",
       "enabled": true,
-      "endpoint": "https://us-central1-spacecraft-id.cloudfunctions.net/tweedlelite127"
+      "endpoint": "https://us-central1-spacecraft-id.cloudfunctions.net/tweedlelite128"
   },
   "time": {
       "default-timeout-latency": "10s",
       "max-allowed-time-drift": "10s",
       "ntp-queries": "5",
-      "refresh-ntp-interval": "30m",
-      "ntp-servers": [
-        "0.cn.pool.ntp.org",
-        "1.cn.pool.ntp.org",
-        "2.cn.pool.ntp.org",
-        "3.cn.pool.ntp.org",
-        "time1.cloud.tencent.com",
-        "time2.cloud.tencent.com",
-        "time3.cloud.tencent.com",
-        "time4.cloud.tencent.com",
-        "ntp2.aliyun.com",
-        "ntp4.aliyun.com"
-      ]
+      "refresh-ntp-interval": "30m"
   }
 }
