@@ -14,14 +14,6 @@ jobs:
         os: [macos-latest, ubuntu-20.04, ubuntu-18.04, windows-latest]
 
     steps:
-      - id: latestNode
-        uses: pozetroninc/github-action-get-latest-release@v0.5.0
-        with:
-          repository: spacemeshos/go-spacemesh
-
-      - name: echo latest node repo
-        run: |
-          echo ${{ steps.latestNode.outputs.release }}
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
 
