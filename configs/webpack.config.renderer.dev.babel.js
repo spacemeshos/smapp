@@ -10,10 +10,15 @@ import fs from 'fs';
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import { spawn, execSync } from 'child_process';
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import checkNodeEnv from './checkNodeEnv';
 import baseConfig from './webpack.config.base';
 
-checkNodeEnv('development');
+// When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
+// at the dev webpack config is not accidentally run in a production environment
+if (process.env.NODE_ENV === 'production') {
+  checkNodeEnv('development');
+}
 
 const port = process.env.PORT || 1212;
 const publicPath = `http://localhost:${port}/dist`;
@@ -25,8 +30,8 @@ const requiredByDLLConfig = module.parent.filename.includes('webpack.config.rend
  * Warn if the DLL is not built
  */
 if (!requiredByDLLConfig && !(fs.existsSync(dll) && fs.existsSync(manifest))) {
-  console.log('The DLL files are missing. Sit back while we build them for you with "yarn build-dll"');
-  execSync('yarn build-dll');
+  console.log('The DLL files are missing. Sit back while we build them for you with "yarn postinstall"');
+  execSync('yarn postinstall');
 }
 
 export default merge(baseConfig, {
@@ -57,7 +62,7 @@ export default merge(baseConfig, {
             loader: require.resolve('babel-loader'),
             options: {
               plugins: [
-                require.resolve('react-refresh/babel'),
+                require.resolve('react-refresh/babel')
               ].filter(Boolean)
             }
           }
@@ -126,7 +131,9 @@ export default merge(baseConfig, {
 
     new webpack.LoaderOptionsPlugin({
       debug: true
-    })
+    }),
+
+    new ReactRefreshWebpackPlugin()
   ],
 
   node: {
@@ -148,23 +155,21 @@ export default merge(baseConfig, {
     watchOptions: {
       aggregateTimeout: 300,
       ignored: /node_modules/,
-      poll: 100,
+      poll: 2000
     },
     historyApiFallback: {
       verbose: true,
       disableDotRule: false
     },
     before() {
-      if (process.env.START_HOT) {
-        console.log('Starting Main Process...');
-        spawn('yarn', ['start-main-dev'], {
-          shell: true,
-          env: process.env,
-          stdio: 'inherit'
-        })
-          .on('close', (code) => process.exit(code))
-          .on('error', (spawnError) => console.error(spawnError));
-      }
+      console.log('Starting Main Process...');
+      spawn('yarn', ['start:main'], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit',
+      })
+        .on('close', (code) => process.exit(code))
+        .on('error', (spawnError) => console.error(spawnError));
     }
   }
 });

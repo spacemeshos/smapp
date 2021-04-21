@@ -24,7 +24,7 @@ import StoreService from './storeService';
 import WalletManager from './WalletManager';
 import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
-import SmesherManager from './SmesherManager';
+// import SmesherManager from './SmesherManager';
 import './wasm_exec';
 
 const writeFileAsync = util.promisify(fs.writeFile);
@@ -50,6 +50,10 @@ StoreService.init();
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
+}
+
+if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  require('electron-debug')();
 }
 
 let mainWindow: BrowserWindow;
@@ -126,20 +130,6 @@ const createTray = () => {
   tray.setContextMenu(contextMenu);
 };
 
-const createWindow = () => {
-  mainWindow = new BrowserWindow({
-    show: false,
-    width: 1280,
-    height: 700,
-    minWidth: 1100,
-    minHeight: 680,
-    center: true,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
-};
-
 const createBrowserView = () => {
   browserView = new BrowserView({
     webPreferences: {
@@ -163,7 +153,7 @@ const addIpcEventListeners = () => {
 
   ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
     browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-    browserView.destroy();
+    // browserView.destroy();
   });
 
   ipcMain.on(ipcConsts.OPEN_EXTERNAL_LINK, (_event, request) => {
@@ -197,31 +187,44 @@ const addIpcEventListeners = () => {
   });
 };
 
-const gotTheLock = app.requestSingleInstanceLock();
+// const gotTheLock = app.requestSingleInstanceLock();
+//
+// if (!gotTheLock) {
+//   app.quit();
+// } else {
+//   app.on('second-instance', () => {
+//     if (mainWindow) {
+//       if (mainWindow.isMinimized()) mainWindow.restore();
+//       mainWindow.focus();
+//     }
+//   });
+// }
 
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-}
-
-app.on('ready', async () => {
+const createWindow = async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
     installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
     installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
   }
 
+  mainWindow = new BrowserWindow({
+    show: false,
+    width: 1280,
+    height: 700,
+    minWidth: 1100,
+    minHeight: 680,
+    center: true,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
+
   createTray();
-  createWindow();
 
-  mainWindow.loadURL(`file://${__dirname}/app.html`);
-
-  mainWindow.once('ready-to-show', () => {
+  // @TODO: Use 'ready-to-show' event
+  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
+  mainWindow.webContents.on('did-finish-load', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
@@ -238,6 +241,12 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+
+  // Open urls in the user's browser
+  mainWindow.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    shell.openExternal(url);
+  });
 
   const res = await fetch(DISCOVERY_URL);
   const initialConfig = await res.json();
@@ -261,10 +270,13 @@ app.on('ready', async () => {
   new WalletManager(mainWindow);
   nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
   // eslint-disable-next-line no-new
-  new SmesherManager(mainWindow);
+  // new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
-});
+};
+
+// eslint-disable-next-line no-console
+app.whenReady().then(createWindow).catch(console.log);
 
 app.on('activate', () => {
   if (mainWindow === null) {
