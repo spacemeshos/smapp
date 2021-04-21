@@ -21,7 +21,7 @@ export interface NodeState {
 }
 
 export interface WalletState {
-  walletFiles: Array<string>;
+  walletFiles: Array<string> | null;
   meta: WalletMeta | any;
   mnemonic: string;
   accounts: Array<Account> | [];

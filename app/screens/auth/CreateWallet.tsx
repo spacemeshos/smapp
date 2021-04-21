@@ -117,7 +117,7 @@ const CreateWallet = ({ history, location }: Props) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      dispatch(await createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
+      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
       setSubMode(2);
       setIsLoaderVisible(false);
     }

@@ -68,7 +68,7 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const setupAndInitMining = async () => {
     // @ts-ignore
-    dispatch(await createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, throttle, providerId: provider.id }));
+    await dispatch(createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, throttle, providerId: provider.id }));
     history.push('/main/node', { showIntro: true });
   };
 
@@ -81,7 +81,7 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handleDeletePosData = async () => {
-    dispatch(await deletePosData());
+    await dispatch(deletePosData());
     history.push('/main/wallet/');
   };
 

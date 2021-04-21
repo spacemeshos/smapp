@@ -24,15 +24,6 @@ const InnerWrapper = styled.div`
   padding: 25px 15px;
 `;
 
-const Header = styled.div`
-  align-self: center;
-  margin-bottom: 10px;
-  font-size: 15px;
-  line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
-  font-family: SourceCodeProBold;
-`;
-
 const StepContainer = styled.div<{ isFuture: boolean; key: string }>`
   display: flex;
   flex-direction: row;
@@ -82,20 +73,18 @@ const Icon = styled.img`
 
 type Props = {
   steps: Array<string>;
-  header?: string;
   currentStep: number;
   isDarkMode: boolean;
 };
 
-const StepsContainer = ({ steps, header, currentStep, isDarkMode }: Props) => {
+const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   const checkIcon = isDarkMode ? checkWhite : checkBlack;
   return (
-    <Wrapper style={{ height: `${steps.length <= 1 ? '190px' : '110px'}` }}>
+    <Wrapper style={{ height: `${steps.length * 32 + 35}px` }}>
       <SideBar src={leftImg} />
       <InnerWrapper>
-        <Header>{header}</Header>
         {steps.map((step, index) => (
           <StepContainer key={`step${index}`} isFuture={index > currentStep}>
             <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>

@@ -90,7 +90,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
 
   return (
     <Wrapper>
-      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} header={''} currentStep={0} isDarkMode={isDarkMode} />
+      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={0} isDarkMode={isDarkMode} />
       <CorneredContainer
         width={650}
         height={400}
