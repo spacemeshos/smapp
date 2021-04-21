@@ -1,9 +1,5 @@
 const Store = require('electron-store');
 
-// data schema:
-//
-//
-
 class StoreService {
   static store: typeof Store;
 

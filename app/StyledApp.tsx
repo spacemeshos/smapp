@@ -23,7 +23,7 @@ const StyledApp = () => {
           {routes.app.map((route) => (
             <Route key={route.path} path={route.path} component={route.component} />
           ))}
-          <Redirect to="/pre" />
+          <Redirect to="/auth" />
         </Switch>
       </Router>
     </ThemeProvider>

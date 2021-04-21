@@ -11,25 +11,27 @@ import baseConfig from './webpack.config.base';
 
 checkNodeEnv('production');
 
+const devtoolsConfig = process.env.DEBUG_PROD === 'true' ? { devtool: 'source-map' } : {};
+
 export default merge(baseConfig, {
-  devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
+  ...devtoolsConfig,
 
   mode: 'production',
 
   target: 'electron-main',
 
-  entry: './desktop/main.dev.ts',
+  entry: '../desktop/main.dev.ts',
 
   output: {
     path: path.join(__dirname, '..'),
-    filename: './desktop/main.prod.js',
+    filename: '../desktop/main.prod.js',
   },
 
   optimization: {
     minimizer: [
       new TerserPlugin({
-        parallel: true,
-      }),
+        parallel: true
+      })
     ]
   },
 
@@ -37,7 +39,7 @@ export default merge(baseConfig, {
     new BundleAnalyzerPlugin({
       analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true',
+      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
     }),
 
     /**
@@ -53,7 +55,7 @@ export default merge(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: false,
       START_MINIMIZED: false
-    }),
+    })
   ],
 
   /**
@@ -63,6 +65,6 @@ export default merge(baseConfig, {
    */
   node: {
     __dirname: false,
-    __filename: false,
-  },
+    __filename: false
+  }
 });

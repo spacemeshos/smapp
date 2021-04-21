@@ -4,10 +4,9 @@
 
 import path from 'path';
 import webpack from 'webpack';
-import { dependencies as externals } from '../package.json';
 
 export default {
-  externals: [...Object.keys(externals || {})],
+  externals: [],
 
   module: {
     rules: [
@@ -25,7 +24,7 @@ export default {
   },
 
   output: {
-    path: path.join(__dirname, '..', 'app'),
+    path: path.join(__dirname, '../app'),
     // https://github.com/webpack/webpack/issues/1114
     libraryTarget: 'commonjs2'
   },
@@ -38,7 +37,7 @@ export default {
       client: path.resolve(__dirname, 'app/')
     },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [path.join(__dirname, '..', 'desktop'), path.join(__dirname, '..', 'app'), 'node_modules']
+    modules: [path.join(__dirname, '../app'), path.join(__dirname, '../desktop'), 'node_modules']
   },
 
   plugins: [

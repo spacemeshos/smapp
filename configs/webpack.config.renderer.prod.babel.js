@@ -12,15 +12,14 @@ import checkNodeEnv from './checkNodeEnv';
 
 checkNodeEnv('production');
 
+const devtoolsConfig = process.env.DEBUG_PROD === 'true' ? { devtool: 'source-map' } : {};
+
 export default merge(baseConfig, {
-  devtool: process.env.DEBUG_PROD === 'true' ? 'source-map' : 'none',
+  ...devtoolsConfig,
 
   mode: 'production',
 
-  target:
-    process.env.E2E_BUILD || process.env.ERB_SECURE !== 'true'
-      ? 'electron-renderer'
-      : 'electron-preload',
+  target: 'electron-renderer',
 
   entry: [
     'core-js',
@@ -29,8 +28,8 @@ export default merge(baseConfig, {
   ],
 
   output: {
-    path: path.join(__dirname, '../desktop/dist'),
-    publicPath: './desktop/dist/',
+    path: path.join(__dirname, '../dist'),
+    publicPath: './dist/',
     filename: 'renderer.prod.js',
   },
 
@@ -74,7 +73,7 @@ export default merge(baseConfig, {
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        parallel: true,
+        parallel: true
       })
     ]
   },
