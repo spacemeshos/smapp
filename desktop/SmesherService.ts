@@ -29,7 +29,7 @@ class SmesherService extends NetServiceFactory {
   stream: any = null;
 
   createService = () => {
-    super.createNetService(PROTO_PATH, '', '', 'SmesherService');
+    this.createNetService(PROTO_PATH, '', '', 'SmesherService');
   };
 
   isSmeshing = () =>

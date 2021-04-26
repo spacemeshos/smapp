@@ -7,7 +7,7 @@ const PROTO_PATH = 'proto/mesh.proto';
 
 class MeshService extends NetServiceFactory {
   createService = (url: string, port: string) => {
-    super.createNetService(PROTO_PATH, url, port, 'MeshService');
+    this.createNetService(PROTO_PATH, url, port, 'MeshService');
   };
 
   getCurrentLayer = () =>

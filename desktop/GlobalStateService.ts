@@ -8,7 +8,7 @@ const PROTO_PATH = 'proto/global_state.proto';
 
 class GlobalStateService extends NetServiceFactory {
   createService = (url: string, port: string) => {
-    super.createNetService(PROTO_PATH, url, port, 'GlobalStateService');
+    this.createNetService(PROTO_PATH, url, port, 'GlobalStateService');
   };
 
   getGlobalStateHash = () =>

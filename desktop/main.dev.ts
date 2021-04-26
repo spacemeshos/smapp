@@ -12,9 +12,10 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import util from 'util';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
+import os from 'os';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell, session } from 'electron';
 import 'regenerator-runtime/runtime';
-import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+// import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
@@ -202,14 +203,14 @@ const addIpcEventListeners = () => {
 
 const createWindow = async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    // await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi'), {
-    //   allowFileAccess: true
-    // });
-    // await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd'), {
-    //   allowFileAccess: true
-    // });
+    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.12.3_0'), {
+      allowFileAccess: true
+    });
+    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'), {
+      allowFileAccess: true
+    });
   }
 
   mainWindow = new BrowserWindow({
@@ -255,7 +256,7 @@ const createWindow = async () => {
   });
 
   const res = await fetch(DISCOVERY_URL);
-  const initialConfig = await res.json();
+  const initialConfig = (await res.json())[0];
   const savedNetId = StoreService.get('netSettings.netId');
   const cleanStart = savedNetId !== initialConfig.netID;
   const configFilePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');

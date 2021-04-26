@@ -8,7 +8,7 @@ class NodeService extends NetServiceFactory {
   private stream;
 
   createService = () => {
-    super.createNetService(PROTO_PATH, '', '', 'NodeService');
+    this.createNetService(PROTO_PATH, '', '', 'NodeService');
   };
 
   getNodeVersion = () =>
@@ -43,18 +43,19 @@ class NodeService extends NetServiceFactory {
           logger.error('grpc Status', error);
           resolve({ status: null, error });
         }
+        console.log(`response: ${response}`);
         // eslint-disable-next-line @typescript-eslint/naming-convention
-        const { connected_peers, is_synced, synced_layer, top_layer, verified_layer } = response;
-        resolve({
-          status: {
-            connectedPeers: parseInt(connected_peers),
-            isSynced: is_synced,
-            syncedLayer: synced_layer.number,
-            topLayer: top_layer.number,
-            verifiedLayer: verified_layer.number
-          },
-          error: null
-        });
+        // const { connected_peers, is_synced, synced_layer, top_layer, verified_layer } = response;
+        // resolve({
+        //   status: {
+        //     connectedPeers: parseInt(connected_peers),
+        //     isSynced: is_synced,
+        //     syncedLayer: synced_layer.number,
+        //     topLayer: top_layer.number,
+        //     verifiedLayer: verified_layer.number
+        //   },
+        //   error: null
+        // });
       });
     });
 
@@ -74,18 +75,19 @@ class NodeService extends NetServiceFactory {
     // @ts-ignore
     this.stream = this.service.StatusStream({});
     this.stream.on('data', (response: any) => {
+      console.log(`response: ${response}`);
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { connected_peers, is_synced, synced_layer, top_layer, verified_layer } = response;
-      handler({
-        status: {
-          connectedPeers: parseInt(connected_peers),
-          isSynced: is_synced,
-          syncedLayer: synced_layer.number,
-          topLayer: top_layer.number,
-          verifiedLayer: verified_layer.number
-        },
-        error: null
-      });
+      // const { connected_peers, is_synced, synced_layer, top_layer, verified_layer } = response;
+      // handler({
+      //   status: {
+      //     connectedPeers: parseInt(connected_peers),
+      //     isSynced: is_synced,
+      //     syncedLayer: synced_layer.number,
+      //     topLayer: top_layer.number,
+      //     verifiedLayer: verified_layer.number
+      //   },
+      //   error: null
+      // });
     });
     this.stream.on('error', (error: any) => {
       logger.error('grpc StatusStream', error);
