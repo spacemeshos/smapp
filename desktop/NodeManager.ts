@@ -1,12 +1,14 @@
 import path from 'path';
 import os from 'os';
+import fs from 'fs';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService from './NodeService';
 
-const { execSync } = require('child_process');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 const find = require('find-process');
 
@@ -17,8 +19,6 @@ const osTargetNames = {
   Linux: 'linux',
   Windows_NT: 'windows'
 };
-
-const DEFAULT_TCP_PORT = '7152';
 
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
@@ -57,7 +57,7 @@ class NodeManager {
     });
   };
 
-  startNode = () => {
+  startNode = async () => {
     try {
       const userDataPath = app.getPath('userData');
       const nodePath = path.resolve(
@@ -66,39 +66,37 @@ class NodeManager {
         `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
       );
       const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
+      console.log(nodeDataFilesPath);
       const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
       if (this.cleanStart) {
-        const command = os.type() === 'Windows_NT' ? `if exist ${logFilePath} del ${logFilePath}` : `rm -rf ${logFilePath}`;
-        execSync(command, (err: any) => {
-          if (!err) {
-            const nodePathWithParams = `"${nodePath}" --tcp-port ${DEFAULT_TCP_PORT} --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-            execSync(nodePathWithParams, (error: any) => {
-              if (error) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
-                logger.error('startNode', error);
-              }
-            });
-          } else {
-            dialog.showErrorBox('Old data files removal failed', `${err}`);
-            logger.error('startNode', err);
-          }
-        });
+        if (fs.existsSync(logFilePath)) {
+          fs.unlinkSync(logFilePath);
+        }
+        const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
+        console.log(nodePathWithParams);
+        const { stderr } = await exec(nodePathWithParams);
+        if (stderr) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${stderr}`);
+          logger.error('startNode', stderr);
+        } else {
+          console.log('started local node'); // eslint-disable-line no-console
+        }
       } else {
         const savedSmeshingParams = StoreService.get('smeshingParams');
-        const nodePathWithParams = `"${nodePath}" --tcp-port ${DEFAULT_TCP_PORT} --config "${this.configFilePath}"${
+        const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}"${
           savedSmeshingParams ? ` --coinbase 0x${savedSmeshingParams.coinbase} --start-mining --post-datadir "${savedSmeshingParams.dataDir}"` : ''
         } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
-        execSync(nodePathWithParams, (error: any) => {
-          if (error) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
-            logger.error('startNode', error);
-          } else {
-            console.log('started node');
-          }
-        });
+        console.log(nodeDataFilesPath);
+        const { stderr } = await exec(nodePathWithParams);
+        if (stderr) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${stderr}`);
+          logger.error('startNode', stderr);
+        } else {
+          console.log('started local node'); // eslint-disable-line no-console
+        }
       }
     } catch (e) {
       logger.error('startNode', e);
@@ -117,7 +115,7 @@ class NodeManager {
     if (!res.shuttingDown) {
       const nodeProcesses = await find('name', 'go-spacemesh');
       if (nodeProcesses && nodeProcesses.length) {
-        execSync(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`);
+        await exec(os.type() === 'Windows_NT' ? 'taskkill /F /IM go-spacemesh.exe' : `kill -9 ${nodeProcesses[1].pid}`);
       }
     }
   };
