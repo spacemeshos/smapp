@@ -1,82 +1,101 @@
 {
-  "api": {
-      "grpc": "node,mesh,globalstate,transaction,smesher"
-  },
-  "hare": {
-      "hare-committee-size": "50",
-      "hare-exp-leaders": "5",
-      "hare-limit-concurrent": "5",
-      "hare-limit-iterations": "2",
-      "hare-max-adversaries": "24",
-      "hare-round-duration-sec": "30",
-      "hare-wakeup-delta": "30"
-  },
-  "hare-eligibility": {
-      "eligibility-confidence-param": "100",
-      "eligibility-epoch-offset": "0"
-  },
-  "main": {
-      "atxs-per-block": "25",
-      "block-cache-size": "20",
-      "genesis-active-size": "100",
-      "genesis-time": "2021-04-08T07:27:32.735+00:00",
-      "hdist": "10",
-      "layer-average-size": "50",
-      "layer-duration-sec": "300",
-      "layers-per-epoch": "288",
-      "poet-server": "35.184.17.222:8080",
-      "sync-interval": "10",
-      "sync-request-timeout": "60000",
-      "sync-validation-delta": "30"
-  },
-  "p2p": {
-      "buffer-size": "10000",
-      "conn-keepalive": "48h",
-      "dial-timeout": "1m",
-      "max-inbound": "32",
-      "max-pending-connections": "100",
-      "msg-size-limit": "0",
-      "network-id": "28",
-      "outbound-target": "10",
-      "response-timeout": "60s",
-      "session-timeout": "15s",
-      "swarm": {
-          "alpha": "3",
-          "bootnodes": [
-              "spacemesh://FNvaEDjDshE5AC7foDd29VU8gEMdm5kEgqWx9KXHFMDY@34.70.202.250:11001",
-              "spacemesh://97Qiw8LKKmUygVCiYSS47VnmDdo7UZTamyMLnc68PSiW@104.155.137.105:11010",
-              "spacemesh://BJGEtoCD4aqfYD7Hom3XspjaMrPWshuo8E3GsRrh4m6o@34.67.124.219:11003",
-              "spacemesh://6MiwkWxKRs68x6zyT89cQK6Z1caJLNPf3UXyMzex9Cj9@34.70.202.250:11008",
-              "spacemesh://BMeVa35MVur6WxbmKBvwxH1icdj8RPhgBukErhkT8Sxb@34.67.124.219:11009",
-              "spacemesh://E1iAS44cttUsyUwhJjWCjqqrWwLEQuN4QiLJLRC1xH9W@35.223.45.249:11002",
-              "spacemesh://27z15w1DgWSr5ozcxSQFKD4WKmKLadfL72WpFpDZJng6@34.70.202.250:11006",
-              "spacemesh://FzwJhSrFr6YadP5hZpsaRsmEeAFDoiH7fR74y4PMm5UR@35.223.45.249:11005",
-              "spacemesh://ATzrDKZUsrQzUAhm4eG2Wheq2jQejdB2tCU63QLi1c6R@35.226.196.9:11007",
-              "spacemesh://3sqsmsR12uG4EA6NLxfQ44pw59RqYa4682WEE2K5XJzF@35.226.196.9:11004"
-          ],
-          "bootstrap": true,
-          "bucketsize": "20",
-          "randcon": "8"
-      }
-  },
-  "post": {
-      "post-labels": "50",
-      "post-space": "4294967296"
-  },
-  "reward": {
-      "base-reward": {
-          "abs": "50000000000000"
-      }
-  },
-  "telemetry": {
-      "channels": "discovery,epoch",
-      "enabled": true,
-      "endpoint": "https://us-central1-spacecraft-id.cloudfunctions.net/tweedlelite128"
-  },
-  "time": {
-    "default-timeout-latency": "10s",
-    "max-allowed-time-drift": "10s",
-    "ntp-queries": "5",
-    "refresh-ntp-interval": "30m"
-  }
+	"api": {
+		"grpc": "node,mesh,globalstate,transaction,smesher"
+	},
+	"hare": {
+		"hare-committee-size": 60,
+		"hare-exp-leaders": 5,
+		"hare-limit-concurrent": 5,
+		"hare-limit-iterations": 2,
+		"hare-max-adversaries": 29,
+		"hare-round-duration-sec": 30,
+		"hare-wakeup-delta": 30
+	},
+	"hare-eligibility": {
+		"eligibility-confidence-param": 100,
+		"eligibility-epoch-offset": 0
+	},
+	"logging": {
+		"app": "info",
+		"atx-builder": "info",
+		"atxDb": "info",
+		"block-builder": "info",
+		"block-eligibility": "info",
+		"block-listener": "info",
+		"block-oracle": "info",
+		"hare": "info",
+		"hare-beacon": "info",
+		"hare-oracle": "info",
+		"mesh": "info",
+		"meshDb": "info",
+		"nipst": "info",
+		"p2p": "debug",
+		"poet": "info",
+		"poetDb": "info",
+		"post": "info",
+		"state": "info",
+		"stateDb": "info",
+		"store": "info",
+		"sync": "info",
+		"trtl": "info"
+	},
+	"main": {
+		"atxs-per-block": 25,
+		"block-cache-size": 20,
+		"genesis-active-size": 100,
+		"genesis-time": "2021-05-04T20:45:48+05:30",
+		"hdist": 10,
+		"layer-average-size": 50,
+		"layer-duration-sec": 300,
+		"layers-per-epoch": 288,
+		"poet-server": "35.202.210.130:32544",
+		"sync-interval": 10,
+		"sync-request-timeout": 60000,
+		"sync-validation-delta": 30
+	},
+	"p2p": {
+		"buffer-size": 10000,
+		"conn-keepalive": "48h",
+		"dial-timeout": "1m",
+		"max-inbound": 32,
+		"max-pending-connections": 100,
+		"msg-size-limit": 0,
+		"network-id": 29,
+		"outbound-target": 10,
+		"response-timeout": "60s",
+		"session-timeout": "15s",
+		"swarm": {
+			"alpha": 3,
+			"bootnodes": [
+				"spacemesh://5xZL87B8rzDTP37FWunn6x1CGTZZDN17Z8PxjX9mhd4p@35.188.114.117:5006",
+				"spacemesh://F4h2B3sQtSXrVrCdErk2anTbzpiogTPVRr8TpzeqH6v8@34.122.225.93:5007",
+				"spacemesh://Fmsvfez9BcCNGzvBJDzpGMaBmT6TD3HU5NJimhR6n4Zv@104.155.146.224:5008",
+				"spacemesh://2m74hTkPeqPR63zcnZkoxHAnaHmquqL1B3YGKJfHQHLw@35.202.76.18:5009",
+				"spacemesh://DYXKJdZpWinqaaEUSyfQVYnEabctRhYaUPXHLpRPZEtS@35.188.70.185:5010",
+				"spacemesh://GvCcUApaepC6YGX4tva8Jqstd9W29gDyfDKMgukGrqaj@35.188.125.77:5002",
+				"spacemesh://6FPcBBKMNshZCA1NqebXpc4GmoNH5Cwgorp7PBn8QmaZ@35.193.13.89:5004",
+				"spacemesh://6pPMqUKWS9yTcpukjnTsfGnE3dAT5gJV9RqYGJLZ7aTC@35.193.170.234:5005",
+				"spacemesh://23f2TL76s5nAqgJaE99GowMkxCLrS2q2YSfbawtzSbTx@34.122.204.180:5011",
+				"spacemesh://Gzy7GHeDNtHnhXkDHpf3bD6QkMYoF2xqxveqEZZs1DJd@34.67.124.219:5003"
+			],
+			"bootstrap": true,
+			"bucketsize": 20,
+			"randcon": 8
+		}
+	},
+	"post": {
+		"post-labels": 50,
+		"post-space": 4294967296
+	},
+	"reward": {
+		"base-reward": {
+			"abs": 50000000000000
+		}
+	},
+	"time": {
+		"default-timeout-latency": "10s",
+		"max-allowed-time-drift": "10s",
+		"ntp-queries": 5,
+		"refresh-ntp-interval": "30m"
+	}
 }
