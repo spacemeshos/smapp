@@ -15,19 +15,19 @@ var types_pb = require('./types_pb.js');
 var google_rpc_status_pb = require('./google/rpc/status_pb.js');
 goog.exportSymbol('proto.spacemesh.v1.CoinbaseResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.ComputeApiClass', null, global);
+goog.exportSymbol('proto.spacemesh.v1.ConfigResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.CreatePostDataRequest', null, global);
-goog.exportSymbol('proto.spacemesh.v1.CreatePostDataResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.EstimatedRewardsRequest', null, global);
 goog.exportSymbol('proto.spacemesh.v1.EstimatedRewardsResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.IsSmeshingResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.MinGasResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.PostComputeProvider', null, global);
+goog.exportSymbol('proto.spacemesh.v1.PostComputeProvidersRequest', null, global);
 goog.exportSymbol('proto.spacemesh.v1.PostComputeProvidersResponse', null, global);
-goog.exportSymbol('proto.spacemesh.v1.PostData', null, global);
 goog.exportSymbol('proto.spacemesh.v1.PostDataCreationProgressStreamResponse', null, global);
+goog.exportSymbol('proto.spacemesh.v1.PostInitOpts', null, global);
 goog.exportSymbol('proto.spacemesh.v1.PostStatus', null, global);
-goog.exportSymbol('proto.spacemesh.v1.PostStatus.ErrorType', null, global);
-goog.exportSymbol('proto.spacemesh.v1.PostStatus.FilesStatus', null, global);
+goog.exportSymbol('proto.spacemesh.v1.PostStatus.InitStatus', null, global);
 goog.exportSymbol('proto.spacemesh.v1.PostStatusResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.SetCoinbaseRequest', null, global);
 goog.exportSymbol('proto.spacemesh.v1.SetCoinbaseResponse', null, global);
@@ -36,8 +36,6 @@ goog.exportSymbol('proto.spacemesh.v1.SetMinGasResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.SmesherIDResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.StartSmeshingRequest', null, global);
 goog.exportSymbol('proto.spacemesh.v1.StartSmeshingResponse', null, global);
-goog.exportSymbol('proto.spacemesh.v1.StopPostDataCreationSessionRequest', null, global);
-goog.exportSymbol('proto.spacemesh.v1.StopPostDataCreationSessionResponse', null, global);
 goog.exportSymbol('proto.spacemesh.v1.StopSmeshingRequest', null, global);
 goog.exportSymbol('proto.spacemesh.v1.StopSmeshingResponse', null, global);
 
@@ -232,8 +230,7 @@ proto.spacemesh.v1.StartSmeshingRequest.prototype.toObject = function(opt_includ
 proto.spacemesh.v1.StartSmeshingRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     coinbase: (f = msg.getCoinbase()) && types_pb.AccountId.toObject(includeInstance, f),
-    dataDir: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    commitmentSize: (f = msg.getCommitmentSize()) && types_pb.SimpleInt.toObject(includeInstance, f)
+    opts: (f = msg.getOpts()) && proto.spacemesh.v1.PostInitOpts.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -276,13 +273,9 @@ proto.spacemesh.v1.StartSmeshingRequest.deserializeBinaryFromReader = function(m
       msg.setCoinbase(value);
       break;
     case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setDataDir(value);
-      break;
-    case 3:
-      var value = new types_pb.SimpleInt;
-      reader.readMessage(value,types_pb.SimpleInt.deserializeBinaryFromReader);
-      msg.setCommitmentSize(value);
+      var value = new proto.spacemesh.v1.PostInitOpts;
+      reader.readMessage(value,proto.spacemesh.v1.PostInitOpts.deserializeBinaryFromReader);
+      msg.setOpts(value);
       break;
     default:
       reader.skipField();
@@ -321,19 +314,12 @@ proto.spacemesh.v1.StartSmeshingRequest.serializeBinaryToWriter = function(messa
       types_pb.AccountId.serializeBinaryToWriter
     );
   }
-  f = message.getDataDir();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
-  f = message.getCommitmentSize();
+  f = message.getOpts();
   if (f != null) {
     writer.writeMessage(
-      3,
+      2,
       f,
-      types_pb.SimpleInt.serializeBinaryToWriter
+      proto.spacemesh.v1.PostInitOpts.serializeBinaryToWriter
     );
   }
 };
@@ -370,38 +356,23 @@ proto.spacemesh.v1.StartSmeshingRequest.prototype.hasCoinbase = function() {
 
 
 /**
- * optional string data_dir = 2;
- * @return {string}
+ * optional PostInitOpts opts = 2;
+ * @return {?proto.spacemesh.v1.PostInitOpts}
  */
-proto.spacemesh.v1.StartSmeshingRequest.prototype.getDataDir = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+proto.spacemesh.v1.StartSmeshingRequest.prototype.getOpts = function() {
+  return /** @type{?proto.spacemesh.v1.PostInitOpts} */ (
+    jspb.Message.getWrapperField(this, proto.spacemesh.v1.PostInitOpts, 2));
 };
 
 
-/** @param {string} value */
-proto.spacemesh.v1.StartSmeshingRequest.prototype.setDataDir = function(value) {
-  jspb.Message.setProto3StringField(this, 2, value);
+/** @param {?proto.spacemesh.v1.PostInitOpts|undefined} value */
+proto.spacemesh.v1.StartSmeshingRequest.prototype.setOpts = function(value) {
+  jspb.Message.setWrapperField(this, 2, value);
 };
 
 
-/**
- * optional SimpleInt commitment_size = 3;
- * @return {?proto.spacemesh.v1.SimpleInt}
- */
-proto.spacemesh.v1.StartSmeshingRequest.prototype.getCommitmentSize = function() {
-  return /** @type{?proto.spacemesh.v1.SimpleInt} */ (
-    jspb.Message.getWrapperField(this, types_pb.SimpleInt, 3));
-};
-
-
-/** @param {?proto.spacemesh.v1.SimpleInt|undefined} value */
-proto.spacemesh.v1.StartSmeshingRequest.prototype.setCommitmentSize = function(value) {
-  jspb.Message.setWrapperField(this, 3, value);
-};
-
-
-proto.spacemesh.v1.StartSmeshingRequest.prototype.clearCommitmentSize = function() {
-  this.setCommitmentSize(undefined);
+proto.spacemesh.v1.StartSmeshingRequest.prototype.clearOpts = function() {
+  this.setOpts(undefined);
 };
 
 
@@ -409,8 +380,8 @@ proto.spacemesh.v1.StartSmeshingRequest.prototype.clearCommitmentSize = function
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.spacemesh.v1.StartSmeshingRequest.prototype.hasCommitmentSize = function() {
-  return jspb.Message.getField(this, 3) != null;
+proto.spacemesh.v1.StartSmeshingRequest.prototype.hasOpts = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -1538,324 +1509,6 @@ proto.spacemesh.v1.SetMinGasResponse.prototype.hasStatus = function() {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.spacemesh.v1.CreatePostDataResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.spacemesh.v1.CreatePostDataResponse, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  proto.spacemesh.v1.CreatePostDataResponse.displayName = 'proto.spacemesh.v1.CreatePostDataResponse';
-}
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto suitable for use in Soy templates.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
- * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
- *     for transitional soy proto support: http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.spacemesh.v1.CreatePostDataResponse.prototype.toObject = function(opt_includeInstance) {
-  return proto.spacemesh.v1.CreatePostDataResponse.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Whether to include the JSPB
- *     instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.spacemesh.v1.CreatePostDataResponse} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.spacemesh.v1.CreatePostDataResponse.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    status: (f = msg.getStatus()) && google_rpc_status_pb.Status.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.spacemesh.v1.CreatePostDataResponse}
- */
-proto.spacemesh.v1.CreatePostDataResponse.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.spacemesh.v1.CreatePostDataResponse;
-  return proto.spacemesh.v1.CreatePostDataResponse.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.spacemesh.v1.CreatePostDataResponse} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.spacemesh.v1.CreatePostDataResponse}
- */
-proto.spacemesh.v1.CreatePostDataResponse.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new google_rpc_status_pb.Status;
-      reader.readMessage(value,google_rpc_status_pb.Status.deserializeBinaryFromReader);
-      msg.setStatus(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.spacemesh.v1.CreatePostDataResponse.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.spacemesh.v1.CreatePostDataResponse.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.spacemesh.v1.CreatePostDataResponse} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.spacemesh.v1.CreatePostDataResponse.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getStatus();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      google_rpc_status_pb.Status.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional google.rpc.Status status = 1;
- * @return {?proto.google.rpc.Status}
- */
-proto.spacemesh.v1.CreatePostDataResponse.prototype.getStatus = function() {
-  return /** @type{?proto.google.rpc.Status} */ (
-    jspb.Message.getWrapperField(this, google_rpc_status_pb.Status, 1));
-};
-
-
-/** @param {?proto.google.rpc.Status|undefined} value */
-proto.spacemesh.v1.CreatePostDataResponse.prototype.setStatus = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-proto.spacemesh.v1.CreatePostDataResponse.prototype.clearStatus = function() {
-  this.setStatus(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.spacemesh.v1.CreatePostDataResponse.prototype.hasStatus = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
-
-
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.spacemesh.v1.StopPostDataCreationSessionResponse, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  proto.spacemesh.v1.StopPostDataCreationSessionResponse.displayName = 'proto.spacemesh.v1.StopPostDataCreationSessionResponse';
-}
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto suitable for use in Soy templates.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
- * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
- *     for transitional soy proto support: http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.prototype.toObject = function(opt_includeInstance) {
-  return proto.spacemesh.v1.StopPostDataCreationSessionResponse.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Whether to include the JSPB
- *     instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.spacemesh.v1.StopPostDataCreationSessionResponse} msg The msg instance to transform.
- * @return {!Object}
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    status: (f = msg.getStatus()) && google_rpc_status_pb.Status.toObject(includeInstance, f)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.spacemesh.v1.StopPostDataCreationSessionResponse}
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.spacemesh.v1.StopPostDataCreationSessionResponse;
-  return proto.spacemesh.v1.StopPostDataCreationSessionResponse.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.spacemesh.v1.StopPostDataCreationSessionResponse} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.spacemesh.v1.StopPostDataCreationSessionResponse}
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = new google_rpc_status_pb.Status;
-      reader.readMessage(value,google_rpc_status_pb.Status.deserializeBinaryFromReader);
-      msg.setStatus(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  proto.spacemesh.v1.StopPostDataCreationSessionResponse.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the given message to binary data (in protobuf wire
- * format), writing to the given BinaryWriter.
- * @param {!proto.spacemesh.v1.StopPostDataCreationSessionResponse} message
- * @param {!jspb.BinaryWriter} writer
- * @suppress {unusedLocalVariables} f is only used for nested messages
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.serializeBinaryToWriter = function(message, writer) {
-  var f = undefined;
-  f = message.getStatus();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      google_rpc_status_pb.Status.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * optional google.rpc.Status status = 1;
- * @return {?proto.google.rpc.Status}
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.prototype.getStatus = function() {
-  return /** @type{?proto.google.rpc.Status} */ (
-    jspb.Message.getWrapperField(this, google_rpc_status_pb.Status, 1));
-};
-
-
-/** @param {?proto.google.rpc.Status|undefined} value */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.prototype.setStatus = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.prototype.clearStatus = function() {
-  this.setStatus(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {!boolean}
- */
-proto.spacemesh.v1.StopPostDataCreationSessionResponse.prototype.hasStatus = function() {
-  return jspb.Message.getField(this, 1) != null;
-};
-
-
-
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
 proto.spacemesh.v1.SmesherIDResponse = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
@@ -2565,12 +2218,12 @@ proto.spacemesh.v1.PostComputeProvidersResponse.prototype.clearPostComputeProvid
  * @extends {jspb.Message}
  * @constructor
  */
-proto.spacemesh.v1.PostData = function(opt_data) {
+proto.spacemesh.v1.PostInitOpts = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.spacemesh.v1.PostData, jspb.Message);
+goog.inherits(proto.spacemesh.v1.PostInitOpts, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.spacemesh.v1.PostData.displayName = 'proto.spacemesh.v1.PostData';
+  proto.spacemesh.v1.PostInitOpts.displayName = 'proto.spacemesh.v1.PostInitOpts';
 }
 
 
@@ -2585,8 +2238,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.spacemesh.v1.PostData.prototype.toObject = function(opt_includeInstance) {
-  return proto.spacemesh.v1.PostData.toObject(opt_includeInstance, this);
+proto.spacemesh.v1.PostInitOpts.prototype.toObject = function(opt_includeInstance) {
+  return proto.spacemesh.v1.PostInitOpts.toObject(opt_includeInstance, this);
 };
 
 
@@ -2595,17 +2248,17 @@ proto.spacemesh.v1.PostData.prototype.toObject = function(opt_includeInstance) {
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.spacemesh.v1.PostData} msg The msg instance to transform.
+ * @param {!proto.spacemesh.v1.PostInitOpts} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.spacemesh.v1.PostData.toObject = function(includeInstance, msg) {
+proto.spacemesh.v1.PostInitOpts.toObject = function(includeInstance, msg) {
   var f, obj = {
-    path: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    dataSize: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    append: jspb.Message.getFieldWithDefault(msg, 3, false),
-    throttle: jspb.Message.getFieldWithDefault(msg, 4, false),
-    providerId: jspb.Message.getFieldWithDefault(msg, 5, 0)
+    dataDir: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    numUnits: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    numFiles: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    computeProviderId: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    throttle: jspb.Message.getFieldWithDefault(msg, 5, false)
   };
 
   if (includeInstance) {
@@ -2619,23 +2272,23 @@ proto.spacemesh.v1.PostData.toObject = function(includeInstance, msg) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.spacemesh.v1.PostData}
+ * @return {!proto.spacemesh.v1.PostInitOpts}
  */
-proto.spacemesh.v1.PostData.deserializeBinary = function(bytes) {
+proto.spacemesh.v1.PostInitOpts.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.spacemesh.v1.PostData;
-  return proto.spacemesh.v1.PostData.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.spacemesh.v1.PostInitOpts;
+  return proto.spacemesh.v1.PostInitOpts.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.spacemesh.v1.PostData} msg The message object to deserialize into.
+ * @param {!proto.spacemesh.v1.PostInitOpts} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.spacemesh.v1.PostData}
+ * @return {!proto.spacemesh.v1.PostInitOpts}
  */
-proto.spacemesh.v1.PostData.deserializeBinaryFromReader = function(msg, reader) {
+proto.spacemesh.v1.PostInitOpts.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -2644,23 +2297,23 @@ proto.spacemesh.v1.PostData.deserializeBinaryFromReader = function(msg, reader) 
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setPath(value);
+      msg.setDataDir(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setDataSize(value);
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setNumUnits(value);
       break;
     case 3:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setAppend(value);
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setNumFiles(value);
       break;
     case 4:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setThrottle(value);
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setComputeProviderId(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setProviderId(value);
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setThrottle(value);
       break;
     default:
       reader.skipField();
@@ -2675,9 +2328,9 @@ proto.spacemesh.v1.PostData.deserializeBinaryFromReader = function(msg, reader) 
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.spacemesh.v1.PostData.prototype.serializeBinary = function() {
+proto.spacemesh.v1.PostInitOpts.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.spacemesh.v1.PostData.serializeBinaryToWriter(this, writer);
+  proto.spacemesh.v1.PostInitOpts.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -2685,43 +2338,43 @@ proto.spacemesh.v1.PostData.prototype.serializeBinary = function() {
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.spacemesh.v1.PostData} message
+ * @param {!proto.spacemesh.v1.PostInitOpts} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.spacemesh.v1.PostData.serializeBinaryToWriter = function(message, writer) {
+proto.spacemesh.v1.PostInitOpts.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getPath();
+  f = message.getDataDir();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getDataSize();
+  f = message.getNumUnits();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeUint32(
       2,
       f
     );
   }
-  f = message.getAppend();
-  if (f) {
-    writer.writeBool(
+  f = message.getNumFiles();
+  if (f !== 0) {
+    writer.writeUint32(
       3,
+      f
+    );
+  }
+  f = message.getComputeProviderId();
+  if (f !== 0) {
+    writer.writeUint32(
+      4,
       f
     );
   }
   f = message.getThrottle();
   if (f) {
     writer.writeBool(
-      4,
-      f
-    );
-  }
-  f = message.getProviderId();
-  if (f !== 0) {
-    writer.writeUint32(
       5,
       f
     );
@@ -2730,81 +2383,79 @@ proto.spacemesh.v1.PostData.serializeBinaryToWriter = function(message, writer) 
 
 
 /**
- * optional string path = 1;
+ * optional string data_dir = 1;
  * @return {string}
  */
-proto.spacemesh.v1.PostData.prototype.getPath = function() {
+proto.spacemesh.v1.PostInitOpts.prototype.getDataDir = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.spacemesh.v1.PostData.prototype.setPath = function(value) {
+proto.spacemesh.v1.PostInitOpts.prototype.setDataDir = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional uint64 data_size = 2;
+ * optional uint32 num_units = 2;
  * @return {number}
  */
-proto.spacemesh.v1.PostData.prototype.getDataSize = function() {
+proto.spacemesh.v1.PostInitOpts.prototype.getNumUnits = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.spacemesh.v1.PostData.prototype.setDataSize = function(value) {
+proto.spacemesh.v1.PostInitOpts.prototype.setNumUnits = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
 };
 
 
 /**
- * optional bool append = 3;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.spacemesh.v1.PostData.prototype.getAppend = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
-};
-
-
-/** @param {boolean} value */
-proto.spacemesh.v1.PostData.prototype.setAppend = function(value) {
-  jspb.Message.setProto3BooleanField(this, 3, value);
-};
-
-
-/**
- * optional bool throttle = 4;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.spacemesh.v1.PostData.prototype.getThrottle = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 4, false));
-};
-
-
-/** @param {boolean} value */
-proto.spacemesh.v1.PostData.prototype.setThrottle = function(value) {
-  jspb.Message.setProto3BooleanField(this, 4, value);
-};
-
-
-/**
- * optional uint32 provider_id = 5;
+ * optional uint32 num_files = 3;
  * @return {number}
  */
-proto.spacemesh.v1.PostData.prototype.getProviderId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+proto.spacemesh.v1.PostInitOpts.prototype.getNumFiles = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /** @param {number} value */
-proto.spacemesh.v1.PostData.prototype.setProviderId = function(value) {
-  jspb.Message.setProto3IntField(this, 5, value);
+proto.spacemesh.v1.PostInitOpts.prototype.setNumFiles = function(value) {
+  jspb.Message.setProto3IntField(this, 3, value);
+};
+
+
+/**
+ * optional uint32 compute_provider_id = 4;
+ * @return {number}
+ */
+proto.spacemesh.v1.PostInitOpts.prototype.getComputeProviderId = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/** @param {number} value */
+proto.spacemesh.v1.PostInitOpts.prototype.setComputeProviderId = function(value) {
+  jspb.Message.setProto3IntField(this, 4, value);
+};
+
+
+/**
+ * optional bool throttle = 5;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.spacemesh.v1.PostInitOpts.prototype.getThrottle = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 5, false));
+};
+
+
+/** @param {boolean} value */
+proto.spacemesh.v1.PostInitOpts.prototype.setThrottle = function(value) {
+  jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
 
@@ -2855,7 +2506,7 @@ proto.spacemesh.v1.CreatePostDataRequest.prototype.toObject = function(opt_inclu
  */
 proto.spacemesh.v1.CreatePostDataRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    data: (f = msg.getData()) && proto.spacemesh.v1.PostData.toObject(includeInstance, f)
+    opts: (f = msg.getOpts()) && proto.spacemesh.v1.PostInitOpts.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -2893,9 +2544,9 @@ proto.spacemesh.v1.CreatePostDataRequest.deserializeBinaryFromReader = function(
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.spacemesh.v1.PostData;
-      reader.readMessage(value,proto.spacemesh.v1.PostData.deserializeBinaryFromReader);
-      msg.setData(value);
+      var value = new proto.spacemesh.v1.PostInitOpts;
+      reader.readMessage(value,proto.spacemesh.v1.PostInitOpts.deserializeBinaryFromReader);
+      msg.setOpts(value);
       break;
     default:
       reader.skipField();
@@ -2926,35 +2577,35 @@ proto.spacemesh.v1.CreatePostDataRequest.prototype.serializeBinary = function() 
  */
 proto.spacemesh.v1.CreatePostDataRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getData();
+  f = message.getOpts();
   if (f != null) {
     writer.writeMessage(
       1,
       f,
-      proto.spacemesh.v1.PostData.serializeBinaryToWriter
+      proto.spacemesh.v1.PostInitOpts.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * optional PostData data = 1;
- * @return {?proto.spacemesh.v1.PostData}
+ * optional PostInitOpts opts = 1;
+ * @return {?proto.spacemesh.v1.PostInitOpts}
  */
-proto.spacemesh.v1.CreatePostDataRequest.prototype.getData = function() {
-  return /** @type{?proto.spacemesh.v1.PostData} */ (
-    jspb.Message.getWrapperField(this, proto.spacemesh.v1.PostData, 1));
+proto.spacemesh.v1.CreatePostDataRequest.prototype.getOpts = function() {
+  return /** @type{?proto.spacemesh.v1.PostInitOpts} */ (
+    jspb.Message.getWrapperField(this, proto.spacemesh.v1.PostInitOpts, 1));
 };
 
 
-/** @param {?proto.spacemesh.v1.PostData|undefined} value */
-proto.spacemesh.v1.CreatePostDataRequest.prototype.setData = function(value) {
+/** @param {?proto.spacemesh.v1.PostInitOpts|undefined} value */
+proto.spacemesh.v1.CreatePostDataRequest.prototype.setOpts = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.spacemesh.v1.CreatePostDataRequest.prototype.clearData = function() {
-  this.setData(undefined);
+proto.spacemesh.v1.CreatePostDataRequest.prototype.clearOpts = function() {
+  this.setOpts(undefined);
 };
 
 
@@ -2962,7 +2613,7 @@ proto.spacemesh.v1.CreatePostDataRequest.prototype.clearData = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.spacemesh.v1.CreatePostDataRequest.prototype.hasData = function() {
+proto.spacemesh.v1.CreatePostDataRequest.prototype.hasOpts = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
@@ -3095,7 +2746,7 @@ proto.spacemesh.v1.StopSmeshingRequest.serializeBinaryToWriter = function(messag
 
 
 /**
- * optional bool W_M_SHOW_DELETE_FILEs = 1;
+ * optional bool delete_files = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
@@ -3122,12 +2773,12 @@ proto.spacemesh.v1.StopSmeshingRequest.prototype.setDeleteFiles = function(value
  * @extends {jspb.Message}
  * @constructor
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest = function(opt_data) {
+proto.spacemesh.v1.PostComputeProvidersRequest = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.spacemesh.v1.StopPostDataCreationSessionRequest, jspb.Message);
+goog.inherits(proto.spacemesh.v1.PostComputeProvidersRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.spacemesh.v1.StopPostDataCreationSessionRequest.displayName = 'proto.spacemesh.v1.StopPostDataCreationSessionRequest';
+  proto.spacemesh.v1.PostComputeProvidersRequest.displayName = 'proto.spacemesh.v1.PostComputeProvidersRequest';
 }
 
 
@@ -3142,8 +2793,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.prototype.toObject = function(opt_includeInstance) {
-  return proto.spacemesh.v1.StopPostDataCreationSessionRequest.toObject(opt_includeInstance, this);
+proto.spacemesh.v1.PostComputeProvidersRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.spacemesh.v1.PostComputeProvidersRequest.toObject(opt_includeInstance, this);
 };
 
 
@@ -3152,13 +2803,13 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.prototype.toObject = funct
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.spacemesh.v1.StopPostDataCreationSessionRequest} msg The msg instance to transform.
+ * @param {!proto.spacemesh.v1.PostComputeProvidersRequest} msg The msg instance to transform.
  * @return {!Object}
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.toObject = function(includeInstance, msg) {
+proto.spacemesh.v1.PostComputeProvidersRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    deleteFiles: jspb.Message.getFieldWithDefault(msg, 1, false)
+    benchmark: jspb.Message.getFieldWithDefault(msg, 1, false)
   };
 
   if (includeInstance) {
@@ -3172,23 +2823,23 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.toObject = function(includ
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.spacemesh.v1.StopPostDataCreationSessionRequest}
+ * @return {!proto.spacemesh.v1.PostComputeProvidersRequest}
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.deserializeBinary = function(bytes) {
+proto.spacemesh.v1.PostComputeProvidersRequest.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.spacemesh.v1.StopPostDataCreationSessionRequest;
-  return proto.spacemesh.v1.StopPostDataCreationSessionRequest.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.spacemesh.v1.PostComputeProvidersRequest;
+  return proto.spacemesh.v1.PostComputeProvidersRequest.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.spacemesh.v1.StopPostDataCreationSessionRequest} msg The message object to deserialize into.
+ * @param {!proto.spacemesh.v1.PostComputeProvidersRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.spacemesh.v1.StopPostDataCreationSessionRequest}
+ * @return {!proto.spacemesh.v1.PostComputeProvidersRequest}
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.deserializeBinaryFromReader = function(msg, reader) {
+proto.spacemesh.v1.PostComputeProvidersRequest.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -3197,7 +2848,7 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.deserializeBinaryFromReade
     switch (field) {
     case 1:
       var value = /** @type {boolean} */ (reader.readBool());
-      msg.setDeleteFiles(value);
+      msg.setBenchmark(value);
       break;
     default:
       reader.skipField();
@@ -3212,9 +2863,9 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.deserializeBinaryFromReade
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.prototype.serializeBinary = function() {
+proto.spacemesh.v1.PostComputeProvidersRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
-  proto.spacemesh.v1.StopPostDataCreationSessionRequest.serializeBinaryToWriter(this, writer);
+  proto.spacemesh.v1.PostComputeProvidersRequest.serializeBinaryToWriter(this, writer);
   return writer.getResultBuffer();
 };
 
@@ -3222,13 +2873,13 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.prototype.serializeBinary 
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.spacemesh.v1.StopPostDataCreationSessionRequest} message
+ * @param {!proto.spacemesh.v1.PostComputeProvidersRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.serializeBinaryToWriter = function(message, writer) {
+proto.spacemesh.v1.PostComputeProvidersRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getDeleteFiles();
+  f = message.getBenchmark();
   if (f) {
     writer.writeBool(
       1,
@@ -3239,18 +2890,18 @@ proto.spacemesh.v1.StopPostDataCreationSessionRequest.serializeBinaryToWriter = 
 
 
 /**
- * optional bool W_M_SHOW_DELETE_FILEs = 1;
+ * optional bool benchmark = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.prototype.getDeleteFiles = function() {
+proto.spacemesh.v1.PostComputeProvidersRequest.prototype.getBenchmark = function() {
   return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 1, false));
 };
 
 
 /** @param {boolean} value */
-proto.spacemesh.v1.StopPostDataCreationSessionRequest.prototype.setDeleteFiles = function(value) {
+proto.spacemesh.v1.PostComputeProvidersRequest.prototype.setBenchmark = function(value) {
   jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
@@ -3302,12 +2953,10 @@ proto.spacemesh.v1.PostStatus.prototype.toObject = function(opt_includeInstance)
  */
 proto.spacemesh.v1.PostStatus.toObject = function(includeInstance, msg) {
   var f, obj = {
-    postData: (f = msg.getPostData()) && proto.spacemesh.v1.PostData.toObject(includeInstance, f),
-    filesStatus: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    initInProgress: jspb.Message.getFieldWithDefault(msg, 3, false),
-    bytesWritten: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    errorMessage: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    errorType: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    initStatus: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    initOpts: (f = msg.getInitOpts()) && proto.spacemesh.v1.PostInitOpts.toObject(includeInstance, f),
+    numLabelsWritten: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    errorMessage: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -3345,29 +2994,21 @@ proto.spacemesh.v1.PostStatus.deserializeBinaryFromReader = function(msg, reader
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.spacemesh.v1.PostData;
-      reader.readMessage(value,proto.spacemesh.v1.PostData.deserializeBinaryFromReader);
-      msg.setPostData(value);
+      var value = /** @type {!proto.spacemesh.v1.PostStatus.InitStatus} */ (reader.readEnum());
+      msg.setInitStatus(value);
       break;
     case 2:
-      var value = /** @type {!proto.spacemesh.v1.PostStatus.FilesStatus} */ (reader.readEnum());
-      msg.setFilesStatus(value);
-      break;
-    case 3:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setInitInProgress(value);
+      var value = new proto.spacemesh.v1.PostInitOpts;
+      reader.readMessage(value,proto.spacemesh.v1.PostInitOpts.deserializeBinaryFromReader);
+      msg.setInitOpts(value);
       break;
     case 4:
       var value = /** @type {number} */ (reader.readUint64());
-      msg.setBytesWritten(value);
+      msg.setNumLabelsWritten(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setErrorMessage(value);
-      break;
-    case 6:
-      var value = /** @type {!proto.spacemesh.v1.PostStatus.ErrorType} */ (reader.readEnum());
-      msg.setErrorType(value);
       break;
     default:
       reader.skipField();
@@ -3398,29 +3039,22 @@ proto.spacemesh.v1.PostStatus.prototype.serializeBinary = function() {
  */
 proto.spacemesh.v1.PostStatus.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getPostData();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      proto.spacemesh.v1.PostData.serializeBinaryToWriter
-    );
-  }
-  f = message.getFilesStatus();
+  f = message.getInitStatus();
   if (f !== 0.0) {
     writer.writeEnum(
+      1,
+      f
+    );
+  }
+  f = message.getInitOpts();
+  if (f != null) {
+    writer.writeMessage(
       2,
-      f
+      f,
+      proto.spacemesh.v1.PostInitOpts.serializeBinaryToWriter
     );
   }
-  f = message.getInitInProgress();
-  if (f) {
-    writer.writeBool(
-      3,
-      f
-    );
-  }
-  f = message.getBytesWritten();
+  f = message.getNumLabelsWritten();
   if (f !== 0) {
     writer.writeUint64(
       4,
@@ -3434,54 +3068,53 @@ proto.spacemesh.v1.PostStatus.serializeBinaryToWriter = function(message, writer
       f
     );
   }
-  f = message.getErrorType();
-  if (f !== 0.0) {
-    writer.writeEnum(
-      6,
-      f
-    );
-  }
 };
 
 
 /**
  * @enum {number}
  */
-proto.spacemesh.v1.PostStatus.FilesStatus = {
-  FILES_STATUS_UNSPECIFIED: 0,
-  FILES_STATUS_NOT_FOUND: 1,
-  FILES_STATUS_PARTIAL: 2,
-  FILES_STATUS_COMPLETE: 3
+proto.spacemesh.v1.PostStatus.InitStatus = {
+  INIT_STATUS_UNSPECIFIED: 0,
+  INIT_STATUS_NOT_STARTED: 1,
+  INIT_STATUS_IN_PROGRESS: 2,
+  INIT_STATUS_COMPLETE: 3,
+  INIT_STATUS_ERROR: 4
 };
 
 /**
- * @enum {number}
+ * optional InitStatus init_status = 1;
+ * @return {!proto.spacemesh.v1.PostStatus.InitStatus}
  */
-proto.spacemesh.v1.PostStatus.ErrorType = {
-  ERROR_TYPE_UNSPECIFIED: 0,
-  ERROR_TYPE_FILE_NOT_FOUND: 1,
-  ERROR_TYPE_READ_ERROR: 2,
-  ERROR_TYPE_WRITE_ERROR: 3
+proto.spacemesh.v1.PostStatus.prototype.getInitStatus = function() {
+  return /** @type {!proto.spacemesh.v1.PostStatus.InitStatus} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
+
+
+/** @param {!proto.spacemesh.v1.PostStatus.InitStatus} value */
+proto.spacemesh.v1.PostStatus.prototype.setInitStatus = function(value) {
+  jspb.Message.setProto3EnumField(this, 1, value);
+};
+
 
 /**
- * optional PostData post_data = 1;
- * @return {?proto.spacemesh.v1.PostData}
+ * optional PostInitOpts init_opts = 2;
+ * @return {?proto.spacemesh.v1.PostInitOpts}
  */
-proto.spacemesh.v1.PostStatus.prototype.getPostData = function() {
-  return /** @type{?proto.spacemesh.v1.PostData} */ (
-    jspb.Message.getWrapperField(this, proto.spacemesh.v1.PostData, 1));
+proto.spacemesh.v1.PostStatus.prototype.getInitOpts = function() {
+  return /** @type{?proto.spacemesh.v1.PostInitOpts} */ (
+    jspb.Message.getWrapperField(this, proto.spacemesh.v1.PostInitOpts, 2));
 };
 
 
-/** @param {?proto.spacemesh.v1.PostData|undefined} value */
-proto.spacemesh.v1.PostStatus.prototype.setPostData = function(value) {
-  jspb.Message.setWrapperField(this, 1, value);
+/** @param {?proto.spacemesh.v1.PostInitOpts|undefined} value */
+proto.spacemesh.v1.PostStatus.prototype.setInitOpts = function(value) {
+  jspb.Message.setWrapperField(this, 2, value);
 };
 
 
-proto.spacemesh.v1.PostStatus.prototype.clearPostData = function() {
-  this.setPostData(undefined);
+proto.spacemesh.v1.PostStatus.prototype.clearInitOpts = function() {
+  this.setInitOpts(undefined);
 };
 
 
@@ -3489,54 +3122,22 @@ proto.spacemesh.v1.PostStatus.prototype.clearPostData = function() {
  * Returns whether this field is set.
  * @return {!boolean}
  */
-proto.spacemesh.v1.PostStatus.prototype.hasPostData = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.spacemesh.v1.PostStatus.prototype.hasInitOpts = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
 /**
- * optional FilesStatus files_status = 2;
- * @return {!proto.spacemesh.v1.PostStatus.FilesStatus}
- */
-proto.spacemesh.v1.PostStatus.prototype.getFilesStatus = function() {
-  return /** @type {!proto.spacemesh.v1.PostStatus.FilesStatus} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
-};
-
-
-/** @param {!proto.spacemesh.v1.PostStatus.FilesStatus} value */
-proto.spacemesh.v1.PostStatus.prototype.setFilesStatus = function(value) {
-  jspb.Message.setProto3EnumField(this, 2, value);
-};
-
-
-/**
- * optional bool init_in_progress = 3;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
- */
-proto.spacemesh.v1.PostStatus.prototype.getInitInProgress = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldWithDefault(this, 3, false));
-};
-
-
-/** @param {boolean} value */
-proto.spacemesh.v1.PostStatus.prototype.setInitInProgress = function(value) {
-  jspb.Message.setProto3BooleanField(this, 3, value);
-};
-
-
-/**
- * optional uint64 bytes_written = 4;
+ * optional uint64 num_labels_written = 4;
  * @return {number}
  */
-proto.spacemesh.v1.PostStatus.prototype.getBytesWritten = function() {
+proto.spacemesh.v1.PostStatus.prototype.getNumLabelsWritten = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
 /** @param {number} value */
-proto.spacemesh.v1.PostStatus.prototype.setBytesWritten = function(value) {
+proto.spacemesh.v1.PostStatus.prototype.setNumLabelsWritten = function(value) {
   jspb.Message.setProto3IntField(this, 4, value);
 };
 
@@ -3553,21 +3154,6 @@ proto.spacemesh.v1.PostStatus.prototype.getErrorMessage = function() {
 /** @param {string} value */
 proto.spacemesh.v1.PostStatus.prototype.setErrorMessage = function(value) {
   jspb.Message.setProto3StringField(this, 5, value);
-};
-
-
-/**
- * optional ErrorType error_type = 6;
- * @return {!proto.spacemesh.v1.PostStatus.ErrorType}
- */
-proto.spacemesh.v1.PostStatus.prototype.getErrorType = function() {
-  return /** @type {!proto.spacemesh.v1.PostStatus.ErrorType} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
-};
-
-
-/** @param {!proto.spacemesh.v1.PostStatus.ErrorType} value */
-proto.spacemesh.v1.PostStatus.prototype.setErrorType = function(value) {
-  jspb.Message.setProto3EnumField(this, 6, value);
 };
 
 
@@ -4053,7 +3639,7 @@ proto.spacemesh.v1.EstimatedRewardsResponse.prototype.toObject = function(opt_in
 proto.spacemesh.v1.EstimatedRewardsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     amount: (f = msg.getAmount()) && types_pb.Amount.toObject(includeInstance, f),
-    dataSize: jspb.Message.getFieldWithDefault(msg, 2, 0)
+    numUnits: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -4096,8 +3682,8 @@ proto.spacemesh.v1.EstimatedRewardsResponse.deserializeBinaryFromReader = functi
       msg.setAmount(value);
       break;
     case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setDataSize(value);
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setNumUnits(value);
       break;
     default:
       reader.skipField();
@@ -4136,9 +3722,9 @@ proto.spacemesh.v1.EstimatedRewardsResponse.serializeBinaryToWriter = function(m
       types_pb.Amount.serializeBinaryToWriter
     );
   }
-  f = message.getDataSize();
+  f = message.getNumUnits();
   if (f !== 0) {
-    writer.writeUint64(
+    writer.writeUint32(
       2,
       f
     );
@@ -4177,17 +3763,240 @@ proto.spacemesh.v1.EstimatedRewardsResponse.prototype.hasAmount = function() {
 
 
 /**
- * optional uint64 data_size = 2;
+ * optional uint32 num_units = 2;
  * @return {number}
  */
-proto.spacemesh.v1.EstimatedRewardsResponse.prototype.getDataSize = function() {
+proto.spacemesh.v1.EstimatedRewardsResponse.prototype.getNumUnits = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
 /** @param {number} value */
-proto.spacemesh.v1.EstimatedRewardsResponse.prototype.setDataSize = function(value) {
+proto.spacemesh.v1.EstimatedRewardsResponse.prototype.setNumUnits = function(value) {
   jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.spacemesh.v1.ConfigResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.spacemesh.v1.ConfigResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.spacemesh.v1.ConfigResponse.displayName = 'proto.spacemesh.v1.ConfigResponse';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.spacemesh.v1.ConfigResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.spacemesh.v1.ConfigResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.spacemesh.v1.ConfigResponse} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.spacemesh.v1.ConfigResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    bitsPerLabel: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    labelsPerUnit: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    minNumUnits: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    maxNumUnits: jspb.Message.getFieldWithDefault(msg, 4, 0)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.spacemesh.v1.ConfigResponse}
+ */
+proto.spacemesh.v1.ConfigResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.spacemesh.v1.ConfigResponse;
+  return proto.spacemesh.v1.ConfigResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.spacemesh.v1.ConfigResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.spacemesh.v1.ConfigResponse}
+ */
+proto.spacemesh.v1.ConfigResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setBitsPerLabel(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setLabelsPerUnit(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setMinNumUnits(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setMaxNumUnits(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.spacemesh.v1.ConfigResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  proto.spacemesh.v1.ConfigResponse.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the given message to binary data (in protobuf wire
+ * format), writing to the given BinaryWriter.
+ * @param {!proto.spacemesh.v1.ConfigResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.spacemesh.v1.ConfigResponse.serializeBinaryToWriter = function(message, writer) {
+  var f = undefined;
+  f = message.getBitsPerLabel();
+  if (f !== 0) {
+    writer.writeUint32(
+      1,
+      f
+    );
+  }
+  f = message.getLabelsPerUnit();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+  f = message.getMinNumUnits();
+  if (f !== 0) {
+    writer.writeUint32(
+      3,
+      f
+    );
+  }
+  f = message.getMaxNumUnits();
+  if (f !== 0) {
+    writer.writeUint32(
+      4,
+      f
+    );
+  }
+};
+
+
+/**
+ * optional uint32 bits_per_label = 1;
+ * @return {number}
+ */
+proto.spacemesh.v1.ConfigResponse.prototype.getBitsPerLabel = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+};
+
+
+/** @param {number} value */
+proto.spacemesh.v1.ConfigResponse.prototype.setBitsPerLabel = function(value) {
+  jspb.Message.setProto3IntField(this, 1, value);
+};
+
+
+/**
+ * optional uint64 labels_per_unit = 2;
+ * @return {number}
+ */
+proto.spacemesh.v1.ConfigResponse.prototype.getLabelsPerUnit = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/** @param {number} value */
+proto.spacemesh.v1.ConfigResponse.prototype.setLabelsPerUnit = function(value) {
+  jspb.Message.setProto3IntField(this, 2, value);
+};
+
+
+/**
+ * optional uint32 min_num_units = 3;
+ * @return {number}
+ */
+proto.spacemesh.v1.ConfigResponse.prototype.getMinNumUnits = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/** @param {number} value */
+proto.spacemesh.v1.ConfigResponse.prototype.setMinNumUnits = function(value) {
+  jspb.Message.setProto3IntField(this, 3, value);
+};
+
+
+/**
+ * optional uint32 max_num_units = 4;
+ * @return {number}
+ */
+proto.spacemesh.v1.ConfigResponse.prototype.getMaxNumUnits = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/** @param {number} value */
+proto.spacemesh.v1.ConfigResponse.prototype.setMaxNumUnits = function(value) {
+  jspb.Message.setProto3IntField(this, 4, value);
 };
 
 

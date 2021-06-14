@@ -4,7 +4,6 @@ import { Link, Button } from '../../basicComponents';
 import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen, copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -120,7 +119,7 @@ const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, na
 
   const copyIcon = isDarkMode ? copyWhite : copyBlack;
 
-  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
+  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
 
   const { value, unit }: any = formatSmidge(amount, true);
   return (

@@ -7,7 +7,6 @@ import { copyBlack, copyWhite, explorer } from '../../assets/images';
 import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const AccountDetails = styled.div`
   display: flex;
@@ -135,6 +134,7 @@ const AccountsOverview = (props: Props) => {
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
+  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -152,7 +152,7 @@ const AccountsOverview = (props: Props) => {
 
   const openExplorerLink = (e: React.MouseEvent, publicKey: string) => {
     e.stopPropagation();
-    eventsService.openExplorerLink({ uri: `accounts/${publicKey}` });
+    window.open(`${explorerUrl}/accounts/${publicKey}${isDarkMode ? '?dark' : ''}`);
   };
 
   const renderAccountRow = ({ displayName, publicKey, isInDropDown = false }: { displayName: string; publicKey: string; isInDropDown?: boolean }) => (

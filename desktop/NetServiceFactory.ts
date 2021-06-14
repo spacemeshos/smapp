@@ -8,22 +8,24 @@ const DEFAULT_PORT = '9092';
 class NetServiceFactory {
   private service: grpc.Client | null = null;
 
-  private url = DEFAULT_URL;
+  private url;
 
-  private port = DEFAULT_PORT;
+  private port;
 
-  createNetService = (protoPath: string, url: string, port: string, serviceName: string) => {
+  createNetService = (protoPath: string, url = '', port = '', serviceName: string) => {
     if (this.url !== url || this.port !== port) {
       if (this.service) {
         this.service.close();
       }
+      const resolvedUrl = url || DEFAULT_URL;
+      const resolvedPort = port || DEFAULT_PORT;
       const resolvedProtoPath = path.join(__dirname, '..', protoPath);
       const packageDefinition = loadSync(resolvedProtoPath);
       // @ts-ignore
       const Services = grpc.loadPackageDefinition(packageDefinition).spacemesh.v1;
-      this.service = new Services[serviceName](`${url}:${port}`, grpc.credentials.createInsecure());
-      this.url = url;
-      this.port = port;
+      this.service = new Services[serviceName](`${resolvedUrl}:${resolvedPort}`, grpc.credentials.createInsecure());
+      this.url = resolvedUrl;
+      this.port = resolvedPort;
     }
   };
 }

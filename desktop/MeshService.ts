@@ -31,9 +31,12 @@ class MeshService extends NetServiceFactory {
           logger.error('grpc AccountMeshDataQuery', error);
           resolve({ totalResults: 0, data: null, error });
         }
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        const { data, total_results } = response;
-        resolve({ data, totalResults: total_results, error: null });
+        if (!response) {
+          resolve({ data: [], totalResults: 0, error: null });
+        } else {
+          const { data, totalResults } = response;
+          resolve({ data, totalResults, error: null });
+        }
       });
     });
 

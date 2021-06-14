@@ -7,7 +7,6 @@ import { BackButton } from '../../components/common';
 import { DragAndDrop } from '../../components/auth';
 import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '../../basicComponents';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 
 const DdArea = styled.div`
@@ -47,7 +46,7 @@ const FileRestore = ({ history }: RouteComponentProps) => {
     history.push('/auth/unlock');
   };
 
-  const navigateToBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file' });
+  const navigateToBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file');
 
   return (
     <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">

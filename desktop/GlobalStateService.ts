@@ -33,9 +33,12 @@ class GlobalStateService extends NetServiceFactory {
           logger.error('grpc AccountDataQuery', error);
           resolve({ data: null, error });
         }
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        const { total_results, account_item } = response;
-        resolve({ totalResults: total_results, data: account_item });
+        if (!response) {
+          resolve({ totalResults: 0, data: [] });
+        } else {
+          const { totalResults, accountItem } = response;
+          resolve({ totalResults, data: accountItem });
+        }
       });
     });
 
@@ -43,7 +46,6 @@ class GlobalStateService extends NetServiceFactory {
     // @ts-ignore
     const stream = this.service.AccountDataStream({ filter });
     stream.on('data', (response: any) => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       const { datum } = response;
       handler({ data: datum });
     });

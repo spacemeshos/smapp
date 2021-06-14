@@ -7,7 +7,6 @@ import { BackButton } from '../../components/common';
 import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Table = styled.div`
   display: flex;
@@ -95,7 +94,7 @@ const WordsRestore = ({ history }: RouteComponentProps) => {
     };
   }, [handleKeyUp]);
 
-  const navigateTo12WordRestoreGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list' });
+  const navigateTo12WordRestoreGuide = () => window.open('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list');
 
   const renderInputs = ({ start }: { start: number }) => {
     const res: Array<any> = [];

@@ -68,7 +68,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
-  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
@@ -79,7 +79,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
   );
 
   const handleNext = async () => {
-    const response = await eventsService.activateWalletManager({ url: publicServices[selectedItemIndex].text, port: '' });
+    const response = await eventsService.activateWalletManager({ ip: publicServices[selectedItemIndex].text, port: '' });
     if (response.activated) {
       const { ip, port } = publicServices[selectedItemIndex];
       history.push('/auth/wallet-type', { ip, port });

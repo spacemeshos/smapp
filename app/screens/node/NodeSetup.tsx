@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { createPosData, deletePosData } from '../../redux/smesher/actions';
+import { startSmeshing, deletePosData } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
@@ -68,7 +68,7 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const setupAndInitMining = async () => {
     // @ts-ignore
-    await dispatch(createPosData({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, throttle, providerId: provider.id }));
+    await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, provider, throttle }));
     history.push('/main/node', { showIntro: true });
   };
 

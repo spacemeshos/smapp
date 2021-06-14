@@ -98,20 +98,20 @@ class TransactionManager {
     let existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
     const newData = {
       txId,
-      receiver: toHexString(tx.coin_transfer.receiver.address),
+      receiver: toHexString(tx.coinTransfer.receiver.address),
       sender: toHexString(tx.sender.address),
-      gasProvided: parseInt(tx.gas_offered.gas_provided),
-      gasPrice: parseInt(tx.gas_offered.gas_price),
+      gasProvided: parseInt(tx.gasOffered.gasProvided),
+      gasPrice: parseInt(tx.gasOffered.gasPrice),
       amount: parseInt(tx.amount.value),
       counter: parseInt(tx.counter),
       signature: {
         scheme: tx.signature.scheme,
         signature: toHexString(tx.signature.signature),
-        publicKey: toHexString(tx.signature.public_key)
+        publicKey: toHexString(tx.signature.publicKey)
       }
     };
     existingTx = { ...existingTx, ...newData };
-    StoreService.set({ accounts: { [accountId]: { txs: { [txId]: existingTx } } } });
+    StoreService.set('accounts', { [accountId]: { txs: { [txId]: existingTx } } });
     this.updateAppStateTxs({ accountId });
   };
 
@@ -120,7 +120,9 @@ class TransactionManager {
     if (error && retries < 5) {
       await this.retrieveHistoricTxData({ accountId, offset, handler, retries: retries + 1 });
     } else {
-      data.forEach((tx) => handler({ tx }));
+      data.forEach((tx) => {
+        handler({ tx });
+      });
       if (offset < totalResults) {
         await this.retrieveHistoricTxData({ accountId, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
@@ -128,9 +130,9 @@ class TransactionManager {
   };
 
   updateAccountData = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
-    const currentState = { counter: parseInt(data.state_current.counter), balance: parseInt(data.state_current.balance) };
-    const projectedState = { counter: parseInt(data.state_projected.counter), balance: parseInt(data.state_projected.balance) };
-    StoreService.set({ accounts: { [accountId]: { account: { currentState, projectedState } } } });
+    const currentState = { counter: parseInt(data.stateCurrent.counter), balance: parseInt(data.stateCurrent.balance) };
+    const projectedState = { counter: parseInt(data.stateProjected.counter), balance: parseInt(data.stateProjected.balance) };
+    StoreService.set('accounts', { [accountId]: { account: { currentState, projectedState } } });
     this.updateAppStateAccount({ accountId });
   };
 
@@ -139,7 +141,7 @@ class TransactionManager {
     if (error && retries < 5) {
       await this.retrieveAccountData({ filter, handler, retries: retries + 1 });
     } else {
-      handler({ data: data[0].account_wrapper });
+      data.length > 0 && handler({ data: data[0].accountWrapper });
     }
   };
 
@@ -149,13 +151,13 @@ class TransactionManager {
     const newData = {
       txId,
       result: data.result,
-      gasUsed: parseInt(data.gas_used),
+      gasUsed: parseInt(data.gasUsed),
       fee: parseInt(data.fee.value),
       layer: data.layer,
       index: data.index
     };
     existingTx = { ...existingTx, ...newData };
-    StoreService.set({ accounts: { [accountId]: { txs: { [txId]: existingTx } } } });
+    StoreService.set('accounts', { [accountId]: { txs: { [txId]: existingTx } } });
     this.updateAppStateTxs({ accountId });
   };
 
@@ -177,13 +179,13 @@ class TransactionManager {
     const reward = {
       layer: data.layer,
       total: parseInt(data.total.value),
-      layerReward: parseInt(data.layer_reward.value),
-      layerComputed: data.layer_computed,
+      layerReward: parseInt(data.layerReward.value),
+      layerComputed: data.layerComputed,
       coinbase: `0x${coinbase}`,
       smesher: toHexString(data.smesher.id)
     };
     const rewards = StoreService.get(`accounts.${coinbase}.rewards`);
-    StoreService.set({ accounts: { [coinbase]: { rewards: [...rewards, reward] } } });
+    StoreService.set('accounts', { [coinbase]: { rewards: [...rewards, reward] } });
     this.updateAppStateRewards({ accountId: coinbase });
   };
 
@@ -215,7 +217,7 @@ class TransactionManager {
       const txId = toHexString(txstate.id.id);
       const txWithId = { txId, ...fullTx };
       if (![1, 2, 3].includes(txstate.state)) {
-        StoreService.set({ accounts: { [this.accounts[accountIndex].publicKey]: { txs: { [txId]: txWithId } } } });
+        StoreService.set('accounts', { [this.accounts[accountIndex].publicKey]: { txs: { [txId]: txWithId } } });
         this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
       }
       return { error: null, tx: txWithId, state: txstate.state };
@@ -230,7 +232,7 @@ class TransactionManager {
 
   updateTxNote = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId: string }) => {
     const tx = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.txs.${txId}`);
-    StoreService.set({ accounts: { [this.accounts[accountIndex].publicKey]: { txs: { [txId]: { ...tx, note: newData.note } } } } });
+    StoreService.set('accounts', { [this.accounts[accountIndex].publicKey]: { txs: { [txId]: { ...tx, note: newData.note } } } });
     this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
   };
 
@@ -245,7 +247,7 @@ class TransactionManager {
         txs[key].nickname = nickname;
       }
     });
-    StoreService.set({ accounts: { [this.accounts[accountIndex].publicKey]: { txs: updatedTxs } } });
+    StoreService.set('accounts', { [this.accounts[accountIndex].publicKey]: { txs: updatedTxs } });
     this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
   };
 }

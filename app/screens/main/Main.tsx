@@ -24,7 +24,6 @@ import {
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState, Status } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   position: relative;
@@ -145,8 +144,8 @@ class Main extends Component<Props, State> {
       () => history.push('/main/contacts'),
       () => history.push('/main/dash'),
       () => history.push('/main/settings'),
-      () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/get_coin' }),
-      () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/help' })
+      () => window.open('https://testnet.spacemesh.io/#/get_coin'),
+      () => window.open('https://testnet.spacemesh.io/#/help')
     ];
   }
 

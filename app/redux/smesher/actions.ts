@@ -1,9 +1,9 @@
 import { eventsService } from '../../infra/eventsService';
 import { createError } from '../../infra/utils';
-import { AppThDispatch, CustomAction, GetState, Reward } from '../../types';
+import { AppThDispatch, ComputeProvider, CustomAction, GetState, Reward } from '../../types';
 
 export const SET_SMESHER_SETTINGS = 'SET_SMESHER_SETTINGS';
-export const STARTED_CREATING_POS_DATA = 'STARTED_CREATING_POS_DATA';
+export const STARTED_SMESHING = 'STARTED_SMESHING';
 export const DELETED_POS_DATA = 'DELETED_POST_DATA';
 export const SET_POST_DATA_CREATION_STATUS = 'SET_POST_DATA_CREATION_STATUS';
 export const SET_IS_SMESHING = 'SET_IS_SMESHING';
@@ -43,8 +43,7 @@ export const isSmeshing = () => async (dispatch: AppThDispatch) => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const _setPostStatus = ({ error, status }: { error: any; status: any }): CustomAction => {
+export const setPostStatus = ({ error, status }: { error: any; status: any }): CustomAction => {
   const { filesStatus, bytesWritten, errorMessage, errorType } = status;
   if (error) {
     console.error(error); // eslint-disable-line no-console
@@ -56,31 +55,29 @@ const _setPostStatus = ({ error, status }: { error: any; status: any }): CustomA
 
 export const getPostStatus = () => async (dispatch: AppThDispatch) => {
   const { error, status } = await eventsService.getPostStatus();
-  dispatch(_setPostStatus({ error, status }));
+  dispatch(setPostStatus({ error, status }));
 };
 
-export const createPosData = ({
+export const startSmeshing = ({
   coinbase,
   dataDir,
   commitmentSize,
-  append = false,
-  throttle,
-  providerId
+  provider,
+  throttle
 }: {
   coinbase: string;
   dataDir: string;
   commitmentSize: number;
-  append?: boolean;
+  provider: ComputeProvider;
   throttle: boolean;
-  providerId: number;
 }) => async (dispatch: AppThDispatch) => {
-  const { error } = await eventsService.createPosData({ coinbase, dataDir, commitmentSize, append, throttle, providerId });
+  const { error } = await eventsService.startSmeshing({ coinbase, dataDir, commitmentSize, computeProviderId: provider.id, throttle });
   if (error) {
-    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(createPosData({ coinbase, dataDir, commitmentSize, append, throttle, providerId })));
+    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(startSmeshing({ coinbase, dataDir, commitmentSize, provider, throttle })));
   } else {
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
-    dispatch({ type: STARTED_CREATING_POS_DATA, payload: { coinbase, commitmentSize, throttle, providerId } });
+    dispatch({ type: STARTED_SMESHING, payload: { coinbase, dataDir, commitmentSize, provider, throttle } });
   }
 };
 
@@ -98,9 +95,3 @@ export const deletePosData = () => async (dispatch: AppThDispatch, getState: Get
     dispatch({ type: DELETED_POS_DATA });
   }
 };
-
-// ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
-//   const { error, status } = request;
-//   const dispatch = useDispatch();
-//   dispatch(_setPostStatus({ error, status }));
-// });

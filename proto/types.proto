@@ -73,7 +73,7 @@ message Activation {
     SmesherId smesher_id = 3; // id of smesher who created the ATX
     AccountId coinbase = 4; // coinbase account id
     ActivationId prev_atx = 5; // previous ATX pointed to
-    uint64 commitment_size = 6; // commitment size in bytes
+    uint32 num_units = 6; // number of PoST data commitment units
 }
 
 // An immutable Spacemesh transaction.
@@ -126,7 +126,7 @@ message LayerNumber {
 }
 
 message AppEvent { // an event emitted from an app instance
-    TransactionId transaction_id = 1; // the transaction that called the code
-    string message = 2; // the event's string emitted from code
+                   TransactionId transaction_id = 1; // the transaction that called the code
+                   string message = 2; // the event's string emitted from code
 }
 

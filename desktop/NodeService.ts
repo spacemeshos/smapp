@@ -5,7 +5,9 @@ const logger = Logger({ className: 'NodeService' });
 const PROTO_PATH = 'proto/node.proto';
 
 class NodeService extends NetServiceFactory {
-  private stream;
+  private statusStream;
+
+  private errorStream;
 
   createService = () => {
     this.createNetService(PROTO_PATH, '', '', 'NodeService');
@@ -42,20 +44,19 @@ class NodeService extends NetServiceFactory {
         if (error) {
           logger.error('grpc Status', error);
           resolve({ status: null, error });
+        } else {
+          const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
+          resolve({
+            status: {
+              connectedPeers: parseInt(connectedPeers),
+              isSynced: !!isSynced,
+              syncedLayer: syncedLayer.number,
+              topLayer: topLayer.number,
+              verifiedLayer: verifiedLayer.number
+            },
+            error: null
+          });
         }
-        console.log(`response: ${response}`);
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        // const { connected_peers, is_synced, synced_layer, top_layer, verified_layer } = response;
-        // resolve({
-        //   status: {
-        //     connectedPeers: parseInt(connected_peers),
-        //     isSynced: is_synced,
-        //     syncedLayer: synced_layer.number,
-        //     topLayer: top_layer.number,
-        //     verifiedLayer: verified_layer.number
-        //   },
-        //   error: null
-        // });
       });
     });
 
@@ -73,41 +74,39 @@ class NodeService extends NetServiceFactory {
 
   activateStatusStream = ({ handler }: { handler: ({ status, error }: { status: any; error: any }) => void }) => {
     // @ts-ignore
-    this.stream = this.service.StatusStream({});
-    this.stream.on('data', (response: any) => {
-      console.log(`response: ${response}`);
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      // const { connected_peers, is_synced, synced_layer, top_layer, verified_layer } = response;
-      // handler({
-      //   status: {
-      //     connectedPeers: parseInt(connected_peers),
-      //     isSynced: is_synced,
-      //     syncedLayer: synced_layer.number,
-      //     topLayer: top_layer.number,
-      //     verifiedLayer: verified_layer.number
-      //   },
-      //   error: null
-      // });
+    this.statusStream = this.service.StatusStream({});
+    this.statusStream.on('data', (response: any) => {
+      const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
+      handler({
+        status: {
+          connectedPeers: parseInt(connectedPeers),
+          isSynced: !!isSynced,
+          syncedLayer: syncedLayer.number,
+          topLayer: topLayer.number,
+          verifiedLayer: verifiedLayer.number
+        },
+        error: null
+      });
     });
-    this.stream.on('error', (error: any) => {
+    this.statusStream.on('error', (error: any) => {
       logger.error('grpc StatusStream', error);
       // @ts-ignore
       handler({ status: null, error });
     });
-    this.stream.on('end', () => {
+    this.statusStream.on('end', () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
     });
   };
 
   activateErrorStream = ({ handler }: { handler: ({ error }: { error: any }) => void }) => {
     // @ts-ignore
-    this.stream = this.service.ErrorStream({});
-    this.stream.on('data', (response: any) => {
+    this.errorStream = this.service.ErrorStream({});
+    this.errorStream.on('data', (response: any) => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { error } = response;
       handler({ error: error.level });
     });
-    this.stream.on('end', () => {
+    this.errorStream.on('end', () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
     });
   };

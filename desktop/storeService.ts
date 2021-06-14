@@ -9,8 +9,8 @@ class StoreService {
     }
   }
 
-  static set = (object: any) => {
-    StoreService.store.set(object);
+  static set = (objectPath: string, property: any) => {
+    StoreService.store.set(objectPath, property);
   };
 
   static get = (key: string) => {

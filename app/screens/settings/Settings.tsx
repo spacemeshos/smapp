@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { HashRouter } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router';
 import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { switchTheme } from '../../redux/ui/actions';
@@ -74,7 +74,7 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
-interface Props {
+interface Props extends RouteComponentProps {
   displayName: string;
   accounts: Account[];
   walletFiles: Array<string>;
@@ -84,7 +84,6 @@ interface Props {
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
   status: Status;
-  history: HashRouter;
   genesisTime: number;
   rootHash: string;
   port: string;
@@ -402,32 +401,30 @@ class Settings extends Component<Props, State> {
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
-    // @ts-ignore
     history.push('/main/backup');
   };
 
   navigateToWalletRestore = () => {
     const { history } = this.props;
-    // @ts-ignore
     history.push('/auth/restore');
   };
 
   externalNavigation = ({ to }: { to: string }) => {
     switch (to) {
       case 'terms': {
-        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/terms' });
+        window.open('https://testnet.spacemesh.io/#/terms');
         break;
       }
       case 'disclaimer': {
-        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/disclaimer' });
+        window.open('https://testnet.spacemesh.io/#/disclaimer');
         break;
       }
       case 'privacy': {
-        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/privacy' });
+        window.open('https://testnet.spacemesh.io/#/privacy');
         break;
       }
       case 'userGuide': {
-        eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io' });
+        window.open('https://testnet.spacemesh.io');
         break;
       }
       default:

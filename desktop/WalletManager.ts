@@ -31,11 +31,11 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class WalletManager {
-  private meshService: any;
+  private readonly meshService: any;
 
-  private glStateService: any;
+  private readonly glStateService: any;
 
-  private txService: any;
+  private readonly txService: any;
 
   private txManager: TransactionManager;
 
@@ -58,24 +58,24 @@ class WalletManager {
   });
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
-    ipcMain.handle(ipcConsts.W_M_ACTIVATE, async (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_ACTIVATE, (_event, request) => {
       try {
-        this.activateWalletManager({ url: request.url, port: request.port });
-        logger.log('W_M_ACTIVATE channel', true, request);
+        this.activateWalletManager({ ip: request.ip, port: request.port });
         return { activated: true, error: null };
       } catch (e) {
         logger.error('W_M_ACTIVATE channel', true, request);
         return { activated: false, error: e };
       }
     });
-    ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, async () => {
+    ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, () => {
       const netId = StoreService.get('netSettings.netId');
       const netName = StoreService.get('netSettings.netName');
       const genesisTime = StoreService.get('netSettings.genesisTime');
       const minCommitmentSize = StoreService.get('netSettings.minCommitmentSize');
-      return { netId, netName, genesisTime, minCommitmentSize };
+      const explorerUrl = StoreService.get('netSettings.explorerUrl');
+      return { netId, netName, genesisTime, minCommitmentSize, explorerUrl };
     });
-    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, async () => {
+    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => {
       const { error, currentLayer } = this.meshService.getCurrentLayer();
       return error ? { currentLayer: -1 } : { currentLayer };
     });
@@ -129,9 +129,9 @@ class WalletManager {
       return res;
     });
     ipcMain.handle(ipcConsts.W_M_UPDATE_TX, async (event, request) => {
-      const res = await this.txManager.updateTransaction({ event, ...request });
-      logger.log('W_M_UPDATE_TX channel', res, request);
-      return res;
+      await this.txManager.updateTransaction({ event, ...request });
+      logger.log('W_M_UPDATE_TX channel', true, request);
+      return true;
     });
     ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
       const { message, accountIndex } = request;
@@ -141,13 +141,13 @@ class WalletManager {
     });
   };
 
-  activateWalletManager = ({ url, port }: { url: string; port: string }) => {
-    this.meshService.createService(url, port);
-    this.glStateService.createService(url, port);
-    this.txService.createService(url, port);
+  activateWalletManager = ({ ip, port }: { ip: string | undefined; port: string | undefined }) => {
+    this.meshService.createService(ip, port);
+    this.glStateService.createService(ip, port);
+    this.txService.createService(ip, port);
   };
 
-  createWalletFile = async ({ password, existingMnemonic, isWalletOnly }: { password: string; existingMnemonic: string; isWalletOnly: boolean }) => {
+  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string; ip: string; port: string }) => {
     try {
       const timestamp = new Date().toISOString().replace(/:/g, '-');
       this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
@@ -160,8 +160,9 @@ class WalletManager {
       const meta = {
         displayName: 'Main Wallet',
         created: timestamp,
-        netId: 0,
-        isWalletOnly,
+        netId: StoreService.get('netSettings.netId'),
+        ip,
+        port,
         meta: { salt: encryptionConst.DEFAULT_SALT }
       };
       this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });

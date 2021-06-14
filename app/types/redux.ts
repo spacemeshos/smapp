@@ -10,6 +10,7 @@ export interface NetworkState {
   currentLayer: number;
   rootHash: string;
   minCommitmentSize: number;
+  explorerUrl: string;
 }
 
 export interface NodeState {

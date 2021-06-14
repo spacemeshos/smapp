@@ -7,7 +7,6 @@ import { CorneredContainer } from '../../components/common';
 import { vault } from '../../assets/images';
 import { Link, Button } from '../../basicComponents';
 import { Account, RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 import { setCurrentMode } from '../../redux/wallet/actions';
 import { formatSmidge } from '../../infra/utils';
 
@@ -77,7 +76,7 @@ const Vault = ({ history }: RouteComponentProps) => {
     setMasterAccountIndex(index);
   };
 
-  const navigateToVaultSetup = () => eventsService.openExternalLink({ link: 'https://product.spacemesh.io/#/smapp_vaults' });
+  const navigateToVaultSetup = () => window.open('https://product.spacemesh.io/#/smapp_vaults');
 
   const Steps = new Map();
 
