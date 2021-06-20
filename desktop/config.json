@@ -29,7 +29,7 @@
 		"mesh": "info",
 		"meshDb": "info",
 		"nipst": "info",
-		"p2p": "debug",
+		"p2p": "info",
 		"poet": "info",
 		"poetDb": "info",
 		"post": "info",
