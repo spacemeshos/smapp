@@ -119,7 +119,7 @@ class SmesherService extends NetServiceFactory {
           logger.error('grpc Coinbase', error);
           resolve({ error });
         }
-        const coinbase = `0x${toHexString(response.account_id.address)}`;
+        const coinbase = `0x${toHexString(response.response.accountId.address)}`;
         logger.log('grpc Coinbase', coinbase);
         resolve({ coinbase });
       });
@@ -176,10 +176,9 @@ class SmesherService extends NetServiceFactory {
           resolve({ error });
         }
         const {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          status: { files_status, init_in_progress, bytes_written, error_message, error_type }
+          status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
         } = response;
-        const status = { filesStatus: files_status, initInProgress: init_in_progress, bytesWritten: parseInt(bytes_written), errorMessage: error_message, errorType: error_type };
+        const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
         logger.log('grpc PostStatus', status);
         resolve({ status });
       });
@@ -199,11 +198,11 @@ class SmesherService extends NetServiceFactory {
           logger.error('grpc PostComputeProviders', error);
           resolve({ error });
         }
-        const postComputeProviders: { id: number; model: string; computeApi: string; performance: number }[] = [];
-        response.postComputeProvider.forEach(({ id, model, computeApi, performance }: { id: string; model: string; computeApi: string; performance: string }) => {
-          postComputeProviders.push({ id: parseInt(id), model, computeApi, performance: parseInt(performance) });
-        });
-        resolve({ postComputeProviders });
+        // const postComputeProviders: { id: number; model: string; computeApi: string; performance: number }[] = [];
+        // response.postComputeProvider.forEach(({ id, model, computeApi, performance }: { id: string; model: string; computeApi: string; performance: string }) => {
+        //   postComputeProviders.push({ id: parseInt(id), model, computeApi, performance: parseInt(performance) });
+        // });
+        resolve({ postComputeProviders: [] });
       });
     });
 

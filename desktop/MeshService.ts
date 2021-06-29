@@ -25,13 +25,14 @@ class MeshService extends NetServiceFactory {
 
   sendAccountMeshDataQuery = ({ accountId, offset }: { accountId: Uint8Array; offset: number }) =>
     new Promise((resolve) => {
+      const accountMeshDataFlags = new Uint32Array(1);
+      accountMeshDataFlags[0] = 1;
       // @ts-ignore
-      this.service.AccountMeshDataQuery({ filter: { account_id: accountId, account_mesh_data_flags: 1 }, min_layer: { number: 0 }, max_results: 50, offset }, (error, response) => {
+      this.service.AccountMeshDataQuery({ filter: { accountId, accountMeshDataFlags }, minLayer: { number: 0 }, maxResults: 50, offset }, (error, response) => {
         if (error) {
           logger.error('grpc AccountMeshDataQuery', error);
           resolve({ totalResults: 0, data: null, error });
-        }
-        if (!response) {
+        } else if (!response || !response.data) {
           resolve({ data: [], totalResults: 0, error: null });
         } else {
           const { data, totalResults } = response;
@@ -41,20 +42,21 @@ class MeshService extends NetServiceFactory {
     });
 
   activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
+    const accountMeshDataFlags = new Uint32Array(1);
+    accountMeshDataFlags[0] = 1;
     // @ts-ignore
-    const stream = this.service.AccountMeshDataStream({ filter: { account_id: accountId, account_mesh_data_flags: 1 } });
+    const stream = this.service.AccountMeshDataStream({ filter: { accountId, accountMeshDataFlags } });
     stream.on('data', (response: any) => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       const { datum } = response;
       handler({ tx: datum });
     });
     stream.on('error', (error: any) => {
+      console.log(`stream AccountMeshDataStream error: ${error}`); // eslint-disable-line no-console
       logger.error('grpc AccountMeshDataStream', error);
-      // @ts-ignore
-      handler({ status: null, error });
     });
     stream.on('end', () => {
       console.log('AccountMeshDataStream ended'); // eslint-disable-line no-console
+      logger.log('grpc AccountMeshDataStream ended', null);
     });
   };
 }

@@ -48,7 +48,7 @@ class NodeManager {
           this.getNodeStatus(0);
           this.activateNodeErrorStream();
           resolve();
-        }, 20000)
+        }, 50000)
       );
     });
     ipcMain.handle(ipcConsts.N_M_GET_VERSION_AND_BUILD, async () => {

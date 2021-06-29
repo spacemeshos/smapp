@@ -20,8 +20,10 @@ class NodeService extends NetServiceFactory {
         if (error) {
           logger.error('grpc Version', error);
           resolve({ version: '', error });
+        } else {
+          console.log(response);
+          resolve({ version: response.versionString.value, error: null });
         }
-        resolve({ version: response.version_string.value, error: null });
       });
     });
 
@@ -32,8 +34,10 @@ class NodeService extends NetServiceFactory {
         if (error) {
           logger.error('grpc Build', error);
           resolve({ build: '', error });
+        } else {
+          console.log(response);
+          resolve({ build: response.buildString.value, error: null });
         }
-        resolve({ build: response.build_string.value, error: null });
       });
     });
 
@@ -67,8 +71,9 @@ class NodeService extends NetServiceFactory {
         if (error) {
           logger.error('grpc Shutdown', error);
           resolve({ shuttingDown: false, error });
+        } else {
+          resolve({ shuttingDown: true, error: null });
         }
-        resolve({ shuttingDown: true, error: null });
       });
     });
 
@@ -95,6 +100,7 @@ class NodeService extends NetServiceFactory {
     });
     this.statusStream.on('end', () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
+      logger.log('grpc StatusStream ended', null);
     });
   };
 
@@ -108,6 +114,7 @@ class NodeService extends NetServiceFactory {
     });
     this.errorStream.on('end', () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
+      logger.log('grpc ErrorStream ended', null);
     });
   };
 }

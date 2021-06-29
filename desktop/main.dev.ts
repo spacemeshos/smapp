@@ -191,16 +191,16 @@ if (!gotTheLock) {
 }
 
 const createWindow = async () => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
-      allowFileAccess: true
-    });
-    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
-      allowFileAccess: true
-    });
-  }
+  // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+  //   // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+  //   // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+  //   await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
+  //     allowFileAccess: true
+  //   });
+  //   await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
+  //     allowFileAccess: true
+  //   });
+  // }
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -243,7 +243,7 @@ const createWindow = async () => {
     event.preventDefault();
     shell.openExternal(url);
   });
-  StoreService.clear();
+
   const res = await fetch(DISCOVERY_URL);
   const initialConfig = (await res.json())[0];
   const savedNetId = StoreService.get('netSettings.netId');
@@ -259,7 +259,7 @@ const createWindow = async () => {
     const netConfig = await res2.json();
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', parseInt(netConfig.main['layer-duration-sec']));
-    StoreService.set('netSettings.genesisTime', parseInt(netConfig.main['genesis-time']));
+    StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
 
