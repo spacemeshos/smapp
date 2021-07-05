@@ -7,7 +7,8 @@ const initialState = {
   genesisTime: '',
   minCommitmentSize: 0,
   currentLayer: -1,
-  rootHash: ''
+  rootHash: '',
+  explorerUrl: ''
 };
 
 const reducer = (state: NetworkState = initialState, action: CustomAction) => {
@@ -15,10 +16,10 @@ const reducer = (state: NetworkState = initialState, action: CustomAction) => {
     case SET_NETWORK_DEFINITIONS: {
       const {
         payload: {
-          definitions: { netId, netName, genesisTime, minCommitmentSize }
+          definitions: { netId, netName, genesisTime, minCommitmentSize, explorerUrl }
         }
       } = action;
-      return { ...state, netId, netName, genesisTime, minCommitmentSize };
+      return { ...state, netId, netName, genesisTime, minCommitmentSize, explorerUrl };
     }
     case SET_CURRENT_LAYER: {
       const {

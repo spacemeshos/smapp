@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
 import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';
@@ -109,11 +108,15 @@ interface Props extends RouteComponentProps {
 const WalletType = ({ history, location }: Props) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+
+  const navigateToCreateWallet = async () => {
+    history.push('/auth/create', { ip: location?.state?.ip, port: location?.state?.port });
+  };
 
   return (
     <Wrapper>
-      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} header={''} currentStep={1} isDarkMode={isDarkMode} />
+      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={1} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="WALLET SETUP" subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         <BackButton action={history.goBack} />
@@ -126,7 +129,7 @@ const WalletType = ({ history, location }: Props) => {
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
-          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={() => history.push('/auth/create', { ip: location?.state?.ip, port: location?.state?.port })} />
+          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={navigateToCreateWallet} />
         </RowJust>
         <RowSecond>
           <RowColumn>

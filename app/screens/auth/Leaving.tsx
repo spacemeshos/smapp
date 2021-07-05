@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
 import { bigInnerSideBar } from '../../assets/images';
 
 import { smColors } from '../../vars';
@@ -66,7 +65,7 @@ const BottomPart = styled.div`
 const Leaving = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const header = 'LEAVING SETUP';
 

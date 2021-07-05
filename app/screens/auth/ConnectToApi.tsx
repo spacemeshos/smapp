@@ -68,7 +68,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
-  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
@@ -79,7 +79,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
   );
 
   const handleNext = async () => {
-    const response = await eventsService.activateWalletManager({ url: publicServices[selectedItemIndex].text, port: '' });
+    const response = await eventsService.activateWalletManager({ ip: publicServices[selectedItemIndex].text, port: '' });
     if (response.activated) {
       const { ip, port } = publicServices[selectedItemIndex];
       history.push('/auth/wallet-type', { ip, port });
@@ -90,7 +90,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
 
   return (
     <Wrapper>
-      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} header={''} currentStep={0} isDarkMode={isDarkMode} />
+      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={0} isDarkMode={isDarkMode} />
       <CorneredContainer
         width={650}
         height={400}

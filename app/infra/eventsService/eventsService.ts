@@ -3,7 +3,7 @@ import { ipcConsts } from '../../vars';
 import { Tx } from '../../types';
 import { setNodeError, setNodeStatus } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
-import { setRewards } from '../../redux/smesher/actions';
+import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 
 class EventsService {
@@ -15,10 +15,6 @@ class EventsService {
   static getOsThemeColor = () => ipcRenderer.invoke(ipcConsts.GET_OS_THEME_COLOR);
 
   static openBrowserView = () => ipcRenderer.send(ipcConsts.OPEN_BROWSER_VIEW);
-
-  static openExternalLink = ({ link }: { link: string }) => ipcRenderer.send(ipcConsts.OPEN_EXTERNAL_LINK, { link });
-
-  static openExplorerLink = ({ uri }: { uri: string }) => ipcRenderer.send(ipcConsts.OPEN_EXPLORER_LINK, { uri });
 
   static updateBrowserViewTheme = ({ isDarkMode }: { isDarkMode: boolean }) => ipcRenderer.send(ipcConsts.SEND_THEME_COLOR, { isDarkMode });
 
@@ -51,21 +47,19 @@ class EventsService {
 
   static getPostComputeProviders = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_COMPUTE_PROVIDERS);
 
-  static createPosData = ({
+  static startSmeshing = ({
     coinbase,
     dataDir,
     commitmentSize,
-    append,
-    throttle,
-    providerId
+    computeProviderId,
+    throttle
   }: {
     coinbase: string;
     dataDir: string;
     commitmentSize: number;
-    append: boolean;
+    computeProviderId: number;
     throttle: boolean;
-    providerId: number;
-  }) => ipcRenderer.invoke(ipcConsts.SMESHER_CREATE_POST_DATA, { coinbase, dataDir, commitmentSize, append, throttle, providerId });
+  }) => ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
 
   static getPostStatus = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_STATUS);
 
@@ -98,7 +92,7 @@ class EventsService {
 
   /** **************************************  WALLET MANAGER  **************************************** */
 
-  static activateWalletManager = ({ url, port }: { url: string; port: string }) => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { url, port });
+  static activateWalletManager = ({ ip, port }: { ip: string | undefined; port: string | undefined }) => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { ip, port });
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
@@ -107,8 +101,6 @@ class EventsService {
   static getGlobalStateHash = () => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
 
   /** **************************************  NODE MANAGER  **************************************** */
-
-  static activateNodeManager = () => ipcRenderer.send(ipcConsts.N_M_ACTIVATE_NODE);
 
   static getVersionAndBuild = () => ipcRenderer.invoke(ipcConsts.N_M_GET_VERSION_AND_BUILD);
 
@@ -133,6 +125,11 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
   store.dispatch(setRewards({ rewards: request.rewards }));
+});
+
+ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
+  const { error, status } = request;
+  store.dispatch(setPostStatus({ error, status }));
 });
 
 export default EventsService;

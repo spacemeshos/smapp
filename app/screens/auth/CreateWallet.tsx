@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { createNewWallet } from '../../redux/wallet/actions';
-import { CorneredContainer, BackButton } from '../../components/common';
+import { CorneredContainer } from '../../components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
@@ -117,7 +117,7 @@ const CreateWallet = ({ history, location }: Props) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      dispatch(await createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
+      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
       setSubMode(2);
       setIsLoaderVisible(false);
     }
@@ -151,7 +151,7 @@ const CreateWallet = ({ history, location }: Props) => {
     }
   };
 
-  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
   if (isLoaderVisible) {
@@ -169,7 +169,6 @@ const CreateWallet = ({ history, location }: Props) => {
         <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {subMode === 1 && (
           <>
-            <BackButton action={history.goBack} />
             <UpperPart>
               <Inputs>
                 <InputSection>
@@ -197,7 +196,6 @@ const CreateWallet = ({ history, location }: Props) => {
         )}
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET GUIDE" />
-          {subMode === 1 && <Link onClick={() => history.push('/auth/restore')} text="RESTORE WALLET" />}
           <Button onClick={nextAction} text="NEXT" />
         </BottomPart>
       </CorneredContainer>

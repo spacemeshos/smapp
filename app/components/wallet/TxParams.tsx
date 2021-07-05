@@ -4,7 +4,6 @@ import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from 
 import { getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Contact } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -152,7 +151,7 @@ const TxParams = ({
     setSelectedFeeIndex(index);
   };
 
-  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' });
+  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
 
   return (
     <Wrapper>

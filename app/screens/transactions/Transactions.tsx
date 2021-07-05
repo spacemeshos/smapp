@@ -11,7 +11,6 @@ import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import TX_STATUSES from '../../vars/enums';
 import { RootState, Tx, TxList } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -127,7 +126,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   //   history.push('/main/contacts');
   // };
 
-  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/wallet' });
+  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/wallet');
 
   const ddStyle = { width: 120, position: 'absolute', right: 12, top: 5, color: isDarkMode ? smColors.white : smColors.black };
 

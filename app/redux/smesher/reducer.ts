@@ -1,12 +1,14 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { fileStatusEnums } from '../../vars';
 import { LOGOUT } from '../auth/actions';
-import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_CREATING_POS_DATA, SET_POST_DATA_CREATION_STATUS, SET_IS_SMESHING, SET_ACCOUNT_REWARDS } from './actions';
+import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_SMESHING, SET_POST_DATA_CREATION_STATUS, SET_IS_SMESHING, SET_ACCOUNT_REWARDS } from './actions';
 
 const initialState = {
   coinbase: '',
   dataDir: '',
   commitmentSize: 0,
+  throttle: false,
+  provider: null,
   isSmeshing: false,
   isCreatingPosData: false,
   postProgress: {},
@@ -22,7 +24,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       } = action;
       return { ...state, coinbase, dataDir };
     }
-    case STARTED_CREATING_POS_DATA: {
+    case STARTED_SMESHING: {
       const {
         payload: { coinbase, commitmentSize, throttle, provider }
       } = action;

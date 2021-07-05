@@ -6,7 +6,6 @@ import { backupWallet } from '../../redux/wallet/actions';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -77,7 +76,7 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
     history.push('/main/backup/file-backup');
   };
 
-  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
+  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
 
   return (
     <Wrapper>

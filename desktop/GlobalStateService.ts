@@ -8,7 +8,7 @@ const PROTO_PATH = 'proto/global_state.proto';
 
 class GlobalStateService extends NetServiceFactory {
   createService = (url: string, port: string) => {
-    super.createNetService(PROTO_PATH, url, port, 'GlobalStateService');
+    this.createNetService(PROTO_PATH, url, port, 'GlobalStateService');
   };
 
   getGlobalStateHash = () =>
@@ -18,42 +18,49 @@ class GlobalStateService extends NetServiceFactory {
         if (error) {
           logger.error('grpc GlobalStateHash', error);
           resolve({ error });
+        } else {
+          const layer = response.response.layer.number;
+          const hashRoot = toHexString(response.response.rootHash);
+          resolve({ layer, hashRoot });
         }
-        const layer = response.layer.number;
-        const hashRoot = toHexString(response.root_hash);
-        resolve({ layer, hashRoot });
       });
     });
 
-  sendAccountDataQuery = ({ filter, offset }: { filter: any; offset: any }) =>
+  sendAccountDataQuery = ({ filter, accountId, offset }: { filter: any; accountId: { address: Uint8Array }; offset: any }) =>
     new Promise((resolve) => {
+      const accountDataFlags = new Uint32Array(1);
+      accountDataFlags[0] = filter;
+      const completeFilter = { accountId, accountDataFlags };
       // @ts-ignore
-      this.service.AccountDataQuery({ filter, max_results: 0, offset }, (error, response) => {
+      this.service.AccountDataQuery({ filter: completeFilter, maxResults: 0, offset }, (error, response) => {
         if (error) {
           logger.error('grpc AccountDataQuery', error);
-          resolve({ data: null, error });
+        } else if (!response || !response.data) {
+          resolve({ totalResults: 0, data: [], error: null });
+        } else {
+          const { totalResults, accountItem } = response;
+          resolve({ totalResults, data: accountItem, error: null });
         }
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        const { total_results, account_item } = response;
-        resolve({ totalResults: total_results, data: account_item });
       });
     });
 
-  activateAccountDataStream = ({ filter, handler }: { filter: any; handler: ({ data }: { data: any }) => void }) => {
+  activateAccountDataStream = ({ filter, accountId, handler }: { filter: any; accountId: { address: Uint8Array }; handler: ({ data }: { data: any }) => void }) => {
+    const accountDataFlags = new Uint32Array(1);
+    accountDataFlags[0] = filter;
+    const completeFilter = { accountId, accountDataFlags };
     // @ts-ignore
-    const stream = this.service.AccountDataStream({ filter });
+    const stream = this.service.AccountDataStream({ filter: completeFilter });
     stream.on('data', (response: any) => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       const { datum } = response;
       handler({ data: datum });
     });
     stream.on('error', (error: any) => {
+      console.log(`stream AccountDataStream error: ${error}`); // eslint-disable-line no-console
       logger.error('grpc AccountDataStream', error);
-      // @ts-ignore
-      handler({ status: null, error });
     });
     stream.on('end', () => {
-      console.log('AccountDataStream ended'); // eslint-disable-line no-console
+      console.log('grpc stream AccountDataStream ended'); // eslint-disable-line no-console
+      logger.log('grpc AccountDataStream ended', null);
     });
   };
 }

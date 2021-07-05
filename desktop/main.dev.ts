@@ -12,9 +12,10 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import util from 'util';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
+import os from 'os';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell, session } from 'electron';
 import 'regenerator-runtime/runtime';
-import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+// import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
@@ -24,7 +25,7 @@ import StoreService from './storeService';
 import WalletManager from './WalletManager';
 import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
-// import SmesherManager from './SmesherManager';
+import SmesherManager from './SmesherManager';
 import './wasm_exec';
 
 const writeFileAsync = util.promisify(fs.writeFile);
@@ -64,7 +65,8 @@ let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 const handleClosingApp = async () => {
-  const isSmeshing = StoreService.get('smeshingParams');
+  const netId = StoreService.get('netSettings.netId');
+  const isSmeshing = StoreService.get(`${netId}-smeshingParams`);
   if (isSmeshing) {
     const options = {
       title: 'Quit App',
@@ -144,32 +146,20 @@ const addIpcEventListeners = () => {
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
     mainWindow.setBrowserView(browserView);
+    browserView.webContents.on('new-window', (event, url) => {
+      event.preventDefault();
+      shell.openExternal(url);
+    });
     const contentBounds = mainWindow.getContentBounds();
     browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-    const url = isDarkMode ? 'https://stage-dash.spacemesh.io/?hide-right-line&darkMode' : 'https://stage-dash.spacemesh.io/?hide-right-line';
-    browserView.webContents.loadURL(url);
+    const dashUrl = StoreService.get('netSettings.dashUrl');
+    browserView.webContents.loadURL(`${dashUrl}?hide-right-line${isDarkMode ? '&darkMode' : ''}`);
   });
 
   ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
     browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     // browserView.destroy();
-  });
-
-  ipcMain.on(ipcConsts.OPEN_EXTERNAL_LINK, (_event, request) => {
-    shell.openExternal(request.link);
-  });
-
-  ipcMain.on(ipcConsts.OPEN_EXPLORER_LINK, (_event, request) => {
-    if (!request.uri) {
-      _event.preventDefault();
-    }
-    const explorerUrl = 'https://stage-explore.spacemesh.io';
-    const darkMode = isDarkMode ? 'isDarkMode' : '';
-    const { uri } = request;
-
-    const url = darkMode ? `${explorerUrl}/${uri}` : `${explorerUrl}/${uri}?${darkMode}`;
-    shell.openExternal(url);
   });
 
   ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
@@ -187,23 +177,29 @@ const addIpcEventListeners = () => {
   });
 };
 
-// const gotTheLock = app.requestSingleInstanceLock();
-//
-// if (!gotTheLock) {
-//   app.quit();
-// } else {
-//   app.on('second-instance', () => {
-//     if (mainWindow) {
-//       if (mainWindow.isMinimized()) mainWindow.restore();
-//       mainWindow.focus();
-//     }
-//   });
-// }
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
 
 const createWindow = async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
+      allowFileAccess: true
+    });
+    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
+      allowFileAccess: true
+    });
   }
 
   mainWindow = new BrowserWindow({
@@ -249,28 +245,29 @@ const createWindow = async () => {
   });
 
   const res = await fetch(DISCOVERY_URL);
-  const initialConfig = await res.json();
+  const initialConfig = (await res.json())[0];
   const savedNetId = StoreService.get('netSettings.netId');
   const cleanStart = savedNetId !== initialConfig.netID;
   const configFilePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
   if (cleanStart) {
     StoreService.clear();
-    StoreService.set({ netSettings: { netId: initialConfig.netID } });
-    StoreService.set({ netSettings: { netName: initialConfig.netName } });
-    StoreService.set({ netSettings: { explorerUrl: initialConfig.explorer } });
-    StoreService.set({ netSettings: { dashUrl: initialConfig.dash } });
+    StoreService.set('netSettings.netId', initialConfig.netID);
+    StoreService.set('netSettings.netName', initialConfig.netName);
+    StoreService.set('netSettings.explorerUrl', initialConfig.explorer);
+    StoreService.set('netSettings.dashUrl', initialConfig.dash);
     const res2 = await fetch(initialConfig.conf);
     const netConfig = await res2.json();
-    StoreService.set({ netSettings: { minCommitmentSize: parseInt(netConfig.post['post-space']) } });
-    StoreService.set({ netSettings: { layerDurationSec: parseInt(netConfig.main['layer-duration-sec']) } });
-    StoreService.set({ netSettings: { genesisTime: parseInt(netConfig.main['genesis-time']) } });
+    StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
+    StoreService.set('netSettings.layerDurationSec', parseInt(netConfig.main['layer-duration-sec']));
+    StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
-  // eslint-disable-next-line no-new
-  new WalletManager(mainWindow);
+
   nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
   // eslint-disable-next-line no-new
-  // new SmesherManager(mainWindow);
+  new WalletManager(mainWindow, nodeManager);
+  // eslint-disable-next-line no-new
+  new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
 };

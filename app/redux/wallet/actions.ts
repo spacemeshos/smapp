@@ -64,7 +64,7 @@ export const createNewWallet = ({ existingMnemonic = '', password, ip, port }: {
 
 export const unlockWallet = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles[0], password });
+  const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     throw createError(error.message, () => dispatch(unlockWallet({ password })));
@@ -81,13 +81,13 @@ export const updateWalletName = ({ displayName }: { displayName: string }) => as
   const { wallet } = getState();
   const { walletFiles, meta } = wallet;
   const updatedMeta = { ...meta, displayName };
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], data: updatedMeta });
+  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', data: updatedMeta });
   dispatch(setWalletMeta({ meta: updatedMeta }));
 };
 
 export const createNewAccount = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles, accounts } = getState().wallet;
-  const { error, newAccount } = await eventsService.createNewAccount({ fileName: walletFiles[0], password });
+  const { error, newAccount } = await eventsService.createNewAccount({ fileName: walletFiles ? walletFiles[0] : '', password });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     throw createError('Failed to create new account', () => dispatch(createNewAccount({ password })));
@@ -103,21 +103,21 @@ export const updateAccountName = ({ accountIndex, name, password }: { accountInd
   const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedAccount = { ...accounts[accountIndex], displayName: name };
   const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts: updatedAccounts, contacts } });
+  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', password, data: { mnemonic, accounts: updatedAccounts, contacts } });
   dispatch(setAccounts({ accounts: updatedAccounts }));
 };
 
 export const addToContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = [contact, ...contacts];
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { accounts, mnemonic, contacts: updatedContacts } });
+  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', password, data: { accounts, mnemonic, contacts: updatedContacts } });
   dispatch(setContacts({ contacts: updatedContacts }));
 };
 
 export const removeFromContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = contacts.filter((item) => contact.address !== item.address);
-  await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { accounts, mnemonic, contacts: updatedContacts } });
+  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', password, data: { accounts, mnemonic, contacts: updatedContacts } });
   dispatch(setContacts({ contacts: updatedContacts }));
 };
 
@@ -134,7 +134,7 @@ export const restoreFile = ({ filePath }: { filePath: string }) => async (dispat
 
 export const backupWallet = () => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error } = await eventsService.copyFile({ filePath: walletFiles[0], copyToDocuments: true });
+  const { error } = await eventsService.copyFile({ filePath: walletFiles ? walletFiles[0] : '', copyToDocuments: true });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     throw createError('Error creating wallet backup!', () => dispatch(backupWallet()));

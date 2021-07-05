@@ -11,7 +11,6 @@ import { searchIcon, addContact, explorer, copyWhite, copyBlack, clock } from '.
 import { Contact, RootState } from '../../types';
 import { EnterPasswordModal } from '../../components/settings';
 import { removeFromContacts } from '../../redux/wallet/actions';
-import { eventsService } from '../../infra/eventsService';
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -285,6 +284,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
+  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   useEffect(() => {
@@ -357,7 +357,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
     await navigator.clipboard.writeText(address);
   };
 
-  const openExplorerLink = (address: string) => eventsService.openExplorerLink({ uri: `/accounts/${address}` });
+  const openExplorerLink = (address: string) => window.open(`${explorerUrl}accounts/${address}${isDarkMode ? '?dark' : ''}`);
 
   const renderLastUsedContacts = () => {
     if (lastUsedContacts && lastUsedContacts.length) {

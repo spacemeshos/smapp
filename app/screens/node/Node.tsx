@@ -9,7 +9,6 @@ import { getFormattedTimestamp } from '../../infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState, Status } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 
 const Wrapper = styled.div`
@@ -167,6 +166,7 @@ const Node = ({ history, location }: Props) => {
   const isCreatingPosData = useSelector((state: RootState) => state.smesher.isCreatingPosData);
   const rewards = useSelector((state: RootState) => state.smesher.rewards);
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
+  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
@@ -245,7 +245,7 @@ const Node = ({ history, location }: Props) => {
     );
   };
 
-  const openExplorerLink = (id: string) => eventsService.openExplorerLink({ uri: `smeshers/${id}` });
+  const openExplorerLink = (id: string) => window.open(`${explorerUrl}smeshers/${id}${isDarkMode ? '?dark' : ''}`);
 
   const buttonHandler = () => {
     dispatch(hideSmesherLeftPanel());
@@ -280,7 +280,7 @@ const Node = ({ history, location }: Props) => {
     return renderNodeDashboard();
   };
 
-  const navigateToExplanation = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const renderWalletOnlyMode = () => {
     return (

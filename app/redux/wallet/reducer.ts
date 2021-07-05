@@ -14,7 +14,7 @@ import {
 } from './actions';
 
 const initialState = {
-  walletFiles: [],
+  walletFiles: null,
   meta: {},
   mnemonic: '',
   accounts: [],

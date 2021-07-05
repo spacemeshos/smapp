@@ -10,8 +10,7 @@ message IsSmeshingResponse {
 
 message StartSmeshingRequest {
     AccountId coinbase = 1;
-    string data_dir = 2;
-    SimpleInt commitment_size = 3;
+    PostInitOpts opts = 2;
 }
 
 message StartSmeshingResponse {
@@ -42,13 +41,6 @@ message SetMinGasResponse {
     google.rpc.Status status = 1;
 }
 
-message CreatePostDataResponse {
-    google.rpc.Status status = 1;
-}
-
-message StopPostDataCreationSessionResponse {
-    google.rpc.Status status = 1;
-}
 
 message SmesherIDResponse {
     AccountId account_id = 1;
@@ -77,49 +69,42 @@ enum ComputeApiClass {
     COMPUTE_API_CLASS_VULKAN = 3;
 }
 
-// Basic post data. Used for users to provide requested post data and by
-// other messages which contain post data.
-message PostData {
-    string path = 1; // User provided path to create the post data files at
-    uint64 data_size = 2; // Requested post data size
-    bool   append = 3; // Append to existing files if they exist. Otherwise overwrite.
-    bool   throttle = 4; // Throttle down setup phase computations while user is interactive on system
-    uint32 provider_id = 5; // A PostProvider id
+// Post init options. Used to define the requested options and by
+// other messages which contain the options.
+message PostInitOpts {
+    string data_dir = 1; // User provided path to create the post data files at
+    uint32 num_units = 2; // Number of PoST data commitment units to generate
+    uint32 num_files = 3; // Number of files to equally distribute the labels among
+    uint32 compute_provider_id = 4; // A PostProvider id
+    bool throttle = 5; // Throttle down setup phase computations while user is interactive on system
 }
 
 message CreatePostDataRequest {
-    PostData data = 1;
+    PostInitOpts opts = 1;
 }
 
 // Param passed to methods to indicate a request to delete data files
 message StopSmeshingRequest {
-    bool W_M_SHOW_DELETE_FILEs = 1;
+    bool delete_files = 1;
 }
 
-message StopPostDataCreationSessionRequest {
-    bool W_M_SHOW_DELETE_FILEs = 1;
+message PostComputeProvidersRequest {
+    bool benchmark = 1;
 }
 
 // Proof of space data status
 message PostStatus {
-    PostData post_data = 1; // basic post data (set previously by the user)
-    enum FilesStatus {
-        FILES_STATUS_UNSPECIFIED = 0; // Lane's favorite impossible value
-        FILES_STATUS_NOT_FOUND = 1; // Expected data files do not exist
-        FILES_STATUS_PARTIAL = 2; // Some files exist and init can be continued (and may be in progress)
-        FILES_STATUS_COMPLETE = 3; // Expected data files are available and verified
+    enum InitStatus {
+        INIT_STATUS_UNSPECIFIED = 0; // Lane's favorite impossible value
+        INIT_STATUS_NOT_STARTED = 1;
+        INIT_STATUS_IN_PROGRESS = 2;
+        INIT_STATUS_COMPLETE = 3;
+        INIT_STATUS_ERROR = 4;
     }
-    FilesStatus files_status = 2;
-    bool init_in_progress = 3; // True if init process is currently in progress
-    uint64 bytes_written = 4; // Bytes written to the data files (actual total files sizes)
-    string error_message = 5; // Last init process error message
-    enum ErrorType {
-        ERROR_TYPE_UNSPECIFIED = 0; // Lane's favorite imposible value
-        ERROR_TYPE_FILE_NOT_FOUND = 1; // All expected post data files not found in expected path
-        ERROR_TYPE_READ_ERROR = 2; // Failure to read from a data file
-        ERROR_TYPE_WRITE_ERROR = 3; // Failure to write to a data file
-    }
-    ErrorType error_type = 6;
+    InitStatus init_status = 1;
+    PostInitOpts init_opts = 2; // options previously set by the user
+    uint64 num_labels_written = 4; // Number of labels (hashes) written to the data files
+    string error_message = 5; // The error message, if the status is INIT_STATUS_ERROR
 }
 
 message PostStatusResponse {
@@ -138,6 +123,13 @@ message EstimatedRewardsRequest {}
 message EstimatedRewardsResponse {
     // The amount of the total estimated reward in the next upcoming epoch
     Amount amount = 1;
-    // The commitment size that this estimated reward corresponds to (part of global config)
-    uint64 data_size = 2;
+    // The number of PoST data commitment units that this estimated reward corresponds to (part of global config)
+    uint32 num_units = 2;
+}
+
+message ConfigResponse {
+    uint32 bits_per_label = 1;
+    uint64 labels_per_unit = 2;
+    uint32 min_num_units = 3;
+    uint32 max_num_units = 4;
 }

@@ -122,9 +122,9 @@ const Link = styled.div`
 `;
 
 const commitments = [
-  { label: '100 GB', size: 100 },
-  { label: '200 GB', size: 200 },
-  { label: '300 GB', size: 300 }
+  { label: '250 GB', size: 250 },
+  { label: '500 GB', size: 500 },
+  { label: '750 GB', size: 750 }
 ];
 
 type Props = {

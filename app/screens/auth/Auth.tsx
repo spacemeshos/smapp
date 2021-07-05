@@ -51,19 +51,19 @@ const Auth = ({ history, location }: Props) => {
 
   useEffect(() => {
     const initialSetup = async () => {
-      const files = dispatch(await readWalletFiles());
+      const files = await dispatch(readWalletFiles());
       if (files.length && location.pathname !== '/auth/restore') {
         history.push('/auth/unlock');
       }
     };
     initialSetup();
-  }, [dispatch, location, history]);
+  }, []);
 
   return (
     <Wrapper>
       <Logo isDarkMode={isDarkMode} />
       <InnerWrapper>
-        {walletFiles.length > 0 ? (
+        {walletFiles ? (
           <Switch>
             {routes.auth.map((route) => (
               <Route exact key={route.path} path={route.path} component={route.component} />

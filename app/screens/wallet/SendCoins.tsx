@@ -85,7 +85,7 @@ const SendCoins = ({ history, location }: Props) => {
   // };
 
   const handleSendTransaction = async () => {
-    const txId: any = dispatch(await sendTransaction({ receiver: address, amount, fee, note }));
+    const txId: any = await dispatch(sendTransaction({ receiver: address, amount, fee, note }));
     setMode(3);
     setTxId(txId);
   };

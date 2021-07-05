@@ -5,11 +5,10 @@ import { RouteComponentProps } from 'react-router-dom';
 import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
-import { Link, Button, Input, ErrorPopup } from '../../basicComponents';
+import { Link, Button, Input, ErrorPopup, Loader } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -96,6 +95,7 @@ interface Props extends RouteComponentProps {
 const UnlockWallet = ({ history, location }: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
@@ -110,9 +110,11 @@ const UnlockWallet = ({ history, location }: Props) => {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
       try {
-        dispatch(unlockWallet({ password }));
+        setShowLoader(true);
+        await dispatch(unlockWallet({ password }));
         history.push('/main/wallet');
       } catch (error) {
+        setShowLoader(false);
         if (error.message && error.message.indexOf('Unexpected token') === 0) {
           setHasError(true);
         }
@@ -120,9 +122,11 @@ const UnlockWallet = ({ history, location }: Props) => {
     }
   };
 
-  const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
-  return (
+  return showLoader ? (
+    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
+  ) : (
     <Wrapper>
       {location?.state?.isLoggedOut && <LoggedOutBanner key="banner" />}
       <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkMode={isDarkMode}>

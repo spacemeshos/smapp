@@ -61,7 +61,7 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
 
   const submitActionWrapper = async () => {
     try {
-      dispatch(await unlockWallet({ password }));
+      await dispatch(unlockWallet({ password }));
       submitAction({ password });
     } catch {
       setHasError(true);

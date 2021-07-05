@@ -125,7 +125,7 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
   };
 
   const createContact = async ({ password }: { password: string }) => {
-    await dispatch(await addToContacts({ password, contact: { address, nickname } }));
+    await dispatch(addToContacts({ password, contact: { address, nickname } }));
     await eventsService.updateTransaction({ newData: { address, nickname }, accountIndex: currentAccountIndex, txId: '' });
     onCompleteAction();
   };

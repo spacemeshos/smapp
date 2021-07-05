@@ -111,7 +111,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
     eventsService.print({ content: twelveWordsPrint });
   };
 
-  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
+  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
 
   return (
     <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP" isDarkMode={isDarkMode}>

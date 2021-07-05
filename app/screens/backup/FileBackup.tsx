@@ -38,7 +38,7 @@ const FileBackup = ({ history }: RouteComponentProps) => {
     history.push('/main/wallet');
   };
 
-  const openBackupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/backup' });
+  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
 
   return (
     <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkMode={isDarkMode}>

@@ -186,6 +186,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const [showNoteModal, setShowNoteModal] = useState(false);
 
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
+  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const { txId, nickname, status, layerId, sender, receiver, amount, fee, timestamp } = tx;
@@ -261,7 +262,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
           <BoldText onClick={() => copyAddress({ id: txId })}>
             {formatTxId(txId)}
             <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-            <ExplorerIcon src={explorer} onClick={() => eventsService.openExplorerLink({ uri: `txs/${txId}` })} />
+            <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/${txId}${isDarkMode ? '?dark' : ''}`)} />
           </BoldText>
         </TextRow>
         <TextRow>
@@ -344,7 +345,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             />
           </InputSection>
           <ButtonsWrapper>
-            <Link onClick={() => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/send_coin' })} text="TRANSACTION GUIDE" />
+            <Link onClick={() => window.open('https://testnet.spacemesh.io/#/send_coin')} text="TRANSACTION GUIDE" />
             <RightButton>
               <Link style={{ color: smColors.orange, marginRight: '10px' }} onClick={() => setShowNoteModal(false)} text="CANCEL" />
               <Button text="NEXT" isDisabled={note === tx.note} onClick={save} />

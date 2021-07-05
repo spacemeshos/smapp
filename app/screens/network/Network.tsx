@@ -63,7 +63,7 @@ const Network = () => {
 
   useEffect(() => {
     const asyncGetCurrentLayer = async () => {
-      dispatch(await getCurrentLayer());
+      await dispatch(getCurrentLayer());
     };
     asyncGetCurrentLayer();
   }, [dispatch]);

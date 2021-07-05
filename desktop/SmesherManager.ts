@@ -29,15 +29,19 @@ const logger = Logger({ className: 'SmesherService' });
 class SmesherManager {
   private smesherService: any;
 
+  private readonly mainWindow: BrowserWindow;
+
   constructor(mainWindow: BrowserWindow) {
     this.subscribeToEvents(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
+    this.mainWindow = mainWindow;
   }
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
     ipcMain.handle(ipcConsts.SMESHER_GET_SETTINGS, () => {
-      const savedSmeshingParams = StoreService.get('smeshingParams');
+      const netId = StoreService.get('netSettings.netId');
+      const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
       const coinbase = savedSmeshingParams?.coinbase;
       const dataDir = savedSmeshingParams?.dataDir;
       return { coinbase, dataDir };
@@ -55,7 +59,7 @@ class SmesherManager {
       return res;
     });
     ipcMain.handle(ipcConsts.SMESHER_START_SMESHING, async (_event, request) => {
-      const res = await this.smesherService.startSmeshing({ ...request });
+      const res = await this.smesherService.startSmeshing({ ...request, handler: this.handlePostDataCreationStatusStream });
       return res;
     });
     ipcMain.handle(ipcConsts.SMESHER_STOP_SMESHING, async (_event, request) => {
@@ -90,10 +94,6 @@ class SmesherManager {
       const res = await this.smesherService.getPostComputeProviders();
       return res;
     });
-    ipcMain.handle(ipcConsts.SMESHER_CREATE_POST_DATA, async (_event, request) => {
-      const res = await this.smesherService.createPostData({ ...request, handler: this.handlePostDataCreationStatusStream });
-      return res;
-    });
     ipcMain.handle(ipcConsts.SMESHER_STOP_POST_DATA_CREATION, async (_event, request) => {
       const res = await this.smesherService.stopPostDataCreationSession({ ...request });
       return res;
@@ -125,7 +125,9 @@ class SmesherManager {
     }
   };
 
-  handlePostDataCreationStatusStream = () => {};
+  handlePostDataCreationStatusStream = ({ status, error }: { status: any; error: any }) => {
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { status, error });
+  };
 }
 
 export default SmesherManager;

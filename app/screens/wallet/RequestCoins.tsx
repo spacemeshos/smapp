@@ -7,7 +7,6 @@ import { getAddress } from '../../infra/utils';
 import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { Account, RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -120,9 +119,9 @@ const RequestCoins = ({ history, location }: Props) => {
     history.push('/main/node-setup');
   };
 
-  const navigateToGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/get_coin' });
+  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/get_coin');
 
-  const navigateToTap = () => eventsService.openExternalLink({ link: 'https://discord.gg/ASpy52C' });
+  const navigateToTap = () => window.open('https://discord.gg/ASpy52C');
 
   return (
     <Wrapper>

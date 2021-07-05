@@ -10,6 +10,7 @@ export interface NetworkState {
   currentLayer: number;
   rootHash: string;
   minCommitmentSize: number;
+  explorerUrl: string;
 }
 
 export interface NodeState {
@@ -21,7 +22,7 @@ export interface NodeState {
 }
 
 export interface WalletState {
-  walletFiles: Array<string>;
+  walletFiles: Array<string> | null;
   meta: WalletMeta | any;
   mnemonic: string;
   accounts: Array<Account> | [];

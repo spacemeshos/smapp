@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
 import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -100,7 +99,7 @@ const subHeader = (
 const Welcome = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToSetupGuide = () => eventsService.openExternalLink({ link: 'https://testnet.spacemesh.io/#/guide/setup' });
+  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   return (
     <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" subHeader={subHeader} isDarkMode={isDarkMode}>

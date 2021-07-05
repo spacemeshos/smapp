@@ -1,13 +1,14 @@
 import NetServiceFactory from './NetServiceFactory';
-import { toHexString } from './utils';
 import Logger from './logger';
+import { toHexString } from './utils';
 
 const logger = Logger({ className: 'TransactionService' });
+
 const PROTO_PATH = 'proto/tx.proto';
 
 class TransactionService extends NetServiceFactory {
   createService = (url: string, port: string) => {
-    super.createNetService(PROTO_PATH, url, port, 'TransactionService');
+    this.createNetService(PROTO_PATH, url, port, 'TransactionService');
   };
 
   submitTransaction = ({ transaction }) =>
