@@ -21,7 +21,6 @@ class NodeService extends NetServiceFactory {
           logger.error('grpc Version', error);
           resolve({ version: '', error });
         } else {
-          console.log(response);
           resolve({ version: response.versionString.value, error: null });
         }
       });
@@ -35,7 +34,6 @@ class NodeService extends NetServiceFactory {
           logger.error('grpc Build', error);
           resolve({ build: '', error });
         } else {
-          console.log(response);
           resolve({ build: response.buildString.value, error: null });
         }
       });

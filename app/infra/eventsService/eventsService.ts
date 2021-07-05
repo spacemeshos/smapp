@@ -102,8 +102,6 @@ class EventsService {
 
   /** **************************************  NODE MANAGER  **************************************** */
 
-  static activateNodeManager = () => ipcRenderer.invoke(ipcConsts.N_M_ACTIVATE_NODE);
-
   static getVersionAndBuild = () => ipcRenderer.invoke(ipcConsts.N_M_GET_VERSION_AND_BUILD);
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });

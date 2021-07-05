@@ -39,18 +39,6 @@ class NodeManager {
   }
 
   subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.N_M_ACTIVATE_NODE, async () => {
-      this.startNode();
-      await new Promise<void>((resolve) =>
-        setTimeout(() => {
-          this.nodeService.createService();
-          StoreService.set('localNode', true);
-          this.getNodeStatus(0);
-          this.activateNodeErrorStream();
-          resolve();
-        }, 50000)
-      );
-    });
     ipcMain.handle(ipcConsts.N_M_GET_VERSION_AND_BUILD, async () => {
       const res = await this.getVersionAndBuild();
       logger.log('N_M_GET_VERSION_AND_BUILD channel', res);
@@ -58,6 +46,19 @@ class NodeManager {
     });
     ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
       StoreService.set('nodeSettings.port', request.port);
+    });
+  };
+
+  activateNodeProcess = () => {
+    this.startNode();
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        this.nodeService.createService();
+        StoreService.set('localNode', true);
+        this.getNodeStatus(0);
+        this.activateNodeErrorStream();
+        resolve();
+      }, 50000);
     });
   };
 

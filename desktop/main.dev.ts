@@ -191,16 +191,16 @@ if (!gotTheLock) {
 }
 
 const createWindow = async () => {
-  // if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-  //   // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-  //   // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-  //   await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
-  //     allowFileAccess: true
-  //   });
-  //   await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
-  //     allowFileAccess: true
-  //   });
-  // }
+  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
+    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
+      allowFileAccess: true
+    });
+    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
+      allowFileAccess: true
+    });
+  }
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -265,7 +265,7 @@ const createWindow = async () => {
 
   nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
   // eslint-disable-next-line no-new
-  new WalletManager(mainWindow);
+  new WalletManager(mainWindow, nodeManager);
   // eslint-disable-next-line no-new
   new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);

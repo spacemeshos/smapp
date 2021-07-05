@@ -13,6 +13,7 @@ import encryptionConst from './encryptionConst';
 import Logger from './logger';
 import StoreService from './storeService';
 import TransactionService from './TransactionService';
+import NodeManager from './NodeManager';
 
 const logger = Logger({ className: 'WalletManager' });
 
@@ -37,12 +38,15 @@ class WalletManager {
 
   private readonly txService: any;
 
+  private nodeManager: NodeManager;
+
   private txManager: TransactionManager;
 
   private mnemonic = '';
 
-  constructor(mainWindow: BrowserWindow) {
+  constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
     this.subscribeToEvents(mainWindow);
+    this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
     this.txService = new TransactionService();
@@ -92,12 +96,10 @@ class WalletManager {
     });
     ipcMain.handle(ipcConsts.W_M_READ_WALLET_FILES, async () => {
       const res = await this.readWalletFiles();
-      logger.log('W_M_READ_WALLET_FILES channel', { res });
       return res;
     });
     ipcMain.handle(ipcConsts.W_M_UNLOCK_WALLET, async (_event, request) => {
       const res = await this.unlockWalletFile({ ...request });
-      logger.log('W_M_UNLOCK_WALLET channel', res, request);
       return res;
     });
     ipcMain.on(ipcConsts.W_M_UPDATE_WALLET, async (_event, request) => {
@@ -105,12 +107,10 @@ class WalletManager {
     });
     ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, request) => {
       const res = await this.createNewAccount({ ...request });
-      logger.log('W_M_CREATE_NEW_ACCOUNT channel', res, request);
       return res;
     });
     ipcMain.handle(ipcConsts.W_M_COPY_FILE, async (_event, request) => {
       const res = await this.copyFile({ ...request });
-      logger.log('W_M_COPY_FILE channel', res, request);
       return res;
     });
     ipcMain.on(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, (_event, request) => {
@@ -125,18 +125,15 @@ class WalletManager {
 
     ipcMain.handle(ipcConsts.W_M_SEND_TX, async (_event, request) => {
       const res = await this.txManager.sendTx({ ...request });
-      logger.log('W_M_SEND_TX channel', res, request);
       return res;
     });
     ipcMain.handle(ipcConsts.W_M_UPDATE_TX, async (event, request) => {
       await this.txManager.updateTransaction({ event, ...request });
-      logger.log('W_M_UPDATE_TX channel', true, request);
       return true;
     });
     ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
       const { message, accountIndex } = request;
       const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
-      logger.log('W_M_SIGN_MESSAGE channel', res, request);
       return res;
     });
   };
@@ -165,6 +162,15 @@ class WalletManager {
         port,
         meta: { salt: encryptionConst.DEFAULT_SALT }
       };
+      await this.nodeManager.activateNodeProcess();
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          this.meshService.createService(ip, port);
+          this.glStateService.createService(ip, port);
+          this.txService.createService(ip, port);
+          resolve();
+        }, 10000);
+      });
       this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
       const key = fileEncryptionService.createEncryptionKey({ password });
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
@@ -203,6 +209,15 @@ class WalletManager {
       const key = fileEncryptionService.createEncryptionKey({ password });
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
+      await this.nodeManager.activateNodeProcess();
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          this.meshService.createService(meta.ip, meta.port);
+          this.glStateService.createService(meta.ip, meta.port);
+          this.txService.createService(meta.ip, meta.port);
+          resolve();
+        }, 10000);
+      });
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
       return { error: null, accounts, mnemonic, meta, contacts };
@@ -251,7 +266,7 @@ class WalletManager {
       };
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
-
+      await this.nodeManager.activateNodeProcess();
       this.txManager.addAccount({ account: newAccount });
       return { error: null, newAccount };
     } catch (error) {

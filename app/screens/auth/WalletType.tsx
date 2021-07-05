@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { StepsContainer, Button, Link, SmallHorizontalPanel, Tooltip, Loader } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
+import { StepsContainer, Button, Link, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
 import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';
@@ -107,20 +106,15 @@ interface Props extends RouteComponentProps {
 }
 
 const WalletType = ({ history, location }: Props) => {
-  const [showLoader, setShowLoader] = useState(false);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const navigateToCreateWallet = async () => {
-    setShowLoader(true);
-    await eventsService.activateNodeManager();
     history.push('/auth/create', { ip: location?.state?.ip, port: location?.state?.port });
   };
 
-  return showLoader ? (
-    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
-  ) : (
+  return (
     <Wrapper>
       <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={1} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="WALLET SETUP" subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
