@@ -11,8 +11,8 @@ export const getNetworkDefinitions = () => async (dispatch: AppThDispatch) => {
 };
 
 export const getCurrentLayer = () => async (dispatch: AppThDispatch) => {
-  const { layer } = await eventsService.getGlobalStateHash();
-  dispatch({ type: SET_CURRENT_LAYER, payload: { layer } });
+  const { currentLayer } = await eventsService.getGlobalStateHash();
+  dispatch({ type: SET_CURRENT_LAYER, payload: { currentLayer } });
 };
 
 export const getGlobalStateHash = () => async (dispatch: AppThDispatch) => {

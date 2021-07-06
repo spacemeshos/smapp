@@ -23,9 +23,9 @@ const reducer = (state: NetworkState = initialState, action: CustomAction) => {
     }
     case SET_CURRENT_LAYER: {
       const {
-        payload: { layer }
+        payload: { currentLayer }
       } = action;
-      return layer === -1 ? state : { ...state, currentLayer: layer };
+      return currentLayer === -1 ? state : { ...state, currentLayer };
     }
     case SET_STATE_ROOT_HASH: {
       const {
