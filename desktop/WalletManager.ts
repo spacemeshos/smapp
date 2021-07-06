@@ -163,14 +163,7 @@ class WalletManager {
         meta: { salt: encryptionConst.DEFAULT_SALT }
       };
       await this.nodeManager.activateNodeProcess();
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          this.meshService.createService(ip, port);
-          this.glStateService.createService(ip, port);
-          this.txService.createService(ip, port);
-          resolve();
-        }, 10000);
-      });
+      this.activateWalletManager({ ip, port });
       this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
       const key = fileEncryptionService.createEncryptionKey({ password });
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
@@ -210,14 +203,7 @@ class WalletManager {
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
       await this.nodeManager.activateNodeProcess();
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          this.meshService.createService(meta.ip, meta.port);
-          this.glStateService.createService(meta.ip, meta.port);
-          this.txService.createService(meta.ip, meta.port);
-          resolve();
-        }, 10000);
-      });
+      this.activateWalletManager({ ip: meta.ip, port: meta.port });
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
       return { error: null, accounts, mnemonic, meta, contacts };

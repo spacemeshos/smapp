@@ -13,6 +13,18 @@ class NodeService extends NetServiceFactory {
     this.createNetService(PROTO_PATH, '', '', 'NodeService');
   };
 
+  echo = () =>
+    new Promise((resolve) => {
+      // @ts-ignore
+      this.service.Echo({ msg: { value: 'ready' } }, (error) => {
+        if (error) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+
   getNodeVersion = () =>
     new Promise((resolve) => {
       // @ts-ignore
