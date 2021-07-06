@@ -49,17 +49,32 @@ class NodeManager {
     });
   };
 
-  activateNodeProcess = () => {
+  waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
+    const isReady = await this.nodeService.echo();
+    if (isReady) {
+      resolve(true);
+    } else if (attempts > 0) {
+      setTimeout(async () => {
+        await this.waitForNodeServiceResponsiveness(resolve, attempts - 1);
+      }, 5000);
+    } else {
+      resolve(false);
+    }
+  };
+
+  activateNodeProcess = async () => {
     this.startNode();
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        this.nodeService.createService();
-        StoreService.set('localNode', true);
-        this.getNodeStatus(0);
-        this.activateNodeErrorStream();
-        resolve();
-      }, 50000);
+    this.nodeService.createService();
+    const success = await new Promise<boolean>((resolve) => {
+      this.waitForNodeServiceResponsiveness(resolve, 15);
     });
+    if (success) {
+      StoreService.set('localNode', true);
+      await this.getNodeStatus(0);
+      this.activateNodeErrorStream();
+      return true;
+    }
+    return false; // TODO: add error handling
   };
 
   startNode = () => {
