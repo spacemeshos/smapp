@@ -13,6 +13,9 @@
 
 # misc
 .DS_Store
+.env
+.env.development
+.env.production
 .env.local
 .env.development.local
 .env.test.local
@@ -24,6 +27,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea/
+.vscode
 
 ct-libc/
 /dll/
@@ -35,6 +39,4 @@ ct-libc/
 /desktop/main.prod.js.map
 /node/
 /release
-.env
-.vscode
 /desktop/dist
