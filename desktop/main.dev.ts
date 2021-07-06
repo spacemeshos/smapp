@@ -55,7 +55,7 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')();
-  require('dotenv').config();
+  require('dotenv-flow').config();
 }
 
 let mainWindow: BrowserWindow;

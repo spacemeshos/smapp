@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const { Platform, build } = require('electron-builder');
-require('dotenv').config();
+require('dotenv-flow').config();
 const { notarize } = require('electron-notarize');
 
 async function notarizing(context) {
