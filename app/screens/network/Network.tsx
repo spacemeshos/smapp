@@ -71,17 +71,16 @@ const Network = () => {
   const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
+  const netName = useSelector((state: RootState) => state.network.netName);
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const networkName = 'TweedleDee 0.1.0';
 
   const openLogFile = () => {
     eventsService.showFileInFolder({ isBackupFile: true });
   };
 
   return (
-    <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={networkName} isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode}>
       <Container>
         <DetailsWrap>
           <DetailsRow>

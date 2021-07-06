@@ -20,8 +20,8 @@ class GlobalStateService extends NetServiceFactory {
           resolve({ error });
         } else {
           const layer = response.response.layer.number;
-          const hashRoot = toHexString(response.response.rootHash);
-          resolve({ layer, hashRoot });
+          const rootHash = toHexString(response.response.rootHash);
+          resolve({ error: null, layer, rootHash });
         }
       });
     });

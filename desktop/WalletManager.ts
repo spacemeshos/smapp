@@ -79,12 +79,12 @@ class WalletManager {
       const explorerUrl = StoreService.get('netSettings.explorerUrl');
       return { netId, netName, genesisTime, minCommitmentSize, explorerUrl };
     });
-    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => {
-      const { error, currentLayer } = this.meshService.getCurrentLayer();
+    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, async () => {
+      const { error, currentLayer } = await this.meshService.getCurrentLayer();
       return error ? { currentLayer: -1 } : { currentLayer };
     });
     ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, async () => {
-      const { error, layer, rootHash } = this.glStateService.getGlobalStateHash();
+      const { error, layer, rootHash } = await this.glStateService.getGlobalStateHash();
       return error ? { layer: -1, rootHash: '' } : { layer, rootHash };
     });
     ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, async (_event, request) => {
