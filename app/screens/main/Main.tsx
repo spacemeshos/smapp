@@ -23,7 +23,7 @@ import {
   signOutIconBlack
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState, Status } from '../../types';
+import { AppThDispatch, RootState, Status } from '../../types';
 
 const Wrapper = styled.div`
   position: relative;
@@ -119,6 +119,8 @@ interface Props extends RouteComponentProps {
   };
   nodeError: any;
   isDarkMode: boolean;
+  getNetworkDefinitions: AppThDispatch;
+  getVersionAndBuild: AppThDispatch;
 }
 
 type State = {
@@ -275,7 +277,10 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
+    const { getNetworkDefinitions, getVersionAndBuild } = this.props;
+    // @ts-ignore
     getNetworkDefinitions();
+    // @ts-ignore
     getVersionAndBuild();
   }
 

@@ -1,6 +1,5 @@
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
-import { toHexString } from './utils';
 
 const logger = Logger({ className: 'TransactionService' });
 
@@ -19,9 +18,7 @@ class TransactionService extends NetServiceFactory {
           logger.error('grpc SubmitTransaction', error);
           resolve({ error });
         }
-        const layer = response.layer.number;
-        const hashRoot = toHexString(response.root_hash);
-        resolve({ layer, hashRoot });
+        resolve({ error: null, txstate: response.response.txstate });
       });
     });
 }

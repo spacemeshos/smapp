@@ -41,7 +41,6 @@ class NodeManager {
   subscribeToEvents = () => {
     ipcMain.handle(ipcConsts.N_M_GET_VERSION_AND_BUILD, async () => {
       const res = await this.getVersionAndBuild();
-      logger.log('N_M_GET_VERSION_AND_BUILD channel', res);
       return res;
     });
     ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {

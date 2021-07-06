@@ -11,7 +11,6 @@ import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { version } from '../../../package.json';
 import { Account, AppThDispatch, RootState, Status } from '../../types';
 import { Modal } from '../../components/common';
 
@@ -86,6 +85,8 @@ interface Props extends RouteComponentProps {
   status: Status;
   genesisTime: number;
   rootHash: string;
+  build: string;
+  version: string;
   port: string;
   backupTime: string;
   isDarkMode: boolean;
@@ -101,7 +102,6 @@ type State = {
   walletDisplayName: string;
   canEditDisplayName: boolean;
   isAutoStartEnabled: boolean;
-  isUpdateDownloading: boolean;
   editedAccountIndex: number;
   accountDisplayNames: Array<string>;
   currentSettingIndex: number;
@@ -132,7 +132,6 @@ class Settings extends Component<Props, State> {
       walletDisplayName: displayName,
       canEditDisplayName: false,
       isAutoStartEnabled: false,
-      isUpdateDownloading: false,
       editedAccountIndex: -1,
       accountDisplayNames,
       currentSettingIndex: 0,
@@ -152,12 +151,11 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, status, genesisTime, rootHash, backupTime, switchTheme, isDarkMode } = this.props;
+    const { displayName, accounts, status, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
       isAutoStartEnabled,
-      isUpdateDownloading,
       accountDisplayNames,
       editedAccountIndex,
       currentSettingIndex,
@@ -234,14 +232,6 @@ class Settings extends Component<Props, State> {
                 upperPartRight={<Button onClick={() => {}} text="CREATE" width={180} isDisabled />}
                 rowName="Create a new wallet"
               />
-              <SettingRow
-                upperPartLeft={version}
-                upperPartRight={[
-                  <Text key="1" style={{ width: 170 }}>{`${isUpdateDownloading ? 'Downloading update...' : 'No updates available'}`}</Text>,
-                  <Button key="2" onClick={() => {}} text="CHECK FOR UPDATES" width={144} isDisabled />
-                ]}
-                rowName="App Version"
-              />
             </SettingsSection>
             <SettingsSection title="ACCOUNTS" refProp={this.myRef3} isDarkMode={isDarkMode}>
               <SettingRow
@@ -287,6 +277,8 @@ class Settings extends Component<Props, State> {
                 isUpperPartLeftText
                 rowName="Sync status"
               />
+              <SettingRow upperPart={build} isUpperPartLeftText rowName="Node Build" />
+              <SettingRow upperPart={version} isUpperPartLeftText rowName="Node Version" />
               <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
               <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
             </SettingsSection>
@@ -499,6 +491,8 @@ const mapStateToProps = (state: RootState) => ({
   walletFiles: state.wallet.walletFiles,
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
+  build: state.node.build,
+  version: state.node.version,
   port: state.node.port,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode
