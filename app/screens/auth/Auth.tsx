@@ -9,6 +9,7 @@ import { Loader } from '../../basicComponents';
 import routes from '../../routes';
 import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { RootState } from '../../types';
+import Version from '../../components/common/Version';
 
 const Wrapper = styled.div`
   position: relative;
@@ -74,6 +75,7 @@ const Auth = ({ history, location }: Props) => {
           <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
         )}
       </InnerWrapper>
+      <Version />
       <RightDecoration src={isDarkMode ? rightDecorationWhite : rightDecoration} />
     </Wrapper>
   );
