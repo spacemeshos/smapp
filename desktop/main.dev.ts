@@ -55,6 +55,7 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
   require('electron-debug')();
+  require('dotenv').config();
 }
 
 let mainWindow: BrowserWindow;
@@ -190,17 +191,24 @@ if (!gotTheLock) {
   });
 }
 
-const createWindow = async () => {
+const loadDevTools = async () => {
   if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
-      allowFileAccess: true
-    });
-    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
-      allowFileAccess: true
-    });
+    // extPath could be
+    // - a relative to the root of repo
+    // - an absolute path
+    const loadExt = (extPath) => session.defaultSession.loadExtension(path.resolve(__dirname, '..', extPath), { allowFileAccess: true });
+    try {
+      process.env.REACT_DEVTOOLS && (await loadExt(process.env.REACT_DEVTOOLS));
+      process.env.REDUX_DEVTOOLS && (await loadExt(process.env.REDUX_DEVTOOLS));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
   }
+};
+
+const createWindow = async () => {
+  await loadDevTools();
 
   mainWindow = new BrowserWindow({
     show: false,
