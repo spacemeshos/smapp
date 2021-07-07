@@ -62,7 +62,7 @@ const SendCoins = ({ history, location }: Props) => {
 
   const validateAmount = () => {
     const intAmount = parseInt(amount);
-    return !!intAmount && intAmount + fee < currentAccount.balance;
+    return !!intAmount && intAmount + parseInt(fee) < currentAccount.currentState.balance;
   };
 
   const proceedToMode2 = () => {

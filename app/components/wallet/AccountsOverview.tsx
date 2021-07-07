@@ -130,7 +130,6 @@ const AccountsOverview = (props: Props) => {
     };
   });
 
-  const status = useSelector((state: RootState) => state.node.status);
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
@@ -169,8 +168,8 @@ const AccountsOverview = (props: Props) => {
   if (!accounts || !accounts.length) {
     return null;
   }
-  const { displayName, publicKey, balance } = accounts[currentAccountIndex];
-  const { value, unit }: any = formatSmidge(balance || '0', true);
+  const { displayName, publicKey, currentState } = accounts[currentAccountIndex];
+  const { value, unit }: any = formatSmidge(currentState ? `${currentState.balance}` : '0', true);
 
   return (
     <WrapperWith2SideBars width={300} height={'calc(100% - 65px)'} header={meta.displayName} isDarkMode={isDarkMode}>
@@ -195,7 +194,7 @@ const AccountsOverview = (props: Props) => {
       <Footer>
         <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
-        {status?.isSynced ? (
+        {currentState ? (
           <BalanceWrapper>
             <BalanceAmount>{value}</BalanceAmount>
             <SmhText>{unit}</SmhText>

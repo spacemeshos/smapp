@@ -11,7 +11,7 @@ import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Account, AppThDispatch, RootState, Status } from '../../types';
+import { Account, AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
 
 const Wrapper = styled.div`
@@ -82,7 +82,6 @@ interface Props extends RouteComponentProps {
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
-  status: Status;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -151,7 +150,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, status, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode } = this.props;
+    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -270,13 +269,6 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="INFO" refProp={this.myRef4} isDarkMode={isDarkMode}>
               <SettingRow upperPartLeft={getFormattedTimestamp(genesisTime)} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow
-                upperPartLeft={`Synced: ${status.isSynced ? 'true' : 'false'}. Synced layer: ${status.syncedLayer}. Current layer: ${status.topLayer}. Verified layer: ${
-                  status.verifiedLayer
-                }.`}
-                isUpperPartLeftText
-                rowName="Sync status"
-              />
               <SettingRow upperPart={build} isUpperPartLeftText rowName="Node Build" />
               <SettingRow upperPart={version} isUpperPartLeftText rowName="Node Version" />
               <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
@@ -485,7 +477,6 @@ class Settings extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  status: state.node.status,
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles,

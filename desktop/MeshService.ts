@@ -25,10 +25,8 @@ class MeshService extends NetServiceFactory {
 
   sendAccountMeshDataQuery = ({ accountId, offset }: { accountId: Uint8Array; offset: number }) =>
     new Promise((resolve) => {
-      const accountMeshDataFlags = new Uint32Array(1);
-      accountMeshDataFlags[0] = 1;
       // @ts-ignore
-      this.service.AccountMeshDataQuery({ filter: { accountId, accountMeshDataFlags }, minLayer: { number: 0 }, maxResults: 50, offset }, (error, response) => {
+      this.service.AccountMeshDataQuery({ filter: { accountId, accountMeshDataFlags: 1 }, minLayer: { number: 0 }, maxResults: 50, offset }, (error, response) => {
         if (error) {
           logger.error('grpc AccountMeshDataQuery', error);
           resolve({ totalResults: 0, data: null, error });
@@ -42,10 +40,8 @@ class MeshService extends NetServiceFactory {
     });
 
   activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
-    const accountMeshDataFlags = new Uint32Array(1);
-    accountMeshDataFlags[0] = 1;
     // @ts-ignore
-    const stream = this.service.AccountMeshDataStream({ filter: { accountId, accountMeshDataFlags } });
+    const stream = this.service.AccountMeshDataStream({ filter: { accountId, accountMeshDataFlags: 1 } });
     stream.on('data', (response: any) => {
       const { datum } = response;
       handler({ tx: datum });

@@ -26,16 +26,13 @@ class GlobalStateService extends NetServiceFactory {
       });
     });
 
-  sendAccountDataQuery = ({ filter, accountId, offset }: { filter: any; accountId: { address: Uint8Array }; offset: any }) =>
+  sendAccountDataQuery = ({ filter, offset }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: number }; offset: number }) =>
     new Promise((resolve) => {
-      const accountDataFlags = new Uint32Array(1);
-      accountDataFlags[0] = filter;
-      const completeFilter = { accountId, accountDataFlags };
       // @ts-ignore
-      this.service.AccountDataQuery({ filter: completeFilter, maxResults: 0, offset }, (error, response) => {
+      this.service.AccountDataQuery({ filter, maxResults: 0, offset }, (error, response) => {
         if (error) {
           logger.error('grpc AccountDataQuery', error);
-        } else if (!response || !response.data) {
+        } else if (!response || !response.accountItem) {
           resolve({ totalResults: 0, data: [], error: null });
         } else {
           const { totalResults, accountItem } = response;
@@ -44,12 +41,9 @@ class GlobalStateService extends NetServiceFactory {
       });
     });
 
-  activateAccountDataStream = ({ filter, accountId, handler }: { filter: any; accountId: { address: Uint8Array }; handler: ({ data }: { data: any }) => void }) => {
-    const accountDataFlags = new Uint32Array(1);
-    accountDataFlags[0] = filter;
-    const completeFilter = { accountId, accountDataFlags };
+  activateAccountDataStream = ({ filter, handler }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: number }; handler: ({ data }: { data: any }) => void }) => {
     // @ts-ignore
-    const stream = this.service.AccountDataStream({ filter: completeFilter });
+    const stream = this.service.AccountDataStream({ filter });
     stream.on('data', (response: any) => {
       const { datum } = response;
       handler({ data: datum });
