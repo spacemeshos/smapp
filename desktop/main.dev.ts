@@ -12,10 +12,8 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import util from 'util';
-import os from 'os';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell, session } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
 import 'regenerator-runtime/runtime';
-// import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
@@ -52,10 +50,9 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
+const DEBUG = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
-if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-  require('electron-debug')();
-}
+DEBUG && require('electron-debug')();
 
 let mainWindow: BrowserWindow;
 let browserView: BrowserView;
@@ -191,17 +188,6 @@ if (!gotTheLock) {
 }
 
 const createWindow = async () => {
-  if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-    // installExtension(REACT_DEVELOPER_TOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    // installExtension(REDUX_DEVTOOLS).catch((err) => console.log('An error occurred: ', err)); // eslint-disable-line no-console
-    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.13.5_0'), {
-      allowFileAccess: true
-    });
-    await session.defaultSession.loadExtension(path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_1'), {
-      allowFileAccess: true
-    });
-  }
-
   mainWindow = new BrowserWindow({
     show: false,
     width: 1280,
@@ -272,8 +258,20 @@ const createWindow = async () => {
   new AutoStartManager(); // eslint-disable-line no-new
 };
 
-// eslint-disable-next-line no-console
-app.whenReady().then(createWindow).catch(console.log);
+const installDevTools = async () => {
+  if (!DEBUG) return;
+  const { default: installExtension, REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
+  await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS], { loadExtensionOptions: { allowFileAccess: true }, forceDownload: false }).then(
+    (names) => console.log('DevTools Installed:', names), // eslint-disable-line no-console
+    (err) => console.log('DevTools Installation Error:', err) // eslint-disable-line no-console
+  );
+};
+
+app
+  .whenReady()
+  .then(createWindow)
+  .then(() => installDevTools())
+  .catch(console.log); // eslint-disable-line no-console
 
 app.on('activate', () => {
   if (mainWindow === null) {
