@@ -26,7 +26,7 @@ class GlobalStateService extends NetServiceFactory {
       });
     });
 
-  sendAccountDataQuery = ({ filter, offset }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: number }; offset: any }) =>
+  sendAccountDataQuery = ({ filter, offset }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: number }; offset: number }) =>
     new Promise((resolve) => {
       // @ts-ignore
       this.service.AccountDataQuery({ filter, maxResults: 0, offset }, (error, response) => {

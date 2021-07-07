@@ -65,18 +65,18 @@ class TransactionManager {
       const binaryAccountId = fromHexString(account.publicKey);
       const addTransaction = this.addTransaction({ accountId: account.publicKey });
       this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
-      // this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction });
+      this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction });
 
       const updateAccountData = this.updateAccountData({ accountId: account.publicKey });
       this.retrieveAccountData({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData, retries: 0 });
       this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData });
 
-      // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
-      // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
-      // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
+      const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
+      this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
+      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
 
-      // this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: this.addReward, retries: 0 });
-      // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
+      this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: this.addReward, retries: 0 });
+      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
     });
   };
 
@@ -174,24 +174,22 @@ class TransactionManager {
 
   retrieveHistoricTxReceipt = async ({
     filter,
-    accountId,
     offset,
     handler,
     retries
   }: {
-    filter: any;
-    accountId: { address: Uint8Array };
+    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
     offset: number;
     handler: ({ data }: { data: any }) => void;
     retries: number;
   }) => {
-    const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, accountId, offset });
+    const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset });
     if (error && retries < 5) {
-      await this.retrieveHistoricTxReceipt({ filter, accountId, offset, handler, retries: retries + 1 });
+      await this.retrieveHistoricTxReceipt({ filter, offset, handler, retries: retries + 1 });
     } else {
       data && data.length && data.length > 0 && data.forEach((item) => handler({ data: item.receipt }));
       if (offset < totalResults) {
-        await this.retrieveHistoricTxReceipt({ filter, accountId, offset: offset + DATA_BATCH, handler, retries: 0 });
+        await this.retrieveHistoricTxReceipt({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
     }
   };
@@ -214,24 +212,22 @@ class TransactionManager {
 
   retrieveRewards = async ({
     filter,
-    accountId,
     offset,
     handler,
     retries
   }: {
-    filter: any;
-    accountId: { address: Uint8Array };
+    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
     offset: number;
     handler: ({ data }: { data: any }) => void;
     retries: number;
   }) => {
-    const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, accountId, offset: 0 });
+    const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset });
     if (error && retries < 5) {
-      await this.retrieveRewards({ filter, accountId, offset, handler, retries: retries + 1 });
+      await this.retrieveRewards({ filter, offset, handler, retries: retries + 1 });
     } else {
       data.length > 0 && data.forEach((item) => handler({ data: item.reward }));
       if (offset < totalResults) {
-        await this.retrieveRewards({ filter, accountId, offset, handler, retries: 0 });
+        await this.retrieveRewards({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
     }
   };
