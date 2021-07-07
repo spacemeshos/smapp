@@ -24,6 +24,7 @@ import {
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState, Status } from '../../types';
+import Version from '../../components/common/Version';
 
 const Wrapper = styled.div`
   position: relative;
@@ -271,6 +272,7 @@ class Main extends Component<Props, State> {
             </Switch>
           </RoutesWrapper>
         </InnerWrapper>
+        <Version />
         <RightDecoration src={img} />
       </Wrapper>
     );
