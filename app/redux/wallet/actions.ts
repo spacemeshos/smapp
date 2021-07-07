@@ -12,11 +12,9 @@ export const SET_MNEMONIC = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 export const SET_CONTACTS = 'SET_CONTACTS';
 
-const UPDATE_ACCOUNT_DATA = 'UPDATE_ACCOUNT_DATA';
+export const UPDATE_ACCOUNT_DATA = 'UPDATE_ACCOUNT_DATA';
 
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
-
-export const SET_BALANCE = 'SET_BALANCE';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
@@ -28,7 +26,7 @@ export const setCurrentAccount = ({ index }: { index: number }) => ({ type: SET_
 
 export const setMnemonic = ({ mnemonic }: { mnemonic: string }) => ({ type: SET_MNEMONIC, payload: { mnemonic } });
 
-export const updateAccountData = ({ account }: { account: any }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account } });
+export const updateAccountData = ({ account, accountId }: { account: any; accountId: string }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account, accountId } });
 
 export const setTransactions = ({ txs }: { txs: AccountTxs }) => ({ type: SET_TRANSACTIONS, payload: { txs } });
 

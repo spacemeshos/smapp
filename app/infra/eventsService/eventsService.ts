@@ -116,7 +116,7 @@ ipcRenderer.on(ipcConsts.N_M_SET_NODE_ERROR, (_event, request) => {
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_ACCOUNT, (_event, request) => {
-  store.dispatch(updateAccountData({ account: request.account }));
+  store.dispatch(updateAccountData({ account: request.data.account, accountId: request.data.accountId }));
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {

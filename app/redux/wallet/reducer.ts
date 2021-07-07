@@ -3,14 +3,14 @@ import { LOGOUT } from '../auth/actions';
 import {
   SAVE_WALLET_FILES,
   SET_WALLET_META,
-  SET_BALANCE,
   SET_ACCOUNTS,
   SET_MNEMONIC,
   SET_TRANSACTIONS,
   SET_CONTACTS,
   SET_CURRENT_ACCOUNT_INDEX,
   SET_BACKUP_TIME,
-  SET_CURRENT_MODE
+  SET_CURRENT_MODE,
+  UPDATE_ACCOUNT_DATA
 } from './actions';
 
 const initialState = {
@@ -72,12 +72,16 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       const { mode } = action.payload;
       return { ...state, vaultMode: mode };
     }
-    case SET_BALANCE: {
-      const { balance } = action.payload;
-      const accountToUpdate = state.accounts[state.currentAccountIndex];
+    case UPDATE_ACCOUNT_DATA: {
+      const { account, accountId } = action.payload;
+      const accountIndexToUpdate = state.accounts.findIndex((account) => account.publicKey === accountId);
       return {
         ...state,
-        accounts: [...state.accounts.slice(0, state.currentAccountIndex), { ...accountToUpdate, balance }, ...state.accounts.slice(state.currentAccountIndex + 1)]
+        accounts: [
+          ...state.accounts.slice(0, accountIndexToUpdate),
+          { ...state.accounts[accountIndexToUpdate], currentState: account.currentState, projectedState: account.projectedState },
+          ...state.accounts.slice(accountIndexToUpdate + 1)
+        ]
       };
     }
     case SET_TRANSACTIONS: {

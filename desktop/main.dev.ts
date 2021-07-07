@@ -269,8 +269,8 @@ const installDevTools = async () => {
 
 app
   .whenReady()
-  .then(createWindow)
   .then(() => installDevTools())
+  .then(createWindow)
   .catch(console.log); // eslint-disable-line no-console
 
 app.on('activate', () => {

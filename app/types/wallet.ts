@@ -1,7 +1,8 @@
 export interface Account {
   displayName: string;
   created: number;
-  balance: string;
+  currentState: { balance: number; counter: number };
+  projectedState: { balance: number; counter: number };
   path: string;
   publicKey: string;
   secretKey: string;
