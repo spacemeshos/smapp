@@ -46,12 +46,12 @@ const ExtraTxt = styled.div`
 `;
 
 type Props = {
-  onChange?: ({ value }: { value: string }) => void;
-  onChangeDebounced?: ({ value }: { value: string }) => void;
+  onChange?: ({ value }: { value: any }) => void;
+  onChangeDebounced?: ({ value }: { value: string | number }) => void;
   onEnterPress?: () => void | Promise<any>;
   onFocus?: ({ target }: { target: EventTarget | null }) => void;
   onPaste?: () => void;
-  value: string;
+  value: any;
   isDisabled?: boolean;
   placeholder?: string;
   extraText?: string;

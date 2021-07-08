@@ -67,10 +67,19 @@ type Props = {
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey);
-  const transactions = useSelector((state: RootState) => state.wallet.transactions[state.wallet.currentAccountIndex]);
+  const transactions = useSelector((state: RootState) => state.wallet.transactions[publicKey]);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const latestTransactions = transactions && transactions.data.length > 0 ? transactions.data.slice(0, 3) : [];
+  const latestTransactions = [];
+  if (transactions) {
+    const txs = Object.values(transactions);
+    if (txs.length > 0) {
+      for (let i = 0; i < 3 && i < txs.length; i += 1) {
+        // @ts-ignore
+        latestTransactions.push(txs[i]);
+      }
+    }
+  }
 
   const getColor = ({ status, isSent }: { status: number; isSent: boolean }) => {
     if (status === TX_STATUSES.PENDING) {

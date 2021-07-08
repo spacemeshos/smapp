@@ -102,7 +102,7 @@ const CopiedText = styled.div`
 type Props = {
   fromAddress: string;
   address: string;
-  amount: string;
+  amount: number;
   txId: string;
   isDarkMode: boolean;
   doneAction: () => void;

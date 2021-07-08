@@ -60,21 +60,22 @@ const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
   }
 `;
 
-const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string; transactions: Tx[] }) => {
+const getNumOfCoinsFromTransactions = ({ publicKey, transactions, isObject }: { publicKey: string; transactions: Tx[]; isObject?: boolean }) => {
   const coins = {
     mined: 0,
     sent: 0,
     received: 0
   };
   const address = getAddress(publicKey);
-  transactions.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: string }) => {
+  const txAsArray = isObject ? Object.values(transactions) : transactions;
+  txAsArray.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
     if (status !== TX_STATUSES.REJECTED) {
       if (txId === 'reward') {
-        coins.mined += parseInt(amount);
+        coins.mined += amount;
       } else if (sender === address) {
-        coins.sent += parseInt(amount);
+        coins.sent += amount;
       } else {
-        coins.received += parseInt(amount);
+        coins.received += amount;
       }
     }
   });
@@ -89,12 +90,12 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const [addressToAdd, setAddressToAdd] = useState('');
 
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex].publicKey);
-  const transactions = useSelector((state: RootState) => state.wallet.transactions[state.wallet.currentAccountIndex]);
+  const transactions = useSelector((state: RootState) => state.wallet.transactions[publicKey]);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const getCoinStatistics = ({ filteredTransactions }: { filteredTransactions: TxList }) => {
     const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
-    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions.data });
+    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions, isObject: true });
     return {
       ...coins,
       totalMined: totalCoins.mined,
@@ -115,7 +116,14 @@ const Transactions = ({ history }: RouteComponentProps) => {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
     const startDate = new Date().getTime() - spanInDays[selectedItemIndex] * oneDayInMs;
-    return transactions.data.filter((transaction: Tx) => transaction.timestamp >= startDate || !transaction.timestamp);
+    const filteredTransactions = [];
+    Object.values(transactions).forEach((tx: any) => {
+      if (tx.timestamp >= startDate || !tx.timestamp) {
+        // @ts-ignore
+        filteredTransactions.push(tx);
+      }
+    });
+    return filteredTransactions;
   };
 
   const cancelCreatingNewContact = () => {

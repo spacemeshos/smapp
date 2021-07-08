@@ -17,6 +17,7 @@ const BoldText = styled.span`
 
 const TextRow = styled.div`
   display: flex;
+  flex: 20px 1 0;
   flex-direction: row;
   justify-content: space-between;
   overflow: hidden;
@@ -82,10 +83,10 @@ const TransactionsMeta = ({ mined, sent, received, totalMined, totalSent, totalR
     <>
       <BoldText>activity</BoldText>
       <BoldText>--</BoldText>
-      <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${formatSmidge(`${totalFilteredCoins}`)}`}</Text>
+      <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
       {coinsMeta.map((coinMeta) => (
         <ProgressBar key={coinMeta.title}>
-          <SmallText>{`${coinMeta.title} ${formatSmidge(`${coinMeta.coins}`)}`}</SmallText>
+          <SmallText>{`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}</SmallText>
           <Bar>
             <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
           </Bar>
@@ -97,7 +98,7 @@ const TransactionsMeta = ({ mined, sent, received, totalMined, totalSent, totalR
         <TextRow key={totalMeta.title}>
           <Text>{totalMeta.title}</Text>
           <Dots>...................</Dots>
-          <Text>{formatSmidge(`${totalMeta.coins}`)}</Text>
+          <Text>{formatSmidge(totalMeta.coins)}</Text>
         </TextRow>
       ))}
     </>

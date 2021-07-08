@@ -80,17 +80,17 @@ const Footer = styled.div`
 // TODO add auto update for fee ranges
 const fees = [
   {
-    fee: '1',
+    fee: 1,
     label: '~ 10 min',
     text: '(FEE 1 Smidge)'
   },
   {
-    fee: '2',
+    fee: 2,
     label: '~ 5 min',
     text: '(FEE 2 Smidge)'
   },
   {
-    fee: '3',
+    fee: 3,
     label: '~ 1 min',
     text: '(FEE 3 Smidge)'
   }
@@ -106,13 +106,13 @@ type Props = {
   hasAddressError: boolean;
   updateTxAddress: ({ value }: { value: string }) => void;
   resetAddressError: () => void;
-  amount: string;
-  updateTxAmount: ({ value }: { value: string }) => void;
+  amount: number;
+  updateTxAmount: ({ value }: { value: number }) => void;
   hasAmountError: boolean;
   resetAmountError: () => void;
-  updateFee: ({ fee }: { fee: string }) => void;
+  updateFee: ({ fee }: { fee: number }) => void;
   note: string;
-  updateTxNote: ({ value }: { value: string }) => void;
+  updateTxNote: ({ value }: { value: any }) => void;
   nextAction: () => void;
   cancelTx: () => void;
   contacts: Contact[];

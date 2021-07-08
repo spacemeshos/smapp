@@ -27,7 +27,8 @@ export interface WalletState {
   mnemonic: string;
   accounts: Array<Account> | [];
   currentAccountIndex: number;
-  transactions: AccountTxs | [{ layerId: 0; data: [] }];
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  transactions: AccountTxs | {};
   lastUsedContacts: Array<Contact> | [];
   contacts: Array<Contact> | [];
   backupTime: string;

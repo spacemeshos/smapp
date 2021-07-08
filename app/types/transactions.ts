@@ -2,8 +2,8 @@ export interface Tx {
   txId: string;
   sender: string;
   receiver: string;
-  amount: string;
-  fee: string;
+  amount: number;
+  fee: number;
   status: number;
   layerId?: number;
   timestamp: number;
@@ -13,4 +13,4 @@ export interface Tx {
 
 export type TxList = Array<Tx>;
 
-export type AccountTxs = Array<{ layerId: number; data: TxList }>;
+export type AccountTxs = { [publicKey: string]: { txId: { tx: Tx } } };

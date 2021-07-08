@@ -120,7 +120,7 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_ACCOUNT, (_event, request) => {
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
-  store.dispatch(setTransactions({ txs: request.data }));
+  store.dispatch(setTransactions({ txs: request.data.txs, publicKey: request.data.publicKey }));
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {

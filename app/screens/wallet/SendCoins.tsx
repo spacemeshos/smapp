@@ -21,13 +21,14 @@ const SendCoins = ({ history, location }: Props) => {
   const [mode, setMode] = useState<1 | 2 | 3>(1);
   const [address, setAddress] = useState(location?.state?.contact.address || '');
   const [hasAddressError, setHasAddressError] = useState(false);
-  const [amount, setAmount] = useState('0');
+  const [amount, setAmount] = useState(0);
   const [hasAmountError, setHasAmountError] = useState(false);
   const [note, setNote] = useState('');
-  const [fee, setFee] = useState('1');
+  const [fee, setFee] = useState(1);
   const [txId, setTxId] = useState('');
   const [isCreateNewContactOn, setIsCreateNewContactOn] = useState(false);
 
+  const status = useSelector((state: RootState) => state.node.status);
   const currentAccount = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   // const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
@@ -39,16 +40,16 @@ const SendCoins = ({ history, location }: Props) => {
     setHasAddressError(false);
   };
 
-  const updateTxAmount = ({ value }: { value: string }) => {
+  const updateTxAmount = ({ value }: { value: number }) => {
     setAmount(value);
     setHasAmountError(false);
   };
 
-  const updateTxNote = ({ value }: { value: string }) => {
+  const updateTxNote = ({ value }: { value: any }) => {
     setNote(value);
   };
 
-  const updateFee = ({ fee }: { fee: string }) => {
+  const updateFee = ({ fee }: { fee: number }) => {
     setFee(fee);
   };
 
@@ -61,8 +62,7 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const validateAmount = () => {
-    const intAmount = parseInt(amount);
-    return !!intAmount && intAmount + parseInt(fee) < currentAccount.currentState.balance;
+    return !!amount && amount + fee < currentAccount.currentState.balance;
   };
 
   const proceedToMode2 = () => {
@@ -120,7 +120,7 @@ const SendCoins = ({ history, location }: Props) => {
           key="newContact"
         />
       ) : (
-        <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={amount} fee={fee} note={note} key="summary" />
+        <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={parseInt(`${amount}`)} fee={fee} note={note} key="summary" />
       )
     ];
   };
@@ -134,9 +134,10 @@ const SendCoins = ({ history, location }: Props) => {
         <TxConfirmation
           address={address}
           fromAddress={currentAccount.publicKey}
-          amount={amount}
+          amount={parseInt(`${amount}`)}
           fee={fee}
           note={note}
+          canSend={!!status?.isSynced}
           doneAction={handleSendTransaction}
           editTx={() => setMode(1)}
           cancelTx={history.goBack}
