@@ -46,7 +46,7 @@ const ExtraTxt = styled.div`
 `;
 
 type Props = {
-  onChange?: ({ value }: { value: any }) => void;
+  onChange?: ({ value }: { value: string }) => void;
   onChangeDebounced?: ({ value }: { value: string | number }) => void;
   onEnterPress?: () => void | Promise<any>;
   onFocus?: ({ target }: { target: EventTarget | null }) => void;
