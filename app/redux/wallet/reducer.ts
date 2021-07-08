@@ -19,7 +19,7 @@ const initialState = {
   mnemonic: '',
   accounts: [],
   currentAccountIndex: 0,
-  transactions: [{ layerId: 0, data: [] }],
+  transactions: {},
   lastUsedContacts: [],
   contacts: [],
   backupTime: '',
@@ -85,8 +85,11 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       };
     }
     case SET_TRANSACTIONS: {
-      const { transactions } = action.payload;
-      return { ...state, transactions };
+      const { publicKey, txs } = action.payload;
+      if (state.transactions[publicKey]) {
+        return { ...state, transactions: { ...state.transactions, [publicKey]: { ...state.transactions[publicKey], ...txs } } };
+      }
+      return { ...state, transactions: { ...state.transactions, [publicKey]: { ...txs } } };
     }
     case SET_CONTACTS: {
       const { contacts } = action.payload;

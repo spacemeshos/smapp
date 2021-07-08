@@ -74,7 +74,7 @@ class CryptoService {
       ]);
     });
     const message = new types.InnerSerializableSignedTransaction({
-      AccountNonce: xdr.UnsignedHyper.fromString(accountNonce),
+      AccountNonce: xdr.UnsignedHyper.fromString(`${accountNonce}`),
       Recipient: fromHexString(receiver),
       GasLimit: xdr.UnsignedHyper.fromString('5'), // TODO: change to real number passed from user selection
       Price: xdr.UnsignedHyper.fromString(`${price}`),

@@ -51,7 +51,7 @@ class TransactionManager {
 
   updateAppStateTxs = ({ accountId }: { accountId: string }) => {
     const txs = StoreService.get(`accounts.${accountId}.txs`);
-    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_TXS, data: txs });
+    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_TXS, data: { txs, publicKey: accountId } });
   };
 
   updateAppStateRewards = ({ accountId }: { accountId: string }) => {
@@ -62,7 +62,7 @@ class TransactionManager {
   setAccounts = ({ accounts }: { accounts: Array<any> }) => {
     this.accounts = accounts;
     accounts.forEach((account) => {
-      const binaryAccountId = fromHexString(account.publicKey);
+      const binaryAccountId = fromHexString(account.publicKey.substring(24));
       const addTransaction = this.addTransaction({ accountId: account.publicKey });
       this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
       this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction });
@@ -95,24 +95,25 @@ class TransactionManager {
   };
 
   addTransaction = ({ accountId }: { accountId: string }) => ({ tx }: { tx: any }) => {
-    const txId = toHexString(tx.id.id);
-    let existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
+    const txId = toHexString(tx.transaction.id.id);
+    const existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
     const newData = {
       txId,
-      receiver: toHexString(tx.coinTransfer.receiver.address),
-      sender: toHexString(tx.sender.address),
-      gasProvided: parseInt(tx.gasOffered.gasProvided),
-      gasPrice: parseInt(tx.gasOffered.gasPrice),
-      amount: parseInt(tx.amount.value),
-      counter: parseInt(tx.counter),
+      receiver: toHexString(tx.transaction.coinTransfer.receiver.address),
+      sender: toHexString(tx.transaction.sender.address),
+      gasProvided: parseInt(tx.transaction.gasOffered.gasProvided),
+      // gasPrice: parseInt(tx.transaction.gasOffered.gasPrice), // TODO missing from api response
+      amount: parseInt(tx.transaction.amount.value),
+      counter: parseInt(tx.transaction.counter),
       signature: {
-        scheme: tx.signature.scheme,
-        signature: toHexString(tx.signature.signature),
-        publicKey: toHexString(tx.signature.publicKey)
-      }
+        scheme: tx.transaction.signature.scheme,
+        signature: toHexString(tx.transaction.signature.signature),
+        publicKey: toHexString(tx.transaction.signature.publicKey)
+      },
+      timestamp: new Date().getTime() // TODO missing from api response
     };
-    existingTx = { ...existingTx, ...newData };
-    StoreService.set(`accounts.${accountId}.txs.${txId}`, existingTx);
+    const updatedTx = { ...existingTx, ...newData };
+    StoreService.set(`accounts.${accountId}.txs.${txId}`, updatedTx);
     this.updateAppStateTxs({ accountId });
   };
 
@@ -126,7 +127,7 @@ class TransactionManager {
         data.forEach((tx) => {
           handler({ tx });
         });
-      if (offset < totalResults) {
+      if (offset + DATA_BATCH < totalResults) {
         await this.retrieveHistoricTxData({ accountId, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
     }
@@ -188,7 +189,7 @@ class TransactionManager {
       await this.retrieveHistoricTxReceipt({ filter, offset, handler, retries: retries + 1 });
     } else {
       data && data.length && data.length > 0 && data.forEach((item) => handler({ data: item.receipt }));
-      if (offset < totalResults) {
+      if (offset + DATA_BATCH < totalResults) {
         await this.retrieveHistoricTxReceipt({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
     }
@@ -226,7 +227,7 @@ class TransactionManager {
       await this.retrieveRewards({ filter, offset, handler, retries: retries + 1 });
     } else {
       data.length > 0 && data.forEach((item) => handler({ data: item.reward }));
-      if (offset < totalResults) {
+      if (offset + DATA_BATCH < totalResults) {
         await this.retrieveRewards({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
     }
@@ -239,8 +240,8 @@ class TransactionManager {
       const res = await cryptoService.signTransaction({
         accountNonce: account.projectedState.counter,
         receiver,
-        price: fee,
-        amount,
+        price: parseInt(fee),
+        amount: parseInt(amount),
         secretKey: this.accounts[accountIndex].secretKey
       });
       // @ts-ignore

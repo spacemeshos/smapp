@@ -250,7 +250,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
           </TextRow>
           <TextRow>
             <BlackText>SMESHING FEE REWARD</BlackText>
-            <BoldText>{formatSmidge(fee || '0')}</BoldText>
+            <BoldText>{formatSmidge(fee || 0)}</BoldText>
           </TextRow>
         </DetailsSection>
       );
@@ -297,7 +297,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
         </TextRow>
         <TextRow>
           <BlackText>TRANSACTION FEE</BlackText>
-          <BoldText>{formatSmidge(fee || '0')}</BoldText>
+          <BoldText>{formatSmidge(fee || 0)}</BoldText>
         </TextRow>
         <TextRow>
           <BlackText>NOTE</BlackText>

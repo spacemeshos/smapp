@@ -169,7 +169,7 @@ const AccountsOverview = (props: Props) => {
     return null;
   }
   const { displayName, publicKey, currentState } = accounts[currentAccountIndex];
-  const { value, unit }: any = formatSmidge(currentState ? `${currentState.balance}` : '0', true);
+  const { value, unit }: any = formatSmidge(currentState ? currentState.balance : 0, true);
 
   return (
     <WrapperWith2SideBars width={300} height={'calc(100% - 65px)'} header={meta.displayName} isDarkMode={isDarkMode}>

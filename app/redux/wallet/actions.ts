@@ -28,7 +28,7 @@ export const setMnemonic = ({ mnemonic }: { mnemonic: string }) => ({ type: SET_
 
 export const updateAccountData = ({ account, accountId }: { account: any; accountId: string }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account, accountId } });
 
-export const setTransactions = ({ txs }: { txs: AccountTxs }) => ({ type: SET_TRANSACTIONS, payload: { txs } });
+export const setTransactions = ({ txs, publicKey }: { txs: AccountTxs; publicKey: string }) => ({ type: SET_TRANSACTIONS, payload: { txs, publicKey } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }) => ({ type: SET_CONTACTS, payload: { contacts } });
 
@@ -141,7 +141,7 @@ export const backupWallet = () => async (dispatch: AppThDispatch, getState: GetS
   }
 };
 
-export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: string; amount: string; fee: string; note: string }) => async (
+export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: string; amount: number; fee: number; note: string }) => async (
   dispatch: AppThDispatch,
   getState: GetState
 ) => {

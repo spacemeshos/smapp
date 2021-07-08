@@ -51,7 +51,7 @@ const Vault = ({ history }: RouteComponentProps) => {
     const objOption = accounts.map((elem, index: number) => ({
       account: index,
       label: elem.displayName,
-      text: formatSmidge(elem.balance)
+      text: formatSmidge(elem.currentState.balance)
     }));
     setAccountsOption(objOption);
   }, [accounts, setAccountsOption]);

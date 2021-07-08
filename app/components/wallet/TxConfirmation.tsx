@@ -98,15 +98,16 @@ const ComplexButtonText = styled.div`
 type Props = {
   fromAddress: string;
   address: string;
-  amount: string;
-  fee: string;
+  amount: number;
+  fee: number;
   note: string;
+  canSend: boolean;
   doneAction: () => void;
   editTx: () => void;
   cancelTx: () => void;
 };
 
-const TxConfirmation = ({ fromAddress, address, amount, fee, note, doneAction, editTx, cancelTx }: Props) => {
+const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, doneAction, editTx, cancelTx }: Props) => {
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
   const { value, unit }: any = formatSmidge(amount, true);
   return (
@@ -149,7 +150,7 @@ const TxConfirmation = ({ fromAddress, address, amount, fee, note, doneAction, e
           <ComplexButtonText>EDIT TRANSACTION</ComplexButtonText>
         </ComplexButton>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
-        <Button onClick={doneAction} text="SEND" style={{ marginLeft: 'auto' }} />
+        <Button onClick={doneAction} text="SEND" style={{ marginLeft: 'auto' }} isDisabled={!canSend} />
       </Footer>
     </Wrapper>
   );

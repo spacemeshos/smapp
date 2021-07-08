@@ -36,8 +36,8 @@ const SubHeader = styled(Text)`
 type Props = {
   address: string;
   fromAddress: string;
-  amount: string;
-  fee: string;
+  amount: number;
+  fee: number;
   note: string;
 };
 
