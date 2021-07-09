@@ -4,7 +4,7 @@ import { Tx } from '../../types';
 import { setNodeError, setNodeStatus } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
-import store from '../../redux/store';
+import reduxStore from '../../redux/store';
 import SmesherManager from '../../../desktop/SmesherManager';
 import WalletManager from '../../../desktop/WalletManager';
 
@@ -124,29 +124,33 @@ class EventsService {
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
 }
 
-ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, request) => {
-  store.dispatch(setNodeStatus({ status: request.status }));
-});
-
-ipcRenderer.on(ipcConsts.N_M_SET_NODE_ERROR, (_event, request) => {
-  store.dispatch(setNodeError({ error: request.error }));
-});
-
-ipcRenderer.on(ipcConsts.T_M_UPDATE_ACCOUNT, (_event, request) => {
-  store.dispatch(updateAccountData({ account: request.data.account, accountId: request.data.accountId }));
-});
-
-ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
-  store.dispatch(setTransactions({ txs: request.data.txs, publicKey: request.data.publicKey }));
-});
-
-ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
-  store.dispatch(setRewards({ rewards: request.rewards }));
-});
-
-ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
-  const { error, status } = request;
-  store.dispatch(setPostStatus({ error, status }));
-});
+export const subscribeOnIpcEvents = (store: typeof reduxStore) => {
+  const handlers = {
+    [ipcConsts.N_M_SET_NODE_STATUS]: (_event, request) => {
+      store.dispatch(setNodeStatus({ status: request.status }));
+    },
+    [ipcConsts.N_M_SET_NODE_ERROR]: (_event, request) => {
+      store.dispatch(setNodeError({ error: request.error }));
+    },
+    [ipcConsts.T_M_UPDATE_ACCOUNT]: (_event, request) => {
+      store.dispatch(updateAccountData({ account: request.data.account, accountId: request.data.accountId }));
+    },
+    [ipcConsts.T_M_UPDATE_TXS]: (_event, request) => {
+      store.dispatch(setTransactions({ txs: request.data.txs, publicKey: request.data.publicKey }));
+    },
+    [ipcConsts.T_M_UPDATE_REWARDS]: (_event, request) => {
+      store.dispatch(setRewards({ rewards: request.rewards }));
+    },
+    [ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS]: (_event, request) => {
+      const { error, status } = request;
+      store.dispatch(setPostStatus({ error, status }));
+    }
+  };
+  const tuples = Object.entries(handlers);
+  // Subscribe
+  tuples.forEach(([eventName, handler]) => ipcRenderer.on(eventName, handler));
+  // Unsubscribe all function
+  return () => tuples.forEach(([eventName, handler]) => ipcRenderer.off(eventName, handler));
+};
 
 export default EventsService;
