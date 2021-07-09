@@ -83,16 +83,21 @@ const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, 
 
   const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
-  const openFolderSelectionDialog = async () => {
-    const { error, dataDir, calculatedFreeSpace } = await eventsService.selectPostFolder();
-    if (error) {
-      setHasPermissionError(true);
-    } else {
-      setDataDir(dataDir);
-      setFreeSpace(formatBytes(calculatedFreeSpace));
-      setHasPermissionError(false);
-    }
-  };
+  const openFolderSelectionDialog = () =>
+    eventsService
+      .selectPostFolder()
+      .then((selected) => {
+        if (selected) {
+          setDataDir(selected.dataDir);
+          setFreeSpace(formatBytes(selected.calculatedFreeSpace));
+          setHasPermissionError(false);
+        }
+        return selected;
+      })
+      .catch((err) => {
+        console.error(err); // eslint-disable-line no-console
+        setHasPermissionError(true);
+      });
 
   return (
     <>

@@ -5,6 +5,7 @@ import { setNodeError, setNodeStatus } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
+import SmesherManager from '../../../desktop/SmesherManager';
 
 class EventsService {
   static createWallet = ({ password, existingMnemonic, ip, port }: { password: string; existingMnemonic: string; ip?: string; port?: string }) =>
@@ -39,7 +40,7 @@ class EventsService {
   /** ************************************   SMESHER   ****************************************** */
   static getSmesherSettings = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_SETTINGS);
 
-  static selectPostFolder = () => ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);
+  static selectPostFolder = (): ReturnType<SmesherManager['selectPostFolder']> => ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);
 
   static checkFreeSpace = ({ dataDir }: { dataDir: string }) => ipcRenderer.invoke(ipcConsts.SMESHER_CHECK_FREE_SPACE, { dataDir });
 

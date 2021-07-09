@@ -46,10 +46,7 @@ class SmesherManager {
       const dataDir = savedSmeshingParams?.dataDir;
       return { coinbase, dataDir };
     });
-    ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, async () => {
-      const res = await this.selectPostFolder({ mainWindow });
-      return res;
-    });
+    ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, () => this.selectPostFolder({ mainWindow }));
     ipcMain.handle(ipcConsts.SMESHER_CHECK_FREE_SPACE, async (_event, request) => {
       const res = await this.selectPostFolder({ ...request });
       return res;
@@ -101,28 +98,21 @@ class SmesherManager {
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {
-    const { filePaths } = await dialog.showOpenDialog(mainWindow, {
+    const { filePaths, canceled } = await dialog.showOpenDialog(mainWindow, {
       title: 'Select folder for smeshing',
       defaultPath: app.getPath('documents'),
       properties: ['openDirectory']
     });
-    const res = await this.checkDiskSpace({ dataDir: filePaths[0] });
-    if (res.error) {
-      return { error: res.error };
-    }
-    return { dataDir: filePaths[0], calculatedFreeSpace: res.calculatedFreeSpace };
+    if (canceled) return null;
+    const calculatedFreeSpace = await this.checkDiskSpace({ dataDir: filePaths[0] });
+    return { dataDir: filePaths[0], calculatedFreeSpace };
   };
 
-  checkDiskSpace = async ({ dataDir }: { dataDir: string }) => {
-    try {
-      fs.accessSync(dataDir, fs.constants.W_OK);
-      const diskSpace = await checkDiskSpace(dataDir);
-      logger.log(`checkDiskSpace`, diskSpace.free, { dataDir });
-      return { calculatedFreeSpace: diskSpace.free };
-    } catch (error) {
-      logger.error('checkDiskSpace', error, { dataDir });
-      return { error };
-    }
+  checkDiskSpace = async ({ dataDir }: { dataDir: string }): Promise<number> => {
+    fs.accessSync(dataDir, fs.constants.W_OK);
+    const diskSpace = await checkDiskSpace(dataDir);
+    logger.log(`checkDiskSpace`, diskSpace.free, { dataDir });
+    return diskSpace.free;
   };
 
   handlePostDataCreationStatusStream = ({ status, error }: { status: any; error: any }) => {
