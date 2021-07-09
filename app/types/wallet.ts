@@ -1,6 +1,6 @@
 export interface Account {
   displayName: string;
-  created: number;
+  created: string;
   currentState: { balance: number; counter: number };
   projectedState: { balance: number; counter: number };
   path: string;
