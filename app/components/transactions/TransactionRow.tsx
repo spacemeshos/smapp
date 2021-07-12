@@ -6,8 +6,7 @@ import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import { getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import TX_STATUSES from '../../vars/enums';
-import { RootState, Tx } from '../../types';
+import { RootState, Tx, TxState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
@@ -190,13 +189,13 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const { txId, nickname, status, layerId, sender, receiver, amount, fee, timestamp } = tx;
-  const statuses: Array<string> = Object.keys(TX_STATUSES);
+  const statuses: Array<string> = Object.keys(TxState);
 
   const getColor = ({ isSent }: { isSent: boolean }) => {
-    if (status === TX_STATUSES.PENDING) {
+    if (status === TxState.MEMPOOL || status === TxState.MESH) {
       return smColors.orange;
-    } else if (status === TX_STATUSES.REJECTED) {
-      return smColors.orange;
+    } else if (status === TxState.REJECTED || status === TxState.INSUFFICIENT_FUNDS || status === TxState.CONFLICTING) {
+      return smColors.red;
     }
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
@@ -262,7 +261,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
           <BoldText onClick={() => copyAddress({ id: txId })}>
             {formatTxId(txId)}
             <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-            <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/${txId}${isDarkMode ? '?dark' : ''}`)} />
+            <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/0x${txId}${isDarkMode ? '?dark' : ''}`)} />
           </BoldText>
         </TextRow>
         <TextRow>
@@ -278,7 +277,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
         <TextRow>
           <BlackText>FROM</BlackText>
           <BoldText onClick={!isSent ? () => copyAddress({ id: sender }) : () => {}}>
-            {isSent ? `${getAddress(publicKey)} (Me)` : nickname || sender}
+            {isSent ? `0x${getAddress(publicKey)} (Me)` : nickname || `0x${sender}`}
             <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
             {!isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, sender)} src={addContact} />}
           </BoldText>
@@ -286,9 +285,9 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
         <TextRow>
           <BlackText>TO</BlackText>
           <BoldText onClick={isSent ? () => copyAddress({ id: receiver }) : () => {}}>
-            {isSent ? nickname || receiver : `${getAddress(publicKey)} (Me)`}
+            {isSent ? nickname || `0x${receiver}` : `0x${getAddress(publicKey)} (Me)`}
             {isSent && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />}
-            {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, receiver)} src={addContact} />}
+            {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, `0x${receiver}`)} src={addContact} />}
           </BoldText>
         </TextRow>
         <TextRow>

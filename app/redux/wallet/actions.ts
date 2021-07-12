@@ -1,7 +1,6 @@
 import { eventsService } from '../../infra/eventsService';
 import { createError, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState, WalletMeta, Account, AccountTxs, Contact, Tx } from '../../types';
-import TX_STATUSES from '../../vars/enums';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
@@ -152,7 +151,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
     receiver,
     amount,
     fee,
-    status: TX_STATUSES.PENDING,
+    status: 0,
     timestamp: new Date().getTime(),
     note
   };

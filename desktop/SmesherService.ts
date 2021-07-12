@@ -77,9 +77,10 @@ class SmesherService extends NetServiceFactory {
           if (error) {
             logger.error('grpc StartSmeshing', error, { dataDir, commitmentSize, coinbase });
             resolve({ error });
+          } else {
+            this.postDataCreationProgressStream({ handler });
+            resolve({ status: response.status });
           }
-          this.postDataCreationProgressStream({ handler });
-          resolve({ status: response.status });
         }
       );
     });
@@ -91,9 +92,9 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc StopSmeshing', error, { deleteFiles });
           resolve({ error });
+        } else {
+          resolve({ status: response.status });
         }
-        logger.log('grpc StopSmeshing', response.status, { deleteFiles });
-        resolve({ status: response.status });
       });
     });
 
@@ -104,10 +105,10 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc SmesherID', error);
           resolve({ error });
+        } else {
+          const smesherId = `0x${toHexString(response.account_id.address)}`;
+          resolve({ smesherId });
         }
-        const smesherId = `0x${toHexString(response.account_id.address)}`;
-        logger.log('grpc SmesherID', smesherId);
-        resolve({ smesherId });
       });
     });
 
@@ -118,10 +119,10 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc Coinbase', error);
           resolve({ error });
+        } else {
+          const coinbase = `0x${toHexString(response.response.accountId.address)}`;
+          resolve({ coinbase });
         }
-        const coinbase = `0x${toHexString(response.response.accountId.address)}`;
-        logger.log('grpc Coinbase', coinbase);
-        resolve({ coinbase });
       });
     });
 
@@ -132,11 +133,12 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc SetCoinbase', error, { coinbase });
           resolve({ error });
+        } else {
+          const netId = StoreService.get('netSettings.netId');
+          const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
+          StoreService.set('smeshingParams', { dataDir: savedSmeshingParams.dataDir, coinbase });
+          resolve({ status: response.status });
         }
-        const netId = StoreService.get('netSettings.netId');
-        const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-        StoreService.set('smeshingParams', { dataDir: savedSmeshingParams.dataDir, coinbase });
-        resolve({ status: response.status });
       });
     });
 
@@ -147,10 +149,10 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc MinGas', error);
           response({ error });
+        } else {
+          const minGas = parseInt(response.mingas.value);
+          resolve({ minGas });
         }
-        const minGas = parseInt(response.mingas.value);
-        logger.log('grpc MinGas', minGas);
-        resolve({ minGas });
       });
     });
 
@@ -161,9 +163,10 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc EstimatedRewards', error);
           resolve({ error });
+        } else {
+          const estimatedRewards = { amount: parseInt(response.amount.value), commitmentSize: parseInt(response.dataSize) };
+          resolve({ estimatedRewards });
         }
-        const estimatedRewards = { amount: parseInt(response.amount.value), commitmentSize: parseInt(response.dataSize) };
-        resolve({ estimatedRewards });
       });
     });
 
@@ -174,13 +177,13 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc PostStatus', error);
           resolve({ error });
+        } else {
+          const {
+            status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
+          } = response;
+          const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
+          resolve({ status });
         }
-        const {
-          status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
-        } = response;
-        const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-        logger.log('grpc PostStatus', status);
-        resolve({ status });
       });
     });
 
@@ -197,12 +200,13 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc PostComputeProviders', error);
           resolve({ error });
+        } else {
+          // const postComputeProviders: { id: number; model: string; computeApi: string; performance: number }[] = [];
+          // response.postComputeProvider.forEach(({ id, model, computeApi, performance }: { id: string; model: string; computeApi: string; performance: string }) => {
+          //   postComputeProviders.push({ id: parseInt(id), model, computeApi, performance: parseInt(performance) });
+          // });
+          resolve({ postComputeProviders: [] });
         }
-        // const postComputeProviders: { id: number; model: string; computeApi: string; performance: number }[] = [];
-        // response.postComputeProvider.forEach(({ id, model, computeApi, performance }: { id: string; model: string; computeApi: string; performance: string }) => {
-        //   postComputeProviders.push({ id: parseInt(id), model, computeApi, performance: parseInt(performance) });
-        // });
-        resolve({ postComputeProviders: [] });
       });
     });
 
@@ -213,9 +217,9 @@ class SmesherService extends NetServiceFactory {
         if (error) {
           logger.error('grpc StopPostDataCreationSession', error, { deleteFiles });
           resolve({ error });
+        } else {
+          resolve({ status: response.status });
         }
-        logger.log('grpc StopPostDataCreationSession', response.status, { deleteFiles });
-        resolve({ status: response.status });
       });
     });
 

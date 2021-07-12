@@ -5,8 +5,7 @@ import { Button } from '../../basicComponents';
 import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import TX_STATUSES from '../../vars/enums';
-import { RootState, Tx } from '../../types';
+import { RootState, Tx, TxState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -82,10 +81,10 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   }
 
   const getColor = ({ status, isSent }: { status: number; isSent: boolean }) => {
-    if (status === TX_STATUSES.PENDING) {
+    if (status === TxState.MEMPOOL || status === TxState.MESH) {
       return smColors.orange;
-    } else if (status === TX_STATUSES.REJECTED) {
-      return smColors.orange;
+    } else if (status === TxState.REJECTED || status === TxState.INSUFFICIENT_FUNDS || status === TxState.CONFLICTING) {
+      return smColors.red;
     }
     return isSent ? smColors.blue : smColors.darkerGreen;
   };

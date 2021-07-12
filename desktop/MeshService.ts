@@ -16,10 +16,11 @@ class MeshService extends NetServiceFactory {
       this.service.CurrentLayer({}, (error, response) => {
         if (error) {
           logger.error('grpc MeshService', error);
-          resolve({ error });
+          resolve({ currentLayer: -1, error });
+        } else {
+          const currentLayer = response.layernum.number;
+          resolve({ currentLayer, error: null });
         }
-        const currentLayer = response.layernum.number;
-        resolve({ currentLayer });
       });
     });
 
