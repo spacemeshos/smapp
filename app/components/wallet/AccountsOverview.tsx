@@ -117,11 +117,7 @@ const ExplorerIcon = styled.img`
   margin-top: 2px;
 `;
 
-type Props = {
-  navigateToVault: () => void;
-};
-
-const AccountsOverview = (props: Props) => {
+const AccountsOverview = () => {
   let copiedTimeout: any = null;
   const [isCopied, setIsCopied] = useState(false);
   useEffect(() => {
@@ -192,7 +188,6 @@ const AccountsOverview = (props: Props) => {
       </AccountDetails>
       <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
-        <SmhText onClick={() => props.navigateToVault()}>VAULT</SmhText>
         <BalanceHeader>BALANCE</BalanceHeader>
         {currentState ? (
           <BalanceWrapper>

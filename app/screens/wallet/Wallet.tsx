@@ -79,11 +79,6 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
     history.push('/main/backup');
   };
 
-  const navigateToVault = () => {
-    dispatch(setCurrentMode({ mode: 0 }));
-    history.push('/main/wallet/vault');
-  };
-
   const handleModeBack = () => {
     if (vaultMode === 0) history.goBack();
     else dispatch(setCurrentMode({ mode: vaultMode - 1 }));
@@ -94,7 +89,7 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
     <Wrapper>
       <LeftSection>
         {hasBackButton && <BackButton action={handleModeBack} />}
-        <AccountsOverview navigateToVault={navigateToVault} />
+        <AccountsOverview />
         {!backupTime && (
           <BackupReminder onClick={navigateToBackup}>
             <FullCrossIcon src={icon} />

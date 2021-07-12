@@ -9,8 +9,7 @@ import { Link, WrapperWith2SideBars, CorneredWrapper, DropDown } from '../../bas
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import TX_STATUSES from '../../vars/enums';
-import { RootState, Tx, TxList } from '../../types';
+import { RootState, Tx, TxList, TxState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,7 +68,7 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions, isObject }: { 
   const address = getAddress(publicKey);
   const txAsArray = isObject ? Object.values(transactions) : transactions;
   txAsArray.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
-    if (status !== TX_STATUSES.REJECTED) {
+    if (status !== TxState.REJECTED && status !== TxState.INSUFFICIENT_FUNDS && status !== TxState.CONFLICTING) {
       if (txId === 'reward') {
         coins.mined += amount;
       } else if (sender === address) {
@@ -116,14 +115,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
     const startDate = new Date().getTime() - spanInDays[selectedItemIndex] * oneDayInMs;
-    const filteredTransactions = [];
-    Object.values(transactions).forEach((tx: any) => {
-      if (tx.timestamp >= startDate || !tx.timestamp) {
-        // @ts-ignore
-        filteredTransactions.push(tx);
-      }
-    });
-    return filteredTransactions;
+    return Object.values(transactions).reduce((acc: Tx[], tx: any) => (tx.timestamp >= startDate || !tx.timestamp ? [...acc, tx] : acc), []);
   };
 
   const cancelCreatingNewContact = () => {

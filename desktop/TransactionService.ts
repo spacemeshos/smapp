@@ -16,9 +16,9 @@ class TransactionService extends NetServiceFactory {
       this.service.SubmitTransaction({ transaction }, (error, response) => {
         if (error) {
           logger.error('grpc SubmitTransaction', error);
-          resolve({ error });
+          resolve({ error, response: null });
         } else {
-          resolve({ error: null, txstate: response.response.txstate });
+          resolve({ error: null, response });
         }
       });
     });

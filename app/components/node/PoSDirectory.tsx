@@ -78,18 +78,17 @@ type Props = {
   skipAction: () => void;
 };
 
-// const PoSDirectory = ({ , nextAction, folder, setFolder, freeSpace, setFreeSpace, commitmentSize, status, isDarkMode }: Props) => {
 const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, setFreeSpace, minCommitmentSize, status, isDarkMode }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   const openFolderSelectionDialog = async () => {
-    const { error, selectedFolder, calculatedFreeSpace } = await eventsService.selectPostFolder();
+    const { error, dataDir, calculatedFreeSpace } = await eventsService.selectPostFolder();
     if (error) {
       setHasPermissionError(true);
     } else {
-      setDataDir(selectedFolder);
+      setDataDir(dataDir);
       setFreeSpace(formatBytes(calculatedFreeSpace));
       setHasPermissionError(false);
     }

@@ -17,11 +17,11 @@ class GlobalStateService extends NetServiceFactory {
       this.service.GlobalStateHash({}, (error, response) => {
         if (error) {
           logger.error('grpc GlobalStateHash', error);
-          resolve({ error });
+          resolve({ layer: -1, rootHash: '', error });
         } else {
           const layer = response.response.layer.number;
           const rootHash = toHexString(response.response.rootHash);
-          resolve({ error: null, layer, rootHash });
+          resolve({ layer, rootHash, error: null });
         }
       });
     });

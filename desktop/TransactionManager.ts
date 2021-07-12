@@ -91,7 +91,8 @@ class TransactionManager {
 
     const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
     this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
-    // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
+
+    this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
   };
 
   addTransaction = ({ accountId }: { accountId: string }) => ({ tx }: { tx: any }) => {
@@ -159,7 +160,7 @@ class TransactionManager {
 
   addReceiptToTx = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
     const txId = toHexString(data.id.id);
-    let existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
+    const existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
     const newData = {
       txId,
       result: data.result,
@@ -168,8 +169,8 @@ class TransactionManager {
       layer: data.layer,
       index: data.index
     };
-    existingTx = { ...existingTx, ...newData };
-    StoreService.set(`accounts.${accountId}.txs.${txId}`, existingTx);
+    const updatedTx = { ...existingTx, ...newData };
+    StoreService.set(`accounts.${accountId}.txs.${txId}`, updatedTx);
     this.updateAppStateTxs({ accountId });
   };
 
@@ -234,27 +235,30 @@ class TransactionManager {
   };
 
   sendTx = async ({ fullTx, accountIndex }: { fullTx: any; accountIndex: number }) => {
-    try {
-      const account = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.account`);
-      const { receiver, amount, fee } = fullTx;
-      const res = await cryptoService.signTransaction({
-        accountNonce: account.projectedState.counter,
-        receiver,
-        price: parseInt(fee),
-        amount: parseInt(amount),
-        secretKey: this.accounts[accountIndex].secretKey
-      });
-      // @ts-ignore
-      const { txstate } = await this.txService.submitTransaction({ transaction: res });
+    const account = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.account`);
+    const { receiver, amount, fee } = fullTx;
+    const res = await cryptoService.signTransaction({
+      accountNonce: account.projectedState.counter,
+      receiver,
+      price: parseInt(fee),
+      amount: parseInt(amount),
+      secretKey: this.accounts[accountIndex].secretKey
+    });
+    // @ts-ignore
+    const res1 = await this.txService.submitTransaction({ transaction: res });
+    const { error, response } = res1;
+    if (error) {
+      return { error, tx: null, state: '' };
+    } else {
+      const { txstate } = response;
       const txId = toHexString(txstate.id.id);
-      const txWithId = { txId, ...fullTx };
+      const txWithId = { ...fullTx, txId };
       if (![1, 2, 3].includes(txstate.state)) {
         StoreService.set(`accounts.${this.accounts[accountIndex].publicKey}.txs.${txId}`, txWithId);
         this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
+        return { error: null, tx: txWithId, state: txstate.state };
       }
-      return { error: null, tx: txWithId, state: txstate.state };
-    } catch (error) {
-      return { error, tx: null, state: '' };
+      return { error: null, tx: null, state: txstate.state };
     }
   };
 
