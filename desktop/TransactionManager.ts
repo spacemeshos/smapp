@@ -135,8 +135,14 @@ class TransactionManager {
   };
 
   updateAccountData = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
-    const currentState = { counter: data.stateCurrent.counter ? parseInt(data.stateCurrent.counter) : 0, balance: parseInt(data.stateCurrent.balance.value) };
-    const projectedState = { counter: data.stateProjected.counter ? parseInt(data.stateProjected.counter) : 0, balance: parseInt(data.stateProjected.balance.value) };
+    const currentState = {
+      counter: data.stateCurrent.counter ? parseInt(data.stateCurrent.counter) : 0,
+      balance: data.stateCurrent.balance.value ? parseInt(data.stateCurrent.balance.value) : 0
+    };
+    const projectedState = {
+      counter: data.stateProjected.counter ? parseInt(data.stateProjected.counter) : 0,
+      balance: data.stateProjected.balance.value ? parseInt(data.stateProjected.balance.value) : 0
+    };
     StoreService.set(`accounts.${accountId}.account`, { currentState, projectedState });
     this.updateAppStateAccount({ accountId });
   };
