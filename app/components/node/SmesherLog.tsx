@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { CorneredContainer } from '../common';
 import { getFormattedTimestamp, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { TxList } from '../../types';
+import { Reward } from '../../types';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import { bottomRightCorner, bottomRightCornerWhite, leftSideTIcon, leftSideTIconWhite, topRightCorner, topRightCornerWhite } from '../../assets/images';
 
@@ -72,7 +72,7 @@ const BottomRightCorner = styled.img`
 type Props = {
   initTimestamp: string | null;
   smeshingTimestamp: string | null;
-  rewards: TxList;
+  rewards: Reward[];
   isDarkMode: boolean;
 };
 
@@ -113,8 +113,8 @@ const SmesherLog = ({ initTimestamp, smeshingTimestamp, rewards, isDarkMode }: P
             <div key={`reward${index}`}>
               <LogEntry>
                 <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                <AwardText>Smeshing reward: {formatSmidge(reward.amount)}</AwardText>
-                <AwardText>Smeshing fee reward: {formatSmidge(reward.fee)}</AwardText>
+                <AwardText>Smeshing reward: {formatSmidge(reward.total)}</AwardText>
+                <AwardText>Smeshing fee reward: {formatSmidge(reward.layerReward)}</AwardText>
               </LogEntry>
               <LogEntrySeparator>...</LogEntrySeparator>
             </div>

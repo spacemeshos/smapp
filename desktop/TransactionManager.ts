@@ -202,18 +202,20 @@ class TransactionManager {
     }
   };
 
-  // TODO: reward by smesher id OR coinbase
   addReward = ({ data }: { data: any }) => {
+    const genesisTime = StoreService.get('netSettings.genesisTime');
+    const layerDurationSec = parseInt(StoreService.get('netSettings.layerDurationSec'));
     const coinbase = toHexString(data.coinbase.address);
     const reward = {
-      layer: data.layer,
+      layer: data.layer.number,
       total: parseInt(data.total.value),
       layerReward: parseInt(data.layerReward.value),
-      layerComputed: data.layerComputed,
+      layerComputed: data.layerComputed.number,
       coinbase: `0x${coinbase}`,
-      smesher: toHexString(data.smesher.id)
+      smesher: toHexString(data.smesher.id),
+      timestamp: new Date(genesisTime).getTime() + data.layer.number * layerDurationSec * 1000
     };
-    const rewards = StoreService.get(`accounts.${coinbase}.rewards`);
+    const rewards = StoreService.get(`accounts.${coinbase}.rewards`) || [];
     StoreService.set(`accounts.${coinbase}.rewards`, [...rewards, reward]);
     this.updateAppStateRewards({ accountId: coinbase });
   };
@@ -233,7 +235,11 @@ class TransactionManager {
     if (error && retries < 5) {
       await this.retrieveRewards({ filter, offset, handler, retries: retries + 1 });
     } else {
-      data.length > 0 && data.forEach((item) => handler({ data: item.reward }));
+      data &&
+        data.length > 0 &&
+        data.forEach((reward) => {
+          handler({ data: reward });
+        });
       if (offset + DATA_BATCH < totalResults) {
         await this.retrieveRewards({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
       }

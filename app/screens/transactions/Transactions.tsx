@@ -94,7 +94,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   const getCoinStatistics = ({ filteredTransactions }: { filteredTransactions: TxList }) => {
     const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
-    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions, isObject: true });
+    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions || {}, isObject: true });
     return {
       ...coins,
       totalMined: totalCoins.mined,
@@ -115,7 +115,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
     const oneDayInMs = 86400000;
     const spanInDays = [1, 30, 365];
     const startDate = new Date().getTime() - spanInDays[selectedItemIndex] * oneDayInMs;
-    return Object.values(transactions).reduce((acc: Tx[], tx: any) => (tx.timestamp >= startDate || !tx.timestamp ? [...acc, tx] : acc), []);
+    return transactions ? Object.values(transactions).reduce((acc: Tx[], tx: any) => (tx.timestamp >= startDate || !tx.timestamp ? [...acc, tx] : acc), []) : [];
   };
 
   const cancelCreatingNewContact = () => {
