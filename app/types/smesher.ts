@@ -8,9 +8,11 @@ export type ComputeProvider = {
 export type ComputeProviders = Array<ComputeProvider>;
 
 export type Reward = {
+  layer: number;
   total: number;
   layerReward: number;
   layerComputed: number;
   coinbase: string;
   smesher: string;
+  timestamp: number;
 };
