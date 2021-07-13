@@ -284,8 +284,7 @@ class WalletManager {
         if (filesWithPath && filesWithPath[0]) {
           shell.showItemInFolder(filesWithPath[0]);
         } else {
-          // @ts-ignore
-          shell.openItem(documentsDirPath);
+          shell.openPath(documentsDirPath);
         }
       } catch (error) {
         logger.error('showFileInDirectory', error);
@@ -294,8 +293,7 @@ class WalletManager {
       const logFilePath = path.resolve(appFilesDirPath, 'spacemesh-log.txt');
       shell.showItemInFolder(logFilePath);
     } else {
-      // @ts-ignore
-      shell.openItem(appFilesDirPath);
+      shell.openPath(appFilesDirPath);
     }
   };
 

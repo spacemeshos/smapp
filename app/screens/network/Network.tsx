@@ -76,7 +76,7 @@ const Network = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const openLogFile = () => {
-    eventsService.showFileInFolder({ isBackupFile: true });
+    eventsService.showFileInFolder({ isLogFile: true });
   };
 
   return (
