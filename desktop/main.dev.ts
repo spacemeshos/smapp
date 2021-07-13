@@ -28,7 +28,7 @@ import './wasm_exec';
 
 const writeFileAsync = util.promisify(fs.writeFile);
 
-const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
+const DISCOVERY_URL = process.env.DISCOVERY_URL || 'https://discover.spacemesh.io/networks.json';
 
 (async function () {
   const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
