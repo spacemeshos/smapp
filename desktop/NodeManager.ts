@@ -3,10 +3,11 @@ import os from 'os';
 import fs from 'fs';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
+import { delay } from '../shared/utils';
+import { NodeStatus } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { StreamHandler } from './NodeService';
-import { NodeStatus } from '../shared/types';
 
 const { exec } = require('child_process');
 
@@ -149,7 +150,7 @@ class NodeManager {
       this.nodeService.activateStatusStream(this.sendNodeStatus);
       return status;
     } catch (error) {
-      if (retries < 5) return this.getNodeStatus(retries + 1);
+      if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
       throw error;
     }
   };
