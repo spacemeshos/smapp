@@ -147,7 +147,7 @@ const AccountsOverview = () => {
 
   const openExplorerLink = (e: React.MouseEvent, publicKey: string) => {
     e.stopPropagation();
-    window.open(`${explorerUrl}/accounts/${publicKey}${isDarkMode ? '?dark' : ''}`);
+    window.open(explorerUrl.concat(`accounts/${publicKey}${isDarkMode ? '?dark' : ''}`));
   };
 
   const renderAccountRow = ({ displayName, publicKey, isInDropDown = false }: { displayName: string; publicKey: string; isInDropDown?: boolean }) => (
