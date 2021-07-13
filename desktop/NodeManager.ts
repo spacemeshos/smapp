@@ -5,7 +5,8 @@ import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 import Logger from './logger';
-import NodeService from './NodeService';
+import NodeService, { StreamHandler } from './NodeService';
+import { NodeStatus } from '../shared/types';
 
 const { exec } = require('child_process');
 
@@ -26,7 +27,7 @@ class NodeManager {
 
   private readonly cleanStart;
 
-  private nodeService: any;
+  private nodeService: NodeService;
 
   private nodeController: any;
 
@@ -126,39 +127,35 @@ class NodeManager {
     });
 
     const res = await this.nodeService.shutdown();
-    if (!res.shuttingDown) {
+    if (!res) {
       this.nodeController.abort();
     }
   };
 
   getVersionAndBuild = async () => {
-    const res1 = await this.nodeService.getNodeVersion();
-    const res2 = await this.nodeService.getNodeBuild();
-    return { version: res1.error ? '' : res1.version, build: res2.error ? '' : res2.build };
+    const version = await this.nodeService.getNodeVersion();
+    const build = await this.nodeService.getNodeBuild();
+    return { version, build };
   };
 
-  setNodeStatus = ({ status, error }: { status: any; error: any }) => {
-    if (!error) {
-      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { status });
+  sendNodeStatus: StreamHandler = (grpcError, { status, error }) => {
+    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { grpcError, error, status });
+  };
+
+  getNodeStatus = async (retries): Promise<NodeStatus> => {
+    try {
+      const status = await this.nodeService.getNodeStatus();
+      this.sendNodeStatus(null, { status });
+      this.nodeService.activateStatusStream(this.sendNodeStatus);
+      return status;
+    } catch (error) {
+      if (retries < 5) return this.getNodeStatus(retries + 1);
+      throw error;
     }
-  };
-
-  getNodeStatus = async (retries) => {
-    const { status, error } = await this.nodeService.getNodeStatus();
-    if (error && retries < 5) {
-      await this.nodeService.getNodeStatus(retries + 1);
-    } else {
-      this.setNodeStatus({ status, error: null });
-      this.nodeService.activateStatusStream({ handler: this.setNodeStatus });
-    }
-  };
-
-  setNodeError = ({ error }: { error: any }) => {
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { error });
   };
 
   activateNodeErrorStream = () => {
-    this.nodeService.activateErrorStream({ handler: this.setNodeError });
+    this.nodeService.activateErrorStream(this.sendNodeStatus);
   };
 }
 
