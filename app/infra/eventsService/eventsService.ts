@@ -5,7 +5,7 @@ import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/nod
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild } from '../../../shared/types';
+import { NodeError, NodeStatus, NodeVersionAndBuild, PublicServices, ApiURL } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 
 class EventsService {
@@ -21,6 +21,8 @@ class EventsService {
   static updateBrowserViewTheme = ({ isDarkMode }: { isDarkMode: boolean }) => ipcRenderer.send(ipcConsts.SEND_THEME_COLOR, { isDarkMode });
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
+
+  static listPublicServices = (): Promise<PublicServices> => ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
 
   static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
 
@@ -94,7 +96,7 @@ class EventsService {
 
   /** **************************************  WALLET MANAGER  **************************************** */
 
-  static activateWalletManager = ({ ip, port }: { ip: string | undefined; port: string | undefined }) => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { ip, port });
+  static activateWalletManager = ({ ip, port }: Partial<SocketAddress>): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { ip, port });
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 

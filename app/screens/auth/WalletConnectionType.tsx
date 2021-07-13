@@ -111,7 +111,7 @@ const WalletConnectionType = ({ history }: RouteComponentProps) => {
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/connect-to-api')} isDisabled />
+          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/connect-to-api')} />
         </RowSecond>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="NOT SURE WHAT TO DO? READ THE GUIDE " />

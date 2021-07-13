@@ -11,6 +11,8 @@ const ipcConsts = {
   DESTROY_BROWSER_VIEW: 'DESTROY_BROWSER_VIEW',
   SEND_THEME_COLOR: 'SEND_THEME_COLOR',
 
+  // Public services
+  LIST_PUBLIC_SERVICES: 'LIST_PUBLIC_SERVICES',
   /** *********************************************************************** API 2.0 ********************************************************** */
   // Smesher Service calls
   SMESHER_GET_SETTINGS: 'SMESHER_GET_SETTINGS',

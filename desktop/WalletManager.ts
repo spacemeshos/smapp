@@ -4,6 +4,7 @@ import path from 'path';
 import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
+import { SocketAddress } from '../shared/types';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -65,10 +66,9 @@ class WalletManager {
     ipcMain.handle(ipcConsts.W_M_ACTIVATE, (_event, request) => {
       try {
         this.activateWalletManager({ ip: request.ip, port: request.port });
-        return { activated: true, error: null };
       } catch (e) {
         logger.error('W_M_ACTIVATE channel', true, request);
-        return { activated: false, error: e };
+        throw e;
       }
     });
     ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, () => {
@@ -138,13 +138,13 @@ class WalletManager {
     });
   };
 
-  activateWalletManager = ({ ip, port }: { ip: string | undefined; port: string | undefined }) => {
+  activateWalletManager = ({ ip, port }: Partial<SocketAddress>) => {
     this.meshService.createService(ip, port);
     this.glStateService.createService(ip, port);
     this.txService.createService(ip, port);
   };
 
-  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string; ip: string; port: string }) => {
+  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string } & Partial<SocketAddress>) => {
     try {
       const timestamp = new Date().toISOString().replace(/:/g, '-');
       this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
