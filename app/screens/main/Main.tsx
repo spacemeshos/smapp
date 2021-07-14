@@ -23,8 +23,9 @@ import {
   signOutIconBlack
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { AppThDispatch, RootState, Status } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import Version from '../../components/common/Version';
+import { NodeStatus } from '../../../shared/types';
 
 const Wrapper = styled.div`
   position: relative;
@@ -110,7 +111,7 @@ const EmptySpace = styled.div`
 `;
 
 interface Props extends RouteComponentProps {
-  status: Status;
+  status: NodeStatus;
   logout: any;
   location: {
     hash: string;

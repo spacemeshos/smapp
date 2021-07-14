@@ -5,7 +5,7 @@ import { posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { eventsService } from '../../infra/eventsService';
 import { formatBytes } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Status } from '../../types';
+import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Wrapper = styled.div`
@@ -73,7 +73,7 @@ type Props = {
   freeSpace: string;
   setFreeSpace: (freeSpace: string) => void;
   minCommitmentSize: string;
-  status: Status | null;
+  status: NodeStatus | null;
   isDarkMode: boolean;
   skipAction: () => void;
 };

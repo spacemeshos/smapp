@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { Tooltip } from '../../basicComponents';
-import { ComputeProvider, Status } from '../../types';
+import { ComputeProvider } from '../../types';
+import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -44,7 +45,7 @@ const Link = styled.div<{ isDisabled: boolean }>`
   text-transform: uppercase;
   text-decoration: none;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
-  fontsize: 15px;
+  font-size: 15px;
   line-height: 17px;
   cursor: pointer;
   &:hover {
@@ -66,7 +67,7 @@ type Props = {
   throttle: boolean;
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
-  status: Status | null;
+  status: NodeStatus | null;
   isDarkMode: boolean;
 };
 

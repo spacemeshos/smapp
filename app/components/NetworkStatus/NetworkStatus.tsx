@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { NodeStatus } from '../../../shared/types';
 import { NetworkIndicator, ProgressBar } from '../../basicComponents';
 import { constrain } from '../../infra/utils';
-import { Status } from '../../types';
 import { smColors } from '../../vars';
 
 const ProgressLabel = styled.div`
@@ -18,7 +18,7 @@ const Progress = styled.div`
 `;
 
 type Props = {
-  status: Status | null;
+  status: NodeStatus | null;
   error: any;
 };
 
