@@ -1,17 +1,15 @@
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import { exec } from 'child_process';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
+import { ChildProcess } from 'node:child_process';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
 import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { StreamHandler } from './NodeService';
-
-const { exec } = require('child_process');
-
-const { AbortController } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -37,7 +35,7 @@ class NodeManager {
 
   private nodeService: NodeService;
 
-  private nodeController: any;
+  private nodeProcess: ChildProcess | null;
 
   constructor(mainWindow: BrowserWindow, configFilePath: string, cleanStart) {
     this.mainWindow = mainWindow;
@@ -45,6 +43,7 @@ class NodeManager {
     this.cleanStart = cleanStart;
     this.nodeService = new NodeService();
     this.subscribeToEvents();
+    this.nodeProcess = null;
   }
 
   subscribeToEvents = () => {
@@ -99,15 +98,12 @@ class NodeManager {
     const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-    this.nodeController = new AbortController();
-    const { signal } = this.nodeController;
-
     if (this.cleanStart) {
       if (fs.existsSync(logFilePath)) {
         fs.unlinkSync(logFilePath);
       }
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-      exec(nodePathWithParams, { signal }, (error) => {
+      this.nodeProcess = exec(nodePathWithParams, (error) => {
         if (error) {
           this.sendNodeStatus({ error: normalizeCrashError(error) });
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -121,7 +117,7 @@ class NodeManager {
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}"${
         savedSmeshingParams ? ` --coinbase 0x${savedSmeshingParams.coinbase} --start-mining --post-datadir "${savedSmeshingParams.dataDir}"` : ''
       } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
-      exec(nodePathWithParams, { signal }, (error) => {
+      this.nodeProcess = exec(nodePathWithParams, (error) => {
         if (error) {
           this.sendNodeStatus({ error: normalizeCrashError(error) });
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -142,7 +138,8 @@ class NodeManager {
 
     const res = await this.nodeService.shutdown();
     if (!res) {
-      this.nodeController.abort();
+      this.nodeProcess && this.nodeProcess.kill();
+      this.nodeProcess = null;
     }
   };
 
