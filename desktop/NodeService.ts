@@ -1,12 +1,19 @@
-import { NodeError, NodeStatus } from '../shared/types';
+import { ServiceError } from '@grpc/grpc-js';
+import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
 const logger = Logger({ className: 'NodeService' });
 const PROTO_PATH = 'proto/node.proto';
 
-// TODO: Replace `any` with a real GRPC Error type
-export type StreamHandler = (grpcError: any, { status, error }: { status?: NodeStatus; error?: NodeError }) => void;
+export type StreamHandler = ({ status, error }: { status?: NodeStatus; error?: NodeError }) => void;
+
+const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
+  msg: error.details,
+  stackTrace: error.stack || '',
+  module: 'NodeService',
+  level: NodeErrorLevel.LOG_LEVEL_ERROR
+});
 
 class NodeService extends NetServiceFactory {
   private statusStream;
@@ -35,7 +42,7 @@ class NodeService extends NetServiceFactory {
       this.service.Version({}, (error, response) => {
         if (error) {
           logger.error('grpc Version', error);
-          reject(error);
+          reject(normalizeGrpcErrorToNodeError(error));
         } else {
           resolve(response.versionString.value);
         }
@@ -48,7 +55,7 @@ class NodeService extends NetServiceFactory {
       this.service.Build({}, (error, response) => {
         if (error) {
           logger.error('grpc Build', error);
-          reject(error);
+          reject(normalizeGrpcErrorToNodeError(error));
         } else {
           resolve(response.buildString.value);
         }
@@ -61,7 +68,7 @@ class NodeService extends NetServiceFactory {
       this.service.Status({}, (error, response) => {
         if (error) {
           logger.error('grpc Status', error);
-          reject(error);
+          reject(normalizeGrpcErrorToNodeError(error));
         } else {
           const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
           resolve({
@@ -93,7 +100,7 @@ class NodeService extends NetServiceFactory {
     this.statusStream = this.service.StatusStream({});
     this.statusStream.on('data', (response: any) => {
       const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
-      handler(null, {
+      handler({
         status: {
           connectedPeers: parseInt(connectedPeers),
           isSynced: !!isSynced,
@@ -103,9 +110,9 @@ class NodeService extends NetServiceFactory {
         }
       });
     });
-    this.statusStream.on('error', (error: any) => {
+    this.statusStream.on('error', (error: ServiceError) => {
       logger.error('grpc StatusStream', error);
-      handler(error, {});
+      handler({ error: normalizeGrpcErrorToNodeError(error) });
     });
     this.statusStream.on('end', () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
@@ -119,11 +126,11 @@ class NodeService extends NetServiceFactory {
     this.errorStream.on('data', (response: any) => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { error } = response;
-      handler(null, { error });
+      handler({ error });
     });
     this.errorStream.on('error', (error: any) => {
       logger.error('grpc ErrorStream', error);
-      handler(error, {});
+      handler({ error: normalizeGrpcErrorToNodeError(error) });
     });
     this.errorStream.on('end', () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console

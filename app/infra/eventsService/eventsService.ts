@@ -1,10 +1,11 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '../../vars';
 import { Tx } from '../../types';
-import { setNodeError, setNodeStatus } from '../../redux/node/actions';
+import { setNodeStatus, setVersionAndBuild } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
+import { NodeStatusResponse, NodeVersionAndBuild } from '../../../shared/ipcTypes';
 
 class EventsService {
   static createWallet = ({ password, existingMnemonic, ip, port }: { password: string; existingMnemonic: string; ip?: string; port?: string }) =>
@@ -102,17 +103,17 @@ class EventsService {
 
   /** **************************************  NODE MANAGER  **************************************** */
 
-  static getVersionAndBuild = () => ipcRenderer.invoke(ipcConsts.N_M_GET_VERSION_AND_BUILD);
+  static requestVersionAndBuild = () => ipcRenderer.send(ipcConsts.N_M_GET_VERSION_AND_BUILD);
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
 }
 
-ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, request) => {
-  store.dispatch(setNodeStatus({ status: request.status }));
+ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, responce: NodeStatusResponse) => {
+  store.dispatch(setNodeStatus(responce));
 });
 
-ipcRenderer.on(ipcConsts.N_M_SET_NODE_ERROR, (_event, request) => {
-  store.dispatch(setNodeError({ error: request.error }));
+ipcRenderer.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, (_event, payload: NodeVersionAndBuild) => {
+  store.dispatch(setVersionAndBuild(payload));
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_ACCOUNT, (_event, request) => {

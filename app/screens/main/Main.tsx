@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { getNetworkDefinitions } from '../../redux/network/actions';
-import { getVersionAndBuild } from '../../redux/node/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
 import { InfoBanner } from '../../components/banners';
@@ -26,6 +25,8 @@ import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { NodeStatus } from '../../../shared/types';
+import { eventsService } from '../../infra/eventsService';
+import { getNodeError } from '../../redux/node/selectors';
 
 const Wrapper = styled.div`
   position: relative;
@@ -122,7 +123,6 @@ interface Props extends RouteComponentProps {
   nodeError: any;
   isDarkMode: boolean;
   getNetworkDefinitions: AppThDispatch;
-  getVersionAndBuild: AppThDispatch;
 }
 
 type State = {
@@ -280,11 +280,10 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { getNetworkDefinitions, getVersionAndBuild } = this.props;
+    const { getNetworkDefinitions } = this.props;
     // @ts-ignore
     getNetworkDefinitions();
-    // @ts-ignore
-    getVersionAndBuild();
+    eventsService.requestVersionAndBuild();
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -356,13 +355,12 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state: RootState) => ({
   status: state.node.status,
-  nodeError: state.node.error,
+  nodeError: getNodeError(state),
   isDarkMode: state.ui.isDarkMode
 });
 
 const mapDispatchToProps = {
   getNetworkDefinitions,
-  getVersionAndBuild,
   logout
 };
 

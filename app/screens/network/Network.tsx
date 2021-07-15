@@ -9,6 +9,7 @@ import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo } from '../../basicC
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
+import { getNodeError } from '../../redux/node/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -70,8 +71,8 @@ const Network = () => {
 
   const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
-  const nodeError = useSelector((state: RootState) => state.node.error);
-  const netName = useSelector((state: RootState) => state.network.netName);
+  const nodeError = useSelector(getNodeError);
+  const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
@@ -80,7 +81,7 @@ const Network = () => {
   };
 
   return (
-    <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode} error={nodeError?.msg}>
       <Container>
         <DetailsWrap>
           <DetailsRow>

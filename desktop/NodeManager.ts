@@ -4,7 +4,7 @@ import fs from 'fs';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
-import { NodeStatus } from '../shared/types';
+import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { StreamHandler } from './NodeService';
@@ -20,6 +20,13 @@ const osTargetNames = {
   Linux: 'linux',
   Windows_NT: 'windows'
 };
+
+const normalizeCrashError = (error: any): NodeError => ({
+  msg: error.message,
+  stackTrace: error?.stack,
+  level: NodeErrorLevel.LOG_LEVEL_FATAL,
+  module: 'NodeManager'
+});
 
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
@@ -41,10 +48,14 @@ class NodeManager {
   }
 
   subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.N_M_GET_VERSION_AND_BUILD, async () => {
-      const res = await this.getVersionAndBuild();
-      return res;
-    });
+    ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, () =>
+      this.getVersionAndBuild()
+        .then((payload) => this.mainWindow.webContents.send(ipcConsts.N_M_GET_VERSION_AND_BUILD, payload))
+        .catch((error) => {
+          this.sendNodeStatus({ error });
+          logger.error('getVersionAndBuild', error);
+        })
+    );
     ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
       StoreService.set('nodeSettings.port', request.port);
     });
@@ -98,6 +109,7 @@ class NodeManager {
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
       exec(nodePathWithParams, { signal }, (error) => {
         if (error) {
+          this.sendNodeStatus({ error: normalizeCrashError(error) });
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
           logger.error('startNode', error);
@@ -111,6 +123,7 @@ class NodeManager {
       } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
       exec(nodePathWithParams, { signal }, (error) => {
         if (error) {
+          this.sendNodeStatus({ error: normalizeCrashError(error) });
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
           logger.error('startNode', error);
@@ -139,14 +152,14 @@ class NodeManager {
     return { version, build };
   };
 
-  sendNodeStatus: StreamHandler = (grpcError, { status, error }) => {
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { grpcError, error, status });
+  sendNodeStatus: StreamHandler = ({ status, error }) => {
+    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { error, status });
   };
 
   getNodeStatus = async (retries): Promise<NodeStatus> => {
     try {
       const status = await this.nodeService.getNodeStatus();
-      this.sendNodeStatus(null, { status });
+      this.sendNodeStatus({ status });
       this.nodeService.activateStatusStream(this.sendNodeStatus);
       return status;
     } catch (error) {
