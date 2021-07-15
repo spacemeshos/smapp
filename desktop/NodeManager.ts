@@ -128,14 +128,7 @@ class NodeManager {
     }
   };
 
-  stopNode = async ({ browserWindow, isDarkMode }: { browserWindow: BrowserWindow; isDarkMode: boolean }) => {
-    const child = new BrowserWindow({ parent: browserWindow, modal: true, show: false });
-    const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', `closeAppModal.html?darkMode=${isDarkMode}`);
-    child.loadURL(`file://${filePath}`);
-    child.once('ready-to-show', () => {
-      child.show();
-    });
-
+  stopNode = async () => {
     const res = await this.nodeService.shutdown();
     if (!res) {
       this.nodeProcess && this.nodeProcess.kill();
