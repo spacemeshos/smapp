@@ -26,15 +26,20 @@ const DetailsWrap = styled.div`
 const FooterWrap = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: baseline;
+  margin-top: 1em;
 `;
 
-const DetailsRow = styled.div<{ isLast?: boolean }>`
+const DetailsRow = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.darkGray10Alpha};`};
+  &:last-child {
+    border-bottom-color: transparent;
+  }
 `;
 
 const DetailsText = styled.div`
@@ -81,7 +86,7 @@ const Network = () => {
   };
 
   return (
-    <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode} error={nodeError?.msg}>
+    <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode} error={nodeError?.msg}>
       <Container>
         <DetailsWrap>
           <DetailsRow>
