@@ -60,6 +60,17 @@ class NodeManager {
     ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
       StoreService.set('nodeSettings.port', request.port);
     });
+
+    // Always return true / false to notify caller that it is done
+    ipcMain.handle(
+      ipcConsts.N_M_RESTART_NODE,
+      (): Promise<boolean> =>
+        this.restartNode().catch((error) => {
+          this.sendNodeError(error);
+          logger.error('restartNode', error);
+          return false;
+        })
+    );
   };
 
   waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
@@ -141,6 +152,21 @@ class NodeManager {
       this.nodeProcess && this.nodeProcess.kill();
       this.nodeProcess = null;
     }
+  };
+
+  restartNode = async () => {
+    logger.log('restartNode', 'restarting node...');
+    await this.stopNode();
+    const res = await this.activateNodeProcess();
+    if (!res) {
+      throw {
+        msg: 'Cannot restart the Node',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+        stackTrace: '',
+        module: 'NodeManager'
+      } as NodeError;
+    }
+    return res;
   };
 
   getVersionAndBuild = async () => {

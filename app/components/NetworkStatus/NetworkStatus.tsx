@@ -20,9 +20,10 @@ const Progress = styled.div`
 type Props = {
   status: NodeStatus | null;
   error: any;
+  isRestarting: boolean;
 };
 
-const NetworkStatus = ({ status, error }: Props) => {
+const NetworkStatus = ({ status, error, isRestarting }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.syncedLayer && status.topLayer) {
       const percentage = Math.round((status.syncedLayer * 100) / status.topLayer);
@@ -58,7 +59,7 @@ const NetworkStatus = ({ status, error }: Props) => {
   const renderError = () => (
     <>
       <NetworkIndicator color={smColors.red} />
-      <ProgressLabel>Please restart node</ProgressLabel>
+      <ProgressLabel>{isRestarting ? 'Restarting node...' : 'Please restart node'}</ProgressLabel>
     </>
   );
 

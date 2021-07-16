@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import { getCurrentLayer } from '../../redux/network/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { NetworkStatus } from '../../components/NetworkStatus';
-import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo } from '../../basicComponents';
+import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
@@ -80,6 +80,13 @@ const Network = () => {
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const [isRestarting, setRestarting] = useState(false);
+
+  const requestNodeRestart = useCallback(async () => {
+    setRestarting(true);
+    await eventsService.restartNode();
+    setRestarting(false);
+  }, []);
 
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
@@ -105,7 +112,7 @@ const Network = () => {
                 <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
               </DetailsTextWrap>
               <GrayText>
-                <NetworkStatus status={status} error={nodeError} />
+                <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} />
               </GrayText>
             </DetailsRow>
           )}
@@ -143,6 +150,16 @@ const Network = () => {
         <FooterWrap>
           <Link onClick={openLogFile} text="BROWSE LOG FILE" />
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
+          {nodeError && (
+            <Button
+              text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
+              width={150}
+              isPrimary
+              onClick={requestNodeRestart}
+              style={{ marginLeft: 'auto' }}
+              isDisabled={isRestarting}
+            />
+          )}
         </FooterWrap>
       </Container>
     </WrapperWith2SideBars>
