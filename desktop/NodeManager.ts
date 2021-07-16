@@ -19,9 +19,9 @@ const osTargetNames = {
   Windows_NT: 'windows'
 };
 
-const normalizeCrashError = (error: any): NodeError => ({
-  msg: error.message,
-  stackTrace: error?.stack,
+const normalizeCrashError = (error: Error, message: string): NodeError => ({
+  msg: message,
+  stackTrace: error?.stack || '',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
   module: 'NodeManager'
 });
@@ -103,9 +103,11 @@ class NodeManager {
         fs.unlinkSync(logFilePath);
       }
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-      this.nodeProcess = exec(nodePathWithParams, (error) => {
+      this.nodeProcess = exec(nodePathWithParams, (error, _, stderr) => {
         if (error) {
-          this.sendNodeStatus({ error: normalizeCrashError(error) });
+          // Take the first line of stderr or fallback to error.message
+          const message = stderr.split('\n')[0] || error.message;
+          this.sendNodeStatus({ error: normalizeCrashError(error, message) });
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
           logger.error('startNode', error);
@@ -117,9 +119,11 @@ class NodeManager {
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}"${
         savedSmeshingParams ? ` --coinbase 0x${savedSmeshingParams.coinbase} --start-mining --post-datadir "${savedSmeshingParams.dataDir}"` : ''
       } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
-      this.nodeProcess = exec(nodePathWithParams, (error) => {
+      this.nodeProcess = exec(nodePathWithParams, (error, _, stderr) => {
         if (error) {
-          this.sendNodeStatus({ error: normalizeCrashError(error) });
+          // Take the first line of stderr or fallback to error.message
+          const message = stderr.split('\n')[0] || error.message;
+          this.sendNodeStatus({ error: normalizeCrashError(error, message) });
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
           logger.error('startNode', error);
