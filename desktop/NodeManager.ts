@@ -37,6 +37,8 @@ class NodeManager {
 
   private nodeProcess: ChildProcess | null;
 
+  private hasCriticalError = false;
+
   constructor(mainWindow: BrowserWindow, configFilePath: string, cleanStart) {
     this.mainWindow = mainWindow;
     this.configFilePath = configFilePath;
@@ -74,6 +76,7 @@ class NodeManager {
   };
 
   activateNodeProcess = async () => {
+    this.hasCriticalError = false;
     this.startNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
@@ -146,8 +149,28 @@ class NodeManager {
     return { version, build };
   };
 
-  sendNodeStatus: StreamHandler = ({ status, error }) => {
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { error, status });
+  sendNodeStatus: StreamHandler = async ({ status, error }) => {
+    if (error) {
+      if (!this.hasCriticalError && error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
+        // If there was no critical error
+        // and we got some with level less than DPANIC
+        // we have to check Node for liveness.
+        // In case that Node does not responds
+        // raise the error level to FATAL
+        const isAlive = await this.isNodeAlive();
+        if (!isAlive) {
+          error.level = NodeErrorLevel.LOG_LEVEL_FATAL;
+        }
+      }
+      if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
+        // If we got a critical error — set the flag
+        // it prevents raising level of further errors
+        this.hasCriticalError = true;
+        // Send only critical errors
+        this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { error });
+      }
+    }
+    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { status });
   };
 
   getNodeStatus = async (retries): Promise<NodeStatus> => {
@@ -164,6 +187,14 @@ class NodeManager {
 
   activateNodeErrorStream = () => {
     this.nodeService.activateErrorStream(this.sendNodeStatus);
+  };
+
+  isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
+    const res = await this.nodeService.echo();
+    if (!res && attemptNumber < 3) {
+      return delay(200).then(() => this.isNodeAlive(attemptNumber + 1));
+    }
+    return res;
   };
 }
 
