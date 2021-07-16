@@ -6,7 +6,6 @@ import { logout } from '../../redux/auth/actions';
 import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
-import { InfoBanner } from '../../components/banners';
 import { SecondaryButton, NavTooltip, NetworkIndicator } from '../../basicComponents';
 import routes from '../../routes';
 import {
@@ -51,6 +50,7 @@ const NavBar = styled.div`
   justify-content: space-between;
   width: 100%;
   margin-top: 9px;
+  margin-bottom: 60px;
 `;
 
 const NavBarPart = styled.div`
@@ -104,11 +104,6 @@ const TooltipWrapper = styled.div`
   &:hover ${CustomTooltip} {
     display: block;
   }
-`;
-
-const EmptySpace = styled.div`
-  width: 100%;
-  margin: 30px;
 `;
 
 interface Props extends RouteComponentProps {
@@ -264,7 +259,6 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          {nodeError ? <InfoBanner /> : <EmptySpace />}
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (
