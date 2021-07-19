@@ -61,3 +61,4 @@ export const formatSmidge = (amount: number, separateResult?: boolean): string |
   return separateResult ? { value: res.value, unit: res.unit } : `${res.value} ${res.unit}`;
 };
 
+export const constrain = (min: number, max: number, value: number) => Math.min(Math.max(value, min), max);

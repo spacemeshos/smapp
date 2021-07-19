@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NetworkIndicator, ProgressBar } from '../../basicComponents';
+import { constrain } from '../../infra/utils';
 import { Status } from '../../types';
 import { smColors } from '../../vars';
 
@@ -24,7 +25,8 @@ type Props = {
 const NetworkStatus = ({ status, error }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.syncedLayer && status.topLayer) {
-      return Math.round((status.syncedLayer * 100) / status.topLayer);
+      const percentage = Math.round((status.syncedLayer * 100) / status.topLayer);
+      return constrain(0, 100, percentage);
     }
     return 0;
   };
