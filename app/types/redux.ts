@@ -18,7 +18,7 @@ export interface NodeState {
   version: string;
   build: string;
   port: string;
-  errors: NodeError[];
+  error: NodeError | null;
 }
 
 export interface WalletState {

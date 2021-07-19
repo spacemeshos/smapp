@@ -1,3 +1,8 @@
+export interface NodeVersionAndBuild {
+  version: string;
+  build: string;
+}
+
 //
 // Rreproduction of some types from `node_types.proto`
 // made by hands

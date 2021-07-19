@@ -9,7 +9,6 @@ import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../.
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
-import { getNodeError } from '../../redux/node/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -76,7 +75,7 @@ const Network = () => {
 
   const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
-  const nodeError = useSelector(getNodeError);
+  const nodeError = useSelector((state: RootState) => state.node.error);
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);

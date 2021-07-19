@@ -23,9 +23,8 @@ import {
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import Version from '../../components/common/Version';
-import { NodeStatus } from '../../../shared/types';
+import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
-import { getNodeError } from '../../redux/node/selectors';
 
 const Wrapper = styled.div`
   position: relative;
@@ -115,7 +114,7 @@ interface Props extends RouteComponentProps {
     search: string;
     state: unknown;
   };
-  nodeError: any;
+  nodeError: NodeError;
   isDarkMode: boolean;
   getNetworkDefinitions: AppThDispatch;
 }
@@ -349,7 +348,7 @@ class Main extends Component<Props, State> {
 
 const mapStateToProps = (state: RootState) => ({
   status: state.node.status,
-  nodeError: getNodeError(state),
+  nodeError: state.node.error,
   isDarkMode: state.ui.isDarkMode
 });
 

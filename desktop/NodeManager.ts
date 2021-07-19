@@ -9,7 +9,7 @@ import { delay } from '../shared/utils';
 import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
-import NodeService, { StreamHandler } from './NodeService';
+import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -53,7 +53,7 @@ class NodeManager {
       this.getVersionAndBuild()
         .then((payload) => this.mainWindow.webContents.send(ipcConsts.N_M_GET_VERSION_AND_BUILD, payload))
         .catch((error) => {
-          this.sendNodeStatus({ error });
+          this.sendNodeError(error);
           logger.error('getVersionAndBuild', error);
         })
     );
@@ -121,7 +121,7 @@ class NodeManager {
         if (error) {
           // Take the first line of stderr or fallback to error.message
           const message = stderr.split('\n')[0] || error.message;
-          this.sendNodeStatus({ error: normalizeCrashError(error, message) });
+          this.sendNodeError(normalizeCrashError(error, message));
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
           logger.error('startNode', error);
@@ -137,7 +137,7 @@ class NodeManager {
         if (error) {
           // Take the first line of stderr or fallback to error.message
           const message = stderr.split('\n')[0] || error.message;
-          this.sendNodeStatus({ error: normalizeCrashError(error, message) });
+          this.sendNodeError(normalizeCrashError(error, message));
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
           logger.error('startNode', error);
@@ -175,35 +175,41 @@ class NodeManager {
     return { version, build };
   };
 
-  sendNodeStatus: StreamHandler = async ({ status, error }) => {
-    if (error) {
-      if (!this.hasCriticalError && error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
-        // If there was no critical error
-        // and we got some with level less than DPANIC
-        // we have to check Node for liveness.
-        // In case that Node does not responds
-        // raise the error level to FATAL
-        const isAlive = await this.isNodeAlive();
-        if (!isAlive) {
-          error.level = NodeErrorLevel.LOG_LEVEL_FATAL;
-        }
-      }
-      if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
-        // If we got a critical error — set the flag
-        // it prevents raising level of further errors
-        this.hasCriticalError = true;
-        // Send only critical errors
-        this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { error });
+  sendNodeStatus: StatusStreamHandler = (status) => {
+    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+  };
+
+  sendNodeError: ErrorStreamHandler = async (error) => {
+    if (this.hasCriticalError) return;
+    if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
+      // If there was no critical error
+      // and we got some with level less than DPANIC
+      // we have to check Node for liveness.
+      // In case that Node does not responds
+      // raise the error level to FATAL
+      const isAlive = await this.isNodeAlive();
+      if (!isAlive) {
+        // Raise error level and call this method again, to ensure
+        // that this error is not a consequence of real critical error
+        error.level = NodeErrorLevel.LOG_LEVEL_FATAL;
+        await this.sendNodeError(error);
+        return;
       }
     }
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { status });
+    if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
+      // If we got a critical error — set the flag
+      // it prevents raising level of further errors
+      this.hasCriticalError = true;
+      // Send only critical errors
+      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
+    }
   };
 
   getNodeStatus = async (retries): Promise<NodeStatus> => {
     try {
       const status = await this.nodeService.getNodeStatus();
-      this.sendNodeStatus({ status });
-      this.nodeService.activateStatusStream(this.sendNodeStatus);
+      this.sendNodeStatus(status);
+      this.nodeService.activateStatusStream(this.sendNodeStatus, this.sendNodeError);
       return status;
     } catch (error) {
       if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
@@ -212,7 +218,7 @@ class NodeManager {
   };
 
   activateNodeErrorStream = () => {
-    this.nodeService.activateErrorStream(this.sendNodeStatus);
+    this.nodeService.activateErrorStream(this.sendNodeError);
   };
 
   isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {

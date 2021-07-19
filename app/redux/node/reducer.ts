@@ -1,26 +1,28 @@
 import type { NodeState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
-import { SET_NODE_STATUS, SET_NODE_VERSION_AND_BUILD } from './actions';
+import { SET_NODE_ERROR, SET_NODE_STATUS, SET_NODE_VERSION_AND_BUILD } from './actions';
 
 const initialState = {
   status: null,
   version: '',
   build: '',
   port: '',
-  errors: []
+  error: null
 };
 
 const reducer = (state: NodeState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_NODE_STATUS: {
-      const { status, error } = action.payload;
-      const errors = error ? [...state.errors, error] : state.errors;
-      const newErrorsState = status ? [] : errors;
+      const status = action.payload;
       return {
         ...state,
-        status: status || state.status,
-        errors: newErrorsState
+        status,
+        error: null
       };
+    }
+    case SET_NODE_ERROR: {
+      const error = action.payload;
+      return { ...state, error };
     }
     case SET_NODE_VERSION_AND_BUILD: {
       const {

@@ -6,7 +6,8 @@ import Logger from './logger';
 const logger = Logger({ className: 'NodeService' });
 const PROTO_PATH = 'proto/node.proto';
 
-export type StreamHandler = ({ status, error }: { status?: NodeStatus; error?: NodeError }) => void;
+export type StatusStreamHandler = (status: NodeStatus) => void;
+export type ErrorStreamHandler = (error: NodeError) => void;
 
 const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   msg: error.details,
@@ -95,24 +96,22 @@ class NodeService extends NetServiceFactory {
       });
     });
 
-  activateStatusStream = (handler: StreamHandler) => {
+  activateStatusStream = (statusHandler: StatusStreamHandler, errorHandler: ErrorStreamHandler) => {
     // @ts-ignore
     this.statusStream = this.service.StatusStream({});
     this.statusStream.on('data', (response: any) => {
       const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
-      handler({
-        status: {
-          connectedPeers: parseInt(connectedPeers),
-          isSynced: !!isSynced,
-          syncedLayer: syncedLayer.number,
-          topLayer: topLayer.number,
-          verifiedLayer: verifiedLayer.number
-        }
+      statusHandler({
+        connectedPeers: parseInt(connectedPeers),
+        isSynced: !!isSynced,
+        syncedLayer: syncedLayer.number,
+        topLayer: topLayer.number,
+        verifiedLayer: verifiedLayer.number
       });
     });
     this.statusStream.on('error', (error: ServiceError) => {
       logger.error('grpc StatusStream', error);
-      handler({ error: normalizeGrpcErrorToNodeError(error) });
+      errorHandler(normalizeGrpcErrorToNodeError(error));
     });
     this.statusStream.on('end', () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
@@ -120,17 +119,17 @@ class NodeService extends NetServiceFactory {
     });
   };
 
-  activateErrorStream = (handler: StreamHandler) => {
+  activateErrorStream = (handler: ErrorStreamHandler) => {
     // @ts-ignore
     this.errorStream = this.service.ErrorStream({});
     this.errorStream.on('data', (response: any) => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { error } = response;
-      handler({ error });
+      handler(error);
     });
     this.errorStream.on('error', (error: any) => {
       logger.error('grpc ErrorStream', error);
-      handler({ error: normalizeGrpcErrorToNodeError(error) });
+      handler(normalizeGrpcErrorToNodeError(error));
     });
     this.errorStream.on('end', () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
