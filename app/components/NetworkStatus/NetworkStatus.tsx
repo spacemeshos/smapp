@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { NetworkIndicator, ProgressBar } from '../../basicComponents';
+import { constrain } from '../../infra/utils';
 import { Status } from '../../types';
 import { smColors } from '../../vars';
 
@@ -24,7 +25,8 @@ type Props = {
 const NetworkStatus = ({ status, error }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.syncedLayer && status.topLayer) {
-      return Math.round((status.syncedLayer * 100) / status.topLayer);
+      const percentage = Math.round((status.syncedLayer * 100) / status.topLayer);
+      return constrain(0, 100, percentage);
     }
     return 0;
   };
@@ -33,7 +35,7 @@ const NetworkStatus = ({ status, error }: Props) => {
     const progress = getSyncLabelPercentage();
     return (
       <>
-        {progress >= 100 ? (
+        {status?.isSynced ? (
           <>
             <NetworkIndicator color={smColors.green} />
             <ProgressLabel>synced</ProgressLabel>
@@ -42,7 +44,7 @@ const NetworkStatus = ({ status, error }: Props) => {
           <>
             <NetworkIndicator color={status?.isSynced ? smColors.green : smColors.orange} />
             <ProgressLabel>syncing</ProgressLabel>
-            <ProgressLabel>{getSyncLabelPercentage()}%</ProgressLabel>
+            <ProgressLabel>{progress}%</ProgressLabel>
             <ProgressLabel>{`${status?.syncedLayer || 0} / ${status?.topLayer || 0}`}</ProgressLabel>
             <Progress>
               <ProgressBar progress={progress} />

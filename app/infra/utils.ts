@@ -1,12 +1,12 @@
-const createError = (message: string, func: any) => ({
+export const createError = (message: string, func: any) => ({
   message,
   retryFunction: func
 });
 
-const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) =>
+export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) =>
   `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
 
-const getFormattedTimestamp = (timestamp: number) => {
+export const getFormattedTimestamp = (timestamp: number) => {
   if (timestamp) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
     const dateObj = new Date(timestamp);
@@ -16,9 +16,9 @@ const getFormattedTimestamp = (timestamp: number) => {
   return null;
 };
 
-const getAddress = (key: string) => key.substring(24);
+export const getAddress = (key: string) => key.substring(24);
 
-const formatBytes = (bytes: number) => {
+export const formatBytes = (bytes: number) => {
   if (bytes === 0) return '0';
   if (bytes >= 1099511627776) {
     return `${parseFloat((bytes / 1099511627776).toFixed(2))} TB`;
@@ -28,7 +28,7 @@ const formatBytes = (bytes: number) => {
 
 // Internal helper - returns the value and the unit of a smidge coin amount.
 // Used to format smidge strings
-const getValueAndUnit = (amount: number) => {
+export const getValueAndUnit = (amount: number) => {
   let v = 0;
   let unit = 'SMH';
 
@@ -56,9 +56,9 @@ const getValueAndUnit = (amount: number) => {
 
 // Returns formatted display string for a smidge amount.
 // All coin displayed in the app should display amount formatted
-const formatSmidge = (amount: number, separateResult?: boolean): string | { value: string; unit: string } => {
+export const formatSmidge = (amount: number, separateResult?: boolean): string | { value: string; unit: string } => {
   const res = getValueAndUnit(amount);
   return separateResult ? { value: res.value, unit: res.unit } : `${res.value} ${res.unit}`;
 };
 
-export { formatSmidge, getValueAndUnit, createError, getAbbreviatedText, getFormattedTimestamp, getAddress, formatBytes };
+export const constrain = (min: number, max: number, value: number) => Math.min(Math.max(value, min), max);
