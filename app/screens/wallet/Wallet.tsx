@@ -79,7 +79,7 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
 
   const handleModeBack = () => {
     if (vaultMode === 0) history.goBack();
-    else dispatch(setCurrentMode({ mode: vaultMode - 1 }));
+    else dispatch(setCurrentMode(vaultMode - 1));
   };
 
   const hasBackButton = location.pathname.includes('vault');

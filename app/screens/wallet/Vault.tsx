@@ -65,11 +65,11 @@ const Vault = ({ history }: RouteComponentProps) => {
   };
 
   const saveAndFinish = () => {
-    dispatch(setCurrentMode({ mode: 0 }));
+    dispatch(setCurrentMode(0));
   };
 
   const handleModeUp = () => {
-    dispatch(setCurrentMode({ mode: vaultMode + 1 }));
+    dispatch(setCurrentMode(vaultMode + 1));
   };
 
   const selectAccountIndex = ({ index }: { index: number }) => {
