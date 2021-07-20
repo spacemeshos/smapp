@@ -11,7 +11,7 @@ import {
   SET_SMESHER_CONFIG,
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { IPCSmesherStartupData, NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
+import { IPCSmesherStartupData, NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts, WalletMeta, WalletSecretData } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
@@ -50,8 +50,9 @@ class EventsService {
 
   static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
 
-  static updateWalletFile = ({ fileName, password, data }: { fileName: string; password?: string; data: any }) =>
-    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET, { fileName, password, data });
+  static updateWalletMeta = (fileName: string, data: WalletMeta) => ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_META, { fileName, data });
+
+  static updateWalletSecrets = (fileName: string, password: string, data: WalletSecretData) => ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, { fileName, password, data });
 
   static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 

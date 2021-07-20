@@ -4,7 +4,7 @@ import path from 'path';
 import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
+import { SocketAddress, WalletFile, WalletMeta, WalletSecretData } from '../shared/types';
 import { isLocalNodeApi, isRemoteNodeApi, stringifySocketAddress, toSocketAddress } from '../shared/utils';
 import { LOCAL_NODE_API_URL } from '../shared/constants';
 import MeshService from './MeshService';
@@ -97,8 +97,11 @@ class WalletManager {
       const res = await this.unlockWalletFile({ ...request });
       return res;
     });
-    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET, async (_event, request) => {
-      await this.updateWalletFile({ ...request });
+    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET_META, async (_event, { filename, data }: { filename: string; data: WalletMeta }) => {
+      await this.updateWalletMeta(filename, data);
+    });
+    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET_SECRETS, async (_event, { filename, password, data }: { filename: string; password: string; data: WalletSecretData }) => {
+      await this.updateWalletSecret(filename, password, data);
     });
     ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, request) => {
       const res = await this.createNewAccount({ ...request });
@@ -205,7 +208,7 @@ class WalletManager {
       const { crypto, meta } = JSON.parse(fileContent) as WalletFile;
       const key = fileEncryptionService.createEncryptionKey({ password });
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
-      const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
+      const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON) as WalletSecretData;
 
       const actualNetId = StoreService.get('netSettings.netId') as number;
       if (meta.netId !== actualNetId) {

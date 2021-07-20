@@ -80,10 +80,10 @@ const ChangePassword = () => {
   };
 
   const updatePassword = async () => {
-    if (validate() && !isLoaderVisible) {
+    if (validate() && !isLoaderVisible && walletFiles && walletFiles[0]) {
       setIsLoaderVisible(false);
       timeOut = await setTimeout(async () => {
-        await eventsService.updateWalletFile({ fileName: walletFiles[0], password, data: { mnemonic, accounts, contacts } });
+        await eventsService.updateWalletSecrets(walletFiles[0], password, { mnemonic, accounts, contacts });
         clearFields();
       }, 500);
     }
