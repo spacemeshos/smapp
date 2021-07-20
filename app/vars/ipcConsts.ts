@@ -52,7 +52,8 @@ const ipcConsts = {
   // Node Manager
   N_M_GET_VERSION_AND_BUILD: 'N_M_GET_VERSION_AND_BUILD',
   N_M_SET_NODE_STATUS: 'N_M_SET_NODE_STATUS',
-  N_M_SET_NODE_ERROR: 'N_M_SET_NODE_ERROR'
+  N_M_SET_NODE_ERROR: 'N_M_SET_NODE_ERROR',
+  N_M_RESTART_NODE: 'N_M_RESTART_NODE'
 };
 
 export default ipcConsts;

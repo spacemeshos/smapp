@@ -1,5 +1,5 @@
 import { ThunkDispatch } from 'redux-thunk';
-import { Status } from './common';
+import { NodeError, NodeStatus } from '../../shared/types';
 import { TxList, AccountTxs } from './transactions';
 import { Account, WalletMeta, Contact } from './wallet';
 
@@ -14,11 +14,11 @@ export interface NetworkState {
 }
 
 export interface NodeState {
-  status: Status | null;
+  status: NodeStatus | null;
   version: string;
   build: string;
   port: string;
-  error: number;
+  error: NodeError | null;
 }
 
 export interface WalletState {

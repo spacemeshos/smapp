@@ -4,7 +4,7 @@ import { Tooltip, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { smColors } from '../../vars';
-import { Status } from '../../types';
+import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -133,7 +133,7 @@ type Props = {
   setCommitmentSize: (commitment: number) => void;
   freeSpace: string;
   nextAction: () => void;
-  status: Status | null;
+  status: NodeStatus | null;
   isDarkMode: boolean;
 };
 

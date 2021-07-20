@@ -4,10 +4,8 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { getNetworkDefinitions } from '../../redux/network/actions';
-import { getVersionAndBuild } from '../../redux/node/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
-import { InfoBanner } from '../../components/banners';
 import { SecondaryButton, NavTooltip, NetworkIndicator } from '../../basicComponents';
 import routes from '../../routes';
 import {
@@ -23,8 +21,10 @@ import {
   signOutIconBlack
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { AppThDispatch, RootState, Status } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import Version from '../../components/common/Version';
+import { NodeError, NodeStatus } from '../../../shared/types';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   position: relative;
@@ -49,6 +49,7 @@ const NavBar = styled.div`
   justify-content: space-between;
   width: 100%;
   margin-top: 9px;
+  margin-bottom: 60px;
 `;
 
 const NavBarPart = styled.div`
@@ -104,13 +105,8 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-const EmptySpace = styled.div`
-  width: 100%;
-  margin: 30px;
-`;
-
 interface Props extends RouteComponentProps {
-  status: Status;
+  status: NodeStatus;
   logout: any;
   location: {
     hash: string;
@@ -118,10 +114,9 @@ interface Props extends RouteComponentProps {
     search: string;
     state: unknown;
   };
-  nodeError: any;
+  nodeError: NodeError;
   isDarkMode: boolean;
   getNetworkDefinitions: AppThDispatch;
-  getVersionAndBuild: AppThDispatch;
 }
 
 type State = {
@@ -263,7 +258,6 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
-          {nodeError ? <InfoBanner /> : <EmptySpace />}
           <RoutesWrapper>
             <Switch>
               {routes.main.map((route) => (
@@ -279,11 +273,10 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { getNetworkDefinitions, getVersionAndBuild } = this.props;
+    const { getNetworkDefinitions } = this.props;
     // @ts-ignore
     getNetworkDefinitions();
-    // @ts-ignore
-    getVersionAndBuild();
+    eventsService.requestVersionAndBuild();
   }
 
   static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -361,7 +354,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = {
   getNetworkDefinitions,
-  getVersionAndBuild,
   logout
 };
 

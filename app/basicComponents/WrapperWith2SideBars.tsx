@@ -50,6 +50,14 @@ const SubHeader = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
+const ErrorMessage = styled.span`
+  display: block;
+  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${smColors.red};
+`;
+
 type Props = {
   header: string;
   subHeader?: string;
@@ -59,9 +67,10 @@ type Props = {
   children: any;
   style?: any;
   isDarkMode: boolean;
+  error?: string;
 };
 
-const WrapperWith2SideBars = ({ width, height = '100%', header, headerIcon, subHeader, children, style, isDarkMode }: Props) => {
+const WrapperWith2SideBars = ({ width, height = '100%', header, headerIcon, subHeader, children, style, isDarkMode, error }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftLongWhite : sidePanelLeftLong;
   const rightImg = isDarkMode ? sidePanelRightLongWhite : sidePanelRightLong;
 
@@ -78,6 +87,7 @@ const WrapperWith2SideBars = ({ width, height = '100%', header, headerIcon, subH
           <SubHeader>
             {subHeader}
             <br />
+            {!!error && <ErrorMessage>{error}</ErrorMessage>}
             <br />
           </SubHeader>
         )}

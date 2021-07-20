@@ -1,15 +1,15 @@
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import { exec } from 'child_process';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
+import { ChildProcess } from 'node:child_process';
 import { ipcConsts } from '../app/vars';
+import { delay } from '../shared/utils';
+import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
-import NodeService from './NodeService';
-
-const { exec } = require('child_process');
-
-const { AbortController } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
+import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -19,6 +19,13 @@ const osTargetNames = {
   Windows_NT: 'windows'
 };
 
+const normalizeCrashError = (error: Error, message: string): NodeError => ({
+  msg: message,
+  stackTrace: error?.stack || '',
+  level: NodeErrorLevel.LOG_LEVEL_FATAL,
+  module: 'NodeManager'
+});
+
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
 
@@ -26,9 +33,11 @@ class NodeManager {
 
   private readonly cleanStart;
 
-  private nodeService: any;
+  private nodeService: NodeService;
 
-  private nodeController: any;
+  private nodeProcess: ChildProcess | null;
+
+  private hasCriticalError = false;
 
   constructor(mainWindow: BrowserWindow, configFilePath: string, cleanStart) {
     this.mainWindow = mainWindow;
@@ -36,16 +45,32 @@ class NodeManager {
     this.cleanStart = cleanStart;
     this.nodeService = new NodeService();
     this.subscribeToEvents();
+    this.nodeProcess = null;
   }
 
   subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.N_M_GET_VERSION_AND_BUILD, async () => {
-      const res = await this.getVersionAndBuild();
-      return res;
-    });
+    ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, () =>
+      this.getVersionAndBuild()
+        .then((payload) => this.mainWindow.webContents.send(ipcConsts.N_M_GET_VERSION_AND_BUILD, payload))
+        .catch((error) => {
+          this.sendNodeError(error);
+          logger.error('getVersionAndBuild', error);
+        })
+    );
     ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
       StoreService.set('nodeSettings.port', request.port);
     });
+
+    // Always return true / false to notify caller that it is done
+    ipcMain.handle(
+      ipcConsts.N_M_RESTART_NODE,
+      (): Promise<boolean> =>
+        this.restartNode().catch((error) => {
+          this.sendNodeError(error);
+          logger.error('restartNode', error);
+          return false;
+        })
+    );
   };
 
   waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
@@ -62,6 +87,7 @@ class NodeManager {
   };
 
   activateNodeProcess = async () => {
+    this.hasCriticalError = false;
     this.startNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
@@ -86,16 +112,16 @@ class NodeManager {
     const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-    this.nodeController = new AbortController();
-    const { signal } = this.nodeController;
-
     if (this.cleanStart) {
       if (fs.existsSync(logFilePath)) {
         fs.unlinkSync(logFilePath);
       }
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-      exec(nodePathWithParams, { signal }, (error) => {
+      this.nodeProcess = exec(nodePathWithParams, (error, _, stderr) => {
         if (error) {
+          // Take the first line of stderr or fallback to error.message
+          const message = stderr.split('\n')[0] || error.message;
+          this.sendNodeError(normalizeCrashError(error, message));
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
           logger.error('startNode', error);
@@ -107,8 +133,11 @@ class NodeManager {
       const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}"${
         savedSmeshingParams ? ` --coinbase 0x${savedSmeshingParams.coinbase} --start-mining --post-datadir "${savedSmeshingParams.dataDir}"` : ''
       } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
-      exec(nodePathWithParams, { signal }, (error) => {
+      this.nodeProcess = exec(nodePathWithParams, (error, _, stderr) => {
         if (error) {
+          // Take the first line of stderr or fallback to error.message
+          const message = stderr.split('\n')[0] || error.message;
+          this.sendNodeError(normalizeCrashError(error, message));
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
           logger.error('startNode', error);
@@ -117,48 +146,87 @@ class NodeManager {
     }
   };
 
-  stopNode = async ({ browserWindow, isDarkMode }: { browserWindow: BrowserWindow; isDarkMode: boolean }) => {
-    const child = new BrowserWindow({ parent: browserWindow, modal: true, show: false });
-    const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', `closeAppModal.html?darkMode=${isDarkMode}`);
-    child.loadURL(`file://${filePath}`);
-    child.once('ready-to-show', () => {
-      child.show();
-    });
-
+  stopNode = async () => {
     const res = await this.nodeService.shutdown();
-    if (!res.shuttingDown) {
-      this.nodeController.abort();
+    if (!res) {
+      this.nodeProcess && this.nodeProcess.kill();
+      this.nodeProcess = null;
     }
+  };
+
+  restartNode = async () => {
+    logger.log('restartNode', 'restarting node...');
+    await this.stopNode();
+    const res = await this.activateNodeProcess();
+    if (!res) {
+      throw {
+        msg: 'Cannot restart the Node',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+        stackTrace: '',
+        module: 'NodeManager'
+      } as NodeError;
+    }
+    return res;
   };
 
   getVersionAndBuild = async () => {
-    const res1 = await this.nodeService.getNodeVersion();
-    const res2 = await this.nodeService.getNodeBuild();
-    return { version: res1.error ? '' : res1.version, build: res2.error ? '' : res2.build };
+    const version = await this.nodeService.getNodeVersion();
+    const build = await this.nodeService.getNodeBuild();
+    return { version, build };
   };
 
-  setNodeStatus = ({ status, error }: { status: any; error: any }) => {
-    if (!error) {
-      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { status });
+  sendNodeStatus: StatusStreamHandler = (status) => {
+    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
+  };
+
+  sendNodeError: ErrorStreamHandler = async (error) => {
+    if (this.hasCriticalError) return;
+    if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
+      // If there was no critical error
+      // and we got some with level less than DPANIC
+      // we have to check Node for liveness.
+      // In case that Node does not responds
+      // raise the error level to FATAL
+      const isAlive = await this.isNodeAlive();
+      if (!isAlive) {
+        // Raise error level and call this method again, to ensure
+        // that this error is not a consequence of real critical error
+        error.level = NodeErrorLevel.LOG_LEVEL_FATAL;
+        await this.sendNodeError(error);
+        return;
+      }
+    }
+    if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
+      // If we got a critical error — set the flag
+      // it prevents raising level of further errors
+      this.hasCriticalError = true;
+      // Send only critical errors
+      this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
     }
   };
 
-  getNodeStatus = async (retries) => {
-    const { status, error } = await this.nodeService.getNodeStatus();
-    if (error && retries < 5) {
-      await this.nodeService.getNodeStatus(retries + 1);
-    } else {
-      this.setNodeStatus({ status, error: null });
-      this.nodeService.activateStatusStream({ handler: this.setNodeStatus });
+  getNodeStatus = async (retries): Promise<NodeStatus> => {
+    try {
+      const status = await this.nodeService.getNodeStatus();
+      this.sendNodeStatus(status);
+      this.nodeService.activateStatusStream(this.sendNodeStatus, this.sendNodeError);
+      return status;
+    } catch (error) {
+      if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
+      throw error;
     }
-  };
-
-  setNodeError = ({ error }: { error: any }) => {
-    this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, { error });
   };
 
   activateNodeErrorStream = () => {
-    this.nodeService.activateErrorStream({ handler: this.setNodeError });
+    this.nodeService.activateErrorStream(this.sendNodeError);
+  };
+
+  isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
+    const res = await this.nodeService.echo();
+    if (!res && attemptNumber < 3) {
+      return delay(200).then(() => this.isNodeAlive(attemptNumber + 1));
+    }
+    return res;
   };
 }
 

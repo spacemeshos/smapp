@@ -6,7 +6,7 @@ const DEFAULT_URL = 'localhost';
 const DEFAULT_PORT = '9092';
 
 class NetServiceFactory {
-  private service: grpc.Client | null = null;
+  protected service: grpc.Client | null = null;
 
   private url;
 

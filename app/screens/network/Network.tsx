@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import { getCurrentLayer } from '../../redux/network/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { NetworkStatus } from '../../components/NetworkStatus';
-import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo } from '../../basicComponents';
+import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
@@ -25,15 +25,20 @@ const DetailsWrap = styled.div`
 const FooterWrap = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: baseline;
+  margin-top: 1em;
 `;
 
-const DetailsRow = styled.div<{ isLast?: boolean }>`
+const DetailsRow = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.white : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.darkGray10Alpha};`};
+  &:last-child {
+    border-bottom-color: transparent;
+  }
 `;
 
 const DetailsText = styled.div`
@@ -71,16 +76,23 @@ const Network = () => {
   const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
-  const netName = useSelector((state: RootState) => state.network.netName);
+  const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const [isRestarting, setRestarting] = useState(false);
+
+  const requestNodeRestart = useCallback(async () => {
+    setRestarting(true);
+    await eventsService.restartNode();
+    setRestarting(false);
+  }, []);
 
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
   };
 
   return (
-    <WrapperWith2SideBars width={1000} height={500} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode} error={nodeError?.msg}>
       <Container>
         <DetailsWrap>
           <DetailsRow>
@@ -99,7 +111,7 @@ const Network = () => {
                 <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
               </DetailsTextWrap>
               <GrayText>
-                <NetworkStatus status={status} error={nodeError} />
+                <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} />
               </GrayText>
             </DetailsRow>
           )}
@@ -137,6 +149,16 @@ const Network = () => {
         <FooterWrap>
           <Link onClick={openLogFile} text="BROWSE LOG FILE" />
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
+          {nodeError && (
+            <Button
+              text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
+              width={150}
+              isPrimary
+              onClick={requestNodeRestart}
+              style={{ marginLeft: 'auto' }}
+              isDisabled={isRestarting}
+            />
+          )}
         </FooterWrap>
       </Container>
     </WrapperWith2SideBars>

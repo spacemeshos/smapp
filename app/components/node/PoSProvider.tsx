@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { ComputeProvider, ComputeProviders, Status } from '../../types';
+import { ComputeProvider, ComputeProviders } from '../../types';
+import { NodeStatus } from '../../../shared/types';
 import Carousel from './Carousel';
 import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
@@ -32,7 +33,7 @@ type Props = {
   throttle: boolean;
   setThrottle: (throttle: boolean) => void;
   nextAction: () => void;
-  status: Status | null;
+  status: NodeStatus | null;
   isDarkMode: boolean;
 };
 
