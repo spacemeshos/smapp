@@ -126,6 +126,7 @@ const AccountsOverview = () => {
     };
   });
 
+  const isSynced = useSelector((state: RootState) => !!state.node.status?.isSynced);
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
@@ -189,7 +190,7 @@ const AccountsOverview = () => {
       <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <BalanceHeader>BALANCE</BalanceHeader>
-        {currentState ? (
+        {isSynced && currentState ? (
           <BalanceWrapper>
             <BalanceAmount>{value}</BalanceAmount>
             <SmhText>{unit}</SmhText>
