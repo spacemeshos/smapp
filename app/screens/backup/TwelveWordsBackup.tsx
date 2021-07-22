@@ -118,7 +118,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
       <SmallHorizontalPanel isDarkMode={isDarkMode} />
       <TextWrapper>
         <Text>
-          A paper backup is a numbered list of words written down on a paper Write down or print this numbered word list and store the paper in a a safe place, or copy & paste it
+          A paper backup is a numbered list of words written down on a paper. Write down or print this numbered word list and store the paper in a a safe place, or copy & paste it
           into your password manager
         </Text>
       </TextWrapper>
