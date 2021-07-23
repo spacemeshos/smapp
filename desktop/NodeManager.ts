@@ -1,8 +1,8 @@
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
-import { exec } from 'child_process';
-import { app, ipcMain, dialog, BrowserWindow } from 'electron';
+import { spawn } from 'cross-spawn';
+import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { ChildProcess } from 'node:child_process';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
@@ -18,6 +18,9 @@ const osTargetNames = {
   Linux: 'linux',
   Windows_NT: 'windows'
 };
+
+const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
+const PROCESS_EXIT_CHECK_INTERVAL = 1000; // Check does the process exited
 
 const normalizeCrashError = (error: Error, message: string): NodeError => ({
   msg: message,
@@ -112,45 +115,54 @@ class NodeManager {
     const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
-    if (this.cleanStart) {
-      if (fs.existsSync(logFilePath)) {
-        fs.unlinkSync(logFilePath);
-      }
-      const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}" -d "${nodeDataFilesPath}" > "${logFilePath}"`;
-      this.nodeProcess = exec(nodePathWithParams, (error, _, stderr) => {
-        if (error) {
-          // Take the first line of stderr or fallback to error.message
-          const message = stderr.split('\n')[0] || error.message;
-          this.sendNodeError(normalizeCrashError(error, message));
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Start Error', `${error}`);
-          logger.error('startNode', error);
-        }
-      });
-    } else {
-      const netId = StoreService.get('netSettings.netId');
-      const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-      const nodePathWithParams = `"${nodePath}" --config "${this.configFilePath}"${
-        savedSmeshingParams ? ` --coinbase 0x${savedSmeshingParams.coinbase} --start-mining --post-datadir "${savedSmeshingParams.dataDir}"` : ''
-      } -d "${nodeDataFilesPath}" >> "${logFilePath}"`;
-      this.nodeProcess = exec(nodePathWithParams, (error, _, stderr) => {
-        if (error) {
-          // Take the first line of stderr or fallback to error.message
-          const message = stderr.split('\n')[0] || error.message;
-          this.sendNodeError(normalizeCrashError(error, message));
-          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-          (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
-          logger.error('startNode', error);
-        }
-      });
-    }
+    const logFileStream = fs.createWriteStream(logFilePath, { flags: this.cleanStart ? 'w' : 'a', encoding: 'utf-8' });
+    const netId = StoreService.get('netSettings.netId');
+    const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
+    const smeshingArgs = savedSmeshingParams ? ['--coinbase', `0x${savedSmeshingParams.coinbase}`, '--start-mining', '--post-datadir', savedSmeshingParams.dataDir] : [];
+    const args = ['--config', this.configFilePath, '-d', nodeDataFilesPath, ...smeshingArgs];
+
+    this.nodeProcess = spawn(nodePath, args);
+    this.nodeProcess.stdout?.pipe(logFileStream);
+    this.nodeProcess.stderr?.pipe(logFileStream);
+    this.nodeProcess.on('error', (error) => {
+      logger.error('Node Process', error);
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
+      this.sendNodeError(normalizeCrashError(error, error.message));
+    });
+  };
+
+  // Returns true if finished
+  private waitProcessFinish = async (timeout: number, interval: number): Promise<boolean> => {
+    if (!this.nodeProcess) return true;
+    const isFinished = !this.nodeProcess.kill(0);
+    if (timeout <= 0) return isFinished;
+    if (isFinished) return true;
+    return isFinished ? true : delay(interval).then(() => this.waitProcessFinish(timeout - interval, interval));
   };
 
   stopNode = async () => {
-    const res = await this.nodeService.shutdown();
-    if (!res) {
-      this.nodeProcess && this.nodeProcess.kill();
+    if (!this.nodeProcess) return;
+    try {
+      // Request Node shutdown
+      await this.nodeService.shutdown();
+      // Wait until the process finish in a proper way
+      !(await this.waitProcessFinish(PROCESS_EXIT_TIMEOUT, PROCESS_EXIT_CHECK_INTERVAL)) &&
+        // If it still not finished — send SIGINT
+        // to force cleaning up and exiting the Node process
+        // in a proper way
+        // ( On Windows it will kill process immediatelly )
+        this.nodeProcess.kill('SIGINT') &&
+        // Then wait up to 20 seconds more to allow
+        // the Node finish in a proper way
+        !(await this.waitProcessFinish(PROCESS_EXIT_TIMEOUT, PROCESS_EXIT_CHECK_INTERVAL)) &&
+        // Send a SIGKILL to force kill the process
+        this.nodeProcess.kill('SIGKILL');
+
+      // Finally, drop the reference
       this.nodeProcess = null;
+    } catch (err) {
+      logger.error('stopNode', err);
     }
   };
 
