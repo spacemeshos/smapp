@@ -73,52 +73,44 @@ const showCloseAppModal = (parent: BrowserWindow, isDarkMode: boolean): BrowserW
   return child;
 };
 
-const handleClosingApp = async () => {
+let closingApp = false;
+const isSmeshing = () => {
   const netId = StoreService.get('netSettings.netId');
-  const isSmeshing = StoreService.get(`${netId}-smeshingParams`);
-  if (isSmeshing) {
-    const options = {
-      title: 'Quit App',
-      message:
-        '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
-        '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
-        '\n\n• Click QUIT to close the app and stop smeshing.\n',
-      buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
-    };
-    const { response } = await dialog.showMessageBox(mainWindow, options);
-    if (response === 0) {
-      setTimeout(() => {
-        notificationManager.showNotification({
-          title: 'Spacemesh',
-          body: 'Smesher is running in the background.'
-        });
-      }, 1000);
-      mainWindow.hide();
-      mainWindow.reload();
-    } else if (response === 1) {
-      showCloseAppModal(mainWindow, isDarkMode);
-      await nodeManager.stopNode();
-      mainWindow.destroy();
-      app.quit();
-    }
+  return StoreService.get(`${netId}-smeshingParams`);
+};
+const keepSmeshingInBackground = async () => {
+  const { response } = await dialog.showMessageBox(mainWindow, {
+    title: 'Quit App',
+    message:
+      '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
+      '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
+      '\n\n• Click QUIT to close the app and stop smeshing.\n',
+    buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
+  });
+  return response === 0;
+};
+const handleClosingApp = async (event) => {
+  if (closingApp) return;
+  event.preventDefault();
+
+  if (isSmeshing() && (await keepSmeshingInBackground())) {
+    setTimeout(() => {
+      notificationManager.showNotification({
+        title: 'Spacemesh',
+        body: 'Smesher is running in the background.'
+      });
+    }, 1000);
+    mainWindow.hide();
+    mainWindow.reload();
   } else {
-    const isRunningLocalNode = StoreService.get('localNode');
-    if (isRunningLocalNode) {
-      showCloseAppModal(mainWindow, isDarkMode);
-      await nodeManager.stopNode();
-    }
-    mainWindow.destroy();
+    showCloseAppModal(mainWindow, isDarkMode);
+    await nodeManager.stopNode();
+    closingApp = true;
     app.quit();
   }
 };
 
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+app.on('before-quit', handleClosingApp);
 
 const createTray = () => {
   tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
@@ -134,9 +126,7 @@ const createTray = () => {
     },
     {
       label: 'Quit',
-      click: async () => {
-        await handleClosingApp();
-      }
+      click: () => app.quit()
     }
   ]);
   tray.on('double-click', () => eventHandler());
@@ -216,6 +206,8 @@ const createWindow = async () => {
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 
+  mainWindow.on('close', handleClosingApp);
+
   createTray();
 
   // @TODO: Use 'ready-to-show' event
@@ -226,11 +218,6 @@ const createWindow = async () => {
     }
     mainWindow.show();
     mainWindow.focus();
-  });
-
-  mainWindow.on('close', async (event) => {
-    event.preventDefault();
-    await handleClosingApp();
   });
 
   addIpcEventListeners();
