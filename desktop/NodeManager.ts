@@ -121,6 +121,7 @@ class NodeManager {
     const smeshingArgs = savedSmeshingParams ? ['--coinbase', `0x${savedSmeshingParams.coinbase}`, '--start-mining', '--post-datadir', savedSmeshingParams.dataDir] : [];
     const args = ['--config', this.configFilePath, '-d', nodeDataFilesPath, ...smeshingArgs];
 
+    logger.log('startNode', 'spawning node', [nodePath, ...args]);
     this.nodeProcess = spawn(nodePath, args);
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
