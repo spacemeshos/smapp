@@ -178,7 +178,7 @@ type Props = {
   addAddressToContacts: ({ address }: { address: string }) => void;
 };
 
-const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
+const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
   const [note, setNote] = useState(tx.note || '');
   const [isCopied, setIsCopied] = useState(false);
@@ -188,7 +188,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const { txId, nickname, status, layerId, sender, receiver, amount, fee, timestamp } = tx;
+  const { txId, nickname, amount, fee, sender, receiver, status, layerId, timestamp } = tx;
   const statuses: Array<string> = Object.keys(TxState);
 
   const getColor = ({ isSent }: { isSent: boolean }) => {
@@ -200,7 +200,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
 
-  const isSent = sender === getAddress(publicKey);
+  const isSent = txId !== 'reward' ? tx.sender === getAddress(publicKey) : false;
   const color = getColor({ isSent });
   const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
@@ -225,89 +225,59 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     setIsDetailed(!isDetailed);
   };
 
-  const renderDetails = () => {
-    if (txId === 'reward') {
-      return (
-        <DetailsSection>
-          <TextRow>
-            <BlackText>STATUS</BlackText>
-            <BoldText color={smColors.darkerGreen}>{statuses[status]}</BoldText>
-          </TextRow>
-          {layerId ? (
-            <TextRow>
-              <BlackText>LAYER ID</BlackText>
-              <BoldText>{layerId}</BoldText>
-            </TextRow>
-          ) : null}
-          <TextRow>
-            <BlackText>TO</BlackText>
-            <BoldText>ME</BoldText>
-          </TextRow>
-          <TextRow>
-            <BlackText>SMESHING REWARD</BlackText>
-            <BoldText>{formatSmidge(amount)}</BoldText>
-          </TextRow>
-          <TextRow>
-            <BlackText>SMESHING FEE REWARD</BlackText>
-            <BoldText>{formatSmidge(fee || 0)}</BoldText>
-          </TextRow>
-        </DetailsSection>
-      );
-    }
-    return (
-      <DetailsSection>
+  const renderDetails = () => (
+    <DetailsSection>
+      <TextRow>
+        <BlackText>TRANSACTION ID</BlackText>
+        <BoldText onClick={() => copyAddress({ id: txId })}>
+          {formatTxId(txId)}
+          <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
+          <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/0x${txId}${isDarkMode ? '?dark' : ''}`)} />
+        </BoldText>
+      </TextRow>
+      <TextRow>
+        <BlackText>STATUS</BlackText>
+        <BoldText color={color}>{statuses[status]}</BoldText>
+      </TextRow>
+      {layerId ? (
         <TextRow>
-          <BlackText>TRANSACTION ID</BlackText>
-          <BoldText onClick={() => copyAddress({ id: txId })}>
-            {formatTxId(txId)}
-            <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-            <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/0x${txId}${isDarkMode ? '?dark' : ''}`)} />
-          </BoldText>
+          <BlackText>LAYER ID</BlackText>
+          <BoldText>{layerId}</BoldText>
         </TextRow>
-        <TextRow>
-          <BlackText>STATUS</BlackText>
-          <BoldText color={color}>{statuses[status]}</BoldText>
-        </TextRow>
-        {layerId ? (
-          <TextRow>
-            <BlackText>LAYER ID</BlackText>
-            <BoldText>{layerId}</BoldText>
-          </TextRow>
-        ) : null}
-        <TextRow>
-          <BlackText>FROM</BlackText>
-          <BoldText onClick={!isSent ? () => copyAddress({ id: sender }) : () => {}}>
-            {isSent ? `0x${getAddress(publicKey)} (Me)` : nickname || `0x${sender}`}
-            <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-            {!isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, sender)} src={addContact} />}
-          </BoldText>
-        </TextRow>
-        <TextRow>
-          <BlackText>TO</BlackText>
-          <BoldText onClick={isSent ? () => copyAddress({ id: receiver }) : () => {}}>
-            {isSent ? nickname || `0x${receiver}` : `0x${getAddress(publicKey)} (Me)`}
-            {isSent && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />}
-            {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, `0x${receiver}`)} src={addContact} />}
-          </BoldText>
-        </TextRow>
-        <TextRow>
-          <BlackText>VALUE</BlackText>
-          <BoldText>{formatSmidge(amount)}</BoldText>
-        </TextRow>
-        <TextRow>
-          <BlackText>TRANSACTION FEE</BlackText>
-          <BoldText>{formatSmidge(fee || 0)}</BoldText>
-        </TextRow>
-        <TextRow>
-          <BlackText>NOTE</BlackText>
-          <BlackText>
-            {note ? `${note}` : `NO NOTE`}
-            <LinkEdit onClick={() => setShowNoteModal(true)}>EDIT</LinkEdit>
-          </BlackText>
-        </TextRow>
-      </DetailsSection>
-    );
-  };
+      ) : null}
+      <TextRow>
+        <BlackText>FROM</BlackText>
+        <BoldText onClick={!isSent ? () => copyAddress({ id: sender }) : () => {}}>
+          {isSent ? `0x${getAddress(publicKey)} (Me)` : nickname || `0x${sender}`}
+          <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
+          {!isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, sender)} src={addContact} />}
+        </BoldText>
+      </TextRow>
+      <TextRow>
+        <BlackText>TO</BlackText>
+        <BoldText onClick={isSent ? () => copyAddress({ id: receiver }) : () => {}}>
+          {isSent ? nickname || `0x${receiver}` : `0x${getAddress(publicKey)} (Me)`}
+          {isSent && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />}
+          {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, `0x${receiver}`)} src={addContact} />}
+        </BoldText>
+      </TextRow>
+      <TextRow>
+        <BlackText>VALUE</BlackText>
+        <BoldText>{formatSmidge(amount)}</BoldText>
+      </TextRow>
+      <TextRow>
+        <BlackText>TRANSACTION FEE</BlackText>
+        <BoldText>{formatSmidge(fee || 0)}</BoldText>
+      </TextRow>
+      <TextRow>
+        <BlackText>NOTE</BlackText>
+        <BlackText>
+          {note ? `${note}` : `NO NOTE`}
+          <LinkEdit onClick={() => setShowNoteModal(true)}>EDIT</LinkEdit>
+        </BlackText>
+      </TextRow>
+    </DetailsSection>
+  );
 
   return (
     <Wrapper isDetailed={isDetailed}>
@@ -315,11 +285,7 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
         <Icon src={isSent ? chevronRight : chevronLeft} />
         <HeaderInner>
           <HeaderSection>
-            {txId === 'reward' ? (
-              <DarkGrayText>SMESHING REWARD</DarkGrayText>
-            ) : (
-              [nickname && <DarkGrayText key="nickname">{nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{formatTxId(txId)}</Text>]
-            )}
+            [tx.nickname && <DarkGrayText key="nickname">{nickname && nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{formatTxId(txId)}</Text>]
           </HeaderSection>
           <HeaderSection>
             <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(amount)}`}</Amount>
@@ -356,4 +322,4 @@ const TransactionRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   );
 };
 
-export default TransactionRow;
+export default TxRow;

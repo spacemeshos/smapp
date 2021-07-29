@@ -1,7 +1,8 @@
 import { ThunkDispatch } from 'redux-thunk';
 import { NodeError, NodeStatus } from '../../shared/types';
-import { TxList, AccountTxs } from './transactions';
+import { Tx } from './transactions';
 import { Account, WalletMeta, Contact } from './wallet';
+import { Reward } from './smesher';
 
 export interface NetworkState {
   netId: string;
@@ -27,8 +28,8 @@ export interface WalletState {
   mnemonic: string;
   accounts: Array<Account> | [];
   currentAccountIndex: number;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  transactions: AccountTxs | {};
+  transactions: { [publicKey: string]: Tx[] } | never;
+  txsAndRewards: { [publicKey: string]: Tx[] } | never;
   lastUsedContacts: Array<Contact> | [];
   contacts: Array<Contact> | [];
   backupTime: string;
@@ -43,7 +44,7 @@ export interface SmesherState {
   isCreatingPosData: boolean;
   postProgress: any;
   postProgressError: any;
-  rewards: TxList | [];
+  rewards: Reward[] | [];
 }
 
 export interface UiState {

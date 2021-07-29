@@ -1,6 +1,6 @@
 import { eventsService } from '../../infra/eventsService';
 import { createError, getAddress } from '../../infra/utils';
-import { AppThDispatch, GetState, WalletMeta, Account, AccountTxs, Contact, Tx } from '../../types';
+import { AppThDispatch, GetState, WalletMeta, Account, Contact, Tx } from '../../types';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
@@ -27,7 +27,7 @@ export const setMnemonic = ({ mnemonic }: { mnemonic: string }) => ({ type: SET_
 
 export const updateAccountData = ({ account, accountId }: { account: any; accountId: string }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account, accountId } });
 
-export const setTransactions = ({ txs, publicKey }: { txs: AccountTxs; publicKey: string }) => ({ type: SET_TRANSACTIONS, payload: { txs, publicKey } });
+export const setTransactions = ({ txs, publicKey }: { txs: Tx[]; publicKey: string }) => ({ type: SET_TRANSACTIONS, payload: { txs, publicKey } });
 
 export const setContacts = ({ contacts }: { contacts: Contact[] }) => ({ type: SET_CONTACTS, payload: { contacts } });
 

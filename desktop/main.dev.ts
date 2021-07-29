@@ -26,6 +26,8 @@ import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
 
+require('dotenv').config();
+
 const writeFileAsync = util.promisify(fs.writeFile);
 
 const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
@@ -242,19 +244,33 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  const res = await fetch(DISCOVERY_URL);
-  const initialConfig = (await res.json())[0];
   const savedNetId = StoreService.get('netSettings.netId');
-  const cleanStart = savedNetId !== initialConfig.netID;
-  const configFilePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : '../../config', 'config.json');
+  const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
+  let netId;
+  let initialConfig;
+  let netConfig;
+  let isDevNet = false;
+  if (process.env.NODE_ENV === 'development' && process.env.DEV_NET_URL) {
+    const devConfig = await fetch(process.env.DEV_NET_URL);
+    netConfig = await devConfig.json();
+    netId = netConfig.p2p['network-id'];
+    isDevNet = true;
+  } else {
+    const res = await fetch(DISCOVERY_URL);
+    initialConfig = (await res.json())[0];
+    netId = initialConfig.netID;
+  }
+  const cleanStart = savedNetId !== netId;
   if (cleanStart) {
     StoreService.clear();
-    StoreService.set('netSettings.netId', initialConfig.netID);
-    StoreService.set('netSettings.netName', initialConfig.netName);
-    StoreService.set('netSettings.explorerUrl', initialConfig.explorer);
-    StoreService.set('netSettings.dashUrl', initialConfig.dash);
-    const res2 = await fetch(initialConfig.conf);
-    const netConfig = await res2.json();
+    StoreService.set('netSettings.netId', netId);
+    StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
+    StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
+    StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
+    if (!isDevNet) {
+      const res2 = await fetch(initialConfig.conf);
+      netConfig = await res2.json();
+    }
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);

@@ -130,7 +130,7 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
-  store.dispatch(setRewards({ rewards: request.rewards }));
+  store.dispatch(setRewards({ rewards: request.data.rewards, publicKey: request.data.publicKey }));
 });
 
 ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
