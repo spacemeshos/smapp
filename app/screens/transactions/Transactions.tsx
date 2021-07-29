@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { BackButton } from '../../components/common';
-import { TransactionRow, TransactionsMeta } from '../../components/transactions';
+import { TxRow, RewardRow, TransactionsMeta } from '../../components/transactions';
 import { CreateNewContact } from '../../components/contacts';
 import { Link, WrapperWith2SideBars, CorneredWrapper, DropDown } from '../../basicComponents';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { RootState, Tx, TxList, TxState } from '../../types';
+import { Reward, RootState, Tx, TxState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -59,15 +59,14 @@ const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
   }
 `;
 
-const getNumOfCoinsFromTransactions = ({ publicKey, transactions, isObject }: { publicKey: string; transactions: Tx[]; isObject?: boolean }) => {
+const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string; transactions: Tx[] }) => {
   const coins = {
     mined: 0,
     sent: 0,
     received: 0
   };
   const address = getAddress(publicKey);
-  const txAsArray = isObject ? Object.values(transactions) : transactions;
-  txAsArray.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
+  transactions.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
     if (status !== TxState.REJECTED && status !== TxState.INSUFFICIENT_FUNDS && status !== TxState.CONFLICTING) {
       if (txId === 'reward') {
         coins.mined += amount;
@@ -89,12 +88,12 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const [addressToAdd, setAddressToAdd] = useState('');
 
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex].publicKey);
-  const transactions = useSelector((state: RootState) => state.wallet.transactions[publicKey]);
+  const transactions = useSelector((state: RootState) => state.wallet.txsAndRewards[publicKey]);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const getCoinStatistics = ({ filteredTransactions }: { filteredTransactions: TxList }) => {
+  const getCoinStatistics = ({ filteredTransactions }: { filteredTransactions: Tx[] }) => {
     const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
-    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions || {}, isObject: true });
+    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions || [] });
     return {
       ...coins,
       totalMined: totalCoins.mined,
@@ -139,9 +138,13 @@ const Transactions = ({ history }: RouteComponentProps) => {
         <Header>Latest transactions</Header>
         <TransactionsListWrapper>
           {filteredTransactions && filteredTransactions.length ? (
-            filteredTransactions.map((tx: Tx, index: number) => (
-              <TransactionRow key={index} publicKey={publicKey} tx={tx} addAddressToContacts={({ address }) => setAddressToAdd(`0x${address}`)} />
-            ))
+            filteredTransactions.map((tx: Tx | Reward, index: number) =>
+              tx.txId === 'reward' ? (
+                <RewardRow key={index} tx={tx as Reward} />
+              ) : (
+                <TxRow tx={tx as Tx} publicKey={publicKey} addAddressToContacts={({ address }) => setAddressToAdd(`0x${address}`)} />
+              )
+            )
           ) : (
             <Text>No transactions yet.</Text>
           )}

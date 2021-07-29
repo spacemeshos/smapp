@@ -6,22 +6,6 @@ import { fromHexString, toHexString } from './utils';
 
 const DATA_BATCH = 50;
 
-// const asyncForEach = async (array: Array<any>, callback: (obj: any, index: number, array: Array<any>) => void) => {
-//   for (let index = 0; index < array.length; index += 1) {
-//     await callback(array[index], index, array); // eslint-disable-line no-await-in-loop
-//   }
-// };
-
-// const compare = (a: any, b: any) => {
-//   if (!a.timestamp && !b.timestamp) {
-//     return 0;
-//   } else if (a.timestamp && !b.timestamp) {
-//     return 1;
-//   } else if (!a.timestamp && b.timestamp) {
-//     return -1;
-//   } else return b.timestamp - a.timestamp;
-// };
-
 class TransactionManager {
   private readonly meshService: any;
 
@@ -50,18 +34,21 @@ class TransactionManager {
   };
 
   updateAppStateTxs = ({ accountId }: { accountId: string }) => {
-    const txs = StoreService.get(`accounts.${accountId}.txs`);
-    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_TXS, data: { txs, publicKey: accountId } });
+    const txs = StoreService.get(`accounts.${accountId}.txs`) || [];
+    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_TXS, data: { txs: Object.values(txs), publicKey: accountId } });
   };
 
   updateAppStateRewards = ({ accountId }: { accountId: string }) => {
-    const rewards = StoreService.get(`accounts.${accountId}.rewards`);
-    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_REWARDS, data: rewards });
+    const rewards = StoreService.get(`accounts.${accountId}.rewards`) || [];
+    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_REWARDS, data: { rewards, publicKey: accountId } });
   };
 
   setAccounts = ({ accounts }: { accounts: Array<any> }) => {
     this.accounts = accounts;
     accounts.forEach((account) => {
+      this.updateAppStateTxs({ accountId: account.publicKey });
+      this.updateAppStateRewards({ accountId: account.publicKey });
+
       const binaryAccountId = fromHexString(account.publicKey.substring(24));
       const addTransaction = this.addTransaction({ accountId: account.publicKey });
       this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
@@ -71,12 +58,14 @@ class TransactionManager {
       this.retrieveAccountData({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData, retries: 0 });
       this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData });
 
-      const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
-      this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
-      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
+      // TODO uncomment when api is ready
+      // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
+      // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
+      // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
 
-      this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: this.addReward, retries: 0 });
-      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
+      const addReward = this.addReward({ accountId: account.publicKey });
+      this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: addReward, retries: 0 });
+      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: addReward });
     });
   };
 
@@ -89,8 +78,9 @@ class TransactionManager {
     const updateAccountData = this.updateAccountData({ accountId: account.publicKey });
     this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData });
 
-    const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
-    this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
+    // TODO uncomment when api is ready
+    // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
+    // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
 
     this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
   };
@@ -202,22 +192,28 @@ class TransactionManager {
     }
   };
 
-  addReward = ({ data }: { data: any }) => {
+  addReward = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
+    const { reward } = data;
     const genesisTime = StoreService.get('netSettings.genesisTime');
     const layerDurationSec = parseInt(StoreService.get('netSettings.layerDurationSec'));
-    const coinbase = toHexString(data.coinbase.address);
-    const reward = {
-      layer: data.layer.number,
-      total: parseInt(data.total.value),
-      layerReward: parseInt(data.layerReward.value),
-      layerComputed: data.layerComputed.number,
+    const coinbase = toHexString(reward.coinbase.address);
+    const parsedReward = {
+      txId: 'reward',
+      layerId: reward.layer.number,
+      total: parseInt(reward.total.value),
+      layerReward: parseInt(reward.layerReward.value),
+      // layerComputed: data.layerComputed.number, TODO: missing from api response
       coinbase: `0x${coinbase}`,
-      smesher: toHexString(data.smesher.id),
-      timestamp: new Date(genesisTime).getTime() + data.layer.number * layerDurationSec * 1000
+      smesher: toHexString(reward.smesher.id),
+      status: 6, // TODO change to TRANSACTION_STATE_PROCESSED
+      timestamp: new Date(genesisTime).getTime() + reward.layer.number * layerDurationSec * 1000
     };
-    const rewards = StoreService.get(`accounts.${coinbase}.rewards`) || [];
-    StoreService.set(`accounts.${coinbase}.rewards`, [...rewards, reward]);
-    this.updateAppStateRewards({ accountId: coinbase });
+    const rewards = StoreService.get(`accounts.${accountId}.rewards`) || [];
+    if (rewards.findIndex((existingReward) => existingReward.timestamp === parsedReward.timestamp && existingReward.total === parsedReward.total) === -1) {
+      const updatedRewards = [...rewards, parsedReward].sort((reward1, reward2) => reward2.timestamp - reward1.timestamp);
+      StoreService.set(`accounts.${accountId}.rewards`, updatedRewards);
+      this.updateAppStateRewards({ accountId });
+    }
   };
 
   retrieveRewards = async ({

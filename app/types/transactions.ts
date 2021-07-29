@@ -4,14 +4,12 @@ export interface Tx {
   receiver: string;
   amount: number;
   fee: number;
-  status: number;
+  status: TxState;
   layerId?: number;
   timestamp: number;
   nickname?: string;
   note?: string;
 }
-
-export type TxList = Array<Tx>;
 
 export enum TxState {
   REJECTED = 1, // rejected from mempool due to, e.g., invalid syntax
@@ -21,5 +19,3 @@ export enum TxState {
   MESH, // submitted to the mesh
   PROCESSED
 }
-
-export type AccountTxs = { [publicKey: string]: { txId: { tx: Tx } } };

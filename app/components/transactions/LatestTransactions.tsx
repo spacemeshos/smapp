@@ -5,7 +5,7 @@ import { Button } from '../../basicComponents';
 import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { RootState, Tx, TxState } from '../../types';
+import { Reward, RootState, Tx, TxState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -66,19 +66,10 @@ type Props = {
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey);
-  const transactions = useSelector((state: RootState) => state.wallet.transactions[publicKey]);
+  const transactions = useSelector((state: RootState) => state.wallet.txsAndRewards[publicKey]);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const latestTransactions = [];
-  if (transactions) {
-    const txs = Object.values(transactions);
-    if (txs.length > 0) {
-      for (let i = 0; i < 3 && i < txs.length; i += 1) {
-        // @ts-ignore
-        latestTransactions.push(txs[i]);
-      }
-    }
-  }
+  const latestTransactions = transactions ? transactions.slice(0, 3) : [];
 
   const getColor = ({ status, isSent }: { status: number; isSent: boolean }) => {
     if (status === TxState.MEMPOOL || status === TxState.MESH) {
@@ -112,6 +103,33 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     );
   };
 
+  const renderReward = ({ tx, index }: { tx: Reward; index: number }) => {
+    const { total, timestamp } = tx;
+    const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
+    return (
+      <TxWrapper key={index}>
+        <Icon src={chevronLeft} />
+        <MainWrapper>
+          <Section>
+            <NickName>Smeshing reward</NickName>
+          </Section>
+          <Section>
+            <Text>{getFormattedTimestamp(timestamp)}</Text>
+            <Amount color={smColors.darkerGreen}>{`+${formatSmidge(total)}`}</Amount>
+          </Section>
+        </MainWrapper>
+      </TxWrapper>
+    );
+  };
+
+  const renderedLatestTransactions = latestTransactions.map((tx, index) => {
+    if (tx.txId === 'reward') {
+      // @ts-ignore
+      return renderReward({ tx, index });
+    }
+    return renderTransaction({ tx, index });
+  });
+
   return (
     <Wrapper>
       <Header>
@@ -119,7 +137,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
         <br />
         --
       </Header>
-      <div>{latestTransactions.map((tx, index) => renderTransaction({ tx, index }))}</div>
+      <div>{renderedLatestTransactions}</div>
       <Button onClick={navigateToAllTransactions} text="ALL TRANSACTIONS" width={175} style={{ marginTop: 'auto ' }} />
     </Wrapper>
   );

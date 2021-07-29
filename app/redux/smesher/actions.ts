@@ -10,7 +10,7 @@ export const SET_IS_SMESHING = 'SET_IS_SMESHING';
 
 export const SET_ACCOUNT_REWARDS = 'SET_ACCOUNT_REWARDS';
 
-export const setRewards = ({ rewards }: { rewards: Reward[] }) => ({ type: SET_ACCOUNT_REWARDS, payload: { rewards } });
+export const setRewards = ({ rewards, publicKey }: { rewards: Reward[]; publicKey: string }) => ({ type: SET_ACCOUNT_REWARDS, payload: { rewards, publicKey } });
 
 export const getSmesherSettings = () => async (dispatch: AppThDispatch) => {
   const { error, coinbase, dataDir } = await eventsService.getSmesherSettings();

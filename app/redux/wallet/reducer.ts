@@ -1,5 +1,6 @@
-import type { WalletState, CustomAction } from '../../types';
+import type { WalletState, CustomAction, Tx } from '../../types';
 import { LOGOUT } from '../auth/actions';
+import { SET_ACCOUNT_REWARDS } from '../smesher/actions';
 import {
   SAVE_WALLET_FILES,
   SET_WALLET_META,
@@ -20,6 +21,7 @@ const initialState = {
   accounts: [],
   currentAccountIndex: 0,
   transactions: {},
+  txsAndRewards: {},
   lastUsedContacts: [],
   contacts: [],
   backupTime: '',
@@ -27,7 +29,7 @@ const initialState = {
 };
 
 // TODO: fix this while fixing contacts feature
-// const getFirst3UniqueAddresses = (txList: TxList, ownAddress): Contact[] => {
+// const getFirst3UniqueAddresses = (txList: Tx[], ownAddress): Contact[] => {
 //   const unique = new Set();
 //   for (let i = 0; i < txList.length && i < 10; i += 1) {
 //     if (!unique.has(txList[i]) && txList[i].receiver !== ownAddress) {
@@ -87,9 +89,19 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     case SET_TRANSACTIONS: {
       const { publicKey, txs } = action.payload;
       if (state.transactions[publicKey]) {
-        return { ...state, transactions: { ...state.transactions, [publicKey]: { ...state.transactions[publicKey], ...txs } } };
+        const updatedTransactions = [...state.transactions[publicKey], ...txs].sort((tx1: Tx, tx2: Tx) => tx2.timestamp - tx1.timestamp);
+        return { ...state, transactions: { ...state.transactions, [publicKey]: updatedTransactions } };
       }
-      return { ...state, transactions: { ...state.transactions, [publicKey]: { ...txs } } };
+      return { ...state, transactions: { ...state.transactions, [publicKey]: [...txs] } };
+    }
+    case SET_ACCOUNT_REWARDS: {
+      const { rewards, publicKey } = action.payload;
+      if (state.transactions[publicKey]) {
+        const updatedTransactions = [...state.transactions[publicKey], ...rewards].sort((tx1: Tx, tx2: Tx) => tx2.timestamp - tx1.timestamp);
+        return { ...state, txsAndRewards: { [publicKey]: updatedTransactions } };
+      } else {
+        return { ...state, txsAndRewards: { [publicKey]: [...rewards] } };
+      }
     }
     case SET_CONTACTS: {
       const { contacts } = action.payload;
