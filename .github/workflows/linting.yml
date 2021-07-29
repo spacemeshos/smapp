@@ -1,4 +1,4 @@
-name: Lint And App Build
+name: Development
 
 on:
  push:
@@ -9,7 +9,7 @@ on:
  workflow_dispatch:
 
 jobs:
-  release:
+  lint-n-build:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -17,19 +17,39 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
 
     steps:
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%s')"
+
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            run_result
+          key: ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-
+
+      - id: result
+        run: echo "::set-output name=status::$(test -f run_result && cat run_result || echo 'first-time')"
+        shell: bash
+
       - name: Check out Git repository
+        if: ${{ steps.result.outputs.status != 'success' }}
         uses: actions/checkout@v2
 
       - name: Install Node.js, NPM
+        if: ${{ steps.result.outputs.status != 'success' }}
         uses: actions/setup-node@v2-beta
         with:
           node-version: '12'
 
       - name: Get yarn cache directory path
+        if: ${{ steps.result.outputs.status != 'success' }}
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - uses: actions/cache@v2
+        if: ${{ steps.result.outputs.status != 'success' }}
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
@@ -37,11 +57,18 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: yarn install
+        if: ${{ steps.result.outputs.status != 'success' }}
         run: |
           yarn install --prefer-offline
+
       - name: yarn lint and build
+        if: ${{ steps.result.outputs.status != 'success' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn lint
           yarn postinstall
+
+      # Save the run result on success and it should be cached
+      - run: echo "success" > run_result
+        if: ${{ steps.result.outputs.status != 'success' }}
