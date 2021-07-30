@@ -15,6 +15,7 @@ const Container = styled.div`
   flex-direction: column;
   height: 100%;
   justify-content: space-between;
+  flex: 1;
 `;
 
 const DetailsWrap = styled.div`
@@ -26,7 +27,6 @@ const FooterWrap = styled.div`
   display: flex;
   flex-direction: row;
   align-items: baseline;
-  margin-top: 1em;
 `;
 
 const DetailsRow = styled.div`
@@ -63,6 +63,26 @@ const DetailsTextWrap = styled.div`
   align-items: center;
 `;
 
+const SubHeader = styled.div`
+  font-size: 16px;
+  line-height: 20px;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  flex: 0.2;
+`;
+
+const ErrorMessage = styled.span`
+  display: block;
+  text-transform: uppercase;
+  font-size: 14px;
+  line-height: 18px;
+  color: ${smColors.red};
+  max-height: 18px;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+`;
+
 const Network = () => {
   const dispatch = useDispatch();
 
@@ -92,7 +112,11 @@ const Network = () => {
   };
 
   return (
-    <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network} subHeader={netName} isDarkMode={isDarkMode} error={nodeError?.msg}>
+    <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network} isDarkMode={isDarkMode}>
+      <SubHeader>
+        {netName}
+        {nodeError && <ErrorMessage>{nodeError?.msg}</ErrorMessage>}
+      </SubHeader>
       <Container>
         <DetailsWrap>
           <DetailsRow>
