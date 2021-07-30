@@ -1,20 +1,19 @@
-name: Development
+name: PR Build
 
 on:
- push:
-   branches-ignore:
-     - 'master'
-   tags-ignore:
-     - v0.*
  workflow_dispatch:
+ pull_request:
 
 jobs:
-  lint-n-build:
+  build-and-upload:
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
+    
+    outputs:
+      version: ${{ steps.package-version.outputs.version }}
 
     steps:
       - id: timestamp
@@ -69,6 +68,118 @@ jobs:
           yarn lint
           yarn postinstall
 
+      # Pack & Upload artifacts
+      - name: Get latest release tag of go-spacemesh
+        id: latestNode
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const owner = 'spacemeshos';
+            const repo = 'go-spacemesh';
+            const { tag_name } = (await github.repos.listReleases({ owner, repo })).data[0];
+            return tag_name;
+          result-encoding: string
+
+      - name: Echo latest Node version
+        run: |
+          echo ${{steps.latestNode.outputs.result}}
+      
+      - name: Prepare link to go-spacemesh binary
+        id: node-link
+        run: |
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{steps.latestNode.outputs.result}}/${{matrix.os}}/go-spacemesh${{matrix.os == 'windows-latest' && '.exe' || ''}}"
+      
+      - name: Check for go-spacemesh artifacts existence
+        run: |
+          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
+          echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
+        shell: bash
+
+      - name: yarn build-dll
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          yarn build-dll
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - if: matrix.os == 'ubuntu-latest'
+        name: build linux app
+        run: |
+          curl -L --output ./node/linux/go-spacemesh --create-dirs ${{steps.node-link.outputs.link}}
+          cd ./node/linux
+          chmod -R +x * .
+          cd ../..
+          yarn package-linux
+      - if: matrix.os == 'windows-latest'
+        name: build windows app
+        run: |
+          curl -L --output ./node/windows/go-spacemesh.exe --create-dirs ${{steps.node-link.outputs.link}}
+          yarn package-win
+      - if: matrix.os == 'macos-latest'
+        name: build mac app
+        run: |
+          curl -L --output ./node/mac/go-spacemesh --create-dirs ${{steps.node-link.outputs.link}}
+          cd ./node/mac
+          chmod -R +x * .
+          cd ../..
+          yarn package-mac
+        env:
+          DONT_SIGN_APP: true # Do not sign the development artifacts
+
+      - name: get-smapp-version
+        id: package-version
+        uses: tyankatsu0105/read-package-version-actions@v1
+
+      # Upload artifacts to GCS          
+      - if: matrix.os == 'macos-latest'
+        name: upload macos build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
+          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
+
+      - if: matrix.os == 'windows-latest'
+        name: upload windows build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
+          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
+      
+      - if: matrix.os == 'ubuntu-latest'
+        name: upload linux build
+        uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
+
       # Save the run result on success and it should be cached
       - run: echo "success" > run_result
         if: ${{ steps.result.outputs.status != 'success' }}
+  
+  post-links:
+    runs-on: ubuntu-latest
+    needs: build-and-upload
+    steps:
+      - name: Links to artifacts
+        run: |
+          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
+          echo "https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
+      - name: Post links to PR
+        if: github.event_name == 'pull_request'
+        uses: mshick/add-pr-comment@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          message: |
+            ## Compiled Binaries
+            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
+            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb
+            - Mac: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
