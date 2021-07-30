@@ -6,7 +6,7 @@ import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
-import TransactionManager from './transactionManager';
+import TransactionManager from './TransactionManager';
 import fileEncryptionService from './fileEncryptionService';
 import cryptoService from './cryptoService';
 import encryptionConst from './encryptionConst';

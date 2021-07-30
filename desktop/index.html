@@ -18,7 +18,7 @@
         const port = process.env.PORT || 1212;
         scripts.push(`http://localhost:${port}/dist/renderer.dev.js`);
       } else {
-        scripts.push('../dist/renderer.prod.js');
+        scripts.push('./dist/renderer.prod.js');
       }
 
       if (scripts.length) {

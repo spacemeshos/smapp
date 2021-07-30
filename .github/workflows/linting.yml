@@ -96,11 +96,8 @@ jobs:
           echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
         shell: bash
 
-      - name: yarn build-dll
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          yarn build-dll
+      - name: yarn build
+        run: yarn build
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master

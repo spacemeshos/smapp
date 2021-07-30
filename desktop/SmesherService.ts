@@ -1,4 +1,4 @@
-import NetServiceFactory from './netServiceFactory';
+import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 import StoreService from './storeService';
 import { fromHexString, toHexString } from './utils';
