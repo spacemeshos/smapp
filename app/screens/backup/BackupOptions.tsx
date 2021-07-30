@@ -85,7 +85,6 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
         <Text>Your wallet is encrypted using your password. We recommend you backup your wallet for additional security.</Text>
       </WrapperWith2SideBars>
       <RightSection isDarkMode={isDarkMode}>
-        <SmallHorizontalPanel isDarkMode={isDarkMode} />
         <MiddleSection>
           <MiddleSectionRow>
             <SmallText style={{ marginRight: 22 }}>Basic Security</SmallText>

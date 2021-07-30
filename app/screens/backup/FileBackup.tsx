@@ -42,7 +42,6 @@ const FileBackup = ({ history }: RouteComponentProps) => {
 
   return (
     <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkMode={isDarkMode}>
-      <SmallHorizontalPanel isDarkMode={isDarkMode} />
       <Text>A restore file has been created in your documents folder.</Text>
       <Link onClick={showBackupFile} text="Browse file location" />
       <Text>You can use this file to restore your spacemesh wallet on any computer.</Text>

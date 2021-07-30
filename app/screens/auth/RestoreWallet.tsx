@@ -14,7 +14,6 @@ const RestoreWallet = ({ history }: RouteComponentProps) => {
 
   return (
     <CorneredContainer width={650} height={400} header="RESTORE AN EXISTING WALLET" subHeader="Choose how you&#39;d like to restore your wallet." isDarkMode={isDarkMode}>
-      <SmallHorizontalPanel isDarkMode={isDarkMode} />
       <BackButton action={history.goBack} />
       <Button text="RESTORE FROM FILE" isPrimary={false} onClick={() => history.push('/auth/file-restore')} width={250} style={btnStyle} />
       <Button text="RESTORE FROM 12 WORDS" isPrimary={false} onClick={() => history.push('/auth/words-restore')} width={250} />

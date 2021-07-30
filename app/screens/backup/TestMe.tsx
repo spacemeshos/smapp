@@ -282,7 +282,6 @@ const TestMe = ({ history, location }: Props) => {
 
   return [
     <WrapperWith2SideBars width={920} header="CONFIRM YOUR 12 WORDS BACKUP" key="1" isDarkMode={isDarkMode}>
-      <SmallHorizontalPanel isDarkMode={isDarkMode} />
       <SubHeader>Drag each of the four words below to its matching number in your paper backup word list</SubHeader>
       {renderDragAndDropArea()}
       <BottomRow>

@@ -118,7 +118,6 @@ const WalletType = ({ history, location }: Props) => {
     <Wrapper>
       <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={1} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="WALLET SETUP" subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
-        <SmallHorizontalPanel isDarkMode={isDarkMode} />
         <BackButton action={history.goBack} />
         <RowJust>
           <RowColumn>

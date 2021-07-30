@@ -99,7 +99,6 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
         tooltipMessage="test"
         isDarkMode={isDarkMode}
       >
-        <SmallHorizontalPanel isDarkMode={isDarkMode} />
         <RowColumn>
           <DropDown
             data={publicServices}

@@ -1,6 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
 import srcReg from './assets/fonts/SourceCodePro-Regular.ttf';
 import srcBold from './assets/fonts/SourceCodePro-Bold.ttf';
+import { smColors } from './vars';
 
 const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
     @font-face {
@@ -20,7 +21,7 @@ const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: ${({ theme }) => (theme.isDarkMode ? '#252429' : '#F3F3F3')};
+        background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : smColors.background)};
     }
     
     html, body, div, span, applet, object, iframe,

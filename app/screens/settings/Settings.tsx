@@ -170,7 +170,6 @@ class Settings extends Component<Props, State> {
       <Wrapper>
         <SideMenu isDarkMode={isDarkMode} items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']} currentItem={currentSettingIndex} onClick={this.scrollToRef} />
         <AllSettingsWrapper>
-          <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <AllSettingsInnerWrapper>
             <SettingsSection title="GENERAL" refProp={this.myRef1} isDarkMode={isDarkMode}>
               <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />

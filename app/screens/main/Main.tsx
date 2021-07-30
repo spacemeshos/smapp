@@ -6,7 +6,7 @@ import { logout } from '../../redux/auth/actions';
 import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
-import { SecondaryButton, NavTooltip, NetworkIndicator } from '../../basicComponents';
+import { SecondaryButton, NavTooltip, NetworkIndicator, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
 import {
   rightDecoration,
@@ -259,6 +259,7 @@ class Main extends Component<Props, State> {
             </NavBarPart>
           </NavBar>
           <RoutesWrapper>
+            <SmallHorizontalPanel isDarkMode={isDarkMode} />
             <Switch>
               {routes.main.map((route) => (
                 <Route key={route.path} path={route.path} component={route.component} />
