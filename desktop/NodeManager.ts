@@ -22,8 +22,8 @@ const osTargetNames = {
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
 const PROCESS_EXIT_CHECK_INTERVAL = 1000; // Check does the process exited
 
-const normalizeCrashError = (error: Error, message: string): NodeError => ({
-  msg: message,
+const defaultCrashError = (error: Error): NodeError => ({
+  msg: "The Spacemesh node software has unexpectedly quit. Click on 'restart node' to start it.",
   stackTrace: error?.stack || '',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
   module: 'NodeManager'
@@ -129,7 +129,7 @@ class NodeManager {
       logger.error('Node Process', error);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
-      this.sendNodeError(normalizeCrashError(error, error.message));
+      this.sendNodeError(defaultCrashError(error));
     });
   };
 
