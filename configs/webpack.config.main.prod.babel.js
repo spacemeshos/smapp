@@ -20,17 +20,18 @@ export default merge(baseConfig, {
 
   target: 'electron-main',
 
-  entry: '../desktop/main.dev.ts',
+  entry: './desktop/main.dev.ts',
 
   output: {
-    path: path.join(__dirname, '..'),
-    filename: '../desktop/main.prod.js',
+    path: path.join(__dirname, '../desktop'),
+    filename: 'main.prod.js',
   },
 
   optimization: {
     minimizer: [
       new TerserPlugin({
-        parallel: true
+        parallel: true,
+        extractComments: false
       })
     ]
   },

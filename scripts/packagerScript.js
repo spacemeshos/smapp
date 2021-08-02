@@ -8,9 +8,7 @@ const { notarize } = require('electron-notarize');
 
 async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
-  if (electronPlatformName !== 'darwin') {
-    return;
-  }
+  if (electronPlatformName !== 'darwin' || process.env.DONT_SIGN_APP) return;
 
   const appName = context.packager.appInfo.productFilename;
 
@@ -100,7 +98,7 @@ const getBuildOptions = ({ target, publish }) => {
       appId: 'com.spacemesh.wallet',
       files: [
         'desktop/dist/',
-        'desktop/app.html',
+        'desktop/index.html',
         'desktop/closeAppModal.html',
         'desktop/main.prod.js',
         'desktop/main.prod.js.map',
@@ -110,7 +108,8 @@ const getBuildOptions = ({ target, publish }) => {
         'package.json',
         'node_modules/',
         'proto/',
-        'resources/icons/*'
+        'resources/icons/*',
+        'app/assets/**'
       ],
       extraFiles: [
         nodeFiles[target],
