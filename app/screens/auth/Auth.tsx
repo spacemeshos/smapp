@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { readWalletFiles } from '../../redux/wallet/actions';
 import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
-import { Loader } from '../../basicComponents';
+import { Loader, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
 import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { RootState } from '../../types';
@@ -36,6 +36,10 @@ const InnerWrapper = styled.div`
   padding: 30px 25px;
 `;
 
+const RelativeContainer = styled.div`
+  position: relative;
+`;
+
 interface Props extends RouteComponentProps {
   location: {
     hash: string;
@@ -44,6 +48,11 @@ interface Props extends RouteComponentProps {
     state: unknown;
   };
 }
+
+const renderHorizontalPane = (path, isDarkMode) => {
+  const DO_NOT_SHOW_ON = ['/auth/welcome', '/auth/leaving'];
+  return DO_NOT_SHOW_ON.includes(path) ? null : <SmallHorizontalPanel isDarkMode={isDarkMode} />;
+};
 
 const Auth = ({ history, location }: Props) => {
   const walletFiles = useSelector((state: RootState) => state.wallet.walletFiles);
@@ -65,12 +74,15 @@ const Auth = ({ history, location }: Props) => {
       <Logo isDarkMode={isDarkMode} />
       <InnerWrapper>
         {walletFiles ? (
-          <Switch>
-            {routes.auth.map((route) => (
-              <Route exact key={route.path} path={route.path} component={route.component} />
-            ))}
-            <Redirect to="/auth/welcome" />
-          </Switch>
+          <RelativeContainer>
+            {renderHorizontalPane(location.pathname, isDarkMode)}
+            <Switch>
+              {routes.auth.map((route) => (
+                <Route exact key={route.path} path={route.path} component={route.component} />
+              ))}
+              <Redirect to="/auth/welcome" />
+            </Switch>
+          </RelativeContainer>
         ) : (
           <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
         )}

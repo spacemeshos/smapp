@@ -166,7 +166,6 @@ const CreateWallet = ({ history, location }: Props) => {
     <Wrapper>
       <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={2} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header={header} subHeader={renderSubHeader(subMode)} isDarkMode={isDarkMode}>
-        <SmallHorizontalPanel isDarkMode={isDarkMode} />
         {subMode === 1 && (
           <>
             <UpperPart>

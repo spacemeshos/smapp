@@ -50,7 +50,6 @@ const FileRestore = ({ history }: RouteComponentProps) => {
 
   return (
     <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
-      <SmallHorizontalPanel isDarkMode={isDarkMode} />
       <BackButton action={history.goBack} />
       <DdArea>
         <DragAndDrop onFilesAdded={addFile} fileName={fileName} hasError={hasError} isDarkMode={isDarkMode} />

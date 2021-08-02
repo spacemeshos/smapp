@@ -112,7 +112,6 @@ const WordsRestore = ({ history }: RouteComponentProps) => {
   const isDoneDisabled = !isDoneEnabled();
   return (
     <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order.">
-      <SmallHorizontalPanel isDarkMode={isDarkMode} />
       <BackButton action={history.goBack} />
       <Table>
         <TableColumn>{renderInputs({ start: 0 })}</TableColumn>

@@ -91,41 +91,44 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const renderTxParamsMode = () => {
-    return [
-      <TxParams
-        fromAddress={currentAccount.publicKey}
-        address={address}
-        hasAddressError={hasAddressError}
-        updateTxAddress={updateTxAddress}
-        resetAddressError={() => setHasAddressError(false)}
-        amount={amount}
-        updateTxAmount={updateTxAmount}
-        hasAmountError={hasAmountError}
-        resetAmountError={() => setHasAmountError(false)}
-        updateFee={updateFee}
-        note={note}
-        updateTxNote={updateTxNote}
-        cancelTx={history.goBack}
-        nextAction={proceedToMode2}
-        contacts={contacts}
-        key="params"
-        isDarkMode={isDarkMode}
-      />,
-      isCreateNewContactOn ? (
-        <CreateNewContact
-          isStandalone
-          initialAddress={address}
-          onCompleteAction={() => setIsCreateNewContactOn(false)}
-          onCancel={() => setIsCreateNewContactOn(false)}
-          key="newContact"
+    return (
+      <>
+        <TxParams
+          fromAddress={currentAccount.publicKey}
+          address={address}
+          hasAddressError={hasAddressError}
+          updateTxAddress={updateTxAddress}
+          resetAddressError={() => setHasAddressError(false)}
+          amount={amount}
+          updateTxAmount={updateTxAmount}
+          hasAmountError={hasAmountError}
+          resetAmountError={() => setHasAmountError(false)}
+          updateFee={updateFee}
+          note={note}
+          updateTxNote={updateTxNote}
+          cancelTx={history.goBack}
+          nextAction={proceedToMode2}
+          contacts={contacts}
+          key="params"
+          isDarkMode={isDarkMode}
         />
-      ) : (
-        <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={parseInt(`${amount}`)} fee={fee} note={note} key="summary" />
-      )
-    ];
+        {isCreateNewContactOn ? (
+          <CreateNewContact
+            isStandalone
+            initialAddress={address}
+            onCompleteAction={() => setIsCreateNewContactOn(false)}
+            onCancel={() => setIsCreateNewContactOn(false)}
+            key="newContact"
+          />
+        ) : (
+          <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={parseInt(`${amount}`)} fee={fee} note={note} key="summary" />
+        )}
+      </>
+    );
   };
 
   switch (mode) {
+    default: // Hopefully it never defaults, but in case that this happened at least render a first step
     case 1: {
       return renderTxParamsMode();
     }
@@ -156,9 +159,6 @@ const SendCoins = ({ history, location }: Props) => {
           navigateToTxList={() => history.replace('/main/transactions')}
         />
       );
-    }
-    default: {
-      return null;
     }
   }
 };

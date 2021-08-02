@@ -100,7 +100,6 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
       </LeftSection>
       <Wrapper>
         <RightSection>
-          <SmallHorizontalPanel isDarkMode={isDarkMode} />
           <Switch>
             {routes.wallet.map((route) => (
               <Route exact key={route.path} path={route.path} component={route.component} />

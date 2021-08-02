@@ -88,7 +88,6 @@ const WalletConnectionType = ({ history }: RouteComponentProps) => {
     <Wrapper>
       <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={0} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="NEW WALLET" subHeader="Configure your new wallet" isDarkMode={isDarkMode}>
-        <SmallHorizontalPanel isDarkMode={isDarkMode} />
         <BackButton action={() => history.push('/auth/leaving')} />
         <RowJust>
           <RowColumn>

@@ -126,6 +126,7 @@ const AccountsOverview = () => {
     };
   });
 
+  const isSynced = useSelector((state: RootState) => !!state.node.status?.isSynced);
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
@@ -168,7 +169,7 @@ const AccountsOverview = () => {
   const { value, unit }: any = formatSmidge(currentState ? currentState.balance : 0, true);
 
   return (
-    <WrapperWith2SideBars width={300} height={'calc(100% - 65px)'} header={meta.displayName} isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars width={290} height={'calc(100% - 65px)'} header={meta.displayName} isDarkMode={isDarkMode}>
       <AccountDetails>
         {accounts.length > 1 ? (
           <DropDown
@@ -189,7 +190,7 @@ const AccountsOverview = () => {
       <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <BalanceHeader>BALANCE</BalanceHeader>
-        {currentState ? (
+        {isSynced && currentState ? (
           <BalanceWrapper>
             <BalanceAmount>{value}</BalanceAmount>
             <SmhText>{unit}</SmhText>
