@@ -17,35 +17,6 @@ jobs:
       tagName: ${{ steps.tagName.outputs.tag }}
       version: ${{ steps.package-version.outputs.version }}
     steps:
-      # Get latest Node version & check artifacts existence
-      - name: Get latest (pre-)release tag of go-spacemesh
-        id: latestNode
-        uses: actions/github-script@v4
-        with:
-          script: |
-            const owner = 'spacemeshos';
-            const repo = 'go-spacemesh';
-            const { data } = await github.repos.listReleases({ owner, repo });
-            const { tag_name } = data.filter(r => !r.prerelease)[0];
-            return tag_name;
-          result-encoding: string
-
-      - name: Echo latest Node version
-        run: |
-          echo ${{ steps.latestNode.outputs.result }}
-        
-      - name: Prepare link to go-spacemesh binary
-        id: node-link
-        run: |
-          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.result }}/${{matrix.os}}/go-spacemesh${{matrix.os == 'windows-latest' && '.exe' || ''}}"
-      
-      - name: Check for go-spacemesh artifact existence
-        run: |
-          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
-          echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
-          echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
-        shell: bash
-
       # Prepare workspace
       - name: Check out Git repository
         uses: actions/checkout@v2
@@ -82,13 +53,44 @@ jobs:
           yarn build
 
       # Download go-spacemesh
+      - name: Get specified Go-spacemesh version
+        id: latestNode
+        run: echo "::set-output name=version::$(cat ./node/use-version)"
+      
+      - id: cache-gospacemesh
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./node/*
+            !./node/use-version
+          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
+          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
+        
+      - name: Prepare link to go-spacemesh binary
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        id: node-link
+        run: |
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{matrix.os}}/go-spacemesh${{matrix.os == 'windows-latest' && '.exe' || ''}}"
+      
+      - name: Check for go-spacemesh artifact existence
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
+          echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
+        shell: bash
+
       - id: platform
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           echo "::set-output name=dir::${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'linux'}}"
           echo "::set-output name=ext::${{ matrix.os == 'windows-latest' && '.exe' || ''}}"
+
       - name: Download Go-Spacemesh
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           curl -L --output ./node/${{ steps.platform.outputs.dir }}/go-spacemesh${{ steps.platform.outputs.ext}} --create-dirs ${{steps.node-link.outputs.link}}
+
       - name: Set CHMOD on Go-Spacemesh
         if: matrix.os != 'windows-latest'
         run: (cd ./node/${{ steps.platform.outputs.dir }}; chmod -R +x * .)
