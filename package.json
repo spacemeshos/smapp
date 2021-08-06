@@ -10,7 +10,7 @@
   "private": true,
   "description": "Spacemesh App",
   "scripts": {
-    "build": "concurrently \"yarn build:main\" \"yarn build:renderer\"",
+    "build": "yarn verify:node-version && concurrently \"yarn build:main\" \"yarn build:renderer\"",
     "build:main": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.main.prod.babel.js",
     "build:renderer": "cross-env NODE_ENV=production webpack --config ./configs/webpack.config.renderer.prod.babel.js",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir desktop",
@@ -20,9 +20,10 @@
     "package-win": "yarn build && node ./scripts/packagerScript.js --target windows",
     "package-linux": "yarn build && node ./scripts/packagerScript.js --target linux",
     "postinstall": "node -r @babel/register ./configs/checkNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js && yarn-deduplicate yarn.lock",
-    "start": "node -r @babel/register ./configs/CheckPortInUse.js && yarn start:renderer",
+    "start": "NODE_ENV=development yarn verify:node-version && node -r @babel/register ./configs/CheckPortInUse.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./configs/babelRegister ./desktop/main.dev.ts",
-    "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./configs/webpack.config.renderer.dev.babel.js"
+    "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./configs/webpack.config.renderer.dev.babel.js",
+    "verify:node-version": "node ./scripts/verifyGoSmVersion.js"
   },
   "repository": {
     "type": "git",
