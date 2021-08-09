@@ -62,16 +62,6 @@ Smapp uses two workflows. Both of them builds an application for all supported p
   CI prepares a draft release with links to the artifacts.
 
 ---
-
-# Spacemesh 0.1 Release Milestone - WIP
-We are currently finalizing the App and the installer - the artifacts of this repo for the Open Testnet Release. The best resource to understand the app functionality and capabilities is our [Spacemesh Testnet Guide](http://testnet.spacemesh.io). 
-
----
-
-# MVP1 Milestone (Complete)
-- [Interactive Prototype](https://xd.adobe.com/view/d1d14f8b-4c11-46a9-400b-c0157ecae268-a7e0/?fullscreen)
-- [Desktop Specs and Visual Design Guide](https://docs.google.com/presentation/d/1G20T3KSt3iVmTqPJ7x9bljBA--PrPUNOpRNA9klVRSk/edit?usp=sharing)
-- [Assets](https://drive.google.com/drive/folders/1OHXb15_5uKHsGGMlm0zQ8LSIMRz9C2E7)
-- [Desktop screens specs and flows](https://xd.adobe.com/spec/82a02ed8-aecc-466a-4107-10c94808ade3-f491/)
-
-
+- [Roadmap & product details](https://product.spacemesh.io/)
+- [Platform documentation](https://platform.spacemesh.io/)
+- [Spacemesh improvement proposals](https://github.com/spacemeshos/SMIPS)
