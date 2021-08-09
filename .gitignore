@@ -34,7 +34,7 @@ ct-libc/
 /desktop/main.prod.js
 /desktop/main.prod.js.map
 /desktop/config.json
-/node/
+/node/*/
 /release
 .env
 .vscode
