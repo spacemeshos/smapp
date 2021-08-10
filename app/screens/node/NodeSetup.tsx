@@ -5,7 +5,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { startSmeshing, deletePosData } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { StepsContainer, SmallHorizontalPanel } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
@@ -165,4 +164,4 @@ const NodeSetup = ({ history, location }: Props) => {
   );
 };
 
-export default ScreenErrorBoundary(NodeSetup);
+export default NodeSetup;

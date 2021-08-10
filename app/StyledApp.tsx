@@ -6,6 +6,7 @@ import routes from './routes';
 import GlobalStyle from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
+import ErrorBoundary from './ErrorBoundary';
 
 const StyledApp = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -18,14 +19,16 @@ const StyledApp = () => {
   return (
     <ThemeProvider theme={{ isDarkMode }}>
       <GlobalStyle />
-      <Router>
-        <Switch>
-          {routes.app.map((route) => (
-            <Route key={route.path} path={route.path} component={route.component} />
-          ))}
-          <Redirect to="/auth" />
-        </Switch>
-      </Router>
+      <ErrorBoundary>
+        <Router>
+          <Switch>
+            {routes.app.map((route) => (
+              <Route key={route.path} path={route.path} component={route.component} />
+            ))}
+            <Redirect to="/auth" />
+          </Switch>
+        </Router>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 };

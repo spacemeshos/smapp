@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import routes from '../../routes';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { BackButton } from '../../components/common';
 
 const Wrapper = styled.div`
@@ -23,4 +22,4 @@ const Backup = ({ history }: RouteComponentProps) => (
   </Wrapper>
 );
 
-export default ScreenErrorBoundary(Backup);
+export default Backup;

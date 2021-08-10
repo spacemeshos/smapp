@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { connect } from 'react-redux';
 import { Modal } from '../common';
 import { Button } from '../../basicComponents';
 import { smColors } from '../../vars';
+import { RootState } from '../../types';
+import { setUiError } from '../../redux/ui/actions';
 
 const Text = styled.div`
   font-size: 16px;
@@ -20,6 +23,8 @@ const ButtonsWrapper = styled.div<{ hasSingleButton: boolean }>`
 
 type Props = {
   children: any;
+  error: Error | null;
+  setUiError: (Error) => void;
 };
 
 type State = {
@@ -32,6 +37,7 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   render() {
+    console.log('Err Boundary: render', this.props);
     const { children } = this.props;
     const { error } = this.state;
 
@@ -52,9 +58,17 @@ class ErrorBoundary extends Component<Props, State> {
     return children;
   }
 
+  static getDerivedStateFromError(error: Error) {
+    // Update state so the next render will show the fallback UI.
+    return { error };
+  }
+
   componentDidCatch(error: any, info: any) {
     console.log(`${error.message} ${info.componentStack}`); // eslint-disable-line no-console
-    this.setState({ error });
+    const { setUiError } = this.props;
+    console.log('>>', error);
+    setUiError(error);
+    // this.setState({ error });
   }
 
   handleRetry = () => {
@@ -68,4 +82,10 @@ class ErrorBoundary extends Component<Props, State> {
   };
 }
 
-export default ErrorBoundary;
+const mapStateToProps = (state: RootState) => ({
+  error: state.ui.error
+});
+
+const mapDispatchToProps = { setUiError };
+
+export default connect(mapStateToProps, mapDispatchToProps)(ErrorBoundary);

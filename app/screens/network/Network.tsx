@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import { getCurrentLayer } from '../../redux/network/actions';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
@@ -189,4 +188,4 @@ const Network = () => {
   );
 };
 
-export default ScreenErrorBoundary(Network);
+export default Network;

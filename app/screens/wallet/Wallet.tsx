@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import routes from '../../routes';
 import { AccountsOverview } from '../../components/wallet';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
-import { SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { backup, leftSideTIcon, leftSideTIconWhite } from '../../assets/images';
 import { RootState } from '../../types';
@@ -112,4 +110,4 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
   );
 };
 
-export default ScreenErrorBoundary(Wallet);
+export default Wallet;

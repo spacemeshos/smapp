@@ -94,7 +94,7 @@ interface Props extends RouteComponentProps {
 
 const UnlockWallet = ({ history, location }: Props) => {
   const [password, setPassword] = useState('');
-  const [hasError, setHasError] = useState(false);
+  const [isWrongPassword, setWrongPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -103,7 +103,7 @@ const UnlockWallet = ({ history, location }: Props) => {
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
-    setHasError(false);
+    setWrongPassword(false);
   };
 
   const decryptWallet = async () => {
@@ -116,14 +116,14 @@ const UnlockWallet = ({ history, location }: Props) => {
       } catch (error) {
         setShowLoader(false);
         if (error.message && error.message.indexOf('Unexpected token') === 0) {
-          setHasError(true);
+          setWrongPassword(true);
         }
+        throw error;
       }
     }
   };
 
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
-
   return showLoader ? (
     <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
   ) : (
@@ -131,17 +131,17 @@ const UnlockWallet = ({ history, location }: Props) => {
       {location?.state?.isLoggedOut && <LoggedOutBanner key="banner" />}
       <CorneredContainer width={520} height={310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkMode={isDarkMode}>
         <Text>Please enter your wallet password.</Text>
-        <Indicator hasError={hasError} />
+        <Indicator hasError={isWrongPassword} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
           <Chevron src={chevronIcon} />
           <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={decryptWallet} onChange={handlePasswordTyping} style={{ flex: 1 }} autofocus />
           <ErrorSection>
-            {hasError && (
+            {isWrongPassword && (
               <ErrorPopup
                 onClick={() => {
                   setPassword('');
-                  setHasError(false);
+                  setWrongPassword(false);
                 }}
                 text="Sorry, this password doesn't ring a bell, please try again."
               />
@@ -155,7 +155,7 @@ const UnlockWallet = ({ history, location }: Props) => {
             <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
-          <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={decryptWallet} style={{ marginTop: 'auto' }} />
+          <Button text="UNLOCK" isDisabled={!password.trim() || !!isWrongPassword} onClick={decryptWallet} style={{ marginTop: 'auto' }} />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

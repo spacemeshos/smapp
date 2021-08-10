@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getFormattedTimestamp } from '../../infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
@@ -314,4 +313,4 @@ const Node = ({ history, location }: Props) => {
   );
 };
 
-export default ScreenErrorBoundary(Node);
+export default Node;
