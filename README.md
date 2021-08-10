@@ -43,6 +43,11 @@ To build and pack application:
      set env variable `DONT_SIGN_APP=1` to skip notarizing the app,
    - `yarn package-linux`
 
+To run the application against DevNet you have to set URL to config file to env variable `DEV_NET_URL`:
+```
+DEV_NET_URL=https://.../config.json yarn start
+```
+
 ### Building Artifacts in CI
 
 Smapp uses two workflows. Both of them builds an application for all supported platforms: windows, macOS, linux.
