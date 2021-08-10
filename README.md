@@ -1,7 +1,6 @@
 ![Lint And Build Pass](https://github.com/spacemeshos/smapp/workflows/Lint%20And%20App%20Build/badge.svg)
 
 <h1 align="center">
-  <a href="https://spacemesh.io"><img width="400" src="https://spacemesh.io/content/images/2019/05/black_logo_hp.png" alt="Spacemesh logo" /></a>
   <p align="center">Smapp - the Spacemesh App 🏦📊</p>
   <p align="center">Smesher UI + Wallet</p>
 </h1>
@@ -43,6 +42,11 @@ To build and pack application:
    - `yarn package-mac`
      set env variable `DONT_SIGN_APP=1` to skip notarizing the app,
    - `yarn package-linux`
+
+To run the application against DevNet you have to set URL to config file to env variable `DEV_NET_URL`:
+```
+DEV_NET_URL=https://.../config.json yarn start
+```
 
 ### Building Artifacts in CI
 
