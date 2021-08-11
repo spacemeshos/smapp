@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   background-color: ${smColors.black80Alpha2};
-  z-index: 2;
+  z-index: 1000;
 `;
 
 const Indicator = styled.div<{ indColor: string }>`
@@ -33,16 +33,17 @@ type Props = {
   width?: number;
   height?: number;
   headerColor?: string;
+  indicatorColor?: string;
   children: any;
 };
 
-const Modal = ({ header, subHeader = '', headerColor, children, width = 520, height = 310 }: Props) => {
+const Modal = ({ header, subHeader = '', headerColor, indicatorColor, children, width = 520, height = 310 }: Props) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const color = isDarkMode ? smColors.white : smColors.black;
   return (
     <Wrapper>
       <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} headerColor={headerColor} isDarkMode={isDarkMode}>
-        <Indicator indColor={headerColor || color} />
+        <Indicator indColor={indicatorColor || headerColor || color} />
         {children}
       </CorneredContainer>
     </Wrapper>

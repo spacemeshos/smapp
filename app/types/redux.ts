@@ -50,6 +50,7 @@ export interface SmesherState {
 export interface UiState {
   isDarkMode: boolean;
   hideSmesherLeftPanel: boolean;
+  error: Error | null;
 }
 
 export interface RootState {

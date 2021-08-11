@@ -1,24 +1,34 @@
+/**
+ * This is an extended version of classic React Error Boundary.
+ * It catches errors in rendering, but it also show other errors:
+ * - errors in rendering
+ * - errors stored in Redux (via actions)
+ */
+
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import { Modal } from '../common';
-import { Button } from '../../basicComponents';
-import { smColors } from '../../vars';
-import { RootState } from '../../types';
-import { setUiError } from '../../redux/ui/actions';
-
-const Text = styled.div`
-  font-size: 16px;
-  line-height: 22px;
-  color: ${smColors.orange};
-  margin-top: 20px;
-`;
+import { Modal } from './components/common';
+import { Button } from './basicComponents';
+import { RootState } from './types';
+import { setUiError } from './redux/ui/actions';
+import { smColors } from './vars';
 
 const ButtonsWrapper = styled.div<{ hasSingleButton: boolean }>`
   display: flex;
   flex-direction: row;
   justify-content: ${({ hasSingleButton }) => (hasSingleButton ? 'center' : 'space-between')};
-  margin: 30px 0 15px 0;
+  margin: auto 0 15px 0;
+  padding-top: 30px;
+`;
+
+const ErrorMessage = styled.pre`
+  font-size: 14px;
+  line-height: 16px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  flex: 1;
+  overflow-y: auto;
 `;
 
 type Props = {
@@ -26,59 +36,58 @@ type Props = {
   error: Error | null;
   setUiError: (Error) => void;
 };
-
 type State = {
-  error: any;
+  isRenderingError: boolean;
 };
 
 class ErrorBoundary extends Component<Props, State> {
   state = {
-    error: null
+    isRenderingError: false
   };
 
   render() {
-    console.log('Err Boundary: render', this.props);
-    const { children } = this.props;
-    const { error } = this.state;
-
-    if (error) {
-      // @ts-ignore
-      const { retryFunction } = error;
-      const explanationText = `${retryFunction ? 'Retry failed action or refresh page.' : 'Try to refresh page.'}`;
-      return (
-        <Modal header="Something`s wrong here..." headerColor={smColors.orange}>
-          {explanationText && <Text>{explanationText}</Text>}
-          <ButtonsWrapper hasSingleButton={!retryFunction}>
-            <Button onClick={() => this.setState({ error: null })} text="REFRESH" />
-            {retryFunction && <Button onClick={this.handleRetry} text="RETRY" isPrimary={false} style={{ marginLeft: 20 }} />}
-          </ButtonsWrapper>
-        </Modal>
-      );
-    }
-    return children;
+    const { children, error } = this.props;
+    const { isRenderingError } = this.state;
+    return (
+      <>
+        {error && (
+          <Modal header="ERROR :-(" indicatorColor={smColors.orange}>
+            --
+            <ErrorMessage>{error.message}</ErrorMessage>
+            <ButtonsWrapper hasSingleButton>
+              {/* <Button onClick={this.reportBug} text="SUBMIT BUG REPORT" /> */}
+              <Button onClick={this.resetError} text="CLOSE" />
+            </ButtonsWrapper>
+          </Modal>
+        )}
+        {!isRenderingError ? children : null}
+      </>
+    );
   }
 
-  static getDerivedStateFromError(error: Error) {
-    // Update state so the next render will show the fallback UI.
-    return { error };
+  static getDerivedStateFromError() {
+    // We don't need inner state, because we have one source of truth
+    // and this is a redux state `ui.error`
+    // So this method needed just to get rid of React warning
+    return { isRenderingError: true };
   }
 
-  componentDidCatch(error: any, info: any) {
-    console.log(`${error.message} ${info.componentStack}`); // eslint-disable-line no-console
+  componentDidCatch(error: Error, { componentStack }: { componentStack: string }) {
+    console.log(`${error.message} ${componentStack}`); // eslint-disable-line no-console
     const { setUiError } = this.props;
-    console.log('>>', error);
+    error.stack = `${error.stack}\n\nComponent Stack:\n${componentStack}`;
     setUiError(error);
-    // this.setState({ error });
   }
 
-  handleRetry = () => {
-    const { error } = this.state;
-    this.setState({ error: null });
-    // @ts-ignore
-    if (error && error.retryFunction) {
-      // @ts-ignore
-      error.retryFunction();
-    }
+  reportBug = () => {
+    // TODO: Integrate 3rd party reporting tool
+    this.resetError();
+  };
+
+  resetError = () => {
+    const { setUiError } = this.props;
+    setUiError(null);
+    this.setState({ isRenderingError: false });
   };
 }
 

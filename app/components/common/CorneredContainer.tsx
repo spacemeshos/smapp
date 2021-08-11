@@ -78,8 +78,7 @@ const CorneredContainer = ({
   isDarkMode = false
 }: Props) => {
   const ResolvedWrapper: any = useEmptyWrap ? DivWrapper : Wrapper;
-  const color = headerColor || isDarkMode ? smColors.white : smColors.realBlack;
-
+  const color = headerColor || (isDarkMode ? smColors.white : smColors.realBlack);
   return (
     <ResolvedWrapper width={width} height={height} isDarkMode={isDarkMode}>
       {header && (
