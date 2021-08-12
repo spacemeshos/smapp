@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { startSmeshing, deletePosData } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
-import { StepsContainer, SmallHorizontalPanel } from '../../basicComponents';
+import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
 import { AppThDispatch, ComputeProvider, ComputeProviders, RootState } from '../../types';

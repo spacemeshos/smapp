@@ -244,7 +244,7 @@ const createWindow = async () => {
     isDevNet = true;
   } else {
     const res = await fetch(DISCOVERY_URL);
-    initialConfig = (await res.json())[0];
+    [initialConfig] = await res.json();
     netId = initialConfig.netID;
   }
   const cleanStart = savedNetId !== netId;

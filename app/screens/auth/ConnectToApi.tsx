@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { StepsContainer, Button, Link, SmallHorizontalPanel, DropDown } from '../../basicComponents';
+import { StepsContainer, Button, Link, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';

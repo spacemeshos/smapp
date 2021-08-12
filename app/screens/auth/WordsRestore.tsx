@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { BackButton } from '../../components/common';
-import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup, SmallHorizontalPanel } from '../../basicComponents';
+import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 

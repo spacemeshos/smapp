@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { Button, Link, SmallHorizontalPanel } from '../../basicComponents';
+import { Button, Link } from '../../basicComponents';
 import { RootState } from '../../types';
 
 const btnStyle = { margin: '30px 0 15px' };

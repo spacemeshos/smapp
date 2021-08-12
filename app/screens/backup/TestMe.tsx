@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { RouteComponentProps } from 'react-router-dom';
-import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
+import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 

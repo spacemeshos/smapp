@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { backupWallet } from '../../redux/wallet/actions';
-import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
+import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 

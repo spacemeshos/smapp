@@ -66,7 +66,7 @@ const Auth = ({ history, location }: Props) => {
       }
     };
     initialSetup();
-  }, []);
+  }, [dispatch, history, location.pathname]);
 
   return (
     <Wrapper>
