@@ -75,7 +75,15 @@ class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, { componentStack }: { componentStack: string }) {
     console.log(`${error.message} ${componentStack}`); // eslint-disable-line no-console
     const { setUiError } = this.props;
+    const failedComponentMatch = componentStack
+      .split('\n')
+      .filter((str) => !!str)[0]
+      .trim()
+      .match(/at\s(.+)\s/);
+    const failedComponent = failedComponentMatch && failedComponentMatch[1];
+    const details = failedComponent ? ` in ${failedComponent} component` : '';
     error.stack = `${error.stack}\n\nComponent Stack:\n${componentStack}`;
+    error.message = `Render error${details}:\n${error.message}`;
     setUiError(error);
   }
 
