@@ -1,7 +1,7 @@
-export const createError = (message: string, func: any) => ({
-  message,
-  retryFunction: func
-});
+export const addErrorPrefix = (prefix: string, error: Error) => {
+  error.message = `${prefix}${error.message}`;
+  return error;
+};
 
 export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) =>
   `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;

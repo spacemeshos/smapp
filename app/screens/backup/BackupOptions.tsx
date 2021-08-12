@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { backupWallet } from '../../redux/wallet/actions';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper, SmallHorizontalPanel } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,15 +65,17 @@ const BottomRow = styled(MiddleSectionRow)`
 
 const BackupOptions = ({ history }: RouteComponentProps) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
 
   const navigateTo12WordsBackup = () => {
     history.push('/main/backup/twelve-words-backup');
   };
 
   const handleBackupWallet = async () => {
-    await dispatch(backupWallet());
-    history.push('/main/backup/file-backup');
+    const success = await dispatch(backupWallet());
+    if (success) {
+      history.push('/main/backup/file-backup');
+    }
   };
 
   const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');

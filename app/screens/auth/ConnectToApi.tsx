@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, SmallHorizontalPanel, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
+import { setUiError } from '../../redux/ui/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -63,6 +64,7 @@ const publicServices = [
 ];
 
 const ConnectToApi = ({ history }: RouteComponentProps) => {
+  const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
 
@@ -84,7 +86,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
       const { ip, port } = publicServices[selectedItemIndex];
       history.push('/auth/wallet-type', { ip, port });
     } else {
-      throw response.error;
+      dispatch(setUiError(response.error));
     }
   };
 

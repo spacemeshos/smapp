@@ -312,7 +312,6 @@ class Main extends Component<Props, State> {
           break;
         }
         case 8: {
-          // @ts-ignore
           history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;

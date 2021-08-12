@@ -8,7 +8,8 @@ import { LoggedOutBanner } from '../../components/banners';
 import { Link, Button, Input, ErrorPopup, Loader } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../assets/images';
-import { RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
+import { setUiError } from '../../redux/ui/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -98,7 +99,7 @@ const UnlockWallet = ({ history, location }: Props) => {
   const [showLoader, setShowLoader] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
   const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
@@ -109,20 +110,19 @@ const UnlockWallet = ({ history, location }: Props) => {
   const decryptWallet = async () => {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
-      try {
-        setShowLoader(true);
-        await dispatch(unlockWallet({ password }));
-        history.push('/main/wallet');
-      } catch (error) {
+      setShowLoader(true);
+      const success = await dispatch(unlockWallet({ password })).catch(() => {
         setShowLoader(false);
-        if (error.message && error.message.indexOf('Unexpected token') === 0) {
-          setWrongPassword(true);
-        }
-        throw error;
+        return false;
+      });
+      setShowLoader(false);
+      if (success) {
+        history.push('/main/wallet');
+      } else {
+        setWrongPassword(true);
       }
     }
   };
-
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
   return showLoader ? (
     <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
