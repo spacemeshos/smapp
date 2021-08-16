@@ -5,8 +5,8 @@ import { RouteComponentProps } from 'react-router-dom';
 import { restoreFile } from '../../redux/wallet/actions';
 import { BackButton } from '../../components/common';
 import { DragAndDrop } from '../../components/auth';
-import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '../../basicComponents';
-import { RootState } from '../../types';
+import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
+import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 
 const DdArea = styled.div`
@@ -29,7 +29,7 @@ const FileRestore = ({ history }: RouteComponentProps) => {
   const [hasError, setHasError] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
 
   const addFile = ({ fileName, filePath }: { fileName: string; filePath: string }) => {
     if (fileName.split('.').pop() !== 'json') {
@@ -42,8 +42,10 @@ const FileRestore = ({ history }: RouteComponentProps) => {
   };
 
   const openWalletFile = async () => {
-    dispatch(restoreFile({ filePath }));
-    history.push('/auth/unlock');
+    const success = await dispatch(restoreFile({ filePath }));
+    if (success) {
+      history.push('/auth/unlock');
+    }
   };
 
   const navigateToBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file');

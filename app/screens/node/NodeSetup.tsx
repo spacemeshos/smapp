@@ -5,11 +5,10 @@ import { RouteComponentProps } from 'react-router-dom';
 import { startSmeshing, deletePosData } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
-import { StepsContainer, SmallHorizontalPanel } from '../../basicComponents';
+import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
-import { ComputeProvider, ComputeProviders, RootState } from '../../types';
+import { AppThDispatch, ComputeProvider, ComputeProviders, RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
@@ -50,7 +49,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const [provider, setProvider] = useState<ComputeProvider>();
   const [throttle, setThrottle] = useState(false);
 
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
 
   useEffect(() => {
     const loadComputeProviders = async () => {
@@ -68,8 +67,10 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const setupAndInitMining = async () => {
     // @ts-ignore
-    await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, provider, throttle }));
-    history.push('/main/node', { showIntro: true });
+    const done = await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, provider, throttle }));
+    if (done) {
+      history.push('/main/node', { showIntro: true });
+    }
   };
 
   const handleNextAction = () => {
@@ -165,4 +166,4 @@ const NodeSetup = ({ history, location }: Props) => {
   );
 };
 
-export default ScreenErrorBoundary(NodeSetup);
+export default NodeSetup;

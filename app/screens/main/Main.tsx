@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { getNetworkDefinitions } from '../../redux/network/actions';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
 import { SecondaryButton, NavTooltip, NetworkIndicator, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
@@ -313,7 +312,6 @@ class Main extends Component<Props, State> {
           break;
         }
         case 8: {
-          // @ts-ignore
           history.push('/auth/unlock', { isLoggedOut: true });
           logout();
           break;
@@ -361,4 +359,4 @@ const mapDispatchToProps = {
 // @ts-ignore
 Main = connect(mapStateToProps, mapDispatchToProps)(Main);
 
-export default ScreenErrorBoundary(Main);
+export default Main;

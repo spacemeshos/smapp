@@ -1,6 +1,7 @@
 import { eventsService } from '../../infra/eventsService';
-import { createError } from '../../infra/utils';
+import { addErrorPrefix } from '../../infra/utils';
 import { AppThDispatch, ComputeProvider, CustomAction, GetState, Reward } from '../../types';
+import { setUiError } from '../ui/actions';
 
 export const SET_SMESHER_SETTINGS = 'SET_SMESHER_SETTINGS';
 export const STARTED_SMESHING = 'STARTED_SMESHING';
@@ -71,13 +72,16 @@ export const startSmeshing = ({
   provider: ComputeProvider;
   throttle: boolean;
 }) => async (dispatch: AppThDispatch) => {
-  const { error } = await eventsService.startSmeshing({ coinbase, dataDir, commitmentSize, computeProviderId: provider.id, throttle });
-  if (error) {
-    throw createError(`Error initiating smeshing: ${error}`, () => dispatch(startSmeshing({ coinbase, dataDir, commitmentSize, provider, throttle })));
-  } else {
+  try {
+    await eventsService.startSmeshing({ coinbase, dataDir, commitmentSize, computeProviderId: provider.id, throttle });
+    // TODO: Check for return status?
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
     dispatch({ type: STARTED_SMESHING, payload: { coinbase, dataDir, commitmentSize, provider, throttle } });
+    return true;
+  } catch (error) {
+    dispatch(setUiError(addErrorPrefix('Error initiating smeshing\n', error)));
+    return false;
   }
 };
 

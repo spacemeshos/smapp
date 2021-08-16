@@ -58,7 +58,7 @@ class SmesherService extends NetServiceFactory {
     throttle: boolean;
     handler: () => void;
   }) =>
-    new Promise((resolve) => {
+    new Promise((resolve, reject) => {
       const netId = StoreService.get('netSettings.netId');
       StoreService.set(`${netId}-smeshingParams`, { dataDir, coinbase });
       // @ts-ignore
@@ -76,10 +76,10 @@ class SmesherService extends NetServiceFactory {
         (error: any, response: any) => {
           if (error) {
             logger.error('grpc StartSmeshing', error, { dataDir, commitmentSize, coinbase });
-            resolve({ error });
+            reject(error);
           } else {
             this.postDataCreationProgressStream({ handler });
-            resolve({ status: response.status });
+            resolve(response.status);
           }
         }
       );

@@ -6,8 +6,7 @@ import { updateWalletName, updateAccountName, createNewAccount } from '../../red
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
-import { Input, Link, Button, SmallHorizontalPanel } from '../../basicComponents';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
+import { Input, Link, Button } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -499,4 +498,4 @@ const mapDispatchToProps = {
 // @ts-ignore
 Settings = connect(mapStateToProps, mapDispatchToProps)(Settings);
 
-export default ScreenErrorBoundary(Settings);
+export default Settings;

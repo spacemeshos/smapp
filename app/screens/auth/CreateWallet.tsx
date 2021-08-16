@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
-import { StepsContainer, Input, Button, Link, Loader, ErrorPopup, SmallHorizontalPanel } from '../../basicComponents';
+import { StepsContainer, Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';

@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
-import { WrapperWith2SideBars, Button, Link, SmallHorizontalPanel } from '../../basicComponents';
+import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';

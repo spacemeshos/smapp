@@ -27,7 +27,7 @@ const logger = Logger({ className: 'SmesherService' });
 // });
 
 class SmesherManager {
-  private smesherService: any;
+  private smesherService: SmesherService;
 
   private readonly mainWindow: BrowserWindow;
 

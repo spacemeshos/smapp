@@ -1,6 +1,7 @@
 import { eventsService } from '../../infra/eventsService';
-import { createError, getAddress } from '../../infra/utils';
+import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState, WalletMeta, Account, Contact, Tx } from '../../types';
+import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
@@ -50,7 +51,7 @@ export const createNewWallet = ({ existingMnemonic = '', password, ip, port }: {
   const { error, accounts, mnemonic, meta } = await eventsService.createWallet({ password, existingMnemonic, ip, port });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error creating new wallet!', () => dispatch(createNewWallet({ existingMnemonic, password, ip, port })));
+    dispatch(setUiError(addErrorPrefix('Can not create new wallet\n', error)));
   } else {
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts }));
@@ -63,14 +64,19 @@ export const unlockWallet = ({ password }: { password: string }) => async (dispa
   const { walletFiles } = getState().wallet;
   const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
   if (error) {
-    console.log(error); // eslint-disable-line no-console
-    throw createError(error.message, () => dispatch(unlockWallet({ password })));
+    if (error.message && error.message.indexOf('Unexpected token') === 0) {
+      return false;
+    }
+    console.error(error); // eslint-disable-line no-console
+    dispatch(setUiError(addErrorPrefix('Can not unlock wallet\n', error)));
+    return false;
   } else {
     dispatch(setWalletMeta({ meta }));
     dispatch(setAccounts({ accounts }));
     dispatch(setMnemonic({ mnemonic }));
     dispatch(setContacts({ contacts }));
     dispatch(setCurrentAccount({ index: 0 }));
+    return true;
   }
 };
 
@@ -87,7 +93,7 @@ export const createNewAccount = ({ password }: { password: string }) => async (d
   const { error, newAccount } = await eventsService.createNewAccount({ fileName: walletFiles ? walletFiles[0] : '', password });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Failed to create new account', () => dispatch(createNewAccount({ password })));
+    dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));
   } else {
     dispatch(setAccounts({ accounts: [...accounts, newAccount] }));
   }
@@ -120,12 +126,14 @@ export const removeFromContacts = ({ contact, password }: { contact: Contact; pa
 
 export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, newFilePath } = await eventsService.copyFile({ filePath });
+  const { error, newFilePath } = await eventsService.copyFile({ filePath: `${filePath}-lala` });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error restoring file!', () => dispatch(restoreFile({ filePath })));
+    dispatch(setUiError(addErrorPrefix('Can not restore wallet file\n', error)));
+    return false;
   } else {
     dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [newFilePath, ...walletFiles] : [newFilePath] } });
+    return true;
   }
 };
 
@@ -134,9 +142,11 @@ export const backupWallet = () => async (dispatch: AppThDispatch, getState: GetS
   const { error } = await eventsService.copyFile({ filePath: walletFiles ? walletFiles[0] : '', copyToDocuments: true });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error creating wallet backup!', () => dispatch(backupWallet()));
+    dispatch(setUiError(addErrorPrefix('Can not create wallet backup\n', error)));
+    return false;
   } else {
     dispatch({ type: SET_BACKUP_TIME, payload: { backupTime: new Date() } });
+    return true;
   }
 };
 
@@ -163,9 +173,8 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   const { error, tx, state } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
-    throw createError('Error sending transaction!', () => {
-      dispatch(sendTransaction({ receiver, amount, fee, note }));
-    });
+    dispatch(setUiError(addErrorPrefix('Send transaction error\n', error)));
+    return {}; // TODO: Need a refactoring here
   } else {
     return { txId: tx.id, state };
   }

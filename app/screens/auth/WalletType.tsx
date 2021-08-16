@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { StepsContainer, Button, Link, SmallHorizontalPanel, Tooltip } from '../../basicComponents';
+import { StepsContainer, Button, Link, Tooltip } from '../../basicComponents';
 import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';

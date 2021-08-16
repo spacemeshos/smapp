@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CreateNewContact, CreatedNewContact } from '../../components/contacts';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { WrapperWith2SideBars, Input, DropDown } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { getAbbreviatedText } from '../../infra/utils';
@@ -487,4 +486,4 @@ const Contacts = ({ history }: RouteComponentProps) => {
   );
 };
 
-export default ScreenErrorBoundary(Contacts);
+export default Contacts;

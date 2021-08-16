@@ -6,7 +6,6 @@ import { BackButton } from '../../components/common';
 import { TxRow, RewardRow, TransactionsMeta } from '../../components/transactions';
 import { CreateNewContact } from '../../components/contacts';
 import { Link, WrapperWith2SideBars, CorneredWrapper, DropDown } from '../../basicComponents';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Reward, RootState, Tx, TxState } from '../../types';
@@ -181,4 +180,4 @@ const Transactions = ({ history }: RouteComponentProps) => {
   );
 };
 
-export default ScreenErrorBoundary(Transactions);
+export default Transactions;

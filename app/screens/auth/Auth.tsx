@@ -3,7 +3,6 @@ import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { readWalletFiles } from '../../redux/wallet/actions';
-import { ScreenErrorBoundary } from '../../components/errorHandler';
 import { Logo } from '../../components/common';
 import { Loader, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
@@ -67,7 +66,7 @@ const Auth = ({ history, location }: Props) => {
       }
     };
     initialSetup();
-  }, []);
+  }, [dispatch, history, location.pathname]);
 
   return (
     <Wrapper>
@@ -93,4 +92,4 @@ const Auth = ({ history, location }: Props) => {
   );
 };
 
-export default ScreenErrorBoundary(Auth);
+export default Auth;
