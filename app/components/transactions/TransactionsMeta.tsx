@@ -11,7 +11,7 @@ const Text = styled.span`
 
 const BoldText = styled.span`
   font-family: SourceCodeProBold;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
@@ -30,10 +30,19 @@ const Dots = styled(Text)`
   overflow: hidden;
 `;
 
+const Group = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 30px;
+  :last-of-type {
+    margin-bottom: 0;
+  }
+`;
+
 const ProgressBar = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 `;
 
 const SmallText = styled.span`
@@ -45,15 +54,15 @@ const SmallText = styled.span`
 const Bar = styled.div`
   width: 100%;
   height: 5px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.mediumGray)};
+  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.mediumGray)};
   position: relative;
 `;
 
 const Progress = styled.div<{ total: number; coins: number }>`
-  width: ${({ total, coins }) => (coins / total) * 100}%;
+  width: ${({ total, coins }) => (total === 0 ? 0 : (coins / total) * 100)}%;
   height: inherit;
   background-color: ${smColors.green};
-  position: absolute;
+  //position: absolute;
 `;
 
 type Props = {
@@ -81,26 +90,30 @@ const TransactionsMeta = ({ mined, sent, received, totalMined, totalSent, totalR
 
   return (
     <>
-      <BoldText>activity</BoldText>
-      <BoldText>--</BoldText>
-      <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
-      {coinsMeta.map((coinMeta) => (
-        <ProgressBar key={coinMeta.title}>
-          <SmallText>{`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}</SmallText>
-          <Bar>
-            <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
-          </Bar>
-        </ProgressBar>
-      ))}
-      <BoldText>total</BoldText>
-      <BoldText>--</BoldText>
-      {totalCoinsMeta.map((totalMeta) => (
-        <TextRow key={totalMeta.title}>
-          <Text>{totalMeta.title}</Text>
-          <Dots>...................</Dots>
-          <Text>{formatSmidge(totalMeta.coins)}</Text>
-        </TextRow>
-      ))}
+      <Group>
+        <BoldText>activity</BoldText>
+        <BoldText>--</BoldText>
+        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
+        {coinsMeta.map((coinMeta) => (
+          <ProgressBar key={coinMeta.title}>
+            <SmallText>{`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}</SmallText>
+            <Bar>
+              <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
+            </Bar>
+          </ProgressBar>
+        ))}
+      </Group>
+      <Group>
+        <BoldText>total</BoldText>
+        <BoldText>--</BoldText>
+        {totalCoinsMeta.map((totalMeta) => (
+          <TextRow key={totalMeta.title}>
+            <Text>{totalMeta.title}</Text>
+            <Dots>...................</Dots>
+            <Text>{formatSmidge(totalMeta.coins)}</Text>
+          </TextRow>
+        ))}
+      </Group>
     </>
   );
 };
