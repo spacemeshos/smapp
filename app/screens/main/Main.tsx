@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react';
+import React, { Component, ComponentType, ReactNode } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -115,7 +115,7 @@ interface Props extends RouteComponentProps {
   };
   nodeError: NodeError | null;
   isDarkMode: boolean;
-  getNetworkDefinitions: AppThDispatch;
+  getNetworkDefinitions: () => void;
 }
 
 type State = {
@@ -243,7 +243,6 @@ class Main extends Component<Props, State> {
 
   componentDidMount() {
     const { getNetworkDefinitions } = this.props;
-    // @ts-ignore
     getNetworkDefinitions();
     eventsService.requestVersionAndBuild();
   }
