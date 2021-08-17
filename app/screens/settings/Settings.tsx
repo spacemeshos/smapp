@@ -242,7 +242,7 @@ class Settings extends Component<Props, State> {
                     editedAccountIndex !== index ? (
                       <Name>{accountDisplayNames[index]}</Name>
                     ) : (
-                      <Input value={accountDisplayNames[index]} onChange={({ value }) => this.editAccountDisplayName({ value, index })} maxLength="100" />
+                      <Input value={accountDisplayNames[index]} onChange={({ value }) => this.editAccountDisplayName({ value, index })} maxLength="100" autofocus />
                     )
                   }
                   rowName={`0x${getAddress(account.publicKey)}`}

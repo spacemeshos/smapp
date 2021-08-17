@@ -148,6 +148,7 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
             }}
             maxLength="50"
             style={isStandalone ? inputStyle2 : inputStyle1}
+            autofocus
           />
           <Input
             value={address}

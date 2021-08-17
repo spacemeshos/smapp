@@ -36,7 +36,7 @@ const NewVault = ({ vaultName, onChangeVaultName, isDarkMode }: Props) => {
           text="Vault will be created in My Wallet. To create a vault which uses a Ledger device for signing transactions, create a vault in a Ledger wallet."
         />
         <Dots />
-        <Input type="text" value={vaultName} onChange={onChangeVaultName} placeholder="MY VAULT NAME" maxLength={50} style={inputStyle} />
+        <Input type="text" value={vaultName} onChange={onChangeVaultName} placeholder="MY VAULT NAME" maxLength={50} style={inputStyle} autofocus />
       </DetailsRow>
     </>
   );

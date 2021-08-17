@@ -307,6 +307,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
               onChange={({ value }: { value: string }) => {
                 setNote(value);
               }}
+              autofocus
             />
           </InputSection>
           <ButtonsWrapper>

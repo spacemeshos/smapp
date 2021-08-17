@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '../../basicComponents';
 import { getAbbreviatedText, getAddress } from '../../infra/utils';
@@ -153,6 +153,8 @@ const TxParams = ({
 
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
 
+  const handleAmountChange = useCallback(({ value }) => updateTxAmount({ value: parseFloat(value) }), [updateTxAmount]);
+
   return (
     <Wrapper>
       <Header>
@@ -173,6 +175,7 @@ const TxParams = ({
           value={address}
           onChange={(value: string) => updateTxAddress({ value })}
           onEnter={(value: string) => updateTxAddress({ value })}
+          autofocus
         />
         {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
       </DetailsRow>
@@ -184,7 +187,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Amount</DetailsText>
         <Dots>....................................</Dots>
-        <Input value={amount} onChange={updateTxAmount} extraText="SMD" style={inputStyle} />
+        <Input value={amount} onChange={handleAmountChange} extraText="SMD" style={inputStyle} />
         {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
       </DetailsRow>
       <DetailsRow>

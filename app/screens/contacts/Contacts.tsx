@@ -463,9 +463,10 @@ const Contacts = ({ history }: RouteComponentProps) => {
             setTmpSearchTerm(value);
           }}
           onChangeDebounced={({ value }) => {
-            setSearchTerm(value);
+            setSearchTerm(value.toString());
           }}
           style={{ border: '1px solid transparent' }}
+          autofocus
         />
       </SearchWrapper>
       {renderSubHeader()}

@@ -172,7 +172,7 @@ const CreateWallet = ({ history, location }: Props) => {
               <Inputs>
                 <InputSection>
                   <Chevron src={chevronRight} />
-                  <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={handleEnterPress} onChange={handlePasswordTyping} />
+                  <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={handleEnterPress} onChange={handlePasswordTyping} autofocus />
                 </InputSection>
                 <InputSection>
                   <Chevron src={chevronRight} />
