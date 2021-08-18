@@ -10,6 +10,7 @@ import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
+import { createDebouncePool } from './utils';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -22,12 +23,16 @@ const osTargetNames = {
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
 const PROCESS_EXIT_CHECK_INTERVAL = 1000; // Check does the process exited
 
-const defaultCrashError = (error: Error): NodeError => ({
+const defaultCrashError = (error?: Error): NodeError => ({
   msg: "The Spacemesh node software has unexpectedly quit. Click on 'restart node' to start it.",
   stackTrace: error?.stack || '',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
   module: 'NodeManager'
 });
+
+type PoolNodeError = { type: 'NodeError'; error: NodeError };
+type PoolExitCode = { type: 'Exit'; code: number | null; signal: NodeJS.Signals | null };
+type ErrorPoolObject = PoolNodeError | PoolExitCode;
 
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
@@ -41,6 +46,17 @@ class NodeManager {
   private nodeProcess: ChildProcess | null;
 
   private hasCriticalError = false;
+
+  private pushToErrorPool = createDebouncePool<ErrorPoolObject>(100, (errors) => {
+    const exitError = errors.find((e) => e.type === 'Exit') as PoolExitCode | undefined;
+    if (exitError) {
+      if (exitError.code === 0) return;
+      this.sendNodeError(defaultCrashError());
+      return;
+    }
+    const mostCriticalError = (errors as PoolNodeError[]).sort((a, b) => b.error.level - a.error.level)[0].error;
+    this.sendNodeError(mostCriticalError);
+  });
 
   constructor(mainWindow: BrowserWindow, configFilePath: string, cleanStart) {
     this.mainWindow = mainWindow;
@@ -129,7 +145,10 @@ class NodeManager {
       logger.error('Node Process', error);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
-      this.sendNodeError(defaultCrashError(error));
+      this.pushToErrorPool({ type: 'NodeError', error: defaultCrashError(error) });
+    });
+    this.nodeProcess.on('close', (code, signal) => {
+      this.pushToErrorPool({ type: 'Exit', code, signal });
     });
   };
 
@@ -218,11 +237,15 @@ class NodeManager {
     }
   };
 
+  pushNodeError = (error: NodeError) => {
+    this.pushToErrorPool({ type: 'NodeError', error });
+  };
+
   getNodeStatus = async (retries): Promise<NodeStatus> => {
     try {
       const status = await this.nodeService.getNodeStatus();
       this.sendNodeStatus(status);
-      this.nodeService.activateStatusStream(this.sendNodeStatus, this.sendNodeError);
+      this.nodeService.activateStatusStream(this.sendNodeStatus, this.pushNodeError);
       return status;
     } catch (error) {
       if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
@@ -231,7 +254,7 @@ class NodeManager {
   };
 
   activateNodeErrorStream = () => {
-    this.nodeService.activateErrorStream(this.sendNodeError);
+    this.nodeService.activateErrorStream(this.pushNodeError);
   };
 
   isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
