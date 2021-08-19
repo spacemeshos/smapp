@@ -12,6 +12,7 @@ const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   padding: 20px;
   margin-left: 8px;
   background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
 `;
 
 const DivWrapper = styled.div<{ width: number; height: number }>`
@@ -24,6 +25,7 @@ const DivWrapper = styled.div<{ width: number; height: number }>`
   height: ${({ height }) => height}px;
   padding: 20px;
   background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray)};
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
 `;
 
 const HeaderWrapper = styled.div`
