@@ -134,7 +134,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
     <Wrapper>
       <BackButton action={history.goBack} width={7} height={10} />
       <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }} isDarkMode={isDarkMode}>
-        <Header>Latest transactions</Header>
         <TransactionsListWrapper>
           {filteredTransactions && filteredTransactions.length ? (
             filteredTransactions.map((tx: Tx | Reward, index: number) =>

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, ComponentType, ReactNode } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -105,7 +105,7 @@ const TooltipWrapper = styled.div`
 `;
 
 interface Props extends RouteComponentProps {
-  status: NodeStatus;
+  status: NodeStatus | null;
   logout: any;
   location: {
     hash: string;
@@ -113,9 +113,9 @@ interface Props extends RouteComponentProps {
     search: string;
     state: unknown;
   };
-  nodeError: NodeError;
+  nodeError: NodeError | null;
   isDarkMode: boolean;
-  getNetworkDefinitions: AppThDispatch;
+  getNetworkDefinitions: () => void;
 }
 
 type State = {
@@ -123,31 +123,19 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
-  private readonly navMap: Array<() => void>; // eslint-disable-line react/sort-comp
+  private static readonly navRoutes = ['/main/node', '/main/network', '/main/wallet', '/main/contacts', '/main/dash', '/main/settings'];
 
   constructor(props: Props) {
     super(props);
-    const { location, history } = props;
+    const { location } = props;
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 2 : 0;
     this.state = {
       activeRouteIndex
     };
-
-    this.navMap = [
-      () => history.push('/main/node'),
-      () => history.push('/main/network'),
-      () => history.push('/main/wallet'),
-      () => history.push('/main/contacts'),
-      () => history.push('/main/dash'),
-      () => history.push('/main/settings'),
-      () => window.open('https://testnet.spacemesh.io/#/get_coin'),
-      () => window.open('https://testnet.spacemesh.io/#/help')
-    ];
   }
 
   render() {
-    const { activeRouteIndex } = this.state;
     const { nodeError, status, isDarkMode } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
@@ -164,48 +152,29 @@ class Main extends Component<Props, State> {
           <NavBar>
             <NavBarPart>
               <NavLinksWrapper>
-                <TooltipWrapper>
-                  <NavBarLink onClick={() => this.handleNavigation({ index: 0 })} isActive={activeRouteIndex === 0}>
-                    SMESHING
-                  </NavBarLink>
-                  <CustomTooltip text="MANAGE SMESHING" isDarkMode={isDarkMode} />
-                </TooltipWrapper>
-                <TooltipWrapper>
-                  <NavBarLink onClick={() => this.handleNavigation({ index: 1 })} isActive={activeRouteIndex === 1}>
+                {this.renderNavBarLink('SMESHING', 'MANAGE SMESHING', '/main/node')}
+                {this.renderNavBarLink(
+                  <>
                     {/* eslint-disable-next-line no-nested-ternary */}
                     <NetworkIndicator color={nodeError ? smColors.red : status?.isSynced ? smColors.green : smColors.orange} />
                     NETWORK
-                  </NavBarLink>
-                  <CustomTooltip text="NETWORK" isDarkMode={isDarkMode} />
-                </TooltipWrapper>
-                <TooltipWrapper>
-                  <NavBarLink onClick={() => this.handleNavigation({ index: 2 })} isActive={activeRouteIndex === 2}>
-                    WALLET
-                  </NavBarLink>
-                  <CustomTooltip text="SEND / RECEIVE SMH" isDarkMode={isDarkMode} />
-                </TooltipWrapper>
-                <TooltipWrapper>
-                  <NavBarLink onClick={() => this.handleNavigation({ index: 3 })} isActive={activeRouteIndex === 3}>
-                    CONTACTS
-                  </NavBarLink>
-                  <CustomTooltip text="MANAGE CONTACTS" isDarkMode={isDarkMode} />
-                </TooltipWrapper>
-                <TooltipWrapper>
-                  <NavBarLink onClick={() => this.handleNavigation({ index: 4 })} isActive={activeRouteIndex === 4}>
-                    DASH
-                  </NavBarLink>
-                  <CustomTooltip text="DASHBOARD" isDarkMode={isDarkMode} />
-                </TooltipWrapper>
+                  </>,
+                  'NETWORK',
+                  '/main/network'
+                )}
+                {this.renderNavBarLink('WALLET', 'SEND / RECEIVE SMH', '/main/wallet')}
+                {this.renderNavBarLink('CONTACTS', 'MANAGE CONTACTS', '/main/contacts')}
+                {this.renderNavBarLink('DASH', 'DASHBOARD', '/main/dash')}
               </NavLinksWrapper>
             </NavBarPart>
             <NavBarPart>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 5 })}
+                  onClick={() => this.handleNavRoute('/main/settings')}
                   img={settings}
                   imgHeight={30}
                   imgWidth={30}
-                  isPrimary={activeRouteIndex === 5}
+                  isPrimary={this.isActive('/main/settings')}
                   width={35}
                   height={35}
                   style={bntStyle}
@@ -215,7 +184,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 6 })}
+                  onClick={() => this.handleOpenLink('https://testnet.spacemesh.io/#/get_coin')}
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -229,7 +198,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 7 })}
+                  onClick={() => this.handleOpenLink('https://testnet.spacemesh.io/#/help')}
                   img={help}
                   imgHeight={30}
                   imgWidth={30}
@@ -243,7 +212,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavigation({ index: 8 })}
+                  onClick={this.handleLogOut}
                   img={signOut}
                   imgHeight={30}
                   imgWidth={30}
@@ -274,75 +243,52 @@ class Main extends Component<Props, State> {
 
   componentDidMount() {
     const { getNetworkDefinitions } = this.props;
-    // @ts-ignore
     getNetworkDefinitions();
     eventsService.requestVersionAndBuild();
   }
 
-  static getDerivedStateFromProps(props: Props, prevState: State) {
-    const { pathname } = props.location;
-    if (pathname.indexOf('backup') !== -1 || pathname.indexOf('transactions') !== -1) {
-      return { activeRouteIndex: -1 };
-    } else if (pathname.indexOf('contacts') !== -1) {
-      return { activeRouteIndex: 3 };
-    } else if (pathname.indexOf('send-coins') !== -1 && prevState.activeRouteIndex === 3) {
-      return { activeRouteIndex: 2 };
-    }
-    return null;
-  }
-
-  handleNavigation = ({ index }: { index: number }) => {
-    const { history } = this.props;
-    const { activeRouteIndex } = this.state;
-    if (index !== activeRouteIndex) {
-      switch (index) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5: {
-          this.setState({ activeRouteIndex: index });
-          this.navMap[index]();
-          break;
-        }
-        case 6:
-        case 7: {
-          this.navMap[index]();
-          break;
-        }
-        case 8: {
-          history.push('/auth/unlock', { isLoggedOut: true });
-          logout();
-          break;
-        }
-        default:
-          break;
-      }
-    }
+  renderNavBarLink = (label: string | ReactNode, tooltip: string, route: string) => {
+    const { isDarkMode } = this.props;
+    return (
+      <TooltipWrapper>
+        <NavBarLink onClick={() => this.handleNavRoute(route)} isActive={this.isActive(route)}>
+          {label}
+        </NavBarLink>
+        <CustomTooltip text={tooltip} isDarkMode={isDarkMode} />
+      </TooltipWrapper>
+    );
   };
 
-  // approveTxNotifier = () => {
-  //   // TODO: move to main process when API 2.0 is ready
-  //   // const { history } = this.props;
-  //   // notificationsService.notify({
-  //   //   title: 'Spacemesh',
-  //   //   notification: `${hasConfirmedIncomingTxs ? 'Incoming' : 'Sent'} transaction approved`,
-  //   //   // @ts-ignore
-  //   //   callback: () => history.push('/main/transactions'),
-  //   //   tag: 1
-  //   // });
-  // };
-  //
-  // newRewardsNotifier = () => {
-  //   // TODO: move to main process when API 2.0 is ready
-  //   // notificationsService.notify({
-  //   //   title: 'Spacemesh',
-  //   //   notification: 'Received a reward for smeshing!',
-  //   //   callback: () => this.handleNavigation({ index: 0 }),
-  //   //   tag: 2
-  //   // });
-  // };
+  static getDerivedStateFromProps(props: Props) {
+    const { pathname } = props.location;
+    const nextActiveIndex = Main.navRoutes.findIndex((route) => pathname.startsWith(route));
+    return { activeRouteIndex: nextActiveIndex };
+  }
+
+  getRouteIndex = (route: string) => Main.navRoutes.findIndex((navRoute) => navRoute.startsWith(route));
+
+  handleNavRoute = (route: string) => {
+    if (this.isActive(route)) return;
+    const { history } = this.props;
+    const index = this.getRouteIndex(route);
+    history.push(Main.navRoutes[index]);
+  };
+
+  handleOpenLink = (url: string) => {
+    window.open(url);
+  };
+
+  handleLogOut = () => {
+    const { history, logout } = this.props;
+    history.push('/auth/unlock', { isLoggedOut: true });
+    logout();
+  };
+
+  isActive = (route: string) => {
+    const { activeRouteIndex } = this.state;
+    const index = this.getRouteIndex(route);
+    return activeRouteIndex === index;
+  };
 }
 
 const mapStateToProps = (state: RootState) => ({
@@ -356,7 +302,4 @@ const mapDispatchToProps = {
   logout
 };
 
-// @ts-ignore
-Main = connect(mapStateToProps, mapDispatchToProps)(Main);
-
-export default Main;
+export default connect(mapStateToProps, mapDispatchToProps)(Main);

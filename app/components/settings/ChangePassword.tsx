@@ -97,7 +97,7 @@ const ChangePassword = () => {
       <LeftPart>
         {isEditMode ? (
           [
-            <Input value={password} type="password" placeholder="Type password" onChange={handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" />,
+            <Input value={password} type="password" placeholder="Type password" onChange={handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" autofocus />,
             <Input value={verifiedPassword} type="password" placeholder="Verify password" onChange={handlePasswordVerifyTyping} key="passRetype" />
           ]
         ) : (

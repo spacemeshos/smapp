@@ -53,7 +53,7 @@ const SignMessage = ({ index, close }: Props) => {
 
   return (
     <Modal header="SIGN TEXT" subHeader={`sign text with account ${getAbbreviatedText(getAddress(accounts[index].publicKey))}`}>
-      <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => setMessage(value)} maxLength="64" style={inputStyle} />
+      <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => setMessage(value)} maxLength="64" style={inputStyle} autofocus />
       <ButtonsWrapper>
         <Button onClick={signText} text="SIGN" width={150} isDisabled={!message} />
         <Button onClick={close} isPrimary={false} text="Cancel" />

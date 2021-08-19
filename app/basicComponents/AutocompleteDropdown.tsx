@@ -85,10 +85,11 @@ type Props = {
   data: Array<any>;
   onChange: (value: string) => void;
   onEnter: (p: any) => void;
+  autofocus?: boolean;
 };
 
 const AutocompleteDropdown = (props: Props) => {
-  const { value } = props;
+  const { value, autofocus } = props;
   let inputBlurTimer: any;
   const [isOpen, setIsOpen] = useState(false);
   const [list, setList] = useState<Array<any>>([]);
@@ -280,6 +281,7 @@ const AutocompleteDropdown = (props: Props) => {
           value={editField}
           maxLength={42}
           ref={inputField}
+          autoFocus={!!autofocus}
         />
         <Icon isOpened={isOpen} src={icon} onClick={handleIconClick} />
       </InputField>
