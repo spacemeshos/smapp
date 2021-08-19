@@ -63,16 +63,6 @@ let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
-const showCloseAppModal = (parent: BrowserWindow, isDarkMode: boolean): BrowserWindow => {
-  const child = new BrowserWindow({ parent, modal: true, show: false });
-  const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', `closeAppModal.html?darkMode=${isDarkMode}`);
-  child.loadURL(`file://${filePath}`);
-  child.once('ready-to-show', () => {
-    child.show();
-  });
-  return child;
-};
-
 let closingApp = false;
 const isSmeshing = () => {
   const netId = StoreService.get('netSettings.netId');
@@ -103,7 +93,7 @@ const handleClosingApp = async (event) => {
     mainWindow.hide();
     mainWindow.reload();
   } else {
-    showCloseAppModal(mainWindow, isDarkMode);
+    mainWindow.webContents.send(ipcConsts.CLOSING_APP);
     await nodeManager.stopNode();
     closingApp = true;
     app.quit();

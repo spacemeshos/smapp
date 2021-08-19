@@ -6,6 +6,7 @@ import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import { NodeError, NodeStatus, NodeVersionAndBuild } from '../../../shared/types';
+import { showClosingAppModal } from '../../redux/ui/actions';
 
 class EventsService {
   static createWallet = ({ password, existingMnemonic, ip, port }: { password: string; existingMnemonic: string; ip?: string; port?: string }) =>
@@ -136,6 +137,10 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
 ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
   const { error, status } = request;
   store.dispatch(setPostStatus({ error, status }));
+});
+
+ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
+  store.dispatch(showClosingAppModal());
 });
 
 export default EventsService;
