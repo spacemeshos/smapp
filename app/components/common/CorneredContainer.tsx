@@ -48,7 +48,8 @@ const Header = styled.div`
 `;
 
 const SubHeader = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: auto;
+  padding-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};

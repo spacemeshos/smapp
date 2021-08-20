@@ -7,9 +7,11 @@ import GlobalStyle from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
+import CloseAppModal from './components/common/CloseAppModal';
 
 const StyledApp = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const isClosingApp = useSelector((state: RootState) => state.ui.isClosingApp);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -20,6 +22,7 @@ const StyledApp = () => {
     <ThemeProvider theme={{ isDarkMode }}>
       <GlobalStyle />
       <ErrorBoundary>
+        {isClosingApp && <CloseAppModal isDarkMode={isDarkMode} />}
         <Router>
           <Switch>
             {routes.app.map((route) => (

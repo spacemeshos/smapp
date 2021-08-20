@@ -99,7 +99,6 @@ const getBuildOptions = ({ target, publish }) => {
       files: [
         'desktop/dist/',
         'desktop/index.html',
-        'desktop/closeAppModal.html',
         'desktop/main.prod.js',
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
