@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CoinUnits, toSMH, toSmidge } from '../infra/utils';
 import { smColors } from '../vars';
+import RefreshIcon from './Icons/RefreshIcon';
 
 const Wrapper = styled.div<{ isFocused: boolean; disabled: boolean }>`
   position: relative;
@@ -36,22 +37,34 @@ const Input = styled.input<{
 `;
 
 const UnitButton = styled.button`
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  height: 100%;
 
   padding: 0 1em;
   border: 0;
   outline: 0;
-  background: transparent;
+  background: ${smColors.white};
   cursor: pointer;
+
+  svg {
+    fill: ${smColors.realBlack};
+  }
 
   :hover,
   :active,
   :focus {
     color: ${smColors.green};
+
+    svg {
+      fill: ${smColors.green};
+    }
   }
+`;
+
+const Toggle = styled(RefreshIcon)`
+  display: inline-block;
+  margin-left: 4px;
+  cursor: pointer;
+  vertical-align: bottom;
 `;
 
 type Props = {
@@ -108,8 +121,19 @@ const AmountInput = ({ onChange, disabled, style, value }: Props) => {
 
   return (
     <Wrapper isFocused={isFocused} disabled={!!disabled} style={style}>
-      <Input pattern="[0-9]*\.?[0-9]*" value={curValue} onChange={changeAmount} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} disabled={!!disabled} />
-      <UnitButton onClick={changeUnits}>{units}</UnitButton>
+      <Input
+        ref={inputRef}
+        pattern="[0-9]*\.?[0-9]*"
+        value={curValue}
+        onChange={changeAmount}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        disabled={!!disabled}
+      />
+      <UnitButton onClick={changeUnits}>
+        {units}
+        <Toggle />
+      </UnitButton>
     </Wrapper>
   );
 };
