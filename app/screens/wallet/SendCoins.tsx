@@ -40,7 +40,7 @@ const SendCoins = ({ history, location }: Props) => {
     setHasAddressError(false);
   };
 
-  const updateTxAmount = ({ value }: { value: number }) => {
+  const updateTxAmount = (value: number) => {
     setAmount(value);
     setHasAmountError(false);
   };

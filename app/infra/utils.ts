@@ -26,20 +26,32 @@ export const formatBytes = (bytes: number) => {
   return `${parseFloat((bytes / 1073741824).toFixed(2))} GB`;
 };
 
+// -------------------
+// Units
+// -------------------
+
+export enum CoinUnits {
+  SMH = 'SMH',
+  Smidge = 'Smidge'
+}
+
 const packValueAndUnit = (value: number, unit: string) => ({
   value: parseFloat(value.toFixed(3)).toString(),
   unit
 });
 
+export const toSMH = (smidge: number) => smidge / 10 ** 12;
+export const toSmidge = (smh: number) => Math.ceil(smh * 10 ** 12);
+
 // Internal helper - returns the value and the unit of a smidge coin amount.
 // Used to format smidge strings
 export const getValueAndUnit = (amount: number) => {
   // Show `23.053 SMH` for big amount
-  if (amount >= 10 ** 9) return packValueAndUnit(amount / 10 ** 12, 'SMH');
+  if (amount >= 10 ** 9) return packValueAndUnit(toSMH(amount), CoinUnits.SMH);
   // Or `6739412 Smidge` (without dot) for small amount
-  else if (!Number.isNaN(amount)) return packValueAndUnit(amount, 'Smidge');
+  else if (!Number.isNaN(amount)) return packValueAndUnit(amount, CoinUnits.Smidge);
   // Show `0 SMH` for zero amount and NaN
-  else return packValueAndUnit(0, 'SMH');
+  else return packValueAndUnit(0, CoinUnits.SMH);
 };
 
 // Returns formatted display string for a smidge amount.

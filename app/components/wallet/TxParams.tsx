@@ -4,6 +4,7 @@ import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from 
 import { getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Contact } from '../../types';
+import AmountInput from '../../basicComponents/AmountInput';
 
 const Wrapper = styled.div`
   display: flex;
@@ -107,7 +108,7 @@ type Props = {
   updateTxAddress: ({ value }: { value: string }) => void;
   resetAddressError: () => void;
   amount: number;
-  updateTxAmount: ({ value }: { value: number }) => void;
+  updateTxAmount: (value: number) => void;
   hasAmountError: boolean;
   resetAmountError: () => void;
   updateFee: ({ fee }: { fee: number }) => void;
@@ -153,7 +154,7 @@ const TxParams = ({
 
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
 
-  const handleAmountChange = useCallback(({ value }) => updateTxAmount({ value: parseFloat(value) }), [updateTxAmount]);
+  const handleAmountChange = useCallback((value) => updateTxAmount(parseFloat(value)), [updateTxAmount]);
 
   return (
     <Wrapper>
@@ -187,7 +188,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Amount</DetailsText>
         <Dots>....................................</Dots>
-        <Input value={amount} onChange={handleAmountChange} extraText="SMD" style={inputStyle} />
+        <AmountInput value={amount} onChange={updateTxAmount} style={inputStyle} />
         {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
       </DetailsRow>
       <DetailsRow>
