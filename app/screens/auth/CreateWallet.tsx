@@ -86,6 +86,7 @@ const CreateWallet = ({ history, location }: Props) => {
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
+  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly); // TODO
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -157,7 +158,11 @@ const CreateWallet = ({ history, location }: Props) => {
   if (isLoaderVisible) {
     return (
       <LoaderWrapper>
-        <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
+        <Loader
+          size={Loader.sizes.BIG}
+          isDarkMode={isDarkMode}
+          note={isWalletOnly ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
+        />
       </LoaderWrapper>
     );
   }
