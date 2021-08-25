@@ -127,7 +127,7 @@ const getBuildOptions = ({ target, publish }) => {
           height: '380'
         },
         background: path.join(__dirname, '..', 'resources', 'background.png'),
-        icon: path.join(__dirname, '..', 'resources', 'icon.png'),
+        icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
         contents: [
           {
             x: 245,
