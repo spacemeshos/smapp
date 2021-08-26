@@ -10,6 +10,7 @@ const Wrapper = styled.div`
   left: 0;
   right: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -24,14 +25,24 @@ const AnimatedIcon = styled.img<{ size: number }>`
   width: ${({ size }) => `${size}px`};
 `;
 
+const Note = styled.p`
+  display: block;
+  height: 14px;
+  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  text-align: center;
+  font-size: 12px;
+`;
+
 type Props = {
   size?: any;
   isDarkMode?: boolean;
+  note?: string;
 };
 
-const Loader = ({ size = 50, isDarkMode = false }: Props) => (
+const Loader = ({ size = 50, isDarkMode = false, note }: Props) => (
   <Wrapper>
     <AnimatedIcon size={size || Loader.sizes.SMALL} src={isDarkMode ? loaderWhite : loader} alt="Loading" />
+    <Note>{note}</Note>
   </Wrapper>
 );
 

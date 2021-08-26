@@ -9,7 +9,6 @@ import { Link, Button, Input, ErrorPopup, Loader } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { AppThDispatch, RootState } from '../../types';
-import { setUiError } from '../../redux/ui/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -98,6 +97,7 @@ const UnlockWallet = ({ history, location }: Props) => {
   const [isWrongPassword, setWrongPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
 
+  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly); // TODO
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
   const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
@@ -125,7 +125,7 @@ const UnlockWallet = ({ history, location }: Props) => {
   };
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
   return showLoader ? (
-    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
+    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} note={isWalletOnly ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'} />
   ) : (
     <Wrapper>
       {location?.state?.isLoggedOut && <LoggedOutBanner key="banner" />}
