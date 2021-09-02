@@ -286,12 +286,13 @@ class TransactionManager {
     const addrString = address.substring(2).toLowerCase();
     const txs = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.txs.`);
     const updatedTxs = {};
-    Object.keys(txs).forEach((key) => {
-      updatedTxs[txs[key].txId] = txs[key];
-      if (txs[key].sender === addrString || txs[key].receiver === addrString) {
-        txs[key].nickname = nickname;
-      }
-    });
+    txs &&
+      Object.keys(txs).forEach((key) => {
+        updatedTxs[txs[key].txId] = txs[key];
+        if (txs[key].sender === addrString || txs[key].receiver === addrString) {
+          txs[key].nickname = nickname;
+        }
+      });
     StoreService.set(`accounts.${this.accounts[accountIndex].publicKey}.txs`, updatedTxs);
     this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
   };
