@@ -1,4 +1,6 @@
 import { ProtoGrpcType } from '../proto/smesher';
+import { PostSetupOpts, PostSetupStatus, PostSetupComputeProvider } from '../shared/types';
+
 import Logger from './logger';
 import StoreService from './storeService';
 import { fromHexString, toHexString } from './utils';
@@ -31,6 +33,51 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   createService = () => {
     this.createNetService(PROTO_PATH, undefined, 'SmesherService');
   };
+
+  getPostConfig = () =>
+    new Promise<{ error: any; config: SmesherConfig }>((resolve) => {
+      // @ts-ignore
+      this.service.PostConfig({}, (error, response) => {
+        if (error) {
+          logger.error('grpc PostConfig', error);
+          resolve({ error, config: {} as SmesherConfig });
+        } else {
+          const { bitsPerLabel, labelsPerUnit, minNumUnits, maxNumUnits } = response;
+          resolve({ error: null, config: { bitsPerLabel, labelsPerUnit: parseInt(labelsPerUnit), minNumUnits, maxNumUnits } });
+        }
+      });
+    });
+
+  getSmesherId = () =>
+    new Promise<{ error: any; smesherId: string }>((resolve) => {
+      // @ts-ignore
+      this.service.SmesherID({}, (error, response) => {
+        if (error) {
+          logger.error('grpc SmesherID', error);
+          resolve({ error, smesherId: '' });
+        } else {
+          const { accountId } = response;
+          resolve({ error: null, smesherId: toHexString(accountId.address) });
+        }
+      });
+    });
+
+  getSetupComputeProviders = () =>
+    new Promise<{ error: any; postSetupComputeProviders: PostSetupComputeProvider[] }>((resolve) => {
+      // @ts-ignore
+      this.service.PostSetupComputeProviders({ benchmark: true }, (error, response) => {
+        if (error) {
+          logger.error('grpc PostSetupComputeProviders', error);
+          resolve({ error, postSetupComputeProviders: [] });
+        } else {
+          const postSetupComputeProviders: PostSetupComputeProvider[] = [];
+          response.providers.forEach(({ id, model, computeApi, performance }: { id: number; model: string; computeApi: number; performance: string }) => {
+            postSetupComputeProviders.push({ id, model, computeApi, performance: parseInt(performance) });
+          });
+          resolve({ error: null, postSetupComputeProviders });
+        }
+      });
+    });
 
   isSmeshing = () =>
     this.callService('IsSmeshing', {})
@@ -111,58 +158,40 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
-  getPostStatus = () =>
-    this.callService('PostStatus', {})
+  getPostSetupStatus = () =>
+    this.callService('PostSetupStatus', {})
       .then((response) => {
-        // TODO: Wrong types there. Do we need it?
-        //
-        // const {
-        //   status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
-        // } = response;
-        // const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-        // return { status };
-        return response;
+        const {
+          status: { state, numLabelsWritten }
+        } = response;
+        return { postSetupState: state, numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten) : 0 };
       })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
   getPostComputeProviders = () =>
-    this.callService('PostComputeProviders', { benchmark: true })
+    this.callService('PostSetupComputeProviders', { benchmark: true })
       .then(({ postComputeProvider }) => postComputeProvider.map(({ id, model, computeApi, performance }) => ({ id, model, computeApi, performance: parseInt(performance) })))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
-  stopPostDataCreationSession = ({ deleteFiles }: { deleteFiles: boolean }) =>
-    // TODO: No such endpoint in Service
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.StopPostDataCreationSession({ W_M_SHOW_DELETE_FILEs: deleteFiles }, (error, response) => {
-        if (error) {
-          this.logger.error('grpc StopPostDataCreationSession', error, { deleteFiles });
-          resolve({ error });
-        } else {
-          resolve({ status: response.status });
-        }
-      });
-    });
-
-  postDataCreationProgressStream = ({ handler }: { handler: ({ status, error }: { status: any; error: any }) => void }) => {
+  postDataCreationProgressStream = ({ handler }: { handler: (error: any, status: PostSetupStatus) => void }) => {
     if (!this.stream) {
       // @ts-ignore
-      this.stream = this.service.PostDataCreationProgressStream({});
+      this.stream = this.service.PostSetupStatusStream({});
       this.stream.on('data', (response: any) => {
         const {
-          status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
+          status: { state, numLabelsWritten, errorMessage }
         } = response;
         const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-        this.logger.log('grpc PostDataCreationProgressStream', status);
+        logger.log('grpc PostDataCreationProgressStream', status);
         // @ts-ignore
-        handler({ status, error: null });
+        handler(null, { postSetupState: state, numLabelsWritten: parseInt(numLabelsWritten), errorMessage });
       });
       this.stream.on('error', (error: any) => {
         this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore
-        handler({ status: null, error });
+        handler(error, {});
       });
       this.stream.on('end', () => {
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console

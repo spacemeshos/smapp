@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { chevronLeftBlack, chevronRightBlack, chevronLeftGray, chevronRightGray, posGpuGrey, posGpuActive, posCpuGrey, posCpuActive } from '../../assets/images';
+import { chevronLeftBlack, chevronLeftGray, chevronRightBlack, chevronRightGray, posCpuActive, posCpuGrey, posGpuActive, posGpuGrey } from '../../assets/images';
 import { smColors } from '../../vars';
+import { ComputeApiClass, PostSetupComputeProvider } from '../../../shared/types';
 
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
@@ -141,7 +142,7 @@ const CpuIcon = styled.img`
 `;
 
 type Props = {
-  data: { id: number; model: string; computeApi: string; performance: number }[];
+  data: PostSetupComputeProvider[];
   selectedItemIndex: number;
   onClick: ({ index }: { index: number }) => void;
   style?: any;
@@ -184,18 +185,20 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
               <SlideUpperPart isSelected={selectedItemIndex === index}>
                 <TextWrapper>
                   <Text>{provider.model}</Text>
-                  {provider.computeApi === '0' && <Text>(UNSPECIFIED)</Text>}
-                  {provider.computeApi === '1' && <Text>(CPU)</Text>}
-                  {provider.computeApi === '2' && <Text>(CUDA)</Text>}
-                  {provider.computeApi === '3' && <Text>(VULCAN)</Text>}
+                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_UNSPECIFIED && <Text>(UNSPECIFIED)</Text>}
+                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && <Text>(CPU)</Text>}
+                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA && <Text>(CUDA)</Text>}
+                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN && <Text>(VULCAN)</Text>}
                   <Text>--</Text>
                 </TextWrapper>
                 <TextWrapper>
                   <Text>~{provider.performance} hashes per second</Text>
                   <Text>TO SAVE DATA</Text>
                 </TextWrapper>
-                {provider.computeApi === '1' && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />}
-                {(provider.computeApi === '2' || provider.computeApi === '3') && <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />}
+                {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />}
+                {[ComputeApiClass.COMPUTE_API_CLASS_CUDA, ComputeApiClass.COMPUTE_API_CLASS_VULKAN].includes(provider.computeApi) && (
+                  <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />
+                )}
               </SlideUpperPart>
               <SlideMiddlePart />
               <SlideLowerPart isSelected={selectedItemIndex === index} />

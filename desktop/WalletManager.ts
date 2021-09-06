@@ -16,12 +16,11 @@ import Logger from './logger';
 import StoreService from './storeService';
 import TransactionService from './TransactionService';
 import NodeManager from './NodeManager';
+import { readFileAsync, writeFileAsync } from './utils';
 
 const logger = Logger({ className: 'WalletManager' });
 
-const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
-const writeFileAsync = util.promisify(fs.writeFile);
 const copyFileAsync = util.promisify(fs.copyFile);
 const unlinkFileAsync = util.promisify(fs.unlink);
 
@@ -81,9 +80,8 @@ class WalletManager {
       const netId = StoreService.get('netSettings.netId');
       const netName = StoreService.get('netSettings.netName');
       const genesisTime = StoreService.get('netSettings.genesisTime');
-      const minCommitmentSize = StoreService.get('netSettings.minCommitmentSize');
       const explorerUrl = StoreService.get('netSettings.explorerUrl');
-      return { netId, netName, genesisTime, minCommitmentSize, explorerUrl };
+      return { netId, netName, genesisTime, explorerUrl };
     });
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => this.meshService.getCurrentLayer());
     ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, () => this.glStateService.getGlobalStateHash());

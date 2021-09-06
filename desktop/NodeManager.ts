@@ -10,6 +10,7 @@ import { NodeError, NodeErrorLevel, NodeStatus, PublicService, SocketAddress } f
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
+import SmesherManager from './SmesherManager';
 import { createDebouncePool } from './utils';
 
 const logger = Logger({ className: 'NodeManager' });
@@ -37,11 +38,11 @@ type ErrorPoolObject = PoolNodeError | PoolExitCode;
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
 
-  private readonly configFilePath;
-
   private readonly cleanStart;
 
   private nodeService: NodeService;
+
+  private smesherManager: SmesherManager;
 
   private nodeProcess: ChildProcess | null;
 
@@ -58,13 +59,13 @@ class NodeManager {
     this.sendNodeError(mostCriticalError);
   });
 
-  constructor(mainWindow: BrowserWindow, configFilePath: string, cleanStart) {
+  constructor(mainWindow: BrowserWindow, cleanStart: boolean, smesherManager: SmesherManager) {
     this.mainWindow = mainWindow;
-    this.configFilePath = configFilePath;
     this.cleanStart = cleanStart;
     this.nodeService = new NodeService();
     this.subscribeToEvents();
     this.nodeProcess = null;
+    this.smesherManager = smesherManager;
   }
 
   subscribeToEvents = () => {
@@ -126,7 +127,8 @@ class NodeManager {
     });
     if (success) {
       await this.getNodeStatus(0);
-      this.nodeService.activateErrorStream(this.pushNodeError);
+      this.activateNodeErrorStream();
+      await this.smesherManager.serviceStartupFlow();
       return true;
     }
     return false; // TODO: add error handling
@@ -143,10 +145,8 @@ class NodeManager {
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
     const logFileStream = fs.createWriteStream(logFilePath, { flags: this.cleanStart ? 'w' : 'a', encoding: 'utf-8' });
-    const netId = StoreService.get('netSettings.netId');
-    const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-    const smeshingArgs = savedSmeshingParams ? ['--coinbase', `0x${savedSmeshingParams.coinbase}`, '--start-mining', '--post-datadir', savedSmeshingParams.dataDir] : [];
-    const args = ['--config', this.configFilePath, '-d', nodeDataFilesPath, ...smeshingArgs];
+    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath');
+    const args = ['--config', nodeConfigFilePath, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
     this.nodeProcess = spawn(nodePath, args);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -8,8 +8,8 @@ import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } fro
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
-import { AppThDispatch, ComputeProvider, ComputeProviders, RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
+import { BITS, AppThDispatch, RootState } from '../../types';
+import { PostSetupComputeProvider } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -25,6 +25,12 @@ const subHeaders = [
   'Review your proof of space data creation options.\nClick a link to go back and edit that item.'
 ];
 
+interface Commitment {
+  label: string;
+  size: number;
+  numUnits: number;
+}
+
 interface Props extends RouteComponentProps {
   location: {
     hash: string;
@@ -37,37 +43,26 @@ interface Props extends RouteComponentProps {
 const NodeSetup = ({ history, location }: Props) => {
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const status = useSelector((state: RootState) => state.node.status);
+  const postSetupComputeProviders = useSelector((state: RootState) => state.smesher.postSetupComputeProviders);
   const existingDataDir = useSelector((state: RootState) => state.smesher.dataDir);
-  const minCommitmentSize = useSelector((state: RootState) => state.network.minCommitmentSize);
+  const smesherConfig = useSelector((state: RootState) => state.smesher.config);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const hideSmesherLeftPanel = useSelector((state: RootState) => state.ui.hideSmesherLeftPanel);
   const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
   const [dataDir, setDataDir] = useState(existingDataDir || '');
   const [freeSpace, setFreeSpace] = useState('');
-  const [commitmentSize, setCommitmentSize] = useState(0);
-  const [providers, setProviders] = useState<ComputeProviders>([]);
-  const [provider, setProvider] = useState<ComputeProvider>();
+  const [numUnits, setNumUnits] = useState(0);
+  const [provider, setProvider] = useState<PostSetupComputeProvider>();
   const [throttle, setThrottle] = useState(false);
 
   const dispatch: AppThDispatch = useDispatch();
 
-  useEffect(() => {
-    const loadComputeProviders = async () => {
-      const { error, postComputeProviders } = await eventsService.getPostComputeProviders();
-      if (!error) {
-        setProviders(postComputeProviders);
-      }
-    };
-    loadComputeProviders();
-  }, [dispatch]);
-
-  const formattedCommitmentSize = formatBytes(minCommitmentSize);
-  const subHeader = mode !== 1 ? subHeaders[mode] : `Select a directory to save your proof og space data.\nMinimum ${formattedCommitmentSize} of free space is required`;
+  const formattedCommitmentSize = formatBytes((smesherConfig.labelsPerUnit * smesherConfig.bitsPerLabel * smesherConfig.minNumUnits) / BITS);
+  const subHeader = mode !== 1 ? subHeaders[mode] : `Select a directory to save your proof of space data.\nMinimum ${formattedCommitmentSize} of free space is required`;
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
-    // @ts-ignore
-    const done = await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, commitmentSize, provider, throttle }));
+    const done = await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, numUnits, provider, throttle }));
     if (done) {
       history.push('/main/node', { showIntro: true });
     }
@@ -82,7 +77,7 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handleDeletePosData = async () => {
-    await dispatch(deletePosData());
+    await dispatch(deletePosData({ deleteFiles: true }));
     history.push('/main/wallet/');
   };
 
@@ -112,23 +107,31 @@ const NodeSetup = ({ history, location }: Props) => {
             skipAction={() => history.push('/main/wallet')}
           />
         );
-      case 2:
+      case 2: {
+        const commitments: Commitment[] = [];
+        const singleCommitmentSize = (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
+        for (let i = smesherConfig.minNumUnits; i <= smesherConfig.maxNumUnits; i += 1) {
+          const calculationResult = i * singleCommitmentSize;
+          commitments.push({ label: formatBytes(calculationResult), size: calculationResult, numUnits: i });
+        }
         return (
           <PoSSize
             nextAction={handleNextAction}
+            commitments={commitments}
             dataDir={dataDir}
             freeSpace={freeSpace}
-            commitmentSize={commitmentSize}
-            setCommitmentSize={setCommitmentSize}
+            numUnits={numUnits}
+            setNumUnit={setNumUnits}
             status={status}
             isDarkMode={isDarkMode}
           />
         );
+      }
       case 3:
         return (
           <PoSProvider
             nextAction={handleNextAction}
-            providers={providers}
+            providers={postSetupComputeProviders}
             provider={provider}
             setProvider={setProvider}
             throttle={throttle}
@@ -142,7 +145,7 @@ const NodeSetup = ({ history, location }: Props) => {
           <PoSSummary
             isDarkMode={isDarkMode}
             dataDir={dataDir}
-            commitmentSize={formatBytes(commitmentSize)}
+            commitmentSize={smesherConfig ? formatBytes((smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit * numUnits) / BITS) : '0'}
             provider={provider}
             throttle={throttle}
             nextAction={handleNextAction}

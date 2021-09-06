@@ -1,7 +1,7 @@
-//
-// Rreproduction of some types from `node_types.proto`
-// made by hands
-//
+export interface NodeVersionAndBuild {
+  version: string;
+  build: string;
+}
 
 export interface NodeStatus {
   connectedPeers: number;
@@ -27,4 +27,49 @@ export interface NodeError {
   module: string;
   msg: string;
   stackTrace: string;
+}
+
+export interface SmesherConfig {
+  bitsPerLabel: number;
+  labelsPerUnit: number;
+  minNumUnits: number;
+  maxNumUnits: number;
+}
+
+export enum ComputeApiClass {
+  COMPUTE_API_CLASS_UNSPECIFIED = 0,
+  COMPUTE_API_CLASS_CPU,
+  COMPUTE_API_CLASS_CUDA,
+  COMPUTE_API_CLASS_VULKAN
+}
+
+export interface PostSetupComputeProvider {
+  id: number;
+  model: string;
+  computeApi: ComputeApiClass;
+  performance: number;
+}
+
+export interface PostSetupOpts {
+  coinbase?: string;
+  dataDir: string;
+  numUnits: number;
+  numFiles?: number;
+  computeProviderId: number;
+  throttle: boolean;
+}
+
+export enum PostSetupState {
+  STATE_UNSPECIFIED = 0, // Lane's favorite impossible value
+  STATE_NOT_STARTED, // Setup not started
+  STATE_IN_PROGRESS, // Setup in progress
+  STATE_COMPLETE, // Setup is complete
+  STATE_ERROR
+}
+
+export interface PostSetupStatus {
+  postSetupState: PostSetupState;
+  numLabelsWritten: number;
+  opts: PostSetupOpts;
+  errorMessage: string;
 }

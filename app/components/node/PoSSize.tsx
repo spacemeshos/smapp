@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
+// import { eventsService } from '../../infra/eventsService';
 import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
@@ -121,39 +121,40 @@ const Link = styled.div`
   }
 `;
 
-const commitments = [
-  { label: '250 GB', size: 250 },
-  { label: '500 GB', size: 500 },
-  { label: '750 GB', size: 750 }
-];
+interface Commitment {
+  label: string;
+  size: number;
+  numUnits: number;
+}
 
 type Props = {
+  commitments: Commitment[];
   dataDir: string;
-  commitmentSize: number;
-  setCommitmentSize: (commitment: number) => void;
+  numUnits: number;
+  setNumUnit: (numUnit: number) => void;
   freeSpace: string;
   nextAction: () => void;
   status: NodeStatus | null;
   isDarkMode: boolean;
 };
 
-const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAction, status, isDarkMode }: Props) => {
-  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(commitmentSize ? commitments.findIndex((com) => com.size === commitmentSize) : 0);
-  const [hasErrorFetchingEstimatedRewards, setHasErrorFetchingEstimatedRewards] = useState(false);
-  const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
+const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAction, status, isDarkMode }: Props) => {
+  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0);
+  const [hasErrorFetchingEstimatedRewards] = useState(false);
+  // const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
 
-  useEffect(() => {
-    const loadEstimatedRewards = async () => {
-      const { error, estimatedRewards } = await eventsService.getEstimatedRewards();
-      if (error) {
-        setHasErrorFetchingEstimatedRewards(true);
-      } else {
-        setLoadedEstimatedRewards(estimatedRewards);
-        setHasErrorFetchingEstimatedRewards(false);
-      }
-    };
-    loadEstimatedRewards();
-  }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
+  // useEffect(() => { // TODO: uncomment when api endpoint implemented in node
+  //   const loadEstimatedRewards = async () => {
+  //     const { error, estimatedRewards } = await eventsService.getEstimatedRewards();
+  //     if (error) {
+  //       setHasErrorFetchingEstimatedRewards(true);
+  //     } else {
+  //       setLoadedEstimatedRewards(estimatedRewards);
+  //       setHasErrorFetchingEstimatedRewards(false);
+  //     }
+  //   };
+  //   loadEstimatedRewards();
+  // }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
 
   const renderDDRow = ({ label, isInDropDown }: { label: string; isInDropDown: boolean }) => (
     <CommitmentWrapper isInDropDown={isInDropDown}>
@@ -163,7 +164,7 @@ const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAc
 
   const selectCommitment = ({ index }: { index: number }) => {
     setSelectedCommitmentIndex(index);
-    setCommitmentSize(commitments[selectedCommitmentIndex].size);
+    setNumUnit(commitments[index].numUnits);
   };
 
   const ddStyle = {
@@ -201,9 +202,7 @@ const PoSSize = ({ dataDir, commitmentSize, setCommitmentSize, freeSpace, nextAc
         {hasErrorFetchingEstimatedRewards ? (
           <ErrorText>Failed to load estimated rewards. Please return to previous step</ErrorText>
         ) : (
-          <RewardText selected={selectedCommitmentIndex !== -1}>
-            {selectedCommitmentIndex !== -1 ? `${loadedEstimatedRewards.amount * selectedCommitmentIndex} SMESH / EPOCH` : '0 SMESH / EPOCH'}
-          </RewardText>
+          <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? `10 SMESH / EPOCH` : '0 SMESH / EPOCH'}</RewardText>
         )}
       </Row>
       <BottomRow>

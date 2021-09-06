@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { Tooltip } from '../../basicComponents';
-import { ComputeProvider } from '../../types';
-import { NodeStatus } from '../../../shared/types';
+import { ComputeApiClass, NodeStatus, PostSetupComputeProvider } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -63,7 +62,7 @@ const Link = styled.div<{ isDisabled: boolean }>`
 type Props = {
   dataDir: string;
   commitmentSize: string;
-  provider: ComputeProvider | undefined;
+  provider: PostSetupComputeProvider | undefined;
   throttle: boolean;
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
@@ -80,11 +79,11 @@ const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, s
   };
 
   let providerType = 'UNSPECIFIED';
-  if (provider?.computeApi === '1') {
+  if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU) {
     providerType = 'CPU';
-  } else if (provider?.computeApi === '2') {
+  } else if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA) {
     providerType = 'CUDA';
-  } else if (provider?.computeApi === '3') {
+  } else if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN) {
     providerType = 'VULKAN';
   }
 
@@ -99,7 +98,7 @@ const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, s
       <Row>
         <Text>data size</Text>
         <Link onClick={() => switchMode({ mode: 2 })} isDisabled={isProcessing}>
-          {`${commitmentSize} GB`}
+          {commitmentSize}
         </Link>
       </Row>
       <Row>

@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { ComputeProvider, ComputeProviders } from '../../types';
-import { NodeStatus } from '../../../shared/types';
+import { PostSetupComputeProvider, NodeStatus } from '../../../shared/types';
 import Carousel from './Carousel';
 import Checkbox from './Checkbox';
 import PoSFooter from './PoSFooter';
@@ -27,9 +26,9 @@ const ErrorText = styled.div`
 `;
 
 type Props = {
-  providers: ComputeProviders;
-  provider: ComputeProvider | undefined;
-  setProvider: (provider: ComputeProvider) => void;
+  providers: PostSetupComputeProvider[];
+  provider: PostSetupComputeProvider | undefined;
+  setProvider: (provider: PostSetupComputeProvider) => void;
   throttle: boolean;
   setThrottle: (throttle: boolean) => void;
   nextAction: () => void;
