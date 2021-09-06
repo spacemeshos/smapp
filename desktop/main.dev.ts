@@ -12,7 +12,7 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import util from 'util';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
@@ -238,11 +238,10 @@ const createWindow = async () => {
     netId = initialConfig.netID;
   }
   const cleanStart = savedNetId !== netId;
-  StoreService.get('isDarkTheme');
   if (cleanStart) {
     StoreService.clear();
     StoreService.set('netSettings.netId', netId);
-    StoreService.set('isDarkTheme', true);
+    StoreService.set('isDarkTheme', false);
     StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
     StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
     StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
