@@ -3,6 +3,7 @@ import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState, WalletMeta, Account, Contact, Tx } from '../../types';
 import { setUiError } from '../ui/actions';
 
+export const CHECK_FOR_UPDATE = 'CHECK_FOR_UPDATE';
 export const SET_WALLET_META = 'SET_WALLET_META';
 export const SET_ACCOUNTS = 'SET_ACCOUNTS';
 export const SET_CURRENT_ACCOUNT_INDEX = 'SET_CURRENT_ACCOUNT_INDEX';
@@ -33,6 +34,8 @@ export const setTransactions = ({ txs, publicKey }: { txs: Tx[]; publicKey: stri
 export const setContacts = ({ contacts }: { contacts: Contact[] }) => ({ type: SET_CONTACTS, payload: { contacts } });
 
 export const setCurrentMode = ({ mode }: { mode: number }) => ({ type: SET_CURRENT_MODE, payload: { mode } });
+
+export const checkForNewUpdate = () => {};
 
 export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   const { error, files } = await eventsService.readWalletFiles();

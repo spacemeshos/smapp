@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
+import { updateWalletName, updateAccountName, createNewAccount, checkForNewUpdate } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
@@ -81,6 +81,7 @@ interface Props extends RouteComponentProps {
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
+  checkForNewUpdate: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -274,6 +275,11 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
+                upperPartLeft={<Text>There are currently no updates available.</Text>}
+                upperPartRight={<Button onClick={this.checkForUpdates} text="Check for Updates" width={180} />}
+                rowName="Update Application"
+              />
+              <SettingRow
                 upperPartLeft={
                   isPortSet ? (
                     <Text>Please restart application to apply changes</Text>
@@ -338,6 +344,8 @@ class Settings extends Component<Props, State> {
       this.setState({ showModal: true });
     }
   };
+
+  checkForUpdates = async () => {};
 
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;
@@ -492,6 +500,7 @@ const mapDispatchToProps = {
   updateWalletName,
   updateAccountName,
   createNewAccount,
+  checkForNewUpdate,
   switchTheme
 };
 
