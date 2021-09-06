@@ -61,7 +61,7 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
+let isDarkMode: boolean = StoreService.get('isDarkTheme');
 
 let closingApp = false;
 const isSmeshing = () => {
@@ -132,7 +132,7 @@ const createBrowserView = () => {
 };
 
 const addIpcEventListeners = () => {
-  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
+  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => isDarkMode);
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
@@ -238,9 +238,11 @@ const createWindow = async () => {
     netId = initialConfig.netID;
   }
   const cleanStart = savedNetId !== netId;
+  StoreService.get('isDarkTheme');
   if (cleanStart) {
     StoreService.clear();
     StoreService.set('netSettings.netId', netId);
+    StoreService.set('isDarkTheme', true);
     StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
     StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
     StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
