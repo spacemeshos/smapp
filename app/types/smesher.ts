@@ -1,12 +1,3 @@
-export type ComputeProvider = {
-  id: number;
-  model: string;
-  computeApi: string;
-  performance: number;
-};
-
-export type ComputeProviders = Array<ComputeProvider>;
-
 export type Reward = {
   txId: 'reward';
   layerId: number;
@@ -18,3 +9,5 @@ export type Reward = {
   status: number;
   timestamp: number;
 };
+
+export const BITS = 8;

@@ -4,11 +4,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
-import { getFormattedTimestamp } from '../../infra/utils';
+import { hideSmesherLeftPanel } from '../../redux/ui/actions';
+import { formatBytes, getAbbreviatedText, getFormattedTimestamp } from '../../infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState, Status } from '../../types';
-import { hideSmesherLeftPanel } from '../../redux/ui/actions';
+import { BITS, RootState } from '../../types';
+import { NodeStatus, PostSetupState } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -47,7 +48,7 @@ const SmesherId = styled.span`
   text-decoration: underline;
 `;
 
-const StatusSpan = styled.span<{ status?: Status | null }>`
+const StatusSpan = styled.span<{ status: NodeStatus | null }>`
   color: ${({ status }) => (status ? smColors.green : smColors.orange)};
 `;
 
@@ -159,29 +160,33 @@ const Node = ({ history, location }: Props) => {
 
   const status = useSelector((state: RootState) => state.node.status);
   const networkId = useSelector((state: RootState) => state.network.netId);
+  const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
+  const smesherConfig = useSelector((state: RootState) => state.smesher.config);
   const commitmentSize = useSelector((state: RootState) => state.smesher.commitmentSize);
   const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
-  const isCreatingPosData = useSelector((state: RootState) => state.smesher.isCreatingPosData);
+  const postSetupState = useSelector((state: RootState) => state.smesher.postSetupState);
+  const numLabelsWritten = useSelector((state: RootState) => state.smesher.numLabelsWritten);
   const rewards = useSelector((state: RootState) => state.smesher.rewards);
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
+  const dispatch = useDispatch();
+
   let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
-
-  const dispatch = useDispatch();
+  const isSmesherActive = isSmeshing || [PostSetupState.STATE_IN_PROGRESS, PostSetupState.STATE_ERROR].includes(postSetupState);
 
   const renderNodeDashboard = () => {
-    const isCreatingPoSData = !isSmeshing && isCreatingPosData;
+    const progress = ((numLabelsWritten * smesherConfig.bitsPerLabel) / (BITS * commitmentSize)) * 100;
     return (
       <>
         <SubHeader>
           Smesher
-          <SmesherId> 0x12344...244AF </SmesherId>
+          <SmesherId>{getAbbreviatedText(smesherId)}</SmesherId>
           is&nbsp;
           <StatusSpan status={status}> {status ? 'ONLINE' : ' OFFLINE'} </StatusSpan>
           &nbsp;on Network {networkId} (Testnet).
@@ -197,14 +202,14 @@ const Node = ({ history, location }: Props) => {
           <TextWrapper>
             <Text>
               <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
-              <PathDir>{posDataPath} </PathDir> - {commitmentSize}GB allocated
+              <PathDir>{posDataPath} </PathDir> - {formatBytes(commitmentSize)} allocated
             </Text>
           </TextWrapper>
         </LineWrap>
         <LineWrap>
           <TextWrapper>
             <Text>Status</Text>
-            <Text>{isCreatingPoSData ? 'Creating PoS data' : 'Smeshing'}</Text>
+            <Text>{isSmeshing ? 'Smeshing' : 'Creating PoS data'}</Text>
           </TextWrapper>
         </LineWrap>
         <LineWrap>
@@ -217,14 +222,16 @@ const Node = ({ history, location }: Props) => {
           <TextWrapper>
             <Text>Progress</Text>
             <Text>
-              <Text className="progress">150GB / 200GB, 30%</Text>
-              <ProgressBar progress={30} />
+              <Text className="progress">
+                {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress}%
+              </Text>
+              <ProgressBar progress={progress} />
             </Text>
           </TextWrapper>
         </LineWrap>
 
         <TextWrapper>
-          <Text>{isCreatingPoSData ? 'Estimated finish time' : 'Finished creating'}</Text>
+          <Text>{isSmeshing ? 'Finished creating' : 'Estimated finish time'}</Text>
           <Text>{smesherSmeshingTimestamp}</Text>
         </TextWrapper>
         <Footer>
@@ -238,7 +245,9 @@ const Node = ({ history, location }: Props) => {
             width={180}
           />
           <Button onClick={() => history.push('/main/node-setup', { modifyPostData: true })} text="MODIFY POST DATA" isPrimary={false} style={{ marginRight: 15 }} width={130} />
-          {isCreatingPoSData && <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />}
+          {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
+            <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
+          )}
         </Footer>
       </>
     );
@@ -251,16 +260,15 @@ const Node = ({ history, location }: Props) => {
     history.push('/main/node-setup');
   };
 
-  // TODO Need to insert real smesher id
   const renderMainSection = () => {
     if (showIntro) {
       return <SmesherIntro hideIntro={() => setShowIntro(false)} isDarkMode={isDarkMode} />;
-    } else if (!isSmeshing && !isCreatingPosData) {
+    } else if (!isSmesherActive) {
       return (
         <>
           <SubHeader>
             Smesher
-            <SmesherId> 0x12344...244AF </SmesherId>
+            <SmesherId>{getAbbreviatedText(smesherId)}</SmesherId>
             <ExplorerIcon src={explorer} onClick={() => openExplorerLink('0x12344')} />
             &nbsp;is&nbsp;
             <StatusSpan status={status}>{status ? 'ONLINE ' : 'OFFLINE '} </StatusSpan>

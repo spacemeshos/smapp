@@ -82,7 +82,8 @@ class TransactionManager {
     // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
     // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
 
-    this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
+    const addReward = this.addReward({ accountId: account.publicKey });
+    this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: addReward });
   };
 
   addTransaction = ({ accountId }: { accountId: string }) => ({ tx }: { tx: any }) => {

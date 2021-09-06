@@ -20,6 +20,9 @@ export const getAddress = (key: string) => key.substring(24);
 
 export const formatBytes = (bytes: number) => {
   if (bytes === 0) return '0';
+  if (bytes > 0 && bytes < 1048576) {
+    return `${parseFloat((bytes / 1024).toFixed(2))} KB`;
+  }
   if (bytes >= 1099511627776) {
     return `${parseFloat((bytes / 1099511627776).toFixed(2))} TB`;
   }

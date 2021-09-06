@@ -1,5 +1,5 @@
 import { ThunkDispatch } from 'redux-thunk';
-import { NodeError, NodeStatus } from '../../shared/types';
+import { NodeError, NodeStatus, PostSetupState, PostSetupComputeProvider, SmesherConfig } from '../../shared/types';
 import { Tx } from './transactions';
 import { Account, WalletMeta, Contact } from './wallet';
 import { Reward } from './smesher';
@@ -10,7 +10,6 @@ export interface NetworkState {
   genesisTime: string;
   currentLayer: number;
   rootHash: string;
-  minCommitmentSize: number;
   explorerUrl: string;
 }
 
@@ -37,14 +36,18 @@ export interface WalletState {
 }
 
 export interface SmesherState {
+  smesherId: string;
+  postSetupComputeProviders: PostSetupComputeProvider[];
   coinbase: string;
   dataDir: string;
+  numUnits: number;
   commitmentSize: number;
   isSmeshing: boolean;
-  isCreatingPosData: boolean;
-  postProgress: any;
-  postProgressError: any;
+  numLabelsWritten: any;
+  postSetupState: PostSetupState;
+  postProgressError: string;
   rewards: Reward[] | [];
+  config: SmesherConfig;
 }
 
 export interface UiState {

@@ -11,7 +11,6 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
-import util from 'util';
 import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
@@ -25,10 +24,9 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
+import { writeFileAsync } from './utils';
 
 require('dotenv').config();
-
-const writeFileAsync = util.promisify(fs.writeFile);
 
 const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
 
@@ -66,7 +64,7 @@ let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 let closingApp = false;
 const isSmeshing = () => {
   const netId = StoreService.get('netSettings.netId');
-  return StoreService.get(`${netId}-smeshingParams`);
+  return !!StoreService.get(`${netId}-smeshingParams`);
 };
 const keepSmeshingInBackground = async () => {
   const { response } = await dialog.showMessageBox(mainWindow, {
@@ -223,6 +221,7 @@ const createWindow = async () => {
 
   const savedNetId = StoreService.get('netSettings.netId');
   const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
+  StoreService.set('nodeConfigFilePath', configFilePath);
   let netId;
   let initialConfig;
   let netConfig;
@@ -254,11 +253,11 @@ const createWindow = async () => {
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
 
-  nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
+  // eslint-disable-next-line no-new
+  const smesherManager = new SmesherManager(mainWindow);
+  nodeManager = new NodeManager(mainWindow, cleanStart, smesherManager);
   // eslint-disable-next-line no-new
   new WalletManager(mainWindow, nodeManager);
-  // eslint-disable-next-line no-new
-  new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
 };

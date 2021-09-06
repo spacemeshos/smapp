@@ -91,6 +91,12 @@ message Transaction {
     Signature signature = 8; // sender signature on transaction
 }
 
+// Transaction that was added to the mesh.
+message MeshTransaction {
+    Transaction transaction = 1;
+    LayerNumber layer_id     = 2;
+}
+
 message Reward {
     LayerNumber layer = 1; // layer award was paid in
     Amount total = 2; // total reward paid (sum of tx fee and layer reward)
@@ -126,7 +132,6 @@ message LayerNumber {
 }
 
 message AppEvent { // an event emitted from an app instance
-                   TransactionId transaction_id = 1; // the transaction that called the code
-                   string message = 2; // the event's string emitted from code
+    TransactionId transaction_id = 1; // the transaction that called the code
+    string message = 2; // the event's string emitted from code
 }
-
