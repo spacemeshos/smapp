@@ -12,7 +12,7 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import util from 'util';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, shell } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, shell, nativeTheme } from 'electron';
 import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
@@ -61,7 +61,8 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-let isDarkMode: boolean = StoreService.get('isDarkTheme');
+const isDarkTheme = StoreService.get('isDarkTheme');
+let isDarkMode: boolean = typeof isDarkTheme === 'undefined' ? nativeTheme.shouldUseDarkColors : isDarkTheme;
 
 let closingApp = false;
 const isSmeshing = () => {
@@ -241,7 +242,6 @@ const createWindow = async () => {
   if (cleanStart) {
     StoreService.clear();
     StoreService.set('netSettings.netId', netId);
-    StoreService.set('isDarkTheme', false);
     StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
     StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
     StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
