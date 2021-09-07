@@ -109,6 +109,9 @@ class EventsService {
   static requestVersionAndBuild = () => ipcRenderer.send(ipcConsts.N_M_GET_VERSION_AND_BUILD);
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
+
+  /** **************************************  UPDATE MANAGER  **************************************** */
+  static checkForUpdates = () => ipcRenderer.send(ipcConsts.CHECK_FOR_NEW_UPDATES);
 }
 
 ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, status: NodeStatus) => {

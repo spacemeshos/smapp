@@ -1,61 +1,54 @@
-import { app, BrowserWindow, dialog } from 'electron';
+import { BrowserWindow, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import NotificationManager from './notificationManager';
+import log from 'electron-log';
 import StoreService from './storeService';
+import { MessageBoxOptions } from 'electron/main';
+export default class UpdateManager {
+  private mainWindow: BrowserWindow;
 
-class UpdateManager {
-  private notificationManager: NotificationManager;
+  UPDATE_INTERVAL = 1000 * 60 * 60 * 24;
+
   constructor(mainWindow: BrowserWindow) {
-    this.notificationManager = new NotificationManager(mainWindow);
-    if (autoUpdater.allowPrerelease && StoreService.get('releaseChannel') === 'stable') {
-      StoreService.set('releaseChannel', 'dev');
-    } else if (!autoUpdater.allowPrerelease && StoreService.get('releaseChannel') === 'dev') {
-      StoreService.set('releaseChannel', 'stable');
+    this.mainWindow = mainWindow;
+    if (process.env.NODE_ENV === 'production' && StoreService.get('userSettings.promptForUpdate')) {
+      log.transports.file.level = 'info';
+      autoUpdater.logger = log;
+
+      autoUpdater.setFeedURL({
+        provider: 'generic'
+      });
+
       this.checkForUpdates();
-    }
 
-    autoUpdater.on('update-downloaded', this.onUpdateAvailable);
+      autoUpdater.on('update-downloaded', this.onUpdateAvailable);
 
-    if (StoreService.get('autoUpdate')) {
-      setInterval(() => autoUpdater.checkForUpdates(), 1000 * 60 * 60 * 24);
-      autoUpdater.checkForUpdates();
+      setInterval(() => autoUpdater.checkForUpdates(), this.UPDATE_INTERVAL);
     }
   }
 
-  async checkForUpdates(): Promise<void> {
+  async checkForUpdates(): Promise<string> {
     try {
       const { downloadPromise } = await autoUpdater.checkForUpdates();
       if (!downloadPromise) {
-        dialog.showMessageBox({
-          type: 'info',
-          message: 'There are currently no updates available.'
-        });
+        return 'There are currently no updates available.';
       }
+      return 'Downloading update...';
     } catch (error: unknown) {
-      this.notificationManager.showNotification({
-        body: 'View the ',
-        title: 'Update failed'
-      });
+      return 'Failed to fetch updates. Please try again';
     }
   }
 
-  changeReleaseChannel(channel: 'stable' | 'dev') {
-    autoUpdater.allowPrerelease = channel === 'dev';
-    autoUpdater.allowDowngrade = true;
-
-    StoreService.set('releaseChannel', channel);
-  }
-
-  onUpdateAvailable(): void {
-    this.notificationManager.showNotification({
-      body: `Please restart ${app.name} to update to the latest version.`,
-      title: 'Update available',
-      action: () => {
-        app.relaunch();
-        app.quit();
-      }
-    });
+  async onUpdateAvailable() {
+    const options: MessageBoxOptions = {
+      message: `An important App update is available. \t\nWould you like to update now?`,
+      type: 'question',
+      buttons: ['Yes', 'No']
+    };
+    const { response } = await dialog.showMessageBox(this.mainWindow, options);
+    if (response === 0) {
+      autoUpdater.downloadUpdate();
+    } else if (response === 1) {
+      StoreService.set('userSettings.promptForUpdate', false);
+    }
   }
 }
-
-export { UpdateManager };

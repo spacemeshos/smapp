@@ -25,7 +25,7 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
-import { UpdateManager } from './UpdateManager';
+import UpdateManager from './UpdateManager';
 
 require('dotenv').config();
 
@@ -135,7 +135,7 @@ const createBrowserView = () => {
 
 const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
-  ipcMain.handle(ipcConsts.CHECK_FOR_NEW_UPDATES, () => updateManager.checkForUpdates());
+  ipcMain.on(ipcConsts.CHECK_FOR_NEW_UPDATES, () => updateManager.checkForUpdates());
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
@@ -256,6 +256,7 @@ const createWindow = async () => {
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
+    StoreService.set('userSettings.promptForUpdate', true);
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
 

@@ -276,7 +276,7 @@ class Settings extends Component<Props, State> {
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
                 upperPartLeft={<Text>There are currently no updates available.</Text>}
-                upperPartRight={<Button onClick={this.checkForUpdates} text="Check for Updates" width={180} />}
+                upperPartRight={<Button onClick={() => eventsService.checkForUpdates()} text="Check for Updates" width={180} />}
                 rowName="Update Application"
               />
               <SettingRow
