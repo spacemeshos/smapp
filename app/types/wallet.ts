@@ -1,12 +1,4 @@
-export interface Account {
-  displayName: string;
-  created: number;
-  currentState: { balance: number; counter: number };
-  projectedState: { balance: number; counter: number };
-  path: string;
-  publicKey: string;
-  secretKey: string;
-}
+import { Account } from '../../shared/types';
 
 export interface WalletMeta {
   displayName: string;

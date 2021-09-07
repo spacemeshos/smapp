@@ -15,7 +15,7 @@ const Dashboard = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   useEffect(() => {
-    eventsService.updateBrowserViewTheme({ isDarkMode });
+    eventsService.switchTheme({ isDarkMode });
   }, [isDarkMode]);
 
   useEffect(() => {

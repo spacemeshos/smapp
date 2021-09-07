@@ -135,6 +135,10 @@ const createBrowserView = () => {
 const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => isDarkMode);
 
+  ipcMain.on(ipcConsts.SET_OS_THEME_COLOR, (_, { isDarkMode }) => {
+    StoreService.set('userSettings.darkMode', isDarkMode);
+  });
+
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
     mainWindow.setBrowserView(browserView);

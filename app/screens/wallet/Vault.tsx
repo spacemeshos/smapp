@@ -6,9 +6,10 @@ import { NewVault, VaultType, VaultMasterAccount, VaultMasterAccounts, DailySpen
 import { CorneredContainer } from '../../components/common';
 import { vault } from '../../assets/images';
 import { Link, Button } from '../../basicComponents';
-import { Account, RootState } from '../../types';
+import { RootState } from '../../types';
 import { setCurrentMode } from '../../redux/wallet/actions';
 import { formatSmidge } from '../../infra/utils';
+import { Account } from '../../../shared/types';
 
 const Footer = styled.div`
   display: flex;

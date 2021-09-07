@@ -7,9 +7,9 @@ const ipcConsts = {
   SET_NODE_PORT: 'SET_NODE_PORT',
   // Theme
   GET_OS_THEME_COLOR: 'GET_OS_THEME_COLOR',
+  SET_OS_THEME_COLOR: 'SET_OS_THEME_COLOR',
   OPEN_BROWSER_VIEW: 'OPEN_BROWSER_VIEW',
   DESTROY_BROWSER_VIEW: 'DESTROY_BROWSER_VIEW',
-  SEND_THEME_COLOR: 'SEND_THEME_COLOR',
 
   /** *********************************************************************** API 2.0 ********************************************************** */
   // Smesher Service calls

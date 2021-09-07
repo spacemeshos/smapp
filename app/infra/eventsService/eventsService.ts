@@ -16,9 +16,9 @@ class EventsService {
 
   static getOsThemeColor = () => ipcRenderer.invoke(ipcConsts.GET_OS_THEME_COLOR);
 
-  static openBrowserView = () => ipcRenderer.send(ipcConsts.OPEN_BROWSER_VIEW);
+  static switchTheme = ({ isDarkMode }: { isDarkMode: boolean }) => ipcRenderer.send(ipcConsts.SET_OS_THEME_COLOR, { isDarkMode });
 
-  static updateBrowserViewTheme = ({ isDarkMode }: { isDarkMode: boolean }) => ipcRenderer.send(ipcConsts.SEND_THEME_COLOR, { isDarkMode });
+  static openBrowserView = () => ipcRenderer.send(ipcConsts.OPEN_BROWSER_VIEW);
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 

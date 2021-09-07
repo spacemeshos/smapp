@@ -1,6 +1,5 @@
 import { AppThDispatch, GetState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
-import { setTheme } from '../../../shared/utils';
 
 export const SET_OS_THEME = 'SET_OS_THEME';
 export const THEME_SWITCHER = 'THEME_SWITCHER';
@@ -15,10 +14,9 @@ export const setOsTheme = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: SET_OS_THEME, payload: { isDarkTheme } });
 };
 
-// export const switchTheme = () => ({ type: THEME_SWITCHER });
 export const switchTheme = () => async (dispatch: AppThDispatch, getState: GetState) => {
   const newTheme = !getState().ui.isDarkMode;
-  setTheme('userSettings.darkMode', newTheme);
+  eventsService.switchTheme({ isDarkMode: newTheme });
   dispatch({ type: THEME_SWITCHER, payload: { isDarkMode: newTheme } });
 };
 

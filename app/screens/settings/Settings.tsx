@@ -10,8 +10,9 @@ import { Input, Link, Button } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Account, AppThDispatch, RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
+import { Account } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
