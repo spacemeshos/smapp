@@ -61,8 +61,8 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-const isDarkTheme = StoreService.get('isDarkTheme');
-let isDarkMode: boolean = typeof isDarkTheme === 'undefined' ? nativeTheme.shouldUseDarkColors : isDarkTheme;
+const isDarkTheme: boolean = StoreService.get('userSettings.darkMode') as boolean;
+let isDarkMode: boolean = typeof isDarkTheme === 'undefined' || 'string' ? nativeTheme.shouldUseDarkColors : isDarkTheme;
 
 let closingApp = false;
 const isSmeshing = () => {

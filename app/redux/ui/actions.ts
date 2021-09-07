@@ -18,7 +18,7 @@ export const setOsTheme = () => async (dispatch: AppThDispatch) => {
 // export const switchTheme = () => ({ type: THEME_SWITCHER });
 export const switchTheme = () => async (dispatch: AppThDispatch, getState: GetState) => {
   const newTheme = !getState().ui.isDarkMode;
-  setTheme('isDarkTheme', newTheme);
+  setTheme('userSettings.darkMode', newTheme);
   dispatch({ type: THEME_SWITCHER, payload: { isDarkMode: newTheme } });
 };
 

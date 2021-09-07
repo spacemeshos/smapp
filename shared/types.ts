@@ -33,3 +33,38 @@ export interface NodeError {
   msg: string;
   stackTrace: string;
 }
+
+interface NetSettings {
+  netId: number;
+  netName: string;
+  explorerUrl: string;
+  dashUrl: string;
+  minCommitmentSize: number;
+  layerDurationSec: number;
+  genesisTime: string;
+}
+
+interface Account {
+  [key: string]: {
+    account: {
+      currentState: {
+        counter: number;
+        balance: number;
+      };
+      projectedState: {
+        counter: number;
+        balance: number;
+      };
+    };
+  };
+}
+
+export type TypedSchemaStore = {
+  netSettings: NetSettings;
+  localNode: boolean;
+  accounts: Account;
+  userSettings: {
+    darkMode: 'system' | boolean;
+  };
+  isAutoStartEnabled: boolean;
+};
