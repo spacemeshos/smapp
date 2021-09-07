@@ -8,7 +8,7 @@ class NotificationManager {
     this.mainWindow = window;
   }
 
-  showNotification = ({ title, body }: { title: string; body: string }) => {
+  showNotification = ({ title, body, action }: { title: string; body: string; action?: () => void }) => {
     if (Notification.isSupported() && this.mainWindow.isMinimized()) {
       const options = { title, body, icon: '../app/assets/images/icon.png' };
       const notification = new Notification(options);
@@ -17,6 +17,10 @@ class NotificationManager {
         this.mainWindow.show();
         this.mainWindow.focus();
       });
+
+      if (action) {
+        notification.on('click', action);
+      }
     }
   };
 }

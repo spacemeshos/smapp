@@ -25,6 +25,7 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
+import { UpdateManager } from './UpdateManager';
 
 require('dotenv').config();
 
@@ -61,6 +62,7 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
+let updateManager: UpdateManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
@@ -133,6 +135,7 @@ const createBrowserView = () => {
 
 const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
+  ipcMain.handle(ipcConsts.CHECK_FOR_NEW_UPDATES, () => updateManager.checkForUpdates());
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
@@ -213,6 +216,8 @@ const createWindow = async () => {
   addIpcEventListeners();
 
   const menuBuilder = new MenuBuilder(mainWindow);
+  updateManager = new UpdateManager(mainWindow);
+
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
