@@ -12,7 +12,7 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import util from 'util';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, shell, nativeTheme } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
@@ -61,8 +61,7 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-const isDarkTheme: boolean = StoreService.get('userSettings.darkMode') as boolean;
-let isDarkMode: boolean = typeof isDarkTheme === 'undefined' || 'string' ? nativeTheme.shouldUseDarkColors : isDarkTheme;
+const isDarkMode: boolean = StoreService.get('userSettings.darkMode') as boolean;
 
 let closingApp = false;
 const isSmeshing = () => {
@@ -135,8 +134,8 @@ const createBrowserView = () => {
 const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => isDarkMode);
 
-  ipcMain.on(ipcConsts.SET_OS_THEME_COLOR, (_, { isDarkMode }) => {
-    StoreService.set('userSettings.darkMode', isDarkMode);
+  ipcMain.on(ipcConsts.SET_THEME_COLOR, (_, request: { isDarkMode: boolean }) => {
+    StoreService.set('userSettings.darkMode', request.isDarkMode);
   });
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
@@ -156,10 +155,6 @@ const addIpcEventListeners = () => {
   ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
     browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
     // browserView.destroy();
-  });
-
-  ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
-    isDarkMode = request.isDarkMode;
   });
 
   ipcMain.on(ipcConsts.PRINT, (_event, request: { content: string }) => {
