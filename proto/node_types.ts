@@ -52,6 +52,8 @@ export interface ProtoGrpcType {
       SyncStartResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
+      UpdatePoetServerRequest: MessageTypeDefinition
+      UpdatePoetServerResponse: MessageTypeDefinition
       VersionResponse: MessageTypeDefinition
     }
   }

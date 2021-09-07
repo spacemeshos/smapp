@@ -6,14 +6,13 @@ export const addErrorPrefix = (prefix: string, error: Error) => {
 export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) =>
   `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
 
-export const getFormattedTimestamp = (timestamp: number) => {
+export const getFormattedTimestamp = (timestamp: number | null): string => {
   if (timestamp) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
     const dateObj = new Date(timestamp);
-    // @ts-ignore
     return dateObj.toLocaleDateString('en-US', options).replace(',', '');
   }
-  return null;
+  return 'Pending';
 };
 
 export const getAddress = (key: string) => key.substring(24);

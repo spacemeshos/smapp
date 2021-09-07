@@ -51,3 +51,4 @@ service SmesherService {
     rpc PostConfig (google.protobuf.Empty) returns (PostConfigResponse);
 
 }
+

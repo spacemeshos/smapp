@@ -33,6 +33,7 @@ module.exports = {
         allowTernary: true,
       },
     ],
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'import/no-absolute-path': 0,
     'import/extensions': 0,
     'import/no-unresolved': 0,

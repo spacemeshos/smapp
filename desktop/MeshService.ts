@@ -1,4 +1,5 @@
 import { ProtoGrpcType } from '../proto/mesh';
+import { AccountMeshDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountMeshDataStreamResponse';
 import { PublicService, SocketAddress } from '../shared/types';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
@@ -26,14 +27,14 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
 
-  activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
+  activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: (tx: any) => void }) => {
     if (!this.service) {
       throw new Error(`Service ${this.serviceName} is not running`);
     }
-
     const stream = this.service.AccountMeshDataStream({ filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 } });
-    stream.on('data', (response) => {
-      handler({ tx: response });
+    stream.on('data', (data: AccountMeshDataStreamResponse__Output) => {
+      if (!data.datum?.meshTransaction) return;
+      handler(data.datum?.meshTransaction);
     });
     stream.on('error', (error: Error & { code: number }) => {
       if (error.code === 1) return; // Cancelled on client
@@ -44,7 +45,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       console.log('AccountMeshDataStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc AccountMeshDataStream ended', null);
     });
-    return () => stream.cancel();
+    return () => setImmediate(() => stream.cancel());
   };
 }
 

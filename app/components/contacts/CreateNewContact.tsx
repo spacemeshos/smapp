@@ -6,7 +6,6 @@ import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { eventsService } from '../../infra/eventsService';
 import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
@@ -82,7 +81,6 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
-  const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
   const dispatch = useDispatch();
 
   // static getDerivedStateFromProps(props: Props, prevState: State) {
@@ -127,7 +125,6 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
 
   const createContact = async ({ password }: { password: string }) => {
     await dispatch(addToContacts({ password, contact: { address, nickname } }));
-    await eventsService.updateTransaction({ newData: { address, nickname }, accountIndex: currentAccountIndex, txId: '' });
     onCompleteAction();
   };
 

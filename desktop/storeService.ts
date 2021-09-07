@@ -3,6 +3,19 @@ import { app } from 'electron';
 import Store from 'electron-store';
 import { Function, Object, String } from 'ts-toolbelt';
 import { AccountBalance } from '../shared/types';
+import { Transaction } from '../proto/spacemesh/v1/Transaction';
+import { _spacemesh_v1_TransactionState_TransactionState } from '../proto/spacemesh/v1/TransactionState';
+
+export type TxStored = Required<Transaction> & { id: string; state: _spacemesh_v1_TransactionState_TransactionState };
+
+export interface AccountStore {
+  publicKey: string;
+  account: AccountBalance;
+  txs: { [txId: TxStored['id']]: TxStored };
+  rewards: { [rewardId: TxStored['id']]: TxStored }; // TODO: Implement within #766
+}
+
+// TODO: Rewards?
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
@@ -20,15 +33,7 @@ export interface ConfigStore {
   nodeSettings: {
     port: string;
   };
-  accounts: Record<
-    string,
-    {
-      publicKey: string;
-      account: AccountBalance;
-      txs: { [txId: string]: any }; // TODO: Implement within #766
-      rewards: { [rewardId: string]: any }; // TODO: Implement within #766
-    }
-  >;
+  accounts: Record<string, AccountStore>;
 }
 
 const CONFIG_STORE_DEFAULTS = {

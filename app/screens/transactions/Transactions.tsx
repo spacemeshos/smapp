@@ -8,7 +8,10 @@ import { CreateNewContact } from '../../components/contacts';
 import { Link, WrapperWith2SideBars, CorneredWrapper, DropDown } from '../../basicComponents';
 import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Reward, RootState, Tx, TxState } from '../../types';
+import { RootState } from '../../types';
+import { getTxAndRewards, RewardView, TxView } from '../../redux/wallet/selectors';
+import { TxState, HexString } from '../../../shared/types';
+import { isReward, isTx } from '../../../shared/types/guards';
 
 const Wrapper = styled.div`
   display: flex;
@@ -52,41 +55,40 @@ const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
   }
 `;
 
-const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey: string; transactions: Tx[] }) => {
-  const coins = {
-    mined: 0,
-    sent: 0,
-    received: 0,
-  };
+const getNumOfCoinsFromTransactions = (publicKey: HexString, transactions: (TxView | RewardView)[]) => {
+  const coins = { mined: 0, sent: 0, received: 0 };
   const address = getAddress(publicKey);
-  transactions.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
-    if (status !== TxState.REJECTED && status !== TxState.INSUFFICIENT_FUNDS && status !== TxState.CONFLICTING) {
-      if (txId === 'reward') {
-        coins.mined += amount;
-      } else if (sender === address) {
-        coins.sent += amount;
-      } else {
-        coins.received += amount;
+  return transactions.reduce((coins, txOrReward: TxView | RewardView) => {
+    if (isTx(txOrReward)) {
+      const { status, sender, amount } = txOrReward;
+      if (status !== TxState.TRANSACTION_STATE_REJECTED && status !== TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS && status !== TxState.TRANSACTION_STATE_CONFLICTING) {
+        return sender === address ? { ...coins, sent: coins.sent + amount } : { ...coins, received: coins.received + amount };
       }
+    } else if (isReward(txOrReward)) {
+      const { amount } = txOrReward;
+      return { ...coins, mined: coins.mined + amount };
     }
-  });
-
-  return coins;
+    return coins;
+  }, coins);
 };
 
-const timeSpans = [{ label: 'daily' }, { label: 'monthly' }, { label: 'yearly' }];
+const TIME_SPANS = [
+  { label: 'daily', days: 1 },
+  { label: 'monthly', days: 30 },
+  { label: 'yearly', days: 365 },
+];
 
 const Transactions = ({ history }: RouteComponentProps) => {
-  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
 
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex].publicKey);
-  const transactions = useSelector((state: RootState) => state.wallet.txsAndRewards[publicKey]);
+  const transactions = useSelector(getTxAndRewards(publicKey));
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const getCoinStatistics = ({ filteredTransactions }: { filteredTransactions: Tx[] }) => {
-    const coins = getNumOfCoinsFromTransactions({ publicKey, transactions: filteredTransactions });
-    const totalCoins = getNumOfCoinsFromTransactions({ publicKey, transactions: transactions || [] });
+  const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
+    const coins = getNumOfCoinsFromTransactions(publicKey, filteredTransactions);
+    const totalCoins = getNumOfCoinsFromTransactions(publicKey, transactions || []);
     return {
       ...coins,
       totalMined: totalCoins.mined,
@@ -100,14 +102,14 @@ const Transactions = ({ history }: RouteComponentProps) => {
   };
 
   const handlePress = ({ index }: { index: number }) => {
-    setSelectedItemIndex(index);
+    setSelectedTimeSpan(index);
   };
 
   const filterTransactions = () => {
     const oneDayInMs = 86400000;
-    const spanInDays = [1, 30, 365];
-    const startDate = new Date().getTime() - spanInDays[selectedItemIndex] * oneDayInMs;
-    return transactions ? Object.values(transactions).reduce((acc: Tx[], tx: any) => (tx.timestamp >= startDate || !tx.timestamp ? [...acc, tx] : acc), []) : [];
+    const spanInDays = TIME_SPANS[selectedTimeSpan].days || 1;
+    const startDate = Date.now() - spanInDays * oneDayInMs;
+    return transactions.filter((tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp);
   };
 
   const cancelCreatingNewContact = () => {
@@ -123,18 +125,19 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const ddStyle = { width: 120, position: 'absolute', right: 12, top: 5, color: isDarkMode ? smColors.white : smColors.black };
 
   const filteredTransactions = filterTransactions();
-  const { mined, sent, received, totalMined, totalSent, totalReceived } = getCoinStatistics({ filteredTransactions });
+  const coinStats = getCoinStatistics(filteredTransactions);
+  const { mined, sent, received, totalMined, totalSent, totalReceived } = coinStats;
   return (
     <Wrapper>
       <BackButton action={history.goBack} width={7} height={10} />
       <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }} isDarkMode={isDarkMode}>
         <TransactionsListWrapper>
           {filteredTransactions && filteredTransactions.length ? (
-            filteredTransactions.map((tx: Tx | Reward, index: number) =>
-              tx.txId === 'reward' ? (
-                <RewardRow key={index} tx={tx as Reward} />
+            filteredTransactions.map((tx: TxView | RewardView) =>
+              isReward(tx) ? (
+                <RewardRow key={`${publicKey}_reward_${tx.layer}`} tx={tx} />
               ) : (
-                <TxRow tx={tx as Tx} publicKey={publicKey} addAddressToContacts={({ address }) => setAddressToAdd(`0x${address}`)} />
+                <TxRow key={`tx_${tx.id}`} tx={tx} publicKey={publicKey} addAddressToContacts={({ address }) => setAddressToAdd(`0x${address}`)} />
               )
             )
           ) : (
@@ -148,10 +151,10 @@ const Transactions = ({ history }: RouteComponentProps) => {
       ) : (
         <RightPaneWrapper>
           <DropDown
-            data={timeSpans}
+            data={TIME_SPANS}
             DdElement={({ label, isMain }) => <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>}
             onClick={handlePress}
-            selectedItemIndex={selectedItemIndex}
+            selectedItemIndex={selectedTimeSpan}
             rowHeight={40}
             style={ddStyle}
             bgColor={isDarkMode ? smColors.black : smColors.white}
@@ -165,7 +168,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
             totalMined={totalMined}
             totalSent={totalSent}
             totalReceived={totalReceived}
-            filterName={timeSpans[selectedItemIndex].label}
+            filterName={TIME_SPANS[selectedTimeSpan].label}
           />
         </RightPaneWrapper>
       )}

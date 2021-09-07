@@ -6,8 +6,10 @@ import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import { getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { RootState, Tx, TxState } from '../../types';
+import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
+import { TxState } from '../../../shared/types';
+import { TxView } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -173,7 +175,7 @@ const CopyIcon = styled.img`
 const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 
 type Props = {
-  tx: Tx;
+  tx: TxView;
   publicKey: string;
   addAddressToContacts: ({ address }: { address: string }) => void;
 };
@@ -188,24 +190,26 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const { txId, nickname, amount, fee, sender, receiver, status, layerId, timestamp } = tx;
   const statuses: Array<string> = Object.keys(TxState);
 
-  const getColor = ({ isSent }: { isSent: boolean }) => {
-    if (status === TxState.MEMPOOL || status === TxState.MESH) {
+  const getColor = (isSent: boolean) => {
+    const { status } = tx;
+    if (status === TxState.TRANSACTION_STATE_MEMPOOL || status === TxState.TRANSACTION_STATE_MESH) {
       return smColors.orange;
-    } else if (status === TxState.REJECTED || status === TxState.INSUFFICIENT_FUNDS || status === TxState.CONFLICTING) {
+    } else if (status === TxState.TRANSACTION_STATE_REJECTED || status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS || status === TxState.TRANSACTION_STATE_CONFLICTING) {
       return smColors.red;
+    } else if (status === TxState.TRANSACTION_STATE_UNSPECIFIED) {
+      return smColors.mediumGray;
     }
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
 
-  const isSent = txId !== 'reward' ? tx.sender === getAddress(publicKey) : false;
-  const color = getColor({ isSent });
+  const isSent = tx.sender === getAddress(publicKey);
+  const color = getColor(isSent);
   const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
-  const copyAddress = async ({ id }: { id: string }) => {
+  const copyAddress = async (id: string) => {
     await navigator.clipboard.writeText(`0x${id}`);
     setIsCopied(true);
   };
@@ -216,7 +220,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   };
 
   const save = async () => {
-    await eventsService.updateTransaction({ newData: { note }, accountIndex: currentAccountIndex, txId: tx.txId });
+    await eventsService.updateTransactionNote(currentAccountIndex, tx.id, note);
     setIsDetailed(false);
     setShowNoteModal(false);
   };
@@ -229,45 +233,45 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     <DetailsSection>
       <TextRow>
         <BlackText>TRANSACTION ID</BlackText>
-        <BoldText onClick={() => copyAddress({ id: txId })}>
-          {formatTxId(txId)}
+        <BoldText onClick={() => copyAddress(tx.id)}>
+          {formatTxId(tx.id)}
           <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-          <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/0x${txId}${isDarkMode ? '?dark' : ''}`)} />
+          <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/0x${tx.id}${isDarkMode ? '?dark' : ''}`)} />
         </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>STATUS</BlackText>
-        <BoldText color={color}>{statuses[status]}</BoldText>
+        <BoldText color={color}>{statuses[tx.status]}</BoldText>
       </TextRow>
-      {layerId ? (
+      {tx.layer ? (
         <TextRow>
           <BlackText>LAYER ID</BlackText>
-          <BoldText>{layerId}</BoldText>
+          <BoldText>{tx.layer}</BoldText>
         </TextRow>
       ) : null}
       <TextRow>
         <BlackText>FROM</BlackText>
-        <BoldText onClick={!isSent ? () => copyAddress({ id: sender }) : () => {}}>
-          {isSent ? `0x${getAddress(publicKey)} (Me)` : nickname || `0x${sender}`}
+        <BoldText onClick={!isSent ? () => copyAddress(tx.sender) : () => {}}>
+          {isSent ? `0x${getAddress(publicKey)} (Me)` : tx.senderNickname || `0x${tx.sender}`}
           <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-          {!isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, sender)} src={addContact} />}
+          {!isSent && !tx.senderNickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, tx.sender)} src={addContact} />}
         </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>TO</BlackText>
-        <BoldText onClick={isSent ? () => copyAddress({ id: receiver }) : () => {}}>
-          {isSent ? nickname || `0x${receiver}` : `0x${getAddress(publicKey)} (Me)`}
+        <BoldText onClick={isSent ? () => copyAddress(tx.receiver) : () => {}}>
+          {isSent ? tx.receiverNickname || `0x${tx.receiver}` : `0x${getAddress(publicKey)} (Me)`}
           {isSent && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />}
-          {isSent && !nickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, `0x${receiver}`)} src={addContact} />}
+          {isSent && !tx.receiverNickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, `0x${tx.receiver}`)} src={addContact} />}
         </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>VALUE</BlackText>
-        <BoldText>{formatSmidge(amount)}</BoldText>
+        <BoldText>{formatSmidge(tx.amount)}</BoldText>
       </TextRow>
       <TextRow>
         <BlackText>TRANSACTION FEE</BlackText>
-        <BoldText>{formatSmidge(fee || 0)}</BoldText>
+        <BoldText>{formatSmidge(tx.receipt?.fee || 0)}</BoldText>
       </TextRow>
       <TextRow>
         <BlackText>NOTE</BlackText>
@@ -279,17 +283,23 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     </DetailsSection>
   );
 
+  const renderNickname = () => {
+    const nickname = (isSent && tx.receiverNickname) || (!isSent && tx.senderNickname);
+    return nickname && <DarkGrayText key="nickname">{nickname && nickname.toUpperCase()}</DarkGrayText>;
+  };
+
   return (
     <Wrapper isDetailed={isDetailed}>
       <Header onClick={toggleTxDetails}>
         <Icon src={isSent ? chevronRight : chevronLeft} />
         <HeaderInner>
           <HeaderSection>
-            [tx.nickname && <DarkGrayText key="nickname">{nickname && nickname.toUpperCase()}</DarkGrayText>, <Text key={txId}>{formatTxId(txId)}</Text>]
+            {renderNickname()}
+            <Text key={tx.id}>{formatTxId(tx.id)}</Text>
           </HeaderSection>
           <HeaderSection>
-            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(amount)}`}</Amount>
-            <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
+            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(tx.amount)}`}</Amount>
+            <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
           </HeaderSection>
           {isCopied && <CopiedBanner>Copied!</CopiedBanner>}
         </HeaderInner>

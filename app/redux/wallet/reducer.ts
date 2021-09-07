@@ -1,5 +1,5 @@
 import { WalletMeta } from '../../../shared/types';
-import type { WalletState, CustomAction, Tx } from '../../types';
+import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
 import { SET_ACCOUNT_REWARDS } from '../smesher/actions';
 import {
@@ -22,7 +22,7 @@ const initialState = {
   accounts: [],
   currentAccountIndex: 0,
   transactions: {},
-  txsAndRewards: {},
+  rewards: {},
   lastUsedContacts: [],
   contacts: [],
   backupTime: '',
@@ -78,20 +78,11 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     }
     case SET_TRANSACTIONS: {
       const { publicKey, txs } = action.payload;
-      if (state.transactions[publicKey]) {
-        const updatedTransactions = [...state.transactions[publicKey], ...txs].sort((tx1: Tx, tx2: Tx) => tx2.timestamp - tx1.timestamp);
-        return { ...state, transactions: { ...state.transactions, [publicKey]: updatedTransactions } };
-      }
-      return { ...state, transactions: { ...state.transactions, [publicKey]: [...txs] } };
+      return { ...state, transactions: { ...state.transactions, [publicKey]: txs } };
     }
     case SET_ACCOUNT_REWARDS: {
       const { rewards, publicKey } = action.payload;
-      if (state.transactions[publicKey]) {
-        const updatedTransactions = [...state.transactions[publicKey], ...rewards].sort((tx1: Tx, tx2: Tx) => tx2.timestamp - tx1.timestamp);
-        return { ...state, txsAndRewards: { [publicKey]: updatedTransactions } };
-      } else {
-        return { ...state, txsAndRewards: { [publicKey]: [...rewards] } };
-      }
+      return { ...state, rewards: { [publicKey]: rewards } };
     }
     case SET_CONTACTS: {
       return { ...state, contacts: action.payload };

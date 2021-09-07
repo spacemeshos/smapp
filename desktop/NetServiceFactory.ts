@@ -1,7 +1,7 @@
 import path from 'path';
 import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
-import { NodeError, NodeErrorLevel, PublicService, SocketAddress } from '../shared/types';
+import { PublicService, SocketAddress } from '../shared/types';
 import { LOCAL_NODE_API_URL } from '../shared/constants';
 import Logger from './logger';
 
@@ -54,7 +54,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
         new Promise<Result>((resolve, reject) => {
           _service[method](opts, (error: grpc.ServiceError, result: ResultArg) => {
             if (error || !result) {
-              const err = error || new Error(`No result or error received: ${this.serviceName}.${fn.name}`);
+              const err = error || new Error(`No result or error received: ${this.serviceName}.${method}`);
               this.logger?.error(`grpc call ${this.serviceName}.${method}`, err);
               reject(err);
             } else if (result) {

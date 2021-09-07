@@ -24,6 +24,9 @@ service NodeService {
     // Request that the node initiate graceful shutdown
     rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
 
+    // UpdatePoetServer updates poet server
+    rpc UpdatePoetServer(UpdatePoetServerRequest) returns (UpdatePoetServerResponse);
+
     ////////// Node streaming data
 
     // Node status events (sync and net)

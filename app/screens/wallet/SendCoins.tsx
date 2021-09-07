@@ -6,7 +6,7 @@ import { sendTransaction } from '../../redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
 import { getAddress } from '../../infra/utils';
-import { RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 
 interface Props extends RouteComponentProps {
@@ -34,7 +34,7 @@ const SendCoins = ({ history, location }: Props) => {
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   // const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
 
   const updateTxAddress = ({ value }: { value: string }) => {
     setAddress(value);
@@ -63,7 +63,7 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const validateAmount = () => {
-    return !!amount && amount + fee < currentAccount.currentState.balance;
+    return !!amount && amount + fee < (currentAccount?.currentState?.balance || 0);
   };
 
   const proceedToMode2 = () => {
@@ -86,9 +86,11 @@ const SendCoins = ({ history, location }: Props) => {
   // };
 
   const handleSendTransaction = async () => {
-    const txId: any = await dispatch(sendTransaction({ receiver: address, amount, fee, note }));
-    setMode(3);
-    setTxId(txId);
+    const result = await dispatch(sendTransaction({ receiver: address, amount, fee, note }));
+    if (result?.id) {
+      setMode(3);
+      setTxId(txId);
+    }
   };
 
   const renderTxParamsMode = () => {
