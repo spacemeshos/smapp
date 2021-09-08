@@ -1,12 +1,13 @@
 import { ProtoGrpcType } from '../proto/global_state';
 import { PublicService, SocketAddress } from '../shared/types';
 import Logger from './logger';
-import NetServiceFactory from './NetServiceFactory';
+import NetServiceFactory, { Service } from './NetServiceFactory';
 import { toHexString } from './utils';
 
 const PROTO_PATH = 'proto/global_state.proto';
 
 class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateService'> {
+  private stream: ReturnType<Service<ProtoGrpcType, 'GlobalStateService'>['AccountDataStream']> | null = null;
   logger = Logger({ className: 'GlobalStateService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
@@ -35,8 +36,9 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
     if (!this.service) {
       throw new Error(`GlobalStateService is not running`);
     }
+  if (this.stream) return;
 
-    const stream = this.service.AccountDataStream({ filter });
+    this.stream = this.service.AccountDataStream({ filter });
     stream.on('data', (response: any) => {
       const { datum } = response;
       handler({ data: datum });

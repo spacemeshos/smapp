@@ -28,7 +28,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
 
   activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
     if (!this.service) {
-      throw new Error(`MeshService is not running`);
+      throw new Error(`Service ${this.serviceName} is not running`);
     }
 
     const stream = this.service.AccountMeshDataStream({ filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 } });
