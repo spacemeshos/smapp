@@ -1,9 +1,8 @@
-import NetServiceFactory from './NetServiceFactory';
+import { ProtoGrpcType } from '../proto/smesher';
 import Logger from './logger';
 import StoreService from './storeService';
 import { fromHexString, toHexString } from './utils';
-
-const logger = Logger({ className: 'SmesherService' });
+import NetServiceFactory, { Service } from './NetServiceFactory';
 
 const PROTO_PATH = 'proto/smesher.proto';
 
@@ -24,24 +23,20 @@ const PROTO_PATH = 'proto/smesher.proto';
 //   callback: () => this.handleNavigation({ index: 0 })
 // });
 
-class SmesherService extends NetServiceFactory {
-  stream: any = null;
+class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> {
+  private stream: ReturnType<Service<ProtoGrpcType, 'SmesherService'>['PostDataCreationProgressStream']> | null = null;
+
+  logger = Logger({ className: 'SmesherService' });
 
   createService = () => {
     this.createNetService(PROTO_PATH, '', '', 'SmesherService');
   };
 
   isSmeshing = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.IsSmeshing({}, (error, response) => {
-        if (error) {
-          logger.error('grpc isSmeshing', error);
-          resolve({ isSmeshing: false, error });
-        }
-        resolve({ isSmeshing: response.isSmeshing, error: null });
-      });
-    });
+    this.callService('IsSmeshing', {})
+      .then((response) => ({ ...response, isSmeshing: response?.isSmeshing || false }))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ isSmeshing: false }));
 
   startSmeshing = ({
     coinbase,
@@ -54,168 +49,96 @@ class SmesherService extends NetServiceFactory {
     coinbase: string;
     dataDir: string;
     commitmentSize: number;
-    computeProviderId: string;
+    computeProviderId: number;
     throttle: boolean;
     handler: () => void;
   }) =>
-    new Promise((resolve, reject) => {
+    this.callService('StartSmeshing', {
+      coinbase: { address: fromHexString(coinbase.substring(2)) },
+      opts: {
+        dataDir,
+        numUnits: commitmentSize,
+        numFiles: 1,
+        computeProviderId,
+        throttle
+      }
+    }).then((response) => {
       const netId = StoreService.get('netSettings.netId');
       StoreService.set(`${netId}-smeshingParams`, { dataDir, coinbase });
-      // @ts-ignore
-      this.service.StartSmeshing(
-        {
-          coinbase: { address: fromHexString(coinbase.substring(2)) },
-          opts: {
-            data_dir: dataDir,
-            num_units: commitmentSize,
-            num_files: 1,
-            compute_provider_id: computeProviderId,
-            throttle
-          }
-        },
-        (error: any, response: any) => {
-          if (error) {
-            logger.error('grpc StartSmeshing', error, { dataDir, commitmentSize, coinbase });
-            reject(error);
-          } else {
-            this.postDataCreationProgressStream({ handler });
-            resolve(response.status);
-          }
-        }
-      );
+      this.postDataCreationProgressStream({ handler });
+      return response.status;
     });
 
   stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.StopSmeshing({ W_M_SHOW_DELETE_FILEs: deleteFiles }, (error, response) => {
-        if (error) {
-          logger.error('grpc StopSmeshing', error, { deleteFiles });
-          resolve({ error });
-        } else {
-          resolve({ status: response.status });
-        }
-      });
-    });
+    this.callService('StopSmeshing', { deleteFiles }).then(this.normalizeServiceResponse).catch(this.normalizeServiceError({}));
 
   getSmesherID = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.SmesherID({}, (error, response) => {
-        if (error) {
-          logger.error('grpc SmesherID', error);
-          resolve({ error });
-        } else {
-          const smesherId = `0x${toHexString(response.account_id.address)}`;
-          resolve({ smesherId });
-        }
-      });
-    });
+    this.callService('SmesherID', {})
+      .then((response) => ({ response: `0x${response.accountId ? toHexString(response.accountId.address) : '00'}` }))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   getCoinbase = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.Coinbase({}, (error, response) => {
-        if (error) {
-          logger.error('grpc Coinbase', error);
-          resolve({ error });
-        } else {
-          const coinbase = `0x${toHexString(response.response.accountId.address)}`;
-          resolve({ coinbase });
-        }
-      });
-    });
+    this.callService('Coinbase', {})
+      .then((response) => ({
+        coinbase: response.accountId ? `0x${toHexString(response.accountId.address)}` : '0x00'
+      }))
+      .catch(this.normalizeServiceError({}));
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.SetCoinbase({ id: { address: fromHexString(coinbase) } }, (error, response) => {
-        if (error) {
-          logger.error('grpc SetCoinbase', error, { coinbase });
-          resolve({ error });
-        } else {
-          const netId = StoreService.get('netSettings.netId');
-          const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-          StoreService.set('smeshingParams', { dataDir: savedSmeshingParams.dataDir, coinbase });
-          resolve({ status: response.status });
-        }
-      });
-    });
+    this.callService('SetCoinbase', { id: { address: fromHexString(coinbase) } })
+      .then((response) => {
+        const netId = StoreService.get('netSettings.netId');
+        const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
+        StoreService.set('smeshingParams', { dataDir: savedSmeshingParams.dataDir, coinbase });
+        return { status: response.status };
+      })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   getMinGas = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.MinGas({}, (error, response) => {
-        if (error) {
-          logger.error('grpc MinGas', error);
-          response({ error });
-        } else {
-          const minGas = parseInt(response.mingas.value);
-          resolve({ minGas });
-        }
-      });
-    });
+    this.callService('MinGas', {})
+      .then((response) => ({ minGas: response.mingas ? parseInt(response.mingas.value) : null }))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   getEstimatedRewards = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.EstimatedRewards({}, (error, response) => {
-        if (error) {
-          logger.error('grpc EstimatedRewards', error);
-          resolve({ error });
-        } else {
-          const estimatedRewards = { amount: parseInt(response.amount.value), commitmentSize: parseInt(response.dataSize) };
-          resolve({ estimatedRewards });
-        }
-      });
-    });
+    this.callService('EstimatedRewards', {})
+      .then((response) => {
+        const estimatedRewards = { amount: parseInt(response.amount?.value || 0), commitmentSize: response.numUnits };
+        return { estimatedRewards };
+      })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   getPostStatus = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.PostStatus({}, (error, response) => {
-        if (error) {
-          logger.error('grpc PostStatus', error);
-          resolve({ error });
-        } else {
-          const {
-            status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
-          } = response;
-          const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-          resolve({ status });
-        }
-      });
-    });
+    this.callService('PostStatus', {})
+      .then((response) => {
+        // TODO: Wrong types there. Do we need it?
+        //
+        // const {
+        //   status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
+        // } = response;
+        // const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
+        // return { status };
+        return response;
+      })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   getPostComputeProviders = () =>
-    // enum ComputeApiClass {
-    //     COMPUTE_API_CLASS_UNSPECIFIED = 0;
-    //     COMPUTE_API_CLASS_CPU = 1; // useful for testing on systems without a cuda or vulkan GPU
-    //     COMPUTE_API_CLASS_CUDA = 2;
-    //     COMPUTE_API_CLASS_VULKAN = 3;
-    // }
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.PostComputeProviders({ benchmark: true }, (error, response) => {
-        if (error) {
-          logger.error('grpc PostComputeProviders', error);
-          resolve({ error });
-        } else {
-          // const postComputeProviders: { id: number; model: string; computeApi: string; performance: number }[] = [];
-          // response.postComputeProvider.forEach(({ id, model, computeApi, performance }: { id: string; model: string; computeApi: string; performance: string }) => {
-          //   postComputeProviders.push({ id: parseInt(id), model, computeApi, performance: parseInt(performance) });
-          // });
-          resolve({ postComputeProviders: [] });
-        }
-      });
-    });
+    this.callService('PostComputeProviders', { benchmark: true })
+      .then(({ postComputeProvider }) => postComputeProvider.map(({ id, model, computeApi, performance }) => ({ id, model, computeApi, performance: parseInt(performance) })))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   stopPostDataCreationSession = ({ deleteFiles }: { deleteFiles: boolean }) =>
+    // TODO: No such endpoint in Service
     new Promise((resolve) => {
       // @ts-ignore
       this.service.StopPostDataCreationSession({ W_M_SHOW_DELETE_FILEs: deleteFiles }, (error, response) => {
         if (error) {
-          logger.error('grpc StopPostDataCreationSession', error, { deleteFiles });
+          this.logger.error('grpc StopPostDataCreationSession', error, { deleteFiles });
           resolve({ error });
         } else {
           resolve({ status: response.status });
@@ -232,17 +155,18 @@ class SmesherService extends NetServiceFactory {
           status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
         } = response;
         const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-        logger.log('grpc PostDataCreationProgressStream', status);
+        this.logger.log('grpc PostDataCreationProgressStream', status);
         // @ts-ignore
         handler({ status, error: null });
       });
       this.stream.on('error', (error: any) => {
-        logger.error('grpc PostDataCreationProgressStream', error);
+        this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore
         handler({ status: null, error });
       });
       this.stream.on('end', () => {
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
+        this.stream = null;
       });
     }
   };

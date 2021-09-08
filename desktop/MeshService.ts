@@ -1,62 +1,48 @@
+import { ProtoGrpcType } from '../proto/mesh';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
-const logger = Logger({ className: 'MeshService' });
-
 const PROTO_PATH = 'proto/mesh.proto';
 
-class MeshService extends NetServiceFactory {
+class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
+  logger = Logger({ className: 'MeshService' });
+
   createService = (url: string, port: string) => {
     this.createNetService(PROTO_PATH, url, port, 'MeshService');
   };
 
   getCurrentLayer = () =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.CurrentLayer({}, (error, response) => {
-        if (error) {
-          logger.error('grpc MeshService', error);
-          resolve({ currentLayer: -1, error });
-        } else {
-          const currentLayer = response.layernum.number;
-          resolve({ currentLayer, error: null });
-        }
-      });
-    });
+    this.callService('CurrentLayer', { a: 12 })
+      .then((response) => {
+        const currentLayer = response.layernum?.number || 0;
+        return { currentLayer };
+      })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ currentLayer: -1 }));
 
   sendAccountMeshDataQuery = ({ accountId, offset }: { accountId: Uint8Array; offset: number }) =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.AccountMeshDataQuery(
-        { filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 }, minLayer: { number: 0 }, maxResults: 50, offset },
-        (error, response) => {
-          if (error) {
-            logger.error('grpc AccountMeshDataQuery', error);
-            resolve({ totalResults: 0, data: null, error });
-          } else if (!response || !response.data) {
-            resolve({ data: [], totalResults: 0, error: null });
-          } else {
-            const { data, totalResults } = response;
-            resolve({ data, totalResults, error: null });
-          }
-        }
-      );
-    });
+    this.callService('AccountMeshDataQuery', { filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 }, minLayer: { number: 0 }, maxResults: 50, offset })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
 
   activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
-    // @ts-ignore
+    if (!this.service) {
+      throw new Error(`Service ${this.serviceName} is not running`);
+    }
+
     const stream = this.service.AccountMeshDataStream({ filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 } });
-    stream.on('data', (response: any) => {
+    stream.on('data', (response) => {
       handler({ tx: response });
     });
-    stream.on('error', (error: any) => {
+    stream.on('error', (error) => {
       console.log(`stream AccountMeshDataStream error: ${error}`); // eslint-disable-line no-console
-      logger.error('grpc AccountMeshDataStream', error);
+      this.logger.error('grpc AccountMeshDataStream', error);
     });
     stream.on('end', () => {
       console.log('AccountMeshDataStream ended'); // eslint-disable-line no-console
-      logger.log('grpc AccountMeshDataStream ended', null);
+      this.logger.log('grpc AccountMeshDataStream ended', null);
     });
+    return () => stream.cancel();
   };
 }
 

@@ -1,27 +1,17 @@
+import { ProtoGrpcType } from '../proto/tx';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
-const logger = Logger({ className: 'TransactionService' });
-
 const PROTO_PATH = 'proto/tx.proto';
 
-class TransactionService extends NetServiceFactory {
+class TransactionService extends NetServiceFactory<ProtoGrpcType, 'TransactionService'> {
+  logger = Logger({ className: 'TransactionService' });
+
   createService = (url: string, port: string) => {
     this.createNetService(PROTO_PATH, url, port, 'TransactionService');
   };
 
-  submitTransaction = ({ transaction }) =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.SubmitTransaction({ transaction }, (error, response) => {
-        if (error) {
-          logger.error('grpc SubmitTransaction', error);
-          resolve({ error, response: null });
-        } else {
-          resolve({ error: null, response });
-        }
-      });
-    });
+  submitTransaction = ({ transaction }) => this.callService('SubmitTransaction', { transaction }).then(this.normalizeServiceResponse).catch(this.normalizeServiceError);
 }
 
 export default TransactionService;
