@@ -135,7 +135,9 @@ const createBrowserView = () => {
 
 const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
+
   ipcMain.on(ipcConsts.CHECK_FOR_NEW_UPDATES, () => updateManager.checkForUpdates());
+  ipcMain.on(ipcConsts.UPDATE_APPLICATION, () => updateManager.updateApplication());
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
     createBrowserView();
@@ -219,6 +221,8 @@ const createWindow = async () => {
   updateManager = new UpdateManager(mainWindow);
 
   menuBuilder.buildMenu();
+  // @TODO: discuss if we would want the app to check for auto updates on start
+  updateManager.checkForUpdates();
 
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {

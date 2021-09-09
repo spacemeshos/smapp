@@ -4,6 +4,7 @@ import wallet from './wallet/reducer';
 import node from './node/reducer';
 import ui from './ui/reducer';
 import smesher from './smesher/reducer';
+import app from './app/reducer';
 
 export default function createRootReducer() {
   return combineReducers({
@@ -11,6 +12,7 @@ export default function createRootReducer() {
     wallet,
     node,
     ui,
-    smesher
+    smesher,
+    app
   });
 }

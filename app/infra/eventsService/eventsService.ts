@@ -7,6 +7,7 @@ import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import { NodeError, NodeStatus, NodeVersionAndBuild } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
+import { setLatestVersion } from '../../redux/app/actions';
 
 class EventsService {
   static createWallet = ({ password, existingMnemonic, ip, port }: { password: string; existingMnemonic: string; ip?: string; port?: string }) =>
@@ -112,6 +113,7 @@ class EventsService {
 
   /** **************************************  UPDATE MANAGER  **************************************** */
   static checkForUpdates = () => ipcRenderer.send(ipcConsts.CHECK_FOR_NEW_UPDATES);
+  static updateApplication = () => ipcRenderer.send(ipcConsts.UPDATE_APPLICATION);
 }
 
 ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, status: NodeStatus) => {
@@ -144,6 +146,10 @@ ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) 
 
 ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
   store.dispatch(showClosingAppModal());
+});
+
+ipcRenderer.on(ipcConsts.CHECK_FOR_NEW_UPDATES, (_event, request: { version: string }) => {
+  store.dispatch(setLatestVersion(request.version));
 });
 
 export default EventsService;

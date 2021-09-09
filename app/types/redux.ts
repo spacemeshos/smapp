@@ -22,6 +22,9 @@ export interface NodeState {
   error: NodeError | null;
 }
 
+export interface AppState {
+  latestVersion: number | string;
+}
 export interface WalletState {
   walletFiles: Array<string> | null;
   meta: WalletMeta | any;
@@ -60,6 +63,7 @@ export interface RootState {
   wallet: WalletState;
   smesher: SmesherState;
   ui: UiState;
+  app: AppState;
 }
 
 export type CustomAction = { type: string; payload?: any };

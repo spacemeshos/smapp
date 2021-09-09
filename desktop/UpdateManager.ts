@@ -3,20 +3,22 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import StoreService from './storeService';
 import { MessageBoxOptions } from 'electron/main';
+import NotificationManager from './notificationManager';
 export default class UpdateManager {
   private mainWindow: BrowserWindow;
+  private notification: NotificationManager;
 
   UPDATE_INTERVAL = 1000 * 60 * 60 * 24;
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
+    this.notification = new NotificationManager(this.mainWindow);
     if (process.env.NODE_ENV === 'production' && StoreService.get('userSettings.promptForUpdate')) {
       log.transports.file.level = 'info';
       autoUpdater.logger = log;
 
-      autoUpdater.setFeedURL({
-        provider: 'generic'
-      });
+      autoUpdater.channel = 'latest';
+      autoUpdater.allowDowngrade = false;
 
       this.checkForUpdates();
 
@@ -26,15 +28,21 @@ export default class UpdateManager {
     }
   }
 
-  async checkForUpdates(): Promise<string> {
+  async updateApplication() {
+    autoUpdater.downloadUpdate();
+  }
+
+  async checkForUpdates() {
     try {
       const { downloadPromise } = await autoUpdater.checkForUpdates();
       if (!downloadPromise) {
-        return 'There are currently no updates available.';
+        dialog.showMessageBox({
+          type: 'info',
+          message: 'There are currently no updates available.'
+        });
       }
-      return 'Downloading update...';
     } catch (error: unknown) {
-      return 'Failed to fetch updates. Please try again';
+      this.notification.showNotification({ title: 'Error checking for updates', body: 'Check your internet connection' });
     }
   }
 
@@ -46,7 +54,7 @@ export default class UpdateManager {
     };
     const { response } = await dialog.showMessageBox(this.mainWindow, options);
     if (response === 0) {
-      autoUpdater.downloadUpdate();
+      this.updateApplication();
     } else if (response === 1) {
       StoreService.set('userSettings.promptForUpdate', false);
     }
