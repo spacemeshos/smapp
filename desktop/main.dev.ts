@@ -221,8 +221,6 @@ const createWindow = async () => {
   updateManager = new UpdateManager(mainWindow);
 
   menuBuilder.buildMenu();
-  // @TODO: discuss if we would want the app to check for auto updates on start
-  updateManager.checkForUpdates();
 
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {
