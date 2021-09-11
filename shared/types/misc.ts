@@ -3,10 +3,7 @@ export interface NodeVersionAndBuild {
   build: string;
 }
 
-export type PublicServices = Array<{
-  url: string;
-  name: string;
-}>;
+export type PublicService = { name: string } & SocketAddress;
 
 export type SocketAddress = {
   ip: string;

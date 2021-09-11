@@ -1,3 +1,5 @@
+import { SocketAddress } from '../shared/types';
+
 const Store = require('electron-store');
 
 class StoreService {
@@ -17,12 +19,35 @@ class StoreService {
     return StoreService.store.get(key);
   };
 
-  static remove = ({ key }: { key: string }) => {
+  static remove = (key: string) => {
     StoreService.store.delete(key);
   };
 
   static clear = () => {
     StoreService.store.clear();
+  };
+
+  //
+
+  static setRemoteApi = (ip: string, port: string) => {
+    StoreService.store.set({
+      remoteApi: {
+        ip,
+        port
+      }
+    });
+  };
+
+  static getRemoteApi = (): SocketAddress => {
+    const stored = StoreService.store.get('remoteApi');
+    return {
+      ip: stored?.ip ? stored.ip : '',
+      port: stored?.port ? stored.port : ''
+    };
+  };
+
+  static resetRemoteApi = () => {
+    StoreService.remove('remoteApi');
   };
 }
 

@@ -1,4 +1,4 @@
-import { Account, Contact, WalletMeta } from '../../../shared/types';
+import { Account, Contact, SocketAddress, WalletMeta } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState, Tx } from '../../types';
@@ -46,11 +46,11 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   return files;
 };
 
-export const createNewWallet = ({ existingMnemonic = '', password, url = '' }: { existingMnemonic?: string | undefined; password: string; url?: ApiURL }) => (
+export const createNewWallet = ({ existingMnemonic = '', password, ip = '', port = '' }: { existingMnemonic?: string | undefined; password: string } & Partial<SocketAddress>) => (
   dispatch: AppThDispatch
 ) =>
   eventsService
-    .createWallet({ password, existingMnemonic, url })
+    .createWallet({ password, existingMnemonic, ip, port })
     .then((data) => {
       const { meta, accounts, mnemonic } = data;
       dispatch(setWalletMeta(meta));

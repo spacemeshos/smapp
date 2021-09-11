@@ -72,9 +72,9 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
           loading: false,
           services: services.map((service) => ({
             label: service.name,
-            text: service.url,
-            ip: service.url,
-            port: ''
+            text: service.ip,
+            ip: service.ip,
+            port: service.port
           }))
         })
       )
@@ -105,9 +105,9 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
       .activateWalletManager({ ip, port })
       .then(() => history.push('/auth/wallet-type', { ip, port }))
       .catch((err) => {
-        console.error(err);
+        console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
-      }); // eslint-disable-line no-console
+      });
   };
 
   return (

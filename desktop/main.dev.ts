@@ -17,8 +17,8 @@ import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
-import { PublicServices } from '../shared/types';
-import { DiscoveryItem, DiscoveryResponce } from '../shared/schemas';
+import { PublicService } from '../shared/types';
+import { DiscoveryItem } from '../shared/schemas';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -247,7 +247,7 @@ const createWindow = async () => {
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
     return writeFileAsync(configFilePath, JSON.stringify(netConfig));
   };
-  const isCleanStart = (netId: string) => StoreService.get('netSettings.netId') === netId;
+  const isCleanStart = (netId: string) => StoreService.get('netSettings.netId') !== netId;
 
   const fetchConfigs = async () => {
     if (isDevNet(process)) {
@@ -257,7 +257,7 @@ const createWindow = async () => {
         netName: 'Dev Net',
         explorer: '',
         dash: '',
-        grpcAPI: '34.123.103.253' // TODO
+        grpcAPI: 'https://34.123.103.253:31030' // TODO: Fetch it from somewhere
       };
       return { netConfig, initialConfig };
     } else {
@@ -267,14 +267,20 @@ const createWindow = async () => {
     }
   };
 
+  const toPublicService = (netName: string, url: string) => {
+    // Remove `https://` and trailing slash to resolve ip address
+    const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const [, port] = cleanUrl.match(/:(\d+)$/) || [null, ''];
+    return {
+      name: netName,
+      ip: port && port.length > 0 ? cleanUrl.slice(0, -(port.length + 1)) : cleanUrl,
+      port: port || ''
+    };
+  };
+
   const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
-    const walletServices: PublicServices = [
-      {
-        name: initialConfig.netName,
-        // Remove `https://` and trailing slash to resolve ip address
-        url: initialConfig.grpcAPI.replace(/^https:\/\//, '').replace(/\/$/, '')
-      }
-    ];
+    // TODO: Give a wider list of options
+    const walletServices: PublicService[] = [toPublicService(initialConfig.netName, initialConfig.grpcAPI)];
     ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
   };
 
