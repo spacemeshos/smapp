@@ -4,7 +4,7 @@ import path from 'path';
 import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { SocketAddress } from '../shared/types';
+import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -37,7 +37,7 @@ class WalletManager {
 
   private readonly glStateService: any;
 
-  private readonly txService: any;
+  private readonly txService: TransactionService;
 
   private nodeManager: NodeManager;
 
@@ -87,13 +87,12 @@ class WalletManager {
       const { error, layer, rootHash } = await this.glStateService.getGlobalStateHash();
       return error ? { layer: -1, rootHash: '' } : { layer, rootHash };
     });
-    ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, async (_event, request) => {
-      const res = await this.createWalletFile({ ...request });
-      if (res.error) {
-        logger.error('W_M_CREATE_WALLET channel', res, request);
-      }
-      return res;
-    });
+    ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, (_event, request) =>
+      this.createWalletFile({ ...request }).catch((err) => {
+        logger.error('W_M_CREATE_WALLET channel', err, request);
+        throw err;
+      })
+    );
     ipcMain.handle(ipcConsts.W_M_READ_WALLET_FILES, async () => {
       const res = await this.readWalletFiles();
       return res;
@@ -138,47 +137,40 @@ class WalletManager {
     });
   };
 
-  activateWalletManager = ({ ip, port }: Partial<SocketAddress>) => {
+  activateWalletManager = ({ ip = '', port = '' }: Partial<SocketAddress>) => {
     this.meshService.createService(ip, port);
     this.glStateService.createService(ip, port);
     this.txService.createService(ip, port);
   };
 
-  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string } & Partial<SocketAddress>) => {
-    try {
-      const timestamp = new Date().toISOString().replace(/:/g, '-');
-      this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
-      const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
-      const dataToEncrypt = {
-        mnemonic: this.mnemonic,
-        accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
-        contacts: []
-      };
-      const meta = {
-        displayName: 'Main Wallet',
-        created: timestamp,
-        netId: StoreService.get('netSettings.netId'),
-        ip,
-        port,
-        meta: { salt: encryptionConst.DEFAULT_SALT }
-      };
-      await this.nodeManager.activateNodeProcess();
-      this.activateWalletManager({ ip, port });
-      this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
-      const key = fileEncryptionService.createEncryptionKey({ password });
-      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
-      const fileContent = {
-        meta,
-        crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
-      };
-      const fileName = `my_wallet_${timestamp}.json`;
-      const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
-      await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
-      return { error: null, meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
-    } catch (error) {
-      logger.error('createWalletFile', error);
-      return { error, meta: null };
-    }
+  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string; ip: string; port: string }) => {
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
+    const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
+    const dataToEncrypt = {
+      mnemonic: this.mnemonic,
+      accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
+      contacts: []
+    };
+    await this.nodeManager.activateNodeProcess();
+    this.activateWalletManager({ ip, port });
+    this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
+    const key = fileEncryptionService.createEncryptionKey({ password });
+    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
+    const meta: WalletMeta = {
+      displayName: 'Main Wallet',
+      created: timestamp,
+      netId: StoreService.get('netSettings.netId'),
+      meta: { salt: encryptionConst.DEFAULT_SALT }
+    };
+    const fileContent: WalletFile = {
+      meta,
+      crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
+    };
+    const fileName = `my_wallet_${timestamp}.json`;
+    const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
+    await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
+    return { meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
   };
 
   readWalletFiles = async () => {
@@ -198,12 +190,12 @@ class WalletManager {
     try {
       const fileContent = await readFileAsync(path);
       // @ts-ignore
-      const { crypto, meta } = JSON.parse(fileContent);
+      const { crypto, meta } = JSON.parse(fileContent) as WalletFile;
       const key = fileEncryptionService.createEncryptionKey({ password });
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
       await this.nodeManager.activateNodeProcess();
-      this.activateWalletManager({ ip: meta.ip, port: meta.port });
+      this.activateWalletManager({ ip: '', port: '' }); // TODO: Support Wallet Only mode
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
       return { error: null, accounts, mnemonic, meta, contacts };

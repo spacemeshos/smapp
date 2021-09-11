@@ -15,6 +15,11 @@ export interface AccountWithBalance extends Account {
   projectedState?: { balance: number; counter: number };
 }
 
+export interface WalletCrypto {
+  cipher: string;
+  cipherText: string;
+}
+
 export interface WalletMeta {
   displayName: string;
   created: string;
@@ -22,10 +27,11 @@ export interface WalletMeta {
   meta: {
     salt: string;
   };
-  crypto: {
-    cipher: string;
-    cipherText: string;
-  };
+}
+
+export interface WalletFile {
+  meta: WalletMeta;
+  crypto: WalletCrypto;
 }
 
 export interface Contact {

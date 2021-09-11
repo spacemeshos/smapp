@@ -25,9 +25,9 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
 
   protected logger: ReturnType<typeof Logger> | null = null;
 
-  private url;
+  private url: string | null = null;
 
-  private port;
+  private port: string | null = null;
 
   createNetService = (protoPath: string, url = '', port = '', serviceName: string) => {
     if (this.url !== url || this.port !== port) {
