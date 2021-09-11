@@ -18,7 +18,7 @@ import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
 import { PublicServices } from '../shared/types';
-import { DiscoveryResponce } from '../shared/schemas';
+import { DiscoveryItem, DiscoveryResponce } from '../shared/schemas';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -223,46 +223,65 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  const savedNetId = StoreService.get('netSettings.netId');
-  const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
-  let netId;
-  let initialConfig;
-  let netConfig;
-  let isDevNet = false;
-  if (process.env.NODE_ENV === 'development' && process.env.DEV_NET_URL) {
-    const devConfig = await fetch(process.env.DEV_NET_URL);
-    netConfig = await devConfig.json();
-    netId = netConfig.p2p['network-id'];
-    isDevNet = true;
-  } else {
-    const res = await fetch(DISCOVERY_URL);
-    const discovery: DiscoveryResponce = await res.json();
-    [initialConfig] = discovery;
-    netId = initialConfig.netID;
+  const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
+    proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
+
+  interface InitialConfig extends Partial<DiscoveryItem> {
+    netID: string;
+    netName: string;
+    explorer: string;
+    dash: string;
+    grpcAPI: string;
   }
-  const cleanStart = savedNetId !== netId;
-  if (cleanStart) {
+
+  const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
+
+  const onCleanStart = ({ netID, netName, explorer = '', dash = '' }: InitialConfig, netConfig) => {
     StoreService.clear();
-    StoreService.set('netSettings.netId', netId);
-    StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
-    StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
-    StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
-    if (!isDevNet) {
-      const res2 = await fetch(initialConfig.conf);
-      netConfig = await res2.json();
-    }
+    StoreService.set('netSettings.netId', netID);
+    StoreService.set('netSettings.netName', netName);
+    StoreService.set('netSettings.explorerUrl', explorer);
+    StoreService.set('netSettings.dashUrl', dash);
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
-    await writeFileAsync(configFilePath, JSON.stringify(netConfig));
-  }
+    return writeFileAsync(configFilePath, JSON.stringify(netConfig));
+  };
+  const isCleanStart = (netId: string) => StoreService.get('netSettings.netId') === netId;
 
-  const walletServices: PublicServices = discovery.map(({ netName: name, grpcAPI: url }) => ({
-    name,
-    // Remove `https://` and trailing slash to resolve ip address
-    url: url.replace(/^https:\/\//, '').replace(/\/$/, '')
-  }));
-  ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
+  const fetchConfigs = async () => {
+    if (isDevNet(process)) {
+      const netConfig = await fetch(process.env.DEV_NET_URL).then((r) => r.json());
+      const initialConfig = {
+        netID: netConfig.p2p['network-id'],
+        netName: 'Dev Net',
+        explorer: '',
+        dash: '',
+        grpcAPI: '34.123.103.253' // TODO
+      };
+      return { netConfig, initialConfig };
+    } else {
+      const [initialConfig] = await fetch(DISCOVERY_URL).then((r) => r.json());
+      const netConfig = await fetch(initialConfig.conf).then((r) => r.json());
+      return { netConfig, initialConfig };
+    }
+  };
+
+  const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
+    const walletServices: PublicServices = [
+      {
+        name: initialConfig.netName,
+        // Remove `https://` and trailing slash to resolve ip address
+        url: initialConfig.grpcAPI.replace(/^https:\/\//, '').replace(/\/$/, '')
+      }
+    ];
+    ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
+  };
+
+  const { initialConfig, netConfig } = await fetchConfigs();
+  const cleanStart = isCleanStart(initialConfig.netID);
+  cleanStart && (await onCleanStart(initialConfig, netConfig));
+  subscribeListingGrpcApis(initialConfig);
 
   nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
   // eslint-disable-next-line no-new
