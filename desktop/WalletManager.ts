@@ -168,7 +168,7 @@ class WalletManager {
     const fileName = `my_wallet_${timestamp}.json`;
     const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
     await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
-    return { meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
+    return { meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic, usingRemoteApi };
   };
 
   readWalletFiles = async () => {
@@ -200,7 +200,7 @@ class WalletManager {
 
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
-      return { error: null, accounts, mnemonic, meta, contacts };
+      return { error: null, accounts, mnemonic, meta, contacts, usingRemoteApi };
     } catch (error) {
       logger.error('unlockWalletFile', error, { path, password });
       return { error, accounts: null, mnemonic: null, meta: null, contacts: null };

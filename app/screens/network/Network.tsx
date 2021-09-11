@@ -8,6 +8,7 @@ import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../.
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -92,7 +93,7 @@ const Network = () => {
     asyncGetCurrentLayer();
   }, [dispatch]);
 
-  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
+  const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
@@ -127,7 +128,7 @@ const Network = () => {
               <CustomTimeAgo time={genesisTime} />
             </GrayText>
           </DetailsRow>
-          {!isWalletOnly && (
+          {!isWalletMode && (
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Status</DetailsText>
@@ -138,28 +139,32 @@ const Network = () => {
               </GrayText>
             </DetailsRow>
           )}
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Current Layer</DetailsText>
-              <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>{status?.topLayer || 0}</GrayText>
-          </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Verified Layer</DetailsText>
-              <Tooltip width={250} text="tooltip Verified Layer" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>{status?.verifiedLayer || 0}</GrayText>
-          </DetailsRow>
+          {!isWalletMode && (
+            <>
+              <DetailsRow>
+                <DetailsTextWrap>
+                  <DetailsText>Current Layer</DetailsText>
+                  <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
+                </DetailsTextWrap>
+                <GrayText>{status?.topLayer || 0}</GrayText>
+              </DetailsRow>
+              <DetailsRow>
+                <DetailsTextWrap>
+                  <DetailsText>Verified Layer</DetailsText>
+                  <Tooltip width={250} text="tooltip Verified Layer" isDarkMode={isDarkMode} />
+                </DetailsTextWrap>
+                <GrayText>{status?.verifiedLayer || 0}</GrayText>
+              </DetailsRow>
+            </>
+          )}
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Connection Type</DetailsText>
               <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>{isWalletOnly ? 'Remote Gateway' : 'Managed p2p node'}</GrayText>
+            <GrayText>{isWalletMode ? 'Remote Gateway' : 'Managed p2p node'}</GrayText>
           </DetailsRow>
-          {!isWalletOnly && (
+          {!isWalletMode && (
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Connected neighbors</DetailsText>
@@ -170,7 +175,7 @@ const Network = () => {
           )}
         </DetailsWrap>
         <FooterWrap>
-          <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+          {!isWalletMode && <Link onClick={openLogFile} text="BROWSE LOG FILE" />}
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
           {nodeError && (
             <Button

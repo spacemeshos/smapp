@@ -19,6 +19,10 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
+export const SET_USING_REMOTE_API = 'SET_USING_REMOTE_API';
+
+export const setUsingRemoteApi = (isRemoteApi: boolean) => ({ type: SET_USING_REMOTE_API, payload: isRemoteApi });
+
 export const setWalletMeta = (wallet: WalletMeta) => ({ type: SET_WALLET_META, payload: wallet });
 
 export const setAccounts = (accounts: Account[]) => ({ type: SET_ACCOUNTS, payload: accounts });
@@ -52,7 +56,8 @@ export const createNewWallet = ({ existingMnemonic = '', password, ip = '', port
   eventsService
     .createWallet({ password, existingMnemonic, ip, port })
     .then((data) => {
-      const { meta, accounts, mnemonic } = data;
+      const { meta, accounts, mnemonic, usingRemoteApi } = data;
+      dispatch(setUsingRemoteApi(usingRemoteApi));
       dispatch(setWalletMeta(meta));
       dispatch(setAccounts(accounts));
       dispatch(setMnemonic(mnemonic));
@@ -66,7 +71,7 @@ export const createNewWallet = ({ existingMnemonic = '', password, ip = '', port
 
 export const unlockWallet = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
+  const { error, accounts, mnemonic, meta, contacts, usingRemoteApi } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
   if (error) {
     if (error.message && error.message.indexOf('Unexpected token') === 0) {
       return false;
@@ -75,6 +80,7 @@ export const unlockWallet = ({ password }: { password: string }) => async (dispa
     dispatch(setUiError(addErrorPrefix('Can not unlock wallet\n', error)));
     return false;
   } else {
+    dispatch(setUsingRemoteApi(usingRemoteApi));
     dispatch(setWalletMeta(meta));
     dispatch(setAccounts(accounts));
     dispatch(setMnemonic(mnemonic));

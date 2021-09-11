@@ -13,6 +13,7 @@ import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
 import { Account } from '../../../shared/types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -95,6 +96,7 @@ interface Props extends RouteComponentProps {
     search: string;
     state: { currentSettingIndex: string };
   };
+  isWalletOnly: boolean;
 }
 
 type State = {
@@ -150,7 +152,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode } = this.props;
+    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, isWalletOnly } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -268,10 +270,14 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="INFO" refProp={this.myRef4} isDarkMode={isDarkMode}>
               <SettingRow upperPartLeft={getFormattedTimestamp(genesisTime)} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPart={build} isUpperPartLeftText rowName="Node Build" />
-              <SettingRow upperPart={version} isUpperPartLeftText rowName="Node Version" />
-              <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
-              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
+              {!isWalletOnly && (
+                <>
+                  <SettingRow upperPart={build} isUpperPartLeftText rowName="Node Build" />
+                  <SettingRow upperPart={version} isUpperPartLeftText rowName="Node Version" />
+                  <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
+                  <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
+                </>
+              )}
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
@@ -485,7 +491,8 @@ const mapStateToProps = (state: RootState) => ({
   version: state.node.version,
   port: state.node.port,
   backupTime: state.wallet.backupTime,
-  isDarkMode: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode,
+  isWalletOnly: isWalletOnly(state)
 });
 
 const mapDispatchToProps = {
