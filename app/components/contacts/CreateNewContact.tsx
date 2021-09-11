@@ -5,8 +5,9 @@ import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { Contact, RootState } from '../../types';
+import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
+import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
   display: flex;

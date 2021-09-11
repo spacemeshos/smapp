@@ -6,7 +6,8 @@ import { Link, Button } from '../../basicComponents';
 import { getAddress } from '../../infra/utils';
 import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
-import { Account, RootState } from '../../types';
+import { RootState } from '../../types';
+import { Account } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;

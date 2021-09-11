@@ -6,7 +6,8 @@ import { sendTransaction } from '../../redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
 import { getAddress } from '../../infra/utils';
-import { Contact, RootState } from '../../types';
+import { RootState } from '../../types';
+import { Contact } from '../../../shared/types';
 
 interface Props extends RouteComponentProps {
   location: {

@@ -1,6 +1,7 @@
+import { Account, Contact, WalletMeta } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
-import { AppThDispatch, GetState, WalletMeta, Account, Contact, Tx } from '../../types';
+import { AppThDispatch, GetState, Tx } from '../../types';
 import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
