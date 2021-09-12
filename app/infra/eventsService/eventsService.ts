@@ -5,7 +5,7 @@ import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/nod
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild, PublicServices, ApiURL } from '../../../shared/types';
+import { NodeError, NodeStatus, NodeVersionAndBuild, PublicServices, ApiURL, SocketAddress } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
@@ -69,7 +69,7 @@ class EventsService {
 
   static getPostComputeProviders = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_COMPUTE_PROVIDERS);
 
-  static startSmeshing = ({
+  static startSmeshing = async ({
     coinbase,
     dataDir,
     commitmentSize,
@@ -81,7 +81,10 @@ class EventsService {
     commitmentSize: number;
     computeProviderId: number;
     throttle: boolean;
-  }) => ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
+  }) => {
+    await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
+    return ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
+  };
 
   static getPostStatus = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_STATUS);
 

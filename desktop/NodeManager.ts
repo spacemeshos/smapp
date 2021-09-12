@@ -68,6 +68,9 @@ class NodeManager {
   }
 
   subscribeToEvents = () => {
+    ipcMain.handle(ipcConsts.N_M_START_NODE, async () => (this.isNodeRunning() ? true : this.startNode()));
+    ipcMain.handle(ipcConsts.N_M_STOP_NODE, () => this.stopNode().then(() => true));
+
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, () =>
       this.getVersionAndBuild()
         .then((payload) => this.mainWindow.webContents.send(ipcConsts.N_M_GET_VERSION_AND_BUILD, payload))
@@ -105,9 +108,13 @@ class NodeManager {
     }
   };
 
-  activateNodeProcess = async () => {
+  isNodeRunning = () => !!this.nodeProcess;
+
+  startNode = async () => {
+    if (this.isNodeRunning()) return true;
+
     this.hasCriticalError = false;
-    this.startNode();
+    this.spawnNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
       this.waitForNodeServiceResponsiveness(resolve, 15);
@@ -115,13 +122,13 @@ class NodeManager {
     if (success) {
       StoreService.resetRemoteApi();
       await this.getNodeStatus(0);
-      this.activateNodeErrorStream();
+      this.nodeService.activateErrorStream(this.pushNodeError);
       return true;
     }
     return false; // TODO: add error handling
   };
 
-  startNode = () => {
+  private spawnNode = () => {
     const userDataPath = app.getPath('userData');
     const nodePath = path.resolve(
       app.getAppPath(),
@@ -189,7 +196,7 @@ class NodeManager {
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
     await this.stopNode();
-    const res = await this.activateNodeProcess();
+    const res = await this.startNode();
     if (!res) {
       throw {
         msg: 'Cannot restart the Node',
@@ -251,10 +258,6 @@ class NodeManager {
       if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
       throw error;
     }
-  };
-
-  activateNodeErrorStream = () => {
-    this.nodeService.activateErrorStream(this.pushNodeError);
   };
 
   isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {

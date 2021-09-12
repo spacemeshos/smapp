@@ -149,7 +149,7 @@ class WalletManager {
     };
 
     const usingRemoteApi = ip !== '';
-    !usingRemoteApi && (await this.nodeManager.activateNodeProcess());
+    !usingRemoteApi && (await this.nodeManager.startNode());
 
     this.activateWalletManager({ ip, port });
     this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
@@ -195,7 +195,7 @@ class WalletManager {
 
       const { ip, port } = StoreService.getRemoteApi();
       const usingRemoteApi = ip !== '';
-      !usingRemoteApi && (await this.nodeManager.activateNodeProcess());
+      !usingRemoteApi && (await this.nodeManager.startNode());
       this.activateWalletManager({ ip, port });
 
       this.txManager.setAccounts({ accounts });
