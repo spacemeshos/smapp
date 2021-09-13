@@ -3,7 +3,8 @@ import { SET_APP_LATEST_VERSION } from './actions';
 import { version } from '../../../package.json';
 
 const initialState = {
-  latestVersion: version
+  latestVersion: version,
+  currentVersion: version
 };
 
 const reducer = (state: AppState = initialState, action: CustomAction) => {

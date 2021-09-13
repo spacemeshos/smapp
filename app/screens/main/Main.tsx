@@ -115,6 +115,7 @@ interface Props extends RouteComponentProps {
   };
   nodeError: NodeError | null;
   isDarkMode: boolean;
+  currentVersion: string;
   getNetworkDefinitions: () => void;
 }
 
@@ -136,7 +137,7 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { nodeError, status, isDarkMode } = this.props;
+    const { nodeError, status, isDarkMode, currentVersion } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
     const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
@@ -235,7 +236,7 @@ class Main extends Component<Props, State> {
             </Switch>
           </RoutesWrapper>
         </InnerWrapper>
-        <Version />
+        <Version version={currentVersion} />
         <RightDecoration src={img} />
       </Wrapper>
     );
@@ -294,7 +295,8 @@ class Main extends Component<Props, State> {
 const mapStateToProps = (state: RootState) => ({
   status: state.node.status,
   nodeError: state.node.error,
-  isDarkMode: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode,
+  currentVersion: state.app.currentVersion
 });
 
 const mapDispatchToProps = {

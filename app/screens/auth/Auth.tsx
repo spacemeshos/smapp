@@ -56,6 +56,8 @@ const renderHorizontalPane = (path, isDarkMode) => {
 const Auth = ({ history, location }: Props) => {
   const walletFiles = useSelector((state: RootState) => state.wallet.walletFiles);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const currentVersion = useSelector((state: RootState) => state.app.currentVersion);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -86,7 +88,7 @@ const Auth = ({ history, location }: Props) => {
           <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
         )}
       </InnerWrapper>
-      <Version />
+      <Version version={currentVersion} />
       <RightDecoration src={isDarkMode ? rightDecorationWhite : rightDecoration} />
     </Wrapper>
   );

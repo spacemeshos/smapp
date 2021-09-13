@@ -62,7 +62,6 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-let updateManager: UpdateManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
@@ -133,7 +132,7 @@ const createBrowserView = () => {
   });
 };
 
-const addIpcEventListeners = () => {
+const addIpcEventListeners = (updateManager: UpdateManager) => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
 
   ipcMain.on(ipcConsts.CHECK_FOR_NEW_UPDATES, () => updateManager.checkForUpdates());
@@ -215,10 +214,10 @@ const createWindow = async () => {
     mainWindow.focus();
   });
 
-  addIpcEventListeners();
+  const updateManager: UpdateManager = new UpdateManager(mainWindow);
+  addIpcEventListeners(updateManager);
 
   const menuBuilder = new MenuBuilder(mainWindow);
-  updateManager = new UpdateManager(mainWindow);
 
   menuBuilder.buildMenu();
 

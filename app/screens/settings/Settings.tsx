@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { updateWalletName, updateAccountName, createNewAccount, checkForNewUpdate } from '../../redux/wallet/actions';
+import compareVersions from 'compare-versions';
+import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
@@ -12,8 +13,6 @@ import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Account, AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
-
-import { version as appVersion } from '../../../package.json';
 
 const Wrapper = styled.div`
   display: flex;
@@ -83,7 +82,6 @@ interface Props extends RouteComponentProps {
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
-  checkForNewUpdate: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -91,7 +89,8 @@ interface Props extends RouteComponentProps {
   port: string;
   backupTime: string;
   isDarkMode: boolean;
-  latestVersion: number | string;
+  latestVersion: string;
+  currentVersion: string;
   location: {
     hash: string;
     pathname: string;
@@ -153,7 +152,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, latestVersion } = this.props;
+    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, latestVersion, currentVersion } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -278,9 +277,11 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
-                upperPartLeft={latestVersion > appVersion ? <Text>A new update is avaialble.</Text> : <Text>There are currently no updates available.</Text>}
+                upperPartLeft={
+                  compareVersions(latestVersion, currentVersion) > 1 ? <Text>A new update is avaialble.</Text> : <Text>There are currently no updates available.</Text>
+                }
                 upperPartRight={
-                  latestVersion > appVersion ? (
+                  compareVersions(latestVersion, currentVersion) > 1 ? (
                     <Button onClick={() => eventsService.updateApplication()} text="Update app" width={180} />
                   ) : (
                     <Button onClick={() => eventsService.checkForUpdates()} text="Check for Updates" width={180} />
@@ -502,7 +503,8 @@ const mapStateToProps = (state: RootState) => ({
   port: state.node.port,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,
-  latestVersion: state.app.latestVersion
+  latestVersion: state.app.latestVersion,
+  currentVersion: state.app.currentVersion
 });
 
 const mapDispatchToProps = {
@@ -510,7 +512,6 @@ const mapDispatchToProps = {
   updateWalletName,
   updateAccountName,
   createNewAccount,
-  checkForNewUpdate,
   switchTheme
 };
 

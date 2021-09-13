@@ -48,7 +48,7 @@ export default class UpdateManager {
 
   async onUpdateAvailable() {
     const options: MessageBoxOptions = {
-      message: `An important App update is available. \t\nWould you like to update now?`,
+      message: `An important App update is available. \n\tWould you like to update now?`,
       type: 'question',
       buttons: ['Yes', 'No']
     };

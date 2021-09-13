@@ -23,7 +23,8 @@ export interface NodeState {
 }
 
 export interface AppState {
-  latestVersion: number | string;
+  latestVersion: string;
+  currentVersion: string;
 }
 export interface WalletState {
   walletFiles: Array<string> | null;
