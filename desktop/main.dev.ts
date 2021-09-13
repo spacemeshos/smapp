@@ -46,7 +46,7 @@ const unhandled = require('electron-unhandled');
 
 unhandled();
 
-new StoreService();
+StoreService.getInstance();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -61,7 +61,6 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-const isDarkMode: boolean = StoreService.get('userSettings.isDarkMode') as boolean;
 
 let closingApp = false;
 const isSmeshing = () => {
@@ -132,7 +131,7 @@ const createBrowserView = () => {
 };
 
 const addIpcEventListeners = () => {
-  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => StoreService.get('userSettings.darkMode'));
+  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => StoreService.get('userSettings.isDarkMode'));
 
   ipcMain.on(ipcConsts.SET_THEME_COLOR, (_, request: { isDarkMode: boolean }) => {
     StoreService.set('userSettings.isDarkMode', request.isDarkMode);
@@ -149,7 +148,7 @@ const addIpcEventListeners = () => {
     browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
     browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
     const dashUrl = StoreService.get('netSettings.dashUrl');
-    browserView.webContents.loadURL(`${dashUrl}?hide-right-line${isDarkMode ? '&darkMode' : ''}`);
+    browserView.webContents.loadURL(`${dashUrl}?hide-right-line${StoreService.get('userSettings.isDarkMode') ? '&darkMode' : ''}`);
   });
 
   ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {

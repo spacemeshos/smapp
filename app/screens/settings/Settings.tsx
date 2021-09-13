@@ -476,7 +476,7 @@ class Settings extends Component<Props, State> {
 
   toggleTheme() {
     const { switchTheme, isDarkMode } = this.props;
-    switchTheme({ isDarkMode: !isDarkMode });
+    switchTheme();
     eventsService.switchTheme({ isDarkMode: !isDarkMode });
   }
 }

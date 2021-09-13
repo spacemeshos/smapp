@@ -17,9 +17,7 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
       return { ...state, isDarkMode: isDarkTheme };
     }
     case THEME_SWITCHER: {
-      const {
-        payload: { isDarkMode }
-      } = action;
+      const isDarkMode = !state.isDarkMode;
       return { ...state, isDarkMode };
     }
     case HIDE_LEFT_PANEL: {

@@ -5,7 +5,9 @@ import { TypedSchemaStore } from '../shared/types';
 class StoreService {
   public static store: Store<TypedSchemaStore>;
 
-  constructor() {
+  private constructor() {}
+
+  public static getInstance(): Store<TypedSchemaStore> {
     if (!StoreService.store) {
       StoreService.store = new Store<TypedSchemaStore>({
         accessPropertiesByDotNotation: true,
@@ -22,6 +24,8 @@ class StoreService {
         migrations: {}
       });
     }
+
+    return StoreService.store;
   }
 
   static set = (objectPath: string, property: any) => {

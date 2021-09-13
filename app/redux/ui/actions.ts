@@ -14,8 +14,8 @@ export const setOsTheme = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: SET_OS_THEME, payload: { isDarkTheme } });
 };
 
-export const switchTheme = ({ isDarkMode }: { isDarkMode: boolean }) => async (dispatch: AppThDispatch) => {
-  dispatch({ type: THEME_SWITCHER, payload: { isDarkMode } });
+export const switchTheme = () => async (dispatch: AppThDispatch) => {
+  dispatch({ type: THEME_SWITCHER });
 };
 
 export const hideSmesherLeftPanel = () => ({ type: HIDE_LEFT_PANEL });
