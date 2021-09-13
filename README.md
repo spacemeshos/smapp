@@ -48,6 +48,11 @@ To run the application against DevNet you have to set URL to config file to env 
 DEV_NET_URL=https://.../config.json yarn start
 ```
 
+To run the application against DevNet in the Wallet Only mode you have to also set URL to GRPC API provider to env variable `DEV_NET_REMOTE_API`:
+```
+DEV_NET_REMOTE_API=https://192.168.0.1:31030 DEV_NET_URL=https://.../config.json yarn start
+```
+
 ### Building Artifacts in CI
 
 Smapp uses two workflows. Both of them builds an application for all supported platforms: windows, macOS, linux.

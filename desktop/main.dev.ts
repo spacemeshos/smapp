@@ -257,7 +257,7 @@ const createWindow = async () => {
         netName: 'Dev Net',
         explorer: '',
         dash: '',
-        grpcAPI: 'https://34.123.103.253:31030' // TODO: Fetch it from somewhere
+        grpcAPI: process.env.DEV_NET_REMOTE_API || ''
       };
       return { netConfig, initialConfig };
     } else {
