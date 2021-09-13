@@ -1,12 +1,14 @@
 import { BrowserWindow, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import StoreService from './storeService';
 import { MessageBoxOptions } from 'electron/main';
-import NotificationManager from './notificationManager';
 import compareVersions from 'compare-versions';
+import StoreService from './storeService';
+import NotificationManager from './notificationManager';
+
 export default class UpdateManager {
   private mainWindow: BrowserWindow;
+
   private notification: NotificationManager;
 
   private lastVersionPrompted: string = StoreService.get('userSettings.latestVersionPrompted');

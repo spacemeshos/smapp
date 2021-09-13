@@ -1,6 +1,6 @@
 import type { AppState, CustomAction } from '../../types';
-import { SET_APP_LATEST_VERSION } from './actions';
 import { version } from '../../../package.json';
+import { SET_APP_LATEST_VERSION } from './actions';
 
 const initialState = {
   latestVersion: version,

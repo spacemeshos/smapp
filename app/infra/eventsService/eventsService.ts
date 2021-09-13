@@ -113,6 +113,7 @@ class EventsService {
 
   /** **************************************  UPDATE MANAGER  **************************************** */
   static checkForUpdates = () => ipcRenderer.send(ipcConsts.CHECK_FOR_NEW_UPDATES);
+
   static updateApplication = () => ipcRenderer.send(ipcConsts.UPDATE_APPLICATION);
 }
 
