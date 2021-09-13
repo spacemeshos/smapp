@@ -1,6 +1,7 @@
 import path from 'path';
 import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
+import { NodeError, NodeErrorLevel } from '../shared/types';
 import Logger from './logger';
 
 const DEFAULT_URL = 'localhost';
@@ -76,7 +77,17 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
   });
 
   // TODO: Get rid of mixing with `error`
-  normalizeServiceError = <D extends Record<string, any>>(defaults: D) => (error: grpc.ServiceError) => ({ ...defaults, error });
+  normalizeServiceError = <D extends Record<string, any>>(defaults: D) => (error) => ({
+    ...defaults,
+    error: error.msg
+      ? error
+      : ({
+          msg: error.message,
+          stackTrace: error?.stack || '',
+          module: this.serviceName,
+          level: NodeErrorLevel.LOG_LEVEL_ERROR
+        } as NodeError)
+  });
 }
 
 export default NetServiceFactory;

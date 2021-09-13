@@ -10,6 +10,8 @@ import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
 import WalletManager from '../../../desktop/WalletManager';
+import GlobalStateService from '../../../desktop/GlobalStateService';
+import MeshService from '../../../desktop/MeshService';
 
 class EventsService {
   static createWallet = ({
@@ -121,9 +123,9 @@ class EventsService {
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
-  static getCurrentLayer = () => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
+  static getCurrentLayer = (): ReturnType<MeshService['getCurrentLayer']> => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
 
-  static getGlobalStateHash = () => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
+  static getGlobalStateHash = (): ReturnType<GlobalStateService['getGlobalStateHash']> => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
 
   /** **************************************  NODE MANAGER  **************************************** */
 

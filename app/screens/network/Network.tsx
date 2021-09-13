@@ -87,10 +87,7 @@ const Network = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const asyncGetCurrentLayer = async () => {
-      await dispatch(getCurrentLayer());
-    };
-    asyncGetCurrentLayer();
+    dispatch(getCurrentLayer());
   }, [dispatch]);
 
   const isWalletMode = useSelector(isWalletOnly);

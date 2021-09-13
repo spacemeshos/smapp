@@ -1,5 +1,6 @@
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch } from '../../types';
+import { setNodeError } from '../node/actions';
 
 export const SET_NETWORK_DEFINITIONS = 'SET_NETWORK_DEFINITIONS';
 export const SET_CURRENT_LAYER = 'SET_CURRENT_LAYER';
@@ -11,11 +12,19 @@ export const getNetworkDefinitions = () => async (dispatch: AppThDispatch) => {
 };
 
 export const getCurrentLayer = () => async (dispatch: AppThDispatch) => {
-  const { currentLayer } = await eventsService.getGlobalStateHash();
-  dispatch({ type: SET_CURRENT_LAYER, payload: { currentLayer } });
+  const { currentLayer, error } = await eventsService.getCurrentLayer();
+  if (error) {
+    dispatch(setNodeError(error));
+  } else {
+    dispatch({ type: SET_CURRENT_LAYER, payload: { currentLayer } });
+  }
 };
 
 export const getGlobalStateHash = () => async (dispatch: AppThDispatch) => {
-  const { layer, rootHash } = await eventsService.getGlobalStateHash();
-  dispatch({ type: SET_STATE_ROOT_HASH, payload: { layer, rootHash } });
+  const { rootHash, error } = await eventsService.getGlobalStateHash();
+  if (error) {
+    dispatch(setNodeError(error));
+  } else {
+    dispatch({ type: SET_STATE_ROOT_HASH, payload: { rootHash } });
+  }
 };

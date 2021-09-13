@@ -33,9 +33,9 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class WalletManager {
-  private readonly meshService: any;
+  private readonly meshService: MeshService;
 
-  private readonly glStateService: any;
+  private readonly glStateService: GlobalStateService;
 
   private readonly txService: TransactionService;
 
