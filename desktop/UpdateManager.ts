@@ -28,10 +28,6 @@ export default class UpdateManager {
     }
   }
 
-  async updateApplication() {
-    autoUpdater.downloadUpdate();
-  }
-
   async checkForUpdates() {
     try {
       const { downloadPromise, updateInfo } = await autoUpdater.checkForUpdates();
@@ -57,7 +53,7 @@ export default class UpdateManager {
     };
     const { response } = await dialog.showMessageBox(this.mainWindow, options);
     if (response === 0) {
-      this.updateApplication();
+      autoUpdater.downloadUpdate();
     } else if (response === 1) {
       StoreService.set('userSettings.latestVersionPrompted', version);
     }
