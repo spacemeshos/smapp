@@ -46,7 +46,7 @@ const unhandled = require('electron-unhandled');
 
 unhandled();
 
-StoreService.init();
+new StoreService();
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -61,7 +61,7 @@ let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
 let notificationManager: NotificationManager;
-const isDarkMode: boolean = StoreService.get('userSettings.darkMode') as boolean;
+const isDarkMode: boolean = StoreService.get('userSettings.isDarkMode') as boolean;
 
 let closingApp = false;
 const isSmeshing = () => {
@@ -135,7 +135,7 @@ const addIpcEventListeners = () => {
   ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => isDarkMode);
 
   ipcMain.on(ipcConsts.SET_THEME_COLOR, (_, request: { isDarkMode: boolean }) => {
-    StoreService.set('userSettings.darkMode', request.isDarkMode);
+    StoreService.set('userSettings.isDarkMode', request.isDarkMode);
   });
 
   ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {

@@ -150,7 +150,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode } = this.props;
+    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, isDarkMode } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -172,7 +172,7 @@ class Settings extends Component<Props, State> {
         <AllSettingsWrapper>
           <AllSettingsInnerWrapper>
             <SettingsSection title="GENERAL" refProp={this.myRef1} isDarkMode={isDarkMode}>
-              <SettingRow upperPartRight={<Button onClick={switchTheme} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
+              <SettingRow upperPartRight={<Button onClick={() => this.toggleTheme()} text="TOGGLE DARK MODE" width={180} />} rowName="Dark Mode" />
               <SettingRow
                 upperPartLeft={`Auto start Spacemesh when your computer starts: ${isAutoStartEnabled ? 'ON' : 'OFF'}`}
                 isUpperPartLeftText
@@ -473,6 +473,12 @@ class Settings extends Component<Props, State> {
   toggleSignMessageModal = ({ index }: { index: number }) => {
     this.setState({ signMessageModalAccountIndex: index });
   };
+
+  toggleTheme() {
+    const { switchTheme, isDarkMode } = this.props;
+    switchTheme({ isDarkMode: !isDarkMode });
+    eventsService.switchTheme({ isDarkMode: !isDarkMode });
+  }
 }
 
 const mapStateToProps = (state: RootState) => ({

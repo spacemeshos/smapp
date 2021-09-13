@@ -5,14 +5,14 @@ import { TypedSchemaStore } from '../shared/types';
 class StoreService {
   public static store: Store<TypedSchemaStore>;
 
-  static init() {
+  constructor() {
     if (!StoreService.store) {
       StoreService.store = new Store<TypedSchemaStore>({
         accessPropertiesByDotNotation: true,
         defaults: {
           accounts: {},
           userSettings: {
-            darkMode: nativeTheme.shouldUseDarkColors
+            isDarkMode: nativeTheme.shouldUseDarkColors
           },
           isAutoStartEnabled: false,
           localNode: true,
@@ -32,7 +32,7 @@ class StoreService {
     return StoreService.store.get(key);
   };
 
-  static remove = (key: any) => {
+  static remove = ({ key }: { key: keyof TypedSchemaStore }) => {
     StoreService.store.delete(key);
   };
 
