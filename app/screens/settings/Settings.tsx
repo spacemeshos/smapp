@@ -355,8 +355,6 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  checkForUpdates = async () => {};
-
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;
     this.setState({

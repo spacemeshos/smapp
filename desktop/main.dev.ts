@@ -257,7 +257,6 @@ const createWindow = async () => {
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
-    StoreService.set('userSettings.promptForUpdate', true);
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
 

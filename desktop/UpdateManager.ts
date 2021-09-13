@@ -29,7 +29,7 @@ export default class UpdateManager {
   }
 
   async updateApplication() {
-    autoUpdater.downloadUpdate();
+    autoUpdater.quitAndInstall();
   }
 
   async checkForUpdates() {
