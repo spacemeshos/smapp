@@ -1,8 +1,16 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
 import { PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
-import { SET_SMESHER_SETTINGS_AND_STARTUP_STATUS, SET_SETUP_COMPUTE_PROVIDERS, DELETED_POS_DATA, STARTED_SMESHING, SET_POST_DATA_CREATION_STATUS, SET_ACCOUNT_REWARDS } from './actions';
 import { BITS } from '../../types';
+import {
+  SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
+  SET_SETUP_COMPUTE_PROVIDERS,
+  DELETED_POS_DATA,
+  STARTED_SMESHING,
+  SET_POST_DATA_CREATION_STATUS,
+  SET_ACCOUNT_REWARDS,
+  SET_SMESHER_CONFIG
+} from './actions';
 
 const initialState = {
   smesherId: '',
@@ -45,6 +53,11 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     case SET_SETUP_COMPUTE_PROVIDERS: {
       const { postSetupComputeProviders } = action.payload;
       return { ...state, postSetupComputeProviders };
+    }
+    case SET_SMESHER_CONFIG: {
+      const { coinbase, dataDir, numUnits, computeProviderId, throttle } = action.payload.smeshingConfig;
+      const commitmentSize = state.config ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) / BITS : 0;
+      return { ...state, coinbase, dataDir, numUnits, throttle, computeProviderId, commitmentSize };
     }
     case STARTED_SMESHING: {
       const {

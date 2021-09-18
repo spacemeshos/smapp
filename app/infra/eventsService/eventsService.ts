@@ -121,6 +121,11 @@ ipcRenderer.on(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, (_event, reque
   });
 });
 
+ipcRenderer.on(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, (_event, request) => {
+  const { smeshingConfig } = request;
+  store.dispatch({ type: SET_SMESHER_SETTINGS_AND_STARTUP_STATUS, payload: { smeshingConfig } });
+});
+
 ipcRenderer.on(ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS, (_event, request) => {
   const { config, coinbase, dataDir, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing } = request;
   store.dispatch({

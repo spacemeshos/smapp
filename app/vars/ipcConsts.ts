@@ -14,6 +14,7 @@ const ipcConsts = {
   /** *********************************************************************** API 2.0 ********************************************************** */
   // Smesher Service calls
   SMESHER_SET_SETTINGS_AND_STARTUP_STATUS: 'SMESHER_SET_SETTINGS_AND_STARTUP_STATUS',
+  SMESHER_SEND_SMESHING_CONFIG: 'SMESHER_SEND_SMESHING_CONFIG',
   SMESHER_SELECT_POST_FOLDER: 'SMESHER_SELECT_POST_FOLDER',
   SMESHER_CHECK_FREE_SPACE: 'SMESHER_CHECK_FREE_SPACE',
   SMESHER_START_SMESHING: 'SMESHER_START_SMESHING',

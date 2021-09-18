@@ -35,12 +35,12 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   };
 
   getPostConfig = () =>
-    new Promise((resolve) => {
+    new Promise<{ error: any; config: SmesherConfig }>((resolve) => {
       // @ts-ignore
       this.service.PostConfig({}, (error, response) => {
         if (error) {
           logger.error('grpc PostConfig', error);
-          resolve({ error, config: null });
+          resolve({ error, config: {} as SmesherConfig });
         } else {
           const { bitsPerLabel, labelsPerUnit, minNumUnits, maxNumUnits } = response;
           resolve({ error: null, config: { bitsPerLabel, labelsPerUnit: parseInt(labelsPerUnit), minNumUnits, maxNumUnits } });
@@ -49,7 +49,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
     });
 
   getSmesherId = () =>
-    new Promise((resolve) => {
+    new Promise<{ error: any; smesherId: string }>((resolve) => {
       // @ts-ignore
       this.service.SmesherID({}, (error, response) => {
         if (error) {
@@ -63,7 +63,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
     });
 
   getSetupComputeProviders = () =>
-    new Promise((resolve) => {
+    new Promise<{ error: any; postSetupComputeProviders: PostSetupComputeProvider[] }>((resolve) => {
       // @ts-ignore
       this.service.PostSetupComputeProviders({ benchmark: true }, (error, response) => {
         if (error) {

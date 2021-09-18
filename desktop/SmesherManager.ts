@@ -26,6 +26,7 @@ class SmesherManager {
   serviceStartupFlow = async () => {
     await this.sendSmesherSettingsAndStartupState();
     await this.sendPostSetupComputeProviders();
+    await this.sendSmesherConfig();
   };
 
   sendSmesherSettingsAndStartupState = async () => {
@@ -48,10 +49,10 @@ class SmesherManager {
     const fileContent = await readFileAsync(nodeConfigFilePath);
     // @ts-ignore
     const nodeConfig = JSON.parse(fileContent);
-    let smeshingConfig = {};
     if (nodeConfig.smeshing) {
       const { coinbase, dataDir, numUnits, computeProviderId, throttle } = nodeConfig.smeshing;
-      smeshingConfig = { coinbase, dataDir, numUnits, computeProviderId, throttle, commitmentSize };
+      const smeshingConfig = { coinbase, dataDir, numUnits, computeProviderId, throttle };
+      this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, { smeshingConfig });
     }
   };
 
