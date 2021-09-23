@@ -12,6 +12,7 @@ import { showClosingAppModal } from '../../redux/ui/actions';
 import WalletManager from '../../../desktop/WalletManager';
 import GlobalStateService from '../../../desktop/GlobalStateService';
 import MeshService from '../../../desktop/MeshService';
+import { setRemoteApi } from '../../redux/network/actions';
 
 class EventsService {
   static createWallet = ({
@@ -164,6 +165,10 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
 ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
   const { error, status } = request;
   store.dispatch(setPostStatus({ error, status }));
+});
+
+ipcRenderer.on(ipcConsts.PUSH_API_PROVIDER_TO_GUI, (_event, remoteApi) => {
+  store.dispatch(setRemoteApi(remoteApi));
 });
 
 ipcRenderer.on(ipcConsts.CLOSING_APP, () => {

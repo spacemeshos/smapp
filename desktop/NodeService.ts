@@ -23,8 +23,8 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
 
   logger = Logger({ className: 'NodeService' });
 
-  createService = () => {
-    this.createNetService(PROTO_PATH, '', '', 'NodeService');
+  createService = (ip = '', port = '') => {
+    this.createNetService(PROTO_PATH, ip, port, 'NodeService');
   };
 
   echo = () =>

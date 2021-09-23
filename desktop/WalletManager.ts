@@ -43,10 +43,13 @@ class WalletManager {
 
   private txManager: TransactionManager;
 
+  private mainWindow: BrowserWindow;
+
   private mnemonic = '';
 
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
     this.subscribeToEvents(mainWindow);
+    this.mainWindow = mainWindow;
     this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
@@ -140,7 +143,10 @@ class WalletManager {
       StoreService.resetRemoteApi();
     } else {
       StoreService.setRemoteApi(ip, port);
+      this.nodeManager.connectToRemoteNode(ip, port);
     }
+
+    this.mainWindow.webContents.send(ipcConsts.PUSH_API_PROVIDER_TO_GUI, ip === '' ? null : `${ip}:${port}`);
 
     this.meshService.createService(ip, port);
     this.glStateService.createService(ip, port);

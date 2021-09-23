@@ -110,6 +110,11 @@ class NodeManager {
 
   isNodeRunning = () => !!this.nodeProcess;
 
+  connectToRemoteNode = async (ip: string, port: string) => {
+    this.nodeService.createService(ip, port);
+    return this.getNodeStatus(0);
+  };
+
   startNode = async () => {
     if (this.isNodeRunning()) return true;
 

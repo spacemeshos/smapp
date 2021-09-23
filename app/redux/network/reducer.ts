@@ -1,14 +1,15 @@
 import { NetworkState, CustomAction } from '../../types';
-import { SET_NETWORK_DEFINITIONS, SET_CURRENT_LAYER, SET_STATE_ROOT_HASH } from './actions';
+import { SET_NETWORK_DEFINITIONS, SET_CURRENT_LAYER, SET_STATE_ROOT_HASH, SET_REMOTE_API } from './actions';
 
-const initialState = {
+const initialState: NetworkState = {
   netId: '',
   netName: '',
   genesisTime: '',
   minCommitmentSize: 0,
   currentLayer: -1,
   rootHash: '',
-  explorerUrl: ''
+  explorerUrl: '',
+  remoteApi: null
 };
 
 const reducer = (state: NetworkState = initialState, action: CustomAction) => {
@@ -32,6 +33,10 @@ const reducer = (state: NetworkState = initialState, action: CustomAction) => {
         payload: { rootHash }
       } = action;
       return rootHash ? { ...state, rootHash } : state;
+    }
+    case SET_REMOTE_API: {
+      const { remoteApi } = action.payload;
+      return { ...state, remoteApi };
     }
     default:
       return state;

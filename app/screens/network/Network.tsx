@@ -96,6 +96,7 @@ const Network = () => {
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const remoteApi = useSelector((state: RootState) => state.network.remoteApi);
   const [isRestarting, setRestarting] = useState(false);
 
   const requestNodeRestart = useCallback(async () => {
@@ -125,41 +126,35 @@ const Network = () => {
               <CustomTimeAgo time={genesisTime} />
             </GrayText>
           </DetailsRow>
-          {!isWalletMode && (
-            <DetailsRow>
-              <DetailsTextWrap>
-                <DetailsText>Status</DetailsText>
-                <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
-              </DetailsTextWrap>
-              <GrayText>
-                <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} />
-              </GrayText>
-            </DetailsRow>
-          )}
-          {!isWalletMode && (
-            <>
-              <DetailsRow>
-                <DetailsTextWrap>
-                  <DetailsText>Current Layer</DetailsText>
-                  <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
-                </DetailsTextWrap>
-                <GrayText>{status?.topLayer || 0}</GrayText>
-              </DetailsRow>
-              <DetailsRow>
-                <DetailsTextWrap>
-                  <DetailsText>Verified Layer</DetailsText>
-                  <Tooltip width={250} text="tooltip Verified Layer" isDarkMode={isDarkMode} />
-                </DetailsTextWrap>
-                <GrayText>{status?.verifiedLayer || 0}</GrayText>
-              </DetailsRow>
-            </>
-          )}
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Status</DetailsText>
+              <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
+            </DetailsTextWrap>
+            <GrayText>
+              <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} />
+            </GrayText>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Current Layer</DetailsText>
+              <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
+            </DetailsTextWrap>
+            <GrayText>{status?.topLayer || 0}</GrayText>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Verified Layer</DetailsText>
+              <Tooltip width={250} text="tooltip Verified Layer" isDarkMode={isDarkMode} />
+            </DetailsTextWrap>
+            <GrayText>{status?.verifiedLayer || 0}</GrayText>
+          </DetailsRow>
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Connection Type</DetailsText>
               <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>{isWalletMode ? 'Remote Gateway' : 'Managed p2p node'}</GrayText>
+            <GrayText>{isWalletMode ? `Remote Gateway: ${remoteApi}` : 'Managed p2p node'}</GrayText>
           </DetailsRow>
           {!isWalletMode && (
             <DetailsRow>
