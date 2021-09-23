@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { bigInnerSideBar } from '../../assets/images';
 
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -62,7 +62,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const Leaving = ({ history }: RouteComponentProps) => {
+const Leaving = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');

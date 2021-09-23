@@ -1,12 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const SideBar = styled.img`
   position: absolute;
@@ -96,7 +96,7 @@ const subHeader = (
   </RowText>
 );
 
-const Welcome = ({ history }: RouteComponentProps) => {
+const Welcome = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');

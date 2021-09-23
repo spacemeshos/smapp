@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, Tooltip } from '../../basicComponents';
 import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -96,16 +96,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: { mnemonic?: string; ip?: string; port?: string };
-  };
-}
-
-const WalletType = ({ history, location }: Props) => {
+const WalletType = ({ history, location }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');

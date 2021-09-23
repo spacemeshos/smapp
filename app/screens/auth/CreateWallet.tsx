@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
@@ -9,6 +8,7 @@ import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,16 +69,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: { mnemonic?: string; ip?: string; port?: string };
-  };
-}
-
-const CreateWallet = ({ history, location }: Props) => {
+const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [subMode, setSubMode] = useState(1);
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
