@@ -129,10 +129,19 @@ class WalletManager {
       const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
       return res;
     });
+    ipcMain.handle(ipcConsts.SWITCH_API_PROVIDER, async (_event, { ip = '', port = '' }) => {
+      this.switchApiProvider(ip, port);
+      return true;
+    });
   };
 
   activateWalletManager = ({ ip = '', port = '' }: Partial<SocketAddress>) => {
-    ip !== '' && StoreService.setRemoteApi(ip, port);
+    if (ip === '') {
+      StoreService.resetRemoteApi();
+    } else {
+      StoreService.setRemoteApi(ip, port);
+    }
+
     this.meshService.createService(ip, port);
     this.glStateService.createService(ip, port);
     this.txService.createService(ip, port);
@@ -328,6 +337,16 @@ class WalletManager {
       });
       app.quit();
     }
+  };
+
+  switchApiProvider = async (ip: string, port: string) => {
+    if (ip !== '') {
+      // We don't need to start Node here
+      // because it will be started on unlocking/creating the wallet file
+      // but we have to stop it in case that User switched to wallet mode
+      await this.nodeManager.stopNode();
+    }
+    this.activateWalletManager({ ip, port });
   };
 }
 

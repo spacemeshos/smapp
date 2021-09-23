@@ -8,6 +8,7 @@ import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -77,7 +78,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
-  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly); // TODO
+  const isWalletOnlyMode = useSelector(isWalletOnly);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -152,7 +153,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
         <Loader
           size={Loader.sizes.BIG}
           isDarkMode={isDarkMode}
-          note={isWalletOnly ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
+          note={isWalletOnlyMode ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
         />
       </LoaderWrapper>
     );

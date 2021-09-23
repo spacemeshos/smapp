@@ -41,7 +41,8 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
       const packageDefinition = loadSync(resolvedProtoPath);
       const proto = (grpc.loadPackageDefinition(packageDefinition) as unknown) as T;
       const Service = proto.spacemesh.v1[serviceName];
-      this.service = new Service(`${resolvedUrl}:${resolvedPort}`, grpc.credentials.createInsecure());
+      const cred = url === '' ? grpc.credentials.createInsecure() : grpc.credentials.createSsl();
+      this.service = new Service(`${resolvedUrl}:${resolvedPort}`, cred);
       this.serviceName = serviceName;
       this.url = resolvedUrl;
       this.port = resolvedPort;

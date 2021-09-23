@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
-import { switchTheme } from '../../redux/ui/actions';
+import { setUiError, switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
 import { Input, Link, Button } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
@@ -83,6 +83,7 @@ interface Props extends RouteComponentProps {
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
+  setUiError: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -193,6 +194,19 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection title="WALLETS" refProp={this.myRef2} isDarkMode={isDarkMode}>
+              {isWalletOnly ? (
+                <SettingRow
+                  rowName="Application mode"
+                  upperPartLeft="Wallet only"
+                  upperPartRight={<Button onClick={this.handleSwitchToLocalNode} text="SWITCH TO LOCAL NODE" width={180} />}
+                />
+              ) : (
+                <SettingRow
+                  rowName="Application mode"
+                  upperPartLeft="Local node"
+                  upperPartRight={<Button onClick={this.navigateToApiSelect} text="SWITCH TO WALLET ONLY" width={180} />}
+                />
+              )}
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -346,6 +360,17 @@ class Settings extends Component<Props, State> {
     }
   };
 
+  handleSwitchToLocalNode = () => {
+    const { history, setUiError } = this.props;
+    return eventsService
+      .switchApiProvider('', '')
+      .then(() => history.push('/auth'))
+      .catch((err) => {
+        console.error(err); // eslint-disable-line no-console
+        setUiError(err);
+      });
+  };
+
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;
     this.setState({
@@ -396,6 +421,11 @@ class Settings extends Component<Props, State> {
   navigateToWalletRestore = () => {
     const { history } = this.props;
     history.push('/auth/restore');
+  };
+
+  navigateToApiSelect = () => {
+    const { history } = this.props;
+    history.push('/auth/connect-to-api', { switchApiProvider: true });
   };
 
   externalNavigation = ({ to }: { to: string }) => {
@@ -500,7 +530,8 @@ const mapDispatchToProps = {
   updateWalletName,
   updateAccountName,
   createNewAccount,
-  switchTheme
+  switchTheme,
+  setUiError
 };
 
 // @ts-ignore

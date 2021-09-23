@@ -15,6 +15,8 @@ class TransactionManager {
 
   accounts: any;
 
+  private streams: any[] = [];
+
   private readonly mainWindow: BrowserWindow;
 
   constructor(meshService, glStateService, txService, mainWindow) {
@@ -43,46 +45,39 @@ class TransactionManager {
     this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_REWARDS, data: { rewards, publicKey: accountId } });
   };
 
+  private subscribeAccount = (account) => {
+    this.updateAppStateTxs({ accountId: account.publicKey });
+    this.updateAppStateRewards({ accountId: account.publicKey });
+
+    const binaryAccountId = fromHexString(account.publicKey);
+    const addTransaction = this.addTransaction({ accountId: account.publicKey });
+    this.streams.push(this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction }));
+
+    const updateAccountData = this.updateAccountData({ accountId: account.publicKey });
+    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData }));
+
+    // TODO uncomment when api is ready
+    // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
+    // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
+    // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
+
+    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward }));
+  };
+
+  subscribeAccounts = () => {
+    this.streams.forEach((unsubcribe) => unsubcribe());
+    this.streams = [];
+    this.accounts.forEach(this.subscribeAccount);
+  };
+
   setAccounts = ({ accounts }: { accounts: Array<any> }) => {
     this.accounts = accounts;
-    accounts.forEach((account) => {
-      this.updateAppStateTxs({ accountId: account.publicKey });
-      this.updateAppStateRewards({ accountId: account.publicKey });
-
-      const binaryAccountId = fromHexString(account.publicKey.substring(24));
-      const addTransaction = this.addTransaction({ accountId: account.publicKey });
-      this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
-      this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction });
-
-      const updateAccountData = this.updateAccountData({ accountId: account.publicKey });
-      this.retrieveAccountData({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData, retries: 0 });
-      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData });
-
-      // TODO uncomment when api is ready
-      // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
-      // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
-      // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
-
-      const addReward = this.addReward({ accountId: account.publicKey });
-      this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: addReward, retries: 0 });
-      this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: addReward });
-    });
+    this.subscribeAccounts();
   };
 
   addAccount = ({ account }: { account: any }) => {
     this.accounts.push(account);
-    const binaryAccountId = fromHexString(account.publicKey);
-    const addTransaction = this.addTransaction({ accountId: account.publicKey });
-    this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction });
-
-    const updateAccountData = this.updateAccountData({ accountId: account.publicKey });
-    this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData });
-
-    // TODO uncomment when api is ready
-    // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
-    // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
-
-    this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward });
+    this.subscribeAccount(account);
   };
 
   addTransaction = ({ accountId }: { accountId: string }) => ({ tx }: { tx: any }) => {

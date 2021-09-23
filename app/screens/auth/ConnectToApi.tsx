@@ -101,6 +101,16 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const handleNext = () => {
     const { ip, port } = publicServices.services[selectedItemIndex];
+
+    if (location.state?.switchApiProvider)
+      return eventsService
+        .switchApiProvider(ip, port)
+        .then(() => history.push('/auth'))
+        .catch((err) => {
+          console.error(err); // eslint-disable-line no-console
+          dispatch(setUiError(err));
+        });
+
     return eventsService
       .activateWalletManager({ ip, port })
       .then(() => history.push('/auth/wallet-type', { ip, port }))

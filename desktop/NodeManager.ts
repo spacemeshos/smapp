@@ -185,7 +185,6 @@ class NodeManager {
         !(await this.waitProcessFinish(PROCESS_EXIT_TIMEOUT, PROCESS_EXIT_CHECK_INTERVAL)) &&
         // Send a SIGKILL to force kill the process
         this.nodeProcess.kill('SIGKILL');
-
       // Finally, drop the reference
       this.nodeProcess = null;
     } catch (err) {

@@ -5,7 +5,7 @@ import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/nod
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild, PublicServices, ApiURL, SocketAddress } from '../../../shared/types';
+import { NodeError, NodeStatus, NodeVersionAndBuild, SocketAddress } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
@@ -116,6 +116,8 @@ class EventsService {
   static print = ({ content }: { content: string }) => ipcRenderer.send(ipcConsts.PRINT, { content });
 
   static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
+
+  static switchApiProvider = (ip, port) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { ip, port });
 
   /** **************************************  WALLET MANAGER  **************************************** */
 

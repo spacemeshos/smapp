@@ -51,6 +51,7 @@ const Auth = ({ history, location }: AuthRouterParams) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (location.pathname === '/auth/connect-to-api' && location.state?.switchApiProvider) return;
     const initialSetup = async () => {
       const files = await dispatch(readWalletFiles());
       if (files.length && location.pathname !== '/auth/restore') {
@@ -58,7 +59,7 @@ const Auth = ({ history, location }: AuthRouterParams) => {
       }
     };
     initialSetup();
-  }, [dispatch, history, location.pathname]);
+  }, [dispatch, history, location.pathname, location.state]);
 
   return (
     <Wrapper>
