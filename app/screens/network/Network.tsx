@@ -132,7 +132,7 @@ const Network = () => {
               <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
             <GrayText>
-              <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} />
+              <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} isWalletMode={isWalletMode} />
             </GrayText>
           </DetailsRow>
           <DetailsRow>
@@ -169,7 +169,7 @@ const Network = () => {
         <FooterWrap>
           {!isWalletMode && <Link onClick={openLogFile} text="BROWSE LOG FILE" />}
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
-          {nodeError && (
+          {nodeError && !isWalletMode && (
             <Button
               text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
               width={150}
