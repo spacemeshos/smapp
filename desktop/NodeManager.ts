@@ -125,7 +125,6 @@ class NodeManager {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      StoreService.resetRemoteApi();
       await this.getNodeStatus(0);
       this.nodeService.activateErrorStream(this.pushNodeError);
       return true;

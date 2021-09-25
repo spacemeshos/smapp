@@ -26,29 +26,6 @@ class StoreService {
   static clear = () => {
     StoreService.store.clear();
   };
-
-  //
-
-  static setRemoteApi = (ip: string, port: string) => {
-    StoreService.store.set({
-      remoteApi: {
-        ip,
-        port
-      }
-    });
-  };
-
-  static getRemoteApi = (): SocketAddress => {
-    const stored = StoreService.store.get('remoteApi');
-    return {
-      ip: stored?.ip ? stored.ip : '',
-      port: stored?.port ? stored.port : ''
-    };
-  };
-
-  static resetRemoteApi = () => {
-    StoreService.remove('remoteApi');
-  };
 }
 
 export default StoreService;

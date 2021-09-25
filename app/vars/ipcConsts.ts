@@ -15,7 +15,6 @@ const ipcConsts = {
   LIST_PUBLIC_SERVICES: 'LIST_PUBLIC_SERVICES',
   // Switching modes (Wallet / Local node)
   SWITCH_API_PROVIDER: 'SWITCH_API_PROVIDER',
-  PUSH_API_PROVIDER_TO_GUI: 'PUSH_API_PROVIDER_TO_GUI',
   /** *********************************************************************** API 2.0 ********************************************************** */
   // Smesher Service calls
   SMESHER_GET_SETTINGS: 'SMESHER_GET_SETTINGS',

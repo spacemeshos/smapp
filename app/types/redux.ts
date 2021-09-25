@@ -11,7 +11,6 @@ export interface NetworkState {
   rootHash: string;
   minCommitmentSize: number;
   explorerUrl: string;
-  remoteApi: null | string;
 }
 
 export interface NodeState {

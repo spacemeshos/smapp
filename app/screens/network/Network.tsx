@@ -8,7 +8,7 @@ import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../.
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
-import { isWalletOnly } from '../../redux/wallet/selectors';
+import { getRemoteApi, isWalletOnly } from '../../redux/wallet/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -96,7 +96,7 @@ const Network = () => {
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const remoteApi = useSelector((state: RootState) => state.network.remoteApi);
+  const remoteApi = useSelector(getRemoteApi);
   const [isRestarting, setRestarting] = useState(false);
 
   const requestNodeRestart = useCallback(async () => {

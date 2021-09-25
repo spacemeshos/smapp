@@ -56,8 +56,7 @@ export const createNewWallet = ({ existingMnemonic = '', password, ip = '', port
   eventsService
     .createWallet({ password, existingMnemonic, ip, port })
     .then((data) => {
-      const { meta, accounts, mnemonic, usingRemoteApi } = data;
-      dispatch(setUsingRemoteApi(usingRemoteApi));
+      const { meta, accounts, mnemonic } = data;
       dispatch(setWalletMeta(meta));
       dispatch(setAccounts(accounts));
       dispatch(setMnemonic(mnemonic));
@@ -71,7 +70,7 @@ export const createNewWallet = ({ existingMnemonic = '', password, ip = '', port
 
 export const unlockWallet = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, accounts, mnemonic, meta, contacts, usingRemoteApi } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
+  const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
   if (error) {
     if (error.message && error.message.indexOf('Unexpected token') === 0) {
       return false;
@@ -80,7 +79,6 @@ export const unlockWallet = ({ password }: { password: string }) => async (dispa
     dispatch(setUiError(addErrorPrefix('Can not unlock wallet\n', error)));
     return false;
   } else {
-    dispatch(setUsingRemoteApi(usingRemoteApi));
     dispatch(setWalletMeta(meta));
     dispatch(setAccounts(accounts));
     dispatch(setMnemonic(mnemonic));

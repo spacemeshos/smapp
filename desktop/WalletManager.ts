@@ -5,6 +5,7 @@ import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
+import { parseRemoteApi } from '../shared/utils';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -46,6 +47,8 @@ class WalletManager {
   private mainWindow: BrowserWindow;
 
   private mnemonic = '';
+
+  private openedWalletFilePath: string | null = null;
 
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
     this.subscribeToEvents(mainWindow);
@@ -140,13 +143,11 @@ class WalletManager {
 
   activateWalletManager = ({ ip = '', port = '' }: Partial<SocketAddress>) => {
     if (ip === '') {
-      StoreService.resetRemoteApi();
+      this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', '');
     } else {
-      StoreService.setRemoteApi(ip, port);
+      this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', `${ip}:${port}`);
       this.nodeManager.connectToRemoteNode(ip, port);
     }
-
-    this.mainWindow.webContents.send(ipcConsts.PUSH_API_PROVIDER_TO_GUI, ip === '' ? null : `${ip}:${port}`);
 
     this.meshService.createService(ip, port);
     this.glStateService.createService(ip, port);
@@ -174,6 +175,7 @@ class WalletManager {
       displayName: 'Main Wallet',
       created: timestamp,
       netId: StoreService.get('netSettings.netId'),
+      remoteApi: usingRemoteApi ? `${ip}:${port}` : '',
       meta: { salt: encryptionConst.DEFAULT_SALT }
     };
     const fileContent: WalletFile = {
@@ -183,7 +185,8 @@ class WalletManager {
     const fileName = `my_wallet_${timestamp}.json`;
     const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
     await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
-    return { meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic, usingRemoteApi };
+    this.openedWalletFilePath = fileNameWithPath;
+    return { meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
   };
 
   readWalletFiles = async () => {
@@ -208,24 +211,28 @@ class WalletManager {
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
 
-      const { ip, port } = StoreService.getRemoteApi();
+      const { ip, port } = parseRemoteApi(meta.remoteApi);
       const usingRemoteApi = ip !== '';
       !usingRemoteApi && (await this.nodeManager.startNode());
       this.activateWalletManager({ ip, port });
 
+      // Update netId in wallet file to actual one
+      const actualNetId = StoreService.get('netSettings.netId');
+      meta.netId !== actualNetId && this.updateWalletMeta(path, 'netId', actualNetId);
+
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
-      return { error: null, accounts, mnemonic, meta, contacts, usingRemoteApi };
+      this.openedWalletFilePath = path;
+      return { error: null, accounts, mnemonic, meta, contacts };
     } catch (error) {
       logger.error('unlockWalletFile', error, { path, password });
       return { error, accounts: null, mnemonic: null, meta: null, contacts: null };
     }
   };
 
-  updateWalletFile = async ({ fileName, password, data }: { fileName: string; password: string; data: any }) => {
+  updateWalletFile = async ({ fileName, password, data }: { fileName: string; password?: string; data: any }) => {
     try {
-      const rawFileContent = await readFileAsync(fileName);
-      // @ts-ignore
+      const rawFileContent = await readFileAsync(fileName, { encoding: 'utf-8' });
       const fileContent = JSON.parse(rawFileContent);
       let field = 'meta';
       let dataToUpdate = data;
@@ -237,9 +244,18 @@ class WalletManager {
         this.txManager.setAccounts({ accounts: data.accounts });
       }
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, [field]: dataToUpdate }));
+      this.openedWalletFilePath = fileName;
     } catch (error) {
       logger.error('updateWalletFile', error);
     }
+  };
+
+  updateWalletMeta = async <K extends keyof WalletMeta>(walletFilePath: string, key: K, value: WalletMeta[K]) => {
+    const rawFileContent = await readFileAsync(walletFilePath, { encoding: 'utf-8' });
+    const wallet = JSON.parse(rawFileContent);
+    const updatedWallet: WalletFile = { ...wallet, meta: { ...wallet.meta, [key]: value } };
+    await writeFileAsync(walletFilePath, JSON.stringify(updatedWallet));
+    return true;
   };
 
   createNewAccount = async ({ fileName, password }: { fileName: string; password: string }) => {
@@ -316,6 +332,7 @@ class WalletManager {
       try {
         StoreService.clear();
         await unlinkFileAsync(fileName);
+        this.openedWalletFilePath = null;
         browserWindow.reload();
       } catch (error) {
         logger.error('deleteWalletFile', error);

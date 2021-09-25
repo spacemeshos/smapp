@@ -8,8 +8,7 @@ const initialState: NetworkState = {
   minCommitmentSize: 0,
   currentLayer: -1,
   rootHash: '',
-  explorerUrl: '',
-  remoteApi: null
+  explorerUrl: ''
 };
 
 const reducer = (state: NetworkState = initialState, action: CustomAction) => {
@@ -33,10 +32,6 @@ const reducer = (state: NetworkState = initialState, action: CustomAction) => {
         payload: { rootHash }
       } = action;
       return rootHash ? { ...state, rootHash } : state;
-    }
-    case SET_REMOTE_API: {
-      const { remoteApi } = action.payload;
-      return { ...state, remoteApi };
     }
     default:
       return state;

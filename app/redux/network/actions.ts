@@ -29,8 +29,3 @@ export const getGlobalStateHash = () => async (dispatch: AppThDispatch) => {
     dispatch({ type: SET_STATE_ROOT_HASH, payload: { rootHash } });
   }
 };
-
-export const setRemoteApi = (remoteApi: string | null) => ({
-  type: SET_REMOTE_API,
-  payload: { remoteApi }
-});

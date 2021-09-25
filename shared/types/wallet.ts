@@ -24,6 +24,7 @@ export interface WalletMeta {
   displayName: string;
   created: string;
   netId: number;
+  remoteApi: string;
   meta: {
     salt: string;
   };
