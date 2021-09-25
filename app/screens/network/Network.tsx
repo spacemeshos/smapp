@@ -83,7 +83,7 @@ const ErrorMessage = styled.span`
   -webkit-box-orient: vertical;
 `;
 
-const Network = () => {
+const Network = ({ history }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -104,6 +104,10 @@ const Network = () => {
     await eventsService.restartNode();
     setRestarting(false);
   }, []);
+
+  const requestSwitchGateway = () => {
+    history.push('/auth/connect-to-api', { switchApiProvider: true });
+  };
 
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
@@ -169,7 +173,9 @@ const Network = () => {
         <FooterWrap>
           {!isWalletMode && <Link onClick={openLogFile} text="BROWSE LOG FILE" />}
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
-          {nodeError && !isWalletMode && (
+          {nodeError && isWalletMode ? (
+            <Button text="SWITCH GATEWAY" width={150} isPrimary onClick={requestSwitchGateway} style={{ marginLeft: 'auto' }} />
+          ) : (
             <Button
               text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
               width={150}
