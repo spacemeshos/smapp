@@ -84,6 +84,7 @@ class EventsService {
     computeProviderId: number;
     throttle: boolean;
   }) => {
+    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { ip: '', port: '' });
     await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
     return ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
   };
