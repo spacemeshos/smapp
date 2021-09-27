@@ -51,8 +51,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {
-      const { postSetupComputeProviders } = action.payload;
-      return { ...state, postSetupComputeProviders };
+      return { ...state, postSetupComputeProviders: action.payload };
     }
     case SET_SMESHER_CONFIG: {
       const { coinbase, dataDir, numUnits, computeProviderId, throttle } = action.payload.smeshingConfig;

@@ -7,7 +7,7 @@ import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
-import { formatBytes } from '../../infra/utils';
+import { formatBytes, getAddress } from '../../infra/utils';
 import { BITS, AppThDispatch, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
 
@@ -62,7 +62,8 @@ const NodeSetup = ({ history, location }: Props) => {
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
-    const done = await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, numUnits, provider, throttle }));
+    if (!provider) return; // TODO
+    const done = await dispatch(startSmeshing({ coinbase: `0x${getAddress(accounts[0].publicKey)}`, dataDir, numUnits, provider, throttle }));
     if (done) {
       history.push('/main/node', { showIntro: true });
     }
@@ -114,6 +115,8 @@ const NodeSetup = ({ history, location }: Props) => {
           const calculationResult = i * singleCommitmentSize;
           commitments.push({ label: formatBytes(calculationResult), size: calculationResult, numUnits: i });
         }
+        // TODO: Make a well default instead of logic inside view and rerendering comp:
+        numUnits === 0 && setNumUnits(commitments[0].numUnits);
         return (
           <PoSSize
             nextAction={handleNextAction}

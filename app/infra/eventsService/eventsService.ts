@@ -3,7 +3,13 @@ import { ipcConsts } from '../../vars';
 import { Tx } from '../../types';
 import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
-import { SET_SMESHER_SETTINGS_AND_STARTUP_STATUS, SET_POST_DATA_CREATION_STATUS, SET_ACCOUNT_REWARDS } from '../../redux/smesher/actions';
+import {
+  SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
+  SET_POST_DATA_CREATION_STATUS,
+  SET_ACCOUNT_REWARDS,
+  SET_SETUP_COMPUTE_PROVIDERS,
+  SET_SMESHER_CONFIG
+} from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import { NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
@@ -148,14 +154,14 @@ ipcRenderer.on(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, (_event, reque
 
 ipcRenderer.on(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, (_event, request) => {
   const { smeshingConfig } = request;
-  store.dispatch({ type: SET_SMESHER_SETTINGS_AND_STARTUP_STATUS, payload: { smeshingConfig } });
+  store.dispatch({ type: SET_SMESHER_CONFIG, payload: { smeshingConfig } });
 });
 
 ipcRenderer.on(ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS, (_event, request) => {
-  const { config, coinbase, dataDir, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing } = request;
+  const { providers } = request;
   store.dispatch({
-    type: SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
-    payload: { config, coinbase, dataDir, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing }
+    type: SET_SETUP_COMPUTE_PROVIDERS,
+    payload: providers
   });
 });
 
