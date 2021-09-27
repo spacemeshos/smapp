@@ -1,11 +1,11 @@
 import { RouteComponentProps, StaticContext } from 'react-router';
+import { SocketAddress } from '../../../shared/types';
 
 type AuthLocationState = {
   isLoggedOut?: boolean;
   switchApiProvider?: boolean;
-  ip?: string;
-  port?: string;
   mnemonic?: string;
+  apiUrl?: SocketAddress;
 };
 
 export type AuthRouterParams = RouteComponentProps<Record<string, any>, StaticContext, AuthLocationState>;

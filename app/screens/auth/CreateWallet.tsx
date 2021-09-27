@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import { isRemoteNodeApi } from '../../../shared/utils';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
@@ -110,7 +111,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
+      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, apiUrl: location?.state?.apiUrl }));
       setSubMode(2);
       setIsLoaderVisible(false);
     }
@@ -136,7 +137,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     if (subMode === 1 && validate()) {
       createWallet();
     } else if (subMode === 2) {
-      if (location?.state?.ip) {
+      if (location?.state?.apiUrl && isRemoteNodeApi(location.state.apiUrl)) {
         history.push('/main/wallet');
       } else {
         history.push('/main/node-setup');

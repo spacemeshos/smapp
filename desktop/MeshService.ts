@@ -1,4 +1,5 @@
 import { ProtoGrpcType } from '../proto/mesh';
+import { PublicService, SocketAddress } from '../shared/types';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
@@ -7,8 +8,8 @@ const PROTO_PATH = 'proto/mesh.proto';
 class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   logger = Logger({ className: 'MeshService' });
 
-  createService = (url: string, port: string) => {
-    this.createNetService(PROTO_PATH, url, port, 'MeshService');
+  createService = (apiUrl?: SocketAddress | PublicService) => {
+    this.createNetService(PROTO_PATH, apiUrl, 'MeshService');
   };
 
   getCurrentLayer = () =>

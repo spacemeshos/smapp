@@ -6,6 +6,7 @@ export interface NodeVersionAndBuild {
 export type PublicService = { name: string } & SocketAddress;
 
 export type SocketAddress = {
-  ip: string;
+  host: string;
   port: string;
+  protocol: 'http:' | 'https:';
 };

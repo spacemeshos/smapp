@@ -109,6 +109,16 @@ const Network = ({ history }) => {
     history.push('/auth/connect-to-api', { switchApiProvider: true });
   };
 
+  const renderActionButton = () => {
+    if (!nodeError) return null;
+
+    return isWalletMode ? (
+      <Button text="SWITCH GATEWAY" width={150} isPrimary onClick={requestSwitchGateway} style={{ marginLeft: 'auto' }} />
+    ) : (
+      <Button text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'} width={150} isPrimary onClick={requestNodeRestart} style={{ marginLeft: 'auto' }} isDisabled={isRestarting} />
+    );
+  };
+
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
   };
@@ -173,18 +183,7 @@ const Network = ({ history }) => {
         <FooterWrap>
           {!isWalletMode && <Link onClick={openLogFile} text="BROWSE LOG FILE" />}
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
-          {nodeError && isWalletMode ? (
-            <Button text="SWITCH GATEWAY" width={150} isPrimary onClick={requestSwitchGateway} style={{ marginLeft: 'auto' }} />
-          ) : (
-            <Button
-              text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
-              width={150}
-              isPrimary
-              onClick={requestNodeRestart}
-              style={{ marginLeft: 'auto' }}
-              isDisabled={isRestarting}
-            />
-          )}
+          {renderActionButton()}
         </FooterWrap>
       </Container>
     </WrapperWith2SideBars>

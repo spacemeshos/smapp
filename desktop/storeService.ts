@@ -1,5 +1,3 @@
-import { SocketAddress } from '../shared/types';
-
 const Store = require('electron-store');
 
 class StoreService {

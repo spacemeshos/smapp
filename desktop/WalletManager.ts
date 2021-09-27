@@ -5,7 +5,7 @@ import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
-import { parseRemoteApi } from '../shared/utils';
+import { isLocalNodeApi, isRemoteNodeApi, stringifySocketAddress, toSocketAddress } from '../shared/utils';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -69,11 +69,11 @@ class WalletManager {
   });
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
-    ipcMain.handle(ipcConsts.W_M_ACTIVATE, (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_ACTIVATE, (_event, apiUrl) => {
       try {
-        this.activateWalletManager({ ip: request.ip, port: request.port });
+        this.activateWalletManager(apiUrl);
       } catch (e) {
-        logger.error('W_M_ACTIVATE channel', true, request);
+        logger.error('W_M_ACTIVATE channel', true, apiUrl);
         throw e;
       }
     });
@@ -135,26 +135,26 @@ class WalletManager {
       const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
       return res;
     });
-    ipcMain.handle(ipcConsts.SWITCH_API_PROVIDER, async (_event, { ip = '', port = '' }) => {
-      this.switchApiProvider(ip, port);
+    ipcMain.handle(ipcConsts.SWITCH_API_PROVIDER, async (_event, apiUrl: SocketAddress) => {
+      this.switchApiProvider(apiUrl);
       return true;
     });
   };
 
-  activateWalletManager = ({ ip = '', port = '' }: Partial<SocketAddress>) => {
-    if (ip === '') {
+  activateWalletManager = (apiUrl: SocketAddress) => {
+    if (isLocalNodeApi(apiUrl)) {
       this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', '');
     } else {
-      this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', `${ip}:${port}`);
-      this.nodeManager.connectToRemoteNode(ip, port);
+      this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', stringifySocketAddress(apiUrl));
+      this.nodeManager.connectToRemoteNode(apiUrl);
     }
 
-    this.meshService.createService(ip, port);
-    this.glStateService.createService(ip, port);
-    this.txService.createService(ip, port);
+    this.meshService.createService(apiUrl);
+    this.glStateService.createService(apiUrl);
+    this.txService.createService(apiUrl);
   };
 
-  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string; ip: string; port: string }) => {
+  createWalletFile = async ({ password, existingMnemonic, apiUrl = LOCAL_NODE_API_URL }: { password: string; existingMnemonic: string; apiUrl: SocketAddress }) => {
     const timestamp = new Date().toISOString().replace(/:/g, '-');
     this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
     const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
@@ -164,10 +164,10 @@ class WalletManager {
       contacts: []
     };
 
-    const usingRemoteApi = ip !== '';
+    const usingRemoteApi = isRemoteNodeApi(apiUrl);
     !usingRemoteApi && (await this.nodeManager.startNode());
 
-    this.activateWalletManager({ ip, port });
+    this.activateWalletManager(apiUrl);
     this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
     const key = fileEncryptionService.createEncryptionKey({ password });
     const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
@@ -175,7 +175,7 @@ class WalletManager {
       displayName: 'Main Wallet',
       created: timestamp,
       netId: StoreService.get('netSettings.netId'),
-      remoteApi: usingRemoteApi ? `${ip}:${port}` : '',
+      remoteApi: usingRemoteApi ? stringifySocketAddress(apiUrl) : '',
       meta: { salt: encryptionConst.DEFAULT_SALT }
     };
     const fileContent: WalletFile = {
@@ -211,10 +211,10 @@ class WalletManager {
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
 
-      const { ip, port } = parseRemoteApi(meta.remoteApi);
-      const usingRemoteApi = ip !== '';
+      const apiUrl = toSocketAddress(meta.remoteApi);
+      const usingRemoteApi = isRemoteNodeApi(apiUrl);
       !usingRemoteApi && (await this.nodeManager.startNode());
-      this.activateWalletManager({ ip, port });
+      this.activateWalletManager(apiUrl);
 
       // Update netId in wallet file to actual one
       const actualNetId = StoreService.get('netSettings.netId');
@@ -362,14 +362,14 @@ class WalletManager {
     }
   };
 
-  switchApiProvider = async (ip: string, port: string) => {
-    if (ip !== '') {
+  switchApiProvider = async (apiUrl: SocketAddress) => {
+    if (isRemoteNodeApi(apiUrl)) {
       // We don't need to start Node here
       // because it will be started on unlocking/creating the wallet file
       // but we have to stop it in case that User switched to wallet mode
       await this.nodeManager.stopNode();
     }
-    this.activateWalletManager({ ip, port });
+    this.activateWalletManager(apiUrl);
   };
 }
 

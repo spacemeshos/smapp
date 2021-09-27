@@ -7,6 +7,8 @@ import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
+import { SocketAddress } from '../../../shared/types';
+import { stringifySocketAddress } from '../../../shared/utils';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -51,8 +53,7 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
 type PublicServicesView = {
   label: string;
   text: string;
-  ip: string;
-  port: string;
+  value: SocketAddress;
 };
 
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
@@ -72,9 +73,12 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
           loading: false,
           services: services.map((service) => ({
             label: service.name,
-            text: service.ip,
-            ip: service.ip,
-            port: service.port
+            text: stringifySocketAddress(service),
+            value: {
+              host: service.host,
+              port: service.port,
+              protocol: service.protocol
+            }
           }))
         })
       )
@@ -100,11 +104,11 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const getPublicServicesDropdownData = () => (publicServices.loading ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }] : publicServices.services);
 
   const handleNext = () => {
-    const { ip, port } = publicServices.services[selectedItemIndex];
+    const { value } = publicServices.services[selectedItemIndex];
 
     if (location.state?.switchApiProvider)
       return eventsService
-        .switchApiProvider(ip, port)
+        .switchApiProvider(value)
         .then(() => history.push('/auth'))
         .catch((err) => {
           console.error(err); // eslint-disable-line no-console
@@ -112,8 +116,8 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
         });
 
     return eventsService
-      .activateWalletManager({ ip, port })
-      .then(() => history.push('/auth/wallet-type', { ip, port }))
+      .activateWalletManager(value)
+      .then(() => history.push('/auth/wallet-type', { apiUrl: value }))
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));

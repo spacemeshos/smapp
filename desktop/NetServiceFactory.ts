@@ -1,11 +1,9 @@
 import path from 'path';
 import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
-import { NodeError, NodeErrorLevel } from '../shared/types';
+import { NodeError, NodeErrorLevel, PublicService, SocketAddress } from '../shared/types';
+import { LOCAL_NODE_API_URL } from '../shared/constants';
 import Logger from './logger';
-
-const DEFAULT_URL = 'localhost';
-const DEFAULT_PORT = '9092';
 
 // Types
 type Proto = { spacemesh: { v1: any; [k: string]: any }; [k: string]: any };
@@ -26,26 +24,22 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
 
   protected logger: ReturnType<typeof Logger> | null = null;
 
-  private url: string | null = null;
+  private apiUrl: SocketAddress | null = null;
 
-  private port: string | null = null;
-
-  createNetService = (protoPath: string, url = '', port = '', serviceName: string) => {
-    if (this.url !== url || this.port !== port) {
+  createNetService = (protoPath: string, apiUrl: SocketAddress | PublicService | undefined, serviceName: string) => {
+    if (this.apiUrl !== apiUrl) {
       if (this.service) {
         this.service.close();
       }
-      const resolvedUrl = url || DEFAULT_URL;
-      const resolvedPort = port || DEFAULT_PORT;
+      this.apiUrl = apiUrl === undefined ? LOCAL_NODE_API_URL : apiUrl;
+
       const resolvedProtoPath = path.join(__dirname, '..', protoPath);
       const packageDefinition = loadSync(resolvedProtoPath);
       const proto = (grpc.loadPackageDefinition(packageDefinition) as unknown) as T;
       const Service = proto.spacemesh.v1[serviceName];
-      const cred = url === '' ? grpc.credentials.createInsecure() : grpc.credentials.createSsl();
-      this.service = new Service(`${resolvedUrl}:${resolvedPort}`, cred);
+      const connectionType = this.apiUrl.protocol === 'http:' ? grpc.credentials.createInsecure() : grpc.credentials.createSsl();
+      this.service = new Service(`${this.apiUrl.host}:${this.apiUrl.port}`, connectionType);
       this.serviceName = serviceName;
-      this.url = resolvedUrl;
-      this.port = resolvedPort;
     }
   };
 

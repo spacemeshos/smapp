@@ -1,4 +1,5 @@
 import { ProtoGrpcType } from '../proto/global_state';
+import { PublicService, SocketAddress } from '../shared/types';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
@@ -8,8 +9,8 @@ const PROTO_PATH = 'proto/global_state.proto';
 class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateService'> {
   logger = Logger({ className: 'GlobalStateService' });
 
-  createService = (url: string, port: string) => {
-    this.createNetService(PROTO_PATH, url, port, 'GlobalStateService');
+  createService = (apiUrl?: SocketAddress | PublicService) => {
+    this.createNetService(PROTO_PATH, apiUrl, 'GlobalStateService');
   };
 
   getGlobalStateHash = () =>

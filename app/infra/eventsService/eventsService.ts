@@ -5,7 +5,7 @@ import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/nod
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild, SocketAddress } from '../../../shared/types';
+import { NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
@@ -17,19 +17,16 @@ class EventsService {
   static createWallet = ({
     password,
     existingMnemonic,
-    ip,
-    port
+    apiUrl
   }: {
     password: string;
     existingMnemonic: string;
-    ip?: string;
-    port?: string;
+    apiUrl?: SocketAddress;
   }): ReturnType<WalletManager['createWalletFile']> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
-      ip,
-      port
+      apiUrl
     });
 
   static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.W_M_READ_WALLET_FILES);
@@ -42,7 +39,7 @@ class EventsService {
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
-  static listPublicServices = (): Promise<PublicServices> => ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
+  static listPublicServices = (): Promise<PublicService[]> => ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
 
   static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
 
@@ -118,11 +115,11 @@ class EventsService {
 
   static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
-  static switchApiProvider = (ip, port) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { ip, port });
+  static switchApiProvider = (apiUrl: SocketAddress) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
 
   /** **************************************  WALLET MANAGER  **************************************** */
 
-  static activateWalletManager = ({ ip, port }: Partial<SocketAddress>): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { ip, port });
+  static activateWalletManager = (apiUrl: SocketAddress): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, apiUrl);
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 

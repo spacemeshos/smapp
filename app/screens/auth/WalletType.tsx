@@ -102,7 +102,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const navigateToCreateWallet = async () => {
-    history.push('/auth/create', { ip: location?.state?.ip, port: location?.state?.port });
+    history.push('/auth/create', { apiUrl: location?.state?.apiUrl });
   };
 
   return (

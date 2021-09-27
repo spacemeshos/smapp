@@ -50,11 +50,11 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   return files;
 };
 
-export const createNewWallet = ({ existingMnemonic = '', password, ip = '', port = '' }: { existingMnemonic?: string | undefined; password: string } & Partial<SocketAddress>) => (
+export const createNewWallet = ({ existingMnemonic = '', password, apiUrl }: { existingMnemonic?: string | undefined; password: string; apiUrl?: SocketAddress }) => (
   dispatch: AppThDispatch
 ) =>
   eventsService
-    .createWallet({ password, existingMnemonic, ip, port })
+    .createWallet({ password, existingMnemonic, apiUrl })
     .then((data) => {
       const { meta, accounts, mnemonic } = data;
       dispatch(setWalletMeta(meta));

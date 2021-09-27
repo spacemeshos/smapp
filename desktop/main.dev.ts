@@ -19,6 +19,7 @@ import fetch from 'electron-fetch';
 import { ipcConsts } from '../app/vars';
 import { PublicService } from '../shared/types';
 import { DiscoveryItem } from '../shared/schemas';
+import { toPublicService } from '../shared/utils';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -257,7 +258,7 @@ const createWindow = async () => {
         netName: 'Dev Net',
         explorer: '',
         dash: '',
-        grpcAPI: process.env.DEV_NET_REMOTE_API || ''
+        grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || ''
       };
       return { netConfig, initialConfig };
     } else {
@@ -267,20 +268,17 @@ const createWindow = async () => {
     }
   };
 
-  const toPublicService = (netName: string, url: string) => {
-    // Remove `https://` and trailing slash to resolve ip address
-    const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
-    const [, port] = cleanUrl.match(/:(\d+)$/) || [null, ''];
-    return {
-      name: netName,
-      ip: port && port.length > 0 ? cleanUrl.slice(0, -(port.length + 1)) : cleanUrl,
-      port: port || ''
-    };
-  };
-
   const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
     // TODO: Give a wider list of options
-    const walletServices: PublicService[] = [toPublicService(initialConfig.netName, initialConfig.grpcAPI)];
+    // const walletServices: PublicService[] = [toPublicService(initialConfig.netName, initialConfig.grpcAPI)];
+    const walletServices: PublicService[] = [
+      toPublicService(initialConfig.netName, initialConfig.grpcAPI),
+      ...(isDevNet(process) && process.env.DEV_NET_REMOTE_API
+        ? process.env.DEV_NET_REMOTE_API?.split(',')
+            .slice(1)
+            .map((url) => toPublicService(initialConfig.netName, url))
+        : [])
+    ];
     ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
   };
 

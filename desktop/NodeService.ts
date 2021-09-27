@@ -1,6 +1,6 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { ProtoGrpcType } from '../proto/node';
-import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
+import { NodeError, NodeErrorLevel, NodeStatus, PublicService, SocketAddress } from '../shared/types';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import Logger from './logger';
 
@@ -23,8 +23,8 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
 
   logger = Logger({ className: 'NodeService' });
 
-  createService = (ip = '', port = '') => {
-    this.createNetService(PROTO_PATH, ip, port, 'NodeService');
+  createService = (apiUrl?: SocketAddress | PublicService) => {
+    this.createNetService(PROTO_PATH, apiUrl, 'NodeService');
   };
 
   echo = () =>

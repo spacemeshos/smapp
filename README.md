@@ -48,9 +48,10 @@ To run the application against DevNet you have to set URL to config file to env 
 DEV_NET_URL=https://.../config.json yarn start
 ```
 
-To run the application against DevNet in the Wallet Only mode you have to also set URL to GRPC API provider to env variable `DEV_NET_REMOTE_API`:
+To run the application against DevNet in the Wallet Only mode you have to also set URL (or list of URLs separated by commas) to GRPC API provider to env variable `DEV_NET_REMOTE_API`:
 ```
 DEV_NET_REMOTE_API=https://192.168.0.1:31030 DEV_NET_URL=https://.../config.json yarn start
+DEV_NET_REMOTE_API=https://192.168.0.1:31030,http://192.168.0.2:31035 DEV_NET_URL=https://.../config.json yarn start
 ```
 
 ### Building Artifacts in CI

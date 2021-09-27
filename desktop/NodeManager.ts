@@ -6,7 +6,7 @@ import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { ChildProcess } from 'node:child_process';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
-import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
+import { NodeError, NodeErrorLevel, NodeStatus, PublicService, SocketAddress } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
@@ -110,8 +110,8 @@ class NodeManager {
 
   isNodeRunning = () => !!this.nodeProcess;
 
-  connectToRemoteNode = async (ip: string, port: string) => {
-    this.nodeService.createService(ip, port);
+  connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
+    this.nodeService.createService(apiUrl);
     return this.getNodeStatus(0);
   };
 
