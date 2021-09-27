@@ -27,23 +27,22 @@ export interface ProtoGrpcType {
       Block: MessageTypeDefinition
       CoinTransferTransaction: MessageTypeDefinition
       CoinbaseResponse: MessageTypeDefinition
-      ComputeApiClass: EnumTypeDefinition
-      ConfigResponse: MessageTypeDefinition
-      CreatePostDataRequest: MessageTypeDefinition
       EstimatedRewardsRequest: MessageTypeDefinition
       EstimatedRewardsResponse: MessageTypeDefinition
       GasOffered: MessageTypeDefinition
       IsSmeshingResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
+      MeshTransaction: MessageTypeDefinition
       MinGasResponse: MessageTypeDefinition
-      PostComputeProvider: MessageTypeDefinition
-      PostComputeProvidersRequest: MessageTypeDefinition
-      PostComputeProvidersResponse: MessageTypeDefinition
-      PostDataCreationProgressStreamResponse: MessageTypeDefinition
-      PostInitOpts: MessageTypeDefinition
-      PostStatus: MessageTypeDefinition
-      PostStatusResponse: MessageTypeDefinition
+      PostConfigResponse: MessageTypeDefinition
+      PostSetupComputeProvider: MessageTypeDefinition
+      PostSetupComputeProvidersRequest: MessageTypeDefinition
+      PostSetupComputeProvidersResponse: MessageTypeDefinition
+      PostSetupOpts: MessageTypeDefinition
+      PostSetupStatus: MessageTypeDefinition
+      PostSetupStatusResponse: MessageTypeDefinition
+      PostSetupStatusStreamResponse: MessageTypeDefinition
       Reward: MessageTypeDefinition
       SetCoinbaseRequest: MessageTypeDefinition
       SetCoinbaseResponse: MessageTypeDefinition
