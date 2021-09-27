@@ -31,7 +31,7 @@ class SmesherManager {
 
   sendSmesherSettingsAndStartupState = async () => {
     const { config } = await this.smesherService.getPostConfig();
-    const { smesherId } = await this.smesherService.getSmesherId();
+    const { smesherId } = await this.smesherService.getSmesherID();
     const { postSetupState, numLabelsWritten, errorMessage } = await this.smesherService.getPostSetupStatus();
     const { isSmeshing } = await this.smesherService.isSmeshing();
     this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, {
@@ -57,8 +57,8 @@ class SmesherManager {
   };
 
   sendPostSetupComputeProviders = async () => {
-    const { error, postSetupComputeProviders } = await this.smesherService.getSetupComputeProviders();
-    this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS, { error, postSetupComputeProviders });
+    const { error, providers } = await this.smesherService.getSetupComputeProviders();
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS, { error, providers });
   };
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
@@ -71,8 +71,7 @@ class SmesherManager {
       return res;
     });
     ipcMain.handle(ipcConsts.SMESHER_START_SMESHING, async (_event, request: { postSetupOpts: PostSetupOpts }) =>
-      // eslint-disable-next-line promise/always-return
-      this.smesherService.startSmeshing(request.postSetupOpts, this.handlePostDataCreationStatusStream).then(async () => {
+      this.smesherService.startSmeshing({ ...request.postSetupOpts, handler: this.handlePostDataCreationStatusStream }).then(async () => {
         const { coinbase, dataDir, numUnits, computeProviderId, throttle } = request.postSetupOpts;
         const nodeConfigFilePath = StoreService.get('nodeConfigFilePath');
         const fileContent = await readFileAsync(nodeConfigFilePath);
@@ -91,6 +90,7 @@ class SmesherManager {
         };
         await writeFileAsync(nodeConfigFilePath, JSON.stringify(config));
         StoreService.set('isSmeshing', true);
+        return true;
       })
     );
     ipcMain.handle(ipcConsts.SMESHER_STOP_SMESHING, async (_event, request) => {

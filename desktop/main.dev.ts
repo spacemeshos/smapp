@@ -221,7 +221,6 @@ const createWindow = async () => {
 
   const savedNetId = StoreService.get('netSettings.netId');
   const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
-  StoreService.set('nodeConfigFilePath', configFilePath);
   let netId;
   let initialConfig;
   let netConfig;
@@ -250,6 +249,7 @@ const createWindow = async () => {
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
+    StoreService.set('nodeConfigFilePath', configFilePath);
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
 

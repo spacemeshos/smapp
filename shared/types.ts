@@ -1,3 +1,7 @@
+import { _spacemesh_v1_PostSetupStatus_State } from '../proto/spacemesh/v1/PostSetupStatus';
+
+export { _spacemesh_v1_PostSetupStatus_State as PostSetupState };
+
 export interface NodeVersionAndBuild {
   version: string;
   build: string;
@@ -51,25 +55,17 @@ export interface PostSetupComputeProvider {
 }
 
 export interface PostSetupOpts {
-  coinbase?: string;
+  coinbase: string;
   dataDir: string;
   numUnits: number;
-  numFiles?: number;
+  numFiles: number;
   computeProviderId: number;
   throttle: boolean;
 }
 
-export enum PostSetupState {
-  STATE_UNSPECIFIED = 0, // Lane's favorite impossible value
-  STATE_NOT_STARTED, // Setup not started
-  STATE_IN_PROGRESS, // Setup in progress
-  STATE_COMPLETE, // Setup is complete
-  STATE_ERROR
-}
-
 export interface PostSetupStatus {
-  postSetupState: PostSetupState;
+  postSetupState: _spacemesh_v1_PostSetupStatus_State;
   numLabelsWritten: number;
-  opts: PostSetupOpts;
+  opts: PostSetupOpts | null;
   errorMessage: string;
 }
