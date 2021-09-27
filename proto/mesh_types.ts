@@ -42,6 +42,7 @@ export interface ProtoGrpcType {
       LayersQueryResponse: MessageTypeDefinition
       MaxTransactionsPerSecondRequest: MessageTypeDefinition
       MaxTransactionsPerSecondResponse: MessageTypeDefinition
+      MeshTransaction: MessageTypeDefinition
       NetIDRequest: MessageTypeDefinition
       NetIDResponse: MessageTypeDefinition
       Reward: MessageTypeDefinition

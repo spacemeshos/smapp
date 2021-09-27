@@ -3,16 +3,16 @@
 import type * as grpc from '@grpc/grpc-js'
 import type { MethodDefinition } from '@grpc/proto-loader'
 import type { CoinbaseResponse as _spacemesh_v1_CoinbaseResponse, CoinbaseResponse__Output as _spacemesh_v1_CoinbaseResponse__Output } from '../../spacemesh/v1/CoinbaseResponse';
-import type { ConfigResponse as _spacemesh_v1_ConfigResponse, ConfigResponse__Output as _spacemesh_v1_ConfigResponse__Output } from '../../spacemesh/v1/ConfigResponse';
 import type { Empty as _google_protobuf_Empty, Empty__Output as _google_protobuf_Empty__Output } from '../../google/protobuf/Empty';
 import type { EstimatedRewardsRequest as _spacemesh_v1_EstimatedRewardsRequest, EstimatedRewardsRequest__Output as _spacemesh_v1_EstimatedRewardsRequest__Output } from '../../spacemesh/v1/EstimatedRewardsRequest';
 import type { EstimatedRewardsResponse as _spacemesh_v1_EstimatedRewardsResponse, EstimatedRewardsResponse__Output as _spacemesh_v1_EstimatedRewardsResponse__Output } from '../../spacemesh/v1/EstimatedRewardsResponse';
 import type { IsSmeshingResponse as _spacemesh_v1_IsSmeshingResponse, IsSmeshingResponse__Output as _spacemesh_v1_IsSmeshingResponse__Output } from '../../spacemesh/v1/IsSmeshingResponse';
 import type { MinGasResponse as _spacemesh_v1_MinGasResponse, MinGasResponse__Output as _spacemesh_v1_MinGasResponse__Output } from '../../spacemesh/v1/MinGasResponse';
-import type { PostComputeProvidersRequest as _spacemesh_v1_PostComputeProvidersRequest, PostComputeProvidersRequest__Output as _spacemesh_v1_PostComputeProvidersRequest__Output } from '../../spacemesh/v1/PostComputeProvidersRequest';
-import type { PostComputeProvidersResponse as _spacemesh_v1_PostComputeProvidersResponse, PostComputeProvidersResponse__Output as _spacemesh_v1_PostComputeProvidersResponse__Output } from '../../spacemesh/v1/PostComputeProvidersResponse';
-import type { PostDataCreationProgressStreamResponse as _spacemesh_v1_PostDataCreationProgressStreamResponse, PostDataCreationProgressStreamResponse__Output as _spacemesh_v1_PostDataCreationProgressStreamResponse__Output } from '../../spacemesh/v1/PostDataCreationProgressStreamResponse';
-import type { PostStatusResponse as _spacemesh_v1_PostStatusResponse, PostStatusResponse__Output as _spacemesh_v1_PostStatusResponse__Output } from '../../spacemesh/v1/PostStatusResponse';
+import type { PostConfigResponse as _spacemesh_v1_PostConfigResponse, PostConfigResponse__Output as _spacemesh_v1_PostConfigResponse__Output } from '../../spacemesh/v1/PostConfigResponse';
+import type { PostSetupComputeProvidersRequest as _spacemesh_v1_PostSetupComputeProvidersRequest, PostSetupComputeProvidersRequest__Output as _spacemesh_v1_PostSetupComputeProvidersRequest__Output } from '../../spacemesh/v1/PostSetupComputeProvidersRequest';
+import type { PostSetupComputeProvidersResponse as _spacemesh_v1_PostSetupComputeProvidersResponse, PostSetupComputeProvidersResponse__Output as _spacemesh_v1_PostSetupComputeProvidersResponse__Output } from '../../spacemesh/v1/PostSetupComputeProvidersResponse';
+import type { PostSetupStatusResponse as _spacemesh_v1_PostSetupStatusResponse, PostSetupStatusResponse__Output as _spacemesh_v1_PostSetupStatusResponse__Output } from '../../spacemesh/v1/PostSetupStatusResponse';
+import type { PostSetupStatusStreamResponse as _spacemesh_v1_PostSetupStatusStreamResponse, PostSetupStatusStreamResponse__Output as _spacemesh_v1_PostSetupStatusStreamResponse__Output } from '../../spacemesh/v1/PostSetupStatusStreamResponse';
 import type { SetCoinbaseRequest as _spacemesh_v1_SetCoinbaseRequest, SetCoinbaseRequest__Output as _spacemesh_v1_SetCoinbaseRequest__Output } from '../../spacemesh/v1/SetCoinbaseRequest';
 import type { SetCoinbaseResponse as _spacemesh_v1_SetCoinbaseResponse, SetCoinbaseResponse__Output as _spacemesh_v1_SetCoinbaseResponse__Output } from '../../spacemesh/v1/SetCoinbaseResponse';
 import type { SetMinGasRequest as _spacemesh_v1_SetMinGasRequest, SetMinGasRequest__Output as _spacemesh_v1_SetMinGasRequest__Output } from '../../spacemesh/v1/SetMinGasRequest';
@@ -32,15 +32,6 @@ export interface SmesherServiceClient extends grpc.Client {
   coinbase(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_CoinbaseResponse__Output) => void): grpc.ClientUnaryCall;
   coinbase(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_CoinbaseResponse__Output) => void): grpc.ClientUnaryCall;
   coinbase(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_CoinbaseResponse__Output) => void): grpc.ClientUnaryCall;
-  
-  Config(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  Config(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  Config(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  Config(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  config(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  config(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  config(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
-  config(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ConfigResponse__Output) => void): grpc.ClientUnaryCall;
   
   EstimatedRewards(argument: _spacemesh_v1_EstimatedRewardsRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EstimatedRewardsResponse__Output) => void): grpc.ClientUnaryCall;
   EstimatedRewards(argument: _spacemesh_v1_EstimatedRewardsRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EstimatedRewardsResponse__Output) => void): grpc.ClientUnaryCall;
@@ -69,28 +60,37 @@ export interface SmesherServiceClient extends grpc.Client {
   minGas(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MinGasResponse__Output) => void): grpc.ClientUnaryCall;
   minGas(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MinGasResponse__Output) => void): grpc.ClientUnaryCall;
   
-  PostComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  PostComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  PostComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  PostComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
-  postComputeProviders(argument: _spacemesh_v1_PostComputeProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostConfig(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  PostConfig(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  PostConfig(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  PostConfig(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  postConfig(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  postConfig(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  postConfig(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
+  postConfig(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostConfigResponse__Output) => void): grpc.ClientUnaryCall;
   
-  PostDataCreationProgressStream(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostDataCreationProgressStreamResponse__Output>;
-  PostDataCreationProgressStream(argument: _google_protobuf_Empty, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostDataCreationProgressStreamResponse__Output>;
-  postDataCreationProgressStream(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostDataCreationProgressStreamResponse__Output>;
-  postDataCreationProgressStream(argument: _google_protobuf_Empty, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostDataCreationProgressStreamResponse__Output>;
+  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupComputeProviders(argument: _spacemesh_v1_PostSetupComputeProvidersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupComputeProvidersResponse__Output) => void): grpc.ClientUnaryCall;
   
-  PostStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  PostStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  PostStatus(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  PostStatus(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  postStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  postStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  postStatus(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
-  postStatus(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupStatus(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  PostSetupStatus(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupStatus(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupStatus(argument: _google_protobuf_Empty, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  postSetupStatus(argument: _google_protobuf_Empty, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_PostSetupStatusResponse__Output) => void): grpc.ClientUnaryCall;
+  
+  PostSetupStatusStream(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostSetupStatusStreamResponse__Output>;
+  PostSetupStatusStream(argument: _google_protobuf_Empty, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostSetupStatusStreamResponse__Output>;
+  postSetupStatusStream(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostSetupStatusStreamResponse__Output>;
+  postSetupStatusStream(argument: _google_protobuf_Empty, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_PostSetupStatusStreamResponse__Output>;
   
   SetCoinbase(argument: _spacemesh_v1_SetCoinbaseRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SetCoinbaseResponse__Output) => void): grpc.ClientUnaryCall;
   SetCoinbase(argument: _spacemesh_v1_SetCoinbaseRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SetCoinbaseResponse__Output) => void): grpc.ClientUnaryCall;
@@ -142,19 +142,19 @@ export interface SmesherServiceClient extends grpc.Client {
 export interface SmesherServiceHandlers extends grpc.UntypedServiceImplementation {
   Coinbase: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_CoinbaseResponse>;
   
-  Config: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_ConfigResponse>;
-  
   EstimatedRewards: grpc.handleUnaryCall<_spacemesh_v1_EstimatedRewardsRequest__Output, _spacemesh_v1_EstimatedRewardsResponse>;
   
   IsSmeshing: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_IsSmeshingResponse>;
   
   MinGas: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_MinGasResponse>;
   
-  PostComputeProviders: grpc.handleUnaryCall<_spacemesh_v1_PostComputeProvidersRequest__Output, _spacemesh_v1_PostComputeProvidersResponse>;
+  PostConfig: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostConfigResponse>;
   
-  PostDataCreationProgressStream: grpc.handleServerStreamingCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostDataCreationProgressStreamResponse>;
+  PostSetupComputeProviders: grpc.handleUnaryCall<_spacemesh_v1_PostSetupComputeProvidersRequest__Output, _spacemesh_v1_PostSetupComputeProvidersResponse>;
   
-  PostStatus: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostStatusResponse>;
+  PostSetupStatus: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusResponse>;
+  
+  PostSetupStatusStream: grpc.handleServerStreamingCall<_google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusStreamResponse>;
   
   SetCoinbase: grpc.handleUnaryCall<_spacemesh_v1_SetCoinbaseRequest__Output, _spacemesh_v1_SetCoinbaseResponse>;
   
@@ -170,13 +170,13 @@ export interface SmesherServiceHandlers extends grpc.UntypedServiceImplementatio
 
 export interface SmesherServiceDefinition extends grpc.ServiceDefinition {
   Coinbase: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_CoinbaseResponse, _google_protobuf_Empty__Output, _spacemesh_v1_CoinbaseResponse__Output>
-  Config: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_ConfigResponse, _google_protobuf_Empty__Output, _spacemesh_v1_ConfigResponse__Output>
   EstimatedRewards: MethodDefinition<_spacemesh_v1_EstimatedRewardsRequest, _spacemesh_v1_EstimatedRewardsResponse, _spacemesh_v1_EstimatedRewardsRequest__Output, _spacemesh_v1_EstimatedRewardsResponse__Output>
   IsSmeshing: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_IsSmeshingResponse, _google_protobuf_Empty__Output, _spacemesh_v1_IsSmeshingResponse__Output>
   MinGas: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_MinGasResponse, _google_protobuf_Empty__Output, _spacemesh_v1_MinGasResponse__Output>
-  PostComputeProviders: MethodDefinition<_spacemesh_v1_PostComputeProvidersRequest, _spacemesh_v1_PostComputeProvidersResponse, _spacemesh_v1_PostComputeProvidersRequest__Output, _spacemesh_v1_PostComputeProvidersResponse__Output>
-  PostDataCreationProgressStream: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostDataCreationProgressStreamResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostDataCreationProgressStreamResponse__Output>
-  PostStatus: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostStatusResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostStatusResponse__Output>
+  PostConfig: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostConfigResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostConfigResponse__Output>
+  PostSetupComputeProviders: MethodDefinition<_spacemesh_v1_PostSetupComputeProvidersRequest, _spacemesh_v1_PostSetupComputeProvidersResponse, _spacemesh_v1_PostSetupComputeProvidersRequest__Output, _spacemesh_v1_PostSetupComputeProvidersResponse__Output>
+  PostSetupStatus: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostSetupStatusResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusResponse__Output>
+  PostSetupStatusStream: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_PostSetupStatusStreamResponse, _google_protobuf_Empty__Output, _spacemesh_v1_PostSetupStatusStreamResponse__Output>
   SetCoinbase: MethodDefinition<_spacemesh_v1_SetCoinbaseRequest, _spacemesh_v1_SetCoinbaseResponse, _spacemesh_v1_SetCoinbaseRequest__Output, _spacemesh_v1_SetCoinbaseResponse__Output>
   SetMinGas: MethodDefinition<_spacemesh_v1_SetMinGasRequest, _spacemesh_v1_SetMinGasResponse, _spacemesh_v1_SetMinGasRequest__Output, _spacemesh_v1_SetMinGasResponse__Output>
   SmesherID: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_SmesherIDResponse, _google_protobuf_Empty__Output, _spacemesh_v1_SmesherIDResponse__Output>

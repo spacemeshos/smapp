@@ -33,6 +33,7 @@ export interface ProtoGrpcType {
       Layer: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       LogLevel: EnumTypeDefinition
+      MeshTransaction: MessageTypeDefinition
       NodeError: MessageTypeDefinition
       NodeStatus: MessageTypeDefinition
       Reward: MessageTypeDefinition

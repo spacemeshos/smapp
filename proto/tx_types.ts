@@ -27,6 +27,7 @@ export interface ProtoGrpcType {
       GasOffered: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
+      MeshTransaction: MessageTypeDefinition
       Reward: MessageTypeDefinition
       Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
