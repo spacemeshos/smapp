@@ -18,7 +18,7 @@ const reducer = (state: NetworkState = initialState, action: CustomAction) => {
           definitions: { netId, netName, genesisTime, explorerUrl }
         }
       } = action;
-      return { ...state, netId, netName, genesisTime,  explorerUrl };
+      return { ...state, netId, netName, genesisTime, explorerUrl };
     }
     case SET_CURRENT_LAYER: {
       const {

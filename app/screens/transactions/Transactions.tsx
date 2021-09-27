@@ -22,12 +22,6 @@ const Text = styled.span`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
-const Header = styled.span`
-  font-family: SourceCodeProBold;
-  margin-bottom: 25px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
-`;
-
 const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
