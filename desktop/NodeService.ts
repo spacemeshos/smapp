@@ -1,9 +1,9 @@
 import { ServiceError } from '@grpc/grpc-js';
+import { ProtoGrpcType } from '../proto/node';
 import { NodeError, NodeErrorLevel, NodeStatus } from '../shared/types';
-import NetServiceFactory from './NetServiceFactory';
+import NetServiceFactory, { Service } from './NetServiceFactory';
 import Logger from './logger';
 
-const logger = Logger({ className: 'NodeService' });
 const PROTO_PATH = 'proto/node.proto';
 
 export type StatusStreamHandler = (status: NodeStatus) => void;
@@ -16,88 +16,69 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   level: NodeErrorLevel.LOG_LEVEL_ERROR
 });
 
-class NodeService extends NetServiceFactory {
-  private statusStream;
+class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
+  private statusStream: ReturnType<Service<ProtoGrpcType, 'NodeService'>['StatusStream']> | null = null;
 
-  private errorStream;
+  private errorStream: ReturnType<Service<ProtoGrpcType, 'NodeService'>['ErrorStream']> | null = null;
+
+  logger = Logger({ className: 'NodeService' });
 
   createService = () => {
     this.createNetService(PROTO_PATH, '', '', 'NodeService');
   };
 
   echo = () =>
-    new Promise<boolean>((resolve) => {
-      // @ts-ignore
-      this.service.Echo({ msg: { value: 'ready' } }, (error) => {
-        if (error) {
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      });
-    });
+    this.callService('Echo', { msg: { value: 'ready' } })
+      .then(() => true)
+      .catch(() => false);
 
   getNodeVersion = (): Promise<string> =>
-    new Promise((resolve, reject) => {
-      // @ts-ignore
-      this.service.Version({}, (error, response) => {
-        if (error) {
-          logger.error('grpc Version', error);
-          reject(normalizeGrpcErrorToNodeError(error));
-        } else {
-          resolve(response.versionString.value);
-        }
+    this.callService('Version', {})
+      .then((response) => response.versionString?.value || 'v?.?.?')
+      .catch((error) => {
+        throw normalizeGrpcErrorToNodeError(error);
       });
-    });
 
   getNodeBuild = (): Promise<string> =>
-    new Promise((resolve, reject) => {
-      // @ts-ignore
-      this.service.Build({}, (error, response) => {
-        if (error) {
-          logger.error('grpc Build', error);
-          reject(normalizeGrpcErrorToNodeError(error));
-        } else {
-          resolve(response.buildString.value);
-        }
+    this.callService('Build', {})
+      .then((response) => response.buildString?.value || '')
+      .catch((error) => {
+        throw normalizeGrpcErrorToNodeError(error);
       });
-    });
 
   getNodeStatus = (): Promise<NodeStatus> =>
-    new Promise((resolve, reject) => {
-      // @ts-ignore
-      this.service.Status({}, (error, response) => {
-        if (error) {
-          logger.error('grpc Status', error);
-          reject(normalizeGrpcErrorToNodeError(error));
-        } else {
-          const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
-          resolve({
-            connectedPeers: parseInt(connectedPeers),
-            isSynced: !!isSynced,
-            syncedLayer: syncedLayer.number,
-            topLayer: topLayer.number,
-            verifiedLayer: verifiedLayer.number
-          });
-        }
+    this.callService('Status', {})
+      .then((response) => {
+        const DEFAULTS = {
+          connectedPeers: 0,
+          isSynced: false,
+          syncedLayer: 0,
+          topLayer: 0,
+          verifiedLayer: 0
+        };
+        if (!response.status) return { ...DEFAULTS };
+
+        const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
+        return {
+          connectedPeers: parseInt(connectedPeers),
+          isSynced: !!isSynced,
+          syncedLayer: syncedLayer?.number || 0,
+          topLayer: topLayer?.number || 0,
+          verifiedLayer: verifiedLayer?.number || 0
+        } as NodeStatus;
+      })
+      .catch((error) => {
+        throw normalizeGrpcErrorToNodeError(error);
       });
-    });
 
   shutdown = (): Promise<boolean> =>
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.Shutdown({}, (error) => {
-        if (error) {
-          logger.error('grpc Shutdown', error);
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      });
-    });
+    this.callService('Shutdown', {})
+      .then(() => true)
+      .catch(() => false);
 
   activateStatusStream = (statusHandler: StatusStreamHandler, errorHandler: ErrorStreamHandler) => {
-    // @ts-ignore
+    if (!this.service) return;
+
     this.statusStream = this.service.StatusStream({});
     this.statusStream.on('data', (response: any) => {
       const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
@@ -110,17 +91,19 @@ class NodeService extends NetServiceFactory {
       });
     });
     this.statusStream.on('error', (error: ServiceError) => {
-      logger.error('grpc StatusStream', error);
+      this.logger.error('grpc StatusStream', error);
       errorHandler(normalizeGrpcErrorToNodeError(error));
     });
     this.statusStream.on('end', () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
-      logger.log('grpc StatusStream ended', null);
+      this.logger.log('grpc StatusStream ended', null);
+      this.statusStream = null;
     });
   };
 
   activateErrorStream = (handler: ErrorStreamHandler) => {
-    // @ts-ignore
+    if (!this.service) return;
+
     this.errorStream = this.service.ErrorStream({});
     this.errorStream.on('data', (response: any) => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -128,12 +111,13 @@ class NodeService extends NetServiceFactory {
       handler(error);
     });
     this.errorStream.on('error', (error: any) => {
-      logger.error('grpc ErrorStream', error);
+      this.logger.error('grpc ErrorStream', error);
       handler(normalizeGrpcErrorToNodeError(error));
     });
     this.errorStream.on('end', () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
-      logger.log('grpc ErrorStream ended', null);
+      this.logger.log('grpc ErrorStream ended', null);
+      this.errorStream = null;
     });
   };
 }

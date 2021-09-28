@@ -39,3 +39,4 @@ ct-libc/
 .env
 .vscode
 /desktop/dist
+key.bin
