@@ -1,37 +1,9 @@
-import { _spacemesh_v1_PostSetupStatus_State } from '../proto/spacemesh/v1/PostSetupStatus';
+import { PostSetupState } from '.';
+import { _spacemesh_v1_PostSetupStatus_State } from '../../proto/spacemesh/v1/PostSetupStatus';
+
+// Core
 
 export { _spacemesh_v1_PostSetupStatus_State as PostSetupState };
-
-export interface NodeVersionAndBuild {
-  version: string;
-  build: string;
-}
-
-export interface NodeStatus {
-  connectedPeers: number;
-  isSynced: boolean;
-  syncedLayer: number;
-  topLayer: number;
-  verifiedLayer: number;
-}
-
-export enum NodeErrorLevel {
-  LOG_LEVEL_UNSPECIFIED = 0,
-  LOG_LEVEL_DEBUG = 1,
-  LOG_LEVEL_INFO = 2,
-  LOG_LEVEL_WARN = 3,
-  LOG_LEVEL_ERROR = 4,
-  LOG_LEVEL_DPANIC = 5,
-  LOG_LEVEL_PANIC = 6,
-  LOG_LEVEL_FATAL = 7
-}
-
-export interface NodeError {
-  level: NodeErrorLevel;
-  module: string;
-  msg: string;
-  stackTrace: string;
-}
 
 export interface SmesherConfig {
   bitsPerLabel: number;
@@ -68,4 +40,15 @@ export interface PostSetupStatus {
   numLabelsWritten: number;
   opts: PostSetupOpts | null;
   errorMessage: string;
+}
+
+// IPC
+export interface IPCSmesherStartupData {
+  // TODO: Get rid of empty Record when we get rid of mixing erros and data (`normalizeServiceError`)
+  config: SmesherConfig | Record<string, never>;
+  smesherId: string;
+  postSetupState: PostSetupState;
+  numLabelsWritten: number;
+  errorMessage: string;
+  isSmeshing: boolean;
 }

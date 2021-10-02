@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { PostSetupOpts, PostSetupStatus } from '../shared/types';
+import { IPCSmesherStartupData, PostSetupOpts, PostSetupStatus } from '../shared/types';
 import SmesherService from './SmesherService';
 import StoreService from './storeService';
 import Logger from './logger';
@@ -34,14 +34,15 @@ class SmesherManager {
     const { smesherId } = await this.smesherService.getSmesherID();
     const { postSetupState, numLabelsWritten, errorMessage } = await this.smesherService.getPostSetupStatus();
     const { isSmeshing } = await this.smesherService.isSmeshing();
-    this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, {
+    const data: IPCSmesherStartupData = {
       config,
       smesherId,
       postSetupState,
       numLabelsWritten,
       errorMessage,
       isSmeshing
-    });
+    };
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, data);
   };
 
   sendSmesherConfig = async () => {
