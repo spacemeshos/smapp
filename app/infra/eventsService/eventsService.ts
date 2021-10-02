@@ -11,7 +11,7 @@ import {
   SET_SMESHER_CONFIG
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
+import { IPCSmesherStartupData, NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
@@ -144,11 +144,10 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
   store.dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards, publicKey } });
 });
 
-ipcRenderer.on(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, (_event, request) => {
-  const { config, coinbase, dataDir, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing } = request;
+ipcRenderer.on(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, (_event, request: IPCSmesherStartupData) => {
   store.dispatch({
     type: SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
-    payload: { config, coinbase, dataDir, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing }
+    payload: request
   });
 });
 

@@ -1,6 +1,6 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
-import { PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
+import { IPCSmesherStartupData, PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
 import { BITS } from '../../types';
 import {
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
@@ -33,20 +33,16 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_SMESHER_SETTINGS_AND_STARTUP_STATUS: {
       const {
-        payload: { config, coinbase, dataDir, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing }
+        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing }
       } = action;
-      if (postSetupState === PostSetupState.STATE_ERROR) {
-        return { ...state, config, coinbase, dataDir, smesherId, postProgressError: errorMessage, isCreatingPosData: false, isSmeshing };
-      }
+
       return {
         ...state,
         config,
-        coinbase,
-        dataDir,
         smesherId,
         numLabelsWritten,
         postSetupState,
-        postProgressError: '',
+        postProgressError: postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
         isSmeshing
       };
     }

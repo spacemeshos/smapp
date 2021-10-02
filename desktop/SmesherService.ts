@@ -1,8 +1,8 @@
 import { ProtoGrpcType } from '../proto/smesher';
-import { PostSetupStatus } from '../shared/types';
+import { PostSetupOpts, PostSetupStatus } from '../shared/types';
 
-import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
 import { _spacemesh_v1_PostSetupStatus_State } from '../proto/spacemesh/v1/PostSetupStatus';
+import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
 import Logger from './logger';
 import StoreService from './storeService';
 import { fromHexString, toHexString } from './utils';
@@ -73,15 +73,11 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
     coinbase,
     dataDir,
     numUnits,
+    numFiles,
     computeProviderId,
     throttle,
     handler
-  }: {
-    coinbase: string;
-    dataDir: string;
-    numUnits: number;
-    computeProviderId: number;
-    throttle: boolean;
+  }: PostSetupOpts & {
     handler: (error: Error, status: PostSetupStatus) => void;
   }) =>
     this.callService('StartSmeshing', {
@@ -89,7 +85,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
       opts: {
         dataDir,
         numUnits,
-        numFiles: 1,
+        numFiles,
         computeProviderId,
         throttle
       }
@@ -167,17 +163,22 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
     }
     if (!this.stream) {
       this.stream = this.service.PostSetupStatusStream({});
-      this.stream.on('data', (response: PostSetupStatus) => {
+      this.stream.on('data', (response: PostSetupStatusStreamResponse__Output) => {
         const { status } = response;
         if (status === null) return; // TODO
         const { state, numLabelsWritten, errorMessage, opts } = status;
         this.logger.log('grpc PostDataCreationProgressStream', { state, numLabelsWritten, errorMessage });
-        handler(null, { postSetupState: state, numLabelsWritten: parseInt(numLabelsWritten.toString()), errorMessage, opts });
+        handler(null, {
+          postSetupState: state,
+          numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten.toString()) : 0,
+          errorMessage,
+          opts: opts as PostSetupOpts | null
+        });
       });
       this.stream.on('error', (error: any) => {
         this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore
-        handler(error, {});
+        handler(error, {}); // TODO
       });
       this.stream.on('end', () => {
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
