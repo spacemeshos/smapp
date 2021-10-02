@@ -41,7 +41,7 @@ const MiddleSectionText = styled.div`
 const Overview = ({ history }: RouteComponentProps) => {
   const account = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
   const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
-  const isCreatingPosData = useSelector((state: RootState) => state.smesher.isCreatingPosData);
+  const isCreatingPosData = useSelector((state: RootState) => state.smesher.isSmeshing);
 
   const navigateToSendCoins = () => {
     history.push('/main/wallet/send-coins');

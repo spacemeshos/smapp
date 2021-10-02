@@ -26,13 +26,14 @@ export const startSmeshing = ({
   throttle: boolean;
 }) => async (dispatch: AppThDispatch) => {
   try {
-    await eventsService.startSmeshing({ coinbase, dataDir, numUnits, computeProviderId: provider.id, throttle });
+    // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
+    await eventsService.startSmeshing({ coinbase, dataDir, numUnits, numFiles: 1, computeProviderId: provider.id, throttle });
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
     dispatch({ type: STARTED_SMESHING, payload: { coinbase, dataDir, numUnits, provider, throttle } });
     return true;
   } catch (error) {
-    dispatch(setUiError(addErrorPrefix('Error initiating smeshing\n', error)));
+    dispatch(setUiError(addErrorPrefix('Error initiating smeshing\n', error as Error)));
     return false;
   }
 };

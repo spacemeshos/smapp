@@ -7,7 +7,7 @@ import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
-import { formatBytes } from '../../infra/utils';
+import { formatBytes, getAddress } from '../../infra/utils';
 import { BITS, AppThDispatch, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
 
@@ -63,7 +63,7 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const setupAndInitMining = async () => {
     if (!provider) return; // TODO
-    const done = await dispatch(startSmeshing({ coinbase: accounts[0].publicKey, dataDir, numUnits, provider, throttle }));
+    const done = await dispatch(startSmeshing({ coinbase: `0x${getAddress(accounts[0].publicKey)}`, dataDir, numUnits, provider, throttle }));
     if (done) {
       history.push('/main/node', { showIntro: true });
     }

@@ -58,7 +58,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   getSetupComputeProviders = () =>
     this.callService('PostSetupComputeProviders', { benchmark: true })
       .then((response) => ({
-        providers: response.providers.map(({ id, model, computeApi, performance }) => ({ id, model, computeApi, performance: parseInt(performance.toString()) }))
+        providers: response.providers.map(({ id, model, computeApi, performance = 0 }) => ({ id, model, computeApi, performance: parseInt(performance.toString()) }))
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ providers: [] }));
@@ -161,19 +161,13 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         })
       );
 
-  getPostComputeProviders = () =>
-    this.callService('PostSetupComputeProviders', { benchmark: true })
-      .then(({ providers }) => providers.map(({ id, model, computeApi, performance }) => ({ id, model, computeApi, performance: parseInt(performance) })))
-      .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({}));
-
   postDataCreationProgressStream = ({ handler }: { handler: (error: any, status: PostSetupStatus) => void }) => {
     if (!this.service) {
       throw new Error(`SmesherService is not running`);
     }
     if (!this.stream) {
       this.stream = this.service.PostSetupStatusStream({});
-      this.stream.on('data', (response: PostSetupStatusStreamResponse__Output) => {
+      this.stream.on('data', (response: PostSetupStatus) => {
         const { status } = response;
         if (status === null) return; // TODO
         const { state, numLabelsWritten, errorMessage, opts } = status;
