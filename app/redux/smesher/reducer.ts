@@ -1,6 +1,6 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
-import { IPCSmesherStartupData, PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
+import { PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
 import { BITS } from '../../types';
 import {
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
@@ -21,7 +21,6 @@ const initialState = {
   throttle: false,
   provider: null,
   commitmentSize: 0,
-  isSmeshing: false,
   numLabelsWritten: 0,
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
@@ -33,7 +32,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_SMESHER_SETTINGS_AND_STARTUP_STATUS: {
       const {
-        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage, isSmeshing }
+        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage }
       } = action;
 
       return {
@@ -42,8 +41,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         smesherId,
         numLabelsWritten,
         postSetupState,
-        postProgressError: postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
-        isSmeshing
+        postProgressError: postSetupState === PostSetupState.STATE_ERROR ? errorMessage : ''
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {
@@ -59,7 +57,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         payload: { coinbase, dataDir, numUnits, provider, throttle }
       } = action;
       const commitmentSize = state.config ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) / BITS : 0;
-      return { ...state, coinbase, dataDir, numUnits, throttle, provider, commitmentSize, isCreatingPosData: true };
+      return { ...state, coinbase, dataDir, numUnits, throttle, provider, commitmentSize };
     }
     case DELETED_POS_DATA: {
       return {
@@ -70,7 +68,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         throttle: false,
         provider: null,
         commitmentSize: 0,
-        isSmeshing: false,
         numLabelsWritten: 0,
         postSetupState: PostSetupState.STATE_NOT_STARTED,
         postProgressError: ''
@@ -81,14 +78,13 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         payload: { error, postSetupState, numLabelsWritten, errorMessage }
       } = action;
       if (error || postSetupState === PostSetupState.STATE_ERROR) {
-        return { ...state, postProgressError: errorMessage || error.message, isCreatingPosData: false };
+        return { ...state, postProgressError: errorMessage || error.message };
       }
       return {
         ...state,
-        numLabelsWritten,
+        numLabelsWritten: numLabelsWritten || state.numLabelsWritten,
         postSetupState,
-        postProgressError: '',
-        isSmeshing: postSetupState === PostSetupState.STATE_COMPLETE
+        postProgressError: ''
       };
     }
     case SET_ACCOUNT_REWARDS: {
