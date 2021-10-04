@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { IPCSmesherStartupData, PostSetupOpts, PostSetupStatus } from '../shared/types';
+import { IPCSmesherStartupData, PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types';
 import SmesherService from './SmesherService';
 import StoreService from './storeService';
 import Logger from './logger';
@@ -49,8 +49,15 @@ class SmesherManager {
     // @ts-ignore
     const nodeConfig = JSON.parse(fileContent);
     if (nodeConfig.smeshing) {
-      const { coinbase, dataDir, numUnits, computeProviderId, throttle } = nodeConfig.smeshing;
-      const smeshingConfig = { coinbase, dataDir, numUnits, computeProviderId, throttle };
+      const opts = nodeConfig.smeshing['smeshing-opts'];
+      const smeshingConfig = {
+        coinbase: nodeConfig.smeshing['smeshing-coinbase'],
+        dataDir: opts['smeshing-opts-datadir'],
+        numFiles: opts['smeshing-opts-numfiles'],
+        numUnits: opts['smeshing-opts-numunits'],
+        computeProviderId: opts['smeshing-opts-provider'],
+        throttle: opts['smeshing-opts-throttle']
+      };
       this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, { smeshingConfig });
     }
   };
