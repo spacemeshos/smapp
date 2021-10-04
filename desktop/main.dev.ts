@@ -58,14 +58,12 @@ let mainWindow: BrowserWindow;
 let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
+let smesherManager: SmesherManager;
 let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
-const isSmeshing = () => {
-  const netId = StoreService.get('netSettings.netId');
-  return !!StoreService.get(`${netId}-smeshingParams`);
-};
+const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing()).isSmeshing;
 const keepSmeshingInBackground = async () => {
   const { response } = await dialog.showMessageBox(mainWindow, {
     title: 'Quit App',
@@ -81,7 +79,7 @@ const handleClosingApp = async (event) => {
   if (closingApp) return;
   event.preventDefault();
 
-  if (isSmeshing() && (await keepSmeshingInBackground())) {
+  if ((await isSmeshing()) && (await keepSmeshingInBackground())) {
     setTimeout(() => {
       notificationManager.showNotification({
         title: 'Spacemesh',
@@ -253,8 +251,7 @@ const createWindow = async () => {
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
 
-  // eslint-disable-next-line no-new
-  const smesherManager = new SmesherManager(mainWindow);
+  smesherManager = new SmesherManager(mainWindow, configFilePath);
   nodeManager = new NodeManager(mainWindow, cleanStart, smesherManager);
   // eslint-disable-next-line no-new
   new WalletManager(mainWindow, nodeManager);

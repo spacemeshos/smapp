@@ -89,8 +89,6 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         throttle
       }
     }).then((response) => {
-      const netId = StoreService.get('netSettings.netId');
-      StoreService.set(`${netId}-smeshingParams`, { dataDir, coinbase });
       this.postDataCreationProgressStream({ handler });
       return response.status;
     });
@@ -113,12 +111,6 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
     this.callService('SetCoinbase', { id: { address: fromHexString(coinbase) } })
-      .then((response) => {
-        const netId = StoreService.get('netSettings.netId');
-        const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-        StoreService.set('smeshingParams', { dataDir: savedSmeshingParams.dataDir, coinbase });
-        return { status: response.status };
-      })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
