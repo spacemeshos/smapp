@@ -1,7 +1,6 @@
 import { ProtoGrpcType } from '../proto/smesher';
-import { PostSetupOpts, PostSetupStatus } from '../shared/types';
+import { PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types';
 
-import { _spacemesh_v1_PostSetupStatus_State } from '../proto/spacemesh/v1/PostSetupStatus';
 import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
 import Logger from './logger';
 import StoreService from './storeService';
@@ -78,7 +77,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
     throttle,
     handler
   }: PostSetupOpts & {
-    handler: (error: Error, status: PostSetupStatus) => void;
+    handler: (error: Error, status: Partial<PostSetupStatus>) => void;
   }) =>
     this.callService('StartSmeshing', {
       coinbase: { address: fromHexString(coinbase.substring(2)) },
@@ -151,17 +150,18 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
       .then(this.normalizeServiceResponse)
       .catch(
         this.normalizeServiceError({
-          postSetupState: _spacemesh_v1_PostSetupStatus_State.STATE_UNSPECIFIED,
+          postSetupState: PostSetupState.STATE_UNSPECIFIED,
           numLabelsWritten: 0,
           errorMessage: ''
         })
       );
 
-  postDataCreationProgressStream = ({ handler }: { handler: (error: any, status: PostSetupStatus) => void }) => {
+  postDataCreationProgressStream = ({ handler }: { handler: (error: any, status: Partial<PostSetupStatus>) => void }) => {
     if (!this.service) {
       throw new Error(`SmesherService is not running`);
     }
     if (!this.stream) {
+      let streamError = null;
       this.stream = this.service.PostSetupStatusStream({});
       this.stream.on('data', (response: PostSetupStatusStreamResponse__Output) => {
         const { status } = response;
@@ -174,13 +174,23 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
           errorMessage,
           opts: opts as PostSetupOpts | null
         });
+        streamError = null;
       });
       this.stream.on('error', (error: any) => {
         this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore
         handler(error, {}); // TODO
+        streamError = error;
       });
       this.stream.on('end', () => {
+        if (!streamError) {
+          // In case if Smeshing is done it just closes the stream
+          // so we have to notify client that the Smesher complete creating data
+          handler(null, {
+            postSetupState: PostSetupState.STATE_COMPLETE
+          });
+          streamError = null;
+        }
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
         this.stream = null;
       });

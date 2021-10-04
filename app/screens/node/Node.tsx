@@ -10,6 +10,7 @@ import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pa
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
 import { NodeStatus, PostSetupState } from '../../../shared/types';
+import * as SmesherSelectors from '../../redux/smesher/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -155,6 +156,26 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
+const ProgressBarWrapper = styled.div`
+  width: 100px;
+  margin-left: 1em;
+`;
+
+const getStatus = (state: PostSetupState) => {
+  switch (state) {
+    case PostSetupState.STATE_IN_PROGRESS:
+      return 'Creating PoS data';
+    case PostSetupState.STATE_COMPLETE:
+      return 'Smeshing';
+    case PostSetupState.STATE_ERROR:
+      return 'Error';
+    default:
+    case PostSetupState.STATE_UNSPECIFIED:
+    case PostSetupState.STATE_NOT_STARTED:
+      return 'Not started';
+  }
+};
+
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
 
@@ -164,7 +185,9 @@ const Node = ({ history, location }: Props) => {
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
   const commitmentSize = useSelector((state: RootState) => state.smesher.commitmentSize);
-  const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
+  const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
+  const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
+  const isSmesherActive = isSmeshing || isCreatingPostData;
   const postSetupState = useSelector((state: RootState) => state.smesher.postSetupState);
   const numLabelsWritten = useSelector((state: RootState) => state.smesher.numLabelsWritten);
   const rewards = useSelector((state: RootState) => state.smesher.rewards);
@@ -178,9 +201,11 @@ const Node = ({ history, location }: Props) => {
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
-  const isSmesherActive = isSmeshing || [PostSetupState.STATE_IN_PROGRESS, PostSetupState.STATE_ERROR].includes(postSetupState);
 
   const renderNodeDashboard = () => {
+    // TODO: Refactor screen and Node Dashboard
+    //       to avoid excessive re-rendering of the whole screen
+    //       on each progrss update, which causes blinking
     const progress = ((numLabelsWritten * smesherConfig.bitsPerLabel) / (BITS * commitmentSize)) * 100;
     return (
       <>
@@ -209,7 +234,7 @@ const Node = ({ history, location }: Props) => {
         <LineWrap>
           <TextWrapper>
             <Text>Status</Text>
-            <Text>{isSmeshing ? 'Smeshing' : 'Creating PoS data'}</Text>
+            <Text>{getStatus(postSetupState)}</Text>
           </TextWrapper>
         </LineWrap>
         <LineWrap>
@@ -223,9 +248,11 @@ const Node = ({ history, location }: Props) => {
             <Text>Progress</Text>
             <Text>
               <Text className="progress">
-                {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress}%
+                {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
               </Text>
-              <ProgressBar progress={progress} />
+              <ProgressBarWrapper>
+                <ProgressBar progress={progress} />
+              </ProgressBarWrapper>
             </Text>
           </TextWrapper>
         </LineWrap>
@@ -244,7 +271,6 @@ const Node = ({ history, location }: Props) => {
             imgPosition="before"
             width={180}
           />
-          <Button onClick={() => history.push('/main/node-setup', { modifyPostData: true })} text="MODIFY POST DATA" isPrimary={false} style={{ marginRight: 15 }} width={130} />
           {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
             <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
           )}

@@ -50,5 +50,4 @@ export interface IPCSmesherStartupData {
   postSetupState: PostSetupState;
   numLabelsWritten: number;
   errorMessage: string;
-  isSmeshing: boolean;
 }

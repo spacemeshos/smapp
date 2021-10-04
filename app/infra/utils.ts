@@ -19,11 +19,13 @@ export const getFormattedTimestamp = (timestamp: number) => {
 export const getAddress = (key: string) => key.substring(24);
 
 export const formatBytes = (bytes: number) => {
-  if (bytes === 0) return '0';
-  if (bytes > 0 && bytes < 1048576) {
+  if (bytes === 0) {
+    return '0';
+  } else if (bytes > 0 && bytes < 1048576) {
     return `${parseFloat((bytes / 1024).toFixed(2))} KB`;
-  }
-  if (bytes >= 1099511627776) {
+  } else if (bytes >= 1048576 && bytes < 1073741824) {
+    return `${parseFloat((bytes / 1048576).toFixed(2))} MB`;
+  } else if (bytes >= 1099511627776) {
     return `${parseFloat((bytes / 1099511627776).toFixed(2))} TB`;
   }
   return `${parseFloat((bytes / 1073741824).toFixed(2))} GB`;

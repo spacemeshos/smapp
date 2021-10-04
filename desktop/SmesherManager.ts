@@ -33,14 +33,12 @@ class SmesherManager {
     const { config } = await this.smesherService.getPostConfig();
     const { smesherId } = await this.smesherService.getSmesherID();
     const { postSetupState, numLabelsWritten, errorMessage } = await this.smesherService.getPostSetupStatus();
-    const { isSmeshing } = await this.smesherService.isSmeshing();
     const data: IPCSmesherStartupData = {
       config,
       smesherId,
       postSetupState,
       numLabelsWritten,
-      errorMessage,
-      isSmeshing
+      errorMessage
     };
     this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, data);
   };
@@ -141,7 +139,7 @@ class SmesherManager {
     }
   };
 
-  handlePostDataCreationStatusStream = (error: any, status: PostSetupStatus) => {
+  handlePostDataCreationStatusStream = (error: any, status: Partial<PostSetupStatus>) => {
     this.mainWindow.webContents.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { error, status });
   };
 }

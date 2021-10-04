@@ -42,7 +42,6 @@ export interface SmesherState {
   dataDir: string;
   numUnits: number;
   commitmentSize: number;
-  isSmeshing: boolean;
   numLabelsWritten: any;
   postSetupState: PostSetupState;
   postProgressError: string;
