@@ -45,11 +45,15 @@ class SmesherManager {
     const { config } = await this.smesherService.getPostConfig();
     const { smesherId } = await this.smesherService.getSmesherID();
     const { postSetupState, numLabelsWritten, errorMessage } = await this.smesherService.getPostSetupStatus();
+    const nodeConfig = await this.loadConfig();
+    const opts = nodeConfig?.smeshing['smeshing-opts'];
+    const numUnits = (opts && opts['smeshing-opts-numunits']) || 0;
     const data: IPCSmesherStartupData = {
       config,
       smesherId,
       postSetupState,
       numLabelsWritten,
+      numUnits,
       errorMessage
     };
     this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, data);
