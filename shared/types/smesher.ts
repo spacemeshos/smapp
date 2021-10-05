@@ -49,5 +49,6 @@ export interface IPCSmesherStartupData {
   smesherId: string;
   postSetupState: PostSetupState;
   numLabelsWritten: number;
+  numUnits: number;
   errorMessage: string;
 }
