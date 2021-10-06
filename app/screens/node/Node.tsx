@@ -347,7 +347,10 @@ const Node = ({ history, location }: Props) => {
       <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon} isDarkMode={isDarkMode}>
         {false ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
-      <SmesherLog rewards={rewards} initTimestamp={smesherInitTimestamp} smeshingTimestamp={smesherSmeshingTimestamp} isDarkMode={isDarkMode} />
+      {/*
+        TODO
+        <SmesherLog rewards={rewards} initTimestamp={smesherInitTimestamp} smeshingTimestamp={smesherSmeshingTimestamp} isDarkMode={isDarkMode} />
+      */}
     </Wrapper>
   );
 };
