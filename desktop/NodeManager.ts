@@ -124,6 +124,7 @@ class NodeManager {
   };
 
   startNode = () => {
+    if (this.nodeProcess) return;
     const userDataPath = app.getPath('userData');
     const nodePath = path.resolve(
       app.getAppPath(),
