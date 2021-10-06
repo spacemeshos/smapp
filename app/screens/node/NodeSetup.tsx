@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { startSmeshing, deletePosData } from '../../redux/smesher/actions';
+import { deletePosData, pauseSmeshing, startSmeshing } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { PoSModifyPostData, PoSDirectory, PoSSize, PoSProvider, PoSSummary } from '../../components/node';
 import { StepsContainer } from '../../basicComponents';
@@ -63,7 +63,7 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const setupAndInitMining = async () => {
     if (!provider) return; // TODO
-    const done = await dispatch(startSmeshing({ coinbase: `0x${getAddress(accounts[0].publicKey)}`, dataDir, numUnits, provider, throttle }));
+    const done = await dispatch(startSmeshing({ coinbase: `0x${getAddress(accounts[0].publicKey)}`, dataDir, numUnits, provider: provider.id, throttle }));
     if (done) {
       history.push('/main/node', { showIntro: true });
     }
@@ -77,8 +77,13 @@ const NodeSetup = ({ history, location }: Props) => {
     }
   };
 
+  const handleModifyPosData = async () => {
+    await dispatch(pauseSmeshing());
+    handleNextAction();
+  };
+
   const handleDeletePosData = async () => {
-    await dispatch(deletePosData({ deleteFiles: true }));
+    await dispatch(deletePosData());
     history.push('/main/wallet/');
   };
 
@@ -93,7 +98,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const renderRightSection = () => {
     switch (mode) {
       case 0:
-        return <PoSModifyPostData modify={handleNextAction} deleteData={handleDeletePosData} isDarkMode={isDarkMode} />;
+        return <PoSModifyPostData modify={handleModifyPosData} deleteData={handleDeletePosData} isDarkMode={isDarkMode} />;
       case 1:
         return (
           <PoSDirectory

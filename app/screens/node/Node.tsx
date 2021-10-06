@@ -6,13 +6,14 @@ import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 import { formatBytes, getAbbreviatedText, getFormattedTimestamp } from '../../infra/utils';
-import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
+import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, playIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 import { NodeStatus, PostSetupState } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
+import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -163,7 +164,7 @@ const ProgressBarWrapper = styled.div`
   margin-left: 1em;
 `;
 
-const getStatus = (state: PostSetupState) => {
+const getStatus = (state: PostSetupState, isPaused: boolean) => {
   switch (state) {
     case PostSetupState.STATE_IN_PROGRESS:
       return 'Creating PoS data';
@@ -174,7 +175,7 @@ const getStatus = (state: PostSetupState) => {
     default:
     case PostSetupState.STATE_UNSPECIFIED:
     case PostSetupState.STATE_NOT_STARTED:
-      return 'Not started';
+      return isPaused ? 'Paused creation PoS Data' : 'Not started';
   }
 };
 
@@ -189,7 +190,8 @@ const Node = ({ history, location }: Props) => {
   const commitmentSize = useSelector((state: RootState) => state.smesher.commitmentSize);
   const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
-  const isSmesherActive = isSmeshing || isCreatingPostData;
+  const isPausedSmeshing = useSelector(SmesherSelectors.isSmeshingPaused);
+  const isSmesherActive = isSmeshing || isCreatingPostData || isPausedSmeshing;
   const postSetupState = useSelector((state: RootState) => state.smesher.postSetupState);
   const numLabelsWritten = useSelector((state: RootState) => state.smesher.numLabelsWritten);
   const rewards = useSelector((state: RootState) => state.smesher.rewards);
@@ -209,6 +211,8 @@ const Node = ({ history, location }: Props) => {
     // TODO: Refactor screen and Node Dashboard
     //       to avoid excessive re-rendering of the whole screen
     //       on each progrss update, which causes blinking
+    const handlePauseSmeshing = () => dispatch(pauseSmeshing());
+    const handleResumeSmeshing = () => dispatch(resumeSmeshing());
     const progress = ((numLabelsWritten * smesherConfig.bitsPerLabel) / (BITS * commitmentSize)) * 100;
     return (
       <>
@@ -237,7 +241,7 @@ const Node = ({ history, location }: Props) => {
         <LineWrap>
           <TextWrapper>
             <Text>Status</Text>
-            <Text>{getStatus(postSetupState)}</Text>
+            <Text>{getStatus(postSetupState, isPausedSmeshing)}</Text>
           </TextWrapper>
         </LineWrap>
         <LineWrap>
@@ -275,8 +279,9 @@ const Node = ({ history, location }: Props) => {
             width={180}
           />
           {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
-            <Button onClick={() => {}} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
+            <Button onClick={handlePauseSmeshing} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
           )}
+          {isPausedSmeshing && <Button onClick={handleResumeSmeshing} text="RESUME POST DATA GENERATION" img={playIcon} isPrimary width={280} imgPosition="before" />}
         </Footer>
       </>
     );

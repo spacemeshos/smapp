@@ -68,7 +68,7 @@ class SmesherManager {
         dataDir: opts['smeshing-opts-datadir'],
         numFiles: opts['smeshing-opts-numfiles'],
         numUnits: opts['smeshing-opts-numunits'],
-        computeProviderId: opts['smeshing-opts-provider'],
+        provider: opts['smeshing-opts-provider'],
         throttle: opts['smeshing-opts-throttle']
       };
       this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, { smeshingConfig });
@@ -107,8 +107,16 @@ class SmesherManager {
         return this.writeConfig(config);
       })
     );
-    ipcMain.handle(ipcConsts.SMESHER_STOP_SMESHING, async (_event, request) => {
-      const { error } = await this.smesherService.stopSmeshing({ ...request });
+    ipcMain.handle(ipcConsts.SMESHER_STOP_SMESHING, async (_event, { deleteFiles }: { deleteFiles?: boolean }) => {
+      const res = await this.smesherService.stopSmeshing({ deleteFiles: deleteFiles || false });
+      const config = await this.loadConfig();
+      if (deleteFiles) {
+        delete config.smeshing;
+      } else {
+        config.smeshing['smeshing-start'] = false;
+      }
+      await this.writeConfig(config);
+      const error = res?.error;
       return error;
     });
     ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, async () => {
