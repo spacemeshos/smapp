@@ -35,7 +35,7 @@ const getBinaryPath = () => {
 };
 
 const parseVersion = (str) => {
-  const [_, version, build] = str.match(/^(v\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)?)(\+.+)?/);
+  const [_, version, build] = str.match(/^(v\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)?)(?:\.\d+)?(\+.+)?/);
   return { version, build };
 };
 
@@ -47,7 +47,7 @@ const getNodeVersion = (execPath) => new Promise((resolve, reject) => {
 });
 
 (async () => {
-  const versionExpected = await promises.readFile(USE_VERSION_PATH, { encoding: 'utf-8' });
+  const { version: versionExpected } = parseVersion(await promises.readFile(USE_VERSION_PATH, { encoding: 'utf-8' }));
   const { version, build } = await getNodeVersion(getBinaryPath());
   
   if (versionExpected === version) {

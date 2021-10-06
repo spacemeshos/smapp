@@ -84,13 +84,13 @@ jobs:
           key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
           restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
         
-      - name: Prepare link to go-spacemesh binary
+      - name: Prepare link to go-spacemesh release archive
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
-          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{matrix.os}}/go-spacemesh${{matrix.os == 'windows-latest' && '.exe' || ''}}"
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.os == 'windows-latest' && 'Windows' || matrix.os == 'macos-latest' && 'macOS' || 'Linux'}}.zip"
       
-      - name: Check for go-spacemesh artifact existence
+      - name: Check for go-spacemesh release archive existence
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
@@ -103,13 +103,19 @@ jobs:
         run: |
           echo "::set-output name=dir::${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'linux'}}"
           echo "::set-output name=ext::${{ matrix.os == 'windows-latest' && '.exe' || ''}}"
+          echo "::set-output name=rm_flag::${{ matrix.os == 'windows-latest' && '-Recurse -Force' || '-rf' }}"
 
-      - name: Download Go-Spacemesh
+      - name: Download go-spacemesh release archive
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          curl -L --output ./node/${{ steps.platform.outputs.dir }}/go-spacemesh${{ steps.platform.outputs.ext}} --create-dirs ${{steps.node-link.outputs.link}}
+          curl -L --output ./node/release.zip --create-dirs ${{steps.node-link.outputs.link}}
 
-      - name: Set CHMOD on Go-Spacemesh
+      - name: Unzip archive & get rid of redundant files
+        if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        run: |
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip go-spacemesh* *.dylib *.json *.so *.dll *.lib -r
+
+      - name: Set CHMOD on Go-Spacemesh and libs
         if: steps.result.outputs.status != 'success' && matrix.os != 'windows-latest'
         run: (cd ./node/${{ steps.platform.outputs.dir }}; chmod -R +x * .)
       
