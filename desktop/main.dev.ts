@@ -66,23 +66,41 @@ let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
+let shouldShowWindowOnLoad = true;
 const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing()).isSmeshing;
-const keepSmeshingInBackground = async () => {
+
+enum CloseAppPromptResult {
+  CANCELED = 1, // To avoid conversion to `false`
+  KEEP_SMESHING = 2,
+  CLOSE = 3
+}
+
+const promptClosingApp = async () => {
   const { response } = await dialog.showMessageBox(mainWindow, {
     title: 'Quit App',
     message:
       '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
       '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
       '\n\n• Click QUIT to close the app and stop smeshing.\n',
-    buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
+    buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel'],
+    cancelId: 2
   });
-  return response === 0;
+  switch (response) {
+    default:
+    case 2:
+      return CloseAppPromptResult.CANCELED;
+    case 0:
+      return CloseAppPromptResult.KEEP_SMESHING;
+    case 1:
+      return CloseAppPromptResult.CLOSE;
+  }
 };
-const handleClosingApp = async (event) => {
+const handleClosingApp = async (event: Electron.Event) => {
   if (closingApp) return;
   event.preventDefault();
 
-  if ((await isSmeshing()) && (await keepSmeshingInBackground())) {
+  const promptResult = ((await isSmeshing()) && (await promptClosingApp())) || CloseAppPromptResult.CLOSE;
+  if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
     setTimeout(() => {
       notificationManager.showNotification({
         title: 'Spacemesh',
@@ -90,8 +108,9 @@ const handleClosingApp = async (event) => {
       });
     }, 1000);
     mainWindow.hide();
+    shouldShowWindowOnLoad = false;
     mainWindow.reload();
-  } else {
+  } else if (promptResult === CloseAppPromptResult.CLOSE) {
     mainWindow.webContents.send(ipcConsts.CLOSING_APP);
     await nodeManager.stopNode();
     closingApp = true;
@@ -205,8 +224,10 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    mainWindow.show();
-    mainWindow.focus();
+    if (shouldShowWindowOnLoad) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
   });
 
   addIpcEventListeners();
