@@ -3,7 +3,6 @@ import { PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types'
 
 import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
 import Logger from './logger';
-import StoreService from './storeService';
 import { fromHexString, toHexString } from './utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 
@@ -89,9 +88,11 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         throttle
       }
     }).then((response) => {
-      this.postDataCreationProgressStream({ handler });
+      this.postDataCreationProgressStream(handler);
       return response.status;
     });
+
+  activateProgressStream = (handler: (error: Error, status: Partial<PostSetupStatus>) => void) => this.postDataCreationProgressStream(handler);
 
   stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     this.callService('StopSmeshing', { deleteFiles }).then(this.normalizeServiceResponse).catch(this.normalizeServiceError({}));
@@ -148,7 +149,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         })
       );
 
-  postDataCreationProgressStream = ({ handler }: { handler: (error: any, status: Partial<PostSetupStatus>) => void }) => {
+  private postDataCreationProgressStream = (handler: (error: any, status: Partial<PostSetupStatus>) => void) => {
     if (!this.service) {
       throw new Error(`SmesherService is not running`);
     }

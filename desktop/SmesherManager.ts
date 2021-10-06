@@ -38,7 +38,10 @@ class SmesherManager {
   serviceStartupFlow = async () => {
     await this.sendSmesherSettingsAndStartupState();
     await this.sendPostSetupComputeProviders();
-    await this.sendSmesherConfig();
+    const cfg = await this.sendSmesherConfig();
+    if (cfg?.start) {
+      this.smesherService.activateProgressStream(this.handlePostDataCreationStatusStream);
+    }
   };
 
   sendSmesherSettingsAndStartupState = async () => {
@@ -60,6 +63,7 @@ class SmesherManager {
   };
 
   sendSmesherConfig = async () => {
+    // TODO: Merge with `sendSmesherSettingsAndStartupState`
     const nodeConfig = await this.loadConfig();
     if (nodeConfig.smeshing) {
       const opts = nodeConfig.smeshing['smeshing-opts'];
@@ -72,7 +76,9 @@ class SmesherManager {
         throttle: opts['smeshing-opts-throttle']
       };
       this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, { smeshingConfig });
+      return { ...smeshingConfig, start: nodeConfig.smeshing['smeshing-start'] };
     }
+    return null;
   };
 
   sendPostSetupComputeProviders = async () => {
