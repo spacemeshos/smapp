@@ -135,6 +135,7 @@ class NodeManager {
   };
 
   private spawnNode = () => {
+  if (this.nodeProcess) return;
     const userDataPath = app.getPath('userData');
     const nodePath = path.resolve(
       app.getAppPath(),
@@ -261,6 +262,10 @@ class NodeManager {
       if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
       throw error;
     }
+  };
+
+  activateNodeErrorStream = () => {
+    this.nodeService.activateErrorStream(this.pushNodeError);
   };
 
   isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
