@@ -41,6 +41,8 @@ export interface SmesherState {
   coinbase: string;
   dataDir: string;
   numUnits: number;
+  throttle: boolean;
+  provider: number | null;
   commitmentSize: number;
   numLabelsWritten: any;
   postSetupState: PostSetupState;

@@ -9,7 +9,9 @@ import {
   STARTED_SMESHING,
   SET_POST_DATA_CREATION_STATUS,
   SET_ACCOUNT_REWARDS,
-  SET_SMESHER_CONFIG
+  SET_SMESHER_CONFIG,
+  PAUSED_SMESHING,
+  RESUMED_SMESHING
 } from './actions';
 
 const initialState = {
@@ -52,7 +54,10 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       return { ...state, postSetupComputeProviders: action.payload };
     }
     case SET_SMESHER_CONFIG: {
-      return { ...state, ...action.payload.smeshingConfig };
+      return {
+        ...state,
+        ...action.payload.smeshingConfig
+      };
     }
     case STARTED_SMESHING: {
       const {
@@ -73,6 +78,18 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         numLabelsWritten: 0,
         postSetupState: PostSetupState.STATE_NOT_STARTED,
         postProgressError: ''
+      };
+    }
+    case PAUSED_SMESHING: {
+      return {
+        ...state,
+        postSetupState: PostSetupState.STATE_NOT_STARTED
+      };
+    }
+    case RESUMED_SMESHING: {
+      return {
+        ...state,
+        postSetupState: PostSetupState.STATE_IN_PROGRESS
       };
     }
     case SET_POST_DATA_CREATION_STATUS: {

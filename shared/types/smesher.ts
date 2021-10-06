@@ -1,15 +1,22 @@
-import { PostSetupState } from '.';
-import { _spacemesh_v1_PostSetupStatus_State } from '../../proto/spacemesh/v1/PostSetupStatus';
+import { _spacemesh_v1_PostSetupStatus_State as PostSetupState } from '../../proto/spacemesh/v1/PostSetupStatus';
 
 // Core
 
-export { _spacemesh_v1_PostSetupStatus_State as PostSetupState };
+export { PostSetupState };
 
 export interface SmesherConfig {
   bitsPerLabel: number;
   labelsPerUnit: number;
   minNumUnits: number;
   maxNumUnits: number;
+}
+
+export interface SmeshingOpts {
+  coinbase: string;
+  dataDir: string;
+  numUnits: number;
+  provider: number;
+  throttle: boolean;
 }
 
 export enum ComputeApiClass {
@@ -36,7 +43,7 @@ export interface PostSetupOpts {
 }
 
 export interface PostSetupStatus {
-  postSetupState: _spacemesh_v1_PostSetupStatus_State;
+  postSetupState: PostSetupState;
   numLabelsWritten: number;
   opts: PostSetupOpts | null;
   errorMessage: string;
