@@ -272,6 +272,8 @@ const createWindow = async () => {
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
     StoreService.set('nodeConfigFilePath', configFilePath);
+
+    netConfig.smeshing = {}; // Ensure that the net config does not provide preinstalled defaults for smeshing
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
   
