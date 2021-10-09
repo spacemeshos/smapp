@@ -65,7 +65,7 @@ class SmesherManager {
   sendSmesherConfig = async () => {
     // TODO: Merge with `sendSmesherSettingsAndStartupState`
     const nodeConfig = await this.loadConfig();
-    if (nodeConfig.smeshing) {
+    if (nodeConfig.smeshing && nodeConfig.smeshing['smeshing-opts']) {
       const opts = nodeConfig.smeshing['smeshing-opts'];
       const smeshingConfig = {
         coinbase: nodeConfig.smeshing['smeshing-coinbase'],
