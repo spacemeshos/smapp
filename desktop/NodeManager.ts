@@ -126,11 +126,8 @@ class NodeManager {
   startNode = () => {
     if (this.nodeProcess) return;
     const userDataPath = app.getPath('userData');
-    const nodePath = path.resolve(
-      app.getAppPath(),
-      process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
-      `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
-    );
+    const nodeDir = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/');
+    const nodePath = path.resolve(nodeDir, `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`);
     const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
@@ -139,7 +136,7 @@ class NodeManager {
     const args = ['--config', nodeConfigFilePath, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
-    this.nodeProcess = spawn(nodePath, args);
+    this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
     this.nodeProcess.on('error', (error) => {
