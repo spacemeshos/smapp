@@ -99,7 +99,12 @@ jobs:
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: matrix.os != 'windows-latest'
-        run: (cd ./node/${{ steps.platform.outputs.dir }}; chmod -R +x * .)
+        run: chmod -R +x ./node/${{ steps.platform.outputs.dir }}/*
+
+      - name: Disable quarantine for Go-Spacemesh and libs
+        if: matrix.os == 'macos-latest'
+        run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
+        
 
       # Create binaries
       - if: matrix.os == 'ubuntu-latest'
