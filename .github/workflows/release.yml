@@ -63,8 +63,8 @@ jobs:
           path: |
             ./node/*
             !./node/use-version
-          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
-          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
+          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
+          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
         
       - name: Prepare link to go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -95,7 +95,7 @@ jobs:
       - name: Unzip archive & get rid of redundant files
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip go-spacemesh* *.dylib *.json *.so *.dll *.lib -r
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: matrix.os != 'windows-latest'
@@ -104,6 +104,11 @@ jobs:
       - name: Disable quarantine for Go-Spacemesh and libs
         if: matrix.os == 'macos-latest'
         run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
+
+      - name: ls node & libs directory
+        run: |
+          7z l ./node/release.zip
+          ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
         
 
       # Create binaries

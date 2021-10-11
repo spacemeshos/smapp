@@ -119,9 +119,16 @@ const getBuildOptions = ({ target, publish }) => {
         gatekeeperAssess: false,
         entitlements: path.join(__dirname, 'entitlements.mac.plist'),
         entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
-        target: ['zip', 'dmg']
+        target: ['zip', 'dmg'],
+        binaries: [
+          path.join(__dirname, '../node/mac/go-spacemesh'),
+          path.join(__dirname, '../node/mac/libgpu-setup.dylib'),
+          path.join(__dirname, '../node/mac/libMoltenVK.dylib'),
+          path.join(__dirname, '../node/mac/libvulkan.1.dylib')
+        ]
       },
       dmg: {
+        sign: false,
         window: {
           width: '400',
           height: '380'
