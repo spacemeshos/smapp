@@ -81,8 +81,8 @@ jobs:
           path: |
             ./node/*
             !./node/use-version
-          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
-          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}
+          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
+          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
         
       - name: Prepare link to go-spacemesh release archive
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -99,7 +99,7 @@ jobs:
         shell: bash
 
       - id: platform
-        if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        if: steps.result.outputs.status != 'success'
         run: |
           echo "::set-output name=dir::${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'linux'}}"
           echo "::set-output name=ext::${{ matrix.os == 'windows-latest' && '.exe' || ''}}"
@@ -113,15 +113,21 @@ jobs:
       - name: Unzip archive & get rid of redundant files
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip go-spacemesh* *.dylib *.json *.so *.dll *.lib -r
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: steps.result.outputs.status != 'success' && matrix.os != 'windows-latest'
         run: (cd ./node/${{ steps.platform.outputs.dir }}; chmod -R +x * .)
 
       - name: Disable quarantine for Go-Spacemesh and libs
-        if: matrix.os == 'macos-latest'
+        if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
         run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
+
+      - name: ls node & libs directory
+        if: steps.result.outputs.status != 'success'
+        run: |
+          7z l ./node/release.zip
+          ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
       
       # Build
       - name: yarn build
