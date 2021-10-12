@@ -120,6 +120,7 @@ const getBuildOptions = ({ target, publish }) => {
         entitlements: path.join(__dirname, 'entitlements.mac.plist'),
         entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
         target: ['zip', 'dmg'],
+        icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
         binaries: [
           path.join(__dirname, '../node/mac/go-spacemesh'),
           path.join(__dirname, '../node/mac/libgpu-setup.dylib'),
