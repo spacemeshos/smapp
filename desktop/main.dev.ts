@@ -209,8 +209,6 @@ const createWindow = async () => {
     }
   });
 
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
-
   mainWindow.on('close', handleClosingApp);
 
   createTray();
@@ -280,6 +278,9 @@ const createWindow = async () => {
   new WalletManager(mainWindow, nodeManager);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
+
+  // Load page after initialization complete
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
 };
 
 const installDevTools = async () => {
