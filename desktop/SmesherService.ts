@@ -175,13 +175,13 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         handler(error, {}); // TODO
         streamError = error;
       });
-      this.stream.on('end', () => {
+      this.stream.on('end', async () => {
         if (!streamError) {
           // In case if Smeshing is done it just closes the stream
-          // so we have to notify client that the Smesher complete creating data
-          handler(null, {
-            postSetupState: PostSetupState.STATE_COMPLETE
-          });
+          // so we have to notify client on Smesher Post Setup Status
+          // Expected: STATE_COMPLETE and numLabelsWritten > 0
+          const status = await this.getPostSetupStatus();
+          handler(null, status);
           streamError = null;
         }
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console

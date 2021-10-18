@@ -212,8 +212,6 @@ const createWindow = async () => {
     }
   });
 
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
-
   mainWindow.on('close', handleClosingApp);
 
   createTray();
@@ -298,6 +296,9 @@ const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
   subscribeListingGrpcApis(initialConfig);
+
+  // Load page after initialization complete
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
 };
 
 const installDevTools = async () => {

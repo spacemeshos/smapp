@@ -36,12 +36,13 @@ class SmesherManager {
   };
 
   serviceStartupFlow = async () => {
-    await this.sendSmesherSettingsAndStartupState();
-    await this.sendPostSetupComputeProviders();
     const cfg = await this.sendSmesherConfig();
     if (cfg?.start) {
+      // Subscribe on PoST cration progress stream ASAP
       this.smesherService.activateProgressStream(this.handlePostDataCreationStatusStream);
     }
+    await this.sendSmesherSettingsAndStartupState();
+    await this.sendPostSetupComputeProviders();
   };
 
   sendSmesherSettingsAndStartupState = async () => {
