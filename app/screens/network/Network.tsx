@@ -9,6 +9,8 @@ import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
 import { getRemoteApi, isWalletOnly } from '../../redux/wallet/selectors';
+import ErrorMessage from '../../basicComponents/ErrorMessage';
+import SubHeader from '../../basicComponents/SubHeader';
 
 const Container = styled.div`
   display: flex;
@@ -61,26 +63,6 @@ const DetailsTextWrap = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-`;
-
-const SubHeader = styled.div`
-  font-size: 16px;
-  line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
-  flex: 0.2;
-`;
-
-const ErrorMessage = styled.span`
-  display: block;
-  text-transform: uppercase;
-  font-size: 14px;
-  line-height: 18px;
-  color: ${smColors.red};
-  max-height: 18px;
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
 `;
 
 const Network = ({ history }) => {

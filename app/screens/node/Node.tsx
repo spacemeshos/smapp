@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { SmesherIntro, SmesherLog } from '../../components/node';
+import { SmesherIntro } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 import { formatBytes, getAbbreviatedText, getFormattedTimestamp } from '../../infra/utils';
@@ -14,6 +14,8 @@ import { NodeStatus, PostSetupState } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
 import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
+import SubHeader from '../../basicComponents/SubHeader';
+import ErrorMessage from '../../basicComponents/ErrorMessage';
 
 const Wrapper = styled.div`
   display: flex;
@@ -34,10 +36,10 @@ const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
 `;
 
-const SubHeader = styled(Text)`
-  margin-bottom: 15px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
-`;
+// const SubHeader = styled(Text)`
+//   margin-bottom: 15px;
+//   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+// `;
 
 const Footer = styled.div`
   display: flex;
@@ -191,10 +193,11 @@ const Node = ({ history, location }: Props) => {
   const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
   const isPausedSmeshing = useSelector(SmesherSelectors.isSmeshingPaused);
+  const postProgressError = useSelector(SmesherSelectors.getPostProgressError);
   const isSmesherActive = isSmeshing || isCreatingPostData || isPausedSmeshing;
   const postSetupState = useSelector((state: RootState) => state.smesher.postSetupState);
   const numLabelsWritten = useSelector((state: RootState) => state.smesher.numLabelsWritten);
-  const rewards = useSelector((state: RootState) => state.smesher.rewards);
+  // const rewards = useSelector((state: RootState) => state.smesher.rewards);
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -312,7 +315,7 @@ const Node = ({ history, location }: Props) => {
             <PosSmesherIcon src={posSmesher} />
             <BoldText>Proof of Space Status</BoldText>
           </TextWrapperFirst>
-          <Text>Proof of Space data is not setup yet</Text>
+          {postProgressError ? <ErrorMessage oneLine={false}>{postProgressError}</ErrorMessage> : <Text>Proof of Space data is not setup yet</Text>}
           <br />
           <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
         </>
