@@ -188,7 +188,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Amount</DetailsText>
         <Dots>....................................</Dots>
-        <AmountInput value={amount} onChange={updateTxAmount} style={inputStyle} />
+        <AmountInput value={amount} onChange={handleAmountChange} style={inputStyle} />
         {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
       </DetailsRow>
       <DetailsRow>

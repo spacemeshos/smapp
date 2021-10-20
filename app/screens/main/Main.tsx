@@ -1,4 +1,4 @@
-import React, { Component, ComponentType, ReactNode } from 'react';
+import React, { Component, ReactNode } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -20,7 +20,7 @@ import {
   signOutIconBlack
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { AppThDispatch, RootState } from '../../types';
+import { RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
