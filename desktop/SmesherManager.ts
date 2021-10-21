@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { IPCSmesherStartupData, PostSetupOpts, PostSetupStatus } from '../shared/types';
+import { IPCSmesherStartupData, PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
@@ -179,7 +179,11 @@ class SmesherManager {
     this.mainWindow.webContents.send(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, { error, status });
   };
 
-  isSmeshing = () => this.smesherService.isSmeshing();
+  isSmeshing = async () => {
+    const smeshing = (await this.smesherService.isSmeshing()).isSmeshing;
+    const status = (await this.smesherService.getPostSetupStatus()).postSetupState;
+    return smeshing || status === PostSetupState.STATE_IN_PROGRESS || status === PostSetupState.STATE_COMPLETE;
+  };
 }
 
 export default SmesherManager;

@@ -67,7 +67,7 @@ let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
 let shouldShowWindowOnLoad = true;
-const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing()).isSmeshing;
+const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing());
 
 enum CloseAppPromptResult {
   CANCELED = 1, // To avoid conversion to `false`
