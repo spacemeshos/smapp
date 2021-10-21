@@ -199,6 +199,38 @@ if (!gotTheLock) {
   });
 }
 
+const getInitialConfig = async () => {
+  if (process.env.NODE_ENV === 'development' && process.env.DEV_NET_URL) {
+    return {
+      netName: 'Dev Net',
+      conf: process.env.DEV_NET_URL,
+      explorer: '',
+      dash: ''
+    };
+  }
+  const res = await fetch(DISCOVERY_URL);
+  const [initialConfig] = await res.json();
+  return initialConfig;
+};
+const getNetConfig = async (configUrl) => {
+  const resp = await fetch(configUrl);
+  return resp.json();
+};
+const getConfigs = async () => {
+  const initialConfig = await getInitialConfig();
+  const netConfig = await getNetConfig(initialConfig.conf);
+  const netId = parseInt(initialConfig.netID) || netConfig.p2p['network-id'];
+  const savedNetId = StoreService.get('netSettings.netId');
+  const isCleanStart = savedNetId !== netId;
+
+  return {
+    initialConfig,
+    netConfig,
+    netId,
+    isCleanStart
+  };
+};
+
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
@@ -239,33 +271,16 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  const savedNetId = StoreService.get('netSettings.netId');
   const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
-  let netId;
-  let initialConfig;
-  let netConfig;
-  let isDevNet = false;
-  if (process.env.NODE_ENV === 'development' && process.env.DEV_NET_URL) {
-    const devConfig = await fetch(process.env.DEV_NET_URL);
-    netConfig = await devConfig.json();
-    netId = netConfig.p2p['network-id'];
-    isDevNet = true;
-  } else {
-    const res = await fetch(DISCOVERY_URL);
-    [initialConfig] = await res.json();
-    netId = initialConfig.netID;
-  }
-  const cleanStart = savedNetId !== netId;
-  if (cleanStart) {
+
+  const { initialConfig, netConfig, isCleanStart, netId } = await getConfigs();
+
+  if (isCleanStart) {
     StoreService.clear();
     StoreService.set('netSettings.netId', netId);
-    StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
-    StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
-    StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
-    if (!isDevNet) {
-      const res2 = await fetch(initialConfig.conf);
-      netConfig = await res2.json();
-    }
+    StoreService.set('netSettings.netName', initialConfig.netName);
+    StoreService.set('netSettings.explorerUrl', initialConfig.explorer);
+    StoreService.set('netSettings.dashUrl', initialConfig.dash);
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
@@ -290,7 +305,7 @@ const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
   };
 
   smesherManager = new SmesherManager(mainWindow, configFilePath);
-  nodeManager = new NodeManager(mainWindow, cleanStart, smesherManager);
+  nodeManager = new NodeManager(mainWindow, isCleanStart, smesherManager);
   // eslint-disable-next-line no-new
   new WalletManager(mainWindow, nodeManager);
   notificationManager = new NotificationManager(mainWindow);
