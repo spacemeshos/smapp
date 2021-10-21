@@ -114,7 +114,6 @@ class NodeManager {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      StoreService.set('localNode', true);
       await this.getNodeStatus(0);
       this.activateNodeErrorStream();
       await this.smesherManager.serviceStartupFlow();
