@@ -32,6 +32,16 @@ const Text = styled.div`
   }
 `;
 
+const ProgressError = styled.div`
+  color: ${smColors.red};
+  font-size: 15px;
+  display: flex;
+  line-height: 20px;
+  &.progress {
+    min-width: 170px;
+  }
+`;
+
 const BoldText = styled(Text)`
   font-family: SourceCodeProBold;
 `;
@@ -254,23 +264,36 @@ const Node = ({ history, location }: Props) => {
           </TextWrapper>
         </LineWrap>
         <LineWrap>
-          <TextWrapper>
-            <Text>Progress</Text>
-            <Text>
-              <Text className="progress">
-                {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
+          {postProgressError ? (
+            <TextWrapper>
+              <Text>Progress</Text>
+              <ProgressError>STOPPED</ProgressError>
+            </TextWrapper>
+          ) : (
+            <TextWrapper>
+              <Text>Progress</Text>
+              <Text>
+                <Text className="progress">
+                  {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
+                </Text>
+                <ProgressBarWrapper>
+                  <ProgressBar progress={progress} />
+                </ProgressBarWrapper>
               </Text>
-              <ProgressBarWrapper>
-                <ProgressBar progress={progress} />
-              </ProgressBarWrapper>
-            </Text>
-          </TextWrapper>
+            </TextWrapper>
+          )}
         </LineWrap>
 
-        <TextWrapper>
-          <Text>{isSmeshing ? 'Finished creating' : 'Estimated finish time'}</Text>
-          <Text>{smesherSmeshingTimestamp}</Text>
-        </TextWrapper>
+        {postProgressError ? (
+          <ErrorMessage oneLine={false} align="right">
+            {postProgressError}
+          </ErrorMessage>
+        ) : (
+          <TextWrapper>
+            <Text>{isSmeshing ? 'Finished creating' : 'Estimated finish time'}</Text>
+            <Text>{smesherSmeshingTimestamp}</Text>
+          </TextWrapper>
+        )}
         <Footer>
           <Button
             onClick={() => history.push('/main/node-setup', { modifyPostData: true })}
@@ -300,7 +323,7 @@ const Node = ({ history, location }: Props) => {
   const renderMainSection = () => {
     if (showIntro) {
       return <SmesherIntro hideIntro={() => setShowIntro(false)} isDarkMode={isDarkMode} />;
-    } else if (!isSmesherActive) {
+    } else if (!isSmesherActive && !postProgressError) {
       return (
         <>
           <SubHeader>
@@ -315,7 +338,7 @@ const Node = ({ history, location }: Props) => {
             <PosSmesherIcon src={posSmesher} />
             <BoldText>Proof of Space Status</BoldText>
           </TextWrapperFirst>
-          {postProgressError ? <ErrorMessage oneLine={false}>{postProgressError}</ErrorMessage> : <Text>Proof of Space data is not setup yet</Text>}
+          <Text>Proof of Space data is not setup yet</Text>
           <br />
           <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
         </>
