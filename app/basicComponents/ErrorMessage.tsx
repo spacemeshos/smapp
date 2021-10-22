@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { smColors } from '../vars';
 
-export default styled.span`
+export default styled.span<{ align: 'left' | 'right'; oneLine: boolean }>`
   display: block;
   text-transform: uppercase;
   font-size: 14px;
@@ -9,5 +9,6 @@ export default styled.span`
   color: ${smColors.red};
   display: -webkit-box;
   overflow: hidden;
-  ${({ oneLine = true }: { oneLine: boolean }) => oneLine && `-webkit-line-clamp: 1; -webkit-box-orient: vertical;`}
+  text-align: ${({ align = 'left' }) => align};
+  ${({ oneLine = true }) => oneLine && `-webkit-line-clamp: 1; -webkit-box-orient: vertical;`}
 `;
