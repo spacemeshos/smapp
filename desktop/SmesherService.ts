@@ -29,7 +29,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   logger = Logger({ className: 'SmesherService' });
 
   createService = () => {
-    this.createNetService(PROTO_PATH, '', '', 'SmesherService');
+    this.createNetService(PROTO_PATH, undefined, 'SmesherService');
   };
 
   isSmeshing = () =>

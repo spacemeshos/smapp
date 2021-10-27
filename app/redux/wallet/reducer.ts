@@ -1,3 +1,4 @@
+import { WalletMeta } from '../../../shared/types';
 import type { WalletState, CustomAction, Tx } from '../../types';
 import { LOGOUT } from '../auth/actions';
 import { SET_ACCOUNT_REWARDS } from '../smesher/actions';
@@ -11,12 +12,14 @@ import {
   SET_CURRENT_ACCOUNT_INDEX,
   SET_BACKUP_TIME,
   SET_CURRENT_MODE,
-  UPDATE_ACCOUNT_DATA
+  UPDATE_ACCOUNT_DATA,
+  SET_USING_REMOTE_API
 } from './actions';
 
 const initialState = {
+  usingRemoteApi: false,
   walletFiles: null,
-  meta: {},
+  meta: {} as WalletMeta,
   mnemonic: '',
   accounts: [],
   currentAccountIndex: 0,
@@ -42,38 +45,29 @@ const initialState = {
 const reducer = (state: WalletState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SAVE_WALLET_FILES: {
-      const {
-        payload: { files }
-      } = action;
-      return { ...state, walletFiles: files };
+      return { ...state, walletFiles: action.payload };
     }
     case SET_WALLET_META: {
-      const {
-        payload: { meta }
-      } = action;
-      return { ...state, meta };
+      return { ...state, meta: action.payload };
     }
     case SET_ACCOUNTS: {
-      const {
-        payload: { accounts }
-      } = action;
-      return { ...state, accounts };
+      return { ...state, accounts: action.payload };
     }
     case SET_MNEMONIC: {
-      const { mnemonic } = action.payload;
-      return { ...state, mnemonic };
+      return { ...state, mnemonic: action.payload };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
-      const { index } = action.payload;
+      const index = action.payload;
       if (index < state.accounts.length && index >= 0) {
         return { ...state, currentAccountIndex: index };
       }
       return state;
     }
     case SET_CURRENT_MODE: {
-      const { mode } = action.payload;
-      return { ...state, vaultMode: mode };
+      return { ...state, vaultMode: action.payload };
     }
+    case SET_USING_REMOTE_API:
+      return { ...state, usingRemoteApi: action.payload };
     case UPDATE_ACCOUNT_DATA: {
       const { account, accountId } = action.payload;
       const accountIndexToUpdate = state.accounts.findIndex((account) => account.publicKey === accountId);
@@ -104,8 +98,7 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       }
     }
     case SET_CONTACTS: {
-      const { contacts } = action.payload;
-      return { ...state, contacts };
+      return { ...state, contacts: action.payload };
     }
     case SET_BACKUP_TIME: {
       const { backupTime } = action.payload;

@@ -1,7 +1,7 @@
 import { NetworkState, CustomAction } from '../../types';
-import { SET_NETWORK_DEFINITIONS, SET_CURRENT_LAYER, SET_STATE_ROOT_HASH } from './actions';
+import { SET_NETWORK_DEFINITIONS, SET_CURRENT_LAYER, SET_STATE_ROOT_HASH, SET_REMOTE_API } from './actions';
 
-const initialState = {
+const initialState: NetworkState = {
   netId: '',
   netName: '',
   genesisTime: '',

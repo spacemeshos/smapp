@@ -4,14 +4,16 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
-import { switchTheme } from '../../redux/ui/actions';
+import { setUiError, switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
 import { Input, Link, Button } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Account, AppThDispatch, RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
+import { Account } from '../../../shared/types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -81,6 +83,7 @@ interface Props extends RouteComponentProps {
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
+  setUiError: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -94,6 +97,7 @@ interface Props extends RouteComponentProps {
     search: string;
     state: { currentSettingIndex: string };
   };
+  isWalletOnly: boolean;
 }
 
 type State = {
@@ -149,7 +153,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode } = this.props;
+    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, isWalletOnly } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -190,6 +194,19 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection title="WALLETS" refProp={this.myRef2} isDarkMode={isDarkMode}>
+              {isWalletOnly ? (
+                <SettingRow
+                  rowName="Application mode"
+                  upperPartLeft="Wallet only"
+                  upperPartRight={<Button onClick={this.handleSwitchToLocalNode} text="SWITCH TO LOCAL NODE" width={180} />}
+                />
+              ) : (
+                <SettingRow
+                  rowName="Application mode"
+                  upperPartLeft="Local node"
+                  upperPartRight={<Button onClick={this.navigateToApiSelect} text="SWITCH TO WALLET ONLY" width={180} />}
+                />
+              )}
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -267,10 +284,14 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="INFO" refProp={this.myRef4} isDarkMode={isDarkMode}>
               <SettingRow upperPartLeft={getFormattedTimestamp(genesisTime)} isUpperPartLeftText rowName="Genesis time" />
-              <SettingRow upperPart={build} isUpperPartLeftText rowName="Node Build" />
-              <SettingRow upperPart={version} isUpperPartLeftText rowName="Node Version" />
-              <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
-              <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
+              {!isWalletOnly && (
+                <>
+                  <SettingRow upperPart={build} isUpperPartLeftText rowName="Node Build" />
+                  <SettingRow upperPart={version} isUpperPartLeftText rowName="Node Version" />
+                  <SettingRow upperPart={rootHash} isUpperPartLeftText rowName="State root hash" />
+                  <SettingRow upperPartRight={<Button onClick={this.openLogFile} text="View Logs" width={180} />} rowName="View logs file" />
+                </>
+              )}
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
@@ -339,6 +360,17 @@ class Settings extends Component<Props, State> {
     }
   };
 
+  handleSwitchToLocalNode = () => {
+    const { history, setUiError } = this.props;
+    return eventsService
+      .switchApiProvider('', '')
+      .then(() => history.push('/auth'))
+      .catch((err) => {
+        console.error(err); // eslint-disable-line no-console
+        setUiError(err);
+      });
+  };
+
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;
     this.setState({
@@ -389,6 +421,11 @@ class Settings extends Component<Props, State> {
   navigateToWalletRestore = () => {
     const { history } = this.props;
     history.push('/auth/restore');
+  };
+
+  navigateToApiSelect = () => {
+    const { history } = this.props;
+    history.push('/auth/connect-to-api', { switchApiProvider: true });
   };
 
   externalNavigation = ({ to }: { to: string }) => {
@@ -484,7 +521,8 @@ const mapStateToProps = (state: RootState) => ({
   version: state.node.version,
   port: state.node.port,
   backupTime: state.wallet.backupTime,
-  isDarkMode: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode,
+  isWalletOnly: isWalletOnly(state)
 });
 
 const mapDispatchToProps = {
@@ -492,7 +530,8 @@ const mapDispatchToProps = {
   updateWalletName,
   updateAccountName,
   createNewAccount,
-  switchTheme
+  switchTheme,
+  setUiError
 };
 
 // @ts-ignore

@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Contact } from '../../../shared/types';
 import { Button } from '../../basicComponents';
 import { smColors } from '../../vars';
-import type { Contact } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;

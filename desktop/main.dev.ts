@@ -17,6 +17,9 @@ import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
+import { PublicService } from '../shared/types';
+import { DiscoveryItem } from '../shared/schemas';
+import { toPublicService } from '../shared/utils';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -221,38 +224,68 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  const savedNetId = StoreService.get('netSettings.netId');
-  const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
-  let netId;
-  let initialConfig;
-  let netConfig;
-  let isDevNet = false;
-  if (process.env.NODE_ENV === 'development' && process.env.DEV_NET_URL) {
-    const devConfig = await fetch(process.env.DEV_NET_URL);
-    netConfig = await devConfig.json();
-    netId = netConfig.p2p['network-id'];
-    isDevNet = true;
-  } else {
-    const res = await fetch(DISCOVERY_URL);
-    [initialConfig] = await res.json();
-    netId = initialConfig.netID;
+  const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
+    proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
+
+  interface InitialConfig extends Partial<DiscoveryItem> {
+    netID: string;
+    netName: string;
+    explorer: string;
+    dash: string;
+    grpcAPI: string;
   }
-  const cleanStart = savedNetId !== netId;
-  if (cleanStart) {
+
+  const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
+
+  const onCleanStart = ({ netID, netName, explorer = '', dash = '' }: InitialConfig, netConfig) => {
     StoreService.clear();
-    StoreService.set('netSettings.netId', netId);
-    StoreService.set('netSettings.netName', isDevNet ? 'Dev Net' : initialConfig.netName);
-    StoreService.set('netSettings.explorerUrl', isDevNet ? '' : initialConfig.explorer);
-    StoreService.set('netSettings.dashUrl', isDevNet ? '' : initialConfig.dash);
-    if (!isDevNet) {
-      const res2 = await fetch(initialConfig.conf);
-      netConfig = await res2.json();
-    }
+    StoreService.set('netSettings.netId', netID);
+    StoreService.set('netSettings.netName', netName);
+    StoreService.set('netSettings.explorerUrl', explorer);
+    StoreService.set('netSettings.dashUrl', dash);
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
-    await writeFileAsync(configFilePath, JSON.stringify(netConfig));
-  }
+    return writeFileAsync(configFilePath, JSON.stringify(netConfig));
+  };
+  const isCleanStart = (netId: string) => StoreService.get('netSettings.netId') !== netId;
+
+  const fetchConfigs = async () => {
+    if (isDevNet(process)) {
+      const netConfig = await fetch(process.env.DEV_NET_URL).then((r) => r.json());
+      const initialConfig = {
+        netID: netConfig.p2p['network-id'],
+        netName: 'Dev Net',
+        explorer: '',
+        dash: '',
+        grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || ''
+      };
+      return { netConfig, initialConfig };
+    } else {
+      const [initialConfig] = await fetch(DISCOVERY_URL).then((r) => r.json());
+      const netConfig = await fetch(initialConfig.conf).then((r) => r.json());
+      return { netConfig, initialConfig };
+    }
+  };
+
+  const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
+    // TODO: Give a wider list of options
+    // const walletServices: PublicService[] = [toPublicService(initialConfig.netName, initialConfig.grpcAPI)];
+    const walletServices: PublicService[] = [
+      toPublicService(initialConfig.netName, initialConfig.grpcAPI),
+      ...(isDevNet(process) && process.env.DEV_NET_REMOTE_API
+        ? process.env.DEV_NET_REMOTE_API?.split(',')
+            .slice(1)
+            .map((url) => toPublicService(initialConfig.netName, url))
+        : [])
+    ];
+    ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
+  };
+
+  const { initialConfig, netConfig } = await fetchConfigs();
+  const cleanStart = isCleanStart(initialConfig.netID);
+  cleanStart && (await onCleanStart(initialConfig, netConfig));
+  subscribeListingGrpcApis(initialConfig);
 
   nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
   // eslint-disable-next-line no-new

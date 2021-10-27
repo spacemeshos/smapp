@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, Tooltip } from '../../basicComponents';
 import { posSmesherWhite, walletSecondWhite, walletSecondBlack, posSmesherBlack } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -75,7 +75,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const WalletConnectionType = ({ history }: RouteComponentProps) => {
+const WalletConnectionType = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
@@ -111,7 +111,7 @@ const WalletConnectionType = ({ history }: RouteComponentProps) => {
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/connect-to-api')} isDisabled />
+          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/connect-to-api')} />
         </RowSecond>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="NOT SURE WHAT TO DO? READ THE GUIDE " />

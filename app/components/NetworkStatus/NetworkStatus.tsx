@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { NodeStatus } from '../../../shared/types';
 import { NetworkIndicator, ProgressBar } from '../../basicComponents';
 import { constrain } from '../../infra/utils';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 import { smColors } from '../../vars';
 
 const ProgressLabel = styled.div`
@@ -21,9 +22,10 @@ type Props = {
   status: NodeStatus | null;
   error: any;
   isRestarting: boolean;
+  isWalletMode: boolean;
 };
 
-const NetworkStatus = ({ status, error, isRestarting }: Props) => {
+const NetworkStatus = ({ status, error, isRestarting, isWalletMode }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.syncedLayer && status.topLayer) {
       const percentage = Math.round((status.syncedLayer * 100) / status.topLayer);
@@ -59,7 +61,7 @@ const NetworkStatus = ({ status, error, isRestarting }: Props) => {
   const renderError = () => (
     <>
       <NetworkIndicator color={smColors.red} />
-      <ProgressLabel>{isRestarting ? 'Restarting node...' : 'Please restart node'}</ProgressLabel>
+      {isWalletMode ? <ProgressLabel>Connection error</ProgressLabel> : <ProgressLabel>{isRestarting ? 'Restarting node...' : 'Please restart node'}</ProgressLabel>}
     </>
   );
 

@@ -1,4 +1,5 @@
 import { ProtoGrpcType } from '../proto/mesh';
+import { PublicService, SocketAddress } from '../shared/types';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
@@ -7,8 +8,8 @@ const PROTO_PATH = 'proto/mesh.proto';
 class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   logger = Logger({ className: 'MeshService' });
 
-  createService = (url: string, port: string) => {
-    this.createNetService(PROTO_PATH, url, port, 'MeshService');
+  createService = (apiUrl?: SocketAddress | PublicService) => {
+    this.createNetService(PROTO_PATH, apiUrl, 'MeshService');
   };
 
   getCurrentLayer = () =>
@@ -27,14 +28,15 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
 
   activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
     if (!this.service) {
-      throw new Error(`Service ${this.serviceName} is not running`);
+      throw new Error(`MeshService is not running`);
     }
 
     const stream = this.service.AccountMeshDataStream({ filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 } });
     stream.on('data', (response) => {
       handler({ tx: response });
     });
-    stream.on('error', (error) => {
+    stream.on('error', (error: Error & { code: number }) => {
+      if (error.code === 1) return; // Cancelled on client
       console.log(`stream AccountMeshDataStream error: ${error}`); // eslint-disable-line no-console
       this.logger.error('grpc AccountMeshDataStream', error);
     });

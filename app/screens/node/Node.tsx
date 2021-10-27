@@ -7,8 +7,10 @@ import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComp
 import { getFormattedTimestamp } from '../../infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState, Status } from '../../types';
+import { RootState } from '../../types';
 import { hideSmesherLeftPanel } from '../../redux/ui/actions';
+import { NodeStatus } from '../../../shared/types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -47,7 +49,7 @@ const SmesherId = styled.span`
   text-decoration: underline;
 `;
 
-const StatusSpan = styled.span<{ status?: Status | null }>`
+const StatusSpan = styled.span<{ status?: NodeStatus | null }>`
   color: ${({ status }) => (status ? smColors.green : smColors.orange)};
 `;
 
@@ -167,6 +169,7 @@ const Node = ({ history, location }: Props) => {
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const isWalletMode = useSelector(isWalletOnly);
 
   let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
   smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
@@ -306,7 +309,7 @@ const Node = ({ history, location }: Props) => {
   return (
     <Wrapper>
       <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon} isDarkMode={isDarkMode}>
-        {false ? renderWalletOnlyMode() : renderMainSection()}
+        {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
       <SmesherLog rewards={rewards} initTimestamp={smesherInitTimestamp} smeshingTimestamp={smesherSmeshingTimestamp} isDarkMode={isDarkMode} />
     </Wrapper>

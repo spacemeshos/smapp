@@ -7,9 +7,10 @@ import { WrapperWith2SideBars, Input, DropDown } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { getAbbreviatedText } from '../../infra/utils';
 import { searchIcon, addContact, explorer, copyWhite, copyBlack, clock } from '../../assets/images';
-import { Contact, RootState } from '../../types';
+import { RootState } from '../../types';
 import { EnterPasswordModal } from '../../components/settings';
 import { removeFromContacts } from '../../redux/wallet/actions';
+import { Contact } from '../../../shared/types';
 
 const SearchWrapper = styled.div`
   display: flex;

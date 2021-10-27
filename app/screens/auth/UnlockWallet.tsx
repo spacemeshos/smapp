@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
 import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
@@ -9,6 +8,8 @@ import { Link, Button, Input, ErrorPopup, Loader } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { AppThDispatch, RootState } from '../../types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -83,21 +84,12 @@ const GrayText = styled.div`
   color: ${smColors.disabledGray};
 `;
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: { isLoggedOut: boolean };
-  };
-}
-
-const UnlockWallet = ({ history, location }: Props) => {
+const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [isWrongPassword, setWrongPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
 
-  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly); // TODO
+  const isWalletOnlyMode = useSelector(isWalletOnly);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
   const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
@@ -125,7 +117,11 @@ const UnlockWallet = ({ history, location }: Props) => {
   };
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
   return showLoader ? (
-    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} note={isWalletOnly ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'} />
+    <Loader
+      size={Loader.sizes.BIG}
+      isDarkMode={isDarkMode}
+      note={isWalletOnlyMode ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
+    />
   ) : (
     <Wrapper>
       {location?.state?.isLoggedOut && <LoggedOutBanner key="banner" />}

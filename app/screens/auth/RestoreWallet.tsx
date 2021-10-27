@@ -1,13 +1,13 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link } from '../../basicComponents';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const btnStyle = { margin: '30px 0 15px' };
 
-const RestoreWallet = ({ history }: RouteComponentProps) => {
+const RestoreWallet = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToWalletGuide = () => window.open('https://testnet.spacemesh.io/');

@@ -11,6 +11,10 @@ const ipcConsts = {
   DESTROY_BROWSER_VIEW: 'DESTROY_BROWSER_VIEW',
   SEND_THEME_COLOR: 'SEND_THEME_COLOR',
 
+  // Public services
+  LIST_PUBLIC_SERVICES: 'LIST_PUBLIC_SERVICES',
+  // Switching modes (Wallet / Local node)
+  SWITCH_API_PROVIDER: 'SWITCH_API_PROVIDER',
   /** *********************************************************************** API 2.0 ********************************************************** */
   // Smesher Service calls
   SMESHER_GET_SETTINGS: 'SMESHER_GET_SETTINGS',
@@ -54,7 +58,9 @@ const ipcConsts = {
   N_M_GET_VERSION_AND_BUILD: 'N_M_GET_VERSION_AND_BUILD',
   N_M_SET_NODE_STATUS: 'N_M_SET_NODE_STATUS',
   N_M_SET_NODE_ERROR: 'N_M_SET_NODE_ERROR',
-  N_M_RESTART_NODE: 'N_M_RESTART_NODE'
+  N_M_RESTART_NODE: 'N_M_RESTART_NODE',
+  N_M_START_NODE: 'N_M_START_NODE',
+  N_M_STOP_NODE: 'N_M_STOP_NODE'
 };
 
 export default ipcConsts;

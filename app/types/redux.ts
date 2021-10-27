@@ -1,7 +1,6 @@
 import { ThunkDispatch } from 'redux-thunk';
-import { NodeError, NodeStatus } from '../../shared/types';
+import { AccountWithBalance, Contact, NodeError, NodeStatus, WalletMeta } from '../../shared/types';
 import { Tx } from './transactions';
-import { Account, WalletMeta, Contact } from './wallet';
 import { Reward } from './smesher';
 
 export interface NetworkState {
@@ -23,10 +22,11 @@ export interface NodeState {
 }
 
 export interface WalletState {
+  usingRemoteApi: boolean;
   walletFiles: Array<string> | null;
-  meta: WalletMeta | any;
+  meta: WalletMeta;
   mnemonic: string;
-  accounts: Array<Account> | [];
+  accounts: Array<AccountWithBalance> | [];
   currentAccountIndex: number;
   transactions: { [publicKey: string]: Tx[] } | never;
   txsAndRewards: { [publicKey: string]: Tx[] } | never;

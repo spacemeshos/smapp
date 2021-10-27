@@ -2,11 +2,11 @@ import * as bip39 from 'bip39';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
 import { BackButton } from '../../components/common';
 import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthRouterParams } from './routerParams';
 
 const Table = styled.div`
   display: flex;
@@ -44,7 +44,7 @@ const BottomSection = styled.div`
 
 const getInputStyle = (hasError: boolean) => ({ border: `1px dashed ${hasError ? smColors.orange : smColors.darkGray}`, borderRadius: 2 });
 
-const WordsRestore = ({ history }: RouteComponentProps) => {
+const WordsRestore = ({ history }: AuthRouterParams) => {
   const [words, setWords] = useState(Array(12).fill(''));
   const [hasError, setHasError] = useState(false);
 

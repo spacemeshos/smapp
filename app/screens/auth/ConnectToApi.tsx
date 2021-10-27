@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { StepsContainer, Button, Link, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
+import { SocketAddress } from '../../../shared/types';
+import { stringifySocketAddress } from '../../../shared/utils';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -48,27 +50,40 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   }
 `;
 
-const publicServices = [
-  {
-    label: 'SPACEMESH COMMUNITY PUBIC SERVER',
-    text: 'HTTPS://SM.IO/API/V1',
-    ip: 'https://sm.io/api/v1',
-    port: ''
-  },
-  {
-    label: 'SPACEMESH COMMUNITY PUBIC SERVER',
-    text: 'HTTPS://SM.IO/API/V2',
-    ip: 'https://sm.io/api/v2',
-    port: ''
-  }
-];
+type PublicServicesView = {
+  label: string;
+  text: string;
+  value: SocketAddress;
+};
 
-const ConnectToApi = ({ history }: RouteComponentProps) => {
+const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+
+  const [publicServices, setPublicServices] = useState({ loading: true, services: [] as PublicServicesView[] });
+
+  useEffect(() => {
+    eventsService
+      .listPublicServices()
+      .then((services) =>
+        setPublicServices({
+          loading: false,
+          services: services.map((service) => ({
+            label: service.name,
+            text: stringifySocketAddress(service),
+            value: {
+              host: service.host,
+              port: service.port,
+              protocol: service.protocol
+            }
+          }))
+        })
+      )
+      .catch((err) => console.error(err)); // eslint-disable-line no-console
+  }, []);
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
@@ -76,18 +91,37 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
 
   const renderAccElement = ({ label, text, isInDropDown }: { label: string; text: string; isInDropDown: boolean }) => (
     <AccItem key={label} isInDropDown={isInDropDown}>
-      {label} - <DropDownLink>{text}</DropDownLink>
+      {text ? (
+        <>
+          {label} - <DropDownLink>{text}</DropDownLink>
+        </>
+      ) : (
+        label
+      )}
     </AccItem>
   );
 
-  const handleNext = async () => {
-    const response = await eventsService.activateWalletManager({ ip: publicServices[selectedItemIndex].text, port: '' });
-    if (response.activated) {
-      const { ip, port } = publicServices[selectedItemIndex];
-      history.push('/auth/wallet-type', { ip, port });
-    } else {
-      dispatch(setUiError(response.error));
-    }
+  const getPublicServicesDropdownData = () => (publicServices.loading ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }] : publicServices.services);
+
+  const handleNext = () => {
+    const { value } = publicServices.services[selectedItemIndex];
+
+    if (location.state?.switchApiProvider)
+      return eventsService
+        .switchApiProvider(value)
+        .then(() => history.push('/auth'))
+        .catch((err) => {
+          console.error(err); // eslint-disable-line no-console
+          dispatch(setUiError(err));
+        });
+
+    return eventsService
+      .activateWalletManager(value)
+      .then(() => history.push('/auth/wallet-type', { apiUrl: value }))
+      .catch((err) => {
+        console.error(err); // eslint-disable-line no-console
+        dispatch(setUiError(err));
+      });
   };
 
   return (
@@ -103,7 +137,7 @@ const ConnectToApi = ({ history }: RouteComponentProps) => {
       >
         <RowColumn>
           <DropDown
-            data={publicServices}
+            data={getPublicServicesDropdownData()}
             onClick={selectItem}
             DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
             selectedItemIndex={selectedItemIndex}

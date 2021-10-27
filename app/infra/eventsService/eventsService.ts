@@ -5,12 +5,29 @@ import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/nod
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import { setRewards, setPostStatus } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild } from '../../../shared/types';
+import { NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
+// Temporary solution to provide types
+// Could be replaced using something like `electron-ipcfy`
+import WalletManager from '../../../desktop/WalletManager';
+import GlobalStateService from '../../../desktop/GlobalStateService';
+import MeshService from '../../../desktop/MeshService';
 
 class EventsService {
-  static createWallet = ({ password, existingMnemonic, ip, port }: { password: string; existingMnemonic: string; ip?: string; port?: string }) =>
-    ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, { password, existingMnemonic, ip, port });
+  static createWallet = ({
+    password,
+    existingMnemonic,
+    apiUrl
+  }: {
+    password: string;
+    existingMnemonic: string;
+    apiUrl?: SocketAddress;
+  }): ReturnType<WalletManager['createWalletFile']> =>
+    ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
+      password,
+      existingMnemonic,
+      apiUrl
+    });
 
   static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.W_M_READ_WALLET_FILES);
 
@@ -21,6 +38,8 @@ class EventsService {
   static updateBrowserViewTheme = ({ isDarkMode }: { isDarkMode: boolean }) => ipcRenderer.send(ipcConsts.SEND_THEME_COLOR, { isDarkMode });
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
+
+  static listPublicServices = (): Promise<PublicService[]> => ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
 
   static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
 
@@ -49,7 +68,7 @@ class EventsService {
 
   static getPostComputeProviders = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_COMPUTE_PROVIDERS);
 
-  static startSmeshing = ({
+  static startSmeshing = async ({
     coinbase,
     dataDir,
     commitmentSize,
@@ -61,7 +80,11 @@ class EventsService {
     commitmentSize: number;
     computeProviderId: number;
     throttle: boolean;
-  }) => ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
+  }) => {
+    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { ip: '', port: '' });
+    await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
+    return ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
+  };
 
   static getPostStatus = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_STATUS);
 
@@ -92,15 +115,17 @@ class EventsService {
 
   static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
+  static switchApiProvider = (apiUrl: SocketAddress) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
+
   /** **************************************  WALLET MANAGER  **************************************** */
 
-  static activateWalletManager = ({ ip, port }: { ip: string | undefined; port: string | undefined }) => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, { ip, port });
+  static activateWalletManager = (apiUrl: SocketAddress): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, apiUrl);
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
-  static getCurrentLayer = () => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
+  static getCurrentLayer = (): ReturnType<MeshService['getCurrentLayer']> => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
 
-  static getGlobalStateHash = () => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
+  static getGlobalStateHash = (): ReturnType<GlobalStateService['getGlobalStateHash']> => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
 
   /** **************************************  NODE MANAGER  **************************************** */
 

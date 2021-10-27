@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
+import { isRemoteNodeApi } from '../../../shared/utils';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { StepsContainer, Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
@@ -9,6 +9,8 @@ import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { isWalletOnly } from '../../redux/wallet/selectors';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,16 +71,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: { mnemonic?: string; ip?: string; port?: string };
-  };
-}
-
-const CreateWallet = ({ history, location }: Props) => {
+const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [subMode, setSubMode] = useState(1);
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
@@ -86,7 +79,7 @@ const CreateWallet = ({ history, location }: Props) => {
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
-  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly); // TODO
+  const isWalletOnlyMode = useSelector(isWalletOnly);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -118,7 +111,7 @@ const CreateWallet = ({ history, location }: Props) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, ip: location?.state?.ip, port: location?.state?.port }));
+      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, apiUrl: location?.state?.apiUrl }));
       setSubMode(2);
       setIsLoaderVisible(false);
     }
@@ -144,7 +137,7 @@ const CreateWallet = ({ history, location }: Props) => {
     if (subMode === 1 && validate()) {
       createWallet();
     } else if (subMode === 2) {
-      if (location?.state?.ip) {
+      if (location?.state?.apiUrl && isRemoteNodeApi(location.state.apiUrl)) {
         history.push('/main/wallet');
       } else {
         history.push('/main/node-setup');
@@ -161,7 +154,7 @@ const CreateWallet = ({ history, location }: Props) => {
         <Loader
           size={Loader.sizes.BIG}
           isDarkMode={isDarkMode}
-          note={isWalletOnly ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
+          note={isWalletOnlyMode ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
         />
       </LoaderWrapper>
     );

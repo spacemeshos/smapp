@@ -8,6 +8,7 @@ import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../.
 import { smColors } from '../../vars';
 import { network } from '../../assets/images';
 import { RootState } from '../../types';
+import { getRemoteApi, isWalletOnly } from '../../redux/wallet/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -82,22 +83,20 @@ const ErrorMessage = styled.span`
   -webkit-box-orient: vertical;
 `;
 
-const Network = () => {
+const Network = ({ history }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const asyncGetCurrentLayer = async () => {
-      await dispatch(getCurrentLayer());
-    };
-    asyncGetCurrentLayer();
+    dispatch(getCurrentLayer());
   }, [dispatch]);
 
-  const isWalletOnly = useSelector((state: RootState) => state.wallet.meta.isWalletOnly);
+  const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const remoteApi = useSelector(getRemoteApi);
   const [isRestarting, setRestarting] = useState(false);
 
   const requestNodeRestart = useCallback(async () => {
@@ -105,6 +104,20 @@ const Network = () => {
     await eventsService.restartNode();
     setRestarting(false);
   }, []);
+
+  const requestSwitchGateway = () => {
+    history.push('/auth/connect-to-api', { switchApiProvider: true });
+  };
+
+  const renderActionButton = () => {
+    if (!nodeError) return null;
+
+    return isWalletMode ? (
+      <Button text="SWITCH GATEWAY" width={150} isPrimary onClick={requestSwitchGateway} style={{ marginLeft: 'auto' }} />
+    ) : (
+      <Button text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'} width={150} isPrimary onClick={requestNodeRestart} style={{ marginLeft: 'auto' }} isDisabled={isRestarting} />
+    );
+  };
 
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
@@ -127,17 +140,15 @@ const Network = () => {
               <CustomTimeAgo time={genesisTime} />
             </GrayText>
           </DetailsRow>
-          {!isWalletOnly && (
-            <DetailsRow>
-              <DetailsTextWrap>
-                <DetailsText>Status</DetailsText>
-                <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
-              </DetailsTextWrap>
-              <GrayText>
-                <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} />
-              </GrayText>
-            </DetailsRow>
-          )}
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Status</DetailsText>
+              <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
+            </DetailsTextWrap>
+            <GrayText>
+              <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} isWalletMode={isWalletMode} />
+            </GrayText>
+          </DetailsRow>
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Current Layer</DetailsText>
@@ -157,9 +168,9 @@ const Network = () => {
               <DetailsText>Connection Type</DetailsText>
               <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>{isWalletOnly ? 'Remote Gateway' : 'Managed p2p node'}</GrayText>
+            <GrayText>{isWalletMode ? `Remote Gateway: ${remoteApi}` : 'Managed p2p node'}</GrayText>
           </DetailsRow>
-          {!isWalletOnly && (
+          {!isWalletMode && (
             <DetailsRow>
               <DetailsTextWrap>
                 <DetailsText>Connected neighbors</DetailsText>
@@ -170,18 +181,9 @@ const Network = () => {
           )}
         </DetailsWrap>
         <FooterWrap>
-          <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+          {!isWalletMode && <Link onClick={openLogFile} text="BROWSE LOG FILE" />}
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
-          {nodeError && (
-            <Button
-              text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'}
-              width={150}
-              isPrimary
-              onClick={requestNodeRestart}
-              style={{ marginLeft: 'auto' }}
-              isDisabled={isRestarting}
-            />
-          )}
+          {renderActionButton()}
         </FooterWrap>
       </Container>
     </WrapperWith2SideBars>

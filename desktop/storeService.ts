@@ -17,7 +17,7 @@ class StoreService {
     return StoreService.store.get(key);
   };
 
-  static remove = ({ key }: { key: string }) => {
+  static remove = (key: string) => {
     StoreService.store.delete(key);
   };
 

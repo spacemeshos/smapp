@@ -24,6 +24,7 @@ import { AppThDispatch, RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div`
   position: relative;
@@ -105,6 +106,7 @@ const TooltipWrapper = styled.div`
 `;
 
 interface Props extends RouteComponentProps {
+  isWalletOnly: boolean;
   status: NodeStatus | null;
   logout: any;
   location: {
@@ -136,7 +138,8 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { nodeError, status, isDarkMode } = this.props;
+    const { activeRouteIndex } = this.state;
+    const { isWalletOnly, nodeError, status, isDarkMode } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
     const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
@@ -144,6 +147,8 @@ class Main extends Component<Props, State> {
     const signOut = isDarkMode ? signOutIconBlack : signOutIcon;
     const bntStyle = { marginRight: 15, marginTop: 10 };
     const bgColor = isDarkMode ? smColors.white : smColors.black;
+    // eslint-disable-next-line no-nested-ternary
+    const indicatorColor = nodeError ? smColors.red : isWalletOnly || status?.isSynced ? smColors.green : smColors.orange;
 
     return (
       <Wrapper>
@@ -155,8 +160,7 @@ class Main extends Component<Props, State> {
                 {this.renderNavBarLink('SMESHING', 'MANAGE SMESHING', '/main/node')}
                 {this.renderNavBarLink(
                   <>
-                    {/* eslint-disable-next-line no-nested-ternary */}
-                    <NetworkIndicator color={nodeError ? smColors.red : status?.isSynced ? smColors.green : smColors.orange} />
+                    <NetworkIndicator color={indicatorColor} />
                     NETWORK
                   </>,
                   'NETWORK',
@@ -242,9 +246,9 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { getNetworkDefinitions } = this.props;
+    const { getNetworkDefinitions, isWalletOnly } = this.props;
     getNetworkDefinitions();
-    eventsService.requestVersionAndBuild();
+    !isWalletOnly && eventsService.requestVersionAndBuild();
   }
 
   renderNavBarLink = (label: string | ReactNode, tooltip: string, route: string) => {
@@ -292,6 +296,7 @@ class Main extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
+  isWalletOnly: isWalletOnly(state),
   status: state.node.status,
   nodeError: state.node.error,
   isDarkMode: state.ui.isDarkMode

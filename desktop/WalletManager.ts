@@ -4,6 +4,8 @@ import path from 'path';
 import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
+import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
+import { isLocalNodeApi, isRemoteNodeApi, stringifySocketAddress, toSocketAddress } from '../shared/utils';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -32,20 +34,25 @@ const appFilesDirPath = app.getPath('userData');
 const documentsDirPath = app.getPath('documents');
 
 class WalletManager {
-  private readonly meshService: any;
+  private readonly meshService: MeshService;
 
-  private readonly glStateService: any;
+  private readonly glStateService: GlobalStateService;
 
-  private readonly txService: any;
+  private readonly txService: TransactionService;
 
   private nodeManager: NodeManager;
 
   private txManager: TransactionManager;
 
+  private mainWindow: BrowserWindow;
+
   private mnemonic = '';
+
+  private openedWalletFilePath: string | null = null;
 
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
     this.subscribeToEvents(mainWindow);
+    this.mainWindow = mainWindow;
     this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
@@ -62,13 +69,12 @@ class WalletManager {
   });
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
-    ipcMain.handle(ipcConsts.W_M_ACTIVATE, (_event, request) => {
+    ipcMain.handle(ipcConsts.W_M_ACTIVATE, (_event, apiUrl) => {
       try {
-        this.activateWalletManager({ ip: request.ip, port: request.port });
-        return { activated: true, error: null };
+        this.activateWalletManager(apiUrl);
       } catch (e) {
-        logger.error('W_M_ACTIVATE channel', true, request);
-        return { activated: false, error: e };
+        logger.error('W_M_ACTIVATE channel', true, apiUrl);
+        throw e;
       }
     });
     ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, () => {
@@ -79,21 +85,14 @@ class WalletManager {
       const explorerUrl = StoreService.get('netSettings.explorerUrl');
       return { netId, netName, genesisTime, minCommitmentSize, explorerUrl };
     });
-    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, async () => {
-      const { error, currentLayer } = await this.meshService.getCurrentLayer();
-      return error ? { currentLayer: -1 } : { currentLayer };
-    });
-    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, async () => {
-      const { error, layer, rootHash } = await this.glStateService.getGlobalStateHash();
-      return error ? { layer: -1, rootHash: '' } : { layer, rootHash };
-    });
-    ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, async (_event, request) => {
-      const res = await this.createWalletFile({ ...request });
-      if (res.error) {
-        logger.error('W_M_CREATE_WALLET channel', res, request);
-      }
-      return res;
-    });
+    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => this.meshService.getCurrentLayer());
+    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, () => this.glStateService.getGlobalStateHash());
+    ipcMain.handle(ipcConsts.W_M_CREATE_WALLET, (_event, request) =>
+      this.createWalletFile({ ...request }).catch((err) => {
+        logger.error('W_M_CREATE_WALLET channel', err, request);
+        throw err;
+      })
+    );
     ipcMain.handle(ipcConsts.W_M_READ_WALLET_FILES, async () => {
       const res = await this.readWalletFiles();
       return res;
@@ -136,49 +135,58 @@ class WalletManager {
       const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
       return res;
     });
+    ipcMain.handle(ipcConsts.SWITCH_API_PROVIDER, async (_event, apiUrl: SocketAddress) => {
+      this.switchApiProvider(apiUrl);
+      return true;
+    });
   };
 
-  activateWalletManager = ({ ip, port }: { ip: string | undefined; port: string | undefined }) => {
-    this.meshService.createService(ip, port);
-    this.glStateService.createService(ip, port);
-    this.txService.createService(ip, port);
-  };
-
-  createWalletFile = async ({ password, existingMnemonic, ip = '', port = '' }: { password: string; existingMnemonic: string; ip: string; port: string }) => {
-    try {
-      const timestamp = new Date().toISOString().replace(/:/g, '-');
-      this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
-      const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
-      const dataToEncrypt = {
-        mnemonic: this.mnemonic,
-        accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
-        contacts: []
-      };
-      const meta = {
-        displayName: 'Main Wallet',
-        created: timestamp,
-        netId: StoreService.get('netSettings.netId'),
-        ip,
-        port,
-        meta: { salt: encryptionConst.DEFAULT_SALT }
-      };
-      await this.nodeManager.activateNodeProcess();
-      this.activateWalletManager({ ip, port });
-      this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
-      const key = fileEncryptionService.createEncryptionKey({ password });
-      const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
-      const fileContent = {
-        meta,
-        crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
-      };
-      const fileName = `my_wallet_${timestamp}.json`;
-      const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
-      await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
-      return { error: null, meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
-    } catch (error) {
-      logger.error('createWalletFile', error);
-      return { error, meta: null };
+  activateWalletManager = (apiUrl: SocketAddress) => {
+    if (isLocalNodeApi(apiUrl)) {
+      this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', '');
+    } else {
+      this.openedWalletFilePath && this.updateWalletMeta(this.openedWalletFilePath, 'remoteApi', stringifySocketAddress(apiUrl));
+      this.nodeManager.connectToRemoteNode(apiUrl);
     }
+
+    this.meshService.createService(apiUrl);
+    this.glStateService.createService(apiUrl);
+    this.txService.createService(apiUrl);
+  };
+
+  createWalletFile = async ({ password, existingMnemonic, apiUrl = LOCAL_NODE_API_URL }: { password: string; existingMnemonic: string; apiUrl: SocketAddress }) => {
+    const timestamp = new Date().toISOString().replace(/:/g, '-');
+    this.mnemonic = existingMnemonic || cryptoService.generateMnemonic();
+    const { publicKey, secretKey } = cryptoService.deriveNewKeyPair({ mnemonic: this.mnemonic, index: 0 });
+    const dataToEncrypt = {
+      mnemonic: this.mnemonic,
+      accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
+      contacts: []
+    };
+
+    const usingRemoteApi = isRemoteNodeApi(apiUrl);
+    !usingRemoteApi && (await this.nodeManager.startNode());
+
+    this.activateWalletManager(apiUrl);
+    this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
+    const key = fileEncryptionService.createEncryptionKey({ password });
+    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
+    const meta: WalletMeta = {
+      displayName: 'Main Wallet',
+      created: timestamp,
+      netId: StoreService.get('netSettings.netId'),
+      remoteApi: usingRemoteApi ? stringifySocketAddress(apiUrl) : '',
+      meta: { salt: encryptionConst.DEFAULT_SALT }
+    };
+    const fileContent: WalletFile = {
+      meta,
+      crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
+    };
+    const fileName = `my_wallet_${timestamp}.json`;
+    const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
+    await writeFileAsync(fileNameWithPath, JSON.stringify(fileContent));
+    this.openedWalletFilePath = fileNameWithPath;
+    return { meta, accounts: dataToEncrypt.accounts, mnemonic: this.mnemonic };
   };
 
   readWalletFiles = async () => {
@@ -198,14 +206,23 @@ class WalletManager {
     try {
       const fileContent = await readFileAsync(path);
       // @ts-ignore
-      const { crypto, meta } = JSON.parse(fileContent);
+      const { crypto, meta } = JSON.parse(fileContent) as WalletFile;
       const key = fileEncryptionService.createEncryptionKey({ password });
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
-      await this.nodeManager.activateNodeProcess();
-      this.activateWalletManager({ ip: meta.ip, port: meta.port });
+
+      const apiUrl = toSocketAddress(meta.remoteApi);
+      const usingRemoteApi = isRemoteNodeApi(apiUrl);
+      !usingRemoteApi && (await this.nodeManager.startNode());
+      this.activateWalletManager(apiUrl);
+
+      // Update netId in wallet file to actual one
+      const actualNetId = StoreService.get('netSettings.netId');
+      meta.netId !== actualNetId && this.updateWalletMeta(path, 'netId', actualNetId);
+
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
+      this.openedWalletFilePath = path;
       return { error: null, accounts, mnemonic, meta, contacts };
     } catch (error) {
       logger.error('unlockWalletFile', error, { path, password });
@@ -213,10 +230,9 @@ class WalletManager {
     }
   };
 
-  updateWalletFile = async ({ fileName, password, data }: { fileName: string; password: string; data: any }) => {
+  updateWalletFile = async ({ fileName, password, data }: { fileName: string; password?: string; data: any }) => {
     try {
-      const rawFileContent = await readFileAsync(fileName);
-      // @ts-ignore
+      const rawFileContent = await readFileAsync(fileName, { encoding: 'utf-8' });
       const fileContent = JSON.parse(rawFileContent);
       let field = 'meta';
       let dataToUpdate = data;
@@ -228,9 +244,18 @@ class WalletManager {
         this.txManager.setAccounts({ accounts: data.accounts });
       }
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, [field]: dataToUpdate }));
+      this.openedWalletFilePath = fileName;
     } catch (error) {
       logger.error('updateWalletFile', error);
     }
+  };
+
+  updateWalletMeta = async <K extends keyof WalletMeta>(walletFilePath: string, key: K, value: WalletMeta[K]) => {
+    const rawFileContent = await readFileAsync(walletFilePath, { encoding: 'utf-8' });
+    const wallet = JSON.parse(rawFileContent);
+    const updatedWallet: WalletFile = { ...wallet, meta: { ...wallet.meta, [key]: value } };
+    await writeFileAsync(walletFilePath, JSON.stringify(updatedWallet));
+    return true;
   };
 
   createNewAccount = async ({ fileName, password }: { fileName: string; password: string }) => {
@@ -252,7 +277,6 @@ class WalletManager {
       };
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
-      await this.nodeManager.activateNodeProcess();
       this.txManager.addAccount({ account: newAccount });
       return { error: null, newAccount };
     } catch (error) {
@@ -308,6 +332,7 @@ class WalletManager {
       try {
         StoreService.clear();
         await unlinkFileAsync(fileName);
+        this.openedWalletFilePath = null;
         browserWindow.reload();
       } catch (error) {
         logger.error('deleteWalletFile', error);
@@ -335,6 +360,16 @@ class WalletManager {
       });
       app.quit();
     }
+  };
+
+  switchApiProvider = async (apiUrl: SocketAddress) => {
+    if (isRemoteNodeApi(apiUrl)) {
+      // We don't need to start Node here
+      // because it will be started on unlocking/creating the wallet file
+      // but we have to stop it in case that User switched to wallet mode
+      await this.nodeManager.stopNode();
+    }
+    this.activateWalletManager(apiUrl);
   };
 }
 

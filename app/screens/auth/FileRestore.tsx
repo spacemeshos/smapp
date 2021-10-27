@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
 import { restoreFile } from '../../redux/wallet/actions';
 import { BackButton } from '../../components/common';
 import { DragAndDrop } from '../../components/auth';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
+import { AuthRouterParams } from './routerParams';
 
 const DdArea = styled.div`
   display: flex;
@@ -23,7 +23,7 @@ const BottomSection = styled.div`
   align-items: flex-end;
 `;
 
-const FileRestore = ({ history }: RouteComponentProps) => {
+const FileRestore = ({ history }: AuthRouterParams) => {
   const [fileName, setFileName] = useState('');
   const [filePath, setFilePath] = useState('');
   const [hasError, setHasError] = useState(false);

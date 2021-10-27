@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { readWalletFiles } from '../../redux/wallet/actions';
@@ -9,6 +9,7 @@ import routes from '../../routes';
 import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { RootState } from '../../types';
 import Version from '../../components/common/Version';
+import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
   position: relative;
@@ -39,26 +40,18 @@ const RelativeContainer = styled.div`
   position: relative;
 `;
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: unknown;
-  };
-}
-
 const renderHorizontalPane = (path, isDarkMode) => {
   const DO_NOT_SHOW_ON = ['/auth/welcome', '/auth/leaving'];
   return DO_NOT_SHOW_ON.includes(path) ? null : <SmallHorizontalPanel isDarkMode={isDarkMode} />;
 };
 
-const Auth = ({ history, location }: Props) => {
+const Auth = ({ history, location }: AuthRouterParams) => {
   const walletFiles = useSelector((state: RootState) => state.wallet.walletFiles);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (location.pathname === '/auth/connect-to-api' && location.state?.switchApiProvider) return;
     const initialSetup = async () => {
       const files = await dispatch(readWalletFiles());
       if (files.length && location.pathname !== '/auth/restore') {
@@ -66,7 +59,7 @@ const Auth = ({ history, location }: Props) => {
       }
     };
     initialSetup();
-  }, [dispatch, history, location.pathname]);
+  }, [dispatch, history, location.pathname, location.state]);
 
   return (
     <Wrapper>
