@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import { LOCAL_NODE_API_URL } from './constants';
 import { PublicService, SocketAddress } from './types';
 
@@ -9,7 +10,7 @@ export const delay = (ms: number) =>
 
 // GRPC APIs
 export const toSocketAddress = (url?: string): SocketAddress => {
-  if (url === '' || url === undefined) return LOCAL_NODE_API_URL;
+  if (!url) return LOCAL_NODE_API_URL;
 
   const u = new URL(url.startsWith('http') ? url : `http://${url}`);
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
@@ -22,9 +23,9 @@ export const toSocketAddress = (url?: string): SocketAddress => {
   };
 };
 
-export const stringifySocketAddress = (sa: SocketAddress): string => `${sa.protocol}//${sa.host}${sa.port && `:${sa.port}`}`;
+export const stringifySocketAddress = (sa: SocketAddress): string => (sa ? `${sa.protocol}//${sa.host}${sa.port && `:${sa.port}`}` : '');
 
-export const isLocalNodeApi = (sa: SocketAddress) => sa === LOCAL_NODE_API_URL;
+export const isLocalNodeApi = (sa: SocketAddress) => R.equals(sa, LOCAL_NODE_API_URL);
 
 export const isRemoteNodeApi = (sa: SocketAddress) => !isLocalNodeApi(sa);
 

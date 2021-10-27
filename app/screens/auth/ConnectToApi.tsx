@@ -105,7 +105,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const handleNext = () => {
     const { value } = publicServices.services[selectedItemIndex];
-
     if (location.state?.switchApiProvider)
       return eventsService
         .switchApiProvider(value)

@@ -12,12 +12,10 @@ import {
   SET_CURRENT_ACCOUNT_INDEX,
   SET_BACKUP_TIME,
   SET_CURRENT_MODE,
-  UPDATE_ACCOUNT_DATA,
-  SET_USING_REMOTE_API
+  UPDATE_ACCOUNT_DATA
 } from './actions';
 
 const initialState = {
-  usingRemoteApi: false,
   walletFiles: null,
   meta: {} as WalletMeta,
   mnemonic: '',
@@ -66,8 +64,6 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     case SET_CURRENT_MODE: {
       return { ...state, vaultMode: action.payload };
     }
-    case SET_USING_REMOTE_API:
-      return { ...state, usingRemoteApi: action.payload };
     case UPDATE_ACCOUNT_DATA: {
       const { account, accountId } = action.payload;
       const accountIndexToUpdate = state.accounts.findIndex((account) => account.publicKey === accountId);

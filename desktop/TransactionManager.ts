@@ -62,11 +62,16 @@ class TransactionManager {
     // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
 
     const addReward = this.addReward({ accountId: account.publicKey });
-  this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward }));
+    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: addReward }));
   };
 
   subscribeAccounts = () => {
-    this.streams.forEach((unsubcribe) => unsubcribe());
+    this.streams.forEach(
+      // Timeout is required here due to bug in node core:
+      // https://github.com/nodejs/node/issues/38964
+      // Can be removed after migrating to Node v17.0.1+
+      (unsubcribe) => setTimeout(() => unsubcribe(), 0)
+    );
     this.streams = [];
     this.accounts.forEach(this.subscribeAccount);
   };

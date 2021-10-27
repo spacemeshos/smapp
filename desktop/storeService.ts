@@ -1,7 +1,7 @@
 import path from 'path';
 import { app } from 'electron';
 import Store from 'electron-store';
-import { Account } from '../app/types';
+import { AccountBalance } from '../shared/types';
 
 interface ConfigStore {
   isAutoStartEnabled: boolean;
@@ -12,7 +12,7 @@ interface ConfigStore {
     explorerUrl: string;
     dashUrl: string;
     minCommitmentSize: number;
-    layerDurationSerc: number;
+    layerDurationSec: number;
     genesisTime: string;
   };
   nodeSettings: {
@@ -22,11 +22,7 @@ interface ConfigStore {
     string,
     {
       publicKey: string;
-      account: {
-        // TODO: Use Account from shared after merging `feat-658-wallet-only`
-        currentState: Account['currentState'];
-        projectedState: Account['projectedState'];
-      };
+      account: AccountBalance;
       txs: { [txId: string]: any }; // TODO: Implement within #766
       rewards: { [rewardId: string]: any }; // TODO: Implement within #766
     }

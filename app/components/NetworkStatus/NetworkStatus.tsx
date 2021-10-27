@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { NodeStatus } from '../../../shared/types';
 import { NetworkIndicator, ProgressBar } from '../../basicComponents';
 import { constrain } from '../../infra/utils';
-import { isWalletOnly } from '../../redux/wallet/selectors';
 import { smColors } from '../../vars';
 
 const ProgressLabel = styled.div`

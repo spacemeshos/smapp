@@ -6,6 +6,7 @@ import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
 import { isLocalNodeApi, isRemoteNodeApi, stringifySocketAddress, toSocketAddress } from '../shared/utils';
+import { LOCAL_NODE_API_URL } from '../shared/constants';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -43,15 +44,12 @@ class WalletManager {
 
   private txManager: TransactionManager;
 
-  private mainWindow: BrowserWindow;
-
   private mnemonic = '';
 
   private openedWalletFilePath: string | null = null;
 
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
     this.subscribeToEvents(mainWindow);
-    this.mainWindow = mainWindow;
     this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
@@ -172,7 +170,7 @@ class WalletManager {
     const meta: WalletMeta = {
       displayName: 'Main Wallet',
       created: timestamp,
-      netId: StoreService.get('netSettings.netId'),
+      netId: StoreService.get('netSettings.netId') as number,
       remoteApi: usingRemoteApi ? stringifySocketAddress(apiUrl) : '',
       meta: { salt: encryptionConst.DEFAULT_SALT }
     };
@@ -215,7 +213,7 @@ class WalletManager {
       this.activateWalletManager(apiUrl);
 
       // Update netId in wallet file to actual one
-      const actualNetId = StoreService.get('netSettings.netId');
+      const actualNetId = StoreService.get('netSettings.netId') as number;
       meta.netId !== actualNetId && this.updateWalletMeta(path, 'netId', actualNetId);
 
       this.txManager.setAccounts({ accounts });

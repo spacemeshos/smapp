@@ -50,8 +50,7 @@ class SmesherManager {
     const { smesherId } = await this.smesherService.getSmesherID();
     const { postSetupState, numLabelsWritten, errorMessage } = await this.smesherService.getPostSetupStatus();
     const nodeConfig = await this.loadConfig();
-    const opts = nodeConfig?.smeshing['smeshing-opts'];
-    const numUnits = (opts && opts['smeshing-opts-numunits']) || 0;
+    const numUnits = (nodeConfig.smeshing && nodeConfig.smeshing['smeshing-opts'] && nodeConfig.smeshing['smeshing-opts']['smeshing-opts-numunits']) || 0;
     const data: IPCSmesherStartupData = {
       config,
       smesherId,

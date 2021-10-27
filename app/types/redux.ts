@@ -21,7 +21,6 @@ export interface NodeState {
 }
 
 export interface WalletState {
-  usingRemoteApi: boolean;
   walletFiles: Array<string> | null;
   meta: WalletMeta;
   mnemonic: string;

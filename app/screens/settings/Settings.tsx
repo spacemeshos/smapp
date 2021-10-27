@@ -14,6 +14,7 @@ import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
 import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -363,7 +364,7 @@ class Settings extends Component<Props, State> {
   handleSwitchToLocalNode = () => {
     const { history, setUiError } = this.props;
     return eventsService
-      .switchApiProvider('', '')
+      .switchApiProvider(LOCAL_NODE_API_URL)
       .then(() => history.push('/auth'))
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console

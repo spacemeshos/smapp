@@ -18,6 +18,7 @@ import { showClosingAppModal } from '../../redux/ui/actions';
 import WalletManager from '../../../desktop/WalletManager';
 import GlobalStateService from '../../../desktop/GlobalStateService';
 import MeshService from '../../../desktop/MeshService';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 
 class EventsService {
   static createWallet = ({
@@ -71,10 +72,10 @@ class EventsService {
   static getEstimatedRewards = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
   static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
-  await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { ip: '', port: '' });
-  await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
-  ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { postSetupOpts });
- }
+    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, LOCAL_NODE_API_URL);
+    await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
+    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { postSetupOpts });
+  };
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
 

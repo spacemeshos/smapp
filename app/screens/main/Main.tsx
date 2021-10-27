@@ -138,7 +138,6 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { activeRouteIndex } = this.state;
     const { isWalletOnly, nodeError, status, isDarkMode } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;

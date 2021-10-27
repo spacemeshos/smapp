@@ -19,10 +19,6 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
-export const SET_USING_REMOTE_API = 'SET_USING_REMOTE_API';
-
-export const setUsingRemoteApi = (isRemoteApi: boolean) => ({ type: SET_USING_REMOTE_API, payload: isRemoteApi });
-
 export const setWalletMeta = (wallet: WalletMeta) => ({ type: SET_WALLET_META, payload: wallet });
 
 export const setAccounts = (accounts: Account[]) => ({ type: SET_ACCOUNTS, payload: accounts });

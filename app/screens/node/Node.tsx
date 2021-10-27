@@ -9,7 +9,6 @@ import { formatBytes, getAbbreviatedText, getFormattedTimestamp } from '../../in
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, playIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
-import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 import { NodeStatus, PostSetupState } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';

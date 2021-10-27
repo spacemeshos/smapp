@@ -117,8 +117,6 @@ class NodeManager {
   };
 
   startNode = async () => {
-    if (this.isNodeRunning()) return true;
-
     this.hasCriticalError = false;
     this.spawnNode();
     this.nodeService.createService();
@@ -135,7 +133,7 @@ class NodeManager {
   };
 
   private spawnNode = () => {
-  if (this.nodeProcess) return;
+    if (this.nodeProcess) return;
     const userDataPath = app.getPath('userData');
     const nodeDir = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/');
     const nodePath = path.resolve(nodeDir, `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`);
@@ -143,7 +141,7 @@ class NodeManager {
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
     const logFileStream = fs.createWriteStream(logFilePath, { flags: this.cleanStart ? 'w' : 'a', encoding: 'utf-8' });
-    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath');
+    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath') as string;
     const args = ['--config', nodeConfigFilePath, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);

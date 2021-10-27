@@ -5,7 +5,6 @@ import { setNodeError } from '../node/actions';
 export const SET_NETWORK_DEFINITIONS = 'SET_NETWORK_DEFINITIONS';
 export const SET_CURRENT_LAYER = 'SET_CURRENT_LAYER';
 export const SET_STATE_ROOT_HASH = 'SET_STATE_ROOT_HASH';
-export const SET_REMOTE_API = 'SET_REMOTE_API';
 
 export const getNetworkDefinitions = () => async (dispatch: AppThDispatch) => {
   const definitions = await eventsService.getNetworkDefinitions();

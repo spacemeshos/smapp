@@ -17,7 +17,6 @@ import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
 import { PublicService } from '../shared/types';
-import { DiscoveryItem } from '../shared/schemas';
 import { toPublicService } from '../shared/utils';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
@@ -198,14 +197,17 @@ if (!gotTheLock) {
     }
   });
 }
+const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
+  proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
 
 const getInitialConfig = async () => {
-  if (process.env.NODE_ENV === 'development' && process.env.DEV_NET_URL) {
+  if (isDevNet(process)) {
     return {
       netName: 'Dev Net',
       conf: process.env.DEV_NET_URL,
       explorer: '',
-      dash: ''
+      dash: '',
+      grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || ''
     };
   }
   const res = await fetch(DISCOVERY_URL);
@@ -289,10 +291,8 @@ const createWindow = async () => {
     netConfig.smeshing = {}; // Ensure that the net config does not provide preinstalled defaults for smeshing
     await writeFileAsync(configFilePath, JSON.stringify(netConfig));
   }
-  
-const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
-    // TODO: Give a wider list of options
-    // const walletServices: PublicService[] = [toPublicService(initialConfig.netName, initialConfig.grpcAPI)];
+
+  const subscribeListingGrpcApis = (initialConfig) => {
     const walletServices: PublicService[] = [
       toPublicService(initialConfig.netName, initialConfig.grpcAPI),
       ...(isDevNet(process) && process.env.DEV_NET_REMOTE_API
