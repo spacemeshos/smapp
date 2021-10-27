@@ -18,7 +18,7 @@ export const toSocketAddress = (url?: string): SocketAddress => {
   }
   return {
     host: u.hostname,
-    port: u.port,
+    port: u.port || u.protocol === 'https:' ? '443' : '9090',
     protocol: u.protocol
   };
 };
