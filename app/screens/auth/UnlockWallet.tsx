@@ -109,7 +109,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       });
       setShowLoader(false);
       if (success) {
-        history.push('/main/wallet');
+        history.push(location.state?.redirect || '/main/wallet');
       } else {
         setWrongPassword(true);
       }

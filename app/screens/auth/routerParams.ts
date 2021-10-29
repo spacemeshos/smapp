@@ -6,6 +6,7 @@ type AuthLocationState = {
   switchApiProvider?: boolean;
   mnemonic?: string;
   apiUrl?: SocketAddress;
+  redirect?: string; // TODO: Enums of paths?
 };
 
 export type AuthRouterParams = RouteComponentProps<Record<string, any>, StaticContext, AuthLocationState>;

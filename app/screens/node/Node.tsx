@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro } from '../../components/node';
 import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
-import { hideSmesherLeftPanel } from '../../redux/ui/actions';
+import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
 import { formatBytes, getAbbreviatedText, getFormattedTimestamp } from '../../infra/utils';
 import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, explorer, pauseIcon, playIcon, walletSecond, posSmesherOrange } from '../../assets/images';
 import { smColors } from '../../vars';
@@ -15,6 +15,8 @@ import * as SmesherSelectors from '../../redux/smesher/selectors';
 import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
 import SubHeader from '../../basicComponents/SubHeader';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
+import { eventsService } from '../../infra/eventsService';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -348,6 +350,16 @@ const Node = ({ history, location }: Props) => {
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
+  const handleSetupSmesher = () => {
+    return eventsService
+      .switchApiProvider(LOCAL_NODE_API_URL)
+      .then(() => history.push('/auth', { redirect: '/main/node-setup' }))
+      .catch((err) => {
+        console.error(err); // eslint-disable-line no-console
+        dispatch(setUiError(err));
+      });
+  };
+
   const renderWalletOnlyMode = () => {
     return (
       <>
@@ -364,7 +376,7 @@ const Node = ({ history, location }: Props) => {
         </Row>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="SMESHER GUIDE" />
-          <Button width={120} onClick={() => history.push('/main/node-setup')} text="SETUP SMESHER" />
+          <Button width={120} onClick={handleSetupSmesher} text="SETUP SMESHER" />
         </BottomPart>
       </>
     );
