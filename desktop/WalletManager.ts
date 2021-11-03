@@ -207,14 +207,26 @@ class WalletManager {
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
 
+      const actualNetId = StoreService.get('netSettings.netId') as number;
+      if (meta.netId !== actualNetId) {
+        // Update netId in wallet file to actual one
+        this.updateWalletMeta(path, 'netId', actualNetId);
+        meta.netId = actualNetId;
+        // And update remoteApi if it was specified
+        if (meta.remoteApi) {
+          const apis = StoreService.get('netSettings.grpcAPI') as string[];
+          if (!apis.find((x) => x === meta.remoteApi)) {
+            const [firstApi] = apis;
+            meta.remoteApi = firstApi;
+            this.updateWalletMeta(path, 'remoteApi', firstApi);
+          }
+        }
+      }
+
       const apiUrl = toSocketAddress(meta.remoteApi);
       const usingRemoteApi = isRemoteNodeApi(apiUrl);
       !usingRemoteApi && (await this.nodeManager.startNode());
       this.activateWalletManager(apiUrl);
-
-      // Update netId in wallet file to actual one
-      const actualNetId = StoreService.get('netSettings.netId') as number;
-      meta.netId !== actualNetId && this.updateWalletMeta(path, 'netId', actualNetId);
 
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
