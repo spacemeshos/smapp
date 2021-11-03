@@ -3,7 +3,6 @@ const path = require('path');
 const crypto = require('crypto');
 
 const { Platform, build } = require('electron-builder');
-require('dotenv').config();
 const { notarize } = require('electron-notarize');
 
 async function notarizing(context) {
@@ -108,11 +107,12 @@ const getBuildOptions = ({ target, publish }) => {
         'node_modules/',
         'proto/',
         'resources/icons/*',
-        'app/assets/**'
+        'app/assets/**',
+        { from: path.resolve('desktop/prompt/static'), to: 'prompt/' },
       ],
       extraFiles: [
         nodeFiles[target],
-        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' }
+        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' },
       ],
       mac: {
         hardenedRuntime: true,

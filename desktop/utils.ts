@@ -1,6 +1,8 @@
 import util from 'util';
 import fs from 'fs';
 
+export const isDev = () => process.env.NODE_ENV === 'development';
+
 export const fromHexString = (hexString: string) => {
   const bytes = [];
   for (let i = 0; i < hexString.length; i += 2) {

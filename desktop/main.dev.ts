@@ -17,7 +17,7 @@ import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
 import { PublicService } from '../shared/types';
-import { toPublicService } from '../shared/utils';
+import { stringifySocketAddress, toPublicService } from '../shared/utils';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -26,14 +26,15 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
-import { writeFileAsync } from './utils';
+import { isDev, writeFileAsync } from './utils';
+import prompt from './prompt';
 
 require('dotenv').config();
 
 const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
 
 (async function () {
-  const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
+  const filePath = path.resolve(app.getAppPath(), isDev() ? './' : 'desktop/', 'ed25519.wasm');
   const bytes = fs.readFileSync(filePath);
   // const bytes = await response.arrayBuffer();
   // @ts-ignore
@@ -52,7 +53,7 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
-const DEBUG = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const DEBUG = isDev() || process.env.DEBUG_PROD === 'true';
 
 DEBUG && require('electron-debug')();
 
@@ -200,7 +201,28 @@ if (!gotTheLock) {
 const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
   proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
 
-const getInitialConfig = async () => {
+const promptNetworkSelection = async (networks) => {
+  const options = Object.fromEntries(networks.map((conf, idx) => [idx, `${conf.netName} (${conf.netID})`]));
+  const res = await prompt({
+    title: 'Spacemesh App: Choose the network',
+    label: 'Please, choose the network:',
+    type: 'select',
+    selectOptions: options,
+    alwaysOnTop: true
+  });
+  return res ? parseInt(res, 10) : 0;
+};
+
+const selectNetwork = async (currentNetId, networks) => {
+  if (currentNetId) {
+    const currentNetConfig = networks.find((conf) => conf.netID === currentNetId);
+    if (currentNetConfig) return currentNetConfig;
+  }
+  const netIndex = networks.length > 1 ? await promptNetworkSelection(networks) : 0;
+  return networks[netIndex];
+};
+
+const getInitialConfig = async (savedNetId) => {
   if (isDevNet(process)) {
     return {
       netName: 'Dev Net',
@@ -211,18 +233,18 @@ const getInitialConfig = async () => {
     };
   }
   const res = await fetch(DISCOVERY_URL);
-  const [initialConfig] = await res.json();
-  return initialConfig;
+  const networks = await res.json();
+  return selectNetwork(savedNetId, networks);
 };
 const getNetConfig = async (configUrl) => {
   const resp = await fetch(configUrl);
   return resp.json();
 };
 const getConfigs = async () => {
-  const initialConfig = await getInitialConfig();
+  const savedNetId = StoreService.get('netSettings.netId');
+  const initialConfig = await getInitialConfig(savedNetId);
   const netConfig = await getNetConfig(initialConfig.conf);
   const netId = parseInt(initialConfig.netID) || netConfig.p2p['network-id'];
-  const savedNetId = StoreService.get('netSettings.netId');
   const isCleanStart = savedNetId !== netId;
 
   return {
@@ -301,6 +323,7 @@ const createWindow = async () => {
             .map((url) => toPublicService(initialConfig.netName, url))
         : [])
     ];
+    StoreService.set('netSettings.grpcAPI', walletServices.map(stringifySocketAddress));
     ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
   };
 
