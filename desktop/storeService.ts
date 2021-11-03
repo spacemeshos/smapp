@@ -39,12 +39,12 @@ const CONFIG_STORE_DEFAULTS = {
     dashUrl: '',
     minCommitmentSize: -1,
     layerDurationSec: -1,
-    genesisTime: ''
+    genesisTime: '',
   },
   nodeSettings: {
-    port: '9092'
+    port: '9092',
   },
-  accounts: {}
+  accounts: {},
 };
 class StoreService {
   static store: Store<ConfigStore>;
@@ -52,7 +52,7 @@ class StoreService {
   static init() {
     if (!StoreService.store) {
       StoreService.store = new Store<ConfigStore>({
-        defaults: CONFIG_STORE_DEFAULTS
+        defaults: CONFIG_STORE_DEFAULTS,
       });
     }
   }

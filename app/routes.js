@@ -27,138 +27,138 @@ import {
   TestMe,
   Vault,
   Dashboard,
-  ConnectToApi
+  ConnectToApi,
 } from './screens';
 
 const app = [
   {
     path: '/auth',
-    component: Auth
+    component: Auth,
   },
   {
     path: '/main',
-    component: Main
-  }
+    component: Main,
+  },
 ];
 
 const auth = [
   {
     path: '/auth/welcome',
-    component: Welcome
+    component: Welcome,
   },
   {
     path: '/auth/wallet-connection-type',
-    component: WalletConnectionType
+    component: WalletConnectionType,
   },
   {
     path: '/auth/connect-to-api',
-    component: ConnectToApi
+    component: ConnectToApi,
   },
   {
     path: '/auth/leaving',
-    component: Leaving
+    component: Leaving,
   },
   {
     path: '/auth/wallet-type',
-    component: WalletType
+    component: WalletType,
   },
   {
     path: '/auth/create',
-    component: CreateWallet
+    component: CreateWallet,
   },
   {
     path: '/auth/unlock',
-    component: UnlockWallet
+    component: UnlockWallet,
   },
   {
     path: '/auth/restore',
-    component: RestoreWallet
+    component: RestoreWallet,
   },
   {
     path: '/auth/file-restore',
-    component: FileRestore
+    component: FileRestore,
   },
   {
     path: '/auth/words-restore',
-    component: WordsRestore
-  }
+    component: WordsRestore,
+  },
 ];
 
 const main = [
   {
     path: '/main/wallet',
-    component: Wallet
+    component: Wallet,
   },
   {
     path: '/main/network',
-    component: Network
+    component: Network,
   },
   {
     path: '/main/dash',
-    component: Dashboard
+    component: Dashboard,
   },
   {
     path: '/main/node-setup',
-    component: NodeSetup
+    component: NodeSetup,
   },
   {
     path: '/main/node',
-    component: Node
+    component: Node,
   },
   {
     path: '/main/backup',
-    component: Backup
+    component: Backup,
   },
   {
     path: '/main/transactions',
-    component: Transactions
+    component: Transactions,
   },
   {
     path: '/main/contacts',
-    component: Contacts
+    component: Contacts,
   },
   {
     path: '/main/settings',
-    component: Settings
-  }
+    component: Settings,
+  },
 ];
 
 const wallet = [
   {
     path: '/main/wallet/overview',
-    component: Overview
+    component: Overview,
   },
   {
     path: '/main/wallet/vault',
-    component: Vault
+    component: Vault,
   },
   {
     path: '/main/wallet/send-coins',
-    component: SendCoins
+    component: SendCoins,
   },
   {
     path: '/main/wallet/request-coins',
-    component: RequestCoins
-  }
+    component: RequestCoins,
+  },
 ];
 
 const backup = [
   {
     path: '/main/backup/backup-options',
-    component: BackupOptions
+    component: BackupOptions,
   },
   {
     path: '/main/backup/twelve-words-backup',
-    component: TwelveWordsBackup
+    component: TwelveWordsBackup,
   },
   {
     path: '/main/backup/test-twelve-words-backup',
-    component: TestMe
+    component: TestMe,
   },
   {
     path: '/main/backup/file-backup',
-    component: FileBackup
-  }
+    component: FileBackup,
+  },
 ];
 
 const routes = { app, auth, main, wallet, backup };

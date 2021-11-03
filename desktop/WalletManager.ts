@@ -62,7 +62,7 @@ class WalletManager {
     created: timestamp,
     path: `0/0/${index}`,
     publicKey,
-    secretKey
+    secretKey,
   });
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
@@ -157,7 +157,7 @@ class WalletManager {
     const dataToEncrypt = {
       mnemonic: this.mnemonic,
       accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
-      contacts: []
+      contacts: [],
     };
 
     const usingRemoteApi = isRemoteNodeApi(apiUrl);
@@ -172,11 +172,11 @@ class WalletManager {
       created: timestamp,
       netId: StoreService.get('netSettings.netId') as number,
       remoteApi: usingRemoteApi ? stringifySocketAddress(apiUrl) : '',
-      meta: { salt: encryptionConst.DEFAULT_SALT }
+      meta: { salt: encryptionConst.DEFAULT_SALT },
     };
     const fileContent: WalletFile = {
       meta,
-      crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
+      crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
     };
     const fileName = `my_wallet_${timestamp}.json`;
     const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
@@ -281,7 +281,7 @@ class WalletManager {
       const dataToEncrypt = {
         mnemonic,
         accounts: [...accounts, newAccount],
-        contacts
+        contacts,
       };
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
@@ -333,7 +333,7 @@ class WalletManager {
     const options = {
       title: 'Delete File',
       message: 'All wallet data will be lost. Are You Sure?',
-      buttons: ['Delete Wallet File', 'Cancel']
+      buttons: ['Delete Wallet File', 'Cancel'],
     };
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
@@ -353,7 +353,7 @@ class WalletManager {
       type: 'warning',
       title: 'Reinstall App',
       message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
-      buttons: ['Delete All', 'Cancel']
+      buttons: ['Delete All', 'Cancel'],
     };
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {

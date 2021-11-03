@@ -90,7 +90,7 @@ const DropDown = ({
   isDisabled = false,
   bgColor = smColors.white,
   style = null,
-  whiteIcon = false
+  whiteIcon = false,
 }: Props) => {
   const [isOpened, setIsOpened] = useState(false);
   useEffect(() => {
@@ -110,7 +110,7 @@ const DropDown = ({
     item,
     index,
     rowHeight = 44,
-    rowContentCentered
+    rowContentCentered,
   }: {
     item: { label: string; isDisabled?: boolean };
     index: number;

@@ -170,7 +170,7 @@ const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAc
   const ddStyle = {
     color: isDarkMode ? smColors.white : smColors.black,
     marginLeft: 'auto',
-    flex: '0 0 125px'
+    flex: '0 0 125px',
   };
 
   const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;

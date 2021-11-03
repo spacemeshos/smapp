@@ -42,7 +42,7 @@ type State = {
 
 class ErrorBoundary extends Component<Props, State> {
   state = {
-    isRenderingError: false
+    isRenderingError: false,
   };
 
   render() {
@@ -100,7 +100,7 @@ class ErrorBoundary extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: RootState) => ({
-  error: state.ui.error
+  error: state.ui.error,
 });
 
 const mapDispatchToProps = { setUiError };

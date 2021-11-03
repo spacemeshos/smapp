@@ -68,7 +68,7 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError, isDarkMode }: Props) =>
   const onFilesAddedHandler = (e: any) => {
     if (e.target && e.target.files) {
       const {
-        target: { files }
+        target: { files },
       } = e;
       onFilesAdded({ fileName: files[0].name, filePath: files[0].path });
     }

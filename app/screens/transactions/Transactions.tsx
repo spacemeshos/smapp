@@ -56,7 +56,7 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
   const coins = {
     mined: 0,
     sent: 0,
-    received: 0
+    received: 0,
   };
   const address = getAddress(publicKey);
   transactions.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
@@ -91,7 +91,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
       ...coins,
       totalMined: totalCoins.mined,
       totalSent: totalCoins.sent,
-      totalReceived: totalCoins.received
+      totalReceived: totalCoins.received,
     };
   };
 

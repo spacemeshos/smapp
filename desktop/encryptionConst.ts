@@ -1,5 +1,5 @@
 const encryptionConst = {
-  DEFAULT_SALT: 'Spacemesh blockmesh'
+  DEFAULT_SALT: 'Spacemesh blockmesh',
 };
 
 export default encryptionConst;

@@ -72,7 +72,7 @@ const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshin
 enum CloseAppPromptResult {
   CANCELED = 1, // To avoid conversion to `false`
   KEEP_SMESHING = 2,
-  CLOSE = 3
+  CLOSE = 3,
 }
 
 const promptClosingApp = async () => {
@@ -83,7 +83,7 @@ const promptClosingApp = async () => {
       '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
       '\n\n• Click QUIT to close the app and stop smeshing.\n',
     buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel'],
-    cancelId: 2
+    cancelId: 2,
   });
   switch (response) {
     default:
@@ -104,7 +104,7 @@ const handleClosingApp = async (event: Electron.Event) => {
     setTimeout(() => {
       notificationManager.showNotification({
         title: 'Spacemesh',
-        body: 'Smesher is running in the background.'
+        body: 'Smesher is running in the background.',
       });
     }, 1000);
     mainWindow.hide();
@@ -130,12 +130,12 @@ const createTray = () => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
-      click: () => eventHandler()
+      click: () => eventHandler(),
     },
     {
       label: 'Quit',
-      click: () => app.quit()
-    }
+      click: () => app.quit(),
+    },
   ]);
   tray.on('double-click', () => eventHandler());
   tray.setContextMenu(contextMenu);
@@ -144,8 +144,8 @@ const createTray = () => {
 const createBrowserView = () => {
   browserView = new BrowserView({
     webPreferences: {
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 };
 
@@ -208,7 +208,7 @@ const promptNetworkSelection = async (networks) => {
     label: 'Please, choose the network:',
     type: 'select',
     selectOptions: options,
-    alwaysOnTop: true
+    alwaysOnTop: true,
   });
   return res ? parseInt(res, 10) : 0;
 };
@@ -229,7 +229,7 @@ const getInitialConfig = async (savedNetId) => {
       conf: process.env.DEV_NET_URL,
       explorer: '',
       dash: '',
-      grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || ''
+      grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
     };
   }
   const res = await fetch(DISCOVERY_URL);
@@ -251,7 +251,7 @@ const getConfigs = async () => {
     initialConfig,
     netConfig,
     netId,
-    isCleanStart
+    isCleanStart,
   };
 };
 
@@ -264,8 +264,8 @@ const createWindow = async () => {
     minHeight: 680,
     center: true,
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   });
 
   mainWindow.on('close', handleClosingApp);
@@ -321,7 +321,7 @@ const createWindow = async () => {
         ? process.env.DEV_NET_REMOTE_API?.split(',')
             .slice(1)
             .map((url) => toPublicService(initialConfig.netName, url))
-        : [])
+        : []),
     ];
     StoreService.set('netSettings.grpcAPI', walletServices.map(stringifySocketAddress));
     ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);

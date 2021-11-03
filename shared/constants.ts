@@ -4,5 +4,5 @@ import { SocketAddress } from './types';
 export const LOCAL_NODE_API_URL: SocketAddress = {
   host: 'localhost',
   port: '9092',
-  protocol: 'http:'
+  protocol: 'http:',
 };

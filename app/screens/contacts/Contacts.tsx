@@ -266,7 +266,7 @@ const ClockImg = styled.img`
 
 const sortOptions = [
   { id: 1, label: 'Sort by A-Z' },
-  { id: 2, label: 'Sort by Z-A' }
+  { id: 2, label: 'Sort by Z-A' },
 ];
 
 const Contacts = ({ history }: RouteComponentProps) => {

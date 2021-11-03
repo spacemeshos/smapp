@@ -11,7 +11,7 @@ import {
   SET_ACCOUNT_REWARDS,
   SET_SMESHER_CONFIG,
   PAUSED_SMESHING,
-  RESUMED_SMESHING
+  RESUMED_SMESHING,
 } from './actions';
 
 const initialState = {
@@ -27,14 +27,14 @@ const initialState = {
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
-  config: {} as SmesherConfig
+  config: {} as SmesherConfig,
 };
 
 const reducer = (state: SmesherState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_SMESHER_SETTINGS_AND_STARTUP_STATUS: {
       const {
-        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage, numUnits }
+        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage, numUnits },
       } = action;
 
       const commitmentSize = config ? (config.labelsPerUnit * config.bitsPerLabel * numUnits) / BITS : 0;
@@ -47,7 +47,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         numLabelsWritten,
         postSetupState,
         postProgressError: postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
-        commitmentSize
+        commitmentSize,
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {
@@ -56,12 +56,12 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     case SET_SMESHER_CONFIG: {
       return {
         ...state,
-        ...action.payload.smeshingConfig
+        ...action.payload.smeshingConfig,
       };
     }
     case STARTED_SMESHING: {
       const {
-        payload: { coinbase, dataDir, numUnits, provider, throttle }
+        payload: { coinbase, dataDir, numUnits, provider, throttle },
       } = action;
       const commitmentSize = state.config ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) / BITS : 0;
       return { ...state, coinbase, dataDir, numUnits, throttle, provider, commitmentSize };
@@ -77,24 +77,24 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         commitmentSize: 0,
         numLabelsWritten: 0,
         postSetupState: PostSetupState.STATE_NOT_STARTED,
-        postProgressError: ''
+        postProgressError: '',
       };
     }
     case PAUSED_SMESHING: {
       return {
         ...state,
-        postSetupState: PostSetupState.STATE_NOT_STARTED
+        postSetupState: PostSetupState.STATE_NOT_STARTED,
       };
     }
     case RESUMED_SMESHING: {
       return {
         ...state,
-        postSetupState: PostSetupState.STATE_IN_PROGRESS
+        postSetupState: PostSetupState.STATE_IN_PROGRESS,
       };
     }
     case SET_POST_DATA_CREATION_STATUS: {
       const {
-        payload: { error, postSetupState, numLabelsWritten, errorMessage }
+        payload: { error, postSetupState, numLabelsWritten, errorMessage },
       } = action;
       if (error || postSetupState === PostSetupState.STATE_ERROR) {
         return { ...state, postProgressError: errorMessage || error.message };
@@ -103,7 +103,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         ...state,
         numLabelsWritten: numLabelsWritten || state.numLabelsWritten,
         postSetupState,
-        postProgressError: ''
+        postProgressError: '',
       };
     }
     case SET_ACCOUNT_REWARDS: {

@@ -49,7 +49,7 @@ const Loader = ({ size = 50, isDarkMode = false, note }: Props) => (
 Loader.sizes = {
   SMALL: 50,
   MEDIUM: 250,
-  BIG: 500
+  BIG: 500,
 };
 
 export default Loader;

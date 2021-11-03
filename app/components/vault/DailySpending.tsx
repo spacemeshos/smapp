@@ -44,18 +44,18 @@ const limits = [
   {
     limit: 1,
     label: '1 Smidge',
-    text: '1 Smidge'
+    text: '1 Smidge',
   },
   {
     limit: 2,
     label: '2 Smidge',
-    text: '2 Smidge'
+    text: '2 Smidge',
   },
   {
     limit: 3,
     label: '3 Smidge',
-    text: '3 Smidge'
-  }
+    text: '3 Smidge',
+  },
 ];
 
 const DailySpending = ({ masterAccountIndex, selectAccountIndex, accountsOption, isDarkMode }: Props) => {

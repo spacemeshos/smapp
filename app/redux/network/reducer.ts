@@ -7,7 +7,7 @@ const initialState: NetworkState = {
   genesisTime: '',
   currentLayer: -1,
   rootHash: '',
-  explorerUrl: ''
+  explorerUrl: '',
 };
 
 const reducer = (state: NetworkState = initialState, action: CustomAction) => {
@@ -15,20 +15,20 @@ const reducer = (state: NetworkState = initialState, action: CustomAction) => {
     case SET_NETWORK_DEFINITIONS: {
       const {
         payload: {
-          definitions: { netId, netName, genesisTime, explorerUrl }
-        }
+          definitions: { netId, netName, genesisTime, explorerUrl },
+        },
       } = action;
       return { ...state, netId, netName, genesisTime, explorerUrl };
     }
     case SET_CURRENT_LAYER: {
       const {
-        payload: { currentLayer }
+        payload: { currentLayer },
       } = action;
       return currentLayer === -1 ? state : { ...state, currentLayer };
     }
     case SET_STATE_ROOT_HASH: {
       const {
-        payload: { rootHash }
+        payload: { rootHash },
       } = action;
       return rootHash ? { ...state, rootHash } : state;
     }

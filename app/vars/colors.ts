@@ -34,7 +34,7 @@ const smColors = {
   dmBlack2: '#353439',
   restoreGreen: 'rgba(198, 210, 197)',
   vaultDarkGrey: '#CCCCCC',
-  vaultLightGrey: '#676767'
+  vaultLightGrey: '#676767',
 };
 
 export default smColors;

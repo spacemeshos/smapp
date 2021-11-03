@@ -23,7 +23,7 @@ export enum ComputeApiClass {
   COMPUTE_API_CLASS_UNSPECIFIED = 0,
   COMPUTE_API_CLASS_CPU,
   COMPUTE_API_CLASS_CUDA,
-  COMPUTE_API_CLASS_VULKAN
+  COMPUTE_API_CLASS_VULKAN,
 }
 
 export interface PostSetupComputeProvider {

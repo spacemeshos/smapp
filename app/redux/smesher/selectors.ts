@@ -8,7 +8,7 @@ export const isCreatingPostData = (state: RootState) => getPostSetupState(state)
 
 export const getSmeshingOpts = (state: RootState) => {
   const {
-    smesher: { coinbase, dataDir, numUnits, throttle, provider }
+    smesher: { coinbase, dataDir, numUnits, throttle, provider },
   } = state;
   return { coinbase, dataDir, numUnits, throttle, provider };
 };

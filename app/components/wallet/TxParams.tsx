@@ -83,18 +83,18 @@ const fees = [
   {
     fee: 1,
     label: '~ 10 min',
-    text: '(FEE 1 Smidge)'
+    text: '(FEE 1 Smidge)',
   },
   {
     fee: 2,
     label: '~ 5 min',
-    text: '(FEE 2 Smidge)'
+    text: '(FEE 2 Smidge)',
   },
   {
     fee: 3,
     label: '~ 1 min',
-    text: '(FEE 3 Smidge)'
-  }
+    text: '(FEE 3 Smidge)',
+  },
 ];
 
 const inputStyle = { flex: '0 0 240px' };
@@ -136,7 +136,7 @@ const TxParams = ({
   nextAction,
   cancelTx,
   contacts,
-  isDarkMode
+  isDarkMode,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };

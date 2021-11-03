@@ -17,7 +17,7 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
     this.callService('GlobalStateHash', {})
       .then((response) => ({
         layer: response.response?.layer?.number || 0,
-        rootHash: response.response?.rootHash ? toHexString(response.response.rootHash) : ''
+        rootHash: response.response?.rootHash ? toHexString(response.response.rootHash) : '',
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ layer: -1, rootHash: '' }));
@@ -26,7 +26,7 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
     this.callService('AccountDataQuery', { filter, maxResults: 0, offset })
       .then((response) => ({
         totalResults: response.totalResults,
-        data: response.accountItem
+        data: response.accountItem,
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));

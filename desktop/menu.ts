@@ -32,8 +32,8 @@ class MenuBuilder {
           click: () => {
             // @ts-ignore
             this.mainWindow.inspectElement(x, y);
-          }
-        } // @ts-ignore
+          },
+        }, // @ts-ignore
       ]).popup(this.mainWindow);
     });
   }
@@ -49,7 +49,7 @@ class MenuBuilder {
       { role: 'copy' },
       { role: 'paste' },
       { type: 'separator' },
-      { role: 'selectAll' }
+      { role: 'selectAll' },
     ]);
 
     this.mainWindow.webContents.on('context-menu', (_e, props) => {
@@ -75,11 +75,11 @@ class MenuBuilder {
                 label: 'About',
                 click: () => {
                   shell.openExternal('https://testnet.spacemesh.io/');
-                }
+                },
               },
               { type: 'separator' },
-              { role: 'quit' }
-            ]
+              { role: 'quit' },
+            ],
           }
         : {
             label: '&File',
@@ -88,11 +88,11 @@ class MenuBuilder {
                 label: 'About',
                 click: () => {
                   shell.openExternal('https://testnet.spacemesh.io/');
-                }
+                },
               },
               { type: 'separator' },
-              { role: 'quit' }
-            ]
+              { role: 'quit' },
+            ],
           },
       {
         label: 'Edit',
@@ -103,20 +103,20 @@ class MenuBuilder {
           { role: 'cut' },
           { role: 'copy' },
           { role: 'paste' },
-          { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
-        ]
+          { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
+        ],
       },
       {
         label: 'View',
         submenu:
           process.env.NODE_ENV === 'development'
             ? [{ role: 'reload' }, { role: 'forcereload' }, { type: 'separator' }, { role: 'toggledevtools' }, { type: 'separator' }, { role: 'togglefullscreen' }]
-            : [{ role: 'togglefullscreen' }]
+            : [{ role: 'togglefullscreen' }],
       },
       {
         label: 'Window',
-        submenu: [{ role: 'minimize' }, { role: 'zoom' }, ...(isMac ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }] : [{ role: 'close' }])]
-      }
+        submenu: [{ role: 'minimize' }, { role: 'zoom' }, ...(isMac ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }] : [{ role: 'close' }])],
+      },
     ];
   }
 }

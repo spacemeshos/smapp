@@ -22,7 +22,7 @@ const subHeaders = [
   '',
   'Select how much free space to commit to Spacemesh.\nThe more space you commit, the higher your smeshing rewards will be.',
   'Select a supported graphic processor to use for creating your proof of space',
-  'Review your proof of space data creation options.\nClick a link to go back and edit that item.'
+  'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
 ];
 
 interface Commitment {

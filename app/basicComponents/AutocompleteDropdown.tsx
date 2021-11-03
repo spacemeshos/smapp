@@ -237,7 +237,7 @@ const AutocompleteDropdown = (props: Props) => {
       return React.cloneElement(item, {
         key: data.address || data.nickname,
         className: i === isFocus ? 'isFocus' : '',
-        onClick: () => handleSelectOption(data)
+        onClick: () => handleSelectOption(data),
       });
     });
 

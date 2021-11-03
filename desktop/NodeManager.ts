@@ -18,7 +18,7 @@ const logger = Logger({ className: 'NodeManager' });
 const osTargetNames = {
   Darwin: 'mac',
   Linux: 'linux',
-  Windows_NT: 'windows'
+  Windows_NT: 'windows',
 };
 
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
@@ -28,7 +28,7 @@ const defaultCrashError = (error?: Error): NodeError => ({
   msg: "The Spacemesh node software has unexpectedly quit. Click on 'restart node' to start it.",
   stackTrace: error?.stack || '',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
-  module: 'NodeManager'
+  module: 'NodeManager',
 });
 
 type PoolNodeError = { type: 'NodeError'; error: NodeError };
@@ -201,7 +201,7 @@ class NodeManager {
         msg: 'Cannot restart the Node',
         level: NodeErrorLevel.LOG_LEVEL_FATAL,
         stackTrace: '',
-        module: 'NodeManager'
+        module: 'NodeManager',
       } as NodeError;
     }
     return res;

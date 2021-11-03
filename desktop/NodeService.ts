@@ -13,7 +13,7 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   msg: error.details,
   stackTrace: error.stack || '',
   module: 'NodeService',
-  level: NodeErrorLevel.LOG_LEVEL_ERROR
+  level: NodeErrorLevel.LOG_LEVEL_ERROR,
 });
 
 class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
@@ -54,7 +54,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           isSynced: false,
           syncedLayer: 0,
           topLayer: 0,
-          verifiedLayer: 0
+          verifiedLayer: 0,
         };
         if (!response.status) return { ...DEFAULTS };
 
@@ -64,7 +64,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           isSynced: !!isSynced,
           syncedLayer: syncedLayer?.number || 0,
           topLayer: topLayer?.number || 0,
-          verifiedLayer: verifiedLayer?.number || 0
+          verifiedLayer: verifiedLayer?.number || 0,
         } as NodeStatus;
       })
       .catch((error) => {
@@ -87,7 +87,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
         isSynced: !!isSynced,
         syncedLayer: syncedLayer.number,
         topLayer: topLayer.number,
-        verifiedLayer: verifiedLayer.number
+        verifiedLayer: verifiedLayer.number,
       });
     });
     this.statusStream.on('error', (error: ServiceError) => {

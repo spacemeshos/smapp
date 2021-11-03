@@ -17,7 +17,7 @@ import {
   helpIcon,
   helpIconBlack,
   signOutIcon,
-  signOutIconBlack
+  signOutIconBlack,
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -133,7 +133,7 @@ class Main extends Component<Props, State> {
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 2 : 0;
     this.state = {
-      activeRouteIndex
+      activeRouteIndex,
     };
   }
 
@@ -298,12 +298,12 @@ const mapStateToProps = (state: RootState) => ({
   isWalletOnly: isWalletOnly(state),
   status: state.node.status,
   nodeError: state.node.error,
-  isDarkMode: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode,
 });
 
 const mapDispatchToProps = {
   getNetworkDefinitions,
-  logout
+  logout,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

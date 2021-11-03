@@ -68,7 +68,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
   // TODO: Get rid of mixing with `error`
   normalizeServiceResponse = <ResponseData extends Record<string, any>>(data: ResponseData): ResponseData & { error: null } => ({
     ...data,
-    error: null
+    error: null,
   });
 
   // TODO: Get rid of mixing with `error`
@@ -80,8 +80,8 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
           msg: error.message,
           stackTrace: error?.stack || '',
           module: this.serviceName,
-          level: NodeErrorLevel.LOG_LEVEL_ERROR
-        } as NodeError)
+          level: NodeErrorLevel.LOG_LEVEL_ERROR,
+        } as NodeError),
   });
 }
 

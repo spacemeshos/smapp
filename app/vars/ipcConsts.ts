@@ -57,7 +57,7 @@ const ipcConsts = {
   N_M_SET_NODE_ERROR: 'N_M_SET_NODE_ERROR',
   N_M_RESTART_NODE: 'N_M_RESTART_NODE',
   N_M_START_NODE: 'N_M_START_NODE',
-  N_M_STOP_NODE: 'N_M_STOP_NODE'
+  N_M_STOP_NODE: 'N_M_STOP_NODE',
 };
 
 export default ipcConsts;

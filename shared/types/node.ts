@@ -19,7 +19,7 @@ export enum NodeErrorLevel {
   LOG_LEVEL_ERROR = 4,
   LOG_LEVEL_DPANIC = 5,
   LOG_LEVEL_PANIC = 6,
-  LOG_LEVEL_FATAL = 7
+  LOG_LEVEL_FATAL = 7,
 }
 
 export interface NodeError {

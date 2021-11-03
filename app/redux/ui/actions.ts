@@ -20,9 +20,9 @@ export const hideSmesherLeftPanel = () => ({ type: HIDE_LEFT_PANEL });
 
 export const setUiError = (err: Error) => ({
   type: SET_UI_ERROR,
-  payload: err
+  payload: err,
 });
 
 export const showClosingAppModal = () => ({
-  type: SHOW_CLOSING_APP_MODAL
+  type: SHOW_CLOSING_APP_MODAL,
 });

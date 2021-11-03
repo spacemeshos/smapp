@@ -7,7 +7,7 @@ const initialState = {
   version: '',
   build: '',
   port: '',
-  error: null
+  error: null,
 };
 
 const reducer = (state: NodeState = initialState, action: CustomAction) => {
@@ -17,7 +17,7 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
       return {
         ...state,
         status,
-        error: null
+        error: null,
       };
     }
     case SET_NODE_ERROR: {
@@ -26,7 +26,7 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
     }
     case SET_NODE_VERSION_AND_BUILD: {
       const {
-        payload: { version, build }
+        payload: { version, build },
       } = action;
       return { ...state, version, build };
     }

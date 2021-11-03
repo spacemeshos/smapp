@@ -167,7 +167,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
     fee,
     status: 0,
     timestamp: new Date().getTime(),
-    note
+    note,
   };
   contacts.forEach((contact) => {
     if (contact.address.substring(2) === fullTx.sender || contact.address.substring(2) === fullTx.receiver) {

@@ -12,7 +12,7 @@ import {
   SET_CURRENT_ACCOUNT_INDEX,
   SET_BACKUP_TIME,
   SET_CURRENT_MODE,
-  UPDATE_ACCOUNT_DATA
+  UPDATE_ACCOUNT_DATA,
 } from './actions';
 
 const initialState = {
@@ -26,7 +26,7 @@ const initialState = {
   lastUsedContacts: [],
   contacts: [],
   backupTime: '',
-  vaultMode: 0
+  vaultMode: 0,
 };
 
 // TODO: fix this while fixing contacts feature
@@ -72,8 +72,8 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
         accounts: [
           ...state.accounts.slice(0, accountIndexToUpdate),
           { ...state.accounts[accountIndexToUpdate], currentState: account.currentState, projectedState: account.projectedState },
-          ...state.accounts.slice(accountIndexToUpdate + 1)
-        ]
+          ...state.accounts.slice(accountIndexToUpdate + 1),
+        ],
       };
     }
     case SET_TRANSACTIONS: {

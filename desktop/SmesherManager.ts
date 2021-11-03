@@ -57,7 +57,7 @@ class SmesherManager {
       postSetupState,
       numLabelsWritten,
       numUnits,
-      errorMessage
+      errorMessage,
     };
     this.mainWindow.webContents.send(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, data);
   };
@@ -73,7 +73,7 @@ class SmesherManager {
         numFiles: opts['smeshing-opts-numfiles'],
         numUnits: opts['smeshing-opts-numunits'],
         provider: opts['smeshing-opts-provider'],
-        throttle: opts['smeshing-opts-throttle']
+        throttle: opts['smeshing-opts-throttle'],
       };
       this.mainWindow.webContents.send(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, { smeshingConfig });
       return { ...smeshingConfig, start: nodeConfig.smeshing['smeshing-start'] };
@@ -106,9 +106,9 @@ class SmesherManager {
             'smeshing-opts-numfiles': 1,
             'smeshing-opts-numunits': numUnits,
             'smeshing-opts-provider': computeProviderId,
-            'smeshing-opts-throttle': throttle
+            'smeshing-opts-throttle': throttle,
           },
-          'smeshing-start': true
+          'smeshing-start': true,
         };
         return this.writeConfig(config);
       })
@@ -153,7 +153,7 @@ class SmesherManager {
     const { filePaths } = await dialog.showOpenDialog(mainWindow, {
       title: 'Select folder for smeshing',
       defaultPath: app.getPath('documents'),
-      properties: ['openDirectory']
+      properties: ['openDirectory'],
     });
     const res = await this.checkDiskSpace({ dataDir: filePaths[0] });
     if (res.error) {

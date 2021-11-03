@@ -8,7 +8,7 @@ import {
   SET_POST_DATA_CREATION_STATUS,
   SET_ACCOUNT_REWARDS,
   SET_SETUP_COMPUTE_PROVIDERS,
-  SET_SMESHER_CONFIG
+  SET_SMESHER_CONFIG,
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import { IPCSmesherStartupData, NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
@@ -24,7 +24,7 @@ class EventsService {
   static createWallet = ({
     password,
     existingMnemonic,
-    apiUrl
+    apiUrl,
   }: {
     password: string;
     existingMnemonic: string;
@@ -33,7 +33,7 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
-      apiUrl
+      apiUrl,
     });
 
   static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.W_M_READ_WALLET_FILES);
@@ -148,7 +148,7 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
 ipcRenderer.on(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, (_event, request: IPCSmesherStartupData) => {
   store.dispatch({
     type: SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
-    payload: request
+    payload: request,
   });
 });
 
@@ -161,14 +161,14 @@ ipcRenderer.on(ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS, (_event, request) 
   const { providers } = request;
   store.dispatch({
     type: SET_SETUP_COMPUTE_PROVIDERS,
-    payload: providers
+    payload: providers,
   });
 });
 
 ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
   const {
     error,
-    status: { postSetupState, numLabelsWritten, errorMessage }
+    status: { postSetupState, numLabelsWritten, errorMessage },
   } = request;
   store.dispatch({ type: SET_POST_DATA_CREATION_STATUS, payload: { error, postSetupState, numLabelsWritten, errorMessage } });
 });

@@ -37,12 +37,12 @@ export const formatBytes = (bytes: number) => {
 
 export enum CoinUnits {
   SMH = 'SMH',
-  Smidge = 'Smidge'
+  Smidge = 'Smidge',
 }
 
 const packValueAndUnit = (value: number, unit: string) => ({
   value: parseFloat(value.toFixed(3)).toString(),
-  unit
+  unit,
 });
 
 export const toSMH = (smidge: number) => smidge / 10 ** 12;

@@ -43,34 +43,34 @@ type Props = {
 const accounts = [
   {
     id: 1,
-    label: 'acc 1'
+    label: 'acc 1',
   },
   {
     id: 2,
-    label: 'acc 2'
-  }
+    label: 'acc 2',
+  },
 ];
 
 const gasUnit = [
   {
     id: 1,
-    label: '100'
+    label: '100',
   },
   {
     id: 2,
-    label: '200'
-  }
+    label: '200',
+  },
 ];
 
 const unitPrice = [
   {
     id: 1,
-    label: '1 Smidge'
+    label: '1 Smidge',
   },
   {
     id: 2,
-    label: '2 Smidge'
-  }
+    label: '2 Smidge',
+  },
 ];
 
 const VaultTx = ({ selectAccountIndex, selectFundAmount, selectGasUnits, selectGasPrice, isDarkMode }: Props) => {

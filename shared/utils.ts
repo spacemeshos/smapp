@@ -19,7 +19,7 @@ export const toSocketAddress = (url?: string): SocketAddress => {
   return {
     host: u.hostname,
     port: u.port || u.protocol === 'https:' ? '443' : '9090',
-    protocol: u.protocol
+    protocol: u.protocol,
   };
 };
 
@@ -31,5 +31,5 @@ export const isRemoteNodeApi = (sa: SocketAddress) => !isLocalNodeApi(sa);
 
 export const toPublicService = (netName: string, url: string): PublicService => ({
   name: netName,
-  ...toSocketAddress(url)
+  ...toSocketAddress(url),
 });

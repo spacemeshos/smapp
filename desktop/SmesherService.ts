@@ -41,8 +41,8 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
           bitsPerLabel,
           labelsPerUnit: parseInt(labelsPerUnit.toString()),
           minNumUnits,
-          maxNumUnits
-        }
+          maxNumUnits,
+        },
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ config: {} }));
@@ -56,7 +56,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   getSetupComputeProviders = () =>
     this.callService('PostSetupComputeProviders', { benchmark: true })
       .then((response) => ({
-        providers: response.providers.map(({ id, model, computeApi, performance = 0 }) => ({ id, model, computeApi, performance: parseInt(performance.toString()) }))
+        providers: response.providers.map(({ id, model, computeApi, performance = 0 }) => ({ id, model, computeApi, performance: parseInt(performance.toString()) })),
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ providers: [] }));
@@ -74,7 +74,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
     numFiles,
     computeProviderId,
     throttle,
-    handler
+    handler,
   }: PostSetupOpts & {
     handler: (error: Error, status: Partial<PostSetupStatus>) => void;
   }) =>
@@ -85,8 +85,8 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         numUnits,
         numFiles,
         computeProviderId,
-        throttle
-      }
+        throttle,
+      },
     }).then((response) => {
       this.postDataCreationProgressStream(handler);
       return response.status;
@@ -106,7 +106,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   getCoinbase = () =>
     this.callService('Coinbase', {})
       .then((response) => ({
-        coinbase: response.accountId ? `0x${toHexString(response.accountId.address)}` : '0x00'
+        coinbase: response.accountId ? `0x${toHexString(response.accountId.address)}` : '0x00',
       }))
       .catch(this.normalizeServiceError({}));
 
@@ -145,7 +145,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         this.normalizeServiceError({
           postSetupState: PostSetupState.STATE_UNSPECIFIED,
           numLabelsWritten: 0,
-          errorMessage: ''
+          errorMessage: '',
         })
       );
 
@@ -165,7 +165,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
           postSetupState: state,
           numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten.toString()) : 0,
           errorMessage,
-          opts: opts as PostSetupOpts | null
+          opts: opts as PostSetupOpts | null,
         });
         streamError = null;
       });
