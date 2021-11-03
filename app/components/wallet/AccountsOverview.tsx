@@ -190,7 +190,7 @@ const AccountsOverview = () => {
       <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <BalanceHeader>BALANCE</BalanceHeader>
-        {isSynced && currentState ? (
+        {isSynced ? (
           <BalanceWrapper>
             <BalanceAmount>{value}</BalanceAmount>
             <SmhText>{unit}</SmhText>
