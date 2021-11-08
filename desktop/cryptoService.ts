@@ -66,11 +66,11 @@ class CryptoService {
         ['Recipient', xdr1.opaque(20)],
         ['GasLimit', xdr1.uhyper()],
         ['Price', xdr1.uhyper()],
-        ['Amount', xdr1.uhyper()]
+        ['Amount', xdr1.uhyper()],
       ]);
       xdr1.struct('SerializableSignedTransaction', [
         ['InnerSerializableSignedTransaction', xdr1.lookup('InnerSerializableSignedTransaction')],
-        ['Signature', xdr1.opaque(64)]
+        ['Signature', xdr1.opaque(64)],
       ]);
     });
     const message = new types.InnerSerializableSignedTransaction({
@@ -78,7 +78,7 @@ class CryptoService {
       Recipient: fromHexString(receiver),
       GasLimit: xdr.UnsignedHyper.fromString('5'), // TODO: change to real number passed from user selection
       Price: xdr.UnsignedHyper.fromString(`${price}`),
-      Amount: xdr.UnsignedHyper.fromString(`${amount}`)
+      Amount: xdr.UnsignedHyper.fromString(`${amount}`),
     });
     const bufMessage = message.toXDR();
     return new Promise((resolve) => {
@@ -87,7 +87,7 @@ class CryptoService {
       global.__signTransaction(sk, bufMessageAsUint8Array, (sig) => {
         const tx = new types.SerializableSignedTransaction({
           InnerSerializableSignedTransaction: message,
-          Signature: sig
+          Signature: sig,
         });
         resolve(tx.toXDR());
       });

@@ -156,7 +156,7 @@ interface Props extends RouteComponentProps {
 
 const TestMe = ({ history, location }: Props) => {
   const {
-    state: { mnemonic }
+    state: { mnemonic },
   } = location;
   const [testWords, setTestWords] = useState<{ id: string; content: string }[]>(getTestWords(mnemonic));
   const [twelveWords, setTwelveWords] = useState<{ id: string; content: string }[]>(mnemonic.split(' ').map((word: string) => ({ id: word, content: '' })));
@@ -295,7 +295,7 @@ const TestMe = ({ history, location }: Props) => {
           {isTestSuccess ? 'All right! Your 12 word backup is confirmed.' : 'That confirmation isn’t correct, please try again'}
         </NotificationBox>
       </NotificationBoxOuter>
-    )
+    ),
   ];
 };
 

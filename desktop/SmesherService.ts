@@ -1,6 +1,8 @@
 import { ProtoGrpcType } from '../proto/smesher';
+import { PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types';
+
+import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
 import Logger from './logger';
-import StoreService from './storeService';
 import { fromHexString, toHexString } from './utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 
@@ -24,13 +26,40 @@ const PROTO_PATH = 'proto/smesher.proto';
 // });
 
 class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> {
-  private stream: ReturnType<Service<ProtoGrpcType, 'SmesherService'>['PostDataCreationProgressStream']> | null = null;
+  private stream: ReturnType<Service<ProtoGrpcType, 'SmesherService'>['PostSetupStatusStream']> | null = null;
 
   logger = Logger({ className: 'SmesherService' });
 
   createService = () => {
     this.createNetService(PROTO_PATH, undefined, 'SmesherService');
   };
+
+  getPostConfig = () =>
+    this.callService('PostConfig', {})
+      .then(({ bitsPerLabel, labelsPerUnit, minNumUnits, maxNumUnits }) => ({
+        config: {
+          bitsPerLabel,
+          labelsPerUnit: parseInt(labelsPerUnit.toString()),
+          minNumUnits,
+          maxNumUnits,
+        },
+      }))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ config: {} }));
+
+  getSmesherId = () =>
+    this.callService('SmesherID', {})
+      .then(({ accountId }) => ({ smesherId: accountId ? toHexString(accountId.address) : '' }))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ smesherId: '' }));
+
+  getSetupComputeProviders = () =>
+    this.callService('PostSetupComputeProviders', { benchmark: true })
+      .then((response) => ({
+        providers: response.providers.map(({ id, model, computeApi, performance = 0 }) => ({ id, model, computeApi, performance: parseInt(performance.toString()) })),
+      }))
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ providers: [] }));
 
   isSmeshing = () =>
     this.callService('IsSmeshing', {})
@@ -41,130 +70,120 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
   startSmeshing = ({
     coinbase,
     dataDir,
-    commitmentSize,
+    numUnits,
+    numFiles,
     computeProviderId,
     throttle,
-    handler
-  }: {
-    coinbase: string;
-    dataDir: string;
-    commitmentSize: number;
-    computeProviderId: number;
-    throttle: boolean;
-    handler: () => void;
+    handler,
+  }: PostSetupOpts & {
+    handler: (error: Error, status: Partial<PostSetupStatus>) => void;
   }) =>
     this.callService('StartSmeshing', {
       coinbase: { address: fromHexString(coinbase.substring(2)) },
       opts: {
         dataDir,
-        numUnits: commitmentSize,
-        numFiles: 1,
+        numUnits,
+        numFiles,
         computeProviderId,
-        throttle
-      }
+        throttle,
+      },
     }).then((response) => {
-      const netId = StoreService.get('netSettings.netId');
-      StoreService.set(`${netId}-smeshingParams`, { dataDir, coinbase });
-      this.postDataCreationProgressStream({ handler });
+      this.postDataCreationProgressStream(handler);
       return response.status;
     });
+
+  activateProgressStream = (handler: (error: Error, status: Partial<PostSetupStatus>) => void) => this.postDataCreationProgressStream(handler);
 
   stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     this.callService('StopSmeshing', { deleteFiles }).then(this.normalizeServiceResponse).catch(this.normalizeServiceError({}));
 
   getSmesherID = () =>
     this.callService('SmesherID', {})
-      .then((response) => ({ response: `0x${response.accountId ? toHexString(response.accountId.address) : '00'}` }))
+      .then((response) => ({ smesherId: `0x${response.accountId ? toHexString(response.accountId.address) : '00'}` }))
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({}));
+      .catch(this.normalizeServiceError({ smesherId: '' }));
 
   getCoinbase = () =>
     this.callService('Coinbase', {})
       .then((response) => ({
-        coinbase: response.accountId ? `0x${toHexString(response.accountId.address)}` : '0x00'
+        coinbase: response.accountId ? `0x${toHexString(response.accountId.address)}` : '0x00',
       }))
       .catch(this.normalizeServiceError({}));
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
     this.callService('SetCoinbase', { id: { address: fromHexString(coinbase) } })
-      .then((response) => {
-        const netId = StoreService.get('netSettings.netId');
-        const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-        StoreService.set('smeshingParams', { dataDir: savedSmeshingParams.dataDir, coinbase });
-        return { status: response.status };
-      })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
   getMinGas = () =>
     this.callService('MinGas', {})
-      .then((response) => ({ minGas: response.mingas ? parseInt(response.mingas.value) : null }))
+      .then((response) => ({ minGas: response.mingas ? parseInt(response.mingas.value.toString()) : null }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
   getEstimatedRewards = () =>
     this.callService('EstimatedRewards', {})
       .then((response) => {
-        const estimatedRewards = { amount: parseInt(response.amount?.value || 0), commitmentSize: response.numUnits };
+        const estimatedRewards = { amount: parseInt(response.amount?.value?.toString() || '0'), commitmentSize: response.numUnits };
         return { estimatedRewards };
       })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
-  getPostStatus = () =>
-    this.callService('PostStatus', {})
+  getPostSetupStatus = () =>
+    this.callService('PostSetupStatus', {})
       .then((response) => {
-        // TODO: Wrong types there. Do we need it?
-        //
-        // const {
-        //   status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
-        // } = response;
-        // const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-        // return { status };
-        return response;
+        const { status } = response;
+        if (status === null) {
+          throw new Error('PostSetupStatus is null');
+        }
+        const { state, numLabelsWritten, errorMessage } = status;
+        return { postSetupState: state, numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten.toString()) : 0, errorMessage };
       })
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({}));
+      .catch(
+        this.normalizeServiceError({
+          postSetupState: PostSetupState.STATE_UNSPECIFIED,
+          numLabelsWritten: 0,
+          errorMessage: '',
+        })
+      );
 
-  getPostComputeProviders = () =>
-    this.callService('PostComputeProviders', { benchmark: true })
-      .then(({ postComputeProvider }) => postComputeProvider.map(({ id, model, computeApi, performance }) => ({ id, model, computeApi, performance: parseInt(performance) })))
-      .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({}));
-
-  stopPostDataCreationSession = ({ deleteFiles }: { deleteFiles: boolean }) =>
-    // TODO: No such endpoint in Service
-    new Promise((resolve) => {
-      // @ts-ignore
-      this.service.StopPostDataCreationSession({ W_M_SHOW_DELETE_FILEs: deleteFiles }, (error, response) => {
-        if (error) {
-          this.logger.error('grpc StopPostDataCreationSession', error, { deleteFiles });
-          resolve({ error });
-        } else {
-          resolve({ status: response.status });
-        }
-      });
-    });
-
-  postDataCreationProgressStream = ({ handler }: { handler: ({ status, error }: { status: any; error: any }) => void }) => {
+  private postDataCreationProgressStream = (handler: (error: any, status: Partial<PostSetupStatus>) => void) => {
+    if (!this.service) {
+      throw new Error(`SmesherService is not running`);
+    }
     if (!this.stream) {
-      // @ts-ignore
-      this.stream = this.service.PostDataCreationProgressStream({});
-      this.stream.on('data', (response: any) => {
-        const {
-          status: { filesStatus, initInProgress, bytesWritten, errorMessage, errorType }
-        } = response;
-        const status = { filesStatus, initInProgress, bytesWritten: parseInt(bytesWritten), errorMessage, errorType };
-        this.logger.log('grpc PostDataCreationProgressStream', status);
-        // @ts-ignore
-        handler({ status, error: null });
+      let streamError = null;
+      this.stream = this.service.PostSetupStatusStream({});
+      this.stream.on('data', (response: PostSetupStatusStreamResponse__Output) => {
+        const { status } = response;
+        if (status === null) return; // TODO
+        const { state, numLabelsWritten, errorMessage, opts } = status;
+        this.logger.log('grpc PostDataCreationProgressStream', { state, numLabelsWritten, errorMessage });
+        handler(null, {
+          postSetupState: state,
+          numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten.toString()) : 0,
+          errorMessage,
+          opts: opts as PostSetupOpts | null,
+        });
+        streamError = null;
       });
       this.stream.on('error', (error: any) => {
         this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore
-        handler({ status: null, error });
+        handler(error, {}); // TODO
+        streamError = error;
       });
-      this.stream.on('end', () => {
+      this.stream.on('end', async () => {
+        if (!streamError) {
+          // In case if Smeshing is done it just closes the stream
+          // so we have to notify client on Smesher Post Setup Status
+          // Expected: STATE_COMPLETE and numLabelsWritten > 0
+          const status = await this.getPostSetupStatus();
+          handler(null, status);
+          streamError = null;
+        }
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
         this.stream = null;
       });

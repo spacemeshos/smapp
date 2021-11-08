@@ -14,6 +14,7 @@ import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
 import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -142,7 +143,7 @@ class Settings extends Component<Props, State> {
       changedPort: props.port,
       isPortSet: false,
       signMessageModalAccountIndex: -1,
-      showModal: false
+      showModal: false,
     };
 
     this.myRef1 = React.createRef();
@@ -166,7 +167,7 @@ class Settings extends Component<Props, State> {
       changedPort,
       isPortSet,
       signMessageModalAccountIndex,
-      showModal
+      showModal,
     } = this.state;
 
     return (
@@ -213,7 +214,7 @@ class Settings extends Component<Props, State> {
                   canEditDisplayName ? (
                     [
                       <Link onClick={this.saveEditedWalletDisplayName} text="SAVE" style={{ marginRight: 15 }} key="save" />,
-                      <Link onClick={this.cancelEditingWalletDisplayName} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+                      <Link onClick={this.cancelEditingWalletDisplayName} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />,
                     ]
                   ) : (
                     <Button onClick={this.startEditingWalletDisplayName} text="RENAME" width={180} />
@@ -268,7 +269,7 @@ class Settings extends Component<Props, State> {
                       {editedAccountIndex === index ? (
                         [
                           <Link onClick={() => this.saveEditedAccountDisplayName({ index })} text="SAVE" style={{ marginRight: 15 }} key="save" />,
-                          <Link onClick={() => this.cancelEditingAccountDisplayName({ index })} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+                          <Link onClick={() => this.cancelEditingAccountDisplayName({ index })} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />,
                         ]
                       ) : (
                         <Link onClick={() => this.startEditingAccountDisplayName({ index })} text="RENAME" />
@@ -363,7 +364,7 @@ class Settings extends Component<Props, State> {
   handleSwitchToLocalNode = () => {
     const { history, setUiError } = this.props;
     return eventsService
-      .switchApiProvider('', '')
+      .switchApiProvider(LOCAL_NODE_API_URL)
       .then(() => history.push('/auth'))
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
@@ -379,7 +380,7 @@ class Settings extends Component<Props, State> {
         this.setState({ showPasswordModal: false });
         // @ts-ignore
         createNewAccount({ password });
-      }
+      },
     });
   };
 
@@ -473,7 +474,7 @@ class Settings extends Component<Props, State> {
         this.setState({ editedAccountIndex: -1, showPasswordModal: false });
         // @ts-ignore
         updateAccountName({ accountIndex: index, name: accountDisplayNames[index], password });
-      }
+      },
     });
   };
 
@@ -498,7 +499,7 @@ class Settings extends Component<Props, State> {
     this.setState({ currentSettingIndex: index });
     ref.current.scrollIntoView({
       behavior: 'smooth',
-      block: 'start'
+      block: 'start',
     });
   };
 
@@ -522,7 +523,7 @@ const mapStateToProps = (state: RootState) => ({
   port: state.node.port,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,
-  isWalletOnly: isWalletOnly(state)
+  isWalletOnly: isWalletOnly(state),
 });
 
 const mapDispatchToProps = {
@@ -531,7 +532,7 @@ const mapDispatchToProps = {
   updateAccountName,
   createNewAccount,
   switchTheme,
-  setUiError
+  setUiError,
 };
 
 // @ts-ignore

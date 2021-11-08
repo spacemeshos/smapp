@@ -1,3 +1,8 @@
+import util from 'util';
+import fs from 'fs';
+
+export const isDev = () => process.env.NODE_ENV === 'development';
+
 export const fromHexString = (hexString: string) => {
   const bytes = [];
   for (let i = 0; i < hexString.length; i += 2) {
@@ -8,6 +13,10 @@ export const fromHexString = (hexString: string) => {
 };
 
 export const toHexString = (bytes: Uint8Array) => bytes.reduce((str: string, byte: number) => str + byte.toString(16).padStart(2, '0'), '');
+
+export const readFileAsync = util.promisify(fs.readFile);
+
+export const writeFileAsync = util.promisify(fs.writeFile);
 
 /**
  * Creates a pool of objects T which will be collected

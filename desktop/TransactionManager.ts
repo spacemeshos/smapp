@@ -61,11 +61,17 @@ class TransactionManager {
     // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
     // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
 
-    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: this.addReward }));
+    const addReward = this.addReward({ accountId: account.publicKey });
+    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: addReward }));
   };
 
   subscribeAccounts = () => {
-    this.streams.forEach((unsubcribe) => unsubcribe());
+    this.streams.forEach(
+      // Timeout is required here due to bug in node core:
+      // https://github.com/nodejs/node/issues/38964
+      // Can be removed after migrating to Node v17.0.1+
+      (unsubcribe) => setTimeout(() => unsubcribe(), 0)
+    );
     this.streams = [];
     this.accounts.forEach(this.subscribeAccount);
   };
@@ -94,9 +100,9 @@ class TransactionManager {
       signature: {
         scheme: tx.transaction.signature.scheme,
         signature: toHexString(tx.transaction.signature.signature),
-        publicKey: toHexString(tx.transaction.signature.publicKey)
+        publicKey: toHexString(tx.transaction.signature.publicKey),
       },
-      timestamp: new Date().getTime() // TODO missing from api response
+      timestamp: new Date().getTime(), // TODO missing from api response
     };
     const updatedTx = { ...existingTx, ...newData };
     StoreService.set(`accounts.${accountId}.txs.${txId}`, updatedTx);
@@ -122,11 +128,11 @@ class TransactionManager {
   updateAccountData = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
     const currentState = {
       counter: data.stateCurrent.counter ? parseInt(data.stateCurrent.counter) : 0,
-      balance: data.stateCurrent.balance.value ? parseInt(data.stateCurrent.balance.value) : 0
+      balance: data.stateCurrent.balance.value ? parseInt(data.stateCurrent.balance.value) : 0,
     };
     const projectedState = {
       counter: data.stateProjected.counter ? parseInt(data.stateProjected.counter) : 0,
-      balance: data.stateProjected.balance.value ? parseInt(data.stateProjected.balance.value) : 0
+      balance: data.stateProjected.balance.value ? parseInt(data.stateProjected.balance.value) : 0,
     };
     StoreService.set(`accounts.${accountId}.account`, { currentState, projectedState });
     this.updateAppStateAccount({ accountId });
@@ -135,7 +141,7 @@ class TransactionManager {
   retrieveAccountData = async ({
     filter,
     handler,
-    retries
+    retries,
   }: {
     filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
     handler: ({ data }: { data: any }) => void;
@@ -158,7 +164,7 @@ class TransactionManager {
       gasUsed: parseInt(data.gasUsed),
       fee: parseInt(data.fee.value),
       layer: data.layer,
-      index: data.index
+      index: data.index,
     };
     const updatedTx = { ...existingTx, ...newData };
     StoreService.set(`accounts.${accountId}.txs.${txId}`, updatedTx);
@@ -169,7 +175,7 @@ class TransactionManager {
     filter,
     offset,
     handler,
-    retries
+    retries,
   }: {
     filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
     offset: number;
@@ -201,7 +207,7 @@ class TransactionManager {
       coinbase: `0x${coinbase}`,
       smesher: toHexString(reward.smesher.id),
       status: 6, // TODO change to TRANSACTION_STATE_PROCESSED
-      timestamp: new Date(genesisTime).getTime() + reward.layer.number * layerDurationSec * 1000
+      timestamp: new Date(genesisTime).getTime() + reward.layer.number * layerDurationSec * 1000,
     };
     const rewards = StoreService.get(`accounts.${accountId}.rewards`) || [];
     if (rewards.findIndex((existingReward) => existingReward.timestamp === parsedReward.timestamp && existingReward.total === parsedReward.total) === -1) {
@@ -215,7 +221,7 @@ class TransactionManager {
     filter,
     offset,
     handler,
-    retries
+    retries,
   }: {
     filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
     offset: number;
@@ -245,7 +251,7 @@ class TransactionManager {
       receiver,
       price: parseInt(fee),
       amount: parseInt(amount),
-      secretKey: this.accounts[accountIndex].secretKey
+      secretKey: this.accounts[accountIndex].secretKey,
     });
     // @ts-ignore
     const res1 = await this.txService.submitTransaction({ transaction: res });

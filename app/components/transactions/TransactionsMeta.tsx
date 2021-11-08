@@ -80,12 +80,12 @@ const TransactionsMeta = ({ mined, sent, received, totalMined, totalSent, totalR
   const coinsMeta = [
     { title: 'SMESHED', coins: mined },
     { title: 'SENT', coins: sent },
-    { title: 'RECEIVED', coins: received }
+    { title: 'RECEIVED', coins: received },
   ];
   const totalCoinsMeta = [
     { title: 'SMESHED', coins: totalMined },
     { title: 'SENT', coins: totalSent },
-    { title: 'RECEIVED', coins: totalReceived }
+    { title: 'RECEIVED', coins: totalReceived },
   ];
 
   return (

@@ -24,7 +24,7 @@ class AutoStartManager {
     if (!this.manager) {
       this.manager = new AutoLaunch({
         name: 'Spacemesh',
-        isHidden: true
+        isHidden: true,
       });
       if (StoreService.get('isAutoStartEnabled')) {
         await this.manager.enable();

@@ -11,6 +11,6 @@ export default function createRootReducer() {
     wallet,
     node,
     ui,
-    smesher
+    smesher,
   });
 }

@@ -3,7 +3,6 @@ const path = require('path');
 const crypto = require('crypto');
 
 const { Platform, build } = require('electron-builder');
-require('dotenv').config();
 const { notarize } = require('electron-notarize');
 
 async function notarizing(context) {
@@ -108,20 +107,29 @@ const getBuildOptions = ({ target, publish }) => {
         'node_modules/',
         'proto/',
         'resources/icons/*',
-        'app/assets/**'
+        'app/assets/**',
+        { from: path.resolve('desktop/prompt/static'), to: 'prompt/' },
       ],
       extraFiles: [
         nodeFiles[target],
-        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' }
+        { from: path.resolve('desktop/'), to: 'config/', filter: '*.json' },
       ],
       mac: {
         hardenedRuntime: true,
         gatekeeperAssess: false,
         entitlements: path.join(__dirname, 'entitlements.mac.plist'),
         entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
-        target: ['zip', 'dmg']
+        target: ['zip', 'dmg'],
+        icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
+        binaries: [
+          path.join(__dirname, '../node/mac/go-spacemesh'),
+          path.join(__dirname, '../node/mac/libgpu-setup.dylib'),
+          path.join(__dirname, '../node/mac/libMoltenVK.dylib'),
+          path.join(__dirname, '../node/mac/libvulkan.1.dylib')
+        ]
       },
       dmg: {
+        sign: false,
         window: {
           width: '400',
           height: '380'

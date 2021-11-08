@@ -11,15 +11,13 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
-import util from 'util';
 import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
 import { ipcConsts } from '../app/vars';
 import { PublicService } from '../shared/types';
-import { DiscoveryItem } from '../shared/schemas';
-import { toPublicService } from '../shared/utils';
+import { stringifySocketAddress, toPublicService } from '../shared/utils';
 import MenuBuilder from './menu';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -28,15 +26,15 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
+import { isDev, writeFileAsync } from './utils';
+import prompt from './prompt';
 
 require('dotenv').config();
-
-const writeFileAsync = util.promisify(fs.writeFile);
 
 const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
 
 (async function () {
-  const filePath = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? './' : 'desktop/', 'ed25519.wasm');
+  const filePath = path.resolve(app.getAppPath(), isDev() ? './' : 'desktop/', 'ed25519.wasm');
   const bytes = fs.readFileSync(filePath);
   // const bytes = await response.arrayBuffer();
   // @ts-ignore
@@ -55,7 +53,7 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
-const DEBUG = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const DEBUG = isDev() || process.env.DEBUG_PROD === 'true';
 
 DEBUG && require('electron-debug')();
 
@@ -63,39 +61,56 @@ let mainWindow: BrowserWindow;
 let browserView: BrowserView;
 let tray: Tray;
 let nodeManager: NodeManager;
+let smesherManager: SmesherManager;
 let notificationManager: NotificationManager;
 let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
-const isSmeshing = () => {
-  const netId = StoreService.get('netSettings.netId');
-  return StoreService.get(`${netId}-smeshingParams`);
-};
-const keepSmeshingInBackground = async () => {
+let shouldShowWindowOnLoad = true;
+const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing());
+
+enum CloseAppPromptResult {
+  CANCELED = 1, // To avoid conversion to `false`
+  KEEP_SMESHING = 2,
+  CLOSE = 3,
+}
+
+const promptClosingApp = async () => {
   const { response } = await dialog.showMessageBox(mainWindow, {
     title: 'Quit App',
     message:
       '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
       '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
       '\n\n• Click QUIT to close the app and stop smeshing.\n',
-    buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel']
+    buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel'],
+    cancelId: 2,
   });
-  return response === 0;
+  switch (response) {
+    default:
+    case 2:
+      return CloseAppPromptResult.CANCELED;
+    case 0:
+      return CloseAppPromptResult.KEEP_SMESHING;
+    case 1:
+      return CloseAppPromptResult.CLOSE;
+  }
 };
-const handleClosingApp = async (event) => {
+const handleClosingApp = async (event: Electron.Event) => {
   if (closingApp) return;
   event.preventDefault();
 
-  if (isSmeshing() && (await keepSmeshingInBackground())) {
+  const promptResult = ((await isSmeshing()) && (await promptClosingApp())) || CloseAppPromptResult.CLOSE;
+  if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
     setTimeout(() => {
       notificationManager.showNotification({
         title: 'Spacemesh',
-        body: 'Smesher is running in the background.'
+        body: 'Smesher is running in the background.',
       });
     }, 1000);
     mainWindow.hide();
+    shouldShowWindowOnLoad = false;
     mainWindow.reload();
-  } else {
+  } else if (promptResult === CloseAppPromptResult.CLOSE) {
     mainWindow.webContents.send(ipcConsts.CLOSING_APP);
     await nodeManager.stopNode();
     closingApp = true;
@@ -115,12 +130,12 @@ const createTray = () => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
-      click: () => eventHandler()
+      click: () => eventHandler(),
     },
     {
       label: 'Quit',
-      click: () => app.quit()
-    }
+      click: () => app.quit(),
+    },
   ]);
   tray.on('double-click', () => eventHandler());
   tray.setContextMenu(contextMenu);
@@ -129,8 +144,8 @@ const createTray = () => {
 const createBrowserView = () => {
   browserView = new BrowserView({
     webPreferences: {
-      nodeIntegration: false
-    }
+      nodeIntegration: false,
+    },
   });
 };
 
@@ -183,6 +198,62 @@ if (!gotTheLock) {
     }
   });
 }
+const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
+  proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
+
+const promptNetworkSelection = async (networks) => {
+  const options = Object.fromEntries(networks.map((conf, idx) => [idx, `${conf.netName} (${conf.netID})`]));
+  const res = await prompt({
+    title: 'Spacemesh App: Choose the network',
+    label: 'Please, choose the network:',
+    type: 'select',
+    selectOptions: options,
+    alwaysOnTop: true,
+  });
+  return res ? parseInt(res, 10) : 0;
+};
+
+const selectNetwork = async (currentNetId, networks) => {
+  if (currentNetId) {
+    const currentNetConfig = networks.find((conf) => conf.netID === currentNetId);
+    if (currentNetConfig) return currentNetConfig;
+  }
+  const netIndex = networks.length > 1 ? await promptNetworkSelection(networks) : 0;
+  return networks[netIndex];
+};
+
+const getInitialConfig = async (savedNetId) => {
+  if (isDevNet(process)) {
+    return {
+      netName: 'Dev Net',
+      conf: process.env.DEV_NET_URL,
+      explorer: '',
+      dash: '',
+      grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
+    };
+  }
+  const res = await fetch(DISCOVERY_URL);
+  const networks = await res.json();
+  return selectNetwork(savedNetId, networks);
+};
+const getNetConfig = async (configUrl) => {
+  const resp = await fetch(configUrl);
+  return resp.json();
+};
+const getConfigs = async () => {
+  const savedNetId = StoreService.get('netSettings.netId');
+  const initialConfig = await getInitialConfig(savedNetId);
+  const netConfig = await getNetConfig(initialConfig.conf);
+  const netId = parseInt(initialConfig.netID) || netConfig.p2p['network-id'];
+  const isCleanStart = savedNetId !== netId;
+
+  return {
+    initialConfig,
+    netConfig,
+    netId,
+    isCleanStart,
+  };
+};
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
@@ -193,11 +264,9 @@ const createWindow = async () => {
     minHeight: 680,
     center: true,
     webPreferences: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+    },
   });
-
-  mainWindow.loadURL(`file://${__dirname}/index.html`);
 
   mainWindow.on('close', handleClosingApp);
 
@@ -209,8 +278,10 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    mainWindow.show();
-    mainWindow.focus();
+    if (shouldShowWindowOnLoad) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
   });
 
   addIpcEventListeners();
@@ -224,76 +295,48 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
-    proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
-
-  interface InitialConfig extends Partial<DiscoveryItem> {
-    netID: string;
-    netName: string;
-    explorer: string;
-    dash: string;
-    grpcAPI: string;
-  }
-
   const configFilePath = path.resolve(app.getPath('userData'), 'node-config.json');
 
-  const onCleanStart = ({ netID, netName, explorer = '', dash = '' }: InitialConfig, netConfig) => {
+  const { initialConfig, netConfig, isCleanStart, netId } = await getConfigs();
+
+  if (isCleanStart) {
     StoreService.clear();
-    StoreService.set('netSettings.netId', netID);
-    StoreService.set('netSettings.netName', netName);
-    StoreService.set('netSettings.explorerUrl', explorer);
-    StoreService.set('netSettings.dashUrl', dash);
+    StoreService.set('netSettings.netId', netId);
+    StoreService.set('netSettings.netName', initialConfig.netName);
+    StoreService.set('netSettings.explorerUrl', initialConfig.explorer);
+    StoreService.set('netSettings.dashUrl', initialConfig.dash);
     StoreService.set('netSettings.minCommitmentSize', parseInt(netConfig.post['post-space']));
     StoreService.set('netSettings.layerDurationSec', netConfig.main['layer-duration-sec']);
     StoreService.set('netSettings.genesisTime', netConfig.main['genesis-time']);
-    return writeFileAsync(configFilePath, JSON.stringify(netConfig));
-  };
-  const isCleanStart = (netId: string) => StoreService.get('netSettings.netId') !== netId;
+    StoreService.set('nodeConfigFilePath', configFilePath);
 
-  const fetchConfigs = async () => {
-    if (isDevNet(process)) {
-      const netConfig = await fetch(process.env.DEV_NET_URL).then((r) => r.json());
-      const initialConfig = {
-        netID: netConfig.p2p['network-id'],
-        netName: 'Dev Net',
-        explorer: '',
-        dash: '',
-        grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || ''
-      };
-      return { netConfig, initialConfig };
-    } else {
-      const [initialConfig] = await fetch(DISCOVERY_URL).then((r) => r.json());
-      const netConfig = await fetch(initialConfig.conf).then((r) => r.json());
-      return { netConfig, initialConfig };
-    }
-  };
+    netConfig.smeshing = {}; // Ensure that the net config does not provide preinstalled defaults for smeshing
+    await writeFileAsync(configFilePath, JSON.stringify(netConfig));
+  }
 
-  const subscribeListingGrpcApis = (initialConfig: InitialConfig) => {
-    // TODO: Give a wider list of options
-    // const walletServices: PublicService[] = [toPublicService(initialConfig.netName, initialConfig.grpcAPI)];
+  const subscribeListingGrpcApis = (initialConfig) => {
     const walletServices: PublicService[] = [
       toPublicService(initialConfig.netName, initialConfig.grpcAPI),
       ...(isDevNet(process) && process.env.DEV_NET_REMOTE_API
         ? process.env.DEV_NET_REMOTE_API?.split(',')
             .slice(1)
             .map((url) => toPublicService(initialConfig.netName, url))
-        : [])
+        : []),
     ];
+    StoreService.set('netSettings.grpcAPI', walletServices.map(stringifySocketAddress));
     ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
   };
 
-  const { initialConfig, netConfig } = await fetchConfigs();
-  const cleanStart = isCleanStart(initialConfig.netID);
-  cleanStart && (await onCleanStart(initialConfig, netConfig));
-  subscribeListingGrpcApis(initialConfig);
-
-  nodeManager = new NodeManager(mainWindow, configFilePath, cleanStart);
+  smesherManager = new SmesherManager(mainWindow, configFilePath);
+  nodeManager = new NodeManager(mainWindow, isCleanStart, smesherManager);
   // eslint-disable-next-line no-new
   new WalletManager(mainWindow, nodeManager);
-  // eslint-disable-next-line no-new
-  new SmesherManager(mainWindow);
   notificationManager = new NotificationManager(mainWindow);
   new AutoStartManager(); // eslint-disable-line no-new
+  subscribeListingGrpcApis(initialConfig);
+
+  // Load page after initialization complete
+  mainWindow.loadURL(`file://${__dirname}/index.html`);
 };
 
 const installDevTools = async () => {

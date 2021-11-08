@@ -19,7 +19,7 @@ const enString = {
   months: '%d months',
   year: '1 year',
   years: '%d years',
-  wordSeparator: ' '
+  wordSeparator: ' ',
 };
 
 const CustomTimeAgo = ({ time }: { time: string }) => {

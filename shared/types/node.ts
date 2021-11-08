@@ -1,7 +1,7 @@
-//
-// Rreproduction of some types from `node_types.proto`
-// made by hands
-//
+export interface NodeVersionAndBuild {
+  version: string;
+  build: string;
+}
 
 export interface NodeStatus {
   connectedPeers: number;
@@ -19,7 +19,7 @@ export enum NodeErrorLevel {
   LOG_LEVEL_ERROR = 4,
   LOG_LEVEL_DPANIC = 5,
   LOG_LEVEL_PANIC = 6,
-  LOG_LEVEL_FATAL = 7
+  LOG_LEVEL_FATAL = 7,
 }
 
 export interface NodeError {

@@ -55,7 +55,7 @@ const Auth = ({ history, location }: AuthRouterParams) => {
     const initialSetup = async () => {
       const files = await dispatch(readWalletFiles());
       if (files.length && location.pathname !== '/auth/restore') {
-        history.push('/auth/unlock');
+        history.push('/auth/unlock', location.state);
       }
     };
     initialSetup();

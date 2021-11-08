@@ -77,9 +77,9 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
             value: {
               host: service.host,
               port: service.port,
-              protocol: service.protocol
-            }
-          }))
+              protocol: service.protocol,
+            },
+          })),
         })
       )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
@@ -105,7 +105,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const handleNext = () => {
     const { value } = publicServices.services[selectedItemIndex];
-
     if (location.state?.switchApiProvider)
       return eventsService
         .switchApiProvider(value)

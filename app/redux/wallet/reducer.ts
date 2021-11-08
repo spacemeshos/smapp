@@ -13,11 +13,9 @@ import {
   SET_BACKUP_TIME,
   SET_CURRENT_MODE,
   UPDATE_ACCOUNT_DATA,
-  SET_USING_REMOTE_API
 } from './actions';
 
 const initialState = {
-  usingRemoteApi: false,
   walletFiles: null,
   meta: {} as WalletMeta,
   mnemonic: '',
@@ -28,7 +26,7 @@ const initialState = {
   lastUsedContacts: [],
   contacts: [],
   backupTime: '',
-  vaultMode: 0
+  vaultMode: 0,
 };
 
 // TODO: fix this while fixing contacts feature
@@ -66,8 +64,6 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     case SET_CURRENT_MODE: {
       return { ...state, vaultMode: action.payload };
     }
-    case SET_USING_REMOTE_API:
-      return { ...state, usingRemoteApi: action.payload };
     case UPDATE_ACCOUNT_DATA: {
       const { account, accountId } = action.payload;
       const accountIndexToUpdate = state.accounts.findIndex((account) => account.publicKey === accountId);
@@ -76,8 +72,8 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
         accounts: [
           ...state.accounts.slice(0, accountIndexToUpdate),
           { ...state.accounts[accountIndexToUpdate], currentState: account.currentState, projectedState: account.projectedState },
-          ...state.accounts.slice(accountIndexToUpdate + 1)
-        ]
+          ...state.accounts.slice(accountIndexToUpdate + 1),
+        ],
       };
     }
     case SET_TRANSACTIONS: {

@@ -1,56 +1,109 @@
 import { CustomAction, SmesherState } from '../../types/redux';
-import { fileStatusEnums } from '../../vars';
 import { LOGOUT } from '../auth/actions';
-import { SET_SMESHER_SETTINGS, DELETED_POS_DATA, STARTED_SMESHING, SET_POST_DATA_CREATION_STATUS, SET_IS_SMESHING, SET_ACCOUNT_REWARDS } from './actions';
+import { PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
+import { BITS } from '../../types';
+import {
+  SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
+  SET_SETUP_COMPUTE_PROVIDERS,
+  DELETED_POS_DATA,
+  STARTED_SMESHING,
+  SET_POST_DATA_CREATION_STATUS,
+  SET_ACCOUNT_REWARDS,
+  SET_SMESHER_CONFIG,
+  PAUSED_SMESHING,
+  RESUMED_SMESHING,
+} from './actions';
 
 const initialState = {
+  smesherId: '',
+  postSetupComputeProviders: [] as PostSetupComputeProvider[],
   coinbase: '',
   dataDir: '',
-  commitmentSize: 0,
+  numUnits: 0,
   throttle: false,
   provider: null,
-  isSmeshing: false,
-  isCreatingPosData: false,
-  postProgress: {},
-  postProgressError: null,
-  rewards: []
+  commitmentSize: 0,
+  numLabelsWritten: 0,
+  postSetupState: PostSetupState.STATE_NOT_STARTED,
+  postProgressError: '',
+  rewards: [],
+  config: {} as SmesherConfig,
 };
 
 const reducer = (state: SmesherState = initialState, action: CustomAction) => {
   switch (action.type) {
-    case SET_SMESHER_SETTINGS: {
+    case SET_SMESHER_SETTINGS_AND_STARTUP_STATUS: {
       const {
-        payload: { coinbase, dataDir }
+        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage, numUnits },
       } = action;
-      return { ...state, coinbase, dataDir };
+
+      const commitmentSize = config ? (config.labelsPerUnit * config.bitsPerLabel * numUnits) / BITS : 0;
+
+      return {
+        ...state,
+        config,
+        smesherId,
+        numUnits,
+        numLabelsWritten,
+        postSetupState,
+        postProgressError: postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
+        commitmentSize,
+      };
+    }
+    case SET_SETUP_COMPUTE_PROVIDERS: {
+      return { ...state, postSetupComputeProviders: action.payload };
+    }
+    case SET_SMESHER_CONFIG: {
+      return {
+        ...state,
+        ...action.payload.smeshingConfig,
+      };
     }
     case STARTED_SMESHING: {
       const {
-        payload: { coinbase, commitmentSize, throttle, provider }
+        payload: { coinbase, dataDir, numUnits, provider, throttle },
       } = action;
-      return { ...state, coinbase, commitmentSize, throttle, provider };
+      const commitmentSize = state.config ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) / BITS : 0;
+      return { ...state, coinbase, dataDir, numUnits, throttle, provider, commitmentSize };
     }
     case DELETED_POS_DATA: {
-      return initialState;
+      return {
+        ...state,
+        coinbase: '',
+        dataDir: '',
+        numUnits: 0,
+        throttle: false,
+        provider: null,
+        commitmentSize: 0,
+        numLabelsWritten: 0,
+        postSetupState: PostSetupState.STATE_NOT_STARTED,
+        postProgressError: '',
+      };
     }
-    case SET_IS_SMESHING: {
-      const {
-        payload: { isSmeshing }
-      } = action;
-      return { ...state, isSmeshing };
+    case PAUSED_SMESHING: {
+      return {
+        ...state,
+        postSetupState: PostSetupState.STATE_NOT_STARTED,
+      };
+    }
+    case RESUMED_SMESHING: {
+      return {
+        ...state,
+        postSetupState: PostSetupState.STATE_IN_PROGRESS,
+      };
     }
     case SET_POST_DATA_CREATION_STATUS: {
       const {
-        payload: { error, filesStatus, bytesWritten, errorMessage, errorType }
+        payload: { error, postSetupState, numLabelsWritten, errorMessage },
       } = action;
-      if (error) {
-        return { ...state, postProgressError: error, postProgress: {}, isCreatingPosData: false };
+      if (error || postSetupState === PostSetupState.STATE_ERROR) {
+        return { ...state, postProgressError: errorMessage || error.message };
       }
       return {
         ...state,
-        postProgress: { filesStatus, bytesWritten, errorMessage, errorType },
-        isCreatingPosData: filesStatus === fileStatusEnums.FILES_STATUS_PARTIAL,
-        postProgressError: null
+        numLabelsWritten: numLabelsWritten || state.numLabelsWritten,
+        postSetupState,
+        postProgressError: '',
       };
     }
     case SET_ACCOUNT_REWARDS: {

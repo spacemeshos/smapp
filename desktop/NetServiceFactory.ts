@@ -26,21 +26,21 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
 
   private apiUrl: SocketAddress | null = null;
 
-  createNetService = (protoPath: string, apiUrl: SocketAddress | PublicService | undefined, serviceName: string) => {
-    if (this.apiUrl !== apiUrl) {
-      if (this.service) {
-        this.service.close();
-      }
-      this.apiUrl = apiUrl === undefined ? LOCAL_NODE_API_URL : apiUrl;
+  createNetService = (protoPath: string, apiUrl: SocketAddress | PublicService = LOCAL_NODE_API_URL, serviceName: string) => {
+    if (this.apiUrl === apiUrl) return;
 
-      const resolvedProtoPath = path.join(__dirname, '..', protoPath);
-      const packageDefinition = loadSync(resolvedProtoPath);
-      const proto = (grpc.loadPackageDefinition(packageDefinition) as unknown) as T;
-      const Service = proto.spacemesh.v1[serviceName];
-      const connectionType = this.apiUrl.protocol === 'http:' ? grpc.credentials.createInsecure() : grpc.credentials.createSsl();
-      this.service = new Service(`${this.apiUrl.host}:${this.apiUrl.port}`, connectionType);
-      this.serviceName = serviceName;
+    if (this.service) {
+      this.service.close();
     }
+    this.apiUrl = apiUrl;
+
+    const resolvedProtoPath = path.join(__dirname, '..', protoPath);
+    const packageDefinition = loadSync(resolvedProtoPath);
+    const proto = (grpc.loadPackageDefinition(packageDefinition) as unknown) as T;
+    const Service = proto.spacemesh.v1[serviceName];
+    const connectionType = this.apiUrl.protocol === 'http:' ? grpc.credentials.createInsecure() : grpc.credentials.createSsl();
+    this.service = new Service(`${this.apiUrl.host}:${this.apiUrl.port}`, connectionType);
+    this.serviceName = serviceName;
   };
 
   ensureService = (): Promise<Service<T, ServiceName>> =>
@@ -68,7 +68,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
   // TODO: Get rid of mixing with `error`
   normalizeServiceResponse = <ResponseData extends Record<string, any>>(data: ResponseData): ResponseData & { error: null } => ({
     ...data,
-    error: null
+    error: null,
   });
 
   // TODO: Get rid of mixing with `error`
@@ -80,8 +80,8 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
           msg: error.message,
           stackTrace: error?.stack || '',
           module: this.serviceName,
-          level: NodeErrorLevel.LOG_LEVEL_ERROR
-        } as NodeError)
+          level: NodeErrorLevel.LOG_LEVEL_ERROR,
+        } as NodeError),
   });
 }
 

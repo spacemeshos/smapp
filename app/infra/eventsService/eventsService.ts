@@ -3,21 +3,28 @@ import { ipcConsts } from '../../vars';
 import { Tx } from '../../types';
 import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
-import { setRewards, setPostStatus } from '../../redux/smesher/actions';
+import {
+  SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
+  SET_POST_DATA_CREATION_STATUS,
+  SET_ACCOUNT_REWARDS,
+  SET_SETUP_COMPUTE_PROVIDERS,
+  SET_SMESHER_CONFIG,
+} from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress } from '../../../shared/types';
+import { IPCSmesherStartupData, NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
 import WalletManager from '../../../desktop/WalletManager';
 import GlobalStateService from '../../../desktop/GlobalStateService';
 import MeshService from '../../../desktop/MeshService';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 
 class EventsService {
   static createWallet = ({
     password,
     existingMnemonic,
-    apiUrl
+    apiUrl,
   }: {
     password: string;
     existingMnemonic: string;
@@ -26,7 +33,7 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
-      apiUrl
+      apiUrl,
     });
 
   static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.W_M_READ_WALLET_FILES);
@@ -58,39 +65,17 @@ class EventsService {
   static wipeOut = () => ipcRenderer.send(ipcConsts.W_M_WIPE_OUT);
 
   /** ************************************   SMESHER   ****************************************** */
-  static getSmesherSettings = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_SETTINGS);
-
   static selectPostFolder = () => ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);
 
   static checkFreeSpace = ({ dataDir }: { dataDir: string }) => ipcRenderer.invoke(ipcConsts.SMESHER_CHECK_FREE_SPACE, { dataDir });
 
   static getEstimatedRewards = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
-  static getPostComputeProviders = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_COMPUTE_PROVIDERS);
-
-  static startSmeshing = async ({
-    coinbase,
-    dataDir,
-    commitmentSize,
-    computeProviderId,
-    throttle
-  }: {
-    coinbase: string;
-    dataDir: string;
-    commitmentSize: number;
-    computeProviderId: number;
-    throttle: boolean;
-  }) => {
-    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { ip: '', port: '' });
+  static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
+    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, LOCAL_NODE_API_URL);
     await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
-    return ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { coinbase, dataDir, commitmentSize, computeProviderId, throttle });
+    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { postSetupOpts });
   };
-
-  static getPostStatus = () => ipcRenderer.invoke(ipcConsts.SMESHER_GET_POST_STATUS);
-
-  static stopCreatingPosData = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_POST_DATA_CREATION, { deleteFiles });
-
-  static isSmeshing = () => ipcRenderer.invoke(ipcConsts.SMESHER_IS_SMESHING);
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) => ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
 
@@ -156,12 +141,36 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
-  store.dispatch(setRewards({ rewards: request.data.rewards, publicKey: request.data.publicKey }));
+  const { rewards, publicKey } = request.data;
+  store.dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards, publicKey } });
+});
+
+ipcRenderer.on(ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS, (_event, request: IPCSmesherStartupData) => {
+  store.dispatch({
+    type: SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
+    payload: request,
+  });
+});
+
+ipcRenderer.on(ipcConsts.SMESHER_SEND_SMESHING_CONFIG, (_event, request) => {
+  const { smeshingConfig } = request;
+  store.dispatch({ type: SET_SMESHER_CONFIG, payload: { smeshingConfig } });
+});
+
+ipcRenderer.on(ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS, (_event, request) => {
+  const { providers } = request;
+  store.dispatch({
+    type: SET_SETUP_COMPUTE_PROVIDERS,
+    payload: providers,
+  });
 });
 
 ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) => {
-  const { error, status } = request;
-  store.dispatch(setPostStatus({ error, status }));
+  const {
+    error,
+    status: { postSetupState, numLabelsWritten, errorMessage },
+  } = request;
+  store.dispatch({ type: SET_POST_DATA_CREATION_STATUS, payload: { error, postSetupState, numLabelsWritten, errorMessage } });
 });
 
 ipcRenderer.on(ipcConsts.CLOSING_APP, () => {

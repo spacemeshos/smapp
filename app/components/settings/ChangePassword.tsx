@@ -98,7 +98,7 @@ const ChangePassword = () => {
         {isEditMode ? (
           [
             <Input value={password} type="password" placeholder="Type password" onChange={handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" autofocus />,
-            <Input value={verifiedPassword} type="password" placeholder="Verify password" onChange={handlePasswordVerifyTyping} key="passRetype" />
+            <Input value={verifiedPassword} type="password" placeholder="Verify password" onChange={handlePasswordVerifyTyping} key="passRetype" />,
           ]
         ) : (
           <Input value="***********" type="password" isDisabled />
@@ -118,7 +118,7 @@ const ChangePassword = () => {
         {isEditMode ? (
           [
             <Link onClick={updatePassword} text="SAVE" style={{ marginRight: 15 }} key="change" />,
-            <Link onClick={clearFields} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />
+            <Link onClick={clearFields} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />,
           ]
         ) : (
           <Button onClick={startUpdatingPassword} text="CHANGE" width={180} />

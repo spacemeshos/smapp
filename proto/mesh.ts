@@ -44,6 +44,7 @@ export interface ProtoGrpcType {
       MaxTransactionsPerSecondRequest: MessageTypeDefinition
       MaxTransactionsPerSecondResponse: MessageTypeDefinition
       MeshService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_MeshServiceClient> & { service: _spacemesh_v1_MeshServiceDefinition }
+      MeshTransaction: MessageTypeDefinition
       NetIDRequest: MessageTypeDefinition
       NetIDResponse: MessageTypeDefinition
       Reward: MessageTypeDefinition

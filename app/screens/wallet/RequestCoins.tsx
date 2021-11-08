@@ -94,7 +94,7 @@ interface Props extends RouteComponentProps {
 const RequestCoins = ({ history, location }: Props) => {
   let copiedTimeout: any = null;
   const {
-    state: { account, isSmesherActive }
+    state: { account, isSmesherActive },
   } = location;
 
   const [isCopied, setIsCopied] = useState(false);

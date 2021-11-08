@@ -1,6 +1,6 @@
 import { AnyAction, Middleware } from 'redux';
 
-const createErrorHandlerMiddleware = (onError: (error: Error) => AnyAction): Middleware => ({ dispatch }) => (next) => (action) => {
+const createErrorHandlerMiddleware = (onError: (error: Error) => AnyAction): Middleware => () => (next) => (action) => {
   try {
     const result = next(action);
     if (result.then && result.catch) {
@@ -12,7 +12,7 @@ const createErrorHandlerMiddleware = (onError: (error: Error) => AnyAction): Mid
     }
     return result;
   } catch (error) {
-    return next(onError(error));
+    return next(onError(error as Error));
   }
 };
 

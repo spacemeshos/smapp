@@ -1,101 +1,55 @@
 import { eventsService } from '../../infra/eventsService';
+import { AppThDispatch, GetState } from '../../types';
+import { SmeshingOpts } from '../../../shared/types';
 import { addErrorPrefix } from '../../infra/utils';
-import { AppThDispatch, ComputeProvider, CustomAction, GetState, Reward } from '../../types';
 import { setUiError } from '../ui/actions';
+import { getSmeshingOpts, isSmeshingPaused, isValidSmeshingOpts } from './selectors';
 
-export const SET_SMESHER_SETTINGS = 'SET_SMESHER_SETTINGS';
+export const SET_SMESHER_SETTINGS_AND_STARTUP_STATUS = 'SET_SMESHER_SETTINGS_AND_STARTUP_STATUS';
+export const SET_SETUP_COMPUTE_PROVIDERS = 'SET_SETUP_COMPUTE_PROVIDERS';
+export const SET_SMESHER_CONFIG = 'SET_SMESHER_CONFIG';
 export const STARTED_SMESHING = 'STARTED_SMESHING';
 export const DELETED_POS_DATA = 'DELETED_POST_DATA';
+export const PAUSED_SMESHING = 'PAUSED_SMESHING';
+export const RESUMED_SMESHING = 'RESUMED_SMESHING';
 export const SET_POST_DATA_CREATION_STATUS = 'SET_POST_DATA_CREATION_STATUS';
-export const SET_IS_SMESHING = 'SET_IS_SMESHING';
-
 export const SET_ACCOUNT_REWARDS = 'SET_ACCOUNT_REWARDS';
 
-export const setRewards = ({ rewards, publicKey }: { rewards: Reward[]; publicKey: string }) => ({ type: SET_ACCOUNT_REWARDS, payload: { rewards, publicKey } });
-
-export const getSmesherSettings = () => async (dispatch: AppThDispatch) => {
-  const { error, coinbase, dataDir } = await eventsService.getSmesherSettings();
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-    dispatch(getSmesherSettings());
-  } else {
-    dispatch({ type: SET_SMESHER_SETTINGS, payload: { coinbase, dataDir } });
-  }
-};
-// notificationsService.notify({
-//         title: 'Spacemesh',
-//         notification: 'Your Smesher setup is complete! You are now participating in the Spacemesh network!',
-//         callback: () => this.handleNavigation({ index: 0 })
-//       });
-export const isSmeshing = () => async (dispatch: AppThDispatch) => {
-  const { error, isSmeshing } = await eventsService.isSmeshing();
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-    dispatch(isSmeshing());
-  } else {
-    if (isSmeshing && !localStorage.getItem('smesherSmeshingTimestamp')) {
-      localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
-    } else {
-      localStorage.removeItem('playedAudio');
-      localStorage.removeItem('smesherInitTimestamp');
-      localStorage.removeItem('smesherSmeshingTimestamp');
-    }
-    dispatch({ type: SET_IS_SMESHING, payload: { isSmeshing } });
-  }
-};
-
-export const setPostStatus = ({ error, status }: { error: any; status: any }): CustomAction => {
-  const { filesStatus, bytesWritten, errorMessage, errorType } = status;
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-    return { type: SET_POST_DATA_CREATION_STATUS, payload: { error } };
-  } else {
-    return { type: SET_POST_DATA_CREATION_STATUS, payload: { filesStatus, bytesWritten, errorMessage, errorType } };
-  }
-};
-
-export const getPostStatus = () => async (dispatch: AppThDispatch) => {
-  const { error, status } = await eventsService.getPostStatus();
-  dispatch(setPostStatus({ error, status }));
-};
-
-export const startSmeshing = ({
-  coinbase,
-  dataDir,
-  commitmentSize,
-  provider,
-  throttle
-}: {
-  coinbase: string;
-  dataDir: string;
-  commitmentSize: number;
-  provider: ComputeProvider;
-  throttle: boolean;
-}) => async (dispatch: AppThDispatch) => {
+export const startSmeshing = ({ coinbase, dataDir, numUnits, provider, throttle }: SmeshingOpts) => async (dispatch: AppThDispatch) => {
   try {
-    await eventsService.startSmeshing({ coinbase, dataDir, commitmentSize, computeProviderId: provider.id, throttle });
-    // TODO: Check for return status?
+    // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
+    await eventsService.startSmeshing({ coinbase, dataDir, numUnits, numFiles: 1, computeProviderId: provider, throttle });
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
-    dispatch({ type: STARTED_SMESHING, payload: { coinbase, dataDir, commitmentSize, provider, throttle } });
+    dispatch({ type: STARTED_SMESHING, payload: { coinbase, dataDir, numUnits, provider, throttle } });
     return true;
   } catch (error) {
-    dispatch(setUiError(addErrorPrefix('Error initiating smeshing\n', error)));
+    dispatch(setUiError(addErrorPrefix('Error initiating smeshing\n', error as Error)));
     return false;
   }
 };
 
-export const deletePosData = () => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { isSmeshing } = getState().smesher;
-  let error;
-  if (isSmeshing) {
-    ({ error } = await eventsService.stopSmeshing({ deleteFiles: true }));
-  } else {
-    ({ error } = await eventsService.stopCreatingPosData({ deleteFiles: true }));
+export const deletePosData = () => async (dispatch: AppThDispatch) => {
+  const res = await eventsService.stopSmeshing({ deleteFiles: true });
+  if (res?.error) {
+    console.error(res.error); // eslint-disable-line no-console
+    return;
   }
-  if (error) {
-    console.error(error); // eslint-disable-line no-console
-  } else {
-    dispatch({ type: DELETED_POS_DATA });
+  dispatch({ type: DELETED_POS_DATA });
+};
+
+export const pauseSmeshing = () => async (dispatch: AppThDispatch) => {
+  const res = await eventsService.stopSmeshing({ deleteFiles: false });
+  if (res?.error) {
+    console.error(res.error); // eslint-disable-line no-console
+    return;
   }
+  dispatch({ type: PAUSED_SMESHING });
+};
+
+export const resumeSmeshing = () => async (dispatch: AppThDispatch, getState: GetState) => {
+  const state = getState();
+  const isPaused = isSmeshingPaused(state);
+  const smeshingOpts = getSmeshingOpts(state);
+  return isPaused && isValidSmeshingOpts(smeshingOpts) ? dispatch(startSmeshing(smeshingOpts)) : false;
 };

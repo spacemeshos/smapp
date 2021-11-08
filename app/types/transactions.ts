@@ -17,5 +17,5 @@ export enum TxState {
   CONFLICTING, // rejected from mempool due to conflicting counter
   MEMPOOL, // in mempool but not on the mesh yet
   MESH, // submitted to the mesh
-  PROCESSED
+  PROCESSED,
 }

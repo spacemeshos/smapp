@@ -22,12 +22,6 @@ const Text = styled.span`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
 `;
 
-const Header = styled.span`
-  font-family: SourceCodeProBold;
-  margin-bottom: 25px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
-`;
-
 const TransactionsListWrapper = styled.div`
   flex: 1;
   overflow-x: hidden;
@@ -62,7 +56,7 @@ const getNumOfCoinsFromTransactions = ({ publicKey, transactions }: { publicKey:
   const coins = {
     mined: 0,
     sent: 0,
-    received: 0
+    received: 0,
   };
   const address = getAddress(publicKey);
   transactions.forEach(({ txId, status, sender, amount }: { txId: string; status: number; sender: string; amount: number }) => {
@@ -97,7 +91,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
       ...coins,
       totalMined: totalCoins.mined,
       totalSent: totalCoins.sent,
-      totalReceived: totalCoins.received
+      totalReceived: totalCoins.received,
     };
   };
 

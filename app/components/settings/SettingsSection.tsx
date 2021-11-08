@@ -8,7 +8,7 @@ import {
   topLeftCornerWhite,
   topRightCornerWhite,
   bottomLeftCornerWhite,
-  bottomRightCornerWhite
+  bottomRightCornerWhite,
 } from '../../assets/images';
 import smColors from '../../vars/colors';
 

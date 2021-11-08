@@ -5,14 +5,14 @@ const initialState = {
   isDarkMode: false,
   isClosingApp: false,
   hideSmesherLeftPanel: false,
-  error: null
+  error: null,
 };
 
 const reducer = (state: UiState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_OS_THEME: {
       const {
-        payload: { isDarkTheme }
+        payload: { isDarkTheme },
       } = action;
       return { ...state, isDarkMode: isDarkTheme };
     }

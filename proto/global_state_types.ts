@@ -39,6 +39,7 @@ export interface ProtoGrpcType {
       GlobalStateStreamResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
+      MeshTransaction: MessageTypeDefinition
       Reward: MessageTypeDefinition
       Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition

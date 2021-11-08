@@ -19,10 +19,6 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
-export const SET_USING_REMOTE_API = 'SET_USING_REMOTE_API';
-
-export const setUsingRemoteApi = (isRemoteApi: boolean) => ({ type: SET_USING_REMOTE_API, payload: isRemoteApi });
-
 export const setWalletMeta = (wallet: WalletMeta) => ({ type: SET_WALLET_META, payload: wallet });
 
 export const setAccounts = (accounts: Account[]) => ({ type: SET_ACCOUNTS, payload: accounts });
@@ -171,7 +167,7 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
     fee,
     status: 0,
     timestamp: new Date().getTime(),
-    note
+    note,
   };
   contacts.forEach((contact) => {
     if (contact.address.substring(2) === fullTx.sender || contact.address.substring(2) === fullTx.receiver) {

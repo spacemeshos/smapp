@@ -10,10 +10,12 @@ export interface Account {
   secretKey: string;
 }
 
-export interface AccountWithBalance extends Account {
+export interface AccountBalance {
   currentState?: { balance: number; counter: number };
   projectedState?: { balance: number; counter: number };
 }
+
+export type AccountWithBalance = Account & AccountBalance;
 
 export interface WalletCrypto {
   cipher: string;

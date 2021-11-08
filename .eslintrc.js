@@ -10,8 +10,8 @@ module.exports = {
     'react/jsx-filename-extension': [
       1,
       {
-        extensions: ['.js', '.jsx', '.ts', '.tsx']
-      }
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
     ],
     'react/state-in-constructor': 0,
     'react/static-property-placement': 0,
@@ -20,8 +20,8 @@ module.exports = {
       'error',
       {
         code: 180,
-        ignoreUrls: true
-      }
+        ignoreUrls: true,
+      },
     ],
     'no-class-assign': 0,
     'no-else-return': 0,
@@ -30,8 +30,8 @@ module.exports = {
       2,
       {
         allowShortCircuit: true,
-        allowTernary: true
-      }
+        allowTernary: true,
+      },
     ],
     'import/no-absolute-path': 0,
     'import/extensions': 0,
@@ -42,8 +42,8 @@ module.exports = {
     'import/order': [
       'error',
       {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index']
-      }
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+      },
     ],
     'react/sort-comp': [
       2,
@@ -62,15 +62,15 @@ module.exports = {
           '/^set.+$/',
           '/^on.+$/',
           '/^handle.+$/',
-          'everything-else'
-        ]
-      }
+          'everything-else',
+        ],
+      },
     ],
     'react/forbid-prop-types': [
       2,
       {
-        forbid: ['any']
-      }
+        forbid: ['any'],
+      },
     ],
     'arrow-parens': 0,
     'react/jsx-curly-brace-presence': 0,
@@ -78,7 +78,7 @@ module.exports = {
     'jsx-a11y/anchor-is-valid': 0,
     'jsx-a11y/click-events-have-key-events': 0,
     'jsx-a11y/no-static-element-interactions': 0,
-    'comma-dangle': 'off',
+    'comma-dangle': ['error', 'only-multiline'],
     'react/require-default-props': 0,
     'no-use-before-define': 'off',
     'react/no-array-index-key': 0,
@@ -92,25 +92,25 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/ban-ts-comment': 0,
     '@typescript-eslint/no-unused-expressions': 0,
-    'react/prop-types': 0
+    'react/prop-types': 0,
   },
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
     project: './tsconfig.json',
     tsconfigRootDir: __dirname,
-    createDefaultProgram: true
+    createDefaultProgram: true,
   },
   settings: {
     'import/resolver': {
       // See https://github.com/benmosher/eslint-plugin-import/issues/1396#issuecomment-575727774 for line below
       node: {},
       webpack: {
-        config: require.resolve('./configs/webpack.config.eslint.js')
-      }
+        config: require.resolve('./configs/webpack.config.eslint.js'),
+      },
     },
     'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx']
-    }
-  }
+      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    },
+  },
 };

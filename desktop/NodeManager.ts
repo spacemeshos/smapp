@@ -10,6 +10,7 @@ import { NodeError, NodeErrorLevel, NodeStatus, PublicService, SocketAddress } f
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
+import SmesherManager from './SmesherManager';
 import { createDebouncePool } from './utils';
 
 const logger = Logger({ className: 'NodeManager' });
@@ -17,7 +18,7 @@ const logger = Logger({ className: 'NodeManager' });
 const osTargetNames = {
   Darwin: 'mac',
   Linux: 'linux',
-  Windows_NT: 'windows'
+  Windows_NT: 'windows',
 };
 
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
@@ -27,7 +28,7 @@ const defaultCrashError = (error?: Error): NodeError => ({
   msg: "The Spacemesh node software has unexpectedly quit. Click on 'restart node' to start it.",
   stackTrace: error?.stack || '',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
-  module: 'NodeManager'
+  module: 'NodeManager',
 });
 
 type PoolNodeError = { type: 'NodeError'; error: NodeError };
@@ -37,11 +38,11 @@ type ErrorPoolObject = PoolNodeError | PoolExitCode;
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
 
-  private readonly configFilePath;
-
   private readonly cleanStart;
 
   private nodeService: NodeService;
+
+  private smesherManager: SmesherManager;
 
   private nodeProcess: ChildProcess | null;
 
@@ -58,13 +59,13 @@ class NodeManager {
     this.sendNodeError(mostCriticalError);
   });
 
-  constructor(mainWindow: BrowserWindow, configFilePath: string, cleanStart) {
+  constructor(mainWindow: BrowserWindow, cleanStart: boolean, smesherManager: SmesherManager) {
     this.mainWindow = mainWindow;
-    this.configFilePath = configFilePath;
     this.cleanStart = cleanStart;
     this.nodeService = new NodeService();
     this.subscribeToEvents();
     this.nodeProcess = null;
+    this.smesherManager = smesherManager;
   }
 
   subscribeToEvents = () => {
@@ -116,8 +117,6 @@ class NodeManager {
   };
 
   startNode = async () => {
-    if (this.isNodeRunning()) return true;
-
     this.hasCriticalError = false;
     this.spawnNode();
     this.nodeService.createService();
@@ -126,30 +125,27 @@ class NodeManager {
     });
     if (success) {
       await this.getNodeStatus(0);
-      this.nodeService.activateErrorStream(this.pushNodeError);
+      this.activateNodeErrorStream();
+      await this.smesherManager.serviceStartupFlow();
       return true;
     }
     return false; // TODO: add error handling
   };
 
   private spawnNode = () => {
+    if (this.nodeProcess) return;
     const userDataPath = app.getPath('userData');
-    const nodePath = path.resolve(
-      app.getAppPath(),
-      process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/',
-      `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
-    );
+    const nodeDir = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/');
+    const nodePath = path.resolve(nodeDir, `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`);
     const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
     const logFileStream = fs.createWriteStream(logFilePath, { flags: this.cleanStart ? 'w' : 'a', encoding: 'utf-8' });
-    const netId = StoreService.get('netSettings.netId');
-    const savedSmeshingParams = StoreService.get(`${netId}-smeshingParams`);
-    const smeshingArgs = savedSmeshingParams ? ['--coinbase', `0x${savedSmeshingParams.coinbase}`, '--start-mining', '--post-datadir', savedSmeshingParams.dataDir] : [];
-    const args = ['--config', this.configFilePath, '-d', nodeDataFilesPath, ...smeshingArgs];
+    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath') as string;
+    const args = ['--config', nodeConfigFilePath, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
-    this.nodeProcess = spawn(nodePath, args);
+    this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
     this.nodeProcess.on('error', (error) => {
@@ -205,7 +201,7 @@ class NodeManager {
         msg: 'Cannot restart the Node',
         level: NodeErrorLevel.LOG_LEVEL_FATAL,
         stackTrace: '',
-        module: 'NodeManager'
+        module: 'NodeManager',
       } as NodeError;
     }
     return res;
@@ -261,6 +257,10 @@ class NodeManager {
       if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
       throw error;
     }
+  };
+
+  activateNodeErrorStream = () => {
+    this.nodeService.activateErrorStream(this.pushNodeError);
   };
 
   isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {

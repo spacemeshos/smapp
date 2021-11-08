@@ -6,6 +6,7 @@ import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
 import { isLocalNodeApi, isRemoteNodeApi, stringifySocketAddress, toSocketAddress } from '../shared/utils';
+import { LOCAL_NODE_API_URL } from '../shared/constants';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -16,12 +17,11 @@ import Logger from './logger';
 import StoreService from './storeService';
 import TransactionService from './TransactionService';
 import NodeManager from './NodeManager';
+import { readFileAsync, writeFileAsync } from './utils';
 
 const logger = Logger({ className: 'WalletManager' });
 
-const readFileAsync = util.promisify(fs.readFile);
 const readDirectoryAsync = util.promisify(fs.readdir);
-const writeFileAsync = util.promisify(fs.writeFile);
 const copyFileAsync = util.promisify(fs.copyFile);
 const unlinkFileAsync = util.promisify(fs.unlink);
 
@@ -44,15 +44,12 @@ class WalletManager {
 
   private txManager: TransactionManager;
 
-  private mainWindow: BrowserWindow;
-
   private mnemonic = '';
 
   private openedWalletFilePath: string | null = null;
 
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
     this.subscribeToEvents(mainWindow);
-    this.mainWindow = mainWindow;
     this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
@@ -65,7 +62,7 @@ class WalletManager {
     created: timestamp,
     path: `0/0/${index}`,
     publicKey,
-    secretKey
+    secretKey,
   });
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
@@ -81,9 +78,8 @@ class WalletManager {
       const netId = StoreService.get('netSettings.netId');
       const netName = StoreService.get('netSettings.netName');
       const genesisTime = StoreService.get('netSettings.genesisTime');
-      const minCommitmentSize = StoreService.get('netSettings.minCommitmentSize');
       const explorerUrl = StoreService.get('netSettings.explorerUrl');
-      return { netId, netName, genesisTime, minCommitmentSize, explorerUrl };
+      return { netId, netName, genesisTime, explorerUrl };
     });
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => this.meshService.getCurrentLayer());
     ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, () => this.glStateService.getGlobalStateHash());
@@ -161,7 +157,7 @@ class WalletManager {
     const dataToEncrypt = {
       mnemonic: this.mnemonic,
       accounts: [this.__getNewAccountFromTemplate({ index: 0, timestamp, publicKey, secretKey })],
-      contacts: []
+      contacts: [],
     };
 
     const usingRemoteApi = isRemoteNodeApi(apiUrl);
@@ -174,13 +170,13 @@ class WalletManager {
     const meta: WalletMeta = {
       displayName: 'Main Wallet',
       created: timestamp,
-      netId: StoreService.get('netSettings.netId'),
+      netId: StoreService.get('netSettings.netId') as number,
       remoteApi: usingRemoteApi ? stringifySocketAddress(apiUrl) : '',
-      meta: { salt: encryptionConst.DEFAULT_SALT }
+      meta: { salt: encryptionConst.DEFAULT_SALT },
     };
     const fileContent: WalletFile = {
       meta,
-      crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData }
+      crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData },
     };
     const fileName = `my_wallet_${timestamp}.json`;
     const fileNameWithPath = path.resolve(appFilesDirPath, fileName);
@@ -211,14 +207,26 @@ class WalletManager {
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
       const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
 
+      const actualNetId = StoreService.get('netSettings.netId') as number;
+      if (meta.netId !== actualNetId) {
+        // Update netId in wallet file to actual one
+        this.updateWalletMeta(path, 'netId', actualNetId);
+        meta.netId = actualNetId;
+        // And update remoteApi if it was specified
+        if (meta.remoteApi) {
+          const apis = StoreService.get('netSettings.grpcAPI') as string[];
+          if (!apis.find((x) => x === meta.remoteApi)) {
+            const [firstApi] = apis;
+            meta.remoteApi = firstApi;
+            this.updateWalletMeta(path, 'remoteApi', firstApi);
+          }
+        }
+      }
+
       const apiUrl = toSocketAddress(meta.remoteApi);
       const usingRemoteApi = isRemoteNodeApi(apiUrl);
       !usingRemoteApi && (await this.nodeManager.startNode());
       this.activateWalletManager(apiUrl);
-
-      // Update netId in wallet file to actual one
-      const actualNetId = StoreService.get('netSettings.netId');
-      meta.netId !== actualNetId && this.updateWalletMeta(path, 'netId', actualNetId);
 
       this.txManager.setAccounts({ accounts });
       this.mnemonic = mnemonic;
@@ -273,7 +281,7 @@ class WalletManager {
       const dataToEncrypt = {
         mnemonic,
         accounts: [...accounts, newAccount],
-        contacts
+        contacts,
       };
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
@@ -325,7 +333,7 @@ class WalletManager {
     const options = {
       title: 'Delete File',
       message: 'All wallet data will be lost. Are You Sure?',
-      buttons: ['Delete Wallet File', 'Cancel']
+      buttons: ['Delete Wallet File', 'Cancel'],
     };
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {
@@ -345,7 +353,7 @@ class WalletManager {
       type: 'warning',
       title: 'Reinstall App',
       message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
-      buttons: ['Delete All', 'Cancel']
+      buttons: ['Delete All', 'Cancel'],
     };
     const { response } = await dialog.showMessageBox(browserWindow, options);
     if (response === 0) {

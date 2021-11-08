@@ -1,4 +1,4 @@
-import React, { Component, ComponentType, ReactNode } from 'react';
+import React, { Component, ReactNode } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
@@ -17,10 +17,10 @@ import {
   helpIcon,
   helpIconBlack,
   signOutIcon,
-  signOutIconBlack
+  signOutIconBlack,
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { AppThDispatch, RootState } from '../../types';
+import { RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
@@ -133,12 +133,11 @@ class Main extends Component<Props, State> {
     const isWalletLocation = location.pathname.includes('/wallet');
     const activeRouteIndex = isWalletLocation ? 2 : 0;
     this.state = {
-      activeRouteIndex
+      activeRouteIndex,
     };
   }
 
   render() {
-    const { activeRouteIndex } = this.state;
     const { isWalletOnly, nodeError, status, isDarkMode } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
@@ -299,12 +298,12 @@ const mapStateToProps = (state: RootState) => ({
   isWalletOnly: isWalletOnly(state),
   status: state.node.status,
   nodeError: state.node.error,
-  isDarkMode: state.ui.isDarkMode
+  isDarkMode: state.ui.isDarkMode,
 });
 
 const mapDispatchToProps = {
   getNetworkDefinitions,
-  logout
+  logout,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);
