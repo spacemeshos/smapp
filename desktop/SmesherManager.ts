@@ -1,4 +1,6 @@
 import fs from 'fs';
+import path from 'path';
+import * as R from 'ramda';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { IPCSmesherStartupData, PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types';
@@ -33,6 +35,17 @@ class SmesherManager {
   private writeConfig = async (config) => {
     await writeFileAsync(this.configFilePath, JSON.stringify(config));
     return true;
+  };
+
+  getSmeshingConfig = async () => {
+    const config = await this.loadConfig();
+    return config.smeshing || {};
+  };
+
+  getCurrentDataDir = async () => {
+    const smeshingConfig = await this.getSmeshingConfig();
+    const DEFAULT_KEYBIN_PATH = path.resolve(app.getPath('home'), './post/data');
+    return R.pathOr(DEFAULT_KEYBIN_PATH, ['smeshing-opts', 'smeshing-opts-datadir'], smeshingConfig);
   };
 
   serviceStartupFlow = async () => {
@@ -95,24 +108,6 @@ class SmesherManager {
       const res = await this.selectPostFolder({ ...request });
       return res;
     });
-    ipcMain.handle(ipcConsts.SMESHER_START_SMESHING, async (_event, request: { postSetupOpts: PostSetupOpts }) =>
-      this.smesherService.startSmeshing({ ...request.postSetupOpts, handler: this.handlePostDataCreationStatusStream }).then(async () => {
-        const { coinbase, dataDir, numUnits, computeProviderId, throttle } = request.postSetupOpts;
-        const config = await this.loadConfig();
-        config.smeshing = {
-          'smeshing-coinbase': coinbase,
-          'smeshing-opts': {
-            'smeshing-opts-datadir': dataDir,
-            'smeshing-opts-numfiles': 1,
-            'smeshing-opts-numunits': numUnits,
-            'smeshing-opts-provider': computeProviderId,
-            'smeshing-opts-throttle': throttle,
-          },
-          'smeshing-start': true,
-        };
-        return this.writeConfig(config);
-      })
-    );
     ipcMain.handle(ipcConsts.SMESHER_STOP_SMESHING, async (_event, { deleteFiles }: { deleteFiles?: boolean }) => {
       const res = await this.smesherService.stopSmeshing({ deleteFiles: deleteFiles || false });
       const config = await this.loadConfig();
@@ -147,6 +142,25 @@ class SmesherManager {
       const res = await this.smesherService.getEstimatedRewards();
       return res;
     });
+  };
+
+  startSmeshing = async (postSetupOpts: PostSetupOpts) => this.smesherService.startSmeshing({ ...postSetupOpts, handler: this.handlePostDataCreationStatusStream });
+
+  updateSmeshingConfig = async (postSetupOpts: PostSetupOpts) => {
+    const { coinbase, dataDir, numUnits, computeProviderId, throttle } = postSetupOpts;
+    const config = await this.loadConfig();
+    config.smeshing = {
+      'smeshing-coinbase': coinbase,
+      'smeshing-opts': {
+        'smeshing-opts-datadir': dataDir,
+        'smeshing-opts-numfiles': 1,
+        'smeshing-opts-numunits': numUnits,
+        'smeshing-opts-provider': computeProviderId,
+        'smeshing-opts-throttle': throttle,
+      },
+      'smeshing-start': true,
+    };
+    return this.writeConfig(config);
   };
 
   selectPostFolder = async ({ mainWindow }: { mainWindow: BrowserWindow }) => {
