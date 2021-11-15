@@ -166,6 +166,7 @@
     "redux-thunk": "2.3.0",
     "regenerator-runtime": "0.13.7",
     "source-map-support": "0.5.19",
-    "styled-components": "5.2.3"
+    "styled-components": "5.2.3",
+    "ts-toolbelt": "^9.6.0"
   }
 }

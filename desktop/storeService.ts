@@ -1,9 +1,10 @@
 import path from 'path';
 import { app } from 'electron';
 import Store from 'electron-store';
+import { Function, Object, String } from 'ts-toolbelt';
 import { AccountBalance } from '../shared/types';
 
-interface ConfigStore {
+export interface ConfigStore {
   isAutoStartEnabled: boolean;
   nodeConfigFilePath: string;
   netSettings: {
@@ -14,6 +15,7 @@ interface ConfigStore {
     minCommitmentSize: number;
     layerDurationSec: number;
     genesisTime: string;
+    grpcAPI: string[];
   };
   nodeSettings: {
     port: string;
@@ -40,11 +42,11 @@ const CONFIG_STORE_DEFAULTS = {
     minCommitmentSize: -1,
     layerDurationSec: -1,
     genesisTime: '',
+    grpcAPI: [],
   },
   nodeSettings: {
     port: '9092',
   },
-  accounts: {},
 };
 class StoreService {
   static store: Store<ConfigStore>;
@@ -57,16 +59,16 @@ class StoreService {
     }
   }
 
-  static set = (objectPath: string, property: any) => {
-    StoreService.store.set(objectPath, property);
+  static set = <O extends ConfigStore, P extends string>(key: Function.AutoPath<O, P>, property: Object.Path<O, String.Split<P, '.'>>) => {
+    StoreService.store.set(key, property);
   };
 
-  static get = (key: string) => {
+  static get = <O extends ConfigStore, P extends string>(key: Function.AutoPath<O, P>): Object.Path<O, String.Split<P, '.'>> => {
     return StoreService.store.get(key);
   };
 
-  static remove = (key: string) => {
-    StoreService.store.delete(key as keyof ConfigStore);
+  static remove = <O extends ConfigStore, P extends string>(key: Function.AutoPath<O, P>) => {
+    StoreService.store.delete(key as keyof ConfigStore); // kludge to workaround StoreService types
   };
 
   static clear = () => {

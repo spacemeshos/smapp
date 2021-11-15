@@ -217,7 +217,7 @@ class WalletManager {
         meta.netId = actualNetId;
         // And update remoteApi if it was specified
         if (meta.remoteApi) {
-          const apis = StoreService.get('netSettings.grpcAPI') as string[];
+          const apis = StoreService.get('netSettings.grpcAPI');
           if (!apis.find((x) => x === meta.remoteApi)) {
             const [firstApi] = apis;
             meta.remoteApi = firstApi;
