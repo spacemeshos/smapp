@@ -1,5 +1,7 @@
 import util from 'util';
 import fs from 'fs';
+import { F_OK } from 'constants';
+import cs from 'checksum';
 
 export const isDev = () => process.env.NODE_ENV === 'development';
 
@@ -17,6 +19,12 @@ export const toHexString = (bytes: Uint8Array) => bytes.reduce((str: string, byt
 export const readFileAsync = util.promisify(fs.readFile);
 
 export const writeFileAsync = util.promisify(fs.writeFile);
+
+export const isFileExists = (filePath: string) =>
+  fs.promises
+    .access(filePath, F_OK)
+    .then(() => true)
+    .catch(() => false);
 
 /**
  * Creates a pool of objects T which will be collected
@@ -43,3 +51,11 @@ export const createDebouncePool = <T extends unknown>(delay: number, callback: (
     }, delay);
   };
 };
+
+// --------------------------------------------------------
+// Checksums
+// --------------------------------------------------------
+export const checksum = (path: string) =>
+  new Promise((resolve, reject) => {
+    cs.file(path, (err, hash) => (err ? reject(err) : resolve(hash)));
+  });

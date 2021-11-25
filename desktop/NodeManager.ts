@@ -6,12 +6,12 @@ import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { ChildProcess } from 'node:child_process';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
-import { NodeError, NodeErrorLevel, NodeStatus, PublicService, SocketAddress } from '../shared/types';
+import { NodeError, NodeErrorLevel, NodeStatus, PostSetupOpts, PublicService, SocketAddress } from '../shared/types';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
 import SmesherManager from './SmesherManager';
-import { createDebouncePool } from './utils';
+import { checksum, createDebouncePool, isFileExists } from './utils';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -94,6 +94,56 @@ class NodeManager {
           return false;
         })
     );
+
+    ipcMain.handle(ipcConsts.SMESHER_START_SMESHING, async (_event, { postSetupOpts }: { postSetupOpts: PostSetupOpts }) => {
+      if (!postSetupOpts.dataDir) {
+        throw new Error('Can not setup Smeshing without specified data directory');
+      }
+      // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
+      const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir();
+      const CURRENT_KEYBIN_PATH = path.resolve(CURRENT_DATADIR_PATH, 'key.bin');
+      const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
+
+      const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
+      const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
+      const isSameDataDir = CURRENT_DATADIR_PATH === postSetupOpts?.dataDir;
+
+      const startSmeshingAsUsual = async (opts) => {
+        // Next two lines is a normal workflow.
+        // It can be moved back to SmesherManager when issue
+        // https://github.com/spacemeshos/go-spacemesh/issues/2858
+        // will be solved, and all these kludges can be removed.
+        await this.smesherManager.startSmeshing(opts);
+        return this.smesherManager.updateSmeshingConfig(opts);
+      };
+
+      // If post data-dir does not changed and it contains key.bin file
+      // assume that everything is fine and start smeshing as usual
+      if (isSameDataDir && isDataDirKeyFileExist) return startSmeshingAsUsual(postSetupOpts);
+
+      // In other cases:
+      // NextDataDir    CurrentDataDir     Action
+      // Not exist      Exist              Copy key.bin & start
+      // Not exist      Not exist          Update config & restart node
+      // Exist          Not exist          Update config & restart node
+      // Exist          Exist              Compare checksum
+      //                                   - if equal: start as usual
+      //                                   - if not: update config & restart node
+      if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
+        await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
+        return startSmeshingAsUsual(postSetupOpts);
+      } else if (isDefaultKeyFileExist && isDataDirKeyFileExist) {
+        const defChecksum = await checksum(CURRENT_KEYBIN_PATH);
+        const dataChecksum = await checksum(NEXT_KEYBIN_PATH);
+        if (defChecksum === dataChecksum) {
+          return startSmeshingAsUsual(postSetupOpts);
+        }
+      }
+      // In other cases — update config first and then restart the node
+      // it will start Smeshing automatically based on the config
+      await this.smesherManager.updateSmeshingConfig(postSetupOpts);
+      return this.restartNode();
+    });
   };
 
   waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {

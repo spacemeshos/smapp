@@ -1654,6 +1654,11 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/checksum@^0.1.33":
+  version "0.1.33"
+  resolved "https://registry.yarnpkg.com/@types/checksum/-/checksum-0.1.33.tgz#ad161fb7f878ccf946540f7d963c636d249251ed"
+  integrity sha512-fe6ZaTTh2Qk6J68EOKGz992sw6Y+sGK86skRTT4tz9Wxby6owinOXzHE73wBOw/ln7ty4rTbxjHx0RwjIM1LKw==
+
 "@types/cross-spawn@^6.0.2":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@types/cross-spawn/-/cross-spawn-6.0.2.tgz#168309de311cd30a2b8ae720de6475c2fbf33ac7"
@@ -3334,6 +3339,13 @@ check-disk-space@2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/check-disk-space/-/check-disk-space-2.1.0.tgz#2e77fe62f30d9676dc37a524ea2008f40c780295"
   integrity sha512-f0nx9oJF/AVF8nhSYlF1EBvMNnO+CXyLwKhPvN1943iOMI9TWhQigLZm80jAf0wzQhwKkzA8XXjyvuVUeGGcVQ==
+
+checksum@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/checksum/-/checksum-1.0.0.tgz#39d9b5eef273a6a53203900f6780ee8881ab39e5"
+  integrity sha512-68bHejnM/sBQhjXcXd2mFusICnqAwikZ9RVMURIacWh7moNjgOdHKimS6yk30Np/PwfR00dceY4b1GwWanu5cg==
+  dependencies:
+    optimist "~0.3.5"
 
 chokidar@^2.1.8:
   version "2.1.8"
@@ -7794,6 +7806,13 @@ opn@^5.5.0:
   dependencies:
     is-wsl "^1.1.0"
 
+optimist@~0.3.5:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.3.7.tgz#c90941ad59e4273328923074d2cf2e7cbc6ec0d9"
+  integrity sha1-yQlBrVnkJzMokjB00s8ufLxuwNk=
+  dependencies:
+    wordwrap "~0.0.2"
+
 optionator@^0.8.1:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/optionator/-/optionator-0.8.3.tgz#84fa1d036fe9d3c7e21d99884b601167ec8fb495"
@@ -10513,6 +10532,11 @@ word-wrap@^1.2.3, word-wrap@~1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
   integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+
+wordwrap@~0.0.2:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.3.tgz#a3d5da6cd5c0bc0008d37234bbaf1bed63059107"
+  integrity sha1-o9XabNXAvAAI03I0u68b7WMFkQc=
 
 wrap-ansi@^5.1.0:
   version "5.1.0"
