@@ -15,6 +15,13 @@ export type ServiceCallbackResult<P extends Proto, ServiceName extends keyof P['
   // TODO: It works fine, but TypeScript finds this errorish
   Parameters<ServiceCallback<P, ServiceName, K>>[1];
 
+const ERROR_CODE_TO_RESTART_STREAM = [
+  2, // UNKNOWN
+  13, // INTERNAL, including nginx TIMEOUT
+  14, // UNAVAILABLE
+  15, // DATA_LOSS
+];
+
 // Abstract Class
 
 class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k: string]: any }, ServiceName extends keyof T['spacemesh']['v1']> {
@@ -72,17 +79,40 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
   });
 
   // TODO: Get rid of mixing with `error`
-  normalizeServiceError = <D extends Record<string, any>>(defaults: D) => (error) => ({
+  normalizeServiceError = <D extends Record<string, any>>(defaults: D) => (error: Error) => ({
     ...defaults,
-    error: error.msg
-      ? error
-      : ({
-          msg: error.message,
-          stackTrace: error?.stack || '',
-          module: this.serviceName,
-          level: NodeErrorLevel.LOG_LEVEL_ERROR,
-        } as NodeError),
+    error,
   });
+
+  runStream = <K extends keyof Service<T, ServiceName>>(method: K, opts: ServiceOpts<T, ServiceName, K>, onData: (data: ServiceCallbackResult<T, ServiceName, K>) => void) => {
+    if (!this.service) {
+      throw new Error(`${this.serviceName} is not running`);
+    }
+
+    let stream: ReturnType<typeof this.service[typeof method]>;
+    const startStream = () => {
+      if (!this.service) {
+        throw new Error(`${this.serviceName} is not running`);
+      }
+      stream = this.service[method](opts);
+      stream.on('data', onData);
+      stream.on('error', (error: Error & { code: number }) => {
+        if (error.code === 1) return; // Cancelled on client
+        console.log(`${this.serviceName}.${method}: ${error}`); // eslint-disable-line no-console
+        this.logger?.error(`grpc ${this.serviceName}.${method}`, error);
+        if (ERROR_CODE_TO_RESTART_STREAM.includes(error.code)) {
+          stream.cancel();
+          setTimeout(() => {
+            console.log(`${this.serviceName}.${method} restarting...`); // eslint-disable-line no-console
+            this.logger?.error(`grpc ${this.serviceName}.${method} restarting...`, null);
+            startStream();
+          }, 1000);
+        }
+      });
+    };
+    startStream();
+    return () => setImmediate(() => stream && stream.cancel && stream.cancel());
+  };
 }
 
 export default NetServiceFactory;

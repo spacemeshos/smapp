@@ -128,7 +128,7 @@ class TransactionManager {
     const binaryAccountId = fromHexString(publicKey.substring(24));
     const addTransaction = this.upsertTransactionFromMesh(publicKey);
     this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
-    this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction });
+    this.meshService.activateAccountMeshDataStream(binaryAccountId, addTransaction);
 
     const updateAccountData = this.updateAccountData({ accountId: publicKey });
     this.retrieveAccountData({

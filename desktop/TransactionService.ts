@@ -21,22 +21,15 @@ class TransactionService extends NetServiceFactory<ProtoGrpcType, 'TransactionSe
       includeTransactions: true,
     });
 
-  activateTxStream = (onData: (data: TransactionsStateStreamResponse__Output) => void, txIds: Uint8Array[]) => {
-    if (!this.service) {
-      throw new Error(`Service ${this.serviceName} is not running`);
-    }
-    const stream = this.service.TransactionsStateStream({
-      transactionId: txIds.map((id) => ({ id })),
-      includeTransactions: true,
-    });
-    stream.on('data', onData);
-    stream.on('error', (error: Error & { code: number }) => {
-      if (error.code === 1) return; // Cancelled on client
-      console.log(`stream TransactionsStateStream error: ${error}`); // eslint-disable-line no-console
-      this.logger.error('grpc TransactionStateStream', error);
-    });
-    return () => setImmediate(() => stream.cancel());
-  };
+  activateTxStream = (onData: (data: TransactionsStateStreamResponse__Output) => void, txIds: Uint8Array[]) =>
+    this.runStream(
+      'TransactionsStateStream',
+      {
+        transactionId: txIds.map((id) => ({ id })),
+        includeTransactions: true,
+      },
+      onData
+    );
 }
 
 export default TransactionService;

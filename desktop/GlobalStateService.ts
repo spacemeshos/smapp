@@ -54,35 +54,24 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
 
-  activateAccountDataStream = (
-    address: Uint8Array,
-    accountDataFlags: AccountDataValidFlags,
-    handler: (data: AccountDataStreamHandlerArg[keyof AccountDataStreamHandlerArg]) => void
-  ) => {
-    if (!this.service) {
-      throw new Error(`GlobalStateService is not running`);
-    }
-    const key = getKeyByAccoundDataFlag(accountDataFlags);
-
-    const stream = this.service.AccountDataStream({ filter: { accountId: { address }, accountDataFlags } });
-    stream.on('data', (response: AccountDataStreamResponse__Output) => {
-      const { datum } = response;
-      if (datum && datum[key]) {
-        const value = datum[key];
-        value && handler(value);
+  activateAccountDataStream = <K extends AccountDataValidFlags>(address: Uint8Array, accountDataFlags: K, handler: (data: AccountDataStreamHandlerArg[K]) => void) =>
+    this.runStream(
+      'AccountDataStream',
+      {
+        filter: {
+          accountId: { address },
+          accountDataFlags,
+        },
+      },
+      (data: AccountDataStreamResponse__Output) => {
+        const { datum } = data;
+        const key = getKeyByAccoundDataFlag(accountDataFlags);
+        if (datum && datum[key]) {
+          const value = datum[key] as AccountDataStreamHandlerArg[K];
+          handler(value);
+        }
       }
-    });
-    stream.on('error', (error: Error & { code: number }) => {
-      if (error.code === 1) return; // Cancelled on client
-      console.log(`stream AccountDataStream error: ${error}`); // eslint-disable-line no-console
-      this.logger.error('grpc AccountDataStream', error);
-    });
-    stream.on('end', () => {
-      console.log('grpc stream AccountDataStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc AccountDataStream ended', null);
-    });
-    return () => setImmediate(() => stream.cancel());
-  };
+    );
 }
 
 export default GlobalStateService;
