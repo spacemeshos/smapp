@@ -1,13 +1,12 @@
 import { ThunkDispatch } from 'redux-thunk';
-import { AccountWithBalance, Contact, NodeError, NodeStatus, WalletMeta, PostSetupState, PostSetupComputeProvider, SmesherConfig } from '../../shared/types';
-import { Tx } from './transactions';
-import { Reward } from './smesher';
+import { AccountWithBalance, Contact, NodeError, NodeStatus, WalletMeta, PostSetupState, PostSetupComputeProvider, SmesherConfig, HexString, Tx, Reward } from '../../shared/types';
 
 export interface NetworkState {
   netId: string;
   netName: string;
   genesisTime: string;
   currentLayer: number;
+  layerDurationSec: number;
   rootHash: string;
   explorerUrl: string;
 }
@@ -24,12 +23,12 @@ export interface WalletState {
   walletFiles: Array<string> | null;
   meta: WalletMeta;
   mnemonic: string;
-  accounts: Array<AccountWithBalance> | [];
+  accounts: Array<AccountWithBalance>;
   currentAccountIndex: number;
-  transactions: { [publicKey: string]: Tx[] } | never;
-  txsAndRewards: { [publicKey: string]: Tx[] } | never;
-  lastUsedContacts: Array<Contact> | [];
-  contacts: Array<Contact> | [];
+  transactions: { [publicKey: HexString]: { [txId: Tx['id']]: Tx } };
+  rewards: { [publicKey: HexString]: Reward[] };
+  lastUsedContacts: Array<Contact>;
+  contacts: Array<Contact>;
   backupTime: string;
   vaultMode: number;
 }

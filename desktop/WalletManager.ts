@@ -4,7 +4,7 @@ import path from 'path';
 import os from 'os';
 import { app, dialog, shell, ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { SocketAddress, WalletFile, WalletMeta } from '../shared/types';
+import { SocketAddress, WalletFile, WalletMeta, WalletSecretData } from '../shared/types';
 import { isLocalNodeApi, isRemoteNodeApi, stringifySocketAddress, toSocketAddress } from '../shared/utils';
 import { LOCAL_NODE_API_URL } from '../shared/constants';
 import MeshService from './MeshService';
@@ -78,8 +78,9 @@ class WalletManager {
       const netId = StoreService.get('netSettings.netId');
       const netName = StoreService.get('netSettings.netName');
       const genesisTime = StoreService.get('netSettings.genesisTime');
+      const layerDurationSec = StoreService.get('netSettings.layerDurationSec');
       const explorerUrl = StoreService.get('netSettings.explorerUrl');
-      return { netId, netName, genesisTime, explorerUrl };
+      return { netId, netName, genesisTime, layerDurationSec, explorerUrl };
     });
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => this.meshService.getCurrentLayer());
     ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, () => this.glStateService.getGlobalStateHash());
@@ -97,8 +98,11 @@ class WalletManager {
       const res = await this.unlockWalletFile({ ...request });
       return res;
     });
-    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET, async (_event, request) => {
-      await this.updateWalletFile({ ...request });
+    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET_SECRETS, async (_event, { fileName, password, data }: { fileName: string; password: string; data: WalletSecretData }) => {
+      await this.updateWalletSecret(fileName, password, data);
+    });
+    ipcMain.on(ipcConsts.W_M_UPDATE_WALLET_META, async <T extends keyof WalletMeta>(_event, { fileName, key, value }: { fileName: string; key: T; value: WalletMeta[T] }) => {
+      await this.updateWalletMeta(fileName, key, value);
     });
     ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, request) => {
       const res = await this.createNewAccount({ ...request });
@@ -122,8 +126,8 @@ class WalletManager {
       const res = await this.txManager.sendTx({ ...request });
       return res;
     });
-    ipcMain.handle(ipcConsts.W_M_UPDATE_TX, async (event, request) => {
-      await this.txManager.updateTransaction({ event, ...request });
+    ipcMain.handle(ipcConsts.W_M_UPDATE_TX_NOTE, async (_event, request) => {
+      await this.txManager.updateTxNote(request);
       return true;
     });
     ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
@@ -164,7 +168,7 @@ class WalletManager {
     !usingRemoteApi && (await this.nodeManager.startNode());
 
     this.activateWalletManager(apiUrl);
-    this.txManager.setAccounts({ accounts: dataToEncrypt.accounts });
+    this.txManager.setAccounts(dataToEncrypt.accounts);
     const key = fileEncryptionService.createEncryptionKey({ password });
     const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
     const meta: WalletMeta = {
@@ -205,16 +209,16 @@ class WalletManager {
       const { crypto, meta } = JSON.parse(fileContent) as WalletFile;
       const key = fileEncryptionService.createEncryptionKey({ password });
       const decryptedDataJSON = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
-      const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON);
+      const { accounts, mnemonic, contacts } = JSON.parse(decryptedDataJSON) as WalletSecretData;
 
-      const actualNetId = StoreService.get('netSettings.netId') as number;
+      const actualNetId = StoreService.get('netSettings.netId');
       if (meta.netId !== actualNetId) {
         // Update netId in wallet file to actual one
         this.updateWalletMeta(path, 'netId', actualNetId);
         meta.netId = actualNetId;
         // And update remoteApi if it was specified
         if (meta.remoteApi) {
-          const apis = StoreService.get('netSettings.grpcAPI') as string[];
+          const apis = StoreService.get('netSettings.grpcAPI');
           if (!apis.find((x) => x === meta.remoteApi)) {
             const [firstApi] = apis;
             meta.remoteApi = firstApi;
@@ -228,7 +232,7 @@ class WalletManager {
       !usingRemoteApi && (await this.nodeManager.startNode());
       this.activateWalletManager(apiUrl);
 
-      this.txManager.setAccounts({ accounts });
+      this.txManager.setAccounts(accounts);
       this.mnemonic = mnemonic;
       this.openedWalletFilePath = path;
       return { error: null, accounts, mnemonic, meta, contacts };
@@ -238,32 +242,35 @@ class WalletManager {
     }
   };
 
-  updateWalletFile = async ({ fileName, password, data }: { fileName: string; password?: string; data: any }) => {
+  private loadWalletFile = async (fileName: string) => {
+    const rawFileContent = await readFileAsync(fileName, { encoding: 'utf-8' });
+    const fileContent: WalletFile = JSON.parse(rawFileContent);
+    return fileContent;
+  };
+
+  private updateWalletFile = async (fileName: string, data: Partial<WalletFile>) => {
     try {
-      const rawFileContent = await readFileAsync(fileName, { encoding: 'utf-8' });
-      const fileContent = JSON.parse(rawFileContent);
-      let field = 'meta';
-      let dataToUpdate = data;
-      if (password) {
-        field = 'crypto';
-        const key = fileEncryptionService.createEncryptionKey({ password });
-        const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(data), key });
-        dataToUpdate = { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData };
-        this.txManager.setAccounts({ accounts: data.accounts });
-      }
-      await writeFileAsync(fileName, JSON.stringify({ ...fileContent, [field]: dataToUpdate }));
-      this.openedWalletFilePath = fileName;
+      const wallet = await this.loadWalletFile(fileName);
+      await writeFileAsync(fileName, JSON.stringify({ ...wallet, ...data }));
+      return true;
     } catch (error) {
       logger.error('updateWalletFile', error);
+      return false;
     }
   };
 
-  updateWalletMeta = async <K extends keyof WalletMeta>(walletFilePath: string, key: K, value: WalletMeta[K]) => {
-    const rawFileContent = await readFileAsync(walletFilePath, { encoding: 'utf-8' });
-    const wallet = JSON.parse(rawFileContent);
+  updateWalletMeta = async <K extends keyof WalletMeta>(fileName: string, key: K, value: WalletMeta[K]) => {
+    const wallet = await this.loadWalletFile(fileName);
     const updatedWallet: WalletFile = { ...wallet, meta: { ...wallet.meta, [key]: value } };
-    await writeFileAsync(walletFilePath, JSON.stringify(updatedWallet));
-    return true;
+    return this.updateWalletFile(fileName, updatedWallet);
+  };
+
+  updateWalletSecret = async (fileName: string, password: string, data: WalletSecretData) => {
+    const wallet = await this.loadWalletFile(fileName);
+    const key = fileEncryptionService.createEncryptionKey({ password });
+    const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(data), key });
+    this.txManager.setAccounts(data.accounts);
+    return this.updateWalletFile(fileName, { ...wallet, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } });
   };
 
   createNewAccount = async ({ fileName, password }: { fileName: string; password: string }) => {
@@ -285,7 +292,7 @@ class WalletManager {
       };
       const encryptedAccountsData = fileEncryptionService.encryptData({ data: JSON.stringify(dataToEncrypt), key });
       await writeFileAsync(fileName, JSON.stringify({ ...fileContent, crypto: { cipher: 'AES-128-CTR', cipherText: encryptedAccountsData } }));
-      this.txManager.addAccount({ account: newAccount });
+      this.txManager.addAccount(newAccount);
       return { error: null, newAccount };
     } catch (error) {
       logger.error('createNewAccount', error);

@@ -1,23 +1,49 @@
 import { BrowserWindow } from 'electron';
+import { Account, AccountWithBalance, HexString, Reward, Tx, TxState } from '../shared/types';
 import { ipcConsts } from '../app/vars';
-import StoreService from './storeService';
+import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
+import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
+import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
+import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
+import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
+import { Reward__Output } from '../proto/spacemesh/v1/Reward';
+import { Account__Output } from '../proto/spacemesh/v1/Account';
+import { addReceiptToTx, toTx } from '../shared/types/transformers';
+import { hasRequiredRewardFields } from '../shared/types/guards';
+import { debounce } from '../shared/utils';
 import cryptoService from './cryptoService';
 import { fromHexString, toHexString } from './utils';
+import TransactionService from './TransactionService';
+import MeshService from './MeshService';
+import GlobalStateService from './GlobalStateService';
+import { AccountStateManager } from './AccountState';
+import Logger from './logger';
 
 const DATA_BATCH = 50;
+const IPC_DEBOUNCE = 1000;
+
+type TxHandlerArg = MeshTransaction__Output | null | undefined;
+type TxHandler = (tx: TxHandlerArg) => void;
+
+type RewardHandlerArg = Reward__Output | null | undefined;
+type RewardHandler = (tx: RewardHandlerArg) => void;
 
 class TransactionManager {
-  private readonly meshService: any;
+  logger = Logger({ className: 'TransactionManager' });
 
-  private readonly glStateService: any;
+  private readonly meshService: MeshService;
 
-  private readonly txService: any;
+  private readonly glStateService: GlobalStateService;
 
-  accounts: any;
+  private readonly txService: TransactionService;
 
-  private streams: any[] = [];
+  accounts: AccountWithBalance[] = [];
 
   private readonly mainWindow: BrowserWindow;
+
+  private txStateStream: Record<string, ReturnType<TransactionService['activateTxStream']>> = {};
+
+  private accountStates: Record<string, AccountStateManager> = {};
 
   constructor(meshService, glStateService, txService, mainWindow) {
     this.meshService = meshService;
@@ -26,116 +52,169 @@ class TransactionManager {
     this.mainWindow = mainWindow;
   }
 
-  appStateUpdater = ({ channel, data }: { channel: string; data: any }) => {
-    this.mainWindow.webContents.send(channel, { data });
+  //
+  appStateUpdater = (channel: ipcConsts, payload: any) => {
+    this.mainWindow.webContents.send(channel, { ...payload });
   };
 
-  updateAppStateAccount = ({ accountId }) => {
-    const account = StoreService.get(`accounts.${accountId}.account`);
-    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_ACCOUNT, data: { account, accountId } });
+  // Debounce update functions to avoid excessive IPC calls
+  updateAppStateAccount = debounce(IPC_DEBOUNCE, (publicKey: string) => {
+    const account = this.accountStates[publicKey].getAccount();
+    this.appStateUpdater(ipcConsts.T_M_UPDATE_ACCOUNT, { account, accountId: publicKey });
+  });
+
+  updateAppStateTxs = debounce(IPC_DEBOUNCE, (publicKey: string) => {
+    const txs = this.accountStates[publicKey].getTxs();
+    this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
+  });
+
+  updateAppStateRewards = debounce(IPC_DEBOUNCE, (publicKey: string) => {
+    const rewards = this.accountStates[publicKey].getRewards();
+    this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
+  });
+
+  private storeTx = (publicKey: string, tx: Tx): Promise<void> =>
+    this.accountStates[publicKey]
+      .storeTransaction(tx)
+      .then(() => this.updateAppStateTxs(publicKey))
+      .catch((err) => {
+        console.log('TransactionManager.storeTx', err); // eslint-disable-line no-console
+        this.logger.error('TransactionManager.storeTx', err);
+      });
+
+  private storeReward = (publicKey: string, reward: Reward) =>
+    this.accountStates[publicKey]
+      .storeReward(reward)
+      .then(() => this.updateAppStateRewards(publicKey))
+      .catch((err) => {
+        console.log('TransactionManager.storeReward', err); // eslint-disable-line no-console
+        this.logger.error('TransactionManager.storeReward', err);
+      });
+
+  private handleNewTx = (publicKey: string) => async (tx: { transaction: Transaction__Output | null; transactionState: TransactionState__Output | null }) => {
+    if (!tx.transaction || !tx.transactionState || !tx.transactionState.state) return;
+    const newTx = toTx(tx.transaction, tx.transactionState);
+    if (!newTx) return;
+    await this.storeTx(publicKey, newTx);
   };
 
-  updateAppStateTxs = ({ accountId }: { accountId: string }) => {
-    const txs = StoreService.get(`accounts.${accountId}.txs`) || [];
-    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_TXS, data: { txs: Object.values(txs), publicKey: accountId } });
-  };
+  private subscribeTransactions = debounce(5000, (publicKey: string) => {
+    const txs = this.accountStates[publicKey].getTxs();
+    const txIds = Object.keys(txs).map(fromHexString);
 
-  updateAppStateRewards = ({ accountId }: { accountId: string }) => {
-    const rewards = StoreService.get(`accounts.${accountId}.rewards`) || [];
-    this.appStateUpdater({ channel: ipcConsts.T_M_UPDATE_REWARDS, data: { rewards, publicKey: accountId } });
-  };
+    if (this.txStateStream[publicKey]) {
+      this.txStateStream[publicKey]();
+    }
+    this.txStateStream[publicKey] = this.txService.activateTxStream(this.handleNewTx(publicKey), txIds);
 
-  private subscribeAccount = (account) => {
-    this.updateAppStateTxs({ accountId: account.publicKey });
-    this.updateAppStateRewards({ accountId: account.publicKey });
+    this.txService
+      .getTxsState(txIds)
+      .then((resp) =>
+        // two lists -> list of tuples
+        resp.transactions.map((tx, idx) => ({ transaction: tx, transactionState: resp.transactionsState[idx] }))
+      )
+      .then((txs) => txs.map(this.handleNewTx(publicKey)))
+      .catch((err) => {
+        console.log('grpc TransactionState', err); // eslint-disable-line no-console
+        this.logger.error('grpc TransactionState', err);
+      });
+  });
 
-    const binaryAccountId = fromHexString(account.publicKey);
-    const addTransaction = this.addTransaction({ accountId: account.publicKey });
-    this.streams.push(this.meshService.activateAccountMeshDataStream({ accountId: binaryAccountId, handler: addTransaction }));
+  private subscribeAccount = (account: AccountWithBalance): void => {
+    const { publicKey } = account;
+    // Cancel account Txs subscription
+    this.txStateStream[publicKey] && this.txStateStream[publicKey]();
 
-    const updateAccountData = this.updateAccountData({ accountId: account.publicKey });
-    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData }));
+    const binaryAccountId = fromHexString(publicKey.substring(24));
+    const addTransaction = this.upsertTransactionFromMesh(publicKey);
+    this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
+    this.meshService.activateAccountMeshDataStream(binaryAccountId, addTransaction);
 
-    // TODO uncomment when api is ready
-    // const addReceiptToTx = this.addReceiptToTx({ accountId: account.publicKey });
+    const updateAccountData = this.updateAccountData({ accountId: publicKey });
+    this.retrieveAccountData({
+      filter: { accountId: { address: binaryAccountId }, accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT },
+      handler: updateAccountData,
+      retries: 0,
+    });
+    this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT, updateAccountData);
+
+    setInterval(() => {
+      this.retrieveAccountData({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData, retries: 0 });
+    }, 60 * 1000);
+
+    const txs = Object.keys(this.accountStates[publicKey].getTxs());
+    if (txs.length > 0) {
+      this.subscribeTransactions(publicKey, txs);
+    }
+
+    // TODO: https://github.com/spacemeshos/go-spacemesh/issues/2072
+    // const addReceiptToTx = this.addReceiptToTx({ accountId: publicKey });
     // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
-    // this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, handler: addReceiptToTx });
+    // this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT, addReceiptToTx);
 
-    const addReward = this.addReward({ accountId: account.publicKey });
-    this.streams.push(this.glStateService.activateAccountDataStream({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, handler: addReward }));
+    const addReward = this.addReward(publicKey);
+    this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: addReward, retries: 0 });
+    this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD, addReward);
+
+    this.updateAppStateTxs(publicKey);
+    this.updateAppStateRewards(publicKey);
   };
 
-  subscribeAccounts = () => {
-    this.streams.forEach(
-      // Timeout is required here due to bug in node core:
-      // https://github.com/nodejs/node/issues/38964
-      // Can be removed after migrating to Node v17.0.1+
-      (unsubcribe) => setTimeout(() => unsubcribe(), 0)
-    );
-    this.streams = [];
-    this.accounts.forEach(this.subscribeAccount);
-  };
+  addAccount = (account: Account) => {
+    const idx = this.accounts.findIndex((acc) => acc.publicKey === account.publicKey);
+    const filtered = idx > -1 ? this.accounts.slice(0, Math.max(0, idx - 1)).concat(this.accounts.slice(idx + 1)) : this.accounts;
+    this.accounts = [...filtered, account];
 
-  setAccounts = ({ accounts }: { accounts: Array<any> }) => {
-    this.accounts = accounts;
-    this.subscribeAccounts();
-  };
-
-  addAccount = ({ account }: { account: any }) => {
-    this.accounts.push(account);
+    const accManager = new AccountStateManager(account.publicKey);
+    this.accountStates[account.publicKey] = accManager;
+    // Resubscribe
     this.subscribeAccount(account);
   };
 
-  addTransaction = ({ accountId }: { accountId: string }) => ({ tx }: { tx: any }) => {
-    const txId = toHexString(tx.transaction.id.id);
-    const existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
-    const newData = {
-      txId,
-      receiver: toHexString(tx.transaction.coinTransfer.receiver.address),
-      sender: toHexString(tx.transaction.sender.address),
-      gasProvided: parseInt(tx.transaction.gasOffered.gasProvided),
-      // gasPrice: parseInt(tx.transaction.gasOffered.gasPrice), // TODO missing from api response
-      amount: parseInt(tx.transaction.amount.value),
-      counter: parseInt(tx.transaction.counter),
-      signature: {
-        scheme: tx.transaction.signature.scheme,
-        signature: toHexString(tx.transaction.signature.signature),
-        publicKey: toHexString(tx.transaction.signature.publicKey),
-      },
-      timestamp: new Date().getTime(), // TODO missing from api response
-    };
-    const updatedTx = { ...existingTx, ...newData };
-    StoreService.set(`accounts.${accountId}.txs.${txId}`, updatedTx);
-    this.updateAppStateTxs({ accountId });
+  setAccounts = (accounts: Account[]) => {
+    accounts.forEach(this.addAccount);
   };
 
-  retrieveHistoricTxData = async ({ accountId, offset, handler, retries }: { accountId: Uint8Array; offset: number; handler: ({ tx }: { tx: any }) => void; retries: number }) => {
-    const { data, totalResults, error } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset });
+  private upsertTransaction = (accountId: HexString) => async (tx: Tx) => {
+    const originalTx = this.accountStates[accountId].getTxById(tx.id);
+    const updatedTx = { ...originalTx, ...tx };
+    await this.storeTx(accountId, updatedTx);
+    this.subscribeTransactions(accountId);
+  };
+
+  private upsertTransactionFromMesh = (accountId: HexString) => async (tx: TxHandlerArg) => {
+    if (!tx || !tx?.transaction?.id?.id || !tx.layerId) return;
+    const newTxData = toTx(tx.transaction, null);
+    if (!newTxData) return;
+    this.upsertTransaction(accountId)({
+      ...newTxData,
+      ...(tx.layerId?.number ? { layer: tx.layerId.number } : {}),
+    });
+  };
+
+  retrieveHistoricTxData = async ({ accountId, offset, handler, retries }: { accountId: Uint8Array; offset: number; handler: TxHandler; retries: number }) => {
+    const { data, totalResults, error } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset }); // TODO: Get rid of `any` on proto.ts refactoring
     if (error && retries < 5) {
       await this.retrieveHistoricTxData({ accountId, offset, handler, retries: retries + 1 });
     } else {
-      data &&
-        data.length &&
-        data.forEach((tx) => {
-          handler({ tx });
-        });
+      data && data.length && data.forEach((tx) => handler(tx.meshTransaction));
       if (offset + DATA_BATCH < totalResults) {
         await this.retrieveHistoricTxData({ accountId, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
     }
   };
 
-  updateAccountData = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
+  updateAccountData = ({ accountId }: { accountId: string }) => (data: Account__Output) => {
     const currentState = {
-      counter: data.stateCurrent.counter ? parseInt(data.stateCurrent.counter) : 0,
-      balance: data.stateCurrent.balance.value ? parseInt(data.stateCurrent.balance.value) : 0,
+      counter: data.stateCurrent?.counter ? data.stateCurrent.counter.toNumber() : 0,
+      balance: data.stateCurrent?.balance?.value ? data.stateCurrent.balance.value.toNumber() : 0,
     };
     const projectedState = {
-      counter: data.stateProjected.counter ? parseInt(data.stateProjected.counter) : 0,
-      balance: data.stateProjected.balance.value ? parseInt(data.stateProjected.balance.value) : 0,
+      counter: data.stateProjected?.counter ? data.stateProjected.counter.toNumber() : 0,
+      balance: data.stateProjected?.balance?.value ? data.stateProjected.balance.value.toNumber() : 0,
     };
-    StoreService.set(`accounts.${accountId}.account`, { currentState, projectedState });
-    this.updateAppStateAccount({ accountId });
+    this.accountStates[accountId].storeAccountBalance({ currentState, projectedState });
+    this.updateAppStateAccount(accountId);
   };
 
   retrieveAccountData = async ({
@@ -144,31 +223,26 @@ class TransactionManager {
     retries,
   }: {
     filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    handler: ({ data }: { data: any }) => void;
+    handler: (data: Account__Output) => void;
     retries: number;
   }) => {
     const { data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset: 0 });
     if (error && retries < 5) {
       await this.retrieveAccountData({ filter, handler, retries: retries + 1 });
     } else {
-      data && data.length > 0 && handler({ data: data[0].accountWrapper });
+      data && data.length > 0 && data[0].accountWrapper && handler(data[0].accountWrapper);
     }
   };
 
-  addReceiptToTx = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
-    const txId = toHexString(data.id.id);
-    const existingTx = StoreService.get(`accounts.${accountId}.txs.${txId}`) || {};
-    const newData = {
-      txId,
-      result: data.result,
-      gasUsed: parseInt(data.gasUsed),
-      fee: parseInt(data.fee.value),
-      layer: data.layer,
-      index: data.index,
-    };
-    const updatedTx = { ...existingTx, ...newData };
-    StoreService.set(`accounts.${accountId}.txs.${txId}`, updatedTx);
-    this.updateAppStateTxs({ accountId });
+  addReceiptToTx = ({ accountId }: { accountId: string }) => ({ datum }: { datum: AccountData__Output }) => {
+    const { receipt } = datum;
+    if (!receipt || !receipt.id?.id) return;
+
+    const txId = toHexString(receipt.id.id);
+    const existingTx = this.accountStates[accountId].getTxById(txId) || {};
+    // TODO: Handle properly case when we got an receipt, but no tx data?
+    const updatedTx = addReceiptToTx(existingTx, receipt);
+    this.storeTx(accountId, updatedTx);
   };
 
   retrieveHistoricTxReceipt = async ({
@@ -193,28 +267,21 @@ class TransactionManager {
     }
   };
 
-  addReward = ({ accountId }: { accountId: string }) => ({ data }: { data: any }) => {
-    const { reward } = data;
-    const genesisTime = StoreService.get('netSettings.genesisTime');
-    const layerDurationSec = parseInt(StoreService.get('netSettings.layerDurationSec'));
+  addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
+    if (!reward || !hasRequiredRewardFields(reward)) return;
+
+    // const genesisTime = StoreService.get('netSettings.genesisTime');
+    // const layerDurationSec = StoreService.get('netSettings.layerDurationSec');
     const coinbase = toHexString(reward.coinbase.address);
-    const parsedReward = {
-      txId: 'reward',
-      layerId: reward.layer.number,
-      total: parseInt(reward.total.value),
-      layerReward: parseInt(reward.layerReward.value),
-      // layerComputed: data.layerComputed.number, TODO: missing from api response
+    const parsedReward: Reward = {
+      layer: reward.layer.number,
+      amount: reward.total.value.toNumber(),
+      layerReward: reward.layerReward.value.toNumber(),
+      // layerComputed: reward.layerComputed.number, // TODO
       coinbase: `0x${coinbase}`,
       smesher: toHexString(reward.smesher.id),
-      status: 6, // TODO change to TRANSACTION_STATE_PROCESSED
-      timestamp: new Date(genesisTime).getTime() + reward.layer.number * layerDurationSec * 1000,
     };
-    const rewards = StoreService.get(`accounts.${accountId}.rewards`) || [];
-    if (rewards.findIndex((existingReward) => existingReward.timestamp === parsedReward.timestamp && existingReward.total === parsedReward.total) === -1) {
-      const updatedRewards = [...rewards, parsedReward].sort((reward1, reward2) => reward2.timestamp - reward1.timestamp);
-      StoreService.set(`accounts.${accountId}.rewards`, updatedRewards);
-      this.updateAppStateRewards({ accountId });
-    }
+    this.storeReward(accountId, parsedReward);
   };
 
   retrieveRewards = async ({
@@ -225,18 +292,14 @@ class TransactionManager {
   }: {
     filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
     offset: number;
-    handler: ({ data }: { data: any }) => void;
+    handler: RewardHandler;
     retries: number;
   }) => {
     const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset });
     if (error && retries < 5) {
       await this.retrieveRewards({ filter, offset, handler, retries: retries + 1 });
     } else {
-      data &&
-        data.length > 0 &&
-        data.forEach((reward) => {
-          handler({ data: reward });
-        });
+      data && data.length > 0 && data.forEach((reward) => handler(reward.reward));
       if (offset + DATA_BATCH < totalResults) {
         await this.retrieveRewards({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
       }
@@ -244,7 +307,8 @@ class TransactionManager {
   };
 
   sendTx = async ({ fullTx, accountIndex }: { fullTx: any; accountIndex: number }) => {
-    const account = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.account`);
+    const { publicKey } = this.accounts[accountIndex];
+    const account = this.accountStates[publicKey].getAccount();
     const { receiver, amount, fee } = fullTx;
     const res = await cryptoService.signTransaction({
       accountNonce: account.projectedState.counter,
@@ -253,47 +317,24 @@ class TransactionManager {
       amount: parseInt(amount),
       secretKey: this.accounts[accountIndex].secretKey,
     });
-    // @ts-ignore
-    const res1 = await this.txService.submitTransaction({ transaction: res });
-    const { error, response } = res1;
-    if (error) {
-      return { error, tx: null, state: '' };
-    } else {
-      const { txstate } = response;
-      const txId = toHexString(txstate.id.id);
-      const txWithId = { ...fullTx, txId };
-      if (![1, 2, 3].includes(txstate.state)) {
-        StoreService.set(`accounts.${this.accounts[accountIndex].publicKey}.txs.${txId}`, txWithId);
-        this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
-        return { error: null, tx: txWithId, state: txstate.state };
-      }
-      return { error: null, tx: null, state: txstate.state };
+    const response = await this.txService.submitTransaction({ transaction: res });
+    const getTxResponseError = () => new Error('Can not retrieve a transaction data');
+
+    // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
+    const error = response.error || response.txstate === null || !response.txstate.id?.id ? response.error || getTxResponseError() : null;
+    const tx = response.error === null && response.txstate?.id?.id ? { ...fullTx, id: toHexString(response.txstate.id.id) } : null;
+    const state = response.error === null && response.txstate?.state ? response.txstate.state : null;
+
+    if (tx && state && ![TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS, TxState.TRANSACTION_STATE_REJECTED, TxState.TRANSACTION_STATE_CONFLICTING].includes(state)) {
+      this.upsertTransaction(publicKey)(tx);
     }
+    return { error, tx, state };
   };
 
-  updateTransaction = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId: string }) => {
-    return txId ? this.updateTxNote({ newData, accountIndex, txId }) : this.updateTxContact({ newData, accountIndex });
-  };
-
-  updateTxNote = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId: string }) => {
-    const tx = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.txs.${txId}`);
-    StoreService.set(`accounts.${this.accounts[accountIndex].publicKey}.txs.${txId}`, { ...tx, note: newData.note });
-    this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
-  };
-
-  updateTxContact = ({ newData, accountIndex }: { newData: any; accountIndex: number }) => {
-    const { address, nickname } = newData;
-    const addrString = address.substring(2).toLowerCase();
-    const txs = StoreService.get(`accounts.${this.accounts[accountIndex].publicKey}.txs.`);
-    const updatedTxs = {};
-    Object.keys(txs).forEach((key) => {
-      updatedTxs[txs[key].txId] = txs[key];
-      if (txs[key].sender === addrString || txs[key].receiver === addrString) {
-        txs[key].nickname = nickname;
-      }
-    });
-    StoreService.set(`accounts.${this.accounts[accountIndex].publicKey}.txs`, updatedTxs);
-    this.updateAppStateTxs({ accountId: this.accounts[accountIndex].publicKey });
+  updateTxNote = ({ accountIndex, txId, note }: { accountIndex: number; txId: HexString; note: string }) => {
+    const { publicKey } = this.accounts[accountIndex];
+    const tx = this.accountStates[publicKey].getTxById(txId);
+    this.storeTx(publicKey, { ...tx, note });
   };
 }
 

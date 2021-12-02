@@ -1,4 +1,4 @@
-import { Account, Contact, SocketAddress, WalletMeta } from '../../../shared/types';
+import { Account, Contact, HexString, SocketAddress, WalletMeta } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState, Tx } from '../../types';
@@ -29,7 +29,7 @@ export const setMnemonic = (mnemonic: string) => ({ type: SET_MNEMONIC, payload:
 
 export const updateAccountData = ({ account, accountId }: { account: any; accountId: string }) => ({ type: UPDATE_ACCOUNT_DATA, payload: { account, accountId } });
 
-export const setTransactions = ({ txs, publicKey }: { txs: Tx[]; publicKey: string }) => ({ type: SET_TRANSACTIONS, payload: { txs, publicKey } });
+export const setTransactions = ({ txs, publicKey }: { txs: Record<HexString, Tx>; publicKey: string }) => ({ type: SET_TRANSACTIONS, payload: { txs, publicKey } });
 
 export const setContacts = (contacts: Contact[]) => ({ type: SET_CONTACTS, payload: contacts });
 
@@ -88,7 +88,7 @@ export const updateWalletName = ({ displayName }: { displayName: string }) => as
   const { wallet } = getState();
   const { walletFiles, meta } = wallet;
   const updatedMeta = { ...meta, displayName };
-  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', data: updatedMeta });
+  await eventsService.updateWalletMeta(walletFiles ? walletFiles[0] : '', 'displayName', displayName);
   dispatch(setWalletMeta(updatedMeta));
 };
 
@@ -110,21 +110,21 @@ export const updateAccountName = ({ accountIndex, name, password }: { accountInd
   const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedAccount = { ...accounts[accountIndex], displayName: name };
   const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
-  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', password, data: { mnemonic, accounts: updatedAccounts, contacts } });
+  await eventsService.updateWalletSecrets(walletFiles ? walletFiles[0] : '', password, { mnemonic, accounts: updatedAccounts, contacts });
   dispatch(setAccounts(updatedAccounts));
 };
 
 export const addToContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = [contact, ...contacts];
-  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', password, data: { accounts, mnemonic, contacts: updatedContacts } });
+  await eventsService.updateWalletSecrets(walletFiles ? walletFiles[0] : '', password, { accounts, mnemonic, contacts: updatedContacts });
   dispatch(setContacts(updatedContacts));
 };
 
 export const removeFromContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = contacts.filter((item) => contact.address !== item.address);
-  await eventsService.updateWalletFile({ fileName: walletFiles ? walletFiles[0] : '', password, data: { accounts, mnemonic, contacts: updatedContacts } });
+  await eventsService.updateWalletSecrets(walletFiles ? walletFiles[0] : '', password, { accounts, mnemonic, contacts: updatedContacts });
   dispatch(setContacts(updatedContacts));
 };
 
@@ -158,28 +158,22 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   dispatch: AppThDispatch,
   getState: GetState
 ) => {
-  const { accounts, currentAccountIndex, contacts } = getState().wallet;
+  const { accounts, currentAccountIndex } = getState().wallet;
   const fullTx: Tx = {
-    txId: '',
+    id: '',
     sender: getAddress(accounts[currentAccountIndex].publicKey),
     receiver,
     amount,
     fee,
     status: 0,
-    timestamp: new Date().getTime(),
     note,
   };
-  contacts.forEach((contact) => {
-    if (contact.address.substring(2) === fullTx.sender || contact.address.substring(2) === fullTx.receiver) {
-      fullTx.nickname = contact.nickname;
-    }
-  });
   const { error, tx, state } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Send transaction error\n', error)));
     return {}; // TODO: Need a refactoring here
   } else {
-    return { txId: tx.id, state };
+    return { id: tx.id, state };
   }
 };

@@ -69,7 +69,7 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
   };
 
   return (
-    <Modal header="PASSWORD" subHeader={`Enter wallet ${walletName} password to complete this action.`}>
+    <Modal header="PASSWORD" subHeader={`Enter wallet ${walletName || ''} password to complete this action.`}>
       <InputSection>
         <Chevron src={chevronIcon} />
         <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} autofocus />

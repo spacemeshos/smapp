@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { smColors } from '../../vars';
-import { version } from '../../../package.json';
+import packageInfo from '../../../package.json';
 
 const Container = styled.div`
   position: absolute;
@@ -12,6 +12,6 @@ const Container = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray)};
 `;
 
-const Version = () => <Container>v{version}</Container>;
+const Version = () => <Container>v{packageInfo.version}</Container>;
 
 export default Version;

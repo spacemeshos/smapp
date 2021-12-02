@@ -60,7 +60,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
 
         const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
         return {
-          connectedPeers: parseInt(connectedPeers),
+          connectedPeers: (connectedPeers && connectedPeers.toNumber()) || 0,
           isSynced: !!isSynced,
           syncedLayer: syncedLayer?.number || 0,
           topLayer: topLayer?.number || 0,

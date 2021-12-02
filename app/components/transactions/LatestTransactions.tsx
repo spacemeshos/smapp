@@ -5,7 +5,10 @@ import { Button } from '../../basicComponents';
 import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { getAbbreviatedText, getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Reward, RootState, Tx, TxState } from '../../types';
+import { RootState } from '../../types';
+import { TxState } from '../../../shared/types';
+import { getLatestTransactions, RewardView, TxView } from '../../redux/wallet/selectors';
+import { isReward } from '../../../shared/types/guards';
 
 const Wrapper = styled.div`
   display: flex;
@@ -66,33 +69,31 @@ type Props = {
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   const publicKey = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey);
-  const transactions = useSelector((state: RootState) => state.wallet.txsAndRewards[publicKey]);
+  const latestTransactions = useSelector(getLatestTransactions(publicKey));
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const latestTransactions = transactions ? transactions.slice(0, 3) : [];
-
   const getColor = ({ status, isSent }: { status: number; isSent: boolean }) => {
-    if (status === TxState.MEMPOOL || status === TxState.MESH) {
+    if (status === TxState.TRANSACTION_STATE_MEMPOOL || status === TxState.TRANSACTION_STATE_MESH) {
       return smColors.orange;
-    } else if (status === TxState.REJECTED || status === TxState.INSUFFICIENT_FUNDS || status === TxState.CONFLICTING) {
+    } else if (status === TxState.TRANSACTION_STATE_REJECTED || status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS || status === TxState.TRANSACTION_STATE_CONFLICTING) {
       return smColors.red;
     }
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
 
-  const renderTransaction = ({ tx, index }: { tx: Tx; index: number }) => {
-    const { txId, status, amount, sender, timestamp, nickname } = tx;
+  const renderTransaction = (tx: TxView) => {
+    const { id, status, amount, sender, timestamp, senderNickname } = tx;
     const isSent = sender === getAddress(publicKey);
     const color = getColor({ status, isSent });
     const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
     const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
     return (
-      <TxWrapper key={index}>
+      <TxWrapper key={`tx_${id}`}>
         <Icon src={isSent ? chevronRight : chevronLeft} />
         <MainWrapper>
           <Section>
-            <NickName>{txId === 'reward' ? 'Smeshing reward' : nickname || getAbbreviatedText(sender)}</NickName>
-            {txId === 'reward' ? null : <Text>{getAbbreviatedText(txId)}</Text>}
+            <NickName>{senderNickname || getAbbreviatedText(sender)}</NickName>
+            {id === 'reward' ? null : <Text>{getAbbreviatedText(id)}</Text>}
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
@@ -103,11 +104,11 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     );
   };
 
-  const renderReward = ({ tx, index }: { tx: Reward; index: number }) => {
-    const { total, timestamp } = tx;
+  const renderReward = (tx: RewardView) => {
+    const { amount, timestamp, layer } = tx;
     const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
     return (
-      <TxWrapper key={index}>
+      <TxWrapper key={`${publicKey}_reward_${layer}`}>
         <Icon src={chevronLeft} />
         <MainWrapper>
           <Section>
@@ -115,20 +116,14 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
-            <Amount color={smColors.darkerGreen}>{`+${formatSmidge(total)}`}</Amount>
+            <Amount color={smColors.darkerGreen}>{`+${formatSmidge(amount)}`}</Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>
     );
   };
 
-  const renderedLatestTransactions = latestTransactions.map((tx, index) => {
-    if (tx.txId === 'reward') {
-      // @ts-ignore
-      return renderReward({ tx, index });
-    }
-    return renderTransaction({ tx, index });
-  });
+  const renderedLatestTransactions = latestTransactions.map((tx) => (isReward(tx) ? renderReward(tx) : renderTransaction(tx)));
 
   return (
     <Wrapper>

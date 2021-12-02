@@ -45,8 +45,3 @@ service GlobalStateService {
     // New global state computed for a layer by the STF
     rpc GlobalStateStream(GlobalStateStreamRequest) returns (stream GlobalStateStreamResponse);
 }
-
-
-
-
-

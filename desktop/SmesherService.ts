@@ -182,7 +182,7 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
           // Expected: STATE_COMPLETE and numLabelsWritten > 0
           const status = await this.getPostSetupStatus();
           handler(null, status);
-          streamError = null;
+          this.stream = null;
         }
         console.log('PostDataCreationProgressStream ended'); // eslint-disable-line no-console
         this.stream = null;

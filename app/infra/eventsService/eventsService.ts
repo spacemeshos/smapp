@@ -1,6 +1,5 @@
 import { ipcRenderer } from 'electron';
 import { ipcConsts } from '../../vars';
-import { Tx } from '../../types';
 import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
 import {
@@ -11,7 +10,19 @@ import {
   SET_SMESHER_CONFIG,
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
-import { IPCSmesherStartupData, NodeError, NodeStatus, NodeVersionAndBuild, PublicService, SocketAddress, PostSetupOpts } from '../../../shared/types';
+import {
+  IPCSmesherStartupData,
+  NodeError,
+  NodeStatus,
+  NodeVersionAndBuild,
+  PublicService,
+  SocketAddress,
+  PostSetupOpts,
+  WalletSecretData,
+  HexString,
+  WalletMeta,
+  Tx,
+} from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
@@ -19,6 +30,7 @@ import WalletManager from '../../../desktop/WalletManager';
 import GlobalStateService from '../../../desktop/GlobalStateService';
 import MeshService from '../../../desktop/MeshService';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
+import TransactionManager from '../../../desktop/TransactionManager';
 
 class EventsService {
   static createWallet = ({
@@ -50,8 +62,10 @@ class EventsService {
 
   static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
 
-  static updateWalletFile = ({ fileName, password, data }: { fileName: string; password?: string; data: any }) =>
-    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET, { fileName, password, data });
+  static updateWalletMeta = <T extends keyof WalletMeta>(fileName: string, key: T, value: WalletMeta[T]) =>
+    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_META, { fileName, key, value });
+
+  static updateWalletSecrets = (fileName: string, password: string, data: WalletSecretData) => ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, { fileName, password, data });
 
   static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 
@@ -81,10 +95,10 @@ class EventsService {
 
   /** **********************************   TRANSACTIONS   ************************************** */
 
-  static sendTx = ({ fullTx, accountIndex }: { fullTx: Tx; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SEND_TX, { fullTx, accountIndex });
+  static sendTx = ({ fullTx, accountIndex }: { fullTx: Tx; accountIndex: number }): Promise<ReturnType<TransactionManager['sendTx']>> =>
+    ipcRenderer.invoke(ipcConsts.W_M_SEND_TX, { fullTx, accountIndex });
 
-  static updateTransaction = ({ newData, accountIndex, txId }: { newData: any; accountIndex: number; txId?: string }) =>
-    ipcRenderer.invoke(ipcConsts.W_M_UPDATE_TX, { newData, accountIndex, txId });
+  static updateTransactionNote = (accountIndex: number, txId: HexString, note: string) => ipcRenderer.invoke(ipcConsts.W_M_UPDATE_TX_NOTE, { accountIndex, txId, note });
 
   /** ************************************   AUTOSTART   ************************************** */
 
@@ -133,15 +147,15 @@ ipcRenderer.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, (_event, payload: NodeVersio
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_ACCOUNT, (_event, request) => {
-  store.dispatch(updateAccountData({ account: request.data.account, accountId: request.data.accountId }));
+  store.dispatch(updateAccountData({ account: request.account, accountId: request.accountId }));
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
-  store.dispatch(setTransactions({ txs: request.data.txs, publicKey: request.data.publicKey }));
+  store.dispatch(setTransactions({ txs: request.txs, publicKey: request.publicKey }));
 });
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
-  const { rewards, publicKey } = request.data;
+  const { rewards, publicKey } = request;
   store.dispatch({ type: SET_ACCOUNT_REWARDS, payload: { rewards, publicKey } });
 });
 

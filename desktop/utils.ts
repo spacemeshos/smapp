@@ -14,7 +14,10 @@ export const fromHexString = (hexString: string) => {
   return Uint8Array.from(bytes);
 };
 
-export const toHexString = (bytes: Uint8Array) => bytes.reduce((str: string, byte: number) => str + byte.toString(16).padStart(2, '0'), '');
+export const toHexString = (bytes: Uint8Array | Buffer) =>
+  bytes instanceof Buffer ? bytes.toString('hex') : bytes.reduce((str: string, byte: number) => str + byte.toString(16).padStart(2, '0'), '');
+
+export const isByteArray = (a: any): a is Uint8Array => a instanceof Uint8Array;
 
 export const readFileAsync = util.promisify(fs.readFile);
 

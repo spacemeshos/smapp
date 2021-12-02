@@ -135,3 +135,4 @@ message AppEvent { // an event emitted from an app instance
     TransactionId transaction_id = 1; // the transaction that called the code
     string message = 2; // the event's string emitted from code
 }
+

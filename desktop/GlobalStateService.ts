@@ -1,10 +1,33 @@
 import { ProtoGrpcType } from '../proto/global_state';
+import { Account__Output } from '../proto/spacemesh/v1/Account';
+import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
+import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
+import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountDataStreamResponse';
+import { Reward__Output } from '../proto/spacemesh/v1/Reward';
+import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
 
 const PROTO_PATH = 'proto/global_state.proto';
+
+interface AccountDataStreamHandlerArg {
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: Reward__Output;
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: Account__Output;
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: TransactionReceipt__Output;
+}
+
+type AccountDataValidFlags = Exclude<AccountDataFlag, AccountDataFlag.ACCOUNT_DATA_FLAG_UNSPECIFIED>;
+type AccountDataStreamKey = Exclude<keyof AccountData__Output, 'datum'>;
+const getKeyByAccoundDataFlag = (flag: AccountDataValidFlags): AccountDataStreamKey => {
+  const keys: Record<AccountDataValidFlags, AccountDataStreamKey> = {
+    [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: 'reward',
+    [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: 'receipt',
+    [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: 'accountWrapper',
+  };
+  return keys[flag];
+};
 
 class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateService'> {
   logger = Logger({ className: 'GlobalStateService' });
@@ -22,8 +45,8 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ layer: -1, rootHash: '' }));
 
-  sendAccountDataQuery = ({ filter, offset }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: number }; offset: number }) =>
-    this.callService('AccountDataQuery', { filter, maxResults: 0, offset })
+  sendAccountDataQuery = ({ filter, offset }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: AccountDataFlag }; offset: number }) =>
+    this.callService('AccountDataQuery', { filter, maxResults: 50, offset })
       .then((response) => ({
         totalResults: response.totalResults,
         data: response.accountItem,
@@ -31,28 +54,24 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
 
-  activateAccountDataStream = ({ filter, handler }: { filter: { accountId: { address: Uint8Array }; accountDataFlags: number }; handler: ({ data }: { data: any }) => void }) => {
-    if (!this.service) {
-      throw new Error(`GlobalStateService is not running`);
-    }
-
-    const stream = this.service.AccountDataStream({ filter });
-    stream.on('data', (response: any) => {
-      const { datum } = response;
-      handler({ data: datum });
-    });
-    stream.on('error', (error: Error & { code: number }) => {
-      if (error.code === 1) return; // Cancelled on client
-      console.log(`stream AccountDataStream error: ${error}`); // eslint-disable-line no-console
-      this.logger.error('grpc AccountDataStream', error);
-    });
-    stream.on('end', () => {
-      console.log('grpc stream AccountDataStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc AccountDataStream ended', null);
-    });
-
-    return () => stream.cancel();
-  };
+  activateAccountDataStream = <K extends AccountDataValidFlags>(address: Uint8Array, accountDataFlags: K, handler: (data: AccountDataStreamHandlerArg[K]) => void) =>
+    this.runStream(
+      'AccountDataStream',
+      {
+        filter: {
+          accountId: { address },
+          accountDataFlags,
+        },
+      },
+      (data: AccountDataStreamResponse__Output) => {
+        const { datum } = data;
+        const key = getKeyByAccoundDataFlag(accountDataFlags);
+        if (datum && datum[key]) {
+          const value = datum[key] as AccountDataStreamHandlerArg[K];
+          handler(value);
+        }
+      }
+    );
 }
 
 export default GlobalStateService;

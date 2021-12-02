@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { chevronLeftBlack, chevronLeftWhite } from '../../assets/images';
-import { getFormattedTimestamp, formatSmidge } from '../../infra/utils';
+import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Reward, RootState, TxState } from '../../types';
+import { RootState } from '../../types';
+import { RewardView } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -105,7 +106,7 @@ const TextRow = styled.div<{ isLast?: boolean }>`
 `;
 
 type Props = {
-  tx: Reward;
+  tx: RewardView;
 };
 
 const RewardRow = ({ tx }: Props) => {
@@ -113,8 +114,7 @@ const RewardRow = ({ tx }: Props) => {
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const { status, layerId, layerReward, total, timestamp } = tx;
-  const statuses: Array<string> = Object.keys(TxState);
+  const { layer, layerReward, amount, timestamp } = tx;
 
   const toggleTxDetails = () => {
     setIsDetailed(!isDetailed);
@@ -122,14 +122,10 @@ const RewardRow = ({ tx }: Props) => {
 
   const renderDetails = () => (
     <DetailsSection>
-      <TextRow>
-        <BlackText>STATUS</BlackText>
-        <BoldText color={smColors.darkerGreen}>{statuses[status]}</BoldText>
-      </TextRow>
-      {layerId ? (
+      {layer ? (
         <TextRow>
           <BlackText>LAYER ID</BlackText>
-          <BoldText>{layerId}</BoldText>
+          <BoldText>{layer}</BoldText>
         </TextRow>
       ) : null}
       <TextRow>
@@ -138,7 +134,7 @@ const RewardRow = ({ tx }: Props) => {
       </TextRow>
       <TextRow>
         <BlackText>SMESHING REWARD</BlackText>
-        <BoldText>{formatSmidge(total)}</BoldText>
+        <BoldText>{formatSmidge(amount)}</BoldText>
       </TextRow>
       <TextRow>
         <BlackText>SMESHING FEE REWARD</BlackText>
@@ -156,7 +152,7 @@ const RewardRow = ({ tx }: Props) => {
             <DarkGrayText>SMESHING REWARD</DarkGrayText>
           </HeaderSection>
           <HeaderSection>
-            <Amount color={smColors.darkerGreen}>+{formatSmidge(total)}</Amount>
+            <Amount color={smColors.darkerGreen}>+{formatSmidge(amount)}</Amount>
             <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
           </HeaderSection>
         </HeaderInner>

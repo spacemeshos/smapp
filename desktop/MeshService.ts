@@ -1,4 +1,6 @@
 import { ProtoGrpcType } from '../proto/mesh';
+import { AccountMeshDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountMeshDataStreamResponse';
+import { AccountMeshDataFlag } from '../proto/spacemesh/v1/AccountMeshDataFlag';
 import { PublicService, SocketAddress } from '../shared/types';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
@@ -26,26 +28,20 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
 
-  activateAccountMeshDataStream = ({ accountId, handler }: { accountId: Uint8Array; handler: ({ tx }: { tx: any }) => void }) => {
-    if (!this.service) {
-      throw new Error(`MeshService is not running`);
-    }
-
-    const stream = this.service.AccountMeshDataStream({ filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 } });
-    stream.on('data', (response) => {
-      handler({ tx: response });
-    });
-    stream.on('error', (error: Error & { code: number }) => {
-      if (error.code === 1) return; // Cancelled on client
-      console.log(`stream AccountMeshDataStream error: ${error}`); // eslint-disable-line no-console
-      this.logger.error('grpc AccountMeshDataStream', error);
-    });
-    stream.on('end', () => {
-      console.log('AccountMeshDataStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc AccountMeshDataStream ended', null);
-    });
-    return () => stream.cancel();
-  };
+  activateAccountMeshDataStream = (accountId: Uint8Array, handler: (tx: any) => void) =>
+    this.runStream(
+      'AccountMeshDataStream',
+      {
+        filter: {
+          accountId: { address: accountId },
+          accountMeshDataFlags: AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
+        },
+      },
+      (data: AccountMeshDataStreamResponse__Output) => {
+        if (!data.datum?.meshTransaction) return;
+        handler(data.datum?.meshTransaction);
+      }
+    );
 }
 
 export default MeshService;
