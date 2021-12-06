@@ -33,7 +33,6 @@ export interface ConfigStore {
   nodeSettings: {
     port: string;
   };
-  accounts: Record<string, AccountStore>;
 }
 
 const CONFIG_STORE_DEFAULTS = {

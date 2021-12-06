@@ -21,7 +21,11 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "ts-toolbelt": ["node_modules/ts-toolbelt"]
+    }
   },
   "exclude": [
     "node_modules",

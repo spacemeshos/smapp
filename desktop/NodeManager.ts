@@ -191,7 +191,7 @@ class NodeManager {
     const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
 
     const logFileStream = fs.createWriteStream(logFilePath, { flags: this.cleanStart ? 'w' : 'a', encoding: 'utf-8' });
-    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath') as string;
+    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath');
     const args = ['--config', nodeConfigFilePath, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
