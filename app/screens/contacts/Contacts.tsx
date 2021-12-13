@@ -6,11 +6,12 @@ import { CreateNewContact, CreatedNewContact } from '../../components/contacts';
 import { WrapperWith2SideBars, Input, DropDown } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { getAbbreviatedText } from '../../infra/utils';
-import { searchIcon, addContact, explorer, copyWhite, copyBlack, clock } from '../../assets/images';
+import { searchIcon, addContact, clock } from '../../assets/images';
 import { RootState } from '../../types';
 import { EnterPasswordModal } from '../../components/settings';
 import { removeFromContacts } from '../../redux/wallet/actions';
 import { Contact } from '../../../shared/types';
+import Address from '../../components/common/Address';
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -238,25 +239,6 @@ const CreateNewContactImg = styled.img`
   cursor: pointer;
 `;
 
-const ExplorerIcon = styled.img`
-  width: 31px;
-  height: 28px;
-  cursor: pointer;
-`;
-
-const CopyIcon = styled.img`
-  align-self: flex-end;
-  height: 15px;
-  margin-left: 6px;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active {
-    transform: translate3d(2px, 2px, 0);
-  }
-`;
-
 const ClockImg = styled.img`
   position: absolute;
   top: 4px;
@@ -284,7 +266,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
-  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   useEffect(() => {
@@ -352,13 +333,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
     setShouldShowPasswordModal(false);
   };
 
-  const copyAddress = async (e: React.MouseEvent, address: string) => {
-    e.stopPropagation();
-    await navigator.clipboard.writeText(address);
-  };
-
-  const openExplorerLink = (address: string) => window.open(`${explorerUrl}accounts/${address}${isDarkMode ? '?dark' : ''}`);
-
   const renderLastUsedContacts = () => {
     if (lastUsedContacts && lastUsedContacts.length) {
       // @ts-ignore
@@ -425,7 +399,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
         <ContactRow>
           <ContactHeader>NAME</ContactHeader>
           <ContactHeader>ADDRESS</ContactHeader>
-          <ContactHeader>EXPLORER</ContactHeader>
           <ContactHeader>ACTION</ContactHeader>
         </ContactRow>
         <ContactsList>
@@ -435,11 +408,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
                 <TextCursorPointer>{contact.nickname || 'UNKNOWN ADDRESS'}</TextCursorPointer>
               </ContactText>
               <ContactText>
-                {contact.address}
-                <CopyIcon src={isDarkMode ? copyWhite : copyBlack} onClick={(e: React.MouseEvent) => copyAddress(e, contact.address)} />
-              </ContactText>
-              <ContactText onClick={() => openExplorerLink(contact.address)}>
-                <ExplorerIcon src={explorer} />
+                <Address full address={contact.address} />
               </ContactText>
               <DeleteText onClick={() => handleDeleteButton(contact)}>
                 <TextCursorPointer>DELETE</TextCursorPointer>

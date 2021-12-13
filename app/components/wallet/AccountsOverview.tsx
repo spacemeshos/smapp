@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentAccount } from '../../redux/wallet/actions';
 import { DropDown, WrapperWith2SideBars } from '../../basicComponents';
-import { copyBlack, copyWhite, explorer } from '../../assets/images';
-import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
+import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import Address from '../common/Address';
 
 const AccountDetails = styled.div`
   display: flex;
@@ -38,29 +38,6 @@ const AccountName = styled.div`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;
-`;
-
-const Address = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-self: center;
-  font-size: 16px;
-  line-height: 22px;
-  cursor: inherit;
-`;
-
-const CopyIcon = styled.img`
-  align-self: center;
-  width: 16px;
-  height: 15px;
-  margin: 0 3px;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active {
-    transform: translate3d(2px, 2px, 0);
-  }
 `;
 
 const Footer = styled.div`
@@ -95,42 +72,17 @@ const SmhText = styled.div`
   color: ${smColors.green};
 `;
 
-const CopiedText = styled.div`
-  text-align: left;
-  font-size: 16px;
-  line-height: 20px;
-  height: 20px;
-  margin: -20px 0 5px 6px;
-  color: ${smColors.green};
-`;
-
 const NotSyncedYetText = styled.div`
   font-size: 15px;
   line-height: 32px;
   color: ${smColors.orange};
 `;
 
-const ExplorerIcon = styled.img`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  margin-top: 2px;
-`;
-
 const AccountsOverview = () => {
-  let copiedTimeout: any = null;
-  const [isCopied, setIsCopied] = useState(false);
-  useEffect(() => {
-    return () => {
-      clearTimeout(copiedTimeout);
-    };
-  });
-
   const isSynced = useSelector((state: RootState) => !!state.node.status?.isSynced);
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
-  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -138,27 +90,10 @@ const AccountsOverview = () => {
     dispatch(setCurrentAccount(index));
   };
 
-  const copyPublicAddress = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    copiedTimeout && clearTimeout(copiedTimeout);
-    await navigator.clipboard.writeText(`0x${getAddress(accounts[currentAccountIndex].publicKey)}`);
-    copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
-    setIsCopied(true);
-  };
-
-  const openExplorerLink = (e: React.MouseEvent, publicKey: string) => {
-    e.stopPropagation();
-    window.open(explorerUrl.concat(`accounts/${publicKey}${isDarkMode ? '?dark' : ''}`));
-  };
-
   const renderAccountRow = ({ displayName, publicKey, isInDropDown = false }: { displayName: string; publicKey: string; isInDropDown?: boolean }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
-      <Address>
-        {getAbbreviatedText(getAddress(publicKey))}
-        <CopyIcon src={isDarkMode ? copyWhite : copyBlack} onClick={copyPublicAddress} />
-        <ExplorerIcon src={explorer} onClick={(e: React.MouseEvent) => openExplorerLink(e, `0x${getAddress(publicKey)}`)} />
-      </Address>
+      <Address address={publicKey} />
     </AccountWrapper>
   );
 
@@ -187,7 +122,6 @@ const AccountsOverview = () => {
           renderAccountRow({ displayName, publicKey })
         )}
       </AccountDetails>
-      <CopiedText>{isCopied ? 'Address copied' : ''}</CopiedText>
       <Footer>
         <BalanceHeader>BALANCE</BalanceHeader>
         {isSynced ? (
