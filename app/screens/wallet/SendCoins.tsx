@@ -89,7 +89,7 @@ const SendCoins = ({ history, location }: Props) => {
     const result = await dispatch(sendTransaction({ receiver: address, amount, fee, note }));
     if (result?.id) {
       setMode(3);
-      setTxId(txId);
+      setTxId(result.id);
     }
   };
 

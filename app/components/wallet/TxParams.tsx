@@ -192,7 +192,7 @@ const TxParams = ({
         {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
       </DetailsRow>
       <DetailsRow>
-        <DetailsText>Est. Confirmation time</DetailsText>
+        <DetailsText>Fee</DetailsText>
         <Dots>....................................</Dots>
         <DropDown
           data={fees}

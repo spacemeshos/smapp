@@ -42,7 +42,6 @@ type Props = {
 };
 
 const TxSummary = ({ address, fromAddress, amount, fee, note }: Props) => {
-  const { value, unit }: any = formatSmidge(amount, true);
   return (
     <Wrapper>
       <Header>
@@ -54,10 +53,10 @@ const TxSummary = ({ address, fromAddress, amount, fee, note }: Props) => {
       <Text>{address ? getAbbreviatedText(address) : '...'}</Text>
       <SubHeader>FROM</SubHeader>
       <Text>{getAbbreviatedText(getAddress(fromAddress))}</Text>
-      <SubHeader>{unit}</SubHeader>
-      <Text>{value || '...'}</Text>
+      <SubHeader>Amount</SubHeader>
+      <Text>{formatSmidge(amount) || '...'}</Text>
       <SubHeader>FEE</SubHeader>
-      <Text>{fee || '...'}</Text>
+      <Text>{formatSmidge(fee) || '...'}</Text>
       <SubHeader>NOTE</SubHeader>
       <Text>{note || '...'}</Text>
     </Wrapper>

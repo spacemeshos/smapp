@@ -26,7 +26,7 @@ const Input = styled.input<{
 }>`
   flex: 1;
   width: 100%;
-  height: 36px;
+  height: 100%;
   padding: 8px 10px;
   border-radius: 0;
   border: none;
