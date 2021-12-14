@@ -27,8 +27,9 @@ type Props = {
 const NetworkStatus = ({ status, error, isRestarting, isWalletMode }: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.syncedLayer && status.topLayer) {
-      const percentage = Math.round((status.syncedLayer * 100) / status.topLayer);
-      return constrain(0, 100, percentage);
+      const percentage = Math.floor((status.syncedLayer * 100) / status.topLayer);
+      const maxPercentage = status.isSynced ? 100 : 99;
+      return constrain(0, maxPercentage, percentage);
     }
     return 0;
   };
