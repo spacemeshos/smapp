@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite, addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
+import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import { getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
@@ -10,6 +10,7 @@ import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 import { TxState } from '../../../shared/types';
 import { TxView } from '../../redux/wallet/selectors';
+import Address, { AddressType } from '../common/Address';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -84,15 +85,6 @@ const Amount = styled.div`
   cursor: inherit;
 `;
 
-const CopiedBanner = styled.div`
-  position: absolute;
-  left: 48%;
-  top: 15px;
-  font-size: 15px;
-  line-height: 20px;
-  color: ${smColors.darkerGreen};
-`;
-
 const DetailsSection = styled.div`
   display: flex;
   width: 100%;
@@ -116,13 +108,6 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   :last-child {
     border-bottom: none;
   }
-`;
-
-const AddToContactsImg = styled.img`
-  width: 14px;
-  height: 12px;
-  cursor: pointer;
-  margin-left: 4px;
 `;
 
 const InputSection = styled.div`
@@ -158,20 +143,6 @@ const RightButton = styled.div`
   align-items: flex-end;
 `;
 
-const ExplorerIcon = styled.img`
-  width: 20px;
-  height: 20px;
-  margin-left: 5px;
-  cursor: pointer;
-`;
-
-const CopyIcon = styled.img`
-  width: 16px;
-  height: 15px;
-  margin-left: 5px;
-  cursor: inherit;
-`;
-
 const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 
 type Props = {
@@ -183,11 +154,9 @@ type Props = {
 const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
   const [note, setNote] = useState(tx.note || '');
-  const [isCopied, setIsCopied] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
 
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
-  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const statuses: Array<string> = Object.keys(TxState);
@@ -209,16 +178,6 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
-  const copyAddress = async (id: string) => {
-    await navigator.clipboard.writeText(`0x${id}`);
-    setIsCopied(true);
-  };
-
-  const handleAddToContacts = (event: React.MouseEvent, address: string) => {
-    event.stopPropagation();
-    addAddressToContacts({ address });
-  };
-
   const save = async () => {
     await eventsService.updateTransactionNote(currentAccountIndex, tx.id, note);
     setIsDetailed(false);
@@ -229,14 +188,20 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     setIsDetailed(!isDetailed);
   };
 
+  const txFrom = isSent ? getAddress(publicKey) : tx.sender;
+  const txFromSuffix = (isSent && '(Me)') || undefined;
+  const txFromAddContact = tx.senderNickname || isSent ? undefined : () => addAddressToContacts({ address: tx.sender });
+
+  const txTo = isSent ? tx.receiverNickname || tx.receiver : getAddress(publicKey);
+  const txToSuffix = (!isSent && '(Me)') || undefined;
+  const txToAddContract = tx.receiverNickname || !isSent ? undefined : () => addAddressToContacts({ address: tx.receiver });
+
   const renderDetails = () => (
     <DetailsSection>
       <TextRow>
         <BlackText>TRANSACTION ID</BlackText>
-        <BoldText onClick={() => copyAddress(tx.id)}>
-          {formatTxId(tx.id)}
-          <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-          <ExplorerIcon src={explorer} onClick={() => window.open(`${explorerUrl}txs/0x${tx.id}${isDarkMode ? '?dark' : ''}`)} />
+        <BoldText>
+          <Address type={AddressType.TX} address={`0x${tx.id}`} />
         </BoldText>
       </TextRow>
       <TextRow>
@@ -251,18 +216,14 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       ) : null}
       <TextRow>
         <BlackText>FROM</BlackText>
-        <BoldText onClick={!isSent ? () => copyAddress(tx.sender) : () => {}}>
-          {isSent ? `0x${getAddress(publicKey)} (Me)` : tx.senderNickname || `0x${tx.sender}`}
-          <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />
-          {!isSent && !tx.senderNickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, tx.sender)} src={addContact} />}
+        <BoldText>
+          <Address address={txFrom} suffix={txFromSuffix} overlapText={tx.senderNickname} addToContacts={txFromAddContact} />
         </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>TO</BlackText>
-        <BoldText onClick={isSent ? () => copyAddress(tx.receiver) : () => {}}>
-          {isSent ? tx.receiverNickname || `0x${tx.receiver}` : `0x${getAddress(publicKey)} (Me)`}
-          {isSent && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} />}
-          {isSent && !tx.receiverNickname && <AddToContactsImg onClick={(e: React.MouseEvent) => handleAddToContacts(e, `0x${tx.receiver}`)} src={addContact} />}
+        <BoldText>
+          <Address address={txTo} suffix={txToSuffix} overlapText={tx.receiverNickname} addToContacts={txToAddContract} />
         </BoldText>
       </TextRow>
       <TextRow>
@@ -301,7 +262,6 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(tx.amount)}`}</Amount>
             <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
           </HeaderSection>
-          {isCopied && <CopiedBanner>Copied!</CopiedBanner>}
         </HeaderInner>
       </Header>
       {isDetailed && renderDetails()}

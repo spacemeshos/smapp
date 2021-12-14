@@ -132,8 +132,8 @@ const Transactions = ({ history }: RouteComponentProps) => {
       <BackButton action={history.goBack} width={7} height={10} />
       <WrapperWith2SideBars width={680} header="TRANSACTION LOG" style={{ marginRight: 10 }} isDarkMode={isDarkMode}>
         <TransactionsListWrapper>
-          {filteredTransactions && filteredTransactions.length ? (
-            filteredTransactions.map((tx: TxView | RewardView) =>
+          {transactions && transactions.length ? (
+            transactions.map((tx: TxView | RewardView) =>
               isReward(tx) ? (
                 <RewardRow key={`${publicKey}_reward_${tx.layer}`} tx={tx} />
               ) : (

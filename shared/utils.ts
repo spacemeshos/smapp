@@ -60,7 +60,7 @@ export const debounce = <T extends unknown>(delay: number, cb: (...args: any[]) 
         new Promise((resolve) => {
           catchResolvers.push((result: T) => resolve(fn(result)));
         }),
-    };
+    } as Promise<T>;
   };
 };
 

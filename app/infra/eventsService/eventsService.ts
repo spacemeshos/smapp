@@ -18,6 +18,7 @@ import {
   PublicService,
   SocketAddress,
   PostSetupOpts,
+  PostSetupState,
   WalletSecretData,
   HexString,
   WalletMeta,
@@ -184,6 +185,9 @@ ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) 
     error,
     status: { postSetupState, numLabelsWritten, errorMessage },
   } = request;
+  if (postSetupState === PostSetupState.STATE_COMPLETE) {
+    localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
+  }
   store.dispatch({ type: SET_POST_DATA_CREATION_STATUS, payload: { error, postSetupState, numLabelsWritten, errorMessage } });
 });
 
