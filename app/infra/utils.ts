@@ -15,7 +15,7 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
   return 'Pending';
 };
 
-export const getAddress = (key: string) => key.substring(24);
+export const getAddress = (key: string) => (key.length <= 44 ? key : key.substring(24));
 
 export const formatBytes = (bytes: number) => {
   if (bytes === 0) {
