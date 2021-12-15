@@ -1,8 +1,18 @@
-import { SocketAddress } from './types';
+import { SocketAddress, TxState } from './types';
 
 // eslint-disable-next-line import/prefer-default-export
 export const LOCAL_NODE_API_URL: SocketAddress = {
   host: 'localhost',
   port: '9092',
   protocol: 'http:',
+};
+
+export const TX_STATE_LABELS: Record<TxState, string> = {
+  [TxState.TRANSACTION_STATE_UNSPECIFIED]: 'Unknown state',
+  [TxState.TRANSACTION_STATE_REJECTED]: 'Rejected',
+  [TxState.TRANSACTION_STATE_CONFLICTING]: 'Conflicting',
+  [TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS]: 'Insufficient funds',
+  [TxState.TRANSACTION_STATE_MEMPOOL]: 'Pending',
+  [TxState.TRANSACTION_STATE_MESH]: 'Accepted',
+  [TxState.TRANSACTION_STATE_PROCESSED]: 'Confirmed',
 };
