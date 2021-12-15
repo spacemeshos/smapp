@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { Account, AccountWithBalance, HexString, Reward, Tx, TxState } from '../shared/types';
+import { Account, AccountWithBalance, HexString, Reward, Tx, TxCoinTransfer, TxSendRequest, TxState } from '../shared/types';
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
@@ -177,7 +177,8 @@ class TransactionManager {
 
   private upsertTransaction = (accountId: HexString) => async (tx: Tx) => {
     const originalTx = this.accountStates[accountId].getTxById(tx.id);
-    const updatedTx = { ...originalTx, ...tx };
+    const receipt = tx.receipt ? { ...originalTx?.receipt, ...tx.receipt } : originalTx?.receipt;
+    const updatedTx: Tx = { ...originalTx, ...tx, receipt };
     await this.storeTx(accountId, updatedTx);
     this.subscribeTransactions(accountId);
   };
@@ -306,15 +307,15 @@ class TransactionManager {
     }
   };
 
-  sendTx = async ({ fullTx, accountIndex }: { fullTx: any; accountIndex: number }) => {
+  sendTx = async ({ fullTx, accountIndex }: { fullTx: TxSendRequest; accountIndex: number }) => {
     const { publicKey } = this.accounts[accountIndex];
     const account = this.accountStates[publicKey].getAccount();
     const { receiver, amount, fee } = fullTx;
     const res = await cryptoService.signTransaction({
       accountNonce: account.projectedState.counter,
       receiver,
-      price: parseInt(fee),
-      amount: parseInt(amount),
+      price: fee,
+      amount,
       secretKey: this.accounts[accountIndex].secretKey,
     });
     const response = await this.txService.submitTransaction({ transaction: res });
@@ -322,7 +323,20 @@ class TransactionManager {
 
     // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
     const error = response.error || response.txstate === null || !response.txstate.id?.id ? response.error || getTxResponseError() : null;
-    const tx = response.error === null && response.txstate?.id?.id ? { ...fullTx, id: toHexString(response.txstate.id.id) } : null;
+    // Compose "initial" transaction record
+    const tx: TxCoinTransfer | null =
+      response.error === null && response.txstate?.id?.id
+        ? {
+            id: toHexString(response.txstate.id.id),
+            sender: fullTx.sender,
+            receiver: fullTx.receiver,
+            amount: fullTx.amount,
+            status: response.txstate.state,
+            receipt: {
+              fee: fullTx.fee,
+            },
+          }
+        : null;
     const state = response.error === null && response.txstate?.state ? response.txstate.state : null;
 
     if (tx && state && ![TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS, TxState.TRANSACTION_STATE_REJECTED, TxState.TRANSACTION_STATE_CONFLICTING].includes(state)) {

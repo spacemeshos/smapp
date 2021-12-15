@@ -10,10 +10,10 @@ export { _spacemesh_v1_SmartContractTransaction_TransactionType as TxSmartContra
 // Transactions
 
 interface TxReceipt {
-  result: TxResult;
-  gasUsed: number;
   fee: number;
-  svmData: HexString;
+  result?: TxResult;
+  gasUsed?: number;
+  svmData?: HexString;
 }
 
 export interface TxCoinTransfer {
@@ -22,11 +22,11 @@ export interface TxCoinTransfer {
   receiver: HexString;
   status: TxState;
   amount: number;
-  gasOffered: {
+  receipt?: TxReceipt;
+  gasOffered?: {
     price: number;
     provided: number;
   };
-  receipt: TxReceipt | null;
   layer?: number;
   note?: string;
 }
@@ -39,6 +39,14 @@ export interface TxSmartContract extends TxCoinTransfer {
 }
 
 export type Tx = TxCoinTransfer | TxSmartContract;
+
+export interface TxSendRequest {
+  sender: HexString;
+  receiver: HexString;
+  fee: number;
+  amount: number;
+  note?: string;
+}
 
 // Rewards
 
