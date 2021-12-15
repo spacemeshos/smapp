@@ -53,7 +53,7 @@ const TxSummary = ({ address, fromAddress, amount, fee, note }: Props) => {
       <Text>{address ? getAbbreviatedText(address) : '...'}</Text>
       <SubHeader>FROM</SubHeader>
       <Text>{getAbbreviatedText(getAddress(fromAddress))}</Text>
-      <SubHeader>Amount</SubHeader>
+      <SubHeader>AMOUNT</SubHeader>
       <Text>{formatSmidge(amount) || '...'}</Text>
       <SubHeader>FEE</SubHeader>
       <Text>{formatSmidge(fee) || '...'}</Text>
