@@ -76,6 +76,7 @@ const BoldText = styled(Text)`
 const DarkGrayText = styled(Text)`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray)};
   cursor: inherit;
+  text-align: right;
 `;
 
 const Amount = styled.div`
