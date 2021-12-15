@@ -3,8 +3,15 @@ export const addErrorPrefix = (prefix: string, error: Error) => {
   return error;
 };
 
-export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) =>
-  `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
+export const has0x = (addr: string) => addr.indexOf('0x') === 0;
+export const ensure0x = (addr: string) => (!has0x(addr) ? `0x${addr}` : addr);
+export const trim0x = (addr: string) => (has0x(addr) ? addr.substr(2) : addr);
+
+export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) => {
+  const hexOnly = trim0x(address);
+  const abbr = `${hexOnly.substr(0, tailSize)}...${hexOnly.substr(-tailSize)}`.toUpperCase();
+  return addPrefix ? ensure0x(abbr) : abbr;
+};
 
 export const getFormattedTimestamp = (timestamp: number | null): string => {
   if (timestamp) {

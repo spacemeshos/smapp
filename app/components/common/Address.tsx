@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 
 import { HexString } from '../../../shared/types';
-import { getAbbreviatedText, getAddress } from '../../infra/utils';
+import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { RootState } from '../../types';
 import { smColors } from '../../vars';
 import { addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
@@ -85,8 +85,6 @@ type Props = {
   hideExplorer?: boolean; // Hide explorer icon. Default: false
   addToContacts?: ({ address }: { address: string }) => void; // If function exists — it shows up add contact icon. Default: undefined
 };
-
-const ensure0x = (addr: string) => (addr.indexOf('0x') !== 0 ? `0x${addr}` : addr);
 
 const Address = (props: Props) => {
   const { address, suffix, overlapText, type, full, hideCopy, hideExplorer, addToContacts } = props;
