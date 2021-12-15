@@ -1,3 +1,5 @@
+import { HexString } from '../../shared/types';
+
 export const addErrorPrefix = (prefix: string, error: Error) => {
   error.message = `${prefix}${error.message}`;
   return error;
@@ -23,6 +25,14 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
 };
 
 export const getAddress = (key: string) => (key.length <= 44 ? key : key.substring(24));
+
+// Address can start with `0x` or without
+// By default it checks the account address, length = 40
+// To validate tx / smesher address, set length to 64
+export const validateAddress = (address: string, length = 40): address is HexString => {
+  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`).test(address);
+  return r;
+};
 
 export const formatBytes = (bytes: number) => {
   if (bytes === 0) {

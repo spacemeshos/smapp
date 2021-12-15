@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { sendTransaction } from '../../redux/wallet/actions';
 import { TxParams, TxSummary, TxConfirmation, TxSent } from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
-import { getAddress } from '../../infra/utils';
+import { ensure0x, validateAddress } from '../../infra/utils';
 import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 
@@ -37,7 +37,7 @@ const SendCoins = ({ history, location }: Props) => {
   const dispatch: AppThDispatch = useDispatch();
 
   const updateTxAddress = ({ value }: { value: string }) => {
-    setAddress(value);
+    setAddress(ensure0x(value));
     setHasAddressError(false);
   };
 
@@ -54,25 +54,17 @@ const SendCoins = ({ history, location }: Props) => {
     setFee(fee);
   };
 
-  const validateAddress = () => {
-    const trimmedValue = address ? address.trim() : '';
-    return (
-      // @ts-ignore
-      trimmedValue && (trimmedValue.startsWith('0x') !== -1 ? trimmedValue.length === 42 : trimmedValue.length === 40) && trimmedValue !== getAddress(currentAccount.publicKey)
-    );
-  };
-
   const validateAmount = () => {
     return !!amount && amount + fee < (currentAccount?.currentState?.balance || 0);
   };
 
   const proceedToMode2 = () => {
-    if (!validateAddress()) {
-      setHasAddressError(true);
-    }
-    if (!validateAmount()) {
-      setHasAmountError(true);
-    } else {
+    const addrValid = validateAddress(address);
+    const amountValid = validateAmount();
+    setHasAddressError(!addrValid);
+    setHasAmountError(!amountValid);
+
+    if (addrValid && amountValid) {
       setAddress(address.trim());
       setAmount(amount);
       setMode(2);
