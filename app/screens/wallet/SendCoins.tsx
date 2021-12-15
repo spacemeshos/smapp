@@ -73,9 +73,7 @@ const SendCoins = ({ history, location }: Props) => {
     if (!validateAmount()) {
       setHasAmountError(true);
     } else {
-      let trimmedAddress = address.trim();
-      trimmedAddress = trimmedAddress.startsWith('0x') ? trimmedAddress.substring(2) : trimmedAddress;
-      setAddress(trimmedAddress);
+      setAddress(address.trim());
       setAmount(amount);
       setMode(2);
     }
@@ -86,7 +84,8 @@ const SendCoins = ({ history, location }: Props) => {
   // };
 
   const handleSendTransaction = async () => {
-    const result = await dispatch(sendTransaction({ receiver: address, amount, fee, note }));
+    const receiver = address.replace(/^0x/, '');
+    const result = await dispatch(sendTransaction({ receiver, amount, fee, note }));
     if (result?.id) {
       setMode(3);
       setTxId(result.id);
@@ -158,7 +157,6 @@ const SendCoins = ({ history, location }: Props) => {
           amount={amount}
           txId={txId}
           doneAction={history.goBack}
-          isDarkMode={isDarkMode}
           navigateToTxList={() => history.replace('/main/transactions')}
         />
       );

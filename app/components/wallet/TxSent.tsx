@@ -92,20 +92,11 @@ type Props = {
   address: string;
   amount: number;
   txId: string;
-  isDarkMode: boolean;
   doneAction: () => void;
   navigateToTxList: () => void;
 };
 
-const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, navigateToTxList }: Props) => {
-
-  const copyTxId = async () => {
-    await navigator.clipboard.writeText(txId);
-    setIsCopied(true);
-  };
-
-  const copyIcon = isDarkMode ? copyWhite : copyBlack;
-
+const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxList }: Props) => {
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
 
   const { unit }: any = formatSmidge(amount, true);
@@ -126,7 +117,7 @@ const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, na
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>To</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${address}`}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{address}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
@@ -134,8 +125,6 @@ const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, na
             <DetailsTextLeft>
               <Address address={txId} type={AddressType.TX} />
             </DetailsTextLeft>
-            {/* <DetailsTextLeft>{getAbbreviatedText(txId, true, 8)}</DetailsTextLeft>
-            <CopyIcon src={copyIcon} onClick={copyTxId} /> */}
           </ComplexText>
         </DetailsRow>
       </>

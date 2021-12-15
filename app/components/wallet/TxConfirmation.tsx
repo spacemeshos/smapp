@@ -124,7 +124,7 @@ const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, done
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>To</DetailsTextRight>
-          <DetailsTextLeft>{`0x${address}`}</DetailsTextLeft>
+          <DetailsTextLeft>{address}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Note</DetailsTextRight>
