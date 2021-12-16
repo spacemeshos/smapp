@@ -22,7 +22,7 @@ import {
   WalletSecretData,
   HexString,
   WalletMeta,
-  Tx,
+  TxSendRequest,
 } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
@@ -96,7 +96,7 @@ class EventsService {
 
   /** **********************************   TRANSACTIONS   ************************************** */
 
-  static sendTx = ({ fullTx, accountIndex }: { fullTx: Tx; accountIndex: number }): Promise<ReturnType<TransactionManager['sendTx']>> =>
+  static sendTx = ({ fullTx, accountIndex }: { fullTx: TxSendRequest; accountIndex: number }): Promise<ReturnType<TransactionManager['sendTx']>> =>
     ipcRenderer.invoke(ipcConsts.W_M_SEND_TX, { fullTx, accountIndex });
 
   static updateTransactionNote = (accountIndex: number, txId: HexString, note: string) => ipcRenderer.invoke(ipcConsts.W_M_UPDATE_TX_NOTE, { accountIndex, txId, note });

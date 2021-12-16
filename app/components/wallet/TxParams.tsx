@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '../../basicComponents';
-import { getAbbreviatedText, getAddress } from '../../infra/utils';
+import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Contact } from '../../types';
 import AmountInput from '../../basicComponents/AmountInput';
@@ -188,11 +188,17 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Amount</DetailsText>
         <Dots>....................................</Dots>
-        <AmountInput value={amount} onChange={handleAmountChange} style={inputStyle} />
+        <AmountInput
+          value={amount}
+          onChange={handleAmountChange}
+          style={inputStyle}
+          selectedUnits={amount.toString().length > 10 ? CoinUnits.SMH : CoinUnits.Smidge}
+          valueUnits={CoinUnits.Smidge}
+        />
         {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
       </DetailsRow>
       <DetailsRow>
-        <DetailsText>Est. Confirmation time</DetailsText>
+        <DetailsText>Fee</DetailsText>
         <Dots>....................................</Dots>
         <DropDown
           data={fees}

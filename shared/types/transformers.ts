@@ -22,7 +22,6 @@ export const toTx = (tx: Transaction__Output, txState: TransactionState__Output 
       price: tx.gasOffered?.gasPrice?.toNumber() || 0,
       provided: tx.gasOffered?.gasProvided?.toNumber() || 0,
     },
-    receipt: null,
   };
 };
 

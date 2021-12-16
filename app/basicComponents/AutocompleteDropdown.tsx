@@ -279,7 +279,6 @@ const AutocompleteDropdown = (props: Props) => {
           onChange={handleInputChange}
           onKeyUp={handleInputKeyUp}
           value={editField}
-          maxLength={42}
           ref={inputField}
           autoFocus={!!autofocus}
         />

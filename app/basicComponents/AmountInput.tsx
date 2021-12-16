@@ -26,7 +26,7 @@ const Input = styled.input<{
 }>`
   flex: 1;
   width: 100%;
-  height: 36px;
+  height: 100%;
   padding: 8px 10px;
   border-radius: 0;
   border: none;
@@ -69,14 +69,18 @@ const Toggle = styled(RefreshIcon)`
 
 type Props = {
   onChange: (amountSmidge: number) => void;
+  valueUnits?: CoinUnits;
+  selectedUnits?: CoinUnits;
   disabled?: boolean;
   value?: number;
   style?: React.CSSProperties;
 };
 
-const AmountInput = ({ onChange, disabled, style, value }: Props) => {
-  const [curValue, setValue] = useState(value ? value.toString() : '');
-  const [units, setUnits] = useState<CoinUnits>(CoinUnits.SMH);
+const AmountInput = ({ onChange, disabled, style, value, selectedUnits = CoinUnits.SMH, valueUnits = CoinUnits.Smidge }: Props) => {
+  // eslint-disable-next-line no-nested-ternary
+  const amount = valueUnits === selectedUnits ? value || 0 : valueUnits === CoinUnits.SMH ? toSmidge(value || 0) : toSMH(value || 0);
+  const [curValue, setValue] = useState(value ? amount.toString() : '');
+  const [units, setUnits] = useState<CoinUnits>(selectedUnits);
   const [isFocused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 

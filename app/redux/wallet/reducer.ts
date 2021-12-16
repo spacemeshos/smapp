@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import { WalletMeta } from '../../../shared/types';
 import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
@@ -69,11 +70,7 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       const accountIndexToUpdate = state.accounts.findIndex((account) => account.publicKey === accountId);
       return {
         ...state,
-        accounts: [
-          ...state.accounts.slice(0, accountIndexToUpdate),
-          { ...state.accounts[accountIndexToUpdate], currentState: account.currentState, projectedState: account.projectedState },
-          ...state.accounts.slice(accountIndexToUpdate + 1),
-        ],
+        accounts: R.over(R.lensIndex(accountIndexToUpdate), (acc) => ({ ...acc, currentState: account.currentState, projectedState: account.projectedState }), state.accounts),
       };
     }
     case SET_TRANSACTIONS: {

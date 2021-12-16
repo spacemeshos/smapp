@@ -44,7 +44,7 @@ const Icon = styled.img<{ isOpened: boolean }>`
   cursor: inherit;
 `;
 
-const ItemsWrapper = styled.div<{ rowHeight: number }>`
+const ItemsWrapper = styled.div<{ rowHeight: number; bgColor?: string }>`
   position: absolute;
   top: ${({ rowHeight }) => rowHeight - 1}px;
   width: 100%;
@@ -53,8 +53,11 @@ const ItemsWrapper = styled.div<{ rowHeight: number }>`
   overflow: hidden;
   transition: all 0.2s linear;
   overflow-y: scroll;
+  box-sizing: content-box;
   box-shadow: 0 3px 6px ${smColors.black02Alpha};
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : smColors.white)};
+  border: 1px solid ${({ theme, bgColor }) => bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
+  margin-left: -1px;
+  background-color: ${({ theme, bgColor }) => bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
 const DropdownRow = styled.div<{ onClick: (e?: React.MouseEvent) => void; rowContentCentered: boolean; height: number; isDisabled: boolean; key: string }>`
@@ -154,7 +157,11 @@ const DropDown = ({
         <DdElement {...data[selectedItemIndex]} isMain />
         <Icon isOpened={isOpened} src={icon} />
       </HeaderWrapper>
-      {isOpened && data && <ItemsWrapper rowHeight={rowHeight}>{data.map((item: any, index: number) => renderRow({ item, index, rowHeight, rowContentCentered }))}</ItemsWrapper>}
+      {isOpened && data && (
+        <ItemsWrapper bgColor={bgColor} rowHeight={rowHeight}>
+          {data.map((item: any, index: number) => renderRow({ item, index, rowHeight, rowContentCentered }))}
+        </ItemsWrapper>
+      )}
     </Wrapper>
   );
 };

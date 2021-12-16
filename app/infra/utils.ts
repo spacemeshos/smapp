@@ -1,10 +1,19 @@
+import { HexString } from '../../shared/types';
+
 export const addErrorPrefix = (prefix: string, error: Error) => {
   error.message = `${prefix}${error.message}`;
   return error;
 };
 
-export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) =>
-  `${addPrefix && address.indexOf('0x') === -1 ? '0x' : ''}${address.substring(0, tailSize)}...${address.substring(address.length - tailSize, address.length)}`;
+export const has0x = (addr: string) => addr.indexOf('0x') === 0;
+export const ensure0x = (addr: string) => (!has0x(addr) ? `0x${addr}` : addr);
+export const trim0x = (addr: string) => (has0x(addr) ? addr.substr(2) : addr);
+
+export const getAbbreviatedText = (address: string, addPrefix = true, tailSize = 4) => {
+  const hexOnly = trim0x(address);
+  const abbr = `${hexOnly.substr(0, tailSize)}...${hexOnly.substr(-tailSize)}`.toUpperCase();
+  return addPrefix ? ensure0x(abbr) : abbr;
+};
 
 export const getFormattedTimestamp = (timestamp: number | null): string => {
   if (timestamp) {
@@ -15,7 +24,15 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
   return 'Pending';
 };
 
-export const getAddress = (key: string) => key.substring(24);
+export const getAddress = (key: string) => (key.length <= 44 ? key : key.substring(24));
+
+// Address can start with `0x` or without
+// By default it checks the account address, length = 40
+// To validate tx / smesher address, set length to 64
+export const validateAddress = (address: string, length = 40): address is HexString => {
+  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`).test(address);
+  return r;
+};
 
 export const formatBytes = (bytes: number) => {
   if (bytes === 0) {

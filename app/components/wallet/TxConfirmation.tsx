@@ -109,7 +109,6 @@ type Props = {
 
 const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, doneAction, editTx, cancelTx }: Props) => {
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
-  const { value, unit }: any = formatSmidge(amount, true);
   return (
     <Wrapper>
       <Header>
@@ -120,20 +119,20 @@ const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, done
       <SubHeader2>SUMMARY</SubHeader2>
       <>
         <DetailsRow>
-          <DetailsTextRight>Sent from</DetailsTextRight>
+          <DetailsTextRight>From</DetailsTextRight>
           <DetailsTextLeft>{`0x${getAddress(fromAddress)}`}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeft>{`0x${address}`}</DetailsTextLeft>
+          <DetailsTextRight>To</DetailsTextRight>
+          <DetailsTextLeft>{address}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Note</DetailsTextRight>
           <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>{unit}</DetailsTextRight>
-          <DetailsTextLeft>{value}</DetailsTextLeft>
+          <DetailsTextRight>Amount</DetailsTextRight>
+          <DetailsTextLeft>{formatSmidge(amount)}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Fee</DetailsTextRight>

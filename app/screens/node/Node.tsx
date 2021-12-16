@@ -242,7 +242,7 @@ const Node = ({ history, location }: Props) => {
           <TextWrapper>
             <Text>
               <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
-              <PathDir>{posDataPath} </PathDir> - {formatBytes(commitmentSize)} allocated
+              <PathDir>{posDataPath}</PathDir>&nbsp;- {formatBytes(commitmentSize)} allocated
             </Text>
           </TextWrapper>
         </LineWrap>

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 
 import { HexString } from '../../../shared/types';
-import { getAbbreviatedText, getAddress } from '../../infra/utils';
+import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { RootState } from '../../types';
 import { smColors } from '../../vars';
 import { addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
@@ -86,23 +86,22 @@ type Props = {
   addToContacts?: ({ address }: { address: string }) => void; // If function exists — it shows up add contact icon. Default: undefined
 };
 
-const ensure0x = (addr: string) => (addr.indexOf('0x') !== 0 ? `0x${addr}` : addr);
-
 const Address = (props: Props) => {
   const { address, suffix, overlapText, type, full, hideCopy, hideExplorer, addToContacts } = props;
-  const addr = ensure0x(address);
+
+  const isAccount = type === AddressType.ACCOUNT;
+  const addr = ensure0x(isAccount ? getAddress(address) : address);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
   const [isCopied, setIsCopied] = useState(false);
 
-  const isAccount = type === AddressType.ACCOUNT;
-  const addressToShow = full ? addr : getAbbreviatedText(isAccount ? getAddress(addr) : addr);
+  const addressToShow = full ? addr : getAbbreviatedText(addr);
 
   let copyTimeout: NodeJS.Timeout;
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    await navigator.clipboard.writeText(isAccount ? ensure0x(getAddress(addr)) : addr);
+    await navigator.clipboard.writeText(addr);
     setIsCopied(true);
     clearTimeout(copyTimeout);
     copyTimeout = setTimeout(() => setIsCopied(false), 3000);

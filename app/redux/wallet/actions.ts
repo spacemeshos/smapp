@@ -1,7 +1,7 @@
-import { Account, Contact, HexString, SocketAddress, WalletMeta } from '../../../shared/types';
+import { Account, Contact, HexString, SocketAddress, Tx, TxSendRequest, WalletMeta } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
-import { AppThDispatch, GetState, Tx } from '../../types';
+import { AppThDispatch, GetState } from '../../types';
 import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
@@ -159,21 +159,20 @@ export const sendTransaction = ({ receiver, amount, fee, note }: { receiver: str
   getState: GetState
 ) => {
   const { accounts, currentAccountIndex } = getState().wallet;
-  const fullTx: Tx = {
-    id: '',
+  const fullTx: TxSendRequest = {
     sender: getAddress(accounts[currentAccountIndex].publicKey),
     receiver,
     amount,
     fee,
-    status: 0,
     note,
   };
   const { error, tx, state } = await eventsService.sendTx({ fullTx, accountIndex: currentAccountIndex });
-  if (error) {
-    console.log(error); // eslint-disable-line no-console
-    dispatch(setUiError(addErrorPrefix('Send transaction error\n', error)));
-    return {}; // TODO: Need a refactoring here
-  } else {
+  if (tx) {
     return { id: tx.id, state };
+  } else {
+    const errorToLog = error ? addErrorPrefix('Send transaction error\n', error) : new Error('Send transaction error: unexpectedly got no Tx and no Error');
+    console.log(errorToLog); // eslint-disable-line no-console
+    dispatch(setUiError(errorToLog));
+    return {}; // TODO: Need a refactoring here
   }
 };

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
-import { fireworksImg, doneIconGreen, copyBlack, copyWhite } from '../../assets/images';
+import { getAddress, formatSmidge } from '../../infra/utils';
+import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
+import Address, { AddressType } from '../common/Address';
 
 const Wrapper = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ const HeaderText = styled.div`
   font-size: 32px;
   line-height: 40px;
   color: ${smColors.green};
+  text-transform: uppercase;
 `;
 
 const HeaderIcon = styled.img`
@@ -72,13 +74,6 @@ const ComplexText = styled.div`
   align-items: center;
 `;
 
-const CopyIcon = styled.img`
-  width: 14px;
-  height: 15px;
-  margin-left: 10px;
-  cursor: pointer;
-`;
-
 const Footer = styled.div`
   display: flex;
   flex-direction: row;
@@ -92,36 +87,19 @@ const ButtonsBlock = styled.div`
   flex-direction: row;
 `;
 
-const CopiedText = styled.div`
-  margin-left: auto;
-  font-size: 16px;
-  line-height: 20px;
-  color: ${smColors.green};
-`;
-
 type Props = {
   fromAddress: string;
   address: string;
   amount: number;
   txId: string;
-  isDarkMode: boolean;
   doneAction: () => void;
   navigateToTxList: () => void;
 };
 
-const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, navigateToTxList }: Props) => {
-  const [isCopied, setIsCopied] = useState(false);
-
-  const copyTxId = async () => {
-    await navigator.clipboard.writeText(txId);
-    setIsCopied(true);
-  };
-
-  const copyIcon = isDarkMode ? copyWhite : copyBlack;
-
+const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxList }: Props) => {
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
 
-  const { value, unit }: any = formatSmidge(amount, true);
+  const { unit }: any = formatSmidge(amount, true);
   return (
     <Wrapper>
       <Header>
@@ -130,26 +108,26 @@ const TxSent = ({ fromAddress, address, amount, txId, isDarkMode, doneAction, na
       </Header>
       <>
         <DetailsRow>
-          <DetailsTextRight>{unit}</DetailsTextRight>
-          <DetailsTextLeft>{value}</DetailsTextLeft>
+          <DetailsTextRight>Amount</DetailsTextRight>
+          <DetailsTextLeft>{formatSmidge(amount)}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>Sent from</DetailsTextRight>
+          <DetailsTextRight>From</DetailsTextRight>
           <DetailsTextLeftBold>{`0x${getAddress(fromAddress)}`}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
-          <DetailsTextRight>Sent to</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${address}`}</DetailsTextLeftBold>
+          <DetailsTextRight>To</DetailsTextRight>
+          <DetailsTextLeftBold>{address}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
-            <DetailsTextLeft>{getAbbreviatedText(txId, true, 8)}</DetailsTextLeft>
-            <CopyIcon src={copyIcon} onClick={copyTxId} />
+            <DetailsTextLeft>
+              <Address address={txId} type={AddressType.TX} />
+            </DetailsTextLeft>
           </ComplexText>
         </DetailsRow>
       </>
-      {isCopied && <CopiedText>Tx ID copied to clipboard!</CopiedText>}
       <Footer>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
         <ButtonsBlock>

@@ -11,6 +11,7 @@ import { eventsService } from '../../infra/eventsService';
 import { TxState } from '../../../shared/types';
 import { TxView } from '../../redux/wallet/selectors';
 import Address, { AddressType } from '../common/Address';
+import { TX_STATE_LABELS } from '../../../shared/constants';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -75,6 +76,7 @@ const BoldText = styled(Text)`
 const DarkGrayText = styled(Text)`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray)};
   cursor: inherit;
+  text-align: right;
 `;
 
 const Amount = styled.div`
@@ -159,8 +161,6 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const statuses: Array<string> = Object.keys(TxState);
-
   const getColor = (isSent: boolean) => {
     const { status } = tx;
     if (status === TxState.TRANSACTION_STATE_MEMPOOL || status === TxState.TRANSACTION_STATE_MESH) {
@@ -206,7 +206,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       </TextRow>
       <TextRow>
         <BlackText>STATUS</BlackText>
-        <BoldText color={color}>{statuses[tx.status]}</BoldText>
+        <BoldText color={color}>{TX_STATE_LABELS[tx.status]}</BoldText>
       </TextRow>
       {tx.layer ? (
         <TextRow>
@@ -227,11 +227,11 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
         </BoldText>
       </TextRow>
       <TextRow>
-        <BlackText>VALUE</BlackText>
+        <BlackText>AMOUNT</BlackText>
         <BoldText>{formatSmidge(tx.amount)}</BoldText>
       </TextRow>
       <TextRow>
-        <BlackText>TRANSACTION FEE</BlackText>
+        <BlackText>FEE</BlackText>
         <BoldText>{formatSmidge(tx.receipt?.fee || 0)}</BoldText>
       </TextRow>
       <TextRow>
