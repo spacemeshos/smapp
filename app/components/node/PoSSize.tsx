@@ -212,7 +212,7 @@ const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAc
         <Link>{dataDir}</Link>
       </BottomRow>
       <BottomRow>
-        <Text>Free space: {freeSpace} GB</Text>
+        <Text>Free space: {freeSpace}</Text>
       </BottomRow>
       <PoSFooter action={nextAction} isDisabled={selectedCommitmentIndex === -1 || !status} />
     </>
