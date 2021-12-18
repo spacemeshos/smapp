@@ -232,7 +232,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       </TextRow>
       <TextRow>
         <BlackText>FEE</BlackText>
-        <BoldText>{formatSmidge(tx.receipt?.fee || 0)}</BoldText>
+        <BoldText>{formatSmidge(tx.gasOffered?.provided || tx.receipt?.fee || 0)}</BoldText>
       </TextRow>
       <TextRow>
         <BlackText>NOTE</BlackText>
