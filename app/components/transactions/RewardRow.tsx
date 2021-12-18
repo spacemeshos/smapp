@@ -143,10 +143,10 @@ const RewardRow = ({ tx, publicKey }: Props) => {
         <BoldText>{formatSmidge(amount)}</BoldText>
       </TextRow>
       {/* layerReward is not a fee, so do not show it until we can retrieve a fee */}
-      {/* <TextRow>
+      <TextRow>
         <BlackText>SMESHING FEE REWARD</BlackText>
-        <BoldText>{formatSmidge(layerReward)}</BoldText>
-      </TextRow> */}
+        <BoldText>{formatSmidge(amount - layerReward)}</BoldText>
+      </TextRow>
     </DetailsSection>
   );
 
