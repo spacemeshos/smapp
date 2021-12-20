@@ -42,6 +42,17 @@ jobs:
         with:
           node-version: '12'
 
+      - name: Get Smapp version
+        if: steps.result.outputs.status != 'success'
+        id: cur-package-version
+        uses: tyankatsu0105/read-package-version-actions@v1
+
+      - name: Set package.json version
+        if: steps.result.outputs.status != 'success' && github.event_name == 'pull_request'
+        uses: HarmvZ/set-package-json-version-action@v0.1.2
+        with:
+          version: ${{ steps.cur-package-version.outputs.version }}-pr.${{ github.event.pull_request.number }}
+
       - name: Get yarn cache directory path
         if: ${{ steps.result.outputs.status != 'success' }}
         id: yarn-cache-dir-path
@@ -124,7 +135,7 @@ jobs:
         if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
         run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
 
-      - name: ls node & libs directory
+      - name: ls ./node
         if: steps.result.outputs.status != 'success'
         run: |
           7z l ./node/release.zip
@@ -147,6 +158,9 @@ jobs:
         run: yarn package-mac
         env:
           DONT_SIGN_APP: true # Do not sign the development artifacts
+      
+      - name: ls ./release
+        run: ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./release
 
       # Upload artifacts to GCS
       - name: get-smapp-version

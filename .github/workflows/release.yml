@@ -29,6 +29,15 @@ jobs:
       - name: Get Smapp version
         id: package-version
         uses: tyankatsu0105/read-package-version-actions@v1
+
+      - uses: olegtarasov/get-tag@v2.1
+        id: tagName
+      
+      - name: Tag and version are equals
+        if: steps.package-version.outputs.version != steps.tagName.output.tag
+        run: |
+          echo "Tag does not match Version.\nTag: ${{ steps.tagName.output.tag }}\nVersion: ${{ steps.package-version.outputs.version }}\n"
+          exit 1
       
       # Cache yarn cahe to fasten install process
       - name: Get yarn cache directory path
@@ -106,7 +115,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
 
-      - name: ls node & libs directory
+      - name: ls archive and ./node
         run: |
           7z l ./node/release.zip
           ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
@@ -130,8 +139,6 @@ jobs:
           # TODO: Move notarizing MacOS application to another job, like `sign-win-app`
 
       # Store artifacts for further jobs
-      - uses: olegtarasov/get-tag@v2.1
-        id: tagName
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
