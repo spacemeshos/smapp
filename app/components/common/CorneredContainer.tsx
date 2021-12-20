@@ -40,14 +40,14 @@ const HeaderIcon = styled.img<{ src: any }>`
   margin-right: 5px;
 `;
 
-const Header = styled.div`
+export const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
   color: ${({ color }) => color};
   text-transform: uppercase;
 `;
 
-const SubHeader = styled.div`
+export const SubHeader = styled.div`
   margin-bottom: auto;
   padding-bottom: 20px;
   font-size: 16px;

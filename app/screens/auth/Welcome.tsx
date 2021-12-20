@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { CorneredContainer } from '../../components/common';
+import { SubHeader } from '../../components/common/CorneredContainer';
 import { Button, Link, Tooltip } from '../../basicComponents';
 import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
@@ -29,6 +30,7 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-bottom: 0.66em;
 `;
 
 const Icon = styled.img`
@@ -77,24 +79,16 @@ const GreenText = styled.span`
 const LearnMoreText = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
   margin-top: 20px;
+  margin-bottom: auto;
 `;
 
 const ButtonMargin = styled.div`
   margin-left: 30px;
 `;
 
-const subHeader = (
-  <RowText>
-    <span>
-      Thank you for installing the Spacemesh App for
-      <GreenText>TweedleDee Testnet 0.1.0</GreenText>
-      <br />
-      <br />
-      <span>Use this app to:</span>
-      <br />
-    </span>
-  </RowText>
-);
+const SubHeaderExt = styled(SubHeader)`
+  margin-bottom: 0;
+`;
 
 const Welcome = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -102,7 +96,19 @@ const Welcome = ({ history }: AuthRouterParams) => {
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   return (
-    <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" subHeader={subHeader} isDarkMode={isDarkMode}>
+    <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" isDarkMode={isDarkMode}>
+      <SubHeaderExt>
+        <RowText>
+          <span>
+            Thank you for installing the Spacemesh App for
+            <GreenText>TweedleDee Testnet 0.1.0</GreenText>
+            <br />
+            <br />
+            <span>Use this app to:</span>
+            <br />
+          </span>
+        </RowText>
+      </SubHeaderExt>
       <SideBar src={bigInnerSideBar} />
       <Indicator />
       <Row>
