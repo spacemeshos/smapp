@@ -350,13 +350,13 @@ const Node = ({ history, location }: Props) => {
       <>
         <Row>
           <RowText color={smColors.purple} weight={700}>
-            <Icon src={walletSecond} /> You app is currently in wallet-only mode and smeshing is not set up
+            <Icon src={walletSecond} /> Your app is currently in wallet-only mode and smeshing is not set up.
           </RowText>
         </Row>
         <Row>
           <RowText color={smColors.darkOrange} weight={400}>
             <IconSmesher src={posSmesherOrange} />
-            You can switch and start using a local Spacemesh full p2p node managed by this app and start smeshing and getting smeshing rewards.
+            Click on the setup semsher button below to start using a local managed full Spacemesh p2p node and to smesh.
           </RowText>
         </Row>
         <BottomPart>
