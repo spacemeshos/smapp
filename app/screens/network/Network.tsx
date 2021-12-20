@@ -87,7 +87,7 @@ const Network = ({ history }) => {
     setRestarting(false);
   }, []);
 
-  const requestSwitchGateway = () => {
+  const requestSwitchApiProvider = () => {
     history.push('/auth/connect-to-api', { switchApiProvider: true });
   };
 
@@ -95,7 +95,7 @@ const Network = ({ history }) => {
     if (!nodeError) return null;
 
     return isWalletMode ? (
-      <Button text="SWITCH GATEWAY" width={150} isPrimary onClick={requestSwitchGateway} style={{ marginLeft: 'auto' }} />
+      <Button text="SWITCH API PROVIDER" width={150} isPrimary onClick={requestSwitchApiProvider} style={{ marginLeft: 'auto' }} />
     ) : (
       <Button text={isRestarting ? 'RESTARTING...' : 'RESTART NODE'} width={150} isPrimary onClick={requestNodeRestart} style={{ marginLeft: 'auto' }} isDisabled={isRestarting} />
     );
@@ -150,7 +150,7 @@ const Network = ({ history }) => {
               <DetailsText>Connection Type</DetailsText>
               <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
             </DetailsTextWrap>
-            <GrayText>{isWalletMode ? `Remote Gateway: ${remoteApi}` : 'Managed p2p node'}</GrayText>
+            <GrayText>{isWalletMode ? `Remote API provider: ${remoteApi}` : 'Managed p2p node'}</GrayText>
           </DetailsRow>
           {!isWalletMode && (
             <DetailsRow>
