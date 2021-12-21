@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { CorneredContainer } from '../../components/common';
 import { SubHeader } from '../../components/common/CorneredContainer';
@@ -7,6 +7,8 @@ import { Button, Link, Tooltip } from '../../basicComponents';
 import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { getNetworkName } from '../../redux/network/selectors';
+import { getNetworkDefinitions } from '../../redux/network/actions';
 import { AuthRouterParams } from './routerParams';
 
 const SideBar = styled.img`
@@ -92,7 +94,14 @@ const SubHeaderExt = styled(SubHeader)`
 
 const Welcome = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    // Requeat update of network definitions on a start up
+    dispatch(getNetworkDefinitions());
+  });
+
+  const networkName = useSelector(getNetworkName);
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   return (
@@ -101,7 +110,7 @@ const Welcome = ({ history }: AuthRouterParams) => {
         <RowText>
           <span>
             Thank you for installing the Spacemesh App for
-            <GreenText>TweedleDee Testnet 0.1.0</GreenText>
+            <GreenText>{networkName}</GreenText>
             <br />
             <br />
             <span>Use this app to:</span>
