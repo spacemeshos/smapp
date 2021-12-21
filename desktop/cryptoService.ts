@@ -65,7 +65,7 @@ class CryptoService {
         ['AccountNonce', xdr1.uhyper()],
         ['Recipient', xdr1.opaque(20)],
         ['GasLimit', xdr1.uhyper()],
-        ['Price', xdr1.uhyper()],
+        ['Fee', xdr1.uhyper()],
         ['Amount', xdr1.uhyper()],
       ]);
       xdr1.struct('SerializableSignedTransaction', [
@@ -76,8 +76,8 @@ class CryptoService {
     const message = new types.InnerSerializableSignedTransaction({
       AccountNonce: xdr.UnsignedHyper.fromString(`${accountNonce}`),
       Recipient: fromHexString(receiver),
-      GasLimit: xdr.UnsignedHyper.fromString('5'), // TODO: change to real number passed from user selection
-      Price: xdr.UnsignedHyper.fromString(`${price}`),
+      GasLimit: xdr.UnsignedHyper.fromString('1'), // TODO: change to real number passed from user selection
+      Fee: xdr.UnsignedHyper.fromString(`${price}`),
       Amount: xdr.UnsignedHyper.fromString(`${amount}`),
     });
     const bufMessage = message.toXDR();

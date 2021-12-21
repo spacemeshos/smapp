@@ -105,7 +105,7 @@ const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, 
         <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${minCommitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
         {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
-          {freeSpace ? `${freeSpace} GB` : ''}
+          {freeSpace || ''}
         </FreeSpace>
       </Wrapper>
       <PoSFooter action={nextAction} skipAction={skipAction} isDisabled={!dataDir || hasPermissionError || !status} />

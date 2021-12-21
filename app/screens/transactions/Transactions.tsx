@@ -135,7 +135,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
           {transactions && transactions.length ? (
             transactions.map((tx: TxView | RewardView) =>
               isReward(tx) ? (
-                <RewardRow key={`${publicKey}_reward_${tx.layer}`} tx={tx} />
+                <RewardRow key={`${publicKey}_reward_${tx.layer}`} publicKey={publicKey} tx={tx} />
               ) : (
                 <TxRow key={`tx_${tx.id}`} tx={tx} publicKey={publicKey} addAddressToContacts={({ address }) => setAddressToAdd(`0x${address}`)} />
               )

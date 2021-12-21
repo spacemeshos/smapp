@@ -30,7 +30,7 @@ export const getAddress = (key: string) => (key.length <= 44 ? key : key.substri
 // By default it checks the account address, length = 40
 // To validate tx / smesher address, set length to 64
 export const validateAddress = (address: string, length = 40): address is HexString => {
-  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`).test(address);
+  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`, 'i').test(address);
   return r;
 };
 

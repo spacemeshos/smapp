@@ -6,6 +6,8 @@ import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { RewardView } from '../../redux/wallet/selectors';
+import { HexString } from '../../../shared/types';
+import Address from '../common/Address';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -107,10 +109,11 @@ const TextRow = styled.div<{ isLast?: boolean }>`
 `;
 
 type Props = {
+  publicKey: HexString;
   tx: RewardView;
 };
 
-const RewardRow = ({ tx }: Props) => {
+const RewardRow = ({ tx, publicKey }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -131,15 +134,18 @@ const RewardRow = ({ tx }: Props) => {
       ) : null}
       <TextRow>
         <BlackText>TO</BlackText>
-        <BoldText>ME</BoldText>
+        <BoldText>
+          <Address address={publicKey} suffix="(Me)" />
+        </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>SMESHING REWARD</BlackText>
         <BoldText>{formatSmidge(amount)}</BoldText>
       </TextRow>
+      {/* layerReward is not a fee, so do not show it until we can retrieve a fee */}
       <TextRow>
         <BlackText>SMESHING FEE REWARD</BlackText>
-        <BoldText>{formatSmidge(layerReward)}</BoldText>
+        <BoldText>{formatSmidge(amount - layerReward)}</BoldText>
       </TextRow>
     </DetailsSection>
   );
