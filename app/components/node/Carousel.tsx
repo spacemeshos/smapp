@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { chevronLeftBlack, chevronLeftGray, chevronRightBlack, chevronRightGray, posCpuActive, posCpuGrey, posGpuActive, posGpuGrey } from '../../assets/images';
 import { smColors } from '../../vars';
 import { ComputeApiClass, PostSetupComputeProvider } from '../../../shared/types';
+import { formatWithCommas } from '../../infra/utils';
 
 const SLIDE_WIDTH = 170;
 const SLIDE_MARGIN = 15;
@@ -186,14 +187,15 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
                 <TextWrapper>
                   <Text>{provider.model}</Text>
                   {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_UNSPECIFIED && <Text>(UNSPECIFIED)</Text>}
-                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && <Text>(CPU)</Text>}
+                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && null}
                   {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA && <Text>(CUDA)</Text>}
                   {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN && <Text>(VULCAN)</Text>}
                   <Text>--</Text>
                 </TextWrapper>
                 <TextWrapper>
-                  <Text>~{provider.performance} hashes per second</Text>
-                  <Text>TO SAVE DATA</Text>
+                  <Text>~{formatWithCommas(provider.performance)} hashes per second</Text>
+                  {/* <Text>TO SAVE DATA</Text> */}
+                  {/* TODO: Return it back when estimated time will be available */}
                 </TextWrapper>
                 {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />}
                 {[ComputeApiClass.COMPUTE_API_CLASS_CUDA, ComputeApiClass.COMPUTE_API_CLASS_VULKAN].includes(provider.computeApi) && (
