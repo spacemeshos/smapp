@@ -47,6 +47,8 @@ export const formatBytes = (bytes: number) => {
   return `${parseFloat((bytes / 1073741824).toFixed(2))} GB`;
 };
 
+export const formatWithCommas = (x: number) => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
 // -------------------
 // Units
 // -------------------
