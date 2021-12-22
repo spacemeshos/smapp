@@ -90,6 +90,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
     }
 
     let stream: ReturnType<typeof this.service[typeof method]>;
+    let timeout: NodeJS.Timeout;
     const startStream = () => {
       if (!this.service) {
         throw new Error(`${this.serviceName} is not running`);
@@ -102,11 +103,12 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
         this.logger?.error(`grpc ${this.serviceName}.${method}`, error);
         if (ERROR_CODE_TO_RESTART_STREAM.includes(error.code)) {
           stream.cancel();
-          setTimeout(() => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
             console.log(`${this.serviceName}.${method} restarting...`); // eslint-disable-line no-console
             this.logger?.error(`grpc ${this.serviceName}.${method} restarting...`, null);
             startStream();
-          }, 1000);
+          }, 5000);
         }
       });
     };
