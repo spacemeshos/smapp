@@ -34,9 +34,11 @@ jobs:
         id: tagName
       
       - name: Tag and version are equals
-        if: steps.package-version.outputs.version != steps.tagName.output.tag
+        if: ${{ steps.tagName.outputs.tag != format('v{0}', steps.package-version.outputs.version) }}
         run: |
-          echo "Tag does not match Version.\nTag: ${{ steps.tagName.output.tag }}\nVersion: ${{ steps.package-version.outputs.version }}\n"
+          echo "Tag does not match Version."
+          echo "Tag: ${{ steps.tagName.outputs.tag }}"
+          echo "Version: v${{ steps.package-version.outputs.version }}"
           exit 1
       
       # Cache yarn cahe to fasten install process
@@ -179,9 +181,7 @@ jobs:
         if: steps.cache-codesigntool.outputs.cache-hit != 'true'
         run: |
           unzip -d ./codesigntool/ ./codesigntool.zip
-          f=(./codesigntool/*)
-          mv ./codesigntool/*/* ./codesigntool
-          rmdir "${f[@]}"
+          chmod 755 ./codesigntool/*
 
       # CodeSignTool requires Java 11 and ubuntu-latest uses it by default
       # but to make it robust add extra step to ensure a Java version
