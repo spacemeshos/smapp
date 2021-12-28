@@ -26,7 +26,7 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
-import { isDev, writeFileAsync } from './utils';
+import { isDebug, isDev, writeFileAsync } from './utils';
 import prompt from './prompt';
 
 require('dotenv').config();
@@ -53,9 +53,8 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
-const DEBUG = isDev() || process.env.DEBUG_PROD === 'true';
 
-DEBUG && require('electron-debug')();
+isDebug() && require('electron-debug')();
 
 let mainWindow: BrowserWindow;
 let browserView: BrowserView;

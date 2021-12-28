@@ -5,6 +5,8 @@ import cs from 'checksum';
 
 export const isDev = () => process.env.NODE_ENV === 'development';
 
+export const isDebug = () => isDev() || process.env.DEBUG_PROD;
+
 export const fromHexString = (hexString: string) => {
   const bytes = [];
   for (let i = 0; i < hexString.length; i += 2) {
