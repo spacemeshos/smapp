@@ -26,12 +26,17 @@ import NodeManager from './NodeManager';
 import NotificationManager from './notificationManager';
 import SmesherManager from './SmesherManager';
 import './wasm_exec';
-import { isDebug, isDev, writeFileAsync } from './utils';
+import { isDebug, isDev, isDevNet, isProd, writeFileAsync } from './utils';
 import prompt from './prompt';
 
-require('dotenv').config();
+// Ensure that we run only single instance of Smapp
+!app.requestSingleInstanceLock() && app.quit();
 
-const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
+// Prepare environment
+require('dotenv').config();
+require('electron-unhandled')();
+isDebug() && require('electron-debug')();
+isProd() && require('source-map-support').install();
 
 (async function () {
   const filePath = path.resolve(app.getAppPath(), isDev() ? './' : 'desktop/', 'ed25519.wasm');
@@ -43,19 +48,13 @@ const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
   await go.run(instance);
 })();
 
-const unhandled = require('electron-unhandled');
-
-unhandled();
-
+// Preload data
 StoreService.init();
 
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
+// Constants
+const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
 
-isDebug() && require('electron-debug')();
-
+// State
 let mainWindow: BrowserWindow;
 let browserView: BrowserView;
 let tray: Tray;
@@ -66,8 +65,11 @@ let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
 
 let closingApp = false;
 let shouldShowWindowOnLoad = true;
+
+// Utils
 const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing());
 
+// Handlers
 enum CloseAppPromptResult {
   CANCELED = 1, // To avoid conversion to `false`
   KEEP_SMESHING = 2,
@@ -117,12 +119,11 @@ const handleClosingApp = async (event: Electron.Event) => {
   }
 };
 
-app.on('before-quit', handleClosingApp);
-
 const createTray = () => {
   tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
   tray.setToolTip('Spacemesh');
   const eventHandler = () => {
+    if (!mainWindow) return;
     mainWindow.show();
     mainWindow.focus();
   };
@@ -185,30 +186,18 @@ const addIpcEventListeners = () => {
   });
 };
 
-const gotTheLock = app.requestSingleInstanceLock();
-
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on('second-instance', () => {
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-}
-const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
-  proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
-
 const promptNetworkSelection = async (networks) => {
   const options = Object.fromEntries(networks.map((conf, idx) => [idx, `${conf.netName} (${conf.netID})`]));
-  const res = await prompt({
-    title: 'Spacemesh App: Choose the network',
-    label: 'Please, choose the network:',
-    type: 'select',
-    selectOptions: options,
-    alwaysOnTop: true,
-  });
+  const res = await prompt(
+    {
+      title: 'Spacemesh App: Choose the network',
+      label: 'Please, choose the network:',
+      type: 'select',
+      selectOptions: options,
+      alwaysOnTop: true,
+    },
+    null
+  );
   return res ? parseInt(res, 10) : 0;
 };
 
@@ -268,8 +257,6 @@ const createWindow = async () => {
   });
 
   mainWindow.on('close', handleClosingApp);
-
-  createTray();
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
@@ -338,6 +325,15 @@ const createWindow = async () => {
   mainWindow.loadURL(`file://${__dirname}/index.html`);
 };
 
+const showMainWindow = () => {
+  if (mainWindow === null) {
+    createWindow();
+  } else if (mainWindow) {
+    mainWindow.show();
+    mainWindow.focus();
+  }
+};
+
 const installDevTools = async () => {
   if (!DEBUG) return;
   const { default: installExtension, REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
@@ -347,17 +343,22 @@ const installDevTools = async () => {
   );
 };
 
+// App: setup
+createTray();
+
+// App: subscribe to events
+app.on('before-quit', handleClosingApp);
+app.on('activate', showMainWindow);
+app.on('second-instance', () => {
+  if (!mainWindow) return;
+  mainWindow.isMinimized() && mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+});
+
+// Run
 app
   .whenReady()
   .then(() => installDevTools())
   .then(createWindow)
   .catch(console.log); // eslint-disable-line no-console
-
-app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
-  } else if (mainWindow) {
-    mainWindow.show();
-    mainWindow.focus();
-  }
-});
