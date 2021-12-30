@@ -11,7 +11,7 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
-import { app, BrowserWindow, BrowserView, ipcMain, Tray, Menu, dialog, nativeTheme, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
 import 'regenerator-runtime/runtime';
 import fetch from 'electron-fetch';
 
@@ -28,6 +28,12 @@ import SmesherManager from './SmesherManager';
 import './wasm_exec';
 import { isDebug, isDev, isDevNet, isProd, writeFileAsync } from './utils';
 import prompt from './prompt';
+import createTray from './main/createTray';
+import installDevTools from './main/installDevTools';
+import subscribeIPC from './main/subscribeIPC';
+import { getDefaultAppContext } from './main/context';
+import promptBeforeClose from './main/promptBeforeClose';
+import { contextType } from 'react-timeago';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -51,141 +57,13 @@ isProd() && require('source-map-support').install();
 // Preload data
 StoreService.init();
 
-// Constants
-const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
-
 // State
-let mainWindow: BrowserWindow;
-let browserView: BrowserView;
-let tray: Tray;
-let nodeManager: NodeManager;
-let smesherManager: SmesherManager;
-let notificationManager: NotificationManager;
-let isDarkMode: boolean = nativeTheme.shouldUseDarkColors;
+const context = getDefaultAppContext();
 
-let closingApp = false;
-let shouldShowWindowOnLoad = true;
-
-// Utils
-const isSmeshing = async () => smesherManager && (await smesherManager.isSmeshing());
+// App behaviors
+const onCloseHandler = promptBeforeClose(context);
 
 // Handlers
-enum CloseAppPromptResult {
-  CANCELED = 1, // To avoid conversion to `false`
-  KEEP_SMESHING = 2,
-  CLOSE = 3,
-}
-
-const promptClosingApp = async () => {
-  const { response } = await dialog.showMessageBox(mainWindow, {
-    title: 'Quit App',
-    message:
-      '\nQuitting stops smeshing and may cause loss of future due smeshing rewards.' +
-      '\n\n\n• Click RUN IN BACKGROUND to close the App window and to keep smeshing in the background.' +
-      '\n\n• Click QUIT to close the app and stop smeshing.\n',
-    buttons: ['RUN IN BACKGROUND', 'QUIT', 'Cancel'],
-    cancelId: 2,
-  });
-  switch (response) {
-    default:
-    case 2:
-      return CloseAppPromptResult.CANCELED;
-    case 0:
-      return CloseAppPromptResult.KEEP_SMESHING;
-    case 1:
-      return CloseAppPromptResult.CLOSE;
-  }
-};
-const handleClosingApp = async (event: Electron.Event) => {
-  if (closingApp) return;
-  event.preventDefault();
-
-  const promptResult = ((await isSmeshing()) && (await promptClosingApp())) || CloseAppPromptResult.CLOSE;
-  if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
-    setTimeout(() => {
-      notificationManager.showNotification({
-        title: 'Spacemesh',
-        body: 'Smesher is running in the background.',
-      });
-    }, 1000);
-    mainWindow.hide();
-    shouldShowWindowOnLoad = false;
-    mainWindow.reload();
-  } else if (promptResult === CloseAppPromptResult.CLOSE) {
-    mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-    await nodeManager.stopNode();
-    closingApp = true;
-    app.quit();
-  }
-};
-
-const createTray = () => {
-  tray = new Tray(path.join(__dirname, '..', 'resources', 'icons', '16x16.png'));
-  tray.setToolTip('Spacemesh');
-  const eventHandler = () => {
-    if (!mainWindow) return;
-    mainWindow.show();
-    mainWindow.focus();
-  };
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Show App',
-      click: () => eventHandler(),
-    },
-    {
-      label: 'Quit',
-      click: () => app.quit(),
-    },
-  ]);
-  tray.on('double-click', () => eventHandler());
-  tray.setContextMenu(contextMenu);
-};
-
-const createBrowserView = () => {
-  browserView = new BrowserView({
-    webPreferences: {
-      nodeIntegration: false,
-    },
-  });
-};
-
-const addIpcEventListeners = () => {
-  ipcMain.handle(ipcConsts.GET_OS_THEME_COLOR, () => nativeTheme.shouldUseDarkColors);
-
-  ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
-    createBrowserView();
-    mainWindow.setBrowserView(browserView);
-    browserView.webContents.on('new-window', (event, url) => {
-      event.preventDefault();
-      shell.openExternal(url);
-    });
-    const contentBounds = mainWindow.getContentBounds();
-    browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
-    browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-    const dashUrl = StoreService.get('netSettings.dashUrl');
-    browserView.webContents.loadURL(`${dashUrl}?hide-right-line${isDarkMode ? '&darkMode' : ''}`);
-  });
-
-  ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
-    browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-    // browserView.destroy();
-  });
-
-  ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
-    isDarkMode = request.isDarkMode;
-  });
-
-  ipcMain.on(ipcConsts.PRINT, (_event, request: { content: string }) => {
-    const printerWindow = new BrowserWindow({ width: 800, height: 800, show: true, webPreferences: { nodeIntegration: true, devTools: false } });
-    const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
-    printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
-  });
-
-  ipcMain.on(ipcConsts.RELOAD_APP, () => {
-    mainWindow.reload();
-  });
-};
-
 const promptNetworkSelection = async (networks) => {
   const options = Object.fromEntries(networks.map((conf, idx) => [idx, `${conf.netName} (${conf.netID})`]));
   const res = await prompt(
@@ -211,6 +89,7 @@ const selectNetwork = async (currentNetId, networks) => {
 };
 
 const getInitialConfig = async (savedNetId) => {
+  const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
   if (isDevNet(process)) {
     return {
       netName: 'Dev Net',
@@ -244,7 +123,7 @@ const getConfigs = async () => {
 };
 
 const createWindow = async () => {
-  mainWindow = new BrowserWindow({
+  const mainWindow = new BrowserWindow({
     show: false,
     width: 1280,
     height: 700,
@@ -256,21 +135,19 @@ const createWindow = async () => {
     },
   });
 
-  mainWindow.on('close', handleClosingApp);
+  mainWindow.on('close', onCloseHandler);
 
   // @TODO: Use 'ready-to-show' event
   //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
   mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) {
+    if (!context.mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
-    if (shouldShowWindowOnLoad) {
+    if (context.showWindowOnLoad) {
       mainWindow.show();
       mainWindow.focus();
     }
   });
-
-  addIpcEventListeners();
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
@@ -301,7 +178,7 @@ const createWindow = async () => {
   }
 
   const subscribeListingGrpcApis = (initialConfig) => {
-    const walletServices: PublicService[] = [
+    const publicApis: PublicService[] = [
       toPublicService(initialConfig.netName, initialConfig.grpcAPI),
       ...(isDevNet(process) && process.env.DEV_NET_REMOTE_API
         ? process.env.DEV_NET_REMOTE_API?.split(',')
@@ -309,23 +186,27 @@ const createWindow = async () => {
             .map((url) => toPublicService(initialConfig.netName, url))
         : []),
     ];
-    StoreService.set('netSettings.grpcAPI', walletServices.map(stringifySocketAddress));
-    ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => walletServices);
+    StoreService.set('netSettings.grpcAPI', publicApis.map(stringifySocketAddress));
   };
 
-  smesherManager = new SmesherManager(mainWindow, configFilePath);
-  nodeManager = new NodeManager(mainWindow, isCleanStart, smesherManager);
+  const smesherManager = new SmesherManager(mainWindow, configFilePath);
+  const nodeManager = new NodeManager(mainWindow, isCleanStart, smesherManager);
   // eslint-disable-next-line no-new
   new WalletManager(mainWindow, nodeManager);
-  notificationManager = new NotificationManager(mainWindow);
-  new AutoStartManager(); // eslint-disable-line no-new
   subscribeListingGrpcApis(initialConfig);
 
   // Load page after initialization complete
   mainWindow.loadURL(`file://${__dirname}/index.html`);
+
+  context.mainWindow = mainWindow;
+  context.managers.smesher = smesherManager;
+  context.managers.node = nodeManager;
+
+  return mainWindow;
 };
 
 const showMainWindow = () => {
+  const { mainWindow } = context;
   if (mainWindow === null) {
     createWindow();
   } else if (mainWindow) {
@@ -334,20 +215,8 @@ const showMainWindow = () => {
   }
 };
 
-const installDevTools = async () => {
-  if (!DEBUG) return;
-  const { default: installExtension, REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
-  await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS], { loadExtensionOptions: { allowFileAccess: true }, forceDownload: false }).then(
-    (names) => console.log('DevTools Installed:', names), // eslint-disable-line no-console
-    (err) => console.log('DevTools Installation Error:', err) // eslint-disable-line no-console
-  );
-};
-
-// App: setup
-createTray();
-
 // App: subscribe to events
-app.on('before-quit', handleClosingApp);
+app.on('before-quit', onCloseHandler);
 app.on('activate', showMainWindow);
 app.on('second-instance', () => {
   if (!mainWindow) return;
@@ -356,9 +225,13 @@ app.on('second-instance', () => {
   mainWindow.focus();
 });
 
+subscribeIPC(context);
+new AutoStartManager(); // eslint-disable-line no-new
+
 // Run
 app
   .whenReady()
-  .then(() => installDevTools())
+  .then(createTray)
+  .then(installDevTools)
   .then(createWindow)
   .catch(console.log); // eslint-disable-line no-console
