@@ -8,4 +8,5 @@ export { default as WordsRestore } from './WordsRestore';
 export { default as WalletConnectionType } from './WalletConnectionType';
 export { default as WalletType } from './WalletType';
 export { default as ConnectToApi } from './ConnectToApi';
+export { default as SwitchNetwork } from './SwitchNetwork';
 export { default as Leaving } from './Leaving';

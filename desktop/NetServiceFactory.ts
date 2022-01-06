@@ -33,6 +33,8 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
 
   private apiUrl: SocketAddress | null = null;
 
+  private restartStreamList: Record<keyof Service<T, ServiceName>, () => void> = <typeof this.restartStreamList>{};
+
   createNetService = (protoPath: string, apiUrl: SocketAddress | PublicService = LOCAL_NODE_API_URL, serviceName: string) => {
     if (this.apiUrl === apiUrl) return;
 
@@ -113,8 +115,23 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
       });
     };
     startStream();
-    return () => setImmediate(() => stream && stream.cancel && stream.cancel());
+    const cancel = () =>
+      new Promise<void>((resolve) =>
+        setImmediate(() => {
+          stream && stream.cancel && stream.cancel();
+          resolve();
+        })
+      );
+
+    this.restartStreamList[method] = async () => {
+      await cancel();
+      startStream();
+    };
+
+    return cancel;
   };
+
+  restartStreams = () => Object.values(this.restartStreamList).forEach((fn) => fn.call(this));
 }
 
 export default NetServiceFactory;

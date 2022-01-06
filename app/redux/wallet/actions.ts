@@ -1,4 +1,5 @@
 import { Account, Contact, HexString, SocketAddress, Tx, TxSendRequest, WalletMeta } from '../../../shared/types';
+import { isRemoteNodeApi, stringifySocketAddress } from '../../../shared/utils';
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
@@ -9,6 +10,7 @@ export const SET_ACCOUNTS = 'SET_ACCOUNTS';
 export const SET_CURRENT_ACCOUNT_INDEX = 'SET_CURRENT_ACCOUNT_INDEX';
 export const SET_CURRENT_MODE = 'SET_CURRENT_MODE';
 
+export const SET_REMOTE_API = 'SET_REMOTE_API';
 export const SET_MNEMONIC = 'SET_MNEMONIC';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 export const SET_CONTACTS = 'SET_CONTACTS';
@@ -46,16 +48,24 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
   return files;
 };
 
-export const createNewWallet = ({ existingMnemonic = '', password, apiUrl }: { existingMnemonic?: string | undefined; password: string; apiUrl?: SocketAddress }) => (
-  dispatch: AppThDispatch
-) =>
+export const createNewWallet = ({
+  existingMnemonic = '',
+  password,
+  apiUrl,
+  netId,
+}: {
+  existingMnemonic?: string | undefined;
+  password: string;
+  apiUrl: SocketAddress;
+  netId: number;
+}) => (dispatch: AppThDispatch) =>
   eventsService
-    .createWallet({ password, existingMnemonic, apiUrl })
+    .createWallet({ password, existingMnemonic, apiUrl, netId })
     .then((data) => {
-      const { meta, accounts, mnemonic } = data;
+      const { meta, crypto } = data;
       dispatch(setWalletMeta(meta));
-      dispatch(setAccounts(accounts));
-      dispatch(setMnemonic(mnemonic));
+      dispatch(setAccounts(crypto.accounts));
+      dispatch(setMnemonic(crypto.mnemonic));
       dispatch(readWalletFiles());
       return data;
     })
@@ -66,22 +76,33 @@ export const createNewWallet = ({ existingMnemonic = '', password, apiUrl }: { e
 
 export const unlockWallet = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, accounts, mnemonic, meta, contacts } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
+  const { error, accounts, mnemonic, meta, contacts, isNetworkExist } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
   if (error) {
+    // Incorrecrt password
     if (error.message && error.message.indexOf('Unexpected token') === 0) {
-      return false;
+      return { success: false };
     }
+    // Some unhandled error
     console.error(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not unlock wallet\n', error)));
-    return false;
-  } else {
-    dispatch(setWalletMeta(meta));
-    dispatch(setAccounts(accounts));
-    dispatch(setMnemonic(mnemonic));
-    dispatch(setContacts(contacts));
-    dispatch(setCurrentAccount(0));
-    return true;
+    return { success: false };
   }
+  // Success
+  dispatch(setWalletMeta(meta));
+  dispatch(setAccounts(accounts));
+  dispatch(setMnemonic(mnemonic));
+  dispatch(setContacts(contacts));
+  dispatch(setCurrentAccount(0));
+  return { success: true, noNetwork: !isNetworkExist, isWalletOnly: !!meta.remoteApi };
+};
+
+export const switchApiProvider = (api: SocketAddress) => async (dispatch: AppThDispatch) => {
+  await eventsService.switchApiProvider(api);
+  dispatch({
+    type: SET_REMOTE_API,
+    payload: isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
+  });
+  return true;
 };
 
 export const updateWalletName = ({ displayName }: { displayName: string }) => async (dispatch: AppThDispatch, getState: GetState) => {

@@ -1,6 +1,5 @@
 import { BrowserView, BrowserWindow, ipcMain, nativeTheme, shell } from 'electron';
 import { ipcConsts } from '../../app/vars';
-import StoreService from '../storeService';
 import { AppContext } from './context';
 
 export default (context: AppContext) => {
@@ -18,8 +17,8 @@ export default (context: AppContext) => {
     let browserView;
 
     ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
-      const { mainWindow } = context;
-      if (!mainWindow) return;
+      const { mainWindow, currentNetwork } = context;
+      if (!mainWindow || !currentNetwork) return;
       browserView = new BrowserView({
         webPreferences: {
           nodeIntegration: false,
@@ -33,7 +32,7 @@ export default (context: AppContext) => {
       const contentBounds = mainWindow.getContentBounds();
       browserView.setBounds({ x: 0, y: 90, width: contentBounds.width - 35, height: 600 });
       browserView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-      const dashUrl = StoreService.get('netSettings.dashUrl');
+      const dashUrl = currentNetwork.dash;
       browserView.webContents.loadURL(`${dashUrl}?hide-right-line${context.isDarkMode ? '&darkMode' : ''}`);
     });
 
@@ -50,7 +49,4 @@ export default (context: AppContext) => {
     const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
     printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
   });
-
-  // List Public GRPC APIs to the Renderer
-  ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => context.publicApis);
 };

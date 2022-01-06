@@ -20,16 +20,6 @@ export interface AccountStore {
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
   nodeConfigFilePath: string;
-  netSettings: {
-    netId: number;
-    netName: string;
-    explorerUrl: string;
-    dashUrl: string;
-    minCommitmentSize: number;
-    layerDurationSec: number;
-    genesisTime: string;
-    grpcAPI: string[];
-  };
   nodeSettings: {
     port: string;
   };
@@ -38,16 +28,6 @@ export interface ConfigStore {
 const CONFIG_STORE_DEFAULTS = {
   isAutoStartEnabled: false,
   nodeConfigFilePath: path.resolve(app.getPath('userData'), 'node-config.json'),
-  netSettings: {
-    netId: -1,
-    netName: 'Unknown',
-    explorerUrl: '',
-    dashUrl: '',
-    minCommitmentSize: -1,
-    layerDurationSec: -1,
-    genesisTime: '',
-    grpcAPI: [],
-  },
   nodeSettings: {
     port: '9092',
   },

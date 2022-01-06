@@ -2,12 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { StepsContainer, Button, Link, Tooltip } from '../../basicComponents';
+import { Button, Link, Tooltip } from '../../basicComponents';
 import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthRouterParams } from './routerParams';
+import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
   display: flex;
@@ -102,12 +103,17 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const navigateToCreateWallet = async () => {
-    history.push('/auth/create', { apiUrl: location?.state?.apiUrl });
+    if (location.state.walletOnly) {
+      history.push('/auth/switch-network', { redirect: '/auth/connect-to-api', creatingWallet: true });
+    } else {
+      history.push('/auth/switch-network', { redirect: '/auth/create', creatingWallet: true });
+    }
+    // history.push('/auth/create', { apiUrl: location?.state?.apiUrl });
   };
 
   return (
     <Wrapper>
-      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={1} isDarkMode={isDarkMode} />
+      <Steps step={Step.NEW_WALLET_TYPE} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="WALLET SETUP" subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
         <BackButton action={history.goBack} />
         <RowJust>

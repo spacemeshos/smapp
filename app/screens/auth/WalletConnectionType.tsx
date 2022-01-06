@@ -2,11 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
-import { StepsContainer, Button, Link, Tooltip } from '../../basicComponents';
+import { Button, Link, Tooltip } from '../../basicComponents';
 import { posSmesherWhite, walletSecondWhite, walletSecondBlack, posSmesherBlack } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthRouterParams } from './routerParams';
+import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
   display: flex;
@@ -80,13 +81,13 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
-  const handleWalletAndNodeSelection = () => {
-    history.push('/auth/wallet-type');
+  const handleNextStep = (walletOnly: boolean) => () => {
+    history.push('/auth/wallet-type', { walletOnly });
   };
 
   return (
     <Wrapper>
-      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={0} isDarkMode={isDarkMode} />
+      <Steps step={Step.NEW_WALLET_SETUP} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="NEW WALLET" subHeader="Configure your new wallet" isDarkMode={isDarkMode}>
         <BackButton action={() => history.push('/auth/leaving')} />
         <RowJust>
@@ -99,7 +100,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
             <RowText>A wallet that uses a local full Spacemesh</RowText>
             <RowText>p2p node and optionally setup smeshing</RowText>
           </RowColumn>
-          <Button text="WALLET + NODE" width={150} isPrimary={false} onClick={handleWalletAndNodeSelection} />
+          <Button text="WALLET + NODE" width={150} isPrimary={false} onClick={handleNextStep(false)} />
         </RowJust>
         <RowSecond>
           <RowColumn>
@@ -111,7 +112,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button text="WALLET ONLY" width={150} onClick={() => history.push('/auth/connect-to-api')} />
+          <Button text="WALLET ONLY" width={150} onClick={handleNextStep(true)} />
         </RowSecond>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="NOT SURE WHAT TO DO? READ THE GUIDE " />

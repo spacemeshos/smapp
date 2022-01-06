@@ -4,6 +4,7 @@ import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
 import { NodeError } from './node';
 import { Tx, Reward } from './tx';
+import { WalletSecrets, WalletSecretsEncrypted } from './wallet';
 
 // GRPC Type guards
 export const hasRequiredTxFields = (tx: Transaction__Output): tx is Object.NonNullable<Transaction__Output, 'id' | 'amount' | 'sender'> =>
@@ -21,3 +22,7 @@ export const isTx = (a: any): a is Tx => a && a.id && a.sender && a.receiver && 
 export const isReward = (a: any): a is Reward => a && a.layer && a.coinbase && a.smesher && a.amount;
 
 export const isNodeError = (a: any): a is NodeError => a && a.msg && a.module && a.level;
+
+export const isWalletSecretsEncrypted = (a: any): a is WalletSecretsEncrypted => a && a.cipher && a.cipherText;
+
+export const isWalletSecrets = (a: any): a is WalletSecrets => a && a.mnemonic && a.accounts && a.contacts;

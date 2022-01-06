@@ -10,7 +10,7 @@ enum CloseAppPromptResult {
 }
 
 export default (context: AppContext) => {
-  let closingApp = false;
+  context.isAppClosing = false;
 
   const showPrompt = async () => {
     const { mainWindow } = context;
@@ -42,12 +42,12 @@ export default (context: AppContext) => {
     });
 
   const quit = () => {
-    closingApp = true;
+    context.isAppClosing = true;
     app.quit();
   };
 
   const handleClosingApp = async (event: Electron.Event) => {
-    if (closingApp) return;
+    if (context.isAppClosing) return;
     event.preventDefault();
     const { mainWindow } = context;
     if (!mainWindow) {

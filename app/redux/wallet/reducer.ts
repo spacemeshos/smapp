@@ -13,6 +13,7 @@ import {
   SET_CURRENT_ACCOUNT_INDEX,
   SET_BACKUP_TIME,
   SET_CURRENT_MODE,
+  SET_REMOTE_API,
   UPDATE_ACCOUNT_DATA,
 } from './actions';
 
@@ -54,6 +55,9 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     }
     case SET_MNEMONIC: {
       return { ...state, mnemonic: action.payload };
+    }
+    case SET_REMOTE_API: {
+      return { ...state, meta: { ...state.meta, remoteApi: action.payload } };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const index = action.payload;

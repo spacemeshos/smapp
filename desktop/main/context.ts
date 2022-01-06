@@ -1,7 +1,23 @@
 import { BrowserWindow, nativeTheme, Tray } from 'electron';
-import { PublicService } from '../../shared/types';
-import NodeManager from '../NodeManager';
-import SmesherManager from '../SmesherManager';
+import { Wallet } from '../../shared/types';
+import type NodeManager from '../NodeManager';
+import type SmesherManager from '../SmesherManager';
+import type WalletManager from '../WalletManager';
+
+const getDefaultNetwork = () => ({
+  netID: -1,
+  netName: 'Unknown',
+  conf: '',
+  explorer: '',
+  dash: '',
+  grpcAPI: '',
+  jsonAPI: '',
+  minNodeVersion: '',
+  maxNodeVersion: '',
+  minSmappRelease: '',
+});
+
+export type Network = ReturnType<typeof getDefaultNetwork> & { [key: string]: any };
 
 export interface AppContext {
   mainWindow?: BrowserWindow;
@@ -9,17 +25,25 @@ export interface AppContext {
   isAppClosing: boolean;
   showWindowOnLoad: boolean;
   isDarkMode: boolean;
-  publicApis: PublicService[];
+  isCleanStart: boolean;
+  networks: Network[];
+  currentNetwork?: Network;
+  wallet?: Wallet;
+  walletPath?: string;
   managers: {
     node?: NodeManager;
     smesher?: SmesherManager;
+    wallet?: WalletManager;
   };
 }
 
 export const getDefaultAppContext = (): AppContext => ({
+  isCleanStart: false,
   isAppClosing: false,
   showWindowOnLoad: true,
   isDarkMode: nativeTheme.shouldUseDarkColors,
-  publicApis: [],
+  networks: [],
   managers: {},
 });
+
+export const hasManagers = (context: AppContext) => context.managers.smesher && context.managers.node && context.managers.wallet;

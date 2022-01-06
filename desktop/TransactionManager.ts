@@ -271,8 +271,6 @@ class TransactionManager {
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
     if (!reward || !hasRequiredRewardFields(reward)) return;
 
-    // const genesisTime = StoreService.get('netSettings.genesisTime');
-    // const layerDurationSec = StoreService.get('netSettings.layerDurationSec');
     const coinbase = toHexString(reward.coinbase.address);
     const parsedReward: Reward = {
       layer: reward.layer.number,

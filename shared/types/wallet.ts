@@ -21,18 +21,6 @@ export interface Contact {
   nickname: string;
 }
 
-export interface WalletCrypto {
-  cipher: string;
-  cipherText: string;
-}
-
-// Encoded in WalletCrypto.cipherText
-export interface WalletSecretData {
-  mnemonic: string;
-  accounts: Account[];
-  contacts: Contact[];
-}
-
 export interface WalletMeta {
   displayName: string;
   created: string;
@@ -43,7 +31,24 @@ export interface WalletMeta {
   };
 }
 
+export interface WalletSecrets {
+  mnemonic: string;
+  accounts: Account[];
+  contacts: Contact[];
+}
+
+export interface WalletSecretsEncrypted {
+  cipher: string;
+  cipherText: string;
+}
+
+export interface Wallet {
+  meta: WalletMeta;
+  crypto: WalletSecrets;
+}
+
+// Encrypted Wallet representation on the filesystem
 export interface WalletFile {
   meta: WalletMeta;
-  crypto: WalletCrypto;
+  crypto: WalletSecretsEncrypted;
 }

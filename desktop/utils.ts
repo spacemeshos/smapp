@@ -2,6 +2,7 @@ import util from 'util';
 import fs from 'fs';
 import { F_OK } from 'constants';
 import cs from 'checksum';
+import fetch from 'electron-fetch';
 import { HexString } from '../shared/types';
 
 // --------------------------------------------------------
@@ -27,6 +28,12 @@ export const fromHexString = (hexString: HexString) => {
 };
 export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
   bytes instanceof Buffer ? bytes.toString('hex') : bytes.reduce((str: string, byte: number) => str + byte.toString(16).padStart(2, '0'), '');
+
+// --------------------------------------------------------
+// Fetch
+// --------------------------------------------------------
+
+export const fetchJSON = async (url?: string) => (url ? fetch(url).then((res) => res.json()) : null);
 
 // --------------------------------------------------------
 // Guards
