@@ -199,6 +199,7 @@ const Node = ({ history, location }: Props) => {
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
   const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
+  const coinbase = useSelector((state: RootState) => state.smesher.coinbase);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
   const commitmentSize = useSelector((state: RootState) => state.smesher.commitmentSize);
@@ -221,74 +222,76 @@ const Node = ({ history, location }: Props) => {
   let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
   smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
 
+  type RowData = [string, string | JSX.Element];
+  const renderTable = (data: RowData[]) =>
+    data.map(([label, value], idx) => {
+      return (
+        <LineWrap key={`smeshing-status-${idx}`}>
+          <TextWrapper>
+            <Text>{label}</Text>
+            <Text>{value}</Text>
+          </TextWrapper>
+        </LineWrap>
+      );
+    });
+
+  const getTableData = (): RowData[] => {
+    const setupStarted: RowData[] = smesherInitTimestamp ? [['Setup Started', smesherInitTimestamp]] : [];
+    const setupFinished: RowData[] = isSmeshing && smesherSmeshingTimestamp ? [['Setup Finished', smesherSmeshingTimestamp]] : [];
+
+    const progress = ((numLabelsWritten * smesherConfig.bitsPerLabel) / (BITS * commitmentSize)) * 100;
+    const progressRow: RowData[] = !isSmeshing
+      ? [
+          [
+            'Progress',
+            postProgressError ? (
+              <ProgressError>STOPPED</ProgressError>
+            ) : (
+              <Text>
+                <Text className="progress">
+                  {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
+                </Text>
+                <ProgressBarWrapper>
+                  <ProgressBar progress={progress} />
+                </ProgressBarWrapper>
+              </Text>
+            ),
+          ],
+        ]
+      : [];
+
+    return [
+      ['Smesher ID', <Address key="smesherId" type={AddressType.SMESHER} address={smesherId} />],
+      ['Status', getStatus(postSetupState, isPausedSmeshing)],
+      ...progressRow,
+      ...setupStarted,
+      ...setupFinished,
+      [
+        'Data Directory',
+        <React.Fragment key="pos-data-dir">
+          <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
+          <PathDir>{posDataPath}</PathDir>
+        </React.Fragment>,
+      ],
+      ['Data Size', formatBytes(commitmentSize)],
+      ['Rewards Address', <Address key="smesherCoinbase" type={AddressType.ACCOUNT} address={coinbase} />],
+    ];
+  };
+
   const renderNodeDashboard = () => {
     // TODO: Refactor screen and Node Dashboard
     //       to avoid excessive re-rendering of the whole screen
     //       on each progrss update, which causes blinking
     const handlePauseSmeshing = () => dispatch(pauseSmeshing());
     const handleResumeSmeshing = () => dispatch(resumeSmeshing());
-    const progress = ((numLabelsWritten * smesherConfig.bitsPerLabel) / (BITS * commitmentSize)) * 100;
     return (
       <>
-        <SmesherStatus smesherId={smesherId} status={status} networkName={networkName} />
-        <br />
-        <TextWrapper>
-          <Text>
-            <PosSmesherIcon src={posSmesher} />
-            <BoldText>Proof of Space Status</BoldText>
-          </Text>
-        </TextWrapper>
-        <LineWrap>
-          <TextWrapper>
-            <Text>
-              <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
-              <PathDir>{posDataPath}</PathDir>&nbsp;- {formatBytes(commitmentSize)} allocated
-            </Text>
-          </TextWrapper>
-        </LineWrap>
-        <LineWrap>
-          <TextWrapper>
-            <Text>Status</Text>
-            <Text>{getStatus(postSetupState, isPausedSmeshing)}</Text>
-          </TextWrapper>
-        </LineWrap>
-        <LineWrap>
-          <TextWrapper>
-            <Text>Started</Text>
-            <Text>{smesherInitTimestamp}</Text>
-          </TextWrapper>
-        </LineWrap>
-        <LineWrap>
-          {!isSmeshing && (
-            <TextWrapper>
-              <Text>Progress</Text>
-              {postProgressError ? (
-                <ProgressError>STOPPED</ProgressError>
-              ) : (
-                <Text>
-                  <Text className="progress">
-                    {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
-                  </Text>
-                  <ProgressBarWrapper>
-                    <ProgressBar progress={progress} />
-                  </ProgressBarWrapper>
-                </Text>
-              )}
-            </TextWrapper>
-          )}
-        </LineWrap>
-
-        {isSmeshing && (
-          <TextWrapper>
-            <Text>Finished</Text>
-            <Text>{smesherSmeshingTimestamp}</Text>
-          </TextWrapper>
-        )}
         {postProgressError && (
           <ErrorMessage oneLine={false} align="right">
             {postProgressError}
           </ErrorMessage>
         )}
+        {renderTable(getTableData())}
         <Footer>
           <Button
             onClick={() => history.push('/main/node-setup', { modifyPostData: true })}
