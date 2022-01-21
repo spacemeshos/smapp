@@ -10,6 +10,7 @@ import { posIcon } from '../../assets/images';
 import { formatBytes, getAddress } from '../../infra/utils';
 import { BITS, AppThDispatch, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
+import ErrorMessage from '../../basicComponents/ErrorMessage';
 
 const Wrapper = styled.div`
   display: flex;
@@ -57,8 +58,24 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const dispatch: AppThDispatch = useDispatch();
 
-  const formattedCommitmentSize = formatBytes((smesherConfig.labelsPerUnit * smesherConfig.bitsPerLabel * smesherConfig.minNumUnits) / BITS);
-  const subHeader = mode !== 1 ? subHeaders[mode] : `Select a directory to save your proof of space data.\nMinimum ${formattedCommitmentSize} of free space is required`;
+  const commitmentSize = (smesherConfig.labelsPerUnit * smesherConfig.bitsPerLabel * smesherConfig.minNumUnits) / BITS;
+  const formattedCommitmentSize = formatBytes(commitmentSize);
+  const getPosDirectorySubheader = () => (
+    <>
+      {Number.isNaN(commitmentSize) ? (
+        <ErrorMessage align="left" oneLine={false}>
+          The node is down. Please, restart the node first on the Network screen.
+        </ErrorMessage>
+      ) : (
+        <>
+          Select a directory to save your proof of space data.
+          <br />
+          Minimum {formattedCommitmentSize} of free space is required.
+        </>
+      )}
+    </>
+  );
+  const subHeader = mode !== 1 ? subHeaders[mode] : getPosDirectorySubheader();
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {

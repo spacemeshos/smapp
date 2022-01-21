@@ -102,7 +102,7 @@ const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, 
           <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
         <Link onClick={openFolderSelectionDialog} text={dataDir || 'SELECT DIRECTORY'} style={linkStyle} />
-        <ErrorText>{hasPermissionError ? `SELECT FOLDER WITH MINIMUM ${minCommitmentSize} GB FREE TO PROCEED` : ''}</ErrorText>
+        {hasPermissionError && <ErrorText>SELECT FOLDER WITH MINIMUM {minCommitmentSize} FREE TO PROCEED</ErrorText>}
         {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
           {freeSpace || ''}
