@@ -19,7 +19,7 @@ import {
   SocketAddress,
   PostSetupOpts,
   PostSetupState,
-  WalletSecretData,
+  WalletSecrets,
   HexString,
   WalletMeta,
   TxSendRequest,
@@ -27,29 +27,21 @@ import {
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
-import WalletManager from '../../../desktop/WalletManager';
 import GlobalStateService from '../../../desktop/GlobalStateService';
 import MeshService from '../../../desktop/MeshService';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 
 class EventsService {
-  static createWallet = ({
-    password,
-    existingMnemonic,
-    apiUrl,
-  }: {
-    password: string;
-    existingMnemonic: string;
-    apiUrl?: SocketAddress;
-  }): ReturnType<WalletManager['createWalletFile']> =>
+  static createWallet = ({ password, existingMnemonic, apiUrl, netId }: { password: string; existingMnemonic: string; apiUrl: SocketAddress; netId: number }) =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
       apiUrl,
+      netId,
     });
 
-  static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.W_M_READ_WALLET_FILES);
+  static readWalletFiles = () => ipcRenderer.invoke(ipcConsts.READ_WALLET_FILES);
 
   static getOsThemeColor = () => ipcRenderer.invoke(ipcConsts.GET_OS_THEME_COLOR);
 
@@ -59,6 +51,8 @@ class EventsService {
 
   static destroyBrowserView = () => ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
+  static listNetworks = (): Promise<{ netId: number; netName: string; explorer: string }[]> => ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
+
   static listPublicServices = (): Promise<PublicService[]> => ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
 
   static unlockWallet = ({ path, password }: { path: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
@@ -66,7 +60,7 @@ class EventsService {
   static updateWalletMeta = <T extends keyof WalletMeta>(fileName: string, key: T, value: WalletMeta[T]) =>
     ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_META, { fileName, key, value });
 
-  static updateWalletSecrets = (fileName: string, password: string, data: WalletSecretData) => ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, { fileName, password, data });
+  static updateWalletSecrets = (fileName: string, password: string, data: WalletSecrets) => ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, { fileName, password, data });
 
   static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 
@@ -75,7 +69,7 @@ class EventsService {
   static showFileInFolder = ({ isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) =>
     ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { isBackupFile, isLogFile });
 
-  static deleteWalletFile = ({ fileName }: { fileName: string }) => ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, { fileName });
+  static deleteWalletFile = (filepath: string) => ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, filepath);
 
   static wipeOut = () => ipcRenderer.send(ipcConsts.W_M_WIPE_OUT);
 
@@ -115,11 +109,13 @@ class EventsService {
 
   static signMessage = ({ message, accountIndex }: { message: string; accountIndex: number }) => ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
+  static switchNetwork = (netId: number) => ipcRenderer.invoke(ipcConsts.SWITCH_NETWORK, netId);
+
   static switchApiProvider = (apiUrl: SocketAddress) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
 
   /** **************************************  WALLET MANAGER  **************************************** */
 
-  static activateWalletManager = (apiUrl: SocketAddress): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, apiUrl);
+  static activateWallet = (apiUrl: SocketAddress): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, apiUrl);
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 

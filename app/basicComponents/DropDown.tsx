@@ -10,7 +10,7 @@ const Wrapper = styled.div<{ isDisabled: boolean }>`
   display: flex;
   flex-direction: column;
   flex: 1;
-  cursor: pointer;
+  cursor: default;
   ${({ isDisabled }) =>
     isDisabled &&
     `
@@ -26,7 +26,7 @@ const HeaderWrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void; rowH
   justify-content: space-between;
   align-items: center;
   height: ${({ rowHeight }) => rowHeight}px;
-  cursor: pointer;
+  cursor: default;
   background-color: ${({ bgColor }) => bgColor};
   ${({ isOpened }) =>
     isOpened &&
@@ -68,10 +68,16 @@ const DropdownRow = styled.div<{ onClick: (e?: React.MouseEvent) => void; rowCon
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
 `;
 
-type Props = {
+type ADataItem = {
+  [k: string]: any;
+  isDisabled?: boolean;
+  isMain?: boolean;
+};
+
+type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
-  DdElement: React.ElementType;
-  data: any;
+  DdElement: (T) => JSX.Element;
+  data: Partial<T>[];
   selectedItemIndex: number;
   isDarkMode?: boolean;
   rowHeight?: number;
@@ -82,7 +88,7 @@ type Props = {
   whiteIcon?: boolean;
 };
 
-const DropDown = ({
+const DropDown = <T extends ADataItem>({
   data,
   DdElement,
   onClick,
@@ -94,36 +100,22 @@ const DropDown = ({
   bgColor = smColors.white,
   style = null,
   whiteIcon = false,
-}: Props) => {
+}: Props<T>) => {
   const [isOpened, setIsOpened] = useState(false);
+  const closeDropdown = () => setIsOpened(false);
   useEffect(() => {
-    requestAnimationFrame(() => {
-      if (isOpened) {
-        window.addEventListener('click', () => setIsOpened(false));
-      } else {
-        window.removeEventListener('click', () => setIsOpened(false));
-      }
-    });
-  }, [isOpened]);
+    window.addEventListener('click', closeDropdown);
+    return () => window.removeEventListener('click', closeDropdown);
+  }, []);
 
   const isDisabledComputed = isDisabled || !data || !data.length;
   const icon = whiteIcon || isDarkMode ? chevronBottomWhite : chevronBottomBlack;
 
-  const renderRow = ({
-    item,
-    index,
-    rowHeight = 44,
-    rowContentCentered,
-  }: {
-    item: { label: string; isDisabled?: boolean };
-    index: number;
-    rowHeight?: number;
-    rowContentCentered: boolean;
-  }) => (
+  const renderRow = ({ item, index, rowHeight = 44, rowContentCentered }: { item: Partial<T>; index: number; rowHeight?: number; rowContentCentered: boolean }) => (
     <DropdownRow
       rowContentCentered={rowContentCentered}
       isDisabled={item.isDisabled || false}
-      key={`${item.label}${index}`}
+      key={`${item?.label}${index}`}
       onClick={
         item.isDisabled
           ? () => {}
@@ -159,7 +151,7 @@ const DropDown = ({
       </HeaderWrapper>
       {isOpened && data && (
         <ItemsWrapper bgColor={bgColor} rowHeight={rowHeight}>
-          {data.map((item: any, index: number) => renderRow({ item, index, rowHeight, rowContentCentered }))}
+          {data.map((item, index: number) => renderRow({ item, index, rowHeight, rowContentCentered }))}
         </ItemsWrapper>
       )}
     </Wrapper>

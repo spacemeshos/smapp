@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
-import { getCurrentLayer } from '../../redux/network/actions';
+import { getCurrentLayer, getNetworkDefinitions } from '../../redux/network/actions';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import { WrapperWith2SideBars, Link, Tooltip, CustomTimeAgo, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
@@ -70,6 +70,7 @@ const Network = ({ history }) => {
 
   useEffect(() => {
     dispatch(getCurrentLayer());
+    dispatch(getNetworkDefinitions());
   }, [dispatch]);
 
   const isWalletMode = useSelector(isWalletOnly);

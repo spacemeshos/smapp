@@ -1,4 +1,17 @@
-export { Auth, Welcome, WalletConnectionType, WalletType, CreateWallet, UnlockWallet, Leaving, RestoreWallet, FileRestore, WordsRestore, ConnectToApi } from './auth';
+export {
+  Auth,
+  Welcome,
+  WalletConnectionType,
+  WalletType,
+  CreateWallet,
+  UnlockWallet,
+  Leaving,
+  RestoreWallet,
+  FileRestore,
+  WordsRestore,
+  ConnectToApi,
+  SwitchNetwork,
+} from './auth';
 export { Main } from './main';
 export { Node, NodeSetup } from './node';
 export { Wallet, Overview, SendCoins, RequestCoins, Vault } from './wallet';

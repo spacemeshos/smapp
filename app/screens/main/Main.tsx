@@ -3,7 +3,6 @@ import { Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { Logo } from '../../components/common';
 import { SecondaryButton, NavTooltip, NetworkIndicator, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
@@ -25,6 +24,7 @@ import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { isWalletOnly } from '../../redux/wallet/selectors';
+import { getNetworkDefinitions } from '../../redux/network/actions';
 
 const Wrapper = styled.div`
   position: relative;
@@ -109,6 +109,7 @@ interface Props extends RouteComponentProps {
   isWalletOnly: boolean;
   status: NodeStatus | null;
   logout: any;
+  getNetworkDefinitions: () => void;
   location: {
     hash: string;
     pathname: string;
@@ -117,7 +118,6 @@ interface Props extends RouteComponentProps {
   };
   nodeError: NodeError | null;
   isDarkMode: boolean;
-  getNetworkDefinitions: () => void;
 }
 
 type State = {
@@ -245,9 +245,9 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { getNetworkDefinitions, isWalletOnly } = this.props;
-    getNetworkDefinitions();
+    const { isWalletOnly, getNetworkDefinitions } = this.props;
     !isWalletOnly && eventsService.requestVersionAndBuild();
+    getNetworkDefinitions();
   }
 
   renderNavBarLink = (label: string | ReactNode, tooltip: string, route: string) => {
@@ -302,8 +302,8 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  getNetworkDefinitions,
   logout,
+  getNetworkDefinitions,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

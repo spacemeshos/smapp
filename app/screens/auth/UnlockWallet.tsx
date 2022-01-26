@@ -103,13 +103,15 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
       setShowLoader(true);
-      const success = await dispatch(unlockWallet({ password })).catch(() => {
-        setShowLoader(false);
-        return false;
-      });
+      const status = await dispatch(unlockWallet({ password }));
       setShowLoader(false);
-      if (success) {
-        history.push(location.state?.redirect || '/main/wallet');
+      if (status.success) {
+        const nextPage = location.state?.redirect || '/main/wallet';
+        if (status.noNetwork) {
+          history.push('/auth/switch-network', { redirect: nextPage, isWalletOnly: status.isWalletOnly });
+          return;
+        }
+        history.push(nextPage);
       } else {
         setWrongPassword(true);
       }

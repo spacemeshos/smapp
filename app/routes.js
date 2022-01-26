@@ -28,6 +28,7 @@ import {
   Vault,
   Dashboard,
   ConnectToApi,
+  SwitchNetwork,
 } from './screens';
 
 const app = [
@@ -53,6 +54,10 @@ const auth = [
   {
     path: '/auth/connect-to-api',
     component: ConnectToApi,
+  },
+  {
+    path: '/auth/switch-network',
+    component: SwitchNetwork,
   },
   {
     path: '/auth/leaving',

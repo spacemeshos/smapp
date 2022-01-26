@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { updateWalletName, updateAccountName, createNewAccount } from '../../redux/wallet/actions';
+import { updateWalletName, updateAccountName, createNewAccount, switchApiProvider } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { setUiError, switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
@@ -85,6 +85,7 @@ interface Props extends RouteComponentProps {
   getGlobalStateHash: AppThDispatch;
   switchTheme: AppThDispatch;
   setUiError: AppThDispatch;
+  switchApiProvider: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -362,10 +363,9 @@ class Settings extends Component<Props, State> {
   };
 
   handleSwitchToLocalNode = () => {
-    const { history, setUiError } = this.props;
-    return eventsService
-      .switchApiProvider(LOCAL_NODE_API_URL)
-      .then(() => history.push('/auth'))
+    const { history, setUiError, switchApiProvider } = this.props;
+    return switchApiProvider(LOCAL_NODE_API_URL)
+      .then(() => history.push('/auth/unlock'))
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
         setUiError(err);
@@ -406,7 +406,7 @@ class Settings extends Component<Props, State> {
   deleteWallet = async () => {
     const { walletFiles } = this.props;
     localStorage.clear();
-    await eventsService.deleteWalletFile({ fileName: walletFiles[0] });
+    await eventsService.deleteWalletFile(walletFiles[0]);
   };
 
   cleanAllAppDataAndSettings = async () => {
@@ -533,6 +533,7 @@ const mapDispatchToProps = {
   createNewAccount,
   switchTheme,
   setUiError,
+  switchApiProvider,
 };
 
 // @ts-ignore

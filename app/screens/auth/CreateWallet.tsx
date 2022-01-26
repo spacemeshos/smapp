@@ -4,13 +4,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { isRemoteNodeApi } from '../../../shared/utils';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
-import { StepsContainer, Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
+import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { AuthRouterParams } from './routerParams';
+import Steps, { Step } from './Steps';
 
 const Wrapper = styled.div`
   display: flex;
@@ -111,7 +112,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, apiUrl: location?.state?.apiUrl }));
+      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, apiUrl: location?.state?.apiUrl, netId: location?.state?.netId }));
       setSubMode(2);
       setIsLoaderVisible(false);
     }
@@ -162,7 +163,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   return (
     <Wrapper>
-      <StepsContainer steps={['NEW WALLET SETUP', 'NEW WALLET TYPE', 'PROTECT WALLET']} currentStep={2} isDarkMode={isDarkMode} />
+      <Steps step={Step.PROTECT_WALLET} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header={header} subHeader={renderSubHeader(subMode)} isDarkMode={isDarkMode}>
         {subMode === 1 && (
           <>

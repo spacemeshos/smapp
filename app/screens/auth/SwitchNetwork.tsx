@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { CorneredContainer, BackButton } from '../../components/common';
-import { Button, Link, DropDown } from '../../basicComponents';
+import { CorneredContainer } from '../../components/common';
+import { Button, Link, DropDown, Loader } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
-import { SocketAddress } from '../../../shared/types';
-import { stringifySocketAddress } from '../../../shared/utils';
-import { switchApiProvider } from '../../redux/wallet/actions';
+import { getNetworkDefinitions } from '../../redux/network/actions';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -19,7 +17,7 @@ const Wrapper = styled.div`
   align-items: flex-start;
 `;
 
-const DropDownLink = styled.span`
+const DropDownLink = styled.a`
   color: ${smColors.blue};
   cursor: pointer;
 `;
@@ -52,36 +50,22 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   }
 `;
 
-type PublicServicesView = {
-  label: string;
-  text: string;
-  value: SocketAddress;
-};
-
-const ConnectToApi = ({ history, location }: AuthRouterParams) => {
+const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-
-  const [publicServices, setPublicServices] = useState({ loading: true, services: [] as PublicServicesView[] });
+  const [networks, setNetworks] = useState({ loading: true, networks: [] as { netId: number; netName: string; explorer?: string }[] });
+  const [showLoader, setLoader] = useState(false);
 
   useEffect(() => {
     eventsService
-      .listPublicServices()
-      .then((services) =>
-        setPublicServices({
+      .listNetworks()
+      .then((nets) =>
+        setNetworks({
           loading: false,
-          services: services.map((service) => ({
-            label: service.name,
-            text: stringifySocketAddress(service),
-            value: {
-              host: service.host,
-              port: service.port,
-              protocol: service.protocol,
-            },
-          })),
+          networks: nets,
         })
       )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
@@ -91,11 +75,20 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
-  const renderAccElement = ({ label, text, isMain }: { label: string; text: string; isMain: boolean }) => (
+  const openExplorer = (explorer: string) => {
+    window.open(explorer.concat(isDarkMode ? '?dark' : ''), '_blank');
+  };
+
+  const renderAccElement = ({ label, explorer, netId, isMain }: { label: string; explorer: string; netId: number; isMain: boolean }) => (
     <AccItem key={label} isInDropDown={!isMain}>
-      {text ? (
+      {netId > 0 ? (
         <>
-          {label} - <DropDownLink>{text}</DropDownLink>
+          {label}
+          (ID&nbsp;
+          <DropDownLink onClick={() => openExplorer(explorer)} target="_blank">
+            {netId}
+          </DropDownLink>
+          )
         </>
       ) : (
         label
@@ -103,42 +96,46 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
     </AccItem>
   );
 
-  const getPublicServicesDropdownData = () => (publicServices.loading ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }] : publicServices.services);
+  const getDropDownData = () =>
+    networks.loading
+      ? [{ label: 'LOADING... PLEASE WAIT', netId: -1, isDisabled: true }]
+      : networks.networks.map(({ netId, netName, explorer }) => ({ label: netName, netId, explorer }));
 
   const handleNext = () => {
-    const { value } = publicServices.services[selectedItemIndex];
-    const { netId } = location.state;
-    if (location.state?.switchApiProvider)
-      return dispatch(switchApiProvider(value))
-        .then(() => history.push(location.state.redirect || '/auth'))
-        .catch((err) => {
-          console.error(err); // eslint-disable-line no-console
-          dispatch(setUiError(err));
-        });
-
+    const { netId } = networks.networks[selectedItemIndex];
+    setLoader(true);
+    const { creatingWallet, isWalletOnly } = location.state;
     return eventsService
-      .activateWallet(value)
-      .then(() => history.push(location.state.redirect || '/auth/create', { netId, apiUrl: value }))
+      .switchNetwork(netId)
+      .then(() => dispatch(getNetworkDefinitions()))
+      .then(() =>
+        isWalletOnly
+          ? history.push('/auth/connect-to-api', { redirect: location.state.redirect, switchApiProvider: true })
+          : history.push(location.state.redirect || '/auth/unlock', { creatingWallet, netId })
+      )
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });
   };
 
-  return (
+  return showLoader ? (
+    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} note="Please wait, connecting to Spacemesh network..." />
+  ) : (
     <Wrapper>
-      {!location.state?.switchApiProvider && <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />}
+      {!!location.state.creatingWallet && <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />}
       <CorneredContainer
         width={650}
         height={400}
-        header="CONNECT TO SPACEMESH"
-        subHeader="Select a Spacemesh API public service to connect you wallet to."
+        header="SPACEMESH NETWORK"
+        subHeader="Select a public Spacemesh network for your wallet."
         tooltipMessage="test"
         isDarkMode={isDarkMode}
       >
+        {/* NETWORKS: {location.state} */}
         <RowColumn>
           <DropDown
-            data={getPublicServicesDropdownData()}
+            data={getDropDownData()}
             onClick={selectItem}
             DdElement={renderAccElement}
             selectedItemIndex={selectedItemIndex}
@@ -148,7 +145,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
           />
         </RowColumn>
 
-        <BackButton action={history.goBack} />
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
           <Button onClick={handleNext} text="NEXT" />
@@ -158,4 +154,4 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   );
 };
 
-export default ConnectToApi;
+export default SwitchNetwork;

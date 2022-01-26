@@ -12,6 +12,8 @@ import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
 import SmesherManager from './SmesherManager';
 import { checksum, createDebouncePool, isFileExists } from './utils';
+import { NODE_CONFIG_FILE } from './main/constants';
+import NodeConfig from './main/NodeConfig';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -38,8 +40,6 @@ type ErrorPoolObject = PoolNodeError | PoolExitCode;
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
 
-  private readonly cleanStart;
-
   private nodeService: NodeService;
 
   private smesherManager: SmesherManager;
@@ -59,9 +59,8 @@ class NodeManager {
     this.sendNodeError(mostCriticalError);
   });
 
-  constructor(mainWindow: BrowserWindow, cleanStart: boolean, smesherManager: SmesherManager) {
+  constructor(mainWindow: BrowserWindow, smesherManager: SmesherManager) {
     this.mainWindow = mainWindow;
-    this.cleanStart = cleanStart;
     this.nodeService = new NodeService();
     this.subscribeToEvents();
     this.nodeProcess = null;
@@ -168,7 +167,7 @@ class NodeManager {
 
   startNode = async () => {
     this.hasCriticalError = false;
-    this.spawnNode();
+    await this.spawnNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
       this.waitForNodeServiceResponsiveness(resolve, 15);
@@ -182,17 +181,17 @@ class NodeManager {
     return false; // TODO: add error handling
   };
 
-  private spawnNode = () => {
+  private spawnNode = async () => {
     if (this.nodeProcess) return;
     const userDataPath = app.getPath('userData');
     const nodeDir = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/');
     const nodePath = path.resolve(nodeDir, `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`);
     const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
-    const logFilePath = path.resolve(`${userDataPath}`, 'spacemesh-log.txt');
+    const nodeConfig = await NodeConfig.load();
+    const logFilePath = path.resolve(`${userDataPath}`, `spacemesh-log-${nodeConfig.p2p['network-id']}.txt`);
 
-    const logFileStream = fs.createWriteStream(logFilePath, { flags: this.cleanStart ? 'w' : 'a', encoding: 'utf-8' });
-    const nodeConfigFilePath = StoreService.get('nodeConfigFilePath');
-    const args = ['--config', nodeConfigFilePath, '-d', nodeDataFilesPath];
+    const logFileStream = fs.createWriteStream(logFilePath, { flags: 'a', encoding: 'utf-8' });
+    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
     this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
