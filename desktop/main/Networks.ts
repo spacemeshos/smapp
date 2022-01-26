@@ -58,9 +58,10 @@ const hasNetwork = (context: AppContext, netId: number) => !!getNetwork(context,
 const spawnManagers = async (context: AppContext) => {
   const { mainWindow } = context;
   if (!mainWindow) throw new Error('Cannot spawn managers: MainWindow not found');
+  if (!context.currentNetwork) throw new Error('Cannot spawn managers: Network does not selected');
   if (!hasManagers(context)) {
     context.managers.smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
-    context.managers.node = new NodeManager(mainWindow, context.managers.smesher);
+    context.managers.node = new NodeManager(mainWindow, context.currentNetwork.netID, context.managers.smesher);
     context.managers.wallet = new WalletManager(mainWindow, context.managers.node);
   }
 };

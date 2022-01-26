@@ -14,6 +14,7 @@ import StoreService from '../storeService';
 import { DOCUMENTS_DIR, MINUTE, USERDATA_DIR } from './constants';
 import { AppContext } from './context';
 import Networks from './Networks';
+import { getNodeLogsPath } from './utils';
 
 const logger = Logger({ className: 'WalletFiles' });
 
@@ -125,7 +126,7 @@ const showFileInDirectory = async (context: AppContext, { isBackupFile, isLogFil
       logger.error('showFileInDirectory', error);
     }
   } else if (isLogFile) {
-    const logFilePath = path.resolve(USERDATA_DIR, `spacemesh-log-${context.currentNetwork?.netID || 0}.txt`);
+    const logFilePath = getNodeLogsPath(context.currentNetwork?.netID);
     shell.showItemInFolder(logFilePath);
   } else {
     shell.openPath(USERDATA_DIR);
