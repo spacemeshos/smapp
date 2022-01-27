@@ -161,9 +161,11 @@ const Network = ({ history }) => {
   );
 
   const renderNoNetwork = () => (
-    <div>
-      <Button text="CHOOSE THE NETWORK" width={150} isPrimary onClick={() => goToSwitchNetwork(history, isWalletMode)} />
-    </div>
+    <DetailsWrap>
+      <DetailsRow>
+        <Button text="CHOOSE THE NETWORK" width={150} isPrimary onClick={() => goToSwitchNetwork(history, isWalletMode)} />
+      </DetailsRow>
+    </DetailsWrap>
   );
 
   const openLogFile = () => {
