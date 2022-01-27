@@ -8,7 +8,7 @@ import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
 import NodeConfig from './NodeConfig';
 import { AppContext, hasManagers, Network } from './context';
-import { MINUTE, NODE_CONFIG_FILE } from './constants';
+import { NODE_CONFIG_FILE } from './constants';
 
 //
 // Assertions
@@ -22,7 +22,7 @@ const getDevNet = async () => ({
   grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
 });
 
-const update = async (context: AppContext, retry = 3) => {
+const update = async (context: AppContext, retry = 2) => {
   try {
     const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
     const networks = await fetchJSON(DISCOVERY_URL);
@@ -34,7 +34,7 @@ const update = async (context: AppContext, retry = 3) => {
       context.networks = [];
       return [];
     }
-    await delay(0.1 * MINUTE);
+    await delay(1000);
     return update(context, retry - 1);
   }
 };
@@ -89,15 +89,17 @@ const subscribe = (context: AppContext) => {
     return list(context);
   });
   ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, async () => {
-    // const { netID: netId, netName } = this.context.currentNetwork;
     const netId = context.currentNetwork?.netID || -1;
     const netName = context.currentNetwork?.netName || 'Not connected';
-    // TODO: Take it from node config
-    const nodeConfig = await NodeConfig.load();
-    const genesisTime = nodeConfig.main['genesis-time'];
-    const layerDurationSec = nodeConfig.main['layer-duration-sec'];
-    const explorerUrl = context.currentNetwork?.explorer || '';
-    return { netId, netName, genesisTime, layerDurationSec, explorerUrl };
+    try {
+      const nodeConfig = await NodeConfig.load();
+      const genesisTime = nodeConfig.main['genesis-time'];
+      const layerDurationSec = nodeConfig.main['layer-duration-sec'];
+      const explorerUrl = context.currentNetwork?.explorer || '';
+      return { netId, netName, genesisTime, layerDurationSec, explorerUrl };
+    } catch (err) {
+      return { netId, netName };
+    }
   });
 };
 

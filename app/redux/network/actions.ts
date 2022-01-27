@@ -11,14 +11,14 @@ export const getNetworkDefinitions = () => async (dispatch: AppThDispatch) => {
 };
 
 export const getCurrentLayer = () => async (dispatch: AppThDispatch) => {
-  const { currentLayer, error } = await eventsService.getCurrentLayer();
+  const { currentLayer, error } = await eventsService.getCurrentLayer().catch(() => ({ currentLayer: 0, error: null }));
   if (!error) {
     dispatch({ type: SET_CURRENT_LAYER, payload: { currentLayer } });
   }
 };
 
 export const getGlobalStateHash = () => async (dispatch: AppThDispatch) => {
-  const { rootHash, error } = await eventsService.getGlobalStateHash();
+  const { rootHash, error } = await eventsService.getGlobalStateHash().catch(() => ({ rootHash: '', error: null }));
   if (!error) {
     dispatch({ type: SET_STATE_ROOT_HASH, payload: { rootHash } });
   }

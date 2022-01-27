@@ -11,6 +11,7 @@ import { RootState } from '../../types';
 import { getRemoteApi, isWalletOnly } from '../../redux/wallet/selectors';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import SubHeader from '../../basicComponents/SubHeader';
+import { goToSwitchNetwork } from '../../routeUtils';
 
 const Container = styled.div`
   display: flex;
@@ -68,15 +69,19 @@ const DetailsTextWrap = styled.div`
 const Network = ({ history }) => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(getCurrentLayer());
-    dispatch(getNetworkDefinitions());
-  }, [dispatch]);
-
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
+  const netId = useSelector((state: RootState) => state.network.netId || -1);
   const netName = useSelector((state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME');
+
+  useEffect(() => {
+    if (netId > -1) {
+      dispatch(getCurrentLayer());
+      dispatch(getNetworkDefinitions());
+    }
+  }, [netId, dispatch]);
+
   const genesisTime = useSelector((state: RootState) => state.network.genesisTime);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const remoteApi = useSelector(getRemoteApi);
@@ -102,6 +107,65 @@ const Network = ({ history }) => {
     );
   };
 
+  const renderNetworkDetails = () => (
+    <DetailsWrap>
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Age</DetailsText>
+          <Tooltip width={250} text="tooltip age" isDarkMode={isDarkMode} />
+        </DetailsTextWrap>
+        <GrayText>
+          <CustomTimeAgo time={genesisTime} />
+        </GrayText>
+      </DetailsRow>
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Status</DetailsText>
+          <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
+        </DetailsTextWrap>
+        <GrayText>
+          <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} isWalletMode={isWalletMode} />
+        </GrayText>
+      </DetailsRow>
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Current Layer</DetailsText>
+          <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
+        </DetailsTextWrap>
+        <GrayText>{status?.topLayer || 0}</GrayText>
+      </DetailsRow>
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Verified Layer</DetailsText>
+          <Tooltip width={250} text="tooltip Verified Layer" isDarkMode={isDarkMode} />
+        </DetailsTextWrap>
+        <GrayText>{status?.verifiedLayer || 0}</GrayText>
+      </DetailsRow>
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Connection Type</DetailsText>
+          <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
+        </DetailsTextWrap>
+        <GrayText>{isWalletMode ? `Remote API provider: ${remoteApi}` : 'Managed p2p node'}</GrayText>
+      </DetailsRow>
+      {!isWalletMode && (
+        <DetailsRow>
+          <DetailsTextWrap>
+            <DetailsText>Connected neighbors</DetailsText>
+            <Tooltip width={250} text="tooltip Connected neighbors" isDarkMode={isDarkMode} />
+          </DetailsTextWrap>
+          <GrayText>8</GrayText>
+        </DetailsRow>
+      )}
+    </DetailsWrap>
+  );
+
+  const renderNoNetwork = () => (
+    <div>
+      <Button text="CHOOSE THE NETWORK" width={150} isPrimary onClick={() => goToSwitchNetwork(history, isWalletMode)} />
+    </div>
+  );
+
   const openLogFile = () => {
     eventsService.showFileInFolder({ isLogFile: true });
   };
@@ -110,59 +174,10 @@ const Network = ({ history }) => {
     <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network} isDarkMode={isDarkMode}>
       <SubHeader>
         {netName}
-        {nodeError && <ErrorMessage>{nodeError?.msg}</ErrorMessage>}
+        {nodeError && <ErrorMessage>{nodeError.msg}</ErrorMessage>}
       </SubHeader>
       <Container>
-        <DetailsWrap>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Age</DetailsText>
-              <Tooltip width={250} text="tooltip age" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>
-              <CustomTimeAgo time={genesisTime} />
-            </GrayText>
-          </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Status</DetailsText>
-              <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>
-              <NetworkStatus status={status} error={nodeError} isRestarting={isRestarting} isWalletMode={isWalletMode} />
-            </GrayText>
-          </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Current Layer</DetailsText>
-              <Tooltip width={250} text="tooltip Current Layer" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>{status?.topLayer || 0}</GrayText>
-          </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Verified Layer</DetailsText>
-              <Tooltip width={250} text="tooltip Verified Layer" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>{status?.verifiedLayer || 0}</GrayText>
-          </DetailsRow>
-          <DetailsRow>
-            <DetailsTextWrap>
-              <DetailsText>Connection Type</DetailsText>
-              <Tooltip width={250} text="tooltip Connection Type" isDarkMode={isDarkMode} />
-            </DetailsTextWrap>
-            <GrayText>{isWalletMode ? `Remote API provider: ${remoteApi}` : 'Managed p2p node'}</GrayText>
-          </DetailsRow>
-          {!isWalletMode && (
-            <DetailsRow>
-              <DetailsTextWrap>
-                <DetailsText>Connected neighbors</DetailsText>
-                <Tooltip width={250} text="tooltip Connected neighbors" isDarkMode={isDarkMode} />
-              </DetailsTextWrap>
-              <GrayText>8</GrayText>
-            </DetailsRow>
-          )}
-        </DetailsWrap>
+        {netId > -1 ? renderNetworkDetails() : renderNoNetwork()}
         <FooterWrap>
           {!isWalletMode && <Link onClick={openLogFile} text="BROWSE LOG FILE" />}
           <Tooltip width={250} text="tooltip BROWSE LOG FILE" isDarkMode={isDarkMode} />
