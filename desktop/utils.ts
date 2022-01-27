@@ -33,7 +33,7 @@ export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
 // Fetch
 // --------------------------------------------------------
 
-export const fetchJSON = async (url?: string) => (url ? fetch(url).then((res) => res.json()) : null);
+export const fetchJSON = async (url?: string) => (url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null);
 
 // --------------------------------------------------------
 // Guards

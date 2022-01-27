@@ -87,5 +87,5 @@ app
   .then(() => Wallet.subscribe(context))
   .then(() => createTray(context))
   .then(() => createWindow(context, onCloseHandler))
-  .then(() => Networks.update(context))
+  .then(() => Networks.update(context, 1))
   .catch(console.log); // eslint-disable-line no-console

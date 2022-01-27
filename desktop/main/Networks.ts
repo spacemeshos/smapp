@@ -30,8 +30,11 @@ const update = async (context: AppContext, retry = 3) => {
     context.networks = result;
     return result;
   } catch (err) {
-    if (retry === 0) throw err;
-    await delay(0.5 * MINUTE);
+    if (retry === 0) {
+      context.networks = [];
+      return [];
+    }
+    await delay(0.1 * MINUTE);
     return update(context, retry - 1);
   }
 };
