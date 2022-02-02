@@ -58,7 +58,7 @@ const onCloseHandler = promptBeforeClose(context);
 const showMainWindow = () => {
   const { mainWindow } = context;
   if (mainWindow === null) {
-    createWindow();
+    createWindow(context, onCloseHandler);
   } else if (mainWindow) {
     mainWindow.show();
     mainWindow.focus();
