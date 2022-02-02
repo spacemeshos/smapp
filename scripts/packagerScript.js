@@ -106,8 +106,10 @@ const getBuildOptions = ({ target, publish }) => {
         'package.json',
         'node_modules/',
         'proto/',
-        'resources/icons/*',
         'app/assets/**',
+      ],
+      extraResources: [
+        'resources/icons/*',
       ],
       extraFiles: [
         nodeFiles[target],

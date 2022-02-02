@@ -1,6 +1,7 @@
 import path from 'path';
 import { BrowserWindow, Event, shell } from 'electron';
 import MenuBuilder from '../menu';
+import { isDev } from '../utils';
 import { AppContext } from './context';
 
 export default async (context: AppContext, onCloseHandler: (e: Event) => void | Promise<void>) => {
@@ -40,7 +41,7 @@ export default async (context: AppContext, onCloseHandler: (e: Event) => void | 
   });
 
   // Load page after initialization complete
-  mainWindow.loadURL(`file://${path.resolve(__dirname, '..')}/index.html`);
+  mainWindow.loadURL(`file://${path.resolve(__dirname, isDev() ? '..' : '')}/index.html`);
 
   context.mainWindow = mainWindow;
   return mainWindow;
