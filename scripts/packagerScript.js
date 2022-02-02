@@ -108,7 +108,6 @@ const getBuildOptions = ({ target, publish }) => {
         'proto/',
         'resources/icons/*',
         'app/assets/**',
-        { from: path.resolve('desktop/prompt/static'), to: 'prompt/' },
       ],
       extraFiles: [
         nodeFiles[target],
