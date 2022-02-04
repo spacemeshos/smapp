@@ -106,8 +106,8 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       const status = await dispatch(unlockWallet({ password }));
       setShowLoader(false);
       if (status.success) {
-        const nextPage = location.state?.redirect || '/main/wallet';
-        if (status.noNetwork) {
+        const nextPage = (location.state?.redirect !== '/auth/unlock' && location.state?.redirect) || '/main/wallet';
+        if (status.forceNetworkSelection) {
           history.push('/auth/switch-network', { redirect: nextPage, isWalletOnly: status.isWalletOnly });
           return;
         }

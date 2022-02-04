@@ -103,8 +103,9 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const navigateToCreateWallet = async () => {
-    if (location.state.walletOnly) {
-      history.push('/auth/switch-network', { redirect: '/auth/connect-to-api', creatingWallet: true });
+    const { isWalletOnly } = location.state;
+    if (isWalletOnly) {
+      history.push('/auth/switch-network', { isWalletOnly, creatingWallet: true });
     } else {
       history.push('/auth/switch-network', { redirect: '/auth/create', creatingWallet: true });
     }

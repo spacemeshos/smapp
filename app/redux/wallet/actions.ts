@@ -1,5 +1,5 @@
-import { Account, Contact, HexString, SocketAddress, Tx, TxSendRequest, WalletMeta } from '../../../shared/types';
-import { isRemoteNodeApi, stringifySocketAddress } from '../../../shared/utils';
+import { Account, Contact, HexString, SocketAddress, Tx, TxSendRequest, WalletMeta, WalletType } from '../../../shared/types';
+import { isLocalNodeApi, isRemoteNodeApi, isWalletOnlyType, stringifySocketAddress } from '../../../shared/utils';
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
@@ -53,14 +53,16 @@ export const createNewWallet = ({
   password,
   apiUrl,
   netId,
+  type,
 }: {
   existingMnemonic?: string | undefined;
   password: string;
-  apiUrl: SocketAddress;
+  type: WalletType;
+  apiUrl: SocketAddress | null;
   netId: number;
 }) => (dispatch: AppThDispatch) =>
   eventsService
-    .createWallet({ password, existingMnemonic, apiUrl, netId })
+    .createWallet({ password, existingMnemonic, type, apiUrl, netId })
     .then((data) => {
       const { meta, crypto } = data;
       dispatch(setWalletMeta(meta));
@@ -76,7 +78,7 @@ export const createNewWallet = ({
 
 export const unlockWallet = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, accounts, mnemonic, meta, contacts, isNetworkExist } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
+  const { error, accounts, mnemonic, meta, contacts, isNetworkExist, hasNetworks } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
   if (error) {
     // Incorrecrt password
     if (error.message && error.message.indexOf('Unexpected token') === 0) {
@@ -93,14 +95,19 @@ export const unlockWallet = ({ password }: { password: string }) => async (dispa
   dispatch(setMnemonic(mnemonic));
   dispatch(setContacts(contacts));
   dispatch(setCurrentAccount(0));
-  return { success: true, noNetwork: !isNetworkExist, isWalletOnly: !!meta.remoteApi };
+  const isWalletOnly = isWalletOnlyType(meta.type);
+  const requestApiSelection = isWalletOnly && !meta.remoteApi;
+  return { success: true, forceNetworkSelection: hasNetworks && (!isNetworkExist || requestApiSelection), isWalletOnly };
 };
 
-export const switchApiProvider = (api: SocketAddress) => async (dispatch: AppThDispatch) => {
+export const switchApiProvider = (api: SocketAddress | null) => async (dispatch: AppThDispatch) => {
   await eventsService.switchApiProvider(api);
   dispatch({
     type: SET_REMOTE_API,
-    payload: isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
+    payload: {
+      api: api && isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
+      type: api && isLocalNodeApi(api) ? WalletType.LocalNode : WalletType.RemoteApi,
+    },
   });
   return true;
 };

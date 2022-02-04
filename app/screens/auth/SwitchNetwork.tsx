@@ -117,9 +117,15 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
 
   const goNext = (netId: number) => {
     const { creatingWallet, isWalletOnly } = location.state;
-    return isWalletOnly
-      ? history.push('/auth/connect-to-api', { redirect: location.state.redirect, switchApiProvider: true })
-      : history.push(location.state.redirect || '/auth/unlock', { creatingWallet, netId });
+    if (creatingWallet) {
+      if (netId === -1) return history.push('/auth/create', { netId, isWalletOnly });
+      if (isWalletOnly) return history.push('/auth/connect-to-api', { redirect: '/auth/create', netId, isWalletOnly, creatingWallet });
+      return history.push('/auth/create', { netId, isWalletOnly });
+    }
+    if (netId > -1 && isWalletOnly) {
+      return history.push('/auth/connect-to-api', { redirect: location?.state?.redirect, netId, isWalletOnly, creatingWallet });
+    }
+    return history.push(location?.state?.redirect || '/auth');
   };
 
   const handleNext = async () => {
@@ -136,7 +142,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         }
       }
     }
-
     return goNext(netId);
   };
 

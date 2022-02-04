@@ -23,6 +23,7 @@ import {
   HexString,
   WalletMeta,
   TxSendRequest,
+  WalletType,
 } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
@@ -33,10 +34,23 @@ import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 
 class EventsService {
-  static createWallet = ({ password, existingMnemonic, apiUrl, netId }: { password: string; existingMnemonic: string; apiUrl: SocketAddress; netId: number }) =>
+  static createWallet = ({
+    password,
+    existingMnemonic,
+    type,
+    apiUrl,
+    netId,
+  }: {
+    password: string;
+    existingMnemonic: string;
+    type: WalletType;
+    apiUrl: SocketAddress | null;
+    netId: number;
+  }) =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
+      type,
       apiUrl,
       netId,
     });
@@ -111,11 +125,9 @@ class EventsService {
 
   static switchNetwork = (netId: number) => ipcRenderer.invoke(ipcConsts.SWITCH_NETWORK, netId);
 
-  static switchApiProvider = (apiUrl: SocketAddress) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
+  static switchApiProvider = (apiUrl: SocketAddress | null) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
 
   /** **************************************  WALLET MANAGER  **************************************** */
-
-  static activateWallet = (apiUrl: SocketAddress): Promise<void> => ipcRenderer.invoke(ipcConsts.W_M_ACTIVATE, apiUrl);
 
   static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 

@@ -16,7 +16,7 @@ const EventRouter = () => {
   const history = useHistory();
 
   useEffect(() => {
-    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => goToSwitchNetwork(history, isWalletOnly));
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => history.location.pathname !== '/auth/switch-network' && goToSwitchNetwork(history, isWalletOnly));
   }, [history]);
 
   return <></>;

@@ -82,7 +82,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const handleNextStep = (walletOnly: boolean) => () => {
-    history.push('/auth/wallet-type', { walletOnly });
+    history.push('/auth/wallet-type', { isWalletOnly: walletOnly });
   };
 
   return (

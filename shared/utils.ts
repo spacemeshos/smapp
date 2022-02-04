@@ -1,5 +1,5 @@
 import { LOCAL_NODE_API_URL } from './constants';
-import { PublicService, SocketAddress } from './types';
+import { PublicService, SocketAddress, WalletType } from './types';
 
 // eslint-disable-next-line import/prefer-default-export
 export const delay = (ms: number) =>
@@ -99,6 +99,10 @@ export const stringifySocketAddress = (sa: SocketAddress): string => (sa ? `${sa
 export const isLocalNodeApi = (sa: SocketAddress) => shallowEq(sa, LOCAL_NODE_API_URL);
 
 export const isRemoteNodeApi = (sa: SocketAddress) => !isLocalNodeApi(sa);
+
+export const isWalletOnlyType = (walletType: WalletType) => walletType === WalletType.RemoteApi;
+
+export const isLocalNodeType = (walletType: WalletType) => walletType === WalletType.LocalNode;
 
 export const toPublicService = (netName: string, url: string): PublicService => ({
   name: netName,

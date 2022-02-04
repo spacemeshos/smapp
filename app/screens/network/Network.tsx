@@ -94,7 +94,7 @@ const Network = ({ history }) => {
   }, []);
 
   const requestSwitchApiProvider = () => {
-    history.push('/auth/connect-to-api', { switchApiProvider: true });
+    history.push('/auth/connect-to-api');
   };
 
   const renderActionButton = () => {

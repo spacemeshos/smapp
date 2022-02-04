@@ -21,9 +21,15 @@ export interface Contact {
   nickname: string;
 }
 
+export enum WalletType {
+  LocalNode = 'local-node',
+  RemoteApi = 'remote-api',
+}
+
 export interface WalletMeta {
   displayName: string;
   created: string;
+  type: WalletType;
   netId: number;
   remoteApi: string;
   meta: {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { isRemoteNodeApi } from '../../../shared/utils';
+import { isLocalNodeApi } from '../../../shared/utils';
 import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
@@ -10,6 +10,7 @@ import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
+import { WalletType } from '../../../shared/types';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -112,7 +113,15 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const createWallet = async () => {
     if (!isLoaderVisible) {
       setIsLoaderVisible(true);
-      await dispatch(createNewWallet({ existingMnemonic: location?.state?.mnemonic, password, apiUrl: location?.state?.apiUrl, netId: location?.state?.netId }));
+      await dispatch(
+        createNewWallet({
+          existingMnemonic: location?.state?.mnemonic,
+          password,
+          type: location?.state?.isWalletOnly ? WalletType.RemoteApi : WalletType.LocalNode,
+          netId: location?.state?.netId || -1,
+          apiUrl: location?.state?.apiUrl || null,
+        })
+      );
       setSubMode(2);
       setIsLoaderVisible(false);
     }
@@ -138,11 +147,11 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     if (subMode === 1 && validate()) {
       createWallet();
     } else if (subMode === 2) {
-      if (location?.state?.apiUrl && isRemoteNodeApi(location.state.apiUrl)) {
-        history.push('/main/wallet');
-      } else {
+      if (location?.state?.netId && typeof location?.state?.apiUrl === 'string' && isLocalNodeApi(location.state.apiUrl)) {
         history.push('/main/node-setup');
+        return;
       }
+      history.push('/main/wallet');
     }
   };
 
