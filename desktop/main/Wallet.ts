@@ -15,6 +15,7 @@ import { DOCUMENTS_DIR, MINUTE, USERDATA_DIR } from './constants';
 import { AppContext } from './context';
 import Networks from './Networks';
 import { getNodeLogsPath } from './utils';
+import { checkForUpdates } from './autoUpdate';
 
 const logger = Logger({ className: 'WalletFiles' });
 
@@ -238,14 +239,15 @@ const activate = async (context: AppContext, wallet: Wallet) => {
   // Switch network if needed
   context.currentNetwork?.netID !== meta.netId && (await Networks.switchNetwork(context, meta.netId));
   // TODO: handle stop smeshing & cleaning up POST directory?
-  // Activate Wallet
+
   await context.managers?.wallet?.activate(wallet);
-  // Activate accounts
   activateAccounts(context, wallet.crypto.accounts);
+
+  checkForUpdates(context);
 };
 
 const subscribe = (context: AppContext) => {
-  setInterval(() => context.wallet && ensureNetworkExist(context, context.wallet), 5 * MINUTE);
+  setInterval(() => context.wallet && ensureNetworkExist(context, context.wallet), 30 * MINUTE);
 
   ipcMain.handle(ipcConsts.READ_WALLET_FILES, list);
 

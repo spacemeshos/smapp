@@ -2,6 +2,7 @@ import path from 'path';
 import { app } from 'electron';
 
 export const MINUTE = 60 * 1000;
+export const HOUR = 60 * MINUTE;
 
 // Linux: ~/.config/<App Name>
 // Mac OS: ~/Library/Application Support/<App Name>

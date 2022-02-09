@@ -193,13 +193,6 @@ const getBuildOptions = ({ target, publish }) => {
     buildOptions.config.afterSign = notarizing;
   }
 
-  if (publish !== 'never') {
-    buildOptions.config.publish = {
-      provider: 's3',
-      bucket: 'app-binaries.spacemesh.io'
-    };
-  }
-
   return buildOptions;
 };
 
