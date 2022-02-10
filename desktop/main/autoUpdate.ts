@@ -19,6 +19,7 @@ const notify = <T extends unknown>(channel: ipcConsts) => (context: AppContext, 
 const notifyUpdateAvailble = notify<UpdateInfo>(ipcConsts.AU_AVAILABLE);
 const notifyDownloadProgress = notify<ProgressInfo>(ipcConsts.AU_DOWNLOAD_PROGRESS);
 const notifyUpdateDownloaded = notify<UpdateInfo>(ipcConsts.AU_DOWNLOADED);
+const notifyDownloadStarted = notify<void>(ipcConsts.AU_DOWNLOAD_STARTED);
 const notifyError = notify<Error>(ipcConsts.AU_ERROR);
 
 // Utils
@@ -89,6 +90,7 @@ export const subscribe = (context: AppContext) => {
 
   ipcMain.on(ipcConsts.AU_REQUEST_DOWNLOAD, async () => {
     downloadedUpdate = await downloadUpdate(context);
+    notifyDownloadStarted(context);
   });
 
   ipcMain.on(ipcConsts.AU_REQUEST_INSTALL, () => {

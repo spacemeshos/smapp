@@ -1,4 +1,6 @@
 import { ipcRenderer } from 'electron';
+import { ProgressInfo, UpdateInfo } from 'electron-updater';
+
 import { ipcConsts } from '../../vars';
 import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/node/actions';
 import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
@@ -32,6 +34,7 @@ import GlobalStateService from '../../../desktop/GlobalStateService';
 import MeshService from '../../../desktop/MeshService';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
+import updaterSlice from '../../redux/updater/slice';
 
 class EventsService {
   static createWallet = ({
@@ -142,6 +145,11 @@ class EventsService {
   static requestVersionAndBuild = () => ipcRenderer.send(ipcConsts.N_M_GET_VERSION_AND_BUILD);
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
+
+  /** **************************************  AUTO UPDATER  **************************************** */
+  static downloadUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_DOWNLOAD);
+
+  static installUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_INSTALL);
 }
 
 ipcRenderer.on(ipcConsts.N_M_SET_NODE_STATUS, (_event, status: NodeStatus) => {
@@ -197,6 +205,27 @@ ipcRenderer.on(ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS, (_event, request) 
     localStorage.setItem('smesherSmeshingTimestamp', `${new Date().getTime()}`);
   }
   store.dispatch({ type: SET_POST_DATA_CREATION_STATUS, payload: { error, postSetupState, numLabelsWritten, errorMessage } });
+});
+
+ipcRenderer.on(ipcConsts.AU_AVAILABLE, (_, info: UpdateInfo) => {
+  store.dispatch(updaterSlice.actions.updateAvailable(info));
+});
+
+ipcRenderer.on(ipcConsts.AU_DOWNLOADED, (_, info: UpdateInfo) => {
+  store.dispatch(updaterSlice.actions.updateDownloaded(info));
+});
+
+ipcRenderer.on(ipcConsts.AU_ERROR, (_, error: Error) => {
+  console.error('Auto-Update error\n', error); // eslint-disable-line no-console
+  store.dispatch(updaterSlice.actions.setError(error));
+});
+
+ipcRenderer.on(ipcConsts.AU_DOWNLOAD_STARTED, (_) => {
+  store.dispatch(updaterSlice.actions.setDownloading(true));
+});
+
+ipcRenderer.on(ipcConsts.AU_DOWNLOAD_PROGRESS, (_, info: ProgressInfo) => {
+  store.dispatch(updaterSlice.actions.updateProgress(info));
 });
 
 ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
