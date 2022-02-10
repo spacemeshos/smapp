@@ -25,11 +25,6 @@ if (args.length < 2 || args[0] !== '--target' || !['mac', 'windows', 'linux', 'm
 }
 const targets = args[1] === 'mwl' ? ['mac', 'windows', 'linux'] : [args[1]];
 
-if ((args.length > 2 && args.length !== 4) || (args.length === 4 && (args[2] !== '--publish' || !['always', 'never'].includes(args[3])))) {
-  throw new Error("No valid flags provided. Usage example: 'node ./scripts/packagerScript.js --target {mac|linux|windows|mwl} --publish {always|never}'");
-}
-const publishFlagValue = args.length === 4 ? args[3] : 'never';
-
 const fileHashList = {
   dmg: {
     file: 'dmg_installer',
@@ -89,10 +84,10 @@ const compileHashListFile = ({ artifactsToPublishFile, artifactPaths }) => {
   fs.writeFileSync(artifactsToPublishFile, hashList);
 };
 
-const getBuildOptions = ({ target, publish }) => {
+const getBuildOptions = ({ target }) => {
   const buildOptions = {
     targets: Platform[target.toUpperCase()].createTarget(),
-    publish,
+    publish: 'never',
     config: {
       appId: 'com.spacemesh.wallet',
       files: [
@@ -153,7 +148,7 @@ const getBuildOptions = ({ target, publish }) => {
         title: 'Spacemesh'
       },
       win: {
-        target: 'nsis'
+        target: 'nsis',
       },
       nsis: {
         oneClick: false,
@@ -185,7 +180,12 @@ const getBuildOptions = ({ target, publish }) => {
           process.exit(1);
         }
       },
-      npmRebuild: false
+      npmRebuild: false,
+      publish: {
+        provider: 'generic',
+        url: 'https://storage.googleapis.com/smapp/',
+        channel: 'latest',
+      },
     }
   };
 
@@ -198,7 +198,7 @@ const getBuildOptions = ({ target, publish }) => {
 
 targets.forEach(async (target) => {
   try {
-    const res = await build(getBuildOptions({ target, publish: publishFlagValue }));
+    const res = await build(getBuildOptions({ target }));
     if (res && res.length) {
       console.log(`Artifacts packed for ${target}:`);
       res.forEach((res, index) => console.log(`${index + 1}. ${res}`));
