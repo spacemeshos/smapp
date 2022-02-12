@@ -21,7 +21,7 @@
     "package-win": "yarn build && node ./scripts/packagerScript.js --target windows",
     "package-linux": "yarn build && node ./scripts/packagerScript.js --target linux",
     "postinstall": "node -r @babel/register ./configs/checkNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js && yarn-deduplicate yarn.lock",
-    "start": "NODE_ENV=development yarn verify:node-version && node -r @babel/register ./configs/CheckPortInUse.js && yarn start:renderer",
+    "start": "NODE_ENV=development yarn verify:node-version && node -r @babel/register ./configs/checkPortInUse.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./configs/babelRegister ./desktop/main.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./configs/webpack.config.renderer.dev.babel.js",
     "verify:node-version": "node ./scripts/verifyGoSmVersion.js"
