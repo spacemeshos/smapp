@@ -106,9 +106,10 @@ const getBuildOptions = ({ target, publish }) => {
         'package.json',
         'node_modules/',
         'proto/',
-        'resources/icons/*',
         'app/assets/**',
-        { from: path.resolve('desktop/prompt/static'), to: 'prompt/' },
+      ],
+      extraResources: [
+        'resources/icons/*',
       ],
       extraFiles: [
         nodeFiles[target],

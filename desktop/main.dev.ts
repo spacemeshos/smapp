@@ -51,14 +51,13 @@ StoreService.init();
 
 // State
 const context = getDefaultAppContext();
-
 // App behaviors
 const onCloseHandler = promptBeforeClose(context);
 
 const showMainWindow = () => {
   const { mainWindow } = context;
   if (mainWindow === null) {
-    createWindow();
+    createWindow(context, onCloseHandler);
   } else if (mainWindow) {
     mainWindow.show();
     mainWindow.focus();
@@ -89,5 +88,4 @@ app
   .then(() => Networks.update(context))
   .then(() => createTray(context))
   .then(() => createWindow(context, onCloseHandler))
-  // .then(() => createWindowOld())
   .catch(console.log); // eslint-disable-line no-console
