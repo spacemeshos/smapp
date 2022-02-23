@@ -38,7 +38,7 @@ Attach screenshots or GIF’s of what’s going on if it makes the issue more il
 ### Logs
 
 Attach `app-logs.txt` and `spacemesh-log.txt`
-<!-- Find them out in %AppData%/Spacemesh on Windows directory and in /Users/<YOUR USER>/Library/Application Support/Spacemesh on Mac -->
+<!-- Find them out in the directory: %AppData%/Spacemesh on Windows, ~/Library/Application Support/Spacemesh on Mac or one of these on Linux: $XDG_CONFIG_HOME/Spacemesh or ~/.config/Spacemesh -->
 If you can find out the part of the logs that relates to the problem, attach them or paste in code-block.
 
 ### How to fix <!-- if you know -->
