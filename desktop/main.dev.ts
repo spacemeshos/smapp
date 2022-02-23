@@ -26,6 +26,7 @@ import promptBeforeClose from './main/promptBeforeClose';
 import createWindow from './main/createWindow';
 import Networks from './main/Networks';
 import Wallet from './main/Wallet';
+import * as autoUpdate from './main/autoUpdate';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -88,4 +89,5 @@ app
   .then(() => createTray(context))
   .then(() => createWindow(context, onCloseHandler))
   .then(() => Networks.update(context, 1))
+  .then(() => autoUpdate.subscribe(context))
   .catch(console.log); // eslint-disable-line no-console

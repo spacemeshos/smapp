@@ -15,6 +15,9 @@ const getDefaultNetwork = () => ({
   minNodeVersion: '',
   maxNodeVersion: '',
   minSmappRelease: '',
+  latestSmappRelease: '',
+  smappBaseDownloadUrl: '',
+  nodeBaseDownloadUrl: '',
 });
 
 export type Network = ReturnType<typeof getDefaultNetwork> & { [key: string]: any };

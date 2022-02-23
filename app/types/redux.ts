@@ -1,5 +1,6 @@
 import { ThunkDispatch } from 'redux-thunk';
 import { AccountWithBalance, Contact, NodeError, NodeStatus, WalletMeta, PostSetupState, PostSetupComputeProvider, SmesherConfig, HexString, Tx, Reward } from '../../shared/types';
+import { UpdaterState } from '../redux/updater/slice';
 
 export interface NetworkState {
   netId: string;
@@ -62,6 +63,7 @@ export interface RootState {
   wallet: WalletState;
   smesher: SmesherState;
   ui: UiState;
+  updater: UpdaterState;
 }
 
 export type CustomAction = { type: string; payload?: any };

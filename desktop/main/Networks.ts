@@ -1,14 +1,15 @@
-import { ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { PublicService } from '../../shared/types';
 import { delay, toPublicService } from '../../shared/utils';
-import { fetchJSON, isDevNet } from '../utils';
+import { fetchJSON, isDev, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
 import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
 import NodeConfig from './NodeConfig';
 import { AppContext, hasManagers, Network } from './context';
 import { NODE_CONFIG_FILE } from './constants';
+import { checkForUpdates } from './autoUpdate';
 
 //
 // Assertions
@@ -22,10 +23,11 @@ const getDevNet = async () => ({
   grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
 });
 
+const getDiscoveryUrl = () => (isDev() ? process.env.DISCOVERY_URL : app.commandLine.getSwitchValue('discovery') || 'https://discover.spacemesh.io/networks.json');
+
 const update = async (context: AppContext, retry = 2) => {
   try {
-    const DISCOVERY_URL = 'https://discover.spacemesh.io/networks.json';
-    const networks = await fetchJSON(DISCOVERY_URL);
+    const networks = await fetchJSON(getDiscoveryUrl());
     const result: Network[] = isDevNet() ? [await getDevNet(), ...networks] : networks;
     context.networks = result;
     return result;
@@ -77,6 +79,7 @@ const switchNetwork = async (context: AppContext, netId: number) => {
   context.currentNetwork = newNetwork;
   await NodeConfig.download(newNetwork);
   await spawnManagers(context);
+  checkForUpdates(context);
   return newNetwork;
 };
 

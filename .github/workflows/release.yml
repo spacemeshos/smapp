@@ -24,7 +24,7 @@ jobs:
       - name: Install Node.js, NPM
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '12'
+          node-version: '14'
 
       - name: Get Smapp version
         id: package-version
@@ -148,8 +148,7 @@ jobs:
           path: |
             ./release/*
             !./release/*-unpacked
-            !./release/*-mac.zip
-            !./release/mac
+            !./release/mac*
           if-no-files-found: error
   
   sign-win-app:
@@ -205,10 +204,31 @@ jobs:
           PASSWORD: ${{ secrets.EVCS_PASSWORD }}
           TOTP: ${{ secrets.EVCS_TOTP_SECRET }}
 
-      # - name: Delete previous windows artifact
-      #   uses: geekyeggo/delete-artifact@v1
-      #   with:
-      #     name: windows-latest
+      - name: Copy latest.yml
+        run: cp "./release/latest.yml" "./signed/latest.yml"
+
+      - name: Install hex64
+        run: yarn global add hex64
+
+      - name: Get new sha512
+        id: sha512
+        run: |
+          sha=($(shasum -a512 "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe"))
+          echo "::set-output name=value::$($(yarn global bin)/hex64 $sha | cut -c6-)"
+      
+      - name: Update latest.yml (sha512)
+        uses: endaft/action-yamler@v1.0.9
+        with:
+          file: ./signed/latest.yml
+          path: sha512
+          set: ${{steps.sha512.outputs.value}}
+
+      - name: Update latest.yml (files.0.sha512)
+        uses: endaft/action-yamler@v1.0.9
+        with:
+          file: ./signed/latest.yml
+          path: files.0.sha512
+          set: ${{steps.sha512.outputs.value}}
 
       - name: Store signed artifact
         uses: actions/upload-artifact@v2
@@ -237,20 +257,23 @@ jobs:
       - name: Upload macos artifact
         uses: google-github-actions/upload-cloud-storage@main
         with:
-          path: ./release/macos-latest/Spacemesh-${{ needs.build.outputs.version }}.dmg
+          path: ./release/macos-latest/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
 
       - name: Upload windows build
         uses: google-github-actions/upload-cloud-storage@main
         with:
-          path: ./release/windows-signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe
+          path: ./release/windows-signed/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
       
       - name: Upload linux build
         uses: google-github-actions/upload-cloud-storage@main
         with:
-          path: ./release/ubuntu-latest/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
+          path: ./release/ubuntu-latest/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
+          parent: false
 
       - name: Create Release
         id: create-release
