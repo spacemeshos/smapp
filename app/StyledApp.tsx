@@ -10,16 +10,15 @@ import { setOsTheme } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
+import { goToSwitchNetwork } from './routeUtils';
 
 const EventRouter = () => {
   const history = useHistory();
+
   useEffect(() => {
-    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => {
-      setImmediate(() => {
-        history.push('/auth/switch-network', { redirect: history.location.pathname, isWalletOnly });
-      });
-    });
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => history.location.pathname !== '/auth/switch-network' && goToSwitchNetwork(history, isWalletOnly));
   }, [history]);
+
   return <></>;
 };
 

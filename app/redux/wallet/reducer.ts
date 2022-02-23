@@ -57,7 +57,7 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       return { ...state, mnemonic: action.payload };
     }
     case SET_REMOTE_API: {
-      return { ...state, meta: { ...state.meta, remoteApi: action.payload } };
+      return { ...state, meta: { ...state.meta, remoteApi: action.payload.api, type: action.payload.type } };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const index = action.payload;

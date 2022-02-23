@@ -1,7 +1,8 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { Account, Wallet } from '../shared/types';
-import { isLocalNodeApi, toSocketAddress } from '../shared/utils';
+import { isLocalNodeType, isRemoteNodeApi, toSocketAddress } from '../shared/utils';
+import { isNodeError } from '../shared/types/guards';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -58,12 +59,19 @@ class WalletManager {
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
-    if (isLocalNodeApi(apiUrl)) await this.nodeManager.startNode();
-    else {
-      await this.nodeManager.stopNode();
-      this.nodeManager.connectToRemoteNode(apiUrl);
+    try {
+      if (isLocalNodeType(wallet.meta.type)) await this.nodeManager.startNode();
+      else {
+        await this.nodeManager.stopNode();
+        if (isRemoteNodeApi(apiUrl)) {
+          await this.nodeManager.connectToRemoteNode(apiUrl);
+        }
+      }
+    } catch (err) {
+      if (isNodeError(err)) {
+        this.nodeManager.sendNodeError(err);
+      }
     }
-
     this.meshService.createService(apiUrl);
     this.glStateService.createService(apiUrl);
     this.txService.createService(apiUrl);

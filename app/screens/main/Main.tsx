@@ -118,6 +118,7 @@ interface Props extends RouteComponentProps {
   };
   nodeError: NodeError | null;
   isDarkMode: boolean;
+  netId: number;
 }
 
 type State = {
@@ -138,7 +139,7 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isWalletOnly, nodeError, status, isDarkMode } = this.props;
+    const { isWalletOnly, nodeError, status, isDarkMode, netId } = this.props;
     const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
     const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
@@ -147,7 +148,7 @@ class Main extends Component<Props, State> {
     const bntStyle = { marginRight: 15, marginTop: 10 };
     const bgColor = isDarkMode ? smColors.white : smColors.black;
     // eslint-disable-next-line no-nested-ternary
-    const indicatorColor = nodeError ? smColors.red : isWalletOnly || status?.isSynced ? smColors.green : smColors.orange;
+    const indicatorColor = nodeError || netId === -1 ? smColors.red : isWalletOnly || status?.isSynced ? smColors.green : smColors.orange;
 
     return (
       <Wrapper>
@@ -298,6 +299,7 @@ const mapStateToProps = (state: RootState) => ({
   isWalletOnly: isWalletOnly(state),
   status: state.node.status,
   nodeError: state.node.error,
+  netId: state.network.netId,
   isDarkMode: state.ui.isDarkMode,
 });
 

@@ -47,8 +47,6 @@ class NodeManager {
 
   private nodeProcess: ChildProcess | null;
 
-  private hasCriticalError = false;
-
   private netId: number;
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(100, async (poolList) => {
@@ -199,18 +197,17 @@ class NodeManager {
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
     this.nodeService.createService(apiUrl);
-    return this.getNodeStatus(0);
+    return this.getNodeStatus(5);
   };
 
   startNode = async () => {
-    this.hasCriticalError = false;
     await this.spawnNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      await this.getNodeStatus(0);
+      await this.getNodeStatus(5);
       this.activateNodeErrorStream();
       await this.smesherManager.serviceStartupFlow();
       return true;
@@ -305,7 +302,6 @@ class NodeManager {
   };
 
   sendNodeError: ErrorStreamHandler = async (error) => {
-    if (this.hasCriticalError) return;
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC
@@ -322,9 +318,6 @@ class NodeManager {
       }
     }
     if (error.level >= NodeErrorLevel.LOG_LEVEL_DPANIC) {
-      // If we got a critical error — set the flag
-      // it prevents raising level of further errors
-      this.hasCriticalError = true;
       // Send only critical errors
       this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
     }
@@ -334,14 +327,14 @@ class NodeManager {
     this.pushToErrorPool({ type: 'NodeError', error });
   };
 
-  getNodeStatus = async (retries): Promise<NodeStatus> => {
+  getNodeStatus = async (retries: number): Promise<NodeStatus> => {
     try {
       const status = await this.nodeService.getNodeStatus();
       this.sendNodeStatus(status);
       this.nodeService.activateStatusStream(this.sendNodeStatus, this.pushNodeError);
       return status;
     } catch (error) {
-      if (retries < 5) return delay(200).then(() => this.getNodeStatus(retries + 1));
+      if (retries > 0) return delay(200).then(() => this.getNodeStatus(retries - 1));
       throw error;
     }
   };

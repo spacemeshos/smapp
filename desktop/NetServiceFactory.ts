@@ -86,7 +86,12 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
     error,
   });
 
-  runStream = <K extends keyof Service<T, ServiceName>>(method: K, opts: ServiceOpts<T, ServiceName, K>, onData: (data: ServiceCallbackResult<T, ServiceName, K>) => void) => {
+  runStream = <K extends keyof Service<T, ServiceName>>(
+    method: K,
+    opts: ServiceOpts<T, ServiceName, K>,
+    onData: (data: ServiceCallbackResult<T, ServiceName, K>) => void,
+    _retries = 5
+  ) => {
     if (!this.service) {
       throw new Error(`${this.serviceName} is not running`);
     }
@@ -94,7 +99,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
     let stream: ReturnType<typeof this.service[typeof method]>;
     let timeout: NodeJS.Timeout;
 
-    const startStream = () => {
+    const startStream = (retries: number) => {
       if (!this.service) {
         throw new Error(`${this.serviceName} is not running`);
       }
@@ -102,20 +107,20 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
       stream.on('data', onData);
       stream.on('error', (error: Error & { code: number }) => {
         if (error.code === 1) return; // Cancelled on client
-        console.log(`${this.serviceName}.${method}: ${error}`); // eslint-disable-line no-console
+        // console.log(`${this.serviceName}.${method}: ${error}`); // eslint-disable-line no-console
         this.logger?.error(`grpc ${this.serviceName}.${method}`, error);
-        if (ERROR_CODE_TO_RESTART_STREAM.includes(error.code)) {
+        if (retries > 0 && ERROR_CODE_TO_RESTART_STREAM.includes(error.code)) {
           stream.cancel();
           clearTimeout(timeout);
           timeout = setTimeout(() => {
-            console.log(`${this.serviceName}.${method} restarting...`); // eslint-disable-line no-console
+            // console.log(`${this.serviceName}.${method} restarting...`); // eslint-disable-line no-console
             this.logger?.error(`grpc ${this.serviceName}.${method} restarting...`, null);
-            startStream();
+            startStream(retries - 1);
           }, 5000);
         }
       });
     };
-    startStream();
+    startStream(_retries);
     const cancel = () =>
       new Promise<void>((resolve) =>
         setImmediate(() => {
@@ -126,7 +131,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
 
     this.restartStreamList[method] = async () => {
       await cancel();
-      startStream();
+      startStream(_retries);
     };
 
     return cancel;

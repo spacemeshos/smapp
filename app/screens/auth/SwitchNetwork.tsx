@@ -25,6 +25,7 @@ const DropDownLink = styled.a`
 const RowColumn = styled.div`
   display: flex;
   flex-direction: column;
+  margin-bottom: 1em;
 `;
 
 const BottomPart = styled.div`
@@ -56,10 +57,15 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-  const [networks, setNetworks] = useState({ loading: true, networks: [] as { netId: number; netName: string; explorer?: string }[] });
+  const [networks, setNetworks] = useState({ loading: false, networks: [] as { netId: number; netName: string; explorer?: string }[] });
   const [showLoader, setLoader] = useState(false);
 
-  useEffect(() => {
+  const updateNetworks = () => {
+    if (networks.loading) return;
+    setNetworks({
+      loading: true,
+      networks: [],
+    });
     eventsService
       .listNetworks()
       .then((nets) =>
@@ -69,7 +75,11 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         })
       )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
-  }, []);
+  };
+
+  // Auto request networks list update only on mount:
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(updateNetworks, []);
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
@@ -96,27 +106,43 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     </AccItem>
   );
 
+  const hasAvailableNetworks = networks.networks.length > 0;
   const getDropDownData = () =>
+    // eslint-disable-next-line no-nested-ternary
     networks.loading
       ? [{ label: 'LOADING... PLEASE WAIT', netId: -1, isDisabled: true }]
-      : networks.networks.map(({ netId, netName, explorer }) => ({ label: netName, netId, explorer }));
+      : hasAvailableNetworks
+      ? networks.networks.map(({ netId, netName, explorer }) => ({ label: netName, netId, explorer }))
+      : [{ label: 'NO NETWORKS AVAILABLE', netId: -1, isDisabled: true }];
 
-  const handleNext = () => {
-    const { netId } = networks.networks[selectedItemIndex];
-    setLoader(true);
+  const goNext = (netId: number) => {
     const { creatingWallet, isWalletOnly } = location.state;
-    return eventsService
-      .switchNetwork(netId)
-      .then(() => dispatch(getNetworkDefinitions()))
-      .then(() =>
-        isWalletOnly
-          ? history.push('/auth/connect-to-api', { redirect: location.state.redirect, switchApiProvider: true })
-          : history.push(location.state.redirect || '/auth/unlock', { creatingWallet, netId })
-      )
-      .catch((err) => {
+    if (creatingWallet) {
+      if (netId === -1) return history.push('/auth/create', { netId, isWalletOnly });
+      if (isWalletOnly) return history.push('/auth/connect-to-api', { redirect: '/auth/create', netId, isWalletOnly, creatingWallet });
+      return history.push('/auth/create', { netId, isWalletOnly });
+    }
+    if (netId > -1 && isWalletOnly) {
+      return history.push('/auth/connect-to-api', { redirect: location?.state?.redirect, netId, isWalletOnly, creatingWallet });
+    }
+    return history.push(location?.state?.redirect || '/auth');
+  };
+
+  const handleNext = async () => {
+    const netId = networks.networks.length > selectedItemIndex ? networks.networks[selectedItemIndex].netId : -1;
+    setLoader(true);
+    if (netId > -1) {
+      try {
+        await eventsService.switchNetwork(netId);
+        await dispatch(getNetworkDefinitions());
+      } catch (err) {
         console.error(err); // eslint-disable-line no-console
-        dispatch(setUiError(err));
-      });
+        if (err instanceof Error) {
+          dispatch(setUiError(err));
+        }
+      }
+    }
+    return goNext(netId);
   };
 
   return showLoader ? (
@@ -132,7 +158,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         tooltipMessage="test"
         isDarkMode={isDarkMode}
       >
-        {/* NETWORKS: {location.state} */}
         <RowColumn>
           <DropDown
             data={getDropDownData()}
@@ -142,12 +167,15 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
             rowHeight={40}
             style={ddStyle}
             bgColor={smColors.white}
+            isDisabled={!hasAvailableNetworks}
           />
         </RowColumn>
+        <RowColumn>{!networks.loading && <Link onClick={updateNetworks} text="REFRESH" />}</RowColumn>
 
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          <Button onClick={handleNext} text="NEXT" />
+          {!hasAvailableNetworks && !networks.loading && <Button onClick={handleNext} text="SKIP" isPrimary={false} style={{ marginLeft: 'auto', marginRight: '1em' }} />}
+          <Button onClick={handleNext} text="NEXT" isDisabled={!hasAvailableNetworks} />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

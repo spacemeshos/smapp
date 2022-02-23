@@ -27,6 +27,7 @@ const DropDownLink = styled.span`
 const RowColumn = styled.div`
   display: flex;
   flex-direction: column;
+  margin-bottom: 1em;
 `;
 
 const BottomPart = styled.div`
@@ -54,8 +55,9 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
 
 type PublicServicesView = {
   label: string;
-  text: string;
-  value: SocketAddress;
+  value?: SocketAddress;
+  text?: string;
+  isDisabled?: boolean;
 };
 
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
@@ -67,7 +69,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const [publicServices, setPublicServices] = useState({ loading: true, services: [] as PublicServicesView[] });
 
-  useEffect(() => {
+  const updatePublicServices = () => {
     eventsService
       .listPublicServices()
       .then((services) =>
@@ -84,8 +86,16 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
           })),
         })
       )
-      .catch((err) => console.error(err)); // eslint-disable-line no-console
-  }, []);
+      .catch((err) => {
+        setPublicServices({
+          loading: false,
+          services: [],
+        });
+        console.error(err); // eslint-disable-line no-console
+      });
+  };
+
+  useEffect(updatePublicServices, []);
 
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
@@ -103,31 +113,31 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
     </AccItem>
   );
 
-  const getPublicServicesDropdownData = () => (publicServices.loading ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }] : publicServices.services);
+  const hasPublicServices = publicServices.services.length > 0;
+
+  const getPublicServicesDropdownData = () =>
+    // eslint-disable-next-line no-nested-ternary
+    publicServices.loading
+      ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }]
+      : hasPublicServices
+      ? publicServices.services
+      : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
-    const { value } = publicServices.services[selectedItemIndex];
-    const { netId } = location.state;
-    if (location.state?.switchApiProvider)
-      return dispatch(switchApiProvider(value))
-        .then(() => history.push(location.state.redirect || '/auth'))
-        .catch((err) => {
-          console.error(err); // eslint-disable-line no-console
-          dispatch(setUiError(err));
-        });
+    const value = publicServices.services.length > selectedItemIndex ? publicServices.services[selectedItemIndex].value : undefined;
 
-    return eventsService
-      .activateWallet(value)
-      .then(() => history.push(location.state.redirect || '/auth/create', { netId, apiUrl: value }))
-      .catch((err) => {
+    value &&
+      dispatch(switchApiProvider(value)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });
+
+    history.push(location?.state?.redirect || '/auth', { ...location.state });
   };
 
   return (
     <Wrapper>
-      {!location.state?.switchApiProvider && <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />}
+      {!!location.state?.creatingWallet && <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />}
       <CorneredContainer
         width={650}
         height={400}
@@ -145,13 +155,16 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
             rowHeight={40}
             style={ddStyle}
             bgColor={smColors.white}
+            isDisabled={!hasPublicServices}
           />
         </RowColumn>
+        <RowColumn>{!publicServices.loading && <Link onClick={updatePublicServices} text="REFRESH" />}</RowColumn>
 
         <BackButton action={history.goBack} />
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          <Button onClick={handleNext} text="NEXT" />
+          {!hasPublicServices && !publicServices.loading && <Button onClick={handleNext} text="SKIP" isPrimary={false} style={{ marginLeft: 'auto', marginRight: '1em' }} />}
+          <Button onClick={handleNext} text="NEXT" isDisabled={!hasPublicServices} />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

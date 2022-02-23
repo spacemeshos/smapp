@@ -15,6 +15,8 @@ import { Modal } from '../../components/common';
 import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
+import { goToSwitchNetwork } from '../../routeUtils';
+import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -100,6 +102,8 @@ interface Props extends RouteComponentProps {
     state: { currentSettingIndex: string };
   };
   isWalletOnly: boolean;
+  netName: string;
+  netId: number;
 }
 
 type State = {
@@ -155,7 +159,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, isWalletOnly } = this.props;
+    const { displayName, accounts, netName, netId, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, isWalletOnly, history } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -200,15 +204,20 @@ class Settings extends Component<Props, State> {
                 <SettingRow
                   rowName="Application mode"
                   upperPartLeft="Wallet only"
-                  upperPartRight={<Button onClick={this.handleSwitchToLocalNode} text="SWITCH TO LOCAL NODE" width={180} />}
+                  upperPartRight={<Button onClick={this.switchToLocalNode} text="SWITCH TO LOCAL NODE" width={180} />}
                 />
               ) : (
                 <SettingRow
                   rowName="Application mode"
                   upperPartLeft="Local node"
-                  upperPartRight={<Button onClick={this.navigateToApiSelect} text="SWITCH TO WALLET ONLY" width={180} />}
+                  upperPartRight={<Button onClick={this.switchToRemoteApi} text="SWITCH TO WALLET ONLY" width={180} />}
                 />
               )}
+              <SettingRow
+                rowName="Current network"
+                upperPartLeft={`${netName} (${netId})`}
+                upperPartRight={<Button onClick={() => goToSwitchNetwork(history, isWalletOnly)} text="SWITCH THE NETWORK" width={180} />}
+              />
               <SettingRow
                 upperPartLeft={canEditDisplayName ? <Input value={walletDisplayName} onChange={this.editWalletDisplayName} maxLength="100" /> : <Name>{walletDisplayName}</Name>}
                 upperPartRight={
@@ -362,14 +371,24 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  handleSwitchToLocalNode = () => {
+  switchToLocalNode = () => {
     const { history, setUiError, switchApiProvider } = this.props;
-    return switchApiProvider(LOCAL_NODE_API_URL)
-      .then(() => history.push('/auth/unlock'))
-      .catch((err) => {
-        console.error(err); // eslint-disable-line no-console
-        setUiError(err);
-      });
+    // @ts-ignore
+    switchApiProvider(LOCAL_NODE_API_URL).catch((err) => {
+      console.error(err); // eslint-disable-line no-console
+      setUiError(err);
+    });
+    history.push('/auth/unlock');
+  };
+
+  switchToRemoteApi = () => {
+    const { history, switchApiProvider } = this.props;
+    // @ts-ignore
+    switchApiProvider(null).catch((err) => {
+      console.error(err); // eslint-disable-line no-console
+      setUiError(err);
+    });
+    history.push('/auth/unlock');
   };
 
   createNewAccountWrapper = () => {
@@ -422,11 +441,6 @@ class Settings extends Component<Props, State> {
   navigateToWalletRestore = () => {
     const { history } = this.props;
     history.push('/auth/restore');
-  };
-
-  navigateToApiSelect = () => {
-    const { history } = this.props;
-    history.push('/auth/connect-to-api', { switchApiProvider: true });
   };
 
   externalNavigation = ({ to }: { to: string }) => {
@@ -524,6 +538,8 @@ const mapStateToProps = (state: RootState) => ({
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,
   isWalletOnly: isWalletOnly(state),
+  netName: getNetworkName(state),
+  netId: getNetworkId(state),
 });
 
 const mapDispatchToProps = {
