@@ -14,6 +14,7 @@ import SmesherManager from './SmesherManager';
 import { checksum, createDebouncePool, isFileExists } from './utils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import NodeConfig from './main/NodeConfig';
+import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -48,23 +49,59 @@ class NodeManager {
 
   private hasCriticalError = false;
 
-  private pushToErrorPool = createDebouncePool<ErrorPoolObject>(100, (errors) => {
-    const exitError = errors.find((e) => e.type === 'Exit') as PoolExitCode | undefined;
-    if (exitError) {
-      if (exitError.code === 0) return;
+  private netId: number;
+
+  private pushToErrorPool = createDebouncePool<ErrorPoolObject>(100, async (poolList) => {
+    const exitError = poolList.find((e) => e.type === 'Exit') as PoolExitCode | undefined;
+    // In case if Node exited with 0 code count that
+    // there was no errors and do not notify client about any of
+    // possible errors caused by exiting
+    if (exitError && exitError.code === 0) return;
+    // If pool have some errors, but Node is not closed —
+    // find a most critical within the pool and notify the client about it
+    // Checking for `!exitError` is needed to avoid showing some fatal errors
+    // that are consequence of Node crash
+    // E.G. SIGKILL of Node will also produce a bunch of GRPC errors
+    if (!exitError) {
+      const errors = poolList.filter((a) => a.type === 'NodeError') as PoolNodeError[];
+      if (errors.length > 1) {
+        const mostCriticalError = errors.sort((a, b) => b.error.level - a.error.level)[0].error;
+        this.sendNodeError(mostCriticalError);
+        return;
+      }
+    }
+    // Otherwise if Node exited, but there are no critical errors
+    // in the pool — search for fatal error in the logs
+    const lastLines = await readLinesFromBottom(getNodeLogsPath(this.netId), 100);
+    const fatalErrorLine = lastLines.find((line) => /^\{"L":"FATAL",.+\}$/.test(line));
+    if (!fatalErrorLine) {
+      // If we can't find fatal error — show default crash error
       this.sendNodeError(defaultCrashError());
       return;
     }
-    const mostCriticalError = (errors as PoolNodeError[]).sort((a, b) => b.error.level - a.error.level)[0].error;
-    this.sendNodeError(mostCriticalError);
+    // If we found fatal error — parse it and convert to NodeError
+    try {
+      const json = JSON.parse(fatalErrorLine);
+      const fatalError = {
+        msg: json.errmsg || json.M,
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+        module: 'NodeManager',
+        stackTrace: '',
+      };
+      this.sendNodeError(fatalError);
+    } catch (err) {
+      // If we can't parse it — show default error message
+      this.sendNodeError(defaultCrashError(err as Error));
+    }
   });
 
-  constructor(mainWindow: BrowserWindow, smesherManager: SmesherManager) {
+  constructor(mainWindow: BrowserWindow, netId: number, smesherManager: SmesherManager) {
     this.mainWindow = mainWindow;
     this.nodeService = new NodeService();
     this.subscribeToEvents();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
+    this.netId = netId;
   }
 
   subscribeToEvents = () => {
@@ -191,14 +228,15 @@ class NodeManager {
     const logFilePath = path.resolve(`${userDataPath}`, `spacemesh-log-${nodeConfig.p2p['network-id']}.txt`);
 
     const logFileStream = fs.createWriteStream(logFilePath, { flags: 'a', encoding: 'utf-8' });
-    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath];
+    // TODO: Rename `test-mode` flag due to https://github.com/spacemeshos/go-spacemesh/issues/3026
+    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath, '--test-mode'];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
     this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
     this.nodeProcess.on('error', (error) => {
-      logger.error('Node Process', error);
+      logger.error('Node Process error', error);
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') && dialog.showErrorBox('Smesher Error', `${error}`);
       this.pushToErrorPool({ type: 'NodeError', error: defaultCrashError(error) });

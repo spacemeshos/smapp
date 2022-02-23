@@ -93,6 +93,7 @@ class NetServiceFactory<T extends { spacemesh: { v1: any; [k: string]: any }; [k
 
     let stream: ReturnType<typeof this.service[typeof method]>;
     let timeout: NodeJS.Timeout;
+
     const startStream = () => {
       if (!this.service) {
         throw new Error(`${this.serviceName} is not running`);
