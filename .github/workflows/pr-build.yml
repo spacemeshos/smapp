@@ -160,6 +160,7 @@ jobs:
           DONT_SIGN_APP: true # Do not sign the development artifacts
       
       - name: ls ./release
+        if: steps.result.outputs.status != 'success'
         run: ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./release
 
       # Upload artifacts to GCS
