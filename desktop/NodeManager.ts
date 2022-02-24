@@ -225,8 +225,7 @@ class NodeManager {
     const logFilePath = path.resolve(`${userDataPath}`, `spacemesh-log-${nodeConfig.p2p['network-id']}.txt`);
 
     const logFileStream = fs.createWriteStream(logFilePath, { flags: 'a', encoding: 'utf-8' });
-    // TODO: Rename `test-mode` flag due to https://github.com/spacemeshos/go-spacemesh/issues/3026
-    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath, '--test-mode'];
+    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath, '--log-encoder', 'json'];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
     this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });

@@ -2,7 +2,7 @@ import { app, ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { PublicService } from '../../shared/types';
 import { delay, toPublicService } from '../../shared/utils';
-import { fetchJSON, isDev, isDevNet } from '../utils';
+import { fetchJSON, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
 import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
@@ -23,14 +23,14 @@ const getDevNet = async () => ({
   grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
 });
 
-const getDiscoveryUrl = () => (isDev() ? process.env.DISCOVERY_URL : app.commandLine.getSwitchValue('discovery') || 'https://discover.spacemesh.io/networks.json');
+const getDiscoveryUrl = () => app.commandLine.getSwitchValue('discovery') || process.env.DISCOVERY_URL || 'https://discover.spacemesh.io/networks.json';
 
 const update = async (context: AppContext, retry = 2) => {
   try {
     const networks = await fetchJSON(getDiscoveryUrl());
     const result: Network[] = isDevNet() ? [await getDevNet(), ...networks] : networks;
-    context.networks = result;
-    return result;
+    context.networks = result || [];
+    return context.networks;
   } catch (err) {
     if (retry === 0) {
       context.networks = [];
