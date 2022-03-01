@@ -158,7 +158,7 @@ export const removeFromContacts = ({ contact, password }: { contact: Contact; pa
 
 export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { walletFiles } = getState().wallet;
-  const { error, newFilePath } = await eventsService.copyFile({ filePath: `${filePath}-lala` });
+  const { error, newFilePath } = await eventsService.copyFile({ filePath: `${filePath}` });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not restore wallet file\n', error)));
