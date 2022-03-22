@@ -81,7 +81,8 @@ class EventsService {
 
   static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 
-  static copyFile = ({ filePath, copyToDocuments }: { filePath: string; copyToDocuments?: boolean }) => ipcRenderer.invoke(ipcConsts.W_M_COPY_FILE, { filePath, copyToDocuments });
+  static copyFile = ({ filePath, copyToDocuments }: { filePath: string; copyToDocuments?: boolean }) =>
+    ipcRenderer.invoke(ipcConsts.W_M_COPY_FILE, { filePath, copyToDocuments: !!copyToDocuments });
 
   static showFileInFolder = ({ isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) =>
     ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { isBackupFile, isLogFile });
