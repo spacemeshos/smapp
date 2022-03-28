@@ -168,13 +168,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./codesigntool
-          key: codesign-cache-1
-          restore-keys: codesign-cache-1
+          key: codesign-cache-2
+          restore-keys: codesign-cache-2
     
       - name: Download CodeSignTool archive
         if: steps.cache-codesigntool.outputs.cache-hit != 'true'
         run: |
-          curl -L -k --output ./codesigntool.zip --create-dirs https://www.ssl.com/download/29764/
+          curl -L -k --output ./codesigntool.zip --create-dirs https://storage.googleapis.com/smapp/tools/codesigntool.zip
 
       - name: Unzip archive
         if: steps.cache-codesigntool.outputs.cache-hit != 'true'
@@ -248,7 +248,7 @@ jobs:
       
       # Upload artifacts to GCS
       - name: Set up GCloud SDK
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
