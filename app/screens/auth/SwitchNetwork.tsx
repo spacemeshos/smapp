@@ -125,7 +125,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     if (netId > -1 && isWalletOnly) {
       return history.push('/auth/connect-to-api', { redirect: location?.state?.redirect, netId, isWalletOnly, creatingWallet });
     }
-    return history.push(location?.state?.redirect || '/auth');
+    return history.push(location?.state?.redirect || '/auth/unlock');
   };
 
   const handleNext = async () => {

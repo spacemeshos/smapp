@@ -150,7 +150,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           <LinksWrapper>
             <GrayText>FORGOT YOUR PASSWORD?</GrayText>
             <Link onClick={() => history.push('/auth/restore')} text="RESTORE" style={{ marginRight: 'auto' }} />
-            <Link onClick={() => history.push('/auth/create')} text="CREATE" style={{ marginRight: 'auto' }} />
+            <Link onClick={() => history.push('/auth/wallet-connection-type')} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
           <Button text="UNLOCK" isDisabled={!password.trim() || !!isWrongPassword} onClick={decryptWallet} style={{ marginTop: 'auto' }} />

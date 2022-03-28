@@ -132,7 +132,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
         dispatch(setUiError(err));
       });
 
-    history.push(location?.state?.redirect || '/auth', { ...location.state });
+    history.push(location?.state?.redirect || '/auth/unlock', { ...location.state });
   };
 
   return (

@@ -54,7 +54,7 @@ const Auth = ({ history, location }: AuthRouterParams) => {
     if (location.pathname === '/auth/connect-to-api' || location.pathname === '/auth/switch-network') return;
     const initialSetup = async () => {
       const files = await dispatch(readWalletFiles());
-      if (files.length && location.pathname !== '/auth/restore') {
+      if (files.length && location.pathname === '/auth') {
         history.push('/auth/unlock', location.state);
       }
     };

@@ -341,7 +341,7 @@ const Node = ({ history, location }: Props) => {
   const handleSetupSmesher = () => {
     return eventsService
       .switchApiProvider(LOCAL_NODE_API_URL)
-      .then(() => history.push('/auth', { redirect: '/main/node-setup' }))
+      .then(() => history.push('/auth/unlock', { redirect: '/main/node-setup' }))
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
