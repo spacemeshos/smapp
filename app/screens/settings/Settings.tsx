@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { updateWalletName, updateAccountName, createNewAccount, switchApiProvider } from '../../redux/wallet/actions';
+import { updateWalletName, updateAccountName, createNewAccount, switchApiProvider, closeWallet } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { setUiError, switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
@@ -88,6 +88,7 @@ interface Props extends RouteComponentProps {
   switchTheme: AppThDispatch;
   setUiError: AppThDispatch;
   switchApiProvider: AppThDispatch;
+  closeWallet: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -200,6 +201,11 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection title="WALLETS" refProp={this.myRef2} isDarkMode={isDarkMode}>
+              <SettingRow
+                rowName="Close the wallet"
+                upperPartLeft={isWalletOnly ? 'Log out' : 'Log out and stop smeshing'}
+                upperPartRight={<Button onClick={this.closeWallet} text="LOG OUT" width={180} />}
+              />
               {isWalletOnly ? (
                 <SettingRow
                   rowName="Application mode"
@@ -524,12 +530,19 @@ class Settings extends Component<Props, State> {
   toggleSignMessageModal = ({ index }: { index: number }) => {
     this.setState({ signMessageModalAccountIndex: index });
   };
+
+  closeWallet = () => {
+    const { closeWallet, history } = this.props;
+    // @ts-ignore
+    closeWallet();
+    history.push('/auth/unlock');
+  };
 }
 
 const mapStateToProps = (state: RootState) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
-  walletFiles: state.wallet.walletFiles,
+  walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,
@@ -550,6 +563,7 @@ const mapDispatchToProps = {
   switchTheme,
   setUiError,
   switchApiProvider,
+  closeWallet,
 };
 
 // @ts-ignore

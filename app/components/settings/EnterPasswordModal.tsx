@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { unlockWallet } from '../../redux/wallet/actions';
+import { unlockCurrentWallet } from '../../redux/wallet/actions';
 import { Modal } from '../common';
 import { Button, Input, ErrorPopup } from '../../basicComponents';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
@@ -61,7 +61,7 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
 
   const submitActionWrapper = async () => {
     try {
-      await dispatch(unlockWallet({ password }));
+      await dispatch(unlockCurrentWallet(password));
       submitAction({ password });
     } catch {
       setHasError(true);

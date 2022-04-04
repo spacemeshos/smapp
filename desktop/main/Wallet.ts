@@ -40,19 +40,6 @@ const encryptCrypto = (cryptoDecrypted: WalletSecrets, password: string): Wallet
 // FileSystem interaction
 //
 
-const list = async () => {
-  try {
-    const files = await fs.readdir(USERDATA_DIR);
-    const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
-    const filteredFiles = files.filter((file) => file.match(regex));
-    const filesWithPath = filteredFiles.map((file) => path.join(USERDATA_DIR, file));
-    return { error: null, files: filesWithPath };
-  } catch (error) {
-    logger.error('readWalletFiles', error);
-    return { error, files: null };
-  }
-};
-
 const loadRaw = async (path: string): Promise<WalletFile> => {
   const fileContent = await fs.readFile(path, { encoding: 'utf8' });
   return JSON.parse(fileContent) as WalletFile;
@@ -67,6 +54,25 @@ const saveRaw = async (context: AppContext, wallet: WalletFile) => {
   }
   await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
   return { filename, filepath };
+};
+
+const list = async () => {
+  try {
+    const files = await fs.readdir(USERDATA_DIR);
+    const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
+    const filteredFiles = files.filter((file) => file.match(regex));
+    const walletFiles = await Promise.all(
+      filteredFiles.map(async (file) => {
+        const walletPath = path.join(USERDATA_DIR, file);
+        const wallet = await loadRaw(walletPath);
+        return { path: walletPath, displayName: wallet.meta.displayName };
+      })
+    );
+    return { error: null, files: walletFiles };
+  } catch (error) {
+    logger.error('readWalletFiles', error);
+    return { error, files: null };
+  }
 };
 
 const load = async (path: string, password: string): Promise<Wallet> => {
