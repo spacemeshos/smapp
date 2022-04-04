@@ -104,7 +104,6 @@ class NodeManager {
 
   subscribeToEvents = () => {
     ipcMain.handle(ipcConsts.N_M_START_NODE, async () => (this.isNodeRunning() ? true : this.startNode()));
-    ipcMain.handle(ipcConsts.N_M_STOP_NODE, () => this.stopNode().then(() => true));
 
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, () =>
       this.getVersionAndBuild()
