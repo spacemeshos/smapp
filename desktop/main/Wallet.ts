@@ -5,117 +5,55 @@ import { exec } from 'child_process';
 import { app, dialog, ipcMain, shell } from 'electron';
 import Logger from '../logger';
 import { ipcConsts } from '../../app/vars';
-import { Account, SocketAddress, Wallet, WalletFile, WalletMeta, WalletSecrets, WalletSecretsEncrypted, WalletType } from '../../shared/types';
+import { Account, SocketAddress, Wallet, WalletMeta, WalletSecrets, WalletType } from '../../shared/types';
 import { isLocalNodeApi, isRemoteNodeApi, isWalletOnlyType, stringifySocketAddress } from '../../shared/utils';
-import fileEncryptionService from '../fileEncryptionService';
 import CryptoService from '../cryptoService';
 import encryptionConst from '../encryptionConst';
 import StoreService from '../storeService';
-import { DOCUMENTS_DIR, MINUTE, USERDATA_DIR } from './constants';
+import { DOCUMENTS_DIR, MINUTE, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { AppContext } from './context';
 import Networks from './Networks';
 import { getNodeLogsPath } from './utils';
 import { checkForUpdates } from './autoUpdate';
+import { copyWalletFile, listWallets, loadWallet, saveWallet, updateWalletMeta, updateWalletSecrets } from './walletFile';
 
 const logger = Logger({ className: 'WalletFiles' });
 
-//
-// Encryption tools
-//
-
-const decryptCrypto = (crypto: WalletSecretsEncrypted, password: string): WalletSecrets => {
-  const key = fileEncryptionService.createEncryptionKey({ password });
-  const decryptedRaw = fileEncryptionService.decryptData({ data: crypto.cipherText, key });
-  const decrypted = JSON.parse(decryptedRaw) as WalletSecrets; // TODO: Add validation
-  return decrypted;
-};
-
-const encryptCrypto = (cryptoDecrypted: WalletSecrets, password: string): WalletSecretsEncrypted => {
-  const key = fileEncryptionService.createEncryptionKey({ password });
-  const encrypted = fileEncryptionService.encryptData({ data: JSON.stringify(cryptoDecrypted), key });
-  return { cipher: 'AES-128-CTR', cipherText: encrypted };
-};
-
-//
-// FileSystem interaction
-//
-
-const loadRaw = async (path: string): Promise<WalletFile> => {
-  const fileContent = await fs.readFile(path, { encoding: 'utf8' });
-  return JSON.parse(fileContent) as WalletFile;
-};
-
-const saveRaw = async (context: AppContext, wallet: WalletFile) => {
-  const filename = `my_wallet_${wallet.meta.created}.json`;
-  const filepath = path.resolve(USERDATA_DIR, filename);
-  context.walletPath = filepath;
-  if (context.wallet) {
-    context.wallet.meta = wallet.meta;
-  }
-  await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
-  return { filename, filepath };
-};
-
 const list = async () => {
   try {
-    const files = await fs.readdir(USERDATA_DIR);
-    const regex = new RegExp('(my_wallet_).*.(json)', 'ig');
-    const filteredFiles = files.filter((file) => file.match(regex));
-    const walletFiles = await Promise.all(
-      filteredFiles.map(async (file) => {
-        const walletPath = path.join(USERDATA_DIR, file);
-        const wallet = await loadRaw(walletPath);
-        return { path: walletPath, displayName: wallet.meta.displayName };
-      })
-    );
-    return { error: null, files: walletFiles };
+    const files = await listWallets(DEFAULT_WALLETS_DIRECTORY, StoreService.get('walletFiles'));
+    return { error: null, files };
   } catch (error) {
-    logger.error('readWalletFiles', error);
     return { error, files: null };
   }
 };
 
-const load = async (path: string, password: string): Promise<Wallet> => {
-  const { crypto, meta } = await loadRaw(path);
-  const cryptoDecoded = decryptCrypto(crypto, password);
-  return { meta, crypto: cryptoDecoded };
+//
+// Update handlers
+//
+
+const updateWalletContext = (context: AppContext, wallet: Wallet) => {
+  context.wallet = wallet;
 };
 
-const save = (context: AppContext, password: string, wallet: Wallet): Promise<{ filename: string; filepath: string }> => {
-  const { meta, crypto } = wallet;
-  const encrypted = encryptCrypto(crypto, password);
-  const fileContent: WalletFile = {
-    meta,
-    crypto: encrypted,
-  };
-  if (!context.wallet) {
-    context.wallet = wallet;
-  } else {
-    context.wallet.crypto = crypto;
+const updateMeta = async (context: AppContext, walletPath: string, meta: Partial<WalletMeta>) => {
+  const wallet = await updateWalletMeta(walletPath, meta);
+  context.walletPath = walletPath;
+  if (context.wallet) {
+    context.wallet.meta = wallet.meta;
   }
-  return saveRaw(context, fileContent);
+  return wallet;
 };
 
-const updateMeta = async (context: AppContext, path: string, meta: Partial<WalletMeta>) => {
-  const wallet = await loadRaw(path);
-  const newWallet = { ...wallet, meta: { ...wallet.meta, ...meta } };
-  await saveRaw(context, newWallet);
-  return newWallet;
+const updateSecrets = async (context: AppContext, walletPath: string, password: string, crypto: Partial<WalletSecrets>) => {
+  const wallet = await updateWalletSecrets(walletPath, password, crypto);
+  context.wallet = wallet;
+  return wallet;
 };
 
-const updateSecrets = async (context: AppContext, path: string, password: string, crypto: Partial<WalletSecrets>) => {
-  const wallet = await load(path, password);
-  const newWallet = { ...wallet, crypto: { ...wallet.crypto, ...crypto } };
-  return save(context, password, newWallet);
-};
-
-const copy = async (filePath: string, copyToDocuments: boolean) => {
-  const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const fileName = copyToDocuments ? `wallet_backup_${timestamp}.json` : `my_wallet_${timestamp}.json`;
-  const newFilePath = copyToDocuments ? path.join(DOCUMENTS_DIR, fileName) : path.join(USERDATA_DIR, fileName);
-  await fs.copyFile(filePath, newFilePath);
-  return newFilePath;
-};
+//
+// FS Interactions
+//
 
 const showFileInDirectory = async (context: AppContext, { isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) => {
   if (isBackupFile) {
@@ -136,7 +74,7 @@ const showFileInDirectory = async (context: AppContext, { isBackupFile, isLogFil
     const logFilePath = getNodeLogsPath(context.currentNetwork?.netID);
     shell.showItemInFolder(logFilePath);
   } else {
-    shell.openPath(USERDATA_DIR);
+    shell.openPath(DEFAULT_WALLETS_DIRECTORY);
   }
 };
 
@@ -151,7 +89,6 @@ const deleteWalletFile = async (context: AppContext, filepath: string) => {
   if (response === 0) {
     try {
       StoreService.clear();
-      // await unlinkFileAsync(fileName);
       await fs.unlink(filepath);
       delete context.wallet;
       delete context.walletPath;
@@ -173,7 +110,7 @@ const wipeOut = async (context: AppContext) => {
   const { response } = await dialog.showMessageBox(context.mainWindow, options);
   if (response === 0) {
     StoreService.clear();
-    const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${USERDATA_DIR}'` : `rm -rf '${USERDATA_DIR}'`;
+    const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${DEFAULT_WALLETS_DIRECTORY}'` : `rm -rf '${DEFAULT_WALLETS_DIRECTORY}'`;
     exec(command, (error: any) => {
       if (error) {
         logger.error('ipcMain wipeOut', error);
@@ -257,7 +194,7 @@ const subscribe = (context: AppContext) => {
 
   ipcMain.handle(ipcConsts.READ_WALLET_FILES, list);
 
-  ipcMain.handle(ipcConsts.W_M_COPY_FILE, (_event, { filePath, copyToDocuments }: { filePath: string; copyToDocuments: boolean }) => copy(filePath, copyToDocuments));
+  ipcMain.handle(ipcConsts.W_M_COPY_FILE, (_event, { filePath, copyToDocuments }: { filePath: string; copyToDocuments: boolean }) => copyWalletFile(filePath, copyToDocuments));
 
   ipcMain.handle(
     ipcConsts.W_M_CREATE_WALLET,
@@ -283,14 +220,17 @@ const subscribe = (context: AppContext) => {
       wallet.meta.remoteApi = apiUrl ? stringifySocketAddress(apiUrl) : '';
       wallet.meta.type = type;
 
-      await save(context, password, wallet);
+      updateWalletContext(context, wallet);
+
+      // TODO: custom wallet path
+      await saveWallet(path.resolve(DEFAULT_WALLETS_DIRECTORY, `my_wallet_${wallet.meta.created}.json`), password, wallet);
       await activate(context, wallet);
       return wallet;
     }
   );
   ipcMain.handle(ipcConsts.W_M_UNLOCK_WALLET, async (_event, { path, password }: { path: string; password: string }) => {
     try {
-      const wallet = await load(path, password);
+      const wallet = await loadWallet(path, password);
       const { meta, crypto } = wallet;
       const { accounts, mnemonic, contacts } = crypto;
       const isNetworkExist = Networks.hasNetwork(context, meta.netId);
@@ -306,7 +246,7 @@ const subscribe = (context: AppContext) => {
     }
   });
   ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, { fileName, password }: { fileName: string; password: string }) => {
-    const wallet = await load(fileName, password);
+    const wallet = await loadWallet(fileName, password);
     const { meta, crypto } = wallet;
     const timestamp = new Date().toISOString().replace(/:/, '-');
     const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
@@ -315,8 +255,9 @@ const subscribe = (context: AppContext) => {
     });
     const newAccount = createAccount({ index: crypto.accounts.length, timestamp, publicKey, secretKey });
     const newCrypto = { ...crypto, accounts: [...crypto.accounts, newAccount] };
-
-    await save(context, password, { meta, crypto: newCrypto });
+    const newWallet = { meta, crypto: newCrypto };
+    updateWalletContext(context, newWallet);
+    await saveWallet(fileName, password, newWallet);
     activateAccounts(context, [newAccount]);
     return newAccount;
   });
