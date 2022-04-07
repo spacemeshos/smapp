@@ -2,6 +2,7 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { exec } from 'child_process';
+import * as R from 'ramda';
 import { app, dialog, ipcMain, shell } from 'electron';
 import Logger from '../logger';
 import { ipcConsts } from '../../app/vars';
@@ -195,6 +196,12 @@ const subscribe = (context: AppContext) => {
   ipcMain.handle(ipcConsts.READ_WALLET_FILES, list);
 
   ipcMain.handle(ipcConsts.W_M_COPY_FILE, (_event, { filePath, copyToDocuments }: { filePath: string; copyToDocuments: boolean }) => copyWalletFile(filePath, copyToDocuments));
+  ipcMain.handle(ipcConsts.W_M_ADD_WALLET_PATH, (_, filePath: string) => {
+    const oldWalletFiles = StoreService.get('walletFiles');
+    const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
+    StoreService.set('walletFiles', newWalletFiles);
+    return newWalletFiles;
+  });
 
   ipcMain.handle(
     ipcConsts.W_M_CREATE_WALLET,

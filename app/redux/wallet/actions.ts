@@ -48,7 +48,7 @@ export const readWalletFiles = () => async (dispatch: AppThDispatch) => {
     dispatch({ type: SAVE_WALLET_FILES, payload: [] });
     return [];
   }
-  dispatch({ type: SAVE_WALLET_FILES, payload: files.map((path) => path) });
+  dispatch({ type: SAVE_WALLET_FILES, payload: files });
   return files;
 };
 
@@ -180,16 +180,14 @@ export const removeFromContacts = ({ contact, password }: { contact: Contact; pa
   dispatch(setContacts(updatedContacts));
 };
 
-export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles } = getState().wallet;
-  const { error, newFilePath } = await eventsService.copyFile({ filePath: `${filePath}` });
-  if (error) {
-    console.log(error); // eslint-disable-line no-console
-    dispatch(setUiError(addErrorPrefix('Can not restore wallet file\n', error)));
-    return false;
-  } else {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [newFilePath, ...walletFiles] : [newFilePath] } });
+export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch) => {
+  try {
+    await eventsService.addWalletPath(filePath);
     return true;
+  } catch (error) {
+    console.log(error); // eslint-disable-line no-console
+    dispatch(setUiError(addErrorPrefix('Can not restore wallet file\n', error as Error)));
+    return false;
   }
 };
 
