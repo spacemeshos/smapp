@@ -57,11 +57,12 @@ jobs:
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
-      - name: yarn lint and build
+      - name: Lint, Test and Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn lint
+          yarn test --forceExit
           yarn build
 
       # Download go-spacemesh

@@ -141,6 +141,11 @@ jobs:
           7z l ./node/release.zip
           ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
       
+      # Run tests
+      - name: yarn test
+        if: steps.result.outputs.status != 'success'
+        run: yarn test --forceExit
+
       # Build
       - name: yarn build
         if: steps.result.outputs.status != 'success'
