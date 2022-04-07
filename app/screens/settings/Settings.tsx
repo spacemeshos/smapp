@@ -201,11 +201,7 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection title="WALLETS" refProp={this.myRef2} isDarkMode={isDarkMode}>
-              <SettingRow
-                rowName="Close the wallet"
-                upperPartLeft={isWalletOnly ? 'Log out' : 'Log out and stop smeshing'}
-                upperPartRight={<Button onClick={this.closeWallet} text="LOG OUT" width={180} />}
-              />
+              <SettingRow rowName="Close the wallet" upperPartRight={<Button onClick={this.closeWallet} text="LOG OUT" width={180} />} />
               {isWalletOnly ? (
                 <SettingRow
                   rowName="Application mode"

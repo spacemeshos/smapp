@@ -43,6 +43,7 @@ type Props = {
 const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
+  const [isActive, setIsActive] = useState(true);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
@@ -61,10 +62,12 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
 
   const submitActionWrapper = async () => {
     try {
+      setIsActive(false);
       await dispatch(unlockCurrentWallet(password));
       submitAction({ password });
     } catch {
       setHasError(true);
+      setIsActive(true);
     }
   };
 
@@ -76,7 +79,7 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
         <ErrorSection>{hasError && <ErrorPopup onClick={reset} text="sorry, this password doesn't ring a bell, please try again" />}</ErrorSection>
       </InputSection>
       <ButtonsWrapper>
-        <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={submitActionWrapper} />
+        <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError || !isActive} onClick={submitActionWrapper} />
         <Button text="CANCEL" isPrimary={false} onClick={closeModal} />
       </ButtonsWrapper>
     </Modal>

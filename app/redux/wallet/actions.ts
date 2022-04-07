@@ -146,7 +146,11 @@ export const updateWalletName = ({ displayName }: { displayName: string }) => as
 
 export const createNewAccount = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { accounts, currentWalletPath } = getState().wallet;
-  const { error, newAccount } = await eventsService.createNewAccount({ fileName: currentWalletPath || '', password });
+  if (!currentWalletPath) {
+    dispatch(setUiError(new Error('Can not create new account: No currently opened wallet')));
+    return;
+  }
+  const { error, newAccount } = await eventsService.createNewAccount({ fileName: currentWalletPath, password });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));

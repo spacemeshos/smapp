@@ -249,20 +249,24 @@ const subscribe = (context: AppContext) => {
     }
   });
   ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, { fileName, password }: { fileName: string; password: string }) => {
-    const wallet = await loadWallet(fileName, password);
-    const { meta, crypto } = wallet;
-    const timestamp = new Date().toISOString().replace(/:/, '-');
-    const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
-      mnemonic: crypto.mnemonic,
-      index: crypto.accounts.length,
-    });
-    const newAccount = createAccount({ index: crypto.accounts.length, timestamp, publicKey, secretKey });
-    const newCrypto = { ...crypto, accounts: [...crypto.accounts, newAccount] };
-    const newWallet = { meta, crypto: newCrypto };
-    updateWalletContext(context, newWallet);
-    await saveWallet(fileName, password, newWallet);
-    activateAccounts(context, [newAccount]);
-    return newAccount;
+    try {
+      const wallet = await loadWallet(fileName, password);
+      const { meta, crypto } = wallet;
+      const timestamp = new Date().toISOString().replace(/:/, '-');
+      const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
+        mnemonic: crypto.mnemonic,
+        index: crypto.accounts.length,
+      });
+      const newAccount = createAccount({ index: crypto.accounts.length, timestamp, publicKey, secretKey });
+      const newCrypto = { ...crypto, accounts: [...crypto.accounts, newAccount] };
+      const newWallet = { meta, crypto: newCrypto };
+      updateWalletContext(context, newWallet);
+      await saveWallet(fileName, password, newWallet);
+      activateAccounts(context, [newAccount]);
+      return { error: null, newAccount };
+    } catch (error) {
+      return { error, newAccount: null };
+    }
   });
 
   ipcMain.handle(ipcConsts.SWITCH_API_PROVIDER, async (_event, apiUrl: SocketAddress | null) => {
