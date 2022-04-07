@@ -180,7 +180,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   ) : (
     <Wrapper>
       {location?.state?.isLoggedOut && <LoggedOutBanner key="banner" />}
-      <CorneredContainer width={520} height={415} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkMode={isDarkMode}>
+      <CorneredContainer width={520} height={showWalletFileSelection ? 415 : 310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkMode={isDarkMode}>
         {showWalletFileSelection ? (
           <>
             <Text>Choose the wallet file:</Text>
