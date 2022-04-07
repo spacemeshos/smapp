@@ -75,7 +75,7 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
     <Modal header="PASSWORD" subHeader={`Enter wallet ${walletName || ''} password to complete this action.`}>
       <InputSection>
         <Chevron src={chevronIcon} />
-        <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} autofocus />
+        <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} autofocus isDisabled={!isActive} />
         <ErrorSection>{hasError && <ErrorPopup onClick={reset} text="sorry, this password doesn't ring a bell, please try again" />}</ErrorSection>
       </InputSection>
       <ButtonsWrapper>
