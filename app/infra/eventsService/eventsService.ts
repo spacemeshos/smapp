@@ -81,13 +81,11 @@ class EventsService {
 
   static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 
-  static copyFile = ({ filePath, copyToDocuments }: { filePath: string; copyToDocuments?: boolean }) =>
-    ipcRenderer.invoke(ipcConsts.W_M_COPY_FILE, { filePath, copyToDocuments: !!copyToDocuments });
+  static backupWallet = (filePath: string) => ipcRenderer.invoke(ipcConsts.W_M_BACKUP_WALLET, filePath);
 
   static addWalletPath = (filePath: string) => ipcRenderer.invoke(ipcConsts.W_M_ADD_WALLET_PATH, filePath);
 
-  static showFileInFolder = ({ isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) =>
-    ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { isBackupFile, isLogFile });
+  static showFileInFolder = ({ filePath, isLogFile }: { filePath?: string; isLogFile?: boolean }) => ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { filePath, isLogFile });
 
   static deleteWalletFile = (filepath: string) => ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, filepath);
 

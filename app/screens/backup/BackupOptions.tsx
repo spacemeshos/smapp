@@ -72,9 +72,9 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
   };
 
   const handleBackupWallet = async () => {
-    const success = await dispatch(backupWallet());
-    if (success) {
-      history.push('/main/backup/file-backup');
+    const filePath = await dispatch(backupWallet());
+    if (filePath) {
+      history.push('/main/backup/file-backup', { filePath });
     }
   };
 

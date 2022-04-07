@@ -56,18 +56,10 @@ const updateSecrets = async (context: AppContext, walletPath: string, password: 
 // FS Interactions
 //
 
-const showFileInDirectory = async (context: AppContext, { isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) => {
-  if (isBackupFile) {
+const showFileInDirectory = async (context: AppContext, { filePath, isLogFile }: { filePath?: string; isLogFile?: boolean }) => {
+  if (filePath) {
     try {
-      const files = await fs.readdir(DOCUMENTS_DIR);
-      const regex = new RegExp('(wallet_backup_).*.(json)', 'ig');
-      const filteredFiles = files.filter((file) => file.match(regex));
-      const filesWithPath = filteredFiles.map((file) => path.join(DOCUMENTS_DIR, file));
-      if (filesWithPath && filesWithPath[0]) {
-        shell.showItemInFolder(filesWithPath[0]);
-      } else {
-        shell.openPath(DOCUMENTS_DIR);
-      }
+      shell.showItemInFolder(filePath);
     } catch (error) {
       logger.error('showFileInDirectory', error);
     }
@@ -195,7 +187,12 @@ const subscribe = (context: AppContext) => {
 
   ipcMain.handle(ipcConsts.READ_WALLET_FILES, list);
 
-  ipcMain.handle(ipcConsts.W_M_COPY_FILE, (_event, { filePath, copyToDocuments }: { filePath: string; copyToDocuments: boolean }) => copyWalletFile(filePath, copyToDocuments));
+  ipcMain.handle(ipcConsts.W_M_BACKUP_WALLET, (_event, filePath: string) =>
+    copyWalletFile(filePath, DOCUMENTS_DIR)
+      .then((filePath) => ({ error: null, filePath }))
+      .catch((error) => ({ error, filePath: null }))
+  );
+
   ipcMain.handle(ipcConsts.W_M_ADD_WALLET_PATH, (_, filePath: string) => {
     const oldWalletFiles = StoreService.get('walletFiles');
     const newWalletFiles = R.uniq([...oldWalletFiles, filePath]);
@@ -229,7 +226,6 @@ const subscribe = (context: AppContext) => {
 
       updateWalletContext(context, wallet);
 
-      // TODO: custom wallet path
       await saveWallet(path.resolve(DEFAULT_WALLETS_DIRECTORY, `my_wallet_${wallet.meta.created}.json`), password, wallet);
       await activate(context, wallet);
       return wallet;

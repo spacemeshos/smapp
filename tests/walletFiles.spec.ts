@@ -1,7 +1,18 @@
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { decryptWallet, encryptWallet, listWallets, listWalletsByPaths, listWalletsInDirectory, loadWallet, saveWallet, updateWalletMeta, updateWalletSecrets } from '../desktop/main/walletFile';
+import {
+  copyWalletFile,
+  decryptWallet,
+  encryptWallet,
+  listWallets,
+  listWalletsByPaths,
+  listWalletsInDirectory,
+  loadWallet,
+  saveWallet,
+  updateWalletMeta,
+  updateWalletSecrets,
+} from '../desktop/main/walletFile';
 import { Wallet, WalletSecrets, WalletSecretsEncrypted, WalletType } from '../shared/types';
 
 const FIXTURES_DIRECTORY = path.resolve(__dirname, './fixtures');
@@ -135,5 +146,27 @@ describe('List wallet files', () => {
   it('from both sources (returns only unique wallet files)', async () => {
     const wallets = await listWallets(FIXTURES_DIRECTORY, [VALID_WALLET_PATH]);
     expectWalletList(1, wallets);
+  });
+});
+
+describe('copyWalletFile', () => {
+  let tmpDir: string;
+  beforeAll(async () => {
+    tmpDir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'walletFiles-test'));
+  });
+  afterEach(async () => {
+    await fs.readdir(tmpDir).then((files) => Promise.all(files.map((file) => fs.unlink(`${tmpDir}/${file}`))));
+  });
+
+  it('copies wallet file & increment name', async () => {
+    const copied = await copyWalletFile(VALID_WALLET_PATH, tmpDir);
+    expect(copied).toBeTruthy();
+    // And couple times more to ensure that it will not overwrite the file
+    // But append a counter to the filename
+    await copyWalletFile(VALID_WALLET_PATH, tmpDir);
+    await copyWalletFile(VALID_WALLET_PATH, tmpDir);
+
+    const files = await fs.readdir(tmpDir);
+    expect(files).toHaveLength(3);
   });
 });

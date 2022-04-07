@@ -7,7 +7,8 @@ import * as R from 'ramda';
 
 import { Wallet, WalletFile, WalletMeta, WalletSecrets, WalletSecretsEncrypted } from '../../shared/types';
 import FileEncryptionService from '../fileEncryptionService';
-import { DEFAULT_WALLETS_DIRECTORY, DOCUMENTS_DIR } from './constants';
+import { isFileExists } from '../utils';
+import { DEFAULT_WALLETS_DIRECTORY } from './constants';
 
 //
 // Encryption
@@ -77,10 +78,20 @@ export const updateWalletSecrets = async (path: string, password: string, crypto
   return newWallet;
 };
 
-export const copyWalletFile = async (filePath: string, copyToDocuments: boolean) => {
-  const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const fileName = copyToDocuments ? `wallet_backup_${timestamp}.json` : `my_wallet_${timestamp}.json`;
-  const newFilePath = copyToDocuments ? path.join(DOCUMENTS_DIR, fileName) : path.join(DEFAULT_WALLETS_DIRECTORY, fileName);
+export const copyWalletFile = async (filePath: string, outputDir: string) => {
+  const originalFilename = path.basename(filePath);
+  const formatFilename = (filename: string, n: number) => {
+    if (n === 0) return filename;
+    const f = path.parse(filename);
+    return `${f.name}-copy-${n}${f.ext}`;
+  };
+  const getOutputFileName = async (filename: string, n = 0): Promise<string> => {
+    const newFileName = formatFilename(filename, n);
+    const outputFilePath = path.resolve(outputDir, newFileName);
+    const isExist = await isFileExists(outputFilePath);
+    return isExist ? getOutputFileName(filename, n + 1) : newFileName;
+  };
+  const newFilePath = path.resolve(outputDir, await getOutputFileName(originalFilename, 0));
   await fs.copyFile(filePath, newFilePath);
   return newFilePath;
 };

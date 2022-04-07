@@ -193,14 +193,18 @@ export const restoreFile = ({ filePath }: { filePath: string }) => async (dispat
 
 export const backupWallet = () => async (dispatch: AppThDispatch, getState: GetState) => {
   const { currentWalletPath } = getState().wallet;
-  const { error } = await eventsService.copyFile({ filePath: currentWalletPath || '', copyToDocuments: true });
+  if (!currentWalletPath) {
+    dispatch(setUiError(new Error('Can not create wallet backup: Wallet does not opened')));
+    return null;
+  }
+  const { error, filePath } = await eventsService.backupWallet(currentWalletPath);
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create wallet backup\n', error)));
-    return false;
+    return null;
   } else {
     dispatch({ type: SET_BACKUP_TIME, payload: { backupTime: new Date() } });
-    return true;
+    return filePath;
   }
 };
 

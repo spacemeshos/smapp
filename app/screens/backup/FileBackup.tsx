@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
+import { StaticContext } from 'react-router';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
@@ -27,11 +28,11 @@ const BottomRow = styled(MiddleSectionRow)`
   justify-content: space-between;
 `;
 
-const FileBackup = ({ history }: RouteComponentProps) => {
+const FileBackup = ({ history, location }: RouteComponentProps<Record<string, any>, StaticContext, { filePath: string }>) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const showBackupFile = () => {
-    eventsService.showFileInFolder({ isBackupFile: true });
+    eventsService.showFileInFolder({ filePath: location.state.filePath });
   };
 
   const backToWalletRoot = () => {
