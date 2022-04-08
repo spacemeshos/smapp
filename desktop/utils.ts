@@ -71,7 +71,7 @@ export const isFileExists = (filePath: string) =>
  */
 export const createDebouncePool = <T extends unknown>(delay: number, callback: (errors: T[]) => void) => {
   let bucket: T[] = [];
-  let timer: NodeJS.Timeout | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
 
   return (error: T) => {
     bucket = [...bucket, error];
