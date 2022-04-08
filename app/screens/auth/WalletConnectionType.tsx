@@ -6,6 +6,7 @@ import { Button, Link, Tooltip } from '../../basicComponents';
 import { posSmesherWhite, walletSecondWhite, walletSecondBlack, posSmesherBlack } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -82,14 +83,14 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
   const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
   const handleNextStep = (walletOnly: boolean) => () => {
-    history.push('/auth/wallet-type', { isWalletOnly: walletOnly });
+    history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
   };
 
   return (
     <Wrapper>
       <Steps step={Step.NEW_WALLET_SETUP} isDarkMode={isDarkMode} />
       <CorneredContainer width={650} height={400} header="NEW WALLET" subHeader="Configure your new wallet" isDarkMode={isDarkMode}>
-        <BackButton action={() => history.push('/auth/leaving')} />
+        <BackButton action={() => history.push(AuthPath.Leaving)} />
         <RowJust>
           <RowColumn>
             <Row>
@@ -117,7 +118,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
         <BottomPart>
           <Link onClick={navigateToExplanation} text="NOT SURE WHAT TO DO? READ THE GUIDE " />
           <Row>
-            <Link onClick={() => history.push('/auth/restore')} text="RESTORE EXISTING WALLET" />
+            <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE EXISTING WALLET" />
             <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
           </Row>
         </BottomPart>

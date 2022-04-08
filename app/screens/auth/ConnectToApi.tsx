@@ -10,6 +10,7 @@ import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
 import { switchApiProvider } from '../../redux/wallet/actions';
+import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -132,7 +133,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
         dispatch(setUiError(err));
       });
 
-    history.push(location?.state?.redirect || '/auth/unlock', { ...location.state });
+    history.push(location?.state?.redirect || AuthPath.Unlock, { ...location.state });
   };
 
   return (

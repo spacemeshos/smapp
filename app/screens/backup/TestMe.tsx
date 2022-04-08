@@ -6,6 +6,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { WalletPath } from '../../routerPaths';
 
 const SubHeader = styled.div`
   margin-bottom: 25px;
@@ -177,7 +178,7 @@ const TestMe = ({ history, location }: Props) => {
   const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
 
   const navigateToWallet = () => {
-    history.push('/main/wallet/overview');
+    history.push(WalletPath.Overview);
   };
 
   const handleDragEnd = (result: DropResult) => {

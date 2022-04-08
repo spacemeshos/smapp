@@ -8,6 +8,7 @@ import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { Account } from '../../../shared/types';
+import { MainPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,7 +118,7 @@ const RequestCoins = ({ history, location }: Props) => {
   };
 
   const navigateToNodeSetup = () => {
-    history.push('/main/node-setup');
+    history.push(MainPath.SmeshingSetup);
   };
 
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/get_coin');

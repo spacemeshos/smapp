@@ -8,6 +8,7 @@ import { CreateNewContact } from '../../components/contacts';
 import { ensure0x, validateAddress } from '../../infra/utils';
 import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
+import { MainPath } from '../../routerPaths';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -70,10 +71,6 @@ const SendCoins = ({ history, location }: Props) => {
       setMode(2);
     }
   };
-
-  // const cancelTxProcess = () => {
-  //   history.push('/main/wallet');
-  // };
 
   const handleSendTransaction = async () => {
     const receiver = address.replace(/^0x/, '');
@@ -149,7 +146,7 @@ const SendCoins = ({ history, location }: Props) => {
           amount={amount}
           txId={txId}
           doneAction={history.goBack}
-          navigateToTxList={() => history.replace('/main/transactions')}
+          navigateToTxList={() => history.replace(MainPath.Transactions)}
         />
       );
     }

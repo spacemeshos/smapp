@@ -4,6 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { MemoryRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
 import routes from './routes';
+import { AuthPath } from './routerPaths';
 import GlobalStyle from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
@@ -16,7 +17,7 @@ const EventRouter = () => {
   const history = useHistory();
 
   useEffect(() => {
-    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => history.location.pathname !== '/auth/switch-network' && goToSwitchNetwork(history, isWalletOnly));
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => history.location.pathname !== AuthPath.SwitchNetwork && goToSwitchNetwork(history, isWalletOnly));
   }, [history]);
 
   return <></>;

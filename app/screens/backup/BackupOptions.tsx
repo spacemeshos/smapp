@@ -6,6 +6,7 @@ import { backupWallet } from '../../redux/wallet/actions';
 import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
+import { BackupPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -68,13 +69,13 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
   const dispatch: AppThDispatch = useDispatch();
 
   const navigateTo12WordsBackup = () => {
-    history.push('/main/backup/twelve-words-backup');
+    history.push(BackupPath.Mnemonics);
   };
 
   const handleBackupWallet = async () => {
     const filePath = await dispatch(backupWallet());
     if (filePath) {
-      history.push('/main/backup/file-backup', { filePath });
+      history.push(BackupPath.File, { filePath });
     }
   };
 

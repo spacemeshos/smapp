@@ -17,6 +17,7 @@ import { isWalletOnly } from '../../redux/wallet/selectors';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
+import { AuthPath, MainPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -380,7 +381,7 @@ class Settings extends Component<Props, State> {
       console.error(err); // eslint-disable-line no-console
       setUiError(err);
     });
-    history.push('/auth/unlock');
+    history.push(AuthPath.Unlock);
   };
 
   switchToRemoteApi = () => {
@@ -390,7 +391,7 @@ class Settings extends Component<Props, State> {
       console.error(err); // eslint-disable-line no-console
       setUiError(err);
     });
-    history.push('/auth/unlock');
+    history.push(AuthPath.Unlock);
   };
 
   createNewAccountWrapper = () => {
@@ -437,12 +438,12 @@ class Settings extends Component<Props, State> {
 
   navigateToWalletBackup = () => {
     const { history } = this.props;
-    history.push('/main/backup');
+    history.push(MainPath.BackupWallet);
   };
 
   navigateToWalletRestore = () => {
     const { history } = this.props;
-    history.push('/auth/restore');
+    history.push(AuthPath.Recover);
   };
 
   externalNavigation = ({ to }: { to: string }) => {
@@ -531,7 +532,7 @@ class Settings extends Component<Props, State> {
     const { closeWallet, history } = this.props;
     // @ts-ignore
     closeWallet();
-    history.push('/auth/unlock');
+    history.push(AuthPath.Unlock);
   };
 }
 

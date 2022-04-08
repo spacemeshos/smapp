@@ -7,6 +7,7 @@ import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { MainPath } from '../../routerPaths';
 
 const Text = styled.span`
   margin-bottom: 10px;
@@ -36,7 +37,7 @@ const FileBackup = ({ history, location }: RouteComponentProps<Record<string, an
   };
 
   const backToWalletRoot = () => {
-    history.push('/main/wallet');
+    history.push(MainPath.Wallet);
   };
 
   const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');

@@ -11,6 +11,7 @@ import { AppThDispatch, RootState } from '../../types';
 import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
 import { WalletMeta } from '../../../shared/types';
 import { getIndexOfLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
+import { AuthPath, MainPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -158,9 +159,9 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       const status = await dispatch(unlockWallet(walletFiles[selectedWalletIndex].path, password));
       setShowLoader(false);
       if (status.success) {
-        const nextPage = (location.state?.redirect !== '/auth/unlock' && location.state?.redirect) || '/main/wallet';
+        const nextPage = (location.state?.redirect !== AuthPath.Unlock && location.state?.redirect) || MainPath.Wallet;
         if (status.forceNetworkSelection) {
-          history.push('/auth/switch-network', { redirect: nextPage, isWalletOnly: status.isWalletOnly });
+          history.push(AuthPath.SwitchNetwork, { redirect: nextPage, isWalletOnly: status.isWalletOnly });
           return;
         }
         history.push(nextPage);
@@ -220,8 +221,8 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         <BottomPart>
           <LinksWrapper>
             <GrayText>FORGOT YOUR PASSWORD?</GrayText>
-            <Link onClick={() => history.push('/auth/restore')} text="RESTORE" style={{ marginRight: 'auto' }} />
-            <Link onClick={() => history.push('/auth/wallet-connection-type')} text="CREATE" style={{ marginRight: 'auto' }} />
+            <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE" style={{ marginRight: 'auto' }} />
+            <Link onClick={() => history.push(AuthPath.ConnectionType)} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
           <Button text="UNLOCK" isDisabled={!password.trim() || !!isWrongPassword} onClick={decryptWallet} style={{ marginTop: 'auto' }} />

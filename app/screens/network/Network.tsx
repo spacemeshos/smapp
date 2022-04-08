@@ -12,6 +12,7 @@ import { getRemoteApi, isWalletOnly } from '../../redux/wallet/selectors';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import SubHeader from '../../basicComponents/SubHeader';
 import { goToSwitchNetwork } from '../../routeUtils';
+import { AuthPath } from '../../routerPaths';
 
 const Container = styled.div`
   display: flex;
@@ -94,7 +95,7 @@ const Network = ({ history }) => {
   }, []);
 
   const requestSwitchApiProvider = () => {
-    history.push('/auth/connect-to-api');
+    history.push(AuthPath.ConnectToAPI);
   };
 
   const renderActionButton = () => {

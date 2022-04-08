@@ -116,10 +116,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
     setAddressToAdd('');
   };
 
-  // const navigateToContacts = () => {
-  //   history.push('/main/contacts');
-  // };
-
   const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/wallet');
 
   const ddStyle = { width: 120, position: 'absolute', right: 12, top: 5, color: isDarkMode ? smColors.white : smColors.black };

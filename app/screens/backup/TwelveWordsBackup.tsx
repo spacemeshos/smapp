@@ -6,6 +6,7 @@ import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { BackupPath } from '../../routerPaths';
 
 const TextWrapper = styled.div`
   height: 75px;
@@ -99,7 +100,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
   twelveWordsPrint += '</div>';
 
   const navigateToTestMe = () => {
-    history.push('/main/backup/test-twelve-words-backup', { mnemonic });
+    history.push(BackupPath.TestMnemonics, { mnemonic });
   };
 
   const copy12Words = async () => {

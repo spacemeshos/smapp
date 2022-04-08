@@ -11,6 +11,7 @@ import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { WalletType } from '../../../shared/types';
+import { MainPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -148,10 +149,10 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       createWallet();
     } else if (subMode === 2) {
       if (location?.state?.netId && typeof location?.state?.apiUrl === 'string' && isLocalNodeApi(location.state.apiUrl)) {
-        history.push('/main/node-setup');
+        history.push(MainPath.SmeshingSetup);
         return;
       }
-      history.push('/main/wallet');
+      history.push(MainPath.Wallet);
     }
   };
 

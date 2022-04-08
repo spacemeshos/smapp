@@ -7,6 +7,7 @@ import { DragAndDrop } from '../../components/auth';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
+import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 
 const DdArea = styled.div`
@@ -44,7 +45,7 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const openWalletFile = async () => {
     const success = await dispatch(restoreFile({ filePath }));
     if (success) {
-      history.push('/auth/unlock');
+      history.push(AuthPath.Unlock);
     }
   };
 
