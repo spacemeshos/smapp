@@ -65,6 +65,7 @@ const BottomPart = styled.div`
 
 const Leaving = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const hasWalletFiles = useSelector((state: RootState) => state.wallet.walletFiles.length > 0);
 
   const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
 
@@ -85,7 +86,7 @@ const Leaving = ({ history }: AuthRouterParams) => {
               <Tooltip width={100} text="SETUP WALLET ONLY" isDarkMode={isDarkMode} />
             </Row>
           </ComplexLink>
-          <Button text="LEAVE SETUP" onClick={() => history.push(AuthPath.Welcome)} />
+          <Button text="LEAVE SETUP" onClick={() => history.push(hasWalletFiles ? AuthPath.Unlock : AuthPath.Welcome)} />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>
