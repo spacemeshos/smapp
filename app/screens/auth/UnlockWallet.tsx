@@ -10,7 +10,7 @@ import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../a
 import { AppThDispatch, RootState } from '../../types';
 import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
 import { WalletMeta } from '../../../shared/types';
-import { getIndexOfLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
+import { setLastSelectedWalletPath, getIndexOfLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 
@@ -110,12 +110,13 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [showLoader, setShowLoader] = useState(false);
 
   const walletFiles = useSelector(listWalletFiles);
-  const [selectedWalletIndex, setSelectedWalletIndex] = useState(getIndexOfLastSelectedWalletPath(walletFiles));
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
   const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
+
+  const selectedWalletIndex = getIndexOfLastSelectedWalletPath(walletFiles);
 
   useEffect(() => {
     // Ensure that we had loaded wallet files
@@ -126,8 +127,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     walletFiles.length === 0 ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }] : walletFiles.map(({ path, meta }) => ({ label: meta.displayName, path, meta }));
 
   const selectItem = ({ index }) => {
-    window.localStorage.setItem('selectedWalletIndex', index);
-    setSelectedWalletIndex(index);
+    setLastSelectedWalletPath(walletFiles[index].path);
   };
 
   // TODO: Get rid from code duplication

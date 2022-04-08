@@ -8,6 +8,7 @@ import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
+import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { AuthRouterParams } from './routerParams';
 
 const DdArea = styled.div`
@@ -45,6 +46,7 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const openWalletFile = async () => {
     const success = await dispatch(restoreFile({ filePath }));
     if (success) {
+      setLastSelectedWalletPath(filePath);
       history.push(AuthPath.Unlock);
     }
   };
