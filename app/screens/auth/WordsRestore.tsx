@@ -7,6 +7,7 @@ import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup } from '../../bas
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const Table = styled.div`
@@ -95,7 +96,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     };
   }, [handleKeyUp]);
 
-  const navigateTo12WordRestoreGuide = () => window.open('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list');
+  const navigateTo12WordRestoreGuide = () => window.open(ExternalLinks.RestoreMnemoGuide);
 
   const renderInputs = ({ start }: { start: number }) => {
     const res: Array<any> = [];

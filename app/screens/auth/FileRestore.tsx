@@ -9,6 +9,7 @@ import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const DdArea = styled.div`
@@ -51,7 +52,7 @@ const FileRestore = ({ history }: AuthRouterParams) => {
     }
   };
 
-  const navigateToBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file');
+  const navigateToBackupGuide = () => window.open(ExternalLinks.RestoreFileGuide);
 
   return (
     <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">

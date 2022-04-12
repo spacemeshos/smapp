@@ -8,6 +8,7 @@ import { bigInnerSideBar } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -67,7 +68,7 @@ const Leaving = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const hasWalletFiles = useSelector((state: RootState) => state.wallet.walletFiles.length > 0);
 
-  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
   const header = 'LEAVING SETUP';
 

@@ -8,6 +8,7 @@ import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { MainPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Text = styled.span`
   margin-bottom: 10px;
@@ -40,7 +41,7 @@ const FileBackup = ({ history, location }: RouteComponentProps<Record<string, an
     history.push(MainPath.Wallet);
   };
 
-  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
     <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkMode={isDarkMode}>

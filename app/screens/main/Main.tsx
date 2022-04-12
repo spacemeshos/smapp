@@ -26,6 +26,7 @@ import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { getNetworkDefinitions } from '../../redux/network/actions';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   position: relative;
@@ -189,7 +190,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleOpenLink('https://testnet.spacemesh.io/#/get_coin')}
+                  onClick={() => this.handleOpenLink(ExternalLinks.GetCoinGuide)}
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -203,7 +204,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleOpenLink('https://testnet.spacemesh.io/#/help')}
+                  onClick={() => this.handleOpenLink(ExternalLinks.Help)}
                   img={help}
                   imgHeight={30}
                   imgWidth={30}

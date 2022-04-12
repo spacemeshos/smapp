@@ -1,4 +1,5 @@
 import { app, Menu, shell, BrowserWindow } from 'electron';
+import { ExternalLinks } from '../shared/constants';
 
 class MenuBuilder {
   mainWindow: BrowserWindow;
@@ -74,7 +75,7 @@ class MenuBuilder {
               {
                 label: 'About',
                 click: () => {
-                  shell.openExternal('https://testnet.spacemesh.io/');
+                  shell.openExternal(ExternalLinks.About);
                 },
               },
               { type: 'separator' },
@@ -87,7 +88,7 @@ class MenuBuilder {
               {
                 label: 'About',
                 click: () => {
-                  shell.openExternal('https://testnet.spacemesh.io/');
+                  shell.openExternal(ExternalLinks.About);
                 },
               },
               { type: 'separator' },

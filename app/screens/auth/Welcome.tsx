@@ -8,6 +8,7 @@ import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../as
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const SideBar = styled.img`
@@ -88,7 +89,7 @@ const SubHeaderExt = styled(SubHeader)`
 
 const Welcome = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
   return (
     <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" isDarkMode={isDarkMode}>

@@ -11,7 +11,7 @@ import { eventsService } from '../../infra/eventsService';
 import { TxState } from '../../../shared/types';
 import { TxView } from '../../redux/wallet/selectors';
 import Address, { AddressType } from '../common/Address';
-import { TX_STATE_LABELS } from '../../../shared/constants';
+import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -281,7 +281,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             />
           </InputSection>
           <ButtonsWrapper>
-            <Link onClick={() => window.open('https://testnet.spacemesh.io/#/send_coin')} text="TRANSACTION GUIDE" />
+            <Link onClick={() => window.open(ExternalLinks.SendCoinGuide)} text="TRANSACTION GUIDE" />
             <RightButton>
               <Link style={{ color: smColors.orange, marginRight: '10px' }} onClick={() => setShowNoteModal(false)} text="CANCEL" />
               <Button text="NEXT" isDisabled={note === tx.note} onClick={save} />

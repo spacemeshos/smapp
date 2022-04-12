@@ -13,6 +13,7 @@ import { getCurrentWalletFile, isWalletOnly } from '../../redux/wallet/selectors
 import { WalletType } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -165,7 +166,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     }
   };
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
   if (isLoaderVisible) {

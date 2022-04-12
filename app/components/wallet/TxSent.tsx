@@ -5,6 +5,7 @@ import { getAddress, formatSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -97,7 +98,7 @@ type Props = {
 };
 
 const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxList }: Props) => {
-  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
+  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
 
   const { unit }: any = formatSmidge(amount, true);
   return (

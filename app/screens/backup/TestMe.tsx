@@ -7,6 +7,7 @@ import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basic
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { WalletPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 
 const SubHeader = styled.div`
   margin-bottom: 25px;
@@ -175,7 +176,7 @@ const TestMe = ({ history, location }: Props) => {
     setMatchCounter(0);
   };
 
-  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   const navigateToWallet = () => {
     history.push(WalletPath.Overview);

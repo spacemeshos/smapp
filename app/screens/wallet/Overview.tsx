@@ -9,6 +9,7 @@ import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { MainPath, WalletPath } from '../../routerPaths';
 import { PostSetupState } from '../../../shared/types';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -57,7 +58,7 @@ const Overview = ({ history }: RouteComponentProps) => {
     history.push(MainPath.Transactions);
   };
 
-  const navigateToWalletGuide = () => window.open('https://testnet.spacemesh.io/#/wallet');
+  const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
   return (
     <Wrapper>

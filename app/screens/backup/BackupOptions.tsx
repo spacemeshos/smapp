@@ -7,6 +7,7 @@ import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basic
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import { BackupPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -79,7 +80,7 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
     }
   };
 
-  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
     <Wrapper>

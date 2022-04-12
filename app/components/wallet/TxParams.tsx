@@ -5,6 +5,7 @@ import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Contact } from '../../types';
 import AmountInput from '../../basicComponents/AmountInput';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -152,7 +153,7 @@ const TxParams = ({
     setSelectedFeeIndex(index);
   };
 
-  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
+  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
 
   const handleAmountChange = useCallback((value) => updateTxAmount(parseFloat(value)), [updateTxAmount]);
 

@@ -12,6 +12,7 @@ import { RootState } from '../../types';
 import { getTxAndRewards, RewardView, TxView } from '../../redux/wallet/selectors';
 import { TxState, HexString } from '../../../shared/types';
 import { isReward, isTx } from '../../../shared/types/guards';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -116,7 +117,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
     setAddressToAdd('');
   };
 
-  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/wallet');
+  const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
   const ddStyle = { width: 120, position: 'absolute', right: 12, top: 5, color: isDarkMode ? smColors.white : smColors.black };
 

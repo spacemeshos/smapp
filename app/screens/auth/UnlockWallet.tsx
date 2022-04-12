@@ -13,6 +13,7 @@ import { WalletMeta } from '../../../shared/types';
 import { setLastSelectedWalletPath, getIndexOfLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { formatISOAsUS } from '../../../shared/datetime';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -172,7 +173,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       }
     }
   };
-  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
   const showWalletFileSelection = walletFiles.length > 1;
   return showLoader ? (
     <Loader

@@ -17,8 +17,20 @@ export const TX_STATE_LABELS: Record<TxState, string> = {
 };
 
 export enum ExternalLinks {
+  About = 'https://testnet.spacemesh.io',
+  UserGuide = 'https://testnet.spacemesh.io',
   Terms = 'https://testnet.spacemesh.io/#/terms',
   Disclaimer = 'https://testnet.spacemesh.io/#/disclaimer',
   Privacy = 'https://testnet.spacemesh.io/#/privacy',
-  UserGuide = 'https://testnet.spacemesh.io',
+  SetupGuide = 'https://testnet.spacemesh.io/#/guide/setup',
+  NoSleepGuide = 'https://testnet.spacemesh.io/#/no_sleep',
+  SendCoinGuide = 'https://testnet.spacemesh.io/#/send_coin',
+  GetCoinGuide = 'https://testnet.spacemesh.io/#/get_coin',
+  WalletGuide = 'https://testnet.spacemesh.io/#/wallet',
+  BackupGuide = 'https://testnet.spacemesh.io/#/backup',
+  RestoreGuide = 'https://testnet.spacemesh.io/#/advanced_wallet?id=restoring-a-wallet',
+  RestoreFileGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-backup-file',
+  RestoreMnemoGuide = 'https://testnet.spacemesh.io/#/backup?id=restoring-from-a-12-words-list',
+  Help = 'https://testnet.spacemesh.io/#/help',
+  DiscordTapAccount = 'https://discord.gg/ASpy52C',
 }

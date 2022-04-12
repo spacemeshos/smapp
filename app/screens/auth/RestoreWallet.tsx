@@ -4,6 +4,7 @@ import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link } from '../../basicComponents';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const btnStyle = { margin: '30px 0 15px' };
@@ -11,7 +12,7 @@ const btnStyle = { margin: '30px 0 15px' };
 const RestoreWallet = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToWalletGuide = () => window.open('https://testnet.spacemesh.io/');
+  const navigateToWalletGuide = () => window.open(ExternalLinks.RestoreGuide);
 
   return (
     <CorneredContainer width={650} height={400} header="RESTORE AN EXISTING WALLET" subHeader="Choose how you&#39;d like to restore your wallet." isDarkMode={isDarkMode}>

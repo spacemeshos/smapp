@@ -11,6 +11,7 @@ import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
 import { switchApiProvider } from '../../redux/wallet/actions';
 import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -98,7 +99,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   useEffect(updatePublicServices, []);
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 

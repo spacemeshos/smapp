@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import styled from 'styled-components';
+import { ExternalLinks } from '../../../shared/constants';
 import { Link, Button } from '../../basicComponents';
 
 const Footer = styled.div`
@@ -39,7 +40,7 @@ class PoSFooter extends PureComponent<Props> {
     );
   }
 
-  navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 }
 
 export default PoSFooter;

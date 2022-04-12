@@ -7,6 +7,7 @@ import { posSmesherWhite, walletSecondWhite, walletSecondBlack, posSmesherBlack 
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -80,7 +81,7 @@ const BottomPart = styled.div`
 const WalletConnectionType = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const handleNextStep = (walletOnly: boolean) => () => {
     history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
