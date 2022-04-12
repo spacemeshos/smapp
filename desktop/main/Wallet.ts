@@ -10,6 +10,7 @@ import { Account, SocketAddress, Wallet, WalletMeta, WalletSecrets, WalletType }
 import { isLocalNodeApi, isRemoteNodeApi, isWalletOnlyType, stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import encryptionConst from '../encryptionConst';
+import { getISODate } from '../../shared/datetime';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, MINUTE, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { AppContext } from './context';
@@ -129,8 +130,9 @@ const createAccount = ({ index, timestamp, publicKey, secretKey }: { index: numb
   secretKey,
 });
 
-const create = (mnemonicSeed?: string) => {
-  const timestamp = new Date().toISOString().replace(/:/g, '-');
+// Index stands for naming
+const create = (index: number, mnemonicSeed?: string) => {
+  const timestamp = getISODate();
   const mnemonic = mnemonicSeed || CryptoService.generateMnemonic();
   const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({ mnemonic, index: 0 });
   const crypto = {
@@ -139,7 +141,7 @@ const create = (mnemonicSeed?: string) => {
     contacts: [],
   };
   const meta: WalletMeta = {
-    displayName: 'Main Wallet',
+    displayName: index === 0 ? 'Main Wallet' : `Wallet ${index + 1}`,
     created: timestamp,
     type: WalletType.LocalNode,
     netId: -1,
@@ -218,7 +220,8 @@ const subscribe = (context: AppContext) => {
         netId: number;
       }
     ) => {
-      const wallet = create(existingMnemonic);
+      const { files } = await list();
+      const wallet = create(files?.length || 0, existingMnemonic);
 
       wallet.meta.netId = netId;
       wallet.meta.remoteApi = apiUrl ? stringifySocketAddress(apiUrl) : '';
@@ -226,9 +229,10 @@ const subscribe = (context: AppContext) => {
 
       updateWalletContext(context, wallet);
 
-      await saveWallet(path.resolve(DEFAULT_WALLETS_DIRECTORY, `my_wallet_${wallet.meta.created}.json`), password, wallet);
+      const walletPath = path.resolve(DEFAULT_WALLETS_DIRECTORY, `my_wallet_${wallet.meta.created}.json`);
+      await saveWallet(walletPath, password, wallet);
       await activate(context, wallet);
-      return wallet;
+      return { path: walletPath, wallet };
     }
   );
   ipcMain.handle(ipcConsts.W_M_UNLOCK_WALLET, async (_event, { path, password }: { path: string; password: string }) => {
@@ -252,7 +256,7 @@ const subscribe = (context: AppContext) => {
     try {
       const wallet = await loadWallet(fileName, password);
       const { meta, crypto } = wallet;
-      const timestamp = new Date().toISOString().replace(/:/, '-');
+      const timestamp = getISODate();
       const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
         mnemonic: crypto.mnemonic,
         index: crypto.accounts.length,

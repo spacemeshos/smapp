@@ -68,7 +68,11 @@ export const createNewWallet = ({
   eventsService
     .createWallet({ password, existingMnemonic, type, apiUrl, netId })
     .then((data) => {
-      const { meta, crypto } = data;
+      const {
+        path,
+        wallet: { meta, crypto },
+      } = data;
+      dispatch(setCurrentWalletPath(path));
       dispatch(setWalletMeta(meta));
       dispatch(setAccounts(crypto.accounts));
       dispatch(setMnemonic(crypto.mnemonic));

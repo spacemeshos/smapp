@@ -12,6 +12,7 @@ import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
 import { WalletMeta } from '../../../shared/types';
 import { setLastSelectedWalletPath, getIndexOfLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { AuthPath, MainPath } from '../../routerPaths';
+import { formatISOAsUS } from '../../../shared/datetime';
 import { AuthRouterParams } from './routerParams';
 
 const Wrapper = styled.div`
@@ -116,7 +117,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
-  const selectedWalletIndex = getIndexOfLastSelectedWalletPath(walletFiles);
+  const [selectedWalletIndex, updateSelectedWalletIndex] = useState(getIndexOfLastSelectedWalletPath(walletFiles));
 
   useEffect(() => {
     // Ensure that we had loaded wallet files
@@ -128,6 +129,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
 
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
+    updateSelectedWalletIndex(index);
   };
 
   // TODO: Get rid from code duplication
@@ -138,7 +140,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       {meta && (
         <small>
           <br />
-          (CREATED: {meta.created} @ NET ID: {meta.netId})
+          CREATED: {formatISOAsUS(meta.created)} @ NET ID: {meta.netId}
         </small>
       )}
     </AccItem>
@@ -195,7 +197,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
                 rowHeight={55}
                 style={ddStyle}
                 bgColor={smColors.white}
-                isDisabled={walletFiles.length < 2}
               />
             </InputSection>
           </>

@@ -20,6 +20,8 @@ export type RewardView = Reward & WithTimestamp;
 // ======================
 export const listWalletFiles = (state: RootState) => state.wallet.walletFiles;
 
+export const getCurrentWalletFile = (state: RootState) => state.wallet.currentWalletPath;
+
 // ======================
 // Contacts
 // ======================

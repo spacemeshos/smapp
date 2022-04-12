@@ -16,7 +16,7 @@ const RestoreWallet = ({ history }: AuthRouterParams) => {
   return (
     <CorneredContainer width={650} height={400} header="RESTORE AN EXISTING WALLET" subHeader="Choose how you&#39;d like to restore your wallet." isDarkMode={isDarkMode}>
       <BackButton action={history.goBack} />
-      <Button text="RESTORE FROM FILE" isPrimary={false} onClick={() => history.push(AuthPath.RecoverFromFile)} width={250} style={btnStyle} />
+      <Button text="OPEN FROM FILE" isPrimary={false} onClick={() => history.push(AuthPath.RecoverFromFile)} width={250} style={btnStyle} />
       <Button text="RESTORE FROM 12 WORDS" isPrimary={false} onClick={() => history.push(AuthPath.RecoverFromMnemonics)} width={250} />
       <Link onClick={navigateToWalletGuide} text="WALLET GUIDE" style={{ marginTop: 'auto', marginRight: 'auto' }} />
     </CorneredContainer>
