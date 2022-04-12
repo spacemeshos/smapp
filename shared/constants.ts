@@ -15,3 +15,10 @@ export const TX_STATE_LABELS: Record<TxState, string> = {
   [TxState.TRANSACTION_STATE_MESH]: 'Accepted',
   [TxState.TRANSACTION_STATE_PROCESSED]: 'Confirmed',
 };
+
+export enum ExternalLinks {
+  Terms = 'https://testnet.spacemesh.io/#/terms',
+  Disclaimer = 'https://testnet.spacemesh.io/#/disclaimer',
+  Privacy = 'https://testnet.spacemesh.io/#/privacy',
+  UserGuide = 'https://testnet.spacemesh.io',
+}
