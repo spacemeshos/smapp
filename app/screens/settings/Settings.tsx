@@ -325,6 +325,11 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
+                upperPartLeft="" /* TODO: Show current directory */
+                upperPartRight={<Button onClick={eventsService.changeDataDir} text="CHANGE DIRECTORY" width={180} />}
+                rowName="Change mesh data directory"
+              />
+              <SettingRow
                 upperPartLeft={
                   isPortSet ? (
                     <Text>Please restart application to apply changes</Text>

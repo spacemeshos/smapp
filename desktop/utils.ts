@@ -57,6 +57,18 @@ export const isFileExists = (filePath: string) =>
     .then(() => true)
     .catch(() => false);
 
+export const isEmptyDir = async (path: string) => {
+  try {
+    const fsp = fs.promises;
+    const directory = await fsp.opendir(path);
+    const entry = await directory.read();
+    await directory.close();
+    return entry === null;
+  } catch (error) {
+    return false;
+  }
+};
+
 /**
  * Creates a pool of objects T which will be collected
  * until some delay passed since the last object added to the pool.

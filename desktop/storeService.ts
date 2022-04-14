@@ -1,10 +1,10 @@
 import path from 'path';
-import { app } from 'electron';
 import Store from 'electron-store';
 import { Function, Object, String } from 'ts-toolbelt';
 import { AccountBalance } from '../shared/types';
 import { Transaction } from '../proto/spacemesh/v1/Transaction';
 import { _spacemesh_v1_TransactionState_TransactionState } from '../proto/spacemesh/v1/TransactionState';
+import { USERDATA_DIR } from './main/constants';
 
 export type TxStored = Required<Transaction> & { id: string; state: _spacemesh_v1_TransactionState_TransactionState };
 
@@ -19,8 +19,8 @@ export interface AccountStore {
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
-  nodeConfigFilePath: string;
-  nodeSettings: {
+  node: {
+    dataPath: string;
     port: string;
   };
   walletFiles: string[];
@@ -28,8 +28,8 @@ export interface ConfigStore {
 
 const CONFIG_STORE_DEFAULTS = {
   isAutoStartEnabled: false,
-  nodeConfigFilePath: path.resolve(app.getPath('userData'), 'node-config.json'),
-  nodeSettings: {
+  node: {
+    dataPath: path.resolve(USERDATA_DIR, 'node-data'),
     port: '9092',
   },
   walletFiles: [],
