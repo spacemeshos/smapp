@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { isLocalNodeApi } from '../../../shared/utils';
@@ -9,8 +9,11 @@ import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { isWalletOnly } from '../../redux/wallet/selectors';
+import { getCurrentWalletFile, isWalletOnly } from '../../redux/wallet/selectors';
 import { WalletType } from '../../../shared/types';
+import { MainPath } from '../../routerPaths';
+import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -83,7 +86,15 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Store create wallet to localStorage to choose it
+    // in the dropdown next time
+    if (!currentWalletPath) return;
+    setLastSelectedWalletPath(currentWalletPath);
+  }, [currentWalletPath]);
 
   const renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
@@ -148,14 +159,14 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       createWallet();
     } else if (subMode === 2) {
       if (location?.state?.netId && typeof location?.state?.apiUrl === 'string' && isLocalNodeApi(location.state.apiUrl)) {
-        history.push('/main/node-setup');
+        history.push(MainPath.SmeshingSetup);
         return;
       }
-      history.push('/main/wallet');
+      history.push(MainPath.Wallet);
     }
   };
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
   if (isLoaderVisible) {

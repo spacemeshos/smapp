@@ -7,6 +7,9 @@ import { Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { MainPath, WalletPath } from '../../routerPaths';
+import { PostSetupState } from '../../../shared/types';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -40,22 +43,22 @@ const MiddleSectionText = styled.div`
 
 const Overview = ({ history }: RouteComponentProps) => {
   const account = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
-  const isSmeshing = useSelector((state: RootState) => state.smesher.isSmeshing);
-  const isCreatingPosData = useSelector((state: RootState) => state.smesher.isSmeshing);
+  const isSmeshing = useSelector((state: RootState) => state.smesher.postSetupState === PostSetupState.STATE_COMPLETE);
+  const isCreatingPosData = useSelector((state: RootState) => state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS);
 
   const navigateToSendCoins = () => {
-    history.push('/main/wallet/send-coins');
+    history.push(WalletPath.SendCoins);
   };
 
   const navigateToRequestCoins = () => {
-    history.push('/main/wallet/request-coins', { account, isSmesherActive: isCreatingPosData || isSmeshing });
+    history.push(WalletPath.RequestCoins, { account, isSmesherActive: isCreatingPosData || isSmeshing });
   };
 
   const navigateToAllTransactions = () => {
-    history.push('/main/transactions');
+    history.push(MainPath.Transactions);
   };
 
-  const navigateToWalletGuide = () => window.open('https://testnet.spacemesh.io/#/wallet');
+  const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
   return (
     <Wrapper>

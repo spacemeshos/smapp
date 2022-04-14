@@ -12,6 +12,7 @@ import { EnterPasswordModal } from '../../components/settings';
 import { removeFromContacts } from '../../redux/wallet/actions';
 import { Contact } from '../../../shared/types';
 import Address from '../../components/common/Address';
+import { WalletPath } from '../../routerPaths';
 
 const SearchWrapper = styled.div`
   display: flex;
@@ -320,7 +321,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   const navigateToSendCoins = ({ contact }: { contact: Contact }) => {
-    history.push('/main/wallet/send-coins', { contact });
+    history.push(WalletPath.SendCoins, { contact });
   };
 
   const handleDeleteButton = (contact: Contact) => {

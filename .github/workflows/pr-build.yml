@@ -141,6 +141,12 @@ jobs:
           7z l ./node/release.zip
           ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
       
+      # Run tests
+      - name: yarn test
+        # TODO: Get rid of skipping tests on Ubuntu due to OS-specific issue: Jest hangs
+        if: steps.result.outputs.status != 'success' && matrix.os != 'ubuntu-latest'
+        run: yarn test --forceExit
+
       # Build
       - name: yarn build
         if: steps.result.outputs.status != 'success'

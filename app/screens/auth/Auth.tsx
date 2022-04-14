@@ -6,6 +6,7 @@ import { readWalletFiles } from '../../redux/wallet/actions';
 import { Logo } from '../../components/common';
 import { Loader, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
+import { AuthPath } from '../../routerPaths';
 import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { RootState } from '../../types';
 import Version from '../../components/common/Version';
@@ -41,7 +42,7 @@ const RelativeContainer = styled.div`
 `;
 
 const renderHorizontalPane = (path, isDarkMode) => {
-  const DO_NOT_SHOW_ON = ['/auth/welcome', '/auth/leaving'];
+  const DO_NOT_SHOW_ON = [AuthPath.Welcome, AuthPath.Leaving];
   return DO_NOT_SHOW_ON.includes(path) ? null : <SmallHorizontalPanel isDarkMode={isDarkMode} />;
 };
 
@@ -51,11 +52,11 @@ const Auth = ({ history, location }: AuthRouterParams) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (location.pathname === '/auth/connect-to-api' || location.pathname === '/auth/switch-network') return;
+    if (location.pathname === AuthPath.ConnectToAPI || location.pathname === AuthPath.SwitchNetwork) return;
     const initialSetup = async () => {
       const files = await dispatch(readWalletFiles());
-      if (files.length && location.pathname !== '/auth/restore') {
-        history.push('/auth/unlock', location.state);
+      if (files.length && location.pathname === AuthPath.Auth) {
+        history.push(AuthPath.Unlock, location.state);
       }
     };
     initialSetup();

@@ -1,6 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 
+import { AuthPath } from './routerPaths';
+
 export const goToSwitchNetwork = (history, isWalletOnly) =>
   setImmediate(() => {
-    history.push('/auth/switch-network', { redirect: history.location.pathname, isWalletOnly });
+    history.push(AuthPath.SwitchNetwork, { redirect: history.location.pathname, isWalletOnly });
   });

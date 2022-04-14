@@ -7,6 +7,8 @@ import { Button, Link, Tooltip } from '../../basicComponents';
 import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 
 const SideBar = styled.img`
@@ -87,7 +89,7 @@ const SubHeaderExt = styled(SubHeader)`
 
 const Welcome = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const navigateToSetupGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
   return (
     <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" isDarkMode={isDarkMode}>
@@ -123,10 +125,10 @@ const Welcome = ({ history }: AuthRouterParams) => {
       <BottomPart>
         <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
         <ComplexLink>
-          <Link onClick={() => history.push('/auth/restore')} text="RESTORE AN EXISTING WALLET" />
+          <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE AN EXISTING WALLET" />
           <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
           <ButtonMargin>
-            <Button text="SETUP" onClick={() => history.push('/auth/wallet-connection-type')} />
+            <Button text="SETUP" onClick={() => history.push(AuthPath.ConnectionType)} />
           </ButtonMargin>
         </ComplexLink>
       </BottomPart>

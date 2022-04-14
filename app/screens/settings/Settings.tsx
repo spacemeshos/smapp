@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { updateWalletName, updateAccountName, createNewAccount, switchApiProvider } from '../../redux/wallet/actions';
+import { updateWalletName, updateAccountName, createNewAccount, switchApiProvider, closeWallet } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { setUiError, switchTheme } from '../../redux/ui/actions';
 import { SettingsSection, SettingRow, ChangePassword, SideMenu, EnterPasswordModal, SignMessage } from '../../components/settings';
@@ -14,9 +14,10 @@ import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
 import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
-import { LOCAL_NODE_API_URL } from '../../../shared/constants';
+import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
+import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -88,6 +89,7 @@ interface Props extends RouteComponentProps {
   switchTheme: AppThDispatch;
   setUiError: AppThDispatch;
   switchApiProvider: AppThDispatch;
+  closeWallet: AppThDispatch;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -189,13 +191,13 @@ class Settings extends Component<Props, State> {
                 rowName="Wallet Auto Start"
               />
               <SettingRow
-                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation({ to: 'disclaimer' })} text="disclaimer" key={2} />]}
+                upperPart={[<Text key={1}>Read our&nbsp;</Text>, <Link onClick={() => this.externalNavigation(ExternalLinks.Disclaimer)} text="disclaimer" key={2} />]}
                 rowName="Legal"
               />
               <SettingRow
                 upperPartLeft="Learn more in our extensive user guide"
                 isUpperPartLeftText
-                upperPartRight={<Button onClick={() => this.externalNavigation({ to: 'userGuide' })} text="GUIDE" width={180} />}
+                upperPartRight={<Button onClick={() => this.externalNavigation(ExternalLinks.UserGuide)} text="GUIDE" width={180} />}
                 rowName="User Guide"
               />
             </SettingsSection>
@@ -252,9 +254,26 @@ class Settings extends Component<Props, State> {
                 rowName="Delete Wallet"
               />
               <SettingRow
-                upperPartLeft="Create a new wallet. You will be signed out of current wallet"
+                rowName="Close the wallet"
+                upperPartLeft={walletDisplayName}
                 isUpperPartLeftText
-                upperPartRight={<Button onClick={() => {}} text="CREATE" width={180} isDisabled />}
+                upperPartRight={<Button onClick={this.closeWallet} text="LOG OUT" width={180} />}
+              />
+              <SettingRow
+                rowName="Open another wallet file"
+                upperPartLeft="You will be signed out of current wallet"
+                isUpperPartLeftText
+                upperPartRight={
+                  <>
+                    <Button onClick={this.openWalletFile} text="OPEN WALLET FILE" width={180} style={{ marginRight: '1em' }} />
+                    <Button onClick={this.restoreFromMnemonics} text="RESTORE FROM 12 WORDS" width={180} />
+                  </>
+                }
+              />
+              <SettingRow
+                upperPartLeft="You will be signed out of current wallet"
+                isUpperPartLeftText
+                upperPartRight={<Button onClick={this.createNewWallet} text="CREATE" width={180} />}
                 rowName="Create a new wallet"
               />
             </SettingsSection>
@@ -371,24 +390,29 @@ class Settings extends Component<Props, State> {
     }
   };
 
+  goTo = (redirect: RouterPath) => {
+    const { history } = this.props;
+    history.push(redirect);
+  };
+
   switchToLocalNode = () => {
-    const { history, setUiError, switchApiProvider } = this.props;
+    const { setUiError, switchApiProvider } = this.props;
     // @ts-ignore
     switchApiProvider(LOCAL_NODE_API_URL).catch((err) => {
       console.error(err); // eslint-disable-line no-console
       setUiError(err);
     });
-    history.push('/auth/unlock');
+    this.goTo(AuthPath.Unlock);
   };
 
   switchToRemoteApi = () => {
-    const { history, switchApiProvider } = this.props;
+    const { switchApiProvider } = this.props;
     // @ts-ignore
     switchApiProvider(null).catch((err) => {
       console.error(err); // eslint-disable-line no-console
       setUiError(err);
     });
-    history.push('/auth/unlock');
+    this.goTo(AuthPath.Unlock);
   };
 
   createNewAccountWrapper = () => {
@@ -433,38 +457,11 @@ class Settings extends Component<Props, State> {
     eventsService.wipeOut();
   };
 
-  navigateToWalletBackup = () => {
-    const { history } = this.props;
-    history.push('/main/backup');
-  };
+  navigateToWalletBackup = () => this.goTo(MainPath.BackupWallet);
 
-  navigateToWalletRestore = () => {
-    const { history } = this.props;
-    history.push('/auth/restore');
-  };
+  navigateToWalletRestore = () => this.goTo(AuthPath.Recover);
 
-  externalNavigation = ({ to }: { to: string }) => {
-    switch (to) {
-      case 'terms': {
-        window.open('https://testnet.spacemesh.io/#/terms');
-        break;
-      }
-      case 'disclaimer': {
-        window.open('https://testnet.spacemesh.io/#/disclaimer');
-        break;
-      }
-      case 'privacy': {
-        window.open('https://testnet.spacemesh.io/#/privacy');
-        break;
-      }
-      case 'userGuide': {
-        window.open('https://testnet.spacemesh.io');
-        break;
-      }
-      default:
-        break;
-    }
-  };
+  externalNavigation = (to: ExternalLinks) => window.open(to);
 
   toggleAutoStart = () => {
     const { isAutoStartEnabled } = this.state;
@@ -524,12 +521,27 @@ class Settings extends Component<Props, State> {
   toggleSignMessageModal = ({ index }: { index: number }) => {
     this.setState({ signMessageModalAccountIndex: index });
   };
+
+  lockWallet = (redirect: AuthPath) => {
+    const { closeWallet } = this.props;
+    // @ts-ignore
+    closeWallet();
+    this.goTo(redirect);
+  };
+
+  closeWallet = () => this.lockWallet(AuthPath.Unlock);
+
+  createNewWallet = () => this.lockWallet(AuthPath.ConnectionType);
+
+  openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
+
+  restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
 }
 
 const mapStateToProps = (state: RootState) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
-  walletFiles: state.wallet.walletFiles,
+  walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,
@@ -550,6 +562,7 @@ const mapDispatchToProps = {
   switchTheme,
   setUiError,
   switchApiProvider,
+  closeWallet,
 };
 
 // @ts-ignore

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
 import { posIcon, fireworks, fireworksWhite, posNotification, posComputer, posAwake } from '../../assets/images';
 import { smColors } from '../../vars';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Fireworks = styled.img`
   width: 150px;
@@ -79,9 +80,9 @@ type Props = {
 };
 
 const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
-  const navigateToMiningGuide = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToMiningGuide = () => window.open(ExternalLinks.SetupGuide);
 
-  const navigateToPreventComputerSleep = () => window.open('https://testnet.spacemesh.io/#/no_sleep');
+  const navigateToPreventComputerSleep = () => window.open(ExternalLinks.NoSleepGuide);
 
   return (
     <>

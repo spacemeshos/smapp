@@ -23,6 +23,7 @@ export interface ConfigStore {
   nodeSettings: {
     port: string;
   };
+  walletFiles: string[];
 }
 
 const CONFIG_STORE_DEFAULTS = {
@@ -31,6 +32,7 @@ const CONFIG_STORE_DEFAULTS = {
   nodeSettings: {
     port: '9092',
   },
+  walletFiles: [],
 };
 class StoreService {
   static store: Store<ConfigStore>;

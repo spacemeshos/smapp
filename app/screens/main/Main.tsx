@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { Logo } from '../../components/common';
 import { SecondaryButton, NavTooltip, NetworkIndicator, SmallHorizontalPanel } from '../../basicComponents';
+import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
 import {
   rightDecoration,
@@ -25,6 +26,7 @@ import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { getNetworkDefinitions } from '../../redux/network/actions';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   position: relative;
@@ -126,7 +128,7 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
-  private static readonly navRoutes = ['/main/node', '/main/network', '/main/wallet', '/main/contacts', '/main/dash', '/main/settings'];
+  private static readonly navRoutes = [MainPath.Smeshing, MainPath.Network, MainPath.Wallet, MainPath.Contacts, MainPath.Dashboard, MainPath.Settings];
 
   constructor(props: Props) {
     super(props);
@@ -157,28 +159,28 @@ class Main extends Component<Props, State> {
           <NavBar>
             <NavBarPart>
               <NavLinksWrapper>
-                {this.renderNavBarLink('SMESHING', 'MANAGE SMESHING', '/main/node')}
+                {this.renderNavBarLink('SMESHING', 'MANAGE SMESHING', MainPath.Smeshing)}
                 {this.renderNavBarLink(
                   <>
                     <NetworkIndicator color={indicatorColor} />
                     NETWORK
                   </>,
                   'NETWORK',
-                  '/main/network'
+                  MainPath.Network
                 )}
-                {this.renderNavBarLink('WALLET', 'SEND / RECEIVE SMH', '/main/wallet')}
-                {this.renderNavBarLink('CONTACTS', 'MANAGE CONTACTS', '/main/contacts')}
-                {this.renderNavBarLink('DASH', 'DASHBOARD', '/main/dash')}
+                {this.renderNavBarLink('WALLET', 'SEND / RECEIVE SMH', MainPath.Wallet)}
+                {this.renderNavBarLink('CONTACTS', 'MANAGE CONTACTS', MainPath.Contacts)}
+                {this.renderNavBarLink('DASH', 'DASHBOARD', MainPath.Dashboard)}
               </NavLinksWrapper>
             </NavBarPart>
             <NavBarPart>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleNavRoute('/main/settings')}
+                  onClick={() => this.handleNavRoute(MainPath.Settings)}
                   img={settings}
                   imgHeight={30}
                   imgWidth={30}
-                  isPrimary={this.isActive('/main/settings')}
+                  isPrimary={this.isActive(MainPath.Settings)}
                   width={35}
                   height={35}
                   style={bntStyle}
@@ -188,7 +190,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleOpenLink('https://testnet.spacemesh.io/#/get_coin')}
+                  onClick={() => this.handleOpenLink(ExternalLinks.GetCoinGuide)}
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -202,7 +204,7 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleOpenLink('https://testnet.spacemesh.io/#/help')}
+                  onClick={() => this.handleOpenLink(ExternalLinks.Help)}
                   img={help}
                   imgHeight={30}
                   imgWidth={30}
@@ -284,7 +286,7 @@ class Main extends Component<Props, State> {
 
   handleLogOut = () => {
     const { history, logout } = this.props;
-    history.push('/auth/unlock', { isLoggedOut: true });
+    history.push(AuthPath.Unlock, { isLoggedOut: true });
     logout();
   };
 

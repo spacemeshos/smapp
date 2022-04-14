@@ -16,8 +16,9 @@ import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
 import SubHeader from '../../basicComponents/SubHeader';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { eventsService } from '../../infra/eventsService';
-import { LOCAL_NODE_API_URL } from '../../../shared/constants';
+import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
+import { AuthPath, MainPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -294,7 +295,7 @@ const Node = ({ history, location }: Props) => {
         {renderTable(getTableData())}
         <Footer>
           <Button
-            onClick={() => history.push('/main/node-setup', { modifyPostData: true })}
+            onClick={() => history.push(MainPath.SmeshingSetup, { modifyPostData: true })}
             img={posDirectoryWhite}
             text="EDIT"
             isPrimary={false}
@@ -313,7 +314,7 @@ const Node = ({ history, location }: Props) => {
 
   const buttonHandler = () => {
     dispatch(hideSmesherLeftPanel());
-    history.push('/main/node-setup');
+    history.push(MainPath.SmeshingSetup);
   };
 
   const renderMainSection = () => {
@@ -336,12 +337,12 @@ const Node = ({ history, location }: Props) => {
     return renderNodeDashboard();
   };
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const handleSetupSmesher = () => {
     return eventsService
       .switchApiProvider(LOCAL_NODE_API_URL)
-      .then(() => history.push('/auth', { redirect: '/main/node-setup' }))
+      .then(() => history.push(AuthPath.Unlock, { redirect: MainPath.SmeshingSetup }))
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));

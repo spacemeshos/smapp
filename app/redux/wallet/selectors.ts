@@ -16,6 +16,13 @@ export type TxView = Tx & WithTimestamp & WithNicknames;
 export type RewardView = Reward & WithTimestamp;
 
 // ======================
+// WalletFiles
+// ======================
+export const listWalletFiles = (state: RootState) => state.wallet.walletFiles;
+
+export const getCurrentWalletFile = (state: RootState) => state.wallet.currentWalletPath;
+
+// ======================
 // Contacts
 // ======================
 
