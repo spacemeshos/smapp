@@ -15,7 +15,7 @@ const RestoreWallet = ({ history }: AuthRouterParams) => {
   const navigateToWalletGuide = () => window.open(ExternalLinks.RestoreGuide);
 
   return (
-    <CorneredContainer width={650} height={400} header="RESTORE AN EXISTING WALLET" subHeader="Choose how you&#39;d like to restore your wallet." isDarkMode={isDarkMode}>
+    <CorneredContainer width={650} height={400} header="OPEN AN EXISTING WALLET" subHeader="Open from a file or restore from 12 words" isDarkMode={isDarkMode}>
       <BackButton action={history.goBack} />
       <Button text="OPEN FROM FILE" isPrimary={false} onClick={() => history.push(AuthPath.RecoverFromFile)} width={250} style={btnStyle} />
       <Button text="RESTORE FROM 12 WORDS" isPrimary={false} onClick={() => history.push(AuthPath.RecoverFromMnemonics)} width={250} />

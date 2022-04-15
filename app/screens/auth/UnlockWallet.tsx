@@ -141,7 +141,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       {meta && (
         <small>
           <br />
-          CREATED: {formatISOAsUS(meta.created)} @ NET ID: {meta.netId}
+          CREATED: {formatISOAsUS(meta.created)}, NET ID: {meta.netId}
         </small>
       )}
     </AccItem>
@@ -187,7 +187,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       <CorneredContainer width={520} height={showWalletFileSelection ? 415 : 310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkMode={isDarkMode}>
         {showWalletFileSelection ? (
           <>
-            <Text>Choose the wallet file:</Text>
+            <Text>Select a wallet:</Text>
             <InputSection>
               <Chevron src={chevronIcon} />
               <DropDown
@@ -202,7 +202,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
             </InputSection>
           </>
         ) : null}
-        <Text>Please enter your wallet password.</Text>
+        <Text>Enter wallet password:</Text>
         <Indicator hasError={isWrongPassword} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
@@ -223,7 +223,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         <BottomPart>
           <LinksWrapper>
             <GrayText>FORGOT YOUR PASSWORD?</GrayText>
-            <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE" style={{ marginRight: 'auto' }} />
+            <Link onClick={() => history.push(AuthPath.Recover)} text="OPEN AN EXISTING WALLET" style={{ marginRight: 'auto' }} />
             <Link onClick={() => history.push(AuthPath.ConnectionType)} text="CREATE" style={{ marginRight: 'auto' }} />
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
           </LinksWrapper>
