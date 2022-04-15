@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import network from './network/reducer';
+import network from './network/slice';
 import wallet from './wallet/reducer';
 import node from './node/reducer';
 import ui from './ui/reducer';
@@ -8,11 +8,11 @@ import updater from './updater/slice';
 
 export default function createRootReducer() {
   return combineReducers({
-    network,
     wallet,
     node,
     ui,
     smesher,
     updater: updater.reducer,
+    network: network.reducer,
   });
 }
