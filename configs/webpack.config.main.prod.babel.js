@@ -11,10 +11,8 @@ import baseConfig from './webpack.config.base';
 
 checkNodeEnv('production');
 
-const devtoolsConfig = process.env.DEBUG_PROD === 'true' ? { devtool: 'source-map' } : {};
-
 export default merge(baseConfig, {
-  ...devtoolsConfig,
+  devtool: 'source-map',
 
   mode: 'production',
 
@@ -25,6 +23,7 @@ export default merge(baseConfig, {
   output: {
     path: path.join(__dirname, '../desktop'),
     filename: 'main.prod.js',
+    sourceMapFilename: 'main.prod.js.map',
   },
 
   optimization: {
@@ -55,7 +54,9 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: false,
-      START_MINIMIZED: false
+      START_MINIMIZED: false,
+      SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+      SENTRY_DSN: process.env.SENTRY_DSN
     })
   ],
 
