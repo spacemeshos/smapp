@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ActionReducerMapBuilder, createSlice } from '@reduxjs/toolkit';
 import { NetworkState } from '../../types';
+import { attachCurrentLayer, attachGlobalStateHash, attachNetworkDefinitions } from './actions';
 
 const initialState: NetworkState = {
   netId: '',
@@ -14,21 +15,11 @@ const initialState: NetworkState = {
 const slice = createSlice({
   name: 'network',
   initialState,
-  reducers: {
-    setNetworkDefinitions: (state, action: PayloadAction<NetworkState>) => {
-      const {
-        payload: { netId, netName, genesisTime, explorerUrl, layerDurationSec },
-      } = action;
-      return { ...state, netId, netName, genesisTime, explorerUrl, layerDurationSec };
-    },
-    setCurrentLayer: (state, action: PayloadAction<number>) => {
-      const currentLayer = action.payload;
-      return currentLayer === -1 ? state : { ...state, currentLayer };
-    },
-    setStateRootHash: (state, action: PayloadAction<string>) => {
-      const rootHash = action.payload;
-      return rootHash ? { ...state, rootHash } : state;
-    },
+  reducers: {},
+  extraReducers: (builder: ActionReducerMapBuilder<NetworkState>) => {
+    attachNetworkDefinitions(builder);
+    attachCurrentLayer(builder);
+    attachGlobalStateHash(builder);
   },
 });
 

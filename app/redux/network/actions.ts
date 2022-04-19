@@ -1,22 +1,6 @@
 import { eventsService } from '../../infra/eventsService';
-import { AppThDispatch } from '../../types';
-import slice from './slice';
+import createIpcAction from '../createIpcAction';
 
-export const getNetworkDefinitions = () => async (dispatch: AppThDispatch) => {
-  const definitions = await eventsService.getNetworkDefinitions();
-  dispatch(slice.actions.setNetworkDefinitions(definitions));
-};
-
-export const getCurrentLayer = () => async (dispatch: AppThDispatch) => {
-  const { currentLayer, error } = await eventsService.getCurrentLayer().catch(() => ({ currentLayer: 0, error: null }));
-  if (!error) {
-    dispatch(slice.actions.setCurrentLayer(currentLayer));
-  }
-};
-
-export const getGlobalStateHash = () => async (dispatch: AppThDispatch) => {
-  const { rootHash, error } = await eventsService.getGlobalStateHash().catch(() => ({ rootHash: '', error: null }));
-  if (!error) {
-    dispatch(slice.actions.setStateRootHash(rootHash));
-  }
-};
+export const [getNetworkDefinitions, attachNetworkDefinitions] = createIpcAction('network/getNetworkDefinitions', eventsService.getNetworkDefinitions);
+export const [getCurrentLayer, attachCurrentLayer] = createIpcAction('network/getCurrentLayer', eventsService.getCurrentLayer);
+export const [getGlobalStateHash, attachGlobalStateHash] = createIpcAction('network/getGlobalStateHash', eventsService.getGlobalStateHash);
