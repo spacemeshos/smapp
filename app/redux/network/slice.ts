@@ -1,5 +1,6 @@
-import { ActionReducerMapBuilder, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { NetworkState } from '../../types';
+import compose from '../../../shared/fp-tools';
 import { attachCurrentLayer, attachGlobalStateHash, attachNetworkDefinitions } from './actions';
 
 const initialState: NetworkState = {
@@ -16,11 +17,7 @@ const slice = createSlice({
   name: 'network',
   initialState,
   reducers: {},
-  extraReducers: (builder: ActionReducerMapBuilder<NetworkState>) => {
-    attachNetworkDefinitions(builder);
-    attachCurrentLayer(builder);
-    attachGlobalStateHash(builder);
-  },
+  extraReducers: compose(attachNetworkDefinitions, attachCurrentLayer, attachGlobalStateHash),
 });
 
 export default slice;
