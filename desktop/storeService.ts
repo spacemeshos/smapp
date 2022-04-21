@@ -34,6 +34,7 @@ const CONFIG_STORE_DEFAULTS = {
   },
   walletFiles: [],
 };
+
 class StoreService {
   static store: Store<ConfigStore>;
 
@@ -59,6 +60,12 @@ class StoreService {
 
   static clear = () => {
     StoreService.store.clear();
+  };
+
+  static dump = () => StoreService.store.store;
+
+  static onChange = (cb: (newValue?: ConfigStore, prevValue?: ConfigStore) => void) => {
+    StoreService.store.onDidAnyChange(cb);
   };
 }
 

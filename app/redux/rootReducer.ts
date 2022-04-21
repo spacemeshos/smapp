@@ -6,13 +6,11 @@ import ui from './ui/reducer';
 import smesher from './smesher/reducer';
 import updater from './updater/slice';
 
-export default function createRootReducer() {
-  return combineReducers({
-    network,
-    wallet,
-    node,
-    ui,
-    smesher,
-    updater: updater.reducer,
-  });
-}
+export default combineReducers({
+  network,
+  wallet,
+  node,
+  ui,
+  smesher,
+  updater: updater.reducer,
+});

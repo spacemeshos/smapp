@@ -95,6 +95,7 @@ interface Props extends RouteComponentProps {
   build: string;
   version: string;
   port: string;
+  dataPath: string;
   backupTime: string;
   isDarkMode: boolean;
   location: {
@@ -161,7 +162,7 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { displayName, accounts, netName, netId, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, isWalletOnly, history } = this.props;
+    const { displayName, accounts, netName, netId, genesisTime, rootHash, build, version, backupTime, switchTheme, isDarkMode, isWalletOnly, history, dataPath } = this.props;
     const {
       walletDisplayName,
       canEditDisplayName,
@@ -325,9 +326,9 @@ class Settings extends Component<Props, State> {
             </SettingsSection>
             <SettingsSection title="ADVANCED" refProp={this.myRef5} isDarkMode={isDarkMode}>
               <SettingRow
-                upperPartLeft="" /* TODO: Show current directory */
+                upperPartLeft={dataPath}
                 upperPartRight={<Button onClick={eventsService.changeDataDir} text="CHANGE DIRECTORY" width={180} />}
-                rowName="Change mesh data directory"
+                rowName="Move mesh data directory (will restart the node)"
               />
               <SettingRow
                 upperPartLeft={
@@ -552,6 +553,7 @@ const mapStateToProps = (state: RootState) => ({
   build: state.node.build,
   version: state.node.version,
   port: state.node.port,
+  dataPath: state.node.dataPath,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,
   isWalletOnly: isWalletOnly(state),

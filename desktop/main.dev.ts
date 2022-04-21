@@ -28,6 +28,7 @@ import createWindow from './main/createWindow';
 import Networks from './main/Networks';
 import Wallet from './main/Wallet';
 import * as autoUpdate from './main/autoUpdate';
+import IpcSyncMain from './ipcSync';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -100,4 +101,19 @@ app
   .then(() => createWindow(context, onCloseHandler))
   .then(() => Networks.update(context, 1))
   .then(() => autoUpdate.subscribe(context))
+  .then(() => {
+    const updateRendererStore = IpcSyncMain(
+      'config',
+      () => context.mainWindow,
+      (state) => ({ node: state.node })
+    );
+    // Delay to ensure that redux is completely started up
+    setTimeout(() => {
+      // Send initial values
+      updateRendererStore(StoreService.dump());
+      // Subscribe on changes
+      StoreService.onChange((n, p) => n !== p && updateRendererStore(n));
+    }, 5000);
+    return 0;
+  })
   .catch(captureEvent);
