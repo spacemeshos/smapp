@@ -2585,6 +2585,11 @@
   dependencies:
     tapable "^2.2.0"
 
+"@types/throttle-debounce@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/throttle-debounce/-/throttle-debounce-4.0.0.tgz#ae62a652c914f46276c78730f53fab85b4825f09"
+  integrity sha512-BZ1Y2nf1U3qj9MNWrlTG3+FWfFS8xfG2DA0ypiZ1pBUiO8WEvEjNTmQuecnYDtQvegRojeKh+iwNK2NjJ8a3YQ==
+
 "@types/uglify-js@*":
   version "3.13.1"
   resolved "https://registry.yarnpkg.com/@types/uglify-js/-/uglify-js-3.13.1.tgz#5e889e9e81e94245c75b6450600e1c5ea2878aea"
@@ -11588,6 +11593,11 @@ throat@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/throat/-/throat-5.0.0.tgz#c5199235803aad18754a667d659b5e72ce16764b"
   integrity sha512-fcwX4mndzpLQKBS1DVYhGAcYaYt7vsHNIvQV+WXMvnow5cgjPphq5CaayLaGsjRdSCKZFNGt7/GYAuXaNOiYCA==
+
+throttle-debounce@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-4.0.1.tgz#f86656fe9c8a6b8218952ef36c3bf225089b1baf"
+  integrity sha512-s3PedbXdZtr8v3J5Sxd5T/GmWG80BcK5GVpwDdvgEaUXsaMqQe4zxgmC4TA7B8luSDCPxo3CeSBS3F9rF1CZwg==
 
 thunky@^1.0.2:
   version "1.1.0"
