@@ -6,6 +6,8 @@ import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { BackupPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 
 const TextWrapper = styled.div`
   height: 75px;
@@ -99,7 +101,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
   twelveWordsPrint += '</div>';
 
   const navigateToTestMe = () => {
-    history.push('/main/backup/test-twelve-words-backup', { mnemonic });
+    history.push(BackupPath.TestMnemonics, { mnemonic });
   };
 
   const copy12Words = async () => {
@@ -111,7 +113,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
     eventsService.print({ content: twelveWordsPrint });
   };
 
-  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
     <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP" isDarkMode={isDarkMode}>

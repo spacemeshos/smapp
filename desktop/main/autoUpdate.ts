@@ -6,7 +6,7 @@ import { SemVer } from 'semver';
 
 import pkg from '../../package.json';
 import { ipcConsts } from '../../app/vars';
-import { isDev } from '../utils';
+import { isDev, isNetError } from '../utils';
 import { AppContext } from './context';
 import { HOUR } from './constants';
 
@@ -57,8 +57,9 @@ export const checkForUpdates = async (context: AppContext, autoDownload = false)
 
       return updateInfo;
     } catch (err) {
-      logger.error('checkForUpdates error', err);
-      notifyError(context, err as Error);
+      if (err instanceof Error && !isNetError(err)) {
+        notifyError(context, err as Error);
+      }
       return null;
     }
   }
@@ -76,13 +77,14 @@ export const subscribe = (context: AppContext) => {
     notifyDownloadProgress(context, info);
   });
   autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
-    logger.error('update-downloaded', info);
+    logger.log('update-downloaded', info);
     autoUpdater.autoInstallOnAppQuit = true;
     notifyUpdateDownloaded(context, info);
   });
   autoUpdater.on('error', (err: Error) => {
-    logger.error('update-error', err);
-    notifyError(context, err);
+    if (!isNetError(err)) {
+      notifyError(context, err);
+    }
   });
 
   ipcMain.on(ipcConsts.AU_CHECK_UPDATES, () => checkForUpdates(context));

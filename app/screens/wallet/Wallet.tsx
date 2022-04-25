@@ -3,6 +3,7 @@ import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import routes from '../../routes';
+import { MainPath } from '../../routerPaths';
 import { AccountsOverview } from '../../components/wallet';
 import { smColors } from '../../vars';
 import { backup, leftSideTIcon, leftSideTIconWhite } from '../../assets/images';
@@ -74,7 +75,7 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
   const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
 
   const navigateToBackup = () => {
-    history.push('/main/backup');
+    history.push(MainPath.BackupWallet);
   };
 
   const handleModeBack = () => {

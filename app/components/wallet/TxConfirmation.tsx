@@ -4,6 +4,7 @@ import { SecondaryButton, Link, Button } from '../../basicComponents';
 import { getAddress, formatSmidge } from '../../infra/utils';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -108,7 +109,7 @@ type Props = {
 };
 
 const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, doneAction, editTx, cancelTx }: Props) => {
-  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/send_coin');
+  const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
   return (
     <Wrapper>
       <Header>

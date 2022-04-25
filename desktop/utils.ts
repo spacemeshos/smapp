@@ -30,10 +30,12 @@ export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
   bytes instanceof Buffer ? bytes.toString('hex') : bytes.reduce((str: string, byte: number) => str + byte.toString(16).padStart(2, '0'), '');
 
 // --------------------------------------------------------
-// Fetch
+// Network
 // --------------------------------------------------------
 
 export const fetchJSON = async (url?: string) => (url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null);
+
+export const isNetError = (error: Error) => error.message.startsWith('net::');
 
 // --------------------------------------------------------
 // Guards
@@ -55,6 +57,18 @@ export const isFileExists = (filePath: string) =>
     .then(() => true)
     .catch(() => false);
 
+export const isEmptyDir = async (path: string) => {
+  try {
+    const fsp = fs.promises;
+    const directory = await fsp.opendir(path);
+    const entry = await directory.read();
+    await directory.close();
+    return entry === null;
+  } catch (error) {
+    return false;
+  }
+};
+
 /**
  * Creates a pool of objects T which will be collected
  * until some delay passed since the last object added to the pool.
@@ -69,7 +83,7 @@ export const isFileExists = (filePath: string) =>
  */
 export const createDebouncePool = <T extends unknown>(delay: number, callback: (errors: T[]) => void) => {
   let bucket: T[] = [];
-  let timer: NodeJS.Timeout | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
 
   return (error: T) => {
     bucket = [...bucket, error];

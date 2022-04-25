@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { unlockWallet } from '../../redux/wallet/actions';
+import { unlockCurrentWallet } from '../../redux/wallet/actions';
 import { Modal } from '../common';
 import { Button, Input, ErrorPopup } from '../../basicComponents';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
@@ -43,6 +43,7 @@ type Props = {
 const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
+  const [isActive, setIsActive] = useState(true);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
@@ -61,10 +62,12 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
 
   const submitActionWrapper = async () => {
     try {
-      await dispatch(unlockWallet({ password }));
+      setIsActive(false);
+      await dispatch(unlockCurrentWallet(password));
       submitAction({ password });
     } catch {
       setHasError(true);
+      setIsActive(true);
     }
   };
 
@@ -72,11 +75,11 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
     <Modal header="PASSWORD" subHeader={`Enter wallet ${walletName || ''} password to complete this action.`}>
       <InputSection>
         <Chevron src={chevronIcon} />
-        <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} autofocus />
+        <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} autofocus isDisabled={!isActive} />
         <ErrorSection>{hasError && <ErrorPopup onClick={reset} text="sorry, this password doesn't ring a bell, please try again" />}</ErrorSection>
       </InputSection>
       <ButtonsWrapper>
-        <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError} onClick={submitActionWrapper} />
+        <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError || !isActive} onClick={submitActionWrapper} />
         <Button text="CANCEL" isPrimary={false} onClick={closeModal} />
       </ButtonsWrapper>
     </Modal>

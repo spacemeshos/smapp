@@ -21,6 +21,10 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
+export const SET_CURRENT_WALLET_PATH = 'SET_CURRENT_WALLET_PATH';
+
+export const setCurrentWalletPath = (path: string | null) => ({ type: SET_CURRENT_WALLET_PATH, payload: path });
+
 export const setWalletMeta = (wallet: WalletMeta) => ({ type: SET_WALLET_META, payload: wallet });
 
 export const setAccounts = (accounts: Account[]) => ({ type: SET_ACCOUNTS, payload: accounts });
@@ -64,7 +68,11 @@ export const createNewWallet = ({
   eventsService
     .createWallet({ password, existingMnemonic, type, apiUrl, netId })
     .then((data) => {
-      const { meta, crypto } = data;
+      const {
+        path,
+        wallet: { meta, crypto },
+      } = data;
+      dispatch(setCurrentWalletPath(path));
       dispatch(setWalletMeta(meta));
       dispatch(setAccounts(crypto.accounts));
       dispatch(setMnemonic(crypto.mnemonic));
@@ -76,9 +84,8 @@ export const createNewWallet = ({
       dispatch(setUiError(addErrorPrefix('Can not create new wallet\n', err)));
     });
 
-export const unlockWallet = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles } = getState().wallet;
-  const { error, accounts, mnemonic, meta, contacts, isNetworkExist, hasNetworks } = await eventsService.unlockWallet({ path: walletFiles ? walletFiles[0] : '', password });
+export const unlockWallet = (path: string, password: string) => async (dispatch: AppThDispatch) => {
+  const { error, accounts, mnemonic, meta, contacts, isNetworkExist, hasNetworks } = await eventsService.unlockWallet({ path, password });
   if (error) {
     // Incorrecrt password
     if (error.message && error.message.indexOf('Unexpected token') === 0) {
@@ -90,6 +97,7 @@ export const unlockWallet = ({ password }: { password: string }) => async (dispa
     return { success: false };
   }
   // Success
+  dispatch(setCurrentWalletPath(path));
   dispatch(setWalletMeta(meta));
   dispatch(setAccounts(accounts));
   dispatch(setMnemonic(mnemonic));
@@ -98,6 +106,25 @@ export const unlockWallet = ({ password }: { password: string }) => async (dispa
   const isWalletOnly = isWalletOnlyType(meta.type);
   const requestApiSelection = isWalletOnly && !meta.remoteApi;
   return { success: true, forceNetworkSelection: hasNetworks && (!isNetworkExist || requestApiSelection), isWalletOnly };
+};
+export const unlockCurrentWallet = (password: string) => async (dispatch: AppThDispatch, getState: GetState) => {
+  const {
+    wallet: { currentWalletPath },
+  } = getState();
+  if (!currentWalletPath) {
+    dispatch(setUiError(new Error(`Can not find wallet in ${currentWalletPath}`)));
+    return { success: false };
+  }
+  return dispatch(unlockWallet(currentWalletPath, password));
+};
+
+export const closeWallet = () => (dispatch: AppThDispatch) => {
+  dispatch(setCurrentWalletPath(null));
+  dispatch(setWalletMeta({} as WalletMeta));
+  dispatch(setAccounts([]));
+  dispatch(setMnemonic(''));
+  dispatch(setContacts([]));
+  dispatch(setCurrentAccount(0));
 };
 
 export const switchApiProvider = (api: SocketAddress | null) => async (dispatch: AppThDispatch) => {
@@ -114,15 +141,20 @@ export const switchApiProvider = (api: SocketAddress | null) => async (dispatch:
 
 export const updateWalletName = ({ displayName }: { displayName: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { wallet } = getState();
-  const { walletFiles, meta } = wallet;
+  const { meta, currentWalletPath } = wallet;
   const updatedMeta = { ...meta, displayName };
-  await eventsService.updateWalletMeta(walletFiles ? walletFiles[0] : '', 'displayName', displayName);
+
+  await eventsService.updateWalletMeta(currentWalletPath || '', 'displayName', displayName);
   dispatch(setWalletMeta(updatedMeta));
 };
 
 export const createNewAccount = ({ password }: { password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles, accounts } = getState().wallet;
-  const { error, newAccount } = await eventsService.createNewAccount({ fileName: walletFiles ? walletFiles[0] : '', password });
+  const { accounts, currentWalletPath } = getState().wallet;
+  if (!currentWalletPath) {
+    dispatch(setUiError(new Error('Can not create new account: No currently opened wallet')));
+    return;
+  }
+  const { error, newAccount } = await eventsService.createNewAccount({ fileName: currentWalletPath, password });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));
@@ -135,50 +167,52 @@ export const updateAccountName = ({ accountIndex, name, password }: { accountInd
   dispatch: AppThDispatch,
   getState: GetState
 ) => {
-  const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
+  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
   const updatedAccount = { ...accounts[accountIndex], displayName: name };
   const updatedAccounts = [...accounts.slice(0, accountIndex), updatedAccount, ...accounts.slice(accountIndex + 1)];
-  await eventsService.updateWalletSecrets(walletFiles ? walletFiles[0] : '', password, { mnemonic, accounts: updatedAccounts, contacts });
+  await eventsService.updateWalletSecrets(currentWalletPath || '', password, { mnemonic, accounts: updatedAccounts, contacts });
   dispatch(setAccounts(updatedAccounts));
 };
 
 export const addToContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
+  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = [contact, ...contacts];
-  await eventsService.updateWalletSecrets(walletFiles ? walletFiles[0] : '', password, { accounts, mnemonic, contacts: updatedContacts });
+  await eventsService.updateWalletSecrets(currentWalletPath || '', password, { accounts, mnemonic, contacts: updatedContacts });
   dispatch(setContacts(updatedContacts));
 };
 
 export const removeFromContacts = ({ contact, password }: { contact: Contact; password: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles, accounts, mnemonic, contacts } = getState().wallet;
+  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
   const updatedContacts = contacts.filter((item) => contact.address !== item.address);
-  await eventsService.updateWalletSecrets(walletFiles ? walletFiles[0] : '', password, { accounts, mnemonic, contacts: updatedContacts });
+  await eventsService.updateWalletSecrets(currentWalletPath || '', password, { accounts, mnemonic, contacts: updatedContacts });
   dispatch(setContacts(updatedContacts));
 };
 
-export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles } = getState().wallet;
-  const { error, newFilePath } = await eventsService.copyFile({ filePath: `${filePath}` });
-  if (error) {
-    console.log(error); // eslint-disable-line no-console
-    dispatch(setUiError(addErrorPrefix('Can not restore wallet file\n', error)));
-    return false;
-  } else {
-    dispatch({ type: SAVE_WALLET_FILES, payload: { files: walletFiles ? [newFilePath, ...walletFiles] : [newFilePath] } });
+export const restoreFile = ({ filePath }: { filePath: string }) => async (dispatch: AppThDispatch) => {
+  try {
+    await eventsService.addWalletPath(filePath);
     return true;
+  } catch (error) {
+    console.log(error); // eslint-disable-line no-console
+    dispatch(setUiError(addErrorPrefix('Can not restore wallet file\n', error as Error)));
+    return false;
   }
 };
 
 export const backupWallet = () => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { walletFiles } = getState().wallet;
-  const { error } = await eventsService.copyFile({ filePath: walletFiles ? walletFiles[0] : '', copyToDocuments: true });
+  const { currentWalletPath } = getState().wallet;
+  if (!currentWalletPath) {
+    dispatch(setUiError(new Error('Can not create wallet backup: Wallet does not opened')));
+    return null;
+  }
+  const { error, filePath } = await eventsService.backupWallet(currentWalletPath);
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create wallet backup\n', error)));
-    return false;
+    return null;
   } else {
     dispatch({ type: SET_BACKUP_TIME, payload: { backupTime: new Date() } });
-    return true;
+    return filePath;
   }
 };
 

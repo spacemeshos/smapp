@@ -11,6 +11,7 @@ import { formatBytes, getAddress } from '../../infra/utils';
 import { BITS, AppThDispatch, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
+import { MainPath } from '../../routerPaths';
 
 const Wrapper = styled.div`
   display: flex;
@@ -82,7 +83,7 @@ const NodeSetup = ({ history, location }: Props) => {
     if (!provider) return; // TODO
     const done = await dispatch(startSmeshing({ coinbase: `0x${getAddress(accounts[0].publicKey)}`, dataDir, numUnits, provider: provider.id, throttle }));
     if (done) {
-      history.push('/main/node', { showIntro: true });
+      history.push(MainPath.Smeshing, { showIntro: true });
     }
   };
 
@@ -127,7 +128,7 @@ const NodeSetup = ({ history, location }: Props) => {
             setFreeSpace={setFreeSpace}
             status={status}
             isDarkMode={isDarkMode}
-            skipAction={() => history.push('/main/wallet')}
+            skipAction={() => history.push(MainPath.Wallet)}
           />
         );
       case 2: {

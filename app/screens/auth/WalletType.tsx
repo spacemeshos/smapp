@@ -7,6 +7,8 @@ import { walletSecondWhite } from '../../assets/images';
 
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { AuthPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -100,16 +102,11 @@ const BottomPart = styled.div`
 const WalletType = ({ history, location }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const navigateToCreateWallet = async () => {
     const { isWalletOnly } = location.state;
-    if (isWalletOnly) {
-      history.push('/auth/switch-network', { isWalletOnly, creatingWallet: true });
-    } else {
-      history.push('/auth/switch-network', { redirect: '/auth/create', creatingWallet: true });
-    }
-    // history.push('/auth/create', { apiUrl: location?.state?.apiUrl });
+    history.push(AuthPath.SwitchNetwork, { ...(isWalletOnly ? { isWalletOnly } : { redirect: AuthPath.CreateWallet }), creatingWallet: true });
   };
 
   return (
@@ -143,7 +140,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
           <Row>
-            <Link onClick={() => history.push('/auth/restore')} text="RESTORE  WALLET" /> <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
+            <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE  WALLET" /> <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
           </Row>
         </BottomPart>
       </CorneredContainer>

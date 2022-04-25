@@ -80,10 +80,11 @@ class EventsService {
 
   static createNewAccount = ({ fileName, password }: { fileName: string; password: string }) => ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, { fileName, password });
 
-  static copyFile = ({ filePath, copyToDocuments }: { filePath: string; copyToDocuments?: boolean }) => ipcRenderer.invoke(ipcConsts.W_M_COPY_FILE, { filePath, copyToDocuments });
+  static backupWallet = (filePath: string) => ipcRenderer.invoke(ipcConsts.W_M_BACKUP_WALLET, filePath);
 
-  static showFileInFolder = ({ isBackupFile, isLogFile }: { isBackupFile?: boolean; isLogFile?: boolean }) =>
-    ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { isBackupFile, isLogFile });
+  static addWalletPath = (filePath: string) => ipcRenderer.invoke(ipcConsts.W_M_ADD_WALLET_PATH, filePath);
+
+  static showFileInFolder = ({ filePath, isLogFile }: { filePath?: string; isLogFile?: boolean }) => ipcRenderer.send(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, { filePath, isLogFile });
 
   static deleteWalletFile = (filepath: string) => ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, filepath);
 
@@ -144,6 +145,8 @@ class EventsService {
   static requestVersionAndBuild = () => ipcRenderer.send(ipcConsts.N_M_GET_VERSION_AND_BUILD);
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
+
+  static changeDataDir = () => ipcRenderer.invoke(ipcConsts.PROMPT_CHANGE_DATADIR);
 
   /** **************************************  AUTO UPDATER  **************************************** */
   static downloadUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_DOWNLOAD);

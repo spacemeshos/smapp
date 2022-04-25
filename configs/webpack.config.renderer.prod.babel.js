@@ -12,10 +12,8 @@ import checkNodeEnv from './checkNodeEnv';
 
 checkNodeEnv('production');
 
-const devtoolsConfig = process.env.DEBUG_PROD === 'true' ? { devtool: 'source-map' } : {};
-
 export default merge(baseConfig, {
-  ...devtoolsConfig,
+  devtool: 'source-map',
 
   mode: 'production',
 
@@ -31,6 +29,7 @@ export default merge(baseConfig, {
     path: path.join(__dirname, '../desktop/dist'),
     publicPath: './dist/',
     filename: 'renderer.prod.js',
+    sourceMapFilename: "renderer.prod.js.map",
   },
 
   module: {
@@ -90,7 +89,9 @@ export default merge(baseConfig, {
      */
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
-      DEBUG_PROD: false
+      DEBUG_PROD: false,
+      SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+      SENTRY_DSN: process.env.SENTRY_DSN
     }),
 
     new BundleAnalyzerPlugin({

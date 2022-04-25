@@ -15,10 +15,12 @@ import {
   SET_CURRENT_MODE,
   SET_REMOTE_API,
   UPDATE_ACCOUNT_DATA,
+  SET_CURRENT_WALLET_PATH,
 } from './actions';
 
 const initialState = {
-  walletFiles: null,
+  walletFiles: [],
+  currentWalletPath: null,
   meta: {} as WalletMeta,
   mnemonic: '',
   accounts: [],
@@ -44,6 +46,9 @@ const initialState = {
 
 const reducer = (state: WalletState = initialState, action: CustomAction) => {
   switch (action.type) {
+    case SET_CURRENT_WALLET_PATH: {
+      return { ...state, currentWalletPath: action.payload };
+    }
     case SAVE_WALLET_FILES: {
       return { ...state, walletFiles: action.payload };
     }

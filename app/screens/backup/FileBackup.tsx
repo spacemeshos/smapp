@@ -2,10 +2,13 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
+import { StaticContext } from 'react-router';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import { MainPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Text = styled.span`
   margin-bottom: 10px;
@@ -27,18 +30,18 @@ const BottomRow = styled(MiddleSectionRow)`
   justify-content: space-between;
 `;
 
-const FileBackup = ({ history }: RouteComponentProps) => {
+const FileBackup = ({ history, location }: RouteComponentProps<Record<string, any>, StaticContext, { filePath: string }>) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const showBackupFile = () => {
-    eventsService.showFileInFolder({ isBackupFile: true });
+    eventsService.showFileInFolder({ filePath: location.state.filePath });
   };
 
   const backToWalletRoot = () => {
-    history.push('/main/wallet');
+    history.push(MainPath.Wallet);
   };
 
-  const openBackupGuide = () => window.open('https://testnet.spacemesh.io/#/backup');
+  const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
     <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkMode={isDarkMode}>

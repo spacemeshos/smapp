@@ -1,6 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 
-export const goToSwitchNetwork = (history, isWalletOnly) =>
+import { useHistory } from 'react-router';
+import { AuthPath } from './routerPaths';
+
+export const goToSwitchNetwork = (history: ReturnType<typeof useHistory>, isWalletOnly: boolean) =>
   setImmediate(() => {
-    history.push('/auth/switch-network', { redirect: history.location.pathname, isWalletOnly });
+    if (history.location.pathname === AuthPath.SwitchNetwork) return;
+    history.push(AuthPath.SwitchNetwork, { redirect: history.location.pathname, isWalletOnly });
   });

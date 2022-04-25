@@ -8,6 +8,8 @@ import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { Account } from '../../../shared/types';
+import { MainPath } from '../../routerPaths';
+import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
   display: flex;
@@ -117,12 +119,12 @@ const RequestCoins = ({ history, location }: Props) => {
   };
 
   const navigateToNodeSetup = () => {
-    history.push('/main/node-setup');
+    history.push(MainPath.SmeshingSetup);
   };
 
-  const navigateToGuide = () => window.open('https://testnet.spacemesh.io/#/get_coin');
+  const navigateToGuide = () => window.open(ExternalLinks.GetCoinGuide);
 
-  const navigateToTap = () => window.open('https://discord.gg/ASpy52C');
+  const navigateToTap = () => window.open(ExternalLinks.DiscordTapAccount);
 
   return (
     <Wrapper>

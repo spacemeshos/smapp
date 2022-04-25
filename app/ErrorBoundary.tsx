@@ -7,6 +7,7 @@
 
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { captureEvent, setContext } from '@sentry/react';
 import { connect } from 'react-redux';
 import { Modal } from './components/common';
 import { Button } from './basicComponents';
@@ -55,7 +56,6 @@ class ErrorBoundary extends Component<Props, State> {
             --
             <ErrorMessage>{error.message}</ErrorMessage>
             <ButtonsWrapper hasSingleButton>
-              {/* <Button onClick={this.reportBug} text="SUBMIT BUG REPORT" /> */}
               <Button onClick={this.resetError} text="CLOSE" />
             </ButtonsWrapper>
           </Modal>
@@ -73,7 +73,10 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, { componentStack }: { componentStack: string }) {
+    setContext(componentStack, null);
+    captureEvent(error);
     console.log(`${error.message} ${componentStack}`); // eslint-disable-line no-console
+
     const { setUiError } = this.props;
     const failedComponentMatch = componentStack
       .split('\n')
@@ -86,11 +89,6 @@ class ErrorBoundary extends Component<Props, State> {
     error.message = `Render error${details}:\n${error.message}`;
     setUiError(error);
   }
-
-  reportBug = () => {
-    // TODO: Integrate 3rd party reporting tool
-    this.resetError();
-  };
 
   resetError = () => {
     const { setUiError } = this.props;

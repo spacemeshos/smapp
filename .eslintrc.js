@@ -21,6 +21,7 @@ module.exports = {
       {
         code: 180,
         ignoreUrls: true,
+        ignoreStrings: true,
       },
     ],
     'no-class-assign': 0,
@@ -94,6 +95,7 @@ module.exports = {
     '@typescript-eslint/ban-ts-comment': 0,
     '@typescript-eslint/no-unused-expressions': 0,
     'react/prop-types': 0,
+    'jest/expect-expect': ['error', { assertFunctionNames: ['expect*'] }],
   },
   parserOptions: {
     ecmaVersion: 2020,

@@ -28,7 +28,6 @@ export interface AppContext {
   isAppClosing: boolean;
   showWindowOnLoad: boolean;
   isDarkMode: boolean;
-  isCleanStart: boolean;
   networks: Network[];
   currentNetwork?: Network;
   wallet?: Wallet;
@@ -41,7 +40,6 @@ export interface AppContext {
 }
 
 export const getDefaultAppContext = (): AppContext => ({
-  isCleanStart: false,
   isAppClosing: false,
   showWindowOnLoad: true,
   isDarkMode: nativeTheme.shouldUseDarkColors,

@@ -8,6 +8,8 @@ import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
 import { getNetworkDefinitions } from '../../redux/network/actions';
+import { ExternalLinks } from '../../../shared/constants';
+import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -81,7 +83,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(updateNetworks, []);
 
-  const navigateToExplanation = () => window.open('https://testnet.spacemesh.io/#/guide/setup');
+  const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
@@ -118,14 +120,14 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const goNext = (netId: number) => {
     const { creatingWallet, isWalletOnly } = location.state;
     if (creatingWallet) {
-      if (netId === -1) return history.push('/auth/create', { netId, isWalletOnly });
-      if (isWalletOnly) return history.push('/auth/connect-to-api', { redirect: '/auth/create', netId, isWalletOnly, creatingWallet });
-      return history.push('/auth/create', { netId, isWalletOnly });
+      if (netId === -1) return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
+      if (isWalletOnly) return history.push(AuthPath.ConnectToAPI, { redirect: AuthPath.CreateWallet, netId, isWalletOnly, creatingWallet });
+      return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
     }
     if (netId > -1 && isWalletOnly) {
-      return history.push('/auth/connect-to-api', { redirect: location?.state?.redirect, netId, isWalletOnly, creatingWallet });
+      return history.push(AuthPath.ConnectToAPI, { redirect: location?.state?.redirect, netId, isWalletOnly, creatingWallet });
     }
-    return history.push(location?.state?.redirect || '/auth');
+    return history.push(location?.state?.redirect || AuthPath.Unlock);
   };
 
   const handleNext = async () => {
