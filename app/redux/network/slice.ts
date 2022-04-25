@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import * as R from 'ramda';
 import { NetworkState } from '../../types';
-import compose from '../../../shared/fp-tools';
 import { attachCurrentLayer, attachGlobalStateHash, attachNetworkDefinitions } from './actions';
 
 const initialState: NetworkState = {
@@ -17,7 +17,7 @@ const slice = createSlice({
   name: 'network',
   initialState,
   reducers: {},
-  extraReducers: compose(attachNetworkDefinitions, attachCurrentLayer, attachGlobalStateHash),
+  extraReducers: R.compose(attachNetworkDefinitions, attachCurrentLayer, attachGlobalStateHash),
 });
 
 export default slice;

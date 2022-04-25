@@ -3,38 +3,37 @@ import { ProgressInfo, UpdateInfo } from 'electron-updater';
 
 import { ipcConsts } from '../../vars';
 import { setNodeError, setNodeStatus, setVersionAndBuild } from '../../redux/node/actions';
-import { updateAccountData, setTransactions } from '../../redux/wallet/actions';
+import { setTransactions, updateAccountData } from '../../redux/wallet/actions';
 import {
-  SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
-  SET_POST_DATA_CREATION_STATUS,
   SET_ACCOUNT_REWARDS,
+  SET_POST_DATA_CREATION_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
   SET_SMESHER_CONFIG,
+  SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import {
+  HexString,
   IPCSmesherStartupData,
   NodeError,
   NodeStatus,
   NodeVersionAndBuild,
-  PublicService,
-  SocketAddress,
   PostSetupOpts,
   PostSetupState,
-  WalletSecrets,
-  HexString,
-  WalletMeta,
+  PublicService,
+  SocketAddress,
   TxSendRequest,
+  WalletMeta,
+  WalletSecrets,
   WalletType,
 } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
-import GlobalStateService from '../../../desktop/GlobalStateService';
-import MeshService from '../../../desktop/MeshService';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
+import { CurrentLayer, GlobalStateHash, NetworkDefinitions } from '../../types/events';
 
 class EventsService {
   static createWallet = ({
@@ -132,11 +131,11 @@ class EventsService {
 
   /** **************************************  WALLET MANAGER  **************************************** */
 
-  static getNetworkDefinitions = () => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
+  static getNetworkDefinitions = (): Promise<NetworkDefinitions> => ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
-  static getCurrentLayer = (): ReturnType<MeshService['getCurrentLayer']> => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
+  static getCurrentLayer = (): Promise<CurrentLayer> => ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);
 
-  static getGlobalStateHash = (): ReturnType<GlobalStateService['getGlobalStateHash']> => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
+  static getGlobalStateHash = (): Promise<GlobalStateHash> => ipcRenderer.invoke(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
 
   /** **************************************  NODE MANAGER  **************************************** */
 
