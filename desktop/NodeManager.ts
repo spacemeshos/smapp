@@ -1,6 +1,7 @@
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { ChildProcess } from 'node:child_process';
@@ -11,7 +12,7 @@ import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, { ErrorStreamHandler, StatusStreamHandler } from './NodeService';
 import SmesherManager from './SmesherManager';
-import { checksum, createDebouncePool, isFileExists } from './utils';
+import { checksum, createDebouncePool, isEmptyDir, isFileExists } from './utils';
 import { NODE_CONFIG_FILE } from './main/constants';
 import NodeConfig from './main/NodeConfig';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
@@ -114,7 +115,7 @@ class NodeManager {
         })
     );
     ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
-      StoreService.set('nodeSettings.port', request.port);
+      StoreService.set('node.port', request.port);
     });
 
     // Always return true / false to notify caller that it is done
@@ -177,6 +178,32 @@ class NodeManager {
       await this.smesherManager.updateSmeshingConfig(postSetupOpts);
       return this.restartNode();
     });
+
+    ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, async () => {
+      const oldPath = StoreService.get('node.dataPath');
+      const prompt = await dialog.showOpenDialog(this.mainWindow, {
+        title: 'Choose new directory for Mesh database',
+        defaultPath: oldPath,
+        buttonLabel: 'Switch',
+        properties: ['createDirectory', 'openDirectory', 'promptToCreate'],
+      });
+      if (prompt.canceled) return false;
+      const newPath = prompt.filePaths[0];
+      if (oldPath === newPath) return true;
+      // Validate new dir
+      await fse.ensureDir(newPath);
+      if (!(await isEmptyDir(newPath))) {
+        throw new Error(`Can not switch Node Data directory: ${newPath} is not empty`);
+      }
+      // Stop the Node
+      await this.stopNode();
+      // Move old data to new place if needed
+      if (!(await isEmptyDir(oldPath))) await fse.move(oldPath, newPath, { overwrite: true });
+      // Update persistent store
+      StoreService.set('node.dataPath', newPath);
+      // Start the Node
+      return this.startNode();
+    });
   };
 
   waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
@@ -219,7 +246,7 @@ class NodeManager {
     const userDataPath = app.getPath('userData');
     const nodeDir = path.resolve(app.getAppPath(), process.env.NODE_ENV === 'development' ? `../node/${osTargetNames[os.type()]}/` : '../../node/');
     const nodePath = path.resolve(nodeDir, `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`);
-    const nodeDataFilesPath = path.resolve(`${userDataPath}`, 'node-data');
+    const nodeDataFilesPath = StoreService.get('node.dataPath');
     const nodeConfig = await NodeConfig.load();
     const logFilePath = path.resolve(`${userDataPath}`, `spacemesh-log-${nodeConfig.p2p['network-id']}.txt`);
 

@@ -147,6 +147,8 @@ class EventsService {
 
   static setPort = ({ port }: { port: string }) => ipcRenderer.send(ipcConsts.SET_NODE_PORT, { port });
 
+  static changeDataDir = () => ipcRenderer.invoke(ipcConsts.PROMPT_CHANGE_DATADIR);
+
   /** **************************************  AUTO UPDATER  **************************************** */
   static downloadUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_DOWNLOAD);
 
