@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-    
+
     outputs:
       version: ${{ steps.package-version.outputs.version }}
 
@@ -71,21 +71,26 @@ jobs:
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: yarn lint and build
         if: ${{ steps.result.outputs.status != 'success' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn lint
           yarn postinstall
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
         if: ${{ steps.result.outputs.status != 'success' }}
         id: latestNode
         run: echo "::set-output name=version::$(cat ./node/use-version)"
-      
+
       - id: cache-gospacemesh
         if: ${{ steps.result.outputs.status != 'success' }}
         uses: actions/cache@v2
@@ -95,13 +100,13 @@ jobs:
             !./node/use-version
           key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
           restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
-        
+
       - name: Prepare link to go-spacemesh release archive
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
           echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.os == 'windows-latest' && 'Windows' || matrix.os == 'macos-latest' && 'macOS' || 'Linux'}}.zip"
-      
+
       - name: Check for go-spacemesh release archive existence
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
@@ -140,7 +145,7 @@ jobs:
         run: |
           7z l ./node/release.zip
           ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
-      
+
       # Run tests
       - name: yarn test
         # TODO: Get rid of skipping tests on Ubuntu due to OS-specific issue: Jest hangs
@@ -151,20 +156,33 @@ jobs:
       - name: yarn build
         if: steps.result.outputs.status != 'success'
         run: yarn build
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # Create binaries
       - if: steps.result.outputs.status != 'success' && matrix.os == 'ubuntu-latest'
         name: Build linux app
         run: yarn package-linux
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
       - if: steps.result.outputs.status != 'success' && matrix.os == 'windows-latest'
         name: Build windows app
         run: yarn package-win
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
       - if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
         name: Build mac app
         run: yarn package-mac
         env:
           DONT_SIGN_APP: true # Do not sign the development artifacts
-      
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
       - name: ls ./release
         if: steps.result.outputs.status != 'success'
         run: ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./release
@@ -196,7 +214,7 @@ jobs:
         with:
           path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
-      
+
       - if: steps.result.outputs.status != 'success' && matrix.os == 'ubuntu-latest'
         name: upload linux build
         uses: google-github-actions/upload-cloud-storage@main
@@ -207,7 +225,7 @@ jobs:
       # Save the run result on success and it should be cached
       - run: echo "success" > run_result
         if: steps.result.outputs.status != 'success'
-  
+
   post-links:
     runs-on: ubuntu-latest
     needs: build-and-upload

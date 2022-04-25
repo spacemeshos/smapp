@@ -1,6 +1,6 @@
 name: Publish Release
 
-on:  
+on:
   push:
     tags:
       - 'v*'
@@ -32,7 +32,7 @@ jobs:
 
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
-      
+
       - name: Tag and version are equals
         if: ${{ steps.tagName.outputs.tag != format('v{0}', steps.package-version.outputs.version) }}
         run: |
@@ -40,7 +40,7 @@ jobs:
           echo "Tag: ${{ steps.tagName.outputs.tag }}"
           echo "Version: v${{ steps.package-version.outputs.version }}"
           exit 1
-      
+
       # Cache yarn cahe to fasten install process
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -51,12 +51,15 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      
+
       # Install & Build
       - name: yarn install
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Lint and Test
         run: |
@@ -64,15 +67,17 @@ jobs:
           yarn test --forceExit
 
       - name: Build
+        run: yarn build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn build
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
         id: latestNode
         run: echo "::set-output name=version::$(cat ./node/use-version)"
-      
+
       - id: cache-gospacemesh
         uses: actions/cache@v2
         with:
@@ -81,13 +86,13 @@ jobs:
             !./node/use-version
           key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
           restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
-        
+
       - name: Prepare link to go-spacemesh release archive
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
           echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.os == 'windows-latest' && 'Windows' || matrix.os == 'macos-latest' && 'macOS' || 'Linux'}}.zip"
-      
+
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
@@ -131,13 +136,21 @@ jobs:
       - if: matrix.os == 'ubuntu-latest'
         name: Build linux app
         run: yarn package-linux
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - if: matrix.os == 'windows-latest'
         name: Build windows app
         run: yarn package-win
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       - if: matrix.os == 'macos-latest'
         name: Build mac app
         run: yarn package-mac
         env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           CSC_LINK: ${{ secrets.SIGNING_CERTIFICATE_P12_DATA }}
           CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
@@ -154,7 +167,7 @@ jobs:
             !./release/*-unpacked
             !./release/mac*
           if-no-files-found: error
-  
+
   sign-win-app:
     # CodeSignTool works perfectly on any platform even it signs a windows file
     # So we use ubuntu to make job faster and more stable
@@ -174,7 +187,7 @@ jobs:
           path: ./codesigntool
           key: codesign-cache-2
           restore-keys: codesign-cache-2
-    
+
       - name: Download CodeSignTool archive
         if: steps.cache-codesigntool.outputs.cache-hit != 'true'
         run: |
@@ -219,7 +232,7 @@ jobs:
         run: |
           sha=($(shasum -a512 "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe"))
           echo "::set-output name=value::$($(yarn global bin)/hex64 $sha | cut -c6-)"
-      
+
       - name: Update latest.yml (sha512)
         uses: endaft/action-yamler@v1.0.9
         with:
@@ -249,7 +262,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           path: ./release/
-      
+
       # Upload artifacts to GCS
       - name: Set up GCloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -271,7 +284,7 @@ jobs:
           path: ./release/windows-signed/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
-      
+
       - name: Upload linux build
         uses: google-github-actions/upload-cloud-storage@main
         with:
@@ -293,7 +306,7 @@ jobs:
             - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
           draft: true
           prerelease: true
-      
+
       - name: Delete all artifacts
         uses: geekyeggo/delete-artifact@v1
         with:

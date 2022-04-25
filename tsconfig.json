@@ -10,6 +10,8 @@
     "strict": true,
     "pretty": true,
     "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/",
     /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,

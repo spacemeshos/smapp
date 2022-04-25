@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
-import { MemoryRouter as Router, Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import { Router, Route, Switch, Redirect, useHistory, matchPath } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
+import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
+import { createBrowserHistory } from 'history';
 import routes from './routes';
 import { AuthPath } from './routerPaths';
 import GlobalStyle from './globalStyle';
@@ -12,6 +15,25 @@ import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
 import { goToSwitchNetwork } from './routeUtils';
+
+const history = createBrowserHistory();
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  enabled: process.env.NODE_ENV === 'production',
+  integrations: [
+    new BrowserTracing({
+      routingInstrumentation: Sentry.reactRouterV5Instrumentation(
+        history,
+        Object.values(routes).reduce((prev, next) => [...prev, ...next], []),
+        matchPath
+      ),
+    }),
+  ],
+  tracesSampleRate: 1.0,
+  debug: process.env.SENTRY_LOG_LEVEL === 'debug',
+});
 
 const EventRouter = () => {
   const history = useHistory();
@@ -37,7 +59,7 @@ const StyledApp = () => {
       <GlobalStyle />
       <ErrorBoundary>
         {isClosingApp && <CloseAppModal isDarkMode={isDarkMode} />}
-        <Router>
+        <Router history={history}>
           <EventRouter />
           <Switch>
             {routes.app.map((route) => (
