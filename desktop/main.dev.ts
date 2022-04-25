@@ -44,7 +44,7 @@ process.env.SENTRY_DSN &&
     integrations: [new BrowserTracing()],
     tracesSampleRate: 1.0,
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-    environment: process.env.NODE_ENV,
+    environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
     enabled: isProd(),
   });
 
