@@ -54,6 +54,12 @@ DEV_NET_REMOTE_API=https://192.168.0.1:31030 DEV_NET_URL=https://.../config.json
 DEV_NET_REMOTE_API=https://192.168.0.1:31030,http://192.168.0.2:31035 DEV_NET_URL=https://.../config.json yarn start
 ```
 
+To run Smapp with turned on Sentry specify required env variables:
+```
+SENTRY_DSN
+SENTRY_AUTH_TOKEN
+```
+
 ### Building Artifacts in CI
 
 Smapp uses two workflows. Both of them builds an application for all supported platforms: windows, macOS, linux.

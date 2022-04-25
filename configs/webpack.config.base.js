@@ -36,7 +36,7 @@ export default {
   },
 
   plugins: [
-    new SentryWebpackPlugin({
+    ...(process.env.SENTRY_AUTH_TOKEN ? [new SentryWebpackPlugin({
       include: '.',
       ignoreFile: '.sentrycliignore',
       ignore: ['node_modules', 'webpack.config.js'],
@@ -44,7 +44,7 @@ export default {
       org: 'spacemesh',
       project: 'smapp',
       authToken: process.env.SENTRY_AUTH_TOKEN
-    }),
+    })] : []),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'
     }),

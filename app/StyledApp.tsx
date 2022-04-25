@@ -18,22 +18,23 @@ import { goToSwitchNetwork } from './routeUtils';
 
 const history = createBrowserHistory();
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  enabled: process.env.NODE_ENV === 'production',
-  integrations: [
-    new BrowserTracing({
-      routingInstrumentation: Sentry.reactRouterV5Instrumentation(
-        history,
-        Object.values(routes).reduce((prev, next) => [...prev, ...next], []),
-        matchPath
-      ),
-    }),
-  ],
-  tracesSampleRate: 1.0,
-  debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-});
+process.env.SENTRY_DSN &&
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
+    enabled: process.env.NODE_ENV === 'production',
+    integrations: [
+      new BrowserTracing({
+        routingInstrumentation: Sentry.reactRouterV5Instrumentation(
+          history,
+          Object.values(routes).reduce((prev, next) => [...prev, ...next], []),
+          matchPath
+        ),
+      }),
+    ],
+    tracesSampleRate: 1.0,
+    debug: process.env.SENTRY_LOG_LEVEL === 'debug',
+  });
 
 const EventRouter = () => {
   const history = useHistory();
