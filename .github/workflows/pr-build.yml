@@ -77,11 +77,13 @@ jobs:
 
       - name: yarn lint and build
         if: ${{ steps.result.outputs.status != 'success' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yarn lint
           yarn postinstall
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
