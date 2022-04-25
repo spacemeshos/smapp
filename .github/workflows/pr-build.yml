@@ -71,6 +71,9 @@ jobs:
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: yarn lint and build
         if: ${{ steps.result.outputs.status != 'success' }}
