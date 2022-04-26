@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Tooltip } from '../../basicComponents';
 import { smColors } from '../../vars';
@@ -36,13 +36,19 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const PoSProvider = ({ providers, provider, setProvider, throttle, setThrottle, nextAction, status, isDarkMode }: Props) => {
-  const [selectedProviderIndex, setSelectedProviderIndex] = useState(provider ? providers.findIndex(({ id, model }) => id === provider.id && model === provider.model) : -1);
+const getFastestProvider = (providers: PostSetupComputeProvider[]): PostSetupComputeProvider => providers.sort((a, b) => b.performance - a.performance)[0];
 
-  const handleSetProcessor = ({ index }: { index: number }) => {
-    setSelectedProviderIndex(index);
-    setProvider(providers[index]);
-  };
+const findProviderIndexEqTo = (eqProps: Partial<PostSetupComputeProvider>, providers: PostSetupComputeProvider[]): number =>
+  providers.findIndex((provider) => provider.id === eqProps.id && provider.model === eqProps.model);
+
+const PoSProvider = ({ providers, provider, setProvider, throttle, setThrottle, nextAction, status, isDarkMode }: Props) => {
+  const [selectedProviderIndex, setSelectedProviderIndex] = useState(
+    provider ? findProviderIndexEqTo(provider, providers) : findProviderIndexEqTo(getFastestProvider(providers), providers)
+  );
+
+  useEffect(() => setProvider(providers[selectedProviderIndex]), [providers, selectedProviderIndex, setProvider]);
+
+  const handleSetProcessor = ({ index }: { index: number }) => setSelectedProviderIndex(index);
 
   return (
     <>

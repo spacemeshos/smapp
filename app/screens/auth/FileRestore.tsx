@@ -55,14 +55,14 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const navigateToBackupGuide = () => window.open(ExternalLinks.RestoreFileGuide);
 
   return (
-    <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="RESTORE WALLET FROM FILE" subHeader="Locate wallet restore file.">
+    <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="OPEN WALLET" subHeader="Open a wallet from a wallet file">
       <BackButton action={history.goBack} />
       <DdArea>
         <DragAndDrop onFilesAdded={addFile} fileName={fileName} hasError={hasError} isDarkMode={isDarkMode} />
       </DdArea>
       <BottomSection>
         <Link onClick={navigateToBackupGuide} text="BACKUP GUIDE" />
-        <Button onClick={openWalletFile} text="RESTORE" isDisabled={hasError || !fileName} />
+        <Button onClick={openWalletFile} text="OPEN" isDisabled={hasError || !fileName} />
       </BottomSection>
     </WrapperWith2SideBars>
   );

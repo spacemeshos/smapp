@@ -125,7 +125,7 @@ const Welcome = ({ history }: AuthRouterParams) => {
       <BottomPart>
         <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
         <ComplexLink>
-          <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE AN EXISTING WALLET" />
+          <Link onClick={() => history.push(AuthPath.Recover)} text="OPEN AN EXISTING WALLET" />
           <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
           <ButtonMargin>
             <Button text="SETUP" onClick={() => history.push(AuthPath.ConnectionType)} />

@@ -99,7 +99,7 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError, isDarkMode }: Props) =>
     linkText = 'another file';
   } else {
     preLinkText = 'or';
-    linkText = 'locate file on your computer';
+    linkText = 'locate on your computer';
   }
 
   const uploadImg = isDarkMode ? uploadWhite : upload;
@@ -108,7 +108,7 @@ const DragAndDrop = ({ onFilesAdded, fileName, hasError, isDarkMode }: Props) =>
       <input ref={fileInputRef} type="file" onChange={onFilesAddedHandler} style={{ display: 'none' }} />
       <MsgWrapper>
         {!fileName && <Image src={hasError ? incorrectFile : uploadImg} />}
-        <Text>{hasError ? 'incorrect file' : fileName || 'Drop a wallet restore file here'}</Text>
+        <Text>{hasError ? 'incorrect file' : fileName || 'Drop a wallet file here,'}</Text>
         <LinkWrapper>
           <Text>{preLinkText}&nbsp;</Text>
           <Link onClick={openFileDialog} text={linkText} />

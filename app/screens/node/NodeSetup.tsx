@@ -12,10 +12,15 @@ import { BITS, AppThDispatch, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
+import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
+`;
+
+const Bold = styled.div`
+  color: ${smColors.green};
 `;
 
 const headers = ['PROOF OF SPACE DATA', 'PROOF OF SPACE DIRECTORY', 'PROOF OF SPACE SIZE', 'POS PROCESSOR', 'POS SETUP'];
@@ -23,7 +28,10 @@ const subHeaders = [
   '',
   '',
   'Select how much free space to commit to Spacemesh.\nThe more space you commit, the higher your smeshing rewards will be.',
-  'Select a supported graphic processor to use for creating your proof of space',
+  <>
+    Select a supported processor for creating proof of space.
+    <Bold>The fastest one is chosen by default.</Bold>
+  </>,
   'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
 ];
 
