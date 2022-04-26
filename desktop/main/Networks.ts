@@ -6,6 +6,7 @@ import { fetchJSON, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
 import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
+import { NetworkDefinitions } from '../../app/types/events';
 import NodeConfig from './NodeConfig';
 import { AppContext, hasManagers, Network } from './context';
 import { NODE_CONFIG_FILE } from './constants';
@@ -91,19 +92,22 @@ const subscribe = (context: AppContext) => {
     await update(context);
     return list(context);
   });
-  ipcMain.handle(ipcConsts.W_M_GET_NETWORK_DEFINITIONS, async () => {
-    const netId = context.currentNetwork?.netID || -1;
-    const netName = context.currentNetwork?.netName || 'Not connected';
-    try {
-      const nodeConfig = await NodeConfig.load();
-      const genesisTime = nodeConfig.main['genesis-time'];
-      const layerDurationSec = nodeConfig.main['layer-duration-sec'];
-      const explorerUrl = context.currentNetwork?.explorer || '';
-      return { netId, netName, genesisTime, layerDurationSec, explorerUrl };
-    } catch (err) {
-      return { netId, netName };
+  ipcMain.handle(
+    ipcConsts.W_M_GET_NETWORK_DEFINITIONS,
+    async (): Promise<NetworkDefinitions> => {
+      const netId = context.currentNetwork?.netID || -1;
+      const netName = context.currentNetwork?.netName || 'Not connected';
+      try {
+        const nodeConfig = await NodeConfig.load();
+        const genesisTime = nodeConfig.main['genesis-time'];
+        const layerDurationSec = nodeConfig.main['layer-duration-sec'];
+        const explorerUrl = context.currentNetwork?.explorer || '';
+        return { netId, netName, genesisTime, layerDurationSec, explorerUrl };
+      } catch (err) {
+        return { netId, netName };
+      }
     }
-  });
+  );
 };
 
 export default {

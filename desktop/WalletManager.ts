@@ -3,6 +3,7 @@ import { ipcConsts } from '../app/vars';
 import { Account, Wallet } from '../shared/types';
 import { isLocalNodeType, isRemoteNodeApi, toSocketAddress } from '../shared/utils';
 import { isNodeError } from '../shared/types/guards';
+import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
@@ -39,8 +40,8 @@ class WalletManager {
   });
 
   subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () => this.meshService.getCurrentLayer());
-    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, () => this.glStateService.getGlobalStateHash());
+    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, (): Promise<CurrentLayer> => this.meshService.getCurrentLayer());
+    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, (): Promise<GlobalStateHash> => this.glStateService.getGlobalStateHash());
 
     ipcMain.handle(ipcConsts.W_M_SEND_TX, async (_event, request) => {
       const res = await this.txManager.sendTx({ ...request });

@@ -2,6 +2,7 @@ import { ProtoGrpcType } from '../proto/mesh';
 import { AccountMeshDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountMeshDataStreamResponse';
 import { AccountMeshDataFlag } from '../proto/spacemesh/v1/AccountMeshDataFlag';
 import { PublicService, SocketAddress } from '../shared/types';
+import { CurrentLayer } from '../app/types/events';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
@@ -14,7 +15,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
     this.createNetService(PROTO_PATH, apiUrl, 'MeshService');
   };
 
-  getCurrentLayer = () =>
+  getCurrentLayer = (): Promise<CurrentLayer> =>
     this.callService('CurrentLayer', { a: 12 })
       .then((response) => {
         const currentLayer = response.layernum?.number || 0;

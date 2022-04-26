@@ -6,6 +6,7 @@ import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/Account
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
+import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
@@ -36,7 +37,7 @@ class GlobalStateService extends NetServiceFactory<ProtoGrpcType, 'GlobalStateSe
     this.createNetService(PROTO_PATH, apiUrl, 'GlobalStateService');
   };
 
-  getGlobalStateHash = () =>
+  getGlobalStateHash = (): Promise<GlobalStateHash> =>
     this.callService('GlobalStateHash', {})
       .then((response) => ({
         layer: response.response?.layer?.number || 0,
