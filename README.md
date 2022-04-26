@@ -54,10 +54,11 @@ DEV_NET_REMOTE_API=https://192.168.0.1:31030 DEV_NET_URL=https://.../config.json
 DEV_NET_REMOTE_API=https://192.168.0.1:31030,http://192.168.0.2:31035 DEV_NET_URL=https://.../config.json yarn start
 ```
 
-To run Smapp with turned on Sentry specify required env variables:
+To run Smapp on dev with turned on Sentry specify required env variables:
 ```
-SENTRY_DSN
-SENTRY_AUTH_TOKEN
+SENTRY_DSN='collection errors/logs url taken from sentry'
+SENTRY_AUTH_TOKEN='special auth token for sentry cli integration'
+SENTRY_LOG_LEVEL=boolean # enables debug information
 ```
 
 ### Building Artifacts in CI

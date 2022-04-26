@@ -11,9 +11,8 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { captureEvent } from '@sentry/electron';
+import { init, captureEvent } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
-import Sentry from '@sentry/electron/main';
 import { BrowserTracing } from '@sentry/tracing';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -38,15 +37,14 @@ require('dotenv').config();
 isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
 
-process.env.SENTRY_DSN &&
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    integrations: [new BrowserTracing()],
-    tracesSampleRate: 1.0,
-    debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-    environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
-    enabled: isProd(),
-  });
+init({
+  dsn: process.env.SENTRY_DSN,
+  integrations: [new BrowserTracing()],
+  tracesSampleRate: 1.0,
+  debug: process.env.SENTRY_LOG_LEVEL === 'debug',
+  environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
+  enabled: process.env.NODE_ENV !== 'development',
+});
 
 (async function () {
   const filePath = path.resolve(app.getAppPath(), isDev() ? './' : 'desktop/', 'ed25519.wasm');
