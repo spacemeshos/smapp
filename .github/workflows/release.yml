@@ -298,9 +298,9 @@ jobs:
           name: Release ${{ needs.build.outputs.tagName }}
           body: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg
-            - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
+            - Windows: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/release/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe
+            - macOS: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/release/Spacemesh-${{ needs.build.outputs.version }}.dmg
+            - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/release/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
           draft: true
           prerelease: true
 
