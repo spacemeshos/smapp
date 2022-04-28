@@ -18,7 +18,15 @@ const Logger = ({ className }: { className: string }) => ({
   error: (fn: string, err: any, args?: any) => {
     const msg = formatErrorMessage(className, fn, err, args);
     logger.error?.(msg);
-    captureEvent(err);
+
+    // because of timeouts in main process
+    // on force close
+    // we have an exception that cannot send to the Sentry
+    try {
+      captureEvent(err);
+    } catch (e) {
+      logger.error?.(e);
+    }
   },
 });
 
