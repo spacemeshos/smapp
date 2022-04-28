@@ -1,7 +1,6 @@
 import path from 'path';
 import { app } from 'electron';
 import { captureEvent } from '@sentry/electron';
-import { captureMessage } from '@sentry/react';
 
 const logger = require('electron-log');
 
@@ -15,13 +14,19 @@ const Logger = ({ className }: { className: string }) => ({
   log: (fn: string, res: any, args?: any) => {
     const msg = formatLogMessage(className, fn, res, args);
     logger.info?.(msg);
-    captureMessage(msg);
   },
   error: (fn: string, err: any, args?: any) => {
     const msg = formatErrorMessage(className, fn, err, args);
     logger.error?.(msg);
-    captureMessage(msg);
-    captureEvent(err);
+
+    // because of timeouts in main process
+    // on force close
+    // we have an exception that cannot send to the Sentry
+    try {
+      captureEvent(err);
+    } catch (e) {
+      logger.error?.(e);
+    }
   },
 });
 

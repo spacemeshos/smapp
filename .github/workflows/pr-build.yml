@@ -71,9 +71,6 @@ jobs:
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
-        env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: yarn lint and build
         if: ${{ steps.result.outputs.status != 'success' }}
@@ -81,8 +78,6 @@ jobs:
           yarn lint
           yarn postinstall
         env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Download go-spacemesh
@@ -159,6 +154,7 @@ jobs:
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ENV: pr-builds
 
       # Create binaries
       - if: steps.result.outputs.status != 'success' && matrix.os == 'ubuntu-latest'
@@ -167,6 +163,7 @@ jobs:
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ENV: pr-builds
 
       - if: steps.result.outputs.status != 'success' && matrix.os == 'windows-latest'
         name: Build windows app
@@ -174,6 +171,7 @@ jobs:
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ENV: pr-builds
 
       - if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
         name: Build mac app
@@ -182,6 +180,7 @@ jobs:
           DONT_SIGN_APP: true # Do not sign the development artifacts
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ENV: pr-builds
 
       - name: ls ./release
         if: steps.result.outputs.status != 'success'
@@ -203,21 +202,21 @@ jobs:
 
       - if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
         name: upload macos build
-        uses: google-github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
       - if: steps.result.outputs.status != 'success' && matrix.os == 'windows-latest'
         name: upload windows build
-        uses: google-github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
       - if: steps.result.outputs.status != 'success' && matrix.os == 'ubuntu-latest'
         name: upload linux build
-        uses: google-github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
@@ -232,9 +231,9 @@ jobs:
     steps:
       - name: Links to artifacts
         run: |
-          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
-          echo "macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
-          echo "Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
+          echo "macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
+          echo "Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
       - name: Post links to PR
         if: github.event_name == 'pull_request'
         uses: mshick/add-pr-comment@v1
@@ -243,6 +242,6 @@ jobs:
         with:
           message: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
-            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb
+            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
+            - macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
+            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb

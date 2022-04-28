@@ -57,9 +57,6 @@ jobs:
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
-        env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Lint and Test
         run: |
@@ -272,21 +269,21 @@ jobs:
           export_default_credentials: true
 
       - name: Upload macos artifact
-        uses: google-github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/macos-latest/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload windows build
-        uses: google-github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/windows-signed/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
           parent: false
 
       - name: Upload linux build
-        uses: google-github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/ubuntu-latest/
           destination: ${{ secrets.GCP_BUCKET }}/${{ needs.build.outputs.tagName }}
@@ -301,9 +298,9 @@ jobs:
           name: Release ${{ needs.build.outputs.tagName }}
           body: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg
-            - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
+            - Windows: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/release/Spacemesh%20Setup%20${{ needs.build.outputs.version }}.exe
+            - macOS: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/release/Spacemesh-${{ needs.build.outputs.version }}.dmg
+            - Linux: https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/release/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb
           draft: true
           prerelease: true
 

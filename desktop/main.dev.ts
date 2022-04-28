@@ -11,9 +11,8 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { captureEvent } from '@sentry/electron';
+import { init, captureEvent } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
-import { init } from '@sentry/electron/main';
 import { BrowserTracing } from '@sentry/tracing';
 import AutoStartManager from './autoStartManager';
 import StoreService from './storeService';
@@ -43,8 +42,8 @@ init({
   integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
   debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-  environment: process.env.NODE_ENV,
-  enabled: isProd(),
+  environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
+  enabled: process.env.NODE_ENV !== 'development',
 });
 
 (async function () {

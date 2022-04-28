@@ -100,8 +100,7 @@ const getBuildOptions = ({ target }) => {
         'desktop/config.json',
         'package.json',
         'node_modules/',
-        'proto/',
-        'app/assets/**',
+        'proto/'
       ],
       extraResources: [
         'resources/icons/*',

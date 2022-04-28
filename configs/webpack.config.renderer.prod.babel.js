@@ -51,7 +51,6 @@ export default merge(baseConfig, {
         use: {
           loader: 'url-loader',
           options: {
-            limit: 10000,
             mimetype: 'image/svg+xml'
           }
         }
@@ -91,7 +90,8 @@ export default merge(baseConfig, {
       NODE_ENV: 'production',
       DEBUG_PROD: false,
       SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
-      SENTRY_DSN: process.env.SENTRY_DSN
+      SENTRY_DSN: process.env.SENTRY_DSN,
+      SENTRY_ENV: process.env.SENTRY_ENV,
     }),
 
     new BundleAnalyzerPlugin({
