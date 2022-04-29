@@ -57,7 +57,7 @@ export default merge(baseConfig, {
       START_MINIMIZED: false,
       SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
       SENTRY_DSN: process.env.SENTRY_DSN,
-      SENTRY_ENV: process.env.SENTRY_ENV,
+      SENTRY_ENV: process.env.SENTRY_ENV || process.env.NODE_ENV,
     }),
   ],
 
