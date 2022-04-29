@@ -1,6 +1,12 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { ProtoGrpcType } from '../proto/node';
-import { NodeError, NodeErrorLevel, NodeStatus, PublicService, SocketAddress } from '../shared/types';
+import {
+  NodeError,
+  NodeErrorLevel,
+  NodeStatus,
+  PublicService,
+  SocketAddress,
+} from '../shared/types';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import Logger from './logger';
 
@@ -17,9 +23,13 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
 });
 
 class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
-  private statusStream: ReturnType<Service<ProtoGrpcType, 'NodeService'>['StatusStream']> | null = null;
+  private statusStream: ReturnType<
+    Service<ProtoGrpcType, 'NodeService'>['StatusStream']
+  > | null = null;
 
-  private errorStream: ReturnType<Service<ProtoGrpcType, 'NodeService'>['ErrorStream']> | null = null;
+  private errorStream: ReturnType<
+    Service<ProtoGrpcType, 'NodeService'>['ErrorStream']
+  > | null = null;
 
   logger = Logger({ className: 'NodeService' });
 
@@ -58,7 +68,13 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
         };
         if (!response.status) return { ...DEFAULTS };
 
-        const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
+        const {
+          connectedPeers,
+          isSynced,
+          syncedLayer,
+          topLayer,
+          verifiedLayer,
+        } = response.status;
         return {
           connectedPeers: (connectedPeers && connectedPeers.toNumber()) || 0,
           isSynced: !!isSynced,
@@ -76,12 +92,21 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       .then(() => true)
       .catch(() => false);
 
-  activateStatusStream = (statusHandler: StatusStreamHandler, errorHandler: ErrorStreamHandler) => {
+  activateStatusStream = (
+    statusHandler: StatusStreamHandler,
+    errorHandler: ErrorStreamHandler
+  ) => {
     if (!this.service) return;
 
     this.statusStream = this.service.StatusStream({});
     this.statusStream.on('data', (response: any) => {
-      const { connectedPeers, isSynced, syncedLayer, topLayer, verifiedLayer } = response.status;
+      const {
+        connectedPeers,
+        isSynced,
+        syncedLayer,
+        topLayer,
+        verifiedLayer,
+      } = response.status;
       statusHandler({
         connectedPeers: parseInt(connectedPeers),
         isSynced: !!isSynced,

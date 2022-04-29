@@ -4,13 +4,27 @@ import { useSelector, useDispatch } from 'react-redux';
 import { readWalletFiles, unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
-import { Link, Button, Input, ErrorPopup, Loader, DropDown } from '../../basicComponents';
+import {
+  Link,
+  Button,
+  Input,
+  ErrorPopup,
+  Loader,
+  DropDown,
+} from '../../basicComponents';
 import { smColors } from '../../vars';
-import { smallInnerSideBar, chevronRightBlack, chevronRightWhite } from '../../assets/images';
+import {
+  smallInnerSideBar,
+  chevronRightBlack,
+  chevronRightWhite,
+} from '../../assets/images';
 import { AppThDispatch, RootState } from '../../types';
 import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
 import { WalletMeta } from '../../../shared/types';
-import { setLastSelectedWalletPath, getIndexOfLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
+import {
+  setLastSelectedWalletPath,
+  getIndexOfLastSelectedWalletPath,
+} from '../../infra/lastSelectedWalletPath';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { formatISOAsUS } from '../../../shared/datetime';
 import { ExternalLinks } from '../../../shared/constants';
@@ -99,7 +113,9 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -118,7 +134,9 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
-  const [selectedWalletIndex, updateSelectedWalletIndex] = useState(getIndexOfLastSelectedWalletPath(walletFiles));
+  const [selectedWalletIndex, updateSelectedWalletIndex] = useState(
+    getIndexOfLastSelectedWalletPath(walletFiles)
+  );
 
   useEffect(() => {
     // Ensure that we had loaded wallet files
@@ -126,7 +144,13 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   }, [dispatch]);
 
   const getDropDownData = () =>
-    walletFiles.length === 0 ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }] : walletFiles.map(({ path, meta }) => ({ label: meta.displayName, path, meta }));
+    walletFiles.length === 0
+      ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }]
+      : walletFiles.map(({ path, meta }) => ({
+          label: meta.displayName,
+          path,
+          meta,
+        }));
 
   const selectItem = ({ index }) => {
     setLastSelectedWalletPath(walletFiles[index].path);
@@ -134,8 +158,19 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   };
 
   // TODO: Get rid from code duplication
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
-  const renderAccElement = ({ label, meta, isMain }: { label: string; meta?: WalletMeta; isMain: boolean }) => (
+  const ddStyle = {
+    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
+    marginLeft: 'auto',
+  };
+  const renderAccElement = ({
+    label,
+    meta,
+    isMain,
+  }: {
+    label: string;
+    meta?: WalletMeta;
+    isMain: boolean;
+  }) => (
     <AccItem key={label} isInDropDown={!isMain}>
       {label}
       {meta && (
@@ -159,12 +194,20 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       if (walletFiles.length === 0) {
         throw new Error('No wallets found to unlock');
       }
-      const status = await dispatch(unlockWallet(walletFiles[selectedWalletIndex].path, password));
+      const status = await dispatch(
+        unlockWallet(walletFiles[selectedWalletIndex].path, password)
+      );
       setShowLoader(false);
       if (status.success) {
-        const nextPage = (location.state?.redirect !== AuthPath.Unlock && location.state?.redirect) || MainPath.Wallet;
+        const nextPage =
+          (location.state?.redirect !== AuthPath.Unlock &&
+            location.state?.redirect) ||
+          MainPath.Wallet;
         if (status.forceNetworkSelection) {
-          history.push(AuthPath.SwitchNetwork, { redirect: nextPage, isWalletOnly: status.isWalletOnly });
+          history.push(AuthPath.SwitchNetwork, {
+            redirect: nextPage,
+            isWalletOnly: status.isWalletOnly,
+          });
           return;
         }
         history.push(nextPage);
@@ -179,12 +222,23 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     <Loader
       size={Loader.sizes.BIG}
       isDarkMode={isDarkMode}
-      note={isWalletOnlyMode ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
+      note={
+        isWalletOnlyMode
+          ? 'Please wait, connecting to Spacemesh api...'
+          : 'Please wait, starting up Spacemesh node...'
+      }
     />
   ) : (
     <Wrapper>
       {location?.state?.isLoggedOut && <LoggedOutBanner key="banner" />}
-      <CorneredContainer width={520} height={showWalletFileSelection ? 415 : 310} header="UNLOCK" subHeader="Welcome back to Spacemesh." key="main" isDarkMode={isDarkMode}>
+      <CorneredContainer
+        width={520}
+        height={showWalletFileSelection ? 415 : 310}
+        header="UNLOCK"
+        subHeader="Welcome back to Spacemesh."
+        key="main"
+        isDarkMode={isDarkMode}
+      >
         {showWalletFileSelection ? (
           <>
             <Text>Select a wallet:</Text>
@@ -207,7 +261,15 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
           <Chevron src={chevronIcon} />
-          <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={decryptWallet} onChange={handlePasswordTyping} style={{ flex: 1 }} autofocus />
+          <Input
+            type="password"
+            placeholder="ENTER PASSWORD"
+            value={password}
+            onEnterPress={decryptWallet}
+            onChange={handlePasswordTyping}
+            style={{ flex: 1 }}
+            autofocus
+          />
           <ErrorSection>
             {isWrongPassword && (
               <ErrorPopup
@@ -223,11 +285,28 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         <BottomPart>
           <LinksWrapper>
             <GrayText>FORGOT YOUR PASSWORD?</GrayText>
-            <Link onClick={() => history.push(AuthPath.Recover)} text="OPEN AN EXISTING WALLET" style={{ marginRight: 'auto' }} />
-            <Link onClick={() => history.push(AuthPath.ConnectionType)} text="CREATE" style={{ marginRight: 'auto' }} />
-            <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" style={{ marginRight: 'auto' }} />
+            <Link
+              onClick={() => history.push(AuthPath.Recover)}
+              text="OPEN AN EXISTING WALLET"
+              style={{ marginRight: 'auto' }}
+            />
+            <Link
+              onClick={() => history.push(AuthPath.ConnectionType)}
+              text="CREATE"
+              style={{ marginRight: 'auto' }}
+            />
+            <Link
+              onClick={navigateToSetupGuide}
+              text="SETUP GUIDE"
+              style={{ marginRight: 'auto' }}
+            />
           </LinksWrapper>
-          <Button text="UNLOCK" isDisabled={!password.trim() || !!isWrongPassword} onClick={decryptWallet} style={{ marginTop: 'auto' }} />
+          <Button
+            text="UNLOCK"
+            isDisabled={!password.trim() || !!isWrongPassword}
+            onClick={decryptWallet}
+            style={{ marginTop: 'auto' }}
+          />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

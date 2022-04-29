@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { backupWallet } from '../../redux/wallet/actions';
-import { WrapperWith2SideBars, Button, Link, CorneredWrapper } from '../../basicComponents';
+import {
+  WrapperWith2SideBars,
+  Button,
+  Link,
+  CorneredWrapper,
+} from '../../basicComponents';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import { BackupPath } from '../../routerPaths';
@@ -19,7 +24,8 @@ const SmallText = styled.span`
   line-height: 20px;
   margin-bottom: 6px;
   flex: 1;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const GreenText = styled(SmallText)`
@@ -29,7 +35,8 @@ const GreenText = styled(SmallText)`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled(Text)`
@@ -49,7 +56,8 @@ const MiddleSection = styled.div`
   width: 500px;
   height: 100%;
   padding: 25px 15px 15px 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionRow = styled.div`
@@ -84,9 +92,17 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
 
   return (
     <Wrapper>
-      <WrapperWith2SideBars width={300} header="WALLET" style={{ marginRight: 10 }} isDarkMode={isDarkMode}>
+      <WrapperWith2SideBars
+        width={300}
+        header="WALLET"
+        style={{ marginRight: 10 }}
+        isDarkMode={isDarkMode}
+      >
         <BoldText>How would you like to backup your wallet?</BoldText>
-        <Text>Your wallet is encrypted using your password. We recommend you backup your wallet for additional security.</Text>
+        <Text>
+          Your wallet is encrypted using your password. We recommend you backup
+          your wallet for additional security.
+        </Text>
       </WrapperWith2SideBars>
       <RightSection isDarkMode={isDarkMode}>
         <MiddleSection>
@@ -97,8 +113,19 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
             </SmallText>
           </MiddleSectionRow>
           <MiddleSectionRow>
-            <Button onClick={handleBackupWallet} text="FILE BACKUP" isPrimary={false} isContainerFullWidth style={{ marginRight: 22 }} />
-            <Button onClick={navigateTo12WordsBackup} text="12 WORDS BACKUP" isPrimary={false} isContainerFullWidth />
+            <Button
+              onClick={handleBackupWallet}
+              text="FILE BACKUP"
+              isPrimary={false}
+              isContainerFullWidth
+              style={{ marginRight: 22 }}
+            />
+            <Button
+              onClick={navigateTo12WordsBackup}
+              text="12 WORDS BACKUP"
+              isPrimary={false}
+              isContainerFullWidth
+            />
           </MiddleSectionRow>
           <BottomRow>
             <Link onClick={openBackupGuide} text="BACKUP GUIDE" />

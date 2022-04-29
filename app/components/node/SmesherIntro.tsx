@@ -1,7 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { posIcon, fireworks, fireworksWhite, posNotification, posComputer, posAwake } from '../../assets/images';
+import {
+  posIcon,
+  fireworks,
+  fireworksWhite,
+  posNotification,
+  posComputer,
+  posAwake,
+} from '../../assets/images';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
 
@@ -21,7 +28,8 @@ const TextWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 15px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const GreenText = styled.div`
@@ -72,7 +80,11 @@ const PosAwakeIcon = styled.img`
   margin-right: 10px;
 `;
 
-const inlineLinkStyle = { display: 'inline', fontSize: '13px', lineHeight: '20px' };
+const inlineLinkStyle = {
+  display: 'inline',
+  fontSize: '13px',
+  lineHeight: '20px',
+};
 
 type Props = {
   hideIntro: () => void;
@@ -82,7 +94,8 @@ type Props = {
 const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
   const navigateToMiningGuide = () => window.open(ExternalLinks.SetupGuide);
 
-  const navigateToPreventComputerSleep = () => window.open(ExternalLinks.NoSleepGuide);
+  const navigateToPreventComputerSleep = () =>
+    window.open(ExternalLinks.NoSleepGuide);
 
   return (
     <>
@@ -90,22 +103,32 @@ const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
       <GreenText>Your proof of space data is being created!</GreenText>
       <TextWrapper>
         <PosNotificationIcon src={posNotification} />
-        <Text>You will get a desktop notification when the setup is complete</Text>
+        <Text>
+          You will get a desktop notification when the setup is complete
+        </Text>
       </TextWrapper>
       <TextWrapper>
         <PosIcon src={posIcon} />
-        <Text>Your app will start smeshing automatically when the setup is complete</Text>
+        <Text>
+          Your app will start smeshing automatically when the setup is complete
+        </Text>
       </TextWrapper>
       <br />
       <RedText>Important</RedText>
       <TextWrapper>
         <PosComputerIcon src={posComputer} />
-        <Text>Leave your computer on 24/7 to finish setup and start smeshing</Text>
+        <Text>
+          Leave your computer on 24/7 to finish setup and start smeshing
+        </Text>
       </TextWrapper>
       <TextWrapper>
         <PosAwakeIcon src={posAwake} />
         <Text>
-          <Link onClick={navigateToPreventComputerSleep} text="Disable your computer from going to sleep" style={inlineLinkStyle} />
+          <Link
+            onClick={navigateToPreventComputerSleep}
+            text="Disable your computer from going to sleep"
+            style={inlineLinkStyle}
+          />
         </Text>
       </TextWrapper>
       <Footer>

@@ -1,6 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Link, Input, DropDown, Button, ErrorPopup, AutocompleteDropdown } from '../../basicComponents';
+import {
+  Link,
+  Input,
+  DropDown,
+  Button,
+  ErrorPopup,
+  AutocompleteDropdown,
+} from '../../basicComponents';
 import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Contact } from '../../types';
@@ -14,7 +21,8 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
@@ -45,7 +53,8 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const Dots = styled.div`
@@ -55,7 +64,8 @@ const Dots = styled.div`
   margin-right: 12px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const Fee = styled.div<{ isInDropDown: boolean }>`
@@ -64,7 +74,9 @@ const Fee = styled.div<{ isInDropDown: boolean }>`
   color: ${smColors.black};
   padding: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -140,9 +152,21 @@ const TxParams = ({
   isDarkMode,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
+  const ddStyle = {
+    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
+    marginLeft: 'auto',
+    flex: '0 0 240px',
+  };
 
-  const renderFeeElement = ({ label, text, isInDropDown }: { label: string; text: string; isInDropDown: boolean }) => (
+  const renderFeeElement = ({
+    label,
+    text,
+    isInDropDown,
+  }: {
+    label: string;
+    text: string;
+    isInDropDown: boolean;
+  }) => (
     <Fee key={label} isInDropDown={isInDropDown}>
       {label} {text}
     </Fee>
@@ -155,13 +179,20 @@ const TxParams = ({
 
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
 
-  const handleAmountChange = useCallback((value) => updateTxAmount(parseFloat(value)), [updateTxAmount]);
+  const handleAmountChange = useCallback(
+    (value) => updateTxAmount(parseFloat(value)),
+    [updateTxAmount]
+  );
 
   return (
     <Wrapper>
       <Header>
         <HeaderText>Send SMH</HeaderText>
-        <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
+        <Link
+          onClick={cancelTx}
+          text="CANCEL TRANSACTION"
+          style={{ color: smColors.orange }}
+        />
       </Header>
       <SubHeader>--</SubHeader>
       <DetailsRow>
@@ -179,12 +210,20 @@ const TxParams = ({
           onEnter={(value: string) => updateTxAddress({ value })}
           autofocus
         />
-        {hasAddressError && <ErrorPopup onClick={resetAddressError} text="This address is invalid." style={errorPopupStyle} />}
+        {hasAddressError && (
+          <ErrorPopup
+            onClick={resetAddressError}
+            text="This address is invalid."
+            style={errorPopupStyle}
+          />
+        )}
       </DetailsRow>
       <DetailsRow>
         <DetailsText>From</DetailsText>
         <Dots>....................................</Dots>
-        <DetailsText>{getAbbreviatedText(getAddress(fromAddress), true, 10)}</DetailsText>
+        <DetailsText>
+          {getAbbreviatedText(getAddress(fromAddress), true, 10)}
+        </DetailsText>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Amount</DetailsText>
@@ -193,10 +232,18 @@ const TxParams = ({
           value={amount}
           onChange={handleAmountChange}
           style={inputStyle}
-          selectedUnits={amount.toString().length > 10 ? CoinUnits.SMH : CoinUnits.Smidge}
+          selectedUnits={
+            amount.toString().length > 10 ? CoinUnits.SMH : CoinUnits.Smidge
+          }
           valueUnits={CoinUnits.Smidge}
         />
-        {hasAmountError && <ErrorPopup onClick={resetAmountError} text="You don't have enough Smidge in your wallet." style={errorPopupStyle1} />}
+        {hasAmountError && (
+          <ErrorPopup
+            onClick={resetAmountError}
+            text="You don't have enough Smidge in your wallet."
+            style={errorPopupStyle1}
+          />
+        )}
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Fee</DetailsText>
@@ -204,7 +251,9 @@ const TxParams = ({
         <DropDown
           data={fees}
           onClick={selectFee}
-          DdElement={({ label, text, isMain }) => renderFeeElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderFeeElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={selectedFeeIndex}
           rowHeight={40}
           style={ddStyle}
@@ -214,10 +263,20 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Note</DetailsText>
         <Dots>....................................</Dots>
-        <Input value={note} onChange={updateTxNote} maxLength="50" style={inputStyle} placeholder="Only visible to you." />
+        <Input
+          value={note}
+          onChange={updateTxNote}
+          maxLength="50"
+          style={inputStyle}
+          placeholder="Only visible to you."
+        />
       </DetailsRow>
       <Footer>
-        <Link onClick={navigateToGuide} text="SEND SMH GUIDE" style={{ marginRight: 25 }} />
+        <Link
+          onClick={navigateToGuide}
+          text="SEND SMH GUIDE"
+          style={{ marginRight: 25 }}
+        />
         <Button onClick={nextAction} text="NEXT" />
       </Footer>
     </Wrapper>

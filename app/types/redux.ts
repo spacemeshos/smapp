@@ -1,5 +1,17 @@
 import { ThunkDispatch } from 'redux-thunk';
-import { AccountWithBalance, Contact, NodeError, NodeStatus, WalletMeta, PostSetupState, PostSetupComputeProvider, SmesherConfig, HexString, Tx, Reward } from '../../shared/types';
+import {
+  AccountWithBalance,
+  Contact,
+  NodeError,
+  NodeStatus,
+  WalletMeta,
+  PostSetupState,
+  PostSetupComputeProvider,
+  SmesherConfig,
+  HexString,
+  Tx,
+  Reward,
+} from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
 export interface NetworkState {

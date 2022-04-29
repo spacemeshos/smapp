@@ -49,7 +49,11 @@ init({
 });
 
 (async function () {
-  const filePath = path.resolve(app.getAppPath(), isDev() ? './' : 'desktop/', 'ed25519.wasm');
+  const filePath = path.resolve(
+    app.getAppPath(),
+    isDev() ? './' : 'desktop/',
+    'ed25519.wasm'
+  );
   const bytes = fs.readFileSync(filePath);
   // const bytes = await response.arrayBuffer();
   // @ts-ignore

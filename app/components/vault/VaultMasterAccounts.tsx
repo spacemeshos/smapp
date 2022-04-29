@@ -15,7 +15,8 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const AccItem = styled.div<{ isInDropDown: boolean }>`
@@ -25,7 +26,9 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   padding: 5px;
   width: 100%;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -39,10 +42,27 @@ type Props = {
   accountsOption: Account[];
 };
 
-const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMode, accountsOption }: Props) => {
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 240px' };
+const VaultMasterAccounts = ({
+  masterAccountIndex,
+  selectAccountIndex,
+  isDarkMode,
+  accountsOption,
+}: Props) => {
+  const ddStyle = {
+    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
+    marginLeft: 'auto',
+    flex: '0 0 240px',
+  };
 
-  const renderAccElement = ({ label, text, isInDropDown }: { label: string; text: string; isInDropDown: boolean }) => (
+  const renderAccElement = ({
+    label,
+    text,
+    isInDropDown,
+  }: {
+    label: string;
+    text: string;
+    isInDropDown: boolean;
+  }) => (
     <AccItem key={label} isInDropDown={isInDropDown}>
       {label} {text}
     </AccItem>
@@ -52,12 +72,18 @@ const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMod
     <>
       <DetailsRow>
         <DetailsText>Address 1</DetailsText>
-        <Tooltip width={250} isDarkMode={isDarkMode} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+        <Tooltip
+          width={250}
+          isDarkMode={isDarkMode}
+          text="Use an account managed by this wallet to set yourself as the vault’s owner."
+        />
         <Dots />
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}
@@ -66,12 +92,18 @@ const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMod
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Address 2</DetailsText>
-        <Tooltip width={250} isDarkMode={isDarkMode} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+        <Tooltip
+          width={250}
+          isDarkMode={isDarkMode}
+          text="Use an account managed by this wallet to set yourself as the vault’s owner."
+        />
         <Dots />
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}
@@ -80,12 +112,18 @@ const VaultMasterAccounts = ({ masterAccountIndex, selectAccountIndex, isDarkMod
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Address 3</DetailsText>
-        <Tooltip width={250} isDarkMode={isDarkMode} text="Use an account managed by this wallet to set yourself as the vault’s owner." />
+        <Tooltip
+          width={250}
+          isDarkMode={isDarkMode}
+          text="Use an account managed by this wallet to set yourself as the vault’s owner."
+        />
         <Dots />
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}

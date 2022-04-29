@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { sidePanelRightMed, sidePanelRightMedWhite, sidePanelLeftMed, sidePanelLeftMedWhite } from '../../assets/images';
+import {
+  sidePanelRightMed,
+  sidePanelRightMedWhite,
+  sidePanelLeftMed,
+  sidePanelLeftMedWhite,
+} from '../../assets/images';
 import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
@@ -9,7 +14,8 @@ const Wrapper = styled.div`
   width: 250px;
   height: 190px;
   margin-right: 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
 const SideBar = styled.img`
@@ -23,7 +29,8 @@ const InnerWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   padding: 25px 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
 const Container = styled.div`
@@ -45,7 +52,8 @@ const Text = styled.div<{ isCurrent: boolean }>`
       return smColors.purple;
     }
   }};
-  font-family: ${({ isCurrent }) => (isCurrent ? 'SourceCodeProBold' : 'SourceCodePro')};
+  font-family: ${({ isCurrent }) =>
+    isCurrent ? 'SourceCodeProBold' : 'SourceCodePro'};
   text-align: right;
   cursor: pointer;
 `;
@@ -57,7 +65,8 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
   width: 15px;
   height: 15px;
   margin-left: 10px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.white)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
   background-color: ${({ isCurrent, theme }) => {
     if (isCurrent) {

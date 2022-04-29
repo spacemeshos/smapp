@@ -46,7 +46,9 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -56,10 +58,16 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`, marginLeft: 'auto' };
+  const ddStyle = {
+    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
+    marginLeft: 'auto',
+  };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-  const [networks, setNetworks] = useState({ loading: false, networks: [] as { netId: number; netName: string; explorer?: string }[] });
+  const [networks, setNetworks] = useState({
+    loading: false,
+    networks: [] as { netId: number; netName: string; explorer?: string }[],
+  });
   const [showLoader, setLoader] = useState(false);
 
   const updateNetworks = () => {
@@ -91,7 +99,17 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     window.open(explorer.concat(isDarkMode ? '?dark' : ''), '_blank');
   };
 
-  const renderAccElement = ({ label, explorer, netId, isMain }: { label: string; explorer: string; netId: number; isMain: boolean }) => (
+  const renderAccElement = ({
+    label,
+    explorer,
+    netId,
+    isMain,
+  }: {
+    label: string;
+    explorer: string;
+    netId: number;
+    isMain: boolean;
+  }) => (
     <AccItem key={label} isInDropDown={!isMain}>
       {netId > 0 ? (
         <>
@@ -114,24 +132,43 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     networks.loading
       ? [{ label: 'LOADING... PLEASE WAIT', netId: -1, isDisabled: true }]
       : hasAvailableNetworks
-      ? networks.networks.map(({ netId, netName, explorer }) => ({ label: netName, netId, explorer }))
+      ? networks.networks.map(({ netId, netName, explorer }) => ({
+          label: netName,
+          netId,
+          explorer,
+        }))
       : [{ label: 'NO NETWORKS AVAILABLE', netId: -1, isDisabled: true }];
 
   const goNext = (netId: number) => {
     const { creatingWallet, isWalletOnly } = location.state;
     if (creatingWallet) {
-      if (netId === -1) return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
-      if (isWalletOnly) return history.push(AuthPath.ConnectToAPI, { redirect: AuthPath.CreateWallet, netId, isWalletOnly, creatingWallet });
+      if (netId === -1)
+        return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
+      if (isWalletOnly)
+        return history.push(AuthPath.ConnectToAPI, {
+          redirect: AuthPath.CreateWallet,
+          netId,
+          isWalletOnly,
+          creatingWallet,
+        });
       return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
     }
     if (netId > -1 && isWalletOnly) {
-      return history.push(AuthPath.ConnectToAPI, { redirect: location?.state?.redirect, netId, isWalletOnly, creatingWallet });
+      return history.push(AuthPath.ConnectToAPI, {
+        redirect: location?.state?.redirect,
+        netId,
+        isWalletOnly,
+        creatingWallet,
+      });
     }
     return history.push(location?.state?.redirect || AuthPath.Unlock);
   };
 
   const handleNext = async () => {
-    const netId = networks.networks.length > selectedItemIndex ? networks.networks[selectedItemIndex].netId : -1;
+    const netId =
+      networks.networks.length > selectedItemIndex
+        ? networks.networks[selectedItemIndex].netId
+        : -1;
     setLoader(true);
     if (netId > -1) {
       try {
@@ -148,10 +185,16 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   };
 
   return showLoader ? (
-    <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} note="Please wait, connecting to Spacemesh network..." />
+    <Loader
+      size={Loader.sizes.BIG}
+      isDarkMode={isDarkMode}
+      note="Please wait, connecting to Spacemesh network..."
+    />
   ) : (
     <Wrapper>
-      {!!location.state.creatingWallet && <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />}
+      {!!location.state.creatingWallet && (
+        <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />
+      )}
       <CorneredContainer
         width={650}
         height={400}
@@ -172,12 +215,27 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
             isDisabled={!hasAvailableNetworks}
           />
         </RowColumn>
-        <RowColumn>{!networks.loading && <Link onClick={updateNetworks} text="REFRESH" />}</RowColumn>
+        <RowColumn>
+          {!networks.loading && (
+            <Link onClick={updateNetworks} text="REFRESH" />
+          )}
+        </RowColumn>
 
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          {!hasAvailableNetworks && !networks.loading && <Button onClick={handleNext} text="SKIP" isPrimary={false} style={{ marginLeft: 'auto', marginRight: '1em' }} />}
-          <Button onClick={handleNext} text="NEXT" isDisabled={!hasAvailableNetworks} />
+          {!hasAvailableNetworks && !networks.loading && (
+            <Button
+              onClick={handleNext}
+              text="SKIP"
+              isPrimary={false}
+              style={{ marginLeft: 'auto', marginRight: '1em' }}
+            />
+          )}
+          <Button
+            onClick={handleNext}
+            text="NEXT"
+            isDisabled={!hasAvailableNetworks}
+          />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

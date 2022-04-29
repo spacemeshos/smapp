@@ -23,7 +23,8 @@ const MiddleSection = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const MiddleSectionHeader = styled.div`
@@ -42,16 +43,28 @@ const MiddleSectionText = styled.div`
 `;
 
 const Overview = ({ history }: RouteComponentProps) => {
-  const account = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
-  const isSmeshing = useSelector((state: RootState) => state.smesher.postSetupState === PostSetupState.STATE_COMPLETE);
-  const isCreatingPosData = useSelector((state: RootState) => state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS);
+  const account = useSelector(
+    (state: RootState) =>
+      state.wallet.accounts[state.wallet.currentAccountIndex]
+  );
+  const isSmeshing = useSelector(
+    (state: RootState) =>
+      state.smesher.postSetupState === PostSetupState.STATE_COMPLETE
+  );
+  const isCreatingPosData = useSelector(
+    (state: RootState) =>
+      state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS
+  );
 
   const navigateToSendCoins = () => {
     history.push(WalletPath.SendCoins);
   };
 
   const navigateToRequestCoins = () => {
-    history.push(WalletPath.RequestCoins, { account, isSmesherActive: isCreatingPosData || isSmeshing });
+    history.push(WalletPath.RequestCoins, {
+      account,
+      isSmesherActive: isCreatingPosData || isSmeshing,
+    });
   };
 
   const navigateToAllTransactions = () => {
@@ -68,12 +81,36 @@ const Overview = ({ history }: RouteComponentProps) => {
           <br />
           --
         </MiddleSectionHeader>
-        <MiddleSectionText>Send SMH to anyone, or request to receive SMH.</MiddleSectionText>
-        <Button onClick={navigateToSendCoins} text="SEND" isPrimary={false} width={225} img={sendIcon} imgPosition="after" style={{ marginBottom: 20 }} />
-        <Button onClick={navigateToRequestCoins} text="REQUEST" isPrimary={false} img={requestIcon} imgPosition="after" width={225} style={{ marginBottom: 35 }} />
-        <Link onClick={navigateToWalletGuide} text="WALLET GUIDE" style={{ marginRight: 'auto' }} />
+        <MiddleSectionText>
+          Send SMH to anyone, or request to receive SMH.
+        </MiddleSectionText>
+        <Button
+          onClick={navigateToSendCoins}
+          text="SEND"
+          isPrimary={false}
+          width={225}
+          img={sendIcon}
+          imgPosition="after"
+          style={{ marginBottom: 20 }}
+        />
+        <Button
+          onClick={navigateToRequestCoins}
+          text="REQUEST"
+          isPrimary={false}
+          img={requestIcon}
+          imgPosition="after"
+          width={225}
+          style={{ marginBottom: 35 }}
+        />
+        <Link
+          onClick={navigateToWalletGuide}
+          text="WALLET GUIDE"
+          style={{ marginRight: 'auto' }}
+        />
       </MiddleSection>
-      <LatestTransactions navigateToAllTransactions={navigateToAllTransactions} />
+      <LatestTransactions
+        navigateToAllTransactions={navigateToAllTransactions}
+      />
     </Wrapper>
   );
 };

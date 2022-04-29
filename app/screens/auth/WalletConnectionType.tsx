@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { posSmesherWhite, walletSecondWhite, walletSecondBlack, posSmesherBlack } from '../../assets/images';
+import {
+  posSmesherWhite,
+  walletSecondWhite,
+  walletSecondBlack,
+  posSmesherBlack,
+} from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
@@ -90,37 +95,68 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
   return (
     <Wrapper>
       <Steps step={Step.NEW_WALLET_SETUP} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={400} header="NEW WALLET" subHeader="Configure your new wallet" isDarkMode={isDarkMode}>
+      <CorneredContainer
+        width={650}
+        height={400}
+        header="NEW WALLET"
+        subHeader="Configure your new wallet"
+        isDarkMode={isDarkMode}
+      >
         <BackButton action={() => history.push(AuthPath.Leaving)} />
         <RowJust>
           <RowColumn>
             <Row>
               <Icon src={`${isDarkMode ? posSmesherWhite : posSmesherBlack}`} />
               <RowTitle>WALLET + NODE</RowTitle>
-              <Tooltip width={100} text="WALLET + NODE" isDarkMode={isDarkMode} />
+              <Tooltip
+                width={100}
+                text="WALLET + NODE"
+                isDarkMode={isDarkMode}
+              />
             </Row>
             <RowText>A wallet that uses a local full Spacemesh</RowText>
             <RowText>p2p node and optionally setup smeshing</RowText>
           </RowColumn>
-          <Button text="WALLET + NODE" width={150} isPrimary={false} onClick={handleNextStep(false)} />
+          <Button
+            text="WALLET + NODE"
+            width={150}
+            isPrimary={false}
+            onClick={handleNextStep(false)}
+          />
         </RowJust>
         <RowSecond>
           <RowColumn>
             <Row>
-              <IconWallet src={`${isDarkMode ? walletSecondWhite : walletSecondBlack}`} />
+              <IconWallet
+                src={`${isDarkMode ? walletSecondWhite : walletSecondBlack}`}
+              />
               <RowTitle>WALLET ONLY</RowTitle>
               <Tooltip width={100} text="Wallet only" isDarkMode={isDarkMode} />
             </Row>
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
           </RowColumn>
-          <Button text="WALLET ONLY" width={150} onClick={handleNextStep(true)} />
+          <Button
+            text="WALLET ONLY"
+            width={150}
+            onClick={handleNextStep(true)}
+          />
         </RowSecond>
         <BottomPart>
-          <Link onClick={navigateToExplanation} text="NOT SURE WHAT TO DO? READ THE GUIDE " />
+          <Link
+            onClick={navigateToExplanation}
+            text="NOT SURE WHAT TO DO? READ THE GUIDE "
+          />
           <Row>
-            <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE EXISTING WALLET" />
-            <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
+            <Link
+              onClick={() => history.push(AuthPath.Recover)}
+              text="RESTORE EXISTING WALLET"
+            />
+            <Tooltip
+              width={100}
+              text="RESTORE EXISTING WALLET"
+              isDarkMode={isDarkMode}
+            />
           </Row>
         </BottomPart>
       </CorneredContainer>

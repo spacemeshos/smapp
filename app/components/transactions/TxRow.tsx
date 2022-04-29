@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import { chevronLeftBlack, chevronLeftWhite, chevronRightBlack, chevronRightWhite } from '../../assets/images';
+import {
+  chevronLeftBlack,
+  chevronLeftWhite,
+  chevronRightBlack,
+  chevronRightWhite,
+} from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
-import { getFormattedTimestamp, getAddress, formatSmidge } from '../../infra/utils';
+import {
+  getFormattedTimestamp,
+  getAddress,
+  formatSmidge,
+} from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
@@ -16,7 +25,8 @@ import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
   flex-direction: column;
-  ${({ isDetailed }) => isDetailed && `background-color: ${smColors.lighterGray};`}
+  ${({ isDetailed }) =>
+    isDetailed && `background-color: ${smColors.lighterGray};`}
   cursor: pointer;
 `;
 
@@ -25,9 +35,11 @@ const Header = styled.div`
   flex-direction: row;
   padding: 10px 10px 15px 10px;
   cursor: pointer;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : 'transparent')};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.black : 'transparent'};
   &:hover {
-    background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dark75Alpha : smColors.disabledGray)};
+    background-color: ${({ theme }) =>
+      theme.isDarkMode ? smColors.dark75Alpha : smColors.disabledGray};
   }
 `;
 
@@ -55,11 +67,13 @@ const HeaderSection = styled.div`
 const Text = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray50Alpha)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.darkGray50Alpha};
 `;
 
 const BlackText = styled(Text)`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled(Text)`
@@ -74,7 +88,8 @@ const BoldText = styled(Text)`
 `;
 
 const DarkGrayText = styled(Text)`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.darkGray};
   cursor: inherit;
   text-align: right;
 `;
@@ -93,7 +108,8 @@ const DetailsSection = styled.div`
   flex-direction: column;
   justify-content: space-between;
   padding: 6px 12px 12px 20px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : 'transparent')};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.black : 'transparent'};
 `;
 
 const TextRow = styled.div<{ isLast?: boolean }>`
@@ -103,9 +119,17 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   overflow: hidden;
   white-space: nowrap;
   padding: 5px 0;
-  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) =>
+    isLast
+      ? `0px`
+      : `1px solid ${
+          theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
+        };`};
   :first-child {
-    border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha};`};
+    border-top: ${({ theme }) =>
+      `1px solid ${
+        theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
+      };`};
   }
   :last-child {
     border-bottom: none;
@@ -158,14 +182,23 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const [note, setNote] = useState(tx.note || '');
   const [showNoteModal, setShowNoteModal] = useState(false);
 
-  const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
+  const currentAccountIndex = useSelector(
+    (state: RootState) => state.wallet.currentAccountIndex
+  );
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const getColor = (isSent: boolean) => {
     const { status } = tx;
-    if (status === TxState.TRANSACTION_STATE_MEMPOOL || status === TxState.TRANSACTION_STATE_MESH) {
+    if (
+      status === TxState.TRANSACTION_STATE_MEMPOOL ||
+      status === TxState.TRANSACTION_STATE_MESH
+    ) {
       return smColors.orange;
-    } else if (status === TxState.TRANSACTION_STATE_REJECTED || status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS || status === TxState.TRANSACTION_STATE_CONFLICTING) {
+    } else if (
+      status === TxState.TRANSACTION_STATE_REJECTED ||
+      status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS ||
+      status === TxState.TRANSACTION_STATE_CONFLICTING
+    ) {
       return smColors.red;
     } else if (status === TxState.TRANSACTION_STATE_UNSPECIFIED) {
       return smColors.mediumGray;
@@ -190,11 +223,19 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
 
   const txFrom = isSent ? getAddress(publicKey) : tx.sender;
   const txFromSuffix = (isSent && '(Me)') || undefined;
-  const txFromAddContact = tx.senderNickname || isSent ? undefined : () => addAddressToContacts({ address: tx.sender });
+  const txFromAddContact =
+    tx.senderNickname || isSent
+      ? undefined
+      : () => addAddressToContacts({ address: tx.sender });
 
-  const txTo = isSent ? tx.receiverNickname || tx.receiver : getAddress(publicKey);
+  const txTo = isSent
+    ? tx.receiverNickname || tx.receiver
+    : getAddress(publicKey);
   const txToSuffix = (!isSent && '(Me)') || undefined;
-  const txToAddContract = tx.receiverNickname || !isSent ? undefined : () => addAddressToContacts({ address: tx.receiver });
+  const txToAddContract =
+    tx.receiverNickname || !isSent
+      ? undefined
+      : () => addAddressToContacts({ address: tx.receiver });
 
   const renderDetails = () => (
     <DetailsSection>
@@ -217,13 +258,23 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       <TextRow>
         <BlackText>FROM</BlackText>
         <BoldText>
-          <Address address={txFrom} suffix={txFromSuffix} overlapText={tx.senderNickname} addToContacts={txFromAddContact} />
+          <Address
+            address={txFrom}
+            suffix={txFromSuffix}
+            overlapText={tx.senderNickname}
+            addToContacts={txFromAddContact}
+          />
         </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>TO</BlackText>
         <BoldText>
-          <Address address={txTo} suffix={txToSuffix} overlapText={tx.receiverNickname} addToContacts={txToAddContract} />
+          <Address
+            address={txTo}
+            suffix={txToSuffix}
+            overlapText={tx.receiverNickname}
+            addToContacts={txToAddContract}
+          />
         </BoldText>
       </TextRow>
       <TextRow>
@@ -232,7 +283,9 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       </TextRow>
       <TextRow>
         <BlackText>FEE</BlackText>
-        <BoldText>{formatSmidge(tx.gasOffered?.provided || tx.receipt?.fee || 0)}</BoldText>
+        <BoldText>
+          {formatSmidge(tx.gasOffered?.provided || tx.receipt?.fee || 0)}
+        </BoldText>
       </TextRow>
       <TextRow>
         <BlackText>NOTE</BlackText>
@@ -245,8 +298,15 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   );
 
   const renderNickname = () => {
-    const nickname = (isSent && tx.receiverNickname) || (!isSent && tx.senderNickname);
-    return nickname && <DarkGrayText key="nickname">{nickname && nickname.toUpperCase()}</DarkGrayText>;
+    const nickname =
+      (isSent && tx.receiverNickname) || (!isSent && tx.senderNickname);
+    return (
+      nickname && (
+        <DarkGrayText key="nickname">
+          {nickname && nickname.toUpperCase()}
+        </DarkGrayText>
+      )
+    );
   };
 
   return (
@@ -259,7 +319,9 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             <Text key={tx.id}>{formatTxId(tx.id)}</Text>
           </HeaderSection>
           <HeaderSection>
-            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(tx.amount)}`}</Amount>
+            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
+              tx.amount
+            )}`}</Amount>
             <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
           </HeaderSection>
         </HeaderInner>
@@ -281,10 +343,21 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
             />
           </InputSection>
           <ButtonsWrapper>
-            <Link onClick={() => window.open(ExternalLinks.SendCoinGuide)} text="TRANSACTION GUIDE" />
+            <Link
+              onClick={() => window.open(ExternalLinks.SendCoinGuide)}
+              text="TRANSACTION GUIDE"
+            />
             <RightButton>
-              <Link style={{ color: smColors.orange, marginRight: '10px' }} onClick={() => setShowNoteModal(false)} text="CANCEL" />
-              <Button text="NEXT" isDisabled={note === tx.note} onClick={save} />
+              <Link
+                style={{ color: smColors.orange, marginRight: '10px' }}
+                onClick={() => setShowNoteModal(false)}
+                text="CANCEL"
+              />
+              <Button
+                text="NEXT"
+                isDisabled={note === tx.note}
+                onClick={save}
+              />
             </RightButton>
           </ButtonsWrapper>
         </Modal>

@@ -12,7 +12,8 @@ import Address from '../common/Address';
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
   flex-direction: column;
-  ${({ isDetailed }) => isDetailed && `background-color: ${smColors.lighterGray};`}
+  ${({ isDetailed }) =>
+    isDetailed && `background-color: ${smColors.lighterGray};`}
   cursor: pointer;
 `;
 
@@ -21,9 +22,11 @@ const Header = styled.div`
   flex-direction: row;
   padding: 10px 10px 15px 10px;
   cursor: pointer;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : 'transparent')};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.black : 'transparent'};
   &:hover {
-    background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dark75Alpha : smColors.disabledGray)};
+    background-color: ${({ theme }) =>
+      theme.isDarkMode ? smColors.dark75Alpha : smColors.disabledGray};
   }
 `;
 
@@ -51,11 +54,13 @@ const HeaderSection = styled.div`
 const Text = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray50Alpha)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.darkGray50Alpha};
 `;
 
 const BlackText = styled(Text)`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled(Text)`
@@ -70,7 +75,8 @@ const BoldText = styled(Text)`
 `;
 
 const DarkGrayText = styled(Text)`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.darkGray};
   cursor: inherit;
   text-align: right;
 `;
@@ -89,7 +95,8 @@ const DetailsSection = styled.div`
   flex-direction: column;
   justify-content: space-between;
   padding: 6px 12px 12px 20px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : 'transparent')};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.black : 'transparent'};
 `;
 
 const TextRow = styled.div<{ isLast?: boolean }>`
@@ -99,9 +106,17 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   overflow: hidden;
   white-space: nowrap;
   padding: 5px 0;
-  border-bottom: ${({ isLast, theme }) => (isLast ? `0px` : `1px solid ${theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha};`)};
+  border-bottom: ${({ isLast, theme }) =>
+    isLast
+      ? `0px`
+      : `1px solid ${
+          theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
+        };`};
   :first-child {
-    border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha};`};
+    border-top: ${({ theme }) =>
+      `1px solid ${
+        theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
+      };`};
   }
   :last-child {
     border-bottom: none;
@@ -159,7 +174,9 @@ const RewardRow = ({ tx, publicKey }: Props) => {
             <DarkGrayText>SMESHING REWARD</DarkGrayText>
           </HeaderSection>
           <HeaderSection>
-            <Amount color={smColors.darkerGreen}>+{formatSmidge(amount)}</Amount>
+            <Amount color={smColors.darkerGreen}>
+              +{formatSmidge(amount)}
+            </Amount>
             <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
           </HeaderSection>
         </HeaderInner>

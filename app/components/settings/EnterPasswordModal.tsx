@@ -40,7 +40,11 @@ type Props = {
   walletName?: string;
 };
 
-const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => {
+const EnterPasswordModal = ({
+  submitAction,
+  closeModal,
+  walletName,
+}: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
   const [isActive, setIsActive] = useState(true);
@@ -72,14 +76,38 @@ const EnterPasswordModal = ({ submitAction, closeModal, walletName }: Props) => 
   };
 
   return (
-    <Modal header="PASSWORD" subHeader={`Enter wallet ${walletName || ''} password to complete this action.`}>
+    <Modal
+      header="PASSWORD"
+      subHeader={`Enter wallet ${
+        walletName || ''
+      } password to complete this action.`}
+    >
       <InputSection>
         <Chevron src={chevronIcon} />
-        <Input type="password" placeholder="ENTER PASSWORD" value={password} onEnterPress={submitActionWrapper} onChange={handlePasswordTyping} autofocus isDisabled={!isActive} />
-        <ErrorSection>{hasError && <ErrorPopup onClick={reset} text="sorry, this password doesn't ring a bell, please try again" />}</ErrorSection>
+        <Input
+          type="password"
+          placeholder="ENTER PASSWORD"
+          value={password}
+          onEnterPress={submitActionWrapper}
+          onChange={handlePasswordTyping}
+          autofocus
+          isDisabled={!isActive}
+        />
+        <ErrorSection>
+          {hasError && (
+            <ErrorPopup
+              onClick={reset}
+              text="sorry, this password doesn't ring a bell, please try again"
+            />
+          )}
+        </ErrorSection>
       </InputSection>
       <ButtonsWrapper>
-        <Button text="UNLOCK" isDisabled={!password.trim() || !!hasError || !isActive} onClick={submitActionWrapper} />
+        <Button
+          text="UNLOCK"
+          isDisabled={!password.trim() || !!hasError || !isActive}
+          onClick={submitActionWrapper}
+        />
         <Button text="CANCEL" isPrimary={false} onClick={closeModal} />
       </ButtonsWrapper>
     </Modal>

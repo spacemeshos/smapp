@@ -15,7 +15,8 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : smColors.background)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.black : smColors.background};
   z-index: 100;
 `;
 
@@ -41,7 +42,11 @@ type Props = {
 
 const Loader = ({ size = 50, isDarkMode = false, note }: Props) => (
   <Wrapper>
-    <AnimatedIcon size={size || Loader.sizes.SMALL} src={isDarkMode ? loaderWhite : loader} alt="Loading" />
+    <AnimatedIcon
+      size={size || Loader.sizes.SMALL}
+      src={isDarkMode ? loaderWhite : loader}
+      alt="Loading"
+    />
     <Note>{note}</Note>
   </Wrapper>
 );

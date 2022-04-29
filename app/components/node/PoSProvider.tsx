@@ -36,30 +36,67 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const getFastestProvider = (providers: PostSetupComputeProvider[]): PostSetupComputeProvider => providers.sort((a, b) => b.performance - a.performance)[0];
+const getFastestProvider = (
+  providers: PostSetupComputeProvider[]
+): PostSetupComputeProvider =>
+  providers.sort((a, b) => b.performance - a.performance)[0];
 
-const findProviderIndexEqTo = (eqProps: Partial<PostSetupComputeProvider>, providers: PostSetupComputeProvider[]): number =>
-  providers.findIndex((provider) => provider.id === eqProps.id && provider.model === eqProps.model);
-
-const PoSProvider = ({ providers, provider, setProvider, throttle, setThrottle, nextAction, status, isDarkMode }: Props) => {
-  const [selectedProviderIndex, setSelectedProviderIndex] = useState(
-    provider ? findProviderIndexEqTo(provider, providers) : findProviderIndexEqTo(getFastestProvider(providers), providers)
+const findProviderIndexEqTo = (
+  eqProps: Partial<PostSetupComputeProvider>,
+  providers: PostSetupComputeProvider[]
+): number =>
+  providers.findIndex(
+    (provider) => provider.id === eqProps.id && provider.model === eqProps.model
   );
 
-  useEffect(() => setProvider(providers[selectedProviderIndex]), [providers, selectedProviderIndex, setProvider]);
+const PoSProvider = ({
+  providers,
+  provider,
+  setProvider,
+  throttle,
+  setThrottle,
+  nextAction,
+  status,
+  isDarkMode,
+}: Props) => {
+  const [selectedProviderIndex, setSelectedProviderIndex] = useState(
+    provider
+      ? findProviderIndexEqTo(provider, providers)
+      : findProviderIndexEqTo(getFastestProvider(providers), providers)
+  );
 
-  const handleSetProcessor = ({ index }: { index: number }) => setSelectedProviderIndex(index);
+  useEffect(() => setProvider(providers[selectedProviderIndex]), [
+    providers,
+    selectedProviderIndex,
+    setProvider,
+  ]);
+
+  const handleSetProcessor = ({ index }: { index: number }) =>
+    setSelectedProviderIndex(index);
 
   return (
     <>
-      {!providers ? <Text>CALCULATING POS PROCESSORS</Text> : <Carousel data={providers} onClick={handleSetProcessor} selectedItemIndex={selectedProviderIndex} />}
-      {providers && providers.length === 0 && <ErrorText>NO SUPPORTED PROCESSOR DETECTED</ErrorText>}
+      {!providers ? (
+        <Text>CALCULATING POS PROCESSORS</Text>
+      ) : (
+        <Carousel
+          data={providers}
+          onClick={handleSetProcessor}
+          selectedItemIndex={selectedProviderIndex}
+        />
+      )}
+      {providers && providers.length === 0 && (
+        <ErrorText>NO SUPPORTED PROCESSOR DETECTED</ErrorText>
+      )}
       <PauseSelector>
         <Checkbox isChecked={throttle} check={() => setThrottle(!throttle)} />
         <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
         <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
       </PauseSelector>
-      <PoSFooter action={nextAction} isDisabled={selectedProviderIndex === -1 || !status} />
+      <PoSFooter
+        action={nextAction}
+        isDisabled={selectedProviderIndex === -1 || !status}
+      />
     </>
   );
 };

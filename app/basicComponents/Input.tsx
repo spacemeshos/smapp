@@ -11,9 +11,11 @@ const Wrapper = styled.div<{ isFocused: boolean; isDisabled: boolean }>`
   position: relative;
   width: 100%;
   height: 40px;
-  border: 1px solid ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
+  border: 1px solid
+    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
-  ${({ isDisabled }) => !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
+  ${({ isDisabled }) =>
+    !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
   background-color: ${smColors.white};
 `;
 
@@ -31,7 +33,8 @@ const ActualInput = styled.input<{
   padding: 8px 10px;
   border-radius: 0;
   border: none;
-  color: ${({ isDisabled }) => (isDisabled ? smColors.darkGray : smColors.black)};
+  color: ${({ isDisabled }) =>
+    isDisabled ? smColors.darkGray : smColors.black};
   font-size: 14px;
   line-height: 16px;
   outline: none;
@@ -102,7 +105,10 @@ const Input = ({
       if (!value) {
         onChangeDebounced({ value });
       } else {
-        debounce = setTimeout(() => onChangeDebounced({ value }), debounceTime || DEFAULT_DEBOUNCE_TIME);
+        debounce = setTimeout(
+          () => onChangeDebounced({ value }),
+          debounceTime || DEFAULT_DEBOUNCE_TIME
+        );
       }
     }
   };

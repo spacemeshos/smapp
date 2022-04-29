@@ -9,7 +9,8 @@ const Wrapper = styled.div`
   align-items: center;
   width: 18px;
   height: 18px;
-  border: ${({ theme }) => `2px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border: ${({ theme }) =>
+    `2px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
   margin-right: 5px;
   cursor: pointer;
 `;
@@ -26,6 +27,8 @@ type Props = {
   check: () => void;
 };
 
-const Checkbox = ({ isChecked, check }: Props) => <Wrapper onClick={check}>{isChecked && <InnerWrapper />}</Wrapper>;
+const Checkbox = ({ isChecked, check }: Props) => (
+  <Wrapper onClick={check}>{isChecked && <InnerWrapper />}</Wrapper>
+);
 
 export default Checkbox;

@@ -4,7 +4,13 @@ import { smColors } from '../vars';
 
 const GAP = 3;
 
-const UpperPart = styled.div<{ width: number; height: number; isDisabled: boolean; isPrimary: boolean; bgColor: string }>`
+const UpperPart = styled.div<{
+  width: number;
+  height: number;
+  isDisabled: boolean;
+  isPrimary: boolean;
+  bgColor: string;
+}>`
   position: absolute;
   z-index: 1;
   top: 0;
@@ -33,7 +39,13 @@ const Image = styled.img<{ imgWidth: number; imgHeight: number }>`
   cursor: inherit;
 `;
 
-const LowerPart = styled.div<{ width: number; height: number; isDisabled: boolean; isPrimary: boolean; bgColor: string }>`
+const LowerPart = styled.div<{
+  width: number;
+  height: number;
+  isDisabled: boolean;
+  isPrimary: boolean;
+  bgColor: string;
+}>`
   position: absolute;
   z-index: 0;
   top: ${GAP}px;
@@ -54,7 +66,13 @@ const LowerPart = styled.div<{ width: number; height: number; isDisabled: boolea
   cursor: inherit;
 `;
 
-const Wrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void; width: number; height: number; isDisabled: boolean; bgColor: string }>`
+const Wrapper = styled.div<{
+  onClick: (e?: React.MouseEvent) => void;
+  width: number;
+  height: number;
+  isDisabled: boolean;
+  bgColor: string;
+}>`
   position: relative;
   width: ${({ width }) => width + GAP}px;
   height: ${({ height }) => height + GAP}px;
@@ -86,12 +104,42 @@ type Props = {
   style?: any;
 };
 
-const SecondaryButton = ({ onClick, width = 25, height = 25, isPrimary = true, isDisabled = false, imgWidth, imgHeight, img, style = {}, bgColor = smColors.black }: Props) => (
-  <Wrapper onClick={isDisabled ? () => {} : onClick} width={width} height={height} isDisabled={isDisabled} style={style} bgColor={bgColor}>
-    <UpperPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} bgColor={bgColor}>
+const SecondaryButton = ({
+  onClick,
+  width = 25,
+  height = 25,
+  isPrimary = true,
+  isDisabled = false,
+  imgWidth,
+  imgHeight,
+  img,
+  style = {},
+  bgColor = smColors.black,
+}: Props) => (
+  <Wrapper
+    onClick={isDisabled ? () => {} : onClick}
+    width={width}
+    height={height}
+    isDisabled={isDisabled}
+    style={style}
+    bgColor={bgColor}
+  >
+    <UpperPart
+      isPrimary={isPrimary}
+      width={width}
+      height={height}
+      isDisabled={isDisabled}
+      bgColor={bgColor}
+    >
       <Image src={img} imgWidth={imgWidth} imgHeight={imgHeight} />
     </UpperPart>
-    <LowerPart isPrimary={isPrimary} width={width} height={height} isDisabled={isDisabled} bgColor={bgColor} />
+    <LowerPart
+      isPrimary={isPrimary}
+      width={width}
+      height={height}
+      isDisabled={isDisabled}
+      bgColor={bgColor}
+    />
   </Wrapper>
 );
 

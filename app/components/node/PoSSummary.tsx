@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { Tooltip } from '../../basicComponents';
-import { ComputeApiClass, NodeStatus, PostSetupComputeProvider } from '../../../shared/types';
+import {
+  ComputeApiClass,
+  NodeStatus,
+  PostSetupComputeProvider,
+} from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -19,7 +23,8 @@ const Row = styled.div`
     left: 0;
     width: 100%;
     height: 1px;
-    background: ${({ theme }) => (theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black)};
+    background: ${({ theme }) =>
+      theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black};
   }
   &:first-child {
     margin-bottom: 10px;
@@ -54,7 +59,8 @@ const Link = styled.div<{ isDisabled: boolean }>`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+      color: ${({ theme }) =>
+        theme.isDarkMode ? smColors.white : smColors.black};
     }
   }
 `;
@@ -70,7 +76,16 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, switchMode, status, isDarkMode }: Props) => {
+const PoSSummary = ({
+  dataDir,
+  commitmentSize,
+  provider,
+  throttle,
+  nextAction,
+  switchMode,
+  status,
+  isDarkMode,
+}: Props) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleNextAction = () => {
@@ -83,7 +98,9 @@ const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, s
     providerType = 'CPU';
   } else if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA) {
     providerType = 'CUDA';
-  } else if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN) {
+  } else if (
+    provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN
+  ) {
     providerType = 'VULKAN';
   }
 
@@ -91,7 +108,11 @@ const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, s
     <>
       <Row>
         <Text>data directory</Text>
-        <Link className="blue" onClick={() => switchMode({ mode: 1 })} isDisabled={isProcessing}>
+        <Link
+          className="blue"
+          onClick={() => switchMode({ mode: 1 })}
+          isDisabled={isProcessing}
+        >
           {dataDir}
         </Link>
       </Row>
@@ -110,7 +131,11 @@ const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, s
       <Row>
         <TooltipWrap>
           <Text>estimated setup time</Text>
-          <Tooltip width={100} text="Placeholder text" isDarkMode={isDarkMode} />
+          <Tooltip
+            width={100}
+            text="Placeholder text"
+            isDarkMode={isDarkMode}
+          />
         </TooltipWrap>
         <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>
           {`${provider?.performance} hashes per second`}
@@ -122,7 +147,11 @@ const PoSSummary = ({ dataDir, commitmentSize, provider, throttle, nextAction, s
           {throttle ? 'on' : 'off'}
         </Link>
       </Row>
-      <PoSFooter action={handleNextAction} isDisabled={isProcessing || !status} isLastMode />
+      <PoSFooter
+        action={handleNextAction}
+        isDisabled={isProcessing || !status}
+        isLastMode
+      />
     </>
   );
 };

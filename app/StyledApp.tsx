@@ -1,7 +1,14 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
-import { Router, Route, Switch, Redirect, useHistory, matchPath } from 'react-router-dom';
+import {
+  Router,
+  Route,
+  Switch,
+  Redirect,
+  useHistory,
+  matchPath,
+} from 'react-router-dom';
 import { ipcRenderer } from 'electron';
 import { init, reactRouterV5Instrumentation } from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
@@ -41,7 +48,12 @@ const EventRouter = () => {
   const history = useHistory();
 
   useEffect(() => {
-    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => history.location.pathname !== AuthPath.SwitchNetwork && goToSwitchNetwork(history, isWalletOnly));
+    ipcRenderer.on(
+      ipcConsts.REQUEST_SWITCH_NETWORK,
+      (_, { isWalletOnly }) =>
+        history.location.pathname !== AuthPath.SwitchNetwork &&
+        goToSwitchNetwork(history, isWalletOnly)
+    );
   }, [history]);
 
   return <></>;
@@ -65,7 +77,11 @@ const StyledApp = () => {
           <EventRouter />
           <Switch>
             {routes.app.map((route) => (
-              <Route key={route.path} path={route.path} component={route.component} />
+              <Route
+                key={route.path}
+                path={route.path}
+                component={route.component}
+              />
             ))}
             <Redirect to="/auth" />
           </Switch>

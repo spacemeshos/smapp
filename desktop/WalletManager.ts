@@ -1,7 +1,11 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { Account, Wallet } from '../shared/types';
-import { isLocalNodeType, isRemoteNodeApi, toSocketAddress } from '../shared/utils';
+import {
+  isLocalNodeType,
+  isRemoteNodeApi,
+  toSocketAddress,
+} from '../shared/utils';
 import { isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
@@ -28,10 +32,25 @@ class WalletManager {
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
     this.txService = new TransactionService();
-    this.txManager = new TransactionManager(this.meshService, this.glStateService, this.txService, mainWindow);
+    this.txManager = new TransactionManager(
+      this.meshService,
+      this.glStateService,
+      this.txService,
+      mainWindow
+    );
   }
 
-  __getNewAccountFromTemplate = ({ index, timestamp, publicKey, secretKey }: { index: number; timestamp: string; publicKey: string; secretKey: string }) => ({
+  __getNewAccountFromTemplate = ({
+    index,
+    timestamp,
+    publicKey,
+    secretKey,
+  }: {
+    index: number;
+    timestamp: string;
+    publicKey: string;
+    secretKey: string;
+  }) => ({
     displayName: index > 0 ? `Account ${index}` : 'Main Account',
     created: timestamp,
     path: `0/0/${index}`,
@@ -40,8 +59,14 @@ class WalletManager {
   });
 
   subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, (): Promise<CurrentLayer> => this.meshService.getCurrentLayer());
-    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, (): Promise<GlobalStateHash> => this.glStateService.getGlobalStateHash());
+    ipcMain.handle(
+      ipcConsts.W_M_GET_CURRENT_LAYER,
+      (): Promise<CurrentLayer> => this.meshService.getCurrentLayer()
+    );
+    ipcMain.handle(
+      ipcConsts.W_M_GET_GLOBAL_STATE_HASH,
+      (): Promise<GlobalStateHash> => this.glStateService.getGlobalStateHash()
+    );
 
     ipcMain.handle(ipcConsts.W_M_SEND_TX, async (_event, request) => {
       const res = await this.txManager.sendTx({ ...request });
@@ -53,7 +78,10 @@ class WalletManager {
     });
     ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
       const { message, accountIndex } = request;
-      const res = await cryptoService.signMessage({ message, secretKey: this.txManager.accounts[accountIndex].secretKey });
+      const res = await cryptoService.signMessage({
+        message,
+        secretKey: this.txManager.accounts[accountIndex].secretKey,
+      });
       return res;
     });
   };

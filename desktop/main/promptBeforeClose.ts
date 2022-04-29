@@ -34,7 +34,8 @@ export default (context: AppContext) => {
         return CloseAppPromptResult.CLOSE;
     }
   };
-  const isSmeshing = async () => context.managers.smesher?.isSmeshing() || false;
+  const isSmeshing = async () =>
+    context.managers.smesher?.isSmeshing() || false;
   const notify = () =>
     showNotification(context, {
       title: 'Spacemesh',
@@ -54,7 +55,9 @@ export default (context: AppContext) => {
       quit();
       return;
     }
-    const promptResult = ((await isSmeshing()) && (await showPrompt())) || CloseAppPromptResult.CLOSE;
+    const promptResult =
+      ((await isSmeshing()) && (await showPrompt())) ||
+      CloseAppPromptResult.CLOSE;
     if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
       setTimeout(notify, 1000);
       mainWindow.hide();

@@ -6,7 +6,10 @@ import { Transaction } from '../proto/spacemesh/v1/Transaction';
 import { _spacemesh_v1_TransactionState_TransactionState } from '../proto/spacemesh/v1/TransactionState';
 import { USERDATA_DIR } from './main/constants';
 
-export type TxStored = Required<Transaction> & { id: string; state: _spacemesh_v1_TransactionState_TransactionState };
+export type TxStored = Required<Transaction> & {
+  id: string;
+  state: _spacemesh_v1_TransactionState_TransactionState;
+};
 
 export interface AccountStore {
   publicKey: string;
@@ -46,15 +49,22 @@ class StoreService {
     }
   }
 
-  static set = <O extends ConfigStore, P extends string>(key: Function.AutoPath<O, P>, property: Object.Path<O, String.Split<P, '.'>>) => {
+  static set = <O extends ConfigStore, P extends string>(
+    key: Function.AutoPath<O, P>,
+    property: Object.Path<O, String.Split<P, '.'>>
+  ) => {
     StoreService.store.set(key, property);
   };
 
-  static get = <O extends ConfigStore, P extends string>(key: Function.AutoPath<O, P>): Object.Path<O, String.Split<P, '.'>> => {
+  static get = <O extends ConfigStore, P extends string>(
+    key: Function.AutoPath<O, P>
+  ): Object.Path<O, String.Split<P, '.'>> => {
     return StoreService.store.get(key);
   };
 
-  static remove = <O extends ConfigStore, P extends string>(key: Function.AutoPath<O, P>) => {
+  static remove = <O extends ConfigStore, P extends string>(
+    key: Function.AutoPath<O, P>
+  ) => {
     StoreService.store.delete(key as keyof ConfigStore); // kludge to workaround StoreService types
   };
 
@@ -64,7 +74,9 @@ class StoreService {
 
   static dump = () => StoreService.store.store;
 
-  static onChange = (cb: (newValue?: ConfigStore, prevValue?: ConfigStore) => void) => {
+  static onChange = (
+    cb: (newValue?: ConfigStore, prevValue?: ConfigStore) => void
+  ) => {
     StoreService.store.onDidAnyChange(cb);
   };
 }

@@ -26,14 +26,17 @@ const getDefaultAccountState = (publicKey: string): AccountState => ({
   rewards: {},
 });
 
-const getFilePath = (publicKey: string, baseDir: string) => path.resolve(baseDir, `${publicKey}.json`);
+const getFilePath = (publicKey: string, baseDir: string) =>
+  path.resolve(baseDir, `${publicKey}.json`);
 
 // Side-effects
 const DEFAULT_BASE_DIR = path.resolve(app.getPath('userData'), 'accounts');
 
 const load = (publicKey: string, baseDir = DEFAULT_BASE_DIR): AccountState => {
   try {
-    const raw = fs.readFileSync(getFilePath(publicKey, baseDir), { encoding: 'utf8' });
+    const raw = fs.readFileSync(getFilePath(publicKey, baseDir), {
+      encoding: 'utf8',
+    });
     const parsed = JSON.parse(raw);
     return {
       ...getDefaultAccountState(publicKey),

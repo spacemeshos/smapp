@@ -21,11 +21,27 @@ const slice = createSlice({
   name: 'updater',
   initialState,
   reducers: {
-    updateAvailable: (state, action: PayloadAction<UpdateInfo>) => ({ ...state, availableUpdate: action.payload }),
-    updateProgress: (state, action: PayloadAction<ProgressInfo>) => ({ ...state, progress: action.payload }),
-    updateDownloaded: (state, action: PayloadAction<UpdateInfo>) => ({ ...state, downloadedUpdate: action.payload, isDownloading: false }),
-    setError: (state, action: PayloadAction<Error>) => ({ ...state, error: action.payload }),
-    setDownloading: (state, action: PayloadAction<boolean>) => ({ ...state, isDownloading: action.payload }),
+    updateAvailable: (state, action: PayloadAction<UpdateInfo>) => ({
+      ...state,
+      availableUpdate: action.payload,
+    }),
+    updateProgress: (state, action: PayloadAction<ProgressInfo>) => ({
+      ...state,
+      progress: action.payload,
+    }),
+    updateDownloaded: (state, action: PayloadAction<UpdateInfo>) => ({
+      ...state,
+      downloadedUpdate: action.payload,
+      isDownloading: false,
+    }),
+    setError: (state, action: PayloadAction<Error>) => ({
+      ...state,
+      error: action.payload,
+    }),
+    setDownloading: (state, action: PayloadAction<boolean>) => ({
+      ...state,
+      isDownloading: action.payload,
+    }),
   },
 });
 

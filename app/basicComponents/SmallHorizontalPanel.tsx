@@ -15,6 +15,8 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const SmallHorizontalPanel = ({ isDarkMode }: Props) => <Wrapper src={isDarkMode ? horizontalPanelBlack : horizontalPanelWhite} />;
+const SmallHorizontalPanel = ({ isDarkMode }: Props) => (
+  <Wrapper src={isDarkMode ? horizontalPanelBlack : horizontalPanelWhite} />
+);
 
 export default SmallHorizontalPanel;

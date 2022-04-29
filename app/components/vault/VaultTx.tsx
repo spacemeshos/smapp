@@ -14,7 +14,8 @@ const DetailsRow = styled.div`
 const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const AccItem = styled.div<{ isInDropDown: boolean }>`
@@ -24,7 +25,9 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   padding: 5px;
   width: 100%;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -73,12 +76,37 @@ const unitPrice = [
   },
 ];
 
-const VaultTx = ({ selectAccountIndex, selectFundAmount, selectGasUnits, selectGasPrice, isDarkMode }: Props) => {
-  const ddStyle = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 340px' };
-  const ddStyleGasUnit = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 140px' };
-  const ddStyleGasPrice = { border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`, marginLeft: 'auto', flex: '0 0 200px' };
+const VaultTx = ({
+  selectAccountIndex,
+  selectFundAmount,
+  selectGasUnits,
+  selectGasPrice,
+  isDarkMode,
+}: Props) => {
+  const ddStyle = {
+    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
+    marginLeft: 'auto',
+    flex: '0 0 340px',
+  };
+  const ddStyleGasUnit = {
+    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
+    marginLeft: 'auto',
+    flex: '0 0 140px',
+  };
+  const ddStyleGasPrice = {
+    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
+    marginLeft: 'auto',
+    flex: '0 0 200px',
+  };
 
-  const renderAccElement = ({ label, isInDropDown }: { label: string; text: string; isInDropDown: boolean }) => (
+  const renderAccElement = ({
+    label,
+    isInDropDown,
+  }: {
+    label: string;
+    text: string;
+    isInDropDown: boolean;
+  }) => (
     <AccItem key={label} isInDropDown={isInDropDown}>
       {label}
     </AccItem>
@@ -93,7 +121,9 @@ const VaultTx = ({ selectAccountIndex, selectFundAmount, selectGasUnits, selectG
         <DropDown
           data={accounts}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyle}
@@ -107,7 +137,9 @@ const VaultTx = ({ selectAccountIndex, selectFundAmount, selectGasUnits, selectG
         <DropDown
           data={accounts}
           onClick={selectFundAmount}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyle}
@@ -121,7 +153,9 @@ const VaultTx = ({ selectAccountIndex, selectFundAmount, selectGasUnits, selectG
         <DropDown
           data={gasUnit}
           onClick={selectGasUnits}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyleGasUnit}
@@ -135,7 +169,9 @@ const VaultTx = ({ selectAccountIndex, selectFundAmount, selectGasUnits, selectG
         <DropDown
           data={unitPrice}
           onClick={selectGasPrice}
-          DdElement={({ label, text, isMain }) => renderAccElement({ label, text, isInDropDown: !isMain })}
+          DdElement={({ label, text, isMain }) =>
+            renderAccElement({ label, text, isInDropDown: !isMain })
+          }
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyleGasPrice}

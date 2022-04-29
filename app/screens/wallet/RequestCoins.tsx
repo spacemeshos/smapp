@@ -17,7 +17,8 @@ const Wrapper = styled.div`
   width: 710px;
   height: 100%;
   padding: 15px 25px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
@@ -145,14 +146,22 @@ const RequestCoins = ({ history, location }: Props) => {
       <Text>* Send this address to anyone you want to receive Smesh from.</Text>
       <ComplexText>
         <Text>* You may also paste this address in the&nbsp;</Text>
-        <Link onClick={navigateToTap} text="Testnet Tap" style={{ fontSize: 16, lineHeight: '22px' }} />
+        <Link
+          onClick={navigateToTap}
+          text="Testnet Tap"
+          style={{ fontSize: 16, lineHeight: '22px' }}
+        />
         <TextElement>.</TextElement>
       </ComplexText>
       <br />
       {!isSmesherActive && (
         <ComplexText>
           <Text>To earn Smesh&nbsp;</Text>
-          <Link onClick={navigateToNodeSetup} text="set up Smeshing" style={{ fontSize: 16, lineHeight: '22px' }} />
+          <Link
+            onClick={navigateToNodeSetup}
+            text="set up Smeshing"
+            style={{ fontSize: 16, lineHeight: '22px' }}
+          />
           <TextElement>.</TextElement>
         </ComplexText>
       )}

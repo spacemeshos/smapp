@@ -3,7 +3,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { BackButton } from '../../components/common';
-import { WrapperWith2SideBars, Input, Button, Link, ErrorPopup } from '../../basicComponents';
+import {
+  WrapperWith2SideBars,
+  Input,
+  Button,
+  Link,
+  ErrorPopup,
+} from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
@@ -33,7 +39,8 @@ const InputCounter = styled.div`
   width: 25px;
   font-size: 18px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   margin-right: 10px;
 `;
 
@@ -44,7 +51,10 @@ const BottomSection = styled.div`
   align-items: flex-end;
 `;
 
-const getInputStyle = (hasError: boolean) => ({ border: `1px dashed ${hasError ? smColors.orange : smColors.darkGray}`, borderRadius: 2 });
+const getInputStyle = (hasError: boolean) => ({
+  border: `1px dashed ${hasError ? smColors.orange : smColors.darkGray}`,
+  borderRadius: 2,
+});
 
 const WordsRestore = ({ history }: AuthRouterParams) => {
   const [words, setWords] = useState(Array(12).fill(''));
@@ -52,7 +62,13 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
-  const handleInputChange = ({ value, index }: { value: string; index: number }) => {
+  const handleInputChange = ({
+    value,
+    index,
+  }: {
+    value: string;
+    index: number;
+  }) => {
     const newWords = [...words];
     newWords[index] = value;
     setWords(newWords);
@@ -60,7 +76,10 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
   };
 
   const isDoneEnabled = () => {
-    return words.every((word: string) => !!word && word.trim().length > 0) || hasError;
+    return (
+      words.every((word: string) => !!word && word.trim().length > 0) ||
+      hasError
+    );
   };
 
   const validateMnemonic = ({ mnemonic }: { mnemonic: string }) => {
@@ -96,7 +115,8 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     };
   }, [handleKeyUp]);
 
-  const navigateTo12WordRestoreGuide = () => window.open(ExternalLinks.RestoreMnemoGuide);
+  const navigateTo12WordRestoreGuide = () =>
+    window.open(ExternalLinks.RestoreMnemoGuide);
 
   const renderInputs = ({ start }: { start: number }) => {
     const res: Array<any> = [];
@@ -104,7 +124,12 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
       res.push(
         <InputWrapper key={`input${index}`}>
           <InputCounter>{index + 1}</InputCounter>
-          <Input value={words[index]} onChange={({ value }) => handleInputChange({ value, index })} style={getInputStyle(hasError)} autofocus={index === 0} />
+          <Input
+            value={words[index]}
+            onChange={({ value }) => handleInputChange({ value, index })}
+            style={getInputStyle(hasError)}
+            autofocus={index === 0}
+          />
         </InputWrapper>
       );
     }
@@ -113,7 +138,13 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
 
   const isDoneDisabled = !isDoneEnabled();
   return (
-    <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="WALLET 12 WORDS RESTORE" subHeader="Please enter the 12 words in the right order.">
+    <WrapperWith2SideBars
+      width={800}
+      height={480}
+      isDarkMode={isDarkMode}
+      header="WALLET 12 WORDS RESTORE"
+      subHeader="Please enter the 12 words in the right order."
+    >
       <BackButton action={history.goBack} />
       <Table>
         <TableColumn>{renderInputs({ start: 0 })}</TableColumn>
@@ -122,7 +153,11 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
       </Table>
       <BottomSection>
         <Link onClick={navigateTo12WordRestoreGuide} text="12 WORDS GUIDE" />
-        <Button onClick={restoreWith12Words} text="RESTORE" isDisabled={isDoneDisabled} />
+        <Button
+          onClick={restoreWith12Words}
+          text="RESTORE"
+          isDisabled={isDoneDisabled}
+        />
       </BottomSection>
       {hasError && (
         <ErrorPopup

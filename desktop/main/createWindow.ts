@@ -4,8 +4,14 @@ import MenuBuilder from '../menu';
 import { isDev } from '../utils';
 import { AppContext } from './context';
 
-export default async (context: AppContext, onCloseHandler: (e: Event) => void | Promise<void>) => {
-  const pagePath = `file://${path.resolve(__dirname, isDev() ? '..' : '')}/index.html`;
+export default async (
+  context: AppContext,
+  onCloseHandler: (e: Event) => void | Promise<void>
+) => {
+  const pagePath = `file://${path.resolve(
+    __dirname,
+    isDev() ? '..' : ''
+  )}/index.html`;
   const mainWindow = new BrowserWindow({
     show: false,
     width: 1280,
@@ -42,14 +48,18 @@ export default async (context: AppContext, onCloseHandler: (e: Event) => void | 
   });
 
   // Load page after initialization complete
-  mainWindow.loadURL(`file://${path.resolve(__dirname, isDev() ? '..' : '')}/index.html`);
+  mainWindow.loadURL(
+    `file://${path.resolve(__dirname, isDev() ? '..' : '')}/index.html`
+  );
   mainWindow.loadURL(pagePath);
 
   /**
    * fallback for page fail
    * @see https://github.com/maximegris/angular-electron/issues/15
    */
-  mainWindow.webContents.on('did-fail-load', () => mainWindow.loadURL(pagePath));
+  mainWindow.webContents.on('did-fail-load', () =>
+    mainWindow.loadURL(pagePath)
+  );
 
   context.mainWindow = mainWindow;
   return mainWindow;

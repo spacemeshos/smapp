@@ -66,7 +66,8 @@ const RowSecond = styled.div`
   &:after {
     content: '';
     position: absolute;
-    background-color: ${({ theme }) => (theme.isDarkMode ? smColors.darkerGray : smColors.black)};
+    background-color: ${({ theme }) =>
+      theme.isDarkMode ? smColors.darkerGray : smColors.black};
     width: 100%;
     top: -29px;
     left: 0;
@@ -106,41 +107,78 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
 
   const navigateToCreateWallet = async () => {
     const { isWalletOnly } = location.state;
-    history.push(AuthPath.SwitchNetwork, { ...(isWalletOnly ? { isWalletOnly } : { redirect: AuthPath.CreateWallet }), creatingWallet: true });
+    history.push(AuthPath.SwitchNetwork, {
+      ...(isWalletOnly
+        ? { isWalletOnly }
+        : { redirect: AuthPath.CreateWallet }),
+      creatingWallet: true,
+    });
   };
 
   return (
     <Wrapper>
       <Steps step={Step.NEW_WALLET_TYPE} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={400} header="WALLET SETUP" subHeader="Select which features you`d like to setup" isDarkMode={isDarkMode}>
+      <CorneredContainer
+        width={650}
+        height={400}
+        header="WALLET SETUP"
+        subHeader="Select which features you`d like to setup"
+        isDarkMode={isDarkMode}
+      >
         <BackButton action={history.goBack} />
         <RowJust>
           <RowColumn>
             <Row>
               <Icon src={walletSecondWhite} />
               <RowTitle>STANDARD WALLET</RowTitle>
-              <Tooltip width={100} text="STANDARD WALLET" isDarkMode={isDarkMode} />
+              <Tooltip
+                width={100}
+                text="STANDARD WALLET"
+                isDarkMode={isDarkMode}
+              />
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
-          <Button text="STANDARD WALLET" width={150} isPrimary={false} onClick={navigateToCreateWallet} />
+          <Button
+            text="STANDARD WALLET"
+            width={150}
+            isPrimary={false}
+            onClick={navigateToCreateWallet}
+          />
         </RowJust>
         <RowSecond>
           <RowColumn>
             <Row>
               <IconWallet src={walletSecondWhite} />
               <RowTitle>HARDWARE WALLET</RowTitle>
-              <Tooltip width={100} text="HARDWARE WALLET" isDarkMode={isDarkMode} />
+              <Tooltip
+                width={100}
+                text="HARDWARE WALLET"
+                isDarkMode={isDarkMode}
+              />
             </Row>
             <RowText>Using a Ledger device</RowText>
             <GreenText>(ENHANCED SECURITY)</GreenText>
           </RowColumn>
-          <Button text="HARDWARE WALLET" onClick={() => {}} width={150} isDisabled />
+          <Button
+            text="HARDWARE WALLET"
+            onClick={() => {}}
+            width={150}
+            isDisabled
+          />
         </RowSecond>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
           <Row>
-            <Link onClick={() => history.push(AuthPath.Recover)} text="RESTORE  WALLET" /> <Tooltip width={100} text="RESTORE EXISTING WALLET" isDarkMode={isDarkMode} />
+            <Link
+              onClick={() => history.push(AuthPath.Recover)}
+              text="RESTORE  WALLET"
+            />{' '}
+            <Tooltip
+              width={100}
+              text="RESTORE EXISTING WALLET"
+              isDarkMode={isDarkMode}
+            />
           </Row>
         </BottomPart>
       </CorneredContainer>

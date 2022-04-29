@@ -24,10 +24,17 @@ type Props = {
   isWalletMode: boolean;
 };
 
-const NetworkStatus = ({ status, error, isRestarting, isWalletMode }: Props) => {
+const NetworkStatus = ({
+  status,
+  error,
+  isRestarting,
+  isWalletMode,
+}: Props) => {
   const getSyncLabelPercentage = (): number => {
     if (status && status.syncedLayer && status.topLayer) {
-      const percentage = Math.floor((status.syncedLayer * 100) / status.topLayer);
+      const percentage = Math.floor(
+        (status.syncedLayer * 100) / status.topLayer
+      );
       const maxPercentage = status.isSynced ? 100 : 99;
       return constrain(0, maxPercentage, percentage);
     }
@@ -45,10 +52,14 @@ const NetworkStatus = ({ status, error, isRestarting, isWalletMode }: Props) => 
           </>
         ) : (
           <>
-            <NetworkIndicator color={status?.isSynced ? smColors.green : smColors.orange} />
+            <NetworkIndicator
+              color={status?.isSynced ? smColors.green : smColors.orange}
+            />
             <ProgressLabel>syncing</ProgressLabel>
             <ProgressLabel>{progress}%</ProgressLabel>
-            <ProgressLabel>{`${status?.syncedLayer || 0} / ${status?.topLayer || 0}`}</ProgressLabel>
+            <ProgressLabel>{`${status?.syncedLayer || 0} / ${
+              status?.topLayer || 0
+            }`}</ProgressLabel>
             <Progress>
               <ProgressBar progress={progress} />
             </Progress>
@@ -61,7 +72,13 @@ const NetworkStatus = ({ status, error, isRestarting, isWalletMode }: Props) => 
   const renderError = () => (
     <>
       <NetworkIndicator color={smColors.red} />
-      {isWalletMode ? <ProgressLabel>Connection error</ProgressLabel> : <ProgressLabel>{isRestarting ? 'Restarting node...' : 'Please restart node'}</ProgressLabel>}
+      {isWalletMode ? (
+        <ProgressLabel>Connection error</ProgressLabel>
+      ) : (
+        <ProgressLabel>
+          {isRestarting ? 'Restarting node...' : 'Please restart node'}
+        </ProgressLabel>
+      )}
     </>
   );
 

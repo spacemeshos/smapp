@@ -38,7 +38,8 @@ const SubHeader = styled.div`
 const SubHeaderText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const SubHeaderInner = styled.div`
@@ -47,7 +48,10 @@ const SubHeaderInner = styled.div`
   justify-content: space-between;
 `;
 
-const SubHeaderBtnUpperPart = styled.div<{ color?: string; hoverColor?: string }>`
+const SubHeaderBtnUpperPart = styled.div<{
+  color?: string;
+  hoverColor?: string;
+}>`
   position: absolute;
   top: 0;
   left: 5px;
@@ -140,7 +144,8 @@ const ContactsSubHeaderText = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   margin-right: 20px;
 `;
 
@@ -179,7 +184,8 @@ const ContactText = styled.div`
   flex: 1;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.grey100Alpha)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.grey100Alpha};
   :nth-child(3) {
     justify-content: center;
   }
@@ -224,7 +230,9 @@ const SortingElement = styled.div<{ isInDropDown?: boolean }>`
   color: ${smColors.black};
   padding: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) => isInDropDown && `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
   &:hover {
     opacity: 1;
     color: ${smColors.darkGray50Alpha};
@@ -258,15 +266,22 @@ const Contacts = ({ history }: RouteComponentProps) => {
   const [addressToAdd, setAddressToAdd] = useState('');
   const [tmpSearchTerm, setTmpSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateNewContactModal, setShowCreateNewContactModal] = useState(false);
+  const [showCreateNewContactModal, setShowCreateNewContactModal] = useState(
+    false
+  );
   const [selectedSorting, setSelectedSorting] = useState(0);
   const [isNewContactCreated, setIsNewContactCreated] = useState(false);
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
-  const [contactForDelete, setContactForDelete] = useState({ address: '', nickname: '' });
+  const [contactForDelete, setContactForDelete] = useState({
+    address: '',
+    nickname: '',
+  });
   const dispatch = useDispatch();
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
-  const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
+  const lastUsedContacts = useSelector(
+    (state: RootState) => state.wallet.lastUsedContacts
+  );
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   useEffect(() => {
@@ -278,8 +293,10 @@ const Contacts = ({ history }: RouteComponentProps) => {
   });
 
   const contactFilter = (contact: Contact) => {
-    const nicknameMatch = contact.nickname && contact.nickname.toLowerCase().includes(searchTerm);
-    const addressMatch = contact.address && contact.address.toLowerCase().includes(searchTerm);
+    const nicknameMatch =
+      contact.nickname && contact.nickname.toLowerCase().includes(searchTerm);
+    const addressMatch =
+      contact.address && contact.address.toLowerCase().includes(searchTerm);
     return nicknameMatch || addressMatch;
   };
 
@@ -338,14 +355,36 @@ const Contacts = ({ history }: RouteComponentProps) => {
     if (lastUsedContacts && lastUsedContacts.length) {
       // @ts-ignore
       return lastUsedContacts.map((contact: Contact) => (
-        <SubHeaderBtnWrapper color={smColors.realBlack} onClick={() => navigateToSendCoins({ contact })} key={contact.address}>
-          <SubHeaderBtnUpperPart color={smColors.black} hoverColor={smColors.realBlack}>
+        <SubHeaderBtnWrapper
+          color={smColors.realBlack}
+          onClick={() => navigateToSendCoins({ contact })}
+          key={contact.address}
+        >
+          <SubHeaderBtnUpperPart
+            color={smColors.black}
+            hoverColor={smColors.realBlack}
+          >
             <ClockImg src={clock} />
-            <LastUsedNickname>{contact.nickname || 'UNKNOWN ADDRESS'}</LastUsedNickname>
-            <LastUsedAddress>{getAbbreviatedText(contact.address)}</LastUsedAddress>
-            {!contact.nickname && <LastUsedAddContact onClick={(e: React.MouseEvent) => openAddNewContactModal(e, contact)}>+</LastUsedAddContact>}
+            <LastUsedNickname>
+              {contact.nickname || 'UNKNOWN ADDRESS'}
+            </LastUsedNickname>
+            <LastUsedAddress>
+              {getAbbreviatedText(contact.address)}
+            </LastUsedAddress>
+            {!contact.nickname && (
+              <LastUsedAddContact
+                onClick={(e: React.MouseEvent) =>
+                  openAddNewContactModal(e, contact)
+                }
+              >
+                +
+              </LastUsedAddContact>
+            )}
           </SubHeaderBtnUpperPart>
-          <SubHeaderBtnLowerPart color={smColors.black} hoverColor={smColors.realBlack} />
+          <SubHeaderBtnLowerPart
+            color={smColors.black}
+            hoverColor={smColors.realBlack}
+          />
         </SubHeaderBtnWrapper>
       ));
     }
@@ -354,10 +393,21 @@ const Contacts = ({ history }: RouteComponentProps) => {
 
   const renderSubHeader = () => {
     if (showCreateNewContactModal) {
-      return <CreateNewContact initialAddress={addressToAdd} onCompleteAction={createdNewContact} onCancel={cancelCreateNewContact} />;
+      return (
+        <CreateNewContact
+          initialAddress={addressToAdd}
+          onCompleteAction={createdNewContact}
+          onCancel={cancelCreateNewContact}
+        />
+      );
     }
     if (isNewContactCreated) {
-      return <CreatedNewContact contact={contacts[0]} action={() => navigateToSendCoins({ contact: contacts[0] })} />;
+      return (
+        <CreatedNewContact
+          contact={contacts[0]}
+          action={() => navigateToSendCoins({ contact: contacts[0] })}
+        />
+      );
     }
     return (
       <SubHeader>
@@ -367,15 +417,24 @@ const Contacts = ({ history }: RouteComponentProps) => {
           --
         </SubHeaderText>
         <SubHeaderInner>
-          <SubHeaderBtnWrapper onClick={() => setShowCreateNewContactModal(true)} color={smColors.darkerPurple}>
-            <SubHeaderBtnUpperPart color={smColors.purple} hoverColor={smColors.darkerPurple}>
+          <SubHeaderBtnWrapper
+            onClick={() => setShowCreateNewContactModal(true)}
+            color={smColors.darkerPurple}
+          >
+            <SubHeaderBtnUpperPart
+              color={smColors.purple}
+              hoverColor={smColors.darkerPurple}
+            >
               <CreateNewContactText>
                 CREATE NEW
                 <br />
                 CONTACT
               </CreateNewContactText>
             </SubHeaderBtnUpperPart>
-            <SubHeaderBtnLowerPart color={smColors.purple} hoverColor={smColors.darkerPurple} />
+            <SubHeaderBtnLowerPart
+              color={smColors.purple}
+              hoverColor={smColors.darkerPurple}
+            />
           </SubHeaderBtnWrapper>
           {renderLastUsedContacts()}
         </SubHeaderInner>
@@ -383,7 +442,13 @@ const Contacts = ({ history }: RouteComponentProps) => {
     );
   };
 
-  const renderSortElementElement = ({ label, isMain }: { label: string; isMain: boolean }) => (
+  const renderSortElementElement = ({
+    label,
+    isMain,
+  }: {
+    label: string;
+    isMain: boolean;
+  }) => (
     <SortingElement key={label} isInDropDown={!isMain}>
       {label}
     </SortingElement>
@@ -392,7 +457,9 @@ const Contacts = ({ history }: RouteComponentProps) => {
   const renderContacts = () => {
     const filteredContacts = contacts.filter(contactFilter);
     if (filteredContacts.length === 0) {
-      return <ContactText>{`No contacts matching criteria "${searchTerm}" found`}</ContactText>;
+      return (
+        <ContactText>{`No contacts matching criteria "${searchTerm}" found`}</ContactText>
+      );
     }
     const sortedContacts = filteredContacts.sort(sortContacts);
     return (
@@ -406,7 +473,9 @@ const Contacts = ({ history }: RouteComponentProps) => {
           {sortedContacts.map((contact: Contact) => (
             <ContactRow key={`${contact.nickname}_${contact.address}`}>
               <ContactText onClick={() => navigateToSendCoins({ contact })}>
-                <TextCursorPointer>{contact.nickname || 'UNKNOWN ADDRESS'}</TextCursorPointer>
+                <TextCursorPointer>
+                  {contact.nickname || 'UNKNOWN ADDRESS'}
+                </TextCursorPointer>
               </ContactText>
               <ContactText>
                 <Address full address={contact.address} />
@@ -414,7 +483,14 @@ const Contacts = ({ history }: RouteComponentProps) => {
               <DeleteText onClick={() => handleDeleteButton(contact)}>
                 <TextCursorPointer>DELETE</TextCursorPointer>
               </DeleteText>
-              {!contact.nickname && <CreateNewContactImg onClick={(e: React.MouseEvent) => openAddNewContactModal(e, contact)} src={addContact} />}
+              {!contact.nickname && (
+                <CreateNewContactImg
+                  onClick={(e: React.MouseEvent) =>
+                    openAddNewContactModal(e, contact)
+                  }
+                  src={addContact}
+                />
+              )}
             </ContactRow>
           ))}
         </ContactsList>
@@ -423,7 +499,12 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   return (
-    <WrapperWith2SideBars width={1000} height={500} header="CONTACTS" isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars
+      width={1000}
+      height={500}
+      header="CONTACTS"
+      isDarkMode={isDarkMode}
+    >
       <SearchWrapper>
         <SearchIcon src={searchIcon} />
         <Input
@@ -452,8 +533,21 @@ const Contacts = ({ history }: RouteComponentProps) => {
           bgColor={smColors.white}
         />
       </ContactsSubHeader>
-      {contacts && contacts.length ? renderContacts() : <ContactText>{searchTerm ? 'No contacts matching criteria' : 'No contacts added yet'}</ContactText>}
-      {shouldShowPasswordModal && <EnterPasswordModal submitAction={deleteContact} closeModal={() => setShouldShowPasswordModal(false)} />}
+      {contacts && contacts.length ? (
+        renderContacts()
+      ) : (
+        <ContactText>
+          {searchTerm
+            ? 'No contacts matching criteria'
+            : 'No contacts added yet'}
+        </ContactText>
+      )}
+      {shouldShowPasswordModal && (
+        <EnterPasswordModal
+          submitAction={deleteContact}
+          closeModal={() => setShouldShowPasswordModal(false)}
+        />
+      )}
     </WrapperWith2SideBars>
   );
 };

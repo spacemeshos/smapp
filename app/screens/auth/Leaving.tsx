@@ -48,7 +48,8 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.black};
 `;
 const Row = styled.div`
   display: flex;
@@ -66,7 +67,9 @@ const BottomPart = styled.div`
 
 const Leaving = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const hasWalletFiles = useSelector((state: RootState) => state.wallet.walletFiles.length > 0);
+  const hasWalletFiles = useSelector(
+    (state: RootState) => state.wallet.walletFiles.length > 0
+  );
 
   const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
@@ -74,7 +77,13 @@ const Leaving = ({ history }: AuthRouterParams) => {
 
   return (
     <Wrapper>
-      <CorneredContainer width={760} height={400} header={header} subHeader="Are you sure you want to quit the setup?" isDarkMode={isDarkMode}>
+      <CorneredContainer
+        width={760}
+        height={400}
+        header={header}
+        subHeader="Are you sure you want to quit the setup?"
+        isDarkMode={isDarkMode}
+      >
         <SideBar src={bigInnerSideBar} />
         <Indicator />
         <BackButton action={history.goBack} />
@@ -83,11 +92,23 @@ const Leaving = ({ history }: AuthRouterParams) => {
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
             <Row>
               <Text>DON`T HAVE A DESKTOP?</Text>
-              <Link onClick={() => history.push(AuthPath.Recover)} text="SETUP WALLET ONLY" />
-              <Tooltip width={100} text="SETUP WALLET ONLY" isDarkMode={isDarkMode} />
+              <Link
+                onClick={() => history.push(AuthPath.Recover)}
+                text="SETUP WALLET ONLY"
+              />
+              <Tooltip
+                width={100}
+                text="SETUP WALLET ONLY"
+                isDarkMode={isDarkMode}
+              />
             </Row>
           </ComplexLink>
-          <Button text="LEAVE SETUP" onClick={() => history.push(hasWalletFiles ? AuthPath.Unlock : AuthPath.Welcome)} />
+          <Button
+            text="LEAVE SETUP"
+            onClick={() =>
+              history.push(hasWalletFiles ? AuthPath.Unlock : AuthPath.Welcome)
+            }
+          />
         </BottomPart>
       </CorneredContainer>
     </Wrapper>

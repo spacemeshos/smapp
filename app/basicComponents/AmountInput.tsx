@@ -12,9 +12,11 @@ const Wrapper = styled.div<{ isFocused: boolean; disabled: boolean }>`
   position: relative;
   width: 100%;
   height: 40px;
-  border: 1px solid ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
+  border: 1px solid
+    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
   opacity: ${({ disabled }) => (disabled ? 0.2 : 1)};
-  ${({ disabled }) => !disabled && `&:hover { border: 1px solid ${smColors.purple}; `}
+  ${({ disabled }) =>
+    !disabled && `&:hover { border: 1px solid ${smColors.purple}; `}
   background-color: ${smColors.white};
 `;
 const Input = styled.input<{
@@ -76,9 +78,22 @@ type Props = {
   style?: React.CSSProperties;
 };
 
-const AmountInput = ({ onChange, disabled, style, value, selectedUnits = CoinUnits.SMH, valueUnits = CoinUnits.Smidge }: Props) => {
-  // eslint-disable-next-line no-nested-ternary
-  const amount = valueUnits === selectedUnits ? value || 0 : valueUnits === CoinUnits.SMH ? toSmidge(value || 0) : toSMH(value || 0);
+const AmountInput = ({
+  onChange,
+  disabled,
+  style,
+  value,
+  selectedUnits = CoinUnits.SMH,
+  valueUnits = CoinUnits.Smidge,
+}: Props) => {
+  /* eslint-disable no-nested-ternary */
+  const amount =
+    valueUnits === selectedUnits
+      ? value || 0
+      : valueUnits === CoinUnits.SMH
+      ? toSmidge(value || 0)
+      : toSMH(value || 0);
+  /* eslint-enable no-nested-ternary */
   const [curValue, setValue] = useState(value ? amount.toString() : '');
   const [units, setUnits] = useState<CoinUnits>(selectedUnits);
   const [isFocused, setFocused] = useState(false);
@@ -98,19 +113,26 @@ const AmountInput = ({ onChange, disabled, style, value, selectedUnits = CoinUni
     setValue(newValue);
 
     // If User typed a decimal in Smidge -> switch to SMH without any conversion
-    const nextUnits = units === CoinUnits.Smidge && newValue.indexOf('.') !== -1 ? CoinUnits.SMH : units;
+    const nextUnits =
+      units === CoinUnits.Smidge && newValue.indexOf('.') !== -1
+        ? CoinUnits.SMH
+        : units;
     setUnits(nextUnits);
 
     // Commit always in Smidge
     onChange(nextUnits === CoinUnits.SMH ? toSmidge(parsedValue) : parsedValue);
   };
   const changeUnits = () => {
-    const nextUnits = units === CoinUnits.SMH ? CoinUnits.Smidge : CoinUnits.SMH;
+    const nextUnits =
+      units === CoinUnits.SMH ? CoinUnits.Smidge : CoinUnits.SMH;
     setUnits(nextUnits);
     // Convert amount to units
     const parsedValue = parseFloat(curValue);
     if (!Number.isNaN(parsedValue)) {
-      const nextValue = nextUnits === CoinUnits.Smidge ? toSmidge(parsedValue) : toSMH(parsedValue);
+      const nextValue =
+        nextUnits === CoinUnits.Smidge
+          ? toSmidge(parsedValue)
+          : toSMH(parsedValue);
       setValue(nextValue.toString());
     }
     // Switch focus back to the input

@@ -3,7 +3,12 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { sendTransaction } from '../../redux/wallet/actions';
-import { TxParams, TxSummary, TxConfirmation, TxSent } from '../../components/wallet';
+import {
+  TxParams,
+  TxSummary,
+  TxConfirmation,
+  TxSent,
+} from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
 import { ensure0x, validateAddress } from '../../infra/utils';
 import { AppThDispatch, RootState } from '../../types';
@@ -21,7 +26,9 @@ interface Props extends RouteComponentProps {
 
 const SendCoins = ({ history, location }: Props) => {
   const [mode, setMode] = useState<1 | 2 | 3>(1);
-  const [address, setAddress] = useState(location?.state?.contact.address || '');
+  const [address, setAddress] = useState(
+    location?.state?.contact.address || ''
+  );
   const [hasAddressError, setHasAddressError] = useState(false);
   const [amount, setAmount] = useState(0);
   const [hasAmountError, setHasAmountError] = useState(false);
@@ -31,7 +38,10 @@ const SendCoins = ({ history, location }: Props) => {
   const [isCreateNewContactOn, setIsCreateNewContactOn] = useState(false);
 
   const status = useSelector((state: RootState) => state.node.status);
-  const currentAccount = useSelector((state: RootState) => state.wallet.accounts[state.wallet.currentAccountIndex]);
+  const currentAccount = useSelector(
+    (state: RootState) =>
+      state.wallet.accounts[state.wallet.currentAccountIndex]
+  );
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   // const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -56,7 +66,9 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const validateAmount = () => {
-    return !!amount && amount + fee < (currentAccount?.currentState?.balance || 0);
+    return (
+      !!amount && amount + fee < (currentAccount?.currentState?.balance || 0)
+    );
   };
 
   const proceedToMode2 = () => {
@@ -74,7 +86,9 @@ const SendCoins = ({ history, location }: Props) => {
 
   const handleSendTransaction = async () => {
     const receiver = address.replace(/^0x/, '');
-    const result = await dispatch(sendTransaction({ receiver, amount, fee, note }));
+    const result = await dispatch(
+      sendTransaction({ receiver, amount, fee, note })
+    );
     if (result?.id) {
       setMode(3);
       setTxId(result.id);
@@ -112,7 +126,14 @@ const SendCoins = ({ history, location }: Props) => {
             key="newContact"
           />
         ) : (
-          <TxSummary address={address} fromAddress={currentAccount.publicKey} amount={parseInt(`${amount}`)} fee={fee} note={note} key="summary" />
+          <TxSummary
+            address={address}
+            fromAddress={currentAccount.publicKey}
+            amount={parseInt(`${amount}`)}
+            fee={fee}
+            note={note}
+            key="summary"
+          />
         )}
       </>
     );

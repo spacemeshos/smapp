@@ -8,9 +8,16 @@ import { Tx, TxState } from './tx';
 
 const getTxReceiver = (tx: Transaction__Output): HexString =>
   // eslint-disable-next-line no-nested-ternary
-  tx.coinTransfer?.receiver?.address ? toHexString(tx.coinTransfer.receiver.address) : tx.smartContract?.accountId?.address ? toHexString(tx.smartContract.accountId.address) : '0';
+  tx.coinTransfer?.receiver?.address
+    ? toHexString(tx.coinTransfer.receiver.address)
+    : tx.smartContract?.accountId?.address
+    ? toHexString(tx.smartContract.accountId.address)
+    : '0';
 
-export const toTx = (tx: Transaction__Output, txState: TransactionState__Output | null): Tx | null => {
+export const toTx = (
+  tx: Transaction__Output,
+  txState: TransactionState__Output | null
+): Tx | null => {
   if (!hasRequiredTxFields(tx)) return null;
   return {
     id: toHexString(tx.id.id),
@@ -25,7 +32,10 @@ export const toTx = (tx: Transaction__Output, txState: TransactionState__Output 
   };
 };
 
-export const addReceiptToTx = (tx: Tx, receipt: TransactionReceipt__Output): Tx => ({
+export const addReceiptToTx = (
+  tx: Tx,
+  receipt: TransactionReceipt__Output
+): Tx => ({
   ...tx,
   layer: receipt.layer?.number || tx.layer,
   receipt: {

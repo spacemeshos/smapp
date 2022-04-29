@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { chevronLeftBlack, chevronLeftGray, chevronRightBlack, chevronRightGray, posCpuActive, posCpuGrey, posGpuActive, posGpuGrey } from '../../assets/images';
+import {
+  chevronLeftBlack,
+  chevronLeftGray,
+  chevronRightBlack,
+  chevronRightGray,
+  posCpuActive,
+  posCpuGrey,
+  posGpuActive,
+  posGpuGrey,
+} from '../../assets/images';
 import { smColors } from '../../vars';
-import { ComputeApiClass, PostSetupComputeProvider } from '../../../shared/types';
+import {
+  ComputeApiClass,
+  PostSetupComputeProvider,
+} from '../../../shared/types';
 import { formatWithCommas } from '../../infra/utils';
 
 const SLIDE_WIDTH = 170;
@@ -34,14 +46,22 @@ const OuterWrapper = styled.div`
   overflow-x: hidden;
 `;
 
-const InnerWrapper = styled.div<{ slidesCount: number; leftSlideIndex: number }>`
+const InnerWrapper = styled.div<{
+  slidesCount: number;
+  leftSlideIndex: number;
+}>`
   position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: ${({ slidesCount }) => slidesCount * SLIDE_WIDTH + (slidesCount - 1) * SLIDE_MARGIN}px;
+  width: ${({ slidesCount }) =>
+    slidesCount * SLIDE_WIDTH + (slidesCount - 1) * SLIDE_MARGIN}px;
   height: 100%;
-  transform: translate3d(-${({ leftSlideIndex }) => leftSlideIndex * SLIDE_WIDTH + (leftSlideIndex - 1) * SLIDE_MARGIN}px, 0, 0);
+  transform: translate3d(
+    -${({ leftSlideIndex }) => leftSlideIndex * SLIDE_WIDTH + (leftSlideIndex - 1) * SLIDE_MARGIN}px,
+    0,
+    0
+  );
   transition: transform 0.6s linear;
 `;
 
@@ -59,12 +79,22 @@ const SlideUpperPart = styled.div<{ isSelected: boolean }>`
   width: 165px;
   height: 165px;
   padding: 10px 15px 20px;
-  background-color: ${({ isSelected }) => (isSelected ? smColors.white : smColors.mediumGraySecond)};
+  background-color: ${({ isSelected }) =>
+    isSelected ? smColors.white : smColors.mediumGraySecond};
   cursor: inherit;
   &:hover {
     background-color: ${smColors.white};
   }
-  clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
+  clip-path: polygon(
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    100% 0%,
+    100% 100%,
+    0% 100%,
+    15% 100%,
+    0% 85%
+  );
 `;
 
 const SlideMiddlePart = styled.div`
@@ -78,7 +108,16 @@ const SlideMiddlePart = styled.div`
   height: 163px;
   background-color: ${smColors.realBlack};
   cursor: inherit;
-  clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
+  clip-path: polygon(
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    100% 0%,
+    100% 100%,
+    0% 100%,
+    15% 100%,
+    0% 85%
+  );
 `;
 
 const SlideLowerPart = styled.div<{ isSelected: boolean }>`
@@ -90,12 +129,22 @@ const SlideLowerPart = styled.div<{ isSelected: boolean }>`
   right: 5px;
   width: 165px;
   height: 165px;
-  background-color: ${({ isSelected }) => (isSelected ? smColors.white : smColors.white)};
+  background-color: ${({ isSelected }) =>
+    isSelected ? smColors.white : smColors.white};
   cursor: inherit;
   &:hover {
     background-color: ${smColors.white};
   }
-  clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 15% 100%, 0% 85%);
+  clip-path: polygon(
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    100% 0%,
+    100% 100%,
+    0% 100%,
+    15% 100%,
+    0% 85%
+  );
 `;
 
 const SlideWrapper = styled.div`
@@ -150,7 +199,11 @@ type Props = {
 };
 
 const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
-  const [carouselState, setCarouselState] = useState({ leftSlideIndex: 0, isLeftBtnEnabled: false, isRightBtnEnabled: data.length > 3 });
+  const [carouselState, setCarouselState] = useState({
+    leftSlideIndex: 0,
+    isLeftBtnEnabled: false,
+    isRightBtnEnabled: data.length > 3,
+  });
 
   const handleSelection = ({ index }: { index: number }) => {
     onClick({ index });
@@ -159,47 +212,93 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
   const slideLeft = () => {
     const { leftSlideIndex } = carouselState;
     if (carouselState.leftSlideIndex > 0) {
-      setCarouselState({ leftSlideIndex: leftSlideIndex - 2, isLeftBtnEnabled: leftSlideIndex - 2 > 0, isRightBtnEnabled: data.length > 3 });
+      setCarouselState({
+        leftSlideIndex: leftSlideIndex - 2,
+        isLeftBtnEnabled: leftSlideIndex - 2 > 0,
+        isRightBtnEnabled: data.length > 3,
+      });
     }
   };
 
   const slideRight = () => {
     const { leftSlideIndex } = carouselState;
     if (leftSlideIndex + 2 < data.length - 1) {
-      setCarouselState({ leftSlideIndex: leftSlideIndex + 2, isLeftBtnEnabled: true, isRightBtnEnabled: data.length - 1 < leftSlideIndex + 2 });
+      setCarouselState({
+        leftSlideIndex: leftSlideIndex + 2,
+        isLeftBtnEnabled: true,
+        isRightBtnEnabled: data.length - 1 < leftSlideIndex + 2,
+      });
     } else if (leftSlideIndex + 1 < data.length - 1) {
-      setCarouselState({ leftSlideIndex: leftSlideIndex + 1, isLeftBtnEnabled: true, isRightBtnEnabled: data.length - 1 < leftSlideIndex + 1 });
+      setCarouselState({
+        leftSlideIndex: leftSlideIndex + 1,
+        isLeftBtnEnabled: true,
+        isRightBtnEnabled: data.length - 1 < leftSlideIndex + 1,
+      });
     }
   };
 
   return (
     <Wrapper>
       <Button
-        src={carouselState.isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray}
+        src={
+          carouselState.isLeftBtnEnabled ? chevronLeftBlack : chevronLeftGray
+        }
         onClick={carouselState.isLeftBtnEnabled ? slideLeft : () => {}}
         isDisabled={!carouselState.isLeftBtnEnabled}
       />
       <OuterWrapper style={style}>
-        <InnerWrapper leftSlideIndex={carouselState.leftSlideIndex} slidesCount={data.length}>
+        <InnerWrapper
+          leftSlideIndex={carouselState.leftSlideIndex}
+          slidesCount={data.length}
+        >
           {data.map((provider, index) => (
-            <SlideWrapper onClick={() => handleSelection({ index })} key={provider.id}>
+            <SlideWrapper
+              onClick={() => handleSelection({ index })}
+              key={provider.id}
+            >
               <SlideUpperPart isSelected={selectedItemIndex === index}>
                 <TextWrapper>
                   <Text>{provider.model}</Text>
-                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_UNSPECIFIED && <Text>(UNSPECIFIED)</Text>}
-                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && null}
-                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA && <Text>(CUDA)</Text>}
-                  {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN && <Text>(VULCAN)</Text>}
+                  {provider.computeApi ===
+                    ComputeApiClass.COMPUTE_API_CLASS_UNSPECIFIED && (
+                    <Text>(UNSPECIFIED)</Text>
+                  )}
+                  {provider.computeApi ===
+                    ComputeApiClass.COMPUTE_API_CLASS_CPU && null}
+                  {provider.computeApi ===
+                    ComputeApiClass.COMPUTE_API_CLASS_CUDA && (
+                    <Text>(CUDA)</Text>
+                  )}
+                  {provider.computeApi ===
+                    ComputeApiClass.COMPUTE_API_CLASS_VULKAN && (
+                    <Text>(VULCAN)</Text>
+                  )}
                   <Text>--</Text>
                 </TextWrapper>
                 <TextWrapper>
-                  <Text>~{formatWithCommas(provider.performance)} hashes per second</Text>
+                  <Text>
+                    ~{formatWithCommas(provider.performance)} hashes per second
+                  </Text>
                   {/* <Text>TO SAVE DATA</Text> */}
                   {/* TODO: Return it back when estimated time will be available */}
                 </TextWrapper>
-                {provider.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU && <CpuIcon src={selectedItemIndex === index ? posCpuActive : posCpuGrey} />}
-                {[ComputeApiClass.COMPUTE_API_CLASS_CUDA, ComputeApiClass.COMPUTE_API_CLASS_VULKAN].includes(provider.computeApi) && (
-                  <GpuIcon src={selectedItemIndex === index ? posGpuActive : posGpuGrey} />
+                {provider.computeApi ===
+                  ComputeApiClass.COMPUTE_API_CLASS_CPU && (
+                  <CpuIcon
+                    src={
+                      selectedItemIndex === index ? posCpuActive : posCpuGrey
+                    }
+                  />
+                )}
+                {[
+                  ComputeApiClass.COMPUTE_API_CLASS_CUDA,
+                  ComputeApiClass.COMPUTE_API_CLASS_VULKAN,
+                ].includes(provider.computeApi) && (
+                  <GpuIcon
+                    src={
+                      selectedItemIndex === index ? posGpuActive : posGpuGrey
+                    }
+                  />
                 )}
               </SlideUpperPart>
               <SlideMiddlePart />
@@ -209,7 +308,9 @@ const Carousel = ({ data, selectedItemIndex, onClick, style }: Props) => {
         </InnerWrapper>
       </OuterWrapper>
       <Button
-        src={carouselState.isRightBtnEnabled ? chevronRightBlack : chevronRightGray}
+        src={
+          carouselState.isRightBtnEnabled ? chevronRightBlack : chevronRightGray
+        }
         onClick={carouselState.isRightBtnEnabled ? slideRight : () => {}}
         isDisabled={!carouselState.isRightBtnEnabled}
       />

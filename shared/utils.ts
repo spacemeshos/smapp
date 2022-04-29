@@ -9,7 +9,10 @@ export const delay = (ms: number) =>
 
 // promisifed debounce function with multiple consumers
 // can not be cancelled
-export const debounce = <T extends unknown>(delay: number, cb: (...args: any[]) => T | Promise<T>) => {
+export const debounce = <T extends unknown>(
+  delay: number,
+  cb: (...args: any[]) => T | Promise<T>
+) => {
   type PromiseHandler = (T) => any;
 
   let t: ReturnType<typeof setTimeout> | null = null;
@@ -17,7 +20,8 @@ export const debounce = <T extends unknown>(delay: number, cb: (...args: any[]) 
   let thenRejecters: PromiseHandler[] = [];
   let catchResolvers: PromiseHandler[] = [];
 
-  const resolve = (r: any) => thenResolvers.forEach((fn: PromiseHandler) => fn(r));
+  const resolve = (r: any) =>
+    thenResolvers.forEach((fn: PromiseHandler) => fn(r));
   const reject = (r: any) => {
     thenRejecters.forEach((fn: PromiseHandler) => fn(r));
     catchResolvers.forEach((fn: PromiseHandler) => fn(r));
@@ -65,13 +69,17 @@ export const debounce = <T extends unknown>(delay: number, cb: (...args: any[]) 
 };
 
 // Func utils
-export const shallowEq = <T extends Record<string, any> | Array<any>>(a: T, b: T) => {
+export const shallowEq = <T extends Record<string, any> | Array<any>>(
+  a: T,
+  b: T
+) => {
   if (a === b) return true;
 
   if (Array.isArray(a) && Array.isArray(b)) {
     return a.reduce((acc, next, idx) => acc && next === b[idx], true);
   }
-  if (typeof a !== typeof b || Array.isArray(a) || Array.isArray(b) || !a || !b) return false;
+  if (typeof a !== typeof b || Array.isArray(a) || Array.isArray(b) || !a || !b)
+    return false;
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
   if (aKeys.length !== bKeys.length) return false;
@@ -94,17 +102,24 @@ export const toSocketAddress = (url?: string): SocketAddress => {
   };
 };
 
-export const stringifySocketAddress = (sa: SocketAddress): string => (sa ? `${sa.protocol}//${sa.host}${sa.port && `:${sa.port}`}` : '');
+export const stringifySocketAddress = (sa: SocketAddress): string =>
+  sa ? `${sa.protocol}//${sa.host}${sa.port && `:${sa.port}`}` : '';
 
-export const isLocalNodeApi = (sa: SocketAddress) => shallowEq(sa, LOCAL_NODE_API_URL);
+export const isLocalNodeApi = (sa: SocketAddress) =>
+  shallowEq(sa, LOCAL_NODE_API_URL);
 
 export const isRemoteNodeApi = (sa: SocketAddress) => !isLocalNodeApi(sa);
 
-export const isWalletOnlyType = (walletType: WalletType) => walletType === WalletType.RemoteApi;
+export const isWalletOnlyType = (walletType: WalletType) =>
+  walletType === WalletType.RemoteApi;
 
-export const isLocalNodeType = (walletType: WalletType) => walletType === WalletType.LocalNode;
+export const isLocalNodeType = (walletType: WalletType) =>
+  walletType === WalletType.LocalNode;
 
-export const toPublicService = (netName: string, url: string): PublicService => ({
+export const toPublicService = (
+  netName: string,
+  url: string
+): PublicService => ({
   name: netName,
   ...toSocketAddress(url),
 });

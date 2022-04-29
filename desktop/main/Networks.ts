@@ -24,12 +24,17 @@ const getDevNet = async () => ({
   grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
 });
 
-const getDiscoveryUrl = () => app.commandLine.getSwitchValue('discovery') || process.env.DISCOVERY_URL || 'https://discover.spacemesh.io/networks.json';
+const getDiscoveryUrl = () =>
+  app.commandLine.getSwitchValue('discovery') ||
+  process.env.DISCOVERY_URL ||
+  'https://discover.spacemesh.io/networks.json';
 
 const update = async (context: AppContext, retry = 2) => {
   try {
     const networks = await fetchJSON(getDiscoveryUrl());
-    const result: Network[] = isDevNet() ? [await getDevNet(), ...networks] : networks;
+    const result: Network[] = isDevNet()
+      ? [await getDevNet(), ...networks]
+      : networks;
     context.networks = result || [];
     return context.networks;
   } catch (err) {
@@ -57,25 +62,41 @@ const listPublicApis = (context: AppContext) => {
   return publicApis;
 };
 
-const list = (context: AppContext) => context.networks.map((net) => ({ ...net, netId: net.netID }));
-const getNetwork = (context: AppContext, netId: number) => context.networks.find((net) => net.netID === netId);
-const hasNetwork = (context: AppContext, netId: number) => !!getNetwork(context, netId);
+const list = (context: AppContext) =>
+  context.networks.map((net) => ({ ...net, netId: net.netID }));
+const getNetwork = (context: AppContext, netId: number) =>
+  context.networks.find((net) => net.netID === netId);
+const hasNetwork = (context: AppContext, netId: number) =>
+  !!getNetwork(context, netId);
 
 const spawnManagers = async (context: AppContext) => {
   const { mainWindow } = context;
-  if (!mainWindow) throw new Error('Cannot spawn managers: MainWindow not found');
-  if (!context.currentNetwork) throw new Error('Cannot spawn managers: Network does not selected');
+  if (!mainWindow)
+    throw new Error('Cannot spawn managers: MainWindow not found');
+  if (!context.currentNetwork)
+    throw new Error('Cannot spawn managers: Network does not selected');
   if (!hasManagers(context)) {
     context.managers.smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
-    context.managers.node = new NodeManager(mainWindow, context.currentNetwork.netID, context.managers.smesher);
-    context.managers.wallet = new WalletManager(mainWindow, context.managers.node);
+    context.managers.node = new NodeManager(
+      mainWindow,
+      context.currentNetwork.netID,
+      context.managers.smesher
+    );
+    context.managers.wallet = new WalletManager(
+      mainWindow,
+      context.managers.node
+    );
   }
 };
 
 const switchNetwork = async (context: AppContext, netId: number) => {
   const newNetwork = getNetwork(context, netId);
   if (!newNetwork) {
-    throw new Error(`Cannot switch to network ${netId}: not found. Have: ${context.networks.map((n) => n.netID).join(', ')}`);
+    throw new Error(
+      `Cannot switch to network ${netId}: not found. Have: ${context.networks
+        .map((n) => n.netID)
+        .join(', ')}`
+    );
   }
   context.currentNetwork = newNetwork;
   await NodeConfig.download(newNetwork);

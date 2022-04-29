@@ -13,7 +13,8 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   text-align: center;
 `;
 

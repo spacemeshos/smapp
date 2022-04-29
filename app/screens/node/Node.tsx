@@ -3,10 +3,24 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro } from '../../components/node';
-import { WrapperWith2SideBars, Button, ProgressBar, Link } from '../../basicComponents';
+import {
+  WrapperWith2SideBars,
+  Button,
+  ProgressBar,
+  Link,
+} from '../../basicComponents';
 import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
-import { posIcon, posSmesher, posDirectoryBlack, posDirectoryWhite, pauseIcon, playIcon, walletSecond, posSmesherOrange } from '../../assets/images';
+import {
+  posIcon,
+  posSmesher,
+  posDirectoryBlack,
+  posDirectoryWhite,
+  pauseIcon,
+  playIcon,
+  walletSecond,
+  posSmesherOrange,
+} from '../../assets/images';
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
 import { HexString, NodeStatus, PostSetupState } from '../../../shared/types';
@@ -29,7 +43,8 @@ const Text = styled.div`
   font-size: 15px;
   display: flex;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   &.progress {
     min-width: 170px;
   }
@@ -94,7 +109,8 @@ const LineWrap = styled.div`
     left: 0;
     width: 100%;
     height: 1px;
-    background: ${({ theme }) => (theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black)};
+    background: ${({ theme }) =>
+      theme.isDarkMode ? smColors.disabledGray10Alpha : smColors.black};
   }
 `;
 
@@ -182,7 +198,15 @@ const getStatus = (state: PostSetupState, isPaused: boolean) => {
   }
 };
 
-const SmesherStatus = ({ smesherId, status, networkName }: { smesherId: HexString; status: NodeStatus | null; networkName: string }) => (
+const SmesherStatus = ({
+  smesherId,
+  status,
+  networkName,
+}: {
+  smesherId: HexString;
+  status: NodeStatus | null;
+  networkName: string;
+}) => (
   <SubHeader>
     Smesher
     <SmesherId>
@@ -203,14 +227,20 @@ const Node = ({ history, location }: Props) => {
   const coinbase = useSelector((state: RootState) => state.smesher.coinbase);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
-  const commitmentSize = useSelector((state: RootState) => state.smesher.commitmentSize);
+  const commitmentSize = useSelector(
+    (state: RootState) => state.smesher.commitmentSize
+  );
   const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
   const isPausedSmeshing = useSelector(SmesherSelectors.isSmeshingPaused);
   const postProgressError = useSelector(SmesherSelectors.getPostProgressError);
   const isSmesherActive = isSmeshing || isCreatingPostData || isPausedSmeshing;
-  const postSetupState = useSelector((state: RootState) => state.smesher.postSetupState);
-  const numLabelsWritten = useSelector((state: RootState) => state.smesher.numLabelsWritten);
+  const postSetupState = useSelector(
+    (state: RootState) => state.smesher.postSetupState
+  );
+  const numLabelsWritten = useSelector(
+    (state: RootState) => state.smesher.numLabelsWritten
+  );
   // const rewards = useSelector((state: RootState) => state.smesher.rewards);
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -219,9 +249,15 @@ const Node = ({ history, location }: Props) => {
   const dispatch = useDispatch();
 
   let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
-  smesherInitTimestamp = smesherInitTimestamp ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp)) : '';
-  let smesherSmeshingTimestamp = localStorage.getItem('smesherSmeshingTimestamp');
-  smesherSmeshingTimestamp = smesherSmeshingTimestamp ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp)) : '';
+  smesherInitTimestamp = smesherInitTimestamp
+    ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp))
+    : '';
+  let smesherSmeshingTimestamp = localStorage.getItem(
+    'smesherSmeshingTimestamp'
+  );
+  smesherSmeshingTimestamp = smesherSmeshingTimestamp
+    ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp))
+    : '';
 
   type RowData = [string, string | JSX.Element];
   const renderTable = (data: RowData[]) =>
@@ -237,10 +273,18 @@ const Node = ({ history, location }: Props) => {
     });
 
   const getTableData = (): RowData[] => {
-    const setupStarted: RowData[] = smesherInitTimestamp ? [['Setup Started', smesherInitTimestamp]] : [];
-    const setupFinished: RowData[] = isSmeshing && smesherSmeshingTimestamp ? [['Setup Finished', smesherSmeshingTimestamp]] : [];
+    const setupStarted: RowData[] = smesherInitTimestamp
+      ? [['Setup Started', smesherInitTimestamp]]
+      : [];
+    const setupFinished: RowData[] =
+      isSmeshing && smesherSmeshingTimestamp
+        ? [['Setup Finished', smesherSmeshingTimestamp]]
+        : [];
 
-    const progress = ((numLabelsWritten * smesherConfig.bitsPerLabel) / (BITS * commitmentSize)) * 100;
+    const progress =
+      ((numLabelsWritten * smesherConfig.bitsPerLabel) /
+        (BITS * commitmentSize)) *
+      100;
     const progressRow: RowData[] = !isSmeshing
       ? [
           [
@@ -250,7 +294,10 @@ const Node = ({ history, location }: Props) => {
             ) : (
               <Text>
                 <Text className="progress">
-                  {formatBytes((numLabelsWritten * smesherConfig.bitsPerLabel) / BITS)} / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
+                  {formatBytes(
+                    (numLabelsWritten * smesherConfig.bitsPerLabel) / BITS
+                  )}{' '}
+                  / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
                 </Text>
                 <ProgressBarWrapper>
                   <ProgressBar progress={progress} />
@@ -262,7 +309,14 @@ const Node = ({ history, location }: Props) => {
       : [];
 
     return [
-      ['Smesher ID', <Address key="smesherId" type={AddressType.SMESHER} address={smesherId} />],
+      [
+        'Smesher ID',
+        <Address
+          key="smesherId"
+          type={AddressType.SMESHER}
+          address={smesherId}
+        />,
+      ],
       ['Status', getStatus(postSetupState, isPausedSmeshing)],
       ...progressRow,
       ...setupStarted,
@@ -270,12 +324,21 @@ const Node = ({ history, location }: Props) => {
       [
         'Data Directory',
         <React.Fragment key="pos-data-dir">
-          <PosFolderIcon src={isDarkMode ? posDirectoryWhite : posDirectoryBlack} />
+          <PosFolderIcon
+            src={isDarkMode ? posDirectoryWhite : posDirectoryBlack}
+          />
           <PathDir>{posDataPath}</PathDir>
         </React.Fragment>,
       ],
       ['Data Size', formatBytes(commitmentSize)],
-      ['Rewards Address', <Address key="smesherCoinbase" type={AddressType.ACCOUNT} address={coinbase} />],
+      [
+        'Rewards Address',
+        <Address
+          key="smesherCoinbase"
+          type={AddressType.ACCOUNT}
+          address={coinbase}
+        />,
+      ],
     ];
   };
 
@@ -295,7 +358,9 @@ const Node = ({ history, location }: Props) => {
         {renderTable(getTableData())}
         <Footer>
           <Button
-            onClick={() => history.push(MainPath.SmeshingSetup, { modifyPostData: true })}
+            onClick={() =>
+              history.push(MainPath.SmeshingSetup, { modifyPostData: true })
+            }
             img={posDirectoryWhite}
             text="EDIT"
             isPrimary={false}
@@ -304,9 +369,25 @@ const Node = ({ history, location }: Props) => {
             width={180}
           />
           {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
-            <Button onClick={handlePauseSmeshing} text="PAUSE POST DATA GENERATION" img={pauseIcon} isPrimary={false} width={280} imgPosition="before" />
+            <Button
+              onClick={handlePauseSmeshing}
+              text="PAUSE POST DATA GENERATION"
+              img={pauseIcon}
+              isPrimary={false}
+              width={280}
+              imgPosition="before"
+            />
           )}
-          {isPausedSmeshing && <Button onClick={handleResumeSmeshing} text="RESUME POST DATA GENERATION" img={playIcon} isPrimary width={280} imgPosition="before" />}
+          {isPausedSmeshing && (
+            <Button
+              onClick={handleResumeSmeshing}
+              text="RESUME POST DATA GENERATION"
+              img={playIcon}
+              isPrimary
+              width={280}
+              imgPosition="before"
+            />
+          )}
         </Footer>
       </>
     );
@@ -319,18 +400,31 @@ const Node = ({ history, location }: Props) => {
 
   const renderMainSection = () => {
     if (showIntro) {
-      return <SmesherIntro hideIntro={() => setShowIntro(false)} isDarkMode={isDarkMode} />;
+      return (
+        <SmesherIntro
+          hideIntro={() => setShowIntro(false)}
+          isDarkMode={isDarkMode}
+        />
+      );
     } else if (!isSmesherActive && !postProgressError) {
       return (
         <>
-          <SmesherStatus smesherId={smesherId} status={status} networkName={networkName} />
+          <SmesherStatus
+            smesherId={smesherId}
+            status={status}
+            networkName={networkName}
+          />
           <TextWrapperFirst>
             <PosSmesherIcon src={posSmesher} />
             <BoldText>Proof of Space Status</BoldText>
           </TextWrapperFirst>
           <Text>Proof of Space data is not setup yet</Text>
           <br />
-          <Button onClick={buttonHandler} text="SETUP PROOF OF SPACE" width={250} />
+          <Button
+            onClick={buttonHandler}
+            text="SETUP PROOF OF SPACE"
+            width={250}
+          />
         </>
       );
     }
@@ -342,7 +436,9 @@ const Node = ({ history, location }: Props) => {
   const handleSetupSmesher = () => {
     return eventsService
       .switchApiProvider(LOCAL_NODE_API_URL)
-      .then(() => history.push(AuthPath.Unlock, { redirect: MainPath.SmeshingSetup }))
+      .then(() =>
+        history.push(AuthPath.Unlock, { redirect: MainPath.SmeshingSetup })
+      )
       .catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
@@ -354,18 +450,24 @@ const Node = ({ history, location }: Props) => {
       <>
         <Row>
           <RowText color={smColors.purple} weight={700}>
-            <Icon src={walletSecond} /> Your app is currently in wallet-only mode and smeshing is not set up.
+            <Icon src={walletSecond} /> Your app is currently in wallet-only
+            mode and smeshing is not set up.
           </RowText>
         </Row>
         <Row>
           <RowText color={smColors.darkOrange} weight={400}>
             <IconSmesher src={posSmesherOrange} />
-            Click on the setup semsher button below to start using a local managed full Spacemesh p2p node and to smesh.
+            Click on the setup semsher button below to start using a local
+            managed full Spacemesh p2p node and to smesh.
           </RowText>
         </Row>
         <BottomPart>
           <Link onClick={navigateToExplanation} text="SMESHER GUIDE" />
-          <Button width={120} onClick={handleSetupSmesher} text="SETUP SMESHER" />
+          <Button
+            width={120}
+            onClick={handleSetupSmesher}
+            text="SETUP SMESHER"
+          />
         </BottomPart>
       </>
     );
@@ -373,7 +475,13 @@ const Node = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      <WrapperWith2SideBars width={650} height={450} header="SMESHER" headerIcon={posIcon} isDarkMode={isDarkMode}>
+      <WrapperWith2SideBars
+        width={650}
+        height={450}
+        header="SMESHER"
+        headerIcon={posIcon}
+        isDarkMode={isDarkMode}
+      >
         {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
       {/*

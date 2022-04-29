@@ -1,6 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { sidePanelRightMed, sidePanelRightMedWhite, sidePanelLeftMed, sidePanelLeftMedWhite, checkBlack, checkWhite } from '../assets/images';
+import {
+  sidePanelRightMed,
+  sidePanelRightMedWhite,
+  sidePanelLeftMed,
+  sidePanelLeftMedWhite,
+  checkBlack,
+  checkWhite,
+} from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div`
@@ -8,7 +15,8 @@ const Wrapper = styled.div`
   flex-direction: row;
   width: 290px;
   margin-right: 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
 const SideBar = styled.img`
@@ -43,7 +51,8 @@ const StepText = styled.div<{ isCompleted: boolean; isCurrent: boolean }>`
       return smColors.purple;
     }
   }};
-  font-family: ${({ isCompleted }) => (isCompleted ? 'SourceCodePro' : 'SourceCodeProBold')};
+  font-family: ${({ isCompleted }) =>
+    isCompleted ? 'SourceCodePro' : 'SourceCodeProBold'};
   text-align: right;
 `;
 
@@ -54,7 +63,8 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
   width: 15px;
   height: 15px;
   margin-left: 10px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.white)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
   background-color: ${({ isCurrent, theme }) => {
     if (isCurrent) {
@@ -87,10 +97,19 @@ const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
       <InnerWrapper>
         {steps.map((step, index) => (
           <StepContainer key={`step${index}`} isFuture={index > currentStep}>
-            <StepText isCompleted={index < currentStep} isCurrent={index === currentStep}>
+            <StepText
+              isCompleted={index < currentStep}
+              isCurrent={index === currentStep}
+            >
               {step}
             </StepText>
-            {index < currentStep ? <Icon src={checkIcon} /> : <Indicator isCurrent={index === currentStep}>{index + 1}</Indicator>}
+            {index < currentStep ? (
+              <Icon src={checkIcon} />
+            ) : (
+              <Indicator isCurrent={index === currentStep}>
+                {index + 1}
+              </Indicator>
+            )}
           </StepContainer>
         ))}
       </InnerWrapper>

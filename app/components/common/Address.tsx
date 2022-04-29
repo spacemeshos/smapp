@@ -6,7 +6,12 @@ import { HexString } from '../../../shared/types';
 import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { RootState } from '../../types';
 import { smColors } from '../../vars';
-import { addContact, explorer, copyBlack, copyWhite } from '../../assets/images';
+import {
+  addContact,
+  explorer,
+  copyBlack,
+  copyWhite,
+} from '../../assets/images';
 
 const Wrapper = styled.div`
   position: relative;
@@ -87,13 +92,24 @@ type Props = {
 };
 
 const Address = (props: Props) => {
-  const { address, suffix, overlapText, type, full, hideCopy, hideExplorer, addToContacts } = props;
+  const {
+    address,
+    suffix,
+    overlapText,
+    type,
+    full,
+    hideCopy,
+    hideExplorer,
+    addToContacts,
+  } = props;
 
   const isAccount = type === AddressType.ACCOUNT;
   const addr = ensure0x(isAccount ? getAddress(address) : address);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const explorerUrl = useSelector((state: RootState) => state.network.explorerUrl);
+  const explorerUrl = useSelector(
+    (state: RootState) => state.network.explorerUrl
+  );
   const [isCopied, setIsCopied] = useState(false);
 
   const addressToShow = full ? addr : getAbbreviatedText(addr);
@@ -108,7 +124,9 @@ const Address = (props: Props) => {
   };
   const handleExplorer = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(explorerUrl.concat(`${type}/${addr}${isDarkMode ? '?dark' : ''}`));
+    window.open(
+      explorerUrl.concat(`${type}/${addr}${isDarkMode ? '?dark' : ''}`)
+    );
   };
 
   const handleAddToContacts = (e: React.MouseEvent) => {
@@ -116,7 +134,8 @@ const Address = (props: Props) => {
     addToContacts && addToContacts({ address: addr });
   };
 
-  const textToShow = overlapText || (suffix ? `${addressToShow} ${suffix}` : addressToShow);
+  const textToShow =
+    overlapText || (suffix ? `${addressToShow} ${suffix}` : addressToShow);
 
   return (
     <Wrapper>
@@ -124,9 +143,18 @@ const Address = (props: Props) => {
         {isCopied && <CopiedBanner>Copied</CopiedBanner>}
         <span>{textToShow}</span>
       </PublicKey>
-      {!hideCopy && <CopyIcon src={isDarkMode ? copyWhite : copyBlack} onClick={handleCopy} />}
-      {!hideExplorer && <ExplorerIcon src={explorer} onClick={handleExplorer} />}
-      {addToContacts && isAccount && <AddToContactsImg src={addContact} onClick={handleAddToContacts} />}
+      {!hideCopy && (
+        <CopyIcon
+          src={isDarkMode ? copyWhite : copyBlack}
+          onClick={handleCopy}
+        />
+      )}
+      {!hideExplorer && (
+        <ExplorerIcon src={explorer} onClick={handleExplorer} />
+      )}
+      {addToContacts && isAccount && (
+        <AddToContactsImg src={addContact} onClick={handleAddToContacts} />
+      )}
     </Wrapper>
   );
 };

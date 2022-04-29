@@ -3,9 +3,11 @@ import { fetchJSON, isFileExists } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
 import { Network } from './context';
 
-const load = () => fs.readFile(NODE_CONFIG_FILE, { encoding: 'utf8' }).then(JSON.parse);
+const load = () =>
+  fs.readFile(NODE_CONFIG_FILE, { encoding: 'utf8' }).then(JSON.parse);
 
-const loadSmeshingOpts = async () => ((await isFileExists(NODE_CONFIG_FILE)) ? (await load()).smeshing : {});
+const loadSmeshingOpts = async () =>
+  (await isFileExists(NODE_CONFIG_FILE)) ? (await load()).smeshing : {};
 
 const download = async (network: Network) => {
   const nodeConfig = await fetchJSON(network.conf);
@@ -14,7 +16,9 @@ const download = async (network: Network) => {
   const smeshing = await loadSmeshingOpts();
   nodeConfig.smeshing = smeshing;
 
-  await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), { encoding: 'utf8' });
+  await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), {
+    encoding: 'utf8',
+  });
   return nodeConfig;
 };
 

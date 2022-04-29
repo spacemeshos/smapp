@@ -43,16 +43,24 @@ const RelativeContainer = styled.div`
 
 const renderHorizontalPane = (path, isDarkMode) => {
   const DO_NOT_SHOW_ON = [AuthPath.Welcome, AuthPath.Leaving];
-  return DO_NOT_SHOW_ON.includes(path) ? null : <SmallHorizontalPanel isDarkMode={isDarkMode} />;
+  return DO_NOT_SHOW_ON.includes(path) ? null : (
+    <SmallHorizontalPanel isDarkMode={isDarkMode} />
+  );
 };
 
 const Auth = ({ history, location }: AuthRouterParams) => {
-  const walletFiles = useSelector((state: RootState) => state.wallet.walletFiles);
+  const walletFiles = useSelector(
+    (state: RootState) => state.wallet.walletFiles
+  );
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (location.pathname === AuthPath.ConnectToAPI || location.pathname === AuthPath.SwitchNetwork) return;
+    if (
+      location.pathname === AuthPath.ConnectToAPI ||
+      location.pathname === AuthPath.SwitchNetwork
+    )
+      return;
     const initialSetup = async () => {
       const files = await dispatch(readWalletFiles());
       if (files.length && location.pathname === AuthPath.Auth) {
@@ -71,7 +79,12 @@ const Auth = ({ history, location }: AuthRouterParams) => {
             {renderHorizontalPane(location.pathname, isDarkMode)}
             <Switch>
               {routes.auth.map((route) => (
-                <Route exact key={route.path} path={route.path} component={route.component} />
+                <Route
+                  exact
+                  key={route.path}
+                  path={route.path}
+                  component={route.component}
+                />
               ))}
               <Redirect to="/auth/welcome" />
             </Switch>
@@ -81,7 +94,9 @@ const Auth = ({ history, location }: AuthRouterParams) => {
         )}
       </InnerWrapper>
       <Version />
-      <RightDecoration src={isDarkMode ? rightDecorationWhite : rightDecoration} />
+      <RightDecoration
+        src={isDarkMode ? rightDecorationWhite : rightDecoration}
+      />
     </Wrapper>
   );
 };

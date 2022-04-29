@@ -15,9 +15,11 @@ const InputField = styled.div<{ isFocused?: boolean; isDisabled?: boolean }>`
   align-items: center;
   width: 100%;
   height: 40px;
-  border: 1px solid ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
+  border: 1px solid
+    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
-  ${({ isDisabled }) => !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
+  ${({ isDisabled }) =>
+    !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
   background-color: ${smColors.white};
 `;
 
@@ -28,7 +30,8 @@ const ActualInput = styled.input<{ isDisabled?: boolean }>`
   padding: 8px 14px;
   border-radius: 0;
   border: none;
-  color: ${({ isDisabled }) => (isDisabled ? smColors.darkGray : smColors.black)};
+  color: ${({ isDisabled }) =>
+    isDisabled ? smColors.darkGray : smColors.black};
   font-size: 14px;
   line-height: 16px;
   outline: none;
@@ -113,7 +116,10 @@ const AutocompleteDropdown = (props: Props) => {
     let list: any = [];
 
     if (value && value.trim()) {
-      list = data.filter((d) => getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1);
+      list = data.filter(
+        (d) =>
+          getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1
+      );
     }
     return list;
   };
@@ -145,7 +151,9 @@ const AutocompleteDropdown = (props: Props) => {
 
   const handleIconClick = () => {
     const { data, getItemValue } = props;
-    const list = !isOpen ? data.filter((d) => getItemValue(d).toLowerCase()) : [];
+    const list = !isOpen
+      ? data.filter((d) => getItemValue(d).toLowerCase())
+      : [];
     setList(list);
     setIsOpen(!isOpen);
   };

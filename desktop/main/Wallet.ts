@@ -6,8 +6,20 @@ import * as R from 'ramda';
 import { app, dialog, ipcMain, shell } from 'electron';
 import Logger from '../logger';
 import { ipcConsts } from '../../app/vars';
-import { Account, SocketAddress, Wallet, WalletMeta, WalletSecrets, WalletType } from '../../shared/types';
-import { isLocalNodeApi, isRemoteNodeApi, isWalletOnlyType, stringifySocketAddress } from '../../shared/utils';
+import {
+  Account,
+  SocketAddress,
+  Wallet,
+  WalletMeta,
+  WalletSecrets,
+  WalletType,
+} from '../../shared/types';
+import {
+  isLocalNodeApi,
+  isRemoteNodeApi,
+  isWalletOnlyType,
+  stringifySocketAddress,
+} from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import encryptionConst from '../encryptionConst';
 import { getISODate } from '../../shared/datetime';
@@ -17,13 +29,23 @@ import { AppContext } from './context';
 import Networks from './Networks';
 import { getNodeLogsPath } from './utils';
 import { checkForUpdates } from './autoUpdate';
-import { copyWalletFile, listWallets, loadWallet, saveWallet, updateWalletMeta, updateWalletSecrets } from './walletFile';
+import {
+  copyWalletFile,
+  listWallets,
+  loadWallet,
+  saveWallet,
+  updateWalletMeta,
+  updateWalletSecrets,
+} from './walletFile';
 
 const logger = Logger({ className: 'WalletFiles' });
 
 const list = async () => {
   try {
-    const files = await listWallets(DEFAULT_WALLETS_DIRECTORY, StoreService.get('walletFiles'));
+    const files = await listWallets(
+      DEFAULT_WALLETS_DIRECTORY,
+      StoreService.get('walletFiles')
+    );
     return { error: null, files };
   } catch (error) {
     return { error, files: null };
@@ -38,7 +60,11 @@ const updateWalletContext = (context: AppContext, wallet: Wallet) => {
   context.wallet = wallet;
 };
 
-const updateMeta = async (context: AppContext, walletPath: string, meta: Partial<WalletMeta>) => {
+const updateMeta = async (
+  context: AppContext,
+  walletPath: string,
+  meta: Partial<WalletMeta>
+) => {
   const wallet = await updateWalletMeta(walletPath, meta);
   context.walletPath = walletPath;
   if (context.wallet) {
@@ -47,7 +73,12 @@ const updateMeta = async (context: AppContext, walletPath: string, meta: Partial
   return wallet;
 };
 
-const updateSecrets = async (context: AppContext, walletPath: string, password: string, crypto: Partial<WalletSecrets>) => {
+const updateSecrets = async (
+  context: AppContext,
+  walletPath: string,
+  password: string,
+  crypto: Partial<WalletSecrets>
+) => {
   const wallet = await updateWalletSecrets(walletPath, password, crypto);
   context.wallet = wallet;
   return wallet;
@@ -57,7 +88,10 @@ const updateSecrets = async (context: AppContext, walletPath: string, password: 
 // FS Interactions
 //
 
-const showFileInDirectory = async (context: AppContext, { filePath, isLogFile }: { filePath?: string; isLogFile?: boolean }) => {
+const showFileInDirectory = async (
+  context: AppContext,
+  { filePath, isLogFile }: { filePath?: string; isLogFile?: boolean }
+) => {
   if (filePath) {
     try {
       shell.showItemInFolder(filePath);
@@ -98,13 +132,17 @@ const wipeOut = async (context: AppContext) => {
   const options = {
     type: 'warning',
     title: 'Reinstall App',
-    message: 'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
+    message:
+      'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
     buttons: ['Delete All', 'Cancel'],
   };
   const { response } = await dialog.showMessageBox(context.mainWindow, options);
   if (response === 0) {
     StoreService.clear();
-    const command = os.type() === 'Windows_NT' ? `rmdir /q/s '${DEFAULT_WALLETS_DIRECTORY}'` : `rm -rf '${DEFAULT_WALLETS_DIRECTORY}'`;
+    const command =
+      os.type() === 'Windows_NT'
+        ? `rmdir /q/s '${DEFAULT_WALLETS_DIRECTORY}'`
+        : `rm -rf '${DEFAULT_WALLETS_DIRECTORY}'`;
     exec(command, (error: any) => {
       if (error) {
         logger.error('ipcMain wipeOut', error);
@@ -122,7 +160,17 @@ const wipeOut = async (context: AppContext) => {
 // Pure
 //
 
-const createAccount = ({ index, timestamp, publicKey, secretKey }: { index: number; timestamp: string; publicKey: string; secretKey: string }): Account => ({
+const createAccount = ({
+  index,
+  timestamp,
+  publicKey,
+  secretKey,
+}: {
+  index: number;
+  timestamp: string;
+  publicKey: string;
+  secretKey: string;
+}): Account => ({
   displayName: index > 0 ? `Account ${index}` : 'Main Account',
   created: timestamp,
   path: `0/0/${index}`,
@@ -134,7 +182,10 @@ const createAccount = ({ index, timestamp, publicKey, secretKey }: { index: numb
 const create = (index: number, mnemonicSeed?: string) => {
   const timestamp = getISODate();
   const mnemonic = mnemonicSeed || CryptoService.generateMnemonic();
-  const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({ mnemonic, index: 0 });
+  const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
+    mnemonic,
+    index: 0,
+  });
   const crypto = {
     mnemonic,
     accounts: [createAccount({ index: 0, timestamp, publicKey, secretKey })],
@@ -158,8 +209,13 @@ const create = (index: number, mnemonicSeed?: string) => {
 const ensureNetworkExist = async (context: AppContext, wallet: Wallet) => {
   const { meta } = wallet;
   await Networks.update(context);
-  if (!Networks.hasNetwork(context, meta.netId) && context.networks.length > 0) {
-    context.mainWindow?.webContents.send(ipcConsts.REQUEST_SWITCH_NETWORK, { isWalletOnly: isWalletOnlyType(meta.type) });
+  if (
+    !Networks.hasNetwork(context, meta.netId) &&
+    context.networks.length > 0
+  ) {
+    context.mainWindow?.webContents.send(ipcConsts.REQUEST_SWITCH_NETWORK, {
+      isWalletOnly: isWalletOnlyType(meta.type),
+    });
     return false;
   }
   return true;
@@ -175,7 +231,8 @@ const activate = async (context: AppContext, wallet: Wallet) => {
   if (!Networks.hasNetwork(context, meta.netId)) return;
 
   // Switch network if needed
-  context.currentNetwork?.netID !== meta.netId && (await Networks.switchNetwork(context, meta.netId));
+  context.currentNetwork?.netID !== meta.netId &&
+    (await Networks.switchNetwork(context, meta.netId));
   // TODO: handle stop smeshing & cleaning up POST directory?
 
   await context.managers?.wallet?.activate(wallet);
@@ -185,7 +242,10 @@ const activate = async (context: AppContext, wallet: Wallet) => {
 };
 
 const subscribe = (context: AppContext) => {
-  setInterval(() => context.wallet && ensureNetworkExist(context, context.wallet), 30 * MINUTE);
+  setInterval(
+    () => context.wallet && ensureNetworkExist(context, context.wallet),
+    30 * MINUTE
+  );
 
   ipcMain.handle(ipcConsts.READ_WALLET_FILES, list);
 
@@ -229,65 +289,109 @@ const subscribe = (context: AppContext) => {
 
       updateWalletContext(context, wallet);
 
-      const walletPath = path.resolve(DEFAULT_WALLETS_DIRECTORY, `my_wallet_${wallet.meta.created}.json`);
+      const walletPath = path.resolve(
+        DEFAULT_WALLETS_DIRECTORY,
+        `my_wallet_${wallet.meta.created}.json`
+      );
       await saveWallet(walletPath, password, wallet);
       await activate(context, wallet);
       return { path: walletPath, wallet };
     }
   );
-  ipcMain.handle(ipcConsts.W_M_UNLOCK_WALLET, async (_event, { path, password }: { path: string; password: string }) => {
-    try {
-      const wallet = await loadWallet(path, password);
-      const { meta, crypto } = wallet;
-      const { accounts, mnemonic, contacts } = crypto;
-      const isNetworkExist = Networks.hasNetwork(context, meta.netId);
-      await activate(context, wallet);
+  ipcMain.handle(
+    ipcConsts.W_M_UNLOCK_WALLET,
+    async (_event, { path, password }: { path: string; password: string }) => {
+      try {
+        const wallet = await loadWallet(path, password);
+        const { meta, crypto } = wallet;
+        const { accounts, mnemonic, contacts } = crypto;
+        const isNetworkExist = Networks.hasNetwork(context, meta.netId);
+        await activate(context, wallet);
 
-      context.wallet = wallet;
-      context.walletPath = path;
+        context.wallet = wallet;
+        context.walletPath = path;
 
-      return { error: null, accounts, mnemonic, meta, contacts, isNetworkExist, hasNetworks: context.networks.length > 0 };
-    } catch (error) {
-      logger.error('W_M_UNLOCK_WALLET', error, { path });
-      return { error, accounts: null, mnemonic: null, meta: null, contacts: null, isNetworkExist: false };
+        return {
+          error: null,
+          accounts,
+          mnemonic,
+          meta,
+          contacts,
+          isNetworkExist,
+          hasNetworks: context.networks.length > 0,
+        };
+      } catch (error) {
+        logger.error('W_M_UNLOCK_WALLET', error, { path });
+        return {
+          error,
+          accounts: null,
+          mnemonic: null,
+          meta: null,
+          contacts: null,
+          isNetworkExist: false,
+        };
+      }
     }
-  });
-  ipcMain.handle(ipcConsts.W_M_CREATE_NEW_ACCOUNT, async (_event, { fileName, password }: { fileName: string; password: string }) => {
-    try {
-      const wallet = await loadWallet(fileName, password);
-      const { meta, crypto } = wallet;
-      const timestamp = getISODate();
-      const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
-        mnemonic: crypto.mnemonic,
-        index: crypto.accounts.length,
+  );
+  ipcMain.handle(
+    ipcConsts.W_M_CREATE_NEW_ACCOUNT,
+    async (
+      _event,
+      { fileName, password }: { fileName: string; password: string }
+    ) => {
+      try {
+        const wallet = await loadWallet(fileName, password);
+        const { meta, crypto } = wallet;
+        const timestamp = getISODate();
+        const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
+          mnemonic: crypto.mnemonic,
+          index: crypto.accounts.length,
+        });
+        const newAccount = createAccount({
+          index: crypto.accounts.length,
+          timestamp,
+          publicKey,
+          secretKey,
+        });
+        const newCrypto = {
+          ...crypto,
+          accounts: [...crypto.accounts, newAccount],
+        };
+        const newWallet = { meta, crypto: newCrypto };
+        updateWalletContext(context, newWallet);
+        await saveWallet(fileName, password, newWallet);
+        activateAccounts(context, [newAccount]);
+        return { error: null, newAccount };
+      } catch (error) {
+        return { error, newAccount: null };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    ipcConsts.SWITCH_API_PROVIDER,
+    async (_event, apiUrl: SocketAddress | null) => {
+      const { wallet, walletPath } = context;
+      if (!walletPath || !wallet) return; // TODO
+      await updateMeta(context, walletPath, {
+        remoteApi:
+          apiUrl && isRemoteNodeApi(apiUrl)
+            ? stringifySocketAddress(apiUrl)
+            : '',
+        type:
+          apiUrl && isLocalNodeApi(apiUrl)
+            ? WalletType.LocalNode
+            : WalletType.RemoteApi,
       });
-      const newAccount = createAccount({ index: crypto.accounts.length, timestamp, publicKey, secretKey });
-      const newCrypto = { ...crypto, accounts: [...crypto.accounts, newAccount] };
-      const newWallet = { meta, crypto: newCrypto };
-      updateWalletContext(context, newWallet);
-      await saveWallet(fileName, password, newWallet);
-      activateAccounts(context, [newAccount]);
-      return { error: null, newAccount };
-    } catch (error) {
-      return { error, newAccount: null };
+      if (apiUrl && isRemoteNodeApi(apiUrl)) {
+        // We don't need to start Node here
+        // because it will be started on unlocking/creating the wallet file
+        // but we have to stop it in case that User switched to wallet mode
+        await context.managers.node?.stopNode();
+      }
+      await activate(context, wallet);
     }
-  });
-
-  ipcMain.handle(ipcConsts.SWITCH_API_PROVIDER, async (_event, apiUrl: SocketAddress | null) => {
-    const { wallet, walletPath } = context;
-    if (!walletPath || !wallet) return; // TODO
-    await updateMeta(context, walletPath, {
-      remoteApi: apiUrl && isRemoteNodeApi(apiUrl) ? stringifySocketAddress(apiUrl) : '',
-      type: apiUrl && isLocalNodeApi(apiUrl) ? WalletType.LocalNode : WalletType.RemoteApi,
-    });
-    if (apiUrl && isRemoteNodeApi(apiUrl)) {
-      // We don't need to start Node here
-      // because it will be started on unlocking/creating the wallet file
-      // but we have to stop it in case that User switched to wallet mode
-      await context.managers.node?.stopNode();
-    }
-    await activate(context, wallet);
-  });
+  );
 
   ipcMain.handle(ipcConsts.SWITCH_NETWORK, async (_, netId: number) => {
     const { wallet, walletPath } = context;
@@ -300,16 +404,36 @@ const subscribe = (context: AppContext) => {
     await activate(context, wallet);
   });
 
-  ipcMain.on(ipcConsts.W_M_UPDATE_WALLET_META, <T extends keyof WalletMeta>(_event, { fileName, key, value }: { fileName: string; key: T; value: WalletMeta[T] }) =>
-    updateMeta(context, fileName, { [key]: value })
+  ipcMain.on(
+    ipcConsts.W_M_UPDATE_WALLET_META,
+    <T extends keyof WalletMeta>(
+      _event,
+      {
+        fileName,
+        key,
+        value,
+      }: { fileName: string; key: T; value: WalletMeta[T] }
+    ) => updateMeta(context, fileName, { [key]: value })
   );
-  ipcMain.on(ipcConsts.W_M_UPDATE_WALLET_SECRETS, (_event, { fileName, password, data }: { fileName: string; password: string; data: WalletSecrets }) =>
-    updateSecrets(context, fileName, password, data)
+  ipcMain.on(
+    ipcConsts.W_M_UPDATE_WALLET_SECRETS,
+    (
+      _event,
+      {
+        fileName,
+        password,
+        data,
+      }: { fileName: string; password: string; data: WalletSecrets }
+    ) => updateSecrets(context, fileName, password, data)
   );
 
-  ipcMain.on(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, (_event, request) => showFileInDirectory(context, { ...request }));
+  ipcMain.on(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, (_event, request) =>
+    showFileInDirectory(context, { ...request })
+  );
 
-  ipcMain.on(ipcConsts.W_M_SHOW_DELETE_FILE, (_event, filepath) => deleteWalletFile(context, filepath));
+  ipcMain.on(ipcConsts.W_M_SHOW_DELETE_FILE, (_event, filepath) =>
+    deleteWalletFile(context, filepath)
+  );
 
   ipcMain.on(ipcConsts.W_M_WIPE_OUT, () => wipeOut(context));
 };

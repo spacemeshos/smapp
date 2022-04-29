@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getAbbreviatedText, getAddress, formatSmidge } from '../../infra/utils';
+import {
+  getAbbreviatedText,
+  getAddress,
+  formatSmidge,
+} from '../../infra/utils';
 import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
@@ -9,7 +13,8 @@ const Wrapper = styled.div`
   width: 175px;
   height: 100%;
   padding: 10px 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`

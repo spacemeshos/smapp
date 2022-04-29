@@ -2,7 +2,13 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled, { css } from 'styled-components';
 
-import { getError, getProgressInfo, getUpdateInfo, isUpdateDownloaded, isUpdateDownloading } from '../../redux/updater/selectors';
+import {
+  getError,
+  getProgressInfo,
+  getUpdateInfo,
+  isUpdateDownloaded,
+  isUpdateDownloading,
+} from '../../redux/updater/selectors';
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import packageInfo from '../../../package.json';
@@ -12,7 +18,8 @@ const Container = styled.div`
   left: 32px;
   bottom: 15px;
   font-size: 11px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.lightGray : smColors.darkGray};
   display: flex;
   align-items: baseline;
 `;
@@ -77,8 +84,13 @@ const UpdateInfo = ({ info }) => {
     <>
       <Attractor />
       <Chunk>Update available: v{info.version}</Chunk>
-      <PrimaryAction onClick={() => eventsService.downloadUpdate()}>Download</PrimaryAction>
-      <SecondaryAction href={`https://github.com/spacemeshos/smapp/releases/tag/v${info.version}`} target="_blank">
+      <PrimaryAction onClick={() => eventsService.downloadUpdate()}>
+        Download
+      </PrimaryAction>
+      <SecondaryAction
+        href={`https://github.com/spacemeshos/smapp/releases/tag/v${info.version}`}
+        target="_blank"
+      >
         Release notes
       </SecondaryAction>
     </>
@@ -90,7 +102,9 @@ const ProgressInfo = () => {
   const isDownloaded = useSelector(isUpdateDownloaded);
   if (!progress && !isDownloaded) return null;
   const line = (() => {
-    const downloaded = Math.round((isDownloaded ? 100 : progress?.percent || 0) / 10);
+    const downloaded = Math.round(
+      (isDownloaded ? 100 : progress?.percent || 0) / 10
+    );
     let line = '';
     for (let i = 0; i < 10; i += 1) {
       const suffix = downloaded > i ? '□' : '■';
@@ -102,7 +116,11 @@ const ProgressInfo = () => {
     <>
       <ProgressChunk>{line}</ProgressChunk>
       <ProgressChunk>{progress?.percent || 0}%</ProgressChunk>
-      {isDownloaded && <PrimaryAction onClick={() => eventsService.installUpdate()}>Restart Smapp</PrimaryAction>}
+      {isDownloaded && (
+        <PrimaryAction onClick={() => eventsService.installUpdate()}>
+          Restart Smapp
+        </PrimaryAction>
+      )}
     </>
   );
 };
@@ -124,7 +142,9 @@ const UpdateStatus = () => {
       {isDownloaded && (
         <>
           <ProgressChunk>Update is ready to install</ProgressChunk>
-          <PrimaryAction onClick={() => eventsService.installUpdate()}>Restart Smapp</PrimaryAction>
+          <PrimaryAction onClick={() => eventsService.installUpdate()}>
+            Restart Smapp
+          </PrimaryAction>
         </>
       )}
     </>

@@ -2,10 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../vars';
 
-const Wrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void; isPrimary: boolean; isDisabled: boolean }>`
+const Wrapper = styled.div<{
+  onClick: (e?: React.MouseEvent) => void;
+  isPrimary: boolean;
+  isDisabled: boolean;
+}>`
   font-size: 14px;
   line-height: 17px;
-  font-family: ${({ isPrimary }) => (isPrimary ? 'SourceCodePro' : 'SourceCodeProBold')};
+  font-family: ${({ isPrimary }) =>
+    isPrimary ? 'SourceCodePro' : 'SourceCodeProBold'};
   text-decoration: underline;
   ${({ isDisabled, isPrimary }) =>
     isDisabled
@@ -30,8 +35,19 @@ type Props = {
   style?: any;
 };
 
-const Link = ({ onClick, isPrimary = true, isDisabled = false, text, style }: Props) => (
-  <Wrapper onClick={isDisabled ? () => {} : onClick} isPrimary={isPrimary} isDisabled={isDisabled} style={style}>
+const Link = ({
+  onClick,
+  isPrimary = true,
+  isDisabled = false,
+  text,
+  style,
+}: Props) => (
+  <Wrapper
+    onClick={isDisabled ? () => {} : onClick}
+    isPrimary={isPrimary}
+    isDisabled={isDisabled}
+    style={style}
+  >
     {text}
   </Wrapper>
 );

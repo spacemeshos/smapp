@@ -20,7 +20,8 @@ const TextWrapper = styled.div`
 const Text = styled.span`
   font-size: 14px;
   line-height: 24px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const GreenText = styled.span`
@@ -71,7 +72,8 @@ const IndexWrapper = styled.div`
 `;
 
 const Index = styled(Text)`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.darkGray};
 `;
 
 const WordWrapper = styled.div`
@@ -116,17 +118,34 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
-    <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP" isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars
+      width={920}
+      header="YOUR 12 WORDS BACKUP"
+      isDarkMode={isDarkMode}
+    >
       <TextWrapper>
         <Text>
-          A paper backup is a numbered list of words written down on a paper. Write down or print this numbered word list and store the paper in a a safe place, or copy & paste it
-          into your password manager
+          A paper backup is a numbered list of words written down on a paper.
+          Write down or print this numbered word list and store the paper in a a
+          safe place, or copy & paste it into your password manager
         </Text>
       </TextWrapper>
       <MiddleSectionRow>
         <ButtonsSection>
-          <Button onClick={print12Words} text="PRINT WORDS" width={172} isPrimary={false} style={{ marginBottom: 35 }} />
-          <Button onClick={copy12Words} text="COPY WORDS" width={172} isPrimary={false} style={{ marginBottom: 35 }} />
+          <Button
+            onClick={print12Words}
+            text="PRINT WORDS"
+            width={172}
+            isPrimary={false}
+            style={{ marginBottom: 35 }}
+          />
+          <Button
+            onClick={copy12Words}
+            text="COPY WORDS"
+            width={172}
+            isPrimary={false}
+            style={{ marginBottom: 35 }}
+          />
           {isCopied && <GreenText>Copied to clipboard</GreenText>}
         </ButtonsSection>
         <WordsSection>

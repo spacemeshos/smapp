@@ -5,7 +5,14 @@ import { getFormattedTimestamp, formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { Reward } from '../../types';
 import { SmallHorizontalPanel } from '../../basicComponents';
-import { bottomRightCorner, bottomRightCornerWhite, leftSideTIcon, leftSideTIconWhite, topRightCorner, topRightCornerWhite } from '../../assets/images';
+import {
+  bottomRightCorner,
+  bottomRightCornerWhite,
+  leftSideTIcon,
+  leftSideTIconWhite,
+  topRightCorner,
+  topRightCornerWhite,
+} from '../../assets/images';
 
 const Wrapper = styled.div`
   display: flex;
@@ -76,12 +83,23 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const SmesherLog = ({ initTimestamp, smeshingTimestamp, rewards, isDarkMode }: Props) => {
+const SmesherLog = ({
+  initTimestamp,
+  smeshingTimestamp,
+  rewards,
+  isDarkMode,
+}: Props) => {
   const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
   const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
   const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
   return (
-    <CorneredContainer useEmptyWrap width={310} height={450} header="SMESHER LOG" isDarkMode={isDarkMode}>
+    <CorneredContainer
+      useEmptyWrap
+      width={310}
+      height={450}
+      header="SMESHER LOG"
+      isDarkMode={isDarkMode}
+    >
       <FullCrossIcon className="top" src={icon} />
       <FullCrossIcon className="bottom" src={icon} />
       <TopRightCorner src={topRight} />
@@ -113,8 +131,12 @@ const SmesherLog = ({ initTimestamp, smeshingTimestamp, rewards, isDarkMode }: P
             <div key={`reward${index}`}>
               <LogEntry>
                 <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
-                <AwardText>Smeshing reward: {formatSmidge(reward.total)}</AwardText>
-                <AwardText>Smeshing fee reward: {formatSmidge(reward.layerReward)}</AwardText>
+                <AwardText>
+                  Smeshing reward: {formatSmidge(reward.total)}
+                </AwardText>
+                <AwardText>
+                  Smeshing fee reward: {formatSmidge(reward.layerReward)}
+                </AwardText>
               </LogEntry>
               <LogEntrySeparator>...</LogEntrySeparator>
             </div>

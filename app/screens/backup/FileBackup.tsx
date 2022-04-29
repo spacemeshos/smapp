@@ -14,7 +14,8 @@ const Text = styled.span`
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const MiddleSectionRow = styled.div`
@@ -30,7 +31,14 @@ const BottomRow = styled(MiddleSectionRow)`
   justify-content: space-between;
 `;
 
-const FileBackup = ({ history, location }: RouteComponentProps<Record<string, any>, StaticContext, { filePath: string }>) => {
+const FileBackup = ({
+  history,
+  location,
+}: RouteComponentProps<
+  Record<string, any>,
+  StaticContext,
+  { filePath: string }
+>) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const showBackupFile = () => {
@@ -44,10 +52,17 @@ const FileBackup = ({ history, location }: RouteComponentProps<Record<string, an
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
-    <WrapperWith2SideBars width={820} header="BACKUP EXISTING WALLET" subHeader="A wallet restore file has been saved." isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars
+      width={820}
+      header="BACKUP EXISTING WALLET"
+      subHeader="A wallet restore file has been saved."
+      isDarkMode={isDarkMode}
+    >
       <Text>A restore file has been created in your documents folder.</Text>
       <Link onClick={showBackupFile} text="Browse file location" />
-      <Text>You can use this file to restore your spacemesh wallet on any computer.</Text>
+      <Text>
+        You can use this file to restore your spacemesh wallet on any computer.
+      </Text>
       <BottomRow>
         <Link onClick={openBackupGuide} text="BACKUP GUIDE" />
         <Button onClick={backToWalletRoot} text="GOT IT" width={95} />

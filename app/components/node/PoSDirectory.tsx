@@ -12,8 +12,18 @@ const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
-  clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 5% 100%, 0% 85%);
+  border-top: ${({ theme }) =>
+    `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  clip-path: polygon(
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    100% 0%,
+    100% 100%,
+    0% 100%,
+    5% 100%,
+    0% 85%
+  );
 `;
 
 const HeaderWrapper = styled.div`
@@ -78,13 +88,27 @@ type Props = {
   skipAction: () => void;
 };
 
-const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, setFreeSpace, minCommitmentSize, status, isDarkMode }: Props) => {
+const PoSDirectory = ({
+  nextAction,
+  skipAction,
+  dataDir,
+  setDataDir,
+  freeSpace,
+  setFreeSpace,
+  minCommitmentSize,
+  status,
+  isDarkMode,
+}: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   const openFolderSelectionDialog = async () => {
-    const { error, dataDir, calculatedFreeSpace } = await eventsService.selectPostFolder();
+    const {
+      error,
+      dataDir,
+      calculatedFreeSpace,
+    } = await eventsService.selectPostFolder();
     if (error) {
       setHasPermissionError(true);
     } else {
@@ -101,14 +125,26 @@ const PoSDirectory = ({ nextAction, skipAction, dataDir, setDataDir, freeSpace, 
           <HeaderIcon src={icon} />
           <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
-        <Link onClick={openFolderSelectionDialog} text={dataDir || 'SELECT DIRECTORY'} style={linkStyle} />
-        {hasPermissionError && <ErrorText>SELECT FOLDER WITH MINIMUM {minCommitmentSize} FREE TO PROCEED</ErrorText>}
+        <Link
+          onClick={openFolderSelectionDialog}
+          text={dataDir || 'SELECT DIRECTORY'}
+          style={linkStyle}
+        />
+        {hasPermissionError && (
+          <ErrorText>
+            SELECT FOLDER WITH MINIMUM {minCommitmentSize} FREE TO PROCEED
+          </ErrorText>
+        )}
         {!!freeSpace && <FreeSpaceHeader>FREE SPACE...</FreeSpaceHeader>}
         <FreeSpace error={hasPermissionError} selected={!!freeSpace}>
           {freeSpace || ''}
         </FreeSpace>
       </Wrapper>
-      <PoSFooter action={nextAction} skipAction={skipAction} isDisabled={!dataDir || hasPermissionError || !status} />
+      <PoSFooter
+        action={nextAction}
+        skipAction={skipAction}
+        isDisabled={!dataDir || hasPermissionError || !status}
+      />
     </>
   );
 };

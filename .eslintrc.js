@@ -1,8 +1,20 @@
 module.exports = {
-  extends: 'erb',
+  extends: ['erb', 'plugin:prettier/recommended'],
   rules: {
     'class-methods-use-this': 0,
-    'prettier/prettier': 'error',
+    'prettier/prettier': [
+      'error',
+      {
+        printWidth: 80,
+        tabWidth: 2,
+        useTabs: false,
+        singleQuote: true,
+        arrowParens: 'always',
+        trailingComma: 'es5',
+        bracketSpacing: true,
+      },
+    ],
+    'no-unneeded-ternary': ['error'],
     'no-debugger': 2,
     'no-console': 2,
     radix: 0,
@@ -16,14 +28,6 @@ module.exports = {
     'react/state-in-constructor': 0,
     'react/static-property-placement': 0,
     'react/jsx-props-no-spreading': 0,
-    'max-len': [
-      'error',
-      {
-        code: 180,
-        ignoreUrls: true,
-        ignoreStrings: true,
-      },
-    ],
     'no-class-assign': 0,
     'no-else-return': 0,
     'no-underscore-dangle': 0,
@@ -44,7 +48,14 @@ module.exports = {
     'import/order': [
       'error',
       {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        groups: [
+          'builtin',
+          'external',
+          'internal',
+          'parent',
+          'sibling',
+          'index',
+        ],
       },
     ],
     'react/sort-comp': [
@@ -116,4 +127,5 @@ module.exports = {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
     },
   },
+  plugins: ['prettier'],
 };

@@ -20,16 +20,19 @@ const AccountWrapper = styled.div<{ isInDropDown: boolean }>`
   align-items: flex-start;
   margin: 5px;
   cursor: inherit;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   &:hover {
     opacity: 1;
-    color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha)};
+    color: ${({ theme }) =>
+      theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha};
   }
   ${({ isInDropDown }) =>
     isInDropDown &&
     `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
     opacity: 1;
-    color: ${(theme: any) => (theme.isDarkMode ? smColors.darkGray50Alpha : smColors.darkGray50Alpha)};
+    color: ${(theme: any) =>
+      theme.isDarkMode ? smColors.darkGray50Alpha : smColors.darkGray50Alpha};
   }`}
 `;
 
@@ -79,10 +82,14 @@ const NotSyncedYetText = styled.div`
 `;
 
 const AccountsOverview = () => {
-  const isSynced = useSelector((state: RootState) => !!state.node.status?.isSynced);
+  const isSynced = useSelector(
+    (state: RootState) => !!state.node.status?.isSynced
+  );
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
-  const currentAccountIndex = useSelector((state: RootState) => state.wallet.currentAccountIndex);
+  const currentAccountIndex = useSelector(
+    (state: RootState) => state.wallet.currentAccountIndex
+  );
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
@@ -90,7 +97,15 @@ const AccountsOverview = () => {
     dispatch(setCurrentAccount(index));
   };
 
-  const renderAccountRow = ({ displayName, publicKey, isInDropDown = false }: { displayName: string; publicKey: string; isInDropDown?: boolean }) => (
+  const renderAccountRow = ({
+    displayName,
+    publicKey,
+    isInDropDown = false,
+  }: {
+    displayName: string;
+    publicKey: string;
+    isInDropDown?: boolean;
+  }) => (
     <AccountWrapper isInDropDown={isInDropDown}>
       <AccountName>{displayName}</AccountName>
       <Address address={publicKey} />
@@ -100,16 +115,32 @@ const AccountsOverview = () => {
   if (!accounts || !accounts.length) {
     return null;
   }
-  const { displayName, publicKey, currentState } = accounts[currentAccountIndex];
-  const { value, unit }: any = formatSmidge(currentState ? currentState.balance : 0, true);
+  const { displayName, publicKey, currentState } = accounts[
+    currentAccountIndex
+  ];
+  const { value, unit }: any = formatSmidge(
+    currentState ? currentState.balance : 0,
+    true
+  );
 
   return (
-    <WrapperWith2SideBars width={290} height={'calc(100% - 65px)'} header={meta.displayName} isDarkMode={isDarkMode}>
+    <WrapperWith2SideBars
+      width={290}
+      height={'calc(100% - 65px)'}
+      header={meta.displayName}
+      isDarkMode={isDarkMode}
+    >
       <AccountDetails>
         {accounts.length > 1 ? (
           <DropDown
             data={accounts}
-            DdElement={({ displayName, publicKey, isMain }) => renderAccountRow({ displayName, publicKey, isInDropDown: !isMain })}
+            DdElement={({ displayName, publicKey, isMain }) =>
+              renderAccountRow({
+                displayName,
+                publicKey,
+                isInDropDown: !isMain,
+              })
+            }
             onClick={handleSetCurrentAccount}
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}

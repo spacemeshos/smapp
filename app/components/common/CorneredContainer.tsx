@@ -11,8 +11,10 @@ const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   height: ${({ height }) => height}px;
   padding: 20px;
   margin-left: 8px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray)};
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
 `;
 
 const DivWrapper = styled.div<{ width: number; height: number }>`
@@ -24,8 +26,10 @@ const DivWrapper = styled.div<{ width: number; height: number }>`
   width: ${({ width }) => width}px;
   height: ${({ height }) => height}px;
   padding: 20px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray)};
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
 `;
 
 const HeaderWrapper = styled.div`
@@ -52,7 +56,8 @@ export const SubHeader = styled.div`
   padding-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
 `;
 
 type Props = {
@@ -81,7 +86,8 @@ const CorneredContainer = ({
   isDarkMode = false,
 }: Props) => {
   const ResolvedWrapper: any = useEmptyWrap ? DivWrapper : Wrapper;
-  const color = headerColor || (isDarkMode ? smColors.white : smColors.realBlack);
+  const color =
+    headerColor || (isDarkMode ? smColors.white : smColors.realBlack);
   return (
     <ResolvedWrapper width={width} height={height} isDarkMode={isDarkMode}>
       {header && (
@@ -95,7 +101,9 @@ const CorneredContainer = ({
           --
           <br />
           {subHeader}
-          {tooltipMessage && <Tooltip text={tooltipMessage} isDarkMode width={200} />}
+          {tooltipMessage && (
+            <Tooltip text={tooltipMessage} isDarkMode width={200} />
+          )}
         </SubHeader>
       )}
       {children}

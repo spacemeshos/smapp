@@ -39,7 +39,12 @@ type Props = {
   color: string;
 };
 
-const Banner = ({ children, visibility = true, margin = '0', color }: Props) => (
+const Banner = ({
+  children,
+  visibility = true,
+  margin = '0',
+  color,
+}: Props) => (
   <Wrapper margin={margin} visible={visibility}>
     <UpperPart color={color}>{children}</UpperPart>
     <LowerPart color={color} />
