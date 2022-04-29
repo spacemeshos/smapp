@@ -44,6 +44,8 @@ init({
   debug: process.env.SENTRY_LOG_LEVEL === 'debug',
   environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
   enabled: process.env.NODE_ENV !== 'development',
+  maxValueLength: 20000,
+  attachStacktrace: true,
 });
 
 (async function () {

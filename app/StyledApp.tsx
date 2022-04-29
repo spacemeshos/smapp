@@ -33,6 +33,8 @@ init({
   ],
   tracesSampleRate: 1.0,
   debug: process.env.SENTRY_LOG_LEVEL === 'debug',
+  maxValueLength: 20000,
+  attachStacktrace: true,
 });
 
 const EventRouter = () => {
