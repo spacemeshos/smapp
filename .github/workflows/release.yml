@@ -58,10 +58,12 @@ jobs:
           yarn config set network-timeout 300000
           yarn install --prefer-offline
 
-      - name: Lint and Test
-        run: |
-          yarn lint
-          yarn test --forceExit
+      - name: Lint
+        run: yarn lint
+
+      - name: Test
+        if: matrix.os != 'ubuntu-latest'
+        run: yarn test --forceExit
 
       - name: Build
         run: yarn build
