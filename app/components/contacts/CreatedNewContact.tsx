@@ -15,7 +15,8 @@ const Header = styled.div`
   font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const MainWrapper = styled.div`
@@ -35,7 +36,8 @@ const MainWrapperUpperPart = styled.div`
   align-items: center;
   width: calc(100% - 5px);
   padding: 10px 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.black};
   z-index: 1;
 `;
 
@@ -45,7 +47,8 @@ const MainWrapperLowerPart = styled.div`
   left: 0;
   width: calc(100% - 5px);
   height: 65px;
-  border: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.black}`};
+  border: ${({ theme }) =>
+    `1px solid ${theme.isDarkMode ? smColors.white : smColors.black}`};
 `;
 
 const Text = styled.div`

@@ -11,7 +11,10 @@ export const showMainWindow = (context: AppContext) => {
   mainWindow.focus();
 };
 
-export const showNotification = (context: AppContext, { title, body }: { title: string; body: string }) => {
+export const showNotification = (
+  context: AppContext,
+  { title, body }: { title: string; body: string }
+) => {
   if (Notification.isSupported() && !context.mainWindow?.isMaximized()) {
     const options = { title, body, icon: '../app/assets/images/icon.png' };
     const notification = new Notification(options);
@@ -20,7 +23,8 @@ export const showNotification = (context: AppContext, { title, body }: { title: 
   }
 };
 
-export const getNodeLogsPath = (netId?: number) => path.resolve(USERDATA_DIR, `spacemesh-log-${netId || 0}.txt`);
+export const getNodeLogsPath = (netId?: number) =>
+  path.resolve(USERDATA_DIR, `spacemesh-log-${netId || 0}.txt`);
 
 //
 

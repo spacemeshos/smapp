@@ -18,7 +18,8 @@ const Wrapper = styled.div<{ ref: any }>`
   flex-direction: column;
   margin-bottom: 12px;
   padding: 30px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const TopLeftCorner = styled.img`
@@ -56,13 +57,15 @@ const BottomRightCorner = styled.img`
 const Header = styled.div`
   font-size: 42px;
   line-height: 55px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const SubHeader = styled.div`
   font-size: 20px;
   line-height: 30px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   margin-bottom: 20px;
 `;
 

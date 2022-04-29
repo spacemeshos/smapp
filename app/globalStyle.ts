@@ -21,7 +21,8 @@ const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: ${({ theme }) => (theme.isDarkMode ? smColors.black : smColors.background)};
+        background-color: ${({ theme }) =>
+          theme.isDarkMode ? smColors.black : smColors.background};
     }
     
     html, body, div, span, applet, object, iframe,

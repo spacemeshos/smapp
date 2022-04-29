@@ -16,7 +16,8 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background: url(${fireworksImg}) center center no-repeat;
   background-size: contain;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
@@ -97,7 +98,14 @@ type Props = {
   navigateToTxList: () => void;
 };
 
-const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxList }: Props) => {
+const TxSent = ({
+  fromAddress,
+  address,
+  amount,
+  txId,
+  doneAction,
+  navigateToTxList,
+}: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
 
   const { unit }: any = formatSmidge(amount, true);
@@ -114,7 +122,9 @@ const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxLi
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${getAddress(fromAddress)}`}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{`0x${getAddress(
+            fromAddress
+          )}`}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>To</DetailsTextRight>
@@ -132,7 +142,13 @@ const TxSent = ({ fromAddress, address, amount, txId, doneAction, navigateToTxLi
       <Footer>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
         <ButtonsBlock>
-          <Button onClick={navigateToTxList} text="VIEW TRANSACTION" isPrimary={false} width={170} style={{ marginRight: 20 }} />
+          <Button
+            onClick={navigateToTxList}
+            text="VIEW TRANSACTION"
+            isPrimary={false}
+            width={170}
+            style={{ marginRight: 20 }}
+          />
           <Button onClick={doneAction} text="DONE" />
         </ButtonsBlock>
       </Footer>

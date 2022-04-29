@@ -6,13 +6,15 @@ import { smColors } from '../../vars';
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const BoldText = styled.span`
   font-family: SourceCodeProBold;
   margin-bottom: 10px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const TextRow = styled.div`
@@ -48,13 +50,15 @@ const ProgressBar = styled.div`
 const SmallText = styled.span`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.darkGray)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.darkGray};
 `;
 
 const Bar = styled.div`
   width: 100%;
   height: 5px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.mediumGray)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.mediumGray};
   position: relative;
 `;
 
@@ -75,7 +79,15 @@ type Props = {
   totalReceived: number;
 };
 
-const TransactionsMeta = ({ mined, sent, received, totalMined, totalSent, totalReceived, filterName }: Props) => {
+const TransactionsMeta = ({
+  mined,
+  sent,
+  received,
+  totalMined,
+  totalSent,
+  totalReceived,
+  filterName,
+}: Props) => {
   const totalFilteredCoins = mined + sent + received;
   const coinsMeta = [
     { title: 'SMESHED', coins: mined },
@@ -93,10 +105,14 @@ const TransactionsMeta = ({ mined, sent, received, totalMined, totalSent, totalR
       <Group>
         <BoldText>activity</BoldText>
         <BoldText>--</BoldText>
-        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) => c.toUpperCase())} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
+        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) =>
+          c.toUpperCase()
+        )} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
         {coinsMeta.map((coinMeta) => (
           <ProgressBar key={coinMeta.title}>
-            <SmallText>{`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}</SmallText>
+            <SmallText>{`${coinMeta.title} ${formatSmidge(
+              coinMeta.coins
+            )}`}</SmallText>
             <Bar>
               <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
             </Bar>

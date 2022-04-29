@@ -41,7 +41,9 @@ const ChangePassword = () => {
     };
   });
 
-  const walletFiles = useSelector((state: RootState) => state.wallet.walletFiles);
+  const walletFiles = useSelector(
+    (state: RootState) => state.wallet.walletFiles
+  );
   const mnemonic = useSelector((state: RootState) => state.wallet.mnemonic);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
@@ -70,10 +72,16 @@ const ChangePassword = () => {
 
   const validate = () => {
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPasswordError = !password || (!!password && password.length < pasMinLength);
-    const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
-    const passwordError = hasPasswordError ? `Password has to be ${pasMinLength} characters or more.` : '';
-    const verifyPasswordError = hasVerifyPasswordError ? "these passwords don't match, please try again " : '';
+    const hasPasswordError =
+      !password || (!!password && password.length < pasMinLength);
+    const hasVerifyPasswordError =
+      !verifiedPassword || password !== verifiedPassword;
+    const passwordError = hasPasswordError
+      ? `Password has to be ${pasMinLength} characters or more.`
+      : '';
+    const verifyPasswordError = hasVerifyPasswordError
+      ? "these passwords don't match, please try again "
+      : '';
     setPasswordError(password);
     setVerifyPasswordError(verifiedPassword);
     return !passwordError && !verifyPasswordError;
@@ -83,7 +91,11 @@ const ChangePassword = () => {
     if (validate() && !isLoaderVisible && walletFiles && walletFiles[0]) {
       setIsLoaderVisible(false);
       timeOut = await setTimeout(async () => {
-        await eventsService.updateWalletSecrets(walletFiles[0].path, password, { mnemonic, accounts, contacts });
+        await eventsService.updateWalletSecrets(walletFiles[0].path, password, {
+          mnemonic,
+          accounts,
+          contacts,
+        });
         clearFields();
       }, 500);
     }
@@ -97,8 +109,22 @@ const ChangePassword = () => {
       <LeftPart>
         {isEditMode ? (
           [
-            <Input value={password} type="password" placeholder="Type password" onChange={handlePasswordTyping} style={{ marginBottom: 15 }} key="pass" autofocus />,
-            <Input value={verifiedPassword} type="password" placeholder="Verify password" onChange={handlePasswordVerifyTyping} key="passRetype" />,
+            <Input
+              value={password}
+              type="password"
+              placeholder="Type password"
+              onChange={handlePasswordTyping}
+              style={{ marginBottom: 15 }}
+              key="pass"
+              autofocus
+            />,
+            <Input
+              value={verifiedPassword}
+              type="password"
+              placeholder="Verify password"
+              onChange={handlePasswordVerifyTyping}
+              key="passRetype"
+            />,
           ]
         ) : (
           <Input value="***********" type="password" isDisabled />
@@ -117,8 +143,18 @@ const ChangePassword = () => {
       <RightPart>
         {isEditMode ? (
           [
-            <Link onClick={updatePassword} text="SAVE" style={{ marginRight: 15 }} key="change" />,
-            <Link onClick={clearFields} text="CANCEL" style={{ color: smColors.darkGray }} key="cancel" />,
+            <Link
+              onClick={updatePassword}
+              text="SAVE"
+              style={{ marginRight: 15 }}
+              key="change"
+            />,
+            <Link
+              onClick={clearFields}
+              text="CANCEL"
+              style={{ color: smColors.darkGray }}
+              key="cancel"
+            />,
           ]
         ) : (
           <Button onClick={startUpdatingPassword} text="CHANGE" width={180} />

@@ -23,7 +23,13 @@ const Dashboard = () => {
     return eventsService.destroyBrowserView;
   }, [isDarkMode]);
 
-  return <AnimatedIcon size={250} src={isDarkMode ? loaderWhite : loader} alt="Loading" />;
+  return (
+    <AnimatedIcon
+      size={250}
+      src={isDarkMode ? loaderWhite : loader}
+      alt="Loading"
+    />
+  );
 };
 
 export default Dashboard;

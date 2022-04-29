@@ -13,7 +13,8 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
 `;
 
 const Header = styled.div`
@@ -93,7 +94,8 @@ const ComplexButtonText = styled.div`
   font-size: 13px;
   line-height: 17px;
   text-decoration: underline;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.mediumGray)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.mediumGray};
 `;
 
 type Props = {
@@ -108,13 +110,27 @@ type Props = {
   cancelTx: () => void;
 };
 
-const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, doneAction, editTx, cancelTx }: Props) => {
+const TxConfirmation = ({
+  fromAddress,
+  address,
+  amount,
+  fee,
+  note,
+  canSend,
+  doneAction,
+  editTx,
+  cancelTx,
+}: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
   return (
     <Wrapper>
       <Header>
         <HeaderText>Send SMH</HeaderText>
-        <Link onClick={cancelTx} text="CANCEL TRANSACTION" style={{ color: smColors.orange }} />
+        <Link
+          onClick={cancelTx}
+          text="CANCEL TRANSACTION"
+          style={{ color: smColors.orange }}
+        />
       </Header>
       <SubHeader1>--</SubHeader1>
       <SubHeader2>SUMMARY</SubHeader2>
@@ -146,11 +162,21 @@ const TxConfirmation = ({ fromAddress, address, amount, fee, note, canSend, done
       </>
       <Footer>
         <ComplexButton>
-          <SecondaryButton onClick={editTx} img={chevronLeftWhite} imgWidth={10} imgHeight={15} />
+          <SecondaryButton
+            onClick={editTx}
+            img={chevronLeftWhite}
+            imgWidth={10}
+            imgHeight={15}
+          />
           <ComplexButtonText>EDIT TRANSACTION</ComplexButtonText>
         </ComplexButton>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />
-        <Button onClick={doneAction} text="SEND" style={{ marginLeft: 'auto' }} isDisabled={!canSend} />
+        <Button
+          onClick={doneAction}
+          text="SEND"
+          style={{ marginLeft: 'auto' }}
+          isDisabled={!canSend}
+        />
       </Footer>
     </Wrapper>
   );

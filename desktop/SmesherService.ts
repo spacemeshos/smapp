@@ -1,5 +1,9 @@
 import { ProtoGrpcType } from '../proto/smesher';
-import { PostSetupOpts, PostSetupState, PostSetupStatus } from '../shared/types';
+import {
+  PostSetupOpts,
+  PostSetupState,
+  PostSetupStatus,
+} from '../shared/types';
 
 import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
 import Logger from './logger';
@@ -25,8 +29,13 @@ const PROTO_PATH = 'proto/smesher.proto';
 //   callback: () => this.handleNavigation({ index: 0 })
 // });
 
-class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> {
-  private stream: ReturnType<Service<ProtoGrpcType, 'SmesherService'>['PostSetupStatusStream']> | null = null;
+class SmesherService extends NetServiceFactory<
+  ProtoGrpcType,
+  'SmesherService'
+> {
+  private stream: ReturnType<
+    Service<ProtoGrpcType, 'SmesherService'>['PostSetupStatusStream']
+  > | null = null;
 
   logger = Logger({ className: 'SmesherService' });
 
@@ -49,21 +58,33 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
 
   getSmesherId = () =>
     this.callService('SmesherID', {})
-      .then(({ accountId }) => ({ smesherId: accountId ? toHexString(accountId.address) : '' }))
+      .then(({ accountId }) => ({
+        smesherId: accountId ? toHexString(accountId.address) : '',
+      }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ smesherId: '' }));
 
   getSetupComputeProviders = () =>
     this.callService('PostSetupComputeProviders', { benchmark: true })
       .then((response) => ({
-        providers: response.providers.map(({ id, model, computeApi, performance = 0 }) => ({ id, model, computeApi, performance: parseInt(performance.toString()) })),
+        providers: response.providers.map(
+          ({ id, model, computeApi, performance = 0 }) => ({
+            id,
+            model,
+            computeApi,
+            performance: parseInt(performance.toString()),
+          })
+        ),
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ providers: [] }));
 
   isSmeshing = () =>
     this.callService('IsSmeshing', {})
-      .then((response) => ({ ...response, isSmeshing: response?.isSmeshing || false }))
+      .then((response) => ({
+        ...response,
+        isSmeshing: response?.isSmeshing || false,
+      }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ isSmeshing: false }));
 
@@ -92,39 +113,58 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
       return response.status;
     });
 
-  activateProgressStream = (handler: (error: Error, status: Partial<PostSetupStatus>) => void) => this.postDataCreationProgressStream(handler);
+  activateProgressStream = (
+    handler: (error: Error, status: Partial<PostSetupStatus>) => void
+  ) => this.postDataCreationProgressStream(handler);
 
   stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
-    this.callService('StopSmeshing', { deleteFiles }).then(this.normalizeServiceResponse).catch(this.normalizeServiceError({}));
+    this.callService('StopSmeshing', { deleteFiles })
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({}));
 
   getSmesherID = () =>
     this.callService('SmesherID', {})
-      .then((response) => ({ smesherId: `0x${response.accountId ? toHexString(response.accountId.address) : '00'}` }))
+      .then((response) => ({
+        smesherId: `0x${
+          response.accountId ? toHexString(response.accountId.address) : '00'
+        }`,
+      }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ smesherId: '' }));
 
   getCoinbase = () =>
     this.callService('Coinbase', {})
       .then((response) => ({
-        coinbase: response.accountId ? `0x${toHexString(response.accountId.address)}` : '0x00',
+        coinbase: response.accountId
+          ? `0x${toHexString(response.accountId.address)}`
+          : '0x00',
       }))
       .catch(this.normalizeServiceError({}));
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
-    this.callService('SetCoinbase', { id: { address: fromHexString(coinbase) } })
+    this.callService('SetCoinbase', {
+      id: { address: fromHexString(coinbase) },
+    })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
   getMinGas = () =>
     this.callService('MinGas', {})
-      .then((response) => ({ minGas: response.mingas ? parseInt(response.mingas.value.toString()) : null }))
+      .then((response) => ({
+        minGas: response.mingas
+          ? parseInt(response.mingas.value.toString())
+          : null,
+      }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
 
   getEstimatedRewards = () =>
     this.callService('EstimatedRewards', {})
       .then((response) => {
-        const estimatedRewards = { amount: parseInt(response.amount?.value?.toString() || '0'), commitmentSize: response.numUnits };
+        const estimatedRewards = {
+          amount: parseInt(response.amount?.value?.toString() || '0'),
+          commitmentSize: response.numUnits,
+        };
         return { estimatedRewards };
       })
       .then(this.normalizeServiceResponse)
@@ -138,7 +178,13 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
           throw new Error('PostSetupStatus is null');
         }
         const { state, numLabelsWritten, errorMessage } = status;
-        return { postSetupState: state, numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten.toString()) : 0, errorMessage };
+        return {
+          postSetupState: state,
+          numLabelsWritten: numLabelsWritten
+            ? parseInt(numLabelsWritten.toString())
+            : 0,
+          errorMessage,
+        };
       })
       .then(this.normalizeServiceResponse)
       .catch(
@@ -149,26 +195,37 @@ class SmesherService extends NetServiceFactory<ProtoGrpcType, 'SmesherService'> 
         })
       );
 
-  private postDataCreationProgressStream = (handler: (error: any, status: Partial<PostSetupStatus>) => void) => {
+  private postDataCreationProgressStream = (
+    handler: (error: any, status: Partial<PostSetupStatus>) => void
+  ) => {
     if (!this.service) {
       throw new Error(`SmesherService is not running`);
     }
     if (!this.stream) {
       let streamError = null;
       this.stream = this.service.PostSetupStatusStream({});
-      this.stream.on('data', (response: PostSetupStatusStreamResponse__Output) => {
-        const { status } = response;
-        if (status === null) return; // TODO
-        const { state, numLabelsWritten, errorMessage, opts } = status;
-        this.logger.log('grpc PostDataCreationProgressStream', { state, numLabelsWritten, errorMessage });
-        handler(null, {
-          postSetupState: state,
-          numLabelsWritten: numLabelsWritten ? parseInt(numLabelsWritten.toString()) : 0,
-          errorMessage,
-          opts: opts as PostSetupOpts | null,
-        });
-        streamError = null;
-      });
+      this.stream.on(
+        'data',
+        (response: PostSetupStatusStreamResponse__Output) => {
+          const { status } = response;
+          if (status === null) return; // TODO
+          const { state, numLabelsWritten, errorMessage, opts } = status;
+          this.logger.log('grpc PostDataCreationProgressStream', {
+            state,
+            numLabelsWritten,
+            errorMessage,
+          });
+          handler(null, {
+            postSetupState: state,
+            numLabelsWritten: numLabelsWritten
+              ? parseInt(numLabelsWritten.toString())
+              : 0,
+            errorMessage,
+            opts: opts as PostSetupOpts | null,
+          });
+          streamError = null;
+        }
+      );
       this.stream.on('error', (error: any) => {
         this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore

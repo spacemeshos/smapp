@@ -11,4 +11,8 @@ type AuthLocationState = Partial<{
   isWalletOnly: boolean;
 }>;
 
-export type AuthRouterParams = RouteComponentProps<Record<string, any>, StaticContext, AuthLocationState>;
+export type AuthRouterParams = RouteComponentProps<
+  Record<string, any>,
+  StaticContext,
+  AuthLocationState
+>;

@@ -13,20 +13,32 @@ import { HOUR } from './constants';
 autoUpdater.logger = logger;
 
 // IPC
-const notify = <T extends unknown>(channel: ipcConsts) => (context: AppContext, info: T) =>
-  (context.mainWindow && context.mainWindow.webContents.send(channel, info) && true) || false;
+const notify = <T extends unknown>(channel: ipcConsts) => (
+  context: AppContext,
+  info: T
+) =>
+  (context.mainWindow &&
+    context.mainWindow.webContents.send(channel, info) &&
+    true) ||
+  false;
 
 const notifyUpdateAvailble = notify<UpdateInfo>(ipcConsts.AU_AVAILABLE);
-const notifyDownloadProgress = notify<ProgressInfo>(ipcConsts.AU_DOWNLOAD_PROGRESS);
+const notifyDownloadProgress = notify<ProgressInfo>(
+  ipcConsts.AU_DOWNLOAD_PROGRESS
+);
 const notifyUpdateDownloaded = notify<UpdateInfo>(ipcConsts.AU_DOWNLOADED);
 const notifyDownloadStarted = notify<void>(ipcConsts.AU_DOWNLOAD_STARTED);
 const notifyError = notify<Error>(ipcConsts.AU_ERROR);
 
 // Utils
-const getCurrentVersion = () => (isDev() ? new SemVer(pkg.version) : autoUpdater.currentVersion);
+const getCurrentVersion = () =>
+  isDev() ? new SemVer(pkg.version) : autoUpdater.currentVersion;
 
 //
-export const checkForUpdates = async (context: AppContext, autoDownload = false) => {
+export const checkForUpdates = async (
+  context: AppContext,
+  autoDownload = false
+) => {
   if (!context.currentNetwork) return null;
   const currentVersion = getCurrentVersion();
   const { latestSmappRelease, smappBaseDownloadUrl } = context.currentNetwork;

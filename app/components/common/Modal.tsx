@@ -37,12 +37,27 @@ type Props = {
   children: any;
 };
 
-const Modal = ({ header, subHeader = '', headerColor, indicatorColor, children, width = 520, height = 310 }: Props) => {
+const Modal = ({
+  header,
+  subHeader = '',
+  headerColor,
+  indicatorColor,
+  children,
+  width = 520,
+  height = 310,
+}: Props) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const color = isDarkMode ? smColors.white : smColors.black;
   return (
     <Wrapper>
-      <CorneredContainer width={width} height={height} header={header} subHeader={subHeader} headerColor={headerColor} isDarkMode={isDarkMode}>
+      <CorneredContainer
+        width={width}
+        height={height}
+        header={header}
+        subHeader={subHeader}
+        headerColor={headerColor}
+        isDarkMode={isDarkMode}
+      >
         <Indicator indColor={indicatorColor || headerColor || color} />
         {children}
       </CorneredContainer>

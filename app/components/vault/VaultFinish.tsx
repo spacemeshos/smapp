@@ -1,7 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../../vars';
-import { vault, circle, wallet, fireworksWhite, fireworks } from '../../assets/images';
+import {
+  vault,
+  circle,
+  wallet,
+  fireworksWhite,
+  fireworks,
+} from '../../assets/images';
 
 const DetailsRow = styled.div`
   position: relative;
@@ -37,7 +43,10 @@ type Props = {
 const VaultFinish = ({ isDarkMode }: Props) => (
   <>
     <Fireworks src={isDarkMode ? fireworksWhite : fireworks} />
-    <GreenText>Your new vault transaction has been submitted to the mesh and is being created.</GreenText>
+    <GreenText>
+      Your new vault transaction has been submitted to the mesh and is being
+      created.
+    </GreenText>
     <DetailsRow>
       <Icon src={circle} />
       Track creation progress in your transactions log.
@@ -48,7 +57,8 @@ const VaultFinish = ({ isDarkMode }: Props) => (
     </DetailsRow>
     <DetailsRow>
       <Icon src={vault} />
-      To work with your new vault, select it from your wallet’s accounts list drop-down (left side).
+      To work with your new vault, select it from your wallet’s accounts list
+      drop-down (left side).
     </DetailsRow>
   </>
 );

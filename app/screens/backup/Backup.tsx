@@ -15,7 +15,12 @@ const Backup = ({ history }: RouteComponentProps) => (
     <BackButton action={history.goBack} width={7} height={10} />
     <Switch>
       {routes.backup.map((route) => (
-        <Route exact key={route.path} path={route.path} component={route.component} />
+        <Route
+          exact
+          key={route.path}
+          path={route.path}
+          component={route.component}
+        />
       ))}
       <Redirect to="/main/backup/backup-options" />
     </Switch>

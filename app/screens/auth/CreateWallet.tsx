@@ -9,7 +9,10 @@ import { eventsService } from '../../infra/eventsService';
 import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { getCurrentWalletFile, isWalletOnly } from '../../redux/wallet/selectors';
+import {
+  getCurrentWalletFile,
+  isWalletOnly,
+} from '../../redux/wallet/selectors';
 import { WalletType } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
@@ -24,7 +27,8 @@ const Wrapper = styled.div`
 `;
 
 const SubHeader = styled.div`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const UpperPart = styled.div`
@@ -98,24 +102,35 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
 
   const renderSubHeader = (subMode: number) => {
     return subMode === 1 ? (
-      <SubHeader>Protect your wallet with a password. You will need it to access latter</SubHeader>
+      <SubHeader>
+        Protect your wallet with a password. You will need it to access latter
+      </SubHeader>
     ) : (
       <SubHeader>
         Your wallet was created and saved in a password-protected file
         <br />
         <br />
-        <Link onClick={() => eventsService.showFileInFolder({})} text="Browse file location" />
+        <Link
+          onClick={() => eventsService.showFileInFolder({})}
+          text="Browse file location"
+        />
       </SubHeader>
     );
   };
 
   const validate = () => {
     const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPasswordError = !password || (!!password && password.length < pasMinLength);
-    const hasVerifyPasswordError = !verifiedPassword || password !== verifiedPassword;
+    const hasPasswordError =
+      !password || (!!password && password.length < pasMinLength);
+    const hasVerifyPasswordError =
+      !verifiedPassword || password !== verifiedPassword;
     // eslint-disable-next-line no-template-curly-in-string
-    const passwordError = hasPasswordError ? 'Password has to be ${pasMinLength} characters or more.' : '';
-    const verifyPasswordError = hasVerifyPasswordError ? "These passwords don't match, please try again." : '';
+    const passwordError = hasPasswordError
+      ? `Password has to be ${pasMinLength} characters or more.`
+      : '';
+    const verifyPasswordError = hasVerifyPasswordError
+      ? "These passwords don't match, please try again."
+      : '';
     setPasswordError(passwordError);
     setVerifiedPassword(verifyPasswordError);
     return !passwordError && !verifyPasswordError;
@@ -128,7 +143,9 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
         createNewWallet({
           existingMnemonic: location?.state?.mnemonic,
           password,
-          type: location?.state?.isWalletOnly ? WalletType.RemoteApi : WalletType.LocalNode,
+          type: location?.state?.isWalletOnly
+            ? WalletType.RemoteApi
+            : WalletType.LocalNode,
           netId: location?.state?.netId || -1,
           apiUrl: location?.state?.apiUrl || null,
         })
@@ -158,7 +175,11 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     if (subMode === 1 && validate()) {
       createWallet();
     } else if (subMode === 2) {
-      if (location?.state?.netId && typeof location?.state?.apiUrl === 'string' && isLocalNodeApi(location.state.apiUrl)) {
+      if (
+        location?.state?.netId &&
+        typeof location?.state?.apiUrl === 'string' &&
+        isLocalNodeApi(location.state.apiUrl)
+      ) {
         history.push(MainPath.SmeshingSetup);
         return;
       }
@@ -175,27 +196,51 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
         <Loader
           size={Loader.sizes.BIG}
           isDarkMode={isDarkMode}
-          note={isWalletOnlyMode ? 'Please wait, connecting to Spacemesh api...' : 'Please wait, starting up Spacemesh node...'}
+          note={
+            isWalletOnlyMode
+              ? 'Please wait, connecting to Spacemesh api...'
+              : 'Please wait, starting up Spacemesh node...'
+          }
         />
       </LoaderWrapper>
     );
   }
-  const header = subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
+  const header =
+    subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   return (
     <Wrapper>
       <Steps step={Step.PROTECT_WALLET} isDarkMode={isDarkMode} />
-      <CorneredContainer width={650} height={400} header={header} subHeader={renderSubHeader(subMode)} isDarkMode={isDarkMode}>
+      <CorneredContainer
+        width={650}
+        height={400}
+        header={header}
+        subHeader={renderSubHeader(subMode)}
+        isDarkMode={isDarkMode}
+      >
         {subMode === 1 && (
           <>
             <UpperPart>
               <Inputs>
                 <InputSection>
                   <Chevron src={chevronRight} />
-                  <Input value={password} type="password" placeholder="ENTER PASSWORD" onEnterPress={handleEnterPress} onChange={handlePasswordTyping} autofocus />
+                  <Input
+                    value={password}
+                    type="password"
+                    placeholder="ENTER PASSWORD"
+                    onEnterPress={handleEnterPress}
+                    onChange={handlePasswordTyping}
+                    autofocus
+                  />
                 </InputSection>
                 <InputSection>
                   <Chevron src={chevronRight} />
-                  <Input value={verifiedPassword} type="password" placeholder="VERIFY PASSWORD" onEnterPress={handleEnterPress} onChange={handlePasswordVerifyTyping} />
+                  <Input
+                    value={verifiedPassword}
+                    type="password"
+                    placeholder="VERIFY PASSWORD"
+                    onEnterPress={handleEnterPress}
+                    onChange={handlePasswordVerifyTyping}
+                  />
                 </InputSection>
               </Inputs>
               <ErrorSection>

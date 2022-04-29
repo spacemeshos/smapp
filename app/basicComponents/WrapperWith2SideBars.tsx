@@ -1,6 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { sidePanelRightLong, sidePanelRightLongWhite, sidePanelLeftLong, sidePanelLeftLongWhite } from '../assets/images';
+import {
+  sidePanelRightLong,
+  sidePanelRightLongWhite,
+  sidePanelLeftLong,
+  sidePanelLeftLongWhite,
+} from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div<{ width: number; height: number | string }>`
@@ -8,8 +13,10 @@ const Wrapper = styled.div<{ width: number; height: number | string }>`
   flex-direction: row;
   position: relative;
   width: ${({ width }) => width}px;
-  height: ${({ height }) => (typeof height === 'string' ? height : `${height}px`)};
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dmBlack2 : smColors.black10Alpha)};
+  height: ${({ height }) =>
+    typeof height === 'string' ? height : `${height}px`};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dmBlack2 : smColors.black10Alpha};
 `;
 
 const SideBar = styled.img`
@@ -41,7 +48,8 @@ const HeaderIcon = styled.img`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const SubHeader = styled.div`
@@ -61,7 +69,16 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const WrapperWith2SideBars = ({ width, height = '100%', header, headerIcon, subHeader, children, style, isDarkMode }: Props) => {
+const WrapperWith2SideBars = ({
+  width,
+  height = '100%',
+  header,
+  headerIcon,
+  subHeader,
+  children,
+  style,
+  isDarkMode,
+}: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftLongWhite : sidePanelLeftLong;
   const rightImg = isDarkMode ? sidePanelRightLongWhite : sidePanelRightLong;
 

@@ -13,7 +13,8 @@ const Wrapper = styled.div<{ isStandalone: boolean }>`
   flex-direction: column;
   width: ${({ isStandalone }) => (isStandalone ? '215px' : '100%')};
   height: ${({ isStandalone }) => (isStandalone ? '100%' : '140px')};
-  ${({ isStandalone }) => isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
+  ${({ isStandalone }) =>
+    isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
 `;
 
 const Header = styled.div<{ isStandalone: boolean }>`
@@ -72,7 +73,12 @@ type Props = {
   onCancel: () => void;
 };
 
-const CreateNewContact = ({ isStandalone = false, initialAddress = '', onCompleteAction, onCancel }: Props) => {
+const CreateNewContact = ({
+  isStandalone = false,
+  initialAddress = '',
+  onCompleteAction,
+  onCancel,
+}: Props) => {
   const [address, setAddress] = useState(initialAddress || '');
   // const [initialAddress, setIn] = useState(initialAddress || '');
   const [nickname, setNickname] = useState('');
@@ -159,15 +165,34 @@ const CreateNewContact = ({ isStandalone = false, initialAddress = '', onComplet
             style={isStandalone ? inputStyle3 : inputStyle1}
             onFocus={handleFocus}
           />
-          {hasError && <ErrorPopup onClick={() => setHasError(false)} text={errorMsg} style={{ bottom: 60, left: 'calc(50% - 90px)' }} />}
+          {hasError && (
+            <ErrorPopup
+              onClick={() => setHasError(false)}
+              text={errorMsg}
+              style={{ bottom: 60, left: 'calc(50% - 90px)' }}
+            />
+          )}
         </InputWrapperUpperPart>
         <InputWrapperLowerPart />
       </InputsWrapper>
       <ButtonsWrapper>
-        <Link onClick={preCreateContact} text="CREATE" style={{ color: smColors.green, marginRight: 15 }} />
-        <Link onClick={onCancel} text="CANCEL" style={{ color: smColors.orange }} />
+        <Link
+          onClick={preCreateContact}
+          text="CREATE"
+          style={{ color: smColors.green, marginRight: 15 }}
+        />
+        <Link
+          onClick={onCancel}
+          text="CANCEL"
+          style={{ color: smColors.orange }}
+        />
       </ButtonsWrapper>
-      {shouldShowPasswordModal && <EnterPasswordModal submitAction={createContact} closeModal={() => setShouldShowPasswordModal(false)} />}
+      {shouldShowPasswordModal && (
+        <EnterPasswordModal
+          submitAction={createContact}
+          closeModal={() => setShouldShowPasswordModal(false)}
+        />
+      )}
     </Wrapper>
   );
 };

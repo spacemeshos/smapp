@@ -62,7 +62,14 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       return { ...state, mnemonic: action.payload };
     }
     case SET_REMOTE_API: {
-      return { ...state, meta: { ...state.meta, remoteApi: action.payload.api, type: action.payload.type } };
+      return {
+        ...state,
+        meta: {
+          ...state.meta,
+          remoteApi: action.payload.api,
+          type: action.payload.type,
+        },
+      };
     }
     case SET_CURRENT_ACCOUNT_INDEX: {
       const index = action.payload;
@@ -76,15 +83,28 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     }
     case UPDATE_ACCOUNT_DATA: {
       const { account, accountId } = action.payload;
-      const accountIndexToUpdate = state.accounts.findIndex((account) => account.publicKey === accountId);
+      const accountIndexToUpdate = state.accounts.findIndex(
+        (account) => account.publicKey === accountId
+      );
       return {
         ...state,
-        accounts: R.over(R.lensIndex(accountIndexToUpdate), (acc) => ({ ...acc, currentState: account.currentState, projectedState: account.projectedState }), state.accounts),
+        accounts: R.over(
+          R.lensIndex(accountIndexToUpdate),
+          (acc) => ({
+            ...acc,
+            currentState: account.currentState,
+            projectedState: account.projectedState,
+          }),
+          state.accounts
+        ),
       };
     }
     case SET_TRANSACTIONS: {
       const { publicKey, txs } = action.payload;
-      return { ...state, transactions: { ...state.transactions, [publicKey]: txs } };
+      return {
+        ...state,
+        transactions: { ...state.transactions, [publicKey]: txs },
+      };
     }
     case SET_ACCOUNT_REWARDS: {
       const { rewards, publicKey } = action.payload;

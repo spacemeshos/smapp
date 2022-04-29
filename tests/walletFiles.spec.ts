@@ -13,21 +13,35 @@ import {
   updateWalletMeta,
   updateWalletSecrets,
 } from '../desktop/main/walletFile';
-import { Wallet, WalletSecrets, WalletSecretsEncrypted, WalletType } from '../shared/types';
+import {
+  Wallet,
+  WalletSecrets,
+  WalletSecretsEncrypted,
+  WalletType,
+} from '../shared/types';
 
 const FIXTURES_DIRECTORY = path.resolve(__dirname, './fixtures');
-const VALID_WALLET_PATH = path.resolve(FIXTURES_DIRECTORY, './my_wallet_valid.json');
+const VALID_WALLET_PATH = path.resolve(
+  FIXTURES_DIRECTORY,
+  './my_wallet_valid.json'
+);
 
 describe('Encryption/Decryption wallet file', () => {
-  const secrets: WalletSecrets = { mnemonic: 'this is just a test so it does not matter what mnemonics here', accounts: [], contacts: [] };
+  const secrets: WalletSecrets = {
+    mnemonic: 'this is just a test so it does not matter what mnemonics here',
+    accounts: [],
+    contacts: [],
+  };
   const cipher: WalletSecretsEncrypted = {
     cipher: 'AES-128-CTR',
     cipherText:
       '715066e1109e89e8d638e703fdc6038d7bb25a81df6b6d2aebeba26488f7b4b47bc805b61302c125c6998ebcbb15a40c5802e8386c4edbdca832db3d8e1d27c36e68357a840d0cc623a92c498cde40c6205d715013cb5ecd2d676212d6ed2b30061fc85b70890eb2',
   };
 
-  it('encrypts the wallet file', () => expect(encryptWallet(secrets, 'password')).toStrictEqual(cipher));
-  it('decrypts the wallet file', () => expect(decryptWallet(cipher, 'password')).toStrictEqual(secrets));
+  it('encrypts the wallet file', () =>
+    expect(encryptWallet(secrets, 'password')).toStrictEqual(cipher));
+  it('decrypts the wallet file', () =>
+    expect(decryptWallet(cipher, 'password')).toStrictEqual(secrets));
   it('decrypt throws an error in case of wrong password', async () => {
     expect(() => decryptWallet(cipher, 'wrong')).toThrowError('Wrong password');
   });
@@ -42,7 +56,9 @@ describe('Load wallet file', () => {
         meta: {
           displayName: expect.any(String),
           created: expect.any(String),
-          type: expect.stringMatching(new RegExp(`^${WalletType.LocalNode}|${WalletType.RemoteApi}$`)),
+          type: expect.stringMatching(
+            new RegExp(`^${WalletType.LocalNode}|${WalletType.RemoteApi}$`)
+          ),
           netId: expect.any(Number),
           remoteApi: expect.any(String),
           meta: {
@@ -78,7 +94,11 @@ describe('Save/update wallet file', () => {
     outDir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'walletFiles-test'));
   });
   afterEach(async () => {
-    await fs.readdir(outDir).then((files) => Promise.all(files.map((file) => fs.unlink(`${outDir}/${file}`))));
+    await fs
+      .readdir(outDir)
+      .then((files) =>
+        Promise.all(files.map((file) => fs.unlink(`${outDir}/${file}`)))
+      );
   });
   it('saves wallet file', async () => {
     const wallet = await loadWallet(VALID_WALLET_PATH, '1');
@@ -90,7 +110,10 @@ describe('Save/update wallet file', () => {
   it('updates wallet meta', async () => {
     const walletPath = path.resolve(outDir, path.basename(VALID_WALLET_PATH));
     await fs.copyFile(VALID_WALLET_PATH, walletPath);
-    const result = await updateWalletMeta(walletPath, { displayName: 'It works!', netId: 5 });
+    const result = await updateWalletMeta(walletPath, {
+      displayName: 'It works!',
+      netId: 5,
+    });
     // Meta updated
     expect(result).toMatchObject({
       meta: {
@@ -114,7 +137,9 @@ describe('Save/update wallet file', () => {
     // Secret part is updated
     expect(updatedWallet.crypto.mnemonic).toEqual('It works!');
     // Part of it is untouched
-    expect(updatedWallet.crypto.accounts).toStrictEqual(original.crypto.accounts);
+    expect(updatedWallet.crypto.accounts).toStrictEqual(
+      original.crypto.accounts
+    );
     // Public part of wallet file is untoched
     expect(original.meta).toStrictEqual(updatedWallet.meta);
   });
@@ -136,7 +161,10 @@ describe('List wallet files', () => {
   };
 
   it('by paths', async () => {
-    const wallets = await listWalletsByPaths([VALID_WALLET_PATH, VALID_WALLET_PATH]);
+    const wallets = await listWalletsByPaths([
+      VALID_WALLET_PATH,
+      VALID_WALLET_PATH,
+    ]);
     expectWalletList(2, wallets);
   });
   it('within directory', async () => {
@@ -155,7 +183,11 @@ describe('copyWalletFile', () => {
     tmpDir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'walletFiles-test'));
   });
   afterEach(async () => {
-    await fs.readdir(tmpDir).then((files) => Promise.all(files.map((file) => fs.unlink(`${tmpDir}/${file}`))));
+    await fs
+      .readdir(tmpDir)
+      .then((files) =>
+        Promise.all(files.map((file) => fs.unlink(`${tmpDir}/${file}`)))
+      );
   });
 
   it('copies wallet file & increment name', async () => {

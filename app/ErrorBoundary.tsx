@@ -18,7 +18,8 @@ import { smColors } from './vars';
 const ButtonsWrapper = styled.div<{ hasSingleButton: boolean }>`
   display: flex;
   flex-direction: row;
-  justify-content: ${({ hasSingleButton }) => (hasSingleButton ? 'center' : 'space-between')};
+  justify-content: ${({ hasSingleButton }) =>
+    hasSingleButton ? 'center' : 'space-between'};
   margin: auto 0 15px 0;
   padding-top: 30px;
 `;
@@ -72,7 +73,10 @@ class ErrorBoundary extends Component<Props, State> {
     return { isRenderingError: true };
   }
 
-  componentDidCatch(error: Error, { componentStack }: { componentStack: string }) {
+  componentDidCatch(
+    error: Error,
+    { componentStack }: { componentStack: string }
+  ) {
     setContext(componentStack, null);
     captureEvent(error);
     console.log(`${error.message} ${componentStack}`); // eslint-disable-line no-console

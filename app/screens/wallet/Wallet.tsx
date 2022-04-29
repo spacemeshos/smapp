@@ -33,7 +33,8 @@ const BackupReminder = styled.div`
   height: 50px;
   margin-top: 10px;
   padding: 0 15px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.dMBlack1 : smColors.black02Alpha)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.dMBlack1 : smColors.black02Alpha};
   cursor: pointer;
 `;
 
@@ -101,7 +102,12 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
         <RightSection>
           <Switch>
             {routes.wallet.map((route) => (
-              <Route exact key={route.path} path={route.path} component={route.component} />
+              <Route
+                exact
+                key={route.path}
+                path={route.path}
+                component={route.component}
+              />
             ))}
             <Redirect to="/main/wallet/overview" />
           </Switch>

@@ -7,7 +7,8 @@ const Dot = styled.div`
   flex-shrink: 1;
   overflow: hidden;
   margin-right: 28px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
   }
   ::before {
       float: left;

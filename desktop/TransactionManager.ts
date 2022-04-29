@@ -1,5 +1,14 @@
 import { BrowserWindow } from 'electron';
-import { Account, AccountWithBalance, HexString, Reward, Tx, TxCoinTransfer, TxSendRequest, TxState } from '../shared/types';
+import {
+  Account,
+  AccountWithBalance,
+  HexString,
+  Reward,
+  Tx,
+  TxCoinTransfer,
+  TxSendRequest,
+  TxState,
+} from '../shared/types';
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
@@ -41,7 +50,10 @@ class TransactionManager {
 
   private readonly mainWindow: BrowserWindow;
 
-  private txStateStream: Record<string, ReturnType<TransactionService['activateTxStream']>> = {};
+  private txStateStream: Record<
+    string,
+    ReturnType<TransactionService['activateTxStream']>
+  > = {};
 
   private accountStates: Record<string, AccountStateManager> = {};
 
@@ -60,7 +72,10 @@ class TransactionManager {
   // Debounce update functions to avoid excessive IPC calls
   updateAppStateAccount = debounce(IPC_DEBOUNCE, (publicKey: string) => {
     const account = this.accountStates[publicKey].getAccount();
-    this.appStateUpdater(ipcConsts.T_M_UPDATE_ACCOUNT, { account, accountId: publicKey });
+    this.appStateUpdater(ipcConsts.T_M_UPDATE_ACCOUNT, {
+      account,
+      accountId: publicKey,
+    });
   });
 
   updateAppStateTxs = debounce(IPC_DEBOUNCE, (publicKey: string) => {
@@ -91,8 +106,12 @@ class TransactionManager {
         this.logger.error('TransactionManager.storeReward', err);
       });
 
-  private handleNewTx = (publicKey: string) => async (tx: { transaction: Transaction__Output | null; transactionState: TransactionState__Output | null }) => {
-    if (!tx.transaction || !tx.transactionState || !tx.transactionState.state) return;
+  private handleNewTx = (publicKey: string) => async (tx: {
+    transaction: Transaction__Output | null;
+    transactionState: TransactionState__Output | null;
+  }) => {
+    if (!tx.transaction || !tx.transactionState || !tx.transactionState.state)
+      return;
     const newTx = toTx(tx.transaction, tx.transactionState);
     if (!newTx) return;
     await this.storeTx(publicKey, newTx);
@@ -105,13 +124,19 @@ class TransactionManager {
     if (this.txStateStream[publicKey]) {
       this.txStateStream[publicKey]();
     }
-    this.txStateStream[publicKey] = this.txService.activateTxStream(this.handleNewTx(publicKey), txIds);
+    this.txStateStream[publicKey] = this.txService.activateTxStream(
+      this.handleNewTx(publicKey),
+      txIds
+    );
 
     this.txService
       .getTxsState(txIds)
       .then((resp) =>
         // two lists -> list of tuples
-        resp.transactions.map((tx, idx) => ({ transaction: tx, transactionState: resp.transactionsState[idx] }))
+        resp.transactions.map((tx, idx) => ({
+          transaction: tx,
+          transactionState: resp.transactionsState[idx],
+        }))
       )
       .then((txs) => txs.map(this.handleNewTx(publicKey)))
       .catch((err) => {
@@ -127,19 +152,41 @@ class TransactionManager {
 
     const binaryAccountId = fromHexString(publicKey.substring(24));
     const addTransaction = this.upsertTransactionFromMesh(publicKey);
-    this.retrieveHistoricTxData({ accountId: binaryAccountId, offset: 0, handler: addTransaction, retries: 0 });
-    this.meshService.activateAccountMeshDataStream(binaryAccountId, addTransaction);
+    this.retrieveHistoricTxData({
+      accountId: binaryAccountId,
+      offset: 0,
+      handler: addTransaction,
+      retries: 0,
+    });
+    this.meshService.activateAccountMeshDataStream(
+      binaryAccountId,
+      addTransaction
+    );
 
     const updateAccountData = this.updateAccountData({ accountId: publicKey });
     this.retrieveAccountData({
-      filter: { accountId: { address: binaryAccountId }, accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT },
+      filter: {
+        accountId: { address: binaryAccountId },
+        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+      },
       handler: updateAccountData,
       retries: 0,
     });
-    this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT, updateAccountData);
+    this.glStateService.activateAccountDataStream(
+      binaryAccountId,
+      AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+      updateAccountData
+    );
 
     setInterval(() => {
-      this.retrieveAccountData({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 4 }, handler: updateAccountData, retries: 0 });
+      this.retrieveAccountData({
+        filter: {
+          accountId: { address: binaryAccountId },
+          accountDataFlags: 4,
+        },
+        handler: updateAccountData,
+        retries: 0,
+      });
     }, 60 * 1000);
 
     const txs = Object.keys(this.accountStates[publicKey].getTxs());
@@ -153,16 +200,32 @@ class TransactionManager {
     // this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT, addReceiptToTx);
 
     const addReward = this.addReward(publicKey);
-    this.retrieveRewards({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 }, offset: 0, handler: addReward, retries: 0 });
-    this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD, addReward);
+    this.retrieveRewards({
+      filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 },
+      offset: 0,
+      handler: addReward,
+      retries: 0,
+    });
+    this.glStateService.activateAccountDataStream(
+      binaryAccountId,
+      AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
+      addReward
+    );
 
     this.updateAppStateTxs(publicKey);
     this.updateAppStateRewards(publicKey);
   };
 
   addAccount = (account: Account) => {
-    const idx = this.accounts.findIndex((acc) => acc.publicKey === account.publicKey);
-    const filtered = idx > -1 ? this.accounts.slice(0, Math.max(0, idx - 1)).concat(this.accounts.slice(idx + 1)) : this.accounts;
+    const idx = this.accounts.findIndex(
+      (acc) => acc.publicKey === account.publicKey
+    );
+    const filtered =
+      idx > -1
+        ? this.accounts
+            .slice(0, Math.max(0, idx - 1))
+            .concat(this.accounts.slice(idx + 1))
+        : this.accounts;
     this.accounts = [...filtered, account];
 
     const accManager = new AccountStateManager(account.publicKey);
@@ -177,13 +240,17 @@ class TransactionManager {
 
   private upsertTransaction = (accountId: HexString) => async (tx: Tx) => {
     const originalTx = this.accountStates[accountId].getTxById(tx.id);
-    const receipt = tx.receipt ? { ...originalTx?.receipt, ...tx.receipt } : originalTx?.receipt;
+    const receipt = tx.receipt
+      ? { ...originalTx?.receipt, ...tx.receipt }
+      : originalTx?.receipt;
     const updatedTx: Tx = { ...originalTx, ...tx, receipt };
     await this.storeTx(accountId, updatedTx);
     this.subscribeTransactions(accountId);
   };
 
-  private upsertTransactionFromMesh = (accountId: HexString) => async (tx: TxHandlerArg) => {
+  private upsertTransactionFromMesh = (accountId: HexString) => async (
+    tx: TxHandlerArg
+  ) => {
     if (!tx || !tx?.transaction?.id?.id || !tx.layerId) return;
     const newTxData = toTx(tx.transaction, null);
     if (!newTxData) return;
@@ -193,28 +260,65 @@ class TransactionManager {
     });
   };
 
-  retrieveHistoricTxData = async ({ accountId, offset, handler, retries }: { accountId: Uint8Array; offset: number; handler: TxHandler; retries: number }) => {
-    const { data, totalResults, error } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset }); // TODO: Get rid of `any` on proto.ts refactoring
+  retrieveHistoricTxData = async ({
+    accountId,
+    offset,
+    handler,
+    retries,
+  }: {
+    accountId: Uint8Array;
+    offset: number;
+    handler: TxHandler;
+    retries: number;
+  }) => {
+    const {
+      data,
+      totalResults,
+      error,
+    } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset }); // TODO: Get rid of `any` on proto.ts refactoring
     if (error && retries < 5) {
-      await this.retrieveHistoricTxData({ accountId, offset, handler, retries: retries + 1 });
+      await this.retrieveHistoricTxData({
+        accountId,
+        offset,
+        handler,
+        retries: retries + 1,
+      });
     } else {
       data && data.length && data.forEach((tx) => handler(tx.meshTransaction));
       if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveHistoricTxData({ accountId, offset: offset + DATA_BATCH, handler, retries: 0 });
+        await this.retrieveHistoricTxData({
+          accountId,
+          offset: offset + DATA_BATCH,
+          handler,
+          retries: 0,
+        });
       }
     }
   };
 
-  updateAccountData = ({ accountId }: { accountId: string }) => (data: Account__Output) => {
+  updateAccountData = ({ accountId }: { accountId: string }) => (
+    data: Account__Output
+  ) => {
     const currentState = {
-      counter: data.stateCurrent?.counter ? data.stateCurrent.counter.toNumber() : 0,
-      balance: data.stateCurrent?.balance?.value ? data.stateCurrent.balance.value.toNumber() : 0,
+      counter: data.stateCurrent?.counter
+        ? data.stateCurrent.counter.toNumber()
+        : 0,
+      balance: data.stateCurrent?.balance?.value
+        ? data.stateCurrent.balance.value.toNumber()
+        : 0,
     };
     const projectedState = {
-      counter: data.stateProjected?.counter ? data.stateProjected.counter.toNumber() : 0,
-      balance: data.stateProjected?.balance?.value ? data.stateProjected.balance.value.toNumber() : 0,
+      counter: data.stateProjected?.counter
+        ? data.stateProjected.counter.toNumber()
+        : 0,
+      balance: data.stateProjected?.balance?.value
+        ? data.stateProjected.balance.value.toNumber()
+        : 0,
     };
-    this.accountStates[accountId].storeAccountBalance({ currentState, projectedState });
+    this.accountStates[accountId].storeAccountBalance({
+      currentState,
+      projectedState,
+    });
     this.updateAppStateAccount(accountId);
   };
 
@@ -227,15 +331,25 @@ class TransactionManager {
     handler: (data: Account__Output) => void;
     retries: number;
   }) => {
-    const { data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset: 0 });
+    const { data, error } = await this.glStateService.sendAccountDataQuery({
+      filter,
+      offset: 0,
+    });
     if (error && retries < 5) {
       await this.retrieveAccountData({ filter, handler, retries: retries + 1 });
     } else {
-      data && data.length > 0 && data[0].accountWrapper && handler(data[0].accountWrapper);
+      data &&
+        data.length > 0 &&
+        data[0].accountWrapper &&
+        handler(data[0].accountWrapper);
     }
   };
 
-  addReceiptToTx = ({ accountId }: { accountId: string }) => ({ datum }: { datum: AccountData__Output }) => {
+  addReceiptToTx = ({ accountId }: { accountId: string }) => ({
+    datum,
+  }: {
+    datum: AccountData__Output;
+  }) => {
     const { receipt } = datum;
     if (!receipt || !receipt.id?.id) return;
 
@@ -257,13 +371,30 @@ class TransactionManager {
     handler: ({ data }: { data: any }) => void;
     retries: number;
   }) => {
-    const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset });
+    const {
+      totalResults,
+      data,
+      error,
+    } = await this.glStateService.sendAccountDataQuery({ filter, offset });
     if (error && retries < 5) {
-      await this.retrieveHistoricTxReceipt({ filter, offset, handler, retries: retries + 1 });
+      await this.retrieveHistoricTxReceipt({
+        filter,
+        offset,
+        handler,
+        retries: retries + 1,
+      });
     } else {
-      data && data.length && data.length > 0 && data.forEach((item) => handler({ data: item.receipt }));
+      data &&
+        data.length &&
+        data.length > 0 &&
+        data.forEach((item) => handler({ data: item.receipt }));
       if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveHistoricTxReceipt({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
+        await this.retrieveHistoricTxReceipt({
+          filter,
+          offset: offset + DATA_BATCH,
+          handler,
+          retries: 0,
+        });
       }
     }
   };
@@ -294,18 +425,40 @@ class TransactionManager {
     handler: RewardHandler;
     retries: number;
   }) => {
-    const { totalResults, data, error } = await this.glStateService.sendAccountDataQuery({ filter, offset });
+    const {
+      totalResults,
+      data,
+      error,
+    } = await this.glStateService.sendAccountDataQuery({ filter, offset });
     if (error && retries < 5) {
-      await this.retrieveRewards({ filter, offset, handler, retries: retries + 1 });
+      await this.retrieveRewards({
+        filter,
+        offset,
+        handler,
+        retries: retries + 1,
+      });
     } else {
-      data && data.length > 0 && data.forEach((reward) => handler(reward.reward));
+      data &&
+        data.length > 0 &&
+        data.forEach((reward) => handler(reward.reward));
       if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveRewards({ filter, offset: offset + DATA_BATCH, handler, retries: 0 });
+        await this.retrieveRewards({
+          filter,
+          offset: offset + DATA_BATCH,
+          handler,
+          retries: 0,
+        });
       }
     }
   };
 
-  sendTx = async ({ fullTx, accountIndex }: { fullTx: TxSendRequest; accountIndex: number }) => {
+  sendTx = async ({
+    fullTx,
+    accountIndex,
+  }: {
+    fullTx: TxSendRequest;
+    accountIndex: number;
+  }) => {
     const { publicKey } = this.accounts[accountIndex];
     const account = this.accountStates[publicKey].getAccount();
     const { receiver, amount, fee } = fullTx;
@@ -316,11 +469,17 @@ class TransactionManager {
       amount,
       secretKey: this.accounts[accountIndex].secretKey,
     });
-    const response = await this.txService.submitTransaction({ transaction: res });
-    const getTxResponseError = () => new Error('Can not retrieve a transaction data');
+    const response = await this.txService.submitTransaction({
+      transaction: res,
+    });
+    const getTxResponseError = () =>
+      new Error('Can not retrieve a transaction data');
 
     // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
-    const error = response.error || response.txstate === null || !response.txstate.id?.id ? response.error || getTxResponseError() : null;
+    const error =
+      response.error || response.txstate === null || !response.txstate.id?.id
+        ? response.error || getTxResponseError()
+        : null;
     // Compose "initial" transaction record
     const tx: TxCoinTransfer | null =
       response.error === null && response.txstate?.id?.id
@@ -335,15 +494,34 @@ class TransactionManager {
             },
           }
         : null;
-    const state = response.error === null && response.txstate?.state ? response.txstate.state : null;
+    const state =
+      response.error === null && response.txstate?.state
+        ? response.txstate.state
+        : null;
 
-    if (tx && state && ![TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS, TxState.TRANSACTION_STATE_REJECTED, TxState.TRANSACTION_STATE_CONFLICTING].includes(state)) {
+    if (
+      tx &&
+      state &&
+      ![
+        TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS,
+        TxState.TRANSACTION_STATE_REJECTED,
+        TxState.TRANSACTION_STATE_CONFLICTING,
+      ].includes(state)
+    ) {
       this.upsertTransaction(publicKey)(tx);
     }
     return { error, tx, state };
   };
 
-  updateTxNote = ({ accountIndex, txId, note }: { accountIndex: number; txId: HexString; note: string }) => {
+  updateTxNote = ({
+    accountIndex,
+    txId,
+    note,
+  }: {
+    accountIndex: number;
+    txId: HexString;
+    note: string;
+  }) => {
     const { publicKey } = this.accounts[accountIndex];
     const tx = this.accountStates[publicKey].getTxById(txId);
     this.storeTx(publicKey, { ...tx, note });

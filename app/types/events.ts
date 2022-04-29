@@ -9,7 +9,9 @@ type MiscNetParams = {
   explorerUrl: string;
 };
 
-export type NetworkDefinitions = (NetDescriptor & MiscNetParams) | NetDescriptor;
+export type NetworkDefinitions =
+  | (NetDescriptor & MiscNetParams)
+  | NetDescriptor;
 
 export type CurrentLayer = {
   currentLayer: number;

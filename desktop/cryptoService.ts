@@ -25,13 +25,22 @@ class CryptoService {
     };
     // @ts-ignore
     global.__generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
-    return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
+    return {
+      publicKey: toHexString(publicKey),
+      secretKey: toHexString(secretKey),
+    };
   };
 
   /**
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
-  static deriveNewKeyPair = ({ mnemonic, index }: { mnemonic: string; index: number }) => {
+  static deriveNewKeyPair = ({
+    mnemonic,
+    index,
+  }: {
+    mnemonic: string;
+    index: number;
+  }) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
@@ -45,8 +54,16 @@ class CryptoService {
       secretKey = sk;
     };
     // @ts-ignore
-    global.__deriveNewKeyPair(seed.slice(32), index, saltAsUint8Array, saveKeys); // eslint-disable-line no-undef
-    return { publicKey: toHexString(publicKey), secretKey: toHexString(secretKey) };
+    global.__deriveNewKeyPair(
+      seed.slice(32),
+      index,
+      saltAsUint8Array,
+      saveKeys
+    ); // eslint-disable-line no-undef
+    return {
+      publicKey: toHexString(publicKey),
+      secretKey: toHexString(secretKey),
+    };
   };
 
   /**
@@ -58,21 +75,43 @@ class CryptoService {
    * @param amount - amount to transfer in SMC cents
    * @return {Promise} when resolved returns signature as Uint8Array(64)
    */
-  static signTransaction = ({ accountNonce, receiver, price, amount, secretKey }: { accountNonce: number; receiver: string; price: number; amount: number; secretKey: string }) => {
+  static signTransaction = ({
+    accountNonce,
+    receiver,
+    price,
+    amount,
+    secretKey,
+  }: {
+    accountNonce: number;
+    receiver: string;
+    price: number;
+    amount: number;
+    secretKey: string;
+  }) => {
     const sk = fromHexString(secretKey);
-    const types = xdr.config((xdr1: { struct: (arg0: string, arg1: any[][]) => void; uhyper: () => any; opaque: (arg0: number) => any; lookup: (arg0: string) => any }) => {
-      xdr1.struct('InnerSerializableSignedTransaction', [
-        ['AccountNonce', xdr1.uhyper()],
-        ['Recipient', xdr1.opaque(20)],
-        ['GasLimit', xdr1.uhyper()],
-        ['Fee', xdr1.uhyper()],
-        ['Amount', xdr1.uhyper()],
-      ]);
-      xdr1.struct('SerializableSignedTransaction', [
-        ['InnerSerializableSignedTransaction', xdr1.lookup('InnerSerializableSignedTransaction')],
-        ['Signature', xdr1.opaque(64)],
-      ]);
-    });
+    const types = xdr.config(
+      (xdr1: {
+        struct: (arg0: string, arg1: any[][]) => void;
+        uhyper: () => any;
+        opaque: (arg0: number) => any;
+        lookup: (arg0: string) => any;
+      }) => {
+        xdr1.struct('InnerSerializableSignedTransaction', [
+          ['AccountNonce', xdr1.uhyper()],
+          ['Recipient', xdr1.opaque(20)],
+          ['GasLimit', xdr1.uhyper()],
+          ['Fee', xdr1.uhyper()],
+          ['Amount', xdr1.uhyper()],
+        ]);
+        xdr1.struct('SerializableSignedTransaction', [
+          [
+            'InnerSerializableSignedTransaction',
+            xdr1.lookup('InnerSerializableSignedTransaction'),
+          ],
+          ['Signature', xdr1.opaque(64)],
+        ]);
+      }
+    );
     const message = new types.InnerSerializableSignedTransaction({
       AccountNonce: xdr.UnsignedHyper.fromString(`${accountNonce}`),
       Recipient: fromHexString(receiver),
@@ -100,7 +139,13 @@ class CryptoService {
    * @param message - utf8 string representation of message
    * @return {Promise} when resolved returns signature as Uint8Array(64)
    */
-  static signMessage = ({ message, secretKey }: { message: string; secretKey: string }) => {
+  static signMessage = ({
+    message,
+    secretKey,
+  }: {
+    message: string;
+    secretKey: string;
+  }) => {
     const sk = fromHexString(secretKey);
     return new Promise((resolve) => {
       const enc = new TextEncoder();

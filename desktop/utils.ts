@@ -12,8 +12,11 @@ export const isProd = () => process.env.NODE_ENV === 'production';
 export const isDev = () => process.env.NODE_ENV === 'development';
 export const isDebug = () => isDev() || process.env.DEBUG_PROD;
 
-export const isDevNet = (proc = process): proc is NodeJS.Process & { env: { NODE_ENV: 'development'; DEV_NET_URL: string } } =>
-  proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
+export const isDevNet = (
+  proc = process
+): proc is NodeJS.Process & {
+  env: { NODE_ENV: 'development'; DEV_NET_URL: string };
+} => proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
 
 // --------------------------------------------------------
 // HexString conversion
@@ -27,13 +30,19 @@ export const fromHexString = (hexString: HexString) => {
   return Uint8Array.from(bytes);
 };
 export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
-  bytes instanceof Buffer ? bytes.toString('hex') : bytes.reduce((str: string, byte: number) => str + byte.toString(16).padStart(2, '0'), '');
+  bytes instanceof Buffer
+    ? bytes.toString('hex')
+    : bytes.reduce(
+        (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
+        ''
+      );
 
 // --------------------------------------------------------
 // Network
 // --------------------------------------------------------
 
-export const fetchJSON = async (url?: string) => (url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null);
+export const fetchJSON = async (url?: string) =>
+  url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null;
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 
@@ -81,7 +90,10 @@ export const isEmptyDir = async (path: string) => {
  * X = [1,2,3,4]
  * Y = [5,6]
  */
-export const createDebouncePool = <T extends unknown>(delay: number, callback: (errors: T[]) => void) => {
+export const createDebouncePool = <T extends unknown>(
+  delay: number,
+  callback: (errors: T[]) => void
+) => {
   let bucket: T[] = [];
   let timer: ReturnType<typeof setTimeout> | null = null;
 

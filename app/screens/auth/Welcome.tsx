@@ -4,7 +4,12 @@ import styled from 'styled-components';
 import { CorneredContainer } from '../../components/common';
 import { SubHeader } from '../../components/common/CorneredContainer';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { bigInnerSideBar, posSmesher, networkPink, walletSecond } from '../../assets/images';
+import {
+  bigInnerSideBar,
+  posSmesher,
+  networkPink,
+  walletSecond,
+} from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
@@ -25,7 +30,8 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  background-color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.black};
 `;
 
 const Row = styled.div`
@@ -92,7 +98,12 @@ const Welcome = ({ history }: AuthRouterParams) => {
   const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
   return (
-    <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH" isDarkMode={isDarkMode}>
+    <CorneredContainer
+      width={760}
+      height={400}
+      header="WELCOME TO SPACEMESH"
+      isDarkMode={isDarkMode}
+    >
       <SubHeaderExt>
         <RowText>
           <span>
@@ -125,10 +136,16 @@ const Welcome = ({ history }: AuthRouterParams) => {
       <BottomPart>
         <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
         <ComplexLink>
-          <Link onClick={() => history.push(AuthPath.Recover)} text="OPEN AN EXISTING WALLET" />
+          <Link
+            onClick={() => history.push(AuthPath.Recover)}
+            text="OPEN AN EXISTING WALLET"
+          />
           <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
           <ButtonMargin>
-            <Button text="SETUP" onClick={() => history.push(AuthPath.ConnectionType)} />
+            <Button
+              text="SETUP"
+              onClick={() => history.push(AuthPath.ConnectionType)}
+            />
           </ButtonMargin>
         </ComplexLink>
       </BottomPart>

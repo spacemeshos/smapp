@@ -1,5 +1,11 @@
 import { UiState, CustomAction } from '../../types';
-import { SET_OS_THEME, THEME_SWITCHER, HIDE_LEFT_PANEL, SET_UI_ERROR, SHOW_CLOSING_APP_MODAL } from './actions';
+import {
+  SET_OS_THEME,
+  THEME_SWITCHER,
+  HIDE_LEFT_PANEL,
+  SET_UI_ERROR,
+  SHOW_CLOSING_APP_MODAL,
+} from './actions';
 
 const initialState = {
   isDarkMode: false,

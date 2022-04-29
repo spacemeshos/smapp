@@ -15,6 +15,11 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const Logo = ({ isDarkMode }: Props) => <LogoImg src={isDarkMode ? logoWhite : logo} onClick={() => window.open('https://spacemesh.io')} />;
+const Logo = ({ isDarkMode }: Props) => (
+  <LogoImg
+    src={isDarkMode ? logoWhite : logo}
+    onClick={() => window.open('https://spacemesh.io')}
+  />
+);
 
 export default Logo;

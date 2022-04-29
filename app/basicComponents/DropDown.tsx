@@ -20,7 +20,12 @@ const Wrapper = styled.div<{ isDisabled: boolean }>`
   `};
 `;
 
-const HeaderWrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void; rowHeight: number; bgColor: string; isOpened: boolean }>`
+const HeaderWrapper = styled.div<{
+  onClick: (e?: React.MouseEvent) => void;
+  rowHeight: number;
+  bgColor: string;
+  isOpened: boolean;
+}>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -55,14 +60,24 @@ const ItemsWrapper = styled.div<{ rowHeight: number; bgColor?: string }>`
   overflow-y: scroll;
   box-sizing: content-box;
   box-shadow: 0 3px 6px ${smColors.black02Alpha};
-  border: 1px solid ${({ theme, bgColor }) => bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
+  border: 1px solid
+    ${({ theme, bgColor }) =>
+      bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
   margin-left: -1px;
-  background-color: ${({ theme, bgColor }) => bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
+  background-color: ${({ theme, bgColor }) =>
+    bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
-const DropdownRow = styled.div<{ onClick: (e?: React.MouseEvent) => void; rowContentCentered: boolean; height: number; isDisabled: boolean; key: string }>`
+const DropdownRow = styled.div<{
+  onClick: (e?: React.MouseEvent) => void;
+  rowContentCentered: boolean;
+  height: number;
+  isDisabled: boolean;
+  key: string;
+}>`
   display: flex;
-  ${({ rowContentCentered }) => rowContentCentered && `justify-content: center;`}
+  ${({ rowContentCentered }) =>
+    rowContentCentered && `justify-content: center;`}
   align-items: center;
   height: ${({ height }) => height}px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
@@ -109,9 +124,20 @@ const DropDown = <T extends ADataItem>({
   }, []);
 
   const isDisabledComputed = isDisabled || !data || !data.length;
-  const icon = whiteIcon || isDarkMode ? chevronBottomWhite : chevronBottomBlack;
+  const icon =
+    whiteIcon || isDarkMode ? chevronBottomWhite : chevronBottomBlack;
 
-  const renderRow = ({ item, index, rowHeight = 44, rowContentCentered }: { item: Partial<T>; index: number; rowHeight?: number; rowContentCentered: boolean }) => (
+  const renderRow = ({
+    item,
+    index,
+    rowHeight = 44,
+    rowContentCentered,
+  }: {
+    item: Partial<T>;
+    index: number;
+    rowHeight?: number;
+    rowContentCentered: boolean;
+  }) => (
     <DropdownRow
       rowContentCentered={rowContentCentered}
       isDisabled={item.isDisabled || false}
@@ -145,13 +171,20 @@ const DropDown = <T extends ADataItem>({
         e.stopPropagation();
       }}
     >
-      <HeaderWrapper isOpened={isOpened} bgColor={bgColor} onClick={isDisabledComputed ? () => {} : handleToggle} rowHeight={rowHeight}>
+      <HeaderWrapper
+        isOpened={isOpened}
+        bgColor={bgColor}
+        onClick={isDisabledComputed ? () => {} : handleToggle}
+        rowHeight={rowHeight}
+      >
         <DdElement {...data[selectedItemIndex]} isMain />
         <Icon isOpened={isOpened} src={icon} />
       </HeaderWrapper>
       {isOpened && data && (
         <ItemsWrapper bgColor={bgColor} rowHeight={rowHeight}>
-          {data.map((item, index: number) => renderRow({ item, index, rowHeight, rowContentCentered }))}
+          {data.map((item, index: number) =>
+            renderRow({ item, index, rowHeight, rowContentCentered })
+          )}
         </ItemsWrapper>
       )}
     </Wrapper>

@@ -54,7 +54,14 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const Tooltip = ({ top = -2, left = -3, width, text, marginTop = 2, isDarkMode }: Props) => (
+const Tooltip = ({
+  top = -2,
+  left = -3,
+  width,
+  text,
+  marginTop = 2,
+  isDarkMode,
+}: Props) => (
   <Wrapper marginTop={marginTop}>
     <OuterIcon src={isDarkMode ? tooltipWhite : tooltip} />
     <InnerWrapper top={top} left={left} width={width}>

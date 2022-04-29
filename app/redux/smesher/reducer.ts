@@ -1,6 +1,10 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
-import { PostSetupComputeProvider, PostSetupState, SmesherConfig } from '../../../shared/types';
+import {
+  PostSetupComputeProvider,
+  PostSetupState,
+  SmesherConfig,
+} from '../../../shared/types';
 import { BITS } from '../../types';
 import {
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
@@ -34,10 +38,19 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
   switch (action.type) {
     case SET_SMESHER_SETTINGS_AND_STARTUP_STATUS: {
       const {
-        payload: { config, smesherId, postSetupState, numLabelsWritten, errorMessage, numUnits },
+        payload: {
+          config,
+          smesherId,
+          postSetupState,
+          numLabelsWritten,
+          errorMessage,
+          numUnits,
+        },
       } = action;
 
-      const commitmentSize = config ? (config.labelsPerUnit * config.bitsPerLabel * numUnits) / BITS : 0;
+      const commitmentSize = config
+        ? (config.labelsPerUnit * config.bitsPerLabel * numUnits) / BITS
+        : 0;
 
       return {
         ...state,
@@ -46,7 +59,8 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         numUnits,
         numLabelsWritten,
         postSetupState,
-        postProgressError: postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
+        postProgressError:
+          postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
         commitmentSize,
       };
     }
@@ -63,8 +77,19 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       const {
         payload: { coinbase, dataDir, numUnits, provider, throttle },
       } = action;
-      const commitmentSize = state.config ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) / BITS : 0;
-      return { ...state, coinbase, dataDir, numUnits, throttle, provider, commitmentSize };
+      const commitmentSize = state.config
+        ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) /
+          BITS
+        : 0;
+      return {
+        ...state,
+        coinbase,
+        dataDir,
+        numUnits,
+        throttle,
+        provider,
+        commitmentSize,
+      };
     }
     case DELETED_POS_DATA: {
       return {

@@ -24,7 +24,10 @@ const errorHandlerMiddleware = createErrorHandlerMiddleware((err: Error) => {
   return setUiError(error);
 });
 
-const store: Store<RootState, CustomAction> & { dispatch: AppThDispatch; getState: GetState } = createStore(
+const store: Store<RootState, CustomAction> & {
+  dispatch: AppThDispatch;
+  getState: GetState;
+} = createStore(
   rootReducer,
   composeEnhancers(applyMiddleware(errorHandlerMiddleware, thunk))
 );

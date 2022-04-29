@@ -1,7 +1,11 @@
 import type { NodeState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
 import { IPC_SYNC_TYPE, isMySyncChannel } from '../ipcSync';
-import { SET_NODE_ERROR, SET_NODE_STATUS, SET_NODE_VERSION_AND_BUILD } from './actions';
+import {
+  SET_NODE_ERROR,
+  SET_NODE_STATUS,
+  SET_NODE_VERSION_AND_BUILD,
+} from './actions';
 
 const initialState = {
   status: null,
@@ -37,7 +41,11 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
     case IPC_SYNC_TYPE: {
       if (!isMySyncChannel('config', action)) return state;
       const { payload } = action;
-      return { ...state, dataPath: payload.node.dataPath, port: payload.node.port };
+      return {
+        ...state,
+        dataPath: payload.node.dataPath,
+        port: payload.node.port,
+      };
     }
     default:
       return state;

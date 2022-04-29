@@ -4,7 +4,13 @@ import { smColors } from '../vars';
 
 const GAP = 4;
 
-const UpperPart = styled.div<{ width: number; height: number; isContainerFullWidth: boolean; isDisabled: boolean; isPrimary: boolean }>`
+const UpperPart = styled.div<{
+  width: number;
+  height: number;
+  isContainerFullWidth: boolean;
+  isDisabled: boolean;
+  isPrimary: boolean;
+}>`
   position: absolute;
   z-index: 1;
   top: 0;
@@ -25,7 +31,9 @@ const UpperPart = styled.div<{ width: number; height: number; isContainerFullWid
       ? `background-color: ${smColors.disabledGray};`
       : `background-color: ${isPrimary ? smColors.green : smColors.purple};
         &:hover {
-          background-color: ${isPrimary ? smColors.darkerGreen : smColors.darkerPurple};
+          background-color: ${
+            isPrimary ? smColors.darkerGreen : smColors.darkerPurple
+          };
         }
       `}
   cursor: inherit;
@@ -55,7 +63,13 @@ const Image = styled.img`
   cursor: inherit;
 `;
 
-const LowerPart = styled.div<{ width: number; height: number; isContainerFullWidth: boolean; isDisabled: boolean; isPrimary: boolean }>`
+const LowerPart = styled.div<{
+  width: number;
+  height: number;
+  isContainerFullWidth: boolean;
+  isDisabled: boolean;
+  isPrimary: boolean;
+}>`
   position: absolute;
   z-index: 0;
   top: ${GAP}px;
@@ -75,13 +89,22 @@ const LowerPart = styled.div<{ width: number; height: number; isContainerFullWid
       : `
         border: 1px solid ${isPrimary ? smColors.green : smColors.purple};
         &:hover {
-          border: 1px solid ${isPrimary ? smColors.darkerGreen : smColors.darkerPurple};
+          border: 1px solid ${
+            isPrimary ? smColors.darkerGreen : smColors.darkerPurple
+          };
         }
       `}
   cursor: inherit;
 `;
 
-const Wrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void; width: number; height: number; isContainerFullWidth: boolean; isDisabled: boolean; style: any }>`
+const Wrapper = styled.div<{
+  onClick: (e?: React.MouseEvent) => void;
+  width: number;
+  height: number;
+  isContainerFullWidth: boolean;
+  isDisabled: boolean;
+  style: any;
+}>`
   position: relative;
   width: ${({ width }) => width + GAP}px;
   ${({ isContainerFullWidth }) =>
@@ -118,9 +141,33 @@ type Props = {
   style?: any;
 };
 
-const Button = ({ onClick, isPrimary = true, isDisabled = false, width = 100, height = 40, text, img, imgPosition, style = {}, isContainerFullWidth = false }: Props) => (
-  <Wrapper onClick={isDisabled ? () => {} : onClick} width={width} height={height} isDisabled={isDisabled} isContainerFullWidth={isContainerFullWidth} style={style}>
-    <UpperPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled}>
+const Button = ({
+  onClick,
+  isPrimary = true,
+  isDisabled = false,
+  width = 100,
+  height = 40,
+  text,
+  img,
+  imgPosition,
+  style = {},
+  isContainerFullWidth = false,
+}: Props) => (
+  <Wrapper
+    onClick={isDisabled ? () => {} : onClick}
+    width={width}
+    height={height}
+    isDisabled={isDisabled}
+    isContainerFullWidth={isContainerFullWidth}
+    style={style}
+  >
+    <UpperPart
+      width={width}
+      height={height}
+      isPrimary={isPrimary}
+      isContainerFullWidth={isContainerFullWidth}
+      isDisabled={isDisabled}
+    >
       {img && imgPosition === 'before' && (
         <ImageWrapper>
           <Image src={img} />
@@ -133,7 +180,13 @@ const Button = ({ onClick, isPrimary = true, isDisabled = false, width = 100, he
         </ImageWrapper>
       )}
     </UpperPart>
-    <LowerPart width={width} height={height} isPrimary={isPrimary} isContainerFullWidth={isContainerFullWidth} isDisabled={isDisabled} />
+    <LowerPart
+      width={width}
+      height={height}
+      isPrimary={isPrimary}
+      isContainerFullWidth={isContainerFullWidth}
+      isDisabled={isDisabled}
+    />
   </Wrapper>
 );
 

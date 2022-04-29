@@ -1,4 +1,10 @@
-import { AuthPath, BackupPath, MainPath, RouterPath, WalletPath } from './routerPaths';
+import {
+  AuthPath,
+  BackupPath,
+  MainPath,
+  RouterPath,
+  WalletPath,
+} from './routerPaths';
 import {
   Auth,
   Welcome,
@@ -46,7 +52,8 @@ type Routes = Record<string, Route[]>;
 //
 // Utils
 //
-const formatRoutes = (list: [RouterPath, any][]): Route[] => list.map(([path, component]) => ({ path, component }));
+const formatRoutes = (list: [RouterPath, any][]): Route[] =>
+  list.map(([path, component]) => ({ path, component }));
 
 //
 // Map paths to components

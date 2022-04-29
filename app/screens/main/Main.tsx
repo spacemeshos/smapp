@@ -4,7 +4,12 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { Logo } from '../../components/common';
-import { SecondaryButton, NavTooltip, NetworkIndicator, SmallHorizontalPanel } from '../../basicComponents';
+import {
+  SecondaryButton,
+  NavTooltip,
+  NetworkIndicator,
+  SmallHorizontalPanel,
+} from '../../basicComponents';
 import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
 import {
@@ -77,7 +82,8 @@ const NavBarLink = styled.div<{ isActive?: boolean }>`
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
   text-transform: uppercase;
-  color: ${({ isActive }) => (isActive ? smColors.purple : smColors.navLinkGrey)};
+  color: ${({ isActive }) =>
+    isActive ? smColors.purple : smColors.navLinkGrey};
   cursor: pointer;
 `;
 
@@ -128,7 +134,14 @@ type State = {
 };
 
 class Main extends Component<Props, State> {
-  private static readonly navRoutes = [MainPath.Smeshing, MainPath.Network, MainPath.Wallet, MainPath.Contacts, MainPath.Dashboard, MainPath.Settings];
+  private static readonly navRoutes = [
+    MainPath.Smeshing,
+    MainPath.Network,
+    MainPath.Wallet,
+    MainPath.Contacts,
+    MainPath.Dashboard,
+    MainPath.Settings,
+  ];
 
   constructor(props: Props) {
     super(props);
@@ -149,8 +162,14 @@ class Main extends Component<Props, State> {
     const signOut = isDarkMode ? signOutIconBlack : signOutIcon;
     const bntStyle = { marginRight: 15, marginTop: 10 };
     const bgColor = isDarkMode ? smColors.white : smColors.black;
-    // eslint-disable-next-line no-nested-ternary
-    const indicatorColor = nodeError || netId === -1 ? smColors.red : isWalletOnly || status?.isSynced ? smColors.green : smColors.orange;
+    /* eslint-disable no-nested-ternary */
+    const indicatorColor =
+      nodeError || netId === -1
+        ? smColors.red
+        : isWalletOnly || status?.isSynced
+        ? smColors.green
+        : smColors.orange;
+    /* eslint-enable no-nested-ternary */
 
     return (
       <Wrapper>
@@ -159,7 +178,11 @@ class Main extends Component<Props, State> {
           <NavBar>
             <NavBarPart>
               <NavLinksWrapper>
-                {this.renderNavBarLink('SMESHING', 'MANAGE SMESHING', MainPath.Smeshing)}
+                {this.renderNavBarLink(
+                  'SMESHING',
+                  'MANAGE SMESHING',
+                  MainPath.Smeshing
+                )}
                 {this.renderNavBarLink(
                   <>
                     <NetworkIndicator color={indicatorColor} />
@@ -168,8 +191,16 @@ class Main extends Component<Props, State> {
                   'NETWORK',
                   MainPath.Network
                 )}
-                {this.renderNavBarLink('WALLET', 'SEND / RECEIVE SMH', MainPath.Wallet)}
-                {this.renderNavBarLink('CONTACTS', 'MANAGE CONTACTS', MainPath.Contacts)}
+                {this.renderNavBarLink(
+                  'WALLET',
+                  'SEND / RECEIVE SMH',
+                  MainPath.Wallet
+                )}
+                {this.renderNavBarLink(
+                  'CONTACTS',
+                  'MANAGE CONTACTS',
+                  MainPath.Contacts
+                )}
                 {this.renderNavBarLink('DASH', 'DASHBOARD', MainPath.Dashboard)}
               </NavLinksWrapper>
             </NavBarPart>
@@ -190,7 +221,9 @@ class Main extends Component<Props, State> {
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
-                  onClick={() => this.handleOpenLink(ExternalLinks.GetCoinGuide)}
+                  onClick={() =>
+                    this.handleOpenLink(ExternalLinks.GetCoinGuide)
+                  }
                   img={getCoins}
                   imgHeight={30}
                   imgWidth={30}
@@ -236,7 +269,11 @@ class Main extends Component<Props, State> {
             <SmallHorizontalPanel isDarkMode={isDarkMode} />
             <Switch>
               {routes.main.map((route) => (
-                <Route key={route.path} path={route.path} component={route.component} />
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  component={route.component}
+                />
               ))}
             </Switch>
           </RoutesWrapper>
@@ -253,11 +290,18 @@ class Main extends Component<Props, State> {
     getNetworkDefinitions();
   }
 
-  renderNavBarLink = (label: string | ReactNode, tooltip: string, route: string) => {
+  renderNavBarLink = (
+    label: string | ReactNode,
+    tooltip: string,
+    route: string
+  ) => {
     const { isDarkMode } = this.props;
     return (
       <TooltipWrapper>
-        <NavBarLink onClick={() => this.handleNavRoute(route)} isActive={this.isActive(route)}>
+        <NavBarLink
+          onClick={() => this.handleNavRoute(route)}
+          isActive={this.isActive(route)}
+        >
           {label}
         </NavBarLink>
         <CustomTooltip text={tooltip} isDarkMode={isDarkMode} />
@@ -267,11 +311,14 @@ class Main extends Component<Props, State> {
 
   static getDerivedStateFromProps(props: Props) {
     const { pathname } = props.location;
-    const nextActiveIndex = Main.navRoutes.findIndex((route) => pathname.startsWith(route));
+    const nextActiveIndex = Main.navRoutes.findIndex((route) =>
+      pathname.startsWith(route)
+    );
     return { activeRouteIndex: nextActiveIndex };
   }
 
-  getRouteIndex = (route: string) => Main.navRoutes.findIndex((navRoute) => navRoute.startsWith(route));
+  getRouteIndex = (route: string) =>
+    Main.navRoutes.findIndex((navRoute) => navRoute.startsWith(route));
 
   handleNavRoute = (route: string) => {
     if (this.isActive(route)) return;

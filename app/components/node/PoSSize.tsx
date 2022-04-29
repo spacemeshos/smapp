@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '../../basicComponents';
 // import { eventsService } from '../../infra/eventsService';
-import { posSpace, posRewardEst, posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
+import {
+  posSpace,
+  posRewardEst,
+  posDirectoryBlack,
+  posDirectoryWhite,
+} from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
@@ -71,7 +76,8 @@ const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
   color: ${smColors.realBlack};
   &:hover {
     opacity: 1;
-    color: ${({ theme }) => (theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha)};
+    color: ${({ theme }) =>
+      theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha};
   }
   ${({ isInDropDown }) =>
     isInDropDown &&
@@ -99,7 +105,8 @@ const Commitment = styled.div`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const Link = styled.div`
@@ -116,7 +123,8 @@ const Link = styled.div`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+      color: ${({ theme }) =>
+        theme.isDarkMode ? smColors.white : smColors.black};
     }
   }
 `;
@@ -138,8 +146,19 @@ type Props = {
   isDarkMode: boolean;
 };
 
-const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAction, status, isDarkMode }: Props) => {
-  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0);
+const PoSSize = ({
+  commitments,
+  dataDir,
+  numUnits,
+  setNumUnit,
+  freeSpace,
+  nextAction,
+  status,
+  isDarkMode,
+}: Props) => {
+  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
+    numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
+  );
   const [hasErrorFetchingEstimatedRewards] = useState(false);
   // const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
 
@@ -156,7 +175,13 @@ const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAc
   //   loadEstimatedRewards();
   // }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
 
-  const renderDDRow = ({ label, isInDropDown }: { label: string; isInDropDown: boolean }) => (
+  const renderDDRow = ({
+    label,
+    isInDropDown,
+  }: {
+    label: string;
+    isInDropDown: boolean;
+  }) => (
     <CommitmentWrapper isInDropDown={isInDropDown}>
       <Commitment>{label}</Commitment>
     </CommitmentWrapper>
@@ -184,7 +209,9 @@ const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAc
         <Dots>.....................................................</Dots>
         <DropDown
           data={commitments}
-          DdElement={({ label, isMain }) => renderDDRow({ label, isInDropDown: !isMain })}
+          DdElement={({ label, isMain }) =>
+            renderDDRow({ label, isInDropDown: !isMain })
+          }
           onClick={selectCommitment}
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}
@@ -200,9 +227,15 @@ const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAc
         <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
         <Dots>.....................................................</Dots>
         {hasErrorFetchingEstimatedRewards ? (
-          <ErrorText>Failed to load estimated rewards. Please return to previous step</ErrorText>
+          <ErrorText>
+            Failed to load estimated rewards. Please return to previous step
+          </ErrorText>
         ) : (
-          <RewardText selected={selectedCommitmentIndex !== -1}>{selectedCommitmentIndex !== -1 ? `10 SMESH / EPOCH` : '0 SMESH / EPOCH'}</RewardText>
+          <RewardText selected={selectedCommitmentIndex !== -1}>
+            {selectedCommitmentIndex !== -1
+              ? `10 SMESH / EPOCH`
+              : '0 SMESH / EPOCH'}
+          </RewardText>
         )}
       </Row>
       <BottomRow>
@@ -214,7 +247,10 @@ const PoSSize = ({ commitments, dataDir, numUnits, setNumUnit, freeSpace, nextAc
       <BottomRow>
         <Text>Free space: {freeSpace}</Text>
       </BottomRow>
-      <PoSFooter action={nextAction} isDisabled={selectedCommitmentIndex === -1 || !status} />
+      <PoSFooter
+        action={nextAction}
+        isDisabled={selectedCommitmentIndex === -1 || !status}
+      />
     </>
   );
 };

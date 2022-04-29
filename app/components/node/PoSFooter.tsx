@@ -33,8 +33,15 @@ class PoSFooter extends PureComponent<Props> {
       <Footer>
         <Link onClick={this.navigateToExplanation} text="POST SETUP GUIDE" />
         <ButtonWrap>
-          {skipAction && <Button isPrimary={false} onClick={skipAction} text={'SKIP'} />}
-          <Button style={{ marginLeft: '20px' }} onClick={action} text={isLastMode ? 'CREATE DATA' : 'NEXT'} isDisabled={isDisabled} />
+          {skipAction && (
+            <Button isPrimary={false} onClick={skipAction} text={'SKIP'} />
+          )}
+          <Button
+            style={{ marginLeft: '20px' }}
+            onClick={action}
+            text={isLastMode ? 'CREATE DATA' : 'NEXT'}
+            isDisabled={isDisabled}
+          />
         </ButtonWrap>
       </Footer>
     );

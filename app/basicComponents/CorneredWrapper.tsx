@@ -53,7 +53,11 @@ type Props = {
   isDarkMode?: boolean;
 };
 
-const CorneredWrapper = ({ children, className = '', isDarkMode = false }: Props) => {
+const CorneredWrapper = ({
+  children,
+  className = '',
+  isDarkMode = false,
+}: Props) => {
   const topLeft = isDarkMode ? topLeftCornerWhite : topLeftCorner;
   const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
   const bottomLeft = isDarkMode ? bottomLeftCornerWhite : bottomLeftCorner;

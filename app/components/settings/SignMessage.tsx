@@ -44,18 +44,40 @@ const SignMessage = ({ index, close }: Props) => {
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
 
   const signText = async () => {
-    const signedMessage = await eventsService.signMessage({ message: message.trim(), accountIndex: index });
+    const signedMessage = await eventsService.signMessage({
+      message: message.trim(),
+      accountIndex: index,
+    });
     copiedTimeout && clearTimeout(copiedTimeout);
-    await navigator.clipboard.writeText(`{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${accounts[index].publicKey}" }`);
+    await navigator.clipboard.writeText(
+      `{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${accounts[index].publicKey}" }`
+    );
     copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
     setIsCopied(true);
   };
 
   return (
-    <Modal header="SIGN TEXT" subHeader={`sign text with account ${getAbbreviatedText(getAddress(accounts[index].publicKey))}`}>
-      <Input value={message} placeholder="ENTER TEXT TO SIGN" onChange={({ value }) => setMessage(value)} maxLength="64" style={inputStyle} autofocus />
+    <Modal
+      header="SIGN TEXT"
+      subHeader={`sign text with account ${getAbbreviatedText(
+        getAddress(accounts[index].publicKey)
+      )}`}
+    >
+      <Input
+        value={message}
+        placeholder="ENTER TEXT TO SIGN"
+        onChange={({ value }) => setMessage(value)}
+        maxLength="64"
+        style={inputStyle}
+        autofocus
+      />
       <ButtonsWrapper>
-        <Button onClick={signText} text="SIGN" width={150} isDisabled={!message} />
+        <Button
+          onClick={signText}
+          text="SIGN"
+          width={150}
+          isDisabled={!message}
+        />
         <Button onClick={close} isPrimary={false} text="Cancel" />
       </ButtonsWrapper>
       <CopiedText>{isCopied ? 'Address copied' : ' '}</CopiedText>

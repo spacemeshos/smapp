@@ -9,7 +9,10 @@ class MenuBuilder {
   }
 
   buildMenu() {
-    if (process.env.NODE_ENV !== 'production' || process.env.DEBUG_PROD === 'true') {
+    if (
+      process.env.NODE_ENV !== 'production' ||
+      process.env.DEBUG_PROD === 'true'
+    ) {
       this.addInspectElementMenu();
     } else {
       this.addInputAndSelectionMenu();
@@ -40,7 +43,11 @@ class MenuBuilder {
   }
 
   addInputAndSelectionMenu() {
-    const selectionMenu = Menu.buildFromTemplate([{ role: 'copy' }, { type: 'separator' }, { role: 'selectAll' }]);
+    const selectionMenu = Menu.buildFromTemplate([
+      { role: 'copy' },
+      { type: 'separator' },
+      { role: 'selectAll' },
+    ]);
 
     const inputMenu = Menu.buildFromTemplate([
       { role: 'undo' },
@@ -104,19 +111,41 @@ class MenuBuilder {
           { role: 'cut' },
           { role: 'copy' },
           { role: 'paste' },
-          { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' },
+          {
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            selector: 'selectAll:',
+          },
         ],
       },
       {
         label: 'View',
         submenu:
           process.env.NODE_ENV === 'development'
-            ? [{ role: 'reload' }, { role: 'forcereload' }, { type: 'separator' }, { role: 'toggledevtools' }, { type: 'separator' }, { role: 'togglefullscreen' }]
+            ? [
+                { role: 'reload' },
+                { role: 'forcereload' },
+                { type: 'separator' },
+                { role: 'toggledevtools' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' },
+              ]
             : [{ role: 'togglefullscreen' }],
       },
       {
         label: 'Window',
-        submenu: [{ role: 'minimize' }, { role: 'zoom' }, ...(isMac ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }] : [{ role: 'close' }])],
+        submenu: [
+          { role: 'minimize' },
+          { role: 'zoom' },
+          ...(isMac
+            ? [
+                { type: 'separator' },
+                { role: 'front' },
+                { type: 'separator' },
+                { role: 'window' },
+              ]
+            : [{ role: 'close' }]),
+        ],
       },
     ];
   }

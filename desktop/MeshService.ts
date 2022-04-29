@@ -24,18 +24,33 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ currentLayer: -1 }));
 
-  sendAccountMeshDataQuery = ({ accountId, offset }: { accountId: Uint8Array; offset: number }) =>
-    this.callService('AccountMeshDataQuery', { filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 }, minLayer: { number: 0 }, maxResults: 50, offset })
+  sendAccountMeshDataQuery = ({
+    accountId,
+    offset,
+  }: {
+    accountId: Uint8Array;
+    offset: number;
+  }) =>
+    this.callService('AccountMeshDataQuery', {
+      filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 },
+      minLayer: { number: 0 },
+      maxResults: 50,
+      offset,
+    })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
 
-  activateAccountMeshDataStream = (accountId: Uint8Array, handler: (tx: any) => void) =>
+  activateAccountMeshDataStream = (
+    accountId: Uint8Array,
+    handler: (tx: any) => void
+  ) =>
     this.runStream(
       'AccountMeshDataStream',
       {
         filter: {
           accountId: { address: accountId },
-          accountMeshDataFlags: AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
+          accountMeshDataFlags:
+            AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
         },
       },
       (data: AccountMeshDataStreamResponse__Output) => {

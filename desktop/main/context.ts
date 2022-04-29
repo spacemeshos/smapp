@@ -20,7 +20,9 @@ const getDefaultNetwork = () => ({
   nodeBaseDownloadUrl: '',
 });
 
-export type Network = ReturnType<typeof getDefaultNetwork> & { [key: string]: any };
+export type Network = ReturnType<typeof getDefaultNetwork> & {
+  [key: string]: any;
+};
 
 export interface AppContext {
   mainWindow?: BrowserWindow;
@@ -47,4 +49,5 @@ export const getDefaultAppContext = (): AppContext => ({
   managers: {},
 });
 
-export const hasManagers = (context: AppContext) => context.managers.smesher && context.managers.node && context.managers.wallet;
+export const hasManagers = (context: AppContext) =>
+  context.managers.smesher && context.managers.node && context.managers.wallet;

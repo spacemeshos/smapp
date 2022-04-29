@@ -15,7 +15,13 @@ export {
 export { Main } from './main';
 export { Node, NodeSetup } from './node';
 export { Wallet, Overview, SendCoins, RequestCoins, Vault } from './wallet';
-export { Backup, BackupOptions, TwelveWordsBackup, TestMe, FileBackup } from './backup';
+export {
+  Backup,
+  BackupOptions,
+  TwelveWordsBackup,
+  TestMe,
+  FileBackup,
+} from './backup';
 export { Transactions } from './transactions';
 export { Contacts } from './contacts';
 export { Network } from './network';

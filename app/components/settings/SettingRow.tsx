@@ -13,15 +13,18 @@ const UpperPart = styled.div`
   flex-direction: row;
   margin-bottom: 10px;
   padding: 10px 0;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
-  border-bottom: ${({ theme }) => `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  border-bottom: ${({ theme }) =>
+    `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
 `;
 
 const UpperPartLeft = styled.div`
   display: flex;
   align-items: center;
   flex: 2;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const UpperPartRight = styled.div`
@@ -35,7 +38,8 @@ const UpperPartRight = styled.div`
 const Name = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.realBlack)};
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const Text = styled.div`
@@ -53,12 +57,21 @@ type Props = {
   bottomPart?: any;
 };
 
-const SettingRow = ({ upperPart = null, upperPartLeft = null, isUpperPartLeftText = false, upperPartRight = null, rowName, bottomPart = null }: Props) => (
+const SettingRow = ({
+  upperPart = null,
+  upperPartLeft = null,
+  isUpperPartLeftText = false,
+  upperPartRight = null,
+  rowName,
+  bottomPart = null,
+}: Props) => (
   <Wrapper>
     <UpperPart>
       {upperPart || (
         <>
-          <UpperPartLeft>{isUpperPartLeftText ? <Text>{upperPartLeft}</Text> : upperPartLeft}</UpperPartLeft>
+          <UpperPartLeft>
+            {isUpperPartLeftText ? <Text>{upperPartLeft}</Text> : upperPartLeft}
+          </UpperPartLeft>
           {upperPartRight && <UpperPartRight>{upperPartRight}</UpperPartRight>}
         </>
       )}

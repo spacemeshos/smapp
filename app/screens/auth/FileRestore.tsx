@@ -34,7 +34,13 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
 
-  const addFile = ({ fileName, filePath }: { fileName: string; filePath: string }) => {
+  const addFile = ({
+    fileName,
+    filePath,
+  }: {
+    fileName: string;
+    filePath: string;
+  }) => {
     if (fileName.split('.').pop() !== 'json') {
       setHasError(true);
     } else {
@@ -52,17 +58,33 @@ const FileRestore = ({ history }: AuthRouterParams) => {
     }
   };
 
-  const navigateToBackupGuide = () => window.open(ExternalLinks.RestoreFileGuide);
+  const navigateToBackupGuide = () =>
+    window.open(ExternalLinks.RestoreFileGuide);
 
   return (
-    <WrapperWith2SideBars width={800} height={480} isDarkMode={isDarkMode} header="OPEN WALLET" subHeader="Open a wallet from a wallet file">
+    <WrapperWith2SideBars
+      width={800}
+      height={480}
+      isDarkMode={isDarkMode}
+      header="OPEN WALLET"
+      subHeader="Open a wallet from a wallet file"
+    >
       <BackButton action={history.goBack} />
       <DdArea>
-        <DragAndDrop onFilesAdded={addFile} fileName={fileName} hasError={hasError} isDarkMode={isDarkMode} />
+        <DragAndDrop
+          onFilesAdded={addFile}
+          fileName={fileName}
+          hasError={hasError}
+          isDarkMode={isDarkMode}
+        />
       </DdArea>
       <BottomSection>
         <Link onClick={navigateToBackupGuide} text="BACKUP GUIDE" />
-        <Button onClick={openWalletFile} text="OPEN" isDisabled={hasError || !fileName} />
+        <Button
+          onClick={openWalletFile}
+          text="OPEN"
+          isDisabled={hasError || !fileName}
+        />
       </BottomSection>
     </WrapperWith2SideBars>
   );
