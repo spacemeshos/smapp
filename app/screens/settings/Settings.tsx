@@ -399,7 +399,7 @@ class Settings extends Component<Props, State> {
                 rowName="Delete Wallet"
               />
               <SettingRow
-                rowName="Close the wallet"
+                rowName="Close wallet"
                 upperPartLeft={walletDisplayName}
                 isUpperPartLeftText
                 upperPartRight={
@@ -411,7 +411,7 @@ class Settings extends Component<Props, State> {
                 }
               />
               <SettingRow
-                rowName="Open another wallet file"
+                rowName="Open wallet"
                 upperPartLeft="You will be signed out of current wallet"
                 isUpperPartLeftText
                 upperPartRight={
@@ -440,7 +440,7 @@ class Settings extends Component<Props, State> {
                     width={180}
                   />
                 }
-                rowName="Create a new wallet"
+                rowName="Create wallet"
               />
             </SettingsSection>
             <SettingsSection
@@ -450,7 +450,7 @@ class Settings extends Component<Props, State> {
             >
               <SettingRow
                 upperPartLeft={[
-                  <Text key={1}>New accounts will be added to&nbsp;</Text>,
+                  <Text key={1}>New account will be added to&nbsp;</Text>,
                   <GreenText key={2}>{displayName}</GreenText>,
                 ]}
                 upperPartRight={
@@ -574,7 +574,7 @@ class Settings extends Component<Props, State> {
                     width={180}
                   />
                 }
-                rowName="Move mesh data directory (will restart the node)"
+                rowName="Move node data directory (restarts node)"
               />
               <SettingRow
                 upperPartLeft={
@@ -593,10 +593,10 @@ class Settings extends Component<Props, State> {
                 upperPartRight={
                   <Button onClick={this.setPort} text="SET PORT" width={180} />
                 }
-                rowName="Local Smesher TCP and UDP port numbers"
+                rowName="Local node TCP and UDP port number"
               />
               <SettingRow
-                upperPartLeft="Delete all wallets and app data, and restart it"
+                upperPartLeft="Delete all wallets and app data"
                 isUpperPartLeftText
                 upperPartRight={
                   <Button
