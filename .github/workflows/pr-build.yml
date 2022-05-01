@@ -231,9 +231,9 @@ jobs:
     steps:
       - name: Links to artifacts
         run: |
-          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
-          echo "macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
-          echo "Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
+          echo "macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
+          echo "Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
       - name: Post links to PR
         if: github.event_name == 'pull_request'
         uses: mshick/add-pr-comment@v1
@@ -242,6 +242,6 @@ jobs:
         with:
           message: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
-            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/release/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb
+            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
+            - macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
+            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb

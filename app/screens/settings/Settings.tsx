@@ -311,7 +311,7 @@ class Settings extends Component<Props, State> {
                 upperPartRight={
                   <Button
                     onClick={() => goToSwitchNetwork(history, isWalletOnly)}
-                    text="SWITCH THE NETWORK"
+                    text="SWITCH NETWORK"
                     width={180}
                   />
                 }
@@ -372,7 +372,7 @@ class Settings extends Component<Props, State> {
                     width={180}
                   />
                 }
-                rowName="Wallet Backup"
+                rowName="Backup wallet"
               />
               <SettingRow
                 upperPartLeft="Restore wallet from backup file or 12 words"
@@ -384,7 +384,7 @@ class Settings extends Component<Props, State> {
                     width={180}
                   />
                 }
-                rowName="Wallet Restore"
+                rowName="Restore wallet"
               />
               <SettingRow
                 upperPartLeft="Use at your own risk!"

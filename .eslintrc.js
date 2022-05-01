@@ -12,6 +12,7 @@ module.exports = {
         arrowParens: 'always',
         trailingComma: 'es5',
         bracketSpacing: true,
+        endOfLine: 'auto',
       },
     ],
     'no-unneeded-ternary': ['error'],
