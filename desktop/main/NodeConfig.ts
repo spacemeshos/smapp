@@ -3,13 +3,15 @@ import { fetchJSON, isFileExists } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
 import { Network } from './context';
 
-const load = () =>
+export const loadNodeConfig = () =>
   fs.readFile(NODE_CONFIG_FILE, { encoding: 'utf8' }).then(JSON.parse);
 
 const loadSmeshingOpts = async () =>
-  (await isFileExists(NODE_CONFIG_FILE)) ? (await load()).smeshing : {};
+  (await isFileExists(NODE_CONFIG_FILE))
+    ? (await loadNodeConfig()).smeshing
+    : {};
 
-const download = async (network: Network) => {
+export const downloadNodeConfig = async (network: Network) => {
   const nodeConfig = await fetchJSON(network.conf);
 
   // Copy smeshing opts from previous node config or replace it with empty one
@@ -23,6 +25,6 @@ const download = async (network: Network) => {
 };
 
 export default {
-  load,
-  download,
+  load: loadNodeConfig,
+  download: downloadNodeConfig,
 };

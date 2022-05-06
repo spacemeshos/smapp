@@ -1,5 +1,6 @@
 import { BrowserWindow, nativeTheme, Tray } from 'electron';
 import { Wallet } from '../../shared/types';
+// import { Store } from '../cellstore/Store.types';
 import type NodeManager from '../NodeManager';
 import type SmesherManager from '../SmesherManager';
 import type WalletManager from '../WalletManager';
@@ -39,6 +40,8 @@ export interface AppContext {
     smesher?: SmesherManager;
     wallet?: WalletManager;
   };
+  // store: Store<any>;
+  store: Record<string, any>;
 }
 
 export const getDefaultAppContext = (): AppContext => ({
@@ -47,6 +50,7 @@ export const getDefaultAppContext = (): AppContext => ({
   isDarkMode: nativeTheme.shouldUseDarkColors,
   networks: [],
   managers: {},
+  store: {},
 });
 
 export const hasManagers = (context: AppContext) =>

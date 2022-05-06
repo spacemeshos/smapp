@@ -114,17 +114,18 @@ export const createNewWallet = ({
 }) => (dispatch: AppThDispatch) =>
   eventsService
     .createWallet({ password, existingMnemonic, type, apiUrl, netId })
-    .then((data) => {
-      const {
-        path,
-        wallet: { meta, crypto },
-      } = data;
+    .then(({ error, payload }) => {
+      if (error) {
+        throw error;
+      }
+
+      const { path } = payload;
       dispatch(setCurrentWalletPath(path));
-      dispatch(setWalletMeta(meta));
-      dispatch(setAccounts(crypto.accounts));
-      dispatch(setMnemonic(crypto.mnemonic));
-      dispatch(readWalletFiles());
-      return data;
+      // dispatch(setWalletMeta(meta));
+      // dispatch(setAccounts(crypto.accounts));
+      // dispatch(setMnemonic(crypto.mnemonic));
+      // dispatch(readWalletFiles());
+      return payload;
     })
     .catch((err) => {
       console.log(err); // eslint-disable-line no-console
@@ -134,15 +135,11 @@ export const createNewWallet = ({
 export const unlockWallet = (path: string, password: string) => async (
   dispatch: AppThDispatch
 ) => {
-  const {
-    error,
-    accounts,
-    mnemonic,
-    meta,
-    contacts,
-    isNetworkExist,
-    hasNetworks,
-  } = await eventsService.unlockWallet({ path, password });
+  const resp = await eventsService.unlockWallet({
+    path,
+    password,
+  });
+  const { error, payload } = resp;
   if (error) {
     // Incorrecrt password
     if (error.message && error.message.indexOf('Unexpected token') === 0) {
@@ -155,17 +152,14 @@ export const unlockWallet = (path: string, password: string) => async (
   }
   // Success
   dispatch(setCurrentWalletPath(path));
-  dispatch(setWalletMeta(meta));
-  dispatch(setAccounts(accounts));
-  dispatch(setMnemonic(mnemonic));
-  dispatch(setContacts(contacts));
   dispatch(setCurrentAccount(0));
-  const isWalletOnly = isWalletOnlyType(meta.type);
-  const requestApiSelection = isWalletOnly && !meta.remoteApi;
+  const isWalletOnly = isWalletOnlyType(payload.type);
+  // const requestApiSelection = isWalletOnly && !payload.remoteApi;
   return {
     success: true,
-    forceNetworkSelection:
-      hasNetworks && (!isNetworkExist || requestApiSelection),
+    // TODO:
+    // forceNetworkSelection:
+    // hasNetworks && (!isNetworkExist || requestApiSelection),
     isWalletOnly,
   };
 };

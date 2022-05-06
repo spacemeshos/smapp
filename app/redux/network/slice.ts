@@ -7,7 +7,7 @@ import {
   attachNetworkDefinitions,
 } from './actions';
 
-const initialState: NetworkState = {
+export const initialState: NetworkState = {
   netId: '',
   netName: '',
   genesisTime: '',

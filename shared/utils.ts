@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import { LOCAL_NODE_API_URL } from './constants';
 import { PublicService, SocketAddress, WalletType } from './types';
 
@@ -86,6 +87,16 @@ export const shallowEq = <T extends Record<string, any> | Array<any>>(
 
   return aKeys.reduce((acc, key) => acc && a[key] === b[key], true);
 };
+
+// @todo: Add types
+export const remap = R.curry((desc, obj) =>
+  R.map((path) => R.view(R.lensPath(path), obj), desc)
+);
+export const ifTruish = <V extends any, R extends Record<any, any>>(
+  v: V,
+  then: (v: V) => R,
+  def: R
+) => (v ? then(v) : def);
 
 // GRPC APIs
 export const toSocketAddress = (url?: string): SocketAddress => {

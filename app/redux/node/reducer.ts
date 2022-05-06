@@ -1,6 +1,6 @@
 import type { NodeState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
-import { IPC_SYNC_TYPE, isMySyncChannel } from '../ipcSync';
+import { IPC_BATCH_SYNC_TYPE, reduceChunkUpdate } from '../ipcBatchSync';
 import {
   SET_NODE_ERROR,
   SET_NODE_STATUS,
@@ -38,15 +38,8 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
     }
     case LOGOUT:
       return initialState;
-    case IPC_SYNC_TYPE: {
-      if (!isMySyncChannel('config', action)) return state;
-      const { payload } = action;
-      return {
-        ...state,
-        dataPath: payload.node.dataPath,
-        port: payload.node.port,
-      };
-    }
+    case IPC_BATCH_SYNC_TYPE:
+      return reduceChunkUpdate('store', action.payload, state);
     default:
       return state;
   }

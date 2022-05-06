@@ -74,10 +74,21 @@ class StoreService {
 
   static dump = () => StoreService.store.store;
 
-  static onChange = (
+  static onChange = <
+    O extends ConfigStore,
+    P extends string,
+    V extends Object.Path<O, String.Split<P, '.'>>
+  >(
+    key: Function.AutoPath<O, P>,
+    cb: (newValue?: V, prevValue?: V) => void
+  ) => {
+    StoreService.store.onDidChange(key, cb); // TODO!
+  };
+
+  static onAnyChange = (
     cb: (newValue?: ConfigStore, prevValue?: ConfigStore) => void
   ) => {
-    StoreService.store.onDidAnyChange(cb);
+    return StoreService.store.onDidAnyChange(cb);
   };
 }
 

@@ -29,7 +29,6 @@ import {
   TxSendRequest,
   WalletMeta,
   WalletSecrets,
-  WalletType,
 } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
@@ -42,6 +41,12 @@ import {
   GlobalStateHash,
   NetworkDefinitions,
 } from '../../types/events';
+import {
+  CreateWalletRequest,
+  CreateWalletResponse,
+  UnlockWalletRequest,
+  UnlockWalletResponse,
+} from '../../../shared/ipcMessages';
 
 class EventsService {
   static createWallet = ({
@@ -50,13 +55,7 @@ class EventsService {
     type,
     apiUrl,
     netId,
-  }: {
-    password: string;
-    existingMnemonic: string;
-    type: WalletType;
-    apiUrl: SocketAddress | null;
-    netId: number;
-  }) =>
+  }: CreateWalletRequest): Promise<CreateWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
@@ -86,13 +85,10 @@ class EventsService {
   static listPublicServices = (): Promise<PublicService[]> =>
     ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
 
-  static unlockWallet = ({
-    path,
-    password,
-  }: {
-    path: string;
-    password: string;
-  }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
+  static unlockWallet = (
+    payload: UnlockWalletRequest
+  ): Promise<UnlockWalletResponse> =>
+    ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, payload);
 
   static updateWalletMeta = <T extends keyof WalletMeta>(
     fileName: string,
@@ -215,8 +211,9 @@ class EventsService {
   }) =>
     ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
-  static switchNetwork = (netId: number) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_NETWORK, netId);
+  static switchNetwork = (netId: number) => {
+    ipcRenderer.send(ipcConsts.SWITCH_NETWORK, netId);
+  };
 
   static switchApiProvider = (apiUrl: SocketAddress | null) =>
     ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);

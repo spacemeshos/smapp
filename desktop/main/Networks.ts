@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { PublicService } from '../../shared/types';
 import { delay, toPublicService } from '../../shared/utils';
@@ -8,9 +8,8 @@ import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
 import { NetworkDefinitions } from '../../app/types/events';
 import NodeConfig from './NodeConfig';
-import { AppContext, hasManagers, Network } from './context';
+import { AppContext, Network } from './context';
 import { NODE_CONFIG_FILE } from './constants';
-import { checkForUpdates } from './autoUpdate';
 
 //
 // Assertions
@@ -29,14 +28,22 @@ const getDiscoveryUrl = () =>
   process.env.DISCOVERY_URL ||
   'https://discover.spacemesh.io/networks.json';
 
+export const fetchNetworksFromDiscovery = async () => {
+  const networks = await fetchJSON(getDiscoveryUrl());
+  const result: Network[] = isDevNet()
+    ? [await getDevNet(), ...networks]
+    : networks || [];
+  return result;
+};
+
 const update = async (context: AppContext, retry = 2) => {
   try {
-    const networks = await fetchJSON(getDiscoveryUrl());
-    const result: Network[] = isDevNet()
-      ? [await getDevNet(), ...networks]
-      : networks;
-    context.networks = result || [];
-    return context.networks;
+    const networks = await fetchNetworksFromDiscovery();
+    // context.store.set({ networks: context.networks });
+    context.networks = networks;
+    // @todo
+    // context.store.networks.next(networks);
+    return networks;
   } catch (err) {
     if (retry === 0) {
       context.networks = [];
@@ -69,40 +76,23 @@ const getNetwork = (context: AppContext, netId: number) =>
 const hasNetwork = (context: AppContext, netId: number) =>
   !!getNetwork(context, netId);
 
-const spawnManagers = async (context: AppContext) => {
-  const { mainWindow } = context;
+export type Managers = {
+  smesher: SmesherManager;
+  node: NodeManager;
+  wallet: WalletManager;
+};
+export const spawnManagers = async (
+  mainWindow: BrowserWindow,
+  netId: number
+): Promise<Managers> => {
   if (!mainWindow)
     throw new Error('Cannot spawn managers: MainWindow not found');
-  if (!context.currentNetwork)
-    throw new Error('Cannot spawn managers: Network does not selected');
-  if (!hasManagers(context)) {
-    context.managers.smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
-    context.managers.node = new NodeManager(
-      mainWindow,
-      context.currentNetwork.netID,
-      context.managers.smesher
-    );
-    context.managers.wallet = new WalletManager(
-      mainWindow,
-      context.managers.node
-    );
-  }
-};
 
-const switchNetwork = async (context: AppContext, netId: number) => {
-  const newNetwork = getNetwork(context, netId);
-  if (!newNetwork) {
-    throw new Error(
-      `Cannot switch to network ${netId}: not found. Have: ${context.networks
-        .map((n) => n.netID)
-        .join(', ')}`
-    );
-  }
-  context.currentNetwork = newNetwork;
-  await NodeConfig.download(newNetwork);
-  await spawnManagers(context);
-  checkForUpdates(context);
-  return newNetwork;
+  const smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
+  const node = new NodeManager(mainWindow, netId, smesher);
+  const wallet = new WalletManager(mainWindow, node);
+
+  return { smesher, node, wallet };
 };
 
 const subscribe = (context: AppContext) => {
@@ -134,7 +124,6 @@ const subscribe = (context: AppContext) => {
 export default {
   list,
   update,
-  switchNetwork,
   subscribe,
   // Pure utils
   getNetwork,

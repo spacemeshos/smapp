@@ -26,8 +26,10 @@ class WalletManager {
 
   private txManager: TransactionManager;
 
+  private unsub = () => {};
+
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
-    this.subscribeToEvents();
+    this.unsub = this.subscribeToEvents();
     this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
@@ -84,7 +86,17 @@ class WalletManager {
       });
       return res;
     });
+
+    return () => {
+      ipcMain.removeHandler(ipcConsts.W_M_GET_CURRENT_LAYER);
+      ipcMain.removeHandler(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
+      ipcMain.removeHandler(ipcConsts.W_M_SEND_TX);
+      ipcMain.removeHandler(ipcConsts.W_M_UPDATE_TX_NOTE);
+      ipcMain.removeHandler(ipcConsts.W_M_SIGN_MESSAGE);
+    };
   };
+
+  unsubscribe = () => this.unsub();
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
@@ -109,6 +121,8 @@ class WalletManager {
   activateAccounts = (accounts: Account[]) => {
     this.txManager.setAccounts(accounts);
   };
+
+  getCurrentLayer = () => this.meshService.getCurrentLayer();
 }
 
 export default WalletManager;

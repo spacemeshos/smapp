@@ -1,4 +1,4 @@
-import { ipcMain, Notification } from 'electron';
+import { BrowserWindow, ipcMain, Notification } from 'electron';
 import { ProgressInfo } from 'builder-util-runtime';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 import logger from 'electron-log';
@@ -7,7 +7,7 @@ import { SemVer } from 'semver';
 import pkg from '../../package.json';
 import { ipcConsts } from '../../app/vars';
 import { isDev, isNetError } from '../utils';
-import { AppContext } from './context';
+import { AppContext, Network } from './context';
 import { HOUR } from './constants';
 
 autoUpdater.logger = logger;
@@ -35,6 +35,52 @@ const getCurrentVersion = () =>
   isDev() ? new SemVer(pkg.version) : autoUpdater.currentVersion;
 
 //
+
+export const checkUpdates = async (
+  mainWindow: BrowserWindow,
+  currentNetwork: Network,
+  autoDownload = false
+) => {
+  const currentVersion = getCurrentVersion();
+  const { latestSmappRelease, smappBaseDownloadUrl } = currentNetwork;
+  const isGreaterVersion = currentVersion.compare(latestSmappRelease) === 1;
+  const isNotLatestVersion = currentVersion.compare(latestSmappRelease) === -1;
+  // TODO: isOutdatedVersion is useless until we don't have a special handling for it
+  // const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
+  if (isNotLatestVersion || isGreaterVersion) {
+    autoUpdater.allowDowngrade = isGreaterVersion;
+    autoUpdater.autoDownload = autoDownload;
+    const feedUrl = `${smappBaseDownloadUrl}/v${latestSmappRelease}`;
+    autoUpdater.setFeedURL(feedUrl);
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      if (!result) return null;
+      const { updateInfo } = result;
+      // @todo
+      // notifyUpdateAvailble(context, updateInfo);
+
+      if (mainWindow.isMinimized()) {
+        const notification = new Notification({
+          title: `New version ${updateInfo.version} is available!`,
+          subtitle: `Current version: ${currentVersion.format()}`,
+          body: `Open Smapp to install update.`,
+        });
+        notification.on('click', () => mainWindow.show());
+        notification.show();
+      }
+
+      return updateInfo;
+    } catch (err) {
+      if (err instanceof Error && !isNetError(err)) {
+        notifyError(context, err as Error);
+      }
+      return null;
+    }
+  }
+
+  return null;
+};
+
 export const checkForUpdates = async (
   context: AppContext,
   autoDownload = false

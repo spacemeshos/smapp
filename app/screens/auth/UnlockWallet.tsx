@@ -193,13 +193,14 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           (location.state?.redirect !== AuthPath.Unlock &&
             location.state?.redirect) ||
           MainPath.Wallet;
-        if (status.forceNetworkSelection) {
-          history.push(AuthPath.SwitchNetwork, {
-            redirect: nextPage,
-            isWalletOnly: status.isWalletOnly,
-          });
-          return;
-        }
+        // @TODO
+        // if (status.forceNetworkSelection) {
+        //   history.push(AuthPath.SwitchNetwork, {
+        //     redirect: nextPage,
+        //     isWalletOnly: status.isWalletOnly,
+        //   });
+        //   return;
+        // }
         history.push(nextPage);
       } else {
         setWrongPassword(true);

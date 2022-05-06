@@ -4,10 +4,10 @@ import thunk from 'redux-thunk';
 import { addErrorPrefix } from '../infra/utils';
 import { CustomAction, RootState, AppThDispatch, GetState } from '../types';
 import createErrorHandlerMiddleware from './errorHandlerMiddleware';
-import IpcSyncRenderer from './ipcSync';
 import { setUiError } from './ui/actions';
 //
 import rootReducer from './rootReducer';
+import IpcBatchSyncRenderer from './ipcBatchSync';
 
 declare global {
   interface Window {
@@ -32,6 +32,7 @@ const store: Store<RootState, CustomAction> & {
   composeEnhancers(applyMiddleware(errorHandlerMiddleware, thunk))
 );
 
-IpcSyncRenderer(store);
+// IpcSyncRenderer(store);
+IpcBatchSyncRenderer(store);
 
 export default store;

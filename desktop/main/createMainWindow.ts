@@ -1,0 +1,84 @@
+import { app, BrowserWindow } from 'electron';
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  ReplaySubject,
+  Subject,
+  withLatestFrom,
+} from 'rxjs';
+import Logger from '../logger';
+import createTray from './createTray';
+import createWindow from './createWindow';
+import { fromAppEvent, withLatest } from './rx.utils';
+
+const logger = Logger({ className: 'startApp' });
+
+// Utils
+const showWindow = (bw: BrowserWindow) => {
+  bw.show();
+  bw.focus();
+};
+
+export default () => {
+  const $mainWindow = new ReplaySubject<BrowserWindow>(1, Infinity);
+
+  // States
+  const $showWindowOnLoad = new BehaviorSubject(true);
+  const $isAppClosing = new BehaviorSubject(false);
+
+  // Event streams
+  // $quit is not handled in this module, because
+  // it requires to check for `isSmeshing`. So
+  // it will be solved on the "upper" level.
+  const $quit = new Subject<Electron.IpcMainEvent>();
+  const $activate = fromAppEvent('activate');
+  const $secondInstance = fromAppEvent('second-instance');
+
+  //
+  // Subscriptions & Reactions
+  //
+
+  // Push to $quit event stream
+  const handleQuit = async (event) => {
+    const isClosing = await firstValueFrom($isAppClosing);
+    if (!isClosing) {
+      $quit.next(event);
+    }
+  };
+
+  app.on('before-quit', handleQuit);
+
+  // Add handlers to mainWindow
+  $mainWindow.subscribe((mw) => {
+    createTray(mw);
+    mw.on('close', handleQuit);
+    mw.webContents.on(
+      'did-finish-load',
+      async () => (await firstValueFrom($showWindowOnLoad)) && showWindow(mw)
+    );
+  });
+
+  // If second instance trying to run — just show the main window
+  $secondInstance.pipe(withLatest($mainWindow)).subscribe(([mw]) => {
+    mw.isMinimized() && mw.restore();
+    showWindow(mw);
+  });
+
+  // Show window on activate
+  combineLatest([$mainWindow, $activate]).subscribe(([mw]) => showWindow(mw));
+
+  // Create window
+  app
+    .whenReady()
+    .then(createWindow)
+    .then((mw) => $mainWindow.next(mw))
+    .catch((err) => logger.error('Can not create MainWindow:', err));
+
+  return {
+    $mainWindow,
+    $quit,
+    $isAppClosing,
+    $showWindowOnLoad,
+  };
+};
