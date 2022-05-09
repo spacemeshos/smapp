@@ -19,7 +19,7 @@ import {
   EnterPasswordModal,
   SignMessage,
 } from '../../components/settings';
-import { Input, Link, Button } from '../../basicComponents';
+import { Input, Link, Button, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -91,6 +91,22 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
+const DropDownItem = styled.div<{ isInDropDown: boolean }>`
+  font-size: 13px;
+  line-height: 17px;
+  color: ${smColors.black};
+  padding: 5px;
+  width: 100%;
+  cursor: inherit;
+  ${({ isInDropDown }) =>
+    isInDropDown &&
+    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
+  &:hover {
+    opacity: 1;
+    color: ${smColors.darkGray50Alpha};
+  }
+`;
+
 interface Props extends RouteComponentProps {
   displayName: string;
   accounts: Account[];
@@ -135,6 +151,7 @@ type State = {
   isPortSet: boolean;
   signMessageModalAccountIndex: number;
   showModal: boolean;
+  designMode: number;
 };
 
 class Settings extends Component<Props, State> {
@@ -167,6 +184,7 @@ class Settings extends Component<Props, State> {
       isPortSet: false,
       signMessageModalAccountIndex: -1,
       showModal: false,
+      designMode: 0,
     };
 
     this.myRef1 = React.createRef();
@@ -206,6 +224,7 @@ class Settings extends Component<Props, State> {
       isPortSet,
       signMessageModalAccountIndex,
       showModal,
+      designMode,
     } = this.state;
 
     return (
@@ -232,6 +251,26 @@ class Settings extends Component<Props, State> {
                   />
                 }
                 rowName="Dark Mode"
+              />
+              <SettingRow
+                upperPartLeft={
+                  <DropDown
+                    data={[
+                      { label: 'Modern' },
+                      { label: 'Dark' },
+                      { label: 'Light' },
+                    ]}
+                    onClick={this.setDesignMode}
+                    DdElement={this.renderAccElement}
+                    selectedItemIndex={designMode}
+                    rowHeight={40}
+                    bgColor={smColors.white}
+                  />
+                }
+                upperPartRight={
+                  <Button onClick={switchTheme} text="APPLY" width={180} />
+                }
+                rowName="Skin"
               />
               <SettingRow
                 upperPartLeft={`Auto start Spacemesh when your computer starts: ${
@@ -848,6 +887,24 @@ class Settings extends Component<Props, State> {
   openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
 
   restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
+
+  setDesignMode = ({ index }: { index: number }) => {
+    this.setState({ designMode: index });
+  };
+
+  renderAccElement = ({
+    label,
+    text,
+    isInDropDown,
+  }: {
+    label: string;
+    text: string;
+    isInDropDown: boolean;
+  }) => (
+    <DropDownItem key={label} isInDropDown={isInDropDown}>
+      {label} {text}
+    </DropDownItem>
+  );
 }
 
 const mapStateToProps = (state: RootState) => ({

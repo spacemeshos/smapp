@@ -22,6 +22,7 @@ import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
 import { goToSwitchNetwork } from './routeUtils';
+import { getThemeById } from './theme';
 
 const history = createBrowserHistory();
 
@@ -60,6 +61,7 @@ const EventRouter = () => {
 };
 
 const StyledApp = () => {
+  const skinId = useSelector((state: RootState) => state.ui.skin);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const isClosingApp = useSelector((state: RootState) => state.ui.isClosingApp);
   const dispatch = useDispatch();
@@ -69,7 +71,7 @@ const StyledApp = () => {
   }, [dispatch]);
 
   return (
-    <ThemeProvider theme={{ isDarkMode }}>
+    <ThemeProvider theme={{ isDarkMode, ...getThemeById(skinId) }}>
       <GlobalStyle />
       <ErrorBoundary>
         {isClosingApp && <CloseAppModal isDarkMode={isDarkMode} />}

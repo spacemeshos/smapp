@@ -26,21 +26,62 @@ const UpperPart = styled.div<{
     width: 100%;
   `}
   height: ${({ height }) => height}px;
-  ${({ isDisabled, isPrimary }) =>
+  ${({
+    isDisabled,
+    isPrimary,
+    theme: {
+      button: {
+        primary: {
+          state: {
+            base: basePrimary,
+            hover: hoverPrimary,
+            inactive: inactivePrimary,
+          },
+        },
+        secondary: {
+          state: {
+            base: baseSecondary,
+            hover: hoverSecondary,
+            inactive: inactiveSecondary,
+          },
+        },
+      },
+    },
+  }) =>
     isDisabled
-      ? `background-color: ${smColors.disabledGray};`
-      : `background-color: ${isPrimary ? smColors.green : smColors.purple};
+      ? `background-color: ${isPrimary ? inactivePrimary : inactiveSecondary};`
+      : `background-color: ${isPrimary ? basePrimary : baseSecondary};
         &:hover {
-          background-color: ${
-            isPrimary ? smColors.darkerGreen : smColors.darkerPurple
-          };
+          background-color: ${isPrimary ? hoverPrimary : hoverSecondary};
         }
       `}
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
   cursor: inherit;
 `;
 
-const Text = styled.div<{ height: number }>`
-  padding-left: 7px;
+const Text = styled.div<{
+  height: number;
+  isPrimary: boolean;
+  hasImg: boolean;
+}>`
+  padding-left: ${({
+    isPrimary,
+    hasImg,
+    theme: {
+      button: { primary, secondary },
+    },
+  }) => {
+    if (hasImg) {
+      return '0';
+    }
+
+    return isPrimary ? primary.padding.left : secondary.padding.left;
+  }};
   font-size: 12px;
   line-height: ${({ height }) => height}px;
   color: ${smColors.white};
@@ -83,15 +124,52 @@ const LowerPart = styled.div<{
     width: 100%;
   `}
   height: ${({ height }) => height}px;
-  ${({ isDisabled, isPrimary }) =>
+  ${({
+    isDisabled,
+    isPrimary,
+    theme: {
+      box: { radius },
+      button: {
+        primary: {
+          settings: { hasBorder: hasPrimaryBorder },
+          state: {
+            base: basePrimary,
+            hover: hoverPrimary,
+            inactive: inactivePrimary,
+          },
+        },
+        secondary: {
+          settings: { hasBorder: hasSecondaryBorder },
+          state: {
+            base: baseSecondary,
+            hover: hoverSecondary,
+            inactive: inactiveSecondary,
+          },
+        },
+      },
+    },
+  }) =>
     isDisabled
-      ? `border: 1px solid ${smColors.disabledGray};`
+      ? `border: ${
+          isPrimary
+            ? hasPrimaryBorder && `1px solid ${inactivePrimary}`
+            : hasSecondaryBorder && `1px solid ${inactiveSecondary}`
+        };`
       : `
-        border: 1px solid ${isPrimary ? smColors.green : smColors.purple};
+        border: ${
+          isPrimary
+            ? hasPrimaryBorder && `1px solid ${basePrimary}`
+            : hasSecondaryBorder && `1px solid ${baseSecondary}`
+        };
         &:hover {
-          border: 1px solid ${
-            isPrimary ? smColors.darkerGreen : smColors.darkerPurple
+          border: ${
+            isPrimary
+              ? hasPrimaryBorder && `1px solid ${hoverPrimary}`
+              : hasSecondaryBorder && `1px solid ${hoverSecondary}`
           };
+        }
+        border-radius: ${
+          isPrimary ? hasPrimaryBorder && radius : hasSecondaryBorder && radius
         }
       `}
   cursor: inherit;
@@ -104,6 +182,7 @@ const Wrapper = styled.div<{
   isContainerFullWidth: boolean;
   isDisabled: boolean;
   style: any;
+  isPrimary: boolean;
 }>`
   position: relative;
   width: ${({ width }) => width + GAP}px;
@@ -113,19 +192,41 @@ const Wrapper = styled.div<{
     width: 100%;
   `}
   height: ${({ height }) => height + GAP}px;
-  ${({ isDisabled }) =>
+  ${({
+    isDisabled,
+    isPrimary,
+    theme: {
+      themeName,
+      button: {
+        primary: {
+          settings: { hasBorder: hasPrimaryBorder },
+          state: { focus: bgFocusPrimary },
+        },
+        secondary: {
+          settings: { hasBorder: hasSecondaryBorder },
+          state: { focus: bgFocusSecondary },
+        },
+      },
+    },
+  }) =>
     !isDisabled &&
     `
     &:active ${UpperPart} {
-      transform: translate3d(-${GAP}px, ${GAP}px, 0);
+      transform: translate3d(-${themeName !== 'modern' ? GAP : 0}px, ${
+      themeName !== 'modern' ? GAP : 0
+    }px, 0);
       transition: transform 0.2s cubic-bezier;
-      background-color: ${smColors.black};
-      }
+      background-color: ${isPrimary ? bgFocusPrimary : bgFocusSecondary};
+    }
     &:active ${LowerPart} {
-      border: 1px solid ${smColors.black};
+      border: ${
+        isPrimary
+          ? hasPrimaryBorder && ` 1px solid ${bgFocusPrimary}`
+          : hasSecondaryBorder && ` 1px solid ${bgFocusSecondary}`
+      };
       }
     `}
-  cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'pointer')};
 `;
 
 type Props = {
@@ -160,6 +261,7 @@ const Button = ({
     isDisabled={isDisabled}
     isContainerFullWidth={isContainerFullWidth}
     style={style}
+    isPrimary={isPrimary}
   >
     <UpperPart
       width={width}
@@ -173,7 +275,13 @@ const Button = ({
           <Image src={img} />
         </ImageWrapper>
       )}
-      <Text height={height}>{text}</Text>
+      <Text
+        isPrimary={isPrimary}
+        hasImg={imgPosition === 'before'}
+        height={height}
+      >
+        {text}
+      </Text>
       {img && imgPosition === 'after' && (
         <ImageWrapper>
           <Image src={img} />

@@ -3,6 +3,7 @@ import { eventsService } from '../../infra/eventsService';
 
 export const SET_OS_THEME = 'SET_OS_THEME';
 export const THEME_SWITCHER = 'THEME_SWITCHER';
+export const SKIN_SWITCHER = 'SKIN_SWITCHER';
 export const HIDE_LEFT_PANEL = 'HIDE_LEFT_PANEL';
 
 export const SET_UI_ERROR = 'SET_UI_ERROR';
@@ -14,7 +15,10 @@ export const setOsTheme = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: SET_OS_THEME, payload: { isDarkTheme } });
 };
 
+// @todo mp delete
 export const switchTheme = () => ({ type: THEME_SWITCHER });
+
+export const switchSkin = () => ({ type: THEME_SWITCHER });
 
 export const hideSmesherLeftPanel = () => ({ type: HIDE_LEFT_PANEL });
 

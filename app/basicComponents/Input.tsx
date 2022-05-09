@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { smColors } from '../vars';
 
 const DEFAULT_DEBOUNCE_TIME = 500;
 
@@ -12,11 +11,14 @@ const Wrapper = styled.div<{ isFocused: boolean; isDisabled: boolean }>`
   width: 100%;
   height: 40px;
   border: 1px solid
-    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
+    ${({ isFocused, theme: { colors } }) =>
+      isFocused ? colors.secondary100 : colors.dark100};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
-  ${({ isDisabled }) =>
-    !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
-  background-color: ${smColors.white};
+  ${({ theme: { form } }) => `
+  border-radius: ${form.input.boxRadius}px;`}
+  ${({ isDisabled, theme: { colors } }) =>
+    !isDisabled && `&:hover { border: 1px solid ${colors.secondary100}; `}
+  background-color:  ${({ theme: { form } }) => form.input.normal}; ;
 `;
 
 const ActualInput = styled.input<{
@@ -33,19 +35,56 @@ const ActualInput = styled.input<{
   padding: 8px 10px;
   border-radius: 0;
   border: none;
-  color: ${({ isDisabled }) =>
-    isDisabled ? smColors.darkGray : smColors.black};
+  transition: background-color 100ms linear, border-color 100ms linear;
+  color: ${({
+    isDisabled,
+    theme: {
+      form: {
+        input: { states },
+      },
+    },
+  }) =>
+    // eslint-disable-next-line no-nested-ternary
+    isDisabled ? states.disable.color : states.normal.color};
+  background-color: ${({
+    isDisabled,
+    theme: {
+      form: {
+        input: { states },
+      },
+    },
+  }) =>
+    // eslint-disable-next-line no-nested-ternary
+    isDisabled
+      ? states.disable.backgroundColor
+      : states.normal.backgroundColor};
+  ${({
+    isDisabled,
+    theme: {
+      form: {
+        input: { states },
+      },
+    },
+  }) =>
+    !isDisabled &&
+    `&:hover, &:focus, &:active {
+            background-color: ${states.focus.backgroundColor}; 
+            color: ${states.focus.color}; 
+     } `}
   font-size: 14px;
   line-height: 16px;
   outline: none;
+  cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'text')};
+  ${({ theme: { form } }) => `
+  border-radius: ${form.input.boxRadius}px;`}
 `;
 
 const ExtraTxt = styled.div`
   padding: 10px 10px 10px 0;
   font-size: 14px;
   line-height: 16px;
-  color: ${smColors.black};
-  background-color: ${smColors.white};
+  color: #${({ theme: { colors } }) => colors.dark};
+  background-color: #${({ theme: { colors } }) => colors.light100};
 `;
 
 type Props = {

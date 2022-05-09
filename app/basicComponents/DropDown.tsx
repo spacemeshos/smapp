@@ -14,7 +14,7 @@ const Wrapper = styled.div<{ isDisabled: boolean }>`
   ${({ isDisabled }) =>
     isDisabled &&
     `
-      cursor: default;
+      cursor: not-allowed;
       pointer-events: none;
       opacity: 0.6;
   `};

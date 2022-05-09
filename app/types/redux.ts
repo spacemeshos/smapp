@@ -69,6 +69,7 @@ export interface UiState {
   isClosingApp: boolean;
   hideSmesherLeftPanel: boolean;
   error: Error | null;
+  skin: number;
 }
 
 export interface RootState {
