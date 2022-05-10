@@ -1,6 +1,5 @@
 import path from 'path';
 import { app } from 'electron';
-import { captureEvent } from '@sentry/electron';
 
 const logger = require('electron-log');
 
@@ -27,15 +26,7 @@ const Logger = ({ className }: { className: string }) => ({
   error: (fn: string, err: any, args?: any) => {
     const msg = formatErrorMessage(className, fn, err, args);
     logger.error?.(msg);
-
-    // because of timeouts in main process
-    // on force close
-    // we have an exception that cannot send to the Sentry
-    try {
-      captureEvent(err);
-    } catch (e) {
-      logger.error?.(e);
-    }
+    // @todo clean up error invokation because of GRPC connection and streams
   },
 });
 
