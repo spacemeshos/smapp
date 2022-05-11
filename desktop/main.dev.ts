@@ -11,7 +11,7 @@ import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { init, captureEvent } from '@sentry/electron';
+import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
 import { BrowserTracing } from '@sentry/tracing';
 import AutoStartManager from './autoStartManager';
@@ -121,4 +121,4 @@ app
     }, 5000);
     return 0;
   })
-  .catch(captureEvent);
+  .catch(captureException);
