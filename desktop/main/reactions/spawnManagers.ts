@@ -1,0 +1,45 @@
+import { BrowserWindow } from 'electron';
+import { delay, ReplaySubject, skip, Subject, withLatestFrom } from 'rxjs';
+import { NodeConfig } from '../../../shared/types';
+import Logger from '../../logger';
+import { Managers, spawnManagers } from '../Networks';
+import { withLatest } from '../rx.utils';
+
+const logger = Logger({ className: 'rx' });
+
+const spawnManagers$ = (
+  $nodeConfig: Subject<NodeConfig>,
+  $managers: Subject<Managers>,
+  $mainWindow: ReplaySubject<BrowserWindow>
+) => {
+  const subs = [
+    // If node config changed, then unsubscribe managers
+    $nodeConfig
+      .pipe(skip(1), withLatestFrom($managers))
+      .subscribe(([_, managers]) => {
+        if (managers) {
+          managers.wallet?.unsubscribe();
+          managers.smesher?.unsubscribe();
+          managers.node?.unsubscribe();
+        }
+      }),
+    // And then spawn new managers
+    $nodeConfig
+      .pipe(delay(1), withLatest($mainWindow))
+      .subscribe(([mw, nodeConfig]) => {
+        const netId: number = nodeConfig.p2p['network-id'];
+        spawnManagers(mw, netId)
+          .then((nextManagers) => $managers.next(nextManagers))
+          .catch((err) =>
+            logger.error(
+              'spawnManagers$ > Can not spawn new managers',
+              err,
+              netId
+            )
+          );
+      }),
+  ];
+  return () => subs.forEach((unsub) => unsub.unsubscribe());
+};
+
+export default spawnManagers$;

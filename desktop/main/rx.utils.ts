@@ -81,3 +81,8 @@ export const withLatest = <T, N>(
 
 export const fromAppEvent = (channel: string) =>
   fromEvent(app, channel, (event: Electron.Event) => event);
+
+export const wrapFlow = <T>(source: Observable<T>, cb: (a: T) => void) => {
+  const sub = source.subscribe(cb);
+  return sub.unsubscribe;
+};

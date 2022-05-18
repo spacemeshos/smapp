@@ -5,7 +5,6 @@ import {
   firstValueFrom,
   ReplaySubject,
   Subject,
-  withLatestFrom,
 } from 'rxjs';
 import Logger from '../logger';
 import createTray from './createTray';

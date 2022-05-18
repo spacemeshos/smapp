@@ -39,10 +39,9 @@ export const fetchNetworksFromDiscovery = async () => {
 const update = async (context: AppContext, retry = 2) => {
   try {
     const networks = await fetchNetworksFromDiscovery();
-    // context.store.set({ networks: context.networks });
     context.networks = networks;
-    // @todo
-    // context.store.networks.next(networks);
+    // @TODO: handle it in a reactive way
+    context.state.subjects.$networks.next(networks);
     return networks;
   } catch (err) {
     if (retry === 0) {

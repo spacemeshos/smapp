@@ -24,7 +24,7 @@ import { getDefaultAppContext } from './main/context';
 import Networks from './main/Networks';
 import Wallet from './main/Wallet';
 import * as autoUpdate from './main/autoUpdate';
-import createStore from './main/createStore';
+import startApp from './main/startApp';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -75,9 +75,9 @@ app
   .then(() => Networks.subscribe(context))
   .then(() => Wallet.subscribe(context))
   .then(() => {
-    const store = createStore();
-    context.store = store;
-    return context.store;
+    const appState = startApp();
+    context.state = appState;
+    return context.state;
   })
   .then(() => Networks.update(context, 1))
   .then(() => autoUpdate.subscribe(context))
