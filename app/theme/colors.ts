@@ -1,5 +1,5 @@
 export default {
-  primary: '#65B041',
+  primary100: '#65B041',
   primary90: '#549337',
   secondary100: '#AA58B1',
   secondary90: '#93449A',

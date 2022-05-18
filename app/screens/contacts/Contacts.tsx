@@ -19,8 +19,6 @@ const SearchWrapper = styled.div`
   flex-direction: row;
   align-items: center;
   margin-bottom: 20px;
-  border: 1px solid ${smColors.realBlack};
-  background-color: ${smColors.white};
 `;
 
 const SearchIcon = styled.img`
@@ -227,16 +225,8 @@ const DeleteText = styled.div`
 const SortingElement = styled.div<{ isInDropDown?: boolean }>`
   font-size: 13px;
   line-height: 17px;
-  color: ${smColors.black};
   padding: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const CreateNewContactImg = styled.img`
@@ -506,8 +496,9 @@ const Contacts = ({ history }: RouteComponentProps) => {
       isDarkMode={isDarkMode}
     >
       <SearchWrapper>
-        <SearchIcon src={searchIcon} />
+        {/* <SearchIcon src={searchIcon} /> */}
         <Input
+          iconLeft={searchIcon}
           value={tmpSearchTerm}
           type="text"
           placeholder="Search contacts"
@@ -517,7 +508,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
           onChangeDebounced={({ value }) => {
             setSearchTerm(value.toString());
           }}
-          style={{ border: '1px solid transparent' }}
+          // style={{ border: '1px solid transparent' }}
           autofocus
         />
       </SearchWrapper>
@@ -529,7 +520,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
           onClick={({ index }) => setSelectedSorting(index)}
           DdElement={renderSortElementElement}
           selectedItemIndex={selectedSorting}
-          style={{ flex: '0 0 150px', borderBottom: '1px solid' }}
+          style={{ flex: '0 0 160px' }}
           bgColor={smColors.white}
         />
       </ContactsSubHeader>

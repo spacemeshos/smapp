@@ -1,7 +1,7 @@
 import { UiState, CustomAction } from '../../types';
 import {
   SET_OS_THEME,
-  THEME_SWITCHER,
+  // THEME_SWITCHER,
   HIDE_LEFT_PANEL,
   SET_UI_ERROR,
   SHOW_CLOSING_APP_MODAL,
@@ -25,12 +25,16 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
       return { ...state, isDarkMode: isDarkTheme };
     }
     // @todo mp delete
-    case THEME_SWITCHER: {
-      const isDarkMode = !state.isDarkMode;
-      return { ...state, isDarkMode };
-    }
+    // case THEME_SWITCHER: {
+    //   const isDarkMode = !state.isDarkMode;
+    //   return { ...state, isDarkMode };
+    // }
     case SKIN_SWITCHER: {
-      return { ...state, skin: state.skin };
+      return {
+        ...state,
+        skin: action.payload,
+        isDarkMode: action.payload !== 2,
+      };
     }
     case HIDE_LEFT_PANEL: {
       return { ...state, hideSmesherLeftPanel: true };

@@ -98,13 +98,6 @@ const DropDownItem = styled.div<{ isInDropDown: boolean }>`
   padding: 5px;
   width: 100%;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 interface Props extends RouteComponentProps {
@@ -151,7 +144,7 @@ type State = {
   isPortSet: boolean;
   signMessageModalAccountIndex: number;
   showModal: boolean;
-  designMode: number;
+  skin: number;
 };
 
 class Settings extends Component<Props, State> {
@@ -184,7 +177,7 @@ class Settings extends Component<Props, State> {
       isPortSet: false,
       signMessageModalAccountIndex: -1,
       showModal: false,
-      designMode: 0,
+      skin: 0,
     };
 
     this.myRef1 = React.createRef();
@@ -205,11 +198,11 @@ class Settings extends Component<Props, State> {
       build,
       version,
       backupTime,
-      switchTheme,
       isDarkMode,
       isWalletOnly,
       history,
       dataPath,
+      skin,
     } = this.props;
     const {
       walletDisplayName,
@@ -224,7 +217,6 @@ class Settings extends Component<Props, State> {
       isPortSet,
       signMessageModalAccountIndex,
       showModal,
-      designMode,
     } = this.state;
 
     return (
@@ -242,7 +234,7 @@ class Settings extends Component<Props, State> {
               refProp={this.myRef1}
               isDarkMode={isDarkMode}
             >
-              <SettingRow
+              {/* <SettingRow
                 upperPartRight={
                   <Button
                     onClick={switchTheme}
@@ -251,7 +243,7 @@ class Settings extends Component<Props, State> {
                   />
                 }
                 rowName="Dark Mode"
-              />
+              /> */}
               <SettingRow
                 upperPartLeft={
                   <DropDown
@@ -260,15 +252,12 @@ class Settings extends Component<Props, State> {
                       { label: 'Dark' },
                       { label: 'Light' },
                     ]}
-                    onClick={this.setDesignMode}
+                    onClick={this.setSkin}
                     DdElement={this.renderAccElement}
-                    selectedItemIndex={designMode}
+                    selectedItemIndex={skin}
                     rowHeight={40}
                     bgColor={smColors.white}
                   />
-                }
-                upperPartRight={
-                  <Button onClick={switchTheme} text="APPLY" width={180} />
                 }
                 rowName="Skin"
               />
@@ -888,8 +877,19 @@ class Settings extends Component<Props, State> {
 
   restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
 
-  setDesignMode = ({ index }: { index: number }) => {
-    this.setState({ designMode: index });
+  setSkin = ({ index }: { index: number }) => {
+    const { switchTheme } = this.props;
+    // this.props.switchTheme(this.state.designMode)
+    // this.setState({ skin: index });
+    // @ts-ignore
+    switchTheme(index);
+  };
+
+  updateSkin = () => {
+    const { skin } = this.state;
+    const { switchTheme } = this.props;
+    // @ts-ignore
+    switchTheme(skin);
   };
 
   renderAccElement = ({
@@ -919,6 +919,7 @@ const mapStateToProps = (state: RootState) => ({
   dataPath: state.node.dataPath,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,
+  skin: state.ui.skin,
   isWalletOnly: isWalletOnly(state),
   netName: getNetworkName(state),
   netId: getNetworkId(state),

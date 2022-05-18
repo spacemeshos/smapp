@@ -15,10 +15,10 @@ export const setOsTheme = () => async (dispatch: AppThDispatch) => {
   dispatch({ type: SET_OS_THEME, payload: { isDarkTheme } });
 };
 
-// @todo mp delete
-export const switchTheme = () => ({ type: THEME_SWITCHER });
-
-export const switchSkin = () => ({ type: THEME_SWITCHER });
+export const switchTheme = (type: number) => ({
+  type: SKIN_SWITCHER,
+  payload: type,
+});
 
 export const hideSmesherLeftPanel = () => ({ type: HIDE_LEFT_PANEL });
 

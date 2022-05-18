@@ -1,11 +1,31 @@
 import colors from '../colors';
+import { backup, tooltip } from '../../assets/images';
 
 export default {
   colors,
+  skinBackground: colors.light110,
   themeName: 'light',
   background: {
     active: colors.dark,
     inactive: colors.light140,
+  },
+  popups: {
+    boxRadius: 0,
+    iconRadius: 0,
+    states: {
+      error: {
+        backgroundColor: colors.error,
+        color: colors.light100,
+      },
+      success: {
+        backgroundColor: colors.light100,
+        color: colors.primary100,
+      },
+      infoTooltip: {
+        backgroundColor: colors.light110,
+        color: colors.dark100,
+      },
+    },
   },
   box: {
     radius: 0,
@@ -13,8 +33,14 @@ export default {
   form: {
     input: {
       states: {
+        disable: {
+          hasBorder: true,
+          borderColor: colors.light150,
+          backgroundColor: colors.light120,
+          color: colors.light150,
+        },
         normal: {
-          backgroundColor: colors.dark30,
+          backgroundColor: colors.light120,
           color: colors.light150,
         },
         click: {
@@ -29,7 +55,10 @@ export default {
       boxRadius: 0,
     },
     dropdown: {
-      light: {
+      boxRadius: 0,
+      dark: {
+        isOutBorder: true,
+        borderColor: colors.dark100,
         states: {
           disable: {
             backgroundColor: colors.light120,
@@ -44,7 +73,29 @@ export default {
             color: colors.dark45,
           },
           hover: {
+            backgroundColor: colors.dark20,
+            color: colors.dark45,
+          },
+        },
+      },
+      light: {
+        isOutBorder: true,
+        borderColor: colors.dark100,
+        states: {
+          disable: {
             backgroundColor: colors.light120,
+            color: colors.dark45,
+          },
+          normal: {
+            backgroundColor: colors.light120,
+            color: colors.dark45,
+          },
+          click: {
+            backgroundColor: colors.light120,
+            color: colors.dark45,
+          },
+          hover: {
+            backgroundColor: colors.dark20,
             color: colors.dark45,
           },
         },
@@ -61,7 +112,7 @@ export default {
         left: '7px',
       },
       state: {
-        base: colors.primary,
+        base: colors.primary100,
         hover: colors.primary90,
         focus: colors.dark,
         inactive: colors.light100,
@@ -82,5 +133,10 @@ export default {
         inactive: colors.light100,
       },
     },
+  },
+  icons: {
+    backup,
+    tooltip,
+    topBar: {},
   },
 };

@@ -1,19 +1,41 @@
 import colors from '../colors';
+import { modernBackup, modernInfoTooltip } from '../../assets/images';
 
 export default {
   colors,
+  skinBackground: colors.dark100,
   themeName: 'modern',
   background: {
     active: colors.dark,
     inactive: colors.light140,
   },
+  popups: {
+    boxRadius: 10,
+    iconRadius: 20,
+    states: {
+      error: {
+        backgroundColor: colors.error,
+        color: colors.light100,
+      },
+      success: {
+        backgroundColor: colors.light100,
+        color: colors.primary100,
+      },
+      infoTooltip: {
+        backgroundColor: colors.light110,
+        color: colors.dark100,
+      },
+    },
+  },
   box: {
-    radius: 20,
+    radius: 10,
   },
   form: {
     input: {
       states: {
         disable: {
+          hasBorder: false,
+          borderColor: colors.dark30,
           backgroundColor: colors.dark30,
           color: colors.dark30,
         },
@@ -30,10 +52,13 @@ export default {
           color: colors.dark45,
         },
       },
-      boxRadius: 10,
+      boxRadius: 8,
     },
     dropdown: {
+      boxRadius: 10,
       dark: {
+        borderColor: colors.dark100,
+        isOutBorder: false,
         states: {
           disable: {
             backgroundColor: colors.dark100,
@@ -41,19 +66,21 @@ export default {
           },
           normal: {
             backgroundColor: colors.dark100,
-            color: colors.dark45,
+            color: colors.light100,
           },
           click: {
-            backgroundColor: colors.dark100,
-            color: colors.dark45,
+            backgroundColor: colors.dark10,
+            color: colors.light100,
           },
           hover: {
             backgroundColor: colors.dark10,
-            color: colors.dark45,
+            color: colors.light100,
           },
         },
       },
       light: {
+        borderColor: colors.light110,
+        isOutBorder: false,
         states: {
           disable: {
             backgroundColor: colors.light110,
@@ -64,7 +91,7 @@ export default {
             color: colors.dark45,
           },
           click: {
-            backgroundColor: colors.light110,
+            backgroundColor: colors.dark20,
             color: colors.dark45,
           },
           hover: {
@@ -85,7 +112,7 @@ export default {
         left: '10%',
       },
       state: {
-        base: colors.primary,
+        base: colors.primary100,
         hover: colors.primary90,
         focus: colors.dark,
         inactive: colors.light100,
@@ -106,5 +133,10 @@ export default {
         inactive: colors.light100,
       },
     },
+  },
+  icons: {
+    backup: modernBackup,
+    tooltip: modernInfoTooltip,
+    topBar: {},
   },
 };

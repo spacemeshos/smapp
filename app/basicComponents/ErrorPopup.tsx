@@ -1,14 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
 import { closePopup } from '../assets/images';
-import { smColors } from '../vars';
 
 const Wrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void }>`
   position: absolute;
   display: flex;
   flex-direction: row;
   justify-content: center;
-  background-color: ${smColors.orange};
+  background-color: ${({
+    theme: {
+      popups: {
+        states: { error },
+      },
+    },
+  }) => error.backgroundColor};
 `;
 
 const CloseImg = styled.img`
@@ -18,13 +23,24 @@ const CloseImg = styled.img`
   width: 20px;
   height: 18px;
   cursor: pointer;
+  border-radius: ${({
+    theme: {
+      popups: { iconRadius },
+    },
+  }) => iconRadius}px;
 `;
 
 const PopupText = styled.div`
   margin: 10px 10px 10px 30px;
   font-size: 10px;
   line-height: 13px;
-  color: ${smColors.white};
+  color: ${({
+    theme: {
+      popups: {
+        states: { error },
+      },
+    },
+  }) => error.color};
 `;
 
 type Props = {

@@ -12,13 +12,13 @@ const Wrapper = styled.div<{ isFocused: boolean; isDisabled: boolean }>`
   height: 40px;
   border: 1px solid
     ${({ isFocused, theme: { colors } }) =>
-      isFocused ? colors.secondary100 : colors.dark100};
+      isFocused ? colors.secondary100 : 'transparent'};
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
   ${({ theme: { form } }) => `
   border-radius: ${form.input.boxRadius}px;`}
   ${({ isDisabled, theme: { colors } }) =>
     !isDisabled && `&:hover { border: 1px solid ${colors.secondary100}; `}
-  background-color:  ${({ theme: { form } }) => form.input.normal}; ;
+  background-color:  ${({ theme: { form } }) => form.input.states.normal}; ;
 `;
 
 const ActualInput = styled.input<{
@@ -28,10 +28,11 @@ const ActualInput = styled.input<{
   onFocus: (event: any) => void;
   onBlur: (event: any) => void;
   isDisabled: any;
+  iconLeft?: string;
 }>`
   flex: 1;
   width: 100%;
-  height: 36px;
+  height: 38px;
   padding: 8px 10px;
   border-radius: 0;
   border: none;
@@ -77,6 +78,18 @@ const ActualInput = styled.input<{
   cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'text')};
   ${({ theme: { form } }) => `
   border-radius: ${form.input.boxRadius}px;`}
+  ${({ theme: { form } }) => `
+  border: ${Number(form.input.states.disable.hasBorder)}px solid ${
+    form.input.states.disable.borderColor
+  };`}
+  ${({ iconLeft }) =>
+    iconLeft &&
+    `
+  background-image: url(${iconLeft});
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  background-size: 20px;
+  padding-left: 30px;`}
 `;
 
 const ExtraTxt = styled.div`
@@ -102,6 +115,7 @@ type Props = {
   type?: string;
   maxLength?: any;
   autofocus?: boolean;
+  iconLeft?: string;
 };
 
 const Input = ({
@@ -119,6 +133,7 @@ const Input = ({
   type = 'text',
   maxLength = '',
   autofocus = false,
+  iconLeft,
 }: Props) => {
   let debounce: any = null;
   const [isFocused, setIsFocused] = useState(false);
@@ -160,6 +175,7 @@ const Input = ({
   return (
     <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
       <ActualInput
+        iconLeft={iconLeft}
         value={value}
         readOnly={isDisabled}
         placeholder={placeholder}

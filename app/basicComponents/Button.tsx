@@ -4,106 +4,6 @@ import { smColors } from '../vars';
 
 const GAP = 4;
 
-const UpperPart = styled.div<{
-  width: number;
-  height: number;
-  isContainerFullWidth: boolean;
-  isDisabled: boolean;
-  isPrimary: boolean;
-}>`
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  bottom: ${GAP}px;
-  left: ${GAP}px;
-  right: 0;
-  display: flex;
-  flex-direction: row;
-  width: ${({ width }) => width}px;
-  ${({ isContainerFullWidth }) =>
-    isContainerFullWidth &&
-    `
-    width: 100%;
-  `}
-  height: ${({ height }) => height}px;
-  ${({
-    isDisabled,
-    isPrimary,
-    theme: {
-      button: {
-        primary: {
-          state: {
-            base: basePrimary,
-            hover: hoverPrimary,
-            inactive: inactivePrimary,
-          },
-        },
-        secondary: {
-          state: {
-            base: baseSecondary,
-            hover: hoverSecondary,
-            inactive: inactiveSecondary,
-          },
-        },
-      },
-    },
-  }) =>
-    isDisabled
-      ? `background-color: ${isPrimary ? inactivePrimary : inactiveSecondary};`
-      : `background-color: ${isPrimary ? basePrimary : baseSecondary};
-        &:hover {
-          background-color: ${isPrimary ? hoverPrimary : hoverSecondary};
-        }
-      `}
-  ${({
-    theme: {
-      box: { radius },
-    },
-  }) => `
-  border-radius: ${radius}px;`}
-  cursor: inherit;
-`;
-
-const Text = styled.div<{
-  height: number;
-  isPrimary: boolean;
-  hasImg: boolean;
-}>`
-  padding-left: ${({
-    isPrimary,
-    hasImg,
-    theme: {
-      button: { primary, secondary },
-    },
-  }) => {
-    if (hasImg) {
-      return '0';
-    }
-
-    return isPrimary ? primary.padding.left : secondary.padding.left;
-  }};
-  font-size: 12px;
-  line-height: ${({ height }) => height}px;
-  color: ${smColors.white};
-  cursor: inherit;
-`;
-
-const ImageWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 20px;
-  height: 100%;
-  margin: 0 10px;
-  cursor: inherit;
-`;
-
-const Image = styled.img`
-  max-width: 100%;
-  max-height: 100%;
-  cursor: inherit;
-`;
-
 const LowerPart = styled.div<{
   width: number;
   height: number;
@@ -172,6 +72,138 @@ const LowerPart = styled.div<{
           isPrimary ? hasPrimaryBorder && radius : hasSecondaryBorder && radius
         }
       `}
+  cursor: inherit;
+`;
+
+const UpperPart = styled.div<{
+  width: number;
+  height: number;
+  isContainerFullWidth: boolean;
+  isDisabled: boolean;
+  isPrimary: boolean;
+}>`
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: ${GAP}px;
+  left: ${GAP}px;
+  right: 0;
+  display: flex;
+  flex-direction: row;
+  width: ${({ width }) => width}px;
+  ${({ isContainerFullWidth }) =>
+    isContainerFullWidth &&
+    `
+    width: 100%;
+  `}
+  height: ${({ height }) => height}px;
+  ${({
+    isDisabled,
+    isPrimary,
+    theme: {
+      button: {
+        primary: {
+          state: {
+            base: basePrimary,
+            hover: hoverPrimary,
+            inactive: inactivePrimary,
+          },
+        },
+        secondary: {
+          state: {
+            base: baseSecondary,
+            hover: hoverSecondary,
+            inactive: inactiveSecondary,
+          },
+        },
+      },
+    },
+  }) =>
+    isDisabled
+      ? `background-color: ${isPrimary ? inactivePrimary : inactiveSecondary};`
+      : `background-color: ${isPrimary ? basePrimary : baseSecondary};
+        &:hover {
+          background-color: ${isPrimary ? hoverPrimary : hoverSecondary};
+        }
+        &:hover ${LowerPart} {
+          border-color: ${isPrimary ? hoverPrimary : hoverSecondary};
+        }
+      `}
+  ${({
+    isDisabled,
+    isPrimary,
+    theme: {
+      button: {
+        primary: {
+          settings: { hasBorder: hasPrimaryBorder },
+          state: { hover: hoverPrimary },
+        },
+        secondary: {
+          settings: { hasBorder: hasSecondaryBorder },
+          state: { hover: hoverSecondary },
+        },
+      },
+    },
+  }) =>
+    !isDisabled &&
+    `
+    &:hover {
+          border: ${
+            isPrimary
+              ? hasPrimaryBorder && `1px solid ${hoverPrimary}`
+              : hasSecondaryBorder && `1px solid ${hoverSecondary}`
+          };
+        } 
+    &:active {
+          border: none;
+        }        
+      `}
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
+  cursor: inherit;
+`;
+
+const Text = styled.div<{
+  height: number;
+  isPrimary: boolean;
+  hasImg: boolean;
+}>`
+  padding-left: ${({
+    isPrimary,
+    hasImg,
+    theme: {
+      button: { primary, secondary },
+    },
+  }) => {
+    if (hasImg) {
+      return '0';
+    }
+
+    return isPrimary ? primary.padding.left : secondary.padding.left;
+  }};
+  font-size: 12px;
+  line-height: ${({ height }) => height}px;
+  color: ${smColors.white};
+  cursor: inherit;
+`;
+
+const ImageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 100%;
+  margin: 0 10px;
+  cursor: inherit;
+`;
+
+const Image = styled.img`
+  max-width: 100%;
+  max-height: 100%;
   cursor: inherit;
 `;
 

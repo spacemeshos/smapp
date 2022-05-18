@@ -12,9 +12,7 @@ export const SKINS = {
   [UI_LIGHT_SKIN]: 'light',
 };
 
-export const isDarkMode = (mode) => mode === UI_DARK_SKIN;
-export const isLightMode = (mode) => mode === UI_LIGHT_SKIN;
-export const isModernMode = (mode) => mode === UI_DEFAULT_SKIN;
+export const isDarkBackground = (skinId: number) => skinId !== UI_LIGHT_SKIN;
 
 export const getThemeById = (index: number) => {
   const themeName = SKINS[index];
@@ -30,3 +28,5 @@ export const getThemeById = (index: number) => {
       return modern;
   }
 };
+
+export type DefaultSkin = typeof modern | typeof light | typeof dark;

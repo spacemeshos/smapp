@@ -13,6 +13,12 @@ const Wrapper = styled.div`
     `2px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
   margin-right: 5px;
   cursor: pointer;
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const InnerWrapper = styled.div`
@@ -20,6 +26,12 @@ const InnerWrapper = styled.div`
   height: 10px;
   background-color: ${smColors.green};
   cursor: pointer;
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 type Props = {

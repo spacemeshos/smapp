@@ -1,9 +1,8 @@
 import { createGlobalStyle } from 'styled-components';
 import srcReg from './assets/fonts/SourceCodePro-Regular.ttf';
 import srcBold from './assets/fonts/SourceCodePro-Bold.ttf';
-import { smColors } from './vars';
 
-const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
+const GlobalStyle = createGlobalStyle`
     @font-face {
       font-family: SourceCodePro;
       src: url(${srcReg});
@@ -21,8 +20,7 @@ const GlobalStyle = createGlobalStyle<{ theme: { isDarkMode: boolean } }>`
         height: 100%;
         margin: 0;
         padding: 0;
-        background-color: ${({ theme }) =>
-          theme.isDarkMode ? smColors.black : smColors.background};
+        background-color: ${({ theme: { skinBackground } }) => skinBackground};
     }
     
     html, body, div, span, applet, object, iframe,

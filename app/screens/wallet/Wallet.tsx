@@ -38,7 +38,9 @@ const BackupReminder = styled.div`
   cursor: pointer;
 `;
 
-const BackupImage = styled.img`
+const BackupImage = styled.img.attrs((props) => ({
+  src: props.theme.icons.backup,
+}))`
   width: 20px;
   height: 20px;
   margin-right: 15px;
@@ -93,7 +95,7 @@ const Wallet = ({ history, location }: RouteComponentProps) => {
         {!backupTime && (
           <BackupReminder onClick={navigateToBackup}>
             <FullCrossIcon src={icon} />
-            <BackupImage src={backup} />
+            <BackupImage />
             <BackupText>BACKUP YOUR WALLET</BackupText>
           </BackupReminder>
         )}
