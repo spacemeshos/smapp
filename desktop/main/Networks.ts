@@ -10,6 +10,7 @@ import { NetworkDefinitions } from '../../app/types/events';
 import NodeConfig from './NodeConfig';
 import { AppContext, Network } from './context';
 import { NODE_CONFIG_FILE } from './constants';
+import { Managers } from './app.types';
 
 //
 // Assertions
@@ -53,33 +54,32 @@ const update = async (context: AppContext, retry = 2) => {
   }
 };
 
-const listPublicApis = (context: AppContext) => {
-  if (!context.currentNetwork) return [];
+const listPublicApis = async (context: AppContext) => {
+  const state = await context.state.get();
+  const { currentNetwork } = state;
+  if (!currentNetwork) return [];
 
-  const network = context.currentNetwork;
   const publicApis: PublicService[] = [
-    toPublicService(network.netName, network.grpcAPI),
+    toPublicService(currentNetwork.netName, currentNetwork.grpcAPI),
     ...(isDevNet(process) && process.env.DEV_NET_REMOTE_API
       ? process.env.DEV_NET_REMOTE_API?.split(',')
           .slice(1)
-          .map((url) => toPublicService(network.netName, url))
+          .map((url) => toPublicService(currentNetwork.netName, url))
       : []),
   ];
   return publicApis;
 };
 
-const list = (context: AppContext) =>
-  context.networks.map((net) => ({ ...net, netId: net.netID }));
-const getNetwork = (context: AppContext, netId: number) =>
-  context.networks.find((net) => net.netID === netId);
+const list = async (context: AppContext) =>
+  (await context.state.get()).networks.map((net) => ({
+    ...net,
+    netId: net.netID,
+  }));
+const getNetwork = async (context: AppContext, netId: number) =>
+  (await context.state.get()).networks.find((net) => net.netID === netId);
 const hasNetwork = (context: AppContext, netId: number) =>
   !!getNetwork(context, netId);
 
-export type Managers = {
-  smesher: SmesherManager;
-  node: NodeManager;
-  wallet: WalletManager;
-};
 export const spawnManagers = async (
   mainWindow: BrowserWindow,
   netId: number
