@@ -1,8 +1,5 @@
 import * as $ from 'rxjs';
 import { NodeConfig, Wallet } from '../../shared/types';
-
-import { Network } from './context';
-import { Managers } from './Networks';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
@@ -15,8 +12,9 @@ import handleCloseApp from './reactions/handleCloseApp';
 import handleWalletIpcRequests from './sources/wallet.ipc';
 import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
+import { AppStore, Managers, Network } from './app.types';
 
-const startApp = () => {
+const startApp = (): AppStore => {
   // Create MainWindow
   const {
     $mainWindow,
@@ -80,12 +78,12 @@ const startApp = () => {
     get: () =>
       $.firstValueFrom(
         $.combineLatest({
-          $wallet,
-          $walletPath,
-          $networks,
-          $currentNetwork,
-          $nodeConfig,
-          $managers,
+          wallet: $wallet,
+          walletPath: $walletPath,
+          networks: $networks,
+          currentNetwork: $currentNetwork,
+          nodeConfig: $nodeConfig,
+          managers: $managers,
         })
       ),
     unsubscribe: () => unsubs.forEach((unsub) => unsub()),
