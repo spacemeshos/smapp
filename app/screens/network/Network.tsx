@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import {
   getCurrentLayer,
-  getNetworkDefinitions,
 } from '../../redux/network/actions';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
@@ -91,13 +90,6 @@ const Network = ({ history }) => {
   const netName = useSelector(
     (state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME'
   );
-
-  useEffect(() => {
-    if (netId > -1) {
-      dispatch(getCurrentLayer());
-      dispatch(getNetworkDefinitions());
-    }
-  }, [netId, dispatch]);
 
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
