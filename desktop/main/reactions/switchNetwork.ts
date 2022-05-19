@@ -4,14 +4,14 @@ import { NodeConfig } from '../../../shared/types';
 import { checkUpdates } from '../autoUpdate';
 import { Network } from '../context';
 import { downloadNodeConfig } from '../NodeConfig';
-import { withLatest, wrapFlow } from '../rx.utils';
+import { withLatest, makeSubscription } from '../rx.utils';
 
 export default (
   $currentNetwork: Observable<Network | null>,
   $nodeConfig: Subject<NodeConfig>,
   $mainWindow: ReplaySubject<BrowserWindow>
 ) =>
-  wrapFlow(
+  makeSubscription(
     $currentNetwork.pipe(distinctUntilChanged(), withLatest($mainWindow)),
     async ([mw, net]) => {
       if (!net) return;

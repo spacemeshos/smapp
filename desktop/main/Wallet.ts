@@ -13,11 +13,7 @@ import {
   WalletSecrets,
   WalletType,
 } from '../../shared/types';
-import {
-  isLocalNodeApi,
-  isRemoteNodeApi,
-  stringifySocketAddress,
-} from '../../shared/utils';
+import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import encryptionConst from '../encryptionConst';
 import { getISODate } from '../../shared/datetime';
@@ -51,19 +47,6 @@ const list = async () => {
 //
 // Update handlers
 //
-
-const updateMeta = async (
-  context: AppContext,
-  walletPath: string,
-  meta: Partial<WalletMeta>
-) => {
-  const wallet = await updateWalletMeta(walletPath, meta);
-  // context.walletPath = walletPath;
-  // if (context.wallet) {
-  //   context.wallet.meta = wallet.meta;
-  // }
-  return wallet;
-};
 
 const updateSecrets = async (
   walletPath: string,
@@ -283,30 +266,6 @@ const subscribe = (context: AppContext) => {
     }
   );
 
-  ipcMain.handle(
-    ipcConsts.SWITCH_API_PROVIDER,
-    async (_event, apiUrl: SocketAddress | null) => {
-      const { wallet, walletPath } = context;
-      if (!walletPath || !wallet) return; // TODO
-      await updateMeta(context, walletPath, {
-        remoteApi:
-          apiUrl && isRemoteNodeApi(apiUrl)
-            ? stringifySocketAddress(apiUrl)
-            : '',
-        type:
-          apiUrl && isLocalNodeApi(apiUrl)
-            ? WalletType.LocalNode
-            : WalletType.RemoteApi,
-      });
-      if (apiUrl && isRemoteNodeApi(apiUrl)) {
-        // We don't need to start Node here
-        // because it will be started on unlocking/creating the wallet file
-        // but we have to stop it in case that User switched to wallet mode
-        await context.managers.node?.stopNode();
-      }
-    }
-  );
-
   ipcMain.on(
     ipcConsts.W_M_UPDATE_WALLET_META,
     <T extends keyof WalletMeta>(
@@ -316,7 +275,7 @@ const subscribe = (context: AppContext) => {
         key,
         value,
       }: { fileName: string; key: T; value: WalletMeta[T] }
-    ) => updateMeta(context, fileName, { [key]: value })
+    ) => updateWalletMeta(fileName, { [key]: value })
   );
   ipcMain.on(
     ipcConsts.W_M_UPDATE_WALLET_SECRETS,

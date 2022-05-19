@@ -2,8 +2,8 @@ import { BrowserWindow } from 'electron';
 import { combineLatest, debounceTime, filter, Observable } from 'rxjs';
 import { Wallet } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
-import { Network } from '../context';
-import { withLatest, wrapFlow } from '../rx.utils';
+import { Network } from '../app.types';
+import { withLatest, makeSubscription } from '../rx.utils';
 
 export default (
   $wallet: Observable<Wallet | null>,
@@ -11,7 +11,7 @@ export default (
   $currentNetwork: Observable<Network | null>,
   $mainWindow: Observable<BrowserWindow>
 ) =>
-  wrapFlow(
+  makeSubscription(
     combineLatest([
       $wallet.pipe(filter(Boolean)),
       $networks,

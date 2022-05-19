@@ -4,6 +4,7 @@ import {
   combineLatest,
   delay,
   distinctUntilChanged,
+  filter,
   first,
   from,
   map,
@@ -23,9 +24,14 @@ import {
   UnlockWalletRequest,
   UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
-import { Wallet } from '../../../shared/types';
+import { SocketAddress, Wallet, WalletType } from '../../../shared/types';
+import {
+  isLocalNodeApi,
+  isRemoteNodeApi,
+  stringifySocketAddress,
+} from '../../../shared/utils';
 import Logger from '../../logger';
-import { Network } from '../context';
+import { Network } from '../app.types';
 import { fromIPC, handleIPC } from '../rx.utils';
 import { createWallet } from '../Wallet';
 import { loadWallet, updateWalletMeta } from '../walletFile';
@@ -55,7 +61,7 @@ const handleWalletIpcRequests = (
       )
     );
   };
-  // Handlers
+  // Handle IPC requests and produce `Wallet | null`
   const $nextWallet = merge(
     //
     handleIPC(
@@ -101,7 +107,39 @@ const handleWalletIpcRequests = (
       retry(3),
       delay(1000),
       catchError(() => of(walletPair('', null)))
-    )
+    ),
+    //
+    handleIPC(
+      ipcConsts.SWITCH_API_PROVIDER,
+      (apiUrl: SocketAddress | null) =>
+        $wallet.pipe(
+          filter(Boolean),
+          map((wallet) => {
+            const changes = {
+              remoteApi:
+                apiUrl && isRemoteNodeApi(apiUrl)
+                  ? stringifySocketAddress(apiUrl)
+                  : '',
+              type:
+                apiUrl && isLocalNodeApi(apiUrl)
+                  ? WalletType.LocalNode
+                  : WalletType.RemoteApi,
+            };
+            const nextWallet: Wallet = {
+              ...wallet,
+              meta: { ...wallet?.meta, ...changes },
+            };
+
+            return nextWallet;
+          })
+        ),
+      (wallet) => createIpcResponse(null, wallet.meta)
+    ),
+    // TODO: W_M_CREATE_NEW_ACCOUNT
+
+    // TODO: W_M_UPDATE_WALLET_META
+    // TODO: W_M_UPDATE_WALLET_SECRETS
+    // isn't it a bit silly to have such generic messages?
   );
 
   const subs = [

@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 import { Network } from '../context';
 import { fetchNetworksFromDiscovery } from '../Networks';
-import { wrapFlow } from '../rx.utils';
+import { makeSubscription } from '../rx.utils';
 
 const fromDiscovery = () =>
   from(fetchNetworksFromDiscovery()).pipe(
@@ -20,12 +20,12 @@ const fromDiscovery = () =>
   );
 
 export const fetchDiscovery = ($networks: Subject<Network[]>) =>
-  wrapFlow(fromDiscovery(), (nets) => $networks.next(nets));
+  makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
 
 export const fetchDiscoveryEach = (
   period: number,
   $networks: Subject<Network[]>
 ) =>
-  wrapFlow(interval(period).pipe(switchMap(fromDiscovery)), (nets) =>
+  makeSubscription(interval(period).pipe(switchMap(fromDiscovery)), (nets) =>
     $networks.next(nets)
   );
