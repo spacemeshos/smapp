@@ -702,11 +702,6 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  goTo = (redirect: RouterPath) => {
-    const { history } = this.props;
-    history.push(redirect);
-  };
-
   switchToLocalNode = () => {
     const { setUiError, switchApiProvider } = this.props;
     // @ts-ignore
@@ -877,21 +872,6 @@ class Settings extends Component<Props, State> {
 
   restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
 
-  setSkin = ({ index }: { index: number }) => {
-    const { switchTheme } = this.props;
-    // this.props.switchTheme(this.state.designMode)
-    // this.setState({ skin: index });
-    // @ts-ignore
-    switchTheme(index);
-  };
-
-  updateSkin = () => {
-    const { skin } = this.state;
-    const { switchTheme } = this.props;
-    // @ts-ignore
-    switchTheme(skin);
-  };
-
   renderAccElement = ({
     label,
     text,
@@ -905,6 +885,26 @@ class Settings extends Component<Props, State> {
       {label} {text}
     </DropDownItem>
   );
+
+  setSkin = ({ index }: { index: number }) => {
+    const { switchTheme } = this.props;
+    // this.props.switchTheme(this.state.designMode)
+    // this.setState({ skin: index });
+    // @ts-ignore
+    switchTheme(index);
+  };
+
+  goTo = (redirect: RouterPath) => {
+    const { history } = this.props;
+    history.push(redirect);
+  };
+
+  updateSkin = () => {
+    const { skin } = this.state;
+    const { switchTheme } = this.props;
+    // @ts-ignore
+    switchTheme(skin);
+  };
 }
 
 const mapStateToProps = (state: RootState) => ({

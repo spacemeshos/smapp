@@ -6,7 +6,7 @@ import routes from '../../routes';
 import { MainPath } from '../../routerPaths';
 import { AccountsOverview } from '../../components/wallet';
 import { smColors } from '../../vars';
-import { backup, leftSideTIcon, leftSideTIconWhite } from '../../assets/images';
+import { leftSideTIcon, leftSideTIconWhite } from '../../assets/images';
 import { RootState } from '../../types';
 import { BackButton } from '../../components/common';
 import { setCurrentMode } from '../../redux/wallet/actions';

@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { tooltip, tooltipWhite } from '../assets/images';
 import { smColors } from '../vars';
 
 const InnerWrapper = styled.div<{ top: number; left: number; width: number }>`
@@ -88,7 +87,6 @@ const Tooltip = ({
   width,
   text,
   marginTop = 2,
-  isDarkMode,
 }: Props) => (
   <Wrapper marginTop={marginTop}>
     <OuterIcon />

@@ -21,12 +21,6 @@ const SearchWrapper = styled.div`
   margin-bottom: 20px;
 `;
 
-const SearchIcon = styled.img`
-  width: 15px;
-  height: 15px;
-  margin-left: 15px;
-`;
-
 const SubHeader = styled.div`
   display: flex;
   flex-direction: column;
