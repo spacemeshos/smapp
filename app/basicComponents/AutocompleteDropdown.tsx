@@ -4,40 +4,150 @@ import { getAbbreviatedText } from '../infra/utils';
 import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
 import { smColors } from '../vars';
 
-const AutocompleteField = styled.div<{ icon: any }>`
+const AutocompleteField = styled.div<{ icon: any; isDarkSkin: boolean }>`
   position: relative;
-  background-color: ${smColors.white};
 `;
 
-const InputField = styled.div<{ isFocused?: boolean; isDisabled?: boolean }>`
+const InputField = styled.div<{
+  isFocused?: boolean;
+  isDisabled?: boolean;
+  isOpened: boolean;
+  isDarkSkin: boolean;
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
   width: 100%;
   height: 40px;
-  border: 1px solid
-    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
-  opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
-  ${({ isDisabled }) =>
-    !isDisabled && `&:hover { border: 1px solid ${smColors.purple}; `}
-  background-color: ${smColors.white};
+
+  border-top-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-top-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  background-color: ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    isDarkSkin
+      ? light.states.normal.backgroundColor
+      : dark.states.normal.backgroundColor};
+  ${({ isOpened }) =>
+    isOpened &&
+    `
+    box-shadow: 0 3px 6px ${smColors.black02Alpha};
+  `}
+  ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { light, dark },
+      },
+    },
+  }) =>
+    `
+    color: ${isDarkSkin ? light.states.normal.color : dark.states.normal.color};
+    
+    &:hover {
+        color: ${
+          isDarkSkin ? light.states.normal.color : dark.states.normal.color
+        };
+     }; `}
 `;
 
-const ActualInput = styled.input<{ isDisabled?: boolean }>`
+const ActualInput = styled.input<{
+  isDisabled?: boolean;
+  isOpened: boolean;
+  isDarkSkin: boolean;
+}>`
   flex: 1;
   width: 100%;
   height: 36px;
   padding: 8px 14px;
   border-radius: 0;
   border: none;
-  color: ${({ isDisabled }) =>
-    isDisabled ? smColors.darkGray : smColors.black};
   font-size: 14px;
   line-height: 16px;
   outline: none;
+
+  border-top-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-top-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  background-color: ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    isDarkSkin
+      ? light.states.normal.backgroundColor
+      : dark.states.normal.backgroundColor};
+  ${({ isOpened }) =>
+    isOpened &&
+    `
+    box-shadow: 0 3px 6px ${smColors.black02Alpha};
+  `}
+  ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { light, dark },
+      },
+    },
+  }) =>
+    `
+    color: ${isDarkSkin ? light.states.normal.color : dark.states.normal.color};
+    
+    &:hover {
+        color: ${
+          isDarkSkin ? light.states.normal.color : dark.states.normal.color
+        };
+     }; `}
 `;
 
-const AutocompleteList = styled.div<{ show?: boolean }>`
+const AutocompleteList = styled.div<{ show?: boolean; isDarkSkin: boolean }>`
   position: absolute;
   top: 2em;
   width: 100%;
@@ -48,6 +158,7 @@ const AutocompleteList = styled.div<{ show?: boolean }>`
   z-index: 9;
   -webkit-box-shadow: 0 2px 3px ${smColors.black30Alpha};
   box-shadow: 0 2px 3px ${smColors.black30Alpha};
+
   > div {
     padding: 10px;
     margin: 0 6px;
@@ -274,8 +385,8 @@ const AutocompleteDropdown = (props: Props) => {
   const icon = isDarkModeOn ? chevronBottomBlack : chevronBottomWhite;
 
   return (
-    <AutocompleteField icon={icon}>
-      <InputField>
+    <AutocompleteField icon={icon} isDarkSkin={isDarkModeOn}>
+      <InputField isOpened={isOpen} isDarkSkin={isDarkModeOn}>
         <ActualInput
           type="text"
           id={id}
@@ -289,10 +400,16 @@ const AutocompleteDropdown = (props: Props) => {
           value={editField}
           ref={inputField}
           autoFocus={!!autofocus}
+          isOpened={isOpen}
+          isDarkSkin={isDarkModeOn}
         />
         <Icon isOpened={isOpen} src={icon} onClick={handleIconClick} />
       </InputField>
-      <AutocompleteList show={isOpen} ref={listContainer}>
+      <AutocompleteList
+        show={isOpen}
+        ref={listContainer}
+        isDarkSkin={isDarkModeOn}
+      >
         {renderMenu()}
       </AutocompleteList>
     </AutocompleteField>

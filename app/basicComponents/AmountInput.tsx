@@ -4,48 +4,90 @@ import { CoinUnits, toSMH, toSmidge } from '../infra/utils';
 import { smColors } from '../vars';
 import RefreshIcon from './Icons/RefreshIcon';
 
-const Wrapper = styled.div<{ isFocused: boolean; disabled: boolean }>`
+const Wrapper = styled.div<{ isFocused: boolean; isDisabled: boolean }>`
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
-  position: relative;
   width: 100%;
   height: 40px;
-  border: 1px solid
-    ${({ isFocused }) => (isFocused ? smColors.purple : smColors.black)};
-  opacity: ${({ disabled }) => (disabled ? 0.2 : 1)};
-  ${({ disabled }) =>
-    !disabled && `&:hover { border: 1px solid ${smColors.purple}; `}
-  background-color: ${smColors.white};
 `;
 const Input = styled.input<{
   value: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus: (event: React.FocusEvent<HTMLInputElement>) => void;
   onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
-  disabled: boolean;
+  isDisabled: boolean;
+  isFocused: boolean;
 }>`
   flex: 1;
   width: 100%;
   height: 100%;
-  padding: 8px 10px;
+  padding: 8px 110px 8px 10px;
+  position: relative;
   border-radius: 0;
   border: none;
-  color: ${({ disabled }) => (disabled ? smColors.darkGray : smColors.black)};
   font-size: 14px;
   line-height: 16px;
   outline: none;
+  transition: background-color 100ms linear, border-color 100ms linear;
+  color: ${({
+    isDisabled,
+    theme: {
+      form: {
+        input: { states },
+      },
+    },
+  }) =>
+    // eslint-disable-next-line no-nested-ternary
+    isDisabled ? states.disable.color : states.normal.color};
+  background-color: ${({
+    isDisabled,
+    theme: {
+      form: {
+        input: { states },
+      },
+    },
+  }) =>
+    // eslint-disable-next-line no-nested-ternary
+    isDisabled
+      ? states.disable.backgroundColor
+      : states.normal.backgroundColor};
+  ${({
+    isDisabled,
+    theme: {
+      form: {
+        input: { states },
+      },
+    },
+  }) =>
+    !isDisabled &&
+    `&:hover, &:focus, &:active {
+            background-color: ${states.focus.backgroundColor}; 
+            color: ${states.focus.color}; 
+     } `}
+
+  border: 1px solid
+    ${({ isFocused, theme: { colors } }) =>
+    isFocused ? colors.secondary100 : 'transparent'};
+  opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
+  ${({ theme: { form } }) => `
+  border-radius: ${form.input.boxRadius}px;`}
+  ${({ isDisabled, theme: { colors } }) =>
+    !isDisabled && `&:hover { border: 1px solid ${colors.secondary100}; `}
+  background-color:  ${({ theme: { form } }) => form.input.states.normal};
 `;
 
 const UnitButton = styled.button`
   height: 100%;
-
+  position: absolute;
+  right: 0;
+  top: 0;
   padding: 0 1em;
   border: 0;
   outline: 0;
-  background: ${smColors.white};
   cursor: pointer;
+  background-color: transparent;
 
   svg {
     fill: ${smColors.realBlack};
@@ -146,7 +188,7 @@ const AmountInput = ({
   };
 
   return (
-    <Wrapper isFocused={isFocused} disabled={!!disabled} style={style}>
+    <Wrapper isFocused={isFocused} isDisabled={!!disabled} style={style}>
       <Input
         ref={inputRef}
         pattern="[0-9]*\.?[0-9]*"
@@ -154,7 +196,8 @@ const AmountInput = ({
         onChange={changeAmount}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        disabled={!!disabled}
+        isDisabled={!!disabled}
+        isFocused={isFocused}
       />
       <UnitButton onClick={changeUnits}>
         {units}

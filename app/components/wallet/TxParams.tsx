@@ -74,13 +74,6 @@ const Fee = styled.div<{ isInDropDown: boolean }>`
   color: ${smColors.black};
   padding: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const Footer = styled.div`
@@ -130,7 +123,6 @@ type Props = {
   nextAction: () => void;
   cancelTx: () => void;
   contacts: Contact[];
-  isDarkMode: boolean;
 };
 
 const TxParams = ({
@@ -149,11 +141,9 @@ const TxParams = ({
   nextAction,
   cancelTx,
   contacts,
-  isDarkMode,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 240px',
   };

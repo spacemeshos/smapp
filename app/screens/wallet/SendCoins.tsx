@@ -43,8 +43,6 @@ const SendCoins = ({ history, location }: Props) => {
       state.wallet.accounts[state.wallet.currentAccountIndex]
   );
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
-  // const lastUsedContacts = useSelector((state: RootState) => state.wallet.lastUsedContacts);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
 
   const updateTxAddress = ({ value }: { value: string }) => {
@@ -115,7 +113,6 @@ const SendCoins = ({ history, location }: Props) => {
           nextAction={proceedToMode2}
           contacts={contacts}
           key="params"
-          isDarkMode={isDarkMode}
         />
         {isCreateNewContactOn ? (
           <CreateNewContact
