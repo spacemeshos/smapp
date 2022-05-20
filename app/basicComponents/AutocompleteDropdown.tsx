@@ -74,6 +74,23 @@ const InputField = styled.div<{
           isDarkSkin ? light.states.normal.color : dark.states.normal.color
         };
      }; `}
+  border: ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+    isDarkSkin,
+  }) => (isDarkSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder))}px
+  solid
+  ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+    isDarkSkin,
+  }) => (isDarkSkin ? light.borderColor : dark.borderColor)};
 `;
 
 const ActualInput = styled.input<{
@@ -113,6 +130,7 @@ const ActualInput = styled.input<{
       form: { dropdown },
     },
   }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+
   background-color: ${({
     isDarkSkin,
     theme: {
@@ -147,21 +165,22 @@ const ActualInput = styled.input<{
      }; `}
 `;
 
-const AutocompleteList = styled.div<{ show?: boolean; isDarkSkin: boolean }>`
+const AutocompleteList = styled.div<{
+  isOpened?: boolean;
+  isDarkSkin: boolean;
+}>`
   position: absolute;
   top: 2em;
   width: 100%;
   background: ${smColors.white};
   overflow: auto;
-  height: ${({ show }) => (show ? 'unset' : '0')};
+  height: ${({ isOpened }) => (isOpened ? 'unset' : '0')};
   max-height: 214px;
   z-index: 9;
   -webkit-box-shadow: 0 2px 3px ${smColors.black30Alpha};
   box-shadow: 0 2px 3px ${smColors.black30Alpha};
-
   > div {
     padding: 10px;
-    margin: 0 6px;
     font-size: 13px;
     background: ${smColors.white};
     color: ${smColors.black30Alpha};
@@ -169,15 +188,84 @@ const AutocompleteList = styled.div<{ show?: boolean; isDarkSkin: boolean }>`
     cursor: pointer;
     outline: none;
   }
-  > div:hover {
-    background: ${smColors.black10Alpha};
+  > div {
+    background-color: ${({
+      isDarkSkin,
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+    }) =>
+      isDarkSkin
+        ? light.states.normal.backgroundColor
+        : dark.states.normal.backgroundColor};
+
+    ${({
+      isDarkSkin,
+      theme: {
+        form: {
+          dropdown: { light, dark },
+        },
+      },
+    }) =>
+      `&:hover, &.isFocus {
+            background-color: ${
+              isDarkSkin
+                ? light.states.hover.backgroundColor
+                : dark.states.hover.backgroundColor
+            }; 
+            color: ${
+              isDarkSkin ? light.states.hover.color : dark.states.hover.color
+            };
+     } `}
   }
   > div:last-child {
     border: none;
   }
-  > div.isFocus {
-    background: ${smColors.black20Alpha};
-  }
+
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (!isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (!isOpened ? 0 : dropdown.boxRadius)}px;
+
+  background-color: ${({
+    isDarkSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    isDarkSkin
+      ? dark.states.normal.backgroundColor
+      : light.states.normal.backgroundColor};
+  border: ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isDarkSkin,
+    }) => (isDarkSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder))}px
+    solid
+    ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isDarkSkin,
+    }) => (isDarkSkin ? light.borderColor : dark.borderColor)};
+  ${({ isOpened }) => (isOpened ? `border-top: none;` : `border: none;`)};
 `;
 
 const Icon = styled.img<{ isOpened?: boolean }>`
@@ -349,8 +437,8 @@ const AutocompleteDropdown = (props: Props) => {
     </div>
   );
 
-  const renderMenu = () => {
-    const menus = filterList().map((data, i) => {
+  const renderMenu = (list) => {
+    const menus = list.map((data, i) => {
       const item = renderItem(data);
 
       return React.cloneElement(item, {
@@ -383,6 +471,7 @@ const AutocompleteDropdown = (props: Props) => {
 
   const { id, name, placeholder, isDarkModeOn } = props;
   const icon = isDarkModeOn ? chevronBottomBlack : chevronBottomWhite;
+  const flatList = filterList();
 
   return (
     <AutocompleteField icon={icon} isDarkSkin={isDarkModeOn}>
@@ -403,15 +492,19 @@ const AutocompleteDropdown = (props: Props) => {
           isOpened={isOpen}
           isDarkSkin={isDarkModeOn}
         />
-        <Icon isOpened={isOpen} src={icon} onClick={handleIconClick} />
+        {flatList.length ? (
+          <Icon isOpened={isOpen} src={icon} onClick={handleIconClick} />
+        ) : null}
       </InputField>
-      <AutocompleteList
-        show={isOpen}
-        ref={listContainer}
-        isDarkSkin={isDarkModeOn}
-      >
-        {renderMenu()}
-      </AutocompleteList>
+      {flatList.length ? (
+        <AutocompleteList
+          isOpened={isOpen}
+          ref={listContainer}
+          isDarkSkin={isDarkModeOn}
+        >
+          {renderMenu(flatList)}
+        </AutocompleteList>
+      ) : null}
     </AutocompleteField>
   );
 };
