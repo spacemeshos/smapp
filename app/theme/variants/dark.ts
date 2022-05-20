@@ -1,5 +1,10 @@
 import colors from '../colors';
-import { backup, tooltipWhite, closePopup } from '../../assets/images';
+import {
+  backup,
+  tooltipWhite,
+  closePopup,
+  darkPageLeftSidePanel,
+} from '../../assets/images';
 
 export default {
   colors,
@@ -138,6 +143,6 @@ export default {
     backup,
     tooltip: tooltipWhite,
     closePopup,
-    topBar: {},
+    pageLeftSideBar: darkPageLeftSidePanel,
   },
 };

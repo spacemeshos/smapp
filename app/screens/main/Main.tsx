@@ -87,7 +87,9 @@ const NavBarLink = styled.div<{ isActive?: boolean }>`
   cursor: pointer;
 `;
 
-const RightDecoration = styled.img`
+const RightDecoration = styled.img.attrs((props) => ({
+  src: props.theme.icons.pageLeftSideBar,
+}))`
   display: block;
   height: 100%;
   margin-right: -1px;
@@ -155,7 +157,6 @@ class Main extends Component<Props, State> {
 
   render() {
     const { isWalletOnly, nodeError, status, isDarkMode, netId } = this.props;
-    const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
     const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
     const help = isDarkMode ? helpIconBlack : helpIcon;
@@ -295,7 +296,7 @@ class Main extends Component<Props, State> {
           </RoutesWrapper>
         </InnerWrapper>
         <Version />
-        <RightDecoration src={img} />
+        <RightDecoration />
       </Wrapper>
     );
   }

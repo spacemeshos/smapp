@@ -3,6 +3,7 @@ import {
   modernBackup,
   modernInfoTooltip,
   modernErrorPopupContact,
+  darkPageLeftSidePanel,
 } from '../../assets/images';
 
 export default {
@@ -142,6 +143,6 @@ export default {
     backup: modernBackup,
     tooltip: modernInfoTooltip,
     closePopup: modernErrorPopupContact,
-    topBar: {},
+    pageLeftSideBar: darkPageLeftSidePanel,
   },
 };

@@ -38,7 +38,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   width: 100%;
   padding: 5px;
   line-height: 17px;
@@ -46,13 +46,6 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
@@ -103,14 +96,12 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     label,
     explorer,
     netId,
-    isMain,
   }: {
     label: string;
     explorer: string;
     netId: number;
-    isMain: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
+    <AccItem key={label}>
       {netId > 0 ? (
         <>
           {label}

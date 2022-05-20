@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '../../basicComponents';
-// import { eventsService } from '../../infra/eventsService';
 import {
   posSpace,
   posRewardEst,
@@ -67,25 +66,13 @@ const RewardText = styled(Text)<{ selected: boolean }>`
   color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
 `;
 
-const CommitmentWrapper = styled.div<{ isInDropDown: boolean }>`
+const CommitmentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 5px 5px 5px 10px;
   cursor: inherit;
   color: ${smColors.realBlack};
-  &:hover {
-    opacity: 1;
-    color: ${({ theme }) =>
-      theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha};
-  }
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `
-     &:hover {
-      opacity: 1;
-      color: ${smColors.darkGray50Alpha};
-    }`}
 `;
 
 const ErrorText = styled.div`
@@ -175,14 +162,8 @@ const PoSSize = ({
   //   loadEstimatedRewards();
   // }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
 
-  const renderDDRow = ({
-    label,
-    isInDropDown,
-  }: {
-    label: string;
-    isInDropDown: boolean;
-  }) => (
-    <CommitmentWrapper isInDropDown={isInDropDown}>
+  const renderDDRow = ({ label }: { label: string }) => (
+    <CommitmentWrapper>
       <Commitment>{label}</Commitment>
     </CommitmentWrapper>
   );
@@ -209,9 +190,7 @@ const PoSSize = ({
         <Dots>.....................................................</Dots>
         <DropDown
           data={commitments}
-          DdElement={({ label, isMain }) =>
-            renderDDRow({ label, isInDropDown: !isMain })
-          }
+          DdElement={({ label }) => renderDDRow({ label })}
           onClick={selectCommitment}
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}

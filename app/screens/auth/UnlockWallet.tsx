@@ -105,7 +105,7 @@ const GrayText = styled.div`
 `;
 
 // TODO: Get rid from code duplication
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   width: 100%;
   padding: 5px;
   line-height: 17px;
@@ -113,13 +113,6 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const UnlockWallet = ({ history, location }: AuthRouterParams) => {
@@ -165,13 +158,11 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const renderAccElement = ({
     label,
     meta,
-    isMain,
   }: {
     label: string;
     meta?: WalletMeta;
-    isMain: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
+    <AccItem key={label}>
       {label}
       {meta && (
         <small>

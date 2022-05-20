@@ -40,7 +40,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   width: 100%;
   padding: 5px;
   line-height: 17px;
@@ -48,13 +48,6 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 type PublicServicesView = {
@@ -114,13 +107,11 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const renderAccElement = ({
     label,
     text,
-    isMain,
   }: {
     label: string;
     text: string;
-    isMain: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
+    <AccItem key={label}>
       {text ? (
         <>
           {label} - <DropDownLink>{text}</DropDownLink>

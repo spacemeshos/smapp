@@ -38,9 +38,7 @@ const Input = styled.input<{
         input: { states },
       },
     },
-  }) =>
-    // eslint-disable-next-line no-nested-ternary
-    isDisabled ? states.disable.color : states.normal.color};
+  }) => (isDisabled ? states.disable.color : states.normal.color)};
   background-color: ${({
     isDisabled,
     theme: {
@@ -49,13 +47,13 @@ const Input = styled.input<{
       },
     },
   }) =>
-    // eslint-disable-next-line no-nested-ternary
     isDisabled
       ? states.disable.backgroundColor
       : states.normal.backgroundColor};
   ${({
     isDisabled,
     theme: {
+      colors,
       form: {
         input: { states },
       },
@@ -65,17 +63,18 @@ const Input = styled.input<{
     `&:hover, &:focus, &:active {
             background-color: ${states.focus.backgroundColor}; 
             color: ${states.focus.color}; 
+            border: 1px solid ${colors.secondary100};
      } `}
 
-  border: 1px solid
-    ${({ isFocused, theme: { colors } }) =>
-    isFocused ? colors.secondary100 : 'transparent'};
-  opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
   ${({ theme: { form } }) => `
-  border-radius: ${form.input.boxRadius}px;`}
-  ${({ isDisabled, theme: { colors } }) =>
-    !isDisabled && `&:hover { border: 1px solid ${colors.secondary100}; `}
-  background-color:  ${({ theme: { form } }) => form.input.states.normal};
+    border: ${Number(form.input.states.disable.hasBorder)}px solid ${
+    form.input.states.disable.borderColor
+  };`}
+  
+  opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};
+
+  ${({ theme: { form } }) => `
+    border-radius: ${form.input.boxRadius}px;`}
 `;
 
 const UnitButton = styled.button`

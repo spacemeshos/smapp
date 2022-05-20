@@ -158,12 +158,17 @@ const UpperPart = styled.div<{
           border: none;
         }        
       `}
+
   ${({
+    isPrimary,
     theme: {
-      box: { radius },
+      button: {
+        primary: { boxRadius: primaryBoxRadius },
+        secondary: { boxRadius: secondaryBoxRadius },
+      },
     },
   }) => `
-  border-radius: ${radius}px;`}
+  border-radius: ${isPrimary ? primaryBoxRadius : secondaryBoxRadius}px;`}
   cursor: inherit;
 `;
 

@@ -18,20 +18,13 @@ const DetailsText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.black};
   padding: 5px;
   width: 100%;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 type Props = {
@@ -99,17 +92,8 @@ const VaultTx = ({
     flex: '0 0 200px',
   };
 
-  const renderAccElement = ({
-    label,
-    isInDropDown,
-  }: {
-    label: string;
-    text: string;
-    isInDropDown: boolean;
-  }) => (
-    <AccItem key={label} isInDropDown={isInDropDown}>
-      {label}
-    </AccItem>
+  const renderAccElement = ({ label }: { label: string; text: string }) => (
+    <AccItem key={label}>{label}</AccItem>
   );
 
   return (
@@ -121,9 +105,7 @@ const VaultTx = ({
         <DropDown
           data={accounts}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyle}
@@ -137,9 +119,7 @@ const VaultTx = ({
         <DropDown
           data={accounts}
           onClick={selectFundAmount}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyle}
@@ -153,9 +133,7 @@ const VaultTx = ({
         <DropDown
           data={gasUnit}
           onClick={selectGasUnits}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyleGasUnit}
@@ -169,9 +147,7 @@ const VaultTx = ({
         <DropDown
           data={unitPrice}
           onClick={selectGasPrice}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={0}
           rowHeight={40}
           style={ddStyleGasPrice}

@@ -68,7 +68,7 @@ const Dots = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const Fee = styled.div<{ isInDropDown: boolean }>`
+const Fee = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.black};
@@ -151,13 +151,11 @@ const TxParams = ({
   const renderFeeElement = ({
     label,
     text,
-    isInDropDown,
   }: {
     label: string;
     text: string;
-    isInDropDown: boolean;
   }) => (
-    <Fee key={label} isInDropDown={isInDropDown}>
+    <Fee key={label}>
       {label} {text}
     </Fee>
   );
@@ -241,9 +239,7 @@ const TxParams = ({
         <DropDown
           data={fees}
           onClick={selectFee}
-          DdElement={({ label, text, isMain }) =>
-            renderFeeElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderFeeElement({ label, text })}
           selectedItemIndex={selectedFeeIndex}
           rowHeight={40}
           style={ddStyle}

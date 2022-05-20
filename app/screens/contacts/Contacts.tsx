@@ -60,6 +60,13 @@ const SubHeaderBtnUpperPart = styled.div<{
   }
   cursor: inherit;
   text-align: center;
+  ${({
+    theme: {
+      button: {
+        secondary: { boxRadius },
+      },
+    },
+  }) => `border-radius: ${boxRadius}px`}
 `;
 
 const SubHeaderBtnLowerPart = styled.div<{ hoverColor?: string }>`
@@ -68,9 +75,13 @@ const SubHeaderBtnLowerPart = styled.div<{ hoverColor?: string }>`
   left: 0;
   width: 200px;
   height: 80px;
-  border: 1px solid ${({ color }) => color};
+  border: 1px solid
+    ${({ theme: { themeName }, color }) =>
+      themeName === 'modern' ? 'transparent' : color};
   &:hover {
-    border: 1px solid ${({ hoverColor }) => hoverColor};
+    border: 1px solid
+      ${({ theme: { themeName }, hoverColor }) =>
+        themeName === 'modern' ? 'transparent' : hoverColor};
   }
   cursor: inherit;
 `;
@@ -83,7 +94,9 @@ const SubHeaderBtnWrapper = styled.div`
     background-color: ${({ color }) => color};
   }
   &:hover ${SubHeaderBtnLowerPart} {
-    border: 1px solid ${({ color }) => color};
+    border: 1px solid
+      ${({ theme: { themeName }, color }) =>
+        themeName === 'modern' ? 'transparent' : color};
   }
   cursor: pointer;
 `;
@@ -216,7 +229,7 @@ const DeleteText = styled.div`
   text-decoration: underline;
 `;
 
-const SortingElement = styled.div<{ isInDropDown?: boolean }>`
+const SortingElement = styled.div`
   font-size: 13px;
   line-height: 17px;
   padding: 5px;
@@ -426,16 +439,8 @@ const Contacts = ({ history }: RouteComponentProps) => {
     );
   };
 
-  const renderSortElementElement = ({
-    label,
-    isMain,
-  }: {
-    label: string;
-    isMain: boolean;
-  }) => (
-    <SortingElement key={label} isInDropDown={!isMain}>
-      {label}
-    </SortingElement>
+  const renderSortElementElement = ({ label }: { label: string }) => (
+    <SortingElement key={label}>{label}</SortingElement>
   );
 
   const renderContacts = () => {

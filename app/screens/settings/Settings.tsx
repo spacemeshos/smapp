@@ -92,7 +92,7 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
-const DropDownItem = styled.div<{ isInDropDown: boolean }>`
+const DropDownItem = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.black};
@@ -237,7 +237,9 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={
                   <DropDown
-                    data={Object.values(SKINS).map((name) => ({ label: name }))}
+                    data={Object.values(SKINS).map((name) => ({
+                      label: name.slice(0, 1).toUpperCase() + name.slice(1),
+                    }))}
                     onClick={this.setSkin}
                     DdElement={this.renderAccElement}
                     selectedItemIndex={skinId}
@@ -776,16 +778,8 @@ class Settings extends Component<Props, State> {
 
   restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
 
-  renderAccElement = ({
-    label,
-    text,
-    isInDropDown,
-  }: {
-    label: string;
-    text: string;
-    isInDropDown: boolean;
-  }) => (
-    <DropDownItem key={label} isInDropDown={isInDropDown}>
+  renderAccElement = ({ label, text }: { label: string; text: string }) => (
+    <DropDownItem key={label}>
       {label} {text}
     </DropDownItem>
   );

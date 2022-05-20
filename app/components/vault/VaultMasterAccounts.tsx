@@ -19,20 +19,13 @@ const DetailsText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.black};
   padding: 5px;
   width: 100%;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 type Props = {
@@ -57,13 +50,11 @@ const VaultMasterAccounts = ({
   const renderAccElement = ({
     label,
     text,
-    isInDropDown,
   }: {
     label: string;
     text: string;
-    isInDropDown: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={isInDropDown}>
+    <AccItem key={label}>
       {label} {text}
     </AccItem>
   );
@@ -81,9 +72,7 @@ const VaultMasterAccounts = ({
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}
@@ -101,9 +90,7 @@ const VaultMasterAccounts = ({
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}
@@ -121,9 +108,7 @@ const VaultMasterAccounts = ({
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}
