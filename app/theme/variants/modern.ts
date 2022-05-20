@@ -1,5 +1,9 @@
 import colors from '../colors';
-import { modernBackup, modernInfoTooltip } from '../../assets/images';
+import {
+  modernBackup,
+  modernInfoTooltip,
+  modernErrorPopupContact,
+} from '../../assets/images';
 
 export default {
   colors,
@@ -137,6 +141,7 @@ export default {
   icons: {
     backup: modernBackup,
     tooltip: modernInfoTooltip,
+    closePopup: modernErrorPopupContact,
     topBar: {},
   },
 };

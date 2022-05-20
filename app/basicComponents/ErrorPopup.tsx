@@ -14,9 +14,17 @@ const Wrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void }>`
       },
     },
   }) => error.backgroundColor};
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
-const CloseImg = styled.img`
+const CloseImg = styled.img.attrs((props) => ({
+  src: props.theme.icons.closePopup,
+}))`
   position: absolute;
   top: 5px;
   left: 5px;

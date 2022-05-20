@@ -1,5 +1,5 @@
 import colors from '../colors';
-import { backup, tooltipWhite } from '../../assets/images';
+import { backup, tooltipWhite, closePopup } from '../../assets/images';
 
 export default {
   colors,
@@ -137,6 +137,7 @@ export default {
   icons: {
     backup,
     tooltip: tooltipWhite,
+    closePopup,
     topBar: {},
   },
 };

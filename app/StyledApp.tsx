@@ -22,7 +22,7 @@ import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
 import { goToSwitchNetwork } from './routeUtils';
-import { getThemeById, isDarkBackground } from './theme';
+import { getThemeById } from './theme';
 
 const history = createBrowserHistory();
 
@@ -61,20 +61,22 @@ const EventRouter = () => {
 };
 
 const StyledApp = () => {
-  const skinId = useSelector((state: RootState) => state.ui.skin);
+  const skinId = useSelector((state: RootState) => state.ui.skinId);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const isClosingApp = useSelector((state: RootState) => state.ui.isClosingApp);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(setOsTheme());
-  }, [dispatch]);
+    // don't need deeps here because inner functions are out of scope and already declared
+    // we want to run the effect only once
+  }, []);
 
   return (
     <ThemeProvider
       theme={{
-        isDarkMode: isDarkMode || isDarkBackground(skinId),
-        ...getThemeById(skinId),
+        isDarkMode,
+        ...getThemeById(skinId, isDarkMode),
       }}
     >
       <GlobalStyle />
