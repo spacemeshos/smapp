@@ -1,4 +1,4 @@
-import { SocketAddress, WalletMeta, WalletType } from './types';
+import { Account, SocketAddress, WalletMeta, WalletType } from './types';
 
 enum IpcResponseStatus {
   Done,
@@ -29,6 +29,7 @@ export type UnlockWalletRequest = {
 };
 
 export type UnlockWalletResponse = IpcResponse<WalletMeta>;
+export type CreateAccountResponse = IpcResponse<Account | null>;
 export type CreateWalletRequest = {
   password: string;
   existingMnemonic: string;

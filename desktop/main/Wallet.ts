@@ -9,6 +9,7 @@ import { ipcConsts } from '../../app/vars';
 import {
   Account,
   SocketAddress,
+  Wallet,
   WalletMeta,
   WalletSecrets,
   WalletType,
@@ -175,13 +176,30 @@ const create = (index: number, mnemonicSeed?: string) => {
   return { meta, crypto };
 };
 
+export const createNewAccount = (wallet: Wallet) => {
+  const { meta, crypto } = wallet;
+  const timestamp = getISODate();
+  const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
+    mnemonic: crypto.mnemonic,
+    index: crypto.accounts.length,
+  });
+  const newAccount = createAccount({
+    index: crypto.accounts.length,
+    timestamp,
+    publicKey,
+    secretKey,
+  });
+  const newCrypto = {
+    ...crypto,
+    accounts: [...crypto.accounts, newAccount],
+  };
+  const newWallet = { meta, crypto: newCrypto };
+  return newWallet;
+};
+
 //
 // Subscribe on events
 //
-
-const activateAccounts = (context: AppContext, accounts: Account[]) => {
-  context.managers?.wallet?.activateAccounts(accounts);
-};
 
 export const createWallet = async ({
   password,
@@ -231,40 +249,6 @@ const subscribe = (context: AppContext) => {
     StoreService.set('walletFiles', newWalletFiles);
     return newWalletFiles;
   });
-
-  ipcMain.handle(
-    ipcConsts.W_M_CREATE_NEW_ACCOUNT,
-    async (
-      _event,
-      { fileName, password }: { fileName: string; password: string }
-    ) => {
-      try {
-        const wallet = await loadWallet(fileName, password);
-        const { meta, crypto } = wallet;
-        const timestamp = getISODate();
-        const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
-          mnemonic: crypto.mnemonic,
-          index: crypto.accounts.length,
-        });
-        const newAccount = createAccount({
-          index: crypto.accounts.length,
-          timestamp,
-          publicKey,
-          secretKey,
-        });
-        const newCrypto = {
-          ...crypto,
-          accounts: [...crypto.accounts, newAccount],
-        };
-        const newWallet = { meta, crypto: newCrypto };
-        await saveWallet(fileName, password, newWallet);
-        activateAccounts(context, [newAccount]);
-        return { error: null, newAccount };
-      } catch (error) {
-        return { error, newAccount: null };
-      }
-    }
-  );
 
   ipcMain.on(
     ipcConsts.W_M_UPDATE_WALLET_META,

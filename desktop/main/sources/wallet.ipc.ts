@@ -1,4 +1,4 @@
-import { assocPath } from 'ramda';
+import { assocPath, last, lensPath, lensProp, over, pair, prop } from 'ramda';
 import {
   catchError,
   combineLatest,
@@ -10,6 +10,7 @@ import {
   map,
   merge,
   of,
+  pipe,
   retry,
   skip,
   Subject,
@@ -18,6 +19,7 @@ import {
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import {
+  CreateAccountResponse,
   createIpcResponse,
   CreateWalletRequest,
   CreateWalletResponse,
@@ -33,7 +35,7 @@ import {
 import Logger from '../../logger';
 import { Network } from '../app.types';
 import { fromIPC, handleIPC } from '../rx.utils';
-import { createWallet } from '../Wallet';
+import { createNewAccount, createWallet } from '../Wallet';
 import { loadWallet, updateWalletMeta } from '../walletFile';
 
 type WalletPair = { path: string; wallet: Wallet | null };
@@ -61,25 +63,29 @@ const handleWalletIpcRequests = (
       )
     );
   };
+
+  const loadWallet$ = (path, password) => from(
+    loadWallet(path, password).then((wallet) => ({
+      pair: walletPair(path, wallet),
+      error: null,
+    }))
+  ).pipe(
+    catchError((error: Error) =>
+      of({ pair: walletPair('', null), error })
+    )
+  );
+  
+
+  const getPair = () => pipe(map(prop('pair')));
   // Handle IPC requests and produce `Wallet | null`
   const $nextWallet = merge(
     //
     handleIPC(
       ipcConsts.W_M_UNLOCK_WALLET,
-      ({ path, password }: UnlockWalletRequest) =>
-        from(
-          loadWallet(path, password).then((wallet) => ({
-            pair: walletPair(path, wallet),
-            error: null,
-          }))
-        ).pipe(
-          catchError((error: Error) =>
-            of({ pair: walletPair('', null), error })
-          )
-        ),
+      ({ path, password }: UnlockWalletRequest) => loadWallet$(path, password),
       ({ pair, error }): UnlockWalletResponse =>
         createIpcResponse(error, pair?.wallet?.meta)
-    ).pipe(map(({ pair }) => pair)),
+    ).pipe(getPair()),
     //
     handleIPC(
       ipcConsts.W_M_CREATE_WALLET,
@@ -112,9 +118,9 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.SWITCH_API_PROVIDER,
       (apiUrl: SocketAddress | null) =>
-        $wallet.pipe(
-          filter(Boolean),
-          map((wallet) => {
+        combineLatest([$wallet, $walletPath] as const).pipe(
+          filter((pair): pair is [Wallet, string] => pair[0] !== null),
+          map(([wallet, path]) => {
             const changes = {
               remoteApi:
                 apiUrl && isRemoteNodeApi(apiUrl)
@@ -127,16 +133,34 @@ const handleWalletIpcRequests = (
             };
             const nextWallet: Wallet = {
               ...wallet,
-              meta: { ...wallet?.meta, ...changes },
+              meta: { ...wallet.meta, ...changes },
             };
 
-            return nextWallet;
+            return { path, wallet: nextWallet };
           })
         ),
-      (wallet) => createIpcResponse(null, wallet.meta)
+      ({ wallet }) => createIpcResponse(null, wallet.meta)
     ),
-    // TODO: W_M_CREATE_NEW_ACCOUNT
-
+    //
+    handleIPC(
+      ipcConsts.W_M_CREATE_NEW_ACCOUNT,
+      ({ path, password }: UnlockWalletRequest) =>
+        loadWallet$(path, password).pipe(
+          map((res) => {
+            if (res.error) return res;
+            return over(
+              lensPath(['pair', 'wallet']),
+              (wallet) => (wallet && createNewAccount(wallet)) || null,
+              res
+            );
+          })
+        ),
+      ({ pair, error }): CreateAccountResponse =>
+        createIpcResponse(
+          error,
+          pair.wallet ? last(pair.wallet.crypto.accounts) : null
+        )
+    ).pipe(getPair())
     // TODO: W_M_UPDATE_WALLET_META
     // TODO: W_M_UPDATE_WALLET_SECRETS
     // isn't it a bit silly to have such generic messages?

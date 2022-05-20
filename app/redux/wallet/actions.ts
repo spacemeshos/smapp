@@ -235,15 +235,15 @@ export const createNewAccount = ({ password }: { password: string }) => async (
     );
     return;
   }
-  const { error, newAccount } = await eventsService.createNewAccount({
-    fileName: currentWalletPath,
+  const { error, payload } = await eventsService.createNewAccount({
+    path: currentWalletPath,
     password,
   });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));
   } else {
-    dispatch(setAccounts([...accounts, newAccount]));
+    dispatch(setAccounts([...accounts, payload]));
   }
 };
 

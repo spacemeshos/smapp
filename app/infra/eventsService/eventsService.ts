@@ -42,6 +42,7 @@ import {
   NetworkDefinitions,
 } from '../../types/events';
 import {
+  CreateAccountResponse,
   CreateWalletRequest,
   CreateWalletResponse,
   UnlockWalletRequest,
@@ -113,14 +114,11 @@ class EventsService {
     });
 
   static createNewAccount = ({
-    fileName,
+    path,
     password,
-  }: {
-    fileName: string;
-    password: string;
-  }) =>
+  }: UnlockWalletRequest): Promise<CreateAccountResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, {
-      fileName,
+      path,
       password,
     });
 
