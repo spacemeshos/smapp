@@ -28,7 +28,6 @@ import {
   SocketAddress,
   TxSendRequest,
   WalletMeta,
-  WalletSecrets,
 } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
@@ -42,9 +41,14 @@ import {
   NetworkDefinitions,
 } from '../../types/events';
 import {
+  AddContactRequest,
+  ChangePasswordRequest,
   CreateAccountResponse,
   CreateWalletRequest,
   CreateWalletResponse,
+  ListNetworksResponse,
+  RemoveContactRequest,
+  RenameAccountRequest,
   UnlockWalletRequest,
   UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
@@ -79,9 +83,8 @@ class EventsService {
   static destroyBrowserView = () =>
     ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
-  static listNetworks = (): Promise<
-    { netId: number; netName: string; explorer: string }[]
-  > => ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
+  static listNetworks = (): Promise<ListNetworksResponse> =>
+    ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
   static listPublicServices = (): Promise<PublicService[]> =>
     ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
@@ -91,27 +94,28 @@ class EventsService {
   ): Promise<UnlockWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, payload);
 
+  static closeWallet = () => ipcRenderer.send(ipcConsts.W_M_CLOSE_WALLET);
+
   static updateWalletMeta = <T extends keyof WalletMeta>(
-    fileName: string,
     key: T,
     value: WalletMeta[T]
   ) =>
     ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_META, {
-      fileName,
       key,
       value,
     });
 
-  static updateWalletSecrets = (
-    fileName: string,
-    password: string,
-    data: WalletSecrets
-  ) =>
-    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, {
-      fileName,
-      password,
-      data,
-    });
+  static renameAccount = (payload: RenameAccountRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_RENAME_ACCOUNT, payload);
+
+  static addContact = (payload: AddContactRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_ADD_CONTACT, payload);
+
+  static removeContact = (payload: RemoveContactRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_REMOVE_CONTACT, payload);
+
+  static changePassword = (payload: ChangePasswordRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_CHANGE_PASSWORD, payload);
 
   static createNewAccount = ({
     path,

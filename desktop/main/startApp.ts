@@ -1,9 +1,13 @@
 import * as $ from 'rxjs';
-import { NodeConfig, Wallet } from '../../shared/types';
+import { Network, NodeConfig, Wallet } from '../../shared/types';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
-import { fetchDiscovery, fetchDiscoveryEach } from './sources/fetchDiscovery';
+import {
+  fetchDiscovery,
+  fetchDiscoveryEach,
+  updateDiscoveryByRequest,
+} from './sources/fetchDiscovery';
 import spawnManagers$ from './reactions/spawnManagers';
 import switchNetwork from './reactions/switchNetwork';
 import activateWallet from './reactions/activateWallet';
@@ -12,7 +16,7 @@ import handleCloseApp from './reactions/handleCloseApp';
 import handleWalletIpcRequests from './sources/wallet.ipc';
 import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
-import { AppStore, Managers, Network } from './app.types';
+import { AppStore, Managers } from './app.types';
 
 const startApp = (): AppStore => {
   // Create MainWindow
@@ -48,6 +52,8 @@ const startApp = (): AppStore => {
     fetchDiscovery($networks),
     // Update networks each N seconds
     fetchDiscoveryEach(60 * MINUTE, $networks),
+    // And update them by users request
+    updateDiscoveryByRequest($networks),
     // If current network does not exist in discovery service
     // then ask User to switch the network
     ensureNetwork($wallet, $networks, $currentNetwork, $mainWindow),
@@ -69,6 +75,7 @@ const startApp = (): AppStore => {
       $wallet,
       $walletPath,
       $storeService,
+      $networks,
       $currentNetwork,
       $nodeConfig
     ),

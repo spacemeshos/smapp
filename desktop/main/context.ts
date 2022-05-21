@@ -1,7 +1,6 @@
 import { BrowserWindow, nativeTheme, Tray } from 'electron';
-import { Subject } from 'rxjs';
-import { Wallet } from '../../shared/types';
-import { Managers, AppState, Network, AppStore } from './app.types';
+import { Network, Wallet } from '../../shared/types';
+import { Managers, AppStore } from './app.types';
 
 export interface AppContext {
   mainWindow?: BrowserWindow;

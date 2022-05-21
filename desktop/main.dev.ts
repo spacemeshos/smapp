@@ -79,6 +79,5 @@ app
     context.state = appState;
     return context.state;
   })
-  .then(() => Networks.update(context, 1))
   .then(() => autoUpdate.subscribe(context))
   .catch(captureException);

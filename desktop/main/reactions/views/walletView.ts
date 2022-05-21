@@ -1,7 +1,6 @@
-import { mergeLeft, objOf } from 'ramda';
+import { applySpec, mergeLeft, objOf, pathOr, propOr } from 'ramda';
 import { combineLatest, map, Subject } from 'rxjs';
 import { Wallet } from '../../../../shared/types';
-import { ifTruish, remap } from '../../../../shared/utils';
 
 export default (
   $wallet: Subject<Wallet | null>,
@@ -10,16 +9,12 @@ export default (
   combineLatest([$wallet, $walletPath] as const).pipe(
     map(([wallet, currentWalletPath]) =>
       mergeLeft(
-        ifTruish(
-          wallet,
-          remap({
-            meta: ['meta'],
-            mnemonic: ['crypto', 'mnemonic'],
-            accounts: ['crypto', 'accounts'],
-            contacts: ['crypto', 'contacts'],
-          }),
-          {} as Record<string, string>
-        ),
+        applySpec({
+          meta: propOr({}, 'meta'),
+          mnemonic: pathOr('', ['crypto', 'mnemonic']),
+          accounts: pathOr([], ['crypto', 'accounts']),
+          contacts: pathOr([], ['crypto', 'contacts']),
+        })(wallet || {}),
         { currentWalletPath }
       )
     ),

@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { LOCAL_NODE_API_URL } from './constants';
 import { PublicService, SocketAddress, WalletType } from './types';
 
@@ -88,10 +87,6 @@ export const shallowEq = <T extends Record<string, any> | Array<any>>(
   return aKeys.reduce((acc, key) => acc && a[key] === b[key], true);
 };
 
-// @todo: Add types
-export const remap = R.curry((desc, obj) =>
-  R.map((path) => R.view(R.lensPath(path), obj), desc)
-);
 export const ifTruish = <V extends any, R extends Record<any, any>>(
   v: V,
   then: (v: V) => R,
@@ -134,3 +129,6 @@ export const toPublicService = (
   name: netName,
   ...toSocketAddress(url),
 });
+
+export const isObject = (o: any): o is Record<string, any> =>
+  typeof o === 'object' && !Array.isArray(o) && o !== null;

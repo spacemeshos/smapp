@@ -1,10 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
-import {
-  getCurrentLayer,
-} from '../../redux/network/actions';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
   WrapperWith2SideBars,
@@ -81,8 +78,6 @@ const DetailsTextWrap = styled.div`
 `;
 
 const Network = ({ history }) => {
-  const dispatch = useDispatch();
-
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);

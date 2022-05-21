@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { readWalletFiles, unlockWallet } from '../../redux/wallet/actions';
+import { unlockWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { LoggedOutBanner } from '../../components/banners';
 import {
@@ -130,11 +130,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const [selectedWalletIndex, updateSelectedWalletIndex] = useState(
     getIndexOfLastSelectedWalletPath(walletFiles)
   );
-
-  useEffect(() => {
-    // Ensure that we had loaded wallet files
-    dispatch(readWalletFiles());
-  }, [dispatch]);
 
   const getDropDownData = () =>
     walletFiles.length === 0

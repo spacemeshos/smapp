@@ -1,7 +1,6 @@
 import { promises as fs } from 'fs';
 import { fetchJSON, isFileExists } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
-import { Network } from './context';
 
 export const loadNodeConfig = () =>
   fs.readFile(NODE_CONFIG_FILE, { encoding: 'utf8' }).then(JSON.parse);
@@ -11,8 +10,8 @@ const loadSmeshingOpts = async () =>
     ? (await loadNodeConfig()).smeshing
     : {};
 
-export const downloadNodeConfig = async (network: Network) => {
-  const nodeConfig = await fetchJSON(network.conf);
+export const downloadNodeConfig = async (networkConfigUrl: string) => {
+  const nodeConfig = await fetchJSON(networkConfigUrl);
 
   // Copy smeshing opts from previous node config or replace it with empty one
   const smeshing = await loadSmeshingOpts();

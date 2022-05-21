@@ -11,6 +11,7 @@ import {
   HexString,
   Tx,
   Reward,
+  Network,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
@@ -79,6 +80,7 @@ export interface RootState {
   smesher: SmesherState;
   ui: UiState;
   updater: UpdaterState;
+  networks: Network[];
 }
 
 export type CustomAction = { type: string; payload?: any };

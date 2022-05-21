@@ -1,6 +1,6 @@
 import type { NodeState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
-import { IPC_BATCH_SYNC_TYPE, reduceChunkUpdate } from '../ipcBatchSync';
+import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
 import {
   SET_NODE_ERROR,
   SET_NODE_STATUS,
@@ -38,7 +38,7 @@ const reducer = (state: NodeState = initialState, action: CustomAction) => {
     }
     case LOGOUT:
       return initialState;
-    case IPC_BATCH_SYNC_TYPE:
+    case IPC_BATCH_SYNC:
       return reduceChunkUpdate('store', action.payload, state);
     default:
       return state;

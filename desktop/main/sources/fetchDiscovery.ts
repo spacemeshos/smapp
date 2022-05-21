@@ -4,13 +4,15 @@ import {
   delay,
   from,
   interval,
+  map,
   retry,
   Subject,
   switchMap,
 } from 'rxjs';
-import { Network } from '../context';
+import { ipcConsts } from '../../../app/vars';
+import { Network } from '../../../shared/types';
 import { fetchNetworksFromDiscovery } from '../Networks';
-import { makeSubscription } from '../rx.utils';
+import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 
 const fromDiscovery = () =>
   from(fetchNetworksFromDiscovery()).pipe(
@@ -28,4 +30,14 @@ export const fetchDiscoveryEach = (
 ) =>
   makeSubscription(interval(period).pipe(switchMap(fromDiscovery)), (nets) =>
     $networks.next(nets)
+  );
+
+export const updateDiscoveryByRequest = ($networks: Subject<Network[]>) =>
+  makeSubscription(
+    handleIPC(
+      ipcConsts.LIST_NETWORKS,
+      () => fromDiscovery().pipe(map((nets) => handlerResult(nets))),
+      (nets) => nets
+    ),
+    (nets) => $networks.next(nets)
   );

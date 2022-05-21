@@ -1,14 +1,14 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
-import { PublicService } from '../../shared/types';
-import { delay, toPublicService } from '../../shared/utils';
+import { Network, PublicService } from '../../shared/types';
+import { toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
 import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
 import { NetworkDefinitions } from '../../app/types/events';
 import NodeConfig from './NodeConfig';
-import { AppContext, Network } from './context';
+import { AppContext } from './context';
 import { NODE_CONFIG_FILE } from './constants';
 import { Managers } from './app.types';
 
@@ -37,23 +37,6 @@ export const fetchNetworksFromDiscovery = async () => {
   return result;
 };
 
-const update = async (context: AppContext, retry = 2) => {
-  try {
-    const networks = await fetchNetworksFromDiscovery();
-    context.networks = networks;
-    // @TODO: handle it in a reactive way
-    context.state.subjects.$networks.next(networks);
-    return networks;
-  } catch (err) {
-    if (retry === 0) {
-      context.networks = [];
-      return [];
-    }
-    await delay(1000);
-    return update(context, retry - 1);
-  }
-};
-
 const listPublicApis = async (context: AppContext) => {
   const state = await context.state.get();
   const { currentNetwork } = state;
@@ -70,11 +53,6 @@ const listPublicApis = async (context: AppContext) => {
   return publicApis;
 };
 
-const list = async (context: AppContext) =>
-  (await context.state.get()).networks.map((net) => ({
-    ...net,
-    netId: net.netID,
-  }));
 const getNetwork = async (context: AppContext, netId: number) =>
   (await context.state.get()).networks.find((net) => net.netID === netId);
 const hasNetwork = (context: AppContext, netId: number) =>
@@ -98,10 +76,6 @@ const subscribe = (context: AppContext) => {
   // List Public GRPC APIs to the Renderer
   ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => listPublicApis(context));
   // List networks
-  ipcMain.handle(ipcConsts.LIST_NETWORKS, async () => {
-    await update(context);
-    return list(context);
-  });
   ipcMain.handle(
     ipcConsts.W_M_GET_NETWORK_DEFINITIONS,
     async (): Promise<NetworkDefinitions> => {
@@ -121,8 +95,6 @@ const subscribe = (context: AppContext) => {
 };
 
 export default {
-  list,
-  update,
   subscribe,
   // Pure utils
   getNetwork,

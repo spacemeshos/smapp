@@ -5,10 +5,8 @@ import { RouteComponentProps } from 'react-router';
 import { Element, scroller } from 'react-scroll';
 import {
   updateWalletName,
-  updateAccountName,
   createNewAccount,
   switchApiProvider,
-  closeWallet,
 } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
 import { setUiError, switchSkin } from '../../redux/ui/actions';
@@ -107,13 +105,12 @@ interface Props extends RouteComponentProps {
   accounts: Account[];
   walletFiles: Array<string>;
   updateWalletName: AppThDispatch;
-  updateAccountName: AppThDispatch;
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
   switchSkin: AppThDispatch;
   setUiError: AppThDispatch;
   switchApiProvider: AppThDispatch;
-  closeWallet: AppThDispatch;
+  currentWalletPath: string;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -722,9 +719,7 @@ class Settings extends Component<Props, State> {
   };
 
   lockWallet = (redirect: AuthPath) => {
-    const { closeWallet } = this.props;
-    // @ts-ignore
-    closeWallet();
+    eventsService.closeWallet();
     this.goTo(redirect);
   };
 
@@ -735,15 +730,15 @@ class Settings extends Component<Props, State> {
   openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
 
   saveEditedAccountDisplayName = ({ index }: { index: number }) => {
-    const { updateAccountName } = this.props;
     const { accountDisplayNames } = this.state;
+    const { currentWalletPath } = this.props;
     this.setState({
       showPasswordModal: true,
       passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ editedAccountIndex: -1, showPasswordModal: false });
-        // @ts-ignore
-        updateAccountName({
-          accountIndex: index,
+        eventsService.renameAccount({
+          path: currentWalletPath,
+          index,
           name: accountDisplayNames[index],
           password,
         });
@@ -857,6 +852,7 @@ const mapStateToProps = (state: RootState) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
+  currentWalletPath: state.wallet.currentWalletPath,
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,
@@ -874,11 +870,9 @@ const mapStateToProps = (state: RootState) => ({
 const mapDispatchToProps = {
   getGlobalStateHash,
   updateWalletName,
-  updateAccountName,
   createNewAccount,
   setUiError,
   switchApiProvider,
-  closeWallet,
   switchSkin,
 };
 

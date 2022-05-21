@@ -1,14 +1,13 @@
-import { objOf } from 'ramda';
+import { applySpec, objOf, path } from 'ramda';
 import { map, Observable } from 'rxjs';
-import { remap } from '../../../../shared/utils';
 import { ConfigStore } from '../../../storeService';
 
 export default ($storeService: Observable<ConfigStore>) =>
   $storeService.pipe(
     map(
-      remap({
-        dataPath: ['node', 'dataPath'],
-        port: ['node', 'port'],
+      applySpec({
+        dataPath: path(['node', 'dataPath']),
+        port: path(['node', 'port']),
       })
     ),
     map(objOf('store'))

@@ -1,7 +1,6 @@
 import { objOf } from 'ramda';
 import { combineLatest, map, Observable } from 'rxjs';
-import { NodeConfig } from '../../../../shared/types';
-import { Network } from '../../context';
+import { Network, NodeConfig } from '../../../../shared/types';
 
 export default (
   $currentNetwork: Observable<Network | null>,

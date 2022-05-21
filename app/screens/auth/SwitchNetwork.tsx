@@ -56,9 +56,10 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const networksList = useSelector((state: RootState) => state.networks);
   const [networks, setNetworks] = useState({
     loading: false,
-    networks: [] as { netId: number; netName: string; explorer?: string }[],
+    networks: networksList,
   });
   const [showLoader, setLoader] = useState(false);
 
@@ -70,11 +71,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     });
     eventsService
       .listNetworks()
-      .then((nets) =>
-        setNetworks({
-          loading: false,
-          networks: nets,
-        })
+      .then(({ payload }) =>
+        setNetworks({ loading: false, networks: payload || [] })
       )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
   };

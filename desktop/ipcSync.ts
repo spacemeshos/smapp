@@ -11,7 +11,7 @@ const IpcSyncMain = <A, B = unknown>(
 ) => {
   const ipcChannel = 'IPC_SYNC_STORE';
 
-  const send = debounce(50, async (newState) => {
+  const send = debounce(10, async (newState) => {
     const bv = getBV();
     if (bv) {
       bv.webContents.send(ipcChannel, transform(newState), channel);

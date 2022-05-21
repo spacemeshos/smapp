@@ -1,7 +1,7 @@
-import { assocPath, last, lensPath, lensProp, over, pair, prop } from 'ramda';
+import * as R from 'ramda';
 import {
-  catchError,
   combineLatest,
+  debounceTime,
   delay,
   distinctUntilChanged,
   filter,
@@ -10,87 +10,131 @@ import {
   map,
   merge,
   of,
+  OperatorFunction,
   pipe,
   retry,
   skip,
   Subject,
   switchMap,
   throwError,
+  withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import {
+  AddContactRequest,
+  ChangePasswordRequest,
   CreateAccountResponse,
-  createIpcResponse,
   CreateWalletRequest,
   CreateWalletResponse,
+  RemoveContactRequest,
+  RenameAccountRequest,
   UnlockWalletRequest,
   UnlockWalletResponse,
+  UpdateWalletMetaRequest,
 } from '../../../shared/ipcMessages';
-import { SocketAddress, Wallet, WalletType } from '../../../shared/types';
+import {
+  Network,
+  SocketAddress,
+  Wallet,
+  WalletType,
+} from '../../../shared/types';
 import {
   isLocalNodeApi,
   isRemoteNodeApi,
   stringifySocketAddress,
 } from '../../../shared/utils';
 import Logger from '../../logger';
-import { Network } from '../app.types';
-import { fromIPC, handleIPC } from '../rx.utils';
+import {
+  fromIPC,
+  handleIPC,
+  handlerError,
+  handlerResult,
+  hasResult,
+  mapResult,
+  wrapResult,
+} from '../rx.utils';
 import { createNewAccount, createWallet } from '../Wallet';
-import { loadWallet, updateWalletMeta } from '../walletFile';
+import {
+  loadWallet,
+  saveWallet,
+  updateWalletMeta,
+  WRONG_PASSWORD_MESSAGE,
+} from '../walletFile';
 
-type WalletPair = { path: string; wallet: Wallet | null };
-const walletPair = (path, wallet): WalletPair => ({ path, wallet });
+const RESET_WALLET = { path: '', wallet: null };
+type WalletPair = { path: string; wallet: Wallet; password?: string };
+
+const isWalletPair = (a: any): a is WalletPair =>
+  Boolean(a.path) && Boolean(a.wallet);
 
 const logger = Logger({ className: 'sources/wallet.ipc' });
+
+// Utils
+const updateWalletFile = async (next: WalletPair) => {
+  if (next.password) {
+    saveWallet(next.path, next.password, next.wallet).catch((err) => {
+      if (err?.message === WRONG_PASSWORD_MESSAGE) return;
+      logger.error('updateWalletFile/saveWallet', err, next.path);
+    });
+  } else {
+    updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
+      logger.error('updateWalletFile', err, next.path)
+    );
+  }
+};
+
+const loadWallet$ = (path: string, password: string) => {
+  return from(
+    wrapResult(
+      loadWallet(path, password).then((wallet) => <WalletPair>{ path, wallet })
+    )
+  );
+};
+
+const changePassword = (path, prevPassword, nextPassword) =>
+  loadWallet$(path, prevPassword).pipe(
+    filter(hasResult),
+    switchMap(([_, { path, wallet }]) =>
+      from(saveWallet(path, nextPassword, wallet)).pipe(
+        map(() => <WalletPair>{ path, wallet })
+      )
+    )
+  );
+
+const handleUpdateWalletSecrets = <
+  T extends { path: string; password: string }
+>(
+  mapFn: (inputs: T, pair: WalletPair) => WalletPair
+): OperatorFunction<T, WalletPair> =>
+  pipe(
+    switchMap((t) =>
+      loadWallet$(t.path, t.password).pipe(
+        mapResult((pair) => mapFn(t, { ...pair, password: t.password }))
+      )
+    )
+  );
+
+// Subscription
 
 const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
   $networks: Subject<Network[]>
 ) => {
-  // Utils
-  const handleNewWalletPair = async (next: WalletPair) => {
-    $wallet.next(next.wallet);
-    $walletPath.next(next.path);
-  };
-  const updateWalletFile = async (next: WalletPair) => {
-    if (!next.wallet) return;
-    updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
-      logger.error(
-        'updateWalletFile',
-        err,
-        `Can not update walletMeta by path: ${next.path}`
-      )
-    );
-  };
-
-  const loadWallet$ = (path, password) => from(
-    loadWallet(path, password).then((wallet) => ({
-      pair: walletPair(path, wallet),
-      error: null,
-    }))
-  ).pipe(
-    catchError((error: Error) =>
-      of({ pair: walletPair('', null), error })
-    )
-  );
-  
-
-  const getPair = () => pipe(map(prop('pair')));
-  // Handle IPC requests and produce `Wallet | null`
+  // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
     //
     handleIPC(
       ipcConsts.W_M_UNLOCK_WALLET,
       ({ path, password }: UnlockWalletRequest) => loadWallet$(path, password),
-      ({ pair, error }): UnlockWalletResponse =>
-        createIpcResponse(error, pair?.wallet?.meta)
-    ).pipe(getPair()),
+      ({ wallet }): UnlockWalletResponse['payload'] => wallet.meta
+    ),
     //
     handleIPC(
       ipcConsts.W_M_CREATE_WALLET,
-      (data: CreateWalletRequest) => from(createWallet(data)),
-      ({ path }): CreateWalletResponse => createIpcResponse(null, { path })
+      (data: CreateWalletRequest) =>
+        from(wrapResult(createWallet(data) as Promise<WalletPair>)),
+      ({ path }): CreateWalletResponse['payload'] => ({ path })
     ),
     //
     fromIPC<number>(ipcConsts.SWITCH_NETWORK).pipe(
@@ -106,21 +150,28 @@ const handleWalletIpcRequests = (
         const selectedNet = nets.find((net) => net.netID === netId);
         if (!selectedNet) return throwError(() => Error('No network found'));
 
-        return of(
-          walletPair(path, assocPath(['meta', 'netId'], netId, wallet))
-        );
+        return of(<WalletPair>{
+          path,
+          wallet: R.assocPath(['meta', 'netId'], netId, wallet),
+        });
       }),
       retry(3),
-      delay(1000),
-      catchError(() => of(walletPair('', null)))
+      delay(1000)
     ),
     //
     handleIPC(
       ipcConsts.SWITCH_API_PROVIDER,
       (apiUrl: SocketAddress | null) =>
         combineLatest([$wallet, $walletPath] as const).pipe(
-          filter((pair): pair is [Wallet, string] => pair[0] !== null),
+          // filter((pair): pair is [Wallet, string] => pair[0] !== null),
           map(([wallet, path]) => {
+            if (!wallet)
+              return handlerError(
+                Error(
+                  'Can not switch API provider: open the wallet file before.'
+                )
+              );
+
             const changes = {
               remoteApi:
                 apiUrl && isRemoteNodeApi(apiUrl)
@@ -136,42 +187,109 @@ const handleWalletIpcRequests = (
               meta: { ...wallet.meta, ...changes },
             };
 
-            return { path, wallet: nextWallet };
+            return handlerResult(<WalletPair>{ path, wallet: nextWallet });
           })
         ),
-      ({ wallet }) => createIpcResponse(null, wallet.meta)
+      ({ wallet }) => wallet.meta
     ),
     //
     handleIPC(
       ipcConsts.W_M_CREATE_NEW_ACCOUNT,
       ({ path, password }: UnlockWalletRequest) =>
         loadWallet$(path, password).pipe(
-          map((res) => {
-            if (res.error) return res;
-            return over(
-              lensPath(['pair', 'wallet']),
-              (wallet) => (wallet && createNewAccount(wallet)) || null,
-              res
-            );
-          })
+          map((res) =>
+            hasResult(res)
+              ? R.over(R.lensPath([1, 'wallet']), createNewAccount, res)
+              : res
+          )
         ),
-      ({ pair, error }): CreateAccountResponse =>
-        createIpcResponse(
-          error,
-          pair.wallet ? last(pair.wallet.crypto.accounts) : null
+      (pair): CreateAccountResponse['payload'] =>
+        R.last(pair.wallet.crypto.accounts) || null
+    ),
+    //
+    fromIPC<UpdateWalletMetaRequest>(ipcConsts.W_M_UPDATE_WALLET_META).pipe(
+      withLatestFrom($wallet, $walletPath),
+      filter((tuple): tuple is [UpdateWalletMetaRequest, Wallet, string] =>
+        Boolean(tuple[1])
+      ), // or throw error?
+      map(([upd, wallet, path]) => {
+        return <WalletPair>{
+          path,
+          wallet: {
+            ...wallet,
+            meta: {
+              ...wallet.meta,
+              [upd.key]: upd.value,
+            },
+          },
+        };
+      })
+    ),
+    //
+    fromIPC<ChangePasswordRequest>(ipcConsts.W_M_CHANGE_PASSWORD).pipe(
+      switchMap(({ path, prevPassword, nextPassword }) =>
+        changePassword(path, prevPassword, nextPassword)
+      )
+    ),
+    //
+    fromIPC<RenameAccountRequest>(ipcConsts.W_M_RENAME_ACCOUNT).pipe(
+      handleUpdateWalletSecrets(({ index, name }, pair) =>
+        R.assocPath(
+          ['wallet', 'crypto', 'accounts', index, 'displayName'],
+          name,
+          pair
         )
-    ).pipe(getPair())
-    // TODO: W_M_UPDATE_WALLET_META
-    // TODO: W_M_UPDATE_WALLET_SECRETS
-    // isn't it a bit silly to have such generic messages?
+      )
+    ),
+    //
+    fromIPC<AddContactRequest>(ipcConsts.W_M_ADD_CONTACT).pipe(
+      handleUpdateWalletSecrets(({ contact }, pair) =>
+        R.over(
+          R.lensPath(['wallet', 'crypto', 'contacts']),
+          R.append(contact),
+          pair
+        )
+      )
+    ),
+    //
+    fromIPC<RemoveContactRequest>(ipcConsts.W_M_REMOVE_CONTACT).pipe(
+      handleUpdateWalletSecrets(({ contact }, pair) =>
+        R.over(
+          R.lensPath(['wallet', 'crypto', 'contacts']),
+          R.filter(R.complement(R.equals(contact))),
+          pair
+        )
+      )
+    ),
+    //
+    fromIPC<void>(ipcConsts.W_M_CLOSE_WALLET).pipe(
+      switchMap(() => of(RESET_WALLET))
+    )
   );
 
   const subs = [
-    // Update wallet in state
-    $nextWallet.subscribe(handleNewWalletPair),
+    // Update wallet and wallet path subjects
+    $nextWallet.subscribe({
+      next: (next) => {
+        $wallet.next(next.wallet);
+        $walletPath.next(next.path);
+      },
+      error: (error: Error) => {
+        // TODO: Show error to User
+        logger.debug('$nextWallet', error);
+      },
+      complete: () => {
+        logger.error('$nextWallet', 'Observable is completed');
+      },
+    }),
     // Store new wallet on FS
     $nextWallet
-      .pipe(skip(1), distinctUntilChanged())
+      .pipe(
+        skip(1),
+        distinctUntilChanged(),
+        filter(isWalletPair),
+        debounceTime(50)
+      )
       .subscribe(updateWalletFile),
   ];
 

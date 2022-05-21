@@ -1,8 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { distinctUntilChanged, Observable, ReplaySubject, Subject } from 'rxjs';
-import { NodeConfig } from '../../../shared/types';
+import { Network, NodeConfig } from '../../../shared/types';
 import { checkUpdates } from '../autoUpdate';
-import { Network } from '../context';
 import { downloadNodeConfig } from '../NodeConfig';
 import { withLatest, makeSubscription } from '../rx.utils';
 
@@ -15,7 +14,7 @@ export default (
     $currentNetwork.pipe(distinctUntilChanged(), withLatest($mainWindow)),
     async ([mw, net]) => {
       if (!net) return;
-      const config = await downloadNodeConfig(net);
+      const config = await downloadNodeConfig(net.conf);
       $nodeConfig.next(config);
       mw && checkUpdates(mw, net);
     }
