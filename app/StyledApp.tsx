@@ -68,9 +68,7 @@ const StyledApp = () => {
 
   useEffect(() => {
     dispatch(setOsTheme());
-    // don't need deeps here because inner functions are out of scope and already declared
-    // we want to run the effect only once
-  }, []);
+  }, [dispatch]);
 
   return (
     <ThemeProvider

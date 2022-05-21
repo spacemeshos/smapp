@@ -108,11 +108,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
             <Row>
               <Icon src={`${isDarkMode ? posSmesherWhite : posSmesherBlack}`} />
               <RowTitle>WALLET + NODE</RowTitle>
-              <Tooltip
-                width={100}
-                text="WALLET + NODE"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={100} text="WALLET + NODE" />
             </Row>
             <RowText>A wallet that uses a local full Spacemesh</RowText>
             <RowText>p2p node and optionally setup smeshing</RowText>
@@ -131,7 +127,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
                 src={`${isDarkMode ? walletSecondWhite : walletSecondBlack}`}
               />
               <RowTitle>WALLET ONLY</RowTitle>
-              <Tooltip width={100} text="Wallet only" isDarkMode={isDarkMode} />
+              <Tooltip width={100} text="Wallet only" />
             </Row>
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
@@ -152,11 +148,7 @@ const WalletConnectionType = ({ history }: AuthRouterParams) => {
               onClick={() => history.push(AuthPath.Recover)}
               text="RESTORE EXISTING WALLET"
             />
-            <Tooltip
-              width={100}
-              text="RESTORE EXISTING WALLET"
-              isDarkMode={isDarkMode}
-            />
+            <Tooltip width={100} text="RESTORE EXISTING WALLET" />
           </Row>
         </BottomPart>
       </CorneredContainer>

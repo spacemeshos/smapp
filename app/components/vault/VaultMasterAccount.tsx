@@ -65,7 +65,6 @@ const VaultMasterAccount = ({
         <DetailsText>Account</DetailsText>
         <Tooltip
           width={250}
-          isDarkMode={isDarkMode}
           text="Use an account managed by this wallet to set yourself as the vault’s owner."
         />
         <Dots />

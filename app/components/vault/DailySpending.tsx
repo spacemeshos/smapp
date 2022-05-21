@@ -82,7 +82,7 @@ const DailySpending = ({
     <>
       <DetailsRow>
         <DetailsText>Daily Spending Account</DetailsText>
-        <Tooltip width={250} text="Tooltip 1" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 1" />
         <Dots />
         <DropDown
           data={accountsOption}
@@ -96,7 +96,7 @@ const DailySpending = ({
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Daily Spending Limit</DetailsText>
-        <Tooltip width={250} text="Tooltip 2" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 2" />
         <Dots />
         <DropDown
           data={limits}

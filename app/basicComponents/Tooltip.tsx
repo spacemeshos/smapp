@@ -78,7 +78,6 @@ type Props = {
   width: number;
   marginTop?: number;
   text: string;
-  isDarkMode: boolean;
 };
 
 const Tooltip = ({

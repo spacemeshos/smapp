@@ -100,7 +100,7 @@ const VaultTx = ({
     <>
       <DetailsRow>
         <DetailsText>Daily Spending Account</DetailsText>
-        <Tooltip width={250} text="Tooltip 1" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 1" />
         <Dots />
         <DropDown
           data={accounts}
@@ -114,7 +114,7 @@ const VaultTx = ({
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Fund Amount</DetailsText>
-        <Tooltip width={250} text="Tooltip 2" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 2" />
         <Dots />
         <DropDown
           data={accounts}
@@ -128,7 +128,7 @@ const VaultTx = ({
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Max Gas Units</DetailsText>
-        <Tooltip width={250} text="Tooltip 3" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 3" />
         <Dots />
         <DropDown
           data={gasUnit}
@@ -142,7 +142,7 @@ const VaultTx = ({
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Gas Unit Price</DetailsText>
-        <Tooltip width={250} text="Tooltip 4" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 4" />
         <Dots />
         <DropDown
           data={unitPrice}

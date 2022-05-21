@@ -87,15 +87,6 @@ const ErrorText = styled.div`
 }
 `;
 
-const Commitment = styled.div`
-  font-family: SourceCodeProBold;
-  font-size: 16px;
-  line-height: 22px;
-  cursor: inherit;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
-`;
-
 const Link = styled.div`
   text-transform: uppercase;
   text-decoration: none;
@@ -186,7 +177,7 @@ const PoSSize = ({
       <Row>
         <Icon1 src={posSpace} />
         <Text>Proof of space size</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Tooltip width={200} text="Some text" />
         <Dots>.....................................................</Dots>
         <DropDown
           data={commitments}
@@ -203,7 +194,7 @@ const PoSSize = ({
       <Row>
         <Icon2 src={posRewardEst} />
         <Text>Estimated coin reward</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Tooltip width={200} text="Some text" />
         <Dots>.....................................................</Dots>
         {hasErrorFetchingEstimatedRewards ? (
           <ErrorText>

@@ -131,11 +131,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <Icon src={walletSecondWhite} />
               <RowTitle>STANDARD WALLET</RowTitle>
-              <Tooltip
-                width={100}
-                text="STANDARD WALLET"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={100} text="STANDARD WALLET" />
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
@@ -174,11 +170,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
               onClick={() => history.push(AuthPath.Recover)}
               text="RESTORE  WALLET"
             />{' '}
-            <Tooltip
-              width={100}
-              text="RESTORE EXISTING WALLET"
-              isDarkMode={isDarkMode}
-            />
+            <Tooltip width={100} text="RESTORE EXISTING WALLET" />
           </Row>
         </BottomPart>
       </CorneredContainer>

@@ -101,9 +101,7 @@ const CorneredContainer = ({
           --
           <br />
           {subHeader}
-          {tooltipMessage && (
-            <Tooltip text={tooltipMessage} isDarkMode width={200} />
-          )}
+          {tooltipMessage && <Tooltip text={tooltipMessage} width={200} />}
         </SubHeader>
       )}
       {children}

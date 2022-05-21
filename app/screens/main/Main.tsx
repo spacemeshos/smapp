@@ -13,8 +13,6 @@ import {
 import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
 import {
-  rightDecoration,
-  rightDecorationWhite,
   settingsIcon,
   settingsIconBlack,
   getCoinsIcon,

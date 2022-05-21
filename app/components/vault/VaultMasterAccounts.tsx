@@ -65,7 +65,6 @@ const VaultMasterAccounts = ({
         <DetailsText>Address 1</DetailsText>
         <Tooltip
           width={250}
-          isDarkMode={isDarkMode}
           text="Use an account managed by this wallet to set yourself as the vault’s owner."
         />
         <Dots />
@@ -83,7 +82,6 @@ const VaultMasterAccounts = ({
         <DetailsText>Address 2</DetailsText>
         <Tooltip
           width={250}
-          isDarkMode={isDarkMode}
           text="Use an account managed by this wallet to set yourself as the vault’s owner."
         />
         <Dots />
@@ -101,7 +99,6 @@ const VaultMasterAccounts = ({
         <DetailsText>Address 3</DetailsText>
         <Tooltip
           width={250}
-          isDarkMode={isDarkMode}
           text="Use an account managed by this wallet to set yourself as the vault’s owner."
         />
         <Dots />

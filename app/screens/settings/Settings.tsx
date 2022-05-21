@@ -679,47 +679,31 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
-  navigateToWalletBackup = () => this.goTo(MainPath.BackupWallet);
+  renderAccElement = ({ label, text }: { label: string; text: string }) => (
+    <DropDownItem key={label}>
+      {label} {text}
+    </DropDownItem>
+  );
 
-  navigateToWalletRestore = () => this.goTo(AuthPath.Recover);
-
-  externalNavigation = (to: ExternalLinks) => window.open(to);
-
-  toggleAutoStart = () => {
-    const { isAutoStartEnabled } = this.state;
-    eventsService.toggleAutoStart();
-    this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
+  setSkin = ({ index }: { index: number }) => {
+    const { switchSkin } = this.props;
+    setClientSettingsTheme(index.toString());
+    // @ts-ignore
+    switchSkin(index.toString());
   };
 
-  editAccountDisplayName = ({
-    value,
-    index,
-  }: {
-    value: string;
-    index: number;
-  }) => {
-    const { accountDisplayNames } = this.state;
-    const updatedAccountDisplayNames = [...accountDisplayNames];
-    updatedAccountDisplayNames[index] = value;
-    this.setState({ accountDisplayNames: updatedAccountDisplayNames });
+  setPort = async () => {
+    const { changedPort } = this.state;
+    const parsedPort = parseInt(changedPort);
+    if (parsedPort && parsedPort > 1024) {
+      await eventsService.setPort({ port: changedPort });
+      this.setState({ isPortSet: true });
+    } else {
+      this.setState({ showModal: true });
+    }
   };
 
-  saveEditedAccountDisplayName = ({ index }: { index: number }) => {
-    const { updateAccountName } = this.props;
-    const { accountDisplayNames } = this.state;
-    this.setState({
-      showPasswordModal: true,
-      passwordModalSubmitAction: ({ password }: { password: string }) => {
-        this.setState({ editedAccountIndex: -1, showPasswordModal: false });
-        // @ts-ignore
-        updateAccountName({
-          accountIndex: index,
-          name: accountDisplayNames[index],
-          password,
-        });
-      },
-    });
-  };
+  restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
 
   cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
     const { accounts } = this.props;
@@ -776,31 +760,47 @@ class Settings extends Component<Props, State> {
 
   openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
 
-  restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
-
-  renderAccElement = ({ label, text }: { label: string; text: string }) => (
-    <DropDownItem key={label}>
-      {label} {text}
-    </DropDownItem>
-  );
-
-  setSkin = ({ index }: { index: number }) => {
-    const { switchSkin } = this.props;
-    setClientSettingsTheme(index.toString());
-    // @ts-ignore
-    switchSkin(index.toString());
+  saveEditedAccountDisplayName = ({ index }: { index: number }) => {
+    const { updateAccountName } = this.props;
+    const { accountDisplayNames } = this.state;
+    this.setState({
+      showPasswordModal: true,
+      passwordModalSubmitAction: ({ password }: { password: string }) => {
+        this.setState({ editedAccountIndex: -1, showPasswordModal: false });
+        // @ts-ignore
+        updateAccountName({
+          accountIndex: index,
+          name: accountDisplayNames[index],
+          password,
+        });
+      },
+    });
   };
 
-  setPort = async () => {
-    const { changedPort } = this.state;
-    const parsedPort = parseInt(changedPort);
-    if (parsedPort && parsedPort > 1024) {
-      await eventsService.setPort({ port: changedPort });
-      this.setState({ isPortSet: true });
-    } else {
-      this.setState({ showModal: true });
-    }
+  editAccountDisplayName = ({
+    value,
+    index,
+  }: {
+    value: string;
+    index: number;
+  }) => {
+    const { accountDisplayNames } = this.state;
+    const updatedAccountDisplayNames = [...accountDisplayNames];
+    updatedAccountDisplayNames[index] = value;
+    this.setState({ accountDisplayNames: updatedAccountDisplayNames });
   };
+
+  toggleAutoStart = () => {
+    const { isAutoStartEnabled } = this.state;
+    eventsService.toggleAutoStart();
+    this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
+  };
+
+  externalNavigation = (to: ExternalLinks) => window.open(to);
+
+  navigateToWalletBackup = () => this.goTo(MainPath.BackupWallet);
+
+  navigateToWalletRestore = () => this.goTo(AuthPath.Recover);
 
   cleanAllAppDataAndSettings = async () => {
     localStorage.clear();
