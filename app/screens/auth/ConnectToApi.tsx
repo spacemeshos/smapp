@@ -61,7 +61,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
     marginLeft: 'auto',
   };
 

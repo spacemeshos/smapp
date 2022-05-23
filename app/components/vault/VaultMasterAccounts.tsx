@@ -31,18 +31,15 @@ const AccItem = styled.div`
 type Props = {
   masterAccountIndex: number;
   selectAccountIndex: ({ index }: { index: number }) => void;
-  isDarkMode: boolean;
   accountsOption: Account[];
 };
 
 const VaultMasterAccounts = ({
   masterAccountIndex,
   selectAccountIndex,
-  isDarkMode,
   accountsOption,
 }: Props) => {
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 240px',
   };

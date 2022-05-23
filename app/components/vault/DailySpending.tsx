@@ -31,7 +31,6 @@ const AccItem = styled.div`
 type Props = {
   masterAccountIndex: number;
   selectAccountIndex: ({ index }: { index: number }) => void;
-  isDarkMode: boolean;
   accountsOption: Account[];
 };
 
@@ -58,10 +57,8 @@ const DailySpending = ({
   masterAccountIndex,
   selectAccountIndex,
   accountsOption,
-  isDarkMode,
 }: Props) => {
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 240px',
   };

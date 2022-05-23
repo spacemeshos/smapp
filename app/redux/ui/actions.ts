@@ -36,7 +36,6 @@ export const setOsTheme = () => async (
   const hasWallet = state.wallet.walletFiles.length > 0;
   const calculatedSkinId = getSkinId(hasWallet);
   const isSkinDarkMode = isDarkBackground(calculatedSkinId) || isDarkTheme;
-
-  await dispatch({ type: SET_OS_THEME, payload: { isSkinDarkMode } });
-  await dispatch(switchSkin(calculatedSkinId));
+  dispatch({ type: SET_OS_THEME, payload: { isSkinDarkMode } });
+  dispatch(switchSkin(calculatedSkinId));
 };

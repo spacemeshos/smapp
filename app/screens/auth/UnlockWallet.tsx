@@ -152,7 +152,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
 
   // TODO: Get rid from code duplication
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
     marginLeft: 'auto',
   };
   const renderAccElement = ({
@@ -240,7 +239,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
                 onClick={selectItem}
                 DdElement={renderAccElement}
                 selectedItemIndex={selectedWalletIndex}
-                rowHeight={55}
+                rowHeight="auto"
                 style={ddStyle}
                 bgColor={smColors.white}
               />
@@ -294,7 +293,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           </LinksWrapper>
           <Button
             text="UNLOCK"
-            isDisabled={!password.trim() || !!isWrongPassword}
+            isDisabled={!password.trim() || Boolean(isWrongPassword)}
             onClick={decryptWallet}
             style={{ marginTop: 'auto' }}
           />

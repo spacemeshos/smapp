@@ -136,7 +136,6 @@ const Vault = ({ history }: RouteComponentProps) => {
         <VaultMasterAccount
           masterAccountIndex={masterAccountIndex}
           selectedAccountIndex={selectAccountIndex}
-          isDarkMode={isDarkMode}
           accountsOption={accountsOption}
         />
       ),
@@ -183,7 +182,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           selectFundAmount={selectAccountIndex}
           selectGasPrice={selectAccountIndex}
           selectGasUnits={selectAccountIndex}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (
@@ -245,11 +243,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       subHeader:
         'A vault is an enhanced account with extra security and spending features.',
       component: (
-        <NewVault
-          vaultName={name}
-          onChangeVaultName={handleChangeVaultName}
-          isDarkMode={isDarkMode}
-        />
+        <NewVault vaultName={name} onChangeVaultName={handleChangeVaultName} />
       ),
       nextButton: (
         <Button
@@ -285,7 +279,6 @@ const Vault = ({ history }: RouteComponentProps) => {
         <VaultMasterAccounts
           masterAccountIndex={masterAccountIndex}
           selectAccountIndex={selectAccountIndex}
-          isDarkMode={isDarkMode}
           accountsOption={accountsOption}
         />
       ),
@@ -310,7 +303,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           masterAccountIndex={masterAccountIndex}
           selectAccountIndex={selectAccountIndex}
           accountsOption={accountsOption}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (

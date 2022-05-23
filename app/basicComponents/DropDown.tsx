@@ -274,7 +274,7 @@ type Props<T extends ADataItem> = {
   data: Partial<T>[];
   selectedItemIndex: number;
   isDarkMode?: boolean;
-  rowHeight?: number;
+  rowHeight?: number | string;
   rowContentCentered?: boolean;
   isDisabled?: boolean;
   bgColor?: string;

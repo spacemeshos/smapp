@@ -32,7 +32,6 @@ type Props = {
   selectFundAmount: ({ index }: { index: number }) => void;
   selectGasUnits: ({ index }: { index: number }) => void;
   selectGasPrice: ({ index }: { index: number }) => void;
-  isDarkMode: boolean;
 };
 
 // TODO add auto update data
@@ -74,20 +73,16 @@ const VaultTx = ({
   selectFundAmount,
   selectGasUnits,
   selectGasPrice,
-  isDarkMode,
 }: Props) => {
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 340px',
   };
   const ddStyleGasUnit = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 140px',
   };
   const ddStyleGasPrice = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 200px',
   };
