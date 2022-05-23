@@ -67,8 +67,8 @@ const Input = styled.input<{
      } `}
 
   ${({ theme: { form } }) => `
-    border: ${Number(form.input.states.disable.hasBorder)}px solid ${
-    form.input.states.disable.borderColor
+    border: ${Number(form.input.states.normal.hasBorder)}px solid ${
+    form.input.states.normal.borderColor
   };`}
   
   opacity: ${({ isDisabled }) => (isDisabled ? 0.2 : 1)};

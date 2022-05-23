@@ -45,15 +45,17 @@ export default {
           color: colors.light150,
         },
         normal: {
-          backgroundColor: colors.light120,
-          color: colors.light150,
+          backgroundColor: colors.light110,
+          color: colors.dark45,
+          hasBorder: true,
+          borderColor: colors.dark100,
         },
         click: {
-          backgroundColor: colors.light120,
+          backgroundColor: colors.light110,
           color: colors.dark45,
         },
         focus: {
-          backgroundColor: colors.light120,
+          backgroundColor: colors.light110,
           color: colors.dark45,
         },
       },

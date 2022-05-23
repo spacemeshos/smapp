@@ -42,11 +42,13 @@ export default {
           hasBorder: false,
           borderColor: colors.dark30,
           backgroundColor: colors.dark30,
-          color: colors.dark30,
+          color: colors.dark35,
         },
         normal: {
-          backgroundColor: colors.dark30,
-          color: colors.dark35,
+          backgroundColor: colors.light110,
+          color: colors.dark45,
+          hasBorder: false,
+          borderColor: colors.dark30,
         },
         click: {
           backgroundColor: colors.light110,

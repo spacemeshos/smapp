@@ -18,7 +18,8 @@ const Wrapper = styled.div<{ isFocused: boolean; isDisabled: boolean }>`
   border-radius: ${form.input.boxRadius}px;`}
   ${({ isDisabled, theme: { colors } }) =>
     !isDisabled && `&:hover { border: 1px solid ${colors.secondary100}; `}
-  background-color:  ${({ theme: { form } }) => form.input.states.normal}; ;
+  background-color:  ${({ theme: { form } }) =>
+    form.input.states.normal.backgroundColor};
 `;
 
 const ActualInput = styled.input<{
@@ -79,8 +80,8 @@ const ActualInput = styled.input<{
   ${({ theme: { form } }) => `
   border-radius: ${form.input.boxRadius}px;`}
   ${({ theme: { form } }) => `
-  border: ${Number(form.input.states.disable.hasBorder)}px solid ${
-    form.input.states.disable.borderColor
+  border: ${Number(form.input.states.normal.hasBorder)}px solid ${
+    form.input.states.normal.borderColor
   };`}
   ${({ iconLeft }) =>
     iconLeft &&
