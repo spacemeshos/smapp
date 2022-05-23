@@ -13,7 +13,12 @@ import {
   Subject,
   withLatestFrom,
 } from 'rxjs';
-import { Network, NodeConfig, Wallet } from '../../../shared/types';
+import {
+  Network,
+  NodeConfig,
+  NodeVersionAndBuild,
+  Wallet,
+} from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
 import { MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
@@ -105,7 +110,10 @@ export default (
   $storeService: Observable<ConfigStore>,
   $networks: Subject<Network[]>,
   $currentNetwork: Observable<Network | null>,
-  $nodeConfig: Observable<NodeConfig>
+  $nodeConfig: Observable<NodeConfig>,
+  $currentLayer: Observable<number>,
+  $rootHash: Observable<string>,
+  $nodeVersion: Observable<NodeVersionAndBuild>
 ) =>
   sync(
     // Sync to
@@ -113,8 +121,9 @@ export default (
     // Views
     walletView($wallet, $walletPath),
     storeView($storeService),
-    networkView($currentNetwork, $nodeConfig),
-    $networks.pipe(map(R.objOf('networks')))
+    networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
+    $networks.pipe(map(R.objOf('networks'))),
+    $nodeVersion.pipe(map(R.objOf('node')))
     // @TODO:
     // Networks + currentLayer + rootHash
     // $.interval(MINUTE)

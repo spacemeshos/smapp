@@ -46,15 +46,12 @@ class GlobalStateService extends NetServiceFactory<
   };
 
   getGlobalStateHash = (): Promise<GlobalStateHash> =>
-    this.callService('GlobalStateHash', {})
-      .then((response) => ({
-        layer: response.response?.layer?.number || 0,
-        rootHash: response.response?.rootHash
-          ? toHexString(response.response.rootHash)
-          : '',
-      }))
-      .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ layer: -1, rootHash: '' }));
+    this.callService('GlobalStateHash', {}).then((response) => ({
+      layer: response.response?.layer?.number || 0,
+      rootHash: response.response?.rootHash
+        ? toHexString(response.response.rootHash)
+        : '',
+    }));
 
   sendAccountDataQuery = ({
     filter,

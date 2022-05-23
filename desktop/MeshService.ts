@@ -16,13 +16,10 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   };
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.callService('CurrentLayer', { a: 12 })
-      .then((response) => {
-        const currentLayer = response.layernum?.number || 0;
-        return { currentLayer };
-      })
-      .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ currentLayer: -1 }));
+    this.callService('CurrentLayer', {}).then((response) => {
+      const currentLayer = response.layernum?.number || 0;
+      return { currentLayer };
+    });
 
   sendAccountMeshDataQuery = ({
     accountId,

@@ -48,6 +48,23 @@ export const reduceChunkUpdate = <
   return mergeState(state, chunkData);
 };
 
+export const reduceChunkList = <
+  S extends PossibleState,
+  K extends string,
+  C extends S
+>(
+  keys: K[],
+  chunks: Record<K, C>,
+  state: S
+) => {
+  const chunkData: C[] = keys.reduce((acc, key) => {
+    const nextChunk = getMyChunk(key, chunks);
+    return nextChunk ? [...acc, nextChunk] : acc;
+  }, [] as C[]);
+  if (chunkData.length === 0) return state;
+  return chunkData.reduce((acc, next) => mergeState(acc, next), state);
+};
+
 export const ipcReducer = <S>(chunkName: string, initialState: S) => (
   state = initialState,
   action: CustomAction

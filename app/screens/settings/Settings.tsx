@@ -8,7 +8,6 @@ import {
   createNewAccount,
   switchApiProvider,
 } from '../../redux/wallet/actions';
-import { getGlobalStateHash } from '../../redux/network/actions';
 import { setUiError, switchSkin } from '../../redux/ui/actions';
 import {
   SettingsSection,
@@ -106,7 +105,6 @@ interface Props extends RouteComponentProps {
   walletFiles: Array<string>;
   updateWalletName: AppThDispatch;
   createNewAccount: AppThDispatch;
-  getGlobalStateHash: AppThDispatch;
   switchSkin: AppThDispatch;
   setUiError: AppThDispatch;
   switchApiProvider: AppThDispatch;
@@ -633,7 +631,7 @@ class Settings extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { location, getGlobalStateHash } = this.props;
+    const { location } = this.props;
     if (location.state && location.state.currentSettingIndex) {
       scroller.scrollTo(
         categories[parseInt(location.state.currentSettingIndex)],
@@ -645,8 +643,6 @@ class Settings extends Component<Props, State> {
         }
       );
     }
-    // @ts-ignore
-    await getGlobalStateHash();
     const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
     this.setState({ isAutoStartEnabled });
   }
@@ -868,7 +864,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  getGlobalStateHash,
   updateWalletName,
   createNewAccount,
   setUiError,

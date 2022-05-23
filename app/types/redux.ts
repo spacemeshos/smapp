@@ -12,18 +12,11 @@ import {
   Tx,
   Reward,
   Network,
+  NetworkState,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
-export interface NetworkState {
-  netId: string;
-  netName: string;
-  genesisTime: string;
-  currentLayer: number;
-  layerDurationSec: number;
-  rootHash: string;
-  explorerUrl: string;
-}
+export { NetworkState } from '../../shared/types';
 
 export interface NodeState {
   status: NodeStatus | null;

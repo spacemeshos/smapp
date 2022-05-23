@@ -2,7 +2,8 @@ import { BrowserWindow } from 'electron';
 import { delay, ReplaySubject, skip, Subject, withLatestFrom } from 'rxjs';
 import { NodeConfig } from '../../../shared/types';
 import Logger from '../../logger';
-import { Managers, spawnManagers } from '../Networks';
+import { Managers } from '../app.types';
+import { spawnManagers } from '../Networks';
 import { withLatest } from '../rx.utils';
 
 const logger = Logger({ className: 'rx' });

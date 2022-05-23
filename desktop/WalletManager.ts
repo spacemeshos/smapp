@@ -60,14 +60,18 @@ class WalletManager {
     secretKey,
   });
 
+  getCurrentLayer = (): Promise<CurrentLayer> =>
+    this.meshService.getCurrentLayer();
+
+  getRootHash = (): Promise<GlobalStateHash> =>
+    this.glStateService.getGlobalStateHash();
+
   subscribeToEvents = () => {
-    ipcMain.handle(
-      ipcConsts.W_M_GET_CURRENT_LAYER,
-      (): Promise<CurrentLayer> => this.meshService.getCurrentLayer()
+    ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () =>
+      this.getCurrentLayer()
     );
-    ipcMain.handle(
-      ipcConsts.W_M_GET_GLOBAL_STATE_HASH,
-      (): Promise<GlobalStateHash> => this.glStateService.getGlobalStateHash()
+    ipcMain.handle(ipcConsts.W_M_GET_GLOBAL_STATE_HASH, () =>
+      this.getRootHash()
     );
 
     ipcMain.handle(ipcConsts.W_M_SEND_TX, async (_event, request) => {
@@ -121,8 +125,6 @@ class WalletManager {
   activateAccounts = (accounts: Account[]) => {
     this.txManager.setAccounts(accounts);
   };
-
-  getCurrentLayer = () => this.meshService.getCurrentLayer();
 }
 
 export default WalletManager;

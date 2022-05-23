@@ -1,5 +1,10 @@
 import * as $ from 'rxjs';
-import { Network, NodeConfig, Wallet } from '../../shared/types';
+import {
+  Network,
+  NodeConfig,
+  NodeVersionAndBuild,
+  Wallet,
+} from '../../shared/types';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
@@ -18,6 +23,48 @@ import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
 import { AppStore, Managers } from './app.types';
 
+const loadNetworkData = () => {
+  const $managers = new $.Subject<Managers>();
+  const $currentLayer = new $.BehaviorSubject<number>(-1);
+  const $rootHash = new $.BehaviorSubject<string>('');
+  const $nodeVersion = new $.BehaviorSubject<NodeVersionAndBuild>({
+    version: '',
+    build: '',
+  });
+
+  const $isWalletActivated = new $.Subject<void>();
+
+  const updateInfo = $isWalletActivated
+    .pipe(
+      $.withLatestFrom($managers),
+      $.switchMap(([_, managers]) =>
+        $.from(
+          Promise.all([
+            managers.wallet.getCurrentLayer(),
+            managers.wallet.getRootHash(),
+            managers.node.getVersionAndBuild(),
+          ])
+        ).pipe($.retry(5), $.delay(1000))
+      )
+    )
+    .subscribe(([currentLayer, rootHash, nodeVersion]) => {
+      $currentLayer.next(currentLayer.currentLayer);
+      $rootHash.next(rootHash.rootHash);
+      $nodeVersion.next(nodeVersion);
+    });
+
+  const unsubscribe = () => updateInfo.unsubscribe();
+
+  return {
+    $managers,
+    $currentLayer,
+    $rootHash,
+    $nodeVersion,
+    $isWalletActivated,
+    unsubscribe,
+  };
+};
+
 const startApp = (): AppStore => {
   // Create MainWindow
   const {
@@ -35,9 +82,13 @@ const startApp = (): AppStore => {
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $currentNetwork = currentNetwork($wallet, $networks);
   const $nodeConfig = new $.Subject<NodeConfig>();
-  const $managers = new $.Subject<Managers>();
-  // @TODO:
-  // const $currentLayer = new $.Subject<number>();
+  const {
+    $managers,
+    $currentLayer,
+    $rootHash,
+    $nodeVersion,
+    $isWalletActivated,
+  } = loadNetworkData();
 
   // Reactions
   // List of unsubscribe functions
@@ -47,7 +98,8 @@ const startApp = (): AppStore => {
     // On changing network -> update node config
     switchNetwork($currentNetwork, $nodeConfig, $mainWindow),
     // Activate wallet and accounts
-    activateWallet($wallet, $managers),
+    activateWallet($wallet, $managers, $isWalletActivated),
+    // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),
     // Update networks each N seconds
@@ -67,7 +119,8 @@ const startApp = (): AppStore => {
     ),
     // Unlock / Create wallet
     // Switch network
-    // @TODO: Recover wallet, Update meta, Update secrets
+    // Add account, manage contacts
+    // Close wallet
     handleWalletIpcRequests($wallet, $walletPath, $networks),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
@@ -77,7 +130,10 @@ const startApp = (): AppStore => {
       $storeService,
       $networks,
       $currentNetwork,
-      $nodeConfig
+      $nodeConfig,
+      $currentLayer,
+      $rootHash,
+      $nodeVersion
     ),
   ];
 

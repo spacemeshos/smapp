@@ -7,7 +7,6 @@ import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
@@ -161,7 +160,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     if (netId > -1) {
       try {
         await eventsService.switchNetwork(netId);
-        await dispatch(getNetworkDefinitions());
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
         if (err instanceof Error) {
