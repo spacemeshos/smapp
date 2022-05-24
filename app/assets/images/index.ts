@@ -105,3 +105,4 @@ export { default as modernBackup } from './modern_backup.svg';
 export { default as modernErrorPopupContact } from './modern_error_popup_contact.svg';
 export { default as modernInfoTooltip } from './modern_info_tooltip.svg';
 export { default as darkPageLeftSidePanel } from './dark_page_left_side_panel.svg';
+export { default as modernCheck } from './modern_check.svg';

@@ -5,8 +5,6 @@ import {
   sidePanelRightMedWhite,
   sidePanelLeftMed,
   sidePanelLeftMedWhite,
-  checkBlack,
-  checkWhite,
 } from '../assets/images';
 import { smColors } from '../vars';
 
@@ -17,12 +15,20 @@ const Wrapper = styled.div`
   margin-right: 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img<{ isLeft: boolean }>`
   display: block;
   width: 13px;
   height: 100%;
+
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const InnerWrapper = styled.div`
@@ -73,9 +79,12 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
       return theme.isDarkMode ? smColors.white : smColors.realBlack;
     }
   }};
+  ${({ theme }) => `border-radius: ${theme.indicators.radius}px;`}
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs((props) => ({
+  src: props.theme.icons.check,
+}))`
   width: 15px;
   height: 15px;
   margin-left: 10px;
@@ -90,10 +99,9 @@ type Props = {
 const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
-  const checkIcon = isDarkMode ? checkWhite : checkBlack;
   return (
     <Wrapper style={{ height: `${steps.length * 32 + 35}px` }}>
-      <SideBar src={leftImg} />
+      <SideBar src={leftImg} isLeft />
       <InnerWrapper>
         {steps.map((step, index) => (
           <StepContainer key={`step${index}`} isFuture={index > currentStep}>
@@ -104,7 +112,7 @@ const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
               {step}
             </StepText>
             {index < currentStep ? (
-              <Icon src={checkIcon} />
+              <Icon />
             ) : (
               <Indicator isCurrent={index === currentStep}>
                 {index + 1}
@@ -113,7 +121,7 @@ const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
           </StepContainer>
         ))}
       </InnerWrapper>
-      <SideBar src={rightImg} />
+      <SideBar src={rightImg} isLeft={false} />
     </Wrapper>
   );
 };

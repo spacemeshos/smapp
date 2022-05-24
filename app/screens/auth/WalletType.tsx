@@ -147,11 +147,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <IconWallet src={walletSecondWhite} />
               <RowTitle>HARDWARE WALLET</RowTitle>
-              <Tooltip
-                width={100}
-                text="HARDWARE WALLET"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={100} text="HARDWARE WALLET" />
             </Row>
             <RowText>Using a Ledger device</RowText>
             <GreenText>(ENHANCED SECURITY)</GreenText>

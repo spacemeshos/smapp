@@ -14,12 +14,7 @@ const Wrapper = styled.div<{ onClick: (e?: React.MouseEvent) => void }>`
       },
     },
   }) => error.backgroundColor};
-  ${({
-    theme: {
-      box: { radius },
-    },
-  }) => `
-  border-radius: ${radius}px;`}
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const CloseImg = styled.img.attrs((props) => ({

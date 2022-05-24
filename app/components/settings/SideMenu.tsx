@@ -16,12 +16,20 @@ const Wrapper = styled.div`
   margin-right: 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img<{ isLeft: boolean }>`
   display: block;
   width: 13px;
   height: 100%;
+
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const InnerWrapper = styled.div`
@@ -90,7 +98,7 @@ const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   return (
     <Wrapper>
-      <SideBar src={leftImg} />
+      <SideBar src={leftImg} isLeft />
       <InnerWrapper>
         {items.map((item, index) => (
           <Container onClick={() => onClick({ index })} key={index}>
@@ -99,7 +107,7 @@ const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
           </Container>
         ))}
       </InnerWrapper>
-      <SideBar src={rightImg} />
+      <SideBar src={rightImg} isLeft={false} />
     </Wrapper>
   );
 };

@@ -4,6 +4,7 @@ import {
   modernInfoTooltip,
   modernErrorPopupContact,
   darkPageLeftSidePanel,
+  modernCheck,
 } from '../../assets/images';
 
 export default {
@@ -34,6 +35,9 @@ export default {
   },
   box: {
     radius: 10,
+  },
+  indicators: {
+    radius: 4,
   },
   form: {
     input: {
@@ -146,5 +150,6 @@ export default {
     tooltip: modernInfoTooltip,
     closePopup: modernErrorPopupContact,
     pageLeftSideBar: darkPageLeftSidePanel,
+    check: modernCheck,
   },
 };

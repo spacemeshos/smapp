@@ -32,6 +32,7 @@ const Wrapper = styled.div`
   padding: 20px 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const Header = styled.div`

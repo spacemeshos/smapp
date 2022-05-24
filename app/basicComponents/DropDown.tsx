@@ -49,7 +49,7 @@ const Wrapper = styled.div<{
 
 const HeaderWrapper = styled.div<{
   onClick: (e?: React.MouseEvent) => void;
-  rowHeight: number;
+  rowHeight: number | string;
   isOpened: boolean;
   isLightSkin: boolean;
 }>`
@@ -131,7 +131,7 @@ const Icon = styled.img<{ isOpened: boolean }>`
 const DropdownRow = styled.div<{
   onClick: (e?: React.MouseEvent) => void;
   rowContentCentered: boolean;
-  height: number;
+  height: number | string;
   isDisabled: boolean;
   key: string;
   isLightSkin: boolean;
@@ -167,12 +167,12 @@ const DropdownRow = styled.div<{
 `;
 
 const ItemsWrapper = styled.div<{
-  rowHeight: number;
+  rowHeight: number | string;
   isLightSkin: boolean;
   isOpened: boolean;
 }>`
   position: absolute;
-  top: ${({ rowHeight }) => rowHeight - 1}px;
+  top: ${({ rowHeight }) => Number(rowHeight) - 1 || rowHeight}px;
   width: 100%;
   flex: 1;
   z-index: 10;
@@ -315,7 +315,7 @@ const DropDown = <T extends ADataItem>({
   }: {
     item: Partial<T>;
     index: number;
-    rowHeight?: number;
+    rowHeight?: number | string;
     rowContentCentered: boolean;
   }) => (
     <DropdownRow

@@ -4,6 +4,7 @@ import {
   tooltip,
   closePopup,
   rightDecoration,
+  checkWhite,
 } from '../../assets/images';
 
 export default {
@@ -33,6 +34,9 @@ export default {
     },
   },
   box: {
+    radius: 0,
+  },
+  indicators: {
     radius: 0,
   },
   form: {
@@ -146,5 +150,6 @@ export default {
     tooltip,
     closePopup,
     pageLeftSideBar: rightDecoration,
+    check: checkWhite,
   },
 };

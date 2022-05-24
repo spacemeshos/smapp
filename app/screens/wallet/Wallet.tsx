@@ -21,6 +21,7 @@ const LeftSection = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: 10px;
+  margin-top: 2px;
 `;
 
 const BackupReminder = styled.div`
@@ -36,6 +37,7 @@ const BackupReminder = styled.div`
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black02Alpha};
   cursor: pointer;
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const BackupImage = styled.img.attrs((props) => ({

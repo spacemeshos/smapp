@@ -15,6 +15,12 @@ const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
     theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const DivWrapper = styled.div<{ width: number; height: number }>`
@@ -30,6 +36,12 @@ const DivWrapper = styled.div<{ width: number; height: number }>`
     theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const HeaderWrapper = styled.div`

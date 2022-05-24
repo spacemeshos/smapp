@@ -87,6 +87,13 @@ const ComplexButton = styled.div`
   flex-direction: row;
   align-items: flex-end;
   margin-right: 10px;
+  ${({ theme: { themeName } }) => `
+  
+    img {
+      position: relative;
+      left: ${themeName === 'modern' ? -1 : 0}px;
+    }
+  `}
 `;
 
 const ComplexButtonText = styled.div`

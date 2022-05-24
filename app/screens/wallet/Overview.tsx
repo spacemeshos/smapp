@@ -25,6 +25,7 @@ const MiddleSection = styled.div`
   padding: 25px 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const MiddleSectionHeader = styled.div`

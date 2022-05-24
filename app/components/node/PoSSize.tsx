@@ -75,6 +75,15 @@ const CommitmentWrapper = styled.div`
   color: ${smColors.realBlack};
 `;
 
+const Commitment = styled.div`
+  font-family: SourceCodeProBold;
+  font-size: 16px;
+  line-height: 22px;
+  cursor: inherit;
+  color: ${({ theme }) =>
+    theme.isDarkMode ? smColors.white : smColors.realBlack};
+`;
+
 const ErrorText = styled.div`
   height: 20px;
   font-size: 15px;
