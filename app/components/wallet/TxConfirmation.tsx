@@ -24,7 +24,7 @@ const Header = styled.div`
 `;
 
 const HeaderText = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -36,7 +36,7 @@ const SubHeader1 = styled(HeaderText)`
 
 const SubHeader2 = styled.div`
   margin-bottom: 20px;
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 24px;
   line-height: 30px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -69,7 +69,7 @@ const DetailsTextLeft = styled(DetailsTextRight)`
 `;
 
 const TotalText = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 24px;
   line-height: 30px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

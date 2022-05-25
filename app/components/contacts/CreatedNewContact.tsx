@@ -12,7 +12,7 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 22px;
   color: ${({ theme }) =>

@@ -75,7 +75,7 @@ const NavBarLink = styled.div<{ isActive?: boolean }>`
   flex-direction: row;
   align-items: center;
   margin-right: 15px;
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 12px;
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};

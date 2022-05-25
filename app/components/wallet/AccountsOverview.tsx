@@ -25,7 +25,7 @@ const AccountWrapper = styled.div`
 `;
 
 const AccountName = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;

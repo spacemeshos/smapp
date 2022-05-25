@@ -40,7 +40,7 @@ const Text = styled.span`
 `;
 
 const BoldText = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   margin-bottom: 50px;
 `;
 

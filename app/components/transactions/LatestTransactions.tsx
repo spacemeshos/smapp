@@ -36,7 +36,7 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

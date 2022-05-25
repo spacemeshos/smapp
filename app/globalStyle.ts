@@ -1,18 +1,26 @@
 import { createGlobalStyle } from 'styled-components';
-import srcReg from './assets/fonts/SourceCodePro-Regular.ttf';
-import srcBold from './assets/fonts/SourceCodePro-Bold.ttf';
+import SourceCodeProRegular from './assets/fonts/SourceCodePro-Regular.ttf';
+import SourceCodeProBold from './assets/fonts/SourceCodePro-Bold.ttf';
+import UniversLTStdRegular from './assets/fonts/UniversLTStd-Regular.ttf';
+// import UniversLTStdBold from './assets/fonts/UniversLTStd-XBold.ttf';
+import UniversLTStdBold2 from './assets/fonts/UniversLTStd-BoldEx.ttf';
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
-      font-family: SourceCodePro;
-      src: url(${srcReg});
-      font-weight:400;
+      font-family: ${({ theme: { themeName } }) =>
+        themeName === 'modern' ? 'UniversLTStdRegular' : 'SourceCodePro'};
+      src: url( ${({ theme: { themeName } }) =>
+        themeName === 'modern' ? UniversLTStdRegular : SourceCodeProRegular});
+      font-style: normal;
+      font-weight: 400;
     }
     
     @font-face {
-      font-family: SourceCodeProBold;
-      src: url(${srcBold});
-      font-weight: 400;
+      font-family: ${({ theme: { themeName } }) =>
+        themeName === 'modern' ? 'UniversLTStdRegular' : 'SourceCodePro'};
+      src: url( ${({ theme: { themeName } }) =>
+        themeName === 'modern' ? UniversLTStdBold2 : SourceCodeProBold});
+      font-weight: 800;
     }
 
     html, body {
@@ -35,12 +43,15 @@ const GlobalStyle = createGlobalStyle`
     article, aside, canvas, details, embed,
     figure, figcaption, footer, header, hgroup,
     main, menu, nav, output, ruby, section, summary,
-    time, mark, audio, video {
+    time, mark, audio, video, input {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       cursor: default;
-      font-family: SourceCodePro, sans-serif;
+      font-family: ${({ theme: { themeName } }) =>
+        themeName === 'modern'
+          ? 'UniversLTStdRegular'
+          : 'SourceCodePro'}, sans-serif;
     }
 
     article, aside, details, figcaption, figure,
@@ -62,8 +73,7 @@ const GlobalStyle = createGlobalStyle`
     
     input {
       box-sizing: border-box;
-      font-family: SourceCodePro, sans-serif;
-      font-weight: normal;
+      font-weight: 400;
     }
 `;
 

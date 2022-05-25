@@ -60,8 +60,7 @@ const Text = styled.div<{ isCurrent: boolean }>`
       return smColors.purple;
     }
   }};
-  font-family: ${({ isCurrent }) =>
-    isCurrent ? 'SourceCodeProBold' : 'SourceCodePro'};
+  font-weight: ${({ isCurrent }) => (isCurrent ? 400 : 800)};
   text-align: right;
   cursor: pointer;
 `;

@@ -61,7 +61,7 @@ const ProgressError = styled.div`
 `;
 
 const BoldText = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
 `;
 
 const Footer = styled.div`

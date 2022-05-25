@@ -57,8 +57,7 @@ const StepText = styled.div<{ isCompleted: boolean; isCurrent: boolean }>`
       return smColors.purple;
     }
   }};
-  font-family: ${({ isCompleted }) =>
-    isCompleted ? 'SourceCodePro' : 'SourceCodeProBold'};
+  font-weight: ${({ isCompleted }) => (isCompleted ? 400 : 800)};
   text-align: right;
 `;
 

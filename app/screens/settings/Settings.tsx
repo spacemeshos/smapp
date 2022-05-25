@@ -237,9 +237,11 @@ class Settings extends Component<Props, State> {
               <SettingRow
                 upperPartLeft={
                   <DropDown
-                    data={Object.values(SKINS).map((name) => ({
-                      label: name.slice(0, 1).toUpperCase() + name.slice(1),
-                    }))}
+                    data={[
+                      { label: 'Modern Dark' },
+                      { label: 'Classic Dark' },
+                      { label: 'Classic Light' },
+                    ]}
                     onClick={this.setSkin}
                     DdElement={this.renderAccElement}
                     selectedItemIndex={skinId}

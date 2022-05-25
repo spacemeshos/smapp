@@ -11,7 +11,7 @@ const Text = styled.span`
 `;
 
 const BoldText = styled.span`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   margin-bottom: 10px;
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.white : smColors.realBlack};

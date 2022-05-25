@@ -146,7 +146,7 @@ const ContactsSubHeader = styled.div`
 `;
 
 const ContactsSubHeaderText = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) =>

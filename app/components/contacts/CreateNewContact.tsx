@@ -18,7 +18,7 @@ const Wrapper = styled.div<{ isStandalone: boolean }>`
 `;
 
 const Header = styled.div<{ isStandalone: boolean }>`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 15px;
   line-height: 20px;
   color: ${({ isStandalone, theme }) => {

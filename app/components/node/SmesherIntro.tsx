@@ -35,7 +35,7 @@ const Text = styled.div`
 const GreenText = styled.div`
   font-size: 15px;
   line-height: 17px;
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   color: ${smColors.green};
   margin-bottom: 10px;
 `;
@@ -43,7 +43,7 @@ const GreenText = styled.div`
 const RedText = styled.div`
   font-size: 15px;
   line-height: 17px;
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   color: ${smColors.red};
   margin-bottom: 10px;
 `;

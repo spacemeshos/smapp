@@ -30,7 +30,7 @@ const MiddleSection = styled.div`
 
 const MiddleSectionHeader = styled.div`
   margin-bottom: 10px;
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

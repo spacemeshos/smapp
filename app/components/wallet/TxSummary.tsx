@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.div`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -35,7 +35,7 @@ const Text = styled.div`
 `;
 
 const SubHeader = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   margin-bottom: 5px;
 `;
 
