@@ -23,20 +23,11 @@ export const isValidSettingsTheme = (id: string): boolean =>
 export const isDarkBackground = (skinId: string | null) =>
   skinId !== UI_LIGHT_SKIN;
 
-export const getSkinId = (hasWalletFiles: boolean) => {
+export const getSkinId = () => {
   const id = getClientSettingsTheme();
   const isValid = id !== null && isValidSettingsTheme(id);
 
-  if (isValid) {
-    return id;
-  }
-
-  // means switch between skins depends on OS
-  if (hasWalletFiles) {
-    return null;
-  }
-
-  return UI_DEFAULT_SKIN;
+  return isValid ? id : UI_DEFAULT_SKIN;
 };
 
 export const getThemeById = (index: string | null, isDark: boolean) => {

@@ -1,4 +1,4 @@
-import { AppThDispatch, GetState } from '../../types';
+import { AppThDispatch } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 import { getSkinId, isDarkBackground } from '../../theme';
 
@@ -26,15 +26,10 @@ export const showClosingAppModal = () => ({
   type: SHOW_CLOSING_APP_MODAL,
 });
 
-export const setOsTheme = () => async (
-  dispatch: AppThDispatch,
-  getState: GetState
-) => {
-  const state = getState();
+export const setOsTheme = () => async (dispatch: AppThDispatch) => {
   const isDarkTheme = await eventsService.getOsThemeColor();
 
-  const hasWallet = state.wallet.walletFiles.length > 0;
-  const calculatedSkinId = getSkinId(hasWallet);
+  const calculatedSkinId = getSkinId();
   const isSkinDarkMode = isDarkBackground(calculatedSkinId) || isDarkTheme;
   dispatch({ type: SET_OS_THEME, payload: { isSkinDarkMode } });
   dispatch(switchSkin(calculatedSkinId));
