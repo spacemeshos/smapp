@@ -5,6 +5,9 @@ import {
   closePopup,
   darkPageLeftSidePanel,
   checkBlack,
+  chevronRightWhite,
+  chevronLeftWhite,
+  chevronBottomWhite,
 } from '../../assets/images';
 
 export default {
@@ -151,5 +154,8 @@ export default {
     closePopup,
     pageLeftSideBar: darkPageLeftSidePanel,
     check: checkBlack,
+    chevronRight: chevronRightWhite,
+    chevronLeft: chevronLeftWhite,
+    chevronBottom: chevronBottomWhite,
   },
 };

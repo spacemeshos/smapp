@@ -5,6 +5,9 @@ import {
   closePopup,
   rightDecoration,
   checkWhite,
+  chevronRightBlack,
+  chevronLeftBlack,
+  chevronBottomBlack,
 } from '../../assets/images';
 
 export default {
@@ -151,5 +154,8 @@ export default {
     closePopup,
     pageLeftSideBar: rightDecoration,
     check: checkWhite,
+    chevronRight: chevronRightBlack,
+    chevronLeft: chevronLeftBlack,
+    chevronBottom: chevronBottomBlack,
   },
 };

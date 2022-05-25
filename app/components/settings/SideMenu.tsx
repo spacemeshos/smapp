@@ -84,6 +84,7 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
     }
   }};
   cursor: pointer;
+  ${({ theme }) => `border-radius: ${theme.indicators.radius}px;`}
 `;
 
 type Props = {

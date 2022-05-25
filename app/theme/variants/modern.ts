@@ -5,6 +5,9 @@ import {
   modernErrorPopupContact,
   darkPageLeftSidePanel,
   modernCheck,
+  chevronRightPurple,
+  chevronLeftPurple,
+  chevronBottomPurple,
 } from '../../assets/images';
 
 export default {
@@ -151,5 +154,8 @@ export default {
     closePopup: modernErrorPopupContact,
     pageLeftSideBar: darkPageLeftSidePanel,
     check: modernCheck,
+    chevronRight: chevronRightPurple,
+    chevronLeft: chevronLeftPurple,
+    chevronBottom: chevronBottomPurple,
   },
 };
