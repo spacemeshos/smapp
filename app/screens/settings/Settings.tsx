@@ -31,7 +31,7 @@ import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
-import { setClientSettingsTheme, SKINS } from '../../theme';
+import { setClientSettingsTheme } from '../../theme';
 
 const Wrapper = styled.div`
   display: flex;
