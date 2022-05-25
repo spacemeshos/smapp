@@ -1,25 +1,18 @@
 import { createGlobalStyle } from 'styled-components';
 import SourceCodeProRegular from './assets/fonts/SourceCodePro-Regular.ttf';
 import SourceCodeProBold from './assets/fonts/SourceCodePro-Bold.ttf';
-import UniversLTStdRegular from './assets/fonts/UniversLTStd-Regular.ttf';
-// import UniversLTStdBold from './assets/fonts/UniversLTStd-XBold.ttf';
-import UniversLTStdBold2 from './assets/fonts/UniversLTStd-BoldEx.ttf';
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
-      font-family: ${({ theme: { themeName } }) =>
-        themeName === 'modern' ? 'UniversLTStdRegular' : 'SourceCodePro'};
-      src: url( ${({ theme: { themeName } }) =>
-        themeName === 'modern' ? UniversLTStdRegular : SourceCodeProRegular});
+      font-family: SourceCodePro;
+      src: url(${SourceCodeProRegular});
       font-style: normal;
       font-weight: 400;
     }
     
     @font-face {
-      font-family: ${({ theme: { themeName } }) =>
-        themeName === 'modern' ? 'UniversLTStdRegular' : 'SourceCodePro'};
-      src: url( ${({ theme: { themeName } }) =>
-        themeName === 'modern' ? UniversLTStdBold2 : SourceCodeProBold});
+      font-family: SourceCodePro;
+      src: url(${SourceCodeProBold});
       font-weight: 800;
     }
 
@@ -43,15 +36,12 @@ const GlobalStyle = createGlobalStyle`
     article, aside, canvas, details, embed,
     figure, figcaption, footer, header, hgroup,
     main, menu, nav, output, ruby, section, summary,
-    time, mark, audio, video, input {
+    time, mark, audio, video {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       cursor: default;
-      font-family: ${({ theme: { themeName } }) =>
-        themeName === 'modern'
-          ? 'UniversLTStdRegular'
-          : 'SourceCodePro'}, sans-serif;
+      font-family: SourceCodePro, sans-serif;
     }
 
     article, aside, details, figcaption, figure,
@@ -74,6 +64,7 @@ const GlobalStyle = createGlobalStyle`
     input {
       box-sizing: border-box;
       font-weight: 400;
+      font-family: SourceCodePro, sans-serif;
     }
 `;
 
