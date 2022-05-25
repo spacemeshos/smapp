@@ -176,16 +176,22 @@ const Text = styled.div<{
   height: number;
   isPrimary: boolean;
   hasImg: boolean;
+  isSmallSize: boolean;
 }>`
   padding-left: ${({
     isPrimary,
     hasImg,
+    isSmallSize,
     theme: {
       button: { primary, secondary },
     },
   }) => {
     if (hasImg) {
       return '0';
+    }
+
+    if (isSmallSize) {
+      return '17px';
     }
 
     return isPrimary ? primary.padding.left : secondary.padding.left;
@@ -316,6 +322,7 @@ const Button = ({
         isPrimary={isPrimary}
         hasImg={imgPosition === 'before'}
         height={height}
+        isSmallSize={text.length <= 7}
       >
         {text}
       </Text>

@@ -316,7 +316,7 @@ class Settings extends Component<Props, State> {
                     <Button
                       onClick={this.switchToRemoteApi}
                       text="SWITCH TO WALLET ONLY"
-                      width={180}
+                      width={190}
                     />
                   }
                 />
