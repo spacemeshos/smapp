@@ -45,6 +45,7 @@ const InputWrapperUpperPart = styled.div<{ isStandalone: boolean }>`
   width: ${({ isStandalone }) => (isStandalone ? '100%' : 'calc(100% - 5px)')};
   background-color: ${smColors.purple};
   z-index: 1;
+  ${({ theme: { form } }) => ` border-radius: ${form.input.boxRadius}px;`}
 `;
 
 const InputWrapperLowerPart = styled.div`
@@ -53,7 +54,8 @@ const InputWrapperLowerPart = styled.div`
   left: 0;
   width: calc(100% - 5px);
   height: 60px;
-  border: 1px solid ${smColors.purple};
+  ${({ theme }) => `
+  border: ${Number(theme.themeName !== 'modern')}px solid ${smColors.purple};`}
 `;
 
 const ButtonsWrapper = styled.div`
