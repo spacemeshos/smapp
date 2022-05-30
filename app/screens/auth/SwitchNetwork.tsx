@@ -154,7 +154,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const handleNext = async () => {
     const netId =
       networks.networks.length > selectedItemIndex
-        ? networks.networks[selectedItemIndex].netId
+        ? networks.networks[selectedItemIndex].netID
         : -1;
     setLoader(true);
     if (netId > -1) {

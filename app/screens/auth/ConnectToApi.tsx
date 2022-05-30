@@ -10,6 +10,7 @@ import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
 import { switchApiProvider } from '../../redux/wallet/actions';
+import { getNetworkId } from '../../redux/network/selectors';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -59,6 +60,7 @@ type PublicServicesView = {
 
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
+  const curNetId = useSelector(getNetworkId);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = {
     marginLeft: 'auto',
@@ -73,11 +75,12 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const updatePublicServices = () => {
     eventsService
-      .listPublicServices()
-      .then((services) =>
-        setPublicServices({
+      .listPublicServices(curNetId)
+      .then(({ error, payload }) => {
+        if (error) throw error;
+        const state = {
           loading: false,
-          services: services.map((service) => ({
+          services: payload.map((service) => ({
             label: service.name,
             text: stringifySocketAddress(service),
             value: {
@@ -86,8 +89,9 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
               protocol: service.protocol,
             },
           })),
-        })
-      )
+        };
+        return setPublicServices(state);
+      })
       .catch((err) => {
         setPublicServices({
           loading: false,
@@ -97,7 +101,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       });
   };
 
-  useEffect(updatePublicServices, []);
+  useEffect(updatePublicServices, [curNetId]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
@@ -132,13 +136,14 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
+    const { netId } = location.state;
     const value =
       publicServices.services.length > selectedItemIndex
         ? publicServices.services[selectedItemIndex].value
         : undefined;
 
     value &&
-      dispatch(switchApiProvider(value)).catch((err) => {
+      dispatch(switchApiProvider(value, netId || curNetId)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });

@@ -2,16 +2,18 @@ import { of } from 'ramda';
 import {
   catchError,
   delay,
+  first,
   from,
   interval,
   map,
   retry,
   Subject,
   switchMap,
+  withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
-import { Network } from '../../../shared/types';
-import { fetchNetworksFromDiscovery } from '../Networks';
+import { Network, Wallet } from '../../../shared/types';
+import { fetchNetworksFromDiscovery, listPublicApis } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 
 const fromDiscovery = () =>
@@ -32,12 +34,30 @@ export const fetchDiscoveryEach = (
     $networks.next(nets)
   );
 
-export const updateDiscoveryByRequest = ($networks: Subject<Network[]>) =>
+export const listNetworksByRequest = () =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_NETWORKS,
       () => fromDiscovery().pipe(map((nets) => handlerResult(nets))),
       (nets) => nets
     ),
-    (nets) => $networks.next(nets)
+    (_) => {}
+  );
+
+export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
+  makeSubscription(
+    handleIPC(
+      ipcConsts.LIST_PUBLIC_SERVICES,
+      () =>
+        fromDiscovery().pipe(
+          withLatestFrom($wallet),
+          first(),
+          map(([nets, wallet]) => {
+            const net = nets.find((n) => n.netID === wallet?.meta.netId);
+            return handlerResult(listPublicApis(net || null));
+          })
+        ),
+      (apis) => apis
+    ),
+    (_) => {}
   );

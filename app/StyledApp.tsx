@@ -14,14 +14,13 @@ import { init, reactRouterV5Instrumentation } from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 import { createBrowserHistory } from 'history';
 import routes from './routes';
-import { AuthPath } from './routerPaths';
 import GlobalStyle from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
-import { goToSwitchNetwork } from './routeUtils';
+import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
 
 const history = createBrowserHistory();
@@ -47,14 +46,18 @@ init({
 
 const EventRouter = () => {
   const history = useHistory();
-
   useEffect(() => {
-    ipcRenderer.on(
-      ipcConsts.REQUEST_SWITCH_NETWORK,
-      (_, { isWalletOnly }) =>
-        history.location.pathname !== AuthPath.SwitchNetwork &&
-        goToSwitchNetwork(history, isWalletOnly)
-    );
+    ipcRenderer.send('BROWSER_READY');
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, (_, { isWalletOnly }) => {
+      setTimeout(() => {
+        goToSwitchNetwork(history, isWalletOnly);
+      }, 1000);
+    });
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_API, (_, { isWalletOnly }) => {
+      setTimeout(() => {
+        goToSwitchAPI(history, isWalletOnly);
+      }, 1000);
+    });
   }, [history]);
 
   return <></>;

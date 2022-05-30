@@ -144,7 +144,10 @@ class NodeManager {
   }
 
   // Before deleting
-  unsubscribe = () => this.unsub();
+  unsubscribe = () => {
+    this.stopNode();
+    this.unsub();
+  };
 
   subscribeToEvents = () => {
     // Handlers

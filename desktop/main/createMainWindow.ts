@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import {
   BehaviorSubject,
   combineLatest,
@@ -21,6 +21,7 @@ const showWindow = (bw: BrowserWindow) => {
 
 export default () => {
   const $mainWindow = new ReplaySubject<BrowserWindow>(1, Infinity);
+  const $isWindowReady = new Subject<void>();
 
   // States
   const $showWindowOnLoad = new BehaviorSubject(true);
@@ -56,6 +57,7 @@ export default () => {
       'did-finish-load',
       async () => (await firstValueFrom($showWindowOnLoad)) && showWindow(mw)
     );
+    ipcMain.on('BROWSER_READY', () => $isWindowReady.next());
   });
 
   // If second instance trying to run — just show the main window
@@ -79,5 +81,6 @@ export default () => {
     $quit,
     $isAppClosing,
     $showWindowOnLoad,
+    $isWindowReady,
   };
 };

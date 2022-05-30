@@ -28,16 +28,12 @@ import {
   CreateWalletResponse,
   RemoveContactRequest,
   RenameAccountRequest,
+  SwitchApiRequest,
   UnlockWalletRequest,
   UnlockWalletResponse,
   UpdateWalletMetaRequest,
 } from '../../../shared/ipcMessages';
-import {
-  Network,
-  SocketAddress,
-  Wallet,
-  WalletType,
-} from '../../../shared/types';
+import { Network, Wallet, WalletType } from '../../../shared/types';
 import {
   isLocalNodeApi,
   isRemoteNodeApi,
@@ -138,10 +134,7 @@ const handleWalletIpcRequests = (
     ),
     //
     fromIPC<number>(ipcConsts.SWITCH_NETWORK).pipe(
-      switchMap((netId) =>
-        combineLatest([of(netId), $wallet, $walletPath, $networks])
-      ),
-      first(),
+      withLatestFrom($wallet, $walletPath, $networks),
       switchMap(([netId, wallet, path, nets]) => {
         if (nets.length === 0)
           return throwError(() => Error('No networks to switch on'));
@@ -161,18 +154,23 @@ const handleWalletIpcRequests = (
     //
     handleIPC(
       ipcConsts.SWITCH_API_PROVIDER,
-      (apiUrl: SocketAddress | null) =>
+      ({ apiUrl, netId }: SwitchApiRequest) =>
         combineLatest([$wallet, $walletPath] as const).pipe(
-          // filter((pair): pair is [Wallet, string] => pair[0] !== null),
+          first(),
           map(([wallet, path]) => {
             if (!wallet)
               return handlerError(
                 Error(
-                  'Can not switch API provider: open the wallet file before.'
+                  'Can not switch API provider: open the wallet file before'
                 )
+              );
+            if (!netId)
+              return handlerError(
+                Error('Switch API Provider failed: missing net id in request')
               );
 
             const changes = {
+              netId,
               remoteApi:
                 apiUrl && isRemoteNodeApi(apiUrl)
                   ? stringifySocketAddress(apiUrl)

@@ -2,6 +2,7 @@ import {
   Account,
   Contact,
   Network,
+  PublicService,
   SocketAddress,
   WalletMeta,
   WalletType,
@@ -82,6 +83,13 @@ export type AddContactRequest = {
   contact: Contact;
 };
 
+export type SwitchApiRequest = {
+  netId: number;
+  apiUrl: SocketAddress | null;
+};
+
 export type RemoveContactRequest = AddContactRequest;
 
 export type ListNetworksResponse = IpcResponse<Network[]>;
+
+export type ListPublicApisResponse = IpcResponse<PublicService[]>;

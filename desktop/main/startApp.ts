@@ -11,7 +11,8 @@ import observeStoreService from './sources/storeService';
 import {
   fetchDiscovery,
   fetchDiscoveryEach,
-  updateDiscoveryByRequest,
+  listPublicApisByRequest,
+  listNetworksByRequest,
 } from './sources/fetchDiscovery';
 import spawnManagers$ from './reactions/spawnManagers';
 import switchNetwork from './reactions/switchNetwork';
@@ -105,10 +106,13 @@ const startApp = (): AppStore => {
     // Update networks each N seconds
     fetchDiscoveryEach(60 * MINUTE, $networks),
     // And update them by users request
-    updateDiscoveryByRequest($networks),
+    listNetworksByRequest(),
+    // List Public APIs for current network
+    // Do not update anything
+    listPublicApisByRequest($wallet),
     // If current network does not exist in discovery service
     // then ask User to switch the network
-    ensureNetwork($wallet, $networks, $currentNetwork, $mainWindow),
+    ensureNetwork($wallet, $networks, $mainWindow),
     // Handle closing App
     handleCloseApp(
       $quit,

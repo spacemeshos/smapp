@@ -24,7 +24,6 @@ import {
   NodeVersionAndBuild,
   PostSetupOpts,
   PostSetupState,
-  PublicService,
   SocketAddress,
   TxSendRequest,
   WalletMeta,
@@ -35,11 +34,7 @@ import { showClosingAppModal } from '../../redux/ui/actions';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
-import {
-  CurrentLayer,
-  GlobalStateHash,
-  NetworkDefinitions,
-} from '../../types/events';
+import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
   AddContactRequest,
   ChangePasswordRequest,
@@ -47,6 +42,7 @@ import {
   CreateWalletRequest,
   CreateWalletResponse,
   ListNetworksResponse,
+  ListPublicApisResponse,
   RemoveContactRequest,
   RenameAccountRequest,
   UnlockWalletRequest,
@@ -86,8 +82,10 @@ class EventsService {
   static listNetworks = (): Promise<ListNetworksResponse> =>
     ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
-  static listPublicServices = (): Promise<PublicService[]> =>
-    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
+  static listPublicServices = (
+    netId: number
+  ): Promise<ListPublicApisResponse> =>
+    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, netId);
 
   static unlockWallet = (
     payload: UnlockWalletRequest
@@ -217,13 +215,10 @@ class EventsService {
     ipcRenderer.send(ipcConsts.SWITCH_NETWORK, netId);
   };
 
-  static switchApiProvider = (apiUrl: SocketAddress | null) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
+  static switchApiProvider = (apiUrl: SocketAddress | null, netId: number) =>
+    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, netId });
 
   /** **************************************  WALLET MANAGER  **************************************** */
-
-  static getNetworkDefinitions = (): Promise<NetworkDefinitions> =>
-    ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
   static getCurrentLayer = (): Promise<CurrentLayer> =>
     ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);

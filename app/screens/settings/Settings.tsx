@@ -818,16 +818,6 @@ class Settings extends Component<Props, State> {
     });
   };
 
-  switchToRemoteApi = () => {
-    const { switchApiProvider } = this.props;
-    // @ts-ignore
-    switchApiProvider(null).catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      setUiError(err);
-    });
-    this.goTo(AuthPath.Unlock);
-  };
-
   switchToLocalNode = () => {
     const { setUiError, switchApiProvider } = this.props;
     // @ts-ignore
@@ -838,9 +828,14 @@ class Settings extends Component<Props, State> {
     this.goTo(AuthPath.Unlock);
   };
 
-  goTo = (redirect: RouterPath) => {
+  switchToRemoteApi = () => {
+    const { netId } = this.props;
+    this.goTo(AuthPath.ConnectToAPI, { netId });
+  };
+
+  goTo = (redirect: RouterPath, state?: unknown) => {
     const { history } = this.props;
-    history.push(redirect);
+    history.push(redirect, state);
   };
 }
 

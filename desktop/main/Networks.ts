@@ -37,9 +37,7 @@ export const fetchNetworksFromDiscovery = async () => {
   return result;
 };
 
-const listPublicApis = async (context: AppContext) => {
-  const state = await context.state.get();
-  const { currentNetwork } = state;
+export const listPublicApis = (currentNetwork: Network | null) => {
   if (!currentNetwork) return [];
 
   const publicApis: PublicService[] = [
@@ -74,7 +72,7 @@ export const spawnManagers = async (
 
 const subscribe = (context: AppContext) => {
   // List Public GRPC APIs to the Renderer
-  ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => listPublicApis(context));
+  // ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => listPublicApis(context.currentNetwork));
   // List networks
   ipcMain.handle(
     ipcConsts.W_M_GET_NETWORK_DEFINITIONS,

@@ -17,6 +17,7 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
+import { getNetworkId } from '../network/selectors';
 import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
@@ -164,14 +165,17 @@ export const unlockCurrentWallet = (password: string) => async (
   return dispatch(unlockWallet(currentWalletPath, password));
 };
 
-export const switchApiProvider = (api: SocketAddress | null) => async (
-  dispatch: AppThDispatch
-) => {
-  await eventsService.switchApiProvider(api);
+export const switchApiProvider = (
+  api: SocketAddress | null,
+  netId?: number
+) => async (dispatch: AppThDispatch, getState: GetState) => {
+  const nextNetId = netId || getNetworkId(getState());
+  await eventsService.switchApiProvider(api, nextNetId);
   dispatch({
     type: SET_REMOTE_API,
     payload: {
       api: api && isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
+      netId,
       type:
         api && isLocalNodeApi(api)
           ? WalletType.LocalNode

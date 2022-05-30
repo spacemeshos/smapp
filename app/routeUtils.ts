@@ -14,3 +14,15 @@ export const goToSwitchNetwork = (
       isWalletOnly,
     });
   });
+
+export const goToSwitchAPI = (
+  history: ReturnType<typeof useHistory>,
+  isWalletOnly: boolean
+) =>
+  setImmediate(() => {
+    if (history.location.pathname === AuthPath.ConnectToAPI) return;
+    history.push(AuthPath.ConnectToAPI, {
+      redirect: history.location.pathname,
+      isWalletOnly,
+    });
+  });

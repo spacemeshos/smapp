@@ -108,7 +108,7 @@ class WalletManager {
       if (isLocalNodeType(wallet.meta.type)) await this.nodeManager.startNode();
       else {
         await this.nodeManager.stopNode();
-        if (isRemoteNodeApi(apiUrl)) {
+        if (!!apiUrl && isRemoteNodeApi(apiUrl)) {
           await this.nodeManager.connectToRemoteNode(apiUrl);
         }
       }

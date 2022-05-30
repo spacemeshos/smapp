@@ -1,7 +1,6 @@
 import { find } from 'ramda';
 import { combineLatest, map, Subject } from 'rxjs';
-import { Wallet } from '../../../shared/types';
-import { Network } from '../context';
+import { Network, Wallet } from '../../../shared/types';
 
 export default (
   $wallet: Subject<Wallet | null>,
