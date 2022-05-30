@@ -32,7 +32,6 @@ const store: Store<RootState, CustomAction> & {
   composeEnhancers(applyMiddleware(errorHandlerMiddleware, thunk))
 );
 
-// IpcSyncRenderer(store);
 IpcBatchSyncRenderer(store);
 
 export default store;
