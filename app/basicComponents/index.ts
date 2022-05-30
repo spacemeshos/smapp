@@ -19,3 +19,4 @@ export { default as Dots } from './Dots';
 export { default as NetworkIndicator } from './NetworkIndicator';
 export { default as AutocompleteDropdown } from './AutocompleteDropdown';
 export { default as CustomTimeAgo } from './CustomTimeAgo';
+export { default as BoldText } from './BoldTextDiv';

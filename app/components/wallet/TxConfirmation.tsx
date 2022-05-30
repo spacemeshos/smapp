@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { SecondaryButton, Link, Button } from '../../basicComponents';
+import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
 import { getAddress, formatSmidge } from '../../infra/utils';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
@@ -23,8 +23,7 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const HeaderText = styled.div`
-  font-weight: 800;
+const HeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -34,9 +33,8 @@ const SubHeader1 = styled(HeaderText)`
   margin-bottom: 15px;
 `;
 
-const SubHeader2 = styled.div`
+const SubHeader2 = styled(BoldText)`
   margin-bottom: 20px;
-  font-weight: 800;
   font-size: 24px;
   line-height: 30px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -68,8 +66,7 @@ const DetailsTextLeft = styled(DetailsTextRight)`
   text-align: right;
 `;
 
-const TotalText = styled.div`
-  font-weight: 800;
+const TotalText = styled(BoldText)`
   font-size: 24px;
   line-height: 30px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

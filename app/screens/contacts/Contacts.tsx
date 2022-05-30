@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CreateNewContact, CreatedNewContact } from '../../components/contacts';
-import { WrapperWith2SideBars, Input, DropDown } from '../../basicComponents';
+import {
+  WrapperWith2SideBars,
+  Input,
+  DropDown,
+  BoldText,
+} from '../../basicComponents';
 import { smColors } from '../../vars';
 import { getAbbreviatedText } from '../../infra/utils';
 import { searchIcon, addContact, clock } from '../../assets/images';
@@ -145,8 +150,7 @@ const ContactsSubHeader = styled.div`
   margin-bottom: 20px;
 `;
 
-const ContactsSubHeaderText = styled.div`
-  font-weight: 800;
+const ContactsSubHeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) =>

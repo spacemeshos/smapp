@@ -2,7 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentAccount } from '../../redux/wallet/actions';
-import { DropDown, WrapperWith2SideBars } from '../../basicComponents';
+import {
+  BoldText,
+  DropDown,
+  WrapperWith2SideBars,
+} from '../../basicComponents';
 import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -24,8 +28,7 @@ const AccountWrapper = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccountName = styled.div`
-  font-weight: 800;
+const AccountName = styled(BoldText)`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;

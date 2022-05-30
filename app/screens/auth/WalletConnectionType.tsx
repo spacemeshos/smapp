@@ -31,7 +31,7 @@ const RowText = styled.span`
 const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 

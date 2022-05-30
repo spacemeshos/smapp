@@ -6,6 +6,7 @@ import {
   formatSmidge,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
+import { BoldText } from '../../basicComponents';
 
 const Wrapper = styled.div`
   display: flex;
@@ -18,8 +19,7 @@ const Wrapper = styled.div`
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-weight: 800;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

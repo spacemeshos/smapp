@@ -7,6 +7,7 @@ import {
   Button,
   ErrorPopup,
   AutocompleteDropdown,
+  BoldText,
 } from '../../basicComponents';
 import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -32,8 +33,7 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const HeaderText = styled.div`
-  font-weight: 800;
+const HeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

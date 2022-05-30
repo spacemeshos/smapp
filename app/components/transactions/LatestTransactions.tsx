@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Button } from '../../basicComponents';
+import { BoldText, Button } from '../../basicComponents';
 import {
   chevronLeftBlack,
   chevronLeftWhite,
@@ -35,8 +35,7 @@ const Wrapper = styled.div`
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-weight: 800;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

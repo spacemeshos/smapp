@@ -27,20 +27,20 @@ const RowText = styled.span`
 const PurpleText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${smColors.purple};
 `;
 const GreenText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${smColors.green};
 `;
 
 const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 const Row = styled.div`

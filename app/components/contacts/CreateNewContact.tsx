@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
-import { Input, Link, ErrorPopup } from '../../basicComponents';
+import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { Contact } from '../../../shared/types';
@@ -17,8 +17,7 @@ const Wrapper = styled.div<{ isStandalone: boolean }>`
     isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
 `;
 
-const Header = styled.div<{ isStandalone: boolean }>`
-  font-weight: 800;
+const Header = styled(BoldText)<{ isStandalone: boolean }>`
   font-size: 15px;
   line-height: 20px;
   color: ${({ isStandalone, theme }) => {

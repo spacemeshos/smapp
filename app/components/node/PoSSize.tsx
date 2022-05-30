@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown } from '../../basicComponents';
+import { Tooltip, DropDown, BoldText } from '../../basicComponents';
 import {
   posSpace,
   posRewardEst,
@@ -75,8 +75,7 @@ const CommitmentWrapper = styled.div`
   color: ${smColors.realBlack};
 `;
 
-const Commitment = styled.div`
-  font-weight: 800;
+const Commitment = styled(BoldText)`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;

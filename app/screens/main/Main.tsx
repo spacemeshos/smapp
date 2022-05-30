@@ -9,6 +9,7 @@ import {
   NavTooltip,
   NetworkIndicator,
   SmallHorizontalPanel,
+  BoldText,
 } from '../../basicComponents';
 import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
@@ -70,12 +71,11 @@ const NavLinksWrapper = styled.div`
   margin-left: 140px;
 `;
 
-const NavBarLink = styled.div<{ isActive?: boolean }>`
+const NavBarLink = styled(BoldText)<{ isActive?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-right: 15px;
-  font-weight: 800;
   font-size: 12px;
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};

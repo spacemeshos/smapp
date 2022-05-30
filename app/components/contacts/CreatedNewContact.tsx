@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Contact } from '../../../shared/types';
-import { Button } from '../../basicComponents';
+import { BoldText, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
@@ -11,8 +11,7 @@ const Wrapper = styled.div`
   height: 115px;
 `;
 
-const Header = styled.div`
-  font-weight: 800;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 22px;
   color: ${({ theme }) =>
