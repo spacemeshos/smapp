@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
+import { Element, scroller } from 'react-scroll';
 import {
   updateWalletName,
   updateAccountName,
@@ -45,7 +46,7 @@ const AllSettingsWrapper = styled.div`
   height: 100%;
 `;
 
-const AllSettingsInnerWrapper = styled.div`
+const AllSettingsInnerWrapper = styled(Element)`
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -128,7 +129,6 @@ type State = {
   isAutoStartEnabled: boolean;
   editedAccountIndex: number;
   accountDisplayNames: Array<string>;
-  currentSettingIndex: number;
   showPasswordModal: boolean;
   passwordModalSubmitAction: ({ password }: { password: string }) => void;
   changedPort: string;
@@ -137,17 +137,9 @@ type State = {
   showModal: boolean;
 };
 
+const categories = ['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED'];
+
 class Settings extends Component<Props, State> {
-  myRef1: any; // eslint-disable-line react/sort-comp
-
-  myRef2: any; // eslint-disable-line react/sort-comp
-
-  myRef3: any; // eslint-disable-line react/sort-comp
-
-  myRef4: any; // eslint-disable-line react/sort-comp
-
-  myRef5: any; // eslint-disable-line react/sort-comp
-
   constructor(props: Props) {
     super(props);
     const { displayName, accounts } = props;
@@ -160,7 +152,6 @@ class Settings extends Component<Props, State> {
       isAutoStartEnabled: false,
       editedAccountIndex: -1,
       accountDisplayNames,
-      currentSettingIndex: 0,
       showPasswordModal: false,
       passwordModalSubmitAction: () => {},
       changedPort: props.port,
@@ -168,12 +159,6 @@ class Settings extends Component<Props, State> {
       signMessageModalAccountIndex: -1,
       showModal: false,
     };
-
-    this.myRef1 = React.createRef();
-    this.myRef2 = React.createRef();
-    this.myRef3 = React.createRef();
-    this.myRef4 = React.createRef();
-    this.myRef5 = React.createRef();
   }
 
   render() {
@@ -199,7 +184,6 @@ class Settings extends Component<Props, State> {
       isAutoStartEnabled,
       accountDisplayNames,
       editedAccountIndex,
-      currentSettingIndex,
       showPasswordModal,
       passwordModalSubmitAction,
       changedPort,
@@ -210,17 +194,12 @@ class Settings extends Component<Props, State> {
 
     return (
       <Wrapper>
-        <SideMenu
-          isDarkMode={isDarkMode}
-          items={['GENERAL', 'WALLETS', 'ACCOUNTS', 'INFO', 'ADVANCED']}
-          currentItem={currentSettingIndex}
-          onClick={this.scrollToRef}
-        />
+        <SideMenu isDarkMode={isDarkMode} items={categories} />
         <AllSettingsWrapper>
-          <AllSettingsInnerWrapper>
+          <AllSettingsInnerWrapper id="settingsContainer">
             <SettingsSection
-              title="GENERAL"
-              refProp={this.myRef1}
+              title={categories[0]}
+              name={categories[0]}
               isDarkMode={isDarkMode}
             >
               <SettingRow
@@ -276,8 +255,8 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection
-              title="WALLETS"
-              refProp={this.myRef2}
+              title={categories[1]}
+              name={categories[1]}
               isDarkMode={isDarkMode}
             >
               {isWalletOnly ? (
@@ -444,8 +423,8 @@ class Settings extends Component<Props, State> {
               />
             </SettingsSection>
             <SettingsSection
-              title="ACCOUNTS"
-              refProp={this.myRef3}
+              title={categories[2]}
+              name={categories[2]}
               isDarkMode={isDarkMode}
             >
               <SettingRow
@@ -521,8 +500,8 @@ class Settings extends Component<Props, State> {
               ))}
             </SettingsSection>
             <SettingsSection
-              title="INFO"
-              refProp={this.myRef4}
+              title={categories[3]}
+              name={categories[3]}
               isDarkMode={isDarkMode}
             >
               <SettingRow
@@ -561,8 +540,8 @@ class Settings extends Component<Props, State> {
               )}
             </SettingsSection>
             <SettingsSection
-              title="ADVANCED"
-              refProp={this.myRef5}
+              title={categories[4]}
+              name={categories[4]}
               isDarkMode={isDarkMode}
             >
               <SettingRow
@@ -641,7 +620,15 @@ class Settings extends Component<Props, State> {
   async componentDidMount() {
     const { location, getGlobalStateHash } = this.props;
     if (location.state && location.state.currentSettingIndex) {
-      this.scrollToRef({ index: parseInt(location.state.currentSettingIndex) });
+      scroller.scrollTo(
+        categories[parseInt(location.state.currentSettingIndex)],
+        {
+          duration: 400,
+          delay: 0,
+          smooth: 'easeInOutQuart',
+          containerId: 'settingsContainer',
+        }
+      );
     }
     // @ts-ignore
     await getGlobalStateHash();
@@ -809,21 +796,6 @@ class Settings extends Component<Props, State> {
       this.cancelEditingAccountDisplayName({ index: editedAccountIndex });
     }
     this.setState({ editedAccountIndex: index });
-  };
-
-  scrollToRef = ({ index }: { index: number }) => {
-    const ref = [
-      this.myRef1,
-      this.myRef2,
-      this.myRef3,
-      this.myRef4,
-      this.myRef5,
-    ][index];
-    this.setState({ currentSettingIndex: index });
-    ref.current.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
   };
 
   openLogFile = () => {

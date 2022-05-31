@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Element } from 'react-scroll';
 import {
   topLeftCorner,
   topRightCorner,
@@ -12,7 +13,7 @@ import {
 } from '../../assets/images';
 import smColors from '../../vars/colors';
 
-const Wrapper = styled.div<{ ref: any }>`
+const Wrapper = styled(Element)`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -71,18 +72,18 @@ const SubHeader = styled.div`
 
 type Props = {
   title: string;
-  refProp: any;
   children: any;
   isDarkMode: boolean;
+  name: string;
 };
 
-const SettingsSection = ({ refProp, title, children, isDarkMode }: Props) => {
+const SettingsSection = ({ name, title, children, isDarkMode }: Props) => {
   const topLeft = isDarkMode ? topLeftCornerWhite : topLeftCorner;
   const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
   const bottomLeft = isDarkMode ? bottomLeftCornerWhite : bottomLeftCorner;
   const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
   return (
-    <Wrapper ref={refProp}>
+    <Wrapper name={name}>
       <Header>{title}</Header>
       <SubHeader>--</SubHeader>
       <TopLeftCorner src={topLeft} />

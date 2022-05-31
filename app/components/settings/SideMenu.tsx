@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-scroll';
 import {
   sidePanelRightMed,
   sidePanelRightMedWhite,
@@ -33,32 +34,21 @@ const InnerWrapper = styled.div`
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 15px;
-  cursor: pointer;
-`;
-
-const Text = styled.div<{ isCurrent: boolean }>`
+const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ isCurrent, theme }) => {
-    if (!isCurrent) {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
-    } else {
-      return smColors.purple;
-    }
-  }};
-  font-family: ${({ isCurrent }) =>
-    isCurrent ? 'SourceCodeProBold' : 'SourceCodePro'};
+  color: ${({ theme: { isDarkMode } }) =>
+    isDarkMode ? smColors.white : smColors.realBlack};
   text-align: right;
   cursor: pointer;
+
+  .active & {
+    font-family: SourceCodeProBold;
+    color: ${smColors.purple};
+  }
 `;
 
-const Indicator = styled.div<{ isCurrent: boolean }>`
+const Indicator = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,24 +58,30 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
-  background-color: ${({ isCurrent, theme }) => {
-    if (isCurrent) {
-      return smColors.purple;
-    } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
-    }
-  }};
+  background-color: ${({ theme: { isDarkMode } }) =>
+    isDarkMode ? smColors.white : smColors.realBlack};
+  cursor: pointer;
+
+  .active & {
+    background-color: ${smColors.purple};
+  }
+`;
+
+const Container = styled(Link)`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 15px;
   cursor: pointer;
 `;
 
 type Props = {
   items: Array<string>;
-  currentItem: number;
-  onClick: ({ index }: { index: number }) => void;
   isDarkMode?: boolean;
 };
 
-const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
+const SideMenu = ({ items, isDarkMode }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   return (
@@ -93,9 +89,16 @@ const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
       <SideBar src={leftImg} />
       <InnerWrapper>
         {items.map((item, index) => (
-          <Container onClick={() => onClick({ index })} key={index}>
-            <Text isCurrent={index === currentItem}>{item}</Text>
-            <Indicator isCurrent={index === currentItem}>{index + 1}</Indicator>
+          <Container
+            to={item}
+            activeClass="active"
+            spy
+            smooth
+            key={item}
+            containerId="settingsContainer"
+          >
+            <Text>{item}</Text>
+            <Indicator>{index + 1}</Indicator>
           </Container>
         ))}
       </InnerWrapper>
