@@ -21,7 +21,6 @@ import { isDebug, isDev, isProd } from './utils';
 import installDevTools from './main/installDevTools';
 import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
-import Networks from './main/Networks';
 import Wallet from './main/Wallet';
 import * as autoUpdate from './main/autoUpdate';
 import startApp from './main/startApp';
@@ -72,7 +71,6 @@ app
   .whenReady()
   .then(installDevTools)
   .then(() => subscribeIPC(context))
-  .then(() => Networks.subscribe(context))
   .then(() => Wallet.subscribe(context))
   .then(() => {
     const appState = startApp();

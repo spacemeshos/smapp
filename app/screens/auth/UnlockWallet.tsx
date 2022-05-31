@@ -188,14 +188,14 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           (location.state?.redirect !== AuthPath.Unlock &&
             location.state?.redirect) ||
           MainPath.Wallet;
-        // @TODO
-        // if (status.forceNetworkSelection) {
-        //   history.push(AuthPath.SwitchNetwork, {
-        //     redirect: nextPage,
-        //     isWalletOnly: status.isWalletOnly,
-        //   });
-        //   return;
-        // }
+
+        if (status.forceNetworkSelection) {
+          history.push(AuthPath.SwitchNetwork, {
+            redirect: nextPage,
+            isWalletOnly: status.isWalletOnly,
+          });
+          return;
+        }
         history.push(nextPage);
       } else {
         setWrongPassword(true);

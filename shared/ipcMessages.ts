@@ -47,7 +47,10 @@ export type UnlockWalletRequest = {
   path: string;
   password: string;
 };
-export type UnlockWalletResponse = IpcResponse<WalletMeta>;
+export type UnlockWalletResponse = IpcResponse<{
+  meta: WalletMeta;
+  forceNetworkSelection: boolean;
+}>;
 export type CreateAccountResponse = IpcResponse<Account | null>;
 
 export type CreateWalletRequest = {

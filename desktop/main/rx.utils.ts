@@ -28,24 +28,26 @@ export const fromIPC = <T>(channel: string) => {
   return ipcSubject;
 };
 
-export type HandlerResult<A> = [Error, null] | [null, A];
-export const handlerError = (error: Error): [Error, null] => [error, null];
-export const handlerResult = <A>(result: A): [null, A] => [null, result];
-export const hasResult = <A>(hr: HandlerResult<A>): hr is [null, A] =>
+export type HandlerOk<A> = [null, A];
+export type HandlerError = [Error, null];
+export type HandlerResult<A> = HandlerError | HandlerOk<A>;
+export const handlerError = (error: Error): HandlerError => [error, null];
+export const handlerResult = <A>(result: A): HandlerOk<A> => [null, result];
+export const hasResult = <A>(hr: HandlerResult<A>): hr is HandlerOk<A> =>
   !hr[0] && Boolean(hr[1]);
-export const hasError = <A>(hr: HandlerResult<A>): hr is [Error, null] =>
+export const hasError = <A>(hr: HandlerResult<A>): hr is HandlerError =>
   Boolean(hr[0]) && !hr[1];
+export const mapResult = <A, B>(
+  fn: (a: A) => B,
+  hr: HandlerResult<A>
+): HandlerResult<B> => (hasResult(hr) ? handlerResult(fn(hr[1])) : hr);
 
-export const mapResult = <T, Out>(
-  mapFn: (input: T) => Out
-): OperatorFunction<HandlerResult<T>, Out> =>
-  pipe(
-    map((res) => {
-      if (hasResult(res)) return mapFn(res[1]);
-      return null;
-    }),
-    filter(Boolean)
-  );
+export const explodeResult = <A>(hr: HandlerResult<A>): A => {
+  if (!hasResult(hr)) {
+    throw new Error('Trying to explode Errorish Handler Result: ', hr[0]);
+  }
+  return hr[1];
+};
 
 export const wrapResult = <A>(promise: Promise<A>): Promise<HandlerResult<A>> =>
   promise.then((x) => handlerResult(x)).catch((err) => handlerError(err));

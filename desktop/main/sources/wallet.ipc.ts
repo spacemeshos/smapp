@@ -40,7 +40,9 @@ import {
   stringifySocketAddress,
 } from '../../../shared/utils';
 import Logger from '../../logger';
+import { hasNetwork } from '../Networks';
 import {
+  explodeResult,
   fromIPC,
   handleIPC,
   handlerError,
@@ -49,7 +51,7 @@ import {
   mapResult,
   wrapResult,
 } from '../rx.utils';
-import { createNewAccount, createWallet } from '../Wallet';
+import { createNewAccount, createWallet, isNetIdMissing } from '../Wallet';
 import {
   loadWallet,
   saveWallet,
@@ -58,7 +60,12 @@ import {
 } from '../walletFile';
 
 const RESET_WALLET = { path: '', wallet: null };
-type WalletPair = { path: string; wallet: Wallet; password?: string };
+type WalletPair = {
+  path: string;
+  wallet: Wallet;
+  password?: string;
+  meta?: Record<string, any>;
+};
 
 const isWalletPair = (a: any): a is WalletPair =>
   Boolean(a.path) && Boolean(a.wallet);
@@ -105,7 +112,11 @@ const handleUpdateWalletSecrets = <
   pipe(
     switchMap((t) =>
       loadWallet$(t.path, t.password).pipe(
-        mapResult((pair) => mapFn(t, { ...pair, password: t.password }))
+        filter(hasResult),
+        map((hr) =>
+          mapResult((pair) => mapFn(t, { ...pair, password: t.password }), hr)
+        ),
+        map((x) => explodeResult(x))
       )
     )
   );
@@ -122,8 +133,27 @@ const handleWalletIpcRequests = (
     //
     handleIPC(
       ipcConsts.W_M_UNLOCK_WALLET,
-      ({ path, password }: UnlockWalletRequest) => loadWallet$(path, password),
-      ({ wallet }): UnlockWalletResponse['payload'] => wallet.meta
+      ({ path, password }: UnlockWalletRequest) =>
+        loadWallet$(path, password).pipe(
+          withLatestFrom($networks),
+          map(([hr, nets]) =>
+            mapResult(
+              (pair) => ({
+                ...pair,
+                meta: {
+                  forceNetworkSelection:
+                    isNetIdMissing(pair.wallet) ||
+                    !hasNetwork(pair.wallet.meta.netId, nets),
+                },
+              }),
+              hr
+            )
+          )
+        ),
+      ({ wallet, meta }): UnlockWalletResponse['payload'] => ({
+        meta: wallet.meta,
+        forceNetworkSelection: meta.forceNetworkSelection,
+      })
     ),
     //
     handleIPC(

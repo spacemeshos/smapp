@@ -4,20 +4,11 @@ import { ipcConsts } from '../../../app/vars';
 import { Network, Wallet } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
 import Logger from '../../logger';
+import { hasNetwork } from '../Networks';
 import { makeSubscription } from '../rx.utils';
+import { isApiMissing, isNetIdMissing } from '../Wallet';
 
 const logger = Logger({ className: 'ensureNetwork' });
-
-const getNetworkById = (
-  netId: number,
-  networks: Network[]
-): Network | undefined => networks.find((net) => net.netID === netId);
-
-const hasNetwork = (netId: number, networks: Network[]): boolean =>
-  !!getNetworkById(netId, networks);
-
-const isNetIdMissing = (wallet: Wallet) => !wallet.meta.netId;
-const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
 
 export default (
   $wallet: Observable<Wallet | null>,

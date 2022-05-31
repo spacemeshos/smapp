@@ -139,13 +139,10 @@ export const unlockWallet = (path: string, password: string) => async (
   }
   // Success
   dispatch(setCurrentAccount(0));
-  const isWalletOnly = isWalletOnlyType(payload.type);
-  // const requestApiSelection = isWalletOnly && !payload.remoteApi;
+  const isWalletOnly = isWalletOnlyType(payload.meta.type);
   return {
     success: true,
-    // TODO:
-    // forceNetworkSelection:
-    // hasNetworks && (!isNetworkExist || requestApiSelection),
+    forceNetworkSelection: payload.forceNetworkSelection,
     isWalletOnly,
   };
 };

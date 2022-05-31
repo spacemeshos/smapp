@@ -177,6 +177,10 @@ export const createNewAccount = (wallet: Wallet) => {
   return newWallet;
 };
 
+// Pure utils
+export const isNetIdMissing = (wallet: Wallet) => !wallet.meta.netId;
+export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
+
 //
 // Subscribe on events
 //

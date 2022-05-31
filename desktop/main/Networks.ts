@@ -1,14 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import { ipcConsts } from '../../app/vars';
+import { app, BrowserWindow } from 'electron';
 import { Network, PublicService } from '../../shared/types';
 import { toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
 import NodeManager from '../NodeManager';
 import WalletManager from '../WalletManager';
-import { NetworkDefinitions } from '../../app/types/events';
-import NodeConfig from './NodeConfig';
-import { AppContext } from './context';
 import { NODE_CONFIG_FILE } from './constants';
 import { Managers } from './app.types';
 
@@ -51,10 +47,16 @@ export const listPublicApis = (currentNetwork: Network | null) => {
   return publicApis;
 };
 
-const getNetwork = async (context: AppContext, netId: number) =>
-  (await context.state.get()).networks.find((net) => net.netID === netId);
-const hasNetwork = (context: AppContext, netId: number) =>
-  !!getNetwork(context, netId);
+// Pure utils
+export const getNetworkById = (
+  netId: number,
+  networks: Network[]
+): Network | undefined => networks.find((net) => net.netID === netId);
+
+export const hasNetwork = (netId: number, networks: Network[]): boolean =>
+  !!getNetworkById(netId, networks);
+
+//
 
 export const spawnManagers = async (
   mainWindow: BrowserWindow,
@@ -68,33 +70,4 @@ export const spawnManagers = async (
   const wallet = new WalletManager(mainWindow, node);
 
   return { smesher, node, wallet };
-};
-
-const subscribe = (context: AppContext) => {
-  // List Public GRPC APIs to the Renderer
-  // ipcMain.handle(ipcConsts.LIST_PUBLIC_SERVICES, () => listPublicApis(context.currentNetwork));
-  // List networks
-  ipcMain.handle(
-    ipcConsts.W_M_GET_NETWORK_DEFINITIONS,
-    async (): Promise<NetworkDefinitions> => {
-      const netId = context.currentNetwork?.netID || -1;
-      const netName = context.currentNetwork?.netName || 'Not connected';
-      try {
-        const nodeConfig = await NodeConfig.load();
-        const genesisTime = nodeConfig.main['genesis-time'];
-        const layerDurationSec = nodeConfig.main['layer-duration-sec'];
-        const explorerUrl = context.currentNetwork?.explorer || '';
-        return { netId, netName, genesisTime, layerDurationSec, explorerUrl };
-      } catch (err) {
-        return { netId, netName };
-      }
-    }
-  );
-};
-
-export default {
-  subscribe,
-  // Pure utils
-  getNetwork,
-  hasNetwork,
 };
