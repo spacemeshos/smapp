@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import { NodeConfig } from '../../shared/types';
 import { fetchJSON, isFileExists } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
 
@@ -20,7 +21,7 @@ export const downloadNodeConfig = async (networkConfigUrl: string) => {
   await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), {
     encoding: 'utf8',
   });
-  return nodeConfig;
+  return nodeConfig as NodeConfig;
 };
 
 export default {

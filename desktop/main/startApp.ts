@@ -15,7 +15,7 @@ import {
   listNetworksByRequest,
 } from './sources/fetchDiscovery';
 import spawnManagers$ from './reactions/spawnManagers';
-import switchNetwork from './reactions/switchNetwork';
+import syncNodeConfig from './reactions/syncNodeConfig';
 import activateWallet from './reactions/activateWallet';
 import ensureNetwork from './reactions/ensureNetwork';
 import handleCloseApp from './reactions/handleCloseApp';
@@ -23,6 +23,7 @@ import handleWalletIpcRequests from './sources/wallet.ipc';
 import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
 import { AppStore, Managers } from './app.types';
+import observeAutoUpdates from './sources/autoUpdate';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -37,16 +38,18 @@ const loadNetworkData = () => {
 
   const updateInfo = $isWalletActivated
     .pipe(
-      $.withLatestFrom($managers),
-      $.switchMap(([_, managers]) =>
+      $.switchMap(() => $managers),
+      $.switchMap((managers) =>
         $.from(
           Promise.all([
             managers.wallet.getCurrentLayer(),
             managers.wallet.getRootHash(),
             managers.node.getVersionAndBuild(),
           ])
-        ).pipe($.retry(5), $.delay(1000))
-      )
+        )
+      ),
+      $.retry(5),
+      $.delay(1000)
     )
     .subscribe(([currentLayer, rootHash, nodeVersion]) => {
       $currentLayer.next(currentLayer.currentLayer);
@@ -97,7 +100,7 @@ const startApp = (): AppStore => {
     // Spawn managers (and handle unsubscribing)
     spawnManagers$($nodeConfig, $managers, $mainWindow),
     // On changing network -> update node config
-    switchNetwork($currentNetwork, $nodeConfig, $mainWindow),
+    syncNodeConfig($currentNetwork, $nodeConfig),
     // Activate wallet and accounts
     activateWallet($wallet, $managers, $isWalletActivated),
     // Update currentLayer & rootHash
@@ -139,6 +142,9 @@ const startApp = (): AppStore => {
       $rootHash,
       $nodeVersion
     ),
+    // Subscribe on AutoUpdater events
+    // and handle IPC communications with it
+    observeAutoUpdates($mainWindow, $currentNetwork),
   ];
 
   return {

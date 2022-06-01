@@ -22,7 +22,6 @@ import installDevTools from './main/installDevTools';
 import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
-import * as autoUpdate from './main/autoUpdate';
 import startApp from './main/startApp';
 
 // Ensure that we run only single instance of Smapp
@@ -77,5 +76,4 @@ app
     context.state = appState;
     return context.state;
   })
-  .then(() => autoUpdate.subscribe(context))
   .catch(captureException);

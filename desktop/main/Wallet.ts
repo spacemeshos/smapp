@@ -221,18 +221,6 @@ const subscribe = (context: AppContext) => {
     return newWalletFiles;
   });
 
-  // ipcMain.on(
-  //   ipcConsts.W_M_UPDATE_WALLET_META,
-  //   <T extends keyof WalletMeta>(
-  //     _event,
-  //     {
-  //       fileName,
-  //       key,
-  //       value,
-  //     }: { fileName: string; key: T; value: WalletMeta[T] }
-  //   ) => updateWalletMeta(fileName, { [key]: value })
-  // );
-
   ipcMain.on(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, (_event, request) =>
     showFileInDirectory(context, { ...request })
   );
