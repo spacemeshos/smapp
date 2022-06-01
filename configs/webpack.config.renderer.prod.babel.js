@@ -9,6 +9,7 @@ import merge from 'webpack-merge';
 import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import checkNodeEnv from './checkNodeEnv';
+import getSentryEnvs from './getSentryEnvs';
 
 checkNodeEnv('production');
 
@@ -89,9 +90,7 @@ export default merge(baseConfig, {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production',
       DEBUG_PROD: false,
-      SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
-      SENTRY_DSN: process.env.SENTRY_DSN,
-      SENTRY_ENV: process.env.SENTRY_ENV || process.env.NODE_ENV,
+      ...getSentryEnvs(),
     }),
 
     new BundleAnalyzerPlugin({

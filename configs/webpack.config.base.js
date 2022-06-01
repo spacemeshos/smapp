@@ -41,7 +41,7 @@ export default {
     }),
     new webpack.IgnorePlugin(/^\.\/wordlists\/(?!english)/, /bip39\/src$/),
   ].concat(
-    process.env.SENTRY_AUTH_TOKEN ? (
+    process.env.SENTRY_AUTH_TOKEN ? [
       new SentryWebpackPlugin({
         include: '.',
         ignoreFile: '.sentrycliignore',
@@ -51,7 +51,7 @@ export default {
         project: 'smapp',
         authToken: process.env.SENTRY_AUTH_TOKEN
       })
-    ) : false
-  ).filter(Boolean)
+    ] : []
+  )
 };
 
