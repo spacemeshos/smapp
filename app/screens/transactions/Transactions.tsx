@@ -150,10 +150,11 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
   const ddStyle = {
-    width: 120,
+    width: 140,
     position: 'absolute',
     right: 12,
     top: 5,
+    height: 41,
     color: isDarkMode ? smColors.white : smColors.black,
   };
 
