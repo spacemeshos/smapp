@@ -38,11 +38,7 @@ const GrayText = styled.div`
     theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
 `;
 
-type Props = {
-  isDarkMode: boolean;
-};
-
-const ReviewNewVault = ({ isDarkMode }: Props) => (
+const ReviewNewVault = () => (
   <>
     <DetailsRow>
       <DetailsText>Name</DetailsText>
@@ -51,14 +47,14 @@ const ReviewNewVault = ({ isDarkMode }: Props) => (
     <DetailsRow>
       <DetailsTextWrap>
         <DetailsText>Configuration</DetailsText>
-        <Tooltip width={250} text="tooltip 1" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="tooltip 1" />
       </DetailsTextWrap>
       <GrayText>2 / 3 Multi-Signature</GrayText>
     </DetailsRow>
     <DetailsRow>
       <DetailsTextWrap>
         <DetailsText>Master Accounts</DetailsText>
-        <Tooltip width={250} text="tooltip 2" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="tooltip 2" />
       </DetailsTextWrap>
       <GrayText>0X1234...1234, 0X1234...1234, 0X1234...1234</GrayText>
     </DetailsRow>

@@ -10,7 +10,7 @@ import {
   closeWallet,
 } from '../../redux/wallet/actions';
 import { getGlobalStateHash } from '../../redux/network/actions';
-import { setUiError, switchTheme } from '../../redux/ui/actions';
+import { setUiError, switchSkin } from '../../redux/ui/actions';
 import {
   SettingsSection,
   SettingRow,
@@ -19,7 +19,7 @@ import {
   EnterPasswordModal,
   SignMessage,
 } from '../../components/settings';
-import { Input, Link, Button } from '../../basicComponents';
+import { Input, Link, Button, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { getAddress, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -31,6 +31,7 @@ import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
+import { setClientSettingsTheme } from '../../theme';
 
 const Wrapper = styled.div`
   display: flex;
@@ -91,6 +92,15 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
+const DropDownItem = styled.div`
+  font-size: 13px;
+  line-height: 17px;
+  color: ${smColors.black};
+  padding: 5px;
+  width: 100%;
+  cursor: inherit;
+`;
+
 interface Props extends RouteComponentProps {
   displayName: string;
   accounts: Account[];
@@ -99,7 +109,7 @@ interface Props extends RouteComponentProps {
   updateAccountName: AppThDispatch;
   createNewAccount: AppThDispatch;
   getGlobalStateHash: AppThDispatch;
-  switchTheme: AppThDispatch;
+  switchSkin: AppThDispatch;
   setUiError: AppThDispatch;
   switchApiProvider: AppThDispatch;
   closeWallet: AppThDispatch;
@@ -120,6 +130,7 @@ interface Props extends RouteComponentProps {
   isWalletOnly: boolean;
   netName: string;
   netId: number;
+  skinId: number;
 }
 
 type State = {
@@ -187,11 +198,11 @@ class Settings extends Component<Props, State> {
       build,
       version,
       backupTime,
-      switchTheme,
       isDarkMode,
       isWalletOnly,
       history,
       dataPath,
+      skinId,
     } = this.props;
     const {
       walletDisplayName,
@@ -224,14 +235,21 @@ class Settings extends Component<Props, State> {
               isDarkMode={isDarkMode}
             >
               <SettingRow
-                upperPartRight={
-                  <Button
-                    onClick={switchTheme}
-                    text="TOGGLE DARK MODE"
-                    width={180}
+                upperPartLeft={
+                  <DropDown
+                    data={[
+                      { label: 'Modern Dark' },
+                      { label: 'Classic Dark' },
+                      { label: 'Classic Light' },
+                    ]}
+                    onClick={this.setSkin}
+                    DdElement={this.renderAccElement}
+                    selectedItemIndex={skinId}
+                    rowHeight={40}
+                    bgColor={smColors.white}
                   />
                 }
-                rowName="Dark Mode"
+                rowName="Skin"
               />
               <SettingRow
                 upperPartLeft={`Auto start Spacemesh when your computer starts: ${
@@ -300,7 +318,7 @@ class Settings extends Component<Props, State> {
                     <Button
                       onClick={this.switchToRemoteApi}
                       text="SWITCH TO WALLET ONLY"
-                      width={180}
+                      width={190}
                     />
                   }
                 />
@@ -663,6 +681,19 @@ class Settings extends Component<Props, State> {
     return null;
   }
 
+  renderAccElement = ({ label, text }: { label: string; text: string }) => (
+    <DropDownItem key={label}>
+      {label} {text}
+    </DropDownItem>
+  );
+
+  setSkin = ({ index }: { index: number }) => {
+    const { switchSkin } = this.props;
+    setClientSettingsTheme(index.toString());
+    // @ts-ignore
+    switchSkin(index.toString());
+  };
+
   setPort = async () => {
     const { changedPort } = this.state;
     const parsedPort = parseInt(changedPort);
@@ -674,123 +705,7 @@ class Settings extends Component<Props, State> {
     }
   };
 
-  goTo = (redirect: RouterPath) => {
-    const { history } = this.props;
-    history.push(redirect);
-  };
-
-  switchToLocalNode = () => {
-    const { setUiError, switchApiProvider } = this.props;
-    // @ts-ignore
-    switchApiProvider(LOCAL_NODE_API_URL).catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      setUiError(err);
-    });
-    this.goTo(AuthPath.Unlock);
-  };
-
-  switchToRemoteApi = () => {
-    const { switchApiProvider } = this.props;
-    // @ts-ignore
-    switchApiProvider(null).catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      setUiError(err);
-    });
-    this.goTo(AuthPath.Unlock);
-  };
-
-  createNewAccountWrapper = () => {
-    const { createNewAccount } = this.props;
-    this.setState({
-      showPasswordModal: true,
-      passwordModalSubmitAction: ({ password }: { password: string }) => {
-        this.setState({ showPasswordModal: false });
-        // @ts-ignore
-        createNewAccount({ password });
-      },
-    });
-  };
-
-  editWalletDisplayName = ({ value }: { value: string }) =>
-    this.setState({ walletDisplayName: value });
-
-  startEditingWalletDisplayName = () =>
-    this.setState({ canEditDisplayName: true });
-
-  saveEditedWalletDisplayName = () => {
-    const { displayName, updateWalletName } = this.props;
-    const { walletDisplayName } = this.state;
-    this.setState({ canEditDisplayName: false });
-    if (
-      !!walletDisplayName &&
-      !!walletDisplayName.trim() &&
-      walletDisplayName !== displayName
-    ) {
-      // @ts-ignore
-      updateWalletName({ displayName: walletDisplayName });
-    }
-  };
-
-  cancelEditingWalletDisplayName = () => {
-    const { displayName } = this.props;
-    this.setState({
-      walletDisplayName: displayName,
-      canEditDisplayName: false,
-    });
-  };
-
-  deleteWallet = async () => {
-    const { walletFiles } = this.props;
-    localStorage.clear();
-    await eventsService.deleteWalletFile(walletFiles[0]);
-  };
-
-  cleanAllAppDataAndSettings = async () => {
-    localStorage.clear();
-    eventsService.wipeOut();
-  };
-
-  navigateToWalletBackup = () => this.goTo(MainPath.BackupWallet);
-
-  navigateToWalletRestore = () => this.goTo(AuthPath.Recover);
-
-  externalNavigation = (to: ExternalLinks) => window.open(to);
-
-  toggleAutoStart = () => {
-    const { isAutoStartEnabled } = this.state;
-    eventsService.toggleAutoStart();
-    this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
-  };
-
-  editAccountDisplayName = ({
-    value,
-    index,
-  }: {
-    value: string;
-    index: number;
-  }) => {
-    const { accountDisplayNames } = this.state;
-    const updatedAccountDisplayNames = [...accountDisplayNames];
-    updatedAccountDisplayNames[index] = value;
-    this.setState({ accountDisplayNames: updatedAccountDisplayNames });
-  };
-
-  saveEditedAccountDisplayName = ({ index }: { index: number }) => {
-    const { updateAccountName } = this.props;
-    const { accountDisplayNames } = this.state;
-    this.setState({
-      showPasswordModal: true,
-      passwordModalSubmitAction: ({ password }: { password: string }) => {
-        this.setState({ editedAccountIndex: -1, showPasswordModal: false });
-        // @ts-ignore
-        updateAccountName({
-          accountIndex: index,
-          name: accountDisplayNames[index],
-          password,
-        });
-      },
-    });
-  };
+  restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
 
   cancelEditingAccountDisplayName = ({ index }: { index: number }) => {
     const { accounts } = this.props;
@@ -847,7 +762,123 @@ class Settings extends Component<Props, State> {
 
   openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
 
-  restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
+  saveEditedAccountDisplayName = ({ index }: { index: number }) => {
+    const { updateAccountName } = this.props;
+    const { accountDisplayNames } = this.state;
+    this.setState({
+      showPasswordModal: true,
+      passwordModalSubmitAction: ({ password }: { password: string }) => {
+        this.setState({ editedAccountIndex: -1, showPasswordModal: false });
+        // @ts-ignore
+        updateAccountName({
+          accountIndex: index,
+          name: accountDisplayNames[index],
+          password,
+        });
+      },
+    });
+  };
+
+  editAccountDisplayName = ({
+    value,
+    index,
+  }: {
+    value: string;
+    index: number;
+  }) => {
+    const { accountDisplayNames } = this.state;
+    const updatedAccountDisplayNames = [...accountDisplayNames];
+    updatedAccountDisplayNames[index] = value;
+    this.setState({ accountDisplayNames: updatedAccountDisplayNames });
+  };
+
+  toggleAutoStart = () => {
+    const { isAutoStartEnabled } = this.state;
+    eventsService.toggleAutoStart();
+    this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
+  };
+
+  externalNavigation = (to: ExternalLinks) => window.open(to);
+
+  navigateToWalletBackup = () => this.goTo(MainPath.BackupWallet);
+
+  navigateToWalletRestore = () => this.goTo(AuthPath.Recover);
+
+  cleanAllAppDataAndSettings = async () => {
+    localStorage.clear();
+    eventsService.wipeOut();
+  };
+
+  deleteWallet = async () => {
+    const { walletFiles } = this.props;
+    localStorage.clear();
+    await eventsService.deleteWalletFile(walletFiles[0]);
+  };
+
+  cancelEditingWalletDisplayName = () => {
+    const { displayName } = this.props;
+    this.setState({
+      walletDisplayName: displayName,
+      canEditDisplayName: false,
+    });
+  };
+
+  saveEditedWalletDisplayName = () => {
+    const { displayName, updateWalletName } = this.props;
+    const { walletDisplayName } = this.state;
+    this.setState({ canEditDisplayName: false });
+    if (
+      !!walletDisplayName &&
+      !!walletDisplayName.trim() &&
+      walletDisplayName !== displayName
+    ) {
+      // @ts-ignore
+      updateWalletName({ displayName: walletDisplayName });
+    }
+  };
+
+  startEditingWalletDisplayName = () =>
+    this.setState({ canEditDisplayName: true });
+
+  editWalletDisplayName = ({ value }: { value: string }) =>
+    this.setState({ walletDisplayName: value });
+
+  createNewAccountWrapper = () => {
+    const { createNewAccount } = this.props;
+    this.setState({
+      showPasswordModal: true,
+      passwordModalSubmitAction: ({ password }: { password: string }) => {
+        this.setState({ showPasswordModal: false });
+        // @ts-ignore
+        createNewAccount({ password });
+      },
+    });
+  };
+
+  switchToRemoteApi = () => {
+    const { switchApiProvider } = this.props;
+    // @ts-ignore
+    switchApiProvider(null).catch((err) => {
+      console.error(err); // eslint-disable-line no-console
+      setUiError(err);
+    });
+    this.goTo(AuthPath.Unlock);
+  };
+
+  switchToLocalNode = () => {
+    const { setUiError, switchApiProvider } = this.props;
+    // @ts-ignore
+    switchApiProvider(LOCAL_NODE_API_URL).catch((err) => {
+      console.error(err); // eslint-disable-line no-console
+      setUiError(err);
+    });
+    this.goTo(AuthPath.Unlock);
+  };
+
+  goTo = (redirect: RouterPath) => {
+    const { history } = this.props;
+    history.push(redirect);
+  };
 }
 
 const mapStateToProps = (state: RootState) => ({
@@ -862,6 +893,7 @@ const mapStateToProps = (state: RootState) => ({
   dataPath: state.node.dataPath,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,
+  skinId: state.ui.skinId,
   isWalletOnly: isWalletOnly(state),
   netName: getNetworkName(state),
   netId: getNetworkId(state),
@@ -872,10 +904,10 @@ const mapDispatchToProps = {
   updateWalletName,
   updateAccountName,
   createNewAccount,
-  switchTheme,
   setUiError,
   switchApiProvider,
   closeWallet,
+  switchSkin,
 };
 
 // @ts-ignore

@@ -64,7 +64,7 @@ const BlackText = styled(Text)`
 `;
 
 const BoldText = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   color: ${({ color, theme }) => {
     if (color) {
       return color;

@@ -19,26 +19,18 @@ const DetailsText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.black};
   padding: 5px;
   width: 100%;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 type Props = {
   masterAccountIndex: number;
   selectAccountIndex: ({ index }: { index: number }) => void;
-  isDarkMode: boolean;
   accountsOption: Account[];
 };
 
@@ -65,10 +57,8 @@ const DailySpending = ({
   masterAccountIndex,
   selectAccountIndex,
   accountsOption,
-  isDarkMode,
 }: Props) => {
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 240px',
   };
@@ -76,13 +66,11 @@ const DailySpending = ({
   const renderAccElement = ({
     label,
     text,
-    isInDropDown,
   }: {
     label: string;
     text: string;
-    isInDropDown: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={isInDropDown}>
+    <AccItem key={label}>
       {label} {text}
     </AccItem>
   );
@@ -91,14 +79,12 @@ const DailySpending = ({
     <>
       <DetailsRow>
         <DetailsText>Daily Spending Account</DetailsText>
-        <Tooltip width={250} text="Tooltip 1" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 1" />
         <Dots />
         <DropDown
           data={accountsOption}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}
@@ -107,14 +93,12 @@ const DailySpending = ({
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Daily Spending Limit</DetailsText>
-        <Tooltip width={250} text="Tooltip 2" isDarkMode={isDarkMode} />
+        <Tooltip width={250} text="Tooltip 2" />
         <Dots />
         <DropDown
           data={limits}
           onClick={selectAccountIndex}
-          DdElement={({ label, text, isMain }) =>
-            renderAccElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderAccElement({ label, text })}
           selectedItemIndex={masterAccountIndex}
           rowHeight={40}
           style={ddStyle}

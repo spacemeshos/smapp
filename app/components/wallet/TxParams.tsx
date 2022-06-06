@@ -7,6 +7,7 @@ import {
   Button,
   ErrorPopup,
   AutocompleteDropdown,
+  BoldText,
 } from '../../basicComponents';
 import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -23,6 +24,7 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const Header = styled.div`
@@ -31,8 +33,7 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const HeaderText = styled.div`
-  font-family: SourceCodeProBold;
+const HeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -68,19 +69,12 @@ const Dots = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const Fee = styled.div<{ isInDropDown: boolean }>`
+const Fee = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${smColors.black};
   padding: 5px;
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const Footer = styled.div`
@@ -130,7 +124,6 @@ type Props = {
   nextAction: () => void;
   cancelTx: () => void;
   contacts: Contact[];
-  isDarkMode: boolean;
 };
 
 const TxParams = ({
@@ -149,11 +142,9 @@ const TxParams = ({
   nextAction,
   cancelTx,
   contacts,
-  isDarkMode,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.white : smColors.black}`,
     marginLeft: 'auto',
     flex: '0 0 240px',
   };
@@ -161,13 +152,11 @@ const TxParams = ({
   const renderFeeElement = ({
     label,
     text,
-    isInDropDown,
   }: {
     label: string;
     text: string;
-    isInDropDown: boolean;
   }) => (
-    <Fee key={label} isInDropDown={isInDropDown}>
+    <Fee key={label}>
       {label} {text}
     </Fee>
   );
@@ -251,9 +240,7 @@ const TxParams = ({
         <DropDown
           data={fees}
           onClick={selectFee}
-          DdElement={({ label, text, isMain }) =>
-            renderFeeElement({ label, text, isInDropDown: !isMain })
-          }
+          DdElement={({ label, text }) => renderFeeElement({ label, text })}
           selectedItemIndex={selectedFeeIndex}
           rowHeight={40}
           style={ddStyle}

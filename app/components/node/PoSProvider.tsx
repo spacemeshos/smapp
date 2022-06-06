@@ -33,7 +33,6 @@ type Props = {
   setThrottle: (throttle: boolean) => void;
   nextAction: () => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
 };
 
 const getFastestProvider = (
@@ -57,7 +56,6 @@ const PoSProvider = ({
   setThrottle,
   nextAction,
   status,
-  isDarkMode,
 }: Props) => {
   const [selectedProviderIndex, setSelectedProviderIndex] = useState(
     provider
@@ -91,7 +89,7 @@ const PoSProvider = ({
       <PauseSelector>
         <Checkbox isChecked={throttle} check={() => setThrottle(!throttle)} />
         <Text>PAUSE WHEN SOMEONE IS USING THIS COMPUTER</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Tooltip width={200} text="Some text" />
       </PauseSelector>
       <PoSFooter
         action={nextAction}
