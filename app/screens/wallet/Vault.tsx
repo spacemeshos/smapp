@@ -100,11 +100,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       subHeader:
         'A vault is an enhanced account with extra security and spending features.',
       component: (
-        <NewVault
-          vaultName={name}
-          onChangeVaultName={handleChangeVaultName}
-          isDarkMode={isDarkMode}
-        />
+        <NewVault vaultName={name} onChangeVaultName={handleChangeVaultName} />
       ),
       nextButton: (
         <Button
@@ -120,13 +116,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 1,
       header: 'VAULT TYPE',
       subHeader: 'Select vault’s type from one of the options below.',
-      component: (
-        <VaultType
-          handleChangeType={handleChangeType}
-          type={type}
-          isDarkMode={isDarkMode}
-        />
-      ),
+      component: <VaultType handleChangeType={handleChangeType} type={type} />,
       nextButton: (
         <Button
           text="NEXT"
@@ -146,7 +136,6 @@ const Vault = ({ history }: RouteComponentProps) => {
         <VaultMasterAccount
           masterAccountIndex={masterAccountIndex}
           selectedAccountIndex={selectAccountIndex}
-          isDarkMode={isDarkMode}
           accountsOption={accountsOption}
         />
       ),
@@ -193,7 +182,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           selectFundAmount={selectAccountIndex}
           selectGasPrice={selectAccountIndex}
           selectGasUnits={selectAccountIndex}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (
@@ -212,7 +200,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 5,
       header: 'REVIEW NEW VAULT',
       subHeader: 'Review your new vault information.',
-      component: <ReviewNewVault isDarkMode={isDarkMode} />,
+      component: <ReviewNewVault />,
       nextButton: (
         <Button
           text="CREATE VAULT"
@@ -255,11 +243,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       subHeader:
         'A vault is an enhanced account with extra security and spending features.',
       component: (
-        <NewVault
-          vaultName={name}
-          onChangeVaultName={handleChangeVaultName}
-          isDarkMode={isDarkMode}
-        />
+        <NewVault vaultName={name} onChangeVaultName={handleChangeVaultName} />
       ),
       nextButton: (
         <Button
@@ -275,13 +259,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 1,
       header: 'VAULT TYPE',
       subHeader: 'Select vault’s type from one of the options below.',
-      component: (
-        <VaultType
-          handleChangeType={handleChangeType}
-          type={type}
-          isDarkMode={isDarkMode}
-        />
-      ),
+      component: <VaultType handleChangeType={handleChangeType} type={type} />,
       nextButton: (
         <Button
           text="NEXT"
@@ -301,7 +279,6 @@ const Vault = ({ history }: RouteComponentProps) => {
         <VaultMasterAccounts
           masterAccountIndex={masterAccountIndex}
           selectAccountIndex={selectAccountIndex}
-          isDarkMode={isDarkMode}
           accountsOption={accountsOption}
         />
       ),
@@ -326,7 +303,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           masterAccountIndex={masterAccountIndex}
           selectAccountIndex={selectAccountIndex}
           accountsOption={accountsOption}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (
@@ -369,7 +345,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 5,
       header: 'REVIEW NEW VAULT',
       subHeader: 'Review your new vault information.',
-      component: <ReviewNewVault isDarkMode={isDarkMode} />,
+      component: <ReviewNewVault />,
       nextButton: (
         <Button
           text="CREATE VAULT"

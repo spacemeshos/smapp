@@ -6,6 +6,7 @@ import {
   formatSmidge,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
+import { BoldText } from '../../basicComponents';
 
 const Wrapper = styled.div`
   display: flex;
@@ -15,10 +16,10 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -34,7 +35,7 @@ const Text = styled.div`
 `;
 
 const SubHeader = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   margin-bottom: 5px;
 `;
 

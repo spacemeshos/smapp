@@ -21,6 +21,7 @@ const Wrapper = styled(Element)`
   padding: 30px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const TopLeftCorner = styled.img`

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
-import { Link, Button } from '../../basicComponents';
+import { Link, Button, BoldText } from '../../basicComponents';
 import { getAddress } from '../../infra/utils';
 import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
@@ -19,10 +19,10 @@ const Wrapper = styled.div`
   padding: 15px 25px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const Header = styled.div`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
@@ -68,7 +68,7 @@ const CopyIcon = styled.img`
 `;
 
 const CopiedText = styled(Text)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
   color: ${smColors.green};
 `;
 

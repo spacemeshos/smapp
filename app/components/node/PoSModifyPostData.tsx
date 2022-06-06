@@ -41,21 +41,20 @@ const Dots = styled.div`
 type Props = {
   modify: () => void;
   deleteData: () => void;
-  isDarkMode: boolean;
 };
 
-const PoSModifyPostData = ({ modify, deleteData, isDarkMode }: Props) => (
+const PoSModifyPostData = ({ modify, deleteData }: Props) => (
   <>
     <Wrapper>
       <Row>
         <Text>Change your PoS data</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Tooltip width={200} text="Some text" />
         <Dots>.....................................................</Dots>
         <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
       </Row>
       <Row>
         <Text>Stop smeshing and delete PoS data</Text>
-        <Tooltip width={200} text="Some text" isDarkMode={isDarkMode} />
+        <Tooltip width={200} text="Some text" />
         <Dots>.....................................................</Dots>
         <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
       </Row>

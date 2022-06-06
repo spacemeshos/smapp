@@ -57,18 +57,13 @@ const RightPaneWrapper = styled(CorneredWrapper)`
   padding: 20px 14px;
 `;
 
-const TimeSpanEntry = styled.div<{ isInDropDown: boolean }>`
+const TimeSpanEntry = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   margin: 5px 5px 5px 15px;
   cursor: pointer;
   text-align: left;
-  ${({ isInDropDown }) => isInDropDown && 'opacity: 0.5;'}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const getNumOfCoinsFromTransactions = (
@@ -155,10 +150,11 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
   const ddStyle = {
-    width: 120,
+    width: 140,
     position: 'absolute',
     right: 12,
     top: 5,
+    height: 41,
     color: isDarkMode ? smColors.white : smColors.black,
   };
 
@@ -218,9 +214,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
         <RightPaneWrapper>
           <DropDown
             data={TIME_SPANS}
-            DdElement={({ label, isMain }) => (
-              <TimeSpanEntry isInDropDown={!isMain}>{label}</TimeSpanEntry>
-            )}
+            DdElement={({ label }) => <TimeSpanEntry>{label}</TimeSpanEntry>}
             onClick={handlePress}
             selectedItemIndex={selectedTimeSpan}
             rowHeight={40}

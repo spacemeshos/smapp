@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link, Button } from '../../basicComponents';
+import { Link, Button, BoldText } from '../../basicComponents';
 import {
   posIcon,
   fireworks,
@@ -32,18 +32,16 @@ const Text = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const GreenText = styled.div`
+const GreenText = styled(BoldText)`
   font-size: 15px;
   line-height: 17px;
-  font-family: SourceCodeProBold;
   color: ${smColors.green};
   margin-bottom: 10px;
 `;
 
-const RedText = styled.div`
+const RedText = styled(BoldText)`
   font-size: 15px;
   line-height: 17px;
-  font-family: SourceCodeProBold;
   color: ${smColors.red};
   margin-bottom: 10px;
 `;

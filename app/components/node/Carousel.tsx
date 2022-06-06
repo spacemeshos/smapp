@@ -68,10 +68,10 @@ const InnerWrapper = styled.div<{
 const SlideUpperPart = styled.div<{ isSelected: boolean }>`
   position: absolute;
   z-index: 2;
-  top: 0;
   bottom: 5px;
-  left: 5px;
   right: 0;
+  left: ${({ theme: { themeName } }) => (themeName === 'modern' ? 0 : 5)}px;
+  top: ${({ theme: { themeName } }) => (themeName === 'modern' ? 5 : 0)}px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -95,6 +95,12 @@ const SlideUpperPart = styled.div<{ isSelected: boolean }>`
     15% 100%,
     0% 85%
   );
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const SlideMiddlePart = styled.div`
@@ -118,6 +124,12 @@ const SlideMiddlePart = styled.div`
     15% 100%,
     0% 85%
   );
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const SlideLowerPart = styled.div<{ isSelected: boolean }>`
@@ -145,6 +157,12 @@ const SlideLowerPart = styled.div<{ isSelected: boolean }>`
     15% 100%,
     0% 85%
   );
+  ${({
+    theme: {
+      box: { radius },
+    },
+  }) => `
+  border-radius: ${radius}px;`}
 `;
 
 const SlideWrapper = styled.div`
@@ -154,7 +172,10 @@ const SlideWrapper = styled.div`
   margin-right: ${SLIDE_MARGIN}px;
   cursor: pointer;
   &:active ${SlideUpperPart} {
-    transform: translate3d(-5px, 5px, 0);
+    transform: translate3d(
+      ${({ theme: { themeName } }) =>
+        themeName === 'modern' ? `0, 0, 0` : `-5px, 5px, 0`}
+    );
     transition: transform 0.2s cubic-bezier;
     background-color: ${smColors.mediumGraySecond};
   }

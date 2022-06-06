@@ -17,12 +17,19 @@ const Wrapper = styled.div<{ width: number; height: number | string }>`
     typeof height === 'string' ? height : `${height}px`};
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img<{ isLeft: boolean }>`
   display: block;
   width: 16px;
   height: 100%;
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const MainWrapperInner = styled.div`
@@ -84,7 +91,7 @@ const WrapperWith2SideBars = ({
 
   return (
     <Wrapper width={width} height={height} style={style}>
-      <SideBar src={leftImg} />
+      <SideBar src={leftImg} isLeft />
       <MainWrapperInner>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
@@ -94,7 +101,7 @@ const WrapperWith2SideBars = ({
         {subHeader && <SubHeader>{subHeader}</SubHeader>}
         {children}
       </MainWrapperInner>
-      <SideBar src={rightImg} />
+      <SideBar src={rightImg} isLeft={false} />
     </Wrapper>
   );
 };

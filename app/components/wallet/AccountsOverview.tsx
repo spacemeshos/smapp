@@ -2,7 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentAccount } from '../../redux/wallet/actions';
-import { DropDown, WrapperWith2SideBars } from '../../basicComponents';
+import {
+  BoldText,
+  DropDown,
+  WrapperWith2SideBars,
+} from '../../basicComponents';
 import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -14,7 +18,7 @@ const AccountDetails = styled.div`
   margin-bottom: 15px;
 `;
 
-const AccountWrapper = styled.div<{ isInDropDown: boolean }>`
+const AccountWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -22,22 +26,9 @@ const AccountWrapper = styled.div<{ isInDropDown: boolean }>`
   cursor: inherit;
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.white : smColors.realBlack};
-  &:hover {
-    opacity: 1;
-    color: ${({ theme }) =>
-      theme.isDarkMode ? smColors.lightGray : smColors.darkGray50Alpha};
-  }
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; color: ${smColors.realBlack}; &:hover {
-    opacity: 1;
-    color: ${(theme: any) =>
-      theme.isDarkMode ? smColors.darkGray50Alpha : smColors.darkGray50Alpha};
-  }`}
 `;
 
-const AccountName = styled.div`
-  font-family: SourceCodeProBold;
+const AccountName = styled(BoldText)`
   font-size: 16px;
   line-height: 22px;
   cursor: inherit;
@@ -100,13 +91,11 @@ const AccountsOverview = () => {
   const renderAccountRow = ({
     displayName,
     publicKey,
-    isInDropDown = false,
   }: {
     displayName: string;
     publicKey: string;
-    isInDropDown?: boolean;
   }) => (
-    <AccountWrapper isInDropDown={isInDropDown}>
+    <AccountWrapper>
       <AccountName>{displayName}</AccountName>
       <Address address={publicKey} />
     </AccountWrapper>
@@ -134,11 +123,10 @@ const AccountsOverview = () => {
         {accounts.length > 1 ? (
           <DropDown
             data={accounts}
-            DdElement={({ displayName, publicKey, isMain }) =>
+            DdElement={({ displayName, publicKey }) =>
               renderAccountRow({
                 displayName,
                 publicKey,
-                isInDropDown: !isMain,
               })
             }
             onClick={handleSetCurrentAccount}

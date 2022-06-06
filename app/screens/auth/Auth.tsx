@@ -7,7 +7,6 @@ import { Logo } from '../../components/common';
 import { Loader, SmallHorizontalPanel } from '../../basicComponents';
 import routes from '../../routes';
 import { AuthPath } from '../../routerPaths';
-import { rightDecoration, rightDecorationWhite } from '../../assets/images';
 import { RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { AuthRouterParams } from './routerParams';
@@ -22,7 +21,9 @@ const Wrapper = styled.div`
   overflow-x: hidden;
 `;
 
-const RightDecoration = styled.img`
+const RightDecoration = styled.img.attrs((props) => ({
+  src: props.theme.icons.pageLeftSideBar,
+}))`
   display: block;
   height: 100%;
   margin-right: -1px;
@@ -94,9 +95,7 @@ const Auth = ({ history, location }: AuthRouterParams) => {
         )}
       </InnerWrapper>
       <Version />
-      <RightDecoration
-        src={isDarkMode ? rightDecorationWhite : rightDecoration}
-      />
+      <RightDecoration />
     </Wrapper>
   );
 };

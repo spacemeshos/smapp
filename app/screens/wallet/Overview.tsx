@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { LatestTransactions } from '../../components/transactions';
-import { Button, Link } from '../../basicComponents';
+import { BoldText, Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -25,11 +25,11 @@ const MiddleSection = styled.div`
   padding: 25px 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const MiddleSectionHeader = styled.div`
+const MiddleSectionHeader = styled(BoldText)`
   margin-bottom: 10px;
-  font-family: SourceCodeProBold;
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};

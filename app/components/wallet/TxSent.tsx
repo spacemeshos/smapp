@@ -67,7 +67,7 @@ const DetailsTextLeft = styled(DetailsTextRight)`
 `;
 
 const DetailsTextLeftBold = styled(DetailsTextLeft)`
-  font-family: SourceCodeProBold;
+  font-weight: 800;
 `;
 
 const ComplexText = styled.div`

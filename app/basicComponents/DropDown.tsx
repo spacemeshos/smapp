@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { smColors } from '../vars';
 import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
 
-const Wrapper = styled.div<{ isDisabled: boolean }>`
+const Wrapper = styled.div<{
+  isDisabled: boolean;
+  isLightSkin: boolean;
+  isOpened: boolean;
+}>`
   position: relative;
   width: 100%;
   height: 100%;
@@ -11,10 +15,33 @@ const Wrapper = styled.div<{ isDisabled: boolean }>`
   flex-direction: column;
   flex: 1;
   cursor: default;
+  ${({ isOpened }) =>
+    isOpened &&
+    `
+      border-bottom: none;
+  `};
+  border: ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isLightSkin,
+    }) =>
+      isLightSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder)}px
+    solid
+    ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isLightSkin,
+    }) => (isLightSkin ? light.borderColor : dark.borderColor)};
   ${({ isDisabled }) =>
     isDisabled &&
     `
-      cursor: default;
+      cursor: not-allowed;
       pointer-events: none;
       opacity: 0.6;
   `};
@@ -22,9 +49,9 @@ const Wrapper = styled.div<{ isDisabled: boolean }>`
 
 const HeaderWrapper = styled.div<{
   onClick: (e?: React.MouseEvent) => void;
-  rowHeight: number;
-  bgColor: string;
+  rowHeight: number | string;
   isOpened: boolean;
+  isLightSkin: boolean;
 }>`
   display: flex;
   flex-direction: row;
@@ -32,12 +59,64 @@ const HeaderWrapper = styled.div<{
   align-items: center;
   height: ${({ rowHeight }) => rowHeight}px;
   cursor: default;
-  background-color: ${({ bgColor }) => bgColor};
+  padding: 0 10px;
+  border-top-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-top-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-left-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  border-bottom-right-radius: ${({
+    isOpened,
+    theme: {
+      form: { dropdown },
+    },
+  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  background-color: ${({
+    isLightSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) =>
+    // eslint-disable-next-line no-nested-ternary
+    isLightSkin
+      ? light.states.normal.backgroundColor
+      : dark.states.normal.backgroundColor};
   ${({ isOpened }) =>
     isOpened &&
     `
     box-shadow: 0 3px 6px ${smColors.black02Alpha};
   `}
+  ${({
+    isLightSkin,
+    theme: {
+      form: {
+        dropdown: { light, dark },
+      },
+    },
+  }) =>
+    `
+    color: ${
+      isLightSkin ? light.states.normal.color : dark.states.normal.color
+    };
+    
+    &:hover {
+        color: ${
+          isLightSkin ? light.states.normal.color : dark.states.normal.color
+        };
+     }; `}
 `;
 
 const Icon = styled.img<{ isOpened: boolean }>`
@@ -49,31 +128,13 @@ const Icon = styled.img<{ isOpened: boolean }>`
   cursor: inherit;
 `;
 
-const ItemsWrapper = styled.div<{ rowHeight: number; bgColor?: string }>`
-  position: absolute;
-  top: ${({ rowHeight }) => rowHeight - 1}px;
-  width: 100%;
-  flex: 1;
-  z-index: 10;
-  overflow: hidden;
-  transition: all 0.2s linear;
-  overflow-y: scroll;
-  box-sizing: content-box;
-  box-shadow: 0 3px 6px ${smColors.black02Alpha};
-  border: 1px solid
-    ${({ theme, bgColor }) =>
-      bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
-  margin-left: -1px;
-  background-color: ${({ theme, bgColor }) =>
-    bgColor || (theme.isDarkMode ? smColors.white : smColors.black)};
-`;
-
 const DropdownRow = styled.div<{
   onClick: (e?: React.MouseEvent) => void;
   rowContentCentered: boolean;
-  height: number;
+  height: number | string;
   isDisabled: boolean;
   key: string;
+  isLightSkin: boolean;
 }>`
   display: flex;
   ${({ rowContentCentered }) =>
@@ -81,6 +142,124 @@ const DropdownRow = styled.div<{
   align-items: center;
   height: ${({ height }) => height}px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
+  padding: 0 10px;
+
+  ${({
+    isLightSkin,
+    isDisabled,
+    theme: {
+      form: {
+        dropdown: { light, dark },
+      },
+    },
+  }) =>
+    !isDisabled &&
+    `&:hover {
+            background-color: ${
+              isLightSkin
+                ? light.states.hover.backgroundColor
+                : dark.states.hover.backgroundColor
+            }; 
+            color: ${
+              isLightSkin ? light.states.hover.color : dark.states.hover.color
+            };
+     } `}
+`;
+
+const ItemsWrapper = styled.div<{
+  rowHeight: number | string;
+  isLightSkin: boolean;
+  isOpened: boolean;
+}>`
+  position: absolute;
+  top: ${({ rowHeight }) => Number(rowHeight) - 1 || rowHeight}px;
+  width: 100%;
+  flex: 1;
+  z-index: 10;
+  overflow: hidden;
+  transition: all 0.2s linear;
+  overflow-y: auto;
+  box-sizing: content-box;
+  box-shadow: 0 3px 6px ${smColors.black02Alpha};
+  border-bottom-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border: ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isLightSkin,
+    }) =>
+      isLightSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder)}px
+    solid
+    ${({
+      theme: {
+        form: {
+          dropdown: { dark, light },
+        },
+      },
+      isLightSkin,
+    }) => (isLightSkin ? light.borderColor : dark.borderColor)};
+  margin-left: ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+    isLightSkin,
+  }) =>
+    `-${isLightSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder)}px`};
+  background-color: ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+    isLightSkin,
+  }) =>
+    isLightSkin
+      ? light.states.normal.backgroundColor
+      : dark.states.normal.backgroundColor};
+
+  ${DropdownRow}:last-child > div {
+    border-bottom: none;
+  }
+
+  ${({
+    theme: {
+      colors: { light140 },
+    },
+  }) => `
+  > div:first-child > div {
+      border-top: 1px solid ${light140};
+    }  
+    
+  > div {
+    
+    > div {
+      line-height: 29px;
+      border-bottom: 1px solid ${light140};
+    }
+
+    &:hover > div {
+      border-color: transparent;
+    }
+  }`};
+
+  ${({ isOpened }) =>
+    isOpened &&
+    `
+      border-top: none;
+  `};
 `;
 
 type ADataItem = {
@@ -95,7 +274,7 @@ type Props<T extends ADataItem> = {
   data: Partial<T>[];
   selectedItemIndex: number;
   isDarkMode?: boolean;
-  rowHeight?: number;
+  rowHeight?: number | string;
   rowContentCentered?: boolean;
   isDisabled?: boolean;
   bgColor?: string;
@@ -122,6 +301,7 @@ const DropDown = <T extends ADataItem>({
     window.addEventListener('click', closeDropdown);
     return () => window.removeEventListener('click', closeDropdown);
   }, []);
+  const isDefault = bgColor === smColors.white;
 
   const isDisabledComputed = isDisabled || !data || !data.length;
   const icon =
@@ -135,12 +315,13 @@ const DropDown = <T extends ADataItem>({
   }: {
     item: Partial<T>;
     index: number;
-    rowHeight?: number;
+    rowHeight?: number | string;
     rowContentCentered: boolean;
   }) => (
     <DropdownRow
       rowContentCentered={rowContentCentered}
       isDisabled={item.isDisabled || false}
+      isLightSkin={isDefault}
       key={`${item?.label}${index}`}
       onClick={
         item.isDisabled
@@ -164,8 +345,10 @@ const DropDown = <T extends ADataItem>({
 
   return (
     <Wrapper
+      isLightSkin={isDefault}
       isDisabled={isDisabledComputed}
       style={style}
+      isOpened={isOpened}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -173,7 +356,7 @@ const DropDown = <T extends ADataItem>({
     >
       <HeaderWrapper
         isOpened={isOpened}
-        bgColor={bgColor}
+        isLightSkin={isDefault}
         onClick={isDisabledComputed ? () => {} : handleToggle}
         rowHeight={rowHeight}
       >
@@ -181,7 +364,11 @@ const DropDown = <T extends ADataItem>({
         <Icon isOpened={isOpened} src={icon} />
       </HeaderWrapper>
       {isOpened && data && (
-        <ItemsWrapper bgColor={bgColor} rowHeight={rowHeight}>
+        <ItemsWrapper
+          isLightSkin={isDefault}
+          rowHeight={rowHeight}
+          isOpened={isOpened}
+        >
           {data.map((item, index: number) =>
             renderRow({ item, index, rowHeight, rowContentCentered })
           )}

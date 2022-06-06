@@ -17,12 +17,20 @@ const Wrapper = styled.div`
   margin-right: 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img<{ isLeft: boolean }>`
   display: block;
   width: 13px;
   height: 100%;
+
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const InnerWrapper = styled.div`
@@ -37,8 +45,14 @@ const InnerWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme: { isDarkMode } }) =>
-    isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ isCurrent, theme }) => {
+    if (!isCurrent) {
+      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+    } else {
+      return smColors.purple;
+    }
+  }};
+  font-weight: ${({ isCurrent }) => (isCurrent ? 400 : 800)};
   text-align: right;
   cursor: pointer;
 
@@ -74,6 +88,7 @@ const Container = styled(Link)`
   align-items: center;
   margin-bottom: 15px;
   cursor: pointer;
+  ${({ theme }) => `border-radius: ${theme.indicators.radius}px;`}
 `;
 
 type Props = {
@@ -86,7 +101,7 @@ const SideMenu = ({ items, isDarkMode }: Props) => {
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   return (
     <Wrapper>
-      <SideBar src={leftImg} />
+      <SideBar src={leftImg} isLeft />
       <InnerWrapper>
         {items.map((item, index) => (
           <Container
@@ -102,7 +117,7 @@ const SideMenu = ({ items, isDarkMode }: Props) => {
           </Container>
         ))}
       </InnerWrapper>
-      <SideBar src={rightImg} />
+      <SideBar src={rightImg} isLeft={false} />
     </Wrapper>
   );
 };
