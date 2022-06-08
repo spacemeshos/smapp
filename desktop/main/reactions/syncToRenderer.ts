@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron';
 import * as R from 'ramda';
 import {
   buffer,
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -14,12 +15,15 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import {
+  Activation,
   Network,
   NodeConfig,
   NodeVersionAndBuild,
+  SmesherReward,
   Wallet,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
+import { toHexString } from '../../utils';
 import { MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';
@@ -113,7 +117,10 @@ export default (
   $nodeConfig: Observable<NodeConfig>,
   $currentLayer: Observable<number>,
   $rootHash: Observable<string>,
-  $nodeVersion: Observable<NodeVersionAndBuild>
+  $nodeVersion: Observable<NodeVersionAndBuild>,
+  $smesherId: Observable<Uint8Array>,
+  $activations: Observable<Activation[]>,
+  $rewards: Observable<SmesherReward[]>
 ) =>
   sync(
     // Sync to
@@ -123,7 +130,16 @@ export default (
     storeView($storeService),
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
-    $nodeVersion.pipe(map(R.objOf('node')))
+    $nodeVersion.pipe(map(R.objOf('node'))),
+    combineLatest([$smesherId, $activations, $rewards]).pipe(
+      map(([smesherId, activations, rewards]) => ({
+        smesher: {
+          smesherId: toHexString(smesherId),
+          activations,
+          rewards,
+        },
+      }))
+    )
     // @TODO:
     // Networks + currentLayer + rootHash
     // $.interval(MINUTE)

@@ -13,6 +13,8 @@ import {
   Reward,
   Network,
   NetworkState,
+  SmesherReward,
+  Activation,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
@@ -54,7 +56,8 @@ export interface SmesherState {
   numLabelsWritten: any;
   postSetupState: PostSetupState;
   postProgressError: string;
-  rewards: Reward[] | [];
+  rewards: SmesherReward[];
+  activations: Activation[];
   config: SmesherConfig;
 }
 

@@ -6,6 +6,8 @@ import {
 } from '../shared/types';
 
 import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
+import { SmesherIDResponse__Output } from '../proto/spacemesh/v1/SmesherIDResponse';
+
 import Logger from './logger';
 import { fromHexString, toHexString } from './utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
@@ -124,7 +126,7 @@ class SmesherService extends NetServiceFactory<
 
   getSmesherID = () =>
     this.callService('SmesherID', {})
-      .then((response) => ({
+      .then((response: SmesherIDResponse__Output) => ({
         smesherId: `0x${
           response.accountId ? toHexString(response.accountId.address) : '00'
         }`,

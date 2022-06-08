@@ -117,11 +117,12 @@ class TransactionManager {
     await this.storeTx(publicKey, newTx);
   };
 
-  private subscribeTransactions = debounce(5000, (publicKey: string) => {
+  private subscribeTransactions = debounce(1000, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
     if (this.txStateStream[publicKey]) {
+      // Unsubscribe
       this.txStateStream[publicKey]();
     }
     this.txStateStream[publicKey] = this.txService.activateTxStream(
@@ -158,10 +159,7 @@ class TransactionManager {
       handler: addTransaction,
       retries: 0,
     });
-    this.meshService.activateAccountMeshDataStream(
-      binaryAccountId,
-      addTransaction
-    );
+    this.meshService.listenMeshTransactions(binaryAccountId, addTransaction);
 
     const updateAccountData = this.updateAccountData({ accountId: publicKey });
     this.retrieveAccountData({
@@ -191,7 +189,7 @@ class TransactionManager {
 
     const txs = Object.keys(this.accountStates[publicKey].getTxs());
     if (txs.length > 0) {
-      this.subscribeTransactions(publicKey, txs);
+      this.subscribeTransactions(publicKey);
     }
 
     // TODO: https://github.com/spacemeshos/go-spacemesh/issues/2072
@@ -275,7 +273,7 @@ class TransactionManager {
       data,
       totalResults,
       error,
-    } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset }); // TODO: Get rid of `any` on proto.ts refactoring
+    } = await this.meshService.requestMeshTransactions(accountId, offset);
     if (error && retries < 5) {
       await this.retrieveHistoricTxData({
         accountId,

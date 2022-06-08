@@ -53,6 +53,14 @@ class SmesherManager {
     return config.smeshing || {};
   };
 
+  getSmesherId = async () => {
+    const res = await this.smesherService.getSmesherID();
+    if (res.error) {
+      throw res.error;
+    }
+    return res.smesherId;
+  };
+
   getCurrentDataDir = async () => {
     const smeshingConfig = await this.getSmeshingConfig();
     const DEFAULT_KEYBIN_PATH = path.resolve(

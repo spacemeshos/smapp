@@ -3,6 +3,7 @@ import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountDataStreamResponse';
+import { SmesherRewardStreamResponse__Output } from '../proto/spacemesh/v1/SmesherRewardStreamResponse';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
@@ -92,6 +93,28 @@ class GlobalStateService extends NetServiceFactory<
           handler(value);
         }
       }
+    );
+
+  requestSmesherRewards = (
+    smesherId: Uint8Array,
+    maxResults = 50,
+    offset = 0
+  ) =>
+    this.callService('SmesherDataQuery', {
+      smesherId: { id: smesherId },
+      maxResults,
+      offset,
+    });
+
+  activateSmesherRewardStream = (
+    smesherId: Uint8Array,
+    handler: (data: Reward__Output) => void
+  ) =>
+    this.runStream(
+      'SmesherRewardStream',
+      { id: { id: smesherId } },
+      (data: SmesherRewardStreamResponse__Output) =>
+        data.reward && handler(data.reward)
     );
 }
 

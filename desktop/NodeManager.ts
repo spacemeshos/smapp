@@ -471,7 +471,7 @@ class NodeManager {
       return status;
     } catch (error) {
       if (retries > 0)
-        return delay(200).then(() => this.getNodeStatus(retries - 1));
+        return delay(500).then(() => this.getNodeStatus(retries - 1));
       throw error;
     }
   };

@@ -58,3 +58,20 @@ export interface Reward {
   layerReward: number;
   layerComputed?: number; // TODO ?
 }
+
+export interface SmesherReward {
+  coinbase: Uint8Array;
+  smesher: Uint8Array;
+  total: number;
+  layer: number;
+  layerReward: number;
+}
+
+export interface Activation {
+  id: Uint8Array;
+  smesherId: Uint8Array;
+  coinbase: Uint8Array;
+  prevAtx?: Uint8Array | null;
+  layer: number;
+  numUnits: number;
+}

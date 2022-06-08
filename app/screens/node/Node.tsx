@@ -3,12 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro } from '../../components/node';
-import {
-  WrapperWith2SideBars,
-  Button,
-  ProgressBar,
-  Link,
-} from '../../basicComponents';
+import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
 import {
@@ -33,6 +28,7 @@ import { eventsService } from '../../infra/eventsService';
 import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
 import { AuthPath, MainPath } from '../../routerPaths';
+import { getNetworkId } from '../../redux/network/selectors';
 
 const Wrapper = styled.div`
   display: flex;
@@ -178,11 +174,6 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const ProgressBarWrapper = styled.div`
-  width: 100px;
-  margin-left: 1em;
-`;
-
 const getStatus = (state: PostSetupState, isPaused: boolean) => {
   switch (state) {
     case PostSetupState.STATE_IN_PROGRESS:
@@ -221,6 +212,7 @@ const SmesherStatus = ({
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
 
+  const curNet = useSelector(getNetworkId);
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
   const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
@@ -292,16 +284,11 @@ const Node = ({ history, location }: Props) => {
             postProgressError ? (
               <ProgressError>STOPPED</ProgressError>
             ) : (
-              <Text>
-                <Text className="progress">
-                  {formatBytes(
-                    (numLabelsWritten * smesherConfig.bitsPerLabel) / BITS
-                  )}{' '}
-                  / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
-                </Text>
-                <ProgressBarWrapper>
-                  <ProgressBar progress={progress} />
-                </ProgressBarWrapper>
+              <Text className="progress">
+                {formatBytes(
+                  (numLabelsWritten * smesherConfig.bitsPerLabel) / BITS
+                )}{' '}
+                / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
               </Text>
             ),
           ],
@@ -435,7 +422,7 @@ const Node = ({ history, location }: Props) => {
 
   const handleSetupSmesher = () => {
     return eventsService
-      .switchApiProvider(LOCAL_NODE_API_URL)
+      .switchApiProvider(LOCAL_NODE_API_URL, curNet)
       .then(() =>
         history.push(AuthPath.Unlock, { redirect: MainPath.SmeshingSetup })
       )

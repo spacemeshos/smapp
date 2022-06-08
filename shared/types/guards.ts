@@ -3,7 +3,7 @@ import { Reward__Output } from '../../proto/spacemesh/v1/Reward';
 import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
 import { NodeError } from './node';
-import { Tx, Reward } from './tx';
+import { Tx, Reward, Activation, SmesherReward } from './tx';
 import { WalletSecrets, WalletSecretsEncrypted } from './wallet';
 
 // GRPC Type guards
@@ -37,6 +37,12 @@ export const isTx = (a: any): a is Tx =>
 
 export const isReward = (a: any): a is Reward =>
   a && a.layer && a.coinbase && a.smesher && a.amount;
+
+export const isSmesherReward = (a: any): a is SmesherReward =>
+  a && a.layer && a.coinbase && a.smesher && a.total;
+
+export const isActivation = (a: any): a is Activation =>
+  a && a.id && a.layer && a.smesherId && a.coinbase && a.numUnits;
 
 export const isNodeError = (a: any): a is NodeError =>
   a && a.msg && a.module && a.level;

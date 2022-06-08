@@ -14,7 +14,7 @@ import {
   listPublicApisByRequest,
   listNetworksByRequest,
 } from './sources/fetchDiscovery';
-import spawnManagers$ from './reactions/spawnManagers';
+import spawnManagers from './reactions/spawnManagers';
 import syncNodeConfig from './reactions/syncNodeConfig';
 import activateWallet from './reactions/activateWallet';
 import ensureNetwork from './reactions/ensureNetwork';
@@ -24,6 +24,7 @@ import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
 import { AppStore, Managers } from './app.types';
 import observeAutoUpdates from './sources/autoUpdate';
+import getSmesherInfo from './sources/smesherInfo';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -94,11 +95,16 @@ const startApp = (): AppStore => {
     $isWalletActivated,
   } = loadNetworkData();
 
+  const { $smesherId, $activations, $rewards } = getSmesherInfo(
+    $managers,
+    $isWalletActivated
+  );
+
   // Reactions
   // List of unsubscribe functions
   const unsubs = [
     // Spawn managers (and handle unsubscribing)
-    spawnManagers$($nodeConfig, $managers, $mainWindow),
+    spawnManagers($nodeConfig, $managers, $mainWindow),
     // On changing network -> update node config
     syncNodeConfig($currentNetwork, $nodeConfig),
     // Activate wallet and accounts
@@ -140,7 +146,10 @@ const startApp = (): AppStore => {
       $nodeConfig,
       $currentLayer,
       $rootHash,
-      $nodeVersion
+      $nodeVersion,
+      $smesherId,
+      $activations,
+      $rewards
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it

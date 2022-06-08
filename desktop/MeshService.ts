@@ -1,6 +1,8 @@
 import { ProtoGrpcType } from '../proto/mesh';
 import { AccountMeshDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountMeshDataStreamResponse';
 import { AccountMeshDataFlag } from '../proto/spacemesh/v1/AccountMeshDataFlag';
+import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
+import { AccountMeshData__Output } from '../proto/spacemesh/v1/AccountMeshData';
 import { PublicService, SocketAddress } from '../shared/types';
 import { CurrentLayer } from '../app/types/events';
 import NetServiceFactory from './NetServiceFactory';
@@ -20,39 +22,94 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       currentLayer: layernum?.number || 0,
     }));
 
-  sendAccountMeshDataQuery = ({
-    accountId,
-    offset,
-  }: {
-    accountId: Uint8Array;
-    offset: number;
-  }) =>
-    this.callService('AccountMeshDataQuery', {
-      filter: { accountId: { address: accountId }, accountMeshDataFlags: 1 },
+  private sendAccountMeshDataQuery = (
+    accountId: Uint8Array,
+    accountMeshDataFlags: AccountMeshDataFlag,
+    offset: number
+  ) => {
+    return this.callService('AccountMeshDataQuery', {
+      filter: {
+        accountId: { address: accountId },
+        accountMeshDataFlags,
+      },
       minLayer: { number: 0 },
       maxResults: 50,
       offset,
     })
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
+      .catch(
+        this.normalizeServiceError({
+          totalResults: 0,
+          data: <AccountMeshData__Output[]>[],
+        })
+      );
+  };
 
-  activateAccountMeshDataStream = (
+  public requestMeshTransactions = (accountId: Uint8Array, offset: number) =>
+    this.sendAccountMeshDataQuery(
+      accountId,
+      AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
+      offset
+    );
+
+  public requestMeshActivations = (accountId: Uint8Array, offset: number) => {
+    return this.sendAccountMeshDataQuery(
+      accountId,
+      AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_ACTIVATIONS,
+      offset
+    );
+  };
+
+  private activateAccountMeshDataStream = (
     accountId: Uint8Array,
-    handler: (tx: any) => void
+    accountMeshDataFlags: AccountMeshDataFlag,
+    handler: (payload: any) => void
   ) =>
     this.runStream(
       'AccountMeshDataStream',
       {
         filter: {
           accountId: { address: accountId },
-          accountMeshDataFlags:
-            AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
+          accountMeshDataFlags,
         },
       },
       (data: AccountMeshDataStreamResponse__Output) => {
-        if (!data.datum?.meshTransaction) return;
-        handler(data.datum?.meshTransaction);
+        if (
+          accountMeshDataFlags ===
+            AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS &&
+          data.datum?.meshTransaction
+        ) {
+          handler(data.datum.meshTransaction);
+        } else if (
+          accountMeshDataFlags ===
+            AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_ACTIVATIONS &&
+          data.datum?.activation
+        ) {
+          handler(data.datum.activation);
+        } else {
+          this.logger.error('Unknown Account Mesh data:', data);
+        }
       }
+    );
+
+  public listenMeshTransactions = (
+    accountId: Uint8Array,
+    handler: (tx: MeshTransaction__Output) => void
+  ) =>
+    this.activateAccountMeshDataStream(
+      accountId,
+      AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
+      handler
+    );
+
+  public listenMeshActivations = (
+    accountId: Uint8Array,
+    handler: (atx: any) => void
+  ) =>
+    this.activateAccountMeshDataStream(
+      accountId,
+      AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_ACTIVATIONS,
+      handler
     );
 }
 

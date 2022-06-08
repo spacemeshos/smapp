@@ -99,7 +99,7 @@ class NetServiceFactory<
     type ResultArg = ServiceCallbackResult<T, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
     return this.ensureService().then(
-      (_service) =>
+      (_service: Service<T, ServiceName>) =>
         new Promise<Result>((resolve, reject) => {
           _service[method](
             opts,
