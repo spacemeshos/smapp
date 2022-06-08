@@ -85,7 +85,7 @@ Smapp uses two workflows. Both of them builds an application for all supported p
 
 
 ### Run Spacemesh app on Ubuntu
-For Ubuntu plarform the Electron has an issue with set up , if u have a smapp version latter 2.0.5 and u want to run it on the Ubuntu platform , please provide ```--no-sandbox``` flag
+For Ubuntu plarform the Electron has an issue with set up , if u have a smapp version latter 2.0.5 and u want to run it on the Ubuntu > 22.04 platform , please provide ```--no-sandbox``` flag
 
 **command:** 
 ```/opt/Spacemesh/spacemesh_app --no-sandbox```
