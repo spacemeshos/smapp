@@ -42,6 +42,9 @@ const SendCoins = ({ history, location }: Props) => {
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex]
   );
+  const currentBalance = useSelector(
+    (state: RootState) => state.wallet.balances[currentAccount.publicKey]
+  );
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const dispatch: AppThDispatch = useDispatch();
 
@@ -65,7 +68,7 @@ const SendCoins = ({ history, location }: Props) => {
 
   const validateAmount = () => {
     return (
-      !!amount && amount + fee < (currentAccount?.currentState?.balance || 0)
+      !!amount && amount + fee < (currentBalance?.currentState?.balance || 0)
     );
   };
 

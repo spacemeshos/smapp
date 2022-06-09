@@ -78,6 +78,7 @@ const AccountsOverview = () => {
   );
   const meta = useSelector((state: RootState) => state.wallet.meta);
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
+  const balances = useSelector((state: RootState) => state.wallet.balances);
   const currentAccountIndex = useSelector(
     (state: RootState) => state.wallet.currentAccountIndex
   );
@@ -104,11 +105,10 @@ const AccountsOverview = () => {
   if (!accounts || !accounts.length) {
     return null;
   }
-  const { displayName, publicKey, currentState } = accounts[
-    currentAccountIndex
-  ];
+  const { displayName, publicKey } = accounts[currentAccountIndex];
+  const balance = balances[publicKey];
   const { value, unit }: any = formatSmidge(
-    currentState ? currentState.balance : 0,
+    balance?.currentState?.balance || 0,
     true
   );
 

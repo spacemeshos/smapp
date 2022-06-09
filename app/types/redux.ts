@@ -15,6 +15,8 @@ import {
   NetworkState,
   SmesherReward,
   Activation,
+  AccountBalance,
+  Account,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
@@ -34,7 +36,7 @@ export interface WalletState {
   currentWalletPath: string | null;
   meta: WalletMeta;
   mnemonic: string;
-  accounts: Array<AccountWithBalance>;
+  accounts: Array<Account>;
   currentAccountIndex: number;
   transactions: { [publicKey: HexString]: { [txId: Tx['id']]: Tx } };
   rewards: { [publicKey: HexString]: Reward[] };
@@ -42,6 +44,7 @@ export interface WalletState {
   contacts: Array<Contact>;
   backupTime: string;
   vaultMode: number;
+  balances: Record<HexString, AccountBalance>;
 }
 
 export interface SmesherState {
