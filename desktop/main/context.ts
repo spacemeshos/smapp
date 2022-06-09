@@ -1,28 +1,6 @@
 import { BrowserWindow, nativeTheme, Tray } from 'electron';
-import { Wallet } from '../../shared/types';
-import type NodeManager from '../NodeManager';
-import type SmesherManager from '../SmesherManager';
-import type WalletManager from '../WalletManager';
-
-const getDefaultNetwork = () => ({
-  netID: -1,
-  netName: 'Unknown',
-  conf: '',
-  explorer: '',
-  dash: '',
-  grpcAPI: '',
-  jsonAPI: '',
-  minNodeVersion: '',
-  maxNodeVersion: '',
-  minSmappRelease: '',
-  latestSmappRelease: '',
-  smappBaseDownloadUrl: '',
-  nodeBaseDownloadUrl: '',
-});
-
-export type Network = ReturnType<typeof getDefaultNetwork> & {
-  [key: string]: any;
-};
+import { Network, Wallet } from '../../shared/types';
+import { Managers, AppStore } from './app.types';
 
 export interface AppContext {
   mainWindow?: BrowserWindow;
@@ -34,11 +12,8 @@ export interface AppContext {
   currentNetwork?: Network;
   wallet?: Wallet;
   walletPath?: string;
-  managers: {
-    node?: NodeManager;
-    smesher?: SmesherManager;
-    wallet?: WalletManager;
-  };
+  managers: Partial<Managers>;
+  state: AppStore;
 }
 
 export const getDefaultAppContext = (): AppContext => ({
@@ -47,6 +22,7 @@ export const getDefaultAppContext = (): AppContext => ({
   isDarkMode: nativeTheme.shouldUseDarkColors,
   networks: [],
   managers: {},
+  state: {} as AppStore,
 });
 
 export const hasManagers = (context: AppContext) =>

@@ -87,6 +87,12 @@ export const shallowEq = <T extends Record<string, any> | Array<any>>(
   return aKeys.reduce((acc, key) => acc && a[key] === b[key], true);
 };
 
+export const ifTruish = <V extends any, R extends Record<any, any>>(
+  v: V,
+  then: (v: V) => R,
+  def: R
+) => (v ? then(v) : def);
+
 // GRPC APIs
 export const toSocketAddress = (url?: string): SocketAddress => {
   if (!url) return LOCAL_NODE_API_URL;
@@ -123,3 +129,6 @@ export const toPublicService = (
   name: netName,
   ...toSocketAddress(url),
 });
+
+export const isObject = (o: any): o is Record<string, any> =>
+  typeof o === 'object' && !Array.isArray(o) && o !== null;
