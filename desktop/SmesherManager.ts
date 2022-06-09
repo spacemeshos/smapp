@@ -24,8 +24,10 @@ class SmesherManager {
 
   private readonly configFilePath: string;
 
+  private unsub = () => {};
+
   constructor(mainWindow: BrowserWindow, configFilePath: string) {
-    this.subscribeToEvents(mainWindow);
+    this.unsub = this.subscribeToEvents(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
     this.mainWindow = mainWindow;
@@ -43,6 +45,8 @@ class SmesherManager {
     await writeFileAsync(this.configFilePath, JSON.stringify(config));
     return true;
   };
+
+  unsubscribe = () => this.unsub();
 
   getSmeshingConfig = async () => {
     const config = await this.loadConfig();
@@ -138,17 +142,29 @@ class SmesherManager {
   };
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
-    ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, async () => {
+    // handlers
+    const selectPostFolder = async () => {
       const res = await this.selectPostFolder({ mainWindow });
       return res;
-    });
-    ipcMain.handle(
-      ipcConsts.SMESHER_CHECK_FREE_SPACE,
-      async (_event, request) => {
-        const res = await this.selectPostFolder({ ...request });
-        return res;
-      }
-    );
+    };
+    const smesherCheckFreeSpace = async (_event, request) => {
+      const res = await this.selectPostFolder({ ...request });
+      return res;
+    };
+    const getCoinbase = () => this.smesherService.getCoinbase();
+    const setCoinbase = async (_event, { coinbase }) => {
+      // TODO: Unused handler
+      const res = await this.smesherService.setCoinbase({ coinbase });
+      const config = await this.loadConfig();
+      config.smeshing['smeshing-coinbase'] = coinbase;
+      await this.writeConfig(config);
+      return res;
+    };
+    const getMinGas = () => this.smesherService.getMinGas();
+    const getEstimatedRewards = () => this.smesherService.getEstimatedRewards();
+
+    ipcMain.handle(ipcConsts.SMESHER_SELECT_POST_FOLDER, selectPostFolder);
+    ipcMain.handle(ipcConsts.SMESHER_CHECK_FREE_SPACE, smesherCheckFreeSpace);
     ipcMain.handle(
       ipcConsts.SMESHER_STOP_SMESHING,
       async (_event, { deleteFiles }: { deleteFiles?: boolean }) => {
@@ -166,31 +182,23 @@ class SmesherManager {
         return error;
       }
     );
-    ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, async () => {
-      // TODO: Unused handler
-      const res = await this.smesherService.getCoinbase();
-      return res;
-    });
+    ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, getCoinbase);
+    ipcMain.handle(ipcConsts.SMESHER_SET_COINBASE, setCoinbase);
+    ipcMain.handle(ipcConsts.SMESHER_GET_MIN_GAS, getMinGas);
     ipcMain.handle(
-      ipcConsts.SMESHER_SET_COINBASE,
-      async (_event, { coinbase }) => {
-        // TODO: Unused handler
-        const res = await this.smesherService.setCoinbase({ coinbase });
-        const config = await this.loadConfig();
-        config.smeshing['smeshing-coinbase'] = coinbase;
-        await this.writeConfig(config);
-        return res;
-      }
+      ipcConsts.SMESHER_GET_ESTIMATED_REWARDS,
+      getEstimatedRewards
     );
-    ipcMain.handle(ipcConsts.SMESHER_GET_MIN_GAS, async () => {
-      // TODO: Unused handler
-      const res = await this.smesherService.getMinGas();
-      return res;
-    });
-    ipcMain.handle(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS, async () => {
-      const res = await this.smesherService.getEstimatedRewards();
-      return res;
-    });
+
+    return () => {
+      ipcMain.removeHandler(ipcConsts.SMESHER_SELECT_POST_FOLDER);
+      ipcMain.removeHandler(ipcConsts.SMESHER_CHECK_FREE_SPACE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_STOP_SMESHING);
+      ipcMain.removeHandler(ipcConsts.SMESHER_GET_COINBASE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_SET_COINBASE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_GET_MIN_GAS);
+      ipcMain.removeHandler(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
+    };
   };
 
   startSmeshing = async (postSetupOpts: PostSetupOpts) =>

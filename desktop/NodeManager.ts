@@ -128,6 +128,8 @@ class NodeManager {
     }
   );
 
+  private unsub = () => {};
+
   constructor(
     mainWindow: BrowserWindow,
     netId: number,
@@ -135,18 +137,23 @@ class NodeManager {
   ) {
     this.mainWindow = mainWindow;
     this.nodeService = new NodeService();
-    this.subscribeToEvents();
+    this.unsub = this.subscribeToEvents();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
     this.netId = netId;
   }
 
-  subscribeToEvents = () => {
-    ipcMain.handle(ipcConsts.N_M_START_NODE, async () =>
-      this.isNodeRunning() ? true : this.startNode()
-    );
+  // Before deleting
+  unsubscribe = () => {
+    this.stopNode();
+    this.unsub();
+  };
 
-    ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, () =>
+  subscribeToEvents = () => {
+    // Handlers
+    const startNode = async () =>
+      this.isNodeRunning() ? true : this.startNode();
+    const getVersionAndBuild = () =>
       this.getVersionAndBuild()
         .then((payload) =>
           this.mainWindow.webContents.send(
@@ -157,83 +164,73 @@ class NodeManager {
         .catch((error) => {
           this.sendNodeError(error);
           logger.error('getVersionAndBuild', error);
-        })
-    );
-    ipcMain.on(ipcConsts.SET_NODE_PORT, (_event, request) => {
+        });
+    const setNodePort = (_event, request) => {
       StoreService.set('node.port', request.port);
-    });
-
-    // Always return true / false to notify caller that it is done
-    ipcMain.handle(
-      ipcConsts.N_M_RESTART_NODE,
-      (): Promise<boolean> =>
-        this.restartNode().catch((error) => {
-          this.sendNodeError(error);
-          logger.error('restartNode', error);
-          return false;
-        })
-    );
-
-    ipcMain.handle(
-      ipcConsts.SMESHER_START_SMESHING,
-      async (_event, { postSetupOpts }: { postSetupOpts: PostSetupOpts }) => {
-        if (!postSetupOpts.dataDir) {
-          throw new Error(
-            'Can not setup Smeshing without specified data directory'
-          );
-        }
-        // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
-        const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir();
-        const CURRENT_KEYBIN_PATH = path.resolve(
-          CURRENT_DATADIR_PATH,
-          'key.bin'
+    };
+    const restartNode = (): Promise<boolean> =>
+      // Always return true / false to notify caller that it is done
+      this.restartNode().catch((error) => {
+        this.sendNodeError(error);
+        logger.error('restartNode', error);
+        return false;
+      });
+    const startSmeshing = async (
+      _event,
+      { postSetupOpts }: { postSetupOpts: PostSetupOpts }
+    ) => {
+      if (!postSetupOpts.dataDir) {
+        throw new Error(
+          'Can not setup Smeshing without specified data directory'
         );
-        const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
-
-        const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
-        const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
-        const isSameDataDir = CURRENT_DATADIR_PATH === postSetupOpts?.dataDir;
-
-        const startSmeshingAsUsual = async (opts) => {
-          // Next two lines is a normal workflow.
-          // It can be moved back to SmesherManager when issue
-          // https://github.com/spacemeshos/go-spacemesh/issues/2858
-          // will be solved, and all these kludges can be removed.
-          await this.smesherManager.startSmeshing(opts);
-          return this.smesherManager.updateSmeshingConfig(opts);
-        };
-
-        // If post data-dir does not changed and it contains key.bin file
-        // assume that everything is fine and start smeshing as usual
-        if (isSameDataDir && isDataDirKeyFileExist)
-          return startSmeshingAsUsual(postSetupOpts);
-
-        // In other cases:
-        // NextDataDir    CurrentDataDir     Action
-        // Not exist      Exist              Copy key.bin & start
-        // Not exist      Not exist          Update config & restart node
-        // Exist          Not exist          Update config & restart node
-        // Exist          Exist              Compare checksum
-        //                                   - if equal: start as usual
-        //                                   - if not: update config & restart node
-        if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
-          await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
-          return startSmeshingAsUsual(postSetupOpts);
-        } else if (isDefaultKeyFileExist && isDataDirKeyFileExist) {
-          const defChecksum = await checksum(CURRENT_KEYBIN_PATH);
-          const dataChecksum = await checksum(NEXT_KEYBIN_PATH);
-          if (defChecksum === dataChecksum) {
-            return startSmeshingAsUsual(postSetupOpts);
-          }
-        }
-        // In other cases — update config first and then restart the node
-        // it will start Smeshing automatically based on the config
-        await this.smesherManager.updateSmeshingConfig(postSetupOpts);
-        return this.restartNode();
       }
-    );
+      // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
+      const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir();
+      const CURRENT_KEYBIN_PATH = path.resolve(CURRENT_DATADIR_PATH, 'key.bin');
+      const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
 
-    ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, async () => {
+      const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
+      const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
+      const isSameDataDir = CURRENT_DATADIR_PATH === postSetupOpts?.dataDir;
+
+      const startSmeshingAsUsual = async (opts) => {
+        // Next two lines is a normal workflow.
+        // It can be moved back to SmesherManager when issue
+        // https://github.com/spacemeshos/go-spacemesh/issues/2858
+        // will be solved, and all these kludges can be removed.
+        await this.smesherManager.startSmeshing(opts);
+        return this.smesherManager.updateSmeshingConfig(opts);
+      };
+
+      // If post data-dir does not changed and it contains key.bin file
+      // assume that everything is fine and start smeshing as usual
+      if (isSameDataDir && isDataDirKeyFileExist)
+        return startSmeshingAsUsual(postSetupOpts);
+
+      // In other cases:
+      // NextDataDir    CurrentDataDir     Action
+      // Not exist      Exist              Copy key.bin & start
+      // Not exist      Not exist          Update config & restart node
+      // Exist          Not exist          Update config & restart node
+      // Exist          Exist              Compare checksum
+      //                                   - if equal: start as usual
+      //                                   - if not: update config & restart node
+      if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
+        await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
+        return startSmeshingAsUsual(postSetupOpts);
+      } else if (isDefaultKeyFileExist && isDataDirKeyFileExist) {
+        const defChecksum = await checksum(CURRENT_KEYBIN_PATH);
+        const dataChecksum = await checksum(NEXT_KEYBIN_PATH);
+        if (defChecksum === dataChecksum) {
+          return startSmeshingAsUsual(postSetupOpts);
+        }
+      }
+      // In other cases — update config first and then restart the node
+      // it will start Smeshing automatically based on the config
+      await this.smesherManager.updateSmeshingConfig(postSetupOpts);
+      return this.restartNode();
+    };
+    const promptChangeDir = async () => {
       const oldPath = StoreService.get('node.dataPath');
       const prompt = await dialog.showOpenDialog(this.mainWindow, {
         title: 'Choose new directory for Mesh database',
@@ -260,7 +257,26 @@ class NodeManager {
       StoreService.set('node.dataPath', newPath);
       // Start the Node
       return this.startNode();
-    });
+    };
+    // Subscriptions
+    ipcMain.handle(ipcConsts.N_M_START_NODE, startNode);
+    ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
+    ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
+    ipcMain.handle(ipcConsts.N_M_RESTART_NODE, restartNode);
+    ipcMain.handle(ipcConsts.SMESHER_START_SMESHING, startSmeshing);
+    ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
+    // Unsub
+    return () => {
+      ipcMain.removeHandler(ipcConsts.N_M_START_NODE);
+      ipcMain.removeListener(
+        ipcConsts.N_M_GET_VERSION_AND_BUILD,
+        getVersionAndBuild
+      );
+      ipcMain.removeListener(ipcConsts.SET_NODE_PORT, setNodePort);
+      ipcMain.removeHandler(ipcConsts.N_M_RESTART_NODE);
+      ipcMain.removeHandler(ipcConsts.SMESHER_START_SMESHING);
+      ipcMain.removeHandler(ipcConsts.PROMPT_CHANGE_DATADIR);
+    };
   };
 
   waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
@@ -300,7 +316,6 @@ class NodeManager {
 
   private spawnNode = async () => {
     if (this.nodeProcess) return;
-    const userDataPath = app.getPath('userData');
     const nodeDir = path.resolve(
       app.getAppPath(),
       process.env.NODE_ENV === 'development'
@@ -313,10 +328,7 @@ class NodeManager {
     );
     const nodeDataFilesPath = StoreService.get('node.dataPath');
     const nodeConfig = await NodeConfig.load();
-    const logFilePath = path.resolve(
-      `${userDataPath}`,
-      `spacemesh-log-${nodeConfig.p2p['network-id']}.txt`
-    );
+    const logFilePath = getNodeLogsPath(nodeConfig.p2p['network-id']);
 
     const logFileStream = fs.createWriteStream(logFilePath, {
       flags: 'a',

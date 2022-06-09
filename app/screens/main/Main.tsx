@@ -29,7 +29,6 @@ import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { isWalletOnly } from '../../redux/wallet/selectors';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
@@ -117,7 +116,6 @@ interface Props extends RouteComponentProps {
   isWalletOnly: boolean;
   status: NodeStatus | null;
   logout: any;
-  getNetworkDefinitions: () => void;
   location: {
     hash: string;
     pathname: string;
@@ -300,9 +298,8 @@ class Main extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const { isWalletOnly, getNetworkDefinitions } = this.props;
+    const { isWalletOnly } = this.props;
     !isWalletOnly && eventsService.requestVersionAndBuild();
-    getNetworkDefinitions();
   }
 
   renderNavBarLink = (
@@ -369,7 +366,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = {
   logout,
-  getNetworkDefinitions,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

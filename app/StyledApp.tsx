@@ -1,27 +1,19 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
-import {
-  Router,
-  Route,
-  Switch,
-  Redirect,
-  useHistory,
-  matchPath,
-} from 'react-router-dom';
+import { Router, Route, Switch, Redirect, matchPath } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
 import { init, reactRouterV5Instrumentation } from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 import { createBrowserHistory } from 'history';
 import routes from './routes';
-import { AuthPath } from './routerPaths';
 import GlobalStyle from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
 import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
-import { goToSwitchNetwork } from './routeUtils';
+import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
 
 const history = createBrowserHistory();
@@ -46,16 +38,21 @@ init({
 });
 
 const EventRouter = () => {
-  const history = useHistory();
+  const onSwitchNet = (_, { isWalletOnly }) =>
+    goToSwitchNetwork(history, isWalletOnly);
+  const onSwitchApi = (_, { isWalletOnly }) =>
+    goToSwitchAPI(history, isWalletOnly);
 
   useEffect(() => {
-    ipcRenderer.on(
-      ipcConsts.REQUEST_SWITCH_NETWORK,
-      (_, { isWalletOnly }) =>
-        history.location.pathname !== AuthPath.SwitchNetwork &&
-        goToSwitchNetwork(history, isWalletOnly)
-    );
-  }, [history]);
+    ipcRenderer.send('BROWSER_READY');
+
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, onSwitchNet);
+    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_API, onSwitchApi);
+    return () => {
+      ipcRenderer.off(ipcConsts.REQUEST_SWITCH_NETWORK, onSwitchNet);
+      ipcRenderer.off(ipcConsts.REQUEST_SWITCH_API, onSwitchApi);
+    };
+  });
 
   return <></>;
 };

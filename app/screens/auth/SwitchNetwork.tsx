@@ -7,7 +7,6 @@ import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
@@ -56,9 +55,10 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const networksList = useSelector((state: RootState) => state.networks);
   const [networks, setNetworks] = useState({
     loading: false,
-    networks: [] as { netId: number; netName: string; explorer?: string }[],
+    networks: networksList,
   });
   const [showLoader, setLoader] = useState(false);
 
@@ -70,11 +70,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     });
     eventsService
       .listNetworks()
-      .then((nets) =>
-        setNetworks({
-          loading: false,
-          networks: nets,
-        })
+      .then(({ payload }) =>
+        setNetworks({ loading: false, networks: payload || [] })
       )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
   };
@@ -157,13 +154,12 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const handleNext = async () => {
     const netId =
       networks.networks.length > selectedItemIndex
-        ? networks.networks[selectedItemIndex].netId
+        ? networks.networks[selectedItemIndex].netID
         : -1;
     setLoader(true);
     if (netId > -1) {
       try {
         await eventsService.switchNetwork(netId);
-        await dispatch(getNetworkDefinitions());
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
         if (err instanceof Error) {

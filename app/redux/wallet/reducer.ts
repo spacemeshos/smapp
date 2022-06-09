@@ -2,20 +2,16 @@ import * as R from 'ramda';
 import { WalletMeta } from '../../../shared/types';
 import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
+import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
 import { SET_ACCOUNT_REWARDS } from '../smesher/actions';
 import {
   SAVE_WALLET_FILES,
-  SET_WALLET_META,
-  SET_ACCOUNTS,
-  SET_MNEMONIC,
   SET_TRANSACTIONS,
-  SET_CONTACTS,
   SET_CURRENT_ACCOUNT_INDEX,
   SET_BACKUP_TIME,
   SET_CURRENT_MODE,
   SET_REMOTE_API,
   UPDATE_ACCOUNT_DATA,
-  SET_CURRENT_WALLET_PATH,
 } from './actions';
 
 const initialState = {
@@ -46,20 +42,8 @@ const initialState = {
 
 const reducer = (state: WalletState = initialState, action: CustomAction) => {
   switch (action.type) {
-    case SET_CURRENT_WALLET_PATH: {
-      return { ...state, currentWalletPath: action.payload };
-    }
     case SAVE_WALLET_FILES: {
       return { ...state, walletFiles: action.payload };
-    }
-    case SET_WALLET_META: {
-      return { ...state, meta: action.payload };
-    }
-    case SET_ACCOUNTS: {
-      return { ...state, accounts: action.payload };
-    }
-    case SET_MNEMONIC: {
-      return { ...state, mnemonic: action.payload };
     }
     case SET_REMOTE_API: {
       return {
@@ -110,15 +94,15 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
       const { rewards, publicKey } = action.payload;
       return { ...state, rewards: { [publicKey]: rewards } };
     }
-    case SET_CONTACTS: {
-      return { ...state, contacts: action.payload };
-    }
     case SET_BACKUP_TIME: {
       const { backupTime } = action.payload;
       return { ...state, backupTime };
     }
     case LOGOUT: {
       return initialState;
+    }
+    case IPC_BATCH_SYNC: {
+      return reduceChunkUpdate('wallet', action.payload, state);
     }
     default:
       return state;

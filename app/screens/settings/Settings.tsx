@@ -5,12 +5,9 @@ import { RouteComponentProps } from 'react-router';
 import { Element, scroller } from 'react-scroll';
 import {
   updateWalletName,
-  updateAccountName,
   createNewAccount,
   switchApiProvider,
-  closeWallet,
 } from '../../redux/wallet/actions';
-import { getGlobalStateHash } from '../../redux/network/actions';
 import { setUiError, switchSkin } from '../../redux/ui/actions';
 import {
   SettingsSection,
@@ -107,13 +104,11 @@ interface Props extends RouteComponentProps {
   accounts: Account[];
   walletFiles: Array<string>;
   updateWalletName: AppThDispatch;
-  updateAccountName: AppThDispatch;
   createNewAccount: AppThDispatch;
-  getGlobalStateHash: AppThDispatch;
   switchSkin: AppThDispatch;
   setUiError: AppThDispatch;
   switchApiProvider: AppThDispatch;
-  closeWallet: AppThDispatch;
+  currentWalletPath: string;
   genesisTime: number;
   rootHash: string;
   build: string;
@@ -636,7 +631,7 @@ class Settings extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const { location, getGlobalStateHash } = this.props;
+    const { location } = this.props;
     if (location.state && location.state.currentSettingIndex) {
       scroller.scrollTo(
         categories[parseInt(location.state.currentSettingIndex)],
@@ -648,8 +643,6 @@ class Settings extends Component<Props, State> {
         }
       );
     }
-    // @ts-ignore
-    await getGlobalStateHash();
     const isAutoStartEnabled = await eventsService.isAutoStartEnabled();
     this.setState({ isAutoStartEnabled });
   }
@@ -722,9 +715,7 @@ class Settings extends Component<Props, State> {
   };
 
   lockWallet = (redirect: AuthPath) => {
-    const { closeWallet } = this.props;
-    // @ts-ignore
-    closeWallet();
+    eventsService.closeWallet();
     this.goTo(redirect);
   };
 
@@ -735,15 +726,15 @@ class Settings extends Component<Props, State> {
   openWalletFile = () => this.goTo(AuthPath.RecoverFromFile);
 
   saveEditedAccountDisplayName = ({ index }: { index: number }) => {
-    const { updateAccountName } = this.props;
     const { accountDisplayNames } = this.state;
+    const { currentWalletPath } = this.props;
     this.setState({
       showPasswordModal: true,
       passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ editedAccountIndex: -1, showPasswordModal: false });
-        // @ts-ignore
-        updateAccountName({
-          accountIndex: index,
+        eventsService.renameAccount({
+          path: currentWalletPath,
+          index,
           name: accountDisplayNames[index],
           password,
         });
@@ -827,16 +818,6 @@ class Settings extends Component<Props, State> {
     });
   };
 
-  switchToRemoteApi = () => {
-    const { switchApiProvider } = this.props;
-    // @ts-ignore
-    switchApiProvider(null).catch((err) => {
-      console.error(err); // eslint-disable-line no-console
-      setUiError(err);
-    });
-    this.goTo(AuthPath.Unlock);
-  };
-
   switchToLocalNode = () => {
     const { setUiError, switchApiProvider } = this.props;
     // @ts-ignore
@@ -847,9 +828,14 @@ class Settings extends Component<Props, State> {
     this.goTo(AuthPath.Unlock);
   };
 
-  goTo = (redirect: RouterPath) => {
+  switchToRemoteApi = () => {
+    const { netId } = this.props;
+    this.goTo(AuthPath.ConnectToAPI, { netId });
+  };
+
+  goTo = (redirect: RouterPath, state?: unknown) => {
     const { history } = this.props;
-    history.push(redirect);
+    history.push(redirect, state);
   };
 }
 
@@ -857,6 +843,7 @@ const mapStateToProps = (state: RootState) => ({
   displayName: state.wallet.meta.displayName,
   accounts: state.wallet.accounts,
   walletFiles: state.wallet.walletFiles?.map(({ path }) => path) || [],
+  currentWalletPath: state.wallet.currentWalletPath,
   genesisTime: state.network.genesisTime,
   rootHash: state.network.rootHash,
   build: state.node.build,
@@ -872,13 +859,10 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  getGlobalStateHash,
   updateWalletName,
-  updateAccountName,
   createNewAccount,
   setUiError,
   switchApiProvider,
-  closeWallet,
   switchSkin,
 };
 

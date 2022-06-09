@@ -1,11 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
-import {
-  getCurrentLayer,
-  getNetworkDefinitions,
-} from '../../redux/network/actions';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
   WrapperWith2SideBars,
@@ -82,8 +78,6 @@ const DetailsTextWrap = styled.div`
 `;
 
 const Network = ({ history }) => {
-  const dispatch = useDispatch();
-
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
@@ -91,13 +85,6 @@ const Network = ({ history }) => {
   const netName = useSelector(
     (state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME'
   );
-
-  useEffect(() => {
-    if (netId > -1) {
-      dispatch(getCurrentLayer());
-      dispatch(getNetworkDefinitions());
-    }
-  }, [netId, dispatch]);
 
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime

@@ -5,7 +5,7 @@ import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
@@ -88,7 +88,7 @@ const CreateNewContact = ({
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
 
   // static getDerivedStateFromProps(props: Props, prevState: State) {
   //   if (props.initialAddress !== prevState.initialAddress) {
@@ -131,7 +131,7 @@ const CreateNewContact = ({
   };
 
   const createContact = async ({ password }: { password: string }) => {
-    await dispatch(addToContacts({ password, contact: { address, nickname } }));
+    dispatch(addToContacts({ password, contact: { address, nickname } }));
     onCompleteAction();
   };
 
