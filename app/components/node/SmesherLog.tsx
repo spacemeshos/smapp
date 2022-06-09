@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CorneredContainer } from '../common';
-import { getFormattedTimestamp, formatSmidge } from '../../infra/utils';
+import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Reward } from '../../types';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import {
   bottomRightCorner,
@@ -13,6 +12,8 @@ import {
   topRightCorner,
   topRightCornerWhite,
 } from '../../assets/images';
+import { SmesherReward } from '../../../shared/types';
+import ReactTimeago from 'react-timeago';
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,8 +22,6 @@ const Wrapper = styled.div`
   height: 100%;
   overflow-y: visible;
   overflow-x: hidden;
-  margin-left: 10px;
-  padding: 0 10px;
 `;
 
 const LogEntry = styled.div`
@@ -31,8 +30,8 @@ const LogEntry = styled.div`
 `;
 
 const LogText = styled.div`
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 14px;
+  line-height: 18px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
@@ -41,8 +40,21 @@ const AwardText = styled(LogText)`
 `;
 
 const LogEntrySeparator = styled(LogText)`
-  margin: 15px 0;
+  color: ${smColors.darkGray50Alpha};
+  margin: 5px 0 10px;
+  line-height: 0;
+  user-select: none;
+`;
+
+const DateText = styled.div`
+  font-size: 14px;
   line-height: 16px;
+  color: ${smColors.mediumGray};
+`;
+const EpochText = styled.span`
+  margin-left: 1em;
+  font-size: 12px;
+  color: ${smColors.mediumGray};
 `;
 
 const FullCrossIcon = styled.img`
@@ -79,8 +91,10 @@ const BottomRightCorner = styled.img`
 type Props = {
   initTimestamp: string | null;
   smeshingTimestamp: string | null;
-  rewards: Reward[];
+  rewards: SmesherReward[];
   isDarkMode: boolean;
+  epochByLayer: (number) => number;
+  timestampByLayer: (number) => number;
 };
 
 const SmesherLog = ({
@@ -88,6 +102,8 @@ const SmesherLog = ({
   smeshingTimestamp,
   rewards,
   isDarkMode,
+  epochByLayer,
+  timestampByLayer,
 }: Props) => {
   const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
   const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
@@ -108,39 +124,49 @@ const SmesherLog = ({
 
       <LogText>--</LogText>
       <Wrapper>
-        {initTimestamp ? (
-          <>
-            <LogEntry>
-              <LogText>{initTimestamp}</LogText>
-              <LogText>Initializing smesher</LogText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
-          </>
-        ) : null}
-        {smeshingTimestamp ? (
-          <>
-            <LogEntry>
-              <LogText>{smeshingTimestamp}</LogText>
-              <LogText>Started smeshing</LogText>
-            </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
-          </>
-        ) : null}
         {rewards &&
           rewards.map((reward, index) => (
             <div key={`reward${index}`}>
               <LogEntry>
-                <LogText>{getFormattedTimestamp(reward.timestamp)}</LogText>
+                <LogText>
+                  Layer&nbsp;#{reward.layer}
+                  <EpochText>(epoch ${epochByLayer(reward.layer)})</EpochText>
+                </LogText>
+                <DateText>
+                  <ReactTimeago date={timestampByLayer(reward.layer)} />
+                </DateText>
                 <AwardText>
-                  Smeshing reward: {formatSmidge(reward.total)}
+                  Layer reward: {formatSmidge(reward.total)}
                 </AwardText>
                 <AwardText>
-                  Smeshing fee reward: {formatSmidge(reward.layerReward)}
+                  Fee reward: {formatSmidge(reward.layerReward)}
                 </AwardText>
               </LogEntry>
               <LogEntrySeparator>...</LogEntrySeparator>
             </div>
           ))}
+        {smeshingTimestamp ? (
+          <>
+            <LogEntry>
+              <DateText>
+                <ReactTimeago date={smeshingTimestamp} />
+              </DateText>
+              <LogText>Started smeshing</LogText>
+            </LogEntry>
+            <LogEntrySeparator>...</LogEntrySeparator>
+          </>
+        ) : null}
+        {initTimestamp ? (
+          <>
+            <LogEntry>
+              <DateText>
+                <ReactTimeago date={initTimestamp} />
+              </DateText>
+              <LogText>Initializing smesher</LogText>
+            </LogEntry>
+            <LogEntrySeparator>...</LogEntrySeparator>
+          </>
+        ) : null}
       </Wrapper>
     </CorneredContainer>
   );

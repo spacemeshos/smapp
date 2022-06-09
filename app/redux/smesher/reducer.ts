@@ -13,7 +13,6 @@ import {
   DELETED_POS_DATA,
   STARTED_SMESHING,
   SET_POST_DATA_CREATION_STATUS,
-  SET_ACCOUNT_REWARDS,
   SET_SMESHER_CONFIG,
   PAUSED_SMESHING,
   RESUMED_SMESHING,
@@ -132,10 +131,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         postSetupState,
         postProgressError: '',
       };
-    }
-    case SET_ACCOUNT_REWARDS: {
-      const { rewards } = action.payload;
-      return { ...state, rewards };
     }
     case LOGOUT:
       return initialState;

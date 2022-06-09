@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { SmesherIntro } from '../../components/node';
+import { SmesherIntro, SmesherLog } from '../../components/node';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
@@ -29,6 +29,7 @@ import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { getNetworkId } from '../../redux/network/selectors';
+import { timestampByLayer, epochByLayer } from '../../../shared/layerUtils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -219,6 +220,23 @@ const Node = ({ history, location }: Props) => {
   const coinbase = useSelector((state: RootState) => state.smesher.coinbase);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
+
+  const rewards = useSelector((state: RootState) =>
+    state.smesher.rewards.slice(0).reverse()
+  );
+  const genesisTime = useSelector(
+    (state: RootState) => state.network.genesisTime
+  );
+  const layerDurationSec = useSelector(
+    (state: RootState) => state.network.layerDurationSec
+  );
+  const layersPerEpoch = useSelector(
+    (state: RootState) => state.network.layersPerEpoch
+  );
+
+  const getEpochByLayer = epochByLayer(layersPerEpoch);
+  const getTimestampByLayer = timestampByLayer(genesisTime, layerDurationSec);
+
   const commitmentSize = useSelector(
     (state: RootState) => state.smesher.commitmentSize
   );
@@ -471,10 +489,14 @@ const Node = ({ history, location }: Props) => {
       >
         {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
-      {/*
-        TODO
-        <SmesherLog rewards={rewards} initTimestamp={smesherInitTimestamp} smeshingTimestamp={smesherSmeshingTimestamp} isDarkMode={isDarkMode} />
-      */}
+      <SmesherLog
+        rewards={rewards}
+        initTimestamp={smesherInitTimestamp}
+        smeshingTimestamp={smesherSmeshingTimestamp}
+        isDarkMode={isDarkMode}
+        epochByLayer={getEpochByLayer}
+        timestampByLayer={getTimestampByLayer}
+      />
     </Wrapper>
   );
 };

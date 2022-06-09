@@ -199,7 +199,7 @@ class WalletManager {
           R.range(1)
         )(Math.ceil(totalResults / BATCH_SIZE))
       ).then(R.unnest);
-      return [...rewards, ...nextRewards];
+      return rewards ? [...rewards, ...nextRewards] : nextRewards;
     }
   };
 
