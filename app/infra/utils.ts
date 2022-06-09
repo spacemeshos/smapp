@@ -84,9 +84,9 @@ const packValueAndUnit = (value: number, unit: string) => ({
 export const toSMH = (smidge: number) => smidge / 10 ** 12;
 export const toSmidge = (smh: number) => Math.ceil(smh * 10 ** 12);
 
-// Internal helper - returns the value and the unit of a smidge coin amount.
+// Parses number into { value, unit } format.
 // Used to format smidge strings
-export const getValueAndUnit = (amount: number) => {
+export const parseSmidge = (amount: number) => {
   // Show `23.053 SMH` for big amount
   if (amount >= 10 ** 9) return packValueAndUnit(toSMH(amount), CoinUnits.SMH);
   // Or `6739412 Smidge` (without dot) for small amount
@@ -98,14 +98,9 @@ export const getValueAndUnit = (amount: number) => {
 
 // Returns formatted display string for a smidge amount.
 // All coin displayed in the app should display amount formatted
-export const formatSmidge = (
-  amount: number,
-  separateResult?: boolean
-): string | { value: string; unit: string } => {
-  const res = getValueAndUnit(amount);
-  return separateResult
-    ? { value: res.value, unit: res.unit }
-    : `${res.value} ${res.unit}`;
+export const formatSmidge = (amount: number): string => {
+  const res = parseSmidge(amount);
+  return `${res.value} ${res.unit}`;
 };
 
 export const constrain = (min: number, max: number, value: number) =>

@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCurrentAccount } from '../../redux/wallet/actions';
 import {
@@ -7,7 +7,7 @@ import {
   DropDown,
   WrapperWith2SideBars,
 } from '../../basicComponents';
-import { formatSmidge } from '../../infra/utils';
+import { parseSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import Address from '../common/Address';
@@ -42,34 +42,37 @@ const Footer = styled.div`
 `;
 
 const BalanceHeader = styled.div`
-  margin-bottom: 10px;
   font-size: 13px;
   line-height: 17px;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
-const BalanceWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+const BalanceWrapper = styled.div<{ isSynced?: boolean }>`
+  color: ${({ isSynced }) => (isSynced ? smColors.green : smColors.mediumGray)};
+  font-size: 6px;
+
+  ${({ isSynced }) =>
+    !isSynced &&
+    css`
+      &:before {
+        content: 'Syncing...';
+        display: block;
+        font-size: 14px;
+        line-height: 20px;
+        margin-top: 4px;
+        color: ${smColors.orange};
+      }
+    `}
 `;
 
 const BalanceAmount = styled.div`
+  display: inline-block;
   font-size: 32px;
-  line-height: 40px;
-  color: ${smColors.green};
 `;
 
-const SmhText = styled.div`
+const UnitsText = styled.div`
+  display: inline-block;
   font-size: 17px;
-  line-height: 32px;
-  color: ${smColors.green};
-`;
-
-const NotSyncedYetText = styled.div`
-  font-size: 15px;
-  line-height: 32px;
-  color: ${smColors.orange};
 `;
 
 const AccountsOverview = () => {
@@ -107,10 +110,7 @@ const AccountsOverview = () => {
   }
   const { displayName, publicKey } = accounts[currentAccountIndex];
   const balance = balances[publicKey];
-  const { value, unit }: any = formatSmidge(
-    balance?.currentState?.balance || 0,
-    true
-  );
+  const { value, unit } = parseSmidge(balance?.currentState?.balance || 0);
 
   return (
     <WrapperWith2SideBars
@@ -143,14 +143,14 @@ const AccountsOverview = () => {
       </AccountDetails>
       <Footer>
         <BalanceHeader>BALANCE</BalanceHeader>
-        {isSynced ? (
-          <BalanceWrapper>
-            <BalanceAmount>{value}</BalanceAmount>
-            <SmhText>{unit}</SmhText>
-          </BalanceWrapper>
-        ) : (
-          <NotSyncedYetText>Syncing...</NotSyncedYetText>
-        )}
+        <BalanceWrapper
+          isSynced={isSynced}
+          title={isSynced ? 'Your current balance' : 'Last synced balance'}
+        >
+          <BalanceAmount>{value}</BalanceAmount>
+          &nbsp;
+          <UnitsText>{unit}</UnitsText>
+        </BalanceWrapper>
       </Footer>
     </WrapperWith2SideBars>
   );
