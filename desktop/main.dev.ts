@@ -10,6 +10,7 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { app } from 'electron';
 import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
@@ -31,6 +32,11 @@ import startApp from './main/startApp';
 require('dotenv').config();
 isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
+
+// Ubuntu/Debian builds working only with this arg ( u can add it in terminal too )
+isProd() &&
+  os.platform() === 'linux' &&
+  app.commandLine.appendSwitch('--no-sandbox');
 
 init({
   dsn: process.env.SENTRY_DSN,
