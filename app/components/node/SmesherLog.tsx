@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { CorneredContainer } from '../common';
-import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
+import ReactTimeago from 'react-timeago';
+import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import {
@@ -12,8 +12,8 @@ import {
   topRightCorner,
   topRightCornerWhite,
 } from '../../assets/images';
-import { SmesherReward } from '../../../shared/types';
-import ReactTimeago from 'react-timeago';
+import { RewardsInfo, SmesherReward } from '../../../shared/types';
+import { CorneredContainer } from '../common';
 
 const Wrapper = styled.div`
   display: flex;
@@ -88,10 +88,23 @@ const BottomRightCorner = styled.img`
   height: 8px;
 `;
 
+const Total = styled.div<{ epoch?: boolean }>`
+  display: block;
+  color: ${({ epoch }) => (epoch ? smColors.purple : smColors.green)};
+  margin: 0.25em 0;
+
+  small {
+    display: block;
+    margin: 0.1em 0;
+    color: ${smColors.mediumGray};
+  }
+`;
+
 type Props = {
   initTimestamp: string | null;
   smeshingTimestamp: string | null;
   rewards: SmesherReward[];
+  rewardsInfo: RewardsInfo;
   isDarkMode: boolean;
   epochByLayer: (number) => number;
   timestampByLayer: (number) => number;
@@ -101,6 +114,7 @@ const SmesherLog = ({
   initTimestamp,
   smeshingTimestamp,
   rewards,
+  rewardsInfo,
   isDarkMode,
   epochByLayer,
   timestampByLayer,
@@ -108,12 +122,13 @@ const SmesherLog = ({
   const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
   const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
   const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
+
   return (
     <CorneredContainer
       useEmptyWrap
       width={310}
       height={450}
-      header="SMESHER LOG"
+      header="REWARDS"
       isDarkMode={isDarkMode}
     >
       <FullCrossIcon className="top" src={icon} />
@@ -122,19 +137,34 @@ const SmesherLog = ({
       <BottomRightCorner src={bottomRight} />
       <SmallHorizontalPanel isDarkMode={isDarkMode} />
 
+      {rewardsInfo && (
+        <>
+          <Total>
+            <small title={`within ${rewardsInfo.epochs} epochs`}>
+              Total for {rewardsInfo.layers} layers:
+            </small>
+            {formatSmidge(rewardsInfo.total)}
+          </Total>
+          <Total epoch>
+            <small>Within current epoch:</small>
+            {formatSmidge(rewardsInfo.lastEpoch)}
+          </Total>
+        </>
+      )}
+
       <LogText>--</LogText>
       <Wrapper>
         {rewards &&
           rewards.map((reward, index) => (
             <div key={`reward${index}`}>
               <LogEntry>
+                <DateText>
+                  <ReactTimeago date={timestampByLayer(reward.layer)} />
+                </DateText>
                 <LogText>
                   Layer&nbsp;#{reward.layer}
                   <EpochText>(epoch ${epochByLayer(reward.layer)})</EpochText>
                 </LogText>
-                <DateText>
-                  <ReactTimeago date={timestampByLayer(reward.layer)} />
-                </DateText>
                 <AwardText>
                   Layer reward: {formatSmidge(reward.total)}
                 </AwardText>

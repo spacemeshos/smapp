@@ -17,6 +17,7 @@ import {
   Activation,
   AccountBalance,
   Account,
+  RewardsInfo,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
@@ -60,6 +61,7 @@ export interface SmesherState {
   postSetupState: PostSetupState;
   postProgressError: string;
   rewards: SmesherReward[];
+  rewardsInfo: RewardsInfo;
   activations: Activation[];
   config: SmesherConfig;
 }

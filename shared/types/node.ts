@@ -34,5 +34,11 @@ export interface NodeConfig {
     'network-id': number;
     [k: string]: any;
   };
+  main: {
+    'genesis-time': string;
+    'layer-duration-sec': number;
+    'layers-per-epoch': number;
+    [k: string]: any;
+  };
   [k: string]: any;
 }

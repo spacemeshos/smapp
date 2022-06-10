@@ -14,17 +14,19 @@ import {
   Subject,
   withLatestFrom,
 } from 'rxjs';
+import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   Activation,
   Network,
   NodeConfig,
   NodeVersionAndBuild,
+  RewardsInfo,
   SmesherReward,
   Wallet,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
 import { toHexString } from '../../utils';
-import { MINUTE } from '../constants';
+import { HOUR, MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';
 import storeView from './views/storeView';
@@ -107,6 +109,52 @@ const sync = <T extends any>(
   return () => subs.forEach((sub) => sub.unsubscribe());
 };
 
+const getRewardsInfo = (
+  cfg: NodeConfig,
+  curLayer: number,
+  rewards: SmesherReward[]
+): RewardsInfo => {
+  const getLayerTime = timestampByLayer(
+    cfg.main['genesis-time'],
+    cfg.main['layer-duration-sec']
+  );
+  const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
+  const curEpoch = getEpoch(curLayer);
+
+  const sums = rewards.reduce(
+    (acc, next) => ({
+      total: acc.total + next.total,
+      layers: new Set(acc.layers).add(next.layer),
+      epochs: new Set(acc.layers).add(getEpoch(next.layer)),
+    }),
+    {
+      total: 0,
+      layers: new Set(),
+      epochs: new Set(),
+    }
+  );
+  const lastEpoch = R.compose(
+    R.reduce((acc, next: SmesherReward) => acc + next.total, 0),
+    R.takeWhile((reward: SmesherReward) => getEpoch(reward.layer) === curEpoch)
+  )(rewards);
+  const dailyAverage =
+    rewards.length > 2
+      ? (sums.total /
+          (getLayerTime(rewards[rewards.length - 1].layer) -
+            getLayerTime(rewards[0].layer))) *
+        24 *
+        HOUR
+      : 0;
+
+  return {
+    total: sums.total,
+    lastEpoch,
+    layers: sums.layers.size,
+    epochs: sums.epochs.size,
+    dailyAverage,
+  };
+};
+
 export default (
   $mainWindow: Subject<BrowserWindow>,
   $wallet: Subject<Wallet | null>,
@@ -131,12 +179,13 @@ export default (
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))),
-    combineLatest([$smesherId, $activations, $rewards]).pipe(
-      map(([smesherId, activations, rewards]) => ({
+    combineLatest([$smesherId, $activations, $nodeConfig, $currentLayer, $rewards]).pipe(
+      map(([smesherId, activations, cfg, curLayer, rewards]) => ({
         smesher: {
           smesherId: toHexString(smesherId),
           activations,
           rewards,
+          rewardsInfo: getRewardsInfo(cfg, curLayer, rewards),
         },
       }))
     )

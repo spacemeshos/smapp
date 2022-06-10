@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import {
   combineLatest,
   from,
@@ -69,23 +70,18 @@ const syncSmesherInfo = (
       merge(
         getRewards$(managers, coinbase),
         new Observable<Reward__Output>((subscriber) =>
-          managers.wallet.listenRewardsByCoinbase(coinbase, subscriber.next)
+          managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
+            subscriber.next(x)
+          )
         )
       )
     ),
     scan<Reward__Output, SmesherReward[]>(
-      // TODO:
-      // Collect coinbases
-      // Calc totals
-      // - Daily
-      // - Monthly
-      // - Yearly
-      // Calc epochs
       (acc, next) => [
         ...acc,
         ...(isSmesherReward(next)
           ? [
-              {
+              <SmesherReward>{
                 layer: next.layer.number,
                 layerReward: next.layerReward.value.toNumber(),
                 total: next.total.value.toNumber(),

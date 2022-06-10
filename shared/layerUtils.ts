@@ -11,3 +11,16 @@ export const timestampByLayer = (
 export const firstLayerInEpoch = (layersPerEpoch: number) => (
   epoch: number
 ): number => epoch * layersPerEpoch;
+
+export const nextEpochTime = (
+  genesisTime: string,
+  layerDurationSec: number,
+  layersPerEpoch: number
+) => (layer: number): number => {
+  const curEpoch = epochByLayer(layersPerEpoch)(layer);
+  const nextEpoch = curEpoch + 1;
+  return timestampByLayer(
+    genesisTime,
+    layerDurationSec
+  )(firstLayerInEpoch(layersPerEpoch)(nextEpoch));
+};
