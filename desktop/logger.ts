@@ -1,7 +1,5 @@
 import path from 'path';
-import { app } from 'electron';
-
-const logger = require('electron-log');
+import logger from 'electron-log';
 
 const formatLogMessage = (className, fn, res, args) =>
   `${className}, in ${fn}, output: ${JSON.stringify(res)} ${
@@ -12,10 +10,8 @@ const formatErrorMessage = (className, fn, err, args) =>
     args ? `; args: ${JSON.stringify(args)}` : ''
   }`;
 
-logger.transports.file.file = path.join(
-  app.getPath('userData'),
-  '/app-logs.txt'
-);
+logger.transports.file.resolvePath = (vars) =>
+  path.join(vars.userData, `/app-log.${vars.appVersion}.txt`);
 logger.transports.console.level = false;
 
 const Logger = ({ className }: { className: string }) => ({

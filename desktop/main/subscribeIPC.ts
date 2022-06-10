@@ -28,11 +28,7 @@ export default (context: AppContext) => {
     ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
       const { mainWindow, currentNetwork } = context;
       if (!mainWindow || !currentNetwork) return;
-      browserView = new BrowserView({
-        webPreferences: {
-          nodeIntegration: false,
-        },
-      });
+      browserView = new BrowserView({});
       mainWindow.setBrowserView(browserView);
       browserView.webContents.on('new-window', (event, url) => {
         event.preventDefault();
@@ -72,7 +68,7 @@ export default (context: AppContext) => {
       width: 800,
       height: 800,
       show: true,
-      webPreferences: { nodeIntegration: true, devTools: false },
+      webPreferences: { devTools: false },
     });
     const html = `<body>${request.content}</body><script>window.onafterprint = () => setTimeout(window.close, 3000); window.print();</script>`;
     printerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURI(html)}`);
