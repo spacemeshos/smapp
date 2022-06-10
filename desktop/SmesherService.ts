@@ -141,7 +141,8 @@ class SmesherService extends NetServiceFactory<
           ? `0x${toHexString(response.accountId.address)}`
           : '0x00',
       }))
-      .catch(this.normalizeServiceError({}));
+      .then(this.normalizeServiceResponse)
+      .catch(this.normalizeServiceError({ coinbase: '0x00' }));
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
     this.callService('SetCoinbase', {

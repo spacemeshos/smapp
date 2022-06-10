@@ -17,9 +17,9 @@ import { Managers } from '../app.types';
 
 const getRewards$ = (
   managers: Managers,
-  smesherId: Uint8Array
+  coinbase: Uint8Array
 ): Observable<Reward__Output> =>
-  from(managers.wallet.requestAllSmesherRewards(smesherId)).pipe(
+  from(managers.wallet.requestRewardsByCoinbase(coinbase)).pipe(
     switchMap(from)
   );
 
@@ -51,13 +51,25 @@ const syncSmesherInfo = (
     ),
     map((pubKey) => fromHexString(pubKey.substring(2)))
   );
+  const $coinbase = combineLatest([$managers, $isWalletActivated]).pipe(
+    switchMap(([managers]) =>
+      from(
+        managers.smesher.getCoinbase().then((res) => {
+          if (res.error) {
+            throw res.error;
+          }
+          return fromHexString(res.coinbase.substring(2));
+        })
+      )
+    )
+  );
 
-  const $rewards = combineLatest([$smesherId, $managers]).pipe(
-    switchMap(([smesherId, managers]) =>
+  const $rewards = combineLatest([$coinbase, $managers]).pipe(
+    switchMap(([coinbase, managers]) =>
       merge(
-        getRewards$(managers, smesherId),
+        getRewards$(managers, coinbase),
         new Observable<Reward__Output>((subscriber) =>
-          managers.wallet.listenRewardsBySmesherId(smesherId, subscriber.next)
+          managers.wallet.listenRewardsByCoinbase(coinbase, subscriber.next)
         )
       )
     ),
@@ -111,6 +123,7 @@ const syncSmesherInfo = (
     $smesherId,
     $activations: of(<Activation[]>[]),
     $rewards,
+    $coinbase,
   };
 };
 

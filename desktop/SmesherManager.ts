@@ -149,6 +149,8 @@ class SmesherManager {
     );
   };
 
+  getCoinbase = () => this.smesherService.getCoinbase();
+
   subscribeToEvents = (mainWindow: BrowserWindow) => {
     // handlers
     const selectPostFolder = async () => {

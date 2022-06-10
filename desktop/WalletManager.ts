@@ -8,10 +8,11 @@ import {
   toSocketAddress,
 } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
+import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { isActivation, isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
-import GlobalStateService from './GlobalStateService';
+import GlobalStateService, { AccountDataValidFlags } from './GlobalStateService';
 import TransactionManager from './TransactionManager';
 import cryptoService from './cryptoService';
 import NodeManager from './NodeManager';
@@ -176,37 +177,40 @@ class WalletManager {
     }
   };
 
-  requestAllSmesherRewards = async (
-    smesherId: Uint8Array
+  requestRewardsByCoinbase = async (
+    coinbase: Uint8Array
   ): Promise<Reward__Output[]> => {
     const BATCH_SIZE = 50;
-    const x = await this.glStateService.requestSmesherRewards(
-      smesherId,
-      BATCH_SIZE,
-      0
-    );
-    const { totalResults, rewards } = x;
+    const composeArg = (batchNumber: number) => ({
+      filter: {
+        accountId: { address: coinbase },
+        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD as AccountDataValidFlags,
+      },
+      offset: batchNumber * BATCH_SIZE,
+    });
+    const x = await this.glStateService.sendAccountDataQuery(composeArg(0));
+    const { totalResults, data } = x;
     if (totalResults <= BATCH_SIZE) {
-      return rewards;
+      return data;
     } else {
       const nextRewards = await Promise.all(
         R.compose(
           R.map((idx) =>
             this.glStateService
-              .requestSmesherRewards(smesherId, BATCH_SIZE, idx * BATCH_SIZE)
-              .then((resp) => resp.rewards)
+              .sendAccountDataQuery(composeArg(idx))
+              .then((resp) => resp.data)
           ),
           R.range(1)
         )(Math.ceil(totalResults / BATCH_SIZE))
       ).then(R.unnest);
-      return rewards ? [...rewards, ...nextRewards] : nextRewards;
+      return data ? [...data, ...nextRewards] : nextRewards;
     }
   };
 
-  listenRewardsBySmesherId = (
-    smesherId: Uint8Array,
+  listenRewardsByCoinbase = (
+    coinbase: Uint8Array,
     handler: (reward: Reward__Output) => void
-  ) => this.glStateService.activateSmesherRewardStream(smesherId, handler);
+  ) => this.glStateService.listenRewardsByCoinbase(coinbase, handler);
 
   listenActivationsByCoinbase = (
     coinbase: Uint8Array,

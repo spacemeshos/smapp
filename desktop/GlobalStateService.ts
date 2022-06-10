@@ -20,12 +20,12 @@ interface AccountDataStreamHandlerArg {
   [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: TransactionReceipt__Output;
 }
 
-type AccountDataValidFlags = Exclude<
+export type AccountDataValidFlags = Exclude<
   AccountDataFlag,
   AccountDataFlag.ACCOUNT_DATA_FLAG_UNSPECIFIED
 >;
 type AccountDataStreamKey = Exclude<keyof AccountData__Output, 'datum'>;
-const getKeyByAccoundDataFlag = (
+const getKeyByAccountDataFlag = (
   flag: AccountDataValidFlags
 ): AccountDataStreamKey => {
   const keys: Record<AccountDataValidFlags, AccountDataStreamKey> = {
@@ -54,23 +54,31 @@ class GlobalStateService extends NetServiceFactory<
         : '',
     }));
 
-  sendAccountDataQuery = ({
+  sendAccountDataQuery = <F extends AccountDataValidFlags>({
     filter,
     offset,
   }: {
     filter: {
       accountId: { address: Uint8Array };
-      accountDataFlags: AccountDataFlag;
+      accountDataFlags: F;
     };
     offset: number;
   }) =>
     this.callService('AccountDataQuery', { filter, maxResults: 50, offset })
       .then((response) => ({
         totalResults: response.totalResults,
-        data: response.accountItem,
+        data:
+          response.accountItem[
+            getKeyByAccountDataFlag(filter.accountDataFlags)
+          ],
       }))
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
+      .catch(
+        this.normalizeServiceError({
+          totalResults: 0,
+          data: <AccountDataStreamHandlerArg[F][]>[],
+        })
+      );
 
   activateAccountDataStream = <K extends AccountDataValidFlags>(
     address: Uint8Array,
@@ -87,7 +95,7 @@ class GlobalStateService extends NetServiceFactory<
       },
       (data: AccountDataStreamResponse__Output) => {
         const { datum } = data;
-        const key = getKeyByAccoundDataFlag(accountDataFlags);
+        const key = getKeyByAccountDataFlag(accountDataFlags);
         if (datum && datum[key]) {
           const value = datum[key] as AccountDataStreamHandlerArg[K];
           handler(value);
@@ -95,26 +103,14 @@ class GlobalStateService extends NetServiceFactory<
       }
     );
 
-  requestSmesherRewards = (
-    smesherId: Uint8Array,
-    maxResults = 50,
-    offset = 0
-  ) =>
-    this.callService('SmesherDataQuery', {
-      smesherId: { id: smesherId },
-      maxResults,
-      offset,
-    });
-
-  activateSmesherRewardStream = (
-    smesherId: Uint8Array,
+  listenRewardsByCoinbase = (
+    coinbase: Uint8Array,
     handler: (data: Reward__Output) => void
   ) =>
-    this.runStream(
-      'SmesherRewardStream',
-      { id: { id: smesherId } },
-      (data: SmesherRewardStreamResponse__Output) =>
-        data.reward && handler(data.reward)
+    this.activateAccountDataStream(
+      coinbase,
+      AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
+      handler
     );
 }
 
