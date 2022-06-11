@@ -11,6 +11,7 @@ import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
+import { tap } from 'ramda';
 
 const PROTO_PATH = 'proto/global_state.proto';
 
@@ -25,16 +26,15 @@ export type AccountDataValidFlags = Exclude<
   AccountDataFlag.ACCOUNT_DATA_FLAG_UNSPECIFIED
 >;
 type AccountDataStreamKey = Exclude<keyof AccountData__Output, 'datum'>;
+
+const ACCOUNT_DATA_KEYS: Record<AccountDataValidFlags, AccountDataStreamKey> = {
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: 'reward',
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: 'receipt',
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: 'accountWrapper',
+};
 const getKeyByAccountDataFlag = (
   flag: AccountDataValidFlags
-): AccountDataStreamKey => {
-  const keys: Record<AccountDataValidFlags, AccountDataStreamKey> = {
-    [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: 'reward',
-    [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: 'receipt',
-    [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: 'accountWrapper',
-  };
-  return keys[flag];
-};
+): AccountDataStreamKey => ACCOUNT_DATA_KEYS[flag];
 
 class GlobalStateService extends NetServiceFactory<
   ProtoGrpcType,
@@ -67,10 +67,9 @@ class GlobalStateService extends NetServiceFactory<
     this.callService('AccountDataQuery', { filter, maxResults: 50, offset })
       .then((response) => ({
         totalResults: response.totalResults,
-        data:
-          response.accountItem[
-            getKeyByAccountDataFlag(filter.accountDataFlags)
-          ],
+        data: response.accountItem.map(
+          (item) => item[getKeyByAccountDataFlag(filter.accountDataFlags)]
+        ),
       }))
       .then(this.normalizeServiceResponse)
       .catch(
@@ -98,6 +97,7 @@ class GlobalStateService extends NetServiceFactory<
         const key = getKeyByAccountDataFlag(accountDataFlags);
         if (datum && datum[key]) {
           const value = datum[key] as AccountDataStreamHandlerArg[K];
+          console.log('activateAccountDataStream >>>', value);
           handler(value);
         }
       }
@@ -106,12 +106,14 @@ class GlobalStateService extends NetServiceFactory<
   listenRewardsByCoinbase = (
     coinbase: Uint8Array,
     handler: (data: Reward__Output) => void
-  ) =>
-    this.activateAccountDataStream(
+  ) => {
+    console.log('listenRewardsByCoinbase', toHexString(coinbase));
+    return this.activateAccountDataStream(
       coinbase,
       AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
       handler
     );
+  }
 }
 
 export default GlobalStateService;

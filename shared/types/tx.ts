@@ -61,7 +61,6 @@ export interface Reward {
 
 export interface SmesherReward {
   coinbase: Uint8Array;
-  smesher: Uint8Array;
   total: number;
   layer: number;
   layerReward: number;

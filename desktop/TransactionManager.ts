@@ -298,25 +298,18 @@ class TransactionManager {
     data: Account__Output
   ) => {
     const currentState = {
-      counter: data.stateCurrent?.counter
-        ? data.stateCurrent.counter.toNumber()
-        : 0,
-      balance: data.stateCurrent?.balance?.value
-        ? data.stateCurrent.balance.value.toNumber()
-        : 0,
+      counter: data.stateCurrent?.counter?.toNumber?.() || 0,
+      balance: data.stateCurrent?.balance?.value?.toNumber?.() || 0,
     };
     const projectedState = {
-      counter: data.stateProjected?.counter
-        ? data.stateProjected.counter.toNumber()
-        : 0,
-      balance: data.stateProjected?.balance?.value
-        ? data.stateProjected.balance.value.toNumber()
-        : 0,
+      counter: data.stateProjected?.counter?.toNumber?.() || 0,
+      balance: data.stateProjected?.balance?.value?.toNumber?.() || 0,
     };
     this.accountStates[accountId].storeAccountBalance({
       currentState,
       projectedState,
     });
+    console.log('updateAccountData', currentState, projectedState);
     this.updateAppStateAccount(accountId);
   };
 
@@ -407,7 +400,7 @@ class TransactionManager {
       layerReward: reward.layerReward.value.toNumber(),
       // layerComputed: reward.layerComputed.number, // TODO
       coinbase: `0x${coinbase}`,
-      smesher: toHexString(reward.smesher.id),
+      smesher: reward.smesher?.id ? toHexString(reward.smesher.id) : '0x00',
     };
     this.storeReward(accountId, parsedReward);
   };

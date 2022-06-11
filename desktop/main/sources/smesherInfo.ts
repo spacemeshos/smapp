@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import {
   combineLatest,
   from,
@@ -7,12 +6,15 @@ import {
   Observable,
   of,
   scan,
+  skipUntil,
   Subject,
   switchMap,
+  tap,
+  withLatestFrom,
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import { Activation, SmesherReward } from '../../../shared/types';
-import { isSmesherReward } from '../../../shared/types/guards';
+import { hasRequiredRewardFields } from '../../../shared/types/guards';
 import { fromHexString } from '../../utils';
 import { Managers } from '../app.types';
 
@@ -23,6 +25,20 @@ const getRewards$ = (
   from(managers.wallet.requestRewardsByCoinbase(coinbase)).pipe(
     switchMap(from)
   );
+
+const toSmesherReward = (input: Reward__Output): SmesherReward => {
+  if (!hasRequiredRewardFields(input)) {
+    throw new Error(
+      `Can not convert input ${JSON.stringify(input)} to SmesherReward`
+    );
+  }
+  return {
+    layer: input.layer.number,
+    layerReward: input.layerReward.value.toNumber(),
+    total: input.total.value.toNumber(),
+    coinbase: input.coinbase.address,
+  };
+};
 
 // TODO: Use it when API will be ready.
 //       See also https://github.com/spacemeshos/go-spacemesh/issues/2064
@@ -52,8 +68,9 @@ const syncSmesherInfo = (
     ),
     map((pubKey) => fromHexString(pubKey.substring(2)))
   );
-  const $coinbase = combineLatest([$managers, $isWalletActivated]).pipe(
-    switchMap(([managers]) =>
+  const $coinbase = $isWalletActivated.pipe(
+    withLatestFrom($managers),
+    switchMap(([_, managers]) =>
       from(
         managers.smesher.getCoinbase().then((res) => {
           if (res.error) {
@@ -77,20 +94,8 @@ const syncSmesherInfo = (
       )
     ),
     scan<Reward__Output, SmesherReward[]>(
-      (acc, next) => [
-        ...acc,
-        ...(isSmesherReward(next)
-          ? [
-              <SmesherReward>{
-                layer: next.layer.number,
-                layerReward: next.layerReward.value.toNumber(),
-                total: next.total.value.toNumber(),
-                coinbase: next.coinbase.address,
-                smesher: next.smesher.id,
-              },
-            ]
-          : []),
-      ],
+      (acc, next) =>
+        hasRequiredRewardFields(next) ? [...acc, toSmesherReward(next)] : acc,
       []
     )
   );

@@ -276,6 +276,7 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
   const { rewards, publicKey } = request;
+  console.log('SET_ACCOUNT_REWARDS', publicKey, rewards);
   store.dispatch({
     type: SET_ACCOUNT_REWARDS,
     payload: { rewards, publicKey },

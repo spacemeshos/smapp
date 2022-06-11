@@ -7,6 +7,7 @@ import { SmallHorizontalPanel } from '../../basicComponents';
 import {
   bottomRightCorner,
   bottomRightCornerWhite,
+  horizontalPanelBlack,
   leftSideTIcon,
   leftSideTIconWhite,
   topRightCorner,
@@ -18,15 +19,27 @@ import { CorneredContainer } from '../common';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
   height: 100%;
   overflow-y: visible;
   overflow-x: hidden;
+  margin: 5px -20px -20px -20px;
+  padding: 0 20px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 `;
 
 const LogEntry = styled.div`
   display: flex;
   flex-direction: column;
+  opacity: 0.6;
+  transition: opacity 0.2s linear;
+  padding: 0.25em 0 0.3em 0;
+
+  &:hover,
+  &:active,
+  &:focus {
+    opacity: 1;
+  }
 `;
 
 const LogText = styled.div`
@@ -35,26 +48,54 @@ const LogText = styled.div`
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 
-const AwardText = styled(LogText)`
-  color: ${smColors.green};
+const LayerNumber = styled(LogText)`
+  width: 70px;
 `;
 
-const LogEntrySeparator = styled(LogText)`
-  color: ${smColors.darkGray50Alpha};
-  margin: 5px 0 10px;
-  line-height: 0;
-  user-select: none;
+const AwardText = styled(LogText)`
+  color: ${smColors.green};
+  margin-left: auto;
+`;
+
+const LayerReward = styled.div`
+  display: flex;
+  flex-direction: row;
 `;
 
 const DateText = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   line-height: 16px;
   color: ${smColors.mediumGray};
 `;
-const EpochText = styled.span`
-  margin-left: 1em;
+const EpochText = styled.div`
+  display: block;
+  position: relative;
+  margin: 1.5em -20px 1em -20px;
+  padding: 0 20px;
   font-size: 12px;
-  color: ${smColors.mediumGray};
+  text-align: center;
+
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: ${smColors.lightGray};
+
+  &:before,
+  &:after {
+    display: block;
+    content: '';
+    background: no-repeat url(${horizontalPanelBlack}) left center;
+    position: absolute;
+    height: 12px;
+    width: 41px;
+    top: 0;
+  }
+  &:before {
+    left: 0;
+  }
+  &:after {
+    right: 0;
+    transform: scaleX(-1);
+  }
 `;
 
 const FullCrossIcon = styled.img`
@@ -152,29 +193,34 @@ const SmesherLog = ({
         </>
       )}
 
-      <LogText>--</LogText>
       <Wrapper>
         {rewards &&
-          rewards.map((reward, index) => (
-            <div key={`reward${index}`}>
-              <LogEntry>
-                <DateText>
-                  <ReactTimeago date={timestampByLayer(reward.layer)} />
-                </DateText>
-                <LogText>
-                  Layer&nbsp;#{reward.layer}
-                  <EpochText>(epoch ${epochByLayer(reward.layer)})</EpochText>
-                </LogText>
-                <AwardText>
-                  Layer reward: {formatSmidge(reward.total)}
-                </AwardText>
-                <AwardText>
-                  Fee reward: {formatSmidge(reward.layerReward)}
-                </AwardText>
-              </LogEntry>
-              <LogEntrySeparator>...</LogEntrySeparator>
-            </div>
-          ))}
+          (() => {
+            let prevEpoch;
+            return rewards.map((reward, index) => {
+              const curEpoch = epochByLayer(reward.layer);
+              const showEpoch = curEpoch !== prevEpoch;
+              prevEpoch = curEpoch;
+              return (
+                <>
+                  {showEpoch && (
+                    <EpochText>Epoch {epochByLayer(reward.layer)}</EpochText>
+                  )}
+                  <div key={`reward${index}`}>
+                    <LogEntry>
+                      <LayerReward>
+                        <LayerNumber>{reward.layer}</LayerNumber>
+                        <DateText>
+                          <ReactTimeago date={timestampByLayer(reward.layer)} />
+                        </DateText>
+                        <AwardText>+{formatSmidge(reward.total)}</AwardText>
+                      </LayerReward>
+                    </LogEntry>
+                  </div>
+                </>
+              );
+            });
+          })()}
         {smeshingTimestamp ? (
           <>
             <LogEntry>
@@ -183,7 +229,6 @@ const SmesherLog = ({
               </DateText>
               <LogText>Started smeshing</LogText>
             </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
           </>
         ) : null}
         {initTimestamp ? (
@@ -194,7 +239,6 @@ const SmesherLog = ({
               </DateText>
               <LogText>Initializing smesher</LogText>
             </LogEntry>
-            <LogEntrySeparator>...</LogEntrySeparator>
           </>
         ) : null}
       </Wrapper>

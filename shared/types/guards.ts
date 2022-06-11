@@ -18,14 +18,14 @@ export const hasRequiredTxStateFields = (
   !!txState.id?.id && txState.state !== undefined;
 
 export const hasRequiredRewardFields = (
-  r: Reward__Output
+  r: any
 ): r is Object.NonNullable<
   Reward__Output,
-  'coinbase' | 'total' | 'layer' | 'layerReward' | 'layerComputed' | 'smesher'
+  'coinbase' | 'total' | 'layer' | 'layerReward' | 'layerComputed'
 > =>
   !!(
+    r &&
     r.coinbase?.address &&
-    r.smesher?.id &&
     r.total?.value &&
     r.layer?.number &&
     r.layerReward?.value
@@ -37,9 +37,6 @@ export const isTx = (a: any): a is Tx =>
 
 export const isReward = (a: any): a is Reward =>
   a && a.layer && a.coinbase && a.smesher && a.amount;
-
-export const isSmesherReward = (a: any): a is SmesherReward =>
-  a && a.layer && a.coinbase && a.smesher && a.total;
 
 export const isActivation = (a: any): a is Activation =>
   a && a.id && a.layer && a.smesherId && a.coinbase && a.numUnits;

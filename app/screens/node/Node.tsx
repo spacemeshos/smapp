@@ -179,15 +179,19 @@ const getStatus = (
   state: PostSetupState,
   isPaused: boolean,
   rewards: SmesherReward[],
-  epoch: number
+  epoch: number,
+  isNodeSynced: boolean
 ) => {
   switch (state) {
     case PostSetupState.STATE_IN_PROGRESS:
       return 'Creating PoS data';
     case PostSetupState.STATE_COMPLETE:
+      // eslint-disable-next-line no-nested-ternary
       return rewards.length > 0 && epoch
-        ? `Smeshing: epoch #${epoch}`
-        : 'Waiting for next epoch';
+        ? `Smeshing: epoch ${epoch}`
+        : isNodeSynced
+        ? 'Waiting for next epoch'
+        : 'Syncing the Node';
     case PostSetupState.STATE_ERROR:
       return 'Error';
     default:
@@ -336,10 +340,11 @@ const Node = ({ history, location }: Props) => {
           postSetupState,
           isPausedSmeshing,
           rewards,
-          getEpochByLayer(status?.topLayer || 0)
+          getEpochByLayer(status?.topLayer || 0),
+          status?.isSynced || false
         ),
       ],
-      ['Current epoch', <>#{currentEpoch}</>],
+      ['Current epoch', <>{currentEpoch}</>],
       [
         'Next epoch in',
         <>

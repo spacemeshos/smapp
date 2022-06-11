@@ -12,6 +12,7 @@ import {
   scan,
   skipUntil,
   Subject,
+  tap,
   withLatestFrom,
 } from 'rxjs';
 import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
@@ -60,7 +61,7 @@ const sync = <T extends any>(
   // Pack data into a batch
   const $batch = $updates.pipe(
     buffer($syncPoint.pipe(filter(Boolean))),
-    map((a) => a.reduce(R.mergeRight))
+    map((a) => a.reduce(R.mergeRight, {}))
   );
 
   // Whole state sync
@@ -179,7 +180,13 @@ export default (
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))),
-    combineLatest([$smesherId, $activations, $nodeConfig, $currentLayer, $rewards]).pipe(
+    combineLatest([
+      $smesherId,
+      $activations,
+      $nodeConfig,
+      $currentLayer,
+      $rewards,
+    ]).pipe(
       map(([smesherId, activations, cfg, curLayer, rewards]) => ({
         smesher: {
           smesherId: toHexString(smesherId),
