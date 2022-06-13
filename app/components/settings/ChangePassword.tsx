@@ -5,6 +5,7 @@ import { eventsService } from '../../infra/eventsService';
 import { ErrorPopup, Input, Link, Loader, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
+import EnterPasswordModal from './EnterPasswordModal';
 
 const Wrapper = styled.div`
   display: flex;
@@ -29,6 +30,10 @@ const RightPart = styled.div`
 
 const ChangePassword = () => {
   let timeOut: any = null;
+  const displayName = useSelector(
+    (state: RootState) => state.wallet.meta.displayName
+  );
+  const [isOldPasswordRequested, setOldPasswordRequested] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
@@ -41,12 +46,9 @@ const ChangePassword = () => {
     };
   });
 
-  const walletFiles = useSelector(
-    (state: RootState) => state.wallet.walletFiles
+  const currentWalletPath = useSelector(
+    (state: RootState) => state.wallet.currentWalletPath
   );
-  const mnemonic = useSelector((state: RootState) => state.wallet.mnemonic);
-  const accounts = useSelector((state: RootState) => state.wallet.accounts);
-  const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
@@ -68,6 +70,7 @@ const ChangePassword = () => {
     setPasswordError('');
     setVerifyPasswordError('');
     setIsLoaderVisible(false);
+    setOldPasswordRequested(false);
   };
 
   const validate = () => {
@@ -87,17 +90,15 @@ const ChangePassword = () => {
     return !passwordError && !verifyPasswordError;
   };
 
-  const updatePassword = async () => {
-    if (validate() && !isLoaderVisible && walletFiles && walletFiles[0]) {
+  const updatePassword = async (prevPassword: string) => {
+    if (validate() && !isLoaderVisible && currentWalletPath) {
       setIsLoaderVisible(false);
-      timeOut = await setTimeout(async () => {
-        await eventsService.updateWalletSecrets(walletFiles[0].path, password, {
-          mnemonic,
-          accounts,
-          contacts,
-        });
-        clearFields();
-      }, 500);
+      eventsService.changePassword({
+        path: currentWalletPath,
+        prevPassword,
+        nextPassword: password,
+      });
+      timeOut = setTimeout(() => clearFields(), 500);
     }
   };
 
@@ -112,7 +113,7 @@ const ChangePassword = () => {
             <Input
               value={password}
               type="password"
-              placeholder="Type password"
+              placeholder="Type new password"
               onChange={handlePasswordTyping}
               style={{ marginBottom: 15 }}
               key="pass"
@@ -129,6 +130,13 @@ const ChangePassword = () => {
         ) : (
           <Input value="***********" type="password" isDisabled />
         )}
+        {isOldPasswordRequested && (
+          <EnterPasswordModal
+            walletName={displayName}
+            submitAction={({ password }) => updatePassword(password)}
+            closeModal={clearFields}
+          />
+        )}
         {(!!passwordError || !!verifyPasswordError) && (
           <ErrorPopup
             onClick={() => {
@@ -144,7 +152,7 @@ const ChangePassword = () => {
         {isEditMode ? (
           [
             <Link
-              onClick={updatePassword}
+              onClick={() => setOldPasswordRequested(true)}
               text="SAVE"
               style={{ marginRight: 15 }}
               key="change"

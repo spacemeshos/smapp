@@ -24,12 +24,9 @@ import {
   NodeVersionAndBuild,
   PostSetupOpts,
   PostSetupState,
-  PublicService,
   SocketAddress,
   TxSendRequest,
   WalletMeta,
-  WalletSecrets,
-  WalletType,
 } from '../../../shared/types';
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
@@ -37,11 +34,20 @@ import { showClosingAppModal } from '../../redux/ui/actions';
 import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
+import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
-  CurrentLayer,
-  GlobalStateHash,
-  NetworkDefinitions,
-} from '../../types/events';
+  AddContactRequest,
+  ChangePasswordRequest,
+  CreateAccountResponse,
+  CreateWalletRequest,
+  CreateWalletResponse,
+  ListNetworksResponse,
+  ListPublicApisResponse,
+  RemoveContactRequest,
+  RenameAccountRequest,
+  UnlockWalletRequest,
+  UnlockWalletResponse,
+} from '../../../shared/ipcMessages';
 
 class EventsService {
   static createWallet = ({
@@ -50,13 +56,7 @@ class EventsService {
     type,
     apiUrl,
     netId,
-  }: {
-    password: string;
-    existingMnemonic: string;
-    type: WalletType;
-    apiUrl: SocketAddress | null;
-    netId: number;
-  }) =>
+  }: CreateWalletRequest): Promise<CreateWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
@@ -79,52 +79,48 @@ class EventsService {
   static destroyBrowserView = () =>
     ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
-  static listNetworks = (): Promise<
-    { netId: number; netName: string; explorer: string }[]
-  > => ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
+  static listNetworks = (): Promise<ListNetworksResponse> =>
+    ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
-  static listPublicServices = (): Promise<PublicService[]> =>
-    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES);
+  static listPublicServices = (
+    netId: number
+  ): Promise<ListPublicApisResponse> =>
+    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, netId);
 
-  static unlockWallet = ({
-    path,
-    password,
-  }: {
-    path: string;
-    password: string;
-  }) => ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, { path, password });
+  static unlockWallet = (
+    payload: UnlockWalletRequest
+  ): Promise<UnlockWalletResponse> =>
+    ipcRenderer.invoke(ipcConsts.W_M_UNLOCK_WALLET, payload);
+
+  static closeWallet = () => ipcRenderer.send(ipcConsts.W_M_CLOSE_WALLET);
 
   static updateWalletMeta = <T extends keyof WalletMeta>(
-    fileName: string,
     key: T,
     value: WalletMeta[T]
   ) =>
     ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_META, {
-      fileName,
       key,
       value,
     });
 
-  static updateWalletSecrets = (
-    fileName: string,
-    password: string,
-    data: WalletSecrets
-  ) =>
-    ipcRenderer.send(ipcConsts.W_M_UPDATE_WALLET_SECRETS, {
-      fileName,
-      password,
-      data,
-    });
+  static renameAccount = (payload: RenameAccountRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_RENAME_ACCOUNT, payload);
+
+  static addContact = (payload: AddContactRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_ADD_CONTACT, payload);
+
+  static removeContact = (payload: RemoveContactRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_REMOVE_CONTACT, payload);
+
+  static changePassword = (payload: ChangePasswordRequest) =>
+    ipcRenderer.send(ipcConsts.W_M_CHANGE_PASSWORD, payload);
 
   static createNewAccount = ({
-    fileName,
+    path,
     password,
-  }: {
-    fileName: string;
-    password: string;
-  }) =>
+  }: UnlockWalletRequest): Promise<CreateAccountResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_NEW_ACCOUNT, {
-      fileName,
+      path,
       password,
     });
 
@@ -215,16 +211,14 @@ class EventsService {
   }) =>
     ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
-  static switchNetwork = (netId: number) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_NETWORK, netId);
+  static switchNetwork = (netId: number) => {
+    ipcRenderer.send(ipcConsts.SWITCH_NETWORK, netId);
+  };
 
-  static switchApiProvider = (apiUrl: SocketAddress | null) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, apiUrl);
+  static switchApiProvider = (apiUrl: SocketAddress | null, netId: number) =>
+    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, netId });
 
   /** **************************************  WALLET MANAGER  **************************************** */
-
-  static getNetworkDefinitions = (): Promise<NetworkDefinitions> =>
-    ipcRenderer.invoke(ipcConsts.W_M_GET_NETWORK_DEFINITIONS);
 
   static getCurrentLayer = (): Promise<CurrentLayer> =>
     ipcRenderer.invoke(ipcConsts.W_M_GET_CURRENT_LAYER);

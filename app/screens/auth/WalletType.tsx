@@ -27,20 +27,20 @@ const RowText = styled.span`
 const PurpleText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${smColors.purple};
 `;
 const GreenText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${smColors.green};
 `;
 
 const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
-  font-weight: bold;
+  font-weight: 800;
   color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
 `;
 const Row = styled.div`
@@ -131,11 +131,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <Icon src={walletSecondWhite} />
               <RowTitle>STANDARD WALLET</RowTitle>
-              <Tooltip
-                width={100}
-                text="STANDARD WALLET"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={100} text="STANDARD WALLET" />
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
@@ -151,11 +147,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <IconWallet src={walletSecondWhite} />
               <RowTitle>HARDWARE WALLET</RowTitle>
-              <Tooltip
-                width={100}
-                text="HARDWARE WALLET"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={100} text="HARDWARE WALLET" />
             </Row>
             <RowText>Using a Ledger device</RowText>
             <GreenText>(ENHANCED SECURITY)</GreenText>
@@ -174,11 +166,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
               onClick={() => history.push(AuthPath.Recover)}
               text="RESTORE  WALLET"
             />{' '}
-            <Tooltip
-              width={100}
-              text="RESTORE EXISTING WALLET"
-              isDarkMode={isDarkMode}
-            />
+            <Tooltip width={100} text="RESTORE EXISTING WALLET" />
           </Row>
         </BottomPart>
       </CorneredContainer>

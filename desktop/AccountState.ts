@@ -43,7 +43,10 @@ const load = (publicKey: string, baseDir = DEFAULT_BASE_DIR): AccountState => {
       ...parsed,
     };
   } catch (err) {
-    console.log('AccountState.load', publicKey, 'error:', err); // eslint-disable-line no-console
+    if ((err as { code: string }).code !== 'ENOENT') {
+      // eslint-disable-next-line no-console
+      console.log('AccountState.load', publicKey, 'error:', err);
+    }
     return getDefaultAccountState(publicKey);
   }
 };

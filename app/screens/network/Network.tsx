@@ -1,11 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
-import {
-  getCurrentLayer,
-  getNetworkDefinitions,
-} from '../../redux/network/actions';
 import { NetworkStatus } from '../../components/NetworkStatus';
 import {
   WrapperWith2SideBars,
@@ -82,8 +78,6 @@ const DetailsTextWrap = styled.div`
 `;
 
 const Network = ({ history }) => {
-  const dispatch = useDispatch();
-
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
@@ -91,13 +85,6 @@ const Network = ({ history }) => {
   const netName = useSelector(
     (state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME'
   );
-
-  useEffect(() => {
-    if (netId > -1) {
-      dispatch(getCurrentLayer());
-      dispatch(getNetworkDefinitions());
-    }
-  }, [netId, dispatch]);
 
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
@@ -144,7 +131,7 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Age</DetailsText>
-          <Tooltip width={250} text="tooltip age" isDarkMode={isDarkMode} />
+          <Tooltip width={250} text="tooltip age" />
         </DetailsTextWrap>
         <GrayText>
           <CustomTimeAgo time={genesisTime} />
@@ -153,7 +140,7 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Status</DetailsText>
-          <Tooltip width={250} text="tooltip Status" isDarkMode={isDarkMode} />
+          <Tooltip width={250} text="tooltip Status" />
         </DetailsTextWrap>
         <GrayText>
           <NetworkStatus
@@ -167,33 +154,21 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Current Layer</DetailsText>
-          <Tooltip
-            width={250}
-            text="tooltip Current Layer"
-            isDarkMode={isDarkMode}
-          />
+          <Tooltip width={250} text="tooltip Current Layer" />
         </DetailsTextWrap>
         <GrayText>{status?.topLayer || 0}</GrayText>
       </DetailsRow>
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Verified Layer</DetailsText>
-          <Tooltip
-            width={250}
-            text="tooltip Verified Layer"
-            isDarkMode={isDarkMode}
-          />
+          <Tooltip width={250} text="tooltip Verified Layer" />
         </DetailsTextWrap>
         <GrayText>{status?.verifiedLayer || 0}</GrayText>
       </DetailsRow>
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Connection Type</DetailsText>
-          <Tooltip
-            width={250}
-            text="tooltip Connection Type"
-            isDarkMode={isDarkMode}
-          />
+          <Tooltip width={250} text="tooltip Connection Type" />
         </DetailsTextWrap>
         <GrayText>
           {isWalletMode
@@ -205,11 +180,7 @@ const Network = ({ history }) => {
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Connected neighbors</DetailsText>
-            <Tooltip
-              width={250}
-              text="tooltip Connected neighbors"
-              isDarkMode={isDarkMode}
-            />
+            <Tooltip width={250} text="tooltip Connected neighbors" />
           </DetailsTextWrap>
           <GrayText>8</GrayText>
         </DetailsRow>
@@ -251,11 +222,7 @@ const Network = ({ history }) => {
           {!isWalletMode && (
             <Link onClick={openLogFile} text="BROWSE LOG FILE" />
           )}
-          <Tooltip
-            width={250}
-            text="tooltip BROWSE LOG FILE"
-            isDarkMode={isDarkMode}
-          />
+          <Tooltip width={250} text="tooltip BROWSE LOG FILE" />
           {renderActionButton()}
         </FooterWrap>
       </Container>

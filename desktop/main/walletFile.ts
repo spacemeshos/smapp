@@ -16,6 +16,8 @@ import FileEncryptionService from '../fileEncryptionService';
 import { isFileExists } from '../utils';
 import { DEFAULT_WALLETS_DIRECTORY } from './constants';
 
+export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
+
 //
 // Encryption
 //
@@ -33,7 +35,7 @@ export const decryptWallet = (
     const decrypted = JSON.parse(decryptedRaw) as WalletSecrets; // TODO: Add validation
     return decrypted;
   } catch (err) {
-    throw new Error('Wrong password');
+    throw new Error(WRONG_PASSWORD_MESSAGE);
   }
 };
 
@@ -136,13 +138,21 @@ export const copyWalletFile = async (filePath: string, outputDir: string) => {
   return newFilePath;
 };
 
-export const listWalletsByPaths = (files: string[]) =>
-  Promise.all(
+export const listWalletsByPaths = (files: string[]) => {
+  return Promise.all(
     files.map(async (filePath) => {
-      const wallet = await loadRawWallet(filePath);
-      return { path: filePath, meta: wallet.meta };
+      try {
+        const wallet = await loadRawWallet(filePath);
+        return { path: filePath, meta: wallet.meta };
+      } catch (err) {
+        return { path: filePath, error: err };
+      }
     })
+  ).then(
+    // TODO: Show error to the user?
+    (res) => R.filter(R.has('meta'), res)
   );
+};
 
 export const listWalletsInDirectory = async (
   walletsDir: string = DEFAULT_WALLETS_DIRECTORY

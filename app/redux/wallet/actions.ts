@@ -17,6 +17,7 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix, getAddress } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
+import { getNetworkId } from '../network/selectors';
 import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
@@ -34,13 +35,6 @@ export const UPDATE_ACCOUNT_DATA = 'UPDATE_ACCOUNT_DATA';
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
-
-export const SET_CURRENT_WALLET_PATH = 'SET_CURRENT_WALLET_PATH';
-
-export const setCurrentWalletPath = (path: string | null) => ({
-  type: SET_CURRENT_WALLET_PATH,
-  payload: path,
-});
 
 export const setWalletMeta = (wallet: WalletMeta) => ({
   type: SET_WALLET_META,
@@ -114,17 +108,11 @@ export const createNewWallet = ({
 }) => (dispatch: AppThDispatch) =>
   eventsService
     .createWallet({ password, existingMnemonic, type, apiUrl, netId })
-    .then((data) => {
-      const {
-        path,
-        wallet: { meta, crypto },
-      } = data;
-      dispatch(setCurrentWalletPath(path));
-      dispatch(setWalletMeta(meta));
-      dispatch(setAccounts(crypto.accounts));
-      dispatch(setMnemonic(crypto.mnemonic));
-      dispatch(readWalletFiles());
-      return data;
+    .then(({ error, payload }) => {
+      if (error) {
+        throw error;
+      }
+      return payload;
     })
     .catch((err) => {
       console.log(err); // eslint-disable-line no-console
@@ -134,18 +122,14 @@ export const createNewWallet = ({
 export const unlockWallet = (path: string, password: string) => async (
   dispatch: AppThDispatch
 ) => {
-  const {
-    error,
-    accounts,
-    mnemonic,
-    meta,
-    contacts,
-    isNetworkExist,
-    hasNetworks,
-  } = await eventsService.unlockWallet({ path, password });
+  const resp = await eventsService.unlockWallet({
+    path,
+    password,
+  });
+  const { error, payload } = resp;
   if (error) {
     // Incorrecrt password
-    if (error.message && error.message.indexOf('Unexpected token') === 0) {
+    if (error.message && error.message.indexOf('Wrong password') === 0) {
       return { success: false };
     }
     // Some unhandled error
@@ -154,18 +138,11 @@ export const unlockWallet = (path: string, password: string) => async (
     return { success: false };
   }
   // Success
-  dispatch(setCurrentWalletPath(path));
-  dispatch(setWalletMeta(meta));
-  dispatch(setAccounts(accounts));
-  dispatch(setMnemonic(mnemonic));
-  dispatch(setContacts(contacts));
   dispatch(setCurrentAccount(0));
-  const isWalletOnly = isWalletOnlyType(meta.type);
-  const requestApiSelection = isWalletOnly && !meta.remoteApi;
+  const isWalletOnly = isWalletOnlyType(payload.meta.type);
   return {
     success: true,
-    forceNetworkSelection:
-      hasNetworks && (!isNetworkExist || requestApiSelection),
+    forceNetworkSelection: payload.forceNetworkSelection,
     isWalletOnly,
   };
 };
@@ -185,23 +162,17 @@ export const unlockCurrentWallet = (password: string) => async (
   return dispatch(unlockWallet(currentWalletPath, password));
 };
 
-export const closeWallet = () => (dispatch: AppThDispatch) => {
-  dispatch(setCurrentWalletPath(null));
-  dispatch(setWalletMeta({} as WalletMeta));
-  dispatch(setAccounts([]));
-  dispatch(setMnemonic(''));
-  dispatch(setContacts([]));
-  dispatch(setCurrentAccount(0));
-};
-
-export const switchApiProvider = (api: SocketAddress | null) => async (
-  dispatch: AppThDispatch
-) => {
-  await eventsService.switchApiProvider(api);
+export const switchApiProvider = (
+  api: SocketAddress | null,
+  netId?: number
+) => async (dispatch: AppThDispatch, getState: GetState) => {
+  const nextNetId = netId || getNetworkId(getState());
+  await eventsService.switchApiProvider(api, nextNetId);
   dispatch({
     type: SET_REMOTE_API,
     payload: {
       api: api && isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
+      netId,
       type:
         api && isLocalNodeApi(api)
           ? WalletType.LocalNode
@@ -217,14 +188,10 @@ export const updateWalletName = ({
   displayName: string;
 }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { wallet } = getState();
-  const { meta, currentWalletPath } = wallet;
+  const { meta } = wallet;
   const updatedMeta = { ...meta, displayName };
 
-  await eventsService.updateWalletMeta(
-    currentWalletPath || '',
-    'displayName',
-    displayName
-  );
+  eventsService.updateWalletMeta('displayName', displayName);
   dispatch(setWalletMeta(updatedMeta));
 };
 
@@ -241,40 +208,17 @@ export const createNewAccount = ({ password }: { password: string }) => async (
     );
     return;
   }
-  const { error, newAccount } = await eventsService.createNewAccount({
-    fileName: currentWalletPath,
+  const { error, payload } = await eventsService.createNewAccount({
+    path: currentWalletPath,
     password,
   });
   if (error) {
     console.log(error); // eslint-disable-line no-console
     dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));
-  } else {
-    dispatch(setAccounts([...accounts, newAccount]));
   }
-};
-
-export const updateAccountName = ({
-  accountIndex,
-  name,
-  password,
-}: {
-  accountIndex: number;
-  name: string;
-  password: string;
-}) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
-  const updatedAccount = { ...accounts[accountIndex], displayName: name };
-  const updatedAccounts = [
-    ...accounts.slice(0, accountIndex),
-    updatedAccount,
-    ...accounts.slice(accountIndex + 1),
-  ];
-  await eventsService.updateWalletSecrets(currentWalletPath || '', password, {
-    mnemonic,
-    accounts: updatedAccounts,
-    contacts,
-  });
-  dispatch(setAccounts(updatedAccounts));
+  if (payload) {
+    dispatch(setAccounts([...accounts, payload]));
+  }
 };
 
 export const addToContacts = ({
@@ -283,15 +227,17 @@ export const addToContacts = ({
 }: {
   contact: Contact;
   password: string;
-}) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
-  const updatedContacts = [contact, ...contacts];
-  await eventsService.updateWalletSecrets(currentWalletPath || '', password, {
-    accounts,
-    mnemonic,
-    contacts: updatedContacts,
+}) => (_: AppThDispatch, getState: GetState) => {
+  const { currentWalletPath } = getState().wallet;
+  if (!currentWalletPath) return false;
+  // TODO: Instead make such actions simple actions (without thunk)
+  //       and call `eventsService` via middleware
+  eventsService.addContact({
+    path: currentWalletPath,
+    password,
+    contact,
   });
-  dispatch(setContacts(updatedContacts));
+  return true;
 };
 
 export const removeFromContacts = ({
@@ -300,17 +246,17 @@ export const removeFromContacts = ({
 }: {
   contact: Contact;
   password: string;
-}) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const { currentWalletPath, accounts, mnemonic, contacts } = getState().wallet;
-  const updatedContacts = contacts.filter(
-    (item) => contact.address !== item.address
-  );
-  await eventsService.updateWalletSecrets(currentWalletPath || '', password, {
-    accounts,
-    mnemonic,
-    contacts: updatedContacts,
+}) => (_: AppThDispatch, getState: GetState) => {
+  const { currentWalletPath } = getState().wallet;
+  if (!currentWalletPath) return false;
+  // TODO: Instead make such actions simple actions (without thunk)
+  //       and call `eventsService` via middleware
+  eventsService.removeContact({
+    path: currentWalletPath,
+    password,
+    contact,
   });
-  dispatch(setContacts(updatedContacts));
+  return true;
 };
 
 export const restoreFile = ({ filePath }: { filePath: string }) => async (

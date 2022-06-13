@@ -31,12 +31,12 @@ const Text = styled.span`
   font-size: 14px;
   line-height: 17px;
   color: ${smColors.disabledGray};
-  margin-right: 0px;
+  margin-right: 0;
 `;
 
 const SideBar = styled.img`
   position: absolute;
-  bottom: 0px;
+  bottom: 0;
   right: -40px;
   width: 25px;
   height: 140px;
@@ -96,11 +96,7 @@ const Leaving = ({ history }: AuthRouterParams) => {
                 onClick={() => history.push(AuthPath.Recover)}
                 text="SETUP WALLET ONLY"
               />
-              <Tooltip
-                width={100}
-                text="SETUP WALLET ONLY"
-                isDarkMode={isDarkMode}
-              />
+              <Tooltip width={100} text="SETUP WALLET ONLY" />
             </Row>
           </ComplexLink>
           <Button

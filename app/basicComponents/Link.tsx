@@ -9,8 +9,7 @@ const Wrapper = styled.div<{
 }>`
   font-size: 14px;
   line-height: 17px;
-  font-family: ${({ isPrimary }) =>
-    isPrimary ? 'SourceCodePro' : 'SourceCodeProBold'};
+  font-weight: ${({ isPrimary }) => (isPrimary ? 400 : 800)};
   text-decoration: underline;
   ${({ isDisabled, isPrimary }) =>
     isDisabled

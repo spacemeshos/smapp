@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-scroll';
 import {
   sidePanelRightMed,
   sidePanelRightMedWhite,
@@ -16,12 +17,20 @@ const Wrapper = styled.div`
   margin-right: 15px;
   background-color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img`
+const SideBar = styled.img<{ isLeft: boolean }>`
   display: block;
   width: 13px;
   height: 100%;
+
+  ${({ theme, isLeft }) => `
+    border-top-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-top-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+    border-bottom-left-radius: ${isLeft ? theme.box.radius : 0}px;
+    border-bottom-right-radius: ${isLeft ? 0 : theme.box.radius}px;
+  `};
 `;
 
 const InnerWrapper = styled.div`
@@ -33,16 +42,7 @@ const InnerWrapper = styled.div`
     theme.isDarkMode ? smColors.dMBlack1 : smColors.black10Alpha};
 `;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 15px;
-  cursor: pointer;
-`;
-
-const Text = styled.div<{ isCurrent: boolean }>`
+const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
   color: ${({ isCurrent, theme }) => {
@@ -52,13 +52,17 @@ const Text = styled.div<{ isCurrent: boolean }>`
       return smColors.purple;
     }
   }};
-  font-family: ${({ isCurrent }) =>
-    isCurrent ? 'SourceCodeProBold' : 'SourceCodePro'};
+  font-weight: ${({ isCurrent }) => (isCurrent ? 400 : 800)};
   text-align: right;
   cursor: pointer;
+
+  .active & {
+    font-family: SourceCodeProBold;
+    color: ${smColors.purple};
+  }
 `;
 
-const Indicator = styled.div<{ isCurrent: boolean }>`
+const Indicator = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,38 +72,52 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
-  background-color: ${({ isCurrent, theme }) => {
-    if (isCurrent) {
-      return smColors.purple;
-    } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
-    }
-  }};
+  background-color: ${({ theme: { isDarkMode } }) =>
+    isDarkMode ? smColors.white : smColors.realBlack};
   cursor: pointer;
+
+  .active & {
+    background-color: ${smColors.purple};
+  }
+`;
+
+const Container = styled(Link)`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 15px;
+  cursor: pointer;
+  ${({ theme }) => `border-radius: ${theme.indicators.radius}px;`}
 `;
 
 type Props = {
   items: Array<string>;
-  currentItem: number;
-  onClick: ({ index }: { index: number }) => void;
   isDarkMode?: boolean;
 };
 
-const SideMenu = ({ items, currentItem, onClick, isDarkMode }: Props) => {
+const SideMenu = ({ items, isDarkMode }: Props) => {
   const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
   const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
   return (
     <Wrapper>
-      <SideBar src={leftImg} />
+      <SideBar src={leftImg} isLeft />
       <InnerWrapper>
         {items.map((item, index) => (
-          <Container onClick={() => onClick({ index })} key={index}>
-            <Text isCurrent={index === currentItem}>{item}</Text>
-            <Indicator isCurrent={index === currentItem}>{index + 1}</Indicator>
+          <Container
+            to={item}
+            activeClass="active"
+            spy
+            smooth
+            key={item}
+            containerId="settingsContainer"
+          >
+            <Text>{item}</Text>
+            <Indicator>{index + 1}</Indicator>
           </Container>
         ))}
       </InnerWrapper>
-      <SideBar src={rightImg} />
+      <SideBar src={rightImg} isLeft={false} />
     </Wrapper>
   );
 };

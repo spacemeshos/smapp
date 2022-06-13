@@ -7,7 +7,6 @@ import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
@@ -38,7 +37,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   width: 100%;
   padding: 5px;
   line-height: 17px;
@@ -46,27 +45,20 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
     marginLeft: 'auto',
   };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const networksList = useSelector((state: RootState) => state.networks);
   const [networks, setNetworks] = useState({
     loading: false,
-    networks: [] as { netId: number; netName: string; explorer?: string }[],
+    networks: networksList,
   });
   const [showLoader, setLoader] = useState(false);
 
@@ -78,11 +70,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     });
     eventsService
       .listNetworks()
-      .then((nets) =>
-        setNetworks({
-          loading: false,
-          networks: nets,
-        })
+      .then(({ payload }) =>
+        setNetworks({ loading: false, networks: payload || [] })
       )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
   };
@@ -103,14 +92,12 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     label,
     explorer,
     netId,
-    isMain,
   }: {
     label: string;
     explorer: string;
     netId: number;
-    isMain: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
+    <AccItem key={label}>
       {netId > 0 ? (
         <>
           {label}
@@ -167,13 +154,12 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const handleNext = async () => {
     const netId =
       networks.networks.length > selectedItemIndex
-        ? networks.networks[selectedItemIndex].netId
+        ? networks.networks[selectedItemIndex].netID
         : -1;
     setLoader(true);
     if (netId > -1) {
       try {
         await eventsService.switchNetwork(netId);
-        await dispatch(getNetworkDefinitions());
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
         if (err instanceof Error) {

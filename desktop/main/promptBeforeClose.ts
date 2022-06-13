@@ -1,6 +1,7 @@
-import { app, dialog } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
+import { firstValueFrom, Subject } from 'rxjs';
 import { ipcConsts } from '../../app/vars';
-import { AppContext } from './context';
+import { Managers } from './Networks';
 import { showNotification } from './utils';
 
 enum CloseAppPromptResult {
@@ -9,11 +10,13 @@ enum CloseAppPromptResult {
   CLOSE = 3,
 }
 
-export default (context: AppContext) => {
-  context.isAppClosing = false;
-
+const promptBeforeClose = (
+  mainWindow: BrowserWindow,
+  managers: Partial<Managers>,
+  $isAppClosing: Subject<boolean>,
+  $showWindowOnLoad: Subject<boolean>
+) => {
   const showPrompt = async () => {
-    const { mainWindow } = context;
     if (!mainWindow) return CloseAppPromptResult.KEEP_SMESHING;
     const { response } = await dialog.showMessageBox(mainWindow, {
       title: 'Quit App',
@@ -34,23 +37,21 @@ export default (context: AppContext) => {
         return CloseAppPromptResult.CLOSE;
     }
   };
-  const isSmeshing = async () =>
-    context.managers.smesher?.isSmeshing() || false;
+  const isSmeshing = async () => managers.smesher?.isSmeshing() || false;
   const notify = () =>
-    showNotification(context, {
+    showNotification(mainWindow, {
       title: 'Spacemesh',
       body: 'Smesher is running in the background.',
     });
 
   const quit = () => {
-    context.isAppClosing = true;
+    $isAppClosing.next(true);
     app.quit();
   };
 
   const handleClosingApp = async (event: Electron.Event) => {
-    if (context.isAppClosing) return;
+    if (await firstValueFrom($isAppClosing)) return;
     event.preventDefault();
-    const { mainWindow } = context;
     if (!mainWindow) {
       quit();
       return;
@@ -61,14 +62,17 @@ export default (context: AppContext) => {
     if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
       setTimeout(notify, 1000);
       mainWindow.hide();
-      context.showWindowOnLoad = false;
+      $showWindowOnLoad.next(false);
       mainWindow.reload();
     } else if (promptResult === CloseAppPromptResult.CLOSE) {
+      $isAppClosing.next(true);
       mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-      await context.managers?.node?.stopNode();
+      await managers?.node?.stopNode();
       quit();
     }
   };
 
   return handleClosingApp;
 };
+
+export default promptBeforeClose;

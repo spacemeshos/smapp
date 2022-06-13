@@ -42,12 +42,10 @@ import {
 // Types
 //
 
-type Route = {
+export type Route = {
   path: RouterPath;
   component: any;
 };
-
-type Routes = Record<string, Route[]>;
 
 //
 // Utils
@@ -103,6 +101,6 @@ const backup = formatRoutes([
   [BackupPath.File, FileBackup],
 ]);
 
-const path: Routes = { app, auth, main, wallet, backup };
+const path = { app, auth, main, wallet, backup };
 
 export default path;

@@ -28,3 +28,11 @@ export interface NodeError {
   msg: string;
   stackTrace: string;
 }
+
+export interface NodeConfig {
+  p2p: {
+    'network-id': number;
+    [k: string]: any;
+  };
+  [k: string]: any;
+}

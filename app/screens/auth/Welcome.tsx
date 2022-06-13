@@ -140,7 +140,7 @@ const Welcome = ({ history }: AuthRouterParams) => {
             onClick={() => history.push(AuthPath.Recover)}
             text="OPEN AN EXISTING WALLET"
           />
-          <Tooltip width={250} text="tooltip" isDarkMode={isDarkMode} />
+          <Tooltip width={250} text="tooltip" />
           <ButtonMargin>
             <Button
               text="SETUP"

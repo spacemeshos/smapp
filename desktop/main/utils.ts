@@ -1,25 +1,23 @@
 import path from 'path';
 import readFromBottom from 'fs-reverse';
-import { Notification } from 'electron';
-import { AppContext } from './context';
+import { BrowserWindow, Notification } from 'electron';
+import { isFileExists } from '../utils';
 import { USERDATA_DIR } from './constants';
 
-export const showMainWindow = (context: AppContext) => {
-  const { mainWindow } = context;
-  if (!mainWindow) return;
+export const showMainWindow = (mainWindow: BrowserWindow) => {
   mainWindow.show();
   mainWindow.focus();
 };
 
 export const showNotification = (
-  context: AppContext,
+  mainWindow: BrowserWindow,
   { title, body }: { title: string; body: string }
 ) => {
-  if (Notification.isSupported() && !context.mainWindow?.isMaximized()) {
+  if (Notification.isSupported() && !mainWindow?.isMaximized()) {
     const options = { title, body, icon: '../app/assets/images/icon.png' };
     const notification = new Notification(options);
     notification.show();
-    notification.once('click', () => showMainWindow(context));
+    notification.once('click', () => showMainWindow(mainWindow));
   }
 };
 
@@ -28,8 +26,10 @@ export const getNodeLogsPath = (netId?: number) =>
 
 //
 
-export const readLinesFromBottom = (filepath: string, amount: number) =>
-  new Promise<string[]>((resolve) => {
+export const readLinesFromBottom = async (filepath: string, amount: number) => {
+  if (!(await isFileExists(filepath))) return [];
+
+  return new Promise<string[]>((resolve) => {
     const str = readFromBottom(filepath);
     const result: string[] = [];
     let count = 0;
@@ -44,3 +44,4 @@ export const readLinesFromBottom = (filepath: string, amount: number) =>
       count += 1;
     });
   });
+};

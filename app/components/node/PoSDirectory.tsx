@@ -9,6 +9,7 @@ import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
 
 const Wrapper = styled.div`
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};

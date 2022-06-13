@@ -163,7 +163,6 @@ const NodeSetup = ({ history, location }: Props) => {
           <PoSModifyPostData
             modify={handleModifyPosData}
             deleteData={handleDeletePosData}
-            isDarkMode={isDarkMode}
           />
         );
       case 1:
@@ -221,13 +220,11 @@ const NodeSetup = ({ history, location }: Props) => {
             throttle={throttle}
             setThrottle={setThrottle}
             status={status}
-            isDarkMode={isDarkMode}
           />
         );
       case 4:
         return (
           <PoSSummary
-            isDarkMode={isDarkMode}
             dataDir={dataDir}
             commitmentSize={
               smesherConfig

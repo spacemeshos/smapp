@@ -73,7 +73,6 @@ type Props = {
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
 };
 
 const PoSSummary = ({
@@ -84,7 +83,6 @@ const PoSSummary = ({
   nextAction,
   switchMode,
   status,
-  isDarkMode,
 }: Props) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -131,11 +129,7 @@ const PoSSummary = ({
       <Row>
         <TooltipWrap>
           <Text>estimated setup time</Text>
-          <Tooltip
-            width={100}
-            text="Placeholder text"
-            isDarkMode={isDarkMode}
-          />
+          <Tooltip width={100} text="Placeholder text" />
         </TooltipWrap>
         <Link onClick={() => switchMode({ mode: 3 })} isDisabled={isProcessing}>
           {`${provider?.performance} hashes per second`}

@@ -3,9 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
-import { Input, Link, ErrorPopup } from '../../basicComponents';
+import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
+import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
@@ -17,8 +17,7 @@ const Wrapper = styled.div<{ isStandalone: boolean }>`
     isStandalone && `background-color: ${smColors.purple}; padding: 15px;`}
 `;
 
-const Header = styled.div<{ isStandalone: boolean }>`
-  font-family: SourceCodeProBold;
+const Header = styled(BoldText)<{ isStandalone: boolean }>`
   font-size: 15px;
   line-height: 20px;
   color: ${({ isStandalone, theme }) => {
@@ -45,6 +44,7 @@ const InputWrapperUpperPart = styled.div<{ isStandalone: boolean }>`
   width: ${({ isStandalone }) => (isStandalone ? '100%' : 'calc(100% - 5px)')};
   background-color: ${smColors.purple};
   z-index: 1;
+  ${({ theme: { form } }) => ` border-radius: ${form.input.boxRadius}px;`}
 `;
 
 const InputWrapperLowerPart = styled.div`
@@ -53,7 +53,8 @@ const InputWrapperLowerPart = styled.div`
   left: 0;
   width: calc(100% - 5px);
   height: 60px;
-  border: 1px solid ${smColors.purple};
+  ${({ theme }) => `
+  border: ${Number(theme.themeName !== 'modern')}px solid ${smColors.purple};`}
 `;
 
 const ButtonsWrapper = styled.div`
@@ -87,7 +88,7 @@ const CreateNewContact = ({
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
-  const dispatch = useDispatch();
+  const dispatch: AppThDispatch = useDispatch();
 
   // static getDerivedStateFromProps(props: Props, prevState: State) {
   //   if (props.initialAddress !== prevState.initialAddress) {
@@ -130,7 +131,7 @@ const CreateNewContact = ({
   };
 
   const createContact = async ({ password }: { password: string }) => {
-    await dispatch(addToContacts({ password, contact: { address, nickname } }));
+    dispatch(addToContacts({ password, contact: { address, nickname } }));
     onCompleteAction();
   };
 

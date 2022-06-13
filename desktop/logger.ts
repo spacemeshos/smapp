@@ -28,6 +28,14 @@ const Logger = ({ className }: { className: string }) => ({
     logger.error?.(msg);
     // @todo clean up error invocation because of GRPC connection and streams and add sentry capture after it
   },
+  debug: (title: string, ...args: any[]) => {
+    const payload = args.reduce(
+      (acc, next) => `${acc}  ${JSON.stringify(next)}`,
+      ''
+    );
+    const msg = `${title}: ${payload}`;
+    logger.debug?.(msg);
+  },
 });
 
 export default Logger;

@@ -9,12 +9,11 @@ import {
   NavTooltip,
   NetworkIndicator,
   SmallHorizontalPanel,
+  BoldText,
 } from '../../basicComponents';
 import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
 import {
-  rightDecoration,
-  rightDecorationWhite,
   settingsIcon,
   settingsIconBlack,
   getCoinsIcon,
@@ -30,7 +29,6 @@ import Version from '../../components/common/Version';
 import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
 import { isWalletOnly } from '../../redux/wallet/selectors';
-import { getNetworkDefinitions } from '../../redux/network/actions';
 import { ExternalLinks } from '../../../shared/constants';
 
 const Wrapper = styled.div`
@@ -72,12 +70,11 @@ const NavLinksWrapper = styled.div`
   margin-left: 140px;
 `;
 
-const NavBarLink = styled.div<{ isActive?: boolean }>`
+const NavBarLink = styled(BoldText)<{ isActive?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   margin-right: 15px;
-  font-family: SourceCodeProBold;
   font-size: 12px;
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
@@ -87,7 +84,9 @@ const NavBarLink = styled.div<{ isActive?: boolean }>`
   cursor: pointer;
 `;
 
-const RightDecoration = styled.img`
+const RightDecoration = styled.img.attrs((props) => ({
+  src: props.theme.icons.pageLeftSideBar,
+}))`
   display: block;
   height: 100%;
   margin-right: -1px;
@@ -100,8 +99,8 @@ const RoutesWrapper = styled.div`
   height: calc(100% - 200px);
 `;
 
-const CustomTooltip = styled(NavTooltip)`
-  bottom: -45px;
+const CustomTooltip = styled(NavTooltip)<{ closePosition?: boolean }>`
+  bottom: ${({ closePosition }) => (closePosition ? '-25px' : '-45px')};
   right: -27px;
   width: 110px;
 `;
@@ -117,7 +116,6 @@ interface Props extends RouteComponentProps {
   isWalletOnly: boolean;
   status: NodeStatus | null;
   logout: any;
-  getNetworkDefinitions: () => void;
   location: {
     hash: string;
     pathname: string;
@@ -155,7 +153,6 @@ class Main extends Component<Props, State> {
 
   render() {
     const { isWalletOnly, nodeError, status, isDarkMode, netId } = this.props;
-    const img = isDarkMode ? rightDecorationWhite : rightDecoration;
     const settings = isDarkMode ? settingsIconBlack : settingsIcon;
     const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
     const help = isDarkMode ? helpIconBlack : helpIcon;
@@ -209,15 +206,19 @@ class Main extends Component<Props, State> {
                 <SecondaryButton
                   onClick={() => this.handleNavRoute(MainPath.Settings)}
                   img={settings}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={this.isActive(MainPath.Settings)}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="SETTINGS" isDarkMode={isDarkMode} />
+                <CustomTooltip
+                  text="SETTINGS"
+                  isDarkMode={isDarkMode}
+                  closePosition
+                />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -225,43 +226,55 @@ class Main extends Component<Props, State> {
                     this.handleOpenLink(ExternalLinks.GetCoinGuide)
                   }
                   img={getCoins}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="GET SMESH" isDarkMode={isDarkMode} />
+                <CustomTooltip
+                  text="GET SMESH"
+                  isDarkMode={isDarkMode}
+                  closePosition
+                />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={() => this.handleOpenLink(ExternalLinks.Help)}
                   img={help}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="HELP" isDarkMode={isDarkMode} />
+                <CustomTooltip
+                  text="HELP"
+                  isDarkMode={isDarkMode}
+                  closePosition
+                />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
                   onClick={this.handleLogOut}
                   img={signOut}
-                  imgHeight={30}
-                  imgWidth={30}
+                  imgHeight={25}
+                  imgWidth={25}
                   isPrimary={false}
                   width={35}
                   height={35}
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip text="LOGOUT" isDarkMode={isDarkMode} />
+                <CustomTooltip
+                  text="LOGOUT"
+                  isDarkMode={isDarkMode}
+                  closePosition
+                />
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
@@ -279,15 +292,14 @@ class Main extends Component<Props, State> {
           </RoutesWrapper>
         </InnerWrapper>
         <Version />
-        <RightDecoration src={img} />
+        <RightDecoration />
       </Wrapper>
     );
   }
 
   componentDidMount() {
-    const { isWalletOnly, getNetworkDefinitions } = this.props;
+    const { isWalletOnly } = this.props;
     !isWalletOnly && eventsService.requestVersionAndBuild();
-    getNetworkDefinitions();
   }
 
   renderNavBarLink = (
@@ -354,7 +366,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = {
   logout,
-  getNetworkDefinitions,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

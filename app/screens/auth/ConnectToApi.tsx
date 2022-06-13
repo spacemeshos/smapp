@@ -10,6 +10,7 @@ import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
 import { switchApiProvider } from '../../redux/wallet/actions';
+import { getNetworkId } from '../../redux/network/selectors';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -40,7 +41,7 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div<{ isInDropDown: boolean }>`
+const AccItem = styled.div`
   width: 100%;
   padding: 5px;
   line-height: 17px;
@@ -48,13 +49,6 @@ const AccItem = styled.div<{ isInDropDown: boolean }>`
   text-transform: uppercase;
   color: ${smColors.black};
   cursor: inherit;
-  ${({ isInDropDown }) =>
-    isInDropDown &&
-    `opacity: 0.5; border-bottom: 1px solid ${smColors.disabledGray};`}
-  &:hover {
-    opacity: 1;
-    color: ${smColors.darkGray50Alpha};
-  }
 `;
 
 type PublicServicesView = {
@@ -66,9 +60,9 @@ type PublicServicesView = {
 
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
+  const curNetId = useSelector(getNetworkId);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const ddStyle = {
-    border: `1px solid ${isDarkMode ? smColors.black : smColors.white}`,
     marginLeft: 'auto',
   };
 
@@ -81,11 +75,12 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const updatePublicServices = () => {
     eventsService
-      .listPublicServices()
-      .then((services) =>
-        setPublicServices({
+      .listPublicServices(curNetId)
+      .then(({ error, payload }) => {
+        if (error) throw error;
+        const state = {
           loading: false,
-          services: services.map((service) => ({
+          services: payload.map((service) => ({
             label: service.name,
             text: stringifySocketAddress(service),
             value: {
@@ -94,8 +89,9 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
               protocol: service.protocol,
             },
           })),
-        })
-      )
+        };
+        return setPublicServices(state);
+      })
       .catch((err) => {
         setPublicServices({
           loading: false,
@@ -105,7 +101,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       });
   };
 
-  useEffect(updatePublicServices, []);
+  useEffect(updatePublicServices, [curNetId]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
@@ -114,13 +110,11 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const renderAccElement = ({
     label,
     text,
-    isMain,
   }: {
     label: string;
     text: string;
-    isMain: boolean;
   }) => (
-    <AccItem key={label} isInDropDown={!isMain}>
+    <AccItem key={label}>
       {text ? (
         <>
           {label} - <DropDownLink>{text}</DropDownLink>
@@ -142,13 +136,14 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
+    const { netId } = location.state;
     const value =
       publicServices.services.length > selectedItemIndex
         ? publicServices.services[selectedItemIndex].value
         : undefined;
 
     value &&
-      dispatch(switchApiProvider(value)).catch((err) => {
+      dispatch(switchApiProvider(value, netId || curNetId)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });

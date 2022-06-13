@@ -1,14 +1,13 @@
 import path from 'path';
-import { app, Menu, Tray } from 'electron';
-import { AppContext } from './context';
+import { app, BrowserWindow, Menu, Tray } from 'electron';
 import { showMainWindow } from './utils';
 
-export default (context: AppContext) => {
-  const tray = new Tray(
-    path.resolve(__dirname, '../../resources/icons/16x16.png')
-  );
+let tray: Tray;
+
+export default (mainWindow: BrowserWindow) => {
+  tray = new Tray(path.resolve(__dirname, '../../resources/icons/16x16.png'));
   tray.setToolTip('Spacemesh');
-  const showSmapp = () => showMainWindow(context);
+  const showSmapp = () => showMainWindow(mainWindow);
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',
@@ -21,6 +20,5 @@ export default (context: AppContext) => {
   ]);
   tray.on('double-click', showSmapp);
   tray.setContextMenu(contextMenu);
-  context.tray = tray;
   return tray;
 };
