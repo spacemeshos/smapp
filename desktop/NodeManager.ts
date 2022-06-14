@@ -1,10 +1,10 @@
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import { ChildProcess } from 'node:child_process';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
-import { ChildProcess } from 'node:child_process';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
 import {
