@@ -1,6 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
 import SourceCodeProRegular from './assets/fonts/SourceCodePro-Regular.ttf';
 import SourceCodeProBold from './assets/fonts/SourceCodePro-Bold.ttf';
+import { smColors } from './vars';
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
@@ -65,6 +66,11 @@ const GlobalStyle = createGlobalStyle`
       box-sizing: border-box;
       font-weight: 400;
       font-family: SourceCodePro, sans-serif;
+    }
+
+    a {
+      color: ${smColors.blue};
+      cursor: pointer;
     }
 `;
 

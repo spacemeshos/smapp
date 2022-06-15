@@ -18,11 +18,6 @@ const Wrapper = styled.div`
   align-items: flex-start;
 `;
 
-const DropDownLink = styled.a`
-  color: ${smColors.blue};
-  cursor: pointer;
-`;
-
 const RowColumn = styled.div`
   display: flex;
   flex-direction: column;
@@ -102,9 +97,9 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         <>
           {label}
           (ID&nbsp;
-          <DropDownLink onClick={() => openExplorer(explorer)} target="_blank">
+          <a onClick={() => openExplorer(explorer)} target="_blank">
             {netId}
-          </DropDownLink>
+          </a>
           )
         </>
       ) : (

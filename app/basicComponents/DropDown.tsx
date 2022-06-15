@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { smColors } from '../vars';
 import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
 
@@ -14,6 +14,7 @@ const Wrapper = styled.div<{
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-left: auto;
   cursor: default;
   ${({ isOpened }) =>
     isOpened &&
@@ -239,18 +240,20 @@ const ItemsWrapper = styled.div<{
       colors: { light140 },
     },
   }) => `
-  > div:first-child > div {
+  > div:first-child  {
       border-top: 1px solid ${light140};
-    }  
+  }
+  
+  > div:last-child  {
+      border-bottom: none;
+  }  
     
   > div {
     
-    > div {
-      line-height: 29px;
-      border-bottom: 1px solid ${light140};
-    }
+    line-height: 1.5;
+    border-bottom: 1px solid ${light140};
 
-    &:hover > div {
+    &:hover {
       border-color: transparent;
     }
   }`};
@@ -262,15 +265,46 @@ const ItemsWrapper = styled.div<{
   `};
 `;
 
+const StyledDropDownItem = styled.div<{ uppercase?: boolean }>`
+  width: 100%;
+  font-size: 13px;
+  ${({ uppercase }) =>
+    uppercase &&
+    css`
+      text-transform: uppercase;
+    `};
+  color: ${smColors.black};
+  cursor: inherit;
+`;
+
 type ADataItem = {
   [k: string]: any;
   isDisabled?: boolean;
   isMain?: boolean;
 };
 
+interface DropDownItemProps extends ADataItem {
+  label: string;
+  description: string;
+  key: string;
+}
+
+const DropDownItem: React.FC<DropDownItemProps> = ({ label, description }) => {
+  return (
+    <StyledDropDownItem>
+      <p>{label}</p>
+      {description && (
+        <small>
+          <br />
+          {description}
+        </small>
+      )}
+    </StyledDropDownItem>
+  );
+};
+
 type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
-  DdElement: (T) => JSX.Element;
   data: Partial<T>[];
   selectedItemIndex: number;
   isDarkMode?: boolean;
@@ -278,13 +312,11 @@ type Props<T extends ADataItem> = {
   rowContentCentered?: boolean;
   isDisabled?: boolean;
   bgColor?: string;
-  style?: any;
   whiteIcon?: boolean;
 };
 
 const DropDown = <T extends ADataItem>({
   data,
-  DdElement,
   onClick,
   selectedItemIndex,
   isDarkMode,
@@ -292,7 +324,6 @@ const DropDown = <T extends ADataItem>({
   rowContentCentered = true,
   isDisabled = false,
   bgColor = smColors.white,
-  style = null,
   whiteIcon = false,
 }: Props<T>) => {
   const [isOpened, setIsOpened] = useState(false);
@@ -335,7 +366,13 @@ const DropDown = <T extends ADataItem>({
       }
       height={rowHeight}
     >
-      <DdElement {...item} />
+      <DropDownItem
+        key={(item.key as string) || String(index)}
+        isMain={item?.isMain}
+        isDisabled={item?.isDisabled}
+        label={item?.label as string}
+        description={item?.description as string}
+      />
     </DropdownRow>
   );
 
@@ -347,7 +384,6 @@ const DropDown = <T extends ADataItem>({
     <Wrapper
       isLightSkin={isDefault}
       isDisabled={isDisabledComputed}
-      style={style}
       isOpened={isOpened}
       onClick={(e) => {
         e.preventDefault();
@@ -360,7 +396,15 @@ const DropDown = <T extends ADataItem>({
         onClick={isDisabledComputed ? () => {} : handleToggle}
         rowHeight={rowHeight}
       >
-        <DdElement {...data[selectedItemIndex]} isMain />
+        <DropDownItem
+          key={
+            (data[selectedItemIndex].key as string) || String(selectedItemIndex)
+          }
+          isMain={data[selectedItemIndex]?.isMain}
+          isDisabled={data[selectedItemIndex]?.isDisabled}
+          label={data[selectedItemIndex]?.label as string}
+          description={data[selectedItemIndex]?.description as string}
+        />
         <Icon isOpened={isOpened} src={icon} />
       </HeaderWrapper>
       {isOpened && data && (
