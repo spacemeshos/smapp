@@ -16,7 +16,10 @@ export default async () => {
     minHeight: 680,
     center: true,
     webPreferences: {
+      // TODO: https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content
       nodeIntegration: true,
+      // TODO: https://www.electronjs.org/docs/latest/tutorial/security#3-enable-context-isolation-for-remote-content
+      contextIsolation: false,
     },
   });
 
