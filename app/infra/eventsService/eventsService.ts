@@ -160,7 +160,7 @@ class EventsService {
   static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
     await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, LOCAL_NODE_API_URL);
     await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
-    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { postSetupOpts });
+    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, postSetupOpts);
   };
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
@@ -276,7 +276,6 @@ ipcRenderer.on(ipcConsts.T_M_UPDATE_TXS, (_event, request) => {
 
 ipcRenderer.on(ipcConsts.T_M_UPDATE_REWARDS, (_event, request) => {
   const { rewards, publicKey } = request;
-  console.log('SET_ACCOUNT_REWARDS', publicKey, rewards);
   store.dispatch({
     type: SET_ACCOUNT_REWARDS,
     payload: { rewards, publicKey },

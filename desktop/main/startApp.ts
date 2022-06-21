@@ -39,8 +39,8 @@ const loadNetworkData = () => {
 
   const updateInfo = $isWalletActivated
     .pipe(
-      $.switchMap(() => $managers),
-      $.switchMap((managers) =>
+      $.withLatestFrom($managers),
+      $.switchMap(([_, managers]) =>
         $.from(
           Promise.all([
             managers.wallet.getCurrentLayer(),

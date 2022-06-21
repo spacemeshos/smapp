@@ -10,11 +10,13 @@ import {
   merge,
   Observable,
   scan,
+  skip,
   skipUntil,
   Subject,
   tap,
   withLatestFrom,
 } from 'rxjs';
+import { formatSmidge } from '../../../app/infra/utils';
 import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   Activation,
@@ -126,7 +128,7 @@ const getRewardsInfo = (
     (acc, next) => ({
       total: acc.total + next.total,
       layers: new Set(acc.layers).add(next.layer),
-      epochs: new Set(acc.layers).add(getEpoch(next.layer)),
+      epochs: new Set(acc.epochs).add(getEpoch(next.layer)),
     }),
     {
       total: 0,
@@ -134,17 +136,18 @@ const getRewardsInfo = (
       epochs: new Set(),
     }
   );
+
   const lastEpoch = R.compose(
     R.reduce((acc, next: SmesherReward) => acc + next.total, 0),
-    R.takeWhile((reward: SmesherReward) => getEpoch(reward.layer) === curEpoch)
+    R.filter((reward: SmesherReward) => getEpoch(reward.layer) === curEpoch)
   )(rewards);
+
   const dailyAverage =
     rewards.length > 2
-      ? (sums.total /
-          (getLayerTime(rewards[rewards.length - 1].layer) -
-            getLayerTime(rewards[0].layer))) *
-        24 *
-        HOUR
+      ? sums.total /
+        (getLayerTime(rewards[rewards.length - 1].layer) -
+          getLayerTime(rewards[0].layer)) *
+        (24 * HOUR)
       : 0;
 
   return {
@@ -184,7 +187,7 @@ export default (
       $smesherId,
       $activations,
       $nodeConfig,
-      $currentLayer,
+      $currentLayer.pipe(skip(1)),
       $rewards,
     ]).pipe(
       map(([smesherId, activations, cfg, curLayer, rewards]) => ({
@@ -196,14 +199,4 @@ export default (
         },
       }))
     )
-    // @TODO:
-    // Networks + currentLayer + rootHash
-    // $.interval(MINUTE)
-    //   .pipe(
-    //     withLatest($managers),
-    //     $.switchMap(([managers, _]) => managers.wallet.getCurrentLayer())
-    //   )
-    //   .subscribe((next) => {
-    //     $currentLayer.next(next.currentLayer);
-    //   });
   );

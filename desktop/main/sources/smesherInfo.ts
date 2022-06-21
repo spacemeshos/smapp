@@ -1,30 +1,45 @@
+import { identity } from 'ramda';
 import {
   combineLatest,
+  concat,
+  debounceTime,
+  delay,
+  distinctUntilChanged,
+  filter,
   from,
+  interval,
   map,
   merge,
   Observable,
   of,
+  reduce,
+  retry,
   scan,
   skipUntil,
   Subject,
   switchMap,
+  take,
   tap,
+  throttleTime,
   withLatestFrom,
 } from 'rxjs';
+import { ipcConsts } from '../../../app/vars';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
-import { Activation, SmesherReward } from '../../../shared/types';
+import { Activation, PostSetupOpts, SmesherReward } from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
+import Logger from '../../logger';
 import { fromHexString } from '../../utils';
 import { Managers } from '../app.types';
+import { MINUTE } from '../constants';
+import { handleIPC, wrapResult } from '../rx.utils';
+
+const logger = Logger({ className: 'smesherInfo' });
 
 const getRewards$ = (
   managers: Managers,
   coinbase: Uint8Array
-): Observable<Reward__Output> =>
-  from(managers.wallet.requestRewardsByCoinbase(coinbase)).pipe(
-    switchMap(from)
-  );
+): Observable<Reward__Output[]> =>
+  from(managers.wallet.requestRewardsByCoinbase(coinbase));
 
 const toSmesherReward = (input: Reward__Output): SmesherReward => {
   if (!hasRequiredRewardFields(input)) {
@@ -54,6 +69,31 @@ const syncSmesherInfo = (
   $managers: Observable<Managers>,
   $isWalletActivated: Subject<void>
 ) => {
+  // IPC
+  const $startSmeshing = handleIPC(
+    ipcConsts.SMESHER_START_SMESHING,
+    (postSetupOpts: PostSetupOpts) =>
+      $managers.pipe(
+        tap(() => console.log('$startSmeshing triggered...')),
+        switchMap((managers) =>
+          from(wrapResult(managers.node.startSmeshing(postSetupOpts)))
+        )
+      ),
+    (x) => {
+      console.log('$startSmeshing = ', x);
+      return x;
+    }
+  );
+
+  const $isSmeshing = merge(
+    $isWalletActivated,
+    $startSmeshing.pipe(filter(Boolean)),
+    interval(5 * MINUTE)
+  ).pipe(
+    withLatestFrom($managers),
+    switchMap(([_, managers]) => from(managers.smesher.isSmeshing()))
+  );
+
   const $smesherId = combineLatest([$managers, $isWalletActivated]).pipe(
     switchMap(([managers]) =>
       from(
@@ -68,35 +108,53 @@ const syncSmesherInfo = (
     ),
     map((pubKey) => fromHexString(pubKey.substring(2)))
   );
-  const $coinbase = $isWalletActivated.pipe(
+  const $coinbase = $isSmeshing.pipe(
+    filter(Boolean),
     withLatestFrom($managers),
     switchMap(([_, managers]) =>
       from(
         managers.smesher.getCoinbase().then((res) => {
+          if (!res) return null;
           if (res.error) {
-            throw res.error;
+            logger.error('getCoinbase() return', res);
+            return null;
           }
-          return fromHexString(res.coinbase.substring(2));
+          return res.coinbase;
         })
       )
+    ),
+    filter(Boolean)
+  );
+
+  const $rewardsHistory = combineLatest([$coinbase, $managers]).pipe(
+    take(1),
+    switchMap(([coinbase, managers]) =>
+      getRewards$(managers, fromHexString(coinbase.substring(2)))
+    ),
+    map((rewards) => rewards.map(toSmesherReward))
+  );
+  const $rewardsStream = combineLatest([$coinbase, $managers]).pipe(
+    take(1),
+    switchMap(
+      ([coinbase, managers]) =>
+        new Observable<Reward__Output>((subscriber) =>
+          managers.wallet.listenRewardsByCoinbase(
+            fromHexString(coinbase.substring(2)),
+            (x) => subscriber.next(x)
+          )
+        )
     )
   );
 
-  const $rewards = combineLatest([$coinbase, $managers]).pipe(
-    switchMap(([coinbase, managers]) =>
-      merge(
-        getRewards$(managers, coinbase),
-        new Observable<Reward__Output>((subscriber) =>
-          managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
-            subscriber.next(x)
-          )
-        )
-      )
-    ),
-    scan<Reward__Output, SmesherReward[]>(
-      (acc, next) =>
-        hasRequiredRewardFields(next) ? [...acc, toSmesherReward(next)] : acc,
-      []
+  const $rewards = concat(
+    $rewardsHistory,
+    $rewardsStream.pipe(
+      scan((acc, next) => {
+        if (hasRequiredRewardFields(next)) {
+          acc.push(toSmesherReward(next));
+        }
+        return acc;
+      }, <SmesherReward[]>[])
     )
   );
 

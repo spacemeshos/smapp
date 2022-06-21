@@ -3,7 +3,6 @@ import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/AccountDataStreamResponse';
-import { SmesherRewardStreamResponse__Output } from '../proto/spacemesh/v1/SmesherRewardStreamResponse';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
@@ -11,11 +10,10 @@ import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
-import { tap } from 'ramda';
 
 const PROTO_PATH = 'proto/global_state.proto';
 
-interface AccountDataStreamHandlerArg {
+export interface AccountDataStreamHandlerArg {
   [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: Reward__Output;
   [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: Account__Output;
   [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: TransactionReceipt__Output;
@@ -68,7 +66,10 @@ class GlobalStateService extends NetServiceFactory<
       .then((response) => ({
         totalResults: response.totalResults,
         data: response.accountItem.map(
-          (item) => item[getKeyByAccountDataFlag(filter.accountDataFlags)]
+          (item) =>
+            item[
+              getKeyByAccountDataFlag(filter.accountDataFlags)
+            ] as AccountDataStreamHandlerArg[F]
         ),
       }))
       .then(this.normalizeServiceResponse)
@@ -97,7 +98,6 @@ class GlobalStateService extends NetServiceFactory<
         const key = getKeyByAccountDataFlag(accountDataFlags);
         if (datum && datum[key]) {
           const value = datum[key] as AccountDataStreamHandlerArg[K];
-          console.log('activateAccountDataStream >>>', value);
           handler(value);
         }
       }
@@ -106,14 +106,12 @@ class GlobalStateService extends NetServiceFactory<
   listenRewardsByCoinbase = (
     coinbase: Uint8Array,
     handler: (data: Reward__Output) => void
-  ) => {
-    console.log('listenRewardsByCoinbase', toHexString(coinbase));
-    return this.activateAccountDataStream(
+  ) =>
+    this.activateAccountDataStream(
       coinbase,
       AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
       handler
     );
-  }
 }
 
 export default GlobalStateService;

@@ -24,7 +24,10 @@ import cryptoService from './cryptoService';
 import { fromHexString, toHexString } from './utils';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
-import GlobalStateService from './GlobalStateService';
+import GlobalStateService, {
+  AccountDataStreamHandlerArg,
+  AccountDataValidFlags,
+} from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 
@@ -176,17 +179,6 @@ class TransactionManager {
       updateAccountData
     );
 
-    setInterval(() => {
-      this.retrieveAccountData({
-        filter: {
-          accountId: { address: binaryAccountId },
-          accountDataFlags: 4,
-        },
-        handler: updateAccountData,
-        retries: 0,
-      });
-    }, 60 * 1000);
-
     const txs = Object.keys(this.accountStates[publicKey].getTxs());
     if (txs.length > 0) {
       this.subscribeTransactions(publicKey);
@@ -309,17 +301,20 @@ class TransactionManager {
       currentState,
       projectedState,
     });
-    console.log('updateAccountData', currentState, projectedState);
+
     this.updateAppStateAccount(accountId);
   };
 
-  retrieveAccountData = async ({
+  retrieveAccountData = async <F extends AccountDataValidFlags>({
     filter,
     handler,
     retries,
   }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    handler: (data: Account__Output) => void;
+    filter: {
+      accountId: { address: Uint8Array };
+      accountDataFlags: F;
+    };
+    handler: (data: AccountDataStreamHandlerArg[F]) => void;
     retries: number;
   }) => {
     const { data, error } = await this.glStateService.sendAccountDataQuery({
@@ -327,12 +322,13 @@ class TransactionManager {
       offset: 0,
     });
     if (error && retries < 5) {
-      await this.retrieveAccountData({ filter, handler, retries: retries + 1 });
+      await this.retrieveAccountData({
+        filter,
+        handler,
+        retries: retries + 1,
+      });
     } else {
-      data &&
-        data.length > 0 &&
-        data[0].accountWrapper &&
-        handler(data[0].accountWrapper);
+      data && data.length > 0 && handler(data[0]);
     }
   };
 

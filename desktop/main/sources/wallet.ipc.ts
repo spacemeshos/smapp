@@ -59,7 +59,8 @@ import {
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
 
-const RESET_WALLET = { path: '', wallet: null };
+type ResetWallet = { path: ''; wallet: null };
+const RESET_WALLET: ResetWallet = { path: '', wallet: null };
 type WalletPair = {
   path: string;
   wallet: Wallet;
@@ -138,14 +139,15 @@ const handleWalletIpcRequests = (
           withLatestFrom($networks),
           map(([hr, nets]) =>
             mapResult(
-              (pair) => ({
-                ...pair,
-                meta: {
-                  forceNetworkSelection:
-                    isNetIdMissing(pair.wallet) ||
-                    !hasNetwork(pair.wallet.meta.netId, nets),
+              (pair) =>
+                <WalletPair>{
+                  ...pair,
+                  meta: {
+                    forceNetworkSelection:
+                      isNetIdMissing(pair.wallet) ||
+                      !hasNetwork(pair.wallet.meta.netId, nets),
+                  },
                 },
-              }),
               hr
             )
           )

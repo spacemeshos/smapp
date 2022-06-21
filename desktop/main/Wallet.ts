@@ -156,7 +156,7 @@ const create = (index: number, mnemonicSeed?: string): Wallet => {
   return { meta, crypto };
 };
 
-export const createNewAccount = (wallet: Wallet) => {
+export const createNewAccount = (wallet: Wallet): Wallet => {
   const { meta, crypto } = wallet;
   const timestamp = getISODate();
   const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({

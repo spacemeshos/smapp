@@ -202,11 +202,11 @@ const SmesherLog = ({
               const showEpoch = curEpoch !== prevEpoch;
               prevEpoch = curEpoch;
               return (
-                <>
+                <React.Fragment key={`reward_${reward.layer}_${index}`}>
                   {showEpoch && (
                     <EpochText>Epoch {epochByLayer(reward.layer)}</EpochText>
                   )}
-                  <div key={`reward${index}`}>
+                  <div>
                     <LogEntry>
                       <LayerReward>
                         <LayerNumber>{reward.layer}</LayerNumber>
@@ -217,7 +217,7 @@ const SmesherLog = ({
                       </LayerReward>
                     </LogEntry>
                   </div>
-                </>
+                </React.Fragment>
               );
             });
           })()}
