@@ -229,7 +229,14 @@ const handleWalletIpcRequests = (
         loadWallet$(path, password).pipe(
           map((res) =>
             hasResult(res)
-              ? R.over(R.lensPath([1, 'wallet']), createNewAccount, res)
+              ? mapResult(
+                  (pair) => ({
+                    ...pair,
+                    wallet: createNewAccount(pair.wallet),
+                    password,
+                  }),
+                  res
+                )
               : res
           )
         ),
