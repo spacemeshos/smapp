@@ -82,10 +82,10 @@ const Network = ({ history }) => {
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
   const netId = useSelector((state: RootState) => state.network.netId || -1);
-  const netName = useSelector((state: RootState) =>
-    state.network.netName || netId === -1
-      ? 'NOT CONNECTED'
-      : 'UNKNOWN NETWORK NAME'
+  const netName = useSelector(
+    (state: RootState) =>
+      state.network.netName ||
+      (netId === -1 ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
   );
 
   const genesisTime = useSelector(
