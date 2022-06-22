@@ -152,7 +152,7 @@ class TransactionManager {
   private subscribeAccount = (account: AccountWithBalance): void => {
     const { publicKey } = account;
     // Cancel account Txs subscription
-    this.txStateStream[publicKey] && this.txStateStream[publicKey]();
+    this.txStateStream[publicKey] && this.txStateStream[publicKey]?.();
 
     const binaryAccountId = fromHexString(publicKey.substring(24));
     const addTransaction = this.upsertTransactionFromMesh(publicKey);

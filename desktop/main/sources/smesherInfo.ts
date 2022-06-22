@@ -1,10 +1,6 @@
-import { identity } from 'ramda';
 import {
   combineLatest,
   concat,
-  debounceTime,
-  delay,
-  distinctUntilChanged,
   filter,
   from,
   interval,
@@ -12,15 +8,10 @@ import {
   merge,
   Observable,
   of,
-  reduce,
-  retry,
   scan,
-  skipUntil,
   Subject,
   switchMap,
-  take,
   tap,
-  throttleTime,
   withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
@@ -55,15 +46,11 @@ const toSmesherReward = (input: Reward__Output): SmesherReward => {
   };
 };
 
-// TODO: Use it when API will be ready.
-//       See also https://github.com/spacemeshos/go-spacemesh/issues/2064
-// const getActivations$ = (
-//   managers: Managers,
-//   coinbase: Uint8Array
-// ): Observable<Activation> =>
-//   from(managers.wallet.requestActivationsByCoinbase(coinbase)).pipe(
-//     switchMap(from)
-//   );
+const getActivations$ = (
+  managers: Managers,
+  coinbase: Uint8Array
+): Observable<Activation[]> =>
+  from(managers.wallet.requestActivationsByCoinbase(coinbase));
 
 const syncSmesherInfo = (
   $managers: Observable<Managers>,
@@ -73,16 +60,13 @@ const syncSmesherInfo = (
   const $startSmeshing = handleIPC(
     ipcConsts.SMESHER_START_SMESHING,
     (postSetupOpts: PostSetupOpts) =>
-      $managers.pipe(
-        tap(() => console.log('$startSmeshing triggered...')),
-        switchMap((managers) =>
-          from(wrapResult(managers.node.startSmeshing(postSetupOpts)))
+      of(postSetupOpts).pipe(
+        withLatestFrom($managers),
+        switchMap(([opts, managers]) =>
+          from(wrapResult(managers.node.startSmeshing(opts)))
         )
       ),
-    (x) => {
-      console.log('$startSmeshing = ', x);
-      return x;
-    }
+    (x) => x
   );
 
   const $isSmeshing = merge(
@@ -127,14 +111,12 @@ const syncSmesherInfo = (
   );
 
   const $rewardsHistory = combineLatest([$coinbase, $managers]).pipe(
-    take(1),
     switchMap(([coinbase, managers]) =>
       getRewards$(managers, fromHexString(coinbase.substring(2)))
     ),
     map((rewards) => rewards.map(toSmesherReward))
   );
   const $rewardsStream = combineLatest([$coinbase, $managers]).pipe(
-    take(1),
     switchMap(
       ([coinbase, managers]) =>
         new Observable<Reward__Output>((subscriber) =>
@@ -158,29 +140,32 @@ const syncSmesherInfo = (
     )
   );
 
-  // TODO: Use it when API will be ready.
-  //       See also https://github.com/spacemeshos/go-spacemesh/issues/2064
-  // TODO: coinbases is a list of addresses:
-  //       smesher coinbase from node config
-  //       and also any other coinbases if any found in rewards log
-  // const $activations = combineLatest([$coinbases, $managers]).pipe(
-  //   switchMap(([coinbases, managers]) =>
-  //     merge(
-  //       ...(coinbases.map((coinbase) => {
-  //          return [
-  //            getActivations$(managers, smesherId);
-  //            new Observable<Activation>((subscriber) =>
-  //               managers.wallet.listenActivationsByCoinbase(smesherId, subscriber.next),
-  //          ];
-  //       }))
-  //     )
-  //   ),
-  //   reduce<Activation, Activation[]>((acc, next) => [...acc, next], [])
-  // );
+  const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
+    switchMap(
+      ([coinbase, managers]) =>
+        new Observable<Activation>((subscriber) =>
+          managers.wallet.listenActivationsByCoinbase(
+            fromHexString(coinbase.substring(2)),
+            (atx) => subscriber.next(atx)
+          )
+        )
+    )
+  );
+
+  const $activations = combineLatest([$coinbase, $managers]).pipe(
+    switchMap(([coinbase, managers]) =>
+      concat(
+        getActivations$(managers, fromHexString(coinbase.substring(2))),
+        $activationsStream.pipe(
+          scan<Activation, Activation[]>((acc, next) => [...acc, next], [])
+        )
+      )
+    )
+  );
 
   return {
     $smesherId,
-    $activations: of(<Activation[]>[]),
+    $activations,
     $rewards,
     $coinbase,
   };
