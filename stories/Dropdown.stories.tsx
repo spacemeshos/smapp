@@ -30,24 +30,7 @@ DropdownSwitchNetwork.args = {
     { label: 'devnet225', netId: -1, isDisabled: false },
     { label: 'devnet226', netId: -1, isDisabled: true },
   ],
-  // eslint-disable-next-line react/display-name
-  /* DdElement: ({ label, netId, ...props }: { label: string; netId: number }) => (
-    <StyledDropDownItem {...props} key={label} uppercase>
-      {netId > 0 ? (
-        <>
-          {label}
-          (ID&nbsp;
-          <a onClick={() => {}}>{netId}</a>)
-        </>
-      ) : (
-        label
-      )}
-    </StyledDropDownItem>
-  ), */
   rowHeight: 40,
-  // style: {
-  //   marginLeft: 'auto',
-  // },
   bgColor: smColors.white,
   isDarkMode: false,
   isDisabled: false,
@@ -62,16 +45,7 @@ DropdownTheme.args = {
     { label: 'Classic Dark' },
     { label: 'Classic Light' },
   ],
-  // eslint-disable-next-line react/display-name
-  // DdElement: ({ label, text }: { label: string; text: string }) => (
-  //   <StyledDropDownItem key={label}>
-  //     {label} {text}
-  //   </StyledDropDownItem>
-  // ),
   rowHeight: 40,
-  // style: {
-  //   marginLeft: 'auto',
-  // },
   bgColor: smColors.white,
   isDarkMode: false,
   isDisabled: false,
@@ -86,17 +60,7 @@ DropdownFee.args = {
     { label: '~ 5 min', description: '(FEE 2 Smidge)' },
     { label: '~ 1 min', description: '(FEE 3 Smidge)' },
   ],
-  // eslint-disable-next-line react/display-name
-  // DdElement: ({ label, text }: { label: string; text: string }) => (
-  //   <StyledDropDownItem key={label}>
-  //     {label} {text}
-  //   </StyledDropDownItem>
-  // ),
   rowHeight: 40,
-  // style: {
-  //   marginLeft: 'auto',
-  //   flex: '0 0 240px',
-  // },
   bgColor: smColors.white,
   isDarkMode: false,
   isDisabled: false,
@@ -124,28 +88,8 @@ DropdownWallets.args = {
       description: `CREATED: ${formatISOAsUS(
         '2022-06-17T12-31-45.467Z'
       )}, NET ID: ${224}`,
-      // path: 'path/to/wallet',
-      // label: 'Wallett 3',
-      // meta: {
-      //   displayName: 'Main Wallet',
-      //   created: '2022-06-17T12-31-45.467Z',
-      //   type: 'local-node',
-      //   netId: 224,
-      // },
     },
   ],
-  // eslint-disable-next-line react/display-name
-  // DdElement: ({ label, meta }: { label: string; meta?: WalletMeta }) => (
-  //   <StyledDropDownItem key={label} uppercase>
-  //     {label}
-  //     {meta && (
-  //       <small>
-  //         <br />
-  //         CREATED: {formatISOAsUS(meta.created)}, NET ID: {meta.netId}
-  //       </small>
-  //     )}
-  //   </StyledDropDownItem>
-  // ),
   rowHeight: 50,
   bgColor: smColors.white,
   isDarkMode: false,
@@ -161,16 +105,7 @@ DropdownTransactions.args = {
     { label: 'monthly' },
     { label: 'yearly' },
   ],
-  // eslint-disable-next-line react/display-name
-  // DdElement: ({ label }) => <TimeSpanEntry>{label}</TimeSpanEntry>,
   rowHeight: 40,
-  /* style: {
-    width: 140,
-    position: 'absolute',
-    right: 12,
-    top: 5,
-    height: 41,
-  }, */
   isDisabled: false,
   rowContentCentered: false,
   whiteIcon: false,

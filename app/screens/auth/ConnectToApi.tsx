@@ -22,11 +22,6 @@ const Wrapper = styled.div`
   align-items: flex-start;
 `;
 
-const DropDownLink = styled.span`
-  color: ${smColors.blue};
-  cursor: pointer;
-`;
-
 const RowColumn = styled.div`
   display: flex;
   flex-direction: column;
@@ -41,16 +36,6 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div`
-  width: 100%;
-  padding: 5px;
-  line-height: 17px;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: ${smColors.black};
-  cursor: inherit;
-`;
-
 type PublicServicesView = {
   label: string;
   value?: SocketAddress;
@@ -62,9 +47,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const curNetId = useSelector(getNetworkId);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const ddStyle = {
-    marginLeft: 'auto',
-  };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
@@ -107,24 +89,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
-  const renderAccElement = ({
-    label,
-    text,
-  }: {
-    label: string;
-    text: string;
-  }) => (
-    <AccItem key={label}>
-      {text ? (
-        <>
-          {label} - <DropDownLink>{text}</DropDownLink>
-        </>
-      ) : (
-        label
-      )}
-    </AccItem>
-  );
-
   const hasPublicServices = publicServices.services.length > 0;
 
   const getPublicServicesDropdownData = () =>
@@ -132,7 +96,9 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
     publicServices.loading
       ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }]
       : hasPublicServices
-      ? publicServices.services
+      ? publicServices.services.map(({ label, text }) => ({
+          label: text ? `${label} - ${text}` : label,
+        }))
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
@@ -171,10 +137,8 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
           <DropDown
             data={getPublicServicesDropdownData()}
             onClick={selectItem}
-            DdElement={renderAccElement}
             selectedItemIndex={selectedItemIndex}
             rowHeight={40}
-            style={ddStyle}
             bgColor={smColors.white}
             isDisabled={!hasPublicServices}
           />

@@ -157,5 +157,6 @@ export default {
     chevronRight: chevronRightWhite,
     chevronLeft: chevronLeftWhite,
     chevronBottom: chevronBottomWhite,
+    chevronDropDownBottom: chevronBottomWhite,
   },
 };

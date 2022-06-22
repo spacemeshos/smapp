@@ -233,13 +233,6 @@ const DeleteText = styled.div`
   text-decoration: underline;
 `;
 
-const SortingElement = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  padding: 5px;
-  cursor: inherit;
-`;
-
 const CreateNewContactImg = styled.img`
   position: absolute;
   top: 6px;
@@ -256,10 +249,7 @@ const ClockImg = styled.img`
   height: 16px;
 `;
 
-const sortOptions = [
-  { id: 1, label: 'Sort by A-Z' },
-  { id: 2, label: 'Sort by Z-A' },
-];
+const sortOptions = [{ label: 'Sort by A-Z' }, { label: 'Sort by Z-A' }];
 
 const Contacts = ({ history }: RouteComponentProps) => {
   let newContactCreatedTimeOut: ReturnType<typeof setInterval>;
@@ -443,10 +433,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
     );
   };
 
-  const renderSortElementElement = ({ label }: { label: string }) => (
-    <SortingElement key={label}>{label}</SortingElement>
-  );
-
   const renderContacts = () => {
     const filteredContacts = contacts.filter(contactFilter);
     if (filteredContacts.length === 0) {
@@ -521,9 +507,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
         <DropDown
           data={sortOptions}
           onClick={({ index }) => setSelectedSorting(index)}
-          DdElement={renderSortElementElement}
           selectedItemIndex={selectedSorting}
-          style={{ flex: '0 0 160px' }}
           bgColor={smColors.white}
         />
       </ContactsSubHeader>

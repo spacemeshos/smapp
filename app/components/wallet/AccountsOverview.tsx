@@ -122,13 +122,9 @@ const AccountsOverview = () => {
       <AccountDetails>
         {accounts.length > 1 ? (
           <DropDown
-            data={accounts}
-            DdElement={({ displayName, publicKey }) =>
-              renderAccountRow({
-                displayName,
-                publicKey,
-              })
-            }
+            data={accounts.map((item) => ({
+              label: item.displayName,
+            }))}
             onClick={handleSetCurrentAccount}
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}

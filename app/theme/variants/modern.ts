@@ -8,6 +8,7 @@ import {
   chevronRightPurple,
   chevronLeftPurple,
   chevronBottomPurple,
+  chevronBottomWhite,
 } from '../../assets/images';
 
 export default {
@@ -157,5 +158,6 @@ export default {
     chevronRight: chevronRightPurple,
     chevronLeft: chevronLeftPurple,
     chevronBottom: chevronBottomPurple,
+    chevronDropDownBottom: chevronBottomWhite,
   },
 };

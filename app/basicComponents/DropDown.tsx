@@ -58,9 +58,10 @@ const HeaderWrapper = styled.div<{
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  height: ${({ rowHeight }) => rowHeight}px;
+  height: ${({ rowHeight }) =>
+    Number(rowHeight) ? `${rowHeight}px` : rowHeight};
   cursor: default;
-  padding: 0 10px;
+  padding: 4px 10px;
   border-top-left-radius: ${({
     theme: {
       form: { dropdown },
@@ -123,10 +124,10 @@ const HeaderWrapper = styled.div<{
 const Icon = styled.img<{ isOpened: boolean }>`
   height: 11px;
   width: 22px;
-  margin: 0 10px;
   transform: rotate(${({ isOpened }) => (isOpened ? '180' : '0')}deg);
   transition: transform 0.2s linear;
   cursor: inherit;
+  z-index: 100;
 `;
 
 const DropdownRow = styled.div<{
@@ -143,7 +144,7 @@ const DropdownRow = styled.div<{
   align-items: center;
   height: ${({ height }) => height}px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
-  padding: 0 10px;
+  padding: 4px 10px;
 
   ${({
     isLightSkin,
@@ -173,7 +174,6 @@ const ItemsWrapper = styled.div<{
   isOpened: boolean;
 }>`
   position: absolute;
-  top: ${({ rowHeight }) => Number(rowHeight) - 1 || rowHeight}px;
   width: 100%;
   flex: 1;
   z-index: 10;
@@ -235,23 +235,21 @@ const ItemsWrapper = styled.div<{
     border-bottom: none;
   }
 
-  ${({
-    theme: {
-      colors: { light140 },
-    },
-  }) => `
-  > div:first-child  {
-      border-top: 1px solid ${light140};
+  /*
+   > div:first-child  {
+      border-top: 1px solid
   }
   
+  */
+  ${({ isLightSkin, theme: { colors } }) => `
+ 
   > div:last-child  {
       border-bottom: none;
   }  
     
   > div {
     
-    line-height: 1.5;
-    border-bottom: 1px solid ${light140};
+    border-bottom: 1px solid  ${isLightSkin ? colors.light140 : colors.dark40};
 
     &:hover {
       border-color: transparent;
@@ -263,9 +261,33 @@ const ItemsWrapper = styled.div<{
     `
       border-top: none;
   `};
+
+  border-top-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-top-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-left-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
+  border-bottom-right-radius: ${({
+    theme: {
+      form: { dropdown },
+    },
+  }) => dropdown.boxRadius}px;
 `;
 
-const StyledDropDownItem = styled.div<{ uppercase?: boolean }>`
+const StyledDropDownItem = styled.div<{
+  uppercase?: boolean;
+  isLightSkin: boolean;
+}>`
   width: 100%;
   font-size: 13px;
   ${({ uppercase }) =>
@@ -273,8 +295,15 @@ const StyledDropDownItem = styled.div<{ uppercase?: boolean }>`
     css`
       text-transform: uppercase;
     `};
-  color: ${smColors.black};
+  color: ${({ isLightSkin, theme: { colors } }) =>
+    isLightSkin ? colors.dark40 : colors.light90};
   cursor: inherit;
+`;
+const DropDownLabel = styled.p<{
+  isBold?: boolean;
+}>`
+  font-weight: ${({ isBold }) => (isBold ? 800 : 400)};
+  font-size: 14px;
 `;
 
 type ADataItem = {
@@ -287,21 +316,26 @@ interface DropDownItemProps extends ADataItem {
   label: string;
   description: string;
   key: string;
+  isLightSkin: boolean;
+  isBold?: boolean;
 }
 
-const DropDownItem: React.FC<DropDownItemProps> = ({ label, description }) => {
-  return (
-    <StyledDropDownItem>
-      <p>{label}</p>
-      {description && (
-        <small>
-          <br />
-          {description}
-        </small>
-      )}
-    </StyledDropDownItem>
-  );
-};
+const DropDownItem: React.FC<DropDownItemProps> = ({
+  label,
+  description,
+  isLightSkin,
+  isBold,
+}) => (
+  <StyledDropDownItem isLightSkin={isLightSkin}>
+    <DropDownLabel isBold={isBold}>{label}</DropDownLabel>
+    {description && (
+      <small style={{ marginTop: 5 }}>
+        <br />
+        {description}
+      </small>
+    )}
+  </StyledDropDownItem>
+);
 
 type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
@@ -313,6 +347,7 @@ type Props<T extends ADataItem> = {
   isDisabled?: boolean;
   bgColor?: string;
   whiteIcon?: boolean;
+  bold?: boolean;
 };
 
 const DropDown = <T extends ADataItem>({
@@ -325,6 +360,7 @@ const DropDown = <T extends ADataItem>({
   isDisabled = false,
   bgColor = smColors.white,
   whiteIcon = false,
+  bold = false,
 }: Props<T>) => {
   const [isOpened, setIsOpened] = useState(false);
   const closeDropdown = () => setIsOpened(false);
@@ -332,7 +368,7 @@ const DropDown = <T extends ADataItem>({
     window.addEventListener('click', closeDropdown);
     return () => window.removeEventListener('click', closeDropdown);
   }, []);
-  const isDefault = bgColor === smColors.white;
+  const isLightSkin = bgColor === smColors.white;
 
   const isDisabledComputed = isDisabled || !data || !data.length;
   const icon =
@@ -352,7 +388,7 @@ const DropDown = <T extends ADataItem>({
     <DropdownRow
       rowContentCentered={rowContentCentered}
       isDisabled={item.isDisabled || false}
-      isLightSkin={isDefault}
+      isLightSkin={isLightSkin}
       key={`${item?.label}${index}`}
       onClick={
         item.isDisabled
@@ -367,11 +403,13 @@ const DropDown = <T extends ADataItem>({
       height={rowHeight}
     >
       <DropDownItem
+        isLightSkin={isLightSkin}
         key={(item.key as string) || String(index)}
         isMain={item?.isMain}
         isDisabled={item?.isDisabled}
         label={item?.label as string}
         description={item?.description as string}
+        isBold={bold}
       />
     </DropdownRow>
   );
@@ -382,7 +420,7 @@ const DropDown = <T extends ADataItem>({
 
   return (
     <Wrapper
-      isLightSkin={isDefault}
+      isLightSkin={isLightSkin}
       isDisabled={isDisabledComputed}
       isOpened={isOpened}
       onClick={(e) => {
@@ -392,11 +430,12 @@ const DropDown = <T extends ADataItem>({
     >
       <HeaderWrapper
         isOpened={isOpened}
-        isLightSkin={isDefault}
+        isLightSkin={isLightSkin}
         onClick={isDisabledComputed ? () => {} : handleToggle}
         rowHeight={rowHeight}
       >
         <DropDownItem
+          isLightSkin={isLightSkin}
           key={
             (data[selectedItemIndex].key as string) || String(selectedItemIndex)
           }
@@ -404,12 +443,13 @@ const DropDown = <T extends ADataItem>({
           isDisabled={data[selectedItemIndex]?.isDisabled}
           label={data[selectedItemIndex]?.label as string}
           description={data[selectedItemIndex]?.description as string}
+          isBold={bold}
         />
         <Icon isOpened={isOpened} src={icon} />
       </HeaderWrapper>
       {isOpened && data && (
         <ItemsWrapper
-          isLightSkin={isDefault}
+          isLightSkin={isLightSkin}
           rowHeight={rowHeight}
           isOpened={isOpened}
         >

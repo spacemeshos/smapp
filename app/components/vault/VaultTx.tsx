@@ -18,15 +18,6 @@ const DetailsText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccItem = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
-  width: 100%;
-  cursor: inherit;
-`;
-
 type Props = {
   selectAccountIndex: ({ index }: { index: number }) => void;
   selectFundAmount: ({ index }: { index: number }) => void;
@@ -73,84 +64,57 @@ const VaultTx = ({
   selectFundAmount,
   selectGasUnits,
   selectGasPrice,
-}: Props) => {
-  const ddStyle = {
-    marginLeft: 'auto',
-    flex: '0 0 340px',
-  };
-  const ddStyleGasUnit = {
-    marginLeft: 'auto',
-    flex: '0 0 140px',
-  };
-  const ddStyleGasPrice = {
-    marginLeft: 'auto',
-    flex: '0 0 200px',
-  };
-
-  const renderAccElement = ({ label }: { label: string; text: string }) => (
-    <AccItem key={label}>{label}</AccItem>
-  );
-
-  return (
-    <>
-      <DetailsRow>
-        <DetailsText>Daily Spending Account</DetailsText>
-        <Tooltip width={250} text="Tooltip 1" />
-        <Dots />
-        <DropDown
-          data={accounts}
-          onClick={selectAccountIndex}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={0}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-      <DetailsRow>
-        <DetailsText>Fund Amount</DetailsText>
-        <Tooltip width={250} text="Tooltip 2" />
-        <Dots />
-        <DropDown
-          data={accounts}
-          onClick={selectFundAmount}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={0}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-      <DetailsRow>
-        <DetailsText>Max Gas Units</DetailsText>
-        <Tooltip width={250} text="Tooltip 3" />
-        <Dots />
-        <DropDown
-          data={gasUnit}
-          onClick={selectGasUnits}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={0}
-          rowHeight={40}
-          style={ddStyleGasUnit}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-      <DetailsRow>
-        <DetailsText>Gas Unit Price</DetailsText>
-        <Tooltip width={250} text="Tooltip 4" />
-        <Dots />
-        <DropDown
-          data={unitPrice}
-          onClick={selectGasPrice}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={0}
-          rowHeight={40}
-          style={ddStyleGasPrice}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-    </>
-  );
-};
+}: Props) => (
+  <>
+    <DetailsRow>
+      <DetailsText>Daily Spending Account</DetailsText>
+      <Tooltip width={250} text="Tooltip 1" />
+      <Dots />
+      <DropDown
+        data={accounts}
+        onClick={selectAccountIndex}
+        selectedItemIndex={0}
+        rowHeight={40}
+        bgColor={smColors.white}
+      />
+    </DetailsRow>
+    <DetailsRow>
+      <DetailsText>Fund Amount</DetailsText>
+      <Tooltip width={250} text="Tooltip 2" />
+      <Dots />
+      <DropDown
+        data={accounts}
+        onClick={selectFundAmount}
+        selectedItemIndex={0}
+        rowHeight={40}
+        bgColor={smColors.white}
+      />
+    </DetailsRow>
+    <DetailsRow>
+      <DetailsText>Max Gas Units</DetailsText>
+      <Tooltip width={250} text="Tooltip 3" />
+      <Dots />
+      <DropDown
+        data={gasUnit}
+        onClick={selectGasUnits}
+        selectedItemIndex={0}
+        rowHeight={40}
+        bgColor={smColors.white}
+      />
+    </DetailsRow>
+    <DetailsRow>
+      <DetailsText>Gas Unit Price</DetailsText>
+      <Tooltip width={250} text="Tooltip 4" />
+      <Dots />
+      <DropDown
+        data={unitPrice}
+        onClick={selectGasPrice}
+        selectedItemIndex={0}
+        rowHeight={40}
+        bgColor={smColors.white}
+      />
+    </DetailsRow>
+  </>
+);
 
 export default VaultTx;

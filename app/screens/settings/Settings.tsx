@@ -90,15 +90,6 @@ const ButtonsWrapper = styled.div`
   margin: 30px 0 15px 0;
 `;
 
-const DropDownItem = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
-  width: 100%;
-  cursor: inherit;
-`;
-
 interface Props extends RouteComponentProps {
   displayName: string;
   accounts: Account[];
@@ -217,7 +208,6 @@ class Settings extends Component<Props, State> {
                       { label: 'Classic Light' },
                     ]}
                     onClick={this.setSkin}
-                    DdElement={this.renderAccElement}
                     selectedItemIndex={skinId}
                     rowHeight={40}
                     bgColor={smColors.white}
@@ -660,12 +650,6 @@ class Settings extends Component<Props, State> {
     }
     return null;
   }
-
-  renderAccElement = ({ label, text }: { label: string; text: string }) => (
-    <DropDownItem key={label}>
-      {label} {text}
-    </DropDownItem>
-  );
 
   setSkin = ({ index }: { index: number }) => {
     const { switchSkin } = this.props;
