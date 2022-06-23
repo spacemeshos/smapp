@@ -264,6 +264,11 @@ class NodeManager {
         'Can not setup Smeshing without specified data directory'
       );
     }
+
+    if (!this.isNodeRunning()) {
+      await this.startNode();
+    }
+
     // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
     const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir();
     const CURRENT_KEYBIN_PATH = path.resolve(CURRENT_DATADIR_PATH, 'key.bin');

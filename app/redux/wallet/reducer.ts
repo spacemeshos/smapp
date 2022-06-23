@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { WalletMeta } from '../../../shared/types';
 import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';

@@ -9,10 +9,16 @@ import {
 } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
-import { hasRequiredRewardFields, isActivation, isNodeError } from '../shared/types/guards';
+import {
+  hasRequiredRewardFields,
+  isActivation,
+  isNodeError,
+} from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
-import GlobalStateService, { AccountDataValidFlags } from './GlobalStateService';
+import GlobalStateService, {
+  AccountDataValidFlags,
+} from './GlobalStateService';
 import TransactionManager from './TransactionManager';
 import cryptoService from './cryptoService';
 import NodeManager from './NodeManager';

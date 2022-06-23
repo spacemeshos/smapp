@@ -157,10 +157,13 @@ class EventsService {
   static getEstimatedRewards = () =>
     ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
-  static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
-    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, LOCAL_NODE_API_URL);
+  static startSmeshing = async (postSetupOpts: PostSetupOpts, netId) => {
+    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, {
+      apiUrl: LOCAL_NODE_API_URL,
+      netId,
+    });
     await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
-    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, postSetupOpts);
+    ipcRenderer.send(ipcConsts.SMESHER_START_SMESHING, postSetupOpts);
   };
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>

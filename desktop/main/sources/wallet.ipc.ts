@@ -20,6 +20,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import {
   AddContactRequest,
   ChangePasswordRequest,
@@ -127,7 +128,8 @@ const handleUpdateWalletSecrets = <
 const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
-  $networks: Subject<Network[]>
+  $networks: Subject<Network[]>,
+  $smeshingStarted: Subject<void>
 ) => {
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
@@ -154,7 +156,7 @@ const handleWalletIpcRequests = (
         ),
       ({ wallet, meta }): UnlockWalletResponse['payload'] => ({
         meta: wallet.meta,
-        forceNetworkSelection: meta.forceNetworkSelection,
+        forceNetworkSelection: meta?.forceNetworkSelection,
       })
     ),
     //
@@ -301,6 +303,27 @@ const handleWalletIpcRequests = (
     //
     fromIPC<void>(ipcConsts.W_M_CLOSE_WALLET).pipe(
       switchMap(() => of(RESET_WALLET))
+    ),
+    //
+    $smeshingStarted.pipe(
+      switchMap(() => combineLatest([$wallet, $walletPath])),
+      filter(
+        (pair): pair is [Wallet, string] =>
+          Boolean(pair[0]) && typeof pair[1] === 'string'
+      ),
+      map(
+        ([wallet, path]): WalletPair => ({
+          wallet: {
+            ...wallet,
+            meta: {
+              ...wallet.meta,
+              remoteApi: stringifySocketAddress(LOCAL_NODE_API_URL),
+              type: WalletType.LocalNode,
+            },
+          },
+          path,
+        })
+      )
     )
   );
 

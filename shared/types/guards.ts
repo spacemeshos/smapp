@@ -3,7 +3,7 @@ import { Reward__Output } from '../../proto/spacemesh/v1/Reward';
 import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
 import { NodeError } from './node';
-import { Tx, Reward, Activation, SmesherReward } from './tx';
+import { Tx, Reward, Activation } from './tx';
 import { WalletSecrets, WalletSecretsEncrypted } from './wallet';
 
 // GRPC Type guards

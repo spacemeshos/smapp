@@ -3,6 +3,7 @@ import {
   distinctUntilChanged,
   filter,
   from,
+  merge,
   Observable,
   retry,
   Subject,
@@ -14,12 +15,17 @@ import { makeSubscription } from '../rx.utils';
 
 export default (
   $currentNetwork: Observable<Network | null>,
-  $nodeConfig: Subject<NodeConfig>
+  $nodeConfig: Subject<NodeConfig>,
+  $smeshingStarted: Subject<void>
 ) =>
   makeSubscription(
-    $currentNetwork.pipe(
-      filter(Boolean),
-      distinctUntilChanged(),
+    merge(
+      $currentNetwork.pipe(filter(Boolean), distinctUntilChanged()),
+      $smeshingStarted.pipe(
+        switchMap(() => $currentNetwork),
+        filter(Boolean)
+      )
+    ).pipe(
       switchMap((net) => from(downloadNodeConfig(net.conf))),
       retry(5),
       delay(500)

@@ -13,10 +13,8 @@ import {
   skip,
   skipUntil,
   Subject,
-  tap,
   withLatestFrom,
 } from 'rxjs';
-import { formatSmidge } from '../../../app/infra/utils';
 import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
   Activation,
@@ -144,9 +142,9 @@ const getRewardsInfo = (
 
   const dailyAverage =
     rewards.length > 2
-      ? sums.total /
-        (getLayerTime(rewards[rewards.length - 1].layer) -
-          getLayerTime(rewards[0].layer)) *
+      ? (sums.total /
+          (getLayerTime(rewards[rewards.length - 1].layer) -
+            getLayerTime(rewards[0].layer))) *
         (24 * HOUR)
       : 0;
 

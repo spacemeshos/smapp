@@ -1,28 +1,31 @@
 import {
+  BehaviorSubject,
   combineLatest,
   concat,
+  distinctUntilChanged,
   filter,
   from,
   interval,
   map,
   merge,
   Observable,
-  of,
   scan,
   Subject,
   switchMap,
-  tap,
   withLatestFrom,
 } from 'rxjs';
-import { ipcConsts } from '../../../app/vars';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
-import { Activation, PostSetupOpts, SmesherReward } from '../../../shared/types';
+import {
+  Activation,
+  SmesherReward,
+  Wallet,
+  WalletType,
+} from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
 import Logger from '../../logger';
 import { fromHexString } from '../../utils';
 import { Managers } from '../app.types';
 import { MINUTE } from '../constants';
-import { handleIPC, wrapResult } from '../rx.utils';
 
 const logger = Logger({ className: 'smesherInfo' });
 
@@ -54,31 +57,28 @@ const getActivations$ = (
 
 const syncSmesherInfo = (
   $managers: Observable<Managers>,
-  $isWalletActivated: Subject<void>
+  $isWalletActivated: Subject<void>,
+  $wallet: BehaviorSubject<Wallet | null>
 ) => {
-  // IPC
-  const $startSmeshing = handleIPC(
-    ipcConsts.SMESHER_START_SMESHING,
-    (postSetupOpts: PostSetupOpts) =>
-      of(postSetupOpts).pipe(
-        withLatestFrom($managers),
-        switchMap(([opts, managers]) =>
-          from(wrapResult(managers.node.startSmeshing(opts)))
-        )
-      ),
-    (x) => x
+  const $smeshingStarted = new Subject<void>();
+
+  const $isLocalNode = $wallet.pipe(
+    filter(Boolean),
+    map((wallet) => wallet.meta.type === WalletType.LocalNode),
+    distinctUntilChanged(),
+    filter(Boolean)
   );
 
-  const $isSmeshing = merge(
-    $isWalletActivated,
-    $startSmeshing.pipe(filter(Boolean)),
-    interval(5 * MINUTE)
-  ).pipe(
+  const $isSmeshing = $isLocalNode.pipe(
+    switchMap(() =>
+      merge($isWalletActivated, $smeshingStarted, interval(5 * MINUTE))
+    ),
     withLatestFrom($managers),
     switchMap(([_, managers]) => from(managers.smesher.isSmeshing()))
   );
 
-  const $smesherId = combineLatest([$managers, $isWalletActivated]).pipe(
+  const $smesherId = $isLocalNode.pipe(
+    switchMap(() => combineLatest([$managers, $isWalletActivated])),
     switchMap(([managers]) =>
       from(
         (async () => {
@@ -116,7 +116,8 @@ const syncSmesherInfo = (
     ),
     map((rewards) => rewards.map(toSmesherReward))
   );
-  const $rewardsStream = combineLatest([$coinbase, $managers]).pipe(
+  const $rewardsStream = $isLocalNode.pipe(
+    switchMap(() => combineLatest([$coinbase, $managers])),
     switchMap(
       ([coinbase, managers]) =>
         new Observable<Reward__Output>((subscriber) =>
@@ -168,6 +169,7 @@ const syncSmesherInfo = (
     $activations,
     $rewards,
     $coinbase,
+    $smeshingStarted,
   };
 };
 

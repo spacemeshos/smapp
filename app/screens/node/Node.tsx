@@ -18,7 +18,12 @@ import {
 } from '../../assets/images';
 import { smColors } from '../../vars';
 import { BITS, RootState } from '../../types';
-import { HexString, NodeStatus, PostSetupState, SmesherReward } from '../../../shared/types';
+import {
+  HexString,
+  NodeStatus,
+  PostSetupState,
+  SmesherReward,
+} from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
 import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
@@ -29,7 +34,11 @@ import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { getNetworkId } from '../../redux/network/selectors';
-import { timestampByLayer, epochByLayer, nextEpochTime } from '../../../shared/layerUtils';
+import {
+  timestampByLayer,
+  epochByLayer,
+  nextEpochTime,
+} from '../../../shared/layerUtils';
 
 const Wrapper = styled.div`
   display: flex;

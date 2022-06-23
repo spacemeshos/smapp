@@ -124,10 +124,10 @@ class TransactionManager {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
-    if (this.txStateStream[publicKey]) {
-      // Unsubscribe
-      this.txStateStream[publicKey]();
-    }
+    const unsubTxStateStream = this.txStateStream[publicKey];
+    // Unsubscribe
+    unsubTxStateStream && unsubTxStateStream();
+
     this.txStateStream[publicKey] = this.txService.activateTxStream(
       this.handleNewTx(publicKey),
       txIds
@@ -144,7 +144,6 @@ class TransactionManager {
       )
       .then((txs) => txs.map(this.handleNewTx(publicKey)))
       .catch((err) => {
-        console.log('grpc TransactionState', err); // eslint-disable-line no-console
         this.logger.error('grpc TransactionState', err);
       });
   });
