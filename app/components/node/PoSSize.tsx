@@ -164,9 +164,6 @@ const PoSSize = ({
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}
           bold
-          bgColor={isDarkMode ? smColors.black : smColors.white}
-          isDarkMode={isDarkMode}
-          rowContentCentered={false}
         />
       </Row>
       <Row>

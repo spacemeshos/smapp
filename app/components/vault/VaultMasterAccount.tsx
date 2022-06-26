@@ -43,7 +43,6 @@ const VaultMasterAccount = ({
         onClick={selectedAccountIndex}
         selectedItemIndex={masterAccountIndex}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
   </>

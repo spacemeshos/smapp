@@ -18,8 +18,7 @@ addDecorator((Story) => <>
 
 export const decorators = [(Story) => <ThemeProvider
   theme={{
-    isDarkMode: false,
-    ...light
+    ...modern
   }}
 >
   <GlobalStyle />

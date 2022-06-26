@@ -5,7 +5,6 @@ import { CorneredContainer } from '../../components/common';
 import { Button, Link, DropDown, Loader } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
-import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthPath } from '../../routerPaths';
@@ -147,7 +146,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
             onClick={selectItem}
             selectedItemIndex={selectedItemIndex}
             rowHeight={40}
-            bgColor={smColors.white}
             isDisabled={!hasAvailableNetworks}
           />
         </RowColumn>

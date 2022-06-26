@@ -201,8 +201,8 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
                 data={getDropDownData()}
                 onClick={selectItem}
                 selectedItemIndex={selectedWalletIndex}
-                rowHeight="auto"
-                bgColor={smColors.white}
+                rowHeight={60}
+                hideSelectedItem
               />
             </InputSection>
           </>

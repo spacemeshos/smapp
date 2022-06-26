@@ -43,7 +43,6 @@ const VaultMasterAccounts = ({
         onClick={selectAccountIndex}
         selectedItemIndex={masterAccountIndex}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
     <DetailsRow>
@@ -58,7 +57,6 @@ const VaultMasterAccounts = ({
         onClick={selectAccountIndex}
         selectedItemIndex={masterAccountIndex}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
     <DetailsRow>
@@ -73,7 +71,6 @@ const VaultMasterAccounts = ({
         onClick={selectAccountIndex}
         selectedItemIndex={masterAccountIndex}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
   </>

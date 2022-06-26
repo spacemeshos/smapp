@@ -210,7 +210,7 @@ class Settings extends Component<Props, State> {
                     onClick={this.setSkin}
                     selectedItemIndex={skinId}
                     rowHeight={40}
-                    bgColor={smColors.white}
+                    hideSelectedItem
                   />
                 }
                 rowName="Skin"

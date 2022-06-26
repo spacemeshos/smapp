@@ -77,6 +77,10 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
+const DropDownContainer = styled.div`
+  width: 240px;
+`;
+
 // TODO add auto update for fee ranges
 const fees = [
   {
@@ -210,13 +214,15 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Fee</DetailsText>
         <Dots>....................................</Dots>
-        <DropDown
-          data={fees}
-          onClick={selectFee}
-          selectedItemIndex={selectedFeeIndex}
-          rowHeight={40}
-          bgColor={smColors.white}
-        />
+        <DropDownContainer>
+          <DropDown
+            data={fees}
+            onClick={selectFee}
+            selectedItemIndex={selectedFeeIndex}
+            rowHeight={40}
+            hideSelectedItem
+          />
+        </DropDownContainer>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Note</DetailsText>

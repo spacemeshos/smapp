@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import { formatISOAsUS } from '../shared/datetime';
-import { smColors } from '../app/vars';
 import { DropDown } from '../app/basicComponents';
 
 export default {
@@ -15,8 +14,6 @@ const Template: ComponentStory<typeof DropDown> = (args) => {
   return (
     <DropDown
       {...args}
-      isDarkMode={!!args.isDarkMode}
-      bgColor={args.isDarkMode ? smColors.black : smColors.white}
       selectedItemIndex={args.selectedItemIndex || selectedItemIndex}
       onClick={({ index }) => setSelectedItemIndex(index)}
     />
@@ -31,11 +28,7 @@ DropdownSwitchNetwork.args = {
     { label: 'devnet226', netId: -1, isDisabled: true },
   ],
   rowHeight: 40,
-  bgColor: smColors.white,
-  isDarkMode: false,
   isDisabled: false,
-  rowContentCentered: false,
-  whiteIcon: false,
 };
 
 export const DropdownTheme = Template.bind({});
@@ -46,26 +39,27 @@ DropdownTheme.args = {
     { label: 'Classic Light' },
   ],
   rowHeight: 40,
-  bgColor: smColors.white,
-  isDarkMode: false,
   isDisabled: false,
-  rowContentCentered: false,
-  whiteIcon: false,
 };
 
 export const DropdownFee = Template.bind({});
 DropdownFee.args = {
   data: [
-    { label: '~ 10 min', description: '(FEE 1 Smidge)', isMain: true },
-    { label: '~ 5 min', description: '(FEE 2 Smidge)' },
-    { label: '~ 1 min', description: '(FEE 3 Smidge)' },
+    {
+      fee: 1,
+      label: '~ 10 min (FEE 1 Smidge)',
+    },
+    {
+      fee: 2,
+      label: '~ 5 min (FEE 2 Smidge)',
+    },
+    {
+      fee: 3,
+      label: '~ 1 min (FEE 3 Smidge)',
+    },
   ],
   rowHeight: 40,
-  bgColor: smColors.white,
-  isDarkMode: false,
   isDisabled: false,
-  rowContentCentered: false,
-  whiteIcon: false,
 };
 
 export const DropdownWallets = Template.bind({});
@@ -91,11 +85,7 @@ DropdownWallets.args = {
     },
   ],
   rowHeight: 50,
-  bgColor: smColors.white,
-  isDarkMode: false,
   isDisabled: false,
-  rowContentCentered: false,
-  whiteIcon: false,
 };
 
 export const DropdownTransactions = Template.bind({});
@@ -107,7 +97,4 @@ DropdownTransactions.args = {
   ],
   rowHeight: 40,
   isDisabled: false,
-  rowContentCentered: false,
-  whiteIcon: false,
-  isDarkMode: false,
 };

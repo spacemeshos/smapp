@@ -208,9 +208,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
               selectedItemIndex={selectedTimeSpan}
               rowHeight={40}
               bold
-              bgColor={isDarkMode ? smColors.black : smColors.white}
-              rowContentCentered={false}
-              isDarkMode={isDarkMode}
+              isLightSkin
             />
           </DropDownWrapper>
           <TransactionsMeta

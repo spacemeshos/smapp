@@ -59,7 +59,6 @@ const DailySpending = ({
         onClick={selectAccountIndex}
         selectedItemIndex={masterAccountIndex}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
     <DetailsRow>
@@ -71,7 +70,6 @@ const DailySpending = ({
         onClick={selectAccountIndex}
         selectedItemIndex={masterAccountIndex}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
   </>

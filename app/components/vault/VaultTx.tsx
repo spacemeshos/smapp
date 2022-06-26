@@ -75,7 +75,6 @@ const VaultTx = ({
         onClick={selectAccountIndex}
         selectedItemIndex={0}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
     <DetailsRow>
@@ -87,7 +86,6 @@ const VaultTx = ({
         onClick={selectFundAmount}
         selectedItemIndex={0}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
     <DetailsRow>
@@ -99,7 +97,6 @@ const VaultTx = ({
         onClick={selectGasUnits}
         selectedItemIndex={0}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
     <DetailsRow>
@@ -111,7 +108,6 @@ const VaultTx = ({
         onClick={selectGasPrice}
         selectedItemIndex={0}
         rowHeight={40}
-        bgColor={smColors.white}
       />
     </DetailsRow>
   </>

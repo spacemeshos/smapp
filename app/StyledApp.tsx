@@ -62,18 +62,13 @@ const StyledApp = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const isClosingApp = useSelector((state: RootState) => state.ui.isClosingApp);
   const dispatch = useDispatch();
-
+  const theme = getThemeById(skinId, isDarkMode);
   useEffect(() => {
     dispatch(setOsTheme());
   }, [dispatch]);
 
   return (
-    <ThemeProvider
-      theme={{
-        isDarkMode,
-        ...getThemeById(skinId, isDarkMode),
-      }}
-    >
+    <ThemeProvider theme={theme}>
       <GlobalStyle />
       <ErrorBoundary>
         {isClosingApp && <CloseAppModal isDarkMode={isDarkMode} />}

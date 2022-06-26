@@ -5,7 +5,6 @@ import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
-import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
@@ -139,7 +138,6 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
             onClick={selectItem}
             selectedItemIndex={selectedItemIndex}
             rowHeight={40}
-            bgColor={smColors.white}
             isDisabled={!hasPublicServices}
           />
         </RowColumn>

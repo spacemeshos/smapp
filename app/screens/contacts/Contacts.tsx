@@ -508,7 +508,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
           data={sortOptions}
           onClick={({ index }) => setSelectedSorting(index)}
           selectedItemIndex={selectedSorting}
-          bgColor={smColors.white}
         />
       </ContactsSubHeader>
       {contacts && contacts.length ? (

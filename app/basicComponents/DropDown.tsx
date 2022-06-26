@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, useTheme } from 'styled-components';
 import { smColors } from '../vars';
-import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
 
 const Wrapper = styled.div<{
   isDisabled: boolean;
@@ -29,7 +28,7 @@ const Wrapper = styled.div<{
       },
       isLightSkin,
     }) =>
-      isLightSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder)}px
+      isLightSkin ? Number(dark.isOutBorder) : Number(light.isOutBorder)}px
     solid
     ${({
       theme: {
@@ -38,7 +37,7 @@ const Wrapper = styled.div<{
         },
       },
       isLightSkin,
-    }) => (isLightSkin ? light.borderColor : dark.borderColor)};
+    }) => (isLightSkin ? dark.borderColor : light.borderColor)};
   ${({ isDisabled }) =>
     isDisabled &&
     `
@@ -94,8 +93,8 @@ const HeaderWrapper = styled.div<{
   }) =>
     // eslint-disable-next-line no-nested-ternary
     isLightSkin
-      ? light.states.normal.backgroundColor
-      : dark.states.normal.backgroundColor};
+      ? dark.states.normal.backgroundColor
+      : light.states.normal.backgroundColor};
   ${({ isOpened }) =>
     isOpened &&
     `
@@ -111,17 +110,22 @@ const HeaderWrapper = styled.div<{
   }) =>
     `
     color: ${
-      isLightSkin ? light.states.normal.color : dark.states.normal.color
+      isLightSkin ? dark.states.normal.color : light.states.normal.color
     };
     
     &:hover {
         color: ${
-          isLightSkin ? light.states.normal.color : dark.states.normal.color
+          isLightSkin ? dark.states.normal.color : light.states.normal.color
         };
      }; `}
 `;
-
-const Icon = styled.img<{ isOpened: boolean }>`
+const Icon = styled.img.attrs<{ isLightSkin: boolean }>(
+  ({ theme, isLightSkin }) => ({
+    src: isLightSkin
+      ? theme.icons.chevronDropDownBottom.dark
+      : theme.icons.chevronDropDownBottom.light,
+  })
+)<{ isOpened: boolean; isLightSkin: boolean }>`
   height: 11px;
   width: 22px;
   transform: rotate(${({ isOpened }) => (isOpened ? '180' : '0')}deg);
@@ -132,15 +136,12 @@ const Icon = styled.img<{ isOpened: boolean }>`
 
 const DropdownRow = styled.div<{
   onClick: (e?: React.MouseEvent) => void;
-  rowContentCentered: boolean;
   height: number | string;
   isDisabled: boolean;
   key: string;
   isLightSkin: boolean;
 }>`
   display: flex;
-  ${({ rowContentCentered }) =>
-    rowContentCentered && `justify-content: center;`}
   align-items: center;
   height: ${({ height }) => height}px;
   cursor: ${({ isDisabled }) => (isDisabled ? 'default' : 'pointer')};
@@ -159,11 +160,11 @@ const DropdownRow = styled.div<{
     `&:hover {
             background-color: ${
               isLightSkin
-                ? light.states.hover.backgroundColor
-                : dark.states.hover.backgroundColor
+                ? dark.states.hover.backgroundColor
+                : light.states.hover.backgroundColor
             }; 
             color: ${
-              isLightSkin ? light.states.hover.color : dark.states.hover.color
+              isLightSkin ? dark.states.hover.color : light.states.hover.color
             };
      } `}
 `;
@@ -200,7 +201,7 @@ const ItemsWrapper = styled.div<{
       },
       isLightSkin,
     }) =>
-      isLightSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder)}px
+      isLightSkin ? Number(dark.isOutBorder) : Number(light.isOutBorder)}px
     solid
     ${({
       theme: {
@@ -209,7 +210,7 @@ const ItemsWrapper = styled.div<{
         },
       },
       isLightSkin,
-    }) => (isLightSkin ? light.borderColor : dark.borderColor)};
+    }) => (isLightSkin ? dark.borderColor : light.borderColor)};
   margin-left: ${({
     theme: {
       form: {
@@ -218,7 +219,7 @@ const ItemsWrapper = styled.div<{
     },
     isLightSkin,
   }) =>
-    `-${isLightSkin ? Number(light.isOutBorder) : Number(dark.isOutBorder)}px`};
+    `-${isLightSkin ? Number(dark.isOutBorder) : Number(light.isOutBorder)}px`};
   background-color: ${({
     theme: {
       form: {
@@ -228,28 +229,35 @@ const ItemsWrapper = styled.div<{
     isLightSkin,
   }) =>
     isLightSkin
-      ? light.states.normal.backgroundColor
-      : dark.states.normal.backgroundColor};
+      ? dark.states.normal.backgroundColor
+      : light.states.normal.backgroundColor};
 
   ${DropdownRow}:last-child > div {
     border-bottom: none;
   }
 
-  /*
-   > div:first-child  {
-      border-top: 1px solid
+  ${({
+    isLightSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) => `
+  
+  > div:first-child {
+    border-top: 1px solid ${isLightSkin ? dark.borderColor : light.borderColor};
   }
   
-  */
-  ${({ isLightSkin, theme: { colors } }) => `
- 
   > div:last-child  {
       border-bottom: none;
   }  
     
   > div {
     
-    border-bottom: 1px solid  ${isLightSkin ? colors.light140 : colors.dark40};
+    border-bottom: 1px solid  ${
+      isLightSkin ? dark.borderColor : light.borderColor
+    };
 
     &:hover {
       border-color: transparent;
@@ -261,27 +269,7 @@ const ItemsWrapper = styled.div<{
     `
       border-top: none;
   `};
-
-  border-top-left-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
-  border-top-right-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
-  border-bottom-left-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
-  border-bottom-right-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
+  top: 100%;
 `;
 
 const StyledDropDownItem = styled.div<{
@@ -295,15 +283,34 @@ const StyledDropDownItem = styled.div<{
     css`
       text-transform: uppercase;
     `};
-  color: ${({ isLightSkin, theme: { colors } }) =>
-    isLightSkin ? colors.dark40 : colors.light90};
+  color: ${({
+    isLightSkin,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) => (isLightSkin ? dark.states.hover.color : light.states.hover.color)};
   cursor: inherit;
 `;
 const DropDownLabel = styled.p<{
   isBold?: boolean;
+  uppercase?: boolean;
 }>`
   font-weight: ${({ isBold }) => (isBold ? 800 : 400)};
   font-size: 14px;
+  text-transform:  ${({ uppercase }) => (uppercase ? 'uppercase' : 'inherit')};
+}
+`;
+
+const DropDownLabelDescription = styled.p<{
+  isBold?: boolean;
+}>`
+  font-weight: ${({ isBold }) => (isBold ? 800 : 400)};
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
 `;
 
 type ADataItem = {
@@ -327,12 +334,11 @@ const DropDownItem: React.FC<DropDownItemProps> = ({
   isBold,
 }) => (
   <StyledDropDownItem isLightSkin={isLightSkin}>
-    <DropDownLabel isBold={isBold}>{label}</DropDownLabel>
+    <DropDownLabel isBold={isBold} uppercase={Boolean(description)}>
+      {label}
+    </DropDownLabel>
     {description && (
-      <small style={{ marginTop: 5 }}>
-        <br />
-        {description}
-      </small>
+      <DropDownLabelDescription>{description}</DropDownLabelDescription>
     )}
   </StyledDropDownItem>
 );
@@ -341,54 +347,46 @@ type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
   data: Partial<T>[];
   selectedItemIndex: number;
-  isDarkMode?: boolean;
   rowHeight?: number | string;
-  rowContentCentered?: boolean;
   isDisabled?: boolean;
-  bgColor?: string;
-  whiteIcon?: boolean;
   bold?: boolean;
+  hideSelectedItem?: boolean;
+  isLightSkin?: boolean;
 };
 
 const DropDown = <T extends ADataItem>({
   data,
   onClick,
   selectedItemIndex,
-  isDarkMode,
   rowHeight = 44,
-  rowContentCentered = true,
   isDisabled = false,
-  bgColor = smColors.white,
-  whiteIcon = false,
   bold = false,
+  hideSelectedItem = false,
+  isLightSkin = undefined,
 }: Props<T>) => {
+  const theme = useTheme();
   const [isOpened, setIsOpened] = useState(false);
   const closeDropdown = () => setIsOpened(false);
   useEffect(() => {
     window.addEventListener('click', closeDropdown);
     return () => window.removeEventListener('click', closeDropdown);
   }, []);
-  const isLightSkin = bgColor === smColors.white;
-
   const isDisabledComputed = isDisabled || !data || !data.length;
-  const icon =
-    whiteIcon || isDarkMode ? chevronBottomWhite : chevronBottomBlack;
+  const isLightTheme =
+    isLightSkin === undefined ? !theme.isDarkMode : isLightSkin;
 
   const renderRow = ({
     item,
     index,
     rowHeight = 44,
-    rowContentCentered,
   }: {
     item: Partial<T>;
     index: number;
     rowHeight?: number | string;
-    rowContentCentered: boolean;
   }) => (
     <DropdownRow
-      rowContentCentered={rowContentCentered}
       isDisabled={item.isDisabled || false}
-      isLightSkin={isLightSkin}
+      isLightSkin={isLightTheme}
       key={`${item?.label}${index}`}
       onClick={
         item.isDisabled
@@ -403,7 +401,7 @@ const DropDown = <T extends ADataItem>({
       height={rowHeight}
     >
       <DropDownItem
-        isLightSkin={isLightSkin}
+        isLightSkin={isLightTheme}
         key={(item.key as string) || String(index)}
         isMain={item?.isMain}
         isDisabled={item?.isDisabled}
@@ -420,7 +418,7 @@ const DropDown = <T extends ADataItem>({
 
   return (
     <Wrapper
-      isLightSkin={isLightSkin}
+      isLightSkin={isLightTheme}
       isDisabled={isDisabledComputed}
       isOpened={isOpened}
       onClick={(e) => {
@@ -430,12 +428,12 @@ const DropDown = <T extends ADataItem>({
     >
       <HeaderWrapper
         isOpened={isOpened}
-        isLightSkin={isLightSkin}
+        isLightSkin={isLightTheme}
         onClick={isDisabledComputed ? () => {} : handleToggle}
         rowHeight={rowHeight}
       >
         <DropDownItem
-          isLightSkin={isLightSkin}
+          isLightSkin={isLightTheme}
           key={
             (data[selectedItemIndex].key as string) || String(selectedItemIndex)
           }
@@ -445,16 +443,18 @@ const DropDown = <T extends ADataItem>({
           description={data[selectedItemIndex]?.description as string}
           isBold={bold}
         />
-        <Icon isOpened={isOpened} src={icon} />
+        <Icon isOpened={isOpened} isLightSkin={isLightTheme} />
       </HeaderWrapper>
       {isOpened && data && (
         <ItemsWrapper
-          isLightSkin={isLightSkin}
+          isLightSkin={isLightTheme}
           rowHeight={rowHeight}
           isOpened={isOpened}
         >
           {data.map((item, index: number) =>
-            renderRow({ item, index, rowHeight, rowContentCentered })
+            hideSelectedItem && Number(index) === Number(selectedItemIndex)
+              ? null
+              : renderRow({ item, index, rowHeight })
           )}
         </ItemsWrapper>
       )}

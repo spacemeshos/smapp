@@ -158,7 +158,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           masterAccountIndex={masterAccountIndex}
           selectAccountIndex={selectAccountIndex}
           accountsOption={accountsOption}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (
@@ -326,7 +325,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           selectFundAmount={selectAccountIndex}
           selectGasPrice={selectAccountIndex}
           selectGasUnits={selectAccountIndex}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (

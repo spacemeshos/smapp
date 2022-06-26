@@ -14,6 +14,7 @@ export default {
   colors,
   skinBackground: colors.light110,
   themeName: 'light',
+  isDarkMode: false,
   background: {
     active: colors.dark,
     inactive: colors.light140,
@@ -157,6 +158,9 @@ export default {
     chevronRight: chevronRightBlack,
     chevronLeft: chevronLeftBlack,
     chevronBottom: chevronBottomBlack,
-    chevronDropDownBottom: chevronBottomBlack,
+    chevronDropDownBottom: {
+      light: chevronBottomBlack,
+      dark: chevronBottomBlack,
+    },
   },
 };
