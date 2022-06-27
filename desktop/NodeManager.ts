@@ -249,7 +249,15 @@ class NodeManager {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      await this.getNodeStatus(5);
+      // wait for status response
+      const status = await this.getNodeStatus(5);
+      // update node status
+      this.sendNodeStatus(status);
+      // and activate status stream
+      this.nodeService.activateStatusStream(
+        this.sendNodeStatus,
+        this.pushNodeError
+      );
       this.activateNodeErrorStream();
       await this.smesherManager.serviceStartupFlow();
       return true;
@@ -465,16 +473,18 @@ class NodeManager {
   getNodeStatus = async (retries: number): Promise<NodeStatus> => {
     try {
       const status = await this.nodeService.getNodeStatus();
-      this.sendNodeStatus(status);
-      this.nodeService.activateStatusStream(
-        this.sendNodeStatus,
-        this.pushNodeError
-      );
       return status;
     } catch (error) {
       if (retries > 0)
         return delay(500).then(() => this.getNodeStatus(retries - 1));
-      throw error;
+      logger.error('getNodeStatus', error);
+      return {
+        connectedPeers: 0,
+        isSynced: false,
+        syncedLayer: 0,
+        topLayer: 0,
+        verifiedLayer: 0,
+      };
     }
   };
 

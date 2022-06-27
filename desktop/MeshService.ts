@@ -4,9 +4,11 @@ import { AccountMeshDataFlag } from '../proto/spacemesh/v1/AccountMeshDataFlag';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { AccountMeshData__Output } from '../proto/spacemesh/v1/AccountMeshData';
 import { PublicService, SocketAddress } from '../shared/types';
+import { delay } from '../shared/utils';
 import { CurrentLayer } from '../app/types/events';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 
 const PROTO_PATH = 'proto/mesh.proto';
 
@@ -18,9 +20,15 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   };
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.callService('CurrentLayer', {}).then(({ layernum }) => ({
-      currentLayer: layernum?.number || 0,
-    }));
+    this.callService('CurrentLayer', {})
+      .then(({ layernum }) => ({
+        currentLayer: layernum?.number || 0,
+      }))
+      .catch((err) => {
+        this.logger.error('getCurrentLayer', err);
+        // eslint-disable-next-line promise/no-nesting
+        return delay(1000).then(() => this.getCurrentLayer());
+      });
 
   private sendAccountMeshDataQuery = (
     accountId: Uint8Array,
@@ -33,7 +41,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
         accountMeshDataFlags,
       },
       minLayer: { number: 0 },
-      maxResults: 50,
+      maxResults: GRPC_QUERY_BATCH_SIZE,
       offset,
     })
       .then(this.normalizeServiceResponse)

@@ -52,7 +52,6 @@ export interface TxSendRequest {
 
 export interface Reward {
   coinbase: HexString;
-  smesher: HexString;
   amount: number;
   layer: number;
   layerReward: number;

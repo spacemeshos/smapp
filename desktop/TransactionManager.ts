@@ -151,7 +151,7 @@ class TransactionManager {
   private subscribeAccount = (account: AccountWithBalance): void => {
     const { publicKey } = account;
     // Cancel account Txs subscription
-    this.txStateStream[publicKey] && this.txStateStream[publicKey]?.();
+    this.txStateStream[publicKey]?.();
 
     const binaryAccountId = fromHexString(publicKey.substring(24));
     const addTransaction = this.upsertTransactionFromMesh(publicKey);
@@ -290,11 +290,11 @@ class TransactionManager {
   ) => {
     const currentState = {
       counter: data.stateCurrent?.counter?.toNumber?.() || 0,
-      balance: data.stateCurrent?.balance?.value?.toNumber?.() || 0,
+      balance: data.stateCurrent?.balance?.value?.toNumber() || 0,
     };
     const projectedState = {
       counter: data.stateProjected?.counter?.toNumber?.() || 0,
-      balance: data.stateProjected?.balance?.value?.toNumber?.() || 0,
+      balance: data.stateProjected?.balance?.value?.toNumber() || 0,
     };
     this.accountStates[accountId].storeAccountBalance({
       currentState,
@@ -327,7 +327,7 @@ class TransactionManager {
         retries: retries + 1,
       });
     } else {
-      data && data.length > 0 && handler(data[0]);
+      data?.length > 0 && handler(data[0]);
     }
   };
 
@@ -395,7 +395,6 @@ class TransactionManager {
       layerReward: reward.layerReward.value.toNumber(),
       // layerComputed: reward.layerComputed.number, // TODO
       coinbase: `0x${coinbase}`,
-      smesher: reward.smesher?.id ? toHexString(reward.smesher.id) : '0x00',
     };
     this.storeReward(accountId, parsedReward);
   };
@@ -406,7 +405,10 @@ class TransactionManager {
     handler,
     retries,
   }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
+    filter: {
+      accountId: { address: Uint8Array };
+      accountDataFlags: AccountDataValidFlags;
+    };
     offset: number;
     handler: RewardHandler;
     retries: number;
@@ -424,9 +426,7 @@ class TransactionManager {
         retries: retries + 1,
       });
     } else {
-      data &&
-        data.length > 0 &&
-        data.forEach((reward) => handler(reward.reward));
+      data?.length > 0 && data.forEach((reward) => handler(reward.reward));
       if (offset + DATA_BATCH < totalResults) {
         await this.retrieveRewards({
           filter,

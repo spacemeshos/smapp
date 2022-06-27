@@ -10,7 +10,6 @@ import {
   merge,
   Observable,
   scan,
-  skip,
   skipUntil,
   Subject,
   withLatestFrom,
@@ -185,7 +184,7 @@ export default (
       $smesherId,
       $activations,
       $nodeConfig,
-      $currentLayer.pipe(skip(1)),
+      $currentLayer,
       $rewards,
     ]).pipe(
       map(([smesherId, activations, cfg, curLayer, rewards]) => ({

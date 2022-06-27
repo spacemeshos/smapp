@@ -3,6 +3,7 @@ import { ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import { Account, Activation, Wallet } from '../shared/types';
 import {
+  delay,
   isLocalNodeType,
   isRemoteNodeApi,
   toSocketAddress,
@@ -25,18 +26,17 @@ import NodeManager from './NodeManager';
 import TransactionService from './TransactionService';
 import Logger from './logger';
 import { toHexString } from './utils';
+import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 
 const logger = Logger({ className: 'WalletManager' });
 
 const pluckActivations = (list: any[]): Activation[] =>
-  !list
-    ? []
-    : list.reduce((acc, { activation }) => {
-        if (isActivation(activation)) {
-          return [...acc, activation];
-        }
-        return acc;
-      }, <Activation[]>[]);
+  (list || []).reduce((acc, { activation }) => {
+    if (isActivation(activation)) {
+      return [...acc, activation];
+    }
+    return acc;
+  }, <Activation[]>[]);
 
 class WalletManager {
   private readonly meshService: MeshService;
@@ -84,10 +84,18 @@ class WalletManager {
   });
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.meshService.getCurrentLayer();
+    this.meshService.getCurrentLayer().catch((err) => {
+      logger.error('getCurrentLayer', err);
+      // eslint-disable-next-line promise/no-nesting
+      return delay(1000).then(() => this.getCurrentLayer());
+    });
 
   getRootHash = (): Promise<GlobalStateHash> =>
-    this.glStateService.getGlobalStateHash();
+    this.glStateService.getGlobalStateHash().catch((err) => {
+      logger.error('getRootHash', err);
+      // eslint-disable-next-line promise/no-nesting
+      return delay(1000).then(() => this.getRootHash());
+    });
 
   subscribeToEvents = () => {
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () =>
@@ -152,7 +160,6 @@ class WalletManager {
   requestActivationsByCoinbase = async (
     coinbase: Uint8Array
   ): Promise<Activation[]> => {
-    const BATCH_SIZE = 50; // the same inside `requestMeshActivations`
     const res = await this.meshService.requestMeshActivations(coinbase, 0);
     if (!res) {
       const coinbaseHex = toHexString(coinbase);
@@ -186,7 +193,6 @@ class WalletManager {
   requestRewardsByCoinbase = async (
     coinbase: Uint8Array
   ): Promise<Reward__Output[]> => {
-    const BATCH_SIZE = 50;
     const composeArg = (batchNumber: number) => ({
       filter: {
         accountId: { address: coinbase },
@@ -194,8 +200,17 @@ class WalletManager {
       },
       offset: batchNumber * BATCH_SIZE,
     });
-    const x = await this.glStateService.sendAccountDataQuery(composeArg(0));
-    const { totalResults, data } = x;
+    const getAccountDataQuery = async (batch: number, retries = 5) => {
+      const res = await this.glStateService.sendAccountDataQuery(
+        composeArg(batch)
+      );
+      if (res.error && retries > 0) {
+        await delay(1000);
+        return getAccountDataQuery(batch, retries - 1);
+      }
+      return res;
+    };
+    const { totalResults, data } = await getAccountDataQuery(0);
     if (totalResults <= BATCH_SIZE) {
       const r: Reward__Output[] = data.filter(
         (item): item is Reward__Output =>

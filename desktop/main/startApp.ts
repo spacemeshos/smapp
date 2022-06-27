@@ -50,8 +50,11 @@ const loadNetworkData = () => {
           ])
         )
       ),
-      $.retry(5),
-      $.delay(1000)
+      $.startWith([
+        { currentLayer: 0 },
+        { layer: 0, rootHash: '' },
+        { version: '', build: '' },
+      ] as const)
     )
     .subscribe(([currentLayer, rootHash, nodeVersion]) => {
       $currentLayer.next(currentLayer.currentLayer);

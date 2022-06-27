@@ -102,8 +102,8 @@ export const parseSmidge = (amount: number) => {
 // Returns formatted display string for a smidge amount.
 // All coin displayed in the app should display amount formatted
 export const formatSmidge = (amount: number): string => {
-  const res = parseSmidge(amount);
-  return `${res.value} ${res.unit}`;
+  const { value, unit } = parseSmidge(amount);
+  return `${value} ${unit}`;
 };
 
 export const constrain = (min: number, max: number, value: number) =>

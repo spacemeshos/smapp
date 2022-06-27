@@ -5,6 +5,7 @@ import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import {
   IPCSmesherStartupData,
+  NodeConfig,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
@@ -38,7 +39,7 @@ class SmesherManager {
     const fileContent = await readFileAsync(this.configFilePath, {
       encoding: 'utf-8',
     });
-    return JSON.parse(fileContent);
+    return JSON.parse(fileContent) as NodeConfig;
   };
 
   private writeConfig = async (config) => {

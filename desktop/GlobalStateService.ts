@@ -10,6 +10,7 @@ import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 
 const PROTO_PATH = 'proto/global_state.proto';
 
@@ -67,7 +68,11 @@ class GlobalStateService extends NetServiceFactory<
     };
     offset: number;
   }) =>
-    this.callService('AccountDataQuery', { filter, maxResults: 50, offset })
+    this.callService('AccountDataQuery', {
+      filter,
+      maxResults: GRPC_QUERY_BATCH_SIZE,
+      offset,
+    })
       .then((response) => ({
         totalResults: response.totalResults,
         data: response.accountItem.map(

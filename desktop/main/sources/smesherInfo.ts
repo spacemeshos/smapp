@@ -4,11 +4,13 @@ import {
   concat,
   distinctUntilChanged,
   filter,
+  first,
   from,
   interval,
   map,
   merge,
   Observable,
+  of,
   scan,
   Subject,
   switchMap,
@@ -130,6 +132,7 @@ const syncSmesherInfo = (
   );
 
   const $rewards = concat(
+    of([]),
     $rewardsHistory,
     $rewardsStream.pipe(
       scan((acc, next) => {
@@ -142,6 +145,7 @@ const syncSmesherInfo = (
   );
 
   const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
+    first(),
     switchMap(
       ([coinbase, managers]) =>
         new Observable<Activation>((subscriber) =>
@@ -152,15 +156,16 @@ const syncSmesherInfo = (
         )
     )
   );
-
-  const $activations = combineLatest([$coinbase, $managers]).pipe(
+  const $activationsHistory = combineLatest([$coinbase, $managers]).pipe(
     switchMap(([coinbase, managers]) =>
-      concat(
-        getActivations$(managers, fromHexString(coinbase.substring(2))),
-        $activationsStream.pipe(
-          scan<Activation, Activation[]>((acc, next) => [...acc, next], [])
-        )
-      )
+      getActivations$(managers, fromHexString(coinbase.substring(2)))
+    )
+  );
+
+  const $activations = concat(
+    $activationsHistory,
+    $activationsStream.pipe(
+      scan<Activation, Activation[]>((acc, next) => [...acc, next], [])
     )
   );
 

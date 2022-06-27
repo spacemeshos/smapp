@@ -21,7 +21,7 @@ export const hasRequiredRewardFields = (
   r: any
 ): r is Object.NonNullable<
   Reward__Output,
-  'coinbase' | 'total' | 'layer' | 'layerReward' | 'layerComputed'
+  'coinbase' | 'total' | 'layer' | 'layerReward' | 'layerComputed' | 'smesher'
 > =>
   !!(
     r &&
@@ -36,7 +36,7 @@ export const isTx = (a: any): a is Tx =>
   a && a.id && a.sender && a.receiver && a.amount;
 
 export const isReward = (a: any): a is Reward =>
-  a && a.layer && a.coinbase && a.smesher && a.amount;
+  a && a.layer && a.coinbase && a.amount;
 
 export const isActivation = (a: any): a is Activation =>
   a && a.id && a.layer && a.smesherId && a.coinbase && a.numUnits;
