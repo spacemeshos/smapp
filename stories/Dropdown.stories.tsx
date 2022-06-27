@@ -10,7 +10,6 @@ export default {
 
 const Template: ComponentStory<typeof DropDown> = (args) => {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
-
   return (
     <DropDown
       {...args}
@@ -20,8 +19,8 @@ const Template: ComponentStory<typeof DropDown> = (args) => {
   );
 };
 
-export const DropdownSwitchNetwork = Template.bind({});
-DropdownSwitchNetwork.args = {
+export const SwitchNetworkDropdown = Template.bind({});
+SwitchNetworkDropdown.args = {
   data: [
     { label: 'devnet224', netId: -1, isDisabled: false },
     { label: 'devnet225', netId: -1, isDisabled: false },
@@ -30,9 +29,18 @@ DropdownSwitchNetwork.args = {
   rowHeight: 40,
   isDisabled: false,
 };
+SwitchNetworkDropdown.parameters = {
+  backgrounds: {
+    default: 'dark',
+    values: [
+      { name: 'dark', value: '#353439' },
+      { name: 'light', value: '#EBEBEB' },
+    ],
+  },
+};
 
-export const DropdownTheme = Template.bind({});
-DropdownTheme.args = {
+export const ThemeDropdown = Template.bind({});
+ThemeDropdown.args = {
   data: [
     { label: 'Modern Dark', isMain: true },
     { label: 'Classic Dark' },
@@ -62,8 +70,8 @@ DropdownFee.args = {
   isDisabled: false,
 };
 
-export const DropdownWallets = Template.bind({});
-DropdownWallets.args = {
+export const UnlockWalletDropdown = Template.bind({});
+UnlockWalletDropdown.args = {
   data: [
     {
       label: 'Wallett 1',
@@ -88,8 +96,8 @@ DropdownWallets.args = {
   isDisabled: false,
 };
 
-export const DropdownTransactions = Template.bind({});
-DropdownTransactions.args = {
+export const TransactionsDropdown = Template.bind({});
+TransactionsDropdown.args = {
   data: [
     { label: 'daily', isMain: true },
     { label: 'monthly' },
@@ -97,4 +105,32 @@ DropdownTransactions.args = {
   ],
   rowHeight: 40,
   isDisabled: false,
+};
+
+export const ProofOfSpaceDropdown = Template.bind({});
+ProofOfSpaceDropdown.args = {
+  bold: true,
+  data: [
+    { label: '2 KB', size: 2048, numUnits: 2 },
+    { label: '3 KB', size: 3072, numUnits: 3 },
+    { label: '4 KB', size: 4096, numUnits: 4 },
+  ],
+  rowHeight: 40,
+};
+
+export const DailySpendingAccountDropdown = Template.bind({});
+DailySpendingAccountDropdown.args = {
+  data: [],
+  rowHeight: 40,
+};
+
+export const AccountsDropdown = Template.bind({});
+AccountsDropdown.args = {
+  data: [{ label: 'Main Account' }, { label: 'Account 1' }],
+  rowHeight: 55,
+};
+
+export const ConnectToApiDropdown = Template.bind({});
+ConnectToApiDropdown.args = {
+  data: [],
 };
