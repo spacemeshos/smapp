@@ -307,6 +307,7 @@ const handleWalletIpcRequests = (
     //
     $smeshingStarted.pipe(
       switchMap(() => combineLatest([$wallet, $walletPath])),
+      first(),
       filter(
         (pair): pair is [Wallet, string] =>
           Boolean(pair[0]) && typeof pair[1] === 'string'

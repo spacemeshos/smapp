@@ -237,7 +237,7 @@ const SmesherLog = ({
               <DateText>
                 <ReactTimeago date={initTimestamp} />
               </DateText>
-              <LogText>Initializing smesher</LogText>
+              <LogText>Started creating PoS data</LogText>
             </LogEntry>
           </>
         ) : null}

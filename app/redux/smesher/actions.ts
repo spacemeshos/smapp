@@ -2,7 +2,6 @@ import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, GetState } from '../../types';
 import { SmeshingOpts } from '../../../shared/types';
 import { addErrorPrefix } from '../../infra/utils';
-import { getNetworkId } from '../network/selectors';
 import { setUiError } from '../ui/actions';
 import {
   getSmeshingOpts,
@@ -27,24 +26,21 @@ export const startSmeshing = ({
   numUnits,
   provider,
   throttle,
-}: SmeshingOpts) => async (dispatch: AppThDispatch, getState: GetState) => {
+}: SmeshingOpts) => async (dispatch: AppThDispatch) => {
   try {
-    const state = getState();
-    const curNetId = getNetworkId(state);
-    // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
-    await eventsService.startSmeshing(
-      {
-        coinbase,
-        dataDir,
-        numUnits,
-        numFiles: 1,
-        computeProviderId: provider,
-        throttle,
-      },
-      curNetId
-    );
+    await eventsService.startSmeshing({
+      coinbase,
+      dataDir,
+      numUnits,
+      // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
+      numFiles: 1,
+      computeProviderId: provider,
+      throttle,
+    });
+
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
+
     dispatch({
       type: STARTED_SMESHING,
       payload: { coinbase, dataDir, numUnits, provider, throttle },
