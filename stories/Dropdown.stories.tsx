@@ -29,15 +29,6 @@ SwitchNetworkDropdown.args = {
   rowHeight: 40,
   isDisabled: false,
 };
-SwitchNetworkDropdown.parameters = {
-  backgrounds: {
-    default: 'dark',
-    values: [
-      { name: 'dark', value: '#353439' },
-      { name: 'light', value: '#EBEBEB' },
-    ],
-  },
-};
 
 export const ThemeDropdown = Template.bind({});
 ThemeDropdown.args = {
@@ -120,7 +111,7 @@ ProofOfSpaceDropdown.args = {
 
 export const DailySpendingAccountDropdown = Template.bind({});
 DailySpendingAccountDropdown.args = {
-  data: [],
+  data: [{ label: 'Daily spending' }],
   rowHeight: 40,
 };
 
@@ -132,5 +123,5 @@ AccountsDropdown.args = {
 
 export const ConnectToApiDropdown = Template.bind({});
 ConnectToApiDropdown.args = {
-  data: [],
+  data: [{ label: 'Connect to API' }],
 };
