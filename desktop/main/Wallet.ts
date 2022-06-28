@@ -3,7 +3,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { exec } from 'child_process';
 import * as R from 'ramda';
-import { app, dialog, ipcMain, shell } from 'electron';
+import { app, dialog, ipcMain } from 'electron';
 import Logger from '../logger';
 import { ipcConsts } from '../../app/vars';
 import {
@@ -21,7 +21,6 @@ import { CreateWalletRequest } from '../../shared/ipcMessages';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { AppContext } from './context';
-import { getNodeLogsPath } from './utils';
 import { copyWalletFile, listWallets } from './walletFile';
 
 const logger = Logger({ className: 'WalletFiles' });
@@ -41,24 +40,6 @@ const list = async () => {
 //
 // FS Interactions
 //
-
-const showFileInDirectory = async (
-  context: AppContext,
-  { filePath, isLogFile }: { filePath?: string; isLogFile?: boolean }
-) => {
-  if (filePath) {
-    try {
-      shell.showItemInFolder(filePath);
-    } catch (error) {
-      logger.error('showFileInDirectory', error);
-    }
-  } else if (isLogFile) {
-    const logFilePath = getNodeLogsPath(context.currentNetwork?.netID);
-    shell.showItemInFolder(logFilePath);
-  } else {
-    shell.openPath(DEFAULT_WALLETS_DIRECTORY);
-  }
-};
 
 const deleteWalletFile = async (context: AppContext, filepath: string) => {
   if (!context.mainWindow) return;
@@ -190,6 +171,7 @@ export const createWallet = async ({
   type,
   netId,
   apiUrl,
+  password,
 }: CreateWalletRequest) => {
   const { files } = await list();
   const wallet = create(files?.length || 0, existingMnemonic);
@@ -202,7 +184,7 @@ export const createWallet = async ({
     DEFAULT_WALLETS_DIRECTORY,
     `my_wallet_${wallet.meta.created}.json`
   );
-  return { path: walletPath, wallet };
+  return { path: walletPath, wallet, password };
 };
 
 const subscribe = (context: AppContext) => {
@@ -220,10 +202,6 @@ const subscribe = (context: AppContext) => {
     StoreService.set('walletFiles', newWalletFiles);
     return newWalletFiles;
   });
-
-  ipcMain.on(ipcConsts.W_M_SHOW_FILE_IN_FOLDER, (_event, request) =>
-    showFileInDirectory(context, { ...request })
-  );
 
   ipcMain.on(ipcConsts.W_M_SHOW_DELETE_FILE, (_event, filepath) =>
     deleteWalletFile(context, filepath)

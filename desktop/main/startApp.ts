@@ -26,6 +26,7 @@ import { AppStore, Managers } from './app.types';
 import observeAutoUpdates from './sources/autoUpdate';
 import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
+import handleShowFile from './reactions/handleShowFile';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -143,6 +144,8 @@ const startApp = (): AppStore => {
     handleWalletIpcRequests($wallet, $walletPath, $networks, $smeshingStarted),
     // Handle Start Smeshing request
     handleSmesherIpc($managers, $smeshingStarted),
+    // Handle show file
+    handleShowFile($currentNetwork),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
       $mainWindow,

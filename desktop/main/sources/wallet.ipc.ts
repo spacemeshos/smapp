@@ -1,7 +1,6 @@
 import * as R from 'ramda';
 import {
   combineLatest,
-  debounceTime,
   delay,
   distinctUntilChanged,
   filter,
@@ -13,7 +12,6 @@ import {
   OperatorFunction,
   pipe,
   retry,
-  skip,
   Subject,
   switchMap,
   throwError,
@@ -62,27 +60,27 @@ import {
 
 type ResetWallet = { path: ''; wallet: null };
 const RESET_WALLET: ResetWallet = { path: '', wallet: null };
-type WalletPair = {
+type WalletData = {
   path: string;
   wallet: Wallet;
   password?: string;
   meta?: Record<string, any>;
 };
 
-const isWalletPair = (a: any): a is WalletPair =>
+const isWalletData = (a: any): a is WalletData =>
   Boolean(a.path) && Boolean(a.wallet);
 
 const logger = Logger({ className: 'sources/wallet.ipc' });
 
 // Utils
-const updateWalletFile = async (next: WalletPair) => {
+const updateWalletFile = async (next: WalletData) => {
   if (next.password) {
-    saveWallet(next.path, next.password, next.wallet).catch((err) => {
+    await saveWallet(next.path, next.password, next.wallet).catch((err) => {
       if (err?.message === WRONG_PASSWORD_MESSAGE) return;
       logger.error('updateWalletFile/saveWallet', err, next.path);
     });
   } else {
-    updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
+    await updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
       logger.error('updateWalletFile', err, next.path)
     );
   }
@@ -91,7 +89,7 @@ const updateWalletFile = async (next: WalletPair) => {
 const loadWallet$ = (path: string, password: string) => {
   return from(
     wrapResult(
-      loadWallet(path, password).then((wallet) => <WalletPair>{ path, wallet })
+      loadWallet(path, password).then((wallet) => <WalletData>{ path, wallet })
     )
   );
 };
@@ -101,7 +99,7 @@ const changePassword = (path, prevPassword, nextPassword) =>
     filter(hasResult),
     switchMap(([_, { path, wallet }]) =>
       from(saveWallet(path, nextPassword, wallet)).pipe(
-        map(() => <WalletPair>{ path, wallet })
+        map(() => <WalletData>{ path, wallet })
       )
     )
   );
@@ -109,8 +107,8 @@ const changePassword = (path, prevPassword, nextPassword) =>
 const handleUpdateWalletSecrets = <
   T extends { path: string; password: string }
 >(
-  mapFn: (inputs: T, pair: WalletPair) => WalletPair
-): OperatorFunction<T, WalletPair> =>
+  mapFn: (inputs: T, pair: WalletData) => WalletData
+): OperatorFunction<T, WalletData> =>
   pipe(
     switchMap((t) =>
       loadWallet$(t.path, t.password).pipe(
@@ -142,7 +140,7 @@ const handleWalletIpcRequests = (
           map(([hr, nets]) =>
             mapResult(
               (pair) =>
-                <WalletPair>{
+                <WalletData>{
                   ...pair,
                   meta: {
                     forceNetworkSelection:
@@ -163,7 +161,7 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.W_M_CREATE_WALLET,
       (data: CreateWalletRequest) =>
-        from(wrapResult(createWallet(data) as Promise<WalletPair>)),
+        from(wrapResult(createWallet(data) as Promise<WalletData>)),
       ({ path }): CreateWalletResponse['payload'] => ({ path })
     ),
     //
@@ -177,7 +175,7 @@ const handleWalletIpcRequests = (
         const selectedNet = nets.find((net) => net.netID === netId);
         if (!selectedNet) return throwError(() => Error('No network found'));
 
-        return of(<WalletPair>{
+        return of(<WalletData>{
           path,
           wallet: R.assocPath(['meta', 'netId'], netId, wallet),
         });
@@ -219,7 +217,7 @@ const handleWalletIpcRequests = (
               meta: { ...wallet.meta, ...changes },
             };
 
-            return handlerResult(<WalletPair>{ path, wallet: nextWallet });
+            return handlerResult(<WalletData>{ path, wallet: nextWallet });
           })
         ),
       ({ wallet }) => wallet.meta
@@ -252,7 +250,7 @@ const handleWalletIpcRequests = (
         Boolean(tuple[1])
       ), // or throw error?
       map(([upd, wallet, path]) => {
-        return <WalletPair>{
+        return <WalletData>{
           path,
           wallet: {
             ...wallet,
@@ -313,7 +311,7 @@ const handleWalletIpcRequests = (
           Boolean(pair[0]) && typeof pair[1] === 'string'
       ),
       map(
-        ([wallet, path]): WalletPair => ({
+        ([wallet, path]): WalletData => ({
           wallet: {
             ...wallet,
             meta: {
