@@ -2,7 +2,6 @@ import * as R from 'ramda';
 import {
   combineLatest,
   delay,
-  distinctUntilChanged,
   filter,
   first,
   from,
@@ -332,6 +331,11 @@ const handleWalletIpcRequests = (
       next: (next) => {
         $wallet.next(next.wallet);
         $walletPath.next(next.path);
+        if (isWalletData(next)) {
+          updateWalletFile(next).catch((err) => {
+            logger.error('updateWalletFile', err, next);
+          });
+        }
       },
       error: (error: Error) => {
         // TODO: Show error to User
@@ -341,15 +345,6 @@ const handleWalletIpcRequests = (
         logger.error('$nextWallet', 'Observable is completed');
       },
     }),
-    // Store new wallet on FS
-    $nextWallet
-      .pipe(
-        skip(1),
-        distinctUntilChanged(),
-        filter(isWalletPair),
-        debounceTime(50)
-      )
-      .subscribe(updateWalletFile),
   ];
 
   return () => subs.forEach((sub) => sub.unsubscribe());
