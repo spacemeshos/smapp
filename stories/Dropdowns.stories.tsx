@@ -20,7 +20,7 @@ type Args = {
   isDisabled?: boolean;
   selectedItemIndex?: number;
   bold?: boolean;
-  isLightSkin?: boolean;
+  isDarkMode?: boolean;
 }[];
 
 export default {
@@ -96,7 +96,7 @@ const ARGUMENTS: Args = [
     ],
     rowHeight: 40,
     isDisabled: false,
-    isLightSkin: true,
+    isDarkMode: true,
   },
   {
     bold: true,
@@ -106,7 +106,7 @@ const ARGUMENTS: Args = [
       { label: '4 KB', size: 4096, numUnits: 4 },
     ],
     rowHeight: 40,
-    isLightSkin: true,
+    isDarkMode: true,
   },
   {
     data: [{ label: 'Daily spending' }],
