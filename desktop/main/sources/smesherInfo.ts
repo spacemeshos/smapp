@@ -12,6 +12,7 @@ import {
   Observable,
   of,
   scan,
+  shareReplay,
   Subject,
   switchMap,
   withLatestFrom,
@@ -120,14 +121,13 @@ const syncSmesherInfo = (
   );
   const $rewardsStream = $isLocalNode.pipe(
     switchMap(() => combineLatest([$coinbase, $managers])),
-    switchMap(
-      ([coinbase, managers]) =>
-        new Observable<Reward__Output>((subscriber) =>
-          managers.wallet.listenRewardsByCoinbase(
-            fromHexString(coinbase.substring(2)),
-            (x) => subscriber.next(x)
-          )
+    switchMap(([coinbase, managers]) =>
+      new Observable<Reward__Output>((subscriber) =>
+        managers.wallet.listenRewardsByCoinbase(
+          fromHexString(coinbase.substring(2)),
+          (x) => subscriber.next(x)
         )
+      ).pipe(shareReplay())
     )
   );
 
@@ -146,14 +146,13 @@ const syncSmesherInfo = (
 
   const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
     first(),
-    switchMap(
-      ([coinbase, managers]) =>
-        new Observable<Activation>((subscriber) =>
-          managers.wallet.listenActivationsByCoinbase(
-            fromHexString(coinbase.substring(2)),
-            (atx) => subscriber.next(atx)
-          )
+    switchMap(([coinbase, managers]) =>
+      new Observable<Activation>((subscriber) =>
+        managers.wallet.listenActivationsByCoinbase(
+          fromHexString(coinbase.substring(2)),
+          (atx) => subscriber.next(atx)
         )
+      ).pipe(shareReplay())
     )
   );
   const $activationsHistory = combineLatest([$coinbase, $managers]).pipe(
