@@ -5,6 +5,8 @@ import { ChildProcess } from 'node:child_process';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
+import { debounce } from 'throttle-debounce';
+
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
 import {
@@ -151,8 +153,7 @@ class NodeManager {
 
   subscribeToEvents = () => {
     // Handlers
-    const startNode = async () =>
-      this.isNodeRunning() ? true : this.startNode();
+    const startNode = () => this.startNode();
     const getVersionAndBuild = () =>
       this.getVersionAndBuild()
         .then((payload) =>
@@ -243,6 +244,7 @@ class NodeManager {
   };
 
   startNode = async () => {
+    if (this.isNodeRunning()) return true;
     await this.spawnNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
@@ -440,11 +442,11 @@ class NodeManager {
     return { version, build };
   };
 
-  sendNodeStatus: StatusStreamHandler = (status) => {
+  sendNodeStatus: StatusStreamHandler = debounce(200, true, (status) => {
     this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
-  };
+  });
 
-  sendNodeError: ErrorStreamHandler = async (error) => {
+  sendNodeError: ErrorStreamHandler = debounce(200, true, async (error) => {
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC
@@ -464,7 +466,7 @@ class NodeManager {
       // Send only critical errors
       this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_ERROR, error);
     }
-  };
+  });
 
   pushNodeError = (error: NodeError) => {
     this.pushToErrorPool({ type: 'NodeError', error });
