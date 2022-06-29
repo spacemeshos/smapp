@@ -27,6 +27,7 @@ import observeAutoUpdates from './sources/autoUpdate';
 import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
+import handleOpenDashboard from './reactions/handleOpenDashboard';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -165,6 +166,7 @@ const startApp = (): AppStore => {
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
     observeAutoUpdates($mainWindow, $currentNetwork),
+    handleOpenDashboard($mainWindow, $currentNetwork),
   ];
 
   return {
