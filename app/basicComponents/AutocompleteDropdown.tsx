@@ -290,6 +290,8 @@ type Props = {
   autofocus?: boolean;
 };
 
+export type AutocompleteDropdownProps = Props;
+
 const AutocompleteDropdown = (props: Props) => {
   const { value, autofocus } = props;
   let inputBlurTimer: any;
