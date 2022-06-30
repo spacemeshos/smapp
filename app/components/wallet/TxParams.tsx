@@ -69,14 +69,6 @@ const Dots = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const Fee = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
-  cursor: inherit;
-`;
-
 const Footer = styled.div`
   display: flex;
   flex-direction: row;
@@ -85,22 +77,23 @@ const Footer = styled.div`
   align-items: flex-end;
 `;
 
+const DropDownContainer = styled.div`
+  width: 240px;
+`;
+
 // TODO add auto update for fee ranges
 const fees = [
   {
     fee: 1,
-    label: '~ 10 min',
-    text: '(FEE 1 Smidge)',
+    label: '~ 10 min (FEE 1 Smidge)',
   },
   {
     fee: 2,
-    label: '~ 5 min',
-    text: '(FEE 2 Smidge)',
+    label: '~ 5 min (FEE 2 Smidge)',
   },
   {
     fee: 3,
-    label: '~ 1 min',
-    text: '(FEE 3 Smidge)',
+    label: '~ 1 min (FEE 3 Smidge)',
   },
 ];
 
@@ -144,22 +137,6 @@ const TxParams = ({
   contacts,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
-  const ddStyle = {
-    marginLeft: 'auto',
-    flex: '0 0 240px',
-  };
-
-  const renderFeeElement = ({
-    label,
-    text,
-  }: {
-    label: string;
-    text: string;
-  }) => (
-    <Fee key={label}>
-      {label} {text}
-    </Fee>
-  );
 
   const selectFee = ({ index }: { index: number }) => {
     updateFee({ fee: fees[index].fee });
@@ -237,15 +214,15 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>Fee</DetailsText>
         <Dots>....................................</Dots>
-        <DropDown
-          data={fees}
-          onClick={selectFee}
-          DdElement={({ label, text }) => renderFeeElement({ label, text })}
-          selectedItemIndex={selectedFeeIndex}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
+        <DropDownContainer>
+          <DropDown
+            data={fees}
+            onClick={selectFee}
+            selectedItemIndex={selectedFeeIndex}
+            rowHeight={40}
+            hideSelectedItem
+          />
+        </DropDownContainer>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Note</DetailsText>

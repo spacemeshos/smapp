@@ -5,7 +5,6 @@ import { CorneredContainer } from '../../components/common';
 import { Button, Link, DropDown, Loader } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
-import { smColors } from '../../vars';
 import { setUiError } from '../../redux/ui/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthPath } from '../../routerPaths';
@@ -16,11 +15,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const DropDownLink = styled.a`
-  color: ${smColors.blue};
-  cursor: pointer;
 `;
 
 const RowColumn = styled.div`
@@ -37,22 +31,9 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const AccItem = styled.div`
-  width: 100%;
-  padding: 5px;
-  line-height: 17px;
-  font-size: 13px;
-  text-transform: uppercase;
-  color: ${smColors.black};
-  cursor: inherit;
-`;
-
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const ddStyle = {
-    marginLeft: 'auto',
-  };
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const networksList = useSelector((state: RootState) => state.networks);
@@ -84,47 +65,17 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
-  const openExplorer = (explorer: string) => {
-    window.open(explorer.concat(isDarkMode ? '?dark' : ''), '_blank');
-  };
-
-  const renderAccElement = ({
-    label,
-    explorer,
-    netId,
-  }: {
-    label: string;
-    explorer: string;
-    netId: number;
-  }) => (
-    <AccItem key={label}>
-      {netId > 0 ? (
-        <>
-          {label}
-          (ID&nbsp;
-          <DropDownLink onClick={() => openExplorer(explorer)} target="_blank">
-            {netId}
-          </DropDownLink>
-          )
-        </>
-      ) : (
-        label
-      )}
-    </AccItem>
-  );
-
   const hasAvailableNetworks = networks.networks.length > 0;
   const getDropDownData = () =>
     // eslint-disable-next-line no-nested-ternary
     networks.loading
-      ? [{ label: 'LOADING... PLEASE WAIT', netId: -1, isDisabled: true }]
+      ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }]
       : hasAvailableNetworks
-      ? networks.networks.map(({ netId, netName, explorer }) => ({
+      ? networks.networks.map(({ netId, netName }) => ({
           label: netName,
-          netId,
-          explorer,
+          description: netId > 1 ? `(ID ${netId}` : '',
         }))
-      : [{ label: 'NO NETWORKS AVAILABLE', netId: -1, isDisabled: true }];
+      : [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
 
   const goNext = (netId: number) => {
     const { creatingWallet, isWalletOnly } = location.state;
@@ -193,11 +144,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
           <DropDown
             data={getDropDownData()}
             onClick={selectItem}
-            DdElement={renderAccElement}
             selectedItemIndex={selectedItemIndex}
             rowHeight={40}
-            style={ddStyle}
-            bgColor={smColors.white}
             isDisabled={!hasAvailableNetworks}
           />
         </RowColumn>

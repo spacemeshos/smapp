@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown, BoldText } from '../../basicComponents';
+import { Tooltip, DropDown } from '../../basicComponents';
 import {
   posSpace,
   posRewardEst,
@@ -64,23 +64,6 @@ const Dots = styled.div`
 
 const RewardText = styled(Text)<{ selected: boolean }>`
   color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
-`;
-
-const CommitmentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 5px 5px 5px 10px;
-  cursor: inherit;
-  color: ${smColors.realBlack};
-`;
-
-const Commitment = styled(BoldText)`
-  font-size: 16px;
-  line-height: 22px;
-  cursor: inherit;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
 const ErrorText = styled.div`
@@ -161,21 +144,9 @@ const PoSSize = ({
   //   loadEstimatedRewards();
   // }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
 
-  const renderDDRow = ({ label }: { label: string }) => (
-    <CommitmentWrapper>
-      <Commitment>{label}</Commitment>
-    </CommitmentWrapper>
-  );
-
   const selectCommitment = ({ index }: { index: number }) => {
     setSelectedCommitmentIndex(index);
     setNumUnit(commitments[index].numUnits);
-  };
-
-  const ddStyle = {
-    color: isDarkMode ? smColors.white : smColors.black,
-    marginLeft: 'auto',
-    flex: '0 0 125px',
   };
 
   const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
@@ -189,14 +160,10 @@ const PoSSize = ({
         <Dots>.....................................................</Dots>
         <DropDown
           data={commitments}
-          DdElement={({ label }) => renderDDRow({ label })}
           onClick={selectCommitment}
           selectedItemIndex={selectedCommitmentIndex}
           rowHeight={40}
-          style={ddStyle}
-          bgColor={isDarkMode ? smColors.black : smColors.white}
-          isDarkMode={isDarkMode}
-          rowContentCentered={false}
+          bold
         />
       </Row>
       <Row>

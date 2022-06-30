@@ -122,20 +122,12 @@ const AccountsOverview = () => {
       <AccountDetails>
         {accounts.length > 1 ? (
           <DropDown
-            data={accounts}
-            DdElement={({ displayName, publicKey }) =>
-              renderAccountRow({
-                displayName,
-                publicKey,
-              })
-            }
+            data={accounts.map((item) => ({
+              label: item.displayName,
+            }))}
             onClick={handleSetCurrentAccount}
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}
-            whiteIcon={isDarkMode}
-            isDarkMode={isDarkMode}
-            rowContentCentered={false}
-            bgColor={isDarkMode ? smColors.black : smColors.white}
           />
         ) : (
           renderAccountRow({ displayName, publicKey })

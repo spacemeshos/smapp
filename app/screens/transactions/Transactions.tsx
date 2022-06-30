@@ -57,13 +57,11 @@ const RightPaneWrapper = styled(CorneredWrapper)`
   padding: 20px 14px;
 `;
 
-const TimeSpanEntry = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 5px 5px 5px 15px;
-  cursor: pointer;
-  text-align: left;
+const DropDownWrapper = styled.div`
+  position: absolute;
+  width: 150px;
+  right: 0;
+  top: 7px;
 `;
 
 const getNumOfCoinsFromTransactions = (
@@ -149,15 +147,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
-  const ddStyle = {
-    width: 140,
-    position: 'absolute',
-    right: 12,
-    top: 5,
-    height: 41,
-    color: isDarkMode ? smColors.white : smColors.black,
-  };
-
   const filteredTransactions = filterTransactions();
   const coinStats = getCoinStatistics(filteredTransactions);
   const {
@@ -212,17 +201,16 @@ const Transactions = ({ history }: RouteComponentProps) => {
         />
       ) : (
         <RightPaneWrapper>
-          <DropDown
-            data={TIME_SPANS}
-            DdElement={({ label }) => <TimeSpanEntry>{label}</TimeSpanEntry>}
-            onClick={handlePress}
-            selectedItemIndex={selectedTimeSpan}
-            rowHeight={40}
-            style={ddStyle}
-            bgColor={isDarkMode ? smColors.black : smColors.white}
-            rowContentCentered={false}
-            isDarkMode={isDarkMode}
-          />
+          <DropDownWrapper>
+            <DropDown
+              data={TIME_SPANS}
+              onClick={handlePress}
+              selectedItemIndex={selectedTimeSpan}
+              rowHeight={40}
+              bold
+              isDarkMode
+            />
+          </DropDownWrapper>
           <TransactionsMeta
             mined={mined}
             sent={sent}

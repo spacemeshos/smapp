@@ -19,15 +19,6 @@ const DetailsText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccItem = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
-  width: 100%;
-  cursor: inherit;
-`;
-
 type Props = {
   masterAccountIndex: number;
   selectedAccountIndex: ({ index }: { index: number }) => void;
@@ -38,45 +29,23 @@ const VaultMasterAccount = ({
   masterAccountIndex,
   selectedAccountIndex,
   accountsOption,
-}: Props) => {
-  const ddStyle = {
-    marginLeft: 'auto',
-    flex: '0 0 240px',
-  };
-
-  const renderAccElement = ({
-    label,
-    text,
-  }: {
-    label: string;
-    text: string;
-  }) => (
-    <AccItem key={label}>
-      {label} {text}
-    </AccItem>
-  );
-
-  return (
-    <>
-      <DetailsRow>
-        <DetailsText>Account</DetailsText>
-        <Tooltip
-          width={250}
-          text="Use an account managed by this wallet to set yourself as the vault’s owner."
-        />
-        <Dots />
-        <DropDown
-          data={accountsOption}
-          onClick={selectedAccountIndex}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={masterAccountIndex}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-    </>
-  );
-};
+}: Props) => (
+  <>
+    <DetailsRow>
+      <DetailsText>Account</DetailsText>
+      <Tooltip
+        width={250}
+        text="Use an account managed by this wallet to set yourself as the vault’s owner."
+      />
+      <Dots />
+      <DropDown
+        data={accountsOption}
+        onClick={selectedAccountIndex}
+        selectedItemIndex={masterAccountIndex}
+        rowHeight={40}
+      />
+    </DetailsRow>
+  </>
+);
 
 export default VaultMasterAccount;
