@@ -28,17 +28,19 @@ export const startSmeshing = ({
   throttle,
 }: SmeshingOpts) => async (dispatch: AppThDispatch) => {
   try {
-    // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
     await eventsService.startSmeshing({
       coinbase,
       dataDir,
       numUnits,
+      // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
       numFiles: 1,
       computeProviderId: provider,
       throttle,
     });
+
     localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
     localStorage.removeItem('smesherSmeshingTimestamp');
+
     dispatch({
       type: STARTED_SMESHING,
       payload: { coinbase, dataDir, numUnits, provider, throttle },

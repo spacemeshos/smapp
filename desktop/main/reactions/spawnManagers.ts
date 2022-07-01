@@ -30,7 +30,10 @@ const spawnManagers$ = (
       .subscribe(([mw, nodeConfig]) => {
         const netId: number = nodeConfig.p2p['network-id'];
         spawnManagers(mw, netId)
-          .then((nextManagers) => $managers.next(nextManagers))
+          .then((nextManagers) => {
+            $managers.next(nextManagers);
+            return nextManagers;
+          })
           .catch((err) =>
             logger.error(
               'spawnManagers$ > Can not spawn new managers',

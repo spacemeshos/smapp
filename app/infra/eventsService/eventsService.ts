@@ -31,7 +31,6 @@ import {
 import { showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
-import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
 import { CurrentLayer, GlobalStateHash } from '../../types/events';
@@ -158,9 +157,7 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
   static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
-    await ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, LOCAL_NODE_API_URL);
-    await ipcRenderer.invoke(ipcConsts.N_M_START_NODE);
-    ipcRenderer.invoke(ipcConsts.SMESHER_START_SMESHING, { postSetupOpts });
+    ipcRenderer.send(ipcConsts.SMESHER_START_SMESHING, postSetupOpts);
   };
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>

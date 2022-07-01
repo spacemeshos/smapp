@@ -5,6 +5,7 @@ import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
 import {
   IPCSmesherStartupData,
+  NodeConfig,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
@@ -38,7 +39,7 @@ class SmesherManager {
     const fileContent = await readFileAsync(this.configFilePath, {
       encoding: 'utf-8',
     });
-    return JSON.parse(fileContent);
+    return JSON.parse(fileContent) as NodeConfig;
   };
 
   private writeConfig = async (config) => {
@@ -51,6 +52,14 @@ class SmesherManager {
   getSmeshingConfig = async () => {
     const config = await this.loadConfig();
     return config.smeshing || {};
+  };
+
+  getSmesherId = async () => {
+    const res = await this.smesherService.getSmesherID();
+    if (res.error) {
+      throw res.error;
+    }
+    return res.smesherId;
   };
 
   getCurrentDataDir = async () => {
@@ -140,6 +149,8 @@ class SmesherManager {
       { error, providers }
     );
   };
+
+  getCoinbase = () => this.smesherService.getCoinbase();
 
   subscribeToEvents = (mainWindow: BrowserWindow) => {
     // handlers

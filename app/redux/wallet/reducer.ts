@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { WalletMeta } from '../../../shared/types';
 import type { WalletState, CustomAction } from '../../types';
 import { LOGOUT } from '../auth/actions';
@@ -15,11 +14,13 @@ import {
 } from './actions';
 
 const initialState = {
+  // Data comes from rx state
   walletFiles: [],
   currentWalletPath: null,
   meta: {} as WalletMeta,
   mnemonic: '',
   accounts: [],
+  // Data comes from legacy sources
   currentAccountIndex: 0,
   transactions: {},
   rewards: {},
@@ -27,6 +28,7 @@ const initialState = {
   contacts: [],
   backupTime: '',
   vaultMode: 0,
+  balances: {},
 };
 
 // TODO: fix this while fixing contacts feature
@@ -67,20 +69,16 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     }
     case UPDATE_ACCOUNT_DATA: {
       const { account, accountId } = action.payload;
-      const accountIndexToUpdate = state.accounts.findIndex(
-        (account) => account.publicKey === accountId
-      );
       return {
         ...state,
-        accounts: R.over(
-          R.lensIndex(accountIndexToUpdate),
-          (acc) => ({
-            ...acc,
+        balances: {
+          ...state.balances,
+          [accountId]: {
+            ...state.balances[accountId],
             currentState: account.currentState,
             projectedState: account.projectedState,
-          }),
-          state.accounts
-        ),
+          },
+        },
       };
     }
     case SET_TRANSACTIONS: {

@@ -14,3 +14,5 @@ export const DOCUMENTS_DIR = app.getPath('documents');
 export const NODE_CONFIG_FILE = path.resolve(USERDATA_DIR, 'node-config.json');
 
 export const DEFAULT_WALLETS_DIRECTORY = USERDATA_DIR;
+
+export const GRPC_QUERY_BATCH_SIZE = 50;

@@ -96,3 +96,5 @@ export type RemoveContactRequest = AddContactRequest;
 export type ListNetworksResponse = IpcResponse<Network[]>;
 
 export type ListPublicApisResponse = IpcResponse<PublicService[]>;
+
+export type ShowFileRequest = { filePath?: string; isLogFile?: boolean };

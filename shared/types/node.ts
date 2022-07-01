@@ -1,3 +1,5 @@
+import { HexString } from './misc';
+
 export interface NodeVersionAndBuild {
   version: string;
   build: string;
@@ -32,7 +34,24 @@ export interface NodeError {
 export interface NodeConfig {
   p2p: {
     'network-id': number;
-    [k: string]: any;
+    [k: string]: unknown;
   };
-  [k: string]: any;
+  main: {
+    'genesis-time': string;
+    'layer-duration-sec': number;
+    'layers-per-epoch': number;
+    [k: string]: unknown;
+  };
+  smeshing: {
+    'smeshing-coinbase': HexString;
+    'smeshing-opts': {
+      'smeshing-opts-datadir': string;
+      'smeshing-opts-numfiles': number;
+      'smeshing-opts-numunits': number;
+      'smeshing-opts-provider': number;
+      'smeshing-opts-throttle': boolean;
+    };
+    'smeshing-start': boolean;
+  };
+  [k: string]: unknown;
 }

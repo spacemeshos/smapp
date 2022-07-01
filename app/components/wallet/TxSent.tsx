@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { getAddress, formatSmidge } from '../../infra/utils';
+import { getAddress, formatSmidge, parseSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
@@ -108,7 +108,7 @@ const TxSent = ({
 }: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
 
-  const { unit }: any = formatSmidge(amount, true);
+  const { unit } = parseSmidge(amount);
   return (
     <Wrapper>
       <Header>

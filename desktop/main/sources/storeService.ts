@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, shareReplay } from 'rxjs';
 import StoreService, { ConfigStore } from '../../storeService';
 
 const observeStoreService = () =>
@@ -7,6 +7,6 @@ const observeStoreService = () =>
     StoreService.onAnyChange(() => {
       subscribe.next(StoreService.dump());
     });
-  });
+  }).pipe(shareReplay());
 
 export default observeStoreService;

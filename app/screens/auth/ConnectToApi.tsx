@@ -101,14 +101,14 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
-    const { netId } = location.state;
+    const netId = location?.state?.netId || curNetId;
     const value =
       publicServices.services.length > selectedItemIndex
         ? publicServices.services[selectedItemIndex].value
         : undefined;
 
     value &&
-      dispatch(switchApiProvider(value, netId || curNetId)).catch((err) => {
+      dispatch(switchApiProvider(value, netId)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });

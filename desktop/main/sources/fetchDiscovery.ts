@@ -30,8 +30,9 @@ export const fetchDiscoveryEach = (
   period: number,
   $networks: Subject<Network[]>
 ) =>
-  makeSubscription(interval(period).pipe(switchMap(fromDiscovery)), (nets) =>
-    $networks.next(nets)
+  makeSubscription(
+    interval(period).pipe(switchMap(fromDiscovery)),
+    (nets) => nets.length > 0 && $networks.next(nets)
   );
 
 export const listNetworksByRequest = () =>

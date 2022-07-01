@@ -83,7 +83,9 @@ const Network = ({ history }) => {
   const nodeError = useSelector((state: RootState) => state.node.error);
   const netId = useSelector((state: RootState) => state.network.netId || -1);
   const netName = useSelector(
-    (state: RootState) => state.network.netName || 'UNKNOWN NETWORK NAME'
+    (state: RootState) =>
+      state.network.netName ||
+      (netId === -1 ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
   );
 
   const genesisTime = useSelector(
@@ -193,7 +195,7 @@ const Network = ({ history }) => {
       <DetailsRow>
         <Button
           text="CHOOSE THE NETWORK"
-          width={150}
+          width={180}
           isPrimary
           onClick={() => goToSwitchNetwork(history, isWalletMode)}
         />

@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,7 +13,7 @@ import {
   Loader,
   DropDown,
 } from '../../basicComponents';
-import { smColors } from '../../vars';
+import { ipcConsts, smColors } from '../../vars';
 import {
   smallInnerSideBar,
   chevronRightBlack,
@@ -149,7 +150,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       const status = await dispatch(
         unlockWallet(walletFiles[selectedWalletIndex].path, password)
       );
-      setShowLoader(false);
+
       if (status.success) {
         const nextPage =
           (location.state?.redirect !== AuthPath.Unlock &&
@@ -163,8 +164,14 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           });
           return;
         }
-        history.push(nextPage);
+        // TODO: We can get rid of this waiting in case
+        //       if we introduce loading state to screen(s)
+        ipcRenderer.once(ipcConsts.WALLET_ACTIVATED, () => {
+          setShowLoader(false);
+          history.push(nextPage);
+        });
       } else {
+        setShowLoader(false);
         setWrongPassword(true);
       }
     }

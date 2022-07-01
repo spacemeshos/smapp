@@ -10,30 +10,30 @@ import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { toHexString } from './utils';
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 
 const PROTO_PATH = 'proto/global_state.proto';
 
-interface AccountDataStreamHandlerArg {
+export interface AccountDataStreamHandlerArg {
   [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: Reward__Output;
   [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: Account__Output;
   [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: TransactionReceipt__Output;
 }
 
-type AccountDataValidFlags = Exclude<
+export type AccountDataValidFlags = Exclude<
   AccountDataFlag,
   AccountDataFlag.ACCOUNT_DATA_FLAG_UNSPECIFIED
 >;
 type AccountDataStreamKey = Exclude<keyof AccountData__Output, 'datum'>;
-const getKeyByAccoundDataFlag = (
-  flag: AccountDataValidFlags
-): AccountDataStreamKey => {
-  const keys: Record<AccountDataValidFlags, AccountDataStreamKey> = {
-    [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: 'reward',
-    [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: 'receipt',
-    [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: 'accountWrapper',
-  };
-  return keys[flag];
+
+const ACCOUNT_DATA_KEYS: Record<AccountDataValidFlags, AccountDataStreamKey> = {
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD]: 'reward',
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT]: 'receipt',
+  [AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT]: 'accountWrapper',
 };
+const getKeyByAccountDataFlag = (
+  flag: AccountDataValidFlags
+): AccountDataStreamKey => ACCOUNT_DATA_KEYS[flag];
 
 class GlobalStateService extends NetServiceFactory<
   ProtoGrpcType,
@@ -46,30 +46,49 @@ class GlobalStateService extends NetServiceFactory<
   };
 
   getGlobalStateHash = (): Promise<GlobalStateHash> =>
-    this.callService('GlobalStateHash', {}).then((response) => ({
-      layer: response.response?.layer?.number || 0,
-      rootHash: response.response?.rootHash
-        ? toHexString(response.response.rootHash)
-        : '',
-    }));
+    this.callService('GlobalStateHash', {})
+      .then((response) => ({
+        layer: response.response?.layer?.number || 0,
+        rootHash: response.response?.rootHash
+          ? toHexString(response.response.rootHash)
+          : '',
+      }))
+      .catch((err) => {
+        this.logger.error('getGlobalStateHash', err);
+        return { layer: 0, rootHash: '' };
+      });
 
-  sendAccountDataQuery = ({
+  sendAccountDataQuery = <F extends AccountDataValidFlags>({
     filter,
     offset,
   }: {
     filter: {
       accountId: { address: Uint8Array };
-      accountDataFlags: AccountDataFlag;
+      accountDataFlags: F;
     };
     offset: number;
   }) =>
-    this.callService('AccountDataQuery', { filter, maxResults: 50, offset })
+    this.callService('AccountDataQuery', {
+      filter,
+      maxResults: GRPC_QUERY_BATCH_SIZE,
+      offset,
+    })
       .then((response) => ({
         totalResults: response.totalResults,
-        data: response.accountItem,
+        data: response.accountItem.map(
+          (item) =>
+            item[
+              getKeyByAccountDataFlag(filter.accountDataFlags)
+            ] as AccountDataStreamHandlerArg[F]
+        ),
       }))
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ totalResults: 0, data: [] }));
+      .catch(
+        this.normalizeServiceError({
+          totalResults: 0,
+          data: <AccountDataStreamHandlerArg[F][]>[],
+        })
+      );
 
   activateAccountDataStream = <K extends AccountDataValidFlags>(
     address: Uint8Array,
@@ -86,12 +105,22 @@ class GlobalStateService extends NetServiceFactory<
       },
       (data: AccountDataStreamResponse__Output) => {
         const { datum } = data;
-        const key = getKeyByAccoundDataFlag(accountDataFlags);
+        const key = getKeyByAccountDataFlag(accountDataFlags);
         if (datum && datum[key]) {
           const value = datum[key] as AccountDataStreamHandlerArg[K];
           handler(value);
         }
       }
+    );
+
+  listenRewardsByCoinbase = (
+    coinbase: Uint8Array,
+    handler: (data: Reward__Output) => void
+  ) =>
+    this.activateAccountDataStream(
+      coinbase,
+      AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
+      handler
     );
 }
 

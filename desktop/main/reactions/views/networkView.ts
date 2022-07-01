@@ -16,6 +16,7 @@ export default (
           netName: curNet?.netName || 'Not connected',
           genesisTime: nodeConfig.main['genesis-time'],
           layerDurationSec: nodeConfig.main['layer-duration-sec'],
+          layersPerEpoch: nodeConfig.main['layers-per-epoch'],
           explorerUrl: curNet?.explorer || '',
           currentLayer,
           rootHash,

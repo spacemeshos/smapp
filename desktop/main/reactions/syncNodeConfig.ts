@@ -1,16 +1,34 @@
-import { distinctUntilChanged, Observable, Subject } from 'rxjs';
+import {
+  delay,
+  distinctUntilChanged,
+  filter,
+  from,
+  merge,
+  Observable,
+  retry,
+  Subject,
+  switchMap,
+} from 'rxjs';
 import { Network, NodeConfig } from '../../../shared/types';
 import { downloadNodeConfig } from '../NodeConfig';
 import { makeSubscription } from '../rx.utils';
 
 export default (
   $currentNetwork: Observable<Network | null>,
-  $nodeConfig: Subject<NodeConfig>
+  $nodeConfig: Subject<NodeConfig>,
+  $smeshingStarted: Subject<void>
 ) =>
   makeSubscription(
-    $currentNetwork.pipe(distinctUntilChanged()),
-    async (net) => {
-      if (!net) return;
-      $nodeConfig.next(await downloadNodeConfig(net.conf));
-    }
+    merge(
+      $currentNetwork.pipe(filter(Boolean), distinctUntilChanged()),
+      $smeshingStarted.pipe(
+        switchMap(() => $currentNetwork),
+        filter(Boolean)
+      )
+    ).pipe(
+      switchMap((net) => from(downloadNodeConfig(net.conf))),
+      retry(5),
+      delay(500)
+    ),
+    (conf) => $nodeConfig.next(conf)
   );

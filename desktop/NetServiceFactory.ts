@@ -99,7 +99,7 @@ class NetServiceFactory<
     type ResultArg = ServiceCallbackResult<T, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
     return this.ensureService().then(
-      (_service) =>
+      (_service: Service<T, ServiceName>) =>
         new Promise<Result>((resolve, reject) => {
           _service[method](
             opts,
@@ -108,10 +108,12 @@ class NetServiceFactory<
                 const err =
                   error ||
                   new Error(
-                    `No result or error received: ${this.serviceName}.${method}`
+                    `No result or error received: ${this.serviceName}.${String(
+                      method
+                    )}`
                   );
                 this.logger?.error(
-                  `grpc call ${this.serviceName}.${method}`,
+                  `grpc call ${this.serviceName}.${String(method)}`,
                   err
                 );
                 reject(err);
@@ -147,7 +149,13 @@ class NetServiceFactory<
     _retries = 5
   ) => {
     if (!this.service) {
-      throw new Error(`${this.serviceName} is not running`);
+      this.logger?.debug(
+        `runStream ${String(method)} > Service ${
+          this.serviceName
+        } is not running`,
+        opts
+      );
+      return () => {};
     }
 
     let stream: ReturnType<typeof this.service[typeof method]>;
@@ -155,21 +163,23 @@ class NetServiceFactory<
 
     const startStream = (retries: number) => {
       if (!this.service) {
-        throw new Error(`${this.serviceName} is not running`);
+        this.logger?.debug(
+          `startStream > Service ${this.serviceName} is not running`,
+          opts
+        );
+        return;
       }
       stream = this.service[method](opts);
       stream.on('data', onData);
       stream.on('error', (error: Error & { code: number }) => {
         if (error.code === 1) return; // Cancelled on client
-        // console.log(`${this.serviceName}.${method}: ${error}`); // eslint-disable-line no-console
-        this.logger?.error(`grpc ${this.serviceName}.${method}`, error);
+        this.logger?.error(`grpc ${this.serviceName}.${String(method)}`, error);
         if (retries > 0 && ERROR_CODE_TO_RESTART_STREAM.includes(error.code)) {
           stream.cancel();
           clearTimeout(timeout);
           timeout = setTimeout(() => {
-            // console.log(`${this.serviceName}.${method} restarting...`); // eslint-disable-line no-console
             this.logger?.error(
-              `grpc ${this.serviceName}.${method} restarting...`,
+              `grpc ${this.serviceName}.${String(method)} restarting...`,
               null
             );
             startStream(retries - 1);

@@ -24,7 +24,10 @@ import cryptoService from './cryptoService';
 import { fromHexString, toHexString } from './utils';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
-import GlobalStateService from './GlobalStateService';
+import GlobalStateService, {
+  AccountDataStreamHandlerArg,
+  AccountDataValidFlags,
+} from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 
@@ -117,13 +120,14 @@ class TransactionManager {
     await this.storeTx(publicKey, newTx);
   };
 
-  private subscribeTransactions = debounce(5000, (publicKey: string) => {
+  private subscribeTransactions = debounce(1000, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
-    if (this.txStateStream[publicKey]) {
-      this.txStateStream[publicKey]();
-    }
+    const unsubTxStateStream = this.txStateStream[publicKey];
+    // Unsubscribe
+    unsubTxStateStream && unsubTxStateStream();
+
     this.txStateStream[publicKey] = this.txService.activateTxStream(
       this.handleNewTx(publicKey),
       txIds
@@ -140,7 +144,6 @@ class TransactionManager {
       )
       .then((txs) => txs.map(this.handleNewTx(publicKey)))
       .catch((err) => {
-        console.log('grpc TransactionState', err); // eslint-disable-line no-console
         this.logger.error('grpc TransactionState', err);
       });
   });
@@ -148,7 +151,7 @@ class TransactionManager {
   private subscribeAccount = (account: AccountWithBalance): void => {
     const { publicKey } = account;
     // Cancel account Txs subscription
-    this.txStateStream[publicKey] && this.txStateStream[publicKey]();
+    this.txStateStream[publicKey]?.();
 
     const binaryAccountId = fromHexString(publicKey.substring(24));
     const addTransaction = this.upsertTransactionFromMesh(publicKey);
@@ -158,10 +161,7 @@ class TransactionManager {
       handler: addTransaction,
       retries: 0,
     });
-    this.meshService.activateAccountMeshDataStream(
-      binaryAccountId,
-      addTransaction
-    );
+    this.meshService.listenMeshTransactions(binaryAccountId, addTransaction);
 
     const updateAccountData = this.updateAccountData({ accountId: publicKey });
     this.retrieveAccountData({
@@ -178,20 +178,9 @@ class TransactionManager {
       updateAccountData
     );
 
-    setInterval(() => {
-      this.retrieveAccountData({
-        filter: {
-          accountId: { address: binaryAccountId },
-          accountDataFlags: 4,
-        },
-        handler: updateAccountData,
-        retries: 0,
-      });
-    }, 60 * 1000);
-
     const txs = Object.keys(this.accountStates[publicKey].getTxs());
     if (txs.length > 0) {
-      this.subscribeTransactions(publicKey, txs);
+      this.subscribeTransactions(publicKey);
     }
 
     // TODO: https://github.com/spacemeshos/go-spacemesh/issues/2072
@@ -275,7 +264,7 @@ class TransactionManager {
       data,
       totalResults,
       error,
-    } = await this.meshService.sendAccountMeshDataQuery({ accountId, offset }); // TODO: Get rid of `any` on proto.ts refactoring
+    } = await this.meshService.requestMeshTransactions(accountId, offset);
     if (error && retries < 5) {
       await this.retrieveHistoricTxData({
         accountId,
@@ -300,35 +289,31 @@ class TransactionManager {
     data: Account__Output
   ) => {
     const currentState = {
-      counter: data.stateCurrent?.counter
-        ? data.stateCurrent.counter.toNumber()
-        : 0,
-      balance: data.stateCurrent?.balance?.value
-        ? data.stateCurrent.balance.value.toNumber()
-        : 0,
+      counter: data.stateCurrent?.counter?.toNumber?.() || 0,
+      balance: data.stateCurrent?.balance?.value?.toNumber() || 0,
     };
     const projectedState = {
-      counter: data.stateProjected?.counter
-        ? data.stateProjected.counter.toNumber()
-        : 0,
-      balance: data.stateProjected?.balance?.value
-        ? data.stateProjected.balance.value.toNumber()
-        : 0,
+      counter: data.stateProjected?.counter?.toNumber?.() || 0,
+      balance: data.stateProjected?.balance?.value?.toNumber() || 0,
     };
     this.accountStates[accountId].storeAccountBalance({
       currentState,
       projectedState,
     });
+
     this.updateAppStateAccount(accountId);
   };
 
-  retrieveAccountData = async ({
+  retrieveAccountData = async <F extends AccountDataValidFlags>({
     filter,
     handler,
     retries,
   }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    handler: (data: Account__Output) => void;
+    filter: {
+      accountId: { address: Uint8Array };
+      accountDataFlags: F;
+    };
+    handler: (data: AccountDataStreamHandlerArg[F]) => void;
     retries: number;
   }) => {
     const { data, error } = await this.glStateService.sendAccountDataQuery({
@@ -336,12 +321,13 @@ class TransactionManager {
       offset: 0,
     });
     if (error && retries < 5) {
-      await this.retrieveAccountData({ filter, handler, retries: retries + 1 });
+      await this.retrieveAccountData({
+        filter,
+        handler,
+        retries: retries + 1,
+      });
     } else {
-      data &&
-        data.length > 0 &&
-        data[0].accountWrapper &&
-        handler(data[0].accountWrapper);
+      data?.length > 0 && handler(data[0]);
     }
   };
 
@@ -409,7 +395,6 @@ class TransactionManager {
       layerReward: reward.layerReward.value.toNumber(),
       // layerComputed: reward.layerComputed.number, // TODO
       coinbase: `0x${coinbase}`,
-      smesher: toHexString(reward.smesher.id),
     };
     this.storeReward(accountId, parsedReward);
   };
@@ -420,7 +405,10 @@ class TransactionManager {
     handler,
     retries,
   }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
+    filter: {
+      accountId: { address: Uint8Array };
+      accountDataFlags: AccountDataValidFlags;
+    };
     offset: number;
     handler: RewardHandler;
     retries: number;
@@ -438,9 +426,7 @@ class TransactionManager {
         retries: retries + 1,
       });
     } else {
-      data &&
-        data.length > 0 &&
-        data.forEach((reward) => handler(reward.reward));
+      data?.length > 0 && data.forEach((reward) => handler(reward.reward));
       if (offset + DATA_BATCH < totalResults) {
         await this.retrieveRewards({
           filter,
