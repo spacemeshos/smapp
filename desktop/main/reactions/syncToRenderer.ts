@@ -2,6 +2,7 @@ import { BrowserWindow } from 'electron';
 import * as R from 'ramda';
 import {
   buffer,
+  combineLatest,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -13,14 +14,19 @@ import {
   Subject,
   withLatestFrom,
 } from 'rxjs';
+import { epochByLayer, timestampByLayer } from '../../../shared/layerUtils';
 import {
+  Activation,
   Network,
   NodeConfig,
   NodeVersionAndBuild,
+  RewardsInfo,
+  SmesherReward,
   Wallet,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
-import { MINUTE } from '../constants';
+import { toHexString } from '../../utils';
+import { HOUR, MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';
 import storeView from './views/storeView';
@@ -54,7 +60,7 @@ const sync = <T extends any>(
   // Pack data into a batch
   const $batch = $updates.pipe(
     buffer($syncPoint.pipe(filter(Boolean))),
-    map((a) => a.reduce(R.mergeRight))
+    map((a) => a.reduce(R.mergeRight, {}))
   );
 
   // Whole state sync
@@ -103,6 +109,53 @@ const sync = <T extends any>(
   return () => subs.forEach((sub) => sub.unsubscribe());
 };
 
+const getRewardsInfo = (
+  cfg: NodeConfig,
+  curLayer: number,
+  rewards: SmesherReward[]
+): RewardsInfo => {
+  const getLayerTime = timestampByLayer(
+    cfg.main['genesis-time'],
+    cfg.main['layer-duration-sec']
+  );
+  const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
+  const curEpoch = getEpoch(curLayer);
+
+  const sums = rewards.reduce(
+    (acc, next) => ({
+      total: acc.total + next.total,
+      layers: new Set(acc.layers).add(next.layer),
+      epochs: new Set(acc.epochs).add(getEpoch(next.layer)),
+    }),
+    {
+      total: 0,
+      layers: new Set(),
+      epochs: new Set(),
+    }
+  );
+
+  const lastEpoch = R.compose(
+    R.reduce((acc, next: SmesherReward) => acc + next.total, 0),
+    R.filter((reward: SmesherReward) => getEpoch(reward.layer) === curEpoch)
+  )(rewards);
+
+  const dailyAverage =
+    rewards.length > 2
+      ? (sums.total /
+          (getLayerTime(rewards[rewards.length - 1].layer) -
+            getLayerTime(rewards[0].layer))) *
+        (24 * HOUR)
+      : 0;
+
+  return {
+    total: sums.total,
+    lastEpoch,
+    layers: sums.layers.size,
+    epochs: sums.epochs.size,
+    dailyAverage,
+  };
+};
+
 export default (
   $mainWindow: Subject<BrowserWindow>,
   $wallet: Subject<Wallet | null>,
@@ -113,7 +166,10 @@ export default (
   $nodeConfig: Observable<NodeConfig>,
   $currentLayer: Observable<number>,
   $rootHash: Observable<string>,
-  $nodeVersion: Observable<NodeVersionAndBuild>
+  $nodeVersion: Observable<NodeVersionAndBuild>,
+  $smesherId: Observable<Uint8Array>,
+  $activations: Observable<Activation[]>,
+  $rewards: Observable<SmesherReward[]>
 ) =>
   sync(
     // Sync to
@@ -123,15 +179,21 @@ export default (
     storeView($storeService),
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
-    $nodeVersion.pipe(map(R.objOf('node')))
-    // @TODO:
-    // Networks + currentLayer + rootHash
-    // $.interval(MINUTE)
-    //   .pipe(
-    //     withLatest($managers),
-    //     $.switchMap(([managers, _]) => managers.wallet.getCurrentLayer())
-    //   )
-    //   .subscribe((next) => {
-    //     $currentLayer.next(next.currentLayer);
-    //   });
+    $nodeVersion.pipe(map(R.objOf('node'))),
+    combineLatest([
+      $smesherId,
+      $activations,
+      $nodeConfig,
+      $currentLayer,
+      $rewards,
+    ]).pipe(
+      map(([smesherId, activations, cfg, curLayer, rewards]) => ({
+        smesher: {
+          smesherId: toHexString(smesherId),
+          activations,
+          rewards,
+          rewardsInfo: getRewardsInfo(cfg, curLayer, rewards),
+        },
+      }))
+    )
   );

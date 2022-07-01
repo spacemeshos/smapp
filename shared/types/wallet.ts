@@ -1,12 +1,9 @@
-import { Tx } from './tx';
-
 export interface Account {
   displayName: string;
   created: string;
   path: string;
   publicKey: string;
   secretKey: string;
-  txs?: Tx[];
 }
 
 export interface AccountBalance {

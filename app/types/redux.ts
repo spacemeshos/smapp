@@ -1,6 +1,5 @@
 import { ThunkDispatch } from 'redux-thunk';
 import {
-  AccountWithBalance,
   Contact,
   NodeError,
   NodeStatus,
@@ -13,6 +12,11 @@ import {
   Reward,
   Network,
   NetworkState,
+  SmesherReward,
+  Activation,
+  AccountBalance,
+  Account,
+  RewardsInfo,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
@@ -32,7 +36,7 @@ export interface WalletState {
   currentWalletPath: string | null;
   meta: WalletMeta;
   mnemonic: string;
-  accounts: Array<AccountWithBalance>;
+  accounts: Array<Account>;
   currentAccountIndex: number;
   transactions: { [publicKey: HexString]: { [txId: Tx['id']]: Tx } };
   rewards: { [publicKey: HexString]: Reward[] };
@@ -40,6 +44,7 @@ export interface WalletState {
   contacts: Array<Contact>;
   backupTime: string;
   vaultMode: number;
+  balances: Record<HexString, AccountBalance>;
 }
 
 export interface SmesherState {
@@ -54,7 +59,9 @@ export interface SmesherState {
   numLabelsWritten: any;
   postSetupState: PostSetupState;
   postProgressError: string;
-  rewards: Reward[] | [];
+  rewards: SmesherReward[];
+  rewardsInfo: RewardsInfo;
+  activations: Activation[];
   config: SmesherConfig;
 }
 

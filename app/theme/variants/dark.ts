@@ -8,12 +8,14 @@ import {
   chevronRightWhite,
   chevronLeftWhite,
   chevronBottomWhite,
+  chevronBottomBlack,
 } from '../../assets/images';
 
 export default {
   colors,
   skinBackground: colors.dark100,
   themeName: 'dark',
+  isDarkMode: true,
   background: {
     active: colors.dark,
     inactive: colors.light140,
@@ -94,7 +96,7 @@ export default {
       },
       light: {
         isOutBorder: false,
-        borderColor: colors.light110,
+        borderColor: colors.light140,
         states: {
           disable: {
             backgroundColor: colors.light110,
@@ -157,5 +159,9 @@ export default {
     chevronRight: chevronRightWhite,
     chevronLeft: chevronLeftWhite,
     chevronBottom: chevronBottomWhite,
+    chevronDropDownBottom: {
+      light: chevronBottomBlack,
+      dark: chevronBottomWhite,
+    },
   },
 };

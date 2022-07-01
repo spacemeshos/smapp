@@ -55,6 +55,7 @@ const Vault = ({ history }: RouteComponentProps) => {
   const accounts: Account[] = useSelector(
     (state: RootState) => state.wallet.accounts
   );
+  const balances = useSelector((state: RootState) => state.wallet.balances);
 
   const dispatch = useDispatch();
 
@@ -62,10 +63,10 @@ const Vault = ({ history }: RouteComponentProps) => {
     const objOption = accounts.map((elem, index: number) => ({
       account: index,
       label: elem.displayName,
-      text: formatSmidge(elem.currentState.balance),
+      text: formatSmidge(balances[elem.publicKey]?.currentState?.balance || 0),
     }));
     setAccountsOption(objOption);
-  }, [accounts, setAccountsOption]);
+  }, [accounts, balances, setAccountsOption]);
 
   const handleChangeVaultName = ({ value }: { value: string }) => {
     setName(value);
@@ -158,7 +159,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           masterAccountIndex={masterAccountIndex}
           selectAccountIndex={selectAccountIndex}
           accountsOption={accountsOption}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (
@@ -326,7 +326,6 @@ const Vault = ({ history }: RouteComponentProps) => {
           selectFundAmount={selectAccountIndex}
           selectGasPrice={selectAccountIndex}
           selectGasUnits={selectAccountIndex}
-          isDarkMode={isDarkMode}
         />
       ),
       nextButton: (

@@ -14,7 +14,7 @@ export type AppState = {
   wallet: Wallet | null;
   walletPath: string;
   networks: Network[];
-  currentNetwork: Network;
+  currentNetwork: Network | null;
   nodeConfig: NodeConfig;
   managers: Managers;
 };

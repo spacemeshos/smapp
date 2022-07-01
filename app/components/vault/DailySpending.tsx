@@ -19,15 +19,6 @@ const DetailsText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.realBlack};
 `;
 
-const AccItem = styled.div`
-  font-size: 13px;
-  line-height: 17px;
-  color: ${smColors.black};
-  padding: 5px;
-  width: 100%;
-  cursor: inherit;
-`;
-
 type Props = {
   masterAccountIndex: number;
   selectAccountIndex: ({ index }: { index: number }) => void;
@@ -57,56 +48,31 @@ const DailySpending = ({
   masterAccountIndex,
   selectAccountIndex,
   accountsOption,
-}: Props) => {
-  const ddStyle = {
-    marginLeft: 'auto',
-    flex: '0 0 240px',
-  };
-
-  const renderAccElement = ({
-    label,
-    text,
-  }: {
-    label: string;
-    text: string;
-  }) => (
-    <AccItem key={label}>
-      {label} {text}
-    </AccItem>
-  );
-
-  return (
-    <>
-      <DetailsRow>
-        <DetailsText>Daily Spending Account</DetailsText>
-        <Tooltip width={250} text="Tooltip 1" />
-        <Dots />
-        <DropDown
-          data={accountsOption}
-          onClick={selectAccountIndex}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={masterAccountIndex}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-      <DetailsRow>
-        <DetailsText>Daily Spending Limit</DetailsText>
-        <Tooltip width={250} text="Tooltip 2" />
-        <Dots />
-        <DropDown
-          data={limits}
-          onClick={selectAccountIndex}
-          DdElement={({ label, text }) => renderAccElement({ label, text })}
-          selectedItemIndex={masterAccountIndex}
-          rowHeight={40}
-          style={ddStyle}
-          bgColor={smColors.white}
-        />
-      </DetailsRow>
-    </>
-  );
-};
+}: Props) => (
+  <>
+    <DetailsRow>
+      <DetailsText>Daily Spending Account</DetailsText>
+      <Tooltip width={250} text="Tooltip 1" />
+      <Dots />
+      <DropDown
+        data={accountsOption}
+        onClick={selectAccountIndex}
+        selectedItemIndex={masterAccountIndex}
+        rowHeight={40}
+      />
+    </DetailsRow>
+    <DetailsRow>
+      <DetailsText>Daily Spending Limit</DetailsText>
+      <Tooltip width={250} text="Tooltip 2" />
+      <Dots />
+      <DropDown
+        data={limits}
+        onClick={selectAccountIndex}
+        selectedItemIndex={masterAccountIndex}
+        rowHeight={40}
+      />
+    </DetailsRow>
+  </>
+);
 
 export default DailySpending;

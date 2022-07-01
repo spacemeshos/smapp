@@ -6,13 +6,13 @@ import {
   SmesherConfig,
 } from '../../../shared/types';
 import { BITS } from '../../types';
+import { IPC_BATCH_SYNC, reduceChunkUpdate } from '../ipcBatchSync';
 import {
   SET_SMESHER_SETTINGS_AND_STARTUP_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
   DELETED_POS_DATA,
   STARTED_SMESHING,
   SET_POST_DATA_CREATION_STATUS,
-  SET_ACCOUNT_REWARDS,
   SET_SMESHER_CONFIG,
   PAUSED_SMESHING,
   RESUMED_SMESHING,
@@ -31,6 +31,7 @@ const initialState = {
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
+  activations: [],
   config: {} as SmesherConfig,
 };
 
@@ -131,12 +132,11 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         postProgressError: '',
       };
     }
-    case SET_ACCOUNT_REWARDS: {
-      const { rewards } = action.payload;
-      return { ...state, rewards };
-    }
     case LOGOUT:
       return initialState;
+    case IPC_BATCH_SYNC: {
+      return reduceChunkUpdate('smesher', action.payload, state);
+    }
     default:
       return state;
   }

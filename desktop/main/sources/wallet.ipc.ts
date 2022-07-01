@@ -1,9 +1,7 @@
 import * as R from 'ramda';
 import {
   combineLatest,
-  debounceTime,
   delay,
-  distinctUntilChanged,
   filter,
   first,
   from,
@@ -13,13 +11,13 @@ import {
   OperatorFunction,
   pipe,
   retry,
-  skip,
   Subject,
   switchMap,
   throwError,
   withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
+import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import {
   AddContactRequest,
   ChangePasswordRequest,
@@ -59,28 +57,29 @@ import {
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
 
-const RESET_WALLET = { path: '', wallet: null };
-type WalletPair = {
+type ResetWallet = { path: ''; wallet: null };
+const RESET_WALLET: ResetWallet = { path: '', wallet: null };
+type WalletData = {
   path: string;
   wallet: Wallet;
   password?: string;
   meta?: Record<string, any>;
 };
 
-const isWalletPair = (a: any): a is WalletPair =>
+const isWalletData = (a: any): a is WalletData =>
   Boolean(a.path) && Boolean(a.wallet);
 
 const logger = Logger({ className: 'sources/wallet.ipc' });
 
 // Utils
-const updateWalletFile = async (next: WalletPair) => {
+const updateWalletFile = async (next: WalletData) => {
   if (next.password) {
-    saveWallet(next.path, next.password, next.wallet).catch((err) => {
+    await saveWallet(next.path, next.password, next.wallet).catch((err) => {
       if (err?.message === WRONG_PASSWORD_MESSAGE) return;
       logger.error('updateWalletFile/saveWallet', err, next.path);
     });
   } else {
-    updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
+    await updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
       logger.error('updateWalletFile', err, next.path)
     );
   }
@@ -89,7 +88,7 @@ const updateWalletFile = async (next: WalletPair) => {
 const loadWallet$ = (path: string, password: string) => {
   return from(
     wrapResult(
-      loadWallet(path, password).then((wallet) => <WalletPair>{ path, wallet })
+      loadWallet(path, password).then((wallet) => <WalletData>{ path, wallet })
     )
   );
 };
@@ -99,7 +98,7 @@ const changePassword = (path, prevPassword, nextPassword) =>
     filter(hasResult),
     switchMap(([_, { path, wallet }]) =>
       from(saveWallet(path, nextPassword, wallet)).pipe(
-        map(() => <WalletPair>{ path, wallet })
+        map(() => <WalletData>{ path, wallet })
       )
     )
   );
@@ -107,8 +106,8 @@ const changePassword = (path, prevPassword, nextPassword) =>
 const handleUpdateWalletSecrets = <
   T extends { path: string; password: string }
 >(
-  mapFn: (inputs: T, pair: WalletPair) => WalletPair
-): OperatorFunction<T, WalletPair> =>
+  mapFn: (inputs: T, pair: WalletData) => WalletData
+): OperatorFunction<T, WalletData> =>
   pipe(
     switchMap((t) =>
       loadWallet$(t.path, t.password).pipe(
@@ -126,7 +125,8 @@ const handleUpdateWalletSecrets = <
 const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
-  $networks: Subject<Network[]>
+  $networks: Subject<Network[]>,
+  $smeshingStarted: Subject<void>
 ) => {
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
@@ -138,28 +138,29 @@ const handleWalletIpcRequests = (
           withLatestFrom($networks),
           map(([hr, nets]) =>
             mapResult(
-              (pair) => ({
-                ...pair,
-                meta: {
-                  forceNetworkSelection:
-                    isNetIdMissing(pair.wallet) ||
-                    !hasNetwork(pair.wallet.meta.netId, nets),
+              (pair) =>
+                <WalletData>{
+                  ...pair,
+                  meta: {
+                    forceNetworkSelection:
+                      isNetIdMissing(pair.wallet) ||
+                      !hasNetwork(pair.wallet.meta.netId, nets),
+                  },
                 },
-              }),
               hr
             )
           )
         ),
       ({ wallet, meta }): UnlockWalletResponse['payload'] => ({
         meta: wallet.meta,
-        forceNetworkSelection: meta.forceNetworkSelection,
+        forceNetworkSelection: meta?.forceNetworkSelection,
       })
     ),
     //
     handleIPC(
       ipcConsts.W_M_CREATE_WALLET,
       (data: CreateWalletRequest) =>
-        from(wrapResult(createWallet(data) as Promise<WalletPair>)),
+        from(wrapResult(createWallet(data) as Promise<WalletData>)),
       ({ path }): CreateWalletResponse['payload'] => ({ path })
     ),
     //
@@ -173,7 +174,7 @@ const handleWalletIpcRequests = (
         const selectedNet = nets.find((net) => net.netID === netId);
         if (!selectedNet) return throwError(() => Error('No network found'));
 
-        return of(<WalletPair>{
+        return of(<WalletData>{
           path,
           wallet: R.assocPath(['meta', 'netId'], netId, wallet),
         });
@@ -215,7 +216,7 @@ const handleWalletIpcRequests = (
               meta: { ...wallet.meta, ...changes },
             };
 
-            return handlerResult(<WalletPair>{ path, wallet: nextWallet });
+            return handlerResult(<WalletData>{ path, wallet: nextWallet });
           })
         ),
       ({ wallet }) => wallet.meta
@@ -227,7 +228,14 @@ const handleWalletIpcRequests = (
         loadWallet$(path, password).pipe(
           map((res) =>
             hasResult(res)
-              ? R.over(R.lensPath([1, 'wallet']), createNewAccount, res)
+              ? mapResult(
+                  (pair) => ({
+                    ...pair,
+                    wallet: createNewAccount(pair.wallet),
+                    password,
+                  }),
+                  res
+                )
               : res
           )
         ),
@@ -241,7 +249,7 @@ const handleWalletIpcRequests = (
         Boolean(tuple[1])
       ), // or throw error?
       map(([upd, wallet, path]) => {
-        return <WalletPair>{
+        return <WalletData>{
           path,
           wallet: {
             ...wallet,
@@ -292,6 +300,28 @@ const handleWalletIpcRequests = (
     //
     fromIPC<void>(ipcConsts.W_M_CLOSE_WALLET).pipe(
       switchMap(() => of(RESET_WALLET))
+    ),
+    //
+    $smeshingStarted.pipe(
+      switchMap(() => combineLatest([$wallet, $walletPath])),
+      first(),
+      filter(
+        (pair): pair is [Wallet, string] =>
+          Boolean(pair[0]) && typeof pair[1] === 'string'
+      ),
+      map(
+        ([wallet, path]): WalletData => ({
+          wallet: {
+            ...wallet,
+            meta: {
+              ...wallet.meta,
+              remoteApi: stringifySocketAddress(LOCAL_NODE_API_URL),
+              type: WalletType.LocalNode,
+            },
+          },
+          path,
+        })
+      )
     )
   );
 
@@ -301,6 +331,11 @@ const handleWalletIpcRequests = (
       next: (next) => {
         $wallet.next(next.wallet);
         $walletPath.next(next.path);
+        if (isWalletData(next)) {
+          updateWalletFile(next).catch((err) => {
+            logger.error('updateWalletFile', err, next);
+          });
+        }
       },
       error: (error: Error) => {
         // TODO: Show error to User
@@ -310,15 +345,6 @@ const handleWalletIpcRequests = (
         logger.error('$nextWallet', 'Observable is completed');
       },
     }),
-    // Store new wallet on FS
-    $nextWallet
-      .pipe(
-        skip(1),
-        distinctUntilChanged(),
-        filter(isWalletPair),
-        debounceTime(50)
-      )
-      .subscribe(updateWalletFile),
   ];
 
   return () => subs.forEach((sub) => sub.unsubscribe());

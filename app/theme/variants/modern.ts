@@ -8,11 +8,14 @@ import {
   chevronRightPurple,
   chevronLeftPurple,
   chevronBottomPurple,
+  chevronBottomWhite,
+  chevronBottomBlack,
 } from '../../assets/images';
 
 export default {
   colors,
   skinBackground: colors.dark100,
+  isDarkMode: true,
   themeName: 'modern',
   background: {
     active: colors.dark,
@@ -71,11 +74,11 @@ export default {
     dropdown: {
       boxRadius: 10,
       dark: {
-        borderColor: colors.dark100,
+        borderColor: colors.light110,
         isOutBorder: false,
         states: {
           disable: {
-            backgroundColor: colors.dark100,
+            backgroundColor: colors.light110,
             color: colors.dark45,
           },
           normal: {
@@ -93,7 +96,7 @@ export default {
         },
       },
       light: {
-        borderColor: colors.light110,
+        borderColor: colors.light140,
         isOutBorder: false,
         states: {
           disable: {
@@ -157,5 +160,9 @@ export default {
     chevronRight: chevronRightPurple,
     chevronLeft: chevronLeftPurple,
     chevronBottom: chevronBottomPurple,
+    chevronDropDownBottom: {
+      light: chevronBottomBlack,
+      dark: chevronBottomWhite,
+    },
   },
 };

@@ -1,10 +1,4 @@
-import {
-  BrowserView,
-  BrowserWindow,
-  ipcMain,
-  nativeTheme,
-  shell,
-} from 'electron';
+import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import { AppContext } from './context';
 
@@ -20,45 +14,6 @@ export default (context: AppContext) => {
   ipcMain.on(ipcConsts.SEND_THEME_COLOR, (_event, request) => {
     context.isDarkMode = request.isDarkMode;
   });
-
-  // Handle opening dash screen
-  (() => {
-    let browserView;
-
-    ipcMain.on(ipcConsts.OPEN_BROWSER_VIEW, () => {
-      const { mainWindow, currentNetwork } = context;
-      if (!mainWindow || !currentNetwork) return;
-      browserView = new BrowserView({});
-      mainWindow.setBrowserView(browserView);
-      browserView.webContents.on('new-window', (event, url) => {
-        event.preventDefault();
-        shell.openExternal(url);
-      });
-      const contentBounds = mainWindow.getContentBounds();
-      browserView.setBounds({
-        x: 0,
-        y: 90,
-        width: contentBounds.width - 35,
-        height: 600,
-      });
-      browserView.setAutoResize({
-        width: true,
-        height: true,
-        horizontal: true,
-        vertical: true,
-      });
-      const dashUrl = currentNetwork.dash;
-      browserView.webContents.loadURL(
-        `${dashUrl}?hide-right-line${context.isDarkMode ? '&darkMode' : ''}`
-      );
-    });
-
-    ipcMain.on(ipcConsts.DESTROY_BROWSER_VIEW, () => {
-      browserView?.setBounds &&
-        browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-      // TODO: destroy
-    });
-  })();
 
   // Open print page with 12 words
   ipcMain.on(ipcConsts.PRINT, (_event, request: { content: string }) => {

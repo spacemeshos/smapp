@@ -59,3 +59,11 @@ export interface IPCSmesherStartupData {
   numUnits: number;
   errorMessage: string;
 }
+
+export interface RewardsInfo {
+  total: number;
+  lastEpoch: number;
+  dailyAverage: number;
+  layers: number;
+  epochs: number;
+}
