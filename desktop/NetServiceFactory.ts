@@ -49,6 +49,8 @@ class NetServiceFactory<
 
   protected logger: ReturnType<typeof Logger> | null = null;
 
+  private protoPath: string | null = null;
+
   private apiUrl: SocketAddress | null = null;
 
   private restartStreamList: Record<
@@ -61,11 +63,14 @@ class NetServiceFactory<
     apiUrl: SocketAddress | PublicService = LOCAL_NODE_API_URL,
     serviceName: string
   ) => {
-    if (this.apiUrl === apiUrl) return;
+    if (this.apiUrl === apiUrl) {
+      return;
+    }
 
     if (this.service) {
       this.service.close();
     }
+    this.protoPath = protoPath;
     this.apiUrl = apiUrl;
 
     const resolvedProtoPath = path.join(__dirname, '..', protoPath);
@@ -83,6 +88,22 @@ class NetServiceFactory<
       connectionType
     );
     this.serviceName = serviceName;
+    this.logger?.debug(
+      `${serviceName} started`,
+      `${this.apiUrl.host}:${this.apiUrl.port}`
+    );
+  };
+
+  restartNetService = () => {
+    if (!this.protoPath || !this.apiUrl || !this.serviceName) return false;
+    this.logger?.debug(
+      `Restarting ${this.serviceName}`,
+      this.protoPath,
+      this.apiUrl
+    );
+    this.createNetService(this.protoPath, this.apiUrl, this.serviceName);
+    this.restartStreams();
+    return true;
   };
 
   ensureService = (): Promise<Service<T, ServiceName>> =>
@@ -184,6 +205,11 @@ class NetServiceFactory<
             );
             startStream(retries - 1);
           }, 5000);
+        } else {
+          this.restartNetService();
+          timeout = setTimeout(() => {
+            startStream(5);
+          }, 1000);
         }
       });
     };
