@@ -28,6 +28,7 @@ import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
+import { makeSubscription } from './rx.utils';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -83,6 +84,7 @@ const startApp = (): AppStore => {
     $quit,
     $isAppClosing,
     $showWindowOnLoad,
+    $isSmappActivated,
   } = createMainWindow();
   // Store
   const $storeService = observeStoreService();
@@ -117,6 +119,14 @@ const startApp = (): AppStore => {
     syncNodeConfig($currentNetwork, $nodeConfig, $smeshingStarted),
     // Activate wallet and accounts
     activateWallet($wallet, $managers, $isWalletActivated, $mainWindow),
+    // Each time when Smapp is activated (window reloaded and shown)...
+    makeSubscription(
+      $isSmappActivated.pipe($.withLatestFrom($managers)),
+      ([_, managers]) => {
+        managers.node.updateNodeStatus();
+        managers.smesher.updateSmesherState();
+      }
+    ),
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),

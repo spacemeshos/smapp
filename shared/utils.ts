@@ -95,7 +95,7 @@ export const ifTruish = <V extends any, R extends Record<any, any>>(
 
 // GRPC APIs
 export const toSocketAddress = (url?: string): SocketAddress => {
-  if (!url) return LOCAL_NODE_API_URL;
+  if (!url || url === 'http://localhost:9092') return LOCAL_NODE_API_URL;
 
   const u = new URL(url.startsWith('http') ? url : `http://${url}`);
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
@@ -103,7 +103,7 @@ export const toSocketAddress = (url?: string): SocketAddress => {
   }
   return {
     host: u.hostname,
-    port: u.port || u.protocol === 'https:' ? '443' : '9090',
+    port: u.port || u.protocol === 'https:' ? '443' : '9092',
     protocol: u.protocol,
   };
 };
