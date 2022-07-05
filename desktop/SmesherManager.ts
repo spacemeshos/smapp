@@ -75,16 +75,22 @@ class SmesherManager {
     );
   };
 
+  updateSmesherState = async () => {
+    await this.sendSmesherSettingsAndStartupState();
+    await this.sendPostSetupComputeProviders();
+  };
+
   serviceStartupFlow = async () => {
     const cfg = await this.sendSmesherConfig();
     if (cfg?.start) {
+      // Unsubscribe first
+      this.smesherService.deactivateProgressStream();
       // Subscribe on PoST cration progress stream ASAP
       this.smesherService.activateProgressStream(
         this.handlePostDataCreationStatusStream
       );
     }
-    await this.sendSmesherSettingsAndStartupState();
-    await this.sendPostSetupComputeProviders();
+    await this.updateSmesherState();
   };
 
   sendSmesherSettingsAndStartupState = async () => {

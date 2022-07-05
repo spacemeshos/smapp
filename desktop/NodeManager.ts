@@ -251,20 +251,32 @@ class NodeManager {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      // wait for status response
-      const status = await this.getNodeStatus(5);
-      // update node status
-      this.sendNodeStatus(status);
-      // and activate status stream
-      this.nodeService.activateStatusStream(
-        this.sendNodeStatus,
-        this.pushNodeError
-      );
-      this.activateNodeErrorStream();
-      await this.smesherManager.serviceStartupFlow();
+      await this.reconnectToNode();
       return true;
     }
     return false; // TODO: add error handling
+  };
+
+  updateNodeStatus = async () => {
+    // wait for status response
+    const status = await this.getNodeStatus(5);
+    // update node status
+    this.sendNodeStatus(status);
+    return true;
+  };
+
+  reconnectToNode = async () => {
+    // update node status once by query request
+    this.updateNodeStatus();
+    // ensure there are no active streams left
+    this.nodeService.cancelStatusStream();
+    this.nodeService.cancelErrorStream();
+    // and activate streams
+    this.activateNodeStatusStream();
+    this.activateNodeErrorStream();
+    // and then call method to update renderer data
+    // TODO: move into `sources/smesherInfo` module
+    await this.smesherManager.serviceStartupFlow();
   };
 
   //
@@ -493,6 +505,12 @@ class NodeManager {
   activateNodeErrorStream = () => {
     this.nodeService.activateErrorStream(this.pushNodeError);
   };
+
+  activateNodeStatusStream = () =>
+    this.nodeService.activateStatusStream(
+      this.sendNodeStatus,
+      this.pushNodeError
+    );
 
   isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
     const res = await this.nodeService.echo();
