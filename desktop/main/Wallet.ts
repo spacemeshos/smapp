@@ -18,6 +18,7 @@ import CryptoService from '../cryptoService';
 import encryptionConst from '../encryptionConst';
 import { getISODate } from '../../shared/datetime';
 import { CreateWalletRequest } from '../../shared/ipcMessages';
+import { LOCAL_NODE_API_URL } from '../../shared/constants';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { AppContext } from './context';
@@ -177,7 +178,10 @@ export const createWallet = async ({
   const wallet = create(files?.length || 0, existingMnemonic);
 
   wallet.meta.netId = netId;
-  wallet.meta.remoteApi = apiUrl ? stringifySocketAddress(apiUrl) : '';
+  wallet.meta.remoteApi =
+    apiUrl && apiUrl !== LOCAL_NODE_API_URL
+      ? stringifySocketAddress(apiUrl)
+      : '';
   wallet.meta.type = type;
 
   const walletPath = path.resolve(
