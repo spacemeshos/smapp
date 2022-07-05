@@ -82,5 +82,6 @@ export default () => {
     $isAppClosing,
     $showWindowOnLoad,
     $isWindowReady,
+    $isSmappActivated: $activate,
   };
 };

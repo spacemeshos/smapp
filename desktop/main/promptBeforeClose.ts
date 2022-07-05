@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron';
 import { firstValueFrom, Subject } from 'rxjs';
 import { ipcConsts } from '../../app/vars';
-import { Managers } from './Networks';
+import { Managers } from './app.types';
 import { showNotification } from './utils';
 
 enum CloseAppPromptResult {
@@ -44,9 +44,13 @@ const promptBeforeClose = (
       body: 'Smesher is running in the background.',
     });
 
-  const quit = () => {
-    $isAppClosing.next(true);
-    app.quit();
+  const quit = async () => {
+    try {
+      await managers.node?.stopNode();
+    } finally {
+      $isAppClosing.next(true);
+      app.quit();
+    }
   };
 
   const handleClosingApp = async (event: Electron.Event) => {

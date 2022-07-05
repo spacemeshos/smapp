@@ -119,6 +119,15 @@ class SmesherService extends NetServiceFactory<
     handler: (error: Error, status: Partial<PostSetupStatus>) => void
   ) => this.postDataCreationProgressStream(handler);
 
+  deactivateProgressStream = () => {
+    if (this.stream) {
+      this.stream.cancel();
+      this.stream = null;
+      return true;
+    }
+    return false;
+  };
+
   stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     this.callService('StopSmeshing', { deleteFiles })
       .then(this.normalizeServiceResponse)

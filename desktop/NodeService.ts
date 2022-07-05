@@ -126,6 +126,13 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     });
   };
 
+  cancelStatusStream = () => {
+    if (!this.statusStream) return false;
+    this.statusStream.cancel();
+    this.statusStream = null;
+    return true;
+  };
+
   activateErrorStream = (handler: ErrorStreamHandler) => {
     if (!this.service) return;
 
@@ -144,6 +151,13 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       this.logger.log('grpc ErrorStream ended', null);
       this.errorStream = null;
     });
+  };
+
+  cancelErrorStream = () => {
+    if (!this.errorStream) return false;
+    this.errorStream.cancel();
+    this.errorStream = null;
+    return true;
   };
 }
 
