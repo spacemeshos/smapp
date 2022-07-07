@@ -61,11 +61,20 @@ class TransactionManager {
 
   private accountStates: Record<string, AccountStateManager> = {};
 
-  constructor(meshService, glStateService, txService, mainWindow) {
+  private netId: number;
+
+  constructor(
+    meshService: MeshService,
+    glStateService: GlobalStateService,
+    txService: TransactionService,
+    mainWindow: BrowserWindow,
+    netId: number
+  ) {
     this.meshService = meshService;
     this.glStateService = glStateService;
     this.txService = txService;
     this.mainWindow = mainWindow;
+    this.netId = netId;
   }
 
   //
@@ -212,8 +221,7 @@ class TransactionManager {
             .concat(this.accounts.slice(idx + 1))
         : this.accounts;
     this.accounts = [...filtered, account];
-
-    const accManager = new AccountStateManager(account.publicKey);
+    const accManager = new AccountStateManager(account.publicKey, this.netId);
     this.accountStates[account.publicKey] = accManager;
     // Resubscribe
     this.subscribeAccount(account);

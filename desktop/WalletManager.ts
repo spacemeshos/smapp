@@ -54,7 +54,8 @@ class WalletManager {
       this.meshService,
       this.glStateService,
       this.txService,
-      mainWindow
+      mainWindow,
+      this.nodeManager.getNetId()
     );
   }
 
