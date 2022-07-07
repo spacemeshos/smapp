@@ -78,18 +78,21 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
 
   const goNext = (netId: number) => {
-    const { creatingWallet, isWalletOnly } = location.state;
+    const { creatingWallet, isWalletOnly, mnemonic } = location.state;
     if (creatingWallet) {
-      if (netId === -1)
-        return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
-      if (isWalletOnly)
+      if (isWalletOnly && netId !== -1)
         return history.push(AuthPath.ConnectToAPI, {
           redirect: AuthPath.CreateWallet,
           netId,
           isWalletOnly,
           creatingWallet,
+          mnemonic,
         });
-      return history.push(AuthPath.CreateWallet, { netId, isWalletOnly });
+      return history.push(AuthPath.CreateWallet, {
+        netId,
+        isWalletOnly,
+        mnemonic,
+      });
     }
     if (netId > -1 && isWalletOnly) {
       return history.push(AuthPath.ConnectToAPI, {
@@ -97,6 +100,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         netId,
         isWalletOnly,
         creatingWallet,
+        mnemonic,
       });
     }
     return history.push(location?.state?.redirect || AuthPath.Unlock);

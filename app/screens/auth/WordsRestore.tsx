@@ -102,7 +102,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
   const restoreWith12Words = useCallback(() => {
     const mnemonic = Object.values(words).join(' ');
     if (validateMnemonic({ mnemonic })) {
-      history.push(AuthPath.CreateWallet, { mnemonic });
+      history.push(AuthPath.ConnectionType, { mnemonic });
     } else {
       setHasError(true);
     }

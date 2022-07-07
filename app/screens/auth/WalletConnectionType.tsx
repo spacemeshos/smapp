@@ -83,13 +83,21 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
-const WalletConnectionType = ({ history }: AuthRouterParams) => {
+const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const handleNextStep = (walletOnly: boolean) => () => {
-    history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
+    if (location?.state?.mnemonic) {
+      history.push(AuthPath.SwitchNetwork, {
+        isWalletOnly: walletOnly,
+        mnemonic: location.state.mnemonic,
+        creatingWallet: true,
+      });
+    } else {
+      history.push(AuthPath.WalletType, { isWalletOnly: walletOnly });
+    }
   };
 
   return (
