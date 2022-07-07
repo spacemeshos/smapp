@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Story, ComponentMeta } from '@storybook/react';
 import styled from 'styled-components';
+import { AutocompleteDropdownProps } from 'app/basicComponents/AutocompleteDropdown';
+import { ensure0x } from '../app/infra/utils';
 import { formatISOAsUS } from '../shared/datetime';
-import { DropDown } from '../app/basicComponents';
+import { DropDown, AutocompleteDropdown } from '../app/basicComponents';
 
 const Container = styled.div`
   display: flex;
@@ -10,7 +12,7 @@ const Container = styled.div`
   gap: 16px;
 `;
 
-type Args = {
+type DropdownArgs = {
   data: {
     [k: string]: any;
     isDisabled?: boolean;
@@ -23,11 +25,7 @@ type Args = {
   isDarkMode?: boolean;
 }[];
 
-export default {
-  title: 'Dropdown',
-} as ComponentMeta<typeof DropDown>;
-
-const ARGUMENTS: Args = [
+const DROPDOWN_ARGUMENTS: DropdownArgs = [
   {
     data: [
       { label: 'devnet224', netId: -1, isDisabled: false },
@@ -117,11 +115,37 @@ const ARGUMENTS: Args = [
   },
 ];
 
-const Template: Story<Args> = (args) => {
+const AUTOCOMPLETE_DROPDOWN_ARGUMENTS = {
+  id: 'address',
+  name: 'address',
+  placeholder: 'Address',
+
+  data: [
+    { address: '0x3ac7f5c37d5f24f52c05a59af9d5700135d55315', nickname: 'my6' },
+    { address: '0x3ac7f5c37d5f24f52c05a59af9d5700135d55311', nickname: 'my1' },
+  ],
+  isDarkModeOn: true,
+  autofocus: true,
+  getItemValue: (item: { address: string }) => item.address,
+};
+
+export default {
+  title: 'Dropdown',
+} as ComponentMeta<any>;
+
+const DropdownTemplate: Story<{
+  dropdownArgs: DropdownArgs;
+  autocompleteDropdownArgs: Omit<
+    AutocompleteDropdownProps,
+    'value' | 'onChange' | 'onEnter'
+  >;
+}> = ({ dropdownArgs, autocompleteDropdownArgs }) => {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const [value, setValue] = useState<string>('');
+
   return (
     <Container>
-      {Object.values(args).map((i, index: number) => (
+      {Object.values(dropdownArgs).map((i, index: number) => (
         <DropDown
           {...i}
           key={index}
@@ -129,9 +153,18 @@ const Template: Story<Args> = (args) => {
           onClick={({ index }) => setSelectedItemIndex(index)}
         />
       ))}
+      <AutocompleteDropdown
+        {...autocompleteDropdownArgs}
+        value={value}
+        onChange={(value) => setValue(ensure0x(value))}
+        onEnter={(value) => setValue(ensure0x(value))}
+      />
     </Container>
   );
 };
 
-export const All = Template.bind({});
-All.args = ARGUMENTS;
+export const AllDropdowns = DropdownTemplate.bind({});
+AllDropdowns.args = {
+  dropdownArgs: DROPDOWN_ARGUMENTS,
+  autocompleteDropdownArgs: AUTOCOMPLETE_DROPDOWN_ARGUMENTS,
+};

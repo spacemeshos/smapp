@@ -290,6 +290,8 @@ type Props = {
   autofocus?: boolean;
 };
 
+export type AutocompleteDropdownProps = Props;
+
 const AutocompleteDropdown = (props: Props) => {
   const { value, autofocus } = props;
   let inputBlurTimer: any;
@@ -319,6 +321,8 @@ const AutocompleteDropdown = (props: Props) => {
         (d) =>
           getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1
       );
+    } else {
+      list = data.slice(0, 5);
     }
     return list;
   };
@@ -338,7 +342,6 @@ const AutocompleteDropdown = (props: Props) => {
     const list = filterList();
     setList(list);
     setIsFocus(0);
-    setIsOpen(list.length > 0);
   };
 
   const handleInputBlur = () => {
