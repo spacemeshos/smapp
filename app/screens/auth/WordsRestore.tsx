@@ -160,7 +160,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
       width={800}
       height={480}
       isDarkMode={isDarkMode}
-      header="WALLET 12 WORDS RESTORE"
+      header="RESTORE WALLET FROM 12 WORDS"
       subHeader="Please enter the 12 words in the right order."
     >
       <BackButton action={history.goBack} />
