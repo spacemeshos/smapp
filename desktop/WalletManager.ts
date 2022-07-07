@@ -9,17 +9,10 @@ import {
   toSocketAddress,
 } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
-import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
-import {
-  hasRequiredRewardFields,
-  isActivation,
-  isNodeError,
-} from '../shared/types/guards';
+import { isActivation, isNodeError } from '../shared/types/guards';
 import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
-import GlobalStateService, {
-  AccountDataValidFlags,
-} from './GlobalStateService';
+import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
 import cryptoService from './cryptoService';
 import NodeManager from './NodeManager';
@@ -192,45 +185,7 @@ class WalletManager {
 
   requestRewardsByCoinbase = async (
     coinbase: Uint8Array
-  ): Promise<Reward__Output[]> => {
-    const composeArg = (batchNumber: number) => ({
-      filter: {
-        accountId: { address: coinbase },
-        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD as AccountDataValidFlags,
-      },
-      offset: batchNumber * BATCH_SIZE,
-    });
-    const getAccountDataQuery = async (batch: number, retries = 5) => {
-      const res = await this.glStateService.sendAccountDataQuery(
-        composeArg(batch)
-      );
-      if (res.error && retries > 0) {
-        await delay(1000);
-        return getAccountDataQuery(batch, retries - 1);
-      }
-      return res;
-    };
-    const { totalResults, data } = await getAccountDataQuery(0);
-    if (totalResults <= BATCH_SIZE) {
-      const r: Reward__Output[] = data.filter(
-        (item): item is Reward__Output =>
-          !!item && hasRequiredRewardFields(item)
-      );
-      return r;
-    } else {
-      const nextRewards = await Promise.all(
-        R.compose(
-          R.map((idx) =>
-            this.glStateService
-              .sendAccountDataQuery(composeArg(idx))
-              .then((resp) => resp.data)
-          ),
-          R.range(1)
-        )(Math.ceil(totalResults / BATCH_SIZE))
-      ).then(R.unnest);
-      return data ? [...data, ...nextRewards] : nextRewards;
-    }
-  };
+  ): Promise<Reward__Output[]> => this.txManager.retrieveRewards(coinbase);
 
   listenRewardsByCoinbase = (
     coinbase: Uint8Array,
