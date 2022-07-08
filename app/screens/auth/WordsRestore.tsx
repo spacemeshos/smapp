@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import * as bip39 from 'bip39';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
@@ -15,6 +16,8 @@ import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
+
+const WORDS_AMOUNT = 12;
 
 const Table = styled.div`
   display: flex;
@@ -57,10 +60,11 @@ const getInputStyle = (hasError: boolean) => ({
 });
 
 const WordsRestore = ({ history }: AuthRouterParams) => {
-  const [words, setWords] = useState(Array(12).fill(''));
+  const [words, setWords] = useState(Array(WORDS_AMOUNT).fill(''));
   const [hasError, setHasError] = useState(false);
 
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
   const handleInputChange = ({
     value,
@@ -69,8 +73,14 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     value: string;
     index: number;
   }) => {
-    const newWords = [...words];
-    newWords[index] = value;
+    const input = value
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, WORDS_AMOUNT - index);
+    const newWords = (input.length ? input : ['']).reduce(
+      (acc, val, idx) => R.adjust(index + idx, R.always(val), acc),
+      words
+    );
     setWords(newWords);
     setHasError(false);
   };
@@ -92,7 +102,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
   const restoreWith12Words = useCallback(() => {
     const mnemonic = Object.values(words).join(' ');
     if (validateMnemonic({ mnemonic })) {
-      history.push(AuthPath.CreateWallet, { mnemonic });
+      history.push(AuthPath.ConnectionType, { mnemonic });
     } else {
       setHasError(true);
     }
@@ -107,6 +117,10 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     },
     [restoreWith12Words]
   );
+  const nextInput = (index: number) => {
+    const next = Math.max(0, Math.min(WORDS_AMOUNT, index + 1));
+    inputRefs.current[next]?.focus();
+  };
 
   useEffect(() => {
     window.addEventListener('keyup', handleKeyUp, false);
@@ -125,8 +139,12 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
         <InputWrapper key={`input${index}`}>
           <InputCounter>{index + 1}</InputCounter>
           <Input
+            inputRef={(el) => {
+              inputRefs.current[index] = el;
+            }}
             value={words[index]}
             onChange={({ value }) => handleInputChange({ value, index })}
+            onKeyDown={(event) => event.code === 'Space' && nextInput(index)}
             style={getInputStyle(hasError)}
             autofocus={index === 0}
           />
@@ -142,7 +160,7 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
       width={800}
       height={480}
       isDarkMode={isDarkMode}
-      header="WALLET 12 WORDS RESTORE"
+      header="RESTORE WALLET FROM 12 WORDS"
       subHeader="Please enter the 12 words in the right order."
     >
       <BackButton action={history.goBack} />

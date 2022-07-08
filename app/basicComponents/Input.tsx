@@ -102,11 +102,13 @@ const ExtraTxt = styled.div`
 `;
 
 type Props = {
+  onKeyDown?: (event: React.KeyboardEvent) => void;
   onChange?: ({ value }: { value: string }) => void;
   onChangeDebounced?: ({ value }: { value: string | number }) => void;
   onEnterPress?: () => void | Promise<any>;
   onFocus?: ({ target }: { target: EventTarget | null }) => void;
   onPaste?: () => void;
+  inputRef?: (element: HTMLInputElement | null) => void;
   value: any;
   isDisabled?: boolean;
   placeholder?: string;
@@ -120,11 +122,13 @@ type Props = {
 };
 
 const Input = ({
+  onKeyDown = () => {},
   onChange = () => {},
   onChangeDebounced = () => {},
   onFocus = () => {},
   onEnterPress = () => {},
   onPaste = () => {},
+  inputRef,
   value,
   isDisabled = false,
   placeholder = '',
@@ -176,6 +180,7 @@ const Input = ({
   return (
     <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
       <ActualInput
+        ref={inputRef}
         iconLeft={iconLeft}
         value={value}
         readOnly={isDisabled}
@@ -184,6 +189,7 @@ const Input = ({
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={() => setIsFocused(false)}
+        onKeyDown={onKeyDown}
         type={type}
         maxLength={maxLength}
         autoFocus={autofocus}
