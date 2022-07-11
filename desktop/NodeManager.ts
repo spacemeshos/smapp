@@ -151,6 +151,8 @@ class NodeManager {
     this.unsub();
   };
 
+  getNetId = () => this.netId;
+
   subscribeToEvents = () => {
     // Handlers
     const startNode = () => this.startNode();

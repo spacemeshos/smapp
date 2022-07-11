@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import { BrowserWindow } from 'electron';
 import {
   Account,
@@ -19,7 +20,7 @@ import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { addReceiptToTx, toTx } from '../shared/types/transformers';
 import { hasRequiredRewardFields } from '../shared/types/guards';
-import { debounce } from '../shared/utils';
+import { debounce, delay } from '../shared/utils';
 import cryptoService from './cryptoService';
 import { fromHexString, toHexString } from './utils';
 import TransactionService from './TransactionService';
@@ -30,6 +31,7 @@ import GlobalStateService, {
 } from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
+import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 
 const DATA_BATCH = 50;
 const IPC_DEBOUNCE = 1000;
@@ -38,7 +40,6 @@ type TxHandlerArg = MeshTransaction__Output | null | undefined;
 type TxHandler = (tx: TxHandlerArg) => void;
 
 type RewardHandlerArg = Reward__Output | null | undefined;
-type RewardHandler = (tx: RewardHandlerArg) => void;
 
 class TransactionManager {
   logger = Logger({ className: 'TransactionManager' });
@@ -60,11 +61,20 @@ class TransactionManager {
 
   private accountStates: Record<string, AccountStateManager> = {};
 
-  constructor(meshService, glStateService, txService, mainWindow) {
+  private netId: number;
+
+  constructor(
+    meshService: MeshService,
+    glStateService: GlobalStateService,
+    txService: TransactionService,
+    mainWindow: BrowserWindow,
+    netId: number
+  ) {
     this.meshService = meshService;
     this.glStateService = glStateService;
     this.txService = txService;
     this.mainWindow = mainWindow;
+    this.netId = netId;
   }
 
   //
@@ -152,7 +162,6 @@ class TransactionManager {
     const { publicKey } = account;
     // Cancel account Txs subscription
     this.txStateStream[publicKey]?.();
-
     const binaryAccountId = fromHexString(publicKey.substring(24));
     const addTransaction = this.upsertTransactionFromMesh(publicKey);
     this.retrieveHistoricTxData({
@@ -189,17 +198,13 @@ class TransactionManager {
     // this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT, addReceiptToTx);
 
     const addReward = this.addReward(publicKey);
-    this.retrieveRewards({
-      filter: { accountId: { address: binaryAccountId }, accountDataFlags: 2 },
-      offset: 0,
-      handler: addReward,
-      retries: 0,
-    });
-    this.glStateService.activateAccountDataStream(
-      binaryAccountId,
-      AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
-      addReward
-    );
+    this.retrieveRewards(binaryAccountId)
+      .then((value) => value.forEach(addReward))
+      .catch((err) => {
+        this.logger.error('Can not retrieve and store rewards', err);
+      });
+
+    this.glStateService.listenRewardsByCoinbase(binaryAccountId, addReward);
 
     this.updateAppStateTxs(publicKey);
     this.updateAppStateRewards(publicKey);
@@ -216,8 +221,7 @@ class TransactionManager {
             .concat(this.accounts.slice(idx + 1))
         : this.accounts;
     this.accounts = [...filtered, account];
-
-    const accManager = new AccountStateManager(account.publicKey);
+    const accManager = new AccountStateManager(account.publicKey, this.netId);
     this.accountStates[account.publicKey] = accManager;
     // Resubscribe
     this.subscribeAccount(account);
@@ -346,45 +350,6 @@ class TransactionManager {
     this.storeTx(accountId, updatedTx);
   };
 
-  retrieveHistoricTxReceipt = async ({
-    filter,
-    offset,
-    handler,
-    retries,
-  }: {
-    filter: { accountId: { address: Uint8Array }; accountDataFlags: number };
-    offset: number;
-    handler: ({ data }: { data: any }) => void;
-    retries: number;
-  }) => {
-    const {
-      totalResults,
-      data,
-      error,
-    } = await this.glStateService.sendAccountDataQuery({ filter, offset });
-    if (error && retries < 5) {
-      await this.retrieveHistoricTxReceipt({
-        filter,
-        offset,
-        handler,
-        retries: retries + 1,
-      });
-    } else {
-      data &&
-        data.length &&
-        data.length > 0 &&
-        data.forEach((item) => handler({ data: item.receipt }));
-      if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveHistoricTxReceipt({
-          filter,
-          offset: offset + DATA_BATCH,
-          handler,
-          retries: 0,
-        });
-      }
-    }
-  };
-
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
     if (!reward || !hasRequiredRewardFields(reward)) return;
 
@@ -399,42 +364,43 @@ class TransactionManager {
     this.storeReward(accountId, parsedReward);
   };
 
-  retrieveRewards = async ({
-    filter,
-    offset,
-    handler,
-    retries,
-  }: {
-    filter: {
-      accountId: { address: Uint8Array };
-      accountDataFlags: AccountDataValidFlags;
-    };
-    offset: number;
-    handler: RewardHandler;
-    retries: number;
-  }) => {
-    const {
-      totalResults,
-      data,
-      error,
-    } = await this.glStateService.sendAccountDataQuery({ filter, offset });
-    if (error && retries < 5) {
-      await this.retrieveRewards({
-        filter,
-        offset,
-        handler,
-        retries: retries + 1,
-      });
-    } else {
-      data?.length > 0 && data.forEach((reward) => handler(reward.reward));
-      if (offset + DATA_BATCH < totalResults) {
-        await this.retrieveRewards({
-          filter,
-          offset: offset + DATA_BATCH,
-          handler,
-          retries: 0,
-        });
+  retrieveRewards = async (coinbase: Uint8Array): Promise<Reward__Output[]> => {
+    const composeArg = (batchNumber: number) => ({
+      filter: {
+        accountId: { address: coinbase },
+        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD as AccountDataValidFlags,
+      },
+      offset: batchNumber * BATCH_SIZE,
+    });
+    const getAccountDataQuery = async (batch: number, retries = 5) => {
+      const res = await this.glStateService.sendAccountDataQuery(
+        composeArg(batch)
+      );
+      if (res.error && retries > 0) {
+        await delay(1000);
+        return getAccountDataQuery(batch, retries - 1);
       }
+      return res;
+    };
+    const { totalResults, data } = await getAccountDataQuery(0);
+    if (totalResults <= BATCH_SIZE) {
+      const r: Reward__Output[] = data.filter(
+        (item): item is Reward__Output =>
+          !!item && hasRequiredRewardFields(item)
+      );
+      return r;
+    } else {
+      const nextRewards = await Promise.all(
+        R.compose(
+          R.map((idx) =>
+            this.glStateService
+              .sendAccountDataQuery(composeArg(idx))
+              .then((resp) => resp.data)
+          ),
+          R.range(1)
+        )(Math.ceil(totalResults / BATCH_SIZE))
+      ).then(R.unnest);
+      return data ? [...data, ...nextRewards] : nextRewards;
     }
   };
 

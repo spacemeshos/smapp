@@ -11,6 +11,7 @@ import {
   Observable,
   scan,
   skipUntil,
+  startWith,
   Subject,
   withLatestFrom,
 } from 'rxjs';
@@ -182,12 +183,12 @@ export default (
     $nodeVersion.pipe(map(R.objOf('node'))),
     combineLatest([
       $smesherId,
-      $activations,
+      $rewards.pipe(startWith([])),
+      $activations.pipe(startWith([])),
       $nodeConfig,
       $currentLayer,
-      $rewards,
     ]).pipe(
-      map(([smesherId, activations, cfg, curLayer, rewards]) => ({
+      map(([smesherId, rewards, activations, cfg, curLayer]) => ({
         smesher: {
           smesherId: toHexString(smesherId),
           activations,

@@ -12,7 +12,7 @@ import {
   Observable,
   of,
   scan,
-  shareReplay,
+  share,
   Subject,
   switchMap,
   withLatestFrom,
@@ -127,7 +127,7 @@ const syncSmesherInfo = (
           fromHexString(coinbase.substring(2)),
           (x) => subscriber.next(x)
         )
-      ).pipe(shareReplay())
+      ).pipe(share())
     )
   );
 
@@ -152,7 +152,7 @@ const syncSmesherInfo = (
           fromHexString(coinbase.substring(2)),
           (atx) => subscriber.next(atx)
         )
-      ).pipe(shareReplay())
+      ).pipe(share())
     )
   );
   const $activationsHistory = combineLatest([$coinbase, $managers]).pipe(

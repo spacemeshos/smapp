@@ -34,6 +34,14 @@ const ACCOUNT_DATA_KEYS: Record<AccountDataValidFlags, AccountDataStreamKey> = {
 const getKeyByAccountDataFlag = (
   flag: AccountDataValidFlags
 ): AccountDataStreamKey => ACCOUNT_DATA_KEYS[flag];
+const getByFlag = <F extends AccountDataValidFlags>(
+  flag: F,
+  from: AccountData__Output
+): AccountDataStreamHandlerArg[F] | null | undefined => {
+  const key = getKeyByAccountDataFlag(flag);
+  const res = from[key] as AccountDataStreamHandlerArg[F] | null | undefined;
+  return res;
+};
 
 class GlobalStateService extends NetServiceFactory<
   ProtoGrpcType,
@@ -67,7 +75,11 @@ class GlobalStateService extends NetServiceFactory<
       accountDataFlags: F;
     };
     offset: number;
-  }) =>
+  }): Promise<{
+    totalResults: number;
+    data: AccountDataStreamHandlerArg[F][];
+    error: null | Error;
+  }> =>
     this.callService('AccountDataQuery', {
       filter,
       maxResults: GRPC_QUERY_BATCH_SIZE,
@@ -75,12 +87,9 @@ class GlobalStateService extends NetServiceFactory<
     })
       .then((response) => ({
         totalResults: response.totalResults,
-        data: response.accountItem.map(
-          (item) =>
-            item[
-              getKeyByAccountDataFlag(filter.accountDataFlags)
-            ] as AccountDataStreamHandlerArg[F]
-        ),
+        data: response.accountItem
+          .map((item) => getByFlag(filter.accountDataFlags, item))
+          .filter(Boolean) as AccountDataStreamHandlerArg[F][],
       }))
       .then(this.normalizeServiceResponse)
       .catch(
