@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { showReportDialog } from '@sentry/browser';
 import { v4 as uuidv4 } from 'uuid';
-import { captureMessage } from '@sentry/electron';
+import { captureMessage } from '@sentry/minimal';
 import { smColors } from '../../vars';
+import { Loader } from '../../basicComponents';
 
 const Container = styled.div`
   padding: 4px 12px;
@@ -21,13 +22,24 @@ const Button = styled.div`
   user-select: none;
 `;
 
-const FeedbackButton = () => {
+const FeedbackButton = (props) => {
+  const [isLoading, setIsLoading] = useState(false);
+  console.log(props);
+
+  if (isLoading) {
+    return <Loader size={Loader.sizes.SMALL} note="Report dialog is loading" />;
+  }
+
   return (
     <Container>
       <Button
         onClick={() => {
+          setIsLoading(true);
           showReportDialog({
             eventId: captureMessage(`BugReport_${uuidv4()}`),
+            onLoad() {
+              setIsLoading(false);
+            },
           });
         }}
       >
