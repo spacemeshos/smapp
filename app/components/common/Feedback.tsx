@@ -22,12 +22,17 @@ const Button = styled.div`
   user-select: none;
 `;
 
-const FeedbackButton = (props) => {
+const FeedbackButton = ({ isDarkMode }: { isDarkMode: boolean }) => {
   const [isLoading, setIsLoading] = useState(false);
-  console.log(props);
 
   if (isLoading) {
-    return <Loader size={Loader.sizes.SMALL} note="Report dialog is loading" />;
+    return (
+      <Loader
+        size={Loader.sizes.SMALL}
+        isDarkMode={isDarkMode}
+        note="Report dialog is loading"
+      />
+    );
   }
 
   return (
