@@ -27,7 +27,7 @@ export default (
         x: 0,
         y: 90,
         width: contentBounds.width - 35,
-        height: 600,
+        height: contentBounds.height - 100,
       });
       browserView.setAutoResize({
         width: true,
