@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { showReportDialog } from '@sentry/browser';
-import { captureException, lastEventId } from '@sentry/react';
 import { v4 as uuidv4 } from 'uuid';
+import { captureMessage } from '@sentry/electron';
 import { smColors } from '../../vars';
 
 const Container = styled.div`
@@ -18,6 +18,7 @@ const Button = styled.div`
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.lightGray : smColors.darkGray};
   cursor: pointer;
+  user-select: none;
 `;
 
 const FeedbackButton = () => {
@@ -25,8 +26,9 @@ const FeedbackButton = () => {
     <Container>
       <Button
         onClick={() => {
-          captureException(`client_report_${uuidv4()}`);
-          showReportDialog({ eventId: lastEventId() });
+          showReportDialog({
+            eventId: captureMessage(`BugReport_${uuidv4()}`),
+          });
         }}
       >
         Report an issue!
