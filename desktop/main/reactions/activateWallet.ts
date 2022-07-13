@@ -22,9 +22,13 @@ export default (
       ) {
         return;
       }
-      await managers.wallet.activate(wallet);
-      managers.wallet.activateAccounts(wallet.crypto.accounts);
-      $isWalletActivated.next();
+      const res = await managers.wallet.activate(wallet);
+      if (res) {
+        managers.wallet.activateAccounts(wallet.crypto.accounts);
+        $isWalletActivated.next();
+      }
+      // Renderer waits for WALLET_ACTIVATED event
+      // to show the next screen, so we send it anyway
       mw.webContents.send(ipcConsts.WALLET_ACTIVATED);
     }
   );

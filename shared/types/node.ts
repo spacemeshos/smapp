@@ -22,6 +22,11 @@ export enum NodeErrorLevel {
   LOG_LEVEL_DPANIC = 5,
   LOG_LEVEL_PANIC = 6,
   LOG_LEVEL_FATAL = 7,
+
+  // Additional error level that is not represented in
+  // GRPC API since it referencing to system errors,
+  // that consequences into Node can not run at all
+  LOG_LEVEL_SYSERROR = 8,
 }
 
 export interface NodeError {
