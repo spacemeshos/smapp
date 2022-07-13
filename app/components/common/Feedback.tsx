@@ -41,7 +41,7 @@ const FeedbackButton = ({ isDarkMode }: { isDarkMode: boolean }) => {
         onClick={() => {
           setIsLoading(true);
           showReportDialog({
-            eventId: captureMessage(uuidv4()),
+            eventId: captureMessage(`${uuidv4()}-user-feedback`),
             onLoad() {
               setIsLoading(false);
             },
