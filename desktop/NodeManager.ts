@@ -202,14 +202,12 @@ class NodeManager {
       return this.startNode();
     };
     // Subscriptions
-    ipcMain.handle(ipcConsts.N_M_START_NODE, startNode);
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
     ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
     ipcMain.handle(ipcConsts.N_M_RESTART_NODE, restartNode);
     ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
     // Unsub
     return () => {
-      ipcMain.removeHandler(ipcConsts.N_M_START_NODE);
       ipcMain.removeListener(
         ipcConsts.N_M_GET_VERSION_AND_BUILD,
         getVersionAndBuild
