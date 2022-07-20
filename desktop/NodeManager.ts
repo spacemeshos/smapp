@@ -153,7 +153,6 @@ class NodeManager {
 
   subscribeToEvents = () => {
     // Handlers
-    const startNode = () => this.startNode();
     const getVersionAndBuild = () =>
       this.getVersionAndBuild()
         .then((payload) =>
@@ -166,13 +165,6 @@ class NodeManager {
     const setNodePort = (_event, request) => {
       StoreService.set('node.port', request.port);
     };
-    const restartNode = (): Promise<boolean> =>
-      // Always return true / false to notify caller that it is done
-      this.restartNode().catch((error) => {
-        this.pushNodeError(error);
-        logger.error('restartNode', error);
-        return false;
-      });
     const promptChangeDir = async () => {
       const oldPath = StoreService.get('node.dataPath');
       const prompt = await dialog.showOpenDialog(this.mainWindow, {
@@ -204,7 +196,6 @@ class NodeManager {
     // Subscriptions
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
     ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
-    ipcMain.handle(ipcConsts.N_M_RESTART_NODE, restartNode);
     ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
     // Unsub
     return () => {

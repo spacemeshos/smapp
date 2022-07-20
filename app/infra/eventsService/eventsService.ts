@@ -225,7 +225,7 @@ class EventsService {
 
   /** **************************************  NODE MANAGER  **************************************** */
 
-  static restartNode = () => ipcRenderer.invoke(ipcConsts.N_M_RESTART_NODE);
+  static restartNode = () => ipcRenderer.send(ipcConsts.N_M_RESTART_NODE);
 
   static requestVersionAndBuild = () =>
     ipcRenderer.send(ipcConsts.N_M_GET_VERSION_AND_BUILD);

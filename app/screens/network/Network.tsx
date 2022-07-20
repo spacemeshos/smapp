@@ -18,6 +18,7 @@ import ErrorMessage from '../../basicComponents/ErrorMessage';
 import SubHeader from '../../basicComponents/SubHeader';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { AuthPath } from '../../routerPaths';
+import { delay } from '../../../shared/utils';
 
 const Container = styled.div`
   display: flex;
@@ -98,6 +99,9 @@ const Network = ({ history }) => {
   const requestNodeRestart = useCallback(async () => {
     setRestarting(true);
     await eventsService.restartNode();
+    await delay(60 * 1000);
+    // In case if Node restarts earlier the component will be
+    // re-rendered and Restart button will disappear
     setRestarting(false);
   }, []);
 
