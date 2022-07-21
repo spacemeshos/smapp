@@ -12,6 +12,7 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import packageInfo from '../../../package.json';
+import FeedbackButton from './Feedback';
 
 const Container = styled.div`
   position: absolute;
@@ -33,7 +34,7 @@ const Chunk = styled.div`
 `;
 
 const Action = css`
-  ${ChunkStyles}
+  ${ChunkStyles};
   padding: 0.5em;
   margin: 0;
   text-decoration: underline;
@@ -59,7 +60,7 @@ const SecondaryAction = styled.a`
 `;
 
 const Attractor = styled.div`
-  ${ChunkStyles}
+  ${ChunkStyles};
   border-radius: 50%;
   color: ${smColors.orange};
   margin-left: 1em;
@@ -172,11 +173,12 @@ const Updater = () => {
   );
 };
 
-const Version = () => {
+const Version = ({ isDarkMode }: { isDarkMode: boolean }) => {
   return (
     <Container>
       <Chunk>v{packageInfo.version}</Chunk>
       <Updater />
+      <FeedbackButton isDarkMode={isDarkMode} />
     </Container>
   );
 };

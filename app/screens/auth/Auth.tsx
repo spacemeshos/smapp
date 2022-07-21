@@ -94,7 +94,7 @@ const Auth = ({ history, location }: AuthRouterParams) => {
           <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
         )}
       </InnerWrapper>
-      <Version />
+      <Version isDarkMode={isDarkMode} />
       <RightDecoration />
     </Wrapper>
   );
