@@ -1,3 +1,4 @@
+import { smColors } from '../../vars';
 import colors from '../colors';
 import {
   modernBackup,
@@ -10,6 +11,8 @@ import {
   chevronBottomPurple,
   chevronBottomWhite,
   chevronBottomBlack,
+  loaderWhite,
+  chevronRightWhite,
 } from '../../assets/images';
 
 export default {
@@ -44,6 +47,7 @@ export default {
   },
   indicators: {
     radius: 4,
+    color: smColors.white,
   },
   form: {
     input: {
@@ -151,6 +155,9 @@ export default {
       },
     },
   },
+  header: {
+    color: smColors.white,
+  },
   icons: {
     backup: modernBackup,
     tooltip: modernInfoTooltip,
@@ -164,5 +171,7 @@ export default {
       light: chevronBottomBlack,
       dark: chevronBottomWhite,
     },
+    chevronPassword: chevronRightWhite,
+    loader: loaderWhite,
   },
 };

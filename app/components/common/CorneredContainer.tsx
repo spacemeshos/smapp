@@ -59,7 +59,11 @@ const HeaderIcon = styled.img<{ src: any }>`
 export const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
-  color: ${({ color }) => color};
+  color: ${({
+    theme: {
+      header: { color },
+    },
+  }) => color};
   text-transform: uppercase;
 `;
 
@@ -82,7 +86,6 @@ type Props = {
   headerIcon?: any;
   subHeader?: any;
   useEmptyWrap?: boolean;
-  isDarkMode?: boolean;
 };
 
 const CorneredContainer = ({
@@ -91,21 +94,18 @@ const CorneredContainer = ({
   height,
   header,
   tooltipMessage,
-  headerColor = '',
   headerIcon = null,
+  headerColor,
   subHeader = '',
   useEmptyWrap = false,
-  isDarkMode = false,
 }: Props) => {
   const ResolvedWrapper: any = useEmptyWrap ? DivWrapper : Wrapper;
-  const color =
-    headerColor || (isDarkMode ? smColors.white : smColors.realBlack);
   return (
-    <ResolvedWrapper width={width} height={height} isDarkMode={isDarkMode}>
+    <ResolvedWrapper width={width} height={height}>
       {header && (
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
-          <Header color={color}>{header}</Header>
+          <Header color={headerColor}>{header}</Header>
         </HeaderWrapper>
       )}
       {subHeader && (

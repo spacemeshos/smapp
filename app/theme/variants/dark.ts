@@ -1,3 +1,4 @@
+import { smColors } from '../../vars';
 import colors from '../colors';
 import {
   backup,
@@ -9,6 +10,7 @@ import {
   chevronLeftWhite,
   chevronBottomWhite,
   chevronBottomBlack,
+  loaderWhite,
 } from '../../assets/images';
 
 export default {
@@ -43,6 +45,7 @@ export default {
   },
   indicators: {
     radius: 0,
+    color: smColors.white,
   },
   form: {
     input: {
@@ -150,6 +153,9 @@ export default {
       },
     },
   },
+  header: {
+    color: smColors.realBlack,
+  },
   icons: {
     backup,
     tooltip: tooltipWhite,
@@ -163,5 +169,7 @@ export default {
       light: chevronBottomBlack,
       dark: chevronBottomWhite,
     },
+    chevronPassword: chevronRightWhite,
+    loader: loaderWhite,
   },
 };

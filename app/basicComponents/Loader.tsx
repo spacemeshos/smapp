@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { loader, loaderWhite } from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div`
@@ -20,7 +19,11 @@ const Wrapper = styled.div`
   z-index: 100;
 `;
 
-const AnimatedIcon = styled.img<{ size: number }>`
+const AnimatedIcon = styled.img.attrs(({ theme: { icons: { loader } } }) => ({
+  src: loader,
+}))<{
+  size: number;
+}>`
   display: block;
   height: ${({ size }) => `${size}px`};
   width: ${({ size }) => `${size}px`};
@@ -36,17 +39,12 @@ const Note = styled.p`
 
 type Props = {
   size?: any;
-  isDarkMode?: boolean;
   note?: string;
 };
 
-const Loader = ({ size = 50, isDarkMode = false, note }: Props) => (
+const Loader = ({ size = 50, note }: Props) => (
   <Wrapper>
-    <AnimatedIcon
-      size={size || Loader.sizes.SMALL}
-      src={isDarkMode ? loaderWhite : loader}
-      alt="Loading"
-    />
+    <AnimatedIcon size={size || Loader.sizes.SMALL} alt="Loading" />
     <Note>{note}</Note>
   </Wrapper>
 );

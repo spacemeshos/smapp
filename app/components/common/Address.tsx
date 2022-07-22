@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, useTheme } from 'styled-components';
 
 import { HexString } from '../../../shared/types';
 import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
@@ -106,7 +106,7 @@ const Address = (props: Props) => {
   const isAccount = type === AddressType.ACCOUNT;
   const addr = ensure0x(isAccount ? getAddress(address) : address);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const { isDarkMode } = useTheme();
   const explorerUrl = useSelector(
     (state: RootState) => state.network.explorerUrl
   );

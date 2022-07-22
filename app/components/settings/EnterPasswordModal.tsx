@@ -13,7 +13,15 @@ const InputSection = styled.div`
   justify-content: center;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPassword },
+    },
+  }) => ({
+    src: chevronPassword,
+  })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -49,10 +57,7 @@ const EnterPasswordModal = ({
   const [hasError, setHasError] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
-
-  const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
@@ -83,7 +88,7 @@ const EnterPasswordModal = ({
       } password to complete this action.`}
     >
       <InputSection>
-        <Chevron src={chevronIcon} />
+        <Chevron />
         <Input
           type="password"
           placeholder="ENTER PASSWORD"

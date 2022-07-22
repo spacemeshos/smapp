@@ -49,7 +49,6 @@ const ChangePassword = () => {
   const currentWalletPath = useSelector(
     (state: RootState) => state.wallet.currentWalletPath
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
@@ -103,7 +102,7 @@ const ChangePassword = () => {
   };
 
   if (isLoaderVisible) {
-    return <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />;
+    return <Loader size={Loader.sizes.BIG} />;
   }
   return (
     <Wrapper>
