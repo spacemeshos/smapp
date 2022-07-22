@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { backupWallet } from '../../redux/wallet/actions';
 import {
   WrapperWith2SideBars,
@@ -10,7 +10,7 @@ import {
   CorneredWrapper,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { AppThDispatch, RootState } from '../../types';
+import { AppThDispatch } from '../../types';
 import { BackupPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
@@ -74,7 +74,6 @@ const BottomRow = styled(MiddleSectionRow)`
 `;
 
 const BackupOptions = ({ history }: RouteComponentProps) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
 
   const navigateTo12WordsBackup = () => {
@@ -96,7 +95,6 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
         width={300}
         header="WALLET"
         style={{ marginRight: 10 }}
-        isDarkMode={isDarkMode}
       >
         <BoldText>How would you like to backup your wallet?</BoldText>
         <Text>
@@ -104,7 +102,7 @@ const BackupOptions = ({ history }: RouteComponentProps) => {
           your wallet for additional security.
         </Text>
       </WrapperWith2SideBars>
-      <RightSection isDarkMode={isDarkMode}>
+      <RightSection>
         <MiddleSection>
           <MiddleSectionRow>
             <SmallText style={{ marginRight: 22 }}>Basic Security</SmallText>

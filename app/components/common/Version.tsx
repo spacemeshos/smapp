@@ -173,12 +173,12 @@ const Updater = () => {
   );
 };
 
-const Version = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const Version = () => {
   return (
     <Container>
       <Chunk>v{packageInfo.version}</Chunk>
       <Updater />
-      <FeedbackButton isDarkMode={isDarkMode} />
+      <FeedbackButton />
     </Container>
   );
 };

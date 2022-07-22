@@ -31,7 +31,6 @@ const FileRestore = ({ history }: AuthRouterParams) => {
   const [filePath, setFilePath] = useState('');
   const [hasError, setHasError] = useState(false);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
 
   const addFile = ({
@@ -65,7 +64,6 @@ const FileRestore = ({ history }: AuthRouterParams) => {
     <WrapperWith2SideBars
       width={800}
       height={480}
-      isDarkMode={isDarkMode}
       header="OPEN WALLET"
       subHeader="Open a wallet from a wallet file"
     >
@@ -75,7 +73,6 @@ const FileRestore = ({ history }: AuthRouterParams) => {
           onFilesAdded={addFile}
           fileName={fileName}
           hasError={hasError}
-          isDarkMode={isDarkMode}
         />
       </DdArea>
       <BottomSection>

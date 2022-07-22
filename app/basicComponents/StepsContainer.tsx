@@ -1,11 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  sidePanelRightMed,
-  sidePanelRightMedWhite,
-  sidePanelLeftMed,
-  sidePanelLeftMedWhite,
-} from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div`
@@ -18,7 +12,16 @@ const Wrapper = styled.div`
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img<{ isLeft: boolean }>`
+const SideBar = styled.img.attrs<{ isLeft: boolean }>(
+  ({
+    theme: {
+      icons: { sidePanelLeftMed, sidePanelRightMed },
+    },
+    isLeft,
+  }) => ({
+    src: isLeft ? sidePanelLeftMed : sidePanelRightMed,
+  })
+)<{ isLeft: boolean }>`
   display: block;
   width: 13px;
   height: 100%;
@@ -92,15 +95,12 @@ const Icon = styled.img.attrs((props) => ({
 type Props = {
   steps: Array<string>;
   currentStep: number;
-  isDarkMode: boolean;
 };
 
-const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
-  const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
-  const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
+const StepsContainer = ({ steps, currentStep }: Props) => {
   return (
     <Wrapper style={{ height: `${steps.length * 32 + 35}px` }}>
-      <SideBar src={leftImg} isLeft />
+      <SideBar isLeft />
       <InnerWrapper>
         {steps.map((step, index) => (
           <StepContainer key={`step${index}`} isFuture={index > currentStep}>
@@ -120,7 +120,7 @@ const StepsContainer = ({ steps, currentStep, isDarkMode }: Props) => {
           </StepContainer>
         ))}
       </InnerWrapper>
-      <SideBar src={rightImg} isLeft={false} />
+      <SideBar isLeft={false} />
     </Wrapper>
   );
 };

@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { Link, Button, BoldText } from '../../basicComponents';
 import { getAddress } from '../../infra/utils';
-import { copyBlack, copyWhite } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { Account } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
@@ -60,7 +57,9 @@ const AddressText = styled(Text)`
   text-decoration: underline;
 `;
 
-const CopyIcon = styled.img`
+const CopyIcon = styled.img.attrs(({ theme: { icons: { copy } } }) => ({
+  src: copy,
+}))`
   width: 16px;
   height: 15px;
   margin: 0 10px;
@@ -101,10 +100,6 @@ const RequestCoins = ({ history, location }: Props) => {
 
   const [isCopied, setIsCopied] = useState(false);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
-  const copy = isDarkMode ? copyWhite : copyBlack;
-
   let copiedTimeout = 0;
   const copyPublicAddress = async () => {
     await navigator.clipboard.writeText(`0x${getAddress(account.publicKey)}`);
@@ -136,7 +131,7 @@ const RequestCoins = ({ history, location }: Props) => {
         <Text>Request SMH by sharing your wallet&apos;s address:</Text>
         <AddressWrapper onClick={copyPublicAddress}>
           <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
-          <CopyIcon src={copy} />
+          <CopyIcon />
           {isCopied && <CopiedText>Copied!</CopiedText>}
         </AddressWrapper>
       </SubHeader>

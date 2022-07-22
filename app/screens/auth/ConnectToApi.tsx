@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { AppThDispatch, RootState } from '../../types';
+import { AppThDispatch } from '../../types';
 import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
@@ -45,7 +45,6 @@ type PublicServicesView = {
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const curNetId = useSelector(getNetworkId);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
@@ -121,16 +120,13 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   return (
     <Wrapper>
-      {!!location.state?.creatingWallet && (
-        <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />
-      )}
+      {!!location.state?.creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
       <CorneredContainer
         width={650}
         height={400}
         header="CONNECT TO SPACEMESH"
         subHeader="Select a Spacemesh API public service to connect you wallet to."
         tooltipMessage="test"
-        isDarkMode={isDarkMode}
       >
         <RowColumn>
           <DropDown

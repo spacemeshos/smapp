@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { BoldText, Button } from '../../basicComponents';
 import {
   getAbbreviatedText,
@@ -42,7 +42,16 @@ const TxWrapper = styled.div`
   margin-bottom: 10px;
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs<{ chevronRight: boolean }>(
+  ({
+    theme: {
+      icons: { chevronPrimaryLeft, chevronPrimaryRight },
+    },
+    chevronRight,
+  }) => ({
+    src: chevronRight ? chevronPrimaryRight : chevronPrimaryLeft,
+  })
+)<{ chevronRight: boolean }>`
   width: 10px;
   height: 20px;
   margin-right: 10px;
@@ -79,10 +88,6 @@ type Props = {
 };
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
-  const {
-    icons: { chevronPrimaryLeft, chevronPrimaryRight },
-  } = useTheme();
-
   const publicKey = useSelector(
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey
@@ -116,11 +121,9 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     const isSent = sender === getAddress(publicKey);
     const color = getColor({ status, isSent });
 
-    const chevron = isSent ? chevronPrimaryRight : chevronPrimaryLeft;
-
     return (
       <TxWrapper key={`tx_${id}`}>
-        <Icon src={chevron} />
+        <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
             <NickName>{senderNickname || getAbbreviatedText(sender)}</NickName>
@@ -141,7 +144,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     const { amount, timestamp, layer } = tx;
     return (
       <TxWrapper key={`${publicKey}_reward_${layer}`}>
-        <Icon src={chevronPrimaryLeft} />
+        <Icon chevronRight={false} />
         <MainWrapper>
           <Section>
             <NickName>Smeshing reward</NickName>

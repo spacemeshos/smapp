@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '../../basicComponents';
-import {
-  posSpace,
-  posRewardEst,
-  posDirectoryBlack,
-  posDirectoryWhite,
-} from '../../assets/images';
+import { posSpace, posRewardEst } from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
@@ -40,7 +35,9 @@ const Icon2 = styled.img`
   margin-right: 10px;
 `;
 
-const Icon3 = styled.img`
+const Icon3 = styled.img.attrs(({ theme: { icons: { posDirectory } } }) => ({
+  src: posDirectory,
+}))`
   width: 18px;
   height: 17px;
   margin-right: 7px;
@@ -75,7 +72,6 @@ const ErrorText = styled.div`
   left: 15px;
   bottom: -15px;
   width: 100%;
-}
 `;
 
 const Link = styled.div`
@@ -112,7 +108,6 @@ type Props = {
   freeSpace: string;
   nextAction: () => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
 };
 
 const PoSSize = ({
@@ -123,7 +118,6 @@ const PoSSize = ({
   freeSpace,
   nextAction,
   status,
-  isDarkMode,
 }: Props) => {
   const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
     numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
@@ -148,8 +142,6 @@ const PoSSize = ({
     setSelectedCommitmentIndex(index);
     setNumUnit(commitments[index].numUnits);
   };
-
-  const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   return (
     <>
@@ -184,7 +176,7 @@ const PoSSize = ({
         )}
       </Row>
       <BottomRow>
-        <Icon3 src={posDirectoryIcon} />
+        <Icon3 />
         <Text>PoS data folder</Text>
         <Dots>.....................................................</Dots>
         <Link>{dataDir}</Link>

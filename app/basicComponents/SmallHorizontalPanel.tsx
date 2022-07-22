@@ -1,8 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { horizontalPanelBlack, horizontalPanelWhite } from '../assets/images';
 
-const Wrapper = styled.img`
+const Wrapper = styled.img.attrs(
+  ({
+    theme: {
+      icons: { horizontalPanel },
+    },
+  }) => ({ src: horizontalPanel })
+)`
   position: absolute;
   top: -25px;
   right: 0px;
@@ -11,12 +16,6 @@ const Wrapper = styled.img`
   transform: ${({ theme }) => (theme.isDarkMode ? `scale(-1, 1)` : `none`)};
 `;
 
-type Props = {
-  isDarkMode: boolean;
-};
-
-const SmallHorizontalPanel = ({ isDarkMode }: Props) => (
-  <Wrapper src={isDarkMode ? horizontalPanelBlack : horizontalPanelWhite} />
-);
+const SmallHorizontalPanel = () => <Wrapper />;
 
 export default SmallHorizontalPanel;

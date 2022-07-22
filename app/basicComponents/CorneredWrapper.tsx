@@ -1,21 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  topLeftCorner,
-  topRightCorner,
-  bottomLeftCorner,
-  bottomRightCorner,
-  topLeftCornerWhite,
-  topRightCornerWhite,
-  bottomLeftCornerWhite,
-  bottomRightCornerWhite,
-} from '../assets/images';
 
 const Wrapper = styled.div`
   position: relative;
 `;
 
-const TopLeftCorner = styled.img`
+const TopLeftCorner = styled.img.attrs(
+  ({
+    theme: {
+      icons: {
+        corners: { topLeft },
+      },
+    },
+  }) => ({
+    src: { topLeft },
+  })
+)`
   position: absolute;
   top: -10px;
   left: -10px;
@@ -23,7 +23,17 @@ const TopLeftCorner = styled.img`
   height: 8px;
 `;
 
-const TopRightCorner = styled.img`
+const TopRightCorner = styled.img.attrs(
+  ({
+    theme: {
+      icons: {
+        corners: { topRight },
+      },
+    },
+  }) => ({
+    src: { topRight },
+  })
+)`
   position: absolute;
   top: -10px;
   right: -10px;
@@ -31,7 +41,17 @@ const TopRightCorner = styled.img`
   height: 8px;
 `;
 
-const BottomLeftCorner = styled.img`
+const BottomLeftCorner = styled.img.attrs(
+  ({
+    theme: {
+      icons: {
+        corners: { bottomLeft },
+      },
+    },
+  }) => ({
+    src: { bottomLeft },
+  })
+)`
   position: absolute;
   bottom: -10px;
   left: -10px;
@@ -39,7 +59,17 @@ const BottomLeftCorner = styled.img`
   height: 8px;
 `;
 
-const BottomRightCorner = styled.img`
+const BottomRightCorner = styled.img.attrs(
+  ({
+    theme: {
+      icons: {
+        corners: { bottomRight },
+      },
+    },
+  }) => ({
+    src: { bottomRight },
+  })
+)`
   position: absolute;
   bottom: -10px;
   right: -10px;
@@ -50,24 +80,15 @@ const BottomRightCorner = styled.img`
 type Props = {
   children: any;
   className?: string;
-  isDarkMode?: boolean;
 };
 
-const CorneredWrapper = ({
-  children,
-  className = '',
-  isDarkMode = false,
-}: Props) => {
-  const topLeft = isDarkMode ? topLeftCornerWhite : topLeftCorner;
-  const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
-  const bottomLeft = isDarkMode ? bottomLeftCornerWhite : bottomLeftCorner;
-  const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
+const CorneredWrapper = ({ children, className = '' }: Props) => {
   return (
     <Wrapper className={className}>
-      <TopLeftCorner src={topLeft} />
-      <TopRightCorner src={topRight} />
-      <BottomLeftCorner src={bottomLeft} />
-      <BottomRightCorner src={bottomRight} />
+      <TopLeftCorner />
+      <TopRightCorner />
+      <BottomLeftCorner />
+      <BottomRightCorner />
       {children}
     </Wrapper>
   );

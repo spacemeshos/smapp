@@ -9,7 +9,6 @@ import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
 import {
   posIcon,
   posSmesher,
-  posDirectoryBlack,
   posDirectoryWhite,
   pauseIcon,
   playIcon,
@@ -126,7 +125,15 @@ const PosSmesherIcon = styled.img`
   margin-right: 5px;
 `;
 
-const PosFolderIcon = styled.img`
+const PosFolderIcon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { posDirectory },
+    },
+  }) => ({
+    src: posDirectory,
+  })
+)`
   width: 20px;
   height: 20px;
   margin-right: 5px;
@@ -282,7 +289,6 @@ const Node = ({ history, location }: Props) => {
   );
   // const rewards = useSelector((state: RootState) => state.smesher.rewards);
   // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const isWalletMode = useSelector(isWalletOnly);
 
   const dispatch = useDispatch();
@@ -365,9 +371,7 @@ const Node = ({ history, location }: Props) => {
       [
         'Data Directory',
         <React.Fragment key="pos-data-dir">
-          <PosFolderIcon
-            src={isDarkMode ? posDirectoryWhite : posDirectoryBlack}
-          />
+          <PosFolderIcon />
           <PathDir>{posDataPath}</PathDir>
         </React.Fragment>,
       ],
@@ -441,12 +445,7 @@ const Node = ({ history, location }: Props) => {
 
   const renderMainSection = () => {
     if (showIntro) {
-      return (
-        <SmesherIntro
-          hideIntro={() => setShowIntro(false)}
-          isDarkMode={isDarkMode}
-        />
-      );
+      return <SmesherIntro hideIntro={() => setShowIntro(false)} />;
     } else if (!isSmesherActive && !postProgressError) {
       return (
         <>
@@ -521,7 +520,6 @@ const Node = ({ history, location }: Props) => {
         height={450}
         header="SMESHER"
         headerIcon={posIcon}
-        isDarkMode={isDarkMode}
       >
         {isWalletMode ? renderWalletOnlyMode() : renderMainSection()}
       </WrapperWith2SideBars>
@@ -530,7 +528,6 @@ const Node = ({ history, location }: Props) => {
         rewardsInfo={rewardsInfo}
         initTimestamp={smesherInitTimestamp}
         smeshingTimestamp={smesherSmeshingTimestamp}
-        isDarkMode={isDarkMode}
         epochByLayer={getEpochByLayer}
         timestampByLayer={getTimestampByLayer}
       />

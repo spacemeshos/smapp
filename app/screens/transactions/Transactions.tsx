@@ -105,7 +105,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
       state.wallet.accounts[state.wallet.currentAccountIndex].publicKey
   );
   const transactions = useSelector(getTxAndRewards(publicKey));
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
     const coins = getNumOfCoinsFromTransactions(
@@ -164,7 +163,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
         width={680}
         header="TRANSACTION LOG"
         style={{ marginRight: 10 }}
-        isDarkMode={isDarkMode}
       >
         <TransactionsListWrapper>
           {transactions && transactions.length ? (

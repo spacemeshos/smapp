@@ -273,7 +273,6 @@ const Contacts = ({ history }: RouteComponentProps) => {
   const lastUsedContacts = useSelector(
     (state: RootState) => state.wallet.lastUsedContacts
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   useEffect(() => {
     return () => {
@@ -478,12 +477,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   return (
-    <WrapperWith2SideBars
-      width={1000}
-      height={500}
-      header="CONTACTS"
-      isDarkMode={isDarkMode}
-    >
+    <WrapperWith2SideBars width={1000} height={500} header="CONTACTS">
       <SearchWrapper>
         {/* <SearchIcon src={searchIcon} /> */}
         <Input

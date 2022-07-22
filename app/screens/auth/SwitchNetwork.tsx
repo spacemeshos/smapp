@@ -33,7 +33,6 @@ const BottomPart = styled.div`
 
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const networksList = useSelector((state: RootState) => state.networks);
@@ -128,21 +127,17 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   return showLoader ? (
     <Loader
       size={Loader.sizes.BIG}
-      isDarkMode={isDarkMode}
       note="Please wait, connecting to Spacemesh network..."
     />
   ) : (
     <Wrapper>
-      {!!location.state.creatingWallet && (
-        <Steps step={Step.SELECT_NETWORK} isDarkMode={isDarkMode} />
-      )}
+      {!!location.state.creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
       <CorneredContainer
         width={650}
         height={400}
         header="SPACEMESH NETWORK"
         subHeader="Select a public Spacemesh network for your wallet."
         tooltipMessage="test"
-        isDarkMode={isDarkMode}
       >
         <RowColumn>
           <DropDown

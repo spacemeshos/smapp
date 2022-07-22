@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
-import {
-  chevronLeftBlack,
-  chevronLeftWhite,
-  chevronRightBlack,
-  chevronRightWhite,
-} from '../../assets/images';
 import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import {
@@ -43,7 +37,16 @@ const Header = styled.div`
   }
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs<{ chevronRight: boolean }>(
+  ({
+    theme: {
+      icons: { chevronPrimaryLeft, chevronPrimaryRight },
+    },
+    chevronRight,
+  }) => ({
+    src: chevronRight ? chevronPrimaryRight : chevronPrimaryLeft,
+  })
+)<{ chevronRight: boolean }>`
   width: 10px;
   height: 20px;
   margin-right: 10px;
@@ -142,7 +145,13 @@ const InputSection = styled.div`
   justify-content: center;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryRight },
+    },
+  }) => ({ src: chevronPrimaryRight })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -185,7 +194,6 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   const currentAccountIndex = useSelector(
     (state: RootState) => state.wallet.currentAccountIndex
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const getColor = (isSent: boolean) => {
     const { status } = tx;
@@ -208,8 +216,6 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
 
   const isSent = tx.sender === getAddress(publicKey);
   const color = getColor(isSent);
-  const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
-  const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const save = async () => {
     await eventsService.updateTransactionNote(currentAccountIndex, tx.id, note);
@@ -312,7 +318,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
   return (
     <Wrapper isDetailed={isDetailed}>
       <Header onClick={toggleTxDetails}>
-        <Icon src={isSent ? chevronRight : chevronLeft} />
+        <Icon chevronRight={isSent} />
         <HeaderInner>
           <HeaderSection>
             {renderNickname()}
@@ -330,7 +336,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
       {showNoteModal && (
         <Modal header="Note" subHeader="enter your transaction note">
           <InputSection>
-            <Chevron src={chevronRight} />
+            <Chevron />
             <Input
               type="text"
               placeholder="NOTE"

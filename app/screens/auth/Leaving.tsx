@@ -66,7 +66,6 @@ const BottomPart = styled.div`
 `;
 
 const Leaving = ({ history }: AuthRouterParams) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const hasWalletFiles = useSelector(
     (state: RootState) => state.wallet.walletFiles.length > 0
   );
@@ -82,7 +81,6 @@ const Leaving = ({ history }: AuthRouterParams) => {
         height={400}
         header={header}
         subHeader="Are you sure you want to quit the setup?"
-        isDarkMode={isDarkMode}
       >
         <SideBar src={bigInnerSideBar} />
         <Indicator />

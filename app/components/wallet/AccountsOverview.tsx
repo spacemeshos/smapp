@@ -85,7 +85,6 @@ const AccountsOverview = () => {
   const currentAccountIndex = useSelector(
     (state: RootState) => state.wallet.currentAccountIndex
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
   const handleSetCurrentAccount = ({ index }: { index: number }) => {
@@ -117,7 +116,6 @@ const AccountsOverview = () => {
       width={290}
       height={'calc(100% - 65px)'}
       header={meta.displayName}
-      isDarkMode={isDarkMode}
     >
       <AccountDetails>
         {accounts.length > 1 ? (

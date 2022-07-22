@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { eventsService } from '../../infra/eventsService';
 import { loader, loaderWhite } from '../../assets/images';
-import { RootState } from '../../types';
 
 const AnimatedIcon = styled.img<{ size: number }>`
   display: block;
@@ -12,7 +10,7 @@ const AnimatedIcon = styled.img<{ size: number }>`
 `;
 
 const Dashboard = () => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     eventsService.updateBrowserViewTheme({ isDarkMode });

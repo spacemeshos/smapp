@@ -1,11 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  sidePanelRightLong,
-  sidePanelRightLongWhite,
-  sidePanelLeftLong,
-  sidePanelLeftLongWhite,
-} from '../assets/images';
 import { smColors } from '../vars';
 
 const Wrapper = styled.div<{ width: number; height: number | string }>`
@@ -20,7 +14,16 @@ const Wrapper = styled.div<{ width: number; height: number | string }>`
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
-const SideBar = styled.img<{ isLeft: boolean }>`
+const SideBar = styled.img.attrs<{ isLeft: boolean }>(
+  ({
+    theme: {
+      icons: { sidePanelLeft, sidePanelRight },
+    },
+    isLeft,
+  }) => ({
+    src: isLeft ? sidePanelLeft : sidePanelRight,
+  })
+)<{ isLeft: boolean }>`
   display: block;
   width: 16px;
   height: 100%;
@@ -73,7 +76,6 @@ type Props = {
   height?: number | string;
   children: any;
   style?: any;
-  isDarkMode: boolean;
 };
 
 const WrapperWith2SideBars = ({
@@ -84,14 +86,10 @@ const WrapperWith2SideBars = ({
   subHeader,
   children,
   style,
-  isDarkMode,
 }: Props) => {
-  const leftImg = isDarkMode ? sidePanelLeftLongWhite : sidePanelLeftLong;
-  const rightImg = isDarkMode ? sidePanelRightLongWhite : sidePanelRightLong;
-
   return (
     <Wrapper width={width} height={height} style={style}>
-      <SideBar src={leftImg} isLeft />
+      <SideBar isLeft />
       <MainWrapperInner>
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
@@ -101,7 +99,7 @@ const WrapperWith2SideBars = ({
         {subHeader && <SubHeader>{subHeader}</SubHeader>}
         {children}
       </MainWrapperInner>
-      <SideBar src={rightImg} isLeft={false} />
+      <SideBar isLeft={false} />
     </Wrapper>
   );
 };

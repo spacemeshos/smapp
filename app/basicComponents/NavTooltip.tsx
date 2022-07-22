@@ -20,12 +20,11 @@ const Text = styled.div`
 
 type Props = {
   text: string;
-  isDarkMode?: boolean;
   className?: string;
 };
 
-const NavTooltip = ({ text, isDarkMode = false, className }: Props) => (
-  <Wrapper isDarkMode={isDarkMode} className={className}>
+const NavTooltip = ({ text, className }: Props) => (
+  <Wrapper className={className}>
     <Text>{text}</Text>
   </Wrapper>
 );

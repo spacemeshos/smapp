@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { CorneredContainer } from '../../components/common';
 import { SubHeader } from '../../components/common/CorneredContainer';
@@ -11,7 +10,6 @@ import {
   walletSecond,
 } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -94,16 +92,10 @@ const SubHeaderExt = styled(SubHeader)`
 `;
 
 const Welcome = ({ history }: AuthRouterParams) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const navigateToSetupGuide = () => window.open(ExternalLinks.SetupGuide);
 
   return (
-    <CorneredContainer
-      width={760}
-      height={400}
-      header="WELCOME TO SPACEMESH"
-      isDarkMode={isDarkMode}
-    >
+    <CorneredContainer width={760} height={400} header="WELCOME TO SPACEMESH">
       <SubHeaderExt>
         <RowText>
           <span>

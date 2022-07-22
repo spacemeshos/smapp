@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { Link } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { upload, uploadWhite, incorrectFile } from '../../assets/images';
+import { incorrectFile } from '../../assets/images';
 
 const Wrapper = styled.div<{
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -33,7 +33,14 @@ const MsgWrapper = styled.div`
   align-items: center;
 `;
 
-const Image = styled.img`
+const Image = styled.img.attrs<{ hasError: boolean }>(
+  ({
+    theme: {
+      icons: { uploading },
+    },
+    hasError,
+  }) => ({ src: hasError ? incorrectFile : uploading })
+)<{ hasError: boolean }>`
   width: 32px;
   height: 26px;
   margin-bottom: 10px;
@@ -62,15 +69,9 @@ type Props = {
   }) => void;
   fileName: string;
   hasError: boolean;
-  isDarkMode: boolean;
 };
 
-const DragAndDrop = ({
-  onFilesAdded,
-  fileName,
-  hasError,
-  isDarkMode,
-}: Props) => {
+const DragAndDrop = ({ onFilesAdded, fileName, hasError }: Props) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -122,7 +123,6 @@ const DragAndDrop = ({
     linkText = 'locate on your computer';
   }
 
-  const uploadImg = isDarkMode ? uploadWhite : upload;
   return (
     <Wrapper
       onDragOver={onDragOver}
@@ -138,7 +138,7 @@ const DragAndDrop = ({
         style={{ display: 'none' }}
       />
       <MsgWrapper>
-        {!fileName && <Image src={hasError ? incorrectFile : uploadImg} />}
+        {!fileName && <Image hasError={hasError} />}
         <Text>
           {hasError ? 'incorrect file' : fileName || 'Drop a wallet file here,'}
         </Text>

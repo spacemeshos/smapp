@@ -6,9 +6,7 @@ import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import {
   getCurrentWalletFile,
   isWalletOnly,
@@ -50,7 +48,9 @@ const InputSection = styled.div`
   margin-bottom: 15px;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(({ theme: { icons: { chevronRight } } }) => ({
+  src: chevronRight,
+}))`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -89,7 +89,6 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
 
@@ -189,13 +188,11 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
-  const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
   if (isLoaderVisible) {
     return (
       <LoaderWrapper>
         <Loader
           size={Loader.sizes.BIG}
-          isDarkMode={isDarkMode}
           note={
             isWalletOnlyMode
               ? 'Please wait, connecting to Spacemesh api...'
@@ -209,20 +206,19 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   return (
     <Wrapper>
-      <Steps step={Step.PROTECT_WALLET} isDarkMode={isDarkMode} />
+      <Steps step={Step.PROTECT_WALLET} />
       <CorneredContainer
         width={650}
         height={400}
         header={header}
         subHeader={renderSubHeader(subMode)}
-        isDarkMode={isDarkMode}
       >
         {subMode === 1 && (
           <>
             <UpperPart>
               <Inputs>
                 <InputSection>
-                  <Chevron src={chevronRight} />
+                  <Chevron />
                   <Input
                     value={password}
                     type="password"
@@ -233,7 +229,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                   />
                 </InputSection>
                 <InputSection>
-                  <Chevron src={chevronRight} />
+                  <Chevron />
                   <Input
                     value={verifiedPassword}
                     type="password"

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from '../../basicComponents';
-import { posDirectoryBlack, posDirectoryWhite } from '../../assets/images';
 import { eventsService } from '../../infra/eventsService';
 import { formatBytes } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -33,7 +32,13 @@ const HeaderWrapper = styled.div`
   align-items: end;
 `;
 
-const HeaderIcon = styled.img`
+const HeaderIcon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { posDirectory },
+    },
+  }) => ({ src: posDirectory })
+)`
   width: 19px;
   height: 20px;
   margin-right: 5px;
@@ -85,7 +90,6 @@ type Props = {
   setFreeSpace: (freeSpace: string) => void;
   minCommitmentSize: string;
   status: NodeStatus | null;
-  isDarkMode: boolean;
   skipAction: () => void;
 };
 
@@ -98,11 +102,8 @@ const PoSDirectory = ({
   setFreeSpace,
   minCommitmentSize,
   status,
-  isDarkMode,
 }: Props) => {
   const [hasPermissionError, setHasPermissionError] = useState(false);
-
-  const icon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   const openFolderSelectionDialog = async () => {
     const {
@@ -123,7 +124,7 @@ const PoSDirectory = ({
     <>
       <Wrapper>
         <HeaderWrapper>
-          <HeaderIcon src={icon} />
+          <HeaderIcon />
           <Header>Proof of space data directory:</Header>
         </HeaderWrapper>
         <Link

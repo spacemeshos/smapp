@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import {
   DragDropContext,
@@ -15,7 +14,6 @@ import {
   CorneredWrapper,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { WalletPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
@@ -189,8 +187,6 @@ const TestMe = ({ history, location }: Props) => {
   >(mnemonic.split(' ').map((word: string) => ({ id: word, content: '' })));
   const [dropsCounter, setDropsCounter] = useState(0);
   const [matchCounter, setMatchCounter] = useState(0);
-
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const isTestSuccess = matchCounter === 4 && dropsCounter === 4;
 
@@ -369,7 +365,6 @@ const TestMe = ({ history, location }: Props) => {
       width={920}
       header="CONFIRM YOUR 12 WORDS BACKUP"
       key="1"
-      isDarkMode={isDarkMode}
     >
       <SubHeader>
         Drag each of the four words below to its matching number in your paper
@@ -386,7 +381,7 @@ const TestMe = ({ history, location }: Props) => {
       </BottomRow>
     </WrapperWith2SideBars>,
     dropsCounter === 4 && (
-      <NotificationBoxOuter key="2" isDarkMode={isDarkMode}>
+      <NotificationBoxOuter key="2">
         <NotificationBox
           color={isTestSuccess ? smColors.green : smColors.orange}
         >
