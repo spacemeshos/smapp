@@ -13,6 +13,7 @@ import {
   chevronBottomBlack,
   loaderWhite,
   chevronRightWhite,
+  chevronLeftWhite,
 } from '../../assets/images';
 
 export default {
@@ -171,7 +172,8 @@ export default {
       light: chevronBottomBlack,
       dark: chevronBottomWhite,
     },
-    chevronPassword: chevronRightWhite,
+    chevronPrimaryRight: chevronRightWhite,
+    chevronPrimaryLeft: chevronLeftWhite,
     loader: loaderWhite,
   },
 };

@@ -4,8 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { unlockCurrentWallet } from '../../redux/wallet/actions';
 import { Modal } from '../common';
 import { Button, Input, ErrorPopup } from '../../basicComponents';
-import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
-import { RootState } from '../../types';
 
 const InputSection = styled.div`
   display: flex;
@@ -16,10 +14,10 @@ const InputSection = styled.div`
 const Chevron = styled.img.attrs(
   ({
     theme: {
-      icons: { chevronPassword },
+      icons: { chevronPrimaryRight },
     },
   }) => ({
-    src: chevronPassword,
+    src: chevronPrimaryRight,
   })
 )`
   width: 8px;

@@ -169,7 +169,8 @@ export default {
       light: chevronBottomBlack,
       dark: chevronBottomWhite,
     },
-    chevronPassword: chevronRightWhite,
+    chevronPrimaryRight: chevronRightWhite,
+    chevronPrimaryLeft: chevronLeftWhite,
     loader: loaderWhite,
   },
 };

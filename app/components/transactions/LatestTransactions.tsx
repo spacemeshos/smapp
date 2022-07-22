@@ -1,13 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { BoldText, Button } from '../../basicComponents';
-import {
-  chevronLeftBlack,
-  chevronLeftWhite,
-  chevronRightBlack,
-  chevronRightWhite,
-} from '../../assets/images';
 import {
   getAbbreviatedText,
   getFormattedTimestamp,
@@ -85,12 +79,15 @@ type Props = {
 };
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
+  const {
+    icons: { chevronPrimaryLeft, chevronPrimaryRight },
+  } = useTheme();
+
   const publicKey = useSelector(
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey
   );
   const latestTransactions = useSelector(getLatestTransactions(publicKey));
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const getColor = ({
     status,
@@ -118,11 +115,12 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     const { id, status, amount, sender, timestamp, senderNickname } = tx;
     const isSent = sender === getAddress(publicKey);
     const color = getColor({ status, isSent });
-    const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
-    const chevronRight = isDarkMode ? chevronRightWhite : chevronRightBlack;
+
+    const chevron = isSent ? chevronPrimaryRight : chevronPrimaryLeft;
+
     return (
       <TxWrapper key={`tx_${id}`}>
-        <Icon src={isSent ? chevronRight : chevronLeft} />
+        <Icon src={chevron} />
         <MainWrapper>
           <Section>
             <NickName>{senderNickname || getAbbreviatedText(sender)}</NickName>
@@ -141,10 +139,9 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
 
   const renderReward = (tx: RewardView) => {
     const { amount, timestamp, layer } = tx;
-    const chevronLeft = isDarkMode ? chevronLeftWhite : chevronLeftBlack;
     return (
       <TxWrapper key={`${publicKey}_reward_${layer}`}>
-        <Icon src={chevronLeft} />
+        <Icon src={chevronPrimaryLeft} />
         <MainWrapper>
           <Section>
             <NickName>Smeshing reward</NickName>
