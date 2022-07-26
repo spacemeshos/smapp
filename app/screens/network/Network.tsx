@@ -220,7 +220,9 @@ const Network = ({ history }) => {
     >
       <SubHeader>
         {netName}
-        {nodeError && <ErrorMessage>{nodeError.msg}</ErrorMessage>}
+        {nodeError && (
+          <ErrorMessage>{nodeError.msg || nodeError.stackTrace}</ErrorMessage>
+        )}
       </SubHeader>
       <Container>
         {netId > -1 ? renderNetworkDetails() : renderNoNetwork()}
