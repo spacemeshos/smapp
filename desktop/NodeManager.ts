@@ -243,10 +243,27 @@ class NodeManager {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      await this.reconnectToNode();
+      // update node status once by query request
+      await this.updateNodeStatus();
+      // ensure there are no active streams left
+      this.nodeService.cancelStatusStream();
+      this.nodeService.cancelErrorStream();
+      // and activate streams
+      this.activateNodeStatusStream();
+      this.activateNodeErrorStream();
+      // and then call method to update renderer data
+      // TODO: move into `sources/smesherInfo` module
+      await this.smesherManager.serviceStartupFlow();
       return true;
+    } else {
+      this.pushNodeError({
+        msg: 'Node Service does not respond. Probably Node is down',
+        stackTrace: '',
+        module: 'NodeManager',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+      });
+      return false;
     }
-    return false;
   };
 
   updateNodeStatus = async () => {
@@ -255,20 +272,6 @@ class NodeManager {
     // update node status
     this.sendNodeStatus(status);
     return true;
-  };
-
-  reconnectToNode = async () => {
-    // update node status once by query request
-    this.updateNodeStatus();
-    // ensure there are no active streams left
-    this.nodeService.cancelStatusStream();
-    this.nodeService.cancelErrorStream();
-    // and activate streams
-    this.activateNodeStatusStream();
-    this.activateNodeErrorStream();
-    // and then call method to update renderer data
-    // TODO: move into `sources/smesherInfo` module
-    await this.smesherManager.serviceStartupFlow();
   };
 
   //
