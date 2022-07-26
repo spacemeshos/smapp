@@ -27,6 +27,7 @@ import SmesherManager from './SmesherManager';
 import {
   checksum,
   createDebouncePool,
+  getSpawnErrorReason,
   isEmptyDir,
   isFileExists,
 } from './utils';
@@ -360,7 +361,29 @@ class NodeManager {
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
 
-    this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
+    const transformNodeError = (error: any) => {
+      if (error?.code && error?.syscall?.startsWith('spawn')) {
+        const reason = getSpawnErrorReason(error);
+        return {
+          msg: 'Cannot spawn the Node process'.concat(reason),
+          level: NodeErrorLevel.LOG_LEVEL_SYSERROR,
+          module: 'NodeManager',
+          stackTrace: JSON.stringify(error),
+        };
+      }
+      return defaultCrashError(error);
+    };
+
+    try {
+      this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
+    } catch (err) {
+      this.nodeProcess = null;
+      logger.error('spawnNode: can not spawn process', err);
+      const error = transformNodeError(err);
+      this.pushNodeError(error);
+      return;
+    }
+
     this.nodeProcess.stderr?.on('data', (data) => {
       // In case if we can not spawn the process we'll have
       // an empty stderr.pipe`, but we can catch the error here
@@ -388,16 +411,10 @@ class NodeManager {
     });
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
-    this.nodeProcess.on('error', (error) => {
-      logger.error('Node Process error', error);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      (process.env.NODE_ENV !== 'production' ||
-        process.env.DEBUG_PROD === 'true') &&
-        dialog.showErrorBox('Smesher Error', `${error}`);
-      this.pushToErrorPool({
-        type: 'NodeError',
-        error: defaultCrashError(error),
-      });
+    this.nodeProcess.on('error', (err) => {
+      logger.error('Node Process error', err);
+      const error = transformNodeError(err);
+      this.pushNodeError(error);
     });
     this.nodeProcess.on('close', (code, signal) => {
       this.pushToErrorPool({ type: 'Exit', code, signal });

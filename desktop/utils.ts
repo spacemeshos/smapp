@@ -113,3 +113,25 @@ export const checksum = (path: string) =>
   new Promise((resolve, reject) => {
     cs.file(path, (err, hash) => (err ? reject(err) : resolve(hash)));
   });
+
+//
+//
+//
+
+// Transforms errors into user-friendly reason by codes (if exist)
+// It maps both types of system errors for Linux-based OS and Windows
+export const getSpawnErrorReason = (err: any) => {
+  switch (err?.code || 'UNKNOWN') {
+    case 'EPERM':
+    case 'EACCES':
+    case 'ERROR_ACCESS_DENIED':
+      return ': check permissions';
+    case 'ENOENT':
+    case 'ERROR_FILE_NOT_FOUND':
+    case 'ERROR_PATH_NOT_FOUND':
+      return ': go-spacemesh binary not found';
+    case 'UNKNOWN':
+    default:
+      return '';
+  }
+};
