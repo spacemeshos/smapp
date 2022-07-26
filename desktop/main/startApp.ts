@@ -5,6 +5,7 @@ import {
   NodeVersionAndBuild,
   Wallet,
 } from '../../shared/types';
+import { getWasOpenAtLaunchValue } from '../auto-launch';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
@@ -94,8 +95,9 @@ const startApp = (): AppStore => {
   const $wallet = new $.BehaviorSubject<Wallet | null>(null);
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
-  const $currentNetwork = currentNetwork($wallet, $networks);
   const $nodeConfig = new $.Subject<NodeConfig>();
+  const $runNodeBeforeLogin = new $.Subject<boolean>();
+
   const {
     $managers,
     $currentLayer,
@@ -113,6 +115,12 @@ const startApp = (): AppStore => {
 
   const { $nodeRestartRequest } = nodeIPCStreams();
 
+  const $currentNetwork = currentNetwork(
+    $runNodeBeforeLogin,
+    $wallet,
+    $networks
+  );
+
   // Reactions
   // List of unsubscribe functions
   const unsubs = [
@@ -128,6 +136,22 @@ const startApp = (): AppStore => {
       $mainWindow,
       $nodeRestartRequest
     ),
+    // When silent mode enabled, and smeshing-start: true in node-config
+    makeSubscription(
+      $.combineLatest(
+        $runNodeBeforeLogin,
+        $managers,
+        $nodeConfig,
+        $currentNetwork
+      ),
+      ([runNode, managers]) => {
+        if (runNode) {
+          managers.node.isNodeRunning()
+            ? managers.node.restartNode()
+            : managers.node.startNode();
+        }
+      }
+    ),
     // Each time when Smapp is activated (window reloaded and shown)...
     makeSubscription($managers, (managers) => {
       managers.node.updateNodeStatus();
@@ -136,6 +160,10 @@ const startApp = (): AppStore => {
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),
+    // trigger $runNodeBeforeLogin on openAtLoginStatus
+    makeSubscription($.of(getWasOpenAtLaunchValue()), (status) =>
+      $runNodeBeforeLogin.next(status)
+    ),
     // Update networks each N seconds
     fetchDiscoveryEach(60 * MINUTE, $networks),
     // And update them by users request

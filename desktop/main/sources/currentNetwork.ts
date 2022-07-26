@@ -1,14 +1,46 @@
 import { find } from 'ramda';
-import { combineLatest, map, Subject } from 'rxjs';
+import {
+  combineLatestWith,
+  distinctUntilChanged,
+  from,
+  iif,
+  map,
+  mergeWith,
+  Observable,
+  Subject,
+  switchMap,
+} from 'rxjs';
 import { Network, Wallet } from '../../../shared/types';
+import NodeConfig from '../NodeConfig';
 
 export default (
+  $runNodeBeforeLogin: Observable<boolean>,
   $wallet: Subject<Wallet | null>,
   $networks: Subject<Network[]>
 ) =>
-  combineLatest([$wallet, $networks]).pipe(
+  $networks.pipe(
+    combineLatestWith($runNodeBeforeLogin),
+    mergeWith($wallet),
+    distinctUntilChanged(),
+    switchMap((input) => {
+      // @ts-ignore
+      const wallet = input?.meta;
+      const runNodeOnStart = input?.[1];
+
+      return iif(
+        () => runNodeOnStart && !wallet,
+        $networks.pipe(
+          combineLatestWith(
+            from(NodeConfig.load()).pipe(map((c) => c?.p2p['network-id']))
+          )
+        ),
+        $networks.pipe(
+          combineLatestWith($wallet.pipe(map((w) => w?.meta.netId)))
+        )
+      );
+    }),
     map(
-      ([wallet, networks]) =>
-        find((net) => net.netID === wallet?.meta.netId, networks) || null
+      ([networks, networkId]) =>
+        find((net) => net.netID === networkId, networks) || null
     )
   );
