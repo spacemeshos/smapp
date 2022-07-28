@@ -28,8 +28,7 @@ const TextWrapper = styled.div.attrs(({ theme: { icons: { fireworks } } }) => ({
 const Text = styled.div`
   font-size: 13px;
   line-height: 15px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GreenText = styled(BoldText)`

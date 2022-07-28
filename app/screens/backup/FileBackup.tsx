@@ -4,7 +4,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { StaticContext } from 'react-router';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { smColors } from '../../vars';
 import { MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
@@ -12,8 +11,7 @@ const Text = styled.span`
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const MiddleSectionRow = styled.div`

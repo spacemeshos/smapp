@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { CorneredContainer, BackButton } from '../../components/common';
 import { Button, Link, Tooltip } from '../../basicComponents';
-import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -17,14 +16,14 @@ const Wrapper = styled.div`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
   font-weight: 800;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Row = styled.div`

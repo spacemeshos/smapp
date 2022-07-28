@@ -20,8 +20,7 @@ const TextWrapper = styled.div`
 const Text = styled.span`
   font-size: 14px;
   line-height: 24px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GreenText = styled.span`

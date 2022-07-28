@@ -24,8 +24,7 @@ const SmallText = styled.span`
   line-height: 20px;
   margin-bottom: 6px;
   flex: 1;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GreenText = styled(SmallText)`
@@ -35,8 +34,7 @@ const GreenText = styled(SmallText)`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const BoldText = styled(Text)`
@@ -56,8 +54,7 @@ const MiddleSection = styled.div`
   width: 500px;
   height: 100%;
   padding: 25px 15px 15px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
 `;
 
 const MiddleSectionRow = styled.div`

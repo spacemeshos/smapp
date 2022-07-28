@@ -24,8 +24,7 @@ const AccountWrapper = styled.div`
   align-items: flex-start;
   margin: 5px;
   cursor: inherit;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const AccountName = styled(BoldText)`
@@ -44,7 +43,7 @@ const Footer = styled.div`
 const BalanceHeader = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const BalanceWrapper = styled.div<{ isSynced?: boolean }>`

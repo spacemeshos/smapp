@@ -5,7 +5,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import { LatestTransactions } from '../../components/transactions';
 import { BoldText, Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
-import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { MainPath, WalletPath } from '../../routerPaths';
 import { PostSetupState } from '../../../shared/types';
@@ -23,8 +22,7 @@ const MiddleSection = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 25px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
@@ -32,14 +30,14 @@ const MiddleSectionHeader = styled(BoldText)`
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const MiddleSectionText = styled.div`
   flex: 1;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Overview = ({ history }: RouteComponentProps) => {

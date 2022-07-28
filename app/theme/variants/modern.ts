@@ -9,8 +9,6 @@ import {
   chevronRightPurple,
   chevronLeftPurple,
   chevronBottomPurple,
-  chevronBottomWhite,
-  chevronBottomBlack,
   loaderWhite,
   chevronRightWhite,
   chevronLeftWhite,
@@ -31,6 +29,7 @@ import {
   fireworksWhite,
   leftSideTIconWhite,
   copyWhite,
+  chevronBottomBlack,
 } from '../../assets/images';
 
 export default {
@@ -41,6 +40,10 @@ export default {
   background: {
     active: colors.dark,
     inactive: colors.light140,
+  },
+  color: {
+    primary: smColors.white,
+    contrast: smColors.white,
   },
   popups: {
     boxRadius: 10,
@@ -95,6 +98,7 @@ export default {
     },
     dropdown: {
       boxRadius: 10,
+      isOutBorder: false,
       dark: {
         borderColor: colors.light110,
         isOutBorder: false,
@@ -176,6 +180,12 @@ export default {
   header: {
     color: smColors.white,
   },
+  dot: {
+    color: smColors.white,
+  },
+  wrapper: {
+    color: smColors.dmBlack2,
+  },
   icons: {
     backup: modernBackup,
     tooltip: modernInfoTooltip,
@@ -185,10 +195,7 @@ export default {
     chevronRight: chevronRightPurple,
     chevronLeft: chevronLeftPurple,
     chevronBottom: chevronBottomPurple,
-    chevronDropDownBottom: {
-      light: chevronBottomBlack,
-      dark: chevronBottomWhite,
-    },
+    chevronDropDownBottom: chevronBottomBlack,
     chevronPrimaryRight: chevronRightWhite,
     chevronPrimaryLeft: chevronLeftWhite,
     loader: loaderWhite,

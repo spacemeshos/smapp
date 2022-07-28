@@ -62,8 +62,7 @@ const Text = styled.span`
 `;
 
 const BlackText = styled(Text)`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const BoldText = styled(Text)`
@@ -72,7 +71,7 @@ const BoldText = styled(Text)`
     if (color) {
       return color;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
 `;

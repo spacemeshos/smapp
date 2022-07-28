@@ -49,8 +49,7 @@ const Image = styled.img.attrs<{ hasError: boolean }>(
 const Text = styled.span`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
   margin-bottom: 10px;
 `;
 

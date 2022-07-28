@@ -16,7 +16,7 @@ const PauseSelector = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const ErrorText = styled.div`

@@ -12,8 +12,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   padding: 15px 25px;
   background-color: ${smColors.disabledGray10Alpha};
-  border-top: ${({ theme }) =>
-    `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border-top: ${({ theme }) => `1px solid ${theme.color.contrast}`};
   clip-path: polygon(
     0% 0%,
     0% 0%,
@@ -48,7 +47,7 @@ const Header = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const ErrorText = styled.div`
@@ -63,20 +62,20 @@ const FreeSpaceHeader = styled.div`
   margin-bottom: 5px;
   font-size: 17px;
   line-height: 19px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const FreeSpace = styled.div<{ error: boolean; selected: boolean }>`
   font-size: 17px;
   line-height: 19px;
-  ${({ error, selected, theme }) => {
+  ${({ error, selected }) => {
     if (error) {
       return `color: ${smColors.orange}`;
     }
     if (selected) {
       return `color: ${smColors.green}`;
     }
-    return `color: ${theme.isDarkMode ? smColors.white : smColors.black}`;
+    return `color: ${({ theme: { color } }) => color.primary}`;
   }}
 `;
 

@@ -5,7 +5,6 @@ import {
   getAddress,
   formatSmidge,
 } from '../../infra/utils';
-import { smColors } from '../../vars';
 import { BoldText } from '../../basicComponents';
 
 const Wrapper = styled.div`
@@ -14,22 +13,21 @@ const Wrapper = styled.div`
   width: 175px;
   height: 100%;
   padding: 10px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 15px;
 `;
 
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 20px;
   word-break: break-all;
 `;

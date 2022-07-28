@@ -46,7 +46,7 @@ const Icon3 = styled.img.attrs(({ theme: { icons: { posDirectory } } }) => ({
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Dots = styled.div`
@@ -56,7 +56,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const RewardText = styled(Text)<{ selected: boolean }>`
@@ -77,7 +77,7 @@ const ErrorText = styled.div`
 const Link = styled.div`
   text-transform: uppercase;
   text-decoration: none;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   font-size: 17px;
   line-height: 19px;
   cursor: pointer;
@@ -88,8 +88,7 @@ const Link = styled.div`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) =>
-        theme.isDarkMode ? smColors.white : smColors.black};
+      color: ${({ theme: { color } }) => color.primary};
     }
   }
 `;

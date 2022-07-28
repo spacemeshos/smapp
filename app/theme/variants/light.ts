@@ -27,6 +27,7 @@ import {
   fireworks,
   leftSideTIcon,
   copyBlack,
+  chevronBottomWhite,
 } from '../../assets/images';
 
 export default {
@@ -37,6 +38,10 @@ export default {
   background: {
     active: colors.dark,
     inactive: colors.light140,
+  },
+  color: {
+    primary: smColors.black,
+    contrast: smColors.realBlack,
   },
   popups: {
     boxRadius: 0,
@@ -91,6 +96,7 @@ export default {
     },
     dropdown: {
       boxRadius: 0,
+      isOutBorder: true,
       dark: {
         isOutBorder: true,
         borderColor: colors.dark100,
@@ -172,6 +178,12 @@ export default {
   header: {
     color: smColors.realBlack,
   },
+  dot: {
+    color: smColors.realBlack,
+  },
+  wrapper: {
+    color: smColors.black02Alpha,
+  },
   icons: {
     backup,
     tooltip,
@@ -181,10 +193,7 @@ export default {
     chevronRight: chevronRightBlack,
     chevronLeft: chevronLeftBlack,
     chevronBottom: chevronBottomBlack,
-    chevronDropDownBottom: {
-      light: chevronBottomBlack,
-      dark: chevronBottomBlack,
-    },
+    chevronDropDownBottom: chevronBottomWhite,
     chevronPrimaryRight: chevronRightBlack,
     chevronPrimaryLeft: chevronLeftBlack,
     loader,

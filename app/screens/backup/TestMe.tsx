@@ -21,8 +21,7 @@ const SubHeader = styled.div`
   margin-bottom: 25px;
   font-size: 15px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Text = styled.span`

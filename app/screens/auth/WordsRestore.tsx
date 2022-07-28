@@ -40,8 +40,7 @@ const InputCounter = styled.div`
   width: 25px;
   font-size: 18px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
   margin-right: 10px;
 `;
 

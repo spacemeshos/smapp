@@ -41,14 +41,14 @@ const TooltipWrap = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   text-transform: uppercase;
 `;
 
 const Link = styled.div<{ isDisabled: boolean }>`
   text-transform: uppercase;
   text-decoration: none;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   font-size: 15px;
   line-height: 17px;
   cursor: pointer;
@@ -59,8 +59,7 @@ const Link = styled.div<{ isDisabled: boolean }>`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) =>
-        theme.isDarkMode ? smColors.white : smColors.black};
+      color: ${({ theme: { color } }) => color.primary};
     }
   }
 `;

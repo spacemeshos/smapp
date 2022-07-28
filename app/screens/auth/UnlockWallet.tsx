@@ -35,7 +35,7 @@ const Wrapper = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Indicator = styled.div<{ hasError?: boolean }>`
@@ -46,7 +46,7 @@ const Indicator = styled.div<{ hasError?: boolean }>`
   height: 16px;
   background-color: ${({ hasError, theme }) => {
     if (hasError) return smColors.orange;
-    return theme.isDarkMode ? smColors.white : smColors.black;
+    return theme.color.primary;
   }};
 `;
 

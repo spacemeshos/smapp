@@ -9,7 +9,6 @@ import {
   chevronRightWhite,
   chevronLeftWhite,
   chevronBottomWhite,
-  chevronBottomBlack,
   loaderWhite,
   sidePanelLeftLongWhite,
   sidePanelRightLongWhite,
@@ -28,6 +27,7 @@ import {
   fireworksWhite,
   leftSideTIconWhite,
   copyWhite,
+  chevronBottomBlack,
 } from '../../assets/images';
 
 export default {
@@ -35,6 +35,10 @@ export default {
   skinBackground: colors.dark100,
   themeName: 'dark',
   isDarkMode: true,
+  color: {
+    primary: smColors.white,
+    contrast: smColors.white,
+  },
   background: {
     active: colors.dark,
     inactive: colors.light140,
@@ -92,6 +96,7 @@ export default {
     },
     dropdown: {
       boxRadius: 0,
+      isOutBorder: false,
       dark: {
         isOutBorder: false,
         borderColor: colors.dark100,
@@ -173,6 +178,12 @@ export default {
   header: {
     color: smColors.realBlack,
   },
+  dot: {
+    color: smColors.white,
+  },
+  wrapper: {
+    color: smColors.dmBlack2,
+  },
   icons: {
     backup,
     tooltip: tooltipWhite,
@@ -182,10 +193,7 @@ export default {
     chevronRight: chevronRightWhite,
     chevronLeft: chevronLeftWhite,
     chevronBottom: chevronBottomWhite,
-    chevronDropDownBottom: {
-      light: chevronBottomBlack,
-      dark: chevronBottomWhite,
-    },
+    chevronDropDownBottom: chevronBottomBlack,
     chevronPrimaryRight: chevronRightWhite,
     chevronPrimaryLeft: chevronLeftWhite,
     loader: loaderWhite,

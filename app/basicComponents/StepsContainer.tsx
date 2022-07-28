@@ -55,7 +55,7 @@ const StepText = styled.div<{ isCompleted: boolean; isCurrent: boolean }>`
   line-height: 17px;
   color: ${({ isCompleted, isCurrent, theme }) => {
     if (isCompleted || !isCurrent) {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     } else {
       return smColors.purple;
     }
@@ -78,7 +78,7 @@ const Indicator = styled.div<{ isCurrent: boolean }>`
     if (isCurrent) {
       return smColors.purple;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
   ${({ theme }) => `border-radius: ${theme.indicators.radius}px;`}

@@ -8,7 +8,7 @@ const DetailsRow = styled.div`
   display: flex;
   flex-direction: row;
   align-items: end;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 15px;
 `;
 

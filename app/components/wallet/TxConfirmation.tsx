@@ -13,8 +13,7 @@ const Wrapper = styled.div`
   height: 100%;
   margin-right: 10px;
   padding: 10px 15px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  color: ${({ theme: { wrapper } }) => wrapper.color};
 `;
 
 const Header = styled.div`
@@ -26,7 +25,7 @@ const Header = styled.div`
 const HeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const SubHeader1 = styled(HeaderText)`
@@ -37,7 +36,7 @@ const SubHeader2 = styled(BoldText)`
   margin-bottom: 20px;
   font-size: 24px;
   line-height: 30px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const DetailsRow = styled.div`
@@ -58,7 +57,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`
@@ -69,7 +68,7 @@ const DetailsTextLeft = styled(DetailsTextRight)`
 const TotalText = styled(BoldText)`
   font-size: 24px;
   line-height: 30px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Footer = styled.div`

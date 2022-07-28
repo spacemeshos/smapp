@@ -56,13 +56,13 @@ const AllSettingsInnerWrapper = styled(Element)`
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Name = styled.div`
   font-size: 14px;
   line-height: 40px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-left: 10px;
 `;
 
@@ -169,7 +169,6 @@ class Settings extends Component<Props, State> {
       build,
       version,
       backupTime,
-      isDarkMode,
       isWalletOnly,
       history,
       dataPath,
@@ -191,14 +190,10 @@ class Settings extends Component<Props, State> {
 
     return (
       <Wrapper>
-        <SideMenu isDarkMode={isDarkMode} items={categories} />
+        <SideMenu items={categories} />
         <AllSettingsWrapper>
           <AllSettingsInnerWrapper id="settingsContainer">
-            <SettingsSection
-              title={categories[0]}
-              name={categories[0]}
-              isDarkMode={isDarkMode}
-            >
+            <SettingsSection title={categories[0]} name={categories[0]}>
               <SettingRow
                 upperPartLeft={
                   <DropDown
@@ -257,11 +252,7 @@ class Settings extends Component<Props, State> {
                 rowName="User Guide"
               />
             </SettingsSection>
-            <SettingsSection
-              title={categories[1]}
-              name={categories[1]}
-              isDarkMode={isDarkMode}
-            >
+            <SettingsSection title={categories[1]} name={categories[1]}>
               {isWalletOnly ? (
                 <SettingRow
                   rowName="Application mode"
@@ -425,11 +416,7 @@ class Settings extends Component<Props, State> {
                 rowName="Create wallet"
               />
             </SettingsSection>
-            <SettingsSection
-              title={categories[2]}
-              name={categories[2]}
-              isDarkMode={isDarkMode}
-            >
+            <SettingsSection title={categories[2]} name={categories[2]}>
               <SettingRow
                 upperPartLeft={[
                   <Text key={1}>New account will be added to&nbsp;</Text>,
@@ -502,11 +489,7 @@ class Settings extends Component<Props, State> {
                 />
               ))}
             </SettingsSection>
-            <SettingsSection
-              title={categories[3]}
-              name={categories[3]}
-              isDarkMode={isDarkMode}
-            >
+            <SettingsSection title={categories[3]} name={categories[3]}>
               <SettingRow
                 upperPartLeft={getFormattedTimestamp(genesisTime)}
                 isUpperPartLeftText
@@ -542,11 +525,7 @@ class Settings extends Component<Props, State> {
                 </>
               )}
             </SettingsSection>
-            <SettingsSection
-              title={categories[4]}
-              name={categories[4]}
-              isDarkMode={isDarkMode}
-            >
+            <SettingsSection title={categories[4]} name={categories[4]}>
               <SettingRow
                 upperPartLeft={dataPath}
                 upperPartRight={

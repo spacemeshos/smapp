@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const PurpleText = styled.span`
@@ -39,7 +39,7 @@ const RowTitle = styled.h3`
   font-size: 16px;
   line-height: 24px;
   font-weight: 800;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 const Row = styled.div`
   display: flex;

@@ -6,7 +6,6 @@ import { createNewWallet } from '../../redux/wallet/actions';
 import { CorneredContainer } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { smColors } from '../../vars';
 import {
   getCurrentWalletFile,
   isWalletOnly,
@@ -25,8 +24,7 @@ const Wrapper = styled.div`
 `;
 
 const SubHeader = styled.div`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const UpperPart = styled.div`

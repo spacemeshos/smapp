@@ -48,8 +48,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.black};
+  background-color: ${({ theme: { color } }) => color.primary};
 `;
 const Row = styled.div`
   display: flex;

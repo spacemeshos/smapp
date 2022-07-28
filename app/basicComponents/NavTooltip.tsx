@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { smColors } from '../vars';
 import CorneredWrapper from './CorneredWrapper';
 
 const Wrapper = styled(CorneredWrapper)`
@@ -13,8 +12,7 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme: { color } }) => color.contrast};
   text-align: center;
 `;
 

@@ -32,7 +32,7 @@ const AnimatedIcon = styled.img.attrs(({ theme: { icons: { loader } } }) => ({
 const Note = styled.p`
   display: block;
   height: 14px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   text-align: center;
   font-size: 12px;
 `;

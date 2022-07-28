@@ -37,7 +37,7 @@ const LogEntry = styled.div`
 const LogText = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const LayerNumber = styled(LogText)`

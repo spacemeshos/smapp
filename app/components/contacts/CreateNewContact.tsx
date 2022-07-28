@@ -24,7 +24,7 @@ const Header = styled(BoldText)<{ isStandalone: boolean }>`
     if (isStandalone) {
       return smColors.white;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
 `;

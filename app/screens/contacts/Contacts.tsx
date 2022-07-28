@@ -35,8 +35,7 @@ const SubHeader = styled.div`
 const SubHeaderText = styled.div`
   font-size: 15px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const SubHeaderInner = styled.div`
@@ -153,8 +152,7 @@ const ContactsSubHeader = styled.div`
 const ContactsSubHeaderText = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
   margin-right: 20px;
 `;
 
@@ -209,7 +207,7 @@ const TextCursorPointer = styled.div`
 
 const ContactHeader = styled(ContactText)`
   flex: 1;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   :nth-child(2) {
     flex: unset;
     width: 420px;

@@ -28,8 +28,7 @@ const Indicator = styled.div`
   left: -30px;
   width: 16px;
   height: 16px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.black};
+  background-color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Row = styled.div`
@@ -49,7 +48,7 @@ const Icon = styled.img`
 const RowText = styled.span`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const BottomPart = styled.div`
@@ -78,7 +77,7 @@ const LinkText = styled.span`
 `;
 
 const LearnMoreText = styled.div`
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-top: 20px;
   margin-bottom: auto;
 `;

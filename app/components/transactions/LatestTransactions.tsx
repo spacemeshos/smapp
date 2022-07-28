@@ -24,15 +24,14 @@ const Wrapper = styled.div`
   width: 250px;
   height: 100%;
   padding: 20px 15px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
 const Header = styled(BoldText)`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   margin-bottom: 10px;
 `;
 
@@ -75,8 +74,7 @@ const Text = styled.div`
 `;
 
 const NickName = styled(Text)`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Amount = styled.div`

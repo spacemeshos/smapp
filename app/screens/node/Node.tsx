@@ -48,8 +48,7 @@ const Text = styled.div`
   font-size: 15px;
   display: flex;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
   &.progress {
     min-width: 170px;
   }
