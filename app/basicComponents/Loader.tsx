@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { smColors } from '../vars';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -14,8 +13,7 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.black : smColors.background};
+  background-color: ${({ theme: { loader } }) => loader.background};
   z-index: 100;
 `;
 

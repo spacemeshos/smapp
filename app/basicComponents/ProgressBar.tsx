@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { smColors } from '../vars';
 
 const Progress = styled.div<{ progress: number }>`
   position: absolute;
@@ -18,8 +17,7 @@ const Base = styled.div`
   font-size: 20px;
   line-height: 20px;
   height: 20px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.darkGray : smColors.disabledGray};
+  background-color: ${({ theme: { progressBar } }) => progressBar.background};
 `;
 
 type Props = {

@@ -36,12 +36,19 @@ export default {
   themeName: 'light',
   isDarkMode: false,
   background: {
+    primary: smColors.black,
     active: colors.dark,
     inactive: colors.light140,
   },
   color: {
     primary: smColors.black,
     contrast: smColors.realBlack,
+  },
+  loader: {
+    background: smColors.background,
+  },
+  progressBar: {
+    background: smColors.disabledGray,
   },
   popups: {
     boxRadius: 0,
@@ -193,7 +200,8 @@ export default {
     chevronRight: chevronRightBlack,
     chevronLeft: chevronLeftBlack,
     chevronBottom: chevronBottomBlack,
-    chevronDropDownBottom: chevronBottomWhite,
+    chevronPrimaryDropDownBottom: chevronBottomWhite,
+    chevronSecondaryDropDownBottom: chevronBottomBlack,
     chevronPrimaryRight: chevronRightBlack,
     chevronPrimaryLeft: chevronLeftBlack,
     loader,

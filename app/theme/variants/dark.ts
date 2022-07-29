@@ -43,6 +43,12 @@ export default {
     active: colors.dark,
     inactive: colors.light140,
   },
+  loader: {
+    background: smColors.black,
+  },
+  progressBar: {
+    background: smColors.darkGray,
+  },
   popups: {
     boxRadius: 0,
     iconRadius: 0,
@@ -193,7 +199,8 @@ export default {
     chevronRight: chevronRightWhite,
     chevronLeft: chevronLeftWhite,
     chevronBottom: chevronBottomWhite,
-    chevronDropDownBottom: chevronBottomBlack,
+    chevronPrimaryDropDownBottom: chevronBottomBlack,
+    chevronSecondaryDropDownBottom: chevronBottomWhite,
     chevronPrimaryRight: chevronRightWhite,
     chevronPrimaryLeft: chevronLeftWhite,
     loader: loaderWhite,

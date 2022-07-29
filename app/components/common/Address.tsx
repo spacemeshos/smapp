@@ -30,7 +30,9 @@ const PublicKey = styled.div<{ isCopied: boolean }>`
   }
 `;
 
-const CopyIcon = styled.img`
+const CopyIcon = styled.img.attrs(({ theme: { icons } }) => ({
+  src: icons.copy,
+}))`
   align-self: center;
   width: 16px;
   height: 15px;
@@ -143,12 +145,7 @@ const Address = (props: Props) => {
         {isCopied && <CopiedBanner>Copied</CopiedBanner>}
         <span>{textToShow}</span>
       </PublicKey>
-      {!hideCopy && (
-        <CopyIcon
-          src={isDarkMode ? copyWhite : copyBlack}
-          onClick={handleCopy}
-        />
-      )}
+      {!hideCopy && <CopyIcon onClick={handleCopy} />}
       {!hideExplorer && (
         <ExplorerIcon src={explorer} onClick={handleExplorer} />
       )}

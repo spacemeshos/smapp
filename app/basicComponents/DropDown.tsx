@@ -115,9 +115,11 @@ const HeaderWrapper = styled.div<{
         };
      }; `}
 `;
-const Icon = styled.img.attrs(({ theme }) => ({
-  src: theme.icons.chevronDropDownBottom,
-}))<{ isOpened: boolean }>`
+const Icon = styled.img.attrs<{ isDark?: boolean }>(({ theme, isDark }) => ({
+  src: isDark
+    ? theme.icons.chevronSecondaryDropDownBottom
+    : theme.icons.chevronPrimaryDropDownBottom,
+}))<{ isOpened: boolean; isDark?: boolean }>`
   height: 11px;
   width: 22px;
   transform: rotate(${({ isOpened }) => (isOpened ? '180' : '0')}deg);
@@ -290,8 +292,7 @@ const DropDownLabel = styled.p<{
 }>`
   font-weight: ${({ isBold }) => (isBold ? 800 : 400)};
   font-size: 14px;
-  text-transform:  ${({ uppercase }) => (uppercase ? 'uppercase' : 'inherit')};
-}
+  text-transform: ${({ uppercase }) => (uppercase ? 'uppercase' : 'inherit')};
 `;
 
 const DropDownLabelDescription = styled.p<{
@@ -301,7 +302,6 @@ const DropDownLabelDescription = styled.p<{
   font-size: 12px;
   text-transform: uppercase;
   margin-top: 6px;
-}
 `;
 
 type ADataItem = {
@@ -433,7 +433,7 @@ const DropDown = <T extends ADataItem>({
           description={data[selectedItemIndex]?.description as string}
           isBold={bold}
         />
-        <Icon isOpened={isOpened} />
+        <Icon isOpened={isOpened} isDark={dark} />
       </HeaderWrapper>
       {isOpened && data && (
         <ItemsWrapper

@@ -1,20 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { loader, loaderWhite } from '../../assets/images';
 import Modal from './Modal';
 
-const Spinner = styled.img`
+const Spinner = styled.img.attrs(({ theme: { icons } }) => ({
+  src: icons.loader,
+}))`
   margin-right: auto;
   height: 40px;
 `;
 
-type Props = {
-  isDarkMode: boolean;
-};
-
-const CloseAppModal = ({ isDarkMode }: Props) => (
+const CloseAppModal = () => (
   <Modal header="SHUTTING DOWN" subHeader="please wait...">
-    <Spinner alt="Please wait..." src={isDarkMode ? loaderWhite : loader} />
+    <Spinner alt="Please wait..." />
   </Modal>
 );
 

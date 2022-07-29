@@ -30,6 +30,7 @@ import {
   leftSideTIconWhite,
   copyWhite,
   chevronBottomBlack,
+  chevronBottomWhite,
 } from '../../assets/images';
 
 export default {
@@ -38,12 +39,19 @@ export default {
   isDarkMode: true,
   themeName: 'modern',
   background: {
+    primary: smColors.black,
     active: colors.dark,
     inactive: colors.light140,
   },
   color: {
     primary: smColors.white,
     contrast: smColors.white,
+  },
+  loader: {
+    background: smColors.black,
+  },
+  progressBar: {
+    background: smColors.darkGray,
   },
   popups: {
     boxRadius: 10,
@@ -195,7 +203,8 @@ export default {
     chevronRight: chevronRightPurple,
     chevronLeft: chevronLeftPurple,
     chevronBottom: chevronBottomPurple,
-    chevronDropDownBottom: chevronBottomBlack,
+    chevronPrimaryDropDownBottom: chevronBottomBlack,
+    chevronSecondaryDropDownBottom: chevronBottomWhite,
     chevronPrimaryRight: chevronRightWhite,
     chevronPrimaryLeft: chevronLeftWhite,
     loader: loaderWhite,
