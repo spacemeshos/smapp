@@ -166,10 +166,15 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         }
         // TODO: We can get rid of this waiting in case
         //       if we introduce loading state to screen(s)
-        ipcRenderer.once(ipcConsts.WALLET_ACTIVATED, () => {
+        let timeout;
+        const proceed = () => {
+          clearTimeout(timeout);
           setShowLoader(false);
           history.push(nextPage);
-        });
+        };
+
+        timeout = setTimeout(proceed, 60 * 1000);
+        ipcRenderer.once(ipcConsts.WALLET_ACTIVATED, proceed);
       } else {
         setShowLoader(false);
         setWrongPassword(true);

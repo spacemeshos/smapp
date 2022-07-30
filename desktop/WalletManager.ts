@@ -129,22 +129,27 @@ class WalletManager {
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
+    let res = false;
     try {
-      if (isLocalNodeType(wallet.meta.type)) await this.nodeManager.startNode();
-      else {
+      if (isLocalNodeType(wallet.meta.type)) {
+        res = await this.nodeManager.startNode();
+        if (!res) return false;
+      } else {
         await this.nodeManager.stopNode();
         if (!!apiUrl && isRemoteNodeApi(apiUrl)) {
           await this.nodeManager.connectToRemoteNode(apiUrl);
         }
       }
+      this.meshService.createService(apiUrl);
+      this.glStateService.createService(apiUrl);
+      this.txService.createService(apiUrl);
     } catch (err) {
+      logger.error('activate', err);
       if (isNodeError(err)) {
         this.nodeManager.sendNodeError(err);
       }
     }
-    this.meshService.createService(apiUrl);
-    this.glStateService.createService(apiUrl);
-    this.txService.createService(apiUrl);
+    return res;
   };
 
   activateAccounts = (accounts: Account[]) => {

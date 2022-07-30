@@ -27,6 +27,7 @@ import SmesherManager from './SmesherManager';
 import {
   checksum,
   createDebouncePool,
+  getSpawnErrorReason,
   isEmptyDir,
   isFileExists,
 } from './utils';
@@ -87,17 +88,15 @@ class NodeManager {
       // Checking for `!exitError` is needed to avoid showing some fatal errors
       // that are consequence of Node crash
       // E.G. SIGKILL of Node will also produce a bunch of GRPC errors
-      if (!exitError) {
-        const errors = poolList.filter(
-          (a) => a.type === 'NodeError'
-        ) as PoolNodeError[];
-        if (errors.length > 1) {
-          const mostCriticalError = errors.sort(
-            (a, b) => b.error.level - a.error.level
-          )[0].error;
-          this.sendNodeError(mostCriticalError);
-          return;
-        }
+      const errors = poolList.filter(
+        (a) => a.type === 'NodeError'
+      ) as PoolNodeError[];
+      if (errors.length > 0) {
+        const mostCriticalError = errors.sort(
+          (a, b) => b.error.level - a.error.level
+        )[0].error;
+        this.sendNodeError(mostCriticalError);
+        return;
       }
       // Otherwise if Node exited, but there are no critical errors
       // in the pool — search for fatal error in the logs
@@ -155,7 +154,6 @@ class NodeManager {
 
   subscribeToEvents = () => {
     // Handlers
-    const startNode = () => this.startNode();
     const getVersionAndBuild = () =>
       this.getVersionAndBuild()
         .then((payload) =>
@@ -164,20 +162,10 @@ class NodeManager {
             payload
           )
         )
-        .catch((error) => {
-          this.sendNodeError(error);
-          logger.error('getVersionAndBuild', error);
-        });
+        .catch((error) => this.pushNodeError(error));
     const setNodePort = (_event, request) => {
       StoreService.set('node.port', request.port);
     };
-    const restartNode = (): Promise<boolean> =>
-      // Always return true / false to notify caller that it is done
-      this.restartNode().catch((error) => {
-        this.sendNodeError(error);
-        logger.error('restartNode', error);
-        return false;
-      });
     const promptChangeDir = async () => {
       const oldPath = StoreService.get('node.dataPath');
       const prompt = await dialog.showOpenDialog(this.mainWindow, {
@@ -207,14 +195,11 @@ class NodeManager {
       return this.startNode();
     };
     // Subscriptions
-    ipcMain.handle(ipcConsts.N_M_START_NODE, startNode);
     ipcMain.on(ipcConsts.N_M_GET_VERSION_AND_BUILD, getVersionAndBuild);
     ipcMain.on(ipcConsts.SET_NODE_PORT, setNodePort);
-    ipcMain.handle(ipcConsts.N_M_RESTART_NODE, restartNode);
     ipcMain.handle(ipcConsts.PROMPT_CHANGE_DATADIR, promptChangeDir);
     // Unsub
     return () => {
-      ipcMain.removeHandler(ipcConsts.N_M_START_NODE);
       ipcMain.removeListener(
         ipcConsts.N_M_GET_VERSION_AND_BUILD,
         getVersionAndBuild
@@ -226,6 +211,9 @@ class NodeManager {
   };
 
   waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
+    if (!this.isNodeRunning()) {
+      resolve(false);
+    }
     const isReady = await this.nodeService.echo();
     if (isReady) {
       resolve(true);
@@ -238,7 +226,9 @@ class NodeManager {
     }
   };
 
-  isNodeRunning = () => !!this.nodeProcess;
+  isNodeRunning = () => {
+    return this.nodeProcess && this.nodeProcess.exitCode === null;
+  };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
     this.nodeService.createService(apiUrl);
@@ -253,10 +243,27 @@ class NodeManager {
       this.waitForNodeServiceResponsiveness(resolve, 15);
     });
     if (success) {
-      await this.reconnectToNode();
+      // update node status once by query request
+      await this.updateNodeStatus();
+      // ensure there are no active streams left
+      this.nodeService.cancelStatusStream();
+      this.nodeService.cancelErrorStream();
+      // and activate streams
+      this.activateNodeStatusStream();
+      this.activateNodeErrorStream();
+      // and then call method to update renderer data
+      // TODO: move into `sources/smesherInfo` module
+      await this.smesherManager.serviceStartupFlow();
       return true;
+    } else {
+      this.pushNodeError({
+        msg: 'Node Service does not respond. Probably Node is down',
+        stackTrace: '',
+        module: 'NodeManager',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+      });
+      return false;
     }
-    return false; // TODO: add error handling
   };
 
   updateNodeStatus = async () => {
@@ -265,20 +272,6 @@ class NodeManager {
     // update node status
     this.sendNodeStatus(status);
     return true;
-  };
-
-  reconnectToNode = async () => {
-    // update node status once by query request
-    this.updateNodeStatus();
-    // ensure there are no active streams left
-    this.nodeService.cancelStatusStream();
-    this.nodeService.cancelErrorStream();
-    // and activate streams
-    this.activateNodeStatusStream();
-    this.activateNodeErrorStream();
-    // and then call method to update renderer data
-    // TODO: move into `sources/smesherInfo` module
-    await this.smesherManager.serviceStartupFlow();
   };
 
   //
@@ -341,7 +334,7 @@ class NodeManager {
   };
 
   private spawnNode = async () => {
-    if (this.nodeProcess) return;
+    if (this.isNodeRunning()) return;
     const nodeDir = path.resolve(
       app.getAppPath(),
       process.env.NODE_ENV === 'development'
@@ -370,19 +363,61 @@ class NodeManager {
     ];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
-    this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
+
+    const transformNodeError = (error: any) => {
+      if (error?.code && error?.syscall?.startsWith('spawn')) {
+        const reason = getSpawnErrorReason(error);
+        return {
+          msg: 'Cannot spawn the Node process'.concat(reason),
+          level: NodeErrorLevel.LOG_LEVEL_SYSERROR,
+          module: 'NodeManager',
+          stackTrace: JSON.stringify(error),
+        };
+      }
+      return defaultCrashError(error);
+    };
+
+    try {
+      this.nodeProcess = spawn(nodePath, args, { cwd: nodeDir });
+    } catch (err) {
+      this.nodeProcess = null;
+      logger.error('spawnNode: can not spawn process', err);
+      const error = transformNodeError(err);
+      this.pushNodeError(error);
+      return;
+    }
+
+    this.nodeProcess.stderr?.on('data', (data) => {
+      // In case if we can not spawn the process we'll have
+      // an empty stderr.pipe`, but we can catch the error here
+      if (this.nodeProcess?.exitCode && this.nodeProcess.exitCode > 0) {
+        const decoder = new TextDecoder();
+        const spawnError = decoder
+          .decode(data)
+          .replaceAll(`${nodePath}: `, '')
+          .replaceAll('\n', ' ')
+          .trim();
+        const error: NodeError = {
+          level: NodeErrorLevel.LOG_LEVEL_SYSERROR,
+          module: 'NodeManager',
+          msg: `Can't start the Node: ${spawnError}`,
+          stackTrace: '',
+        };
+
+        this.pushToErrorPool({
+          type: 'NodeError',
+          error,
+        });
+
+        logger.error('spawnNode', error);
+      }
+    });
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
-    this.nodeProcess.on('error', (error) => {
-      logger.error('Node Process error', error);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      (process.env.NODE_ENV !== 'production' ||
-        process.env.DEBUG_PROD === 'true') &&
-        dialog.showErrorBox('Smesher Error', `${error}`);
-      this.pushToErrorPool({
-        type: 'NodeError',
-        error: defaultCrashError(error),
-      });
+    this.nodeProcess.on('error', (err) => {
+      logger.error('Node Process error', err);
+      const error = transformNodeError(err);
+      this.pushNodeError(error);
     });
     this.nodeProcess.on('close', (code, signal) => {
       this.pushToErrorPool({ type: 'Exit', code, signal });
@@ -438,22 +473,18 @@ class NodeManager {
   restartNode = async () => {
     logger.log('restartNode', 'restarting node...');
     await this.stopNode();
-    const res = await this.startNode();
-    if (!res) {
-      throw {
-        msg: 'Cannot restart the Node',
-        level: NodeErrorLevel.LOG_LEVEL_FATAL,
-        stackTrace: '',
-        module: 'NodeManager',
-      } as NodeError;
-    }
-    return res;
+    return this.startNode();
   };
 
   getVersionAndBuild = async () => {
-    const version = await this.nodeService.getNodeVersion();
-    const build = await this.nodeService.getNodeBuild();
-    return { version, build };
+    try {
+      const version = await this.nodeService.getNodeVersion();
+      const build = await this.nodeService.getNodeBuild();
+      return { version, build };
+    } catch (err) {
+      logger.error('getVersionAndBuild', err);
+      return { version: '', build: '' };
+    }
   };
 
   sendNodeStatus: StatusStreamHandler = debounce(200, true, (status) => {

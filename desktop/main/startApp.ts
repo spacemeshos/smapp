@@ -29,6 +29,7 @@ import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
 import { makeSubscription } from './rx.utils';
+import nodeIPCStreams from './sources/node.ipc';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -110,6 +111,8 @@ const startApp = (): AppStore => {
     $smeshingStarted,
   } = getSmesherInfo($managers, $isWalletActivated, $wallet);
 
+  const { $nodeRestartRequest } = nodeIPCStreams();
+
   // Reactions
   // List of unsubscribe functions
   const unsubs = [
@@ -118,7 +121,13 @@ const startApp = (): AppStore => {
     // On changing network -> update node config
     syncNodeConfig($currentNetwork, $nodeConfig, $smeshingStarted),
     // Activate wallet and accounts
-    activateWallet($wallet, $managers, $isWalletActivated, $mainWindow),
+    activateWallet(
+      $wallet,
+      $managers,
+      $isWalletActivated,
+      $mainWindow,
+      $nodeRestartRequest
+    ),
     // Each time when Smapp is activated (window reloaded and shown)...
     makeSubscription(
       $isSmappActivated.pipe($.withLatestFrom($managers)),
