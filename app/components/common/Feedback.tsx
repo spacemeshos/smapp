@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { showReportDialog } from '@sentry/browser';
 import { v4 as uuidv4 } from 'uuid';
 import { captureMessage } from '@sentry/minimal';
-import { smColors } from '../../vars';
 import { Loader } from '../../basicComponents';
 
 const Container = styled.div`
@@ -16,8 +15,7 @@ const Button = styled.div`
   font-size: 12px;
   text-decoration: underline;
   border: 0;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.lightGray : smColors.darkGray};
+  color: ${({ theme }) => theme.color.gray};
   cursor: pointer;
   user-select: none;
 `;

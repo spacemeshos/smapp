@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CorneredWrapper, Tooltip } from '../../basicComponents';
-import { smColors } from '../../vars';
 
 const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   display: flex;
@@ -12,9 +11,8 @@ const Wrapper = styled(CorneredWrapper)<{ width: number; height: number }>`
   padding: 20px;
   margin-left: 8px;
   background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+    theme.corneredContainer.wrapper.background};
+  color: ${({ theme }) => theme.corneredContainer.wrapper.color};
   ${({
     theme: {
       box: { radius },
@@ -33,9 +31,8 @@ const DivWrapper = styled.div<{ width: number; height: number }>`
   height: ${({ height }) => height}px;
   padding: 20px;
   background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.lightGray};
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+    theme.corneredContainer.wrapper.background};
+  color: ${({ theme }) => theme.corneredContainer.wrapper.color};
   ${({
     theme: {
       box: { radius },
@@ -72,8 +69,11 @@ export const SubHeader = styled.div`
   padding-bottom: 20px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey};
+  color: ${({
+    theme: {
+      header: { color },
+    },
+  }) => color};
 `;
 
 type Props = {

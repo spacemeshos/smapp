@@ -31,6 +31,10 @@ import {
   copyWhite,
   chevronBottomBlack,
   chevronBottomWhite,
+  settingsIconBlack,
+  getCoinsIconBlack,
+  helpIconBlack,
+  signOutIconBlack,
 } from '../../assets/images';
 
 export default {
@@ -38,14 +42,21 @@ export default {
   skinBackground: colors.dark100,
   isDarkMode: true,
   themeName: 'modern',
+  color: {
+    primary: smColors.white,
+    contrast: smColors.white,
+    gray: smColors.lightGray,
+  },
   background: {
     primary: smColors.black,
     active: colors.dark,
     inactive: colors.light140,
   },
-  color: {
-    primary: smColors.white,
-    contrast: smColors.white,
+  corneredContainer: {
+    wrapper: {
+      background: smColors.dmBlack2,
+      color: smColors.vaultDarkGrey,
+    },
   },
   loader: {
     background: smColors.black,
@@ -227,5 +238,9 @@ export default {
     fireworks: fireworksWhite,
     leftSideTIcon: leftSideTIconWhite,
     copy: copyWhite,
+    settings: settingsIconBlack,
+    getCoins: getCoinsIconBlack,
+    help: helpIconBlack,
+    signOut: signOutIconBlack,
   },
 };

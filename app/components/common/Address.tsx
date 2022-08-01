@@ -6,12 +6,7 @@ import { HexString } from '../../../shared/types';
 import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { RootState } from '../../types';
 import { smColors } from '../../vars';
-import {
-  addContact,
-  explorer,
-  copyBlack,
-  copyWhite,
-} from '../../assets/images';
+import { addContact, explorer } from '../../assets/images';
 
 const Wrapper = styled.div`
   position: relative;

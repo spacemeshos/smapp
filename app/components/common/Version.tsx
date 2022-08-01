@@ -19,8 +19,7 @@ const Container = styled.div`
   left: 32px;
   bottom: 15px;
   font-size: 11px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.lightGray : smColors.darkGray};
+  color: ${({ theme }) => theme.color.gray};
   display: flex;
   align-items: baseline;
 `;
