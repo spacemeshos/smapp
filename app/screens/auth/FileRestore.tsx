@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { restoreFile } from '../../redux/wallet/actions';
 import { BackButton } from '../../components/common';
 import { DragAndDrop } from '../../components/auth';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
-import { AppThDispatch, RootState } from '../../types';
+import { AppThDispatch } from '../../types';
 import { smColors } from '../../vars';
 import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';

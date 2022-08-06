@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { smColors } from '../../vars';
 import { Tooltip, Input, Dots } from '../../basicComponents';
 
 const DetailsRow = styled.div`
