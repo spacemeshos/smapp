@@ -1,34 +1,32 @@
 // Original file: proto/types.proto
 
-import type { TransactionId as _spacemesh_v1_TransactionId, TransactionId__Output as _spacemesh_v1_TransactionId__Output } from '../../spacemesh/v1/TransactionId';
-import type { CoinTransferTransaction as _spacemesh_v1_CoinTransferTransaction, CoinTransferTransaction__Output as _spacemesh_v1_CoinTransferTransaction__Output } from '../../spacemesh/v1/CoinTransferTransaction';
-import type { SmartContractTransaction as _spacemesh_v1_SmartContractTransaction, SmartContractTransaction__Output as _spacemesh_v1_SmartContractTransaction__Output } from '../../spacemesh/v1/SmartContractTransaction';
 import type { AccountId as _spacemesh_v1_AccountId, AccountId__Output as _spacemesh_v1_AccountId__Output } from '../../spacemesh/v1/AccountId';
-import type { GasOffered as _spacemesh_v1_GasOffered, GasOffered__Output as _spacemesh_v1_GasOffered__Output } from '../../spacemesh/v1/GasOffered';
-import type { Amount as _spacemesh_v1_Amount, Amount__Output as _spacemesh_v1_Amount__Output } from '../../spacemesh/v1/Amount';
-import type { Signature as _spacemesh_v1_Signature, Signature__Output as _spacemesh_v1_Signature__Output } from '../../spacemesh/v1/Signature';
+import type { Nonce as _spacemesh_v1_Nonce, Nonce__Output as _spacemesh_v1_Nonce__Output } from '../../spacemesh/v1/Nonce';
+import type { LayerLimits as _spacemesh_v1_LayerLimits, LayerLimits__Output as _spacemesh_v1_LayerLimits__Output } from '../../spacemesh/v1/LayerLimits';
 import type { Long } from '@grpc/proto-loader';
 
 export interface Transaction {
-  'id'?: (_spacemesh_v1_TransactionId | null);
-  'coinTransfer'?: (_spacemesh_v1_CoinTransferTransaction | null);
-  'smartContract'?: (_spacemesh_v1_SmartContractTransaction | null);
-  'sender'?: (_spacemesh_v1_AccountId | null);
-  'gasOffered'?: (_spacemesh_v1_GasOffered | null);
-  'amount'?: (_spacemesh_v1_Amount | null);
-  'counter'?: (number | string | Long);
-  'signature'?: (_spacemesh_v1_Signature | null);
-  'datum'?: "coinTransfer"|"smartContract";
+  'id'?: (Buffer | Uint8Array | string);
+  'principal'?: (_spacemesh_v1_AccountId | null);
+  'template'?: (_spacemesh_v1_AccountId | null);
+  'method'?: (number);
+  'nonce'?: (_spacemesh_v1_Nonce | null);
+  'limits'?: (_spacemesh_v1_LayerLimits | null);
+  'maxGas'?: (number | string | Long);
+  'gasPrice'?: (number | string | Long);
+  'maxSpend'?: (number | string | Long);
+  'raw'?: (Buffer | Uint8Array | string);
 }
 
 export interface Transaction__Output {
-  'id': (_spacemesh_v1_TransactionId__Output | null);
-  'coinTransfer'?: (_spacemesh_v1_CoinTransferTransaction__Output | null);
-  'smartContract'?: (_spacemesh_v1_SmartContractTransaction__Output | null);
-  'sender': (_spacemesh_v1_AccountId__Output | null);
-  'gasOffered': (_spacemesh_v1_GasOffered__Output | null);
-  'amount': (_spacemesh_v1_Amount__Output | null);
-  'counter': (Long);
-  'signature': (_spacemesh_v1_Signature__Output | null);
-  'datum': "coinTransfer"|"smartContract";
+  'id': (Buffer);
+  'principal': (_spacemesh_v1_AccountId__Output | null);
+  'template': (_spacemesh_v1_AccountId__Output | null);
+  'method': (number);
+  'nonce': (_spacemesh_v1_Nonce__Output | null);
+  'limits': (_spacemesh_v1_LayerLimits__Output | null);
+  'maxGas': (Long);
+  'gasPrice': (Long);
+  'maxSpend': (Long);
+  'raw': (Buffer);
 }

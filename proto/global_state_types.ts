@@ -28,8 +28,6 @@ export interface ProtoGrpcType {
       AppEventStreamRequest: MessageTypeDefinition
       AppEventStreamResponse: MessageTypeDefinition
       Block: MessageTypeDefinition
-      CoinTransferTransaction: MessageTypeDefinition
-      GasOffered: MessageTypeDefinition
       GlobalStateData: MessageTypeDefinition
       GlobalStateDataFlag: EnumTypeDefinition
       GlobalStateHash: MessageTypeDefinition
@@ -38,13 +36,13 @@ export interface ProtoGrpcType {
       GlobalStateStreamRequest: MessageTypeDefinition
       GlobalStateStreamResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
+      LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
+      Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
-      Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
-      SmartContractTransaction: MessageTypeDefinition
       SmesherDataQueryRequest: MessageTypeDefinition
       SmesherDataQueryResponse: MessageTypeDefinition
       SmesherId: MessageTypeDefinition

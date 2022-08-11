@@ -53,3 +53,34 @@ message TransactionState {
     }
     TransactionState state = 2;
 }
+
+// TransactionResultsRequest request object for results stream.
+message TransactionResultsRequest {
+    // id is filter by transaction id.
+    bytes id = 1;
+    // address is a filter by account address, it could be principal or any affected address.
+    string address = 2;
+    // start streaming from this layer. if 0 - stream will start from genesis.
+    uint32 start = 3;
+    // end streaming at this layer. if 0 - stream till the latest available layer.
+    uint32 end = 4;
+    // watch live data.
+    bool watch = 5;
+}
+
+message TransactionResult {
+    enum Status {
+        SUCCESS = 0;
+        FAILURE = 1;
+        INVALID = 2;
+    }
+
+    Transaction tx = 1;
+    Status status = 2;
+    string message = 3;
+    uint64 gas_consumed = 4;
+    uint64 fee = 5;
+    bytes block = 6;
+    uint32 layer = 7;
+    repeated string touched_addresses = 8;
+}
