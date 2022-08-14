@@ -20,8 +20,7 @@ const TextWrapper = styled.div`
 const Text = styled.span`
   font-size: 14px;
   line-height: 24px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GreenText = styled.span`
@@ -93,7 +92,6 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
   const [isCopied, setIsCopied] = useState(false);
 
   const mnemonic = useSelector((state: RootState) => state.wallet.mnemonic);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const twelveWords: Array<string> = mnemonic.split(' ');
   let twelveWordsPrint = '<div>';
@@ -118,11 +116,7 @@ const TwelveWordsBackup = ({ history }: RouteComponentProps) => {
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
   return (
-    <WrapperWith2SideBars
-      width={920}
-      header="YOUR 12 WORDS BACKUP"
-      isDarkMode={isDarkMode}
-    >
+    <WrapperWith2SideBars width={920} header="YOUR 12 WORDS BACKUP">
       <TextWrapper>
         <Text>
           A paper backup is a numbered list of words written down on a paper.

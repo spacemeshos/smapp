@@ -16,7 +16,6 @@ import {
   DropDown,
 } from '../../basicComponents';
 import { getAddress } from '../../infra/utils';
-import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import {
   getTxAndRewards,
@@ -36,8 +35,7 @@ const Wrapper = styled.div`
 const Text = styled.span`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const TransactionsListWrapper = styled.div`
@@ -49,8 +47,7 @@ const TransactionsListWrapper = styled.div`
 `;
 
 const RightPaneWrapper = styled(CorneredWrapper)`
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
   display: flex;
   flex-direction: column;
   width: 260px;
@@ -105,7 +102,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
       state.wallet.accounts[state.wallet.currentAccountIndex].publicKey
   );
   const transactions = useSelector(getTxAndRewards(publicKey));
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
     const coins = getNumOfCoinsFromTransactions(
@@ -164,7 +160,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
         width={680}
         header="TRANSACTION LOG"
         style={{ marginRight: 10 }}
-        isDarkMode={isDarkMode}
       >
         <TransactionsListWrapper>
           {transactions && transactions.length ? (
@@ -208,7 +203,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
               selectedItemIndex={selectedTimeSpan}
               rowHeight={40}
               bold
-              isDarkMode
+              dark
             />
           </DropDownWrapper>
           <TransactionsMeta

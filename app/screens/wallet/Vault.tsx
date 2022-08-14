@@ -50,7 +50,6 @@ const Vault = ({ history }: RouteComponentProps) => {
   const [type, setType] = useState('single');
   const [accountsOption, setAccountsOption] = useState<Array<any>>([]);
   const [masterAccountIndex, setMasterAccountIndex] = useState(0);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const vaultMode = useSelector((state: RootState) => state.wallet.vaultMode);
   const accounts: Account[] = useSelector(
     (state: RootState) => state.wallet.accounts
@@ -223,7 +222,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 6,
       header: 'NEW VAULT SUBMITTED!',
       subHeader: '',
-      component: <VaultFinish isDarkMode={isDarkMode} />,
+      component: <VaultFinish />,
       nextButton: (
         <Button
           text="DONE"
@@ -367,7 +366,7 @@ const Vault = ({ history }: RouteComponentProps) => {
       step: 6,
       header: 'NEW VAULT SUBMITTED!',
       subHeader: '',
-      component: <VaultFinish isDarkMode={isDarkMode} />,
+      component: <VaultFinish />,
       nextButton: (
         <Button
           text="DONE"
@@ -417,7 +416,6 @@ const Vault = ({ history }: RouteComponentProps) => {
         header={Steps.get(type)[vaultMode].header}
         headerIcon={vault}
         subHeader={Steps.get(type)[vaultMode].subHeader}
-        isDarkMode={isDarkMode}
         useEmptyWrap
       >
         {renderVaultSteps()}

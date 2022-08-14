@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { Link, Button, BoldText } from '../../basicComponents';
 import {
   posIcon,
-  fireworks,
-  fireworksWhite,
   posNotification,
   posComputer,
   posAwake,
@@ -18,7 +16,9 @@ const Fireworks = styled.img`
   margin-top: -25px;
 `;
 
-const TextWrapper = styled.div`
+const TextWrapper = styled.div.attrs(({ theme: { icons: { fireworks } } }) => ({
+  src: fireworks,
+}))`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -28,8 +28,7 @@ const TextWrapper = styled.div`
 const Text = styled.div`
   font-size: 13px;
   line-height: 15px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GreenText = styled(BoldText)`
@@ -86,10 +85,9 @@ const inlineLinkStyle = {
 
 type Props = {
   hideIntro: () => void;
-  isDarkMode: boolean;
 };
 
-const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
+const SmesherIntro = ({ hideIntro }: Props) => {
   const navigateToMiningGuide = () => window.open(ExternalLinks.SetupGuide);
 
   const navigateToPreventComputerSleep = () =>
@@ -97,7 +95,7 @@ const SmesherIntro = ({ hideIntro, isDarkMode }: Props) => {
 
   return (
     <>
-      <Fireworks src={isDarkMode ? fireworksWhite : fireworks} />
+      <Fireworks />
       <GreenText>Your proof of space data is being created!</GreenText>
       <TextWrapper>
         <PosNotificationIcon src={posNotification} />

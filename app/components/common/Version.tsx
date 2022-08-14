@@ -19,8 +19,7 @@ const Container = styled.div`
   left: 32px;
   bottom: 15px;
   font-size: 11px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.lightGray : smColors.darkGray};
+  color: ${({ theme }) => theme.color.gray};
   display: flex;
   align-items: baseline;
 `;
@@ -173,12 +172,12 @@ const Updater = () => {
   );
 };
 
-const Version = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const Version = () => {
   return (
     <Container>
       <Chunk>v{packageInfo.version}</Chunk>
       <Updater />
-      <FeedbackButton isDarkMode={isDarkMode} />
+      <FeedbackButton />
     </Container>
   );
 };

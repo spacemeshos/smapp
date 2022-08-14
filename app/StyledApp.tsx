@@ -71,7 +71,7 @@ const StyledApp = () => {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <ErrorBoundary>
-        {isClosingApp && <CloseAppModal isDarkMode={isDarkMode} />}
+        {isClosingApp && <CloseAppModal />}
         <Router history={history}>
           <EventRouter />
           <Switch>

@@ -42,18 +42,15 @@ const RelativeContainer = styled.div`
   position: relative;
 `;
 
-const renderHorizontalPane = (path, isDarkMode) => {
+const renderHorizontalPane = (path) => {
   const DO_NOT_SHOW_ON = [AuthPath.Welcome, AuthPath.Leaving];
-  return DO_NOT_SHOW_ON.includes(path) ? null : (
-    <SmallHorizontalPanel isDarkMode={isDarkMode} />
-  );
+  return DO_NOT_SHOW_ON.includes(path) ? null : <SmallHorizontalPanel />;
 };
 
 const Auth = ({ history, location }: AuthRouterParams) => {
   const walletFiles = useSelector(
     (state: RootState) => state.wallet.walletFiles
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -73,11 +70,11 @@ const Auth = ({ history, location }: AuthRouterParams) => {
 
   return (
     <Wrapper>
-      <Logo isDarkMode={isDarkMode} />
+      <Logo />
       <InnerWrapper>
         {walletFiles ? (
           <RelativeContainer>
-            {renderHorizontalPane(location.pathname, isDarkMode)}
+            {renderHorizontalPane(location.pathname)}
             <Switch>
               {routes.auth.map((route) => (
                 <Route
@@ -91,10 +88,10 @@ const Auth = ({ history, location }: AuthRouterParams) => {
             </Switch>
           </RelativeContainer>
         ) : (
-          <Loader size={Loader.sizes.BIG} isDarkMode={isDarkMode} />
+          <Loader size={Loader.sizes.BIG} />
         )}
       </InnerWrapper>
-      <Version isDarkMode={isDarkMode} />
+      <Version />
       <RightDecoration />
     </Wrapper>
   );

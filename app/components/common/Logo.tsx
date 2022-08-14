@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { logo, logoWhite } from '../../assets/images';
 
-const LogoImg = styled.img`
+const LogoImg = styled.img.attrs(({ theme: { icons: { logo } } }) => ({
+  src: logo,
+}))`
   position: absolute;
   top: 5px;
   left: 15px;
@@ -11,15 +12,8 @@ const LogoImg = styled.img`
   cursor: pointer;
 `;
 
-type Props = {
-  isDarkMode: boolean;
-};
-
-const Logo = ({ isDarkMode }: Props) => (
-  <LogoImg
-    src={isDarkMode ? logoWhite : logo}
-    onClick={() => window.open('https://spacemesh.io')}
-  />
+const Logo = () => (
+  <LogoImg onClick={() => window.open('https://spacemesh.io')} />
 );
 
 export default Logo;

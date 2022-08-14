@@ -1,12 +1,9 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { StaticContext } from 'react-router';
 import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
@@ -14,8 +11,7 @@ const Text = styled.span`
   margin-bottom: 10px;
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const MiddleSectionRow = styled.div`
@@ -39,8 +35,6 @@ const FileBackup = ({
   StaticContext,
   { filePath: string }
 >) => {
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
   const showBackupFile = () => {
     eventsService.showFileInFolder({ filePath: location.state.filePath });
   };
@@ -56,7 +50,6 @@ const FileBackup = ({
       width={820}
       header="BACKUP EXISTING WALLET"
       subHeader="A wallet restore file has been saved."
-      isDarkMode={isDarkMode}
     >
       <Text>A restore file has been created in your documents folder.</Text>
       <Link onClick={showBackupFile} text="Browse file location" />

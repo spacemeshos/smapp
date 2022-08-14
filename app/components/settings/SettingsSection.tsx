@@ -1,17 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { Element } from 'react-scroll';
-import {
-  topLeftCorner,
-  topRightCorner,
-  bottomLeftCorner,
-  bottomRightCorner,
-  topLeftCornerWhite,
-  topRightCornerWhite,
-  bottomLeftCornerWhite,
-  bottomRightCornerWhite,
-} from '../../assets/images';
-import smColors from '../../vars/colors';
 
 const Wrapper = styled(Element)`
   position: relative;
@@ -19,8 +8,7 @@ const Wrapper = styled(Element)`
   flex-direction: column;
   margin-bottom: 12px;
   padding: 30px;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
   ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
 `;
 
@@ -59,30 +47,30 @@ const BottomRightCorner = styled.img`
 const Header = styled.div`
   font-size: 42px;
   line-height: 55px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const SubHeader = styled.div`
   font-size: 20px;
   line-height: 30px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
   margin-bottom: 20px;
 `;
 
 type Props = {
   title: string;
   children: any;
-  isDarkMode: boolean;
   name: string;
 };
 
-const SettingsSection = ({ name, title, children, isDarkMode }: Props) => {
-  const topLeft = isDarkMode ? topLeftCornerWhite : topLeftCorner;
-  const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
-  const bottomLeft = isDarkMode ? bottomLeftCornerWhite : bottomLeftCorner;
-  const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
+const SettingsSection = ({ name, title, children }: Props) => {
+  const {
+    icons: { corners },
+  } = useTheme();
+  const { topLeft } = corners;
+  const { topRight } = corners;
+  const { bottomLeft } = corners;
+  const { bottomRight } = corners;
   return (
     <Wrapper name={name}>
       <Header>{title}</Header>

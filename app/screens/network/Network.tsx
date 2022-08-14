@@ -58,8 +58,7 @@ const DetailsText = styled.div`
   font-size: 16px;
   line-height: 20px;
   margin: 10px 0;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const GrayText = styled.div`
@@ -92,7 +91,6 @@ const Network = ({ history }) => {
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
   );
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const remoteApi = useSelector(getRemoteApi);
   const [isRestarting, setRestarting] = useState(false);
 
@@ -212,12 +210,7 @@ const Network = ({ history }) => {
   };
 
   return (
-    <WrapperWith2SideBars
-      width={1000}
-      header="NETWORK"
-      headerIcon={network}
-      isDarkMode={isDarkMode}
-    >
+    <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network}>
       <SubHeader>
         {netName}
         {nodeError && (

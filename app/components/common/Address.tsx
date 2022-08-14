@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, useTheme } from 'styled-components';
 
 import { HexString } from '../../../shared/types';
 import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
 import { RootState } from '../../types';
 import { smColors } from '../../vars';
-import {
-  addContact,
-  explorer,
-  copyBlack,
-  copyWhite,
-} from '../../assets/images';
+import { addContact, explorer } from '../../assets/images';
 
 const Wrapper = styled.div`
   position: relative;
@@ -30,7 +25,9 @@ const PublicKey = styled.div<{ isCopied: boolean }>`
   }
 `;
 
-const CopyIcon = styled.img`
+const CopyIcon = styled.img.attrs(({ theme: { icons } }) => ({
+  src: icons.copy,
+}))`
   align-self: center;
   width: 16px;
   height: 15px;
@@ -106,7 +103,7 @@ const Address = (props: Props) => {
   const isAccount = type === AddressType.ACCOUNT;
   const addr = ensure0x(isAccount ? getAddress(address) : address);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
+  const { isDarkMode } = useTheme();
   const explorerUrl = useSelector(
     (state: RootState) => state.network.explorerUrl
   );
@@ -143,12 +140,7 @@ const Address = (props: Props) => {
         {isCopied && <CopiedBanner>Copied</CopiedBanner>}
         <span>{textToShow}</span>
       </PublicKey>
-      {!hideCopy && (
-        <CopyIcon
-          src={isDarkMode ? copyWhite : copyBlack}
-          onClick={handleCopy}
-        />
-      )}
+      {!hideCopy && <CopyIcon onClick={handleCopy} />}
       {!hideExplorer && (
         <ExplorerIcon src={explorer} onClick={handleExplorer} />
       )}

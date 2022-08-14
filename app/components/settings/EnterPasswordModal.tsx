@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { unlockCurrentWallet } from '../../redux/wallet/actions';
 import { Modal } from '../common';
 import { Button, Input, ErrorPopup } from '../../basicComponents';
-import { chevronRightBlack, chevronRightWhite } from '../../assets/images';
-import { RootState } from '../../types';
 
 const InputSection = styled.div`
   display: flex;
@@ -13,7 +11,15 @@ const InputSection = styled.div`
   justify-content: center;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryRight },
+    },
+  }) => ({
+    src: chevronPrimaryRight,
+  })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -49,10 +55,7 @@ const EnterPasswordModal = ({
   const [hasError, setHasError] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch = useDispatch();
-
-  const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
@@ -83,7 +86,7 @@ const EnterPasswordModal = ({
       } password to complete this action.`}
     >
       <InputSection>
-        <Chevron src={chevronIcon} />
+        <Chevron />
         <Input
           type="password"
           placeholder="ENTER PASSWORD"

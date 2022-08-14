@@ -14,12 +14,8 @@ import {
   DropDown,
 } from '../../basicComponents';
 import { ipcConsts, smColors } from '../../vars';
-import {
-  smallInnerSideBar,
-  chevronRightBlack,
-  chevronRightWhite,
-} from '../../assets/images';
-import { AppThDispatch, RootState } from '../../types';
+import { smallInnerSideBar } from '../../assets/images';
+import { AppThDispatch } from '../../types';
 import { isWalletOnly, listWalletFiles } from '../../redux/wallet/selectors';
 import {
   setLastSelectedWalletPath,
@@ -39,7 +35,7 @@ const Wrapper = styled.div`
 const Text = styled.div`
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Indicator = styled.div<{ hasError?: boolean }>`
@@ -50,7 +46,7 @@ const Indicator = styled.div<{ hasError?: boolean }>`
   height: 16px;
   background-color: ${({ hasError, theme }) => {
     if (hasError) return smColors.orange;
-    return theme.isDarkMode ? smColors.white : smColors.black;
+    return theme.color.primary;
   }};
 `;
 
@@ -70,7 +66,13 @@ const InputSection = styled.div`
   margin-bottom: 1em;
 `;
 
-const Chevron = styled.img`
+const Chevron = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryRight },
+    },
+  }) => ({ src: chevronPrimaryRight })
+)`
   width: 8px;
   height: 13px;
   margin-right: 10px;
@@ -112,9 +114,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const walletFiles = useSelector(listWalletFiles);
 
   const isWalletOnlyMode = useSelector(isWalletOnly);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const dispatch: AppThDispatch = useDispatch();
-  const chevronIcon = isDarkMode ? chevronRightWhite : chevronRightBlack;
 
   const [selectedWalletIndex, updateSelectedWalletIndex] = useState(
     getIndexOfLastSelectedWalletPath(walletFiles)
@@ -186,7 +186,6 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   return showLoader ? (
     <Loader
       size={Loader.sizes.BIG}
-      isDarkMode={isDarkMode}
       note={
         isWalletOnlyMode
           ? 'Please wait, connecting to Spacemesh api...'
@@ -202,13 +201,12 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         header="UNLOCK"
         subHeader="Welcome back to Spacemesh."
         key="main"
-        isDarkMode={isDarkMode}
       >
         {showWalletFileSelection ? (
           <>
             <Text>Select a wallet:</Text>
             <InputSection>
-              <Chevron src={chevronIcon} />
+              <Chevron />
               <DropDown
                 data={getDropDownData()}
                 onClick={selectItem}
@@ -223,7 +221,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
         <Indicator hasError={isWrongPassword} />
         <SmallSideBar src={smallInnerSideBar} />
         <InputSection>
-          <Chevron src={chevronIcon} />
+          <Chevron />
           <Input
             type="password"
             placeholder="ENTER PASSWORD"

@@ -76,7 +76,6 @@ const NodeSetup = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.dataDir
   );
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const hideSmesherLeftPanel = useSelector(
     (state: RootState) => state.ui.hideSmesherLeftPanel
   );
@@ -175,7 +174,6 @@ const NodeSetup = ({ history, location }: Props) => {
             freeSpace={freeSpace}
             setFreeSpace={setFreeSpace}
             status={status}
-            isDarkMode={isDarkMode}
             skipAction={() => history.push(MainPath.Wallet)}
           />
         );
@@ -206,7 +204,6 @@ const NodeSetup = ({ history, location }: Props) => {
             numUnits={numUnits}
             setNumUnit={setNumUnits}
             status={status}
-            isDarkMode={isDarkMode}
           />
         );
       }
@@ -254,11 +251,9 @@ const NodeSetup = ({ history, location }: Props) => {
         <StepsContainer
           steps={['SETUP WALLET', 'SETUP PROOF OF SPACE']}
           currentStep={1}
-          isDarkMode={isDarkMode}
         />
       )}
       <CorneredContainer
-        isDarkMode={isDarkMode}
         width={!hideSmesherLeftPanel ? 650 : 760}
         height={450}
         header={headers[mode]}

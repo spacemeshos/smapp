@@ -23,11 +23,10 @@ const Wrapper = styled.div<{
   border: ${({
       theme: {
         form: {
-          dropdown: { dark, light },
+          dropdown: { isOutBorder },
         },
       },
-      isDarkMode,
-    }) => (isDarkMode ? Number(dark.isOutBorder) : Number(light.isOutBorder))}px
+    }) => Number(isOutBorder)}px
     solid
     ${({
       theme: {
@@ -116,13 +115,11 @@ const HeaderWrapper = styled.div<{
         };
      }; `}
 `;
-const Icon = styled.img.attrs<{ isDarkMode: boolean }>(
-  ({ theme, isDarkMode }) => ({
-    src: isDarkMode
-      ? theme.icons.chevronDropDownBottom.dark
-      : theme.icons.chevronDropDownBottom.light,
-  })
-)<{ isOpened: boolean; isDarkMode: boolean }>`
+const Icon = styled.img.attrs<{ isDark?: boolean }>(({ theme, isDark }) => ({
+  src: isDark
+    ? theme.icons.chevronSecondaryDropDownBottom
+    : theme.icons.chevronPrimaryDropDownBottom,
+}))<{ isOpened: boolean; isDark?: boolean }>`
   height: 11px;
   width: 22px;
   transform: rotate(${({ isOpened }) => (isOpened ? '180' : '0')}deg);
@@ -295,8 +292,7 @@ const DropDownLabel = styled.p<{
 }>`
   font-weight: ${({ isBold }) => (isBold ? 800 : 400)};
   font-size: 14px;
-  text-transform:  ${({ uppercase }) => (uppercase ? 'uppercase' : 'inherit')};
-}
+  text-transform: ${({ uppercase }) => (uppercase ? 'uppercase' : 'inherit')};
 `;
 
 const DropDownLabelDescription = styled.p<{
@@ -306,7 +302,6 @@ const DropDownLabelDescription = styled.p<{
   font-size: 12px;
   text-transform: uppercase;
   margin-top: 6px;
-}
 `;
 
 type ADataItem = {
@@ -347,7 +342,7 @@ type Props<T extends ADataItem> = {
   isDisabled?: boolean;
   bold?: boolean;
   hideSelectedItem?: boolean;
-  isDarkMode?: boolean;
+  dark?: boolean;
 };
 
 const DropDown = <T extends ADataItem>({
@@ -358,7 +353,7 @@ const DropDown = <T extends ADataItem>({
   isDisabled = false,
   bold = false,
   hideSelectedItem = false,
-  isDarkMode = undefined,
+  dark = undefined,
 }: Props<T>) => {
   const theme = useTheme();
   const [isOpened, setIsOpened] = useState(false);
@@ -368,8 +363,7 @@ const DropDown = <T extends ADataItem>({
     return () => window.removeEventListener('click', closeDropdown);
   }, []);
   const isDisabledComputed = isDisabled || !data || !data.length;
-  const isLightTheme =
-    isDarkMode === undefined ? !theme.isDarkMode : isDarkMode;
+  const isLightTheme = dark === undefined ? !theme.isDarkMode : dark;
 
   const renderRow = ({
     item,
@@ -439,7 +433,7 @@ const DropDown = <T extends ADataItem>({
           description={data[selectedItemIndex]?.description as string}
           isBold={bold}
         />
-        <Icon isOpened={isOpened} isDarkMode={isLightTheme} />
+        <Icon isOpened={isOpened} isDark={dark} />
       </HeaderWrapper>
       {isOpened && data && (
         <ItemsWrapper

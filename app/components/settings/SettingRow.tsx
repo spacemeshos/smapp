@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -13,18 +12,15 @@ const UpperPart = styled.div`
   flex-direction: row;
   margin-bottom: 10px;
   padding: 10px 0;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
-  border-bottom: ${({ theme }) =>
-    `1px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  color: ${({ theme }) => theme.color.contrast};
+  border-bottom: ${({ theme }) => `1px solid ${theme.color.contrast}`};
 `;
 
 const UpperPartLeft = styled.div`
   display: flex;
   align-items: center;
   flex: 2;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const UpperPartRight = styled.div`
@@ -38,14 +34,13 @@ const UpperPartRight = styled.div`
 const Name = styled.div`
   font-size: 16px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const Text = styled.div`
   font-size: 13px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 type Props = {

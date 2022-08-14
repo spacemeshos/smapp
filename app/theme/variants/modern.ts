@@ -1,3 +1,4 @@
+import { smColors } from '../../vars';
 import colors from '../colors';
 import {
   modernBackup,
@@ -8,8 +9,32 @@ import {
   chevronRightPurple,
   chevronLeftPurple,
   chevronBottomPurple,
-  chevronBottomWhite,
+  loaderWhite,
+  chevronRightWhite,
+  chevronLeftWhite,
+  sidePanelLeftLongWhite,
+  sidePanelRightLongWhite,
+  logoWhite,
+  horizontalPanelBlack,
+  sidePanelLeftMedWhite,
+  sidePanelRightMedWhite,
+  uploadWhite,
+  posSmesherWhite,
+  walletSecondWhite,
+  topLeftCornerWhite,
+  topRightCornerWhite,
+  bottomLeftCornerWhite,
+  bottomRightCornerWhite,
+  posDirectoryWhite,
+  fireworksWhite,
+  leftSideTIconWhite,
+  copyWhite,
   chevronBottomBlack,
+  chevronBottomWhite,
+  settingsIconBlack,
+  getCoinsIconBlack,
+  helpIconBlack,
+  signOutIconBlack,
 } from '../../assets/images';
 
 export default {
@@ -17,9 +42,27 @@ export default {
   skinBackground: colors.dark100,
   isDarkMode: true,
   themeName: 'modern',
+  color: {
+    primary: smColors.white,
+    contrast: smColors.white,
+    gray: smColors.lightGray,
+  },
   background: {
+    primary: smColors.black,
     active: colors.dark,
     inactive: colors.light140,
+  },
+  corneredContainer: {
+    wrapper: {
+      background: smColors.dmBlack2,
+      color: smColors.vaultDarkGrey,
+    },
+  },
+  loader: {
+    background: smColors.black,
+  },
+  progressBar: {
+    background: smColors.darkGray,
   },
   popups: {
     boxRadius: 10,
@@ -44,6 +87,7 @@ export default {
   },
   indicators: {
     radius: 4,
+    color: smColors.white,
   },
   form: {
     input: {
@@ -73,6 +117,7 @@ export default {
     },
     dropdown: {
       boxRadius: 10,
+      isOutBorder: false,
       dark: {
         borderColor: colors.light110,
         isOutBorder: false,
@@ -151,6 +196,15 @@ export default {
       },
     },
   },
+  header: {
+    color: smColors.white,
+  },
+  dot: {
+    color: smColors.white,
+  },
+  wrapper: {
+    color: smColors.dmBlack2,
+  },
   icons: {
     backup: modernBackup,
     tooltip: modernInfoTooltip,
@@ -160,9 +214,33 @@ export default {
     chevronRight: chevronRightPurple,
     chevronLeft: chevronLeftPurple,
     chevronBottom: chevronBottomPurple,
-    chevronDropDownBottom: {
-      light: chevronBottomBlack,
-      dark: chevronBottomWhite,
+    chevronPrimaryDropDownBottom: chevronBottomBlack,
+    chevronSecondaryDropDownBottom: chevronBottomWhite,
+    chevronPrimaryRight: chevronRightWhite,
+    chevronPrimaryLeft: chevronLeftWhite,
+    loader: loaderWhite,
+    sidePanelLeft: sidePanelLeftLongWhite,
+    sidePanelRight: sidePanelRightLongWhite,
+    logo: logoWhite,
+    horizontalPanel: horizontalPanelBlack,
+    sidePanelLeftMed: sidePanelLeftMedWhite,
+    sidePanelRightMed: sidePanelRightMedWhite,
+    uploading: uploadWhite,
+    posSmesher: posSmesherWhite,
+    walletSecond: walletSecondWhite,
+    corners: {
+      topLeft: topLeftCornerWhite,
+      topRight: topRightCornerWhite,
+      bottomLeft: bottomLeftCornerWhite,
+      bottomRight: bottomRightCornerWhite,
     },
+    posDirectory: posDirectoryWhite,
+    fireworks: fireworksWhite,
+    leftSideTIcon: leftSideTIconWhite,
+    copy: copyWhite,
+    settings: settingsIconBlack,
+    getCoins: getCoinsIconBlack,
+    help: helpIconBlack,
+    signOut: signOutIconBlack,
   },
 };

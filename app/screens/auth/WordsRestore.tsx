@@ -2,7 +2,6 @@ import * as R from 'ramda';
 import * as bip39 from 'bip39';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { BackButton } from '../../components/common';
 import {
   WrapperWith2SideBars,
@@ -12,7 +11,6 @@ import {
   ErrorPopup,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -42,8 +40,7 @@ const InputCounter = styled.div`
   width: 25px;
   font-size: 18px;
   line-height: 22px;
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
   margin-right: 10px;
 `;
 
@@ -63,7 +60,6 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
   const [words, setWords] = useState(Array(WORDS_AMOUNT).fill(''));
   const [hasError, setHasError] = useState(false);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
   const handleInputChange = ({
@@ -159,7 +155,6 @@ const WordsRestore = ({ history }: AuthRouterParams) => {
     <WrapperWith2SideBars
       width={800}
       height={480}
-      isDarkMode={isDarkMode}
       header="RESTORE WALLET FROM 12 WORDS"
       subHeader="Please enter the 12 words in the right order."
     >

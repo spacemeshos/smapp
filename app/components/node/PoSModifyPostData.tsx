@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Tooltip, Button } from '../../basicComponents';
-import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
   display: flex;
@@ -25,7 +24,7 @@ const Row = styled.div`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Dots = styled.div`
@@ -35,7 +34,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 type Props = {

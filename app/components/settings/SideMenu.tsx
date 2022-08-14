@@ -1,12 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { Link } from 'react-scroll';
-import {
-  sidePanelRightMed,
-  sidePanelRightMedWhite,
-  sidePanelLeftMed,
-  sidePanelLeftMedWhite,
-} from '../../assets/images';
 import { smColors } from '../../vars';
 
 const Wrapper = styled.div`
@@ -47,7 +41,7 @@ const Text = styled.div`
   line-height: 17px;
   color: ${({ isCurrent, theme }) => {
     if (!isCurrent) {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     } else {
       return smColors.purple;
     }
@@ -72,8 +66,7 @@ const Indicator = styled.div`
   color: ${({ theme }) =>
     theme.isDarkMode ? smColors.dMBlack1 : smColors.white};
   font-size: 11px;
-  background-color: ${({ theme: { isDarkMode } }) =>
-    isDarkMode ? smColors.white : smColors.realBlack};
+  background-color: ${({ theme }) => theme.color.contrast};
   cursor: pointer;
 
   .active & {
@@ -93,12 +86,12 @@ const Container = styled(Link)`
 
 type Props = {
   items: Array<string>;
-  isDarkMode?: boolean;
 };
 
-const SideMenu = ({ items, isDarkMode }: Props) => {
-  const leftImg = isDarkMode ? sidePanelLeftMedWhite : sidePanelLeftMed;
-  const rightImg = isDarkMode ? sidePanelRightMedWhite : sidePanelRightMed;
+const SideMenu = ({ items }: Props) => {
+  const { icons } = useTheme();
+  const leftImg = icons.sidePanelLeftMed;
+  const rightImg = icons.sidePanelRightMed;
   return (
     <Wrapper>
       <SideBar src={leftImg} isLeft />

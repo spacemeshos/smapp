@@ -1,7 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { loader, loaderWhite } from '../assets/images';
-import { smColors } from '../vars';
 
 const Wrapper = styled.div`
   position: fixed;
@@ -15,12 +13,15 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.black : smColors.background};
+  background-color: ${({ theme: { loader } }) => loader.background};
   z-index: 100;
 `;
 
-const AnimatedIcon = styled.img<{ size: number }>`
+const AnimatedIcon = styled.img.attrs(({ theme: { icons: { loader } } }) => ({
+  src: loader,
+}))<{
+  size: number;
+}>`
   display: block;
   height: ${({ size }) => `${size}px`};
   width: ${({ size }) => `${size}px`};
@@ -29,24 +30,19 @@ const AnimatedIcon = styled.img<{ size: number }>`
 const Note = styled.p`
   display: block;
   height: 14px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   text-align: center;
   font-size: 12px;
 `;
 
 type Props = {
   size?: any;
-  isDarkMode?: boolean;
   note?: string;
 };
 
-const Loader = ({ size = 50, isDarkMode = false, note }: Props) => (
+const Loader = ({ size = 50, note }: Props) => (
   <Wrapper>
-    <AnimatedIcon
-      size={size || Loader.sizes.SMALL}
-      src={isDarkMode ? loaderWhite : loader}
-      alt="Loading"
-    />
+    <AnimatedIcon size={size || Loader.sizes.SMALL} alt="Loading" />
     <Note>{note}</Note>
   </Wrapper>
 );

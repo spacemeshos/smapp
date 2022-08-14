@@ -1,3 +1,4 @@
+import { smColors } from '../../vars';
 import colors from '../colors';
 import {
   backup,
@@ -8,6 +9,29 @@ import {
   chevronRightBlack,
   chevronLeftBlack,
   chevronBottomBlack,
+  loader,
+  sidePanelLeftLong,
+  sidePanelRightLong,
+  logo,
+  horizontalPanelWhite,
+  sidePanelLeftMed,
+  sidePanelRightMed,
+  upload,
+  posSmesherBlack,
+  walletSecondBlack,
+  topLeftCorner,
+  topRightCorner,
+  bottomLeftCorner,
+  bottomRightCorner,
+  posDirectoryBlack,
+  fireworks,
+  leftSideTIcon,
+  copyBlack,
+  chevronBottomWhite,
+  settingsIcon,
+  getCoinsIcon,
+  helpIcon,
+  signOutIcon,
 } from '../../assets/images';
 
 export default {
@@ -15,9 +39,27 @@ export default {
   skinBackground: colors.light110,
   themeName: 'light',
   isDarkMode: false,
+  color: {
+    primary: smColors.black,
+    contrast: smColors.realBlack,
+    gray: smColors.darkGray,
+  },
   background: {
+    primary: smColors.black,
     active: colors.dark,
     inactive: colors.light140,
+  },
+  corneredContainer: {
+    wrapper: {
+      background: smColors.lightGray,
+      color: smColors.vaultLightGrey,
+    },
+  },
+  loader: {
+    background: smColors.background,
+  },
+  progressBar: {
+    background: smColors.disabledGray,
   },
   popups: {
     boxRadius: 0,
@@ -42,6 +84,7 @@ export default {
   },
   indicators: {
     radius: 0,
+    color: smColors.black,
   },
   form: {
     input: {
@@ -71,6 +114,7 @@ export default {
     },
     dropdown: {
       boxRadius: 0,
+      isOutBorder: true,
       dark: {
         isOutBorder: true,
         borderColor: colors.dark100,
@@ -149,6 +193,15 @@ export default {
       },
     },
   },
+  header: {
+    color: smColors.realBlack,
+  },
+  dot: {
+    color: smColors.realBlack,
+  },
+  wrapper: {
+    color: smColors.black02Alpha,
+  },
   icons: {
     backup,
     tooltip,
@@ -158,9 +211,33 @@ export default {
     chevronRight: chevronRightBlack,
     chevronLeft: chevronLeftBlack,
     chevronBottom: chevronBottomBlack,
-    chevronDropDownBottom: {
-      light: chevronBottomBlack,
-      dark: chevronBottomBlack,
+    chevronPrimaryDropDownBottom: chevronBottomWhite,
+    chevronSecondaryDropDownBottom: chevronBottomBlack,
+    chevronPrimaryRight: chevronRightBlack,
+    chevronPrimaryLeft: chevronLeftBlack,
+    loader,
+    sidePanelLeft: sidePanelLeftLong,
+    sidePanelRight: sidePanelRightLong,
+    logo,
+    horizontalPanel: horizontalPanelWhite,
+    sidePanelLeftMed,
+    sidePanelRightMed,
+    uploading: upload,
+    posSmesher: posSmesherBlack,
+    walletSecond: walletSecondBlack,
+    corners: {
+      topLeft: topLeftCorner,
+      topRight: topRightCorner,
+      bottomLeft: bottomLeftCorner,
+      bottomRight: bottomRightCorner,
     },
+    posDirectory: posDirectoryBlack,
+    fireworks,
+    leftSideTIcon,
+    copy: copyBlack,
+    settings: settingsIcon,
+    getCoins: getCoinsIcon,
+    help: helpIcon,
+    signOut: signOutIcon,
   },
 };

@@ -14,17 +14,10 @@ const STEPS_ORDERED = [
   Step.PROTECT_WALLET,
 ];
 
-const Steps = ({
-  step = Step[0],
-  isDarkMode,
-}: {
-  step: Step;
-  isDarkMode: boolean;
-}) => (
+const Steps = ({ step = Step[0] }: { step: Step }) => (
   <StepsContainer
     steps={STEPS_ORDERED}
     currentStep={STEPS_ORDERED.indexOf(step)}
-    isDarkMode={isDarkMode}
   />
 );
 

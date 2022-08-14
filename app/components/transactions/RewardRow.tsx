@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { chevronLeftBlack, chevronLeftWhite } from '../../assets/images';
 import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { RewardView } from '../../redux/wallet/selectors';
 import { HexString } from '../../../shared/types';
 import Address from '../common/Address';
@@ -30,7 +27,13 @@ const Header = styled.div`
   }
 `;
 
-const Icon = styled.img`
+const Icon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { chevronPrimaryLeft },
+    },
+  }) => ({ src: chevronPrimaryLeft })
+)`
   width: 10px;
   height: 20px;
   margin-right: 10px;
@@ -59,8 +62,7 @@ const Text = styled.span`
 `;
 
 const BlackText = styled(Text)`
-  color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.white : smColors.realBlack};
+  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const BoldText = styled(Text)`
@@ -69,7 +71,7 @@ const BoldText = styled(Text)`
     if (color) {
       return color;
     } else {
-      return theme.isDarkMode ? smColors.white : smColors.realBlack;
+      return theme.color.contrast;
     }
   }};
 `;
@@ -131,8 +133,6 @@ type Props = {
 const RewardRow = ({ tx, publicKey }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
 
-  const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-
   const { layer, layerReward, amount, timestamp } = tx;
 
   const toggleTxDetails = () => {
@@ -168,7 +168,7 @@ const RewardRow = ({ tx, publicKey }: Props) => {
   return (
     <Wrapper isDetailed={isDetailed}>
       <Header onClick={toggleTxDetails}>
-        <Icon src={isDarkMode ? chevronLeftWhite : chevronLeftBlack} />
+        <Icon />
         <HeaderInner>
           <HeaderSection>
             <DarkGrayText>SMESHING REWARD</DarkGrayText>

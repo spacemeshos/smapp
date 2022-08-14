@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 import { Route, Switch, RouteComponentProps } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { DefaultTheme, withTheme } from 'styled-components';
 import { connect } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { Logo } from '../../components/common';
@@ -13,16 +13,6 @@ import {
 } from '../../basicComponents';
 import { AuthPath, MainPath } from '../../routerPaths';
 import routes from '../../routes';
-import {
-  settingsIcon,
-  settingsIconBlack,
-  getCoinsIcon,
-  getCoinsIconBlack,
-  helpIcon,
-  helpIconBlack,
-  signOutIcon,
-  signOutIconBlack,
-} from '../../assets/images';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import Version from '../../components/common/Version';
@@ -125,6 +115,7 @@ interface Props extends RouteComponentProps {
   nodeError: NodeError | null;
   isDarkMode: boolean;
   netId: number;
+  theme: DefaultTheme;
 }
 
 type State = {
@@ -152,13 +143,11 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isWalletOnly, nodeError, status, isDarkMode, netId } = this.props;
-    const settings = isDarkMode ? settingsIconBlack : settingsIcon;
-    const getCoins = isDarkMode ? getCoinsIconBlack : getCoinsIcon;
-    const help = isDarkMode ? helpIconBlack : helpIcon;
-    const signOut = isDarkMode ? signOutIconBlack : signOutIcon;
+    const { isWalletOnly, nodeError, status, netId, theme } = this.props;
+
+    const { settings, getCoins, help, signOut } = theme.icons;
+    const bgColor = theme.color.primary;
     const bntStyle = { marginRight: 15, marginTop: 10 };
-    const bgColor = isDarkMode ? smColors.white : smColors.black;
     /* eslint-disable no-nested-ternary */
     const indicatorColor =
       nodeError || netId === -1
@@ -170,7 +159,7 @@ class Main extends Component<Props, State> {
 
     return (
       <Wrapper>
-        <Logo isDarkMode={isDarkMode} />
+        <Logo />
         <InnerWrapper>
           <NavBar>
             <NavBarPart>
@@ -214,11 +203,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip
-                  text="SETTINGS"
-                  isDarkMode={isDarkMode}
-                  closePosition
-                />
+                <CustomTooltip text="SETTINGS" closePosition />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -234,11 +219,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip
-                  text="GET SMESH"
-                  isDarkMode={isDarkMode}
-                  closePosition
-                />
+                <CustomTooltip text="GET SMESH" closePosition />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -252,11 +233,7 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip
-                  text="HELP"
-                  isDarkMode={isDarkMode}
-                  closePosition
-                />
+                <CustomTooltip text="HELP" closePosition />
               </TooltipWrapper>
               <TooltipWrapper>
                 <SecondaryButton
@@ -270,16 +247,12 @@ class Main extends Component<Props, State> {
                   style={bntStyle}
                   bgColor={bgColor}
                 />
-                <CustomTooltip
-                  text="LOGOUT"
-                  isDarkMode={isDarkMode}
-                  closePosition
-                />
+                <CustomTooltip text="LOGOUT" closePosition />
               </TooltipWrapper>
             </NavBarPart>
           </NavBar>
           <RoutesWrapper>
-            <SmallHorizontalPanel isDarkMode={isDarkMode} />
+            <SmallHorizontalPanel />
             <Switch>
               {routes.main.map((route) => (
                 <Route
@@ -307,7 +280,6 @@ class Main extends Component<Props, State> {
     tooltip: string,
     route: string
   ) => {
-    const { isDarkMode } = this.props;
     return (
       <TooltipWrapper>
         <NavBarLink
@@ -316,7 +288,7 @@ class Main extends Component<Props, State> {
         >
           {label}
         </NavBarLink>
-        <CustomTooltip text={tooltip} isDarkMode={isDarkMode} />
+        <CustomTooltip text={tooltip} />
       </TooltipWrapper>
     );
   };
@@ -368,4 +340,4 @@ const mapDispatchToProps = {
   logout,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Main);
+export default connect(mapStateToProps, mapDispatchToProps)(withTheme(Main));

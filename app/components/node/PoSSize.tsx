@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown } from '../../basicComponents';
-import {
-  posSpace,
-  posRewardEst,
-  posDirectoryBlack,
-  posDirectoryWhite,
-} from '../../assets/images';
+import { posSpace, posRewardEst } from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
 import PoSFooter from './PoSFooter';
@@ -40,7 +35,9 @@ const Icon2 = styled.img`
   margin-right: 10px;
 `;
 
-const Icon3 = styled.img`
+const Icon3 = styled.img.attrs(({ theme: { icons: { posDirectory } } }) => ({
+  src: posDirectory,
+}))`
   width: 18px;
   height: 17px;
   margin-right: 7px;
@@ -49,7 +46,7 @@ const Icon3 = styled.img`
 const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const Dots = styled.div`
@@ -59,7 +56,7 @@ const Dots = styled.div`
   margin: 0 5px;
   font-size: 15px;
   line-height: 17px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const RewardText = styled(Text)<{ selected: boolean }>`
@@ -75,13 +72,12 @@ const ErrorText = styled.div`
   left: 15px;
   bottom: -15px;
   width: 100%;
-}
 `;
 
 const Link = styled.div`
   text-transform: uppercase;
   text-decoration: none;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
   font-size: 17px;
   line-height: 19px;
   cursor: pointer;
@@ -92,8 +88,7 @@ const Link = styled.div`
     text-decoration: underline;
     color: ${smColors.blue};
     &:hover {
-      color: ${({ theme }) =>
-        theme.isDarkMode ? smColors.white : smColors.black};
+      color: ${({ theme: { color } }) => color.primary};
     }
   }
 `;
@@ -112,7 +107,6 @@ type Props = {
   freeSpace: string;
   nextAction: () => void;
   status: NodeStatus | null;
-  isDarkMode: boolean;
 };
 
 const PoSSize = ({
@@ -123,7 +117,6 @@ const PoSSize = ({
   freeSpace,
   nextAction,
   status,
-  isDarkMode,
 }: Props) => {
   const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
     numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
@@ -148,8 +141,6 @@ const PoSSize = ({
     setSelectedCommitmentIndex(index);
     setNumUnit(commitments[index].numUnits);
   };
-
-  const posDirectoryIcon = isDarkMode ? posDirectoryWhite : posDirectoryBlack;
 
   return (
     <>
@@ -184,7 +175,7 @@ const PoSSize = ({
         )}
       </Row>
       <BottomRow>
-        <Icon3 src={posDirectoryIcon} />
+        <Icon3 />
         <Text>PoS data folder</Text>
         <Dots>.....................................................</Dots>
         <Link>{dataDir}</Link>

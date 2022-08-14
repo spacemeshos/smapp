@@ -16,8 +16,7 @@ const Wrapper = styled.div`
   padding: 10px 15px;
   background: url(${fireworksImg}) center center no-repeat;
   background-size: contain;
-  background-color: ${({ theme }) =>
-    theme.isDarkMode ? smColors.dmBlack2 : smColors.black02Alpha};
+  background-color: ${({ theme: { wrapper } }) => wrapper.color};
 `;
 
 const Header = styled.div`
@@ -58,7 +57,7 @@ const DetailsTextRight = styled.div`
   margin-right: 10px;
   font-size: 16px;
   line-height: 20px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const DetailsTextLeft = styled(DetailsTextRight)`

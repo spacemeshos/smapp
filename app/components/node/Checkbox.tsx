@@ -9,8 +9,7 @@ const Wrapper = styled.div`
   align-items: center;
   width: 18px;
   height: 18px;
-  border: ${({ theme }) =>
-    `2px solid ${theme.isDarkMode ? smColors.white : smColors.realBlack}`};
+  border: ${({ theme }) => `2px solid ${theme.color.contrast}`};
   margin-right: 5px;
   cursor: pointer;
   ${({

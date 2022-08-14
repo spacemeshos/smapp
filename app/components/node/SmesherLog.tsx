@@ -4,15 +4,7 @@ import ReactTimeago from 'react-timeago';
 import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { SmallHorizontalPanel } from '../../basicComponents';
-import {
-  bottomRightCorner,
-  bottomRightCornerWhite,
-  horizontalPanelBlack,
-  leftSideTIcon,
-  leftSideTIconWhite,
-  topRightCorner,
-  topRightCornerWhite,
-} from '../../assets/images';
+import { horizontalPanelBlack } from '../../assets/images';
 import { RewardsInfo, SmesherReward } from '../../../shared/types';
 import { CorneredContainer } from '../common';
 
@@ -45,7 +37,7 @@ const LogEntry = styled.div`
 const LogText = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${({ theme }) => (theme.isDarkMode ? smColors.white : smColors.black)};
+  color: ${({ theme: { color } }) => color.primary};
 `;
 
 const LayerNumber = styled(LogText)`
@@ -98,9 +90,14 @@ const EpochText = styled.div`
   }
 `;
 
-const FullCrossIcon = styled.img`
+const FullCrossIcon = styled.img.attrs(
+  ({
+    theme: {
+      icons: { leftSideTIcon },
+    },
+  }) => ({ src: leftSideTIcon })
+)`
   position: absolute;
-
   left: -10px;
   width: 12px;
   height: 12px;
@@ -113,7 +110,15 @@ const FullCrossIcon = styled.img`
     transform: rotate(90deg);
   }
 `;
-const TopRightCorner = styled.img`
+const TopRightCorner = styled.img.attrs(
+  ({
+    theme: {
+      icons: {
+        corners: { topRight },
+      },
+    },
+  }) => ({ src: topRight })
+)`
   position: absolute;
   top: -10px;
   right: -10px;
@@ -121,7 +126,15 @@ const TopRightCorner = styled.img`
   height: 8px;
 `;
 
-const BottomRightCorner = styled.img`
+const BottomRightCorner = styled.img.attrs(
+  ({
+    theme: {
+      icons: {
+        corners: { bottomRight },
+      },
+    },
+  }) => ({ src: bottomRight })
+)`
   position: absolute;
   bottom: -10px;
   right: -10px;
@@ -146,7 +159,6 @@ type Props = {
   smeshingTimestamp: string | null;
   rewards: SmesherReward[];
   rewardsInfo: RewardsInfo;
-  isDarkMode: boolean;
   epochByLayer: (number) => number;
   timestampByLayer: (number) => number;
 };
@@ -156,27 +168,16 @@ const SmesherLog = ({
   smeshingTimestamp,
   rewards,
   rewardsInfo,
-  isDarkMode,
   epochByLayer,
   timestampByLayer,
 }: Props) => {
-  const icon = isDarkMode ? leftSideTIconWhite : leftSideTIcon;
-  const topRight = isDarkMode ? topRightCornerWhite : topRightCorner;
-  const bottomRight = isDarkMode ? bottomRightCornerWhite : bottomRightCorner;
-
   return (
-    <CorneredContainer
-      useEmptyWrap
-      width={310}
-      height={450}
-      header="REWARDS"
-      isDarkMode={isDarkMode}
-    >
-      <FullCrossIcon className="top" src={icon} />
-      <FullCrossIcon className="bottom" src={icon} />
-      <TopRightCorner src={topRight} />
-      <BottomRightCorner src={bottomRight} />
-      <SmallHorizontalPanel isDarkMode={isDarkMode} />
+    <CorneredContainer useEmptyWrap width={310} height={450} header="REWARDS">
+      <FullCrossIcon className="top" />
+      <FullCrossIcon className="bottom" />
+      <TopRightCorner />
+      <BottomRightCorner />
+      <SmallHorizontalPanel />
 
       {rewardsInfo && (
         <>
