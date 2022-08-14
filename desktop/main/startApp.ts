@@ -96,7 +96,9 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
-  const $runNodeBeforeLogin = new $.Subject<boolean>();
+  const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
+    getWasOpenAtLaunchValue()
+  );
 
   const {
     $managers,
@@ -160,10 +162,6 @@ const startApp = (): AppStore => {
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),
-    // trigger $runNodeBeforeLogin on openAtLoginStatus
-    makeSubscription($.of(getWasOpenAtLaunchValue()), (status) =>
-      $runNodeBeforeLogin.next(status)
-    ),
     // Update networks each N seconds
     fetchDiscoveryEach(60 * MINUTE, $networks),
     // And update them by users request
