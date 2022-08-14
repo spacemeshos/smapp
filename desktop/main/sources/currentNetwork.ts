@@ -5,12 +5,11 @@ import {
   from,
   iif,
   map,
-  mergeWith,
   Observable,
   Subject,
   switchMap,
 } from 'rxjs';
-import { Network, Wallet } from '../../../shared/types';
+import { Network, Wallet, WalletMeta } from '../../../shared/types';
 import NodeConfig from '../NodeConfig';
 
 export default (
@@ -19,12 +18,10 @@ export default (
   $networks: Subject<Network[]>
 ) =>
   $networks.pipe(
-    combineLatestWith($runNodeBeforeLogin),
-    mergeWith($wallet),
+    combineLatestWith($runNodeBeforeLogin, $wallet),
     distinctUntilChanged(),
     switchMap((input) => {
-      // @ts-ignore
-      const wallet = input?.meta;
+      const wallet = (input as any)?.meta as WalletMeta | undefined;
       const runNodeOnStart = input?.[1];
 
       return iif(
