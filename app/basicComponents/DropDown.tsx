@@ -117,8 +117,8 @@ const HeaderWrapper = styled.div<{
 `;
 const Icon = styled.img.attrs<{ isDark?: boolean }>(({ theme, isDark }) => ({
   src: isDark
-    ? theme.icons.chevronSecondaryDropDownBottom
-    : theme.icons.chevronPrimaryDropDownBottom,
+    ? theme.icons.chevronPrimaryDropDownBottom
+    : theme.icons.chevronSecondaryDropDownBottom,
 }))<{ isOpened: boolean; isDark?: boolean }>`
   height: 11px;
   width: 22px;
