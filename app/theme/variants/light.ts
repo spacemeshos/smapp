@@ -49,6 +49,9 @@ export default {
     active: colors.dark,
     inactive: colors.light140,
   },
+  navBar: {
+    color: smColors.darkGray,
+  },
   corneredContainer: {
     wrapper: {
       background: smColors.lightGray,
@@ -209,8 +212,6 @@ export default {
     pageLeftSideBar: rightDecoration,
     check: checkWhite,
     chevronRight: chevronRightBlack,
-    chevronLeft: chevronLeftBlack,
-    chevronBottom: chevronBottomBlack,
     chevronPrimaryDropDownBottom: chevronBottomBlack,
     chevronSecondaryDropDownBottom: chevronBottomWhite,
     chevronPrimaryRight: chevronRightBlack,

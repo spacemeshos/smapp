@@ -69,8 +69,12 @@ const NavBarLink = styled(BoldText)<{ isActive?: boolean }>`
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
   text-transform: uppercase;
-  color: ${({ isActive }) =>
-    isActive ? smColors.purple : smColors.navLinkGrey};
+  color: ${({
+    isActive,
+    theme: {
+      navBar: { color },
+    },
+  }) => (isActive ? smColors.purple : color)};
   cursor: pointer;
 `;
 

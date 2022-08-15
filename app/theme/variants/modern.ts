@@ -52,6 +52,9 @@ export default {
     active: colors.dark,
     inactive: colors.light140,
   },
+  navBar: {
+    color: smColors.purple,
+  },
   corneredContainer: {
     wrapper: {
       background: smColors.dmBlack2,
