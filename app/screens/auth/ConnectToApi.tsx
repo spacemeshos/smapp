@@ -45,6 +45,7 @@ type PublicServicesView = {
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
   const curNetId = useSelector(getNetworkId);
+  const networkId = curNetId > 0 ? curNetId : location?.state?.netId;
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
@@ -55,7 +56,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const updatePublicServices = () => {
     eventsService
-      .listPublicServices(curNetId)
+      .listPublicServices(networkId)
       .then(({ error, payload }) => {
         if (error) throw error;
         const state = {
@@ -81,7 +82,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       });
   };
 
-  useEffect(updatePublicServices, [curNetId]);
+  useEffect(updatePublicServices, [networkId]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
@@ -100,7 +101,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
-    const netId = location?.state?.netId || curNetId;
+    const netId = networkId;
     const value =
       publicServices.services.length > selectedItemIndex
         ? publicServices.services[selectedItemIndex].value
