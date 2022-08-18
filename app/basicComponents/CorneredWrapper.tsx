@@ -13,7 +13,7 @@ const TopLeftCorner = styled.img.attrs(
       },
     },
   }) => ({
-    src: { topLeft },
+    src: topLeft,
   })
 )`
   position: absolute;
@@ -31,7 +31,7 @@ const TopRightCorner = styled.img.attrs(
       },
     },
   }) => ({
-    src: { topRight },
+    src: topRight,
   })
 )`
   position: absolute;
@@ -49,7 +49,7 @@ const BottomLeftCorner = styled.img.attrs(
       },
     },
   }) => ({
-    src: { bottomLeft },
+    src: bottomLeft,
   })
 )`
   position: absolute;
@@ -67,7 +67,7 @@ const BottomRightCorner = styled.img.attrs(
       },
     },
   }) => ({
-    src: { bottomRight },
+    src: bottomRight,
   })
 )`
   position: absolute;

@@ -48,6 +48,9 @@ export default {
     active: colors.dark,
     inactive: colors.light140,
   },
+  navBar: {
+    color: smColors.purple,
+  },
   corneredContainer: {
     wrapper: {
       background: smColors.dmBlack2,
@@ -208,8 +211,6 @@ export default {
     pageLeftSideBar: darkPageLeftSidePanel,
     check: checkBlack,
     chevronRight: chevronRightWhite,
-    chevronLeft: chevronLeftWhite,
-    chevronBottom: chevronBottomWhite,
     chevronPrimaryDropDownBottom: chevronBottomBlack,
     chevronSecondaryDropDownBottom: chevronBottomWhite,
     chevronPrimaryRight: chevronRightWhite,

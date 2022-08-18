@@ -10,15 +10,15 @@ import {
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
 
-const Fireworks = styled.img`
+const Fireworks = styled.img.attrs(({ theme: { icons: { fireworks } } }) => ({
+  src: fireworks,
+}))`
   width: 150px;
   height: 150px;
   margin-top: -25px;
 `;
 
-const TextWrapper = styled.div.attrs(({ theme: { icons: { fireworks } } }) => ({
-  src: fireworks,
-}))`
+const TextWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;

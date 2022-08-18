@@ -208,6 +208,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
             <InputSection>
               <Chevron />
               <DropDown
+                maxHeight={220}
                 data={getDropDownData()}
                 onClick={selectItem}
                 selectedItemIndex={selectedWalletIndex}

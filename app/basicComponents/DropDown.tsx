@@ -116,9 +116,9 @@ const HeaderWrapper = styled.div<{
      }; `}
 `;
 const Icon = styled.img.attrs<{ isDark?: boolean }>(({ theme, isDark }) => ({
-  src: isDark
-    ? theme.icons.chevronSecondaryDropDownBottom
-    : theme.icons.chevronPrimaryDropDownBottom,
+  src: !isDark
+    ? theme.icons.chevronPrimaryDropDownBottom
+    : theme.icons.chevronSecondaryDropDownBottom,
 }))<{ isOpened: boolean; isDark?: boolean }>`
   height: 11px;
   width: 22px;
@@ -167,7 +167,9 @@ const ItemsWrapper = styled.div<{
   rowHeight: number | string;
   isDarkMode: boolean;
   isOpened: boolean;
+  maxHeight?: number;
 }>`
+  max-height: ${({ maxHeight }) => `${maxHeight}px`};
   position: absolute;
   width: 100%;
   flex: 1;
@@ -343,6 +345,7 @@ type Props<T extends ADataItem> = {
   bold?: boolean;
   hideSelectedItem?: boolean;
   dark?: boolean;
+  maxHeight?: number;
 };
 
 const DropDown = <T extends ADataItem>({
@@ -354,6 +357,7 @@ const DropDown = <T extends ADataItem>({
   bold = false,
   hideSelectedItem = false,
   dark = undefined,
+  maxHeight = undefined,
 }: Props<T>) => {
   const theme = useTheme();
   const [isOpened, setIsOpened] = useState(false);
@@ -440,6 +444,7 @@ const DropDown = <T extends ADataItem>({
           isDarkMode={isLightTheme}
           rowHeight={rowHeight}
           isOpened={isOpened}
+          maxHeight={maxHeight}
         >
           {data.map((item, index: number) =>
             hideSelectedItem && Number(index) === Number(selectedItemIndex)
