@@ -7,6 +7,8 @@ import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 
+import { rotator } from 'logrotator';
+import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
 import {
@@ -34,6 +36,8 @@ import {
 import { NODE_CONFIG_FILE } from './main/constants';
 import NodeConfig from './main/NodeConfig';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
+
+rotator.on('error', captureException);
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -349,6 +353,12 @@ class NodeManager {
     const nodeConfig = await NodeConfig.load();
     const logFilePath = getNodeLogsPath(nodeConfig.p2p['network-id']);
 
+    rotator.register(logFilePath, {
+      schedule: '30m',
+      size: '500m',
+      count: 1, // number of old logs files that ll be saved and compressed
+    });
+
     const logFileStream = fs.createWriteStream(logFilePath, {
       flags: 'a',
       encoding: 'utf-8',
@@ -519,8 +529,7 @@ class NodeManager {
 
   getNodeStatus = async (retries: number): Promise<NodeStatus> => {
     try {
-      const status = await this.nodeService.getNodeStatus();
-      return status;
+      return await this.nodeService.getNodeStatus();
     } catch (error) {
       if (retries > 0)
         return delay(500).then(() => this.getNodeStatus(retries - 1));
