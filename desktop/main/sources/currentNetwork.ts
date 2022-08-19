@@ -9,7 +9,7 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { Network, Wallet, WalletMeta } from '../../../shared/types';
+import { Network, Wallet } from '../../../shared/types';
 import NodeConfig from '../NodeConfig';
 
 export default (
@@ -20,10 +20,7 @@ export default (
   $networks.pipe(
     combineLatestWith($runNodeBeforeLogin, $wallet),
     distinctUntilChanged(),
-    switchMap((input) => {
-      const wallet = (input as any)?.meta as WalletMeta | undefined;
-      const runNodeOnStart = input?.[1];
-
+    switchMap(([_, runNodeOnStart, wallet]) => {
       return iif(
         () => runNodeOnStart && !wallet,
         $networks.pipe(
