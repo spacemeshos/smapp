@@ -76,7 +76,7 @@
     "@jest-runner/electron": "^3.0.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
     "@sentry/webpack-plugin": "^1.18.8",
-    "@storybook/addon-actions": "^6.5.6",
+    "@storybook/addon-actions": "^6.5.10",
     "@storybook/addon-essentials": "^6.5.6",
     "@storybook/addon-interactions": "^6.5.6",
     "@storybook/addon-links": "^6.5.6",
