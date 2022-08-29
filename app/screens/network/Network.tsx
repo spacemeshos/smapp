@@ -113,7 +113,7 @@ const Network = ({ history }) => {
     return isWalletMode ? (
       <Button
         text="SWITCH API PROVIDER"
-        width={150}
+        width={200}
         isPrimary
         onClick={requestSwitchApiProvider}
         style={{ marginLeft: 'auto' }}
@@ -221,9 +221,12 @@ const Network = ({ history }) => {
         {netId > -1 ? renderNetworkDetails() : renderNoNetwork()}
         <FooterWrap>
           {!isWalletMode && (
-            <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+            <>
+              <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+              <Tooltip width={250} text="tooltip BROWSE LOG FILE" />
+            </>
           )}
-          <Tooltip width={250} text="tooltip BROWSE LOG FILE" />
+
           {renderActionButton()}
         </FooterWrap>
       </Container>
