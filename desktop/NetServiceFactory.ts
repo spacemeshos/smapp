@@ -106,11 +106,15 @@ class NetServiceFactory<
     return true;
   };
 
-  ensureService = (): Promise<Service<T, ServiceName>> =>
+  ensureService = (
+    method: string | number | symbol
+  ): Promise<Service<T, ServiceName>> =>
     this.service
       ? Promise.resolve(this.service)
       : Promise.reject(
-          new Error(`Service "${this.serviceName}" is not running`)
+          new Error(
+            `Service "${this.serviceName}:${method.toString()}" is not running`
+          )
         );
 
   callService = <K extends keyof Service<T, ServiceName>>(
@@ -119,7 +123,7 @@ class NetServiceFactory<
   ) => {
     type ResultArg = ServiceCallbackResult<T, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
-    return this.ensureService().then(
+    return this.ensureService(method).then(
       (_service: Service<T, ServiceName>) =>
         new Promise<Result>((resolve, reject) => {
           _service[method](

@@ -236,7 +236,7 @@ class NodeManager {
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
     this.nodeService.createService(apiUrl);
-    return this.getNodeStatus(5);
+    return this.updateNodeStatus();
   };
 
   startNode = async () => {
