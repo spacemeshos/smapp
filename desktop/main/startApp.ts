@@ -6,6 +6,7 @@ import {
   Wallet,
 } from '../../shared/types';
 import { getWasOpenAtLaunchValue } from '../auto-launch';
+import { isLocalNodeType } from '../../shared/utils';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
@@ -143,11 +144,17 @@ const startApp = (): AppStore => {
       $.combineLatest(
         $runNodeBeforeLogin,
         $managers,
+        $wallet,
         $nodeConfig,
         $currentNetwork
       ),
-      ([runNode, managers]) => {
+      ([runNode, managers, wallet]) => {
         if (runNode) {
+          return;
+        }
+
+        const type = wallet?.meta?.type;
+        if (!type || isLocalNodeType(type)) {
           managers.node.isNodeRunning()
             ? managers.node.restartNode()
             : managers.node.startNode();
