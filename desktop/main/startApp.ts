@@ -5,9 +5,9 @@ import {
   NodeVersionAndBuild,
   Wallet,
 } from '../../shared/types';
-// import { isLocalNodeType } from '../../shared/utils';
-// import StoreService from '../storeService';
-// import { IS_AUTO_START_ENABLED } from '../auto-launch';
+import { isLocalNodeType } from '../../shared/utils';
+import StoreService from '../storeService';
+import { IS_AUTO_START_ENABLED } from '../auto-launch';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
@@ -98,7 +98,9 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
-  const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(false);
+  const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
+    StoreService.get(IS_AUTO_START_ENABLED)
+  );
 
   const {
     $managers,
@@ -139,7 +141,7 @@ const startApp = (): AppStore => {
       $nodeRestartRequest
     ),
     // When silent mode enabled, and smeshing-start: true in node-config
-    /* makeSubscription(
+    makeSubscription(
       $.combineLatest($runNodeBeforeLogin, $managers, $wallet),
       ([runNode, managers, wallet]) => {
         if (!runNode) {
@@ -151,7 +153,7 @@ const startApp = (): AppStore => {
           managers.node.startNode();
         }
       }
-    ), */
+    ),
     // Each time when Smapp is activated (window reloaded and shown)...
     makeSubscription(
       $isSmappActivated.pipe($.withLatestFrom($managers)),
