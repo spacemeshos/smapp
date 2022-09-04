@@ -16,6 +16,7 @@ class AutoStartManager {
       await this.toggleAutoStart();
     });
 
+    ipcMain.removeHandler(ipcConsts.IS_AUTO_START_ENABLED_REQUEST);
     ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, async () => {
       const res = await this.isEnabled();
       return res;
