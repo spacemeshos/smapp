@@ -15,7 +15,7 @@ import { app } from 'electron';
 import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
 import { BrowserTracing } from '@sentry/tracing';
-import AutoStartManager from './auto-launch';
+import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
 import { isDebug, isDev, isProd } from './utils';

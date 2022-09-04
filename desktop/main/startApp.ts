@@ -7,7 +7,7 @@ import {
 } from '../../shared/types';
 import { isLocalNodeType } from '../../shared/utils';
 import StoreService from '../storeService';
-import { IS_AUTO_START_ENABLED } from '../auto-launch';
+import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
