@@ -13,10 +13,7 @@ export const getWasOpenAtLaunchValue = () => {
     return false;
   }
 
-  return (
-    app.getLoginItemSettings().openAtLogin ||
-    StoreService.get(IS_AUTO_START_ENABLED)
-  );
+  return StoreService.get(IS_AUTO_START_ENABLED);
 };
 
 export default function () {
@@ -39,10 +36,13 @@ export default function () {
     return state;
   });
 
-  ipcMain.handle(
-    ipcConsts.IS_AUTO_START_ENABLED_REQUEST,
-    () =>
-      app.getLoginItemSettings().openAtLogin ||
-      StoreService.get(IS_AUTO_START_ENABLED) // Linux fallback
-  );
+  ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, () => {
+    // fallback
+    StoreService.set(
+      IS_AUTO_START_ENABLED,
+      Boolean(app.getLoginItemSettings().openAtLogin)
+    );
+
+    return StoreService.get(IS_AUTO_START_ENABLED);
+  });
 }
