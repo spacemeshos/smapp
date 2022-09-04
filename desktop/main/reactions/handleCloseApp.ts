@@ -1,9 +1,9 @@
 import { BrowserWindow } from 'electron';
 import { Subject, withLatestFrom } from 'rxjs';
-import { Managers } from '../Networks';
 import promptBeforeClose from '../promptBeforeClose';
 import Logger from '../../logger';
 import { makeSubscription } from '../rx.utils';
+import { Managers } from '../app.types';
 
 const logger = Logger({ className: 'reactions/handleCloseApp' });
 

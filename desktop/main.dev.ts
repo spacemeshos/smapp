@@ -15,6 +15,7 @@ import { app } from 'electron';
 import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
 import { BrowserTracing } from '@sentry/tracing';
+import AutoStartManager from './auto-launch';
 import StoreService from './storeService';
 import './wasm_exec';
 import { isDebug, isDev, isProd } from './utils';
@@ -23,7 +24,6 @@ import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
 import startApp from './main/startApp';
-import AutoLaunch from './auto-launch';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -70,7 +70,8 @@ StoreService.init();
 const context = getDefaultAppContext();
 
 // Listen auto launch ipc
-AutoLaunch();
+// eslint-disable-next-line no-new
+new AutoStartManager();
 
 // Run
 app

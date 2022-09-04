@@ -1,48 +1,62 @@
-import { existsSync } from 'fs';
-import { app, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
+import AutoLaunch from 'auto-launch';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
-import { NODE_CONFIG_FILE } from './main/constants';
 
-const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
+export const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
 
-export const getWasOpenAtLaunchValue = () => {
-  const isConfigFileExists = existsSync(NODE_CONFIG_FILE);
+class AutoStartManager {
+  // @ts-ignore
+  private manager;
 
-  if (!isConfigFileExists) {
-    return false;
-  }
+  constructor() {
+    this.init();
 
-  return (
-    app.getLoginItemSettings().openAtLogin ||
-    StoreService.get(IS_AUTO_START_ENABLED)
-  );
-};
+    ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
+      await this.toggleAutoStart();
+    });
 
-export default function () {
-  // Linux fallback
-  if (StoreService.get(IS_AUTO_START_ENABLED)) {
-    app.setLoginItemSettings({
-      openAtLogin: true,
+    ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, async () => {
+      const res = await this.isEnabled();
+      return res;
     });
   }
 
-  // Auto start listeners
-  ipcMain.on(ipcConsts.TOGGLE_AUTO_START, () => {
-    const state = !app.getLoginItemSettings().openAtLogin;
-    StoreService.set(IS_AUTO_START_ENABLED, state);
+  init = async () => {
+    if (!this.manager) {
+      this.manager = new AutoLaunch({
+        name: 'Spacemesh',
+        isHidden: true,
+      });
+      if (StoreService.get(IS_AUTO_START_ENABLED)) {
+        await this.manager.enable();
+      }
+    }
+  };
 
-    app.setLoginItemSettings({
-      openAtLogin: state,
-    });
+  toggleAutoStart = async () => {
+    try {
+      const isEnabled = await this.manager.isEnabled();
+      if (isEnabled) {
+        await this.manager.disable();
+      } else {
+        await this.manager.enable();
+      }
+      StoreService.set(IS_AUTO_START_ENABLED, !isEnabled);
+    } catch (error) {
+      console.error(error); // eslint-disable-line no-console
+    }
+  };
 
-    return state;
-  });
-
-  ipcMain.handle(
-    ipcConsts.IS_AUTO_START_ENABLED_REQUEST,
-    () =>
-      app.getLoginItemSettings().openAtLogin ||
-      StoreService.get(IS_AUTO_START_ENABLED) // Linux fallback
-  );
+  isEnabled = async () => {
+    try {
+      const isEnabled = await this.manager.isEnabled();
+      StoreService.set(IS_AUTO_START_ENABLED, isEnabled);
+      return isEnabled;
+    } catch (error) {
+      return false;
+    }
+  };
 }
+
+export default AutoStartManager;

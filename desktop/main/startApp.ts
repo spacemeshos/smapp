@@ -5,7 +5,9 @@ import {
   NodeVersionAndBuild,
   Wallet,
 } from '../../shared/types';
-import { getWasOpenAtLaunchValue } from '../auto-launch';
+import { isLocalNodeType } from '../../shared/utils';
+import StoreService from '../storeService';
+import { IS_AUTO_START_ENABLED } from '../auto-launch';
 import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
@@ -86,7 +88,7 @@ const startApp = (): AppStore => {
     $quit,
     $isAppClosing,
     $showWindowOnLoad,
-    // $isSmappActivated,
+    $isSmappActivated,
   } = createMainWindow();
   // Store
   const $storeService = observeStoreService();
@@ -97,7 +99,7 @@ const startApp = (): AppStore => {
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
-    getWasOpenAtLaunchValue()
+    StoreService.get(IS_AUTO_START_ENABLED)
   );
 
   const {
@@ -140,25 +142,26 @@ const startApp = (): AppStore => {
     ),
     // When silent mode enabled, and smeshing-start: true in node-config
     makeSubscription(
-      $.combineLatest(
-        $runNodeBeforeLogin,
-        $managers,
-        $nodeConfig,
-        $currentNetwork
-      ),
-      ([runNode, managers]) => {
-        if (runNode) {
-          managers.node.isNodeRunning()
-            ? managers.node.restartNode()
-            : managers.node.startNode();
+      $.combineLatest($runNodeBeforeLogin, $managers, $wallet),
+      ([runNode, managers, wallet]) => {
+        if (!runNode) {
+          return;
+        }
+
+        const type = wallet?.meta?.type;
+        if (!type || isLocalNodeType(type)) {
+          managers.node.startNode();
         }
       }
     ),
     // Each time when Smapp is activated (window reloaded and shown)...
-    makeSubscription($managers, (managers) => {
-      managers.node.updateNodeStatus();
-      managers.smesher.updateSmesherState();
-    }),
+    makeSubscription(
+      $isSmappActivated.pipe($.withLatestFrom($managers)),
+      ([_, managers]) => {
+        managers.node.updateNodeStatus();
+        managers.smesher.updateSmesherState();
+      }
+    ),
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),
