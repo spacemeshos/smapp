@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import AutoLaunch from 'auto-launch';
+import AutoLaunch from 'easy-auto-launch';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 
@@ -7,7 +7,7 @@ export const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
 
 class AutoStartManager {
   // @ts-ignore
-  private manager;
+  private manager: AutoLaunch;
 
   constructor() {
     this.init();
