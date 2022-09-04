@@ -149,7 +149,7 @@ const startApp = (): AppStore => {
         $currentNetwork
       ),
       ([runNode, managers, wallet]) => {
-        if (runNode) {
+        if (!runNode) {
           return;
         }
 

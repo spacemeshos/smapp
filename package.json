@@ -166,7 +166,6 @@
     "@sentry/electron": "^3.0.7",
     "@sentry/react": "^6.19.6",
     "@sentry/tracing": "^6.19.6",
-    "auto-launch": "5.0.5",
     "bip39": "3.0.3",
     "check-disk-space": "2.1.0",
     "checksum": "^1.0.0",
