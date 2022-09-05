@@ -10,7 +10,13 @@ export default async () => {
     loadExtensionOptions: { allowFileAccess: true },
     forceDownload: false,
   }).then(
-    (names) => console.log('DevTools Installed:', names), // eslint-disable-line no-console
+    (names) =>
+      // eslint-disable-next-line no-console
+      console.log(
+        'DevTools Installed:',
+        names,
+        'issue with Electron sandbox_bundle.js and TypeError  because of devtools in dev mode'
+      ),
     (err) => console.log('DevTools Installation Error:', err) // eslint-disable-line no-console
   );
 };
