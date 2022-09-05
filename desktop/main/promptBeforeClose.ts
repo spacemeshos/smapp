@@ -1,5 +1,5 @@
 import { app, BrowserWindow, dialog } from 'electron';
-import { firstValueFrom, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ipcConsts } from '../../app/vars';
 import { Managers } from './app.types';
 import { showNotification } from './utils';
@@ -37,7 +37,7 @@ const promptBeforeClose = (
         return CloseAppPromptResult.CLOSE;
     }
   };
-  const isSmeshing = async () => managers.smesher?.isSmeshing() || false;
+  const isNodeRunning = async () => managers?.node?.isNodeRunning() || false;
   const notify = () =>
     showNotification(mainWindow, {
       title: 'Spacemesh',
@@ -53,16 +53,22 @@ const promptBeforeClose = (
     }
   };
 
+  let cachedPromptResult: number | null = null;
+
   const handleClosingApp = async (event: Electron.Event) => {
-    if (await firstValueFrom($isAppClosing)) return;
+    if (cachedPromptResult !== null) return;
     event.preventDefault();
     if (!mainWindow) {
       quit();
       return;
     }
     const promptResult =
-      ((await isSmeshing()) && (await showPrompt())) ||
+      ((await isNodeRunning()) && (await showPrompt())) ||
       CloseAppPromptResult.CLOSE;
+    cachedPromptResult = promptResult;
+    // clear cache
+    // eslint-disable-next-line no-return-assign
+    setTimeout(() => (cachedPromptResult = null), 5000);
     if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
       setTimeout(notify, 1000);
       mainWindow.hide();
