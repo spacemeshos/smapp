@@ -69,14 +69,11 @@ StoreService.init();
 // State
 const context = getDefaultAppContext();
 
-// Listen auto launch ipc
-// eslint-disable-next-line no-new
-new AutoStartManager();
-
 // Run
 app
   .whenReady()
   .then(installDevTools)
+  .then(() => new AutoStartManager())
   .then(() => subscribeIPC(context))
   .then(() => Wallet.subscribe(context))
   .then(() => {

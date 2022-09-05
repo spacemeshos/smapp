@@ -1,63 +1,76 @@
+import os from 'os';
 import { ipcMain } from 'electron';
-import AutoLaunch from 'easy-auto-launch';
+import AutoLaunch from 'auto-launch';
+import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
 import StoreService from './storeService';
 
 export const IS_AUTO_START_ENABLED = 'isAutoStartEnabled';
 
 class AutoStartManager {
-  // @ts-ignore
   private manager: AutoLaunch;
 
   constructor() {
-    this.init();
+    const options: { name: string; isHidden: boolean; path?: string } = {
+      name: 'Spacemesh',
+      isHidden: true,
+    };
 
-    ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => {
-      await this.toggleAutoStart();
-    });
+    // Linux issue with path to the application
+    if (os.platform() === 'linux' && process.env.APPIMAGE) {
+      options.path = process.env.APPIMAGE;
+    }
+
+    this.manager = new AutoLaunch(options);
+
+    if (this.isEnabled()) {
+      this.enable();
+    }
+
+    ipcMain.removeAllListeners(ipcConsts.TOGGLE_AUTO_START);
+    ipcMain.on(ipcConsts.TOGGLE_AUTO_START, async () => this.toggleAutoStart());
 
     ipcMain.removeHandler(ipcConsts.IS_AUTO_START_ENABLED_REQUEST);
-    ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, async () => {
-      const res = await this.isEnabled();
-      return res;
-    });
+    ipcMain.handle(ipcConsts.IS_AUTO_START_ENABLED_REQUEST, () =>
+      this.isEnabled()
+    );
   }
 
-  init = async () => {
-    if (!this.manager) {
-      this.manager = new AutoLaunch({
-        name: 'Spacemesh',
-        isHidden: true,
-      });
-      if (StoreService.get(IS_AUTO_START_ENABLED)) {
-        await this.manager.enable();
-      }
-    }
-  };
-
   toggleAutoStart = async () => {
-    try {
-      const isEnabled = await this.manager.isEnabled();
-      if (isEnabled) {
-        await this.manager.disable();
-      } else {
-        await this.manager.enable();
-      }
-      StoreService.set(IS_AUTO_START_ENABLED, !isEnabled);
-    } catch (error) {
-      console.error(error); // eslint-disable-line no-console
-    }
+    return StoreService.get(IS_AUTO_START_ENABLED)
+      ? this.disable()
+      : this.enable();
   };
 
-  isEnabled = async () => {
-    try {
-      const isEnabled = await this.manager.isEnabled();
-      StoreService.set(IS_AUTO_START_ENABLED, isEnabled);
-      return isEnabled;
-    } catch (error) {
-      return false;
-    }
+  isEnabled = () => {
+    return StoreService.get(IS_AUTO_START_ENABLED);
   };
+
+  disable() {
+    this.manager
+      .isEnabled()
+      .then((isEnabled) => {
+        if (isEnabled) {
+          this.manager.disable();
+        }
+        return false;
+      })
+      .catch(captureException);
+    StoreService.set(IS_AUTO_START_ENABLED, false);
+  }
+
+  enable() {
+    this.manager
+      .isEnabled()
+      .then((isEnabled) => {
+        if (!isEnabled) {
+          this.manager.enable();
+        }
+        return true;
+      })
+      .catch(captureException);
+    StoreService.set(IS_AUTO_START_ENABLED, true);
+  }
 }
 
 export default AutoStartManager;
