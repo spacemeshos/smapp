@@ -24,7 +24,7 @@ jobs:
       - name: Install Node.js, NPM
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Get Smapp version
         id: package-version

@@ -40,7 +40,7 @@ jobs:
         if: ${{ steps.result.outputs.status != 'success' }}
         uses: actions/setup-node@v2-beta
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Get Smapp version
         if: steps.result.outputs.status != 'success'
