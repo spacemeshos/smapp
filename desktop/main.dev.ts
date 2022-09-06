@@ -10,7 +10,7 @@
 import 'core-js/stable';
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
+// import os from 'os';
 import { app } from 'electron';
 import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
@@ -19,7 +19,7 @@ import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
 import { isDebug, isDev, isProd } from './utils';
-import installDevTools from './main/installDevTools';
+// import installDevTools from './main/installDevTools';
 import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
@@ -34,9 +34,7 @@ isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
 
 // Ubuntu/Debian builds working only with this arg ( u can add it in terminal too )
-isProd() &&
-  os.platform() === 'linux' &&
-  app.commandLine.appendSwitch('--no-sandbox');
+// isProd() && app.commandLine.appendSwitch('--no-sandbox');
 
 init({
   dsn: process.env.SENTRY_DSN,
@@ -72,7 +70,7 @@ const context = getDefaultAppContext();
 // Run
 app
   .whenReady()
-  .then(installDevTools)
+  // .then(installDevTools)
   .then(() => new AutoStartManager())
   .then(() => subscribeIPC(context))
   .then(() => Wallet.subscribe(context))
