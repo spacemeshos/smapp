@@ -14,18 +14,20 @@ describe('datetime utils', () => {
   });
 
   it('formats date in human readable format', () => {
-    expect(formatDateAsUS(genesis)).toEqual('Thursday, January 1, 1970, 00:00');
+    expect(formatDateAsUS(genesis)).toEqual(
+      'Thursday, January 1, 1970 at 00:00'
+    );
     expect(formatDateAsUS(btcGenesis)).toEqual(
-      'Saturday, January 3, 2009, 18:15'
+      'Saturday, January 3, 2009 at 18:15'
     );
   });
 
   it('converts ISO to US', () => {
     expect(formatISOAsUS('1970-01-01T00-00-00.000Z')).toEqual(
-      'Thursday, January 1, 1970, 00:00'
+      'Thursday, January 1, 1970 at 00:00'
     );
     expect(formatISOAsUS('2009-01-03T18-15-00.000Z')).toEqual(
-      'Saturday, January 3, 2009, 18:15'
+      'Saturday, January 3, 2009 at 18:15'
     );
   });
 });
