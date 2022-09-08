@@ -60,6 +60,12 @@ const NavLinksWrapper = styled.div`
   margin-left: 140px;
 `;
 
+const getNavLinkColorTheme = (theme: DefaultTheme, isActive?: boolean) => {
+  let { color } = theme.navBar;
+  color = theme.isDarkMode ? smColors.navLinkGrey : color;
+  return isActive ? smColors.purple : color;
+};
+
 const NavBarLink = styled(BoldText)<{ isActive?: boolean }>`
   display: flex;
   flex-direction: row;
@@ -69,12 +75,7 @@ const NavBarLink = styled(BoldText)<{ isActive?: boolean }>`
   line-height: 15px;
   text-decoration-line: ${({ isActive }) => (isActive ? 'underline' : 'none')};
   text-transform: uppercase;
-  color: ${({
-    isActive,
-    theme: {
-      navBar: { color },
-    },
-  }) => (isActive ? smColors.purple : color)};
+  color: ${({ isActive, theme }) => getNavLinkColorTheme(theme, isActive)};
   cursor: pointer;
 `;
 
