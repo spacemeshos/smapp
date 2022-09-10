@@ -19,7 +19,7 @@ import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
 import { isDebug, isDev, isProd } from './utils';
-// import installDevTools from './main/installDevTools';
+import installDevTools from './main/installDevTools';
 import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
@@ -70,7 +70,7 @@ const context = getDefaultAppContext();
 // Run
 app
   .whenReady()
-  // .then(installDevTools)
+  .then(installDevTools)
   .then(() => new AutoStartManager())
   .then(() => subscribeIPC(context))
   .then(() => Wallet.subscribe(context))
