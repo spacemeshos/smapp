@@ -46,6 +46,11 @@
     "spacemeshos",
     "smapp"
   ],
+  "engines": {
+    "npm": ">=8.10.0",
+    "node": ">=16.15.0"
+  },
+  "engineStrict": true,
   "homepage": "https://spacemesh.io/",
   "browserslist": [],
   "devDependencies": {
@@ -120,7 +125,7 @@
     "cross-env": "7.0.3",
     "detect-port": "1.3.0",
     "dotenv": "8.2.0",
-    "electron": "^20.1.1",
+    "electron": "^20.1.3",
     "electron-builder": "22.14.13",
     "electron-devtools-installer": "git+https://github.com/MarshallOfSound/electron-devtools-installer.git#31bf8632c32dd6a714b00289708c012a06741fd7",
     "electron-fetch": "1.7.3",
