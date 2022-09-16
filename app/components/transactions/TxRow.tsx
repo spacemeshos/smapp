@@ -5,7 +5,6 @@ import { Modal } from '../common';
 import { Button, Link, Input } from '../../basicComponents';
 import {
   getFormattedTimestamp,
-  getAddress,
   formatSmidge,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -181,11 +180,11 @@ const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 
 type Props = {
   tx: TxView;
-  publicKey: string;
+  address: string;
   addAddressToContacts: ({ address }: { address: string }) => void;
 };
 
-const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
+const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
   const [note, setNote] = useState(tx.note || '');
   const [showNoteModal, setShowNoteModal] = useState(false);
@@ -213,7 +212,7 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     return isSent ? smColors.blue : smColors.darkerGreen;
   };
 
-  const isSent = tx.sender === getAddress(publicKey);
+  const isSent = tx.principal === address;
   const color = getColor(isSent);
 
   const save = async () => {
@@ -226,16 +225,14 @@ const TxRow = ({ tx, publicKey, addAddressToContacts }: Props) => {
     setIsDetailed(!isDetailed);
   };
 
-  const txFrom = isSent ? getAddress(publicKey) : tx.sender;
+  const txFrom = isSent ? address : tx.principal;
   const txFromSuffix = (isSent && '(Me)') || undefined;
   const txFromAddContact =
     tx.senderNickname || isSent
       ? undefined
-      : () => addAddressToContacts({ address: tx.sender });
+      : () => addAddressToContacts({ address: tx.principal });
 
-  const txTo = isSent
-    ? tx.receiverNickname || tx.receiver
-    : getAddress(publicKey);
+  const txTo = isSent ? tx.receiverNickname || tx.receiver : address;
   const txToSuffix = (!isSent && '(Me)') || undefined;
   const txToAddContract =
     tx.receiverNickname || !isSent

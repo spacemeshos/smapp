@@ -7,7 +7,7 @@ import {
   DropDown,
   WrapperWith2SideBars,
 } from '../../basicComponents';
-import { parseSmidge } from '../../infra/utils';
+import { getAbbreviatedAddress, parseSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import Address from '../common/Address';
@@ -92,22 +92,22 @@ const AccountsOverview = () => {
 
   const renderAccountRow = ({
     displayName,
-    publicKey,
+    address,
   }: {
     displayName: string;
-    publicKey: string;
+    address: string;
   }) => (
     <AccountWrapper>
       <AccountName>{displayName}</AccountName>
-      <Address address={publicKey} />
+      <Address address={address} />
     </AccountWrapper>
   );
 
   if (!accounts || !accounts.length) {
     return null;
   }
-  const { displayName, publicKey } = accounts[currentAccountIndex];
-  const balance = balances[publicKey];
+  const { displayName, address } = accounts[currentAccountIndex];
+  const balance = balances[address];
   const { value, unit } = parseSmidge(balance?.currentState?.balance || 0);
 
   return (
@@ -121,13 +121,14 @@ const AccountsOverview = () => {
           <DropDown
             data={accounts.map((item) => ({
               label: item.displayName,
+              description: getAbbreviatedAddress(item.address),
             }))}
             onClick={handleSetCurrentAccount}
             selectedItemIndex={currentAccountIndex}
             rowHeight={55}
           />
         ) : (
-          renderAccountRow({ displayName, publicKey })
+          renderAccountRow({ displayName, address })
         )}
       </AccountDetails>
       <Footer>

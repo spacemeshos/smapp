@@ -5,7 +5,6 @@ import { BoldText, Button } from '../../basicComponents';
 import {
   getAbbreviatedText,
   getFormattedTimestamp,
-  getAddress,
   formatSmidge,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
@@ -86,11 +85,11 @@ type Props = {
 };
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
-  const publicKey = useSelector(
+  const address = useSelector(
     (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey
+      state.wallet.accounts[state.wallet.currentAccountIndex]?.address
   );
-  const latestTransactions = useSelector(getLatestTransactions(publicKey));
+  const latestTransactions = useSelector(getLatestTransactions(address));
 
   const getColor = ({
     status,
@@ -115,8 +114,8 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, amount, sender, timestamp, senderNickname } = tx;
-    const isSent = sender === getAddress(publicKey);
+    const { id, status, principal: sender, timestamp, senderNickname } = tx;
+    const isSent = sender === address;
     const color = getColor({ status, isSent });
 
     return (
@@ -130,7 +129,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
             <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
-              amount
+              0 // TODO
             )}`}</Amount>
           </Section>
         </MainWrapper>

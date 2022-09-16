@@ -97,7 +97,13 @@ export const ifTruish = <V extends any, R extends Record<any, any>>(
 export const toSocketAddress = (url?: string): SocketAddress => {
   if (!url || url === 'http://localhost:9092') return LOCAL_NODE_API_URL;
 
-  const u = new URL(url.startsWith('http') ? url : `http://${url}`);
+  const p = url.match(/:(\d+)$/)?.[1];
+  const port = p ? `:${p}` : '';
+  const s = p === '443' ? 's' : '';
+  const vUrl = url.startsWith('http')
+    ? url
+    : `http${s}://${url.slice(0, url.length - port.length)}${port}`;
+  const u = new URL(vUrl);
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
     throw new Error(`Unsupported protocol in GRPC remote API URL: ${url}`);
   }

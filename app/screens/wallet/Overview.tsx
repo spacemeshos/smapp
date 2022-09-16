@@ -45,6 +45,7 @@ const Overview = ({ history }: RouteComponentProps) => {
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex]
   );
+
   const isSmeshing = useSelector(
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_COMPLETE

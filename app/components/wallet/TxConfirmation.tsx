@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
-import { getAddress, formatSmidge } from '../../infra/utils';
+import { formatSmidge } from '../../infra/utils';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
@@ -140,7 +140,7 @@ const TxConfirmation = ({
       <>
         <DetailsRow>
           <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeft>{`0x${getAddress(fromAddress)}`}</DetailsTextLeft>
+          <DetailsTextLeft>{fromAddress}</DetailsTextLeft>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>To</DetailsTextRight>

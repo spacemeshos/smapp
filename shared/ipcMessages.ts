@@ -1,5 +1,5 @@
 import {
-  Account,
+  KeyPair,
   Contact,
   Network,
   PublicService,
@@ -51,7 +51,7 @@ export type UnlockWalletResponse = IpcResponse<{
   meta: WalletMeta;
   forceNetworkSelection: boolean;
 }>;
-export type CreateAccountResponse = IpcResponse<Account | null>;
+export type CreateAccountResponse = IpcResponse<KeyPair | null>;
 
 export type CreateWalletRequest = {
   password: string;

@@ -1,5 +1,5 @@
 import {
-  Account,
+  KeyPair,
   Contact,
   HexString,
   SocketAddress,
@@ -15,7 +15,7 @@ import {
   stringifySocketAddress,
 } from '../../../shared/utils';
 import { eventsService } from '../../infra/eventsService';
-import { addErrorPrefix, getAddress } from '../../infra/utils';
+import { addErrorPrefix } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
 import { getNetworkId } from '../network/selectors';
 import { setUiError } from '../ui/actions';
@@ -41,7 +41,7 @@ export const setWalletMeta = (wallet: WalletMeta) => ({
   payload: wallet,
 });
 
-export const setAccounts = (accounts: Account[]) => ({
+export const setAccounts = (accounts: KeyPair[]) => ({
   type: SET_ACCOUNTS,
   payload: accounts,
 });
@@ -317,7 +317,7 @@ export const sendTransaction = ({
 }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { accounts, currentAccountIndex } = getState().wallet;
   const fullTx: TxSendRequest = {
-    sender: getAddress(accounts[currentAccountIndex].publicKey),
+    sender: accounts[currentAccountIndex].address,
     receiver,
     amount,
     fee,

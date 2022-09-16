@@ -43,7 +43,7 @@ const SendCoins = ({ history, location }: Props) => {
       state.wallet.accounts[state.wallet.currentAccountIndex]
   );
   const currentBalance = useSelector(
-    (state: RootState) => state.wallet.balances[currentAccount.publicKey]
+    (state: RootState) => state.wallet.balances[currentAccount.address]
   );
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const dispatch: AppThDispatch = useDispatch();
@@ -100,7 +100,7 @@ const SendCoins = ({ history, location }: Props) => {
     return (
       <>
         <TxParams
-          fromAddress={currentAccount.publicKey}
+          fromAddress={currentAccount.address}
           address={address}
           hasAddressError={hasAddressError}
           updateTxAddress={updateTxAddress}
@@ -128,7 +128,7 @@ const SendCoins = ({ history, location }: Props) => {
         ) : (
           <TxSummary
             address={address}
-            fromAddress={currentAccount.publicKey}
+            fromAddress={currentAccount.address}
             amount={parseInt(`${amount}`)}
             fee={fee}
             note={note}

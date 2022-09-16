@@ -15,7 +15,6 @@ import {
   CorneredWrapper,
   DropDown,
 } from '../../basicComponents';
-import { getAddress } from '../../infra/utils';
 import { RootState } from '../../types';
 import {
   getTxAndRewards,
@@ -62,14 +61,14 @@ const DropDownWrapper = styled.div`
 `;
 
 const getNumOfCoinsFromTransactions = (
-  publicKey: HexString,
+  address: HexString,
   transactions: (TxView | RewardView)[]
 ) => {
   const coins = { mined: 0, sent: 0, received: 0 };
-  const address = getAddress(publicKey);
   return transactions.reduce((coins, txOrReward: TxView | RewardView) => {
     if (isTx(txOrReward)) {
-      const { status, sender, amount } = txOrReward;
+      const { status, principal: sender, amount: am } = txOrReward;
+      const amount = am || 0;
       if (
         status !== TxState.TRANSACTION_STATE_REJECTED &&
         status !== TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS &&
@@ -97,19 +96,16 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
 
-  const publicKey = useSelector(
+  const address = useSelector(
     (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex].publicKey
+      state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
-  const transactions = useSelector(getTxAndRewards(publicKey));
+  const transactions = useSelector(getTxAndRewards(address));
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
-    const coins = getNumOfCoinsFromTransactions(
-      publicKey,
-      filteredTransactions
-    );
+    const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
     const totalCoins = getNumOfCoinsFromTransactions(
-      publicKey,
+      address,
       transactions || []
     );
     return {

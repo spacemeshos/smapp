@@ -93,7 +93,7 @@ const patchWithContacts = <T extends Tx | (Tx & WithTimestamp)>(
   const contacts = getContacts(state);
   return txs.map((tx) => ({
     ...tx,
-    senderNickname: contacts[tx.sender.toLowerCase()] || null,
+    senderNickname: contacts[tx.principal.toLowerCase()] || null,
     receiverNickname: contacts[tx.receiver.toLowerCase()] || null,
   }));
 };

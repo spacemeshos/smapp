@@ -1,6 +1,7 @@
 import util from 'util';
 import fs from 'fs';
 import { F_OK } from 'constants';
+import * as TOML from '@iarna/toml';
 import cs from 'checksum';
 import fetch from 'electron-fetch';
 import { HexString } from '../shared/types';
@@ -42,6 +43,11 @@ export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
 
 export const fetchJSON = async (url?: string) =>
   url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null;
+
+export const fetchTOML = async (url: string) =>
+  fetch(`${url}?no-cache=${Date.now()}`)
+    .then((res) => res.text())
+    .then(TOML.parse);
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 

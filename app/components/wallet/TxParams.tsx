@@ -9,11 +9,11 @@ import {
   AutocompleteDropdown,
   BoldText,
 } from '../../basicComponents';
-import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
+import { CoinUnits, getAbbreviatedAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Contact } from '../../types';
 import AmountInput from '../../basicComponents/AmountInput';
 import { ExternalLinks } from '../../../shared/constants';
+import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -184,9 +184,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>From</DetailsText>
         <Dots>....................................</Dots>
-        <DetailsText>
-          {getAbbreviatedText(getAddress(fromAddress), true, 10)}
-        </DetailsText>
+        <DetailsText>{getAbbreviatedAddress(fromAddress)}</DetailsText>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Amount</DetailsText>

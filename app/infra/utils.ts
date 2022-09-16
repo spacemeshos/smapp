@@ -1,4 +1,5 @@
 import { HexString } from '../../shared/types';
+import { deriveHRP } from '../../shared/types/transformers';
 
 export const addErrorPrefix = (prefix: string, error: Error) => {
   error.message = `${prefix}${error.message}`;
@@ -19,6 +20,11 @@ export const getAbbreviatedText = (
     -tailSize
   )}`.toUpperCase();
   return addPrefix ? ensure0x(abbr) : abbr;
+};
+
+export const getAbbreviatedAddress = (address: string) => {
+  const hrp = deriveHRP(address) || '';
+  return `${hrp}1...${address.slice(-8)}`;
 };
 
 export const getFormattedTimestamp = (timestamp: number | null): string => {
@@ -43,11 +49,8 @@ export const getAddress = (key: string) =>
 // Address can start with `0x` or without
 // By default it checks the account address, length = 40
 // To validate tx / smesher address, set length to 64
-export const validateAddress = (
-  address: string,
-  length = 40
-): address is HexString => {
-  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`, 'i').test(address);
+export const validateAddress = (address: string): address is HexString => {
+  const r = /^\w+1q{0,8}\w+/.test(address);
   return r;
 };
 

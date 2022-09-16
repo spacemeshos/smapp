@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import * as TOML from '@iarna/toml';
 import * as R from 'ramda';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
@@ -39,11 +40,11 @@ class SmesherManager {
     const fileContent = await readFileAsync(this.configFilePath, {
       encoding: 'utf-8',
     });
-    return JSON.parse(fileContent) as NodeConfig;
+    return TOML.parse(fileContent) as NodeConfig;
   };
 
   private writeConfig = async (config) => {
-    await writeFileAsync(this.configFilePath, JSON.stringify(config));
+    await writeFileAsync(this.configFilePath, TOML.stringify(config));
     return true;
   };
 
@@ -109,7 +110,7 @@ class SmesherManager {
       0;
     const data: IPCSmesherStartupData = {
       config,
-      smesherId,
+      smesherId: smesherId || '',
       postSetupState,
       numLabelsWritten,
       numUnits,

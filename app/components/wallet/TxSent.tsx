@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { getAddress, formatSmidge, parseSmidge } from '../../infra/utils';
+import { formatSmidge, parseSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
@@ -121,9 +121,7 @@ const TxSent = ({
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${getAddress(
-            fromAddress
-          )}`}</DetailsTextLeftBold>
+          <DetailsTextLeftBold>{fromAddress}</DetailsTextLeftBold>
         </DetailsRow>
         <DetailsRow>
           <DetailsTextRight>To</DetailsTextRight>

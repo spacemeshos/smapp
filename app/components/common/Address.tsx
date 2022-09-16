@@ -3,7 +3,12 @@ import { useSelector } from 'react-redux';
 import styled, { keyframes, useTheme } from 'styled-components';
 
 import { HexString } from '../../../shared/types';
-import { ensure0x, getAbbreviatedText, getAddress } from '../../infra/utils';
+import {
+  ensure0x,
+  getAbbreviatedAddress,
+  getAbbreviatedText,
+  getAddress,
+} from '../../infra/utils';
 import { RootState } from '../../types';
 import { smColors } from '../../vars';
 import { addContact, explorer } from '../../assets/images';
@@ -78,6 +83,7 @@ export enum AddressType {
 }
 
 type Props = {
+  isHex?: boolean; // If it represents HexString, instead of Bech32 Address
   address: HexString;
   suffix?: string | null; // Additional suffix to the shown address. E.G. nickname
   overlapText?: string | null; // If set — used instead of address + suffix
@@ -90,6 +96,7 @@ type Props = {
 
 const Address = (props: Props) => {
   const {
+    isHex,
     address,
     suffix,
     overlapText,
@@ -101,7 +108,10 @@ const Address = (props: Props) => {
   } = props;
 
   const isAccount = type === AddressType.ACCOUNT;
-  const addr = ensure0x(isAccount ? getAddress(address) : address);
+  const addr = isHex
+    ? ensure0x(isAccount ? getAddress(address) : address)
+    : address;
+  const abbr = isHex ? getAbbreviatedText : getAbbreviatedAddress;
 
   const { isDarkMode } = useTheme();
   const explorerUrl = useSelector(
@@ -109,7 +119,7 @@ const Address = (props: Props) => {
   );
   const [isCopied, setIsCopied] = useState(false);
 
-  const addressToShow = full ? addr : getAbbreviatedText(addr);
+  const addressToShow = full ? addr : abbr(addr);
 
   let copyTimeout: NodeJS.Timeout;
   const handleCopy = async (e: React.MouseEvent) => {

@@ -1,41 +1,42 @@
+import Bech32 from '@spacemesh/address-wasm';
+import { TemplateRegistry } from '@spacemesh/sm-codec';
+import { bytesToHex } from '@spacemesh/sm-codec/lib/utils/hex';
 import { toHexString } from '../../desktop/utils';
 import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionReceipt__Output } from '../../proto/spacemesh/v1/TransactionReceipt';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
 import { hasRequiredTxFields } from './guards';
-import { HexString } from './misc';
 import { Tx, TxState } from './tx';
 
-const getTxReceiver = (tx: Transaction__Output): HexString =>
-  // eslint-disable-next-line no-nested-ternary
-  tx.coinTransfer?.receiver?.address
-    ? toHexString(tx.coinTransfer.receiver.address)
-    : tx.smartContract?.accountId?.address
-    ? toHexString(tx.smartContract.accountId.address)
-    : '0';
+export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
 
 export const toTx = (
   tx: Transaction__Output,
   txState: TransactionState__Output | null
-): Tx | null => {
+) => {
   if (!hasRequiredTxFields(tx)) return null;
-  return {
-    id: toHexString(tx.id.id),
-    sender: toHexString(tx.sender.address),
-    receiver: getTxReceiver(tx),
+  const hrp = deriveHRP(tx.template.address);
+  if (!hrp) {
+    throw new Error(`Transaction TemplateAddress is not BECH32`);
+  }
+  const tplAddress = Bech32.parse(tx.template.address, hrp);
+  const tpl = TemplateRegistry.get(bytesToHex(tplAddress), tx.method as 0 | 1);
+  const payload = tpl.decode(tx.raw);
+  const res = {
+    id: toHexString(tx.id),
+    principal: tx.principal.address,
+    template: tx.template.address,
+    method: tx.method,
     status: txState?.state || TxState.TRANSACTION_STATE_UNSPECIFIED,
-    amount: tx.amount.value.toNumber(),
-    gasOffered: {
-      price: tx.gasOffered?.gasPrice?.toNumber() || 0,
-      provided: tx.gasOffered?.gasProvided?.toNumber() || 0,
-    },
+    payload,
   };
+  return res;
 };
 
-export const addReceiptToTx = (
-  tx: Tx,
+export const addReceiptToTx = <T>(
+  tx: Tx<T>,
   receipt: TransactionReceipt__Output
-): Tx => ({
+): Tx<T> => ({
   ...tx,
   layer: receipt.layer?.number || tx.layer,
   receipt: {

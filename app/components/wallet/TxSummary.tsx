@@ -1,10 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {
-  getAbbreviatedText,
-  getAddress,
-  formatSmidge,
-} from '../../infra/utils';
+import { formatSmidge, getAbbreviatedAddress } from '../../infra/utils';
 import { BoldText } from '../../basicComponents';
 
 const Wrapper = styled.div`
@@ -54,9 +50,9 @@ const TxSummary = ({ address, fromAddress, amount, fee, note }: Props) => {
         --
       </Header>
       <SubHeader>TO</SubHeader>
-      <Text>{address ? getAbbreviatedText(address) : '...'}</Text>
+      <Text>{address ? getAbbreviatedAddress(address) : '...'}</Text>
       <SubHeader>FROM</SubHeader>
-      <Text>{getAbbreviatedText(getAddress(fromAddress))}</Text>
+      <Text>{getAbbreviatedAddress(fromAddress)}</Text>
       <SubHeader>AMOUNT</SubHeader>
       <Text>{formatSmidge(amount) || '...'}</Text>
       <SubHeader>FEE</SubHeader>

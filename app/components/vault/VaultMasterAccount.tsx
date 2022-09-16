@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { DropDown, Tooltip, Dots } from '../../basicComponents';
-import { Account } from '../../../shared/types';
+import { KeyPair } from '../../../shared/types';
 
 const DetailsRow = styled.div`
   position: relative;
@@ -20,7 +20,7 @@ const DetailsText = styled.div`
 type Props = {
   masterAccountIndex: number;
   selectedAccountIndex: ({ index }: { index: number }) => void;
-  accountsOption: Account[];
+  accountsOption: KeyPair[];
 };
 
 const VaultMasterAccount = ({

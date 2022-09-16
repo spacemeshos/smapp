@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import { ipcMain, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { Account, Activation, Wallet } from '../shared/types';
+import { KeyPair, Activation, Wallet } from '../shared/types';
 import {
   delay,
   isLocalNodeType,
@@ -18,7 +18,6 @@ import cryptoService from './cryptoService';
 import NodeManager from './NodeManager';
 import TransactionService from './TransactionService';
 import Logger from './logger';
-import { toHexString } from './utils';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 
 const logger = Logger({ className: 'WalletManager' });
@@ -111,7 +110,7 @@ class WalletManager {
       const { message, accountIndex } = request;
       const res = await cryptoService.signMessage({
         message,
-        secretKey: this.txManager.accounts[accountIndex].secretKey,
+        secretKey: this.txManager.keychain[accountIndex].secretKey,
       });
       return res;
     });
@@ -152,18 +151,17 @@ class WalletManager {
     return res;
   };
 
-  activateAccounts = (accounts: Account[]) => {
+  activateAccounts = (accounts: KeyPair[]) => {
     this.txManager.setAccounts(accounts);
   };
 
   requestActivationsByCoinbase = async (
-    coinbase: Uint8Array
+    coinbase: string
   ): Promise<Activation[]> => {
     const res = await this.meshService.requestMeshActivations(coinbase, 0);
     if (!res) {
-      const coinbaseHex = toHexString(coinbase);
       logger.debug(
-        `meshService.requestMeshActivations(${coinbaseHex}, 0) returned`,
+        `meshService.requestMeshActivations(${coinbase}, 0) returned`,
         res
       );
       logger.debug('SmesherId:', coinbase);
@@ -190,16 +188,16 @@ class WalletManager {
   };
 
   requestRewardsByCoinbase = async (
-    coinbase: Uint8Array
+    coinbase: string
   ): Promise<Reward__Output[]> => this.txManager.retrieveRewards(coinbase);
 
   listenRewardsByCoinbase = (
-    coinbase: Uint8Array,
+    coinbase: string,
     handler: (reward: Reward__Output) => void
   ) => this.glStateService.listenRewardsByCoinbase(coinbase, handler);
 
   listenActivationsByCoinbase = (
-    coinbase: Uint8Array,
+    coinbase: string,
     handler: (atx: Activation) => void
   ) => this.meshService.listenMeshActivations(coinbase, handler);
 }

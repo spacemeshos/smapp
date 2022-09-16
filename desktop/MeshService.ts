@@ -31,7 +31,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       });
 
   private sendAccountMeshDataQuery = (
-    accountId: Uint8Array,
+    accountId: string,
     accountMeshDataFlags: AccountMeshDataFlag,
     offset: number
   ) => {
@@ -53,14 +53,14 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       );
   };
 
-  public requestMeshTransactions = (accountId: Uint8Array, offset: number) =>
+  public requestMeshTransactions = (accountId: string, offset: number) =>
     this.sendAccountMeshDataQuery(
       accountId,
       AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_TRANSACTIONS,
       offset
     );
 
-  public requestMeshActivations = (accountId: Uint8Array, offset: number) => {
+  public requestMeshActivations = (accountId: string, offset: number) => {
     return this.sendAccountMeshDataQuery(
       accountId,
       AccountMeshDataFlag.ACCOUNT_MESH_DATA_FLAG_ACTIVATIONS,
@@ -69,7 +69,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   };
 
   private activateAccountMeshDataStream = (
-    accountId: Uint8Array,
+    accountId: string,
     accountMeshDataFlags: AccountMeshDataFlag,
     handler: (payload: any) => void
   ) =>
@@ -101,7 +101,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
     );
 
   public listenMeshTransactions = (
-    accountId: Uint8Array,
+    accountId: string,
     handler: (tx: MeshTransaction__Output) => void
   ) =>
     this.activateAccountMeshDataStream(
@@ -111,7 +111,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
     );
 
   public listenMeshActivations = (
-    accountId: Uint8Array,
+    accountId: string,
     handler: (atx: any) => void
   ) =>
     this.activateAccountMeshDataStream(

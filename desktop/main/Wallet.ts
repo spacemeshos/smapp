@@ -7,7 +7,7 @@ import { app, dialog, ipcMain } from 'electron';
 import Logger from '../logger';
 import { ipcConsts } from '../../app/vars';
 import {
-  Account,
+  KeyPair,
   Wallet,
   WalletMeta,
   WalletSecrets,
@@ -108,7 +108,7 @@ const createAccount = ({
   publicKey: string;
   secretKey: string;
   walletPath: string;
-}): Account => ({
+}): KeyPair => ({
   displayName: index > 0 ? `Account ${index}` : 'Main Account',
   created: timestamp,
   path: walletPath,

@@ -368,8 +368,7 @@ class NodeManager {
       NODE_CONFIG_FILE,
       '-d',
       nodeDataFilesPath,
-      '--log-encoder',
-      'json',
+      '--pprof-server',
     ];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);

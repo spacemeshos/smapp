@@ -71,7 +71,7 @@ class GlobalStateService extends NetServiceFactory<
     offset,
   }: {
     filter: {
-      accountId: { address: Uint8Array };
+      accountId: { address: string };
       accountDataFlags: F;
     };
     offset: number;
@@ -100,7 +100,7 @@ class GlobalStateService extends NetServiceFactory<
       );
 
   activateAccountDataStream = <K extends AccountDataValidFlags>(
-    address: Uint8Array,
+    address: string,
     accountDataFlags: K,
     handler: (data: AccountDataStreamHandlerArg[K]) => void
   ) =>
@@ -123,7 +123,7 @@ class GlobalStateService extends NetServiceFactory<
     );
 
   listenRewardsByCoinbase = (
-    coinbase: Uint8Array,
+    coinbase: string,
     handler: (data: Reward__Output) => void
   ) =>
     this.activateAccountDataStream(

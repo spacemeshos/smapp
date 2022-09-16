@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { AccountBalance, HexString } from '../shared/types';
+import { AccountBalance } from '../shared/types';
 import { Tx, Reward } from '../shared/types/tx';
 import { debounce } from '../shared/utils';
 import Logger from './logger';
@@ -10,7 +10,7 @@ const logger = Logger({ className: 'AccountState' });
 
 // Types
 export interface AccountState {
-  publicKey: string;
+  address: string;
   [k: number]: {
     account: Required<AccountBalance>;
     txs: { [txId: Tx['id']]: Tx };
@@ -21,10 +21,10 @@ export interface AccountState {
 // Utils
 
 const getDefaultAccountState = (
-  publicKey: string,
+  address: string,
   netId: number
 ): AccountState => ({
-  publicKey,
+  address,
   [netId]: {
     account: {
       currentState: { balance: 0, counter: 0 },
@@ -69,7 +69,7 @@ const load = (
 
 const save = async (state: AccountState, baseDir = DEFAULT_BASE_DIR) => {
   !fs.existsSync(baseDir) && fs.mkdirSync(baseDir, { recursive: true });
-  const filePath = getFilePath(state.publicKey, baseDir);
+  const filePath = getFilePath(state.address, baseDir);
   const data = JSON.stringify(state);
   return fs.promises.writeFile(filePath, data, { encoding: 'utf8' });
 };
@@ -95,8 +95,8 @@ export class AccountStateManager {
 
   private netId: number;
 
-  constructor(publicKey: HexString, netId: number, opts = DEFAULT_OPTS) {
-    this.state = load(publicKey, netId, opts.accountStateDir);
+  constructor(address: string, netId: number, opts = DEFAULT_OPTS) {
+    this.state = load(address, netId, opts.accountStateDir);
     this.baseDir = opts.accountStateDir;
     this.netId = netId;
     if (opts.autosave) {
@@ -111,7 +111,7 @@ export class AccountStateManager {
   private autosave = () => Promise.resolve();
 
   // Getters (pure)
-  getPublicKey = () => this.state.publicKey;
+  getAddress = () => this.state.address;
 
   getAccount = () => this.state[this.netId].account;
 
@@ -128,7 +128,7 @@ export class AccountStateManager {
     return this.autosave();
   };
 
-  storeTransaction = (tx: Tx) => {
+  storeTransaction = <T>(tx: Tx<T>) => {
     const prevTxData = this.state[this.netId].txs[tx.id] || {};
     this.state[this.netId].txs[tx.id] = { ...prevTxData, ...tx };
     return this.autosave();

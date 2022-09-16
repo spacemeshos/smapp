@@ -11,7 +11,7 @@ export const USERDATA_DIR = app.getPath('userData');
 
 export const DOCUMENTS_DIR = app.getPath('documents');
 
-export const NODE_CONFIG_FILE = path.resolve(USERDATA_DIR, 'node-config.json');
+export const NODE_CONFIG_FILE = path.resolve(USERDATA_DIR, 'config.toml');
 
 export const DEFAULT_WALLETS_DIRECTORY = USERDATA_DIR;
 

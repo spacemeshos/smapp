@@ -9,8 +9,8 @@ import { WalletSecrets, WalletSecretsEncrypted } from './wallet';
 // GRPC Type guards
 export const hasRequiredTxFields = (
   tx: Transaction__Output
-): tx is Object.NonNullable<Transaction__Output, 'id' | 'amount' | 'sender'> =>
-  !!tx.id?.id && !!tx.amount?.value && !!tx.sender?.address;
+): tx is Object.NonNullable<Transaction__Output, 'principal' | 'template'> =>
+  !!tx.id && !!tx.principal?.address && !!tx.template?.address;
 
 export const hasRequiredTxStateFields = (
   txState: TransactionState__Output

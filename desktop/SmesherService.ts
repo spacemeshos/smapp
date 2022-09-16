@@ -9,7 +9,6 @@ import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/Pos
 import { SmesherIDResponse__Output } from '../proto/spacemesh/v1/SmesherIDResponse';
 
 import Logger from './logger';
-import { fromHexString, toHexString } from './utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 
 const PROTO_PATH = 'proto/smesher.proto';
@@ -61,7 +60,7 @@ class SmesherService extends NetServiceFactory<
   getSmesherId = () =>
     this.callService('SmesherID', {})
       .then(({ accountId }) => ({
-        smesherId: accountId ? toHexString(accountId.address) : '',
+        smesherId: accountId || '',
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ smesherId: '' }));
@@ -102,7 +101,7 @@ class SmesherService extends NetServiceFactory<
     handler: (error: Error, status: Partial<PostSetupStatus>) => void;
   }) =>
     this.callService('StartSmeshing', {
-      coinbase: { address: fromHexString(coinbase.substring(2)) },
+      coinbase: { address: coinbase },
       opts: {
         dataDir,
         numUnits,
@@ -135,27 +134,25 @@ class SmesherService extends NetServiceFactory<
 
   getSmesherID = () =>
     this.callService('SmesherID', {})
-      .then((response: SmesherIDResponse__Output) => ({
-        smesherId: `0x${
-          response.accountId ? toHexString(response.accountId.address) : '00'
-        }`,
-      }))
+      .then((response: SmesherIDResponse__Output) => {
+        return {
+          smesherId: response.accountId?.address,
+        };
+      })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ smesherId: '' }));
 
   getCoinbase = () =>
     this.callService('Coinbase', {})
       .then((response) => ({
-        coinbase: response.accountId
-          ? `0x${toHexString(response.accountId.address)}`
-          : '0x00',
+        coinbase: response.accountId ? response.accountId.address : '',
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ coinbase: '0x00' }));
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
     this.callService('SetCoinbase', {
-      id: { address: fromHexString(coinbase) },
+      id: { address: coinbase },
     })
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({}));
