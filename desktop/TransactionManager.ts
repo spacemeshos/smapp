@@ -346,6 +346,7 @@ class TransactionManager {
     handler: (data: AccountDataStreamHandlerArg[F]) => void;
     retries: number;
   }) => {
+    console.log('retrieveAccountData > ', filter);
     const { data, error } = await this.glStateService.sendAccountDataQuery({
       filter,
       offset: 0,
@@ -390,6 +391,7 @@ class TransactionManager {
   };
 
   retrieveRewards = async (coinbase: string): Promise<Reward__Output[]> => {
+    console.log('retrieveRewards:', coinbase);
     const composeArg = (batchNumber: number) => ({
       filter: {
         accountId: { address: coinbase },

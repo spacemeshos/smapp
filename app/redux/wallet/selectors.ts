@@ -1,4 +1,5 @@
-import { HexString, Tx, Reward } from '../../../shared/types';
+import filterAddresses from '../../../shared/filterAddresses';
+import { HexString, Tx, Reward, Bech32Address } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
 import { RootState } from '../../types';
 import { getNetworkInfo } from '../network/selectors';
@@ -11,12 +12,11 @@ export const isWalletOnly = (state: RootState) =>
 // Types
 // ======================
 type WithTimestamp = { timestamp: number | null };
-type WithNicknames = {
-  senderNickname: string | null;
-  receiverNickname: string | null;
+type WithContacts = {
+  contacts: Record<string, string>;
 };
 
-export type TxView = Tx & WithTimestamp & WithNicknames;
+export type TxView = Tx & WithTimestamp & WithContacts;
 export type RewardView = Reward & WithTimestamp;
 
 // ======================
@@ -89,12 +89,19 @@ const patchWithTimestamp = <T extends Tx | Reward>(
 const patchWithContacts = <T extends Tx | (Tx & WithTimestamp)>(
   txs: T[],
   state: RootState
-): (T & WithNicknames)[] => {
+): (T & WithContacts)[] => {
   const contacts = getContacts(state);
   return txs.map((tx) => ({
     ...tx,
-    senderNickname: contacts[tx.principal.toLowerCase()] || null,
-    receiverNickname: contacts[tx.receiver.toLowerCase()] || null,
+    contacts: filterAddresses(tx).reduce(
+      (acc, next) => {
+        const c = contacts[next.toLowerCase()];
+        if (!c) return acc;
+        return { [next]: c };
+      }, {}
+    ),
+    // senderNickname: contacts[tx.principal.toLowerCase()] || null,
+    // receiverNickname: contacts[tx.receiver.toLowerCase()] || null,
   }));
 };
 

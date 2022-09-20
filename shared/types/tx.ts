@@ -26,10 +26,14 @@ export interface Tx<T = any> {
   // gasPrice: bigint;
   // maxSpend: bigint;
   payload: T;
-  receipt?: TxReceipt;
+  meta?: {
+    templateName: string | null;
+    methodName: string | null;
+  };
   layer?: number;
   note?: string;
   // Old one, TODO: Remove
+  receipt?: TxReceipt;
   amount?: number;
 }
 

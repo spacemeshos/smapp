@@ -112,9 +112,7 @@ const syncSmesherInfo = (
   );
 
   const $rewardsHistory = combineLatest([$coinbase, $managers]).pipe(
-    switchMap(([coinbase, managers]) =>
-      getRewards$(managers, coinbase.substring(2))
-    ),
+    switchMap(([coinbase, managers]) => getRewards$(managers, coinbase)),
     map((rewards) => rewards.map(toSmesherReward))
   );
   const $rewardsStream = $isLocalNode.pipe(

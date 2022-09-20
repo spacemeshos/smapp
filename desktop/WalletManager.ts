@@ -108,6 +108,7 @@ class WalletManager {
     });
     ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
       const { message, accountIndex } = request;
+
       const res = await cryptoService.signMessage({
         message,
         secretKey: this.txManager.keychain[accountIndex].secretKey,

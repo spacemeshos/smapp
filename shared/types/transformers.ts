@@ -5,6 +5,7 @@ import { toHexString } from '../../desktop/utils';
 import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionReceipt__Output } from '../../proto/spacemesh/v1/TransactionReceipt';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
+import { getMethodName, getTemplateName } from '../templateMeta';
 import { hasRequiredTxFields } from './guards';
 import { Tx, TxState } from './tx';
 
@@ -22,13 +23,17 @@ export const toTx = (
   const tplAddress = Bech32.parse(tx.template.address, hrp);
   const tpl = TemplateRegistry.get(bytesToHex(tplAddress), tx.method as 0 | 1);
   const payload = tpl.decode(tx.raw);
-  const res = {
+  const res = <Tx<typeof payload>>{
     id: toHexString(tx.id),
     principal: tx.principal.address,
     template: tx.template.address,
     method: tx.method,
     status: txState?.state || TxState.TRANSACTION_STATE_UNSPECIFIED,
     payload,
+    meta: {
+      templateName: getTemplateName(tplAddress),
+      methodName: getMethodName(tplAddress, tx.method),
+    },
   };
   return res;
 };
