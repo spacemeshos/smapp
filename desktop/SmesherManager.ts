@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import * as TOML from '@iarna/toml';
 import * as R from 'ramda';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
 import { ipcConsts } from '../app/vars';
@@ -14,6 +13,7 @@ import {
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
+import { configCodecByPath } from '../shared/utils';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -40,11 +40,14 @@ class SmesherManager {
     const fileContent = await readFileAsync(this.configFilePath, {
       encoding: 'utf-8',
     });
-    return TOML.parse(fileContent) as NodeConfig;
+    return configCodecByPath(this.configFilePath).parse(
+      fileContent
+    ) as NodeConfig;
   };
 
   private writeConfig = async (config) => {
-    await writeFileAsync(this.configFilePath, TOML.stringify(config));
+    const data = configCodecByPath(this.configFilePath).stringify(config);
+    await writeFileAsync(this.configFilePath, data);
     return true;
   };
 
@@ -191,7 +194,10 @@ class SmesherManager {
         });
         const config = await this.loadConfig();
         if (deleteFiles) {
-          delete config.smeshing;
+          config.smeshing['smeshing-start'] = false;
+          config.smeshing['smeshing-coinbase'] = '';
+          config.smeshing['smeshing-opts']['smeshing-opts-datadir'] =
+            '~/.spacemesh';
         } else {
           config.smeshing['smeshing-start'] = false;
         }

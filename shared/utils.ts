@@ -1,3 +1,5 @@
+import TOML from '@iarna/toml';
+import { extname } from 'path';
 import { LOCAL_NODE_API_URL } from './constants';
 import { PublicService, SocketAddress, WalletType } from './types';
 
@@ -138,3 +140,10 @@ export const toPublicService = (
 
 export const isObject = (o: any): o is Record<string, any> =>
   typeof o === 'object' && !Array.isArray(o) && o !== null;
+
+//
+//
+export const configCodecByPath = (path: string) =>
+  extname(path) === 'toml' ? TOML : JSON;
+export const configCodecByFirstChar = (data: string) =>
+  data.startsWith('{') ? JSON : TOML;
