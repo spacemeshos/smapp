@@ -47,11 +47,11 @@ message StatusResponse {
     NodeStatus status = 1;
 }
 
-message UpdatePoetServerRequest {
-    string url = 1;
+message UpdatePoetServersRequest {
+    repeated string urls = 1;
 }
 
-message UpdatePoetServerResponse {
+message UpdatePoetServersResponse {
     google.rpc.Status status = 1;
 }
 
