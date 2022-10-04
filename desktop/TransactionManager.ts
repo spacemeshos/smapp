@@ -34,7 +34,6 @@ import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 
 const DATA_BATCH = 50;
-const IPC_DEBOUNCE = 1000;
 
 type TxHandlerArg = MeshTransaction__Output | null | undefined;
 type TxHandler = (tx: TxHandlerArg) => void;
@@ -83,23 +82,23 @@ class TransactionManager {
   };
 
   // Debounce update functions to avoid excessive IPC calls
-  updateAppStateAccount = debounce(IPC_DEBOUNCE, (publicKey: string) => {
+  updateAppStateAccount = (publicKey: string) => {
     const account = this.accountStates[publicKey].getAccount();
     this.appStateUpdater(ipcConsts.T_M_UPDATE_ACCOUNT, {
       account,
       accountId: publicKey,
     });
-  });
+  };
 
-  updateAppStateTxs = debounce(IPC_DEBOUNCE, (publicKey: string) => {
+  updateAppStateTxs = (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
-  });
+  };
 
-  updateAppStateRewards = debounce(IPC_DEBOUNCE, (publicKey: string) => {
+  updateAppStateRewards = (publicKey: string) => {
     const rewards = this.accountStates[publicKey].getRewards();
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
-  });
+  };
 
   private storeTx = (publicKey: string, tx: Tx): Promise<void> =>
     this.accountStates[publicKey]

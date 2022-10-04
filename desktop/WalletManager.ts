@@ -137,7 +137,7 @@ class WalletManager {
       } else {
         await this.nodeManager.stopNode();
         if (!!apiUrl && isRemoteNodeApi(apiUrl)) {
-          await this.nodeManager.connectToRemoteNode(apiUrl);
+          res = await this.nodeManager.connectToRemoteNode(apiUrl);
         }
       }
       this.meshService.createService(apiUrl);
