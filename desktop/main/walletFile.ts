@@ -66,6 +66,7 @@ export const loadWallet = async (
 ): Promise<Wallet> => {
   const { crypto, meta } = await loadRawWallet(path);
   const cryptoDecoded = decryptWallet(crypto, password);
+  console.log({ cryptoDecoded: JSON.stringify(cryptoDecoded, null, 2) });
   return { meta, crypto: cryptoDecoded };
 };
 
