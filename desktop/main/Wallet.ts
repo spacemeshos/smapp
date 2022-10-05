@@ -101,15 +101,17 @@ const createAccount = ({
   timestamp,
   publicKey,
   secretKey,
+  walletPath,
 }: {
   index: number;
   timestamp: string;
   publicKey: string;
   secretKey: string;
+  walletPath: string;
 }): Account => ({
   displayName: index > 0 ? `Account ${index}` : 'Main Account',
   created: timestamp,
-  path: `0/0/${index}`,
+  path: walletPath,
   publicKey,
   secretKey,
 });
@@ -118,13 +120,15 @@ const createAccount = ({
 const create = (index: number, mnemonicSeed?: string): Wallet => {
   const timestamp = getISODate();
   const mnemonic = mnemonicSeed || CryptoService.generateMnemonic();
-  const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
+  const { publicKey, secretKey, walletPath } = CryptoService.deriveNewKeyPair({
     mnemonic,
     index: 0,
   });
   const crypto: WalletSecrets = {
     mnemonic,
-    accounts: [createAccount({ index: 0, timestamp, publicKey, secretKey })],
+    accounts: [
+      createAccount({ index: 0, timestamp, publicKey, secretKey, walletPath }),
+    ],
     contacts: [],
   };
   const meta: WalletMeta = {
@@ -141,7 +145,7 @@ const create = (index: number, mnemonicSeed?: string): Wallet => {
 export const createNewAccount = (wallet: Wallet): Wallet => {
   const { meta, crypto } = wallet;
   const timestamp = getISODate();
-  const { publicKey, secretKey } = CryptoService.deriveNewKeyPair({
+  const { publicKey, secretKey, walletPath } = CryptoService.deriveNewKeyPair({
     mnemonic: crypto.mnemonic,
     index: crypto.accounts.length,
   });
@@ -150,13 +154,13 @@ export const createNewAccount = (wallet: Wallet): Wallet => {
     timestamp,
     publicKey,
     secretKey,
+    walletPath,
   });
   const newCrypto = {
     ...crypto,
     accounts: [...crypto.accounts, newAccount],
   };
-  const newWallet = { meta, crypto: newCrypto };
-  return newWallet;
+  return { meta, crypto: newCrypto };
 };
 
 // Pure utils

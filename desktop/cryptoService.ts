@@ -1,8 +1,11 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
-import encryptionConst from './encryptionConst';
 import { fromHexString, toHexString } from './utils';
+import encryptionConst from './encryptionConst';
+import Bip32KeyDerivation from './main/bip32-key-derivation';
 
+const COIN_TYPE = 540;
+const MAIN_NET = 44;
 class CryptoService {
   static generateMnemonic = () => bip39.generateMnemonic();
 
@@ -31,17 +34,14 @@ class CryptoService {
     };
   };
 
-  /**
-   * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
-   */
-  static deriveNewKeyPair = ({
-    mnemonic,
-    index,
-  }: {
-    mnemonic: string;
-    index: number;
-  }) => {
+  static createWallet = (mnemonic: string, walletIndex: number) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
+    const walletPath = `${MAIN_NET}'/${COIN_TYPE}'/0'/0/${walletIndex}`;
+    const privKey = Bip32KeyDerivation.derivePath(
+      walletPath,
+      seed.toString('hex')
+    ).key;
+
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
     const enc = new TextEncoder();
@@ -55,15 +55,42 @@ class CryptoService {
     };
     // @ts-ignore
     global.__deriveNewKeyPair(
-      seed.slice(32),
-      index,
+      Buffer.from(privKey, 'utf-8').slice(32),
+      walletIndex,
       saltAsUint8Array,
       saveKeys
     ); // eslint-disable-line no-undef
-    return {
+
+    console.log({
+      mnemonic,
+      walletPath,
       publicKey: toHexString(publicKey),
+      // @TODO rename to privateKey
       secretKey: toHexString(secretKey),
+      address: toHexString(publicKey),
+    });
+    // const keyPair = new Ed25519().generateKeys(privKey);
+    return {
+      mnemonic,
+      walletPath,
+      publicKey: toHexString(publicKey),
+      // @TODO rename to privateKey
+      secretKey: toHexString(secretKey),
+      address: toHexString(publicKey),
     };
+  };
+
+  /**
+   * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
+   */
+  static deriveNewKeyPair = ({
+    mnemonic,
+    index,
+  }: {
+    mnemonic: string;
+    index: number;
+  }) => {
+    return CryptoService.createWallet(mnemonic, index);
   };
 
   /**
