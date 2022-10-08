@@ -24,6 +24,8 @@ import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
 import startApp from './main/startApp';
+import Bech32 from '@spacemesh/address-wasm';
+import HRP from './hrp';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -66,6 +68,9 @@ StoreService.init();
 
 // State
 const context = getDefaultAppContext();
+
+// TODO: Set HRP Network by retrieving it from some config?
+Bech32.setHRPNetwork(HRP.TestNet);
 
 // Run
 app

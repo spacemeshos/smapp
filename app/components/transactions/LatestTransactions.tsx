@@ -114,7 +114,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, principal: sender, timestamp, senderNickname } = tx;
+    const { id, status, principal: sender, timestamp, contacts } = tx;
     const isSent = sender === address;
     const color = getColor({ status, isSent });
 
@@ -123,7 +123,9 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
         <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
-            <NickName>{senderNickname || getAbbreviatedText(sender)}</NickName>
+            <NickName>
+              {contacts[sender] || getAbbreviatedText(sender)}
+            </NickName>
             {id === 'reward' ? null : <Text>{getAbbreviatedText(id)}</Text>}
           </Section>
           <Section>
@@ -138,9 +140,9 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderReward = (tx: RewardView) => {
-    const { amount, timestamp, layer } = tx;
+    const { amount, timestamp, layer, coinbase } = tx;
     return (
-      <TxWrapper key={`${publicKey}_reward_${layer}`}>
+      <TxWrapper key={`${coinbase}_reward_${layer}`}>
         <Icon chevronRight={false} />
         <MainWrapper>
           <Section>
