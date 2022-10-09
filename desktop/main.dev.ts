@@ -15,6 +15,8 @@ import { app } from 'electron';
 import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
 import { BrowserTracing } from '@sentry/tracing';
+import Bech32 from '@spacemesh/address-wasm';
+import HRP from '../shared/hrp';
 import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
@@ -24,8 +26,6 @@ import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
 import startApp from './main/startApp';
-import Bech32 from '@spacemesh/address-wasm';
-import HRP from './hrp';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();

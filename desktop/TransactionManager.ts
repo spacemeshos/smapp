@@ -35,7 +35,7 @@ import GlobalStateService, {
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
-import HRP from './hrp';
+import HRP from '../shared/hrp';
 
 const DATA_BATCH = 50;
 
@@ -428,9 +428,11 @@ class TransactionManager {
     }
   };
 
-  signTx = (secretKey: Uint8Array, rawData: Uint8Array): Promise<Uint8Array> =>
-    // @ts-ignore
-    global.__signTransaction(secretKey, rawData, resolve);
+  signTx = (secretKey: Uint8Array, rawData: Uint8Array) =>
+    new Promise<Uint8Array>((resolve) => {
+      // @ts-ignore
+      global.__signTransaction(secretKey, rawData, resolve);
+    });
 
   sendTx = async ({
     fullTx,
@@ -439,69 +441,95 @@ class TransactionManager {
     fullTx: TxSendRequest;
     accountIndex: number;
   }) => {
-    const { publicKey, secretKey } = this.keychain[accountIndex];
-    // TODO: Detach indexes
-    const { projectedState } = this.accounts[accountIndex];
-    // const account = this.accountStates[publicKey].getAccount();
-    const { receiver, amount, fee } = fullTx;
-    // TODO: SPAWN ?
-    const tpl = TemplateRegistry.get(SingleSigTemplate.key, 1);
-    const principal = tpl.principal({ PublicKey: fromHexString(publicKey) });
-    const txEncoded = tpl.encode(principal, {
-      Arguments: {
-        Destination: fromHexString(receiver),
-        Amount: BigInt(amount),
-      },
-      Nonce: {
-        Counter: BigInt(projectedState?.counter || 1),
-        Bitfield: BigInt(1),
-      },
-      GasPrice: BigInt(fee),
-    });
-    const sig = await this.signTx(fromHexString(secretKey), txEncoded);
-    const signed = tpl.sign(txEncoded, sig);
-    const response = await this.txService.submitTransaction({
-      transaction: signed,
-    });
-    const getTxResponseError = () =>
-      new Error('Can not retrieve a transaction data');
+    try {
+      const { publicKey, secretKey } = this.keychain[accountIndex];
+      // TODO: Detach indexes
+      const { projectedState } = this.accounts[accountIndex];
+      // const account = this.accountStates[publicKey].getAccount();
+      const { receiver, amount, fee } = fullTx;
+      // TODO: SPAWN:
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
+      const spawnArgs = { PublicKey: fromHexString(publicKey) };
+      const principal = tpl.principal(spawnArgs);
+      const txEncoded = tpl.encode(principal, {
+        TemplateAddress: SingleSigTemplate.publicKey,
+        Nonce: {
+          Counter: BigInt(projectedState?.counter || 1),
+          Bitfield: BigInt(1),
+        },
+        GasPrice: BigInt(fee),
+        Arguments: spawnArgs,
+      });
+      // TODO: SPEND:
+      // const tpl = TemplateRegistry.get(SingleSigTemplate.key, 1);
+      // const principal = tpl.principal({ PublicKey: fromHexString(publicKey) });
+      // const txEncoded = tpl.encode(principal, {
+      //   Arguments: {
+      //     Destination: fromHexString(receiver),
+      //     Amount: BigInt(amount),
+      //   },
+      //   Nonce: {
+      //     Counter: BigInt(projectedState?.counter || 1),
+      //     Bitfield: BigInt(1),
+      //   },
+      //   GasPrice: BigInt(fee),
+      // });
+      console.log('txEncoded', txEncoded);
+      const sig = await this.signTx(fromHexString(secretKey), txEncoded);
+      console.log('tx sig', sig);
+      const signed = tpl.sign(txEncoded, sig);
+      console.log('tx signed', signed);
+      const response = await this.txService.submitTransaction({
+        transaction: signed,
+      });
+      console.log('tx response', response);
+      const getTxResponseError = () =>
+        new Error('Can not retrieve a transaction data');
 
-    // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
-    const error =
-      response.error || response.txstate === null || !response.txstate.id?.id
-        ? response.error || getTxResponseError()
-        : null;
-    // Compose "initial" transaction record
-    const tx: TxCoinTransfer | null =
-      response.error === null && response.txstate?.id?.id
-        ? {
-            id: toHexString(response.txstate.id.id),
-            principal: Bech32.generateAddress(principal),
-            receiver: Bech32.generateAddress(fromHexString(fullTx.receiver)),
-            amount: fullTx.amount,
-            status: response.txstate.state,
-            receipt: {
-              fee: fullTx.fee,
-            },
-          }
-        : null;
-    const state =
-      response.error === null && response.txstate?.state
-        ? response.txstate.state
-        : null;
+      // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
+      const error =
+        response.error || response.txstate === null || !response.txstate.id?.id
+          ? response.error || getTxResponseError()
+          : null;
+      // Compose "initial" transaction record
+      const tx: TxCoinTransfer | null =
+        response.error === null && response.txstate?.id?.id
+          ? {
+              id: toHexString(response.txstate.id.id),
+              principal: Bech32.generateAddress(principal),
+              receiver: Bech32.generateAddress(fromHexString(fullTx.receiver)),
+              amount: fullTx.amount,
+              status: response.txstate.state,
+              receipt: {
+                fee: fullTx.fee,
+              },
+            }
+          : null;
+      const state =
+        response.error === null && response.txstate?.state
+          ? response.txstate.state
+          : null;
 
-    if (
-      tx &&
-      state &&
-      ![
-        TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS,
-        TxState.TRANSACTION_STATE_REJECTED,
-        TxState.TRANSACTION_STATE_CONFLICTING,
-      ].includes(state)
-    ) {
-      this.upsertTransaction(publicKey)(tx);
+      if (
+        tx &&
+        state &&
+        ![
+          TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS,
+          TxState.TRANSACTION_STATE_REJECTED,
+          TxState.TRANSACTION_STATE_CONFLICTING,
+        ].includes(state)
+      ) {
+        this.upsertTransaction(publicKey)(tx);
+      }
+      return { error, tx, state };
+    } catch (err) {
+      console.log('tx send caught error: ', err);
+      return {
+        error: err,
+        tx: null,
+        state: null,
+      };
     }
-    return { error, tx, state };
   };
 
   updateTxNote = ({

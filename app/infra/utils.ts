@@ -1,3 +1,4 @@
+import HRP from '../../shared/hrp';
 import { HexString } from '../../shared/types';
 import { deriveHRP } from '../../shared/types/transformers';
 
@@ -46,11 +47,11 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
 export const getAddress = (key: string) =>
   key.length <= 44 ? key : key.substring(24);
 
-// Address can start with `0x` or without
-// By default it checks the account address, length = 40
-// To validate tx / smesher address, set length to 64
 export const validateAddress = (address: string): address is HexString => {
-  const r = /^\w+1q{0,8}\w+/.test(address);
+  const addressRegex = new RegExp(
+    `^(${Object.values(HRP).join('|')})1[a-zA-Z0-9]{45}$`
+  );
+  const r = addressRegex.test(address);
   return r;
 };
 

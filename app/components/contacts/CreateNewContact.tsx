@@ -7,6 +7,7 @@ import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
+import { validateAddress } from '../../infra/utils';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
   display: flex;
@@ -107,8 +108,7 @@ const CreateNewContact = ({
     if (nicknameRegex.test(nickname)) {
       return 'Nickname is missing or invalid';
     }
-    const addressRegex = /\b0[xX][a-zA-Z0-9]{40}\b/;
-    if (!addressRegex.test(address)) {
+    if (!validateAddress(address)) {
       return 'Address is invalid';
     }
     let retVal = '';

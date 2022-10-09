@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { BoldText, Button } from '../../basicComponents';
 import {
-  getAbbreviatedText,
+  getAbbreviatedAddress,
   getFormattedTimestamp,
   formatSmidge,
 } from '../../infra/utils';
@@ -124,9 +124,9 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
         <MainWrapper>
           <Section>
             <NickName>
-              {contacts[sender] || getAbbreviatedText(sender)}
+              {contacts[sender] || getAbbreviatedAddress(sender)}
             </NickName>
-            {id === 'reward' ? null : <Text>{getAbbreviatedText(id)}</Text>}
+            {id === 'reward' ? null : <Text>{getAbbreviatedAddress(id)}</Text>}
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>

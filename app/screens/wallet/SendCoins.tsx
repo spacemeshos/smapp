@@ -10,7 +10,7 @@ import {
   TxSent,
 } from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
-import { ensure0x, validateAddress } from '../../infra/utils';
+import { validateAddress } from '../../infra/utils';
 import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
@@ -49,7 +49,7 @@ const SendCoins = ({ history, location }: Props) => {
   const dispatch: AppThDispatch = useDispatch();
 
   const updateTxAddress = ({ value }: { value: string }) => {
-    setAddress(ensure0x(value));
+    setAddress(value);
     setHasAddressError(false);
   };
 
@@ -86,9 +86,8 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const handleSendTransaction = async () => {
-    const receiver = address.replace(/^0x/, '');
     const result = await dispatch(
-      sendTransaction({ receiver, amount, fee, note })
+      sendTransaction({ receiver: address, amount, fee, note })
     );
     if (result?.id) {
       setMode(3);
@@ -148,7 +147,7 @@ const SendCoins = ({ history, location }: Props) => {
       return (
         <TxConfirmation
           address={address}
-          fromAddress={currentAccount.publicKey}
+          fromAddress={currentAccount.address}
           amount={parseInt(`${amount}`)}
           fee={fee}
           note={note}
@@ -163,7 +162,7 @@ const SendCoins = ({ history, location }: Props) => {
       return (
         <TxSent
           address={address}
-          fromAddress={currentAccount.publicKey}
+          fromAddress={currentAccount.address}
           amount={amount}
           txId={txId}
           doneAction={history.goBack}

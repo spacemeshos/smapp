@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Story, ComponentMeta } from '@storybook/react';
 import styled from 'styled-components';
 import { AutocompleteDropdownProps } from 'app/basicComponents/AutocompleteDropdown';
-import { ensure0x } from '../app/infra/utils';
 import { formatISOAsUS } from '../shared/datetime';
 import { DropDown, AutocompleteDropdown } from '../app/basicComponents';
 
@@ -156,8 +155,8 @@ const DropdownTemplate: Story<{
       <AutocompleteDropdown
         {...autocompleteDropdownArgs}
         value={value}
-        onChange={(value) => setValue(ensure0x(value))}
-        onEnter={(value) => setValue(ensure0x(value))}
+        onChange={(value) => setValue(value)}
+        onEnter={(value) => setValue(value)}
       />
     </Container>
   );
