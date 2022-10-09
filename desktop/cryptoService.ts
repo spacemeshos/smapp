@@ -34,7 +34,7 @@ class CryptoService {
     };
   };
 
-  static createWallet = (mnemonic: string, walletIndex: number) => {
+  static createWallet = (mnemonic: string, walletIndex = 0) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const walletPath = `${MAIN_NET}'/${COIN_TYPE}'/0'/0/${walletIndex}`;
     const privKey = Bip32KeyDerivation.derivePath(
