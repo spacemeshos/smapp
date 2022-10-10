@@ -1,31 +1,5 @@
 import CryptoService from '../desktop/cryptoService';
 
-// jest.spyOn(global, '__deriveNewKeyPair').mockReturnValue(() => {});
-
-//
-// beforeAll(() => {
-//   // eslint-disable-next-line no-global-assign
-//   global = {
-//     // @ts-ignore
-//     __deriveNewKeyPair: globalSpy,
-//   };
-// });
-//
-// afterAll(() => {
-//   // @ts-ignore
-//   // eslint-disable-next-line no-global-assign
-//   global = {};
-// });
-//
-// function str2ab(buf, len) {
-//   const ab = new ArrayBuffer(len);
-//   const view = new Uint8Array(ab);
-//   for (let i = 0; i < buf.length; ++i) {
-//     view[i] = buf[i];
-//   }
-//   return ab;
-// }
-
 beforeAll(() => {
   Object.defineProperty(global, '__deriveNewKeyPair', {
     value: (...props) => {
