@@ -171,8 +171,14 @@ class EventsService {
   }: {
     fullTx: TxSendRequest;
     accountIndex: number;
-  }): Promise<ReturnType<TransactionManager['sendTx']>> =>
+  }): Promise<ReturnType<TransactionManager['publishSpendTx']>> =>
     ipcRenderer.invoke(ipcConsts.W_M_SEND_TX, { fullTx, accountIndex });
+
+  static spawnTx = (
+    fee: number,
+    accountIndex: number
+  ): Promise<ReturnType<TransactionManager['publishSelfSpawn']>> =>
+    ipcRenderer.invoke(ipcConsts.W_M_SPAWN_TX, { fee, accountIndex });
 
   static updateTransactionNote = (
     accountIndex: number,

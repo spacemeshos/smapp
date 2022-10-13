@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
-import { fromHexString, toHexString } from './utils';
+import { fromHexString, toHexString } from '../shared/utils';
 import Bip32KeyDerivation from './main/bip32-key-derivation';
 
 class CryptoService {

@@ -1,6 +1,6 @@
 import HRP from '../../shared/hrp';
 import { HexString } from '../../shared/types';
-import { deriveHRP } from '../../shared/types/transformers';
+import { deriveHRP } from '../../shared/utils';
 
 export const addErrorPrefix = (prefix: string, error: Error) => {
   error.message = `${prefix}${error.message}`;

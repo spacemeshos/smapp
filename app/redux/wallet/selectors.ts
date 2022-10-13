@@ -1,5 +1,5 @@
 import filterAddresses from '../../../shared/filterAddresses';
-import { HexString, Tx, Reward, Bech32Address } from '../../../shared/types';
+import { HexString, Tx, Reward } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
 import { RootState } from '../../types';
 import { getNetworkInfo } from '../network/selectors';

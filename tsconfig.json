@@ -31,7 +31,6 @@
   },
   "exclude": [
     "node_modules",
-    "test",
     "release",
     "desktop/main.prod.js",
     "desktop/renderer.prod.js",

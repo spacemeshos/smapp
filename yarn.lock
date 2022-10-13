@@ -2483,10 +2483,10 @@
   dependencies:
     scale-ts "^0.2.11"
 
-"@spacemesh/sm-codec@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.0.tgz#415dc9178f40d260fdd6f356324eb0287f310a59"
-  integrity sha512-t47OVnsm4/e8isB5nN+rnWJzB4ejTMoRIniNhFlSP7vX9K25SagL/OVyjK7aVZNMn6LgevK4RE7d5nR/7gSanw==
+"@spacemesh/sm-codec@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.2.tgz#9222a17873d5ec8f20578c308acdcfd05c3570e6"
+  integrity sha512-VlMSXhS2oDySQ4mXQh1vWyttCMsKHNDHu/nDNTxR440i/7BOFlcIRw4s+4p1dXZ2n9KE4FoYHNVcGHfapOK1pw==
   dependencies:
     "@spacemesh/sm-codec" "^0.2.1"
     scale-ts "^0.2.11"
@@ -11509,6 +11509,11 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha512-uZz5UnB7u4T9LvwmFqXii7pZSouaRPorGs5who1Ip7VO0wxanFvBL7GkM6dTHlgX+jhBApRetaWpnDabOeTcnA==
+
+json-bigint-patch@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/json-bigint-patch/-/json-bigint-patch-0.0.8.tgz#45d954da1f21c6d4f3ae9ef64c9ac227cd0ab0fe"
+  integrity sha512-xa0LTQsyaq8awYyZyuUsporWisZFiyqzxGW8CKM3t7oouf0GFAKYJnqAm6e9NLNBQOCtOLvy614DEiRX/rPbnA==
 
 json-bigint@^1.0.0:
   version "1.0.0"

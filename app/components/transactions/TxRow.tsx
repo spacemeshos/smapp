@@ -188,8 +188,8 @@ type RowProps = React.PropsWithChildren<{
 
 const Row = ({ title, color, children }: RowProps) => (
   <TextRow>
-    <BlackText>${title}</BlackText>
-    <BoldText color={color}>${children}</BoldText>
+    <BlackText>{title}</BlackText>
+    <BoldText color={color}>{children}</BoldText>
   </TextRow>
 );
 
@@ -204,9 +204,9 @@ const flatten = (
     const nextVal =
       val && typeof val === 'object' && val.toString() === '[object Object]'
         ? flatten(val)
-        : [newKey, val.toString()];
+        : [[newKey, val.toString()]];
 
-    return [...acc, nextVal];
+    return [...acc, ...nextVal];
   }, [] as any[]);
 
 const renderTxPayload = (tx: TxView) => {
@@ -214,11 +214,19 @@ const renderTxPayload = (tx: TxView) => {
   const data = flatten(payload);
   const rows = data.map(([k, v]) => (
     <Row title={k} key={`TxPayloadRow_${k}`}>
-      {v}
+      {typeof v === 'string' && (k === 'Destination' || k === 'PublicKey') ? (
+        <Address
+          address={v}
+          overlapText={tx.contacts[v]}
+          isHex={v.startsWith('0x')}
+        />
+      ) : (
+        v
+      )}
       {/* TODO: Add custom renderers, like <Address>  */}
     </Row>
   ));
-  return <>${rows}</>;
+  return <>{rows}</>;
 };
 
 const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
@@ -265,27 +273,11 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
   const txFrom = isSent ? address : tx.principal;
   const txFromSuffix = (isSent && '(Me)') || undefined;
 
-  const methodName = getMethodName(tx.template, tx.method);
   const renderDetails = () => (
     <DetailsSection>
       <Row title="TRANSACTION ID">
-        <Address type={AddressType.TX} address={tx.id} />
+        <Address type={AddressType.TX} address={tx.id} isHex />
       </Row>
-      <Row title="TEMPLATE ADDRESS">
-        <Address
-          type={AddressType.ACCOUNT}
-          address={tx.template}
-          overlapText={tx.meta?.templateName}
-        />
-      </Row>
-      <Row title="METHOD SELECTOR">
-        {tx.method}
-        {methodName && ` (${methodName})`}
-      </Row>
-      <Row title="STATUS" color={color}>
-        {TX_STATE_LABELS[tx.status]}
-      </Row>
-      {tx.layer && <Row title="LAYER ID">{tx.layer}</Row>}
       <Row title="PRINCIPAL">
         <Address
           address={txFrom}
@@ -298,6 +290,21 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
           }
         />
       </Row>
+      <Row title="TEMPLATE ADDRESS">
+        <Address
+          type={AddressType.ACCOUNT}
+          address={tx.template}
+          overlapText={tx.meta?.templateName}
+        />
+      </Row>
+      <Row title="METHOD SELECTOR">
+        {tx.method}
+        {tx.meta?.methodName && ` (${tx.meta?.methodName})`}
+      </Row>
+      <Row title="STATUS" color={color}>
+        {TX_STATE_LABELS[tx.status]}
+      </Row>
+      {tx.layer && <Row title="LAYER ID">{tx.layer}</Row>}
       {renderTxPayload(tx)}
       <Row title="NOTE">
         {note ? `${note}` : `NO NOTE`}

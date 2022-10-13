@@ -8,6 +8,8 @@
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import 'core-js/stable';
+import 'json-bigint-patch';
+
 import path from 'path';
 import fs from 'fs';
 // import os from 'os';

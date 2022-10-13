@@ -1,6 +1,6 @@
 import { _spacemesh_v1_TransactionState_TransactionState as TxState } from '../../proto/spacemesh/v1/TransactionState';
 import { _spacemesh_v1_TransactionReceipt_TransactionResult as TxResult } from '../../proto/spacemesh/v1/TransactionReceipt';
-import { _spacemesh_v1_SmartContractTransaction_TransactionType as TxSmartContractType } from '../../proto/spacemesh/v1/SmartContractTransaction';
+// import { _spacemesh_v1_SmartContractTransaction_TransactionType as TxSmartContractType } from '../../proto/spacemesh/v1/SmartContractTransaction';
 import { Bech32Address, HexString } from './misc';
 
 export { _spacemesh_v1_TransactionState_TransactionState as TxState } from '../../proto/spacemesh/v1/TransactionState';
@@ -22,9 +22,6 @@ export interface Tx<T = any> {
   template: Bech32Address;
   method: number;
   status: TxState;
-  // maxGas: bigint;
-  // gasPrice: bigint;
-  // maxSpend: bigint;
   payload: T;
   meta?: {
     templateName: string | null;
@@ -36,6 +33,8 @@ export interface Tx<T = any> {
   receipt?: TxReceipt;
   amount?: number;
 }
+
+export const asTx = <T>(tx: Tx<T>): Tx<T> => tx;
 
 export interface TxSendRequest {
   sender: HexString;

@@ -26,7 +26,6 @@ import {
   Wallet,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
-import { toHexString } from '../../utils';
 import { HOUR, MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';

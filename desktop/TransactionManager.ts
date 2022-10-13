@@ -2,16 +2,17 @@ import * as R from 'ramda';
 import { BrowserWindow } from 'electron';
 import { TemplateRegistry, SingleSigTemplate } from '@spacemesh/sm-codec';
 import Bech32 from '@spacemesh/address-wasm';
+import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
 import {
   KeyPair,
   AccountWithBalance,
   HexString,
   Reward,
   Tx,
-  TxCoinTransfer,
   TxSendRequest,
   TxState,
   Bech32Address,
+  asTx,
 } from '../shared/types';
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
@@ -21,11 +22,10 @@ import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
-import { addReceiptToTx, toTx } from '../shared/types/transformers';
 import { hasRequiredRewardFields } from '../shared/types/guards';
-import { delay } from '../shared/utils';
+import { delay, fromHexString, toHexString } from '../shared/utils';
 import { getISODate } from '../shared/datetime';
-import { fromHexString, toHexString } from './utils';
+import { addReceiptToTx, toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
 import GlobalStateService, {
@@ -35,7 +35,7 @@ import GlobalStateService, {
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
-import HRP from '../shared/hrp';
+import { sign } from './ed25519';
 
 const DATA_BATCH = 50;
 
@@ -89,7 +89,7 @@ class TransactionManager {
 
   // Debounce update functions to avoid excessive IPC calls
   updateAppStateAccount = (address: string) => {
-    const account = this.accountStates[address]?.getAccount();
+    const account = this.accountStates[address].getAccount();
     if (!account) {
       return;
     }
@@ -100,12 +100,12 @@ class TransactionManager {
   };
 
   updateAppStateTxs = (publicKey: string) => {
-    const txs = this.accountStates[publicKey]?.getTxs() || {};
+    const txs = this.accountStates[publicKey].getTxs() || {};
     this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
   };
 
   updateAppStateRewards = (publicKey: string) => {
-    const rewards = this.accountStates[publicKey]?.getRewards() || {};
+    const rewards = this.accountStates[publicKey].getRewards() || {};
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
   };
 
@@ -193,7 +193,7 @@ class TransactionManager {
       updateAccountData
     );
 
-    const txs = Object.keys(this.accountStates[address]?.getTxs() || {});
+    const txs = Object.keys(this.accountStates[address].getTxs() || {});
     if (txs.length > 0) {
       this.subscribeTransactions(address);
     }
@@ -218,7 +218,7 @@ class TransactionManager {
 
   addAccount = (keypair: KeyPair) => {
     const { publicKey } = keypair;
-    const pkBytes = fromHexString(publicKey.substring(24));
+    const pkBytes = fromHexString(publicKey);
     const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
     const principal = tpl.principal({ PublicKey: pkBytes });
     const address = Bech32.generateAddress(principal);
@@ -256,25 +256,25 @@ class TransactionManager {
     accounts.forEach(this.addAccount);
   };
 
-  private upsertTransaction = (accountId: HexString) => async <T>(
+  private upsertTransaction = (accountAddress: Bech32Address) => async <T>(
     tx: Tx<T>
   ) => {
-    const originalTx = this.accountStates[accountId].getTxById(tx.id);
+    const originalTx = this.accountStates[accountAddress].getTxById(tx.id);
     const receipt = tx.receipt
       ? { ...originalTx?.receipt, ...tx.receipt }
       : originalTx?.receipt;
     const updatedTx: Tx = { ...originalTx, ...tx, receipt };
-    await this.storeTx(accountId, updatedTx);
-    this.subscribeTransactions(accountId);
+    await this.storeTx(accountAddress, updatedTx);
+    this.subscribeTransactions(accountAddress);
   };
 
-  private upsertTransactionFromMesh = (accountId: HexString) => async (
+  private upsertTransactionFromMesh = (accountAddress: Bech32Address) => async (
     tx: TxHandlerArg
   ) => {
     if (!tx || !tx?.transaction?.id || !tx.layerId) return;
     const newTxData = toTx(tx.transaction, null);
     if (!newTxData) return;
-    this.upsertTransaction(accountId)({
+    this.upsertTransaction(accountAddress)({
       ...newTxData,
       ...(tx.layerId?.number ? { layer: tx.layerId.number } : {}),
     });
@@ -325,7 +325,7 @@ class TransactionManager {
       counter: data.stateProjected?.counter?.toNumber?.() || 0,
       balance: data.stateProjected?.balance?.value?.toNumber() || 0,
     };
-    this.accountStates[address]?.storeAccountBalance({
+    this.accountStates[address].storeAccountBalance({
       currentState,
       projectedState,
     });
@@ -428,13 +428,64 @@ class TransactionManager {
     }
   };
 
-  signTx = (secretKey: Uint8Array, rawData: Uint8Array) =>
-    new Promise<Uint8Array>((resolve) => {
-      // @ts-ignore
-      global.__signTransaction(secretKey, rawData, resolve);
-    });
+  // TODO: Replace with generic `publishTx`
+  publishSelfSpawn = async (fee: number, accountIndex: number) => {
+    try {
+      const { publicKey, secretKey } = this.keychain[accountIndex];
+      const { projectedState } = this.accounts[accountIndex];
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
+      const spawnArgs = { PublicKey: fromHexString(publicKey) };
+      const principal = tpl.principal(spawnArgs);
+      const address = Bech32.generateAddress(principal);
+      const payload = {
+        Nonce: {
+          Counter: BigInt(projectedState?.counter || 0),
+          Bitfield: BigInt(0),
+        },
+        GasPrice: BigInt(fee),
+        Arguments: spawnArgs,
+      };
+      const txEncoded = tpl.encode(principal, payload);
+      const hashed = sha256(txEncoded);
+      const sig = sign(hashed, secretKey);
+      const signed = tpl.sign(txEncoded, sig);
+      const response = await this.txService.submitTransaction({
+        transaction: signed,
+      });
+      const getTxResponseError = () =>
+        new Error('Can not retrieve a transaction data');
 
-  sendTx = async ({
+      // TODO: Refactor to avoid mixing data with errors and then get rid of insane ternaries for each data piece
+      const error =
+        response.error || response.txstate === null || !response.txstate.id?.id
+          ? response.error || getTxResponseError()
+          : null;
+      // Compose "initial" transaction record
+      const tx =
+        response.error === null && response.txstate?.id?.id
+          ? asTx({
+              id: toHexString(response.txstate.id.id),
+              template: Bech32.generateAddress(SingleSigTemplate.publicKey),
+              method: 0,
+              principal: address,
+              status:
+                response.txstate?.state ||
+                TxState.TRANSACTION_STATE_UNSPECIFIED,
+              payload,
+            })
+          : null;
+      tx && this.upsertTransaction(address)(tx);
+      return { error, tx };
+    } catch (err) {
+      this.logger.error('publishSelfSpawn', err);
+      return {
+        error: err,
+        tx: null,
+      };
+    }
+  };
+
+  publishSpendTx = async ({
     fullTx,
     accountIndex,
   }: {
@@ -445,44 +496,34 @@ class TransactionManager {
       const { publicKey, secretKey } = this.keychain[accountIndex];
       // TODO: Detach indexes
       const { projectedState } = this.accounts[accountIndex];
+      console.log('account', this.accounts[accountIndex]);
+      console.log('projectedState', projectedState);
       // const account = this.accountStates[publicKey].getAccount();
       const { receiver, amount, fee } = fullTx;
-      // TODO: SPAWN:
-      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
-      const spawnArgs = { PublicKey: fromHexString(publicKey) };
-      const principal = tpl.principal(spawnArgs);
-      const txEncoded = tpl.encode(principal, {
-        TemplateAddress: SingleSigTemplate.publicKey,
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 1);
+      const principal = tpl.principal({
+        PublicKey: fromHexString(publicKey),
+      });
+      const address = Bech32.generateAddress(principal);
+      const payload = {
+        Arguments: {
+          Destination: Bech32.parse(receiver),
+          Amount: BigInt(amount),
+        },
         Nonce: {
           Counter: BigInt(projectedState?.counter || 1),
-          Bitfield: BigInt(1),
+          Bitfield: BigInt(0),
         },
         GasPrice: BigInt(fee),
-        Arguments: spawnArgs,
-      });
-      // TODO: SPEND:
-      // const tpl = TemplateRegistry.get(SingleSigTemplate.key, 1);
-      // const principal = tpl.principal({ PublicKey: fromHexString(publicKey) });
-      // const txEncoded = tpl.encode(principal, {
-      //   Arguments: {
-      //     Destination: fromHexString(receiver),
-      //     Amount: BigInt(amount),
-      //   },
-      //   Nonce: {
-      //     Counter: BigInt(projectedState?.counter || 1),
-      //     Bitfield: BigInt(1),
-      //   },
-      //   GasPrice: BigInt(fee),
-      // });
-      console.log('txEncoded', txEncoded);
-      const sig = await this.signTx(fromHexString(secretKey), txEncoded);
-      console.log('tx sig', sig);
+      };
+      console.dir(payload, { depth: null, colors: true });
+      const txEncoded = tpl.encode(principal, payload);
+      const hashed = sha256(txEncoded);
+      const sig = sign(hashed, secretKey);
       const signed = tpl.sign(txEncoded, sig);
-      console.log('tx signed', signed);
       const response = await this.txService.submitTransaction({
         transaction: signed,
       });
-      console.log('tx response', response);
       const getTxResponseError = () =>
         new Error('Can not retrieve a transaction data');
 
@@ -492,42 +533,35 @@ class TransactionManager {
           ? response.error || getTxResponseError()
           : null;
       // Compose "initial" transaction record
-      const tx: TxCoinTransfer | null =
+      const tx =
         response.error === null && response.txstate?.id?.id
-          ? {
+          ? asTx({
               id: toHexString(response.txstate.id.id),
-              principal: Bech32.generateAddress(principal),
-              receiver: Bech32.generateAddress(fromHexString(fullTx.receiver)),
-              amount: fullTx.amount,
-              status: response.txstate.state,
-              receipt: {
-                fee: fullTx.fee,
+              template: Bech32.generateAddress(SingleSigTemplate.publicKey),
+              method: 0,
+              principal: address,
+              status:
+                response.txstate?.state ||
+                TxState.TRANSACTION_STATE_UNSPECIFIED,
+              payload: {
+                ...payload,
+                Arguments: {
+                  ...payload.Arguments,
+                  Destination: Bech32.generateAddress(
+                    payload.Arguments.Destination
+                  ),
+                },
               },
-            }
-          : null;
-      const state =
-        response.error === null && response.txstate?.state
-          ? response.txstate.state
+            })
           : null;
 
-      if (
-        tx &&
-        state &&
-        ![
-          TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS,
-          TxState.TRANSACTION_STATE_REJECTED,
-          TxState.TRANSACTION_STATE_CONFLICTING,
-        ].includes(state)
-      ) {
-        this.upsertTransaction(publicKey)(tx);
-      }
-      return { error, tx, state };
+      tx && this.upsertTransaction(address)(tx);
+      return { error, tx };
     } catch (err) {
-      console.log('tx send caught error: ', err);
+      this.logger.error('publishSpendTx', err);
       return {
         error: err,
         tx: null,
-        state: null,
       };
     }
   };

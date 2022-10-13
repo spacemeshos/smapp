@@ -1,7 +1,6 @@
 import TOML from '@iarna/toml';
-import { extname } from 'path';
 import { LOCAL_NODE_API_URL } from './constants';
-import { PublicService, SocketAddress, WalletType } from './types';
+import { HexString, PublicService, SocketAddress, WalletType } from './types';
 
 // eslint-disable-next-line import/prefer-default-export
 export const delay = (ms: number) =>
@@ -144,6 +143,30 @@ export const isObject = (o: any): o is Record<string, any> =>
 //
 //
 export const configCodecByPath = (path: string) =>
-  extname(path) === 'toml' ? TOML : JSON;
+  /\.toml$/.test(path) ? TOML : JSON;
 export const configCodecByFirstChar = (data: string) =>
   data.startsWith('{') ? JSON : TOML;
+
+// --------------------------------------------------------
+// HexString conversion
+// --------------------------------------------------------
+export const fromHexString = (hexString: HexString) => {
+  const bytes: number[] = [];
+  for (let i = 0; i < hexString.length; i += 2) {
+    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
+  }
+  return Uint8Array.from(bytes);
+};
+export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
+  bytes instanceof Buffer
+    ? bytes.toString('hex')
+    : bytes.reduce(
+        (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
+        ''
+      );
+
+//
+//
+//
+
+export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;

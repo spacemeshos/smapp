@@ -31,6 +31,8 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     Service<ProtoGrpcType, 'NodeService'>['ErrorStream']
   > | null = null;
 
+  private isShuttingDown = false;
+
   logger = Logger({ className: 'NodeService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
@@ -90,7 +92,11 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
   shutdown = (): Promise<boolean> =>
     this.callService('Shutdown', {})
       .then(() => true)
-      .catch(() => false);
+      .catch(() => false)
+      .then((res) => {
+        this.isShuttingDown = res;
+        return res;
+      });
 
   activateStatusStream = (
     statusHandler: StatusStreamHandler,
@@ -123,6 +129,10 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       console.log('StatusStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc StatusStream ended', null);
       this.statusStream = null;
+      if (!this.isShuttingDown) {
+        this.logger.log('grpc StatusStream restarting', null);
+        this.activateStatusStream(statusHandler, errorHandler);
+      }
     });
   };
 
@@ -150,6 +160,10 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc ErrorStream ended', null);
       this.errorStream = null;
+      if (!this.isShuttingDown) {
+        this.logger.log('grpc ErrorStream restarting', null);
+        this.activateErrorStream(handler);
+      }
     });
   };
 

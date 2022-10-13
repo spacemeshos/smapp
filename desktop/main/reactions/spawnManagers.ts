@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { delay, ReplaySubject, skip, Subject, withLatestFrom } from 'rxjs';
+import { delay, distinctUntilChanged, ReplaySubject, skip, Subject, withLatestFrom } from 'rxjs';
 import { NodeConfig } from '../../../shared/types';
 import Logger from '../../logger';
 import { Managers } from '../app.types';
@@ -13,9 +13,14 @@ const spawnManagers$ = (
   $managers: Subject<Managers>,
   $mainWindow: ReplaySubject<BrowserWindow>
 ) => {
+  const $uniqNodeCondig = $nodeConfig.pipe(
+    distinctUntilChanged(
+      (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
+    )
+  );
   const subs = [
     // If node config changed, then unsubscribe managers
-    $nodeConfig
+    $uniqNodeCondig
       .pipe(skip(1), withLatestFrom($managers))
       .subscribe(([_, managers]) => {
         if (managers) {
@@ -25,7 +30,7 @@ const spawnManagers$ = (
         }
       }),
     // And then spawn new managers
-    $nodeConfig
+    $uniqNodeCondig
       .pipe(delay(1), withLatest($mainWindow))
       .subscribe(([mw, nodeConfig]) => {
         const netId: number = nodeConfig.p2p['network-id'];

@@ -9,8 +9,8 @@ import { PublicService, SocketAddress } from '../shared/types';
 import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
-import { toHexString } from './utils';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
+import { toHexString } from '../shared/utils';
 
 const PROTO_PATH = 'proto/global_state.proto';
 

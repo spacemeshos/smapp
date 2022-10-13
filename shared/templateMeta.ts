@@ -1,5 +1,5 @@
 import { StdPublicKeys } from '@spacemesh/sm-codec';
-import { bytesToHex } from '@spacemesh/sm-codec/lib/utils/hex';
+import { toHexString } from './utils';
 
 const TEMPLATE_METAS = {
   [StdPublicKeys.SingleSig]: {
@@ -11,16 +11,15 @@ const TEMPLATE_METAS = {
   },
 };
 
+const getTemplateMeta = (tplAddress: string | Uint8Array) =>
+  TEMPLATE_METAS[
+    tplAddress instanceof Uint8Array ? toHexString(tplAddress) : tplAddress
+  ];
 // Takes template address in HexString format
 export const getTemplateName = (tplAddress: string | Uint8Array) =>
-  TEMPLATE_METAS[
-    tplAddress instanceof Uint8Array ? bytesToHex(tplAddress) : tplAddress
-  ]?.name || null;
+  getTemplateMeta(tplAddress)?.name || 'UnknownTemplate';
 
 export const getMethodName = (
   tplAddress: string | Uint8Array,
   method: number
-): string | null =>
-  TEMPLATE_METAS[
-    tplAddress instanceof Uint8Array ? bytesToHex(tplAddress) : tplAddress
-  ]?.methods?.[method] || null;
+) => getTemplateMeta(tplAddress)?.methods?.[method] || 'UnknownMethod';

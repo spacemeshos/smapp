@@ -6,6 +6,7 @@ import {
   getAbbreviatedAddress,
   getFormattedTimestamp,
   formatSmidge,
+  getAbbreviatedText,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -114,8 +115,8 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, principal: sender, timestamp, contacts } = tx;
-    const isSent = sender === address;
+    const { id, status, principal, timestamp, contacts, meta } = tx;
+    const isSent = principal === address;
     const color = getColor({ status, isSent });
 
     return (
@@ -123,10 +124,11 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
         <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
+            <Text>{meta && `${meta.templateName}.${meta.methodName}`}</Text>
             <NickName>
-              {contacts[sender] || getAbbreviatedAddress(sender)}
+              {contacts[principal] || getAbbreviatedAddress(principal)}
             </NickName>
-            {id === 'reward' ? null : <Text>{getAbbreviatedAddress(id)}</Text>}
+            <Text>{getAbbreviatedText(id)}</Text>
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>

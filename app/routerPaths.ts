@@ -39,6 +39,7 @@ export enum MainPath {
 export enum WalletPath {
   Overview = '/main/wallet/overview',
   Vault = '/main/wallet/vault',
+  SpawnAccount = '/main/wallet/spawn-account',
   SendCoins = '/main/wallet/send-coins',
   RequestCoins = '/main/wallet/request-coins',
 }

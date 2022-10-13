@@ -20,24 +20,6 @@ export const isDevNet = (
 } => proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
 
 // --------------------------------------------------------
-// HexString conversion
-// --------------------------------------------------------
-export const fromHexString = (hexString: HexString) => {
-  const bytes: number[] = [];
-  for (let i = 0; i < hexString.length; i += 2) {
-    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
-  }
-  return Uint8Array.from(bytes);
-};
-export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
-  bytes instanceof Buffer
-    ? bytes.toString('hex')
-    : bytes.reduce(
-        (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
-        ''
-      );
-
-// --------------------------------------------------------
 // Network
 // --------------------------------------------------------
 
