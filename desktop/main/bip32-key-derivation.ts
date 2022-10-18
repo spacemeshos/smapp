@@ -1,62 +1,87 @@
-/* eslint-disable no-bitwise, no-plusplus */
+import encryptionConst from '../encryptionConst';
 
-import { algo, enc } from 'crypto-js';
-
-const ED25519_CURVE = 'ed25519 seed';
-const HARDENED_OFFSET = 0x80000000;
+const SALT = new TextEncoder().encode(encryptionConst.DEFAULT_SALT);
 
 export default class Bip32KeyDerivation {
-  static derivePath = (path: string, seed: string): Chain => {
-    const { key, chainCode } = Bip32KeyDerivation.getKeyFromSeed(seed);
+  static COIN_TYPE = 540;
+
+  static BIP_PROPOSAL = 44;
+
+  static BIP32HardenedKeyStart = 0x80000000;
+
+  static BIP44Purpose = 0x8000002c;
+
+  static BIP44SpaceMeshCoinType = 0x8000021c;
+
+  static getBIP44Account(account: number) {
+    // eslint-disable-next-line no-bitwise
+    return (Bip32KeyDerivation.BIP32HardenedKeyStart | account) >>> 0;
+  }
+
+  static createWalletPath(index: number) {
+    return `${Bip32KeyDerivation.BIP_PROPOSAL}'/${Bip32KeyDerivation.COIN_TYPE}'/0'/0'/${index}'`;
+  }
+
+  static derivePath = (
+    path: string,
+    seed: Uint8Array
+  ): { secretKey: Uint8Array; publicKey: Uint8Array } => {
     const segments = path
       .split('/')
       .map((v) => v.replaceAll("'", ''))
-      .map((el) => parseInt(el, 10));
-    return segments.reduce(
-      (parentKeys, segment) =>
-        // @ts-ignore
-        Bip32KeyDerivation.CKDPriv(parentKeys, segment + HARDENED_OFFSET),
-      { key, chainCode }
+      .map((el) => parseInt(el, 10))
+      .map((segment) => {
+        if (segment === Bip32KeyDerivation.BIP_PROPOSAL) {
+          return Bip32KeyDerivation.BIP44Purpose;
+        }
+
+        if (segment === Bip32KeyDerivation.COIN_TYPE) {
+          return Bip32KeyDerivation.BIP44SpaceMeshCoinType;
+        }
+
+        return Bip32KeyDerivation.getBIP44Account(segment);
+      });
+
+    const lastKeyPair = segments.reduce(
+      (prev, curr) => {
+        const keyPair = Bip32KeyDerivation.newChildKeyPair(curr, prev.seed);
+
+        return {
+          seed: keyPair.secretKey.slice(0, 32),
+          secretKey: keyPair.secretKey,
+          publicKey: keyPair.publicKey,
+        };
+      },
+      {
+        seed,
+        secretKey: new Uint8Array(32),
+        publicKey: new Uint8Array(64),
+      }
     );
-  };
-
-  private static getKeyFromSeed = (seed: string): Chain => {
-    return Bip32KeyDerivation.derive(
-      enc.Hex.parse(seed),
-      enc.Utf8.parse(ED25519_CURVE)
-    );
-  };
-
-  private static CKDPriv = ({ key, chainCode }: Chain, index: number) => {
-    const ib: number[] = [];
-    ib.push((index >> 24) & 0xff);
-    ib.push((index >> 16) & 0xff);
-    ib.push((index >> 8) & 0xff);
-    ib.push(index & 0xff);
-    const data = `00${key}${Buffer.from(new Uint8Array(ib).buffer).toString(
-      'hex'
-    )}`;
-    return Bip32KeyDerivation.derive(
-      enc.Hex.parse(data),
-      enc.Hex.parse(chainCode)
-    );
-  };
-
-  private static derive = (data: string, base: string): Chain => {
-    // @ts-ignore
-    const hmac = algo.HMAC.create(algo.SHA512, base);
-    const I = hmac.update(data).finalize().toString();
-    const IL = I.slice(0, I.length / 2);
-    const IR = I.slice(I.length / 2);
-
     return {
-      key: IL,
-      chainCode: IR,
+      publicKey: lastKeyPair.publicKey,
+      secretKey: lastKeyPair.secretKey,
     };
   };
-}
 
-export interface Chain {
-  key: string;
-  chainCode: string;
+  private static newChildKeyPair(index: number, seed: Uint8Array) {
+    let publicKey = new Uint8Array(32);
+    let secretKey = new Uint8Array(64);
+
+    const saveKeys = (pk: Uint8Array, sk: Uint8Array) => {
+      if (pk === null || sk === null) {
+        throw new Error('key generation failed');
+      }
+      publicKey = pk;
+      secretKey = sk;
+    };
+
+    // @ts-ignore
+    global.__deriveNewKeyPair(seed, index, SALT, saveKeys);
+
+    return {
+      publicKey,
+      secretKey,
+    };
+  }
 }

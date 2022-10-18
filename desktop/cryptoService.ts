@@ -1,11 +1,8 @@
 import * as bip39 from 'bip39';
 import * as xdr from 'js-xdr';
 import { fromHexString, toHexString } from './utils';
-import encryptionConst from './encryptionConst';
 import Bip32KeyDerivation from './main/bip32-key-derivation';
 
-const COIN_TYPE = 540;
-const MAIN_NET = 44;
 class CryptoService {
   static generateMnemonic = () => bip39.generateMnemonic();
 
@@ -14,9 +11,8 @@ class CryptoService {
    * Inside call to function "__generateKeyPair" is made - it's exposed from compiled WASM and generates keys following ed25519 protocol
    * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
    */
-  static generateKeyPair = ({ mnemonic }: { mnemonic: string }) => {
+  static generateKeyPair = (seed: Buffer) => {
     // Generate 64 seed bytes (512 bits) from phrase - this is a wallet's master seed
-    const seed = bip39.mnemonicToSeedSync(mnemonic);
     let publicKey = new Uint8Array(32);
     let secretKey = new Uint8Array(64);
     const saveKeys = (pk: Uint8Array, sk: Uint8Array) => {
@@ -29,54 +25,25 @@ class CryptoService {
     // @ts-ignore
     global.__generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
     return {
-      publicKey: toHexString(publicKey),
-      secretKey: toHexString(secretKey),
+      publicKey,
+      secretKey,
     };
   };
 
   static createWallet = (mnemonic: string, walletIndex = 0) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
-    const walletPath = `${MAIN_NET}'/${COIN_TYPE}'/0'/0/${walletIndex}`;
-    const privKey = Bip32KeyDerivation.derivePath(
-      walletPath,
-      seed.toString('hex')
-    ).key;
+    const path = Bip32KeyDerivation.createWalletPath(walletIndex);
+    const masterKeyPair = CryptoService.generateKeyPair(seed.slice(32));
+    const masterSeed = masterKeyPair.secretKey.slice(0, 32);
+    const keyPair = Bip32KeyDerivation.derivePath(path, masterSeed);
 
-    let publicKey = new Uint8Array(32);
-    let secretKey = new Uint8Array(64);
-    const enc = new TextEncoder();
-    const saltAsUint8Array = enc.encode(encryptionConst.DEFAULT_SALT);
-    const saveKeys = (pk: Uint8Array, sk: Uint8Array) => {
-      if (pk === null || sk === null) {
-        throw new Error('key generation failed');
-      }
-      publicKey = pk;
-      secretKey = sk;
-    };
-    // @ts-ignore
-    global.__deriveNewKeyPair(
-      Buffer.from(privKey, 'utf-8').slice(32),
-      walletIndex,
-      saltAsUint8Array,
-      saveKeys
-    ); // eslint-disable-line no-undef
-
-    console.log({
-      mnemonic,
-      walletPath,
-      publicKey: toHexString(publicKey),
-      // @TODO rename to privateKey
-      secretKey: toHexString(secretKey),
-      address: toHexString(publicKey),
-    });
-    // const keyPair = new Ed25519().generateKeys(privKey);
     return {
       mnemonic,
-      walletPath,
-      publicKey: toHexString(publicKey),
+      walletPath: path,
+      publicKey: toHexString(keyPair.publicKey),
       // @TODO rename to privateKey
-      secretKey: toHexString(secretKey),
-      address: toHexString(publicKey),
+      secretKey: toHexString(keyPair.secretKey),
+      address: toHexString(keyPair.publicKey),
     };
   };
 
