@@ -30,12 +30,12 @@ export default class Bip32KeyDerivation {
       .split('/')
       .map((v) => v.replaceAll("'", ''))
       .map((el) => parseInt(el, 10))
-      .map((segment) => {
-        if (segment === Bip32KeyDerivation.BIP_PROPOSAL) {
+      .map((segment, index) => {
+        if (index === 0 && segment === Bip32KeyDerivation.BIP_PROPOSAL) {
           return Bip32KeyDerivation.BIP44Purpose;
         }
 
-        if (segment === Bip32KeyDerivation.COIN_TYPE) {
+        if (index === 1 && segment === Bip32KeyDerivation.COIN_TYPE) {
           return Bip32KeyDerivation.BIP44SpaceMeshCoinType;
         }
 

@@ -41,7 +41,6 @@ class CryptoService {
       mnemonic,
       walletPath: path,
       publicKey: toHexString(keyPair.publicKey),
-      // @TODO rename to privateKey
       secretKey: toHexString(keyPair.secretKey),
       address: toHexString(keyPair.publicKey),
     };

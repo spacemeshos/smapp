@@ -109,7 +109,7 @@ const AccountsOverview = () => {
   const { displayName, publicKey } = accounts[currentAccountIndex];
   const balance = balances[publicKey];
   const { value, unit } = parseSmidge(balance?.currentState?.balance || 0);
-  console.log({ publicKey });
+
   return (
     <WrapperWith2SideBars
       width={290}
