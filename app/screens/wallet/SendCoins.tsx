@@ -67,9 +67,8 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const validateAmount = () => {
-    return (
-      !!amount && amount + fee < (currentBalance?.currentState?.balance || 0)
-    );
+    const maxGas = 500; // TODO
+    return amount + fee * maxGas < (currentBalance?.currentState?.balance || 0);
   };
 
   const proceedToMode2 = () => {
