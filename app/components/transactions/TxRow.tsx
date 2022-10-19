@@ -10,8 +10,11 @@ import { TxState } from '../../../shared/types';
 import { TxView } from '../../redux/wallet/selectors';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
-import { getMethodName } from '../../../shared/templateMeta';
-import { formatSmidge, getAbbreviatedAddress, getFormattedTimestamp } from '../../infra/utils';
+import {
+  formatSmidge,
+  getAbbreviatedAddress,
+  getFormattedTimestamp,
+} from '../../infra/utils';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;

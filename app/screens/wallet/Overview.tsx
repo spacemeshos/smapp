@@ -9,7 +9,6 @@ import { RootState } from '../../types';
 import { MainPath, WalletPath } from '../../routerPaths';
 import { PostSetupState } from '../../../shared/types';
 import { ExternalLinks } from '../../../shared/constants';
-import { eventsService } from '../../infra/eventsService';
 import { _spacemesh_v1_TransactionState_TransactionState as TransactionState } from '../../../proto/spacemesh/v1/TransactionState';
 
 const Wrapper = styled.div`

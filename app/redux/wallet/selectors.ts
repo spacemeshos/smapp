@@ -93,15 +93,11 @@ const patchWithContacts = <T extends Tx | (Tx & WithTimestamp)>(
   const contacts = getContacts(state);
   return txs.map((tx) => ({
     ...tx,
-    contacts: filterAddresses(tx).reduce(
-      (acc, next) => {
-        const c = contacts[next.toLowerCase()];
-        if (!c) return acc;
-        return { [next]: c };
-      }, {}
-    ),
-    // senderNickname: contacts[tx.principal.toLowerCase()] || null,
-    // receiverNickname: contacts[tx.receiver.toLowerCase()] || null,
+    contacts: filterAddresses(tx).reduce((acc, next) => {
+      const c = contacts[next.toLowerCase()];
+      if (!c) return acc;
+      return { [next]: c };
+    }, <Record<string, string>>{}),
   }));
 };
 

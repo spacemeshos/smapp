@@ -1,22 +1,21 @@
 // @flow
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { sendTransaction } from '../../redux/wallet/actions';
-import {
-  TxParams,
-  TxSummary,
-  TxConfirmation,
-  TxSent,
-} from '../../components/wallet';
-import { CreateNewContact } from '../../components/contacts';
-import { formatSmidge, validateAddress } from '../../infra/utils';
-import { AppThDispatch, RootState } from '../../types';
+import { TxConfirmation, TxSent } from '../../components/wallet';
+import { formatSmidge } from '../../infra/utils';
+import { RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { eventsService } from '../../infra/eventsService';
-import { BoldText, Button, DropDown, ErrorPopup, Link } from '../../basicComponents';
+import {
+  BoldText,
+  Button,
+  DropDown,
+  ErrorPopup,
+  Link,
+} from '../../basicComponents';
 import { smColors } from '../../vars';
 import { TxSentFieldType } from '../../components/wallet/TxSent';
 

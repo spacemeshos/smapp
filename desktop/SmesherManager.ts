@@ -10,10 +10,10 @@ import {
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
+import { configCodecByPath } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
-import { configCodecByPath } from '../shared/utils';
 
 const checkDiskSpace = require('check-disk-space');
 

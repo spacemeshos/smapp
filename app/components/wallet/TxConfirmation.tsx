@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
-import { formatSmidge } from '../../infra/utils';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
@@ -104,7 +103,7 @@ const ComplexButtonText = styled.div`
 export enum TxConfirmationFieldType {
   Default = 0,
   Total = 1,
-};
+}
 
 export type TxConfirmationField = {
   label: string;
@@ -129,14 +128,14 @@ const TxConfirmation = ({
 }: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
   const renderFieldValue = (field: TxConfirmationField) => {
-    switch(field.type) {
+    switch (field.type) {
       case TxConfirmationFieldType.Total:
         return <TotalText>{field.value}</TotalText>;
       case TxConfirmationFieldType.Default:
       default:
         return <DetailsTextLeft>{field.value}</DetailsTextLeft>;
     }
-  }
+  };
   return (
     <Wrapper>
       <Header>

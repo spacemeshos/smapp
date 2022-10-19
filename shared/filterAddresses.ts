@@ -3,7 +3,7 @@ import { Bech32Address } from './types';
 type Filterable<T> = T[] | Record<string, T>;
 
 const isFilterable = <T>(input: any): input is Filterable<T> =>
-  Array.isArray(input) || (typeof input === 'object' && input !== null)
+  Array.isArray(input) || (typeof input === 'object' && input !== null);
 
 const deepValues = (o: Filterable<any>): any[] =>
   Object.values(o).reduce((acc, next) => {

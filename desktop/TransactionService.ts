@@ -1,9 +1,9 @@
 import { ProtoGrpcType } from '../proto/tx';
 import { Bech32Address, PublicService, SocketAddress } from '../shared/types';
 import { TransactionsStateStreamResponse__Output } from '../proto/spacemesh/v1/TransactionsStateStreamResponse';
+import { TransactionResult__Output } from '../proto/spacemesh/v1/TransactionResult';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
-import { TransactionResult__Output } from '../proto/spacemesh/v1/TransactionResult';
 
 const PROTO_PATH = 'proto/tx.proto';
 

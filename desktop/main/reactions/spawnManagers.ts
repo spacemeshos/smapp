@@ -1,5 +1,12 @@
 import { BrowserWindow } from 'electron';
-import { delay, distinctUntilChanged, ReplaySubject, skip, Subject, withLatestFrom } from 'rxjs';
+import {
+  delay,
+  distinctUntilChanged,
+  ReplaySubject,
+  skip,
+  Subject,
+  withLatestFrom,
+} from 'rxjs';
 import { NodeConfig } from '../../../shared/types';
 import Logger from '../../logger';
 import { Managers } from '../app.types';

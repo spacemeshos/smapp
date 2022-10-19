@@ -6,11 +6,11 @@ import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/Account
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
+import { toHexString } from '../shared/utils';
 import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
-import { toHexString } from '../shared/utils';
 
 const PROTO_PATH = 'proto/global_state.proto';
 

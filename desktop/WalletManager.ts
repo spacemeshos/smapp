@@ -124,7 +124,6 @@ class WalletManager {
     });
 
     return () => {
-      console.log('Unsubscribe WalletManager IPC Events');
       ipcMain.removeHandler(ipcConsts.W_M_GET_CURRENT_LAYER);
       ipcMain.removeHandler(ipcConsts.W_M_GET_GLOBAL_STATE_HASH);
       ipcMain.removeHandler(ipcConsts.W_M_SEND_TX);

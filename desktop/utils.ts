@@ -3,7 +3,6 @@ import fs from 'fs';
 import { F_OK } from 'constants';
 import cs from 'checksum';
 import fetch from 'electron-fetch';
-import { HexString } from '../shared/types';
 import { configCodecByFirstChar } from '../shared/utils';
 
 // --------------------------------------------------------

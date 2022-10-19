@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { formatSmidge, parseSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
@@ -91,7 +90,7 @@ const ButtonsBlock = styled.div`
 export enum TxSentFieldType {
   Default = 0,
   Bold = 1,
-};
+}
 
 export type TxSentField = {
   label: string;
