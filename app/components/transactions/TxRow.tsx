@@ -11,6 +11,7 @@ import { TxView } from '../../redux/wallet/selectors';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
 import { getMethodName } from '../../../shared/templateMeta';
+import { formatSmidge, getAbbreviatedAddress, getFormattedTimestamp } from '../../infra/utils';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -209,21 +210,35 @@ const flatten = (
     return [...acc, ...nextVal];
   }, [] as any[]);
 
+const renderPayloadRow = (k: string, v: any, tx: TxView) => {
+  switch (k) {
+    case 'Destination':
+    case 'PublicKey': {
+      if (typeof v === 'string') {
+        return (
+          <Address
+            address={v}
+            overlapText={tx.contacts[v]}
+            isHex={v.startsWith('0x')}
+          />
+        );
+      }
+      return v;
+    }
+    case 'Amount':
+      return typeof v === 'number' || typeof v === 'string'
+        ? formatSmidge(typeof v === 'number' ? v : parseFloat(v))
+        : v;
+    default:
+      return v;
+  }
+};
 const renderTxPayload = (tx: TxView) => {
   const { payload } = tx;
   const data = flatten(payload);
   const rows = data.map(([k, v]) => (
     <Row title={k} key={`TxPayloadRow_${k}`}>
-      {typeof v === 'string' && (k === 'Destination' || k === 'PublicKey') ? (
-        <Address
-          address={v}
-          overlapText={tx.contacts[v]}
-          isHex={v.startsWith('0x')}
-        />
-      ) : (
-        v
-      )}
-      {/* TODO: Add custom renderers, like <Address>  */}
+      {renderPayloadRow(k, v, tx)}
     </Row>
   ));
   return <>{rows}</>;
@@ -273,6 +288,8 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
   const txFrom = isSent ? address : tx.principal;
   const txFromSuffix = (isSent && '(Me)') || undefined;
 
+  const isSpendTransaction = !!tx.payload?.Arguments?.Amount;
+
   const renderDetails = () => (
     <DetailsSection>
       <Row title="TRANSACTION ID">
@@ -284,7 +301,7 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
           suffix={txFromSuffix}
           overlapText={tx.contacts[txFrom]}
           addToContacts={
-            isSent
+            isSent && !txFromSuffix
               ? ({ address }) => addAddressToContacts({ address })
               : undefined
           }
@@ -306,6 +323,7 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
       </Row>
       {tx.layer && <Row title="LAYER ID">{tx.layer}</Row>}
       {renderTxPayload(tx)}
+      <Row title="FEE">{formatSmidge(tx.gas.fee)}</Row>
       <Row title="NOTE">
         {note ? `${note}` : `NO NOTE`}
         <LinkEdit onClick={() => setShowNoteModal(true)}>EDIT</LinkEdit>
@@ -313,14 +331,29 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
     </DetailsSection>
   );
 
-  const renderTxMeta = ({ meta }: TxView) => {
+  const renderTxMeta = ({ meta, payload }: TxView) => {
     if (!meta || !meta.templateName) return null;
+    const name = meta.methodName
+      ? `${meta.templateName}.${meta.methodName}`
+      : meta.templateName;
+    const details = payload?.Arguments?.Destination
+      ? `-> ${getAbbreviatedAddress(payload.Arguments.Destination)}`
+      : '';
     return (
       <Text>
-        {meta.methodName
-          ? `${meta.templateName}.${meta.methodName}`
-          : meta.templateName}
+        {name} {details}
       </Text>
+    );
+  };
+  const renderSpendHeaderDetails = () => {
+    if (!isSpendTransaction) return null;
+    return (
+      <HeaderSection>
+        <Amount color={smColors.blue}>
+          -{formatSmidge(parseInt(tx.payload.Arguments.Amount, 10))}
+        </Amount>
+        <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
+      </HeaderSection>
     );
   };
 
@@ -333,6 +366,7 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
             {renderTxMeta(tx)}
             <Text>{formatTxId(tx.id)}</Text>
           </HeaderSection>
+          {renderSpendHeaderDetails()}
         </HeaderInner>
       </Header>
       {isDetailed && renderDetails()}

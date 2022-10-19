@@ -1,8 +1,9 @@
 import { ProtoGrpcType } from '../proto/tx';
-import { PublicService, SocketAddress } from '../shared/types';
+import { Bech32Address, PublicService, SocketAddress } from '../shared/types';
 import { TransactionsStateStreamResponse__Output } from '../proto/spacemesh/v1/TransactionsStateStreamResponse';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
+import { TransactionResult__Output } from '../proto/spacemesh/v1/TransactionResult';
 
 const PROTO_PATH = 'proto/tx.proto';
 
@@ -39,6 +40,20 @@ class TransactionService extends NetServiceFactory<
       },
       onData
     );
+
+  watchTransactionsByAddress = (
+    address: Bech32Address,
+    onData: (data: TransactionResult__Output) => void
+  ) => {
+    this.runStream(
+      'StreamResults',
+      {
+        address,
+        watch: true,
+      },
+      onData
+    );
+  };
 }
 
 export default TransactionService;

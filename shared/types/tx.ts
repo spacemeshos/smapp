@@ -27,6 +27,11 @@ export interface Tx<T = any> {
     templateName: string | null;
     methodName: string | null;
   };
+  gas: {
+    gasPrice: number;
+    maxGas: number;
+    fee: number;
+  };
   layer?: number;
   note?: string;
   // Old one, TODO: Remove

@@ -115,25 +115,28 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, principal, timestamp, contacts, meta } = tx;
-    const isSent = principal === address;
+    const { id, status, timestamp, contacts, meta } = tx;
+    const isSent = tx.method === 1 && !!tx.payload?.Arguments?.Destination;
     const color = getColor({ status, isSent });
-
     return (
       <TxWrapper key={`tx_${id}`}>
         <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
             <Text>{meta && `${meta.templateName}.${meta.methodName}`}</Text>
-            <NickName>
-              {contacts[principal] || getAbbreviatedAddress(principal)}
-            </NickName>
             <Text>{getAbbreviatedText(id)}</Text>
+            {isSent && (
+              <NickName>
+                {'-> '}
+                {contacts[tx.payload.Arguments.Destination] ||
+                  getAbbreviatedAddress(tx.payload.Arguments.Destination)}
+              </NickName>
+            )}
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp)}</Text>
             <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
-              0 // TODO
+              parseInt(tx.payload.Arguments.Amount, 10)
             )}`}</Amount>
           </Section>
         </MainWrapper>

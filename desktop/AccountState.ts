@@ -12,7 +12,7 @@ const logger = Logger({ className: 'AccountState' });
 export interface AccountState {
   address: string;
   [k: number]: {
-    account: Required<AccountBalance>;
+    state: Required<AccountBalance>;
     txs: { [txId: Tx['id']]: Tx };
     rewards: { [layer: number]: Reward };
   };
@@ -26,7 +26,7 @@ const getDefaultAccountState = (
 ): AccountState => ({
   address,
   [netId]: {
-    account: {
+    state: {
       currentState: { balance: 0, counter: 0 },
       projectedState: { balance: 0, counter: 0 },
     },
@@ -113,7 +113,7 @@ export class AccountStateManager {
   // Getters (pure)
   getAddress = () => this.state.address;
 
-  getAccount = () => this.state[this.netId].account;
+  getState = () => this.state[this.netId].state;
 
   getTxs = () => this.state[this.netId].txs;
 
@@ -123,8 +123,8 @@ export class AccountStateManager {
   getRewards = () => Object.values(this.state[this.netId].rewards);
 
   // Setters. Might be impure if autosave is turned on.
-  storeAccountBalance = (balance: Required<AccountBalance>) => {
-    this.state[this.netId].account = balance;
+  storeState = (state: Required<AccountBalance>) => {
+    this.state[this.netId].state = state;
     return this.autosave();
   };
 

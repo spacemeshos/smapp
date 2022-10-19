@@ -1,6 +1,5 @@
 import Bech32 from '@spacemesh/address-wasm';
 import { TemplateRegistry } from '@spacemesh/sm-codec';
-import { TransactionData } from '@spacemesh/sm-codec/lib/transaction';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
@@ -43,6 +42,9 @@ export const toTx = (
   );
   const decoded = tpl.decode(Uint8Array.from(tx.raw));
   const method = Number(decoded.MethodSelector) || tx.method || 0;
+  const gasPrice = tx.gasPrice.toNumber();
+  const maxGas = tx.maxGas.toNumber();
+  const fee = gasPrice * maxGas;
   const res = <Tx<typeof decoded.Payload>>{
     id: toHexString(tx.id),
     principal: tx.principal.address,
@@ -50,6 +52,11 @@ export const toTx = (
     method,
     status: txState?.state || TxState.TRANSACTION_STATE_UNSPECIFIED,
     payload: prettifyPayload(decoded.Payload),
+    gas: {
+      gasPrice,
+      maxGas,
+      fee,
+    },
     meta: {
       templateName: getTemplateName(tplAddress),
       methodName: getMethodName(tplAddress, method),

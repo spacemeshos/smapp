@@ -10,6 +10,7 @@ import { MainPath, WalletPath } from '../../routerPaths';
 import { PostSetupState } from '../../../shared/types';
 import { ExternalLinks } from '../../../shared/constants';
 import { eventsService } from '../../infra/eventsService';
+import { _spacemesh_v1_TransactionState_TransactionState as TransactionState } from '../../../proto/spacemesh/v1/TransactionState';
 
 const Wrapper = styled.div`
   display: flex;
@@ -51,7 +52,9 @@ const Overview = ({ history }: RouteComponentProps) => {
   );
   const txs = useSelector(
     (state: RootState) =>
-      Object.values(state.wallet.transactions[account?.address || 0]) || []
+      (account?.address &&
+        Object.values(state.wallet.transactions[account.address])) ||
+      []
   );
 
   const isSmeshing = useSelector(
@@ -64,7 +67,7 @@ const Overview = ({ history }: RouteComponentProps) => {
   );
 
   const navigateToSpawnAccount = async () => {
-    const res = await eventsService.spawnTx(3, accountIndex);
+    const res = await eventsService.spawnTx(2, accountIndex);
     console.log('>>>', res);
     // TODO: Spawn screen
     // history.push(WalletPath.SpawnAccount);
@@ -87,8 +90,15 @@ const Overview = ({ history }: RouteComponentProps) => {
 
   const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
+  const isAccountSpawned = !!txs.find(
+    (tx) =>
+      tx.meta?.templateName === 'SingleSig' &&
+      tx.method === 0 &&
+      tx.status === TransactionState.TRANSACTION_STATE_PROCESSED
+  );
+
   const renderMiddleSection = () =>
-    txs.length > 0 ? (
+    isAccountSpawned ? (
       <MiddleSectionText>
         Send SMH to anyone, or request to receive SMH.
       </MiddleSectionText>
@@ -110,7 +120,7 @@ const Overview = ({ history }: RouteComponentProps) => {
           --
         </MiddleSectionHeader>
         {renderMiddleSection()}
-        {/* {txs.length === 0 ? ( */}
+        {!isAccountSpawned ? (
           <Button
             onClick={navigateToSpawnAccount}
             text="SPAWN"
@@ -120,7 +130,7 @@ const Overview = ({ history }: RouteComponentProps) => {
             imgPosition="after"
             style={{ marginBottom: 20 }}
           />
-        {/* ) : ( */}
+        ) : (
           <Button
             onClick={navigateToSendCoins}
             text="SEND"
@@ -130,7 +140,7 @@ const Overview = ({ history }: RouteComponentProps) => {
             imgPosition="after"
             style={{ marginBottom: 20 }}
           />
-        {/* )} */}
+        )}
         <Button
           onClick={navigateToRequestCoins}
           text="REQUEST"

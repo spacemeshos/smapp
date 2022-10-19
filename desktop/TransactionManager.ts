@@ -17,14 +17,13 @@ import {
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
-import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
+import { TransactionState__Output, _spacemesh_v1_TransactionState_TransactionState as TransactionState } from '../proto/spacemesh/v1/TransactionState';
 import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { hasRequiredRewardFields } from '../shared/types/guards';
 import { delay, fromHexString, toHexString } from '../shared/utils';
-import { getISODate } from '../shared/datetime';
 import { addReceiptToTx, toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -89,7 +88,7 @@ class TransactionManager {
 
   // Debounce update functions to avoid excessive IPC calls
   updateAppStateAccount = (address: string) => {
-    const account = this.accountStates[address].getAccount();
+    const account = this.accountStates[address].getState();
     if (!account) {
       return;
     }
@@ -176,7 +175,7 @@ class TransactionManager {
       handler: addTransaction,
       retries: 0,
     });
-    this.meshService.listenMeshTransactions(address, addTransaction);
+    // this.meshService.listenMeshTransactions(address, addTransaction);
 
     const updateAccountData = this.updateAccountData(address);
     this.retrieveAccountData({
@@ -192,6 +191,17 @@ class TransactionManager {
       AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
       updateAccountData
     );
+
+    this.txService.watchTransactionsByAddress(address, (txRes) => {
+      if (!txRes.tx) return;
+      const state =
+        txRes.status === 0
+          ? TransactionState.TRANSACTION_STATE_PROCESSED
+          : TransactionState.TRANSACTION_STATE_REJECTED;
+      const tx = toTx(txRes.tx, { id: { id: txRes.tx.id }, state });
+      if (!tx) return;
+      this.upsertTransaction(address)(tx);
+    });
 
     const txs = Object.keys(this.accountStates[address].getTxs() || {});
     if (txs.length > 0) {
@@ -223,21 +233,7 @@ class TransactionManager {
     const principal = tpl.principal({ PublicKey: pkBytes });
     const address = Bech32.generateAddress(principal);
 
-    // TODO: Step depending on index in two separate arrays!
-    const idx = this.accounts.findIndex((acc) => acc.address === address);
-    this.accounts = [
-      ...(idx > -1
-        ? this.accounts
-            .slice(0, Math.max(0, idx - 1))
-            .concat(this.accounts.slice(idx + 1))
-        : this.accounts),
-      {
-        displayName: keypair.displayName,
-        created: getISODate(),
-        address,
-        spawnArgs: { PublicKey: pkBytes },
-      },
-    ];
+    const idx = this.keychain.findIndex((kp) => kp.publicKey === publicKey);
     this.keychain = [
       ...(idx > -1
         ? this.keychain
@@ -325,7 +321,7 @@ class TransactionManager {
       counter: data.stateProjected?.counter?.toNumber?.() || 0,
       balance: data.stateProjected?.balance?.value?.toNumber() || 0,
     };
-    this.accountStates[address].storeAccountBalance({
+    this.accountStates[address].storeState({
       currentState,
       projectedState,
     });
@@ -432,11 +428,11 @@ class TransactionManager {
   publishSelfSpawn = async (fee: number, accountIndex: number) => {
     try {
       const { publicKey, secretKey } = this.keychain[accountIndex];
-      const { projectedState } = this.accounts[accountIndex];
       const tpl = TemplateRegistry.get(SingleSigTemplate.key, 0);
       const spawnArgs = { PublicKey: fromHexString(publicKey) };
       const principal = tpl.principal(spawnArgs);
       const address = Bech32.generateAddress(principal);
+      const { projectedState } = this.accountStates[address].getState();
       const payload = {
         Nonce: {
           Counter: BigInt(projectedState?.counter || 0),
@@ -494,17 +490,13 @@ class TransactionManager {
   }) => {
     try {
       const { publicKey, secretKey } = this.keychain[accountIndex];
-      // TODO: Detach indexes
-      const { projectedState } = this.accounts[accountIndex];
-      console.log('account', this.accounts[accountIndex]);
-      console.log('projectedState', projectedState);
-      // const account = this.accountStates[publicKey].getAccount();
-      const { receiver, amount, fee } = fullTx;
       const tpl = TemplateRegistry.get(SingleSigTemplate.key, 1);
       const principal = tpl.principal({
         PublicKey: fromHexString(publicKey),
       });
       const address = Bech32.generateAddress(principal);
+      const { projectedState } = this.accountStates[address].getState();
+      const { receiver, amount, fee } = fullTx;
       const payload = {
         Arguments: {
           Destination: Bech32.parse(receiver),
@@ -516,7 +508,6 @@ class TransactionManager {
         },
         GasPrice: BigInt(fee),
       };
-      console.dir(payload, { depth: null, colors: true });
       const txEncoded = tpl.encode(principal, payload);
       const hashed = sha256(txEncoded);
       const sig = sign(hashed, secretKey);
@@ -575,7 +566,7 @@ class TransactionManager {
     txId: HexString;
     note: string;
   }) => {
-    const { address } = this.accounts[accountIndex];
+    const address = this.accountStates[accountIndex].getAddress();
     const tx = this.accountStates[address].getTxById(txId);
     this.storeTx(address, { ...tx, note });
   };
