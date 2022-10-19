@@ -10,10 +10,14 @@ import {
   TxSent,
 } from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
-import { validateAddress } from '../../infra/utils';
+import { formatSmidge, validateAddress } from '../../infra/utils';
 import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
+import { TxConfirmationFieldType } from '../../components/wallet/TxConfirmation';
+import { TxSentFieldType } from '../../components/wallet/TxSent';
+
+const MAX_GAS = 500; // TODO
 
 interface Props extends RouteComponentProps {
   location: {
@@ -67,8 +71,9 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const validateAmount = () => {
-    const maxGas = 500; // TODO
-    return amount + fee * maxGas < (currentBalance?.currentState?.balance || 0);
+    return (
+      amount + fee * MAX_GAS < (currentBalance?.projectedState?.balance || 0)
+    );
   };
 
   const proceedToMode2 = () => {
@@ -145,12 +150,34 @@ const SendCoins = ({ history, location }: Props) => {
     case 2: {
       return (
         <TxConfirmation
-          address={address}
-          fromAddress={currentAccount.address}
-          amount={parseInt(`${amount}`)}
-          fee={fee}
-          note={note}
-          canSend={!!status?.isSynced}
+          fields={[
+            {
+              label: 'From',
+              value: currentAccount.address,
+            },
+            {
+              label: 'To',
+              value: address,
+            },
+            {
+              label: 'Note',
+              value: note,
+            },
+            {
+              label: 'Amount',
+              value: formatSmidge(amount),
+            },
+            {
+              label: 'Fee',
+              value: `~${formatSmidge(fee * MAX_GAS)}`,
+            },
+            {
+              label: 'Total',
+              value: `~${formatSmidge(amount + fee * MAX_GAS)}`,
+              type: TxConfirmationFieldType.Total,
+            },
+          ]}
+          isDisabled={!status?.isSynced}
           doneAction={handleSendTransaction}
           editTx={() => setMode(1)}
           cancelTx={history.goBack}
@@ -160,9 +187,21 @@ const SendCoins = ({ history, location }: Props) => {
     case 3: {
       return (
         <TxSent
-          address={address}
-          fromAddress={currentAccount.address}
-          amount={amount}
+          fields={[
+            {
+              label: 'From',
+              value: currentAccount.address,
+            },
+            {
+              label: 'To',
+              value: address,
+            },
+            {
+              label: 'Amount',
+              value: formatSmidge(amount),
+              type: TxSentFieldType.Bold,
+            },
+          ]}
           txId={txId}
           doneAction={history.goBack}
           navigateToTxList={() => history.replace(MainPath.Transactions)}

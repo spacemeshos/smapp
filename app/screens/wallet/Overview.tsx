@@ -67,10 +67,7 @@ const Overview = ({ history }: RouteComponentProps) => {
   );
 
   const navigateToSpawnAccount = async () => {
-    const res = await eventsService.spawnTx(2, accountIndex);
-    console.log('>>>', res);
-    // TODO: Spawn screen
-    // history.push(WalletPath.SpawnAccount);
+    history.push(WalletPath.SpawnAccount);
   };
 
   const navigateToSendCoins = () => {

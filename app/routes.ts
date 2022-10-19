@@ -91,8 +91,7 @@ const main = formatRoutes([
 const wallet = formatRoutes([
   [WalletPath.Overview, Overview],
   [WalletPath.Vault, Vault],
-  // TODO:
-  // [WalletPath.SpawnAccount, SpawnAccount],
+  [WalletPath.SpawnAccount, SpawnAccount],
   [WalletPath.SendCoins, SendCoins],
   [WalletPath.RequestCoins, RequestCoins],
 ]);

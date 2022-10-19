@@ -101,30 +101,42 @@ const ComplexButtonText = styled.div`
     theme.isDarkMode ? smColors.white : smColors.mediumGray};
 `;
 
+export enum TxConfirmationFieldType {
+  Default = 0,
+  Total = 1,
+};
+
+export type TxConfirmationField = {
+  label: string;
+  value: string;
+  type?: TxConfirmationFieldType;
+};
+
 type Props = {
-  fromAddress: string;
-  address: string;
-  amount: number;
-  fee: number;
-  note: string;
-  canSend: boolean;
+  fields: TxConfirmationField[];
+  isDisabled: boolean;
   doneAction: () => void;
   editTx: () => void;
   cancelTx: () => void;
 };
 
 const TxConfirmation = ({
-  fromAddress,
-  address,
-  amount,
-  fee,
-  note,
-  canSend,
+  fields,
+  isDisabled,
   doneAction,
   editTx,
   cancelTx,
 }: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const renderFieldValue = (field: TxConfirmationField) => {
+    switch(field.type) {
+      case TxConfirmationFieldType.Total:
+        return <TotalText>{field.value}</TotalText>;
+      case TxConfirmationFieldType.Default:
+      default:
+        return <DetailsTextLeft>{field.value}</DetailsTextLeft>;
+    }
+  }
   return (
     <Wrapper>
       <Header>
@@ -138,30 +150,14 @@ const TxConfirmation = ({
       <SubHeader1>--</SubHeader1>
       <SubHeader2>SUMMARY</SubHeader2>
       <>
-        <DetailsRow>
-          <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeft>{fromAddress}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>To</DetailsTextRight>
-          <DetailsTextLeft>{address}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Note</DetailsTextRight>
-          <DetailsTextLeft>{note || '---'}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Amount</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(amount)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Fee</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(fee)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>Total</DetailsTextRight>
-          <TotalText>{formatSmidge(amount + fee)}</TotalText>
-        </DetailsRow>
+        {fields.map((field, idx) => (
+          <DetailsRow
+            key={`txConfirmation_${idx}_${field.label.replace(/\s|\W/g, '')}`}
+          >
+            <DetailsTextRight>{field.label}</DetailsTextRight>
+            {renderFieldValue(field)}
+          </DetailsRow>
+        ))}
       </>
       <Footer>
         <ComplexButton>
@@ -178,7 +174,7 @@ const TxConfirmation = ({
           onClick={doneAction}
           text="SEND"
           style={{ marginLeft: 'auto' }}
-          isDisabled={!canSend}
+          isDisabled={isDisabled}
         />
       </Footer>
     </Wrapper>
