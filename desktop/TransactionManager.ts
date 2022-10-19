@@ -17,7 +17,10 @@ import {
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
-import { TransactionState__Output, _spacemesh_v1_TransactionState_TransactionState as TransactionState } from '../proto/spacemesh/v1/TransactionState';
+import {
+  TransactionState__Output,
+  _spacemesh_v1_TransactionState_TransactionState as TransactionState,
+} from '../proto/spacemesh/v1/TransactionState';
 import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
@@ -64,6 +67,8 @@ class TransactionManager {
   > = {};
 
   private accountStates: Record<string, AccountStateManager> = {};
+
+  private unsubs: Record<Bech32Address, (() => void)[]> = {};
 
   private netId: number;
 
@@ -168,6 +173,10 @@ class TransactionManager {
   private subscribeAccount = (address: Bech32Address): void => {
     // Cancel account Txs subscription
     this.txStateStream[address]?.();
+    // Cancel account data, txs, rewards subscriptions to streams
+    this.unsubs[address] && this.unsubs[address].forEach((unsub) => unsub());
+    this.unsubs[address] = [];
+
     const addTransaction = this.upsertTransactionFromMesh(address);
     this.retrieveHistoricTxData({
       accountId: address,
@@ -175,7 +184,9 @@ class TransactionManager {
       handler: addTransaction,
       retries: 0,
     });
-    // this.meshService.listenMeshTransactions(address, addTransaction);
+    this.unsubs[address].push(
+      this.meshService.listenMeshTransactions(address, addTransaction)
+    );
 
     const updateAccountData = this.updateAccountData(address);
     this.retrieveAccountData({
@@ -186,22 +197,26 @@ class TransactionManager {
       handler: updateAccountData,
       retries: 0,
     });
-    this.glStateService.activateAccountDataStream(
-      address,
-      AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
-      updateAccountData
+    this.unsubs[address].push(
+      this.glStateService.activateAccountDataStream(
+        address,
+        AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        updateAccountData
+      )
     );
 
-    this.txService.watchTransactionsByAddress(address, (txRes) => {
-      if (!txRes.tx) return;
-      const state =
-        txRes.status === 0
-          ? TransactionState.TRANSACTION_STATE_PROCESSED
-          : TransactionState.TRANSACTION_STATE_REJECTED;
-      const tx = toTx(txRes.tx, { id: { id: txRes.tx.id }, state });
-      if (!tx) return;
-      this.upsertTransaction(address)(tx);
-    });
+    this.unsubs[address].push(
+      this.txService.watchTransactionsByAddress(address, (txRes) => {
+        if (!txRes.tx) return;
+        const state =
+          txRes.status === 0
+            ? TransactionState.TRANSACTION_STATE_PROCESSED
+            : TransactionState.TRANSACTION_STATE_REJECTED;
+        const tx = toTx(txRes.tx, { id: { id: txRes.tx.id }, state });
+        if (!tx) return;
+        this.upsertTransaction(address)(tx);
+      })
+    );
 
     const txs = Object.keys(this.accountStates[address].getTxs() || {});
     if (txs.length > 0) {
@@ -220,7 +235,9 @@ class TransactionManager {
         this.logger.error('Can not retrieve and store rewards', err);
       });
 
-    this.glStateService.listenRewardsByCoinbase(address, addReward);
+    this.unsubs[address].push(
+      this.glStateService.listenRewardsByCoinbase(address, addReward)
+    );
 
     this.updateAppStateTxs(address);
     this.updateAppStateRewards(address);

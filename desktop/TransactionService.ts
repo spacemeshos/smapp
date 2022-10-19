@@ -44,7 +44,7 @@ class TransactionService extends NetServiceFactory<
   watchTransactionsByAddress = (
     address: Bech32Address,
     onData: (data: TransactionResult__Output) => void
-  ) => {
+  ) =>
     this.runStream(
       'StreamResults',
       {
@@ -53,7 +53,6 @@ class TransactionService extends NetServiceFactory<
       },
       onData
     );
-  };
 }
 
 export default TransactionService;
