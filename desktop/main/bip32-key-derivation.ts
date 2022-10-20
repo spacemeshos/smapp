@@ -30,6 +30,7 @@ export default class Bip32KeyDerivation {
       .split('/')
       .map((v) => v.replaceAll("'", ''))
       .map((el) => parseInt(el, 10))
+      // convert path int num to not reserved uint for bip32
       .map((segment, index) => {
         if (index === 0 && segment === Bip32KeyDerivation.BIP_PROPOSAL) {
           return Bip32KeyDerivation.BIP44Purpose;

@@ -138,11 +138,10 @@ class CryptoService {
   }: {
     message: string;
     secretKey: string;
-  }) => {
+  }): Promise<string> => {
     const sk = fromHexString(secretKey);
     return new Promise((resolve) => {
-      const enc = new TextEncoder();
-      const messageAsUint8Array = enc.encode(message);
+      const messageAsUint8Array = new TextEncoder().encode(message);
       // @ts-ignore
       global.__signTransaction(sk, messageAsUint8Array, (sig) => {
         resolve(toHexString(sig));
