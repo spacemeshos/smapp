@@ -1,5 +1,4 @@
 import * as bip39 from 'bip39';
-import * as xdr from 'js-xdr';
 import { fromHexString, toHexString } from '../shared/utils';
 import Bip32KeyDerivation from './main/bip32-key-derivation';
 
@@ -57,73 +56,6 @@ class CryptoService {
     index: number;
   }) => {
     return CryptoService.createWallet(mnemonic, index);
-  };
-
-  /**
-   * Serializes and signs transaction to be sent to node.
-   * @param secretKey - string
-   * @param accountNonce - account's next nonce value
-   * @param receiver - receiver's address
-   * @param price - fee in SMC cents
-   * @param amount - amount to transfer in SMC cents
-   * @return {Promise} when resolved returns signature as Uint8Array(64)
-   */
-  static signTransaction = ({
-    accountNonce,
-    receiver,
-    price,
-    amount,
-    secretKey,
-  }: {
-    accountNonce: number;
-    receiver: string;
-    price: number;
-    amount: number;
-    secretKey: string;
-  }) => {
-    const sk = fromHexString(secretKey);
-    const types = xdr.config(
-      (xdr1: {
-        struct: (arg0: string, arg1: any[][]) => void;
-        uhyper: () => any;
-        opaque: (arg0: number) => any;
-        lookup: (arg0: string) => any;
-      }) => {
-        xdr1.struct('InnerSerializableSignedTransaction', [
-          ['AccountNonce', xdr1.uhyper()],
-          ['Recipient', xdr1.opaque(20)],
-          ['GasLimit', xdr1.uhyper()],
-          ['Fee', xdr1.uhyper()],
-          ['Amount', xdr1.uhyper()],
-        ]);
-        xdr1.struct('SerializableSignedTransaction', [
-          [
-            'InnerSerializableSignedTransaction',
-            xdr1.lookup('InnerSerializableSignedTransaction'),
-          ],
-          ['Signature', xdr1.opaque(64)],
-        ]);
-      }
-    );
-    const message = new types.InnerSerializableSignedTransaction({
-      AccountNonce: xdr.UnsignedHyper.fromString(`${accountNonce}`),
-      Recipient: fromHexString(receiver),
-      GasLimit: xdr.UnsignedHyper.fromString('1'), // TODO: change to real number passed from user selection
-      Fee: xdr.UnsignedHyper.fromString(`${price}`),
-      Amount: xdr.UnsignedHyper.fromString(`${amount}`),
-    });
-    const bufMessage = message.toXDR();
-    return new Promise((resolve) => {
-      const bufMessageAsUint8Array = new Uint8Array(bufMessage);
-      // @ts-ignore
-      global.__signTransaction(sk, bufMessageAsUint8Array, (sig) => {
-        const tx = new types.SerializableSignedTransaction({
-          InnerSerializableSignedTransaction: message,
-          Signature: sig,
-        });
-        resolve(tx.toXDR());
-      });
-    });
   };
 
   /**

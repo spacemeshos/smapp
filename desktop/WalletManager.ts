@@ -58,23 +58,6 @@ class WalletManager {
     );
   }
 
-  __getNewAccountFromTemplate = ({
-    index,
-    timestamp,
-    publicKey,
-    secretKey,
-  }: {
-    index: number;
-    timestamp: string;
-    publicKey: string;
-    secretKey: string;
-  }) => ({
-    displayName: index > 0 ? `Account ${index}` : 'Main Account',
-    created: timestamp,
-    path: `0/0/${index}`,
-    publicKey,
-    secretKey,
-  });
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
     this.meshService.getCurrentLayer().catch((err) => {
