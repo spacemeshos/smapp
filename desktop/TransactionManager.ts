@@ -86,6 +86,11 @@ class TransactionManager {
     this.netId = netId;
   }
 
+  unsubscribeAllStreams = () =>
+    Object.values(this.unsubs).forEach((list) =>
+      list.forEach((unsub) => unsub())
+    );
+
   //
   appStateUpdater = (channel: ipcConsts, payload: any) => {
     this.mainWindow.webContents.send(channel, { ...payload });

@@ -58,6 +58,7 @@ class WalletManager {
     );
   }
 
+  unsubscribeAllStreams = () => this.txManager.unsubscribeAllStreams();
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
     this.meshService.getCurrentLayer().catch((err) => {
