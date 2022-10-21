@@ -1,5 +1,4 @@
 import {
-  KeyPair,
   Contact,
   HexString,
   SocketAddress,
@@ -7,8 +6,10 @@ import {
   TxSendRequest,
   WalletMeta,
   WalletType,
+  Account,
 } from '../../../shared/types';
 import {
+  delay,
   isLocalNodeApi,
   isRemoteNodeApi,
   isWalletOnlyType,
@@ -36,12 +37,19 @@ export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
 
+const waitForWalletData = async (getState: GetState) => {
+  return (
+    getState().wallet.accounts.length > 0 ||
+    delay(100).then(() => waitForWalletData(getState))
+  );
+};
+
 export const setWalletMeta = (wallet: WalletMeta) => ({
   type: SET_WALLET_META,
   payload: wallet,
 });
 
-export const setAccounts = (accounts: KeyPair[]) => ({
+export const setAccounts = (accounts: Account[]) => ({
   type: SET_ACCOUNTS,
   payload: accounts,
 });
@@ -105,13 +113,14 @@ export const createNewWallet = ({
   type: WalletType;
   apiUrl: SocketAddress | null;
   netId: number;
-}) => (dispatch: AppThDispatch) =>
+}) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
     .createWallet({ password, existingMnemonic, type, apiUrl, netId })
-    .then(({ error, payload }) => {
+    .then(async ({ error, payload }) => {
       if (error) {
         throw error;
       }
+      await waitForWalletData(getState);
       return payload;
     })
     .catch((err) => {
@@ -120,7 +129,8 @@ export const createNewWallet = ({
     });
 
 export const unlockWallet = (path: string, password: string) => async (
-  dispatch: AppThDispatch
+  dispatch: AppThDispatch,
+  getState: GetState
 ) => {
   const resp = await eventsService.unlockWallet({
     path,
@@ -140,6 +150,7 @@ export const unlockWallet = (path: string, password: string) => async (
   // Success
   dispatch(setCurrentAccount(0));
   const isWalletOnly = isWalletOnlyType(payload.meta.type);
+  await waitForWalletData(getState);
   return {
     success: true,
     forceNetworkSelection: payload.forceNetworkSelection,
