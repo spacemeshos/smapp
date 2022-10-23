@@ -1,5 +1,6 @@
 import path from 'path';
 import logger from 'electron-log';
+import { isDebug } from './utils';
 
 const formatLogMessage = (className, fn, res, args) =>
   `${className}, in ${fn}, output: ${JSON.stringify(res)} ${
@@ -12,7 +13,7 @@ const formatErrorMessage = (className, fn, err, args) =>
 
 logger.transports.file.resolvePath = (vars) =>
   path.join(vars.userData, `/app-log.${vars.appVersion}.txt`);
-logger.transports.console.level = false;
+logger.transports.console.level = isDebug() && 'debug';
 
 const Logger = ({ className }: { className: string }) => ({
   log: (fn: string, res: any, args?: any) => {

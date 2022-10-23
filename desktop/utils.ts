@@ -10,7 +10,7 @@ import { configCodecByFirstChar } from '../shared/utils';
 // --------------------------------------------------------
 export const isProd = () => process.env.NODE_ENV === 'production';
 export const isDev = () => process.env.NODE_ENV === 'development';
-export const isDebug = () => isDev() || process.env.DEBUG_PROD;
+export const isDebug = () => isDev() || !!process.env.DEBUG_PROD;
 
 export const isDevNet = (
   proc = process
