@@ -52,7 +52,7 @@ const Overview = ({ history }: RouteComponentProps) => {
   const txs = useSelector(
     (state: RootState) =>
       (account?.address &&
-        Object.values(state.wallet.transactions[account.address])) ||
+        Object.values(state?.wallet?.transactions?.[account.address] || {})) ||
       []
   );
 
