@@ -134,7 +134,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
             )}
           </Section>
           <Section>
-            <Text>{getFormattedTimestamp(timestamp)}</Text>
+            <Text>{getFormattedTimestamp(timestamp, status)}</Text>
             <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
               parseInt(tx.payload.Arguments.Amount, 10)
             )}`}</Amount>
@@ -154,7 +154,7 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
             <NickName>Smeshing reward</NickName>
           </Section>
           <Section>
-            <Text>{getFormattedTimestamp(timestamp)}</Text>
+            <Text>{getFormattedTimestamp(timestamp, null)}</Text>
             <Amount color={smColors.darkerGreen}>{`+${formatSmidge(
               amount
             )}`}</Amount>

@@ -1,5 +1,6 @@
+import { TX_STATE_LABELS } from '../../shared/constants';
 import HRP from '../../shared/hrp';
-import { HexString } from '../../shared/types';
+import { HexString, TxState } from '../../shared/types';
 import { deriveHRP } from '../../shared/utils';
 
 export const addErrorPrefix = (prefix: string, error: Error) => {
@@ -28,7 +29,10 @@ export const getAbbreviatedAddress = (address: string) => {
   return `${hrp}1...${address.slice(-8)}`;
 };
 
-export const getFormattedTimestamp = (timestamp: number | null): string => {
+export const getFormattedTimestamp = (
+  timestamp: number | null,
+  status: TxState | null
+): string => {
   if (timestamp) {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -36,12 +40,11 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
     };
     const dateObj = new Date(timestamp);
     return dateObj.toLocaleDateString('en-US', options).replace(',', '');
   }
-  return 'Pending';
+  return status ? TX_STATE_LABELS[status] : 'Calculating date';
 };
 
 export const getAddress = (key: string) =>

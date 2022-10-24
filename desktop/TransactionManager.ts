@@ -487,6 +487,7 @@ class TransactionManager {
         response.error || response.txstate === null || !response.txstate.id?.id
           ? response.error || getTxResponseError()
           : null;
+      const { currentLayer } = await this.meshService.getCurrentLayer();
       // Compose "initial" transaction record
       const tx =
         response.error === null && response.txstate?.id?.id
@@ -504,6 +505,7 @@ class TransactionManager {
                 response.txstate?.state ||
                 TxState.TRANSACTION_STATE_UNSPECIFIED,
               payload,
+              layer: currentLayer,
             })
           : null;
       tx && this.upsertTransaction(address)(tx);
@@ -560,6 +562,7 @@ class TransactionManager {
           ? response.error || getTxResponseError()
           : null;
       // Compose "initial" transaction record
+      const { currentLayer } = await this.meshService.getCurrentLayer();
       const tx =
         response.error === null && response.txstate?.id?.id
           ? asTx({
@@ -584,6 +587,7 @@ class TransactionManager {
                   ),
                 },
               },
+              layer: currentLayer,
             })
           : null;
 
