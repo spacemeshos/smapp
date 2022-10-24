@@ -200,14 +200,17 @@ class TransactionManager {
     );
 
     const updateAccountData = this.updateAccountData(address);
-    this.retrieveAccountData({
-      filter: {
-        accountId: { address },
-        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
-      },
-      handler: updateAccountData,
-      retries: 0,
-    });
+    const queryAccountData = () =>
+      this.retrieveAccountData({
+        filter: {
+          accountId: { address },
+          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        },
+        handler: updateAccountData,
+        retries: 0,
+      });
+    queryAccountData();
+
     this.unsubs[address].push(
       this.glStateService.activateAccountDataStream(
         address,
@@ -226,6 +229,8 @@ class TransactionManager {
         const tx = toTx(txRes.tx, { id: { id: txRes.tx.id }, state });
         if (!tx) return;
         this.upsertTransaction(address)(tx);
+        // TODO: https://github.com/spacemeshos/go-spacemesh/issues/3687
+        queryAccountData();
       })
     );
 
