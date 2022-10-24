@@ -208,7 +208,7 @@ class SmesherService extends NetServiceFactory<
     handler: (error: any, status: Partial<PostSetupStatus>) => void
   ) => {
     if (!this.service) {
-      throw new Error(`SmesherService is not running`);
+      throw new Error('SmesherService is not running');
     }
     if (!this.stream) {
       let streamError = null;

@@ -57,9 +57,9 @@ const NetworkStatus = ({
             />
             <ProgressLabel>syncing</ProgressLabel>
             <ProgressLabel>{progress}%</ProgressLabel>
-            <ProgressLabel>{`${status?.syncedLayer || 0} / ${
-              status?.topLayer || 0
-            }`}</ProgressLabel>
+            <ProgressLabel>
+              {`${status?.syncedLayer || 0} / ${status?.topLayer || 0}`}
+            </ProgressLabel>
             <Progress>
               <ProgressBar progress={progress} />
             </Progress>

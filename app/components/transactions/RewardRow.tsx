@@ -110,7 +110,7 @@ const TextRow = styled.div<{ isLast?: boolean }>`
   padding: 5px 0;
   border-bottom: ${({ isLast, theme }) =>
     isLast
-      ? `0px`
+      ? '0px'
       : `1px solid ${
           theme.isDarkMode ? smColors.dMBlack1 : smColors.darkGray10Alpha
         };`};

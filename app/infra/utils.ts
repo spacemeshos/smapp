@@ -31,7 +31,7 @@ export const getAbbreviatedAddress = (address: string) => {
 
 export const getFormattedTimestamp = (
   timestamp: number | null,
-  status: TxState | null
+  status?: TxState | null
 ): string => {
   if (timestamp) {
     const options: Intl.DateTimeFormatOptions = {

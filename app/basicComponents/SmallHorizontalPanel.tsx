@@ -13,7 +13,7 @@ const Wrapper = styled.img.attrs(
   right: 0px;
   width: 60px;
   height: 15px;
-  transform: ${({ theme }) => (theme.isDarkMode ? `scale(-1, 1)` : `none`)};
+  transform: ${({ theme }) => (theme.isDarkMode ? 'scale(-1, 1)' : 'none')};
 `;
 
 const SmallHorizontalPanel = () => <Wrapper />;

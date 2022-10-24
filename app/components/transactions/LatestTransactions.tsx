@@ -139,9 +139,11 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp, status)}</Text>
-            <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
-              parseInt(tx.payload.Arguments.Amount, 10)
-            )}`}</Amount>
+            <Amount color={color}>
+              {`${isSent ? '-' : '+'}${formatSmidge(
+                parseInt(tx.payload.Arguments.Amount, 10)
+              )}`}
+            </Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>
@@ -159,9 +161,9 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp, null)}</Text>
-            <Amount color={smColors.darkerGreen}>{`+${formatSmidge(
-              amount
-            )}`}</Amount>
+            <Amount color={smColors.darkerGreen}>
+              {`+${formatSmidge(amount)}`}
+            </Amount>
           </Section>
         </MainWrapper>
       </TxWrapper>

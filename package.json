@@ -137,7 +137,7 @@
     "eslint": "7.22.0",
     "eslint-config-airbnb": "18.2.1",
     "eslint-config-airbnb-typescript": "12.3.1",
-    "eslint-config-erb": "^4.0.0-alpha.0",
+    "eslint-config-erb": "4.0.3",
     "eslint-config-prettier": "6.15.0",
     "eslint-formatter-pretty": "4.0.0",
     "eslint-import-resolver-webpack": "0.13.0",
@@ -219,5 +219,8 @@
     "throttle-debounce": "^4.0.1",
     "ts-toolbelt": "^9.6.0",
     "uuid": "^8.3.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2"
   }
 }
