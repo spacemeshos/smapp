@@ -265,7 +265,7 @@ const AutocompleteList = styled.div<{
       },
       isDarkSkin,
     }) => (isDarkSkin ? light.borderColor : dark.borderColor)};
-  ${({ isOpened }) => (isOpened ? `border-top: none;` : `border: none;`)};
+  ${({ isOpened }) => (isOpened ? 'border-top: none;' : 'border: none;')};
 `;
 
 const Icon = styled.img<{ isOpened?: boolean }>`

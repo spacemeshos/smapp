@@ -274,7 +274,7 @@ class SmesherManager {
     try {
       fs.accessSync(dataDir, fs.constants.W_OK);
       const diskSpace = await checkDiskSpace(dataDir);
-      logger.log(`checkDiskSpace`, diskSpace.free, { dataDir });
+      logger.log('checkDiskSpace', diskSpace.free, { dataDir });
       return { calculatedFreeSpace: diskSpace.free };
     } catch (error) {
       logger.error('checkDiskSpace', error, { dataDir });

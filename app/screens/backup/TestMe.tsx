@@ -63,7 +63,7 @@ const WordsSection = styled.div`
 
 const WordContainer = styled.div<{ isDraggingOver?: boolean }>`
   border: ${({ isDraggingOver }) =>
-    isDraggingOver ? `none` : `1px dashed ${smColors.darkGray}`};
+    isDraggingOver ? 'none' : `1px dashed ${smColors.darkGray}`};
   height: 27px;
   width: 155px;
   border-radius: 5px;

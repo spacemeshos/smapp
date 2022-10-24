@@ -87,7 +87,7 @@ export const subscribe = (
       const notification = new Notification({
         title: `New version ${info.version} is available!`,
         subtitle: `Current version: ${currentVersion.format()}`,
-        body: `Open Smapp to install update.`,
+        body: 'Open Smapp to install update.',
       });
       notification.on('click', () => {
         mainWindow.show();

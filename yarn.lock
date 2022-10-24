@@ -2036,7 +2036,7 @@
     "@jridgewell/sourcemap-codec" "^1.4.10"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@jridgewell/resolve-uri@3.1.0":
+"@jridgewell/resolve-uri@3.1.0", "@jridgewell/resolve-uri@^3.0.3":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@jridgewell/resolve-uri/-/resolve-uri-3.1.0.tgz#2203b118c157721addfe69d47b70465463066d78"
   integrity sha512-F2msla3tad+Mfht5cJq7LSXcdudKTWCVYUgw6pLFOOHSTtZlj6SWNYAp+AhuqLmWdBO2X5hPrLcu8cVP8fy28w==
@@ -4168,7 +4168,7 @@
     "@typescript-eslint/typescript-estree" "4.18.0"
     debug "^4.1.1"
 
-"@typescript-eslint/parser@^4.4.1":
+"@typescript-eslint/parser@^4.29.3", "@typescript-eslint/parser@^4.4.1":
   version "4.33.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-4.33.0.tgz#dfe797570d9694e560528d18eecad86c8c744899"
   integrity sha512-ZohdsbXadjGBSK0/r+d87X0SBmKzOq4/S5nzK6SBgJspFo9/CUDJ7hjayuze+JK7CZQLDMroqytp7pOcFKTxZA==
@@ -4736,10 +4736,10 @@ acorn@^7.1.0, acorn@^7.1.1, acorn@^7.4.0, acorn@^7.4.1:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
-acorn@^8.0.4, acorn@^8.2.4, acorn@^8.5.0, acorn@^8.7.1:
-  version "8.8.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.0.tgz#88c0187620435c7f6015803f5539dae05a9dbea8"
-  integrity sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==
+acorn@^8.0.4, acorn@^8.2.4, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.7.1:
+  version "8.8.1"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.1.tgz#0a3f9cbecc4ec3bea6f0a80b66ae8dd2da250b73"
+  integrity sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==
 
 address@^1.0.1:
   version "1.2.1"
@@ -8076,6 +8076,11 @@ eslint-config-airbnb-typescript@12.3.1:
     eslint-config-airbnb "^18.2.0"
     eslint-config-airbnb-base "^14.2.0"
 
+eslint-config-airbnb-typescript@^13.0.0:
+  version "13.0.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-airbnb-typescript/-/eslint-config-airbnb-typescript-13.0.1.tgz#007e841efaf72aefae812afd68ac377c644a4cf2"
+  integrity sha512-n7fGBDNV3xSKbWDUES2FfsNAJhuqADcwzshX6ci6qoszUnH6p4dzrLnSFqYkw5Sn7M+aarp2BTf7JDOK88M+bg==
+
 eslint-config-airbnb@18.2.1, eslint-config-airbnb@^18.2.0, eslint-config-airbnb@^18.2.1:
   version "18.2.1"
   resolved "https://registry.yarnpkg.com/eslint-config-airbnb/-/eslint-config-airbnb-18.2.1.tgz#b7fe2b42f9f8173e825b73c8014b592e449c98d9"
@@ -8085,13 +8090,15 @@ eslint-config-airbnb@18.2.1, eslint-config-airbnb@^18.2.0, eslint-config-airbnb@
     object.assign "^4.1.2"
     object.entries "^1.1.2"
 
-eslint-config-erb@^4.0.0-alpha.0:
-  version "4.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-erb/-/eslint-config-erb-4.0.0-alpha.0.tgz#ae8e355276e6cde58359e8457c9d65392f47f481"
-  integrity sha512-MXul8bBkJlLc609rhHI1VpSHfn/mmYwGvsv4daY1DV/ItXmf3OI0/Zg2EGK4WGfpPbW+o8+Bfqoy/yD0LvqyaQ==
+eslint-config-erb@4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/eslint-config-erb/-/eslint-config-erb-4.0.3.tgz#0125f417934e86589dc76b3b238b4767f95e2d50"
+  integrity sha512-qZeiUSQanpCKKazkLzIvVaoM9NZcNvqhO7gYZ2jaEpBmadCu1aOzzvMMtjsoxaDytRQt6mt+uXjWGyJNqUYusw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.29.2"
+    "@typescript-eslint/parser" "^4.29.3"
     eslint-config-airbnb "^18.2.1"
+    eslint-config-airbnb-typescript "^13.0.0"
     eslint-config-prettier "^8.3.0"
     eslint-import-resolver-webpack "^0.13.1"
     eslint-plugin-compat "^3.13.0"

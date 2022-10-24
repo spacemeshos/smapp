@@ -103,14 +103,16 @@ const TransactionsMeta = ({
       <Group>
         <BoldText>activity</BoldText>
         <BoldText>--</BoldText>
-        <Text style={{ marginBottom: 27 }}>{`${filterName.replace(/^\w/, (c) =>
-          c.toUpperCase()
-        )} coins: ${formatSmidge(totalFilteredCoins)}`}</Text>
+        <Text style={{ marginBottom: 27 }}>
+          {`${filterName.replace(/^\w/, (c) =>
+            c.toUpperCase()
+          )} coins: ${formatSmidge(totalFilteredCoins)}`}
+        </Text>
         {coinsMeta.map((coinMeta) => (
           <ProgressBar key={coinMeta.title}>
-            <SmallText>{`${coinMeta.title} ${formatSmidge(
-              coinMeta.coins
-            )}`}</SmallText>
+            <SmallText>
+              {`${coinMeta.title} ${formatSmidge(coinMeta.coins)}`}
+            </SmallText>
             <Bar>
               <Progress coins={coinMeta.coins} total={totalFilteredCoins} />
             </Bar>

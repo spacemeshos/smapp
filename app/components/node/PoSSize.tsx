@@ -169,7 +169,7 @@ const PoSSize = ({
         ) : (
           <RewardText selected={selectedCommitmentIndex !== -1}>
             {selectedCommitmentIndex !== -1
-              ? `10 SMESH / EPOCH`
+              ? '10 SMESH / EPOCH'
               : '0 SMESH / EPOCH'}
           </RewardText>
         )}

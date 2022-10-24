@@ -20,9 +20,9 @@ const Wrapper = styled.div<{
   border-radius: 2px;
   ${({ isDragging, hasError }) =>
     hasError
-      ? `background-color: rgba(236, 92, 61, 0.1);`
+      ? 'background-color: rgba(236, 92, 61, 0.1);'
       : `background-color: ${
-          isDragging ? `rgba(101, 176, 66, 0.1)` : 'transparent'
+          isDragging ? 'rgba(101, 176, 66, 0.1)' : 'transparent'
         }`}
 `;
 

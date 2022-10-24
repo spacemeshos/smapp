@@ -11,7 +11,7 @@ const DetailsRow = styled.div<{ isLast?: boolean }>`
   align-items: center;
   border-bottom: ${({ isLast, theme }) =>
     isLast
-      ? `0px`
+      ? '0px'
       : `1px solid ${
           theme.isDarkMode ? smColors.vaultDarkGrey : smColors.vaultLightGrey
         };`};

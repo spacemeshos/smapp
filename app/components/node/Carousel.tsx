@@ -174,7 +174,7 @@ const SlideWrapper = styled.div`
   &:active ${SlideUpperPart} {
     transform: translate3d(
       ${({ theme: { themeName } }) =>
-        themeName === 'modern' ? `0, 0, 0` : `-5px, 5px, 0`}
+        themeName === 'modern' ? '0, 0, 0' : '-5px, 5px, 0'}
     );
     transition: transform 0.2s cubic-bezier;
     background-color: ${smColors.mediumGraySecond};
