@@ -64,6 +64,7 @@ type WalletData = {
   wallet: Wallet;
   password?: string;
   meta?: Record<string, any>;
+  save?: boolean;
 };
 
 const isWalletData = (a: any): a is WalletData =>
@@ -98,7 +99,7 @@ const changePassword = (path, prevPassword, nextPassword) =>
     filter(hasResult),
     switchMap(([_, { path, wallet }]) =>
       from(saveWallet(path, nextPassword, wallet)).pipe(
-        map(() => <WalletData>{ path, wallet })
+        map(() => <WalletData>{ path, wallet, save: true })
       )
     )
   );
@@ -113,7 +114,10 @@ const handleUpdateWalletSecrets = <
       loadWallet$(t.path, t.password).pipe(
         filter(hasResult),
         map((hr) =>
-          mapResult((pair) => mapFn(t, { ...pair, password: t.password }), hr)
+          mapResult(
+            (pair) => mapFn(t, { ...pair, password: t.password, save: true }),
+            hr
+          )
         ),
         map((x) => explodeResult(x))
       )
@@ -160,7 +164,14 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.W_M_CREATE_WALLET,
       (data: CreateWalletRequest) =>
-        from(wrapResult(createWallet(data) as Promise<WalletData>)),
+        from(
+          wrapResult(
+            createWallet(data).then((walletData) => ({
+              ...walletData,
+              save: true,
+            })) as Promise<WalletData>
+          )
+        ),
       ({ path }): CreateWalletResponse['payload'] => ({ path })
     ),
     //
@@ -177,6 +188,7 @@ const handleWalletIpcRequests = (
         return of(<WalletData>{
           path,
           wallet: R.assocPath(['meta', 'netId'], netId, wallet),
+          save: true,
         });
       }),
       retry(3),
@@ -216,7 +228,11 @@ const handleWalletIpcRequests = (
               meta: { ...wallet.meta, ...changes },
             };
 
-            return handlerResult(<WalletData>{ path, wallet: nextWallet });
+            return handlerResult(<WalletData>{
+              path,
+              wallet: nextWallet,
+              save: true,
+            });
           })
         ),
       ({ wallet }) => wallet.meta
@@ -233,6 +249,7 @@ const handleWalletIpcRequests = (
                     ...pair,
                     wallet: createNewAccount(pair.wallet),
                     password,
+                    save: true,
                   }),
                   res
                 )
@@ -258,6 +275,7 @@ const handleWalletIpcRequests = (
               [upd.key]: upd.value,
             },
           },
+          save: true,
         };
       })
     ),
@@ -331,9 +349,9 @@ const handleWalletIpcRequests = (
       next: (next) => {
         $wallet.next(next.wallet);
         $walletPath.next(next.path);
-        if (isWalletData(next)) {
+        if (isWalletData(next) && next.save) {
           updateWalletFile(next).catch((err) => {
-            logger.error('updateWalletFile', err, next);
+            logger.error('updateWalletFile', err);
           });
         }
       },
