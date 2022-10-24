@@ -86,18 +86,18 @@ class GlobalStateService extends NetServiceFactory<
       offset,
     })
       .then((response) => ({
-        totalResults: response.totalResults,
-        data: response.accountItem
+        totalResults: response?.totalResults || 0,
+        data: (response?.accountItem || [])
           .map((item) => getByFlag(filter.accountDataFlags, item))
           .filter(Boolean) as AccountDataStreamHandlerArg[F][],
       }))
       .then(this.normalizeServiceResponse)
-      .catch(
-        this.normalizeServiceError({
+      .catch((err) => {
+        return this.normalizeServiceError({
           totalResults: 0,
           data: <AccountDataStreamHandlerArg[F][]>[],
-        })
-      );
+        })(err);
+      });
 
   activateAccountDataStream = <K extends AccountDataValidFlags>(
     address: string,

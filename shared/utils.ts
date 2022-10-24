@@ -1,3 +1,4 @@
+import type { Long } from '@grpc/proto-loader';
 import TOML from '@iarna/toml';
 import { LOCAL_NODE_API_URL } from './constants';
 import { HexString, PublicService, SocketAddress, WalletType } from './types';
@@ -170,3 +171,6 @@ export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
 //
 
 export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
+
+export const longToNumber = (val: Long | number) =>
+  typeof val === 'number' ? val : val.toInt();

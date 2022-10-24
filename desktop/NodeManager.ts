@@ -224,7 +224,7 @@ class NodeManager {
     } else if (attempts > 0) {
       setTimeout(async () => {
         await this.waitForNodeServiceResponsiveness(resolve, attempts - 1);
-      }, 5000);
+      }, 500);
     } else {
       resolve(false);
     }
@@ -244,7 +244,7 @@ class NodeManager {
     await this.spawnNode();
     this.nodeService.createService();
     const success = await new Promise<boolean>((resolve) => {
-      this.waitForNodeServiceResponsiveness(resolve, 15);
+      this.waitForNodeServiceResponsiveness(resolve, 30); // 15 sec timeout
     });
     if (success) {
       // update node status once by query request

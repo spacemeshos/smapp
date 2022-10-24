@@ -6,7 +6,7 @@ import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { hasRequiredTxFields } from '../shared/types/guards';
 import { Tx, TxState } from '../shared/types/tx';
-import { isObject, toHexString } from '../shared/utils';
+import { isObject, longToNumber, toHexString } from '../shared/utils';
 
 const prettifyPayload = (payload: Record<string, any>) =>
   Object.fromEntries(
@@ -42,8 +42,8 @@ export const toTx = (
   );
   const decoded = tpl.decode(Uint8Array.from(tx.raw));
   const method = Number(decoded.MethodSelector) || tx.method || 0;
-  const gasPrice = tx.gasPrice.toNumber();
-  const maxGas = tx.maxGas.toNumber();
+  const gasPrice = longToNumber(tx.gasPrice);
+  const maxGas = longToNumber(tx.maxGas);
   const fee = gasPrice * maxGas;
   const res = <Tx<typeof decoded.Payload>>{
     id: toHexString(tx.id),
@@ -73,8 +73,8 @@ export const addReceiptToTx = <T>(
   layer: receipt.layer?.number || tx.layer,
   receipt: {
     result: receipt.result,
-    gasUsed: receipt.gasUsed.toNumber(),
-    fee: receipt.fee?.value.toNumber() || 0,
+    gasUsed: longToNumber(receipt.gasUsed),
+    fee: longToNumber(receipt.fee?.value || 0),
     svmData: toHexString(receipt.svmData),
   },
 });

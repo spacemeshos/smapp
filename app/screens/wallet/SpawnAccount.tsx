@@ -18,6 +18,7 @@ import {
 } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { TxSentFieldType } from '../../components/wallet/TxSent';
+import { MAX_GAS } from '../../../shared/constants';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -95,7 +96,6 @@ const DropDownContainer = styled.div`
   width: 240px;
 `;
 
-const MAX_GAS = 500;
 const fees = [
   {
     fee: 1,

@@ -16,8 +16,7 @@ import { Contact } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { TxConfirmationFieldType } from '../../components/wallet/TxConfirmation';
 import { TxSentFieldType } from '../../components/wallet/TxSent';
-
-const MAX_GAS = 500; // TODO
+import { MAX_GAS } from '../../../shared/constants';
 
 interface Props extends RouteComponentProps {
   location: {

@@ -34,3 +34,7 @@ export enum ExternalLinks {
   Help = 'https://testnet.spacemesh.io/#/help',
   DiscordTapAccount = 'https://discord.gg/ASpy52C',
 }
+
+// TODO: When the API will be available to retrieve max gas
+// for the tx method before publishing it
+export const MAX_GAS = 500;

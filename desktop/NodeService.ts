@@ -7,6 +7,7 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
+import { longToNumber } from '../shared/utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import Logger from './logger';
 
@@ -78,7 +79,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           verifiedLayer,
         } = response.status;
         return {
-          connectedPeers: (connectedPeers && connectedPeers.toNumber()) || 0,
+          connectedPeers: longToNumber(connectedPeers || 0),
           isSynced: !!isSynced,
           syncedLayer: syncedLayer?.number || 0,
           topLayer: topLayer?.number || 0,

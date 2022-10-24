@@ -26,7 +26,13 @@ import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { hasRequiredRewardFields } from '../shared/types/guards';
-import { delay, fromHexString, toHexString } from '../shared/utils';
+import {
+  delay,
+  fromHexString,
+  longToNumber,
+  toHexString,
+} from '../shared/utils';
+import { MAX_GAS } from '../shared/constants';
 import { addReceiptToTx, toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -336,12 +342,12 @@ class TransactionManager {
 
   updateAccountData = (address: string) => (data: Account__Output) => {
     const currentState = {
-      counter: data.stateCurrent?.counter?.toNumber?.() || 0,
-      balance: data.stateCurrent?.balance?.value?.toNumber() || 0,
+      counter: longToNumber(data.stateCurrent?.counter || 0),
+      balance: longToNumber(data.stateCurrent?.balance?.value || 0),
     };
     const projectedState = {
-      counter: data.stateProjected?.counter?.toNumber?.() || 0,
-      balance: data.stateProjected?.balance?.value?.toNumber() || 0,
+      counter: longToNumber(data.stateProjected?.counter || 0),
+      balance: longToNumber(data.stateProjected?.balance?.value || 0),
     };
     this.accountStates[address].storeState({
       currentState,
@@ -395,12 +401,10 @@ class TransactionManager {
 
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
     if (!reward || !hasRequiredRewardFields(reward)) return;
-
     const parsedReward: Reward = {
       layer: reward.layer.number,
-      amount: reward.total.value.toNumber(),
-      layerReward: reward.layerReward.value.toNumber(),
-      // layerComputed: reward.layerComputed.number, // TODO
+      amount: longToNumber(reward.total.value),
+      layerReward: longToNumber(reward.layerReward.value),
       coinbase: reward.coinbase.address,
     };
     this.storeReward(accountId, parsedReward);
@@ -419,6 +423,11 @@ class TransactionManager {
         composeArg(batch)
       );
       if (res.error && retries > 0) {
+        this.logger.debug(
+          `retrieveRewards (retry ${retries})`,
+          res,
+          composeArg(batch)
+        );
         await delay(1000);
         return getAccountDataQuery(batch, retries - 1);
       }
@@ -486,6 +495,11 @@ class TransactionManager {
               template: Bech32.generateAddress(SingleSigTemplate.publicKey),
               method: 0,
               principal: address,
+              gas: {
+                gasPrice: fee,
+                maxGas: MAX_GAS,
+                fee: fee * MAX_GAS,
+              },
               status:
                 response.txstate?.state ||
                 TxState.TRANSACTION_STATE_UNSPECIFIED,
@@ -553,6 +567,11 @@ class TransactionManager {
               template: Bech32.generateAddress(SingleSigTemplate.publicKey),
               method: 0,
               principal: address,
+              gas: {
+                gasPrice: fee,
+                maxGas: MAX_GAS,
+                fee: fee * MAX_GAS,
+              },
               status:
                 response.txstate?.state ||
                 TxState.TRANSACTION_STATE_UNSPECIFIED,

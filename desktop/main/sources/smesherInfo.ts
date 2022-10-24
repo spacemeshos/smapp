@@ -25,6 +25,7 @@ import {
   WalletType,
 } from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
+import { longToNumber } from '../../../shared/utils';
 import Logger from '../../logger';
 import { Managers } from '../app.types';
 import { MINUTE } from '../constants';
@@ -45,8 +46,8 @@ const toSmesherReward = (input: Reward__Output): SmesherReward => {
   }
   return {
     layer: input.layer.number,
-    layerReward: input.layerReward.value.toNumber(),
-    total: input.total.value.toNumber(),
+    layerReward: longToNumber(input.layerReward.value),
+    total: longToNumber(input.total.value),
     coinbase: input.coinbase.address,
   };
 };
