@@ -116,7 +116,10 @@ class WalletManager {
     };
   };
 
-  unsubscribe = () => this.unsub();
+  unsubscribe = () => {
+    this.txManager.unsubscribeAllStreams();
+    this.unsub();
+  };
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
