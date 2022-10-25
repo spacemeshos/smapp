@@ -26,6 +26,7 @@ const Logger = ({ className }: { className: string }) => ({
     // @todo clean up error invocation because of GRPC connection and streams and add sentry capture after it
   },
   debug: (title: string, ...args: any[]) => {
+    if (!isDebug()) return;
     const payload = args.reduce(
       (acc, next) => `${acc}  ${JSON.stringify(next)}`,
       ''
