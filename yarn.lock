@@ -2498,10 +2498,10 @@
   dependencies:
     scale-ts "^0.2.11"
 
-"@spacemesh/sm-codec@^0.3.2":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.2.tgz#9222a17873d5ec8f20578c308acdcfd05c3570e6"
-  integrity sha512-VlMSXhS2oDySQ4mXQh1vWyttCMsKHNDHu/nDNTxR440i/7BOFlcIRw4s+4p1dXZ2n9KE4FoYHNVcGHfapOK1pw==
+"@spacemesh/sm-codec@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.3.tgz#9455ed7b0a7a2c3cfb0782e79fb02fa232c5d180"
+  integrity sha512-M3ipzgbKEWS2EaJn0UzqJ3GqfSY3bzshhrNbQBu5rvmdkWb1kM0hiOVshC+VdBRQ527ORfHPpdtarlluFcYCkA==
   dependencies:
     "@spacemesh/sm-codec" "^0.2.1"
     scale-ts "^0.2.11"
