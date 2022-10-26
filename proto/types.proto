@@ -16,7 +16,7 @@ message Amount {
 }
 
 message AccountId {
-    bytes address = 1;
+    string address = 1;
 }
 
 message TransactionId {
@@ -29,41 +29,6 @@ message ActivationId {
 
 message SmesherId {
     bytes id = 1;
-}
-
-message GasOffered {
-    uint64 gas_provided = 1;
-    uint64 gas_price = 2;
-}
-
-// Data specific to a simple coin transaction.
-message CoinTransferTransaction {
-    AccountId receiver = 1;
-}
-
-// Data specific to a smart contract transaction.
-message SmartContractTransaction {
-    enum TransactionType {
-        TRANSACTION_TYPE_UNSPECIFIED = 0;
-        TRANSACTION_TYPE_APP = 1; // smart contract method
-        TRANSACTION_TYPE_APP_SPAWN_APP = 2; // deploy app from template using svm terminology
-        TRANSACTION_TYPE_DEPLOY_TEMPLATE = 3; // deploy app template code to mesh
-    }
-    TransactionType type = 1;
-    bytes data = 2; // packed binary arguments, including ABI selector
-    AccountId account_id = 3; // address of smart contract or template
-}
-
-// A simple signature data
-message Signature {
-    enum Scheme {
-        SCHEME_UNSPECIFIED = 0;
-        SCHEME_ED25519 = 1; // standard Ed25519 scheme
-        SCHEME_ED25519_PLUS_PLUS = 2; // sm-modified ED25519 , a.k.a. ED25519++
-    }
-    Scheme scheme = 1; // the signature's scheme
-    bytes signature = 2; // the signature itself
-    bytes public_key = 3; // included in schemes which require signer to provide a public key
 }
 
 // An Activation "transaction" (ATX)
@@ -79,17 +44,28 @@ message Activation {
 // An immutable Spacemesh transaction.
 // do not include mutable data such as tx state or result.
 message Transaction {
-    TransactionId id = 1;
-    oneof datum {
-        CoinTransferTransaction coin_transfer = 2;
-        SmartContractTransaction smart_contract = 3;
-    }
-    AccountId sender = 4; // tx originator, should match signer inside Signature
-    GasOffered gas_offered = 5; // gas price and max gas offered
-    Amount amount = 6; // amount of coin transfered in this tx by sender
-    uint64 counter = 7; // tx counter aka nonce
-    Signature signature = 8; // sender signature on transaction
+    bytes id = 1;
+    AccountId principal = 2;
+    AccountId template = 3;
+    uint32 method = 4; // this is actually limited by uint8, but no type for that.
+    Nonce nonce = 5;
+    LayerLimits limits = 6;
+    uint64 max_gas = 7;
+    uint64 gas_price = 8;
+    uint64 max_spend = 9;
+    bytes raw = 10;
 }
+
+message LayerLimits {
+    uint32 min = 1;
+    uint32 max = 2;
+}
+
+message Nonce {
+    uint64 counter = 1;
+    uint32 bitfield = 2; // this is actually limited by uint8, but no type for that.
+}
+
 
 // Transaction that was added to the mesh.
 message MeshTransaction {
@@ -135,4 +111,3 @@ message AppEvent { // an event emitted from an app instance
     TransactionId transaction_id = 1; // the transaction that called the code
     string message = 2; // the event's string emitted from code
 }
-

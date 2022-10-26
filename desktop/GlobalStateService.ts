@@ -6,10 +6,10 @@ import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/Account
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
+import { toHexString } from '../shared/utils';
 import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
-import { toHexString } from './utils';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 
 const PROTO_PATH = 'proto/global_state.proto';
@@ -71,7 +71,7 @@ class GlobalStateService extends NetServiceFactory<
     offset,
   }: {
     filter: {
-      accountId: { address: Uint8Array };
+      accountId: { address: string };
       accountDataFlags: F;
     };
     offset: number;
@@ -86,21 +86,21 @@ class GlobalStateService extends NetServiceFactory<
       offset,
     })
       .then((response) => ({
-        totalResults: response.totalResults,
-        data: response.accountItem
+        totalResults: response?.totalResults || 0,
+        data: (response?.accountItem || [])
           .map((item) => getByFlag(filter.accountDataFlags, item))
           .filter(Boolean) as AccountDataStreamHandlerArg[F][],
       }))
       .then(this.normalizeServiceResponse)
-      .catch(
-        this.normalizeServiceError({
+      .catch((err) => {
+        return this.normalizeServiceError({
           totalResults: 0,
           data: <AccountDataStreamHandlerArg[F][]>[],
-        })
-      );
+        })(err);
+      });
 
   activateAccountDataStream = <K extends AccountDataValidFlags>(
-    address: Uint8Array,
+    address: string,
     accountDataFlags: K,
     handler: (data: AccountDataStreamHandlerArg[K]) => void
   ) =>
@@ -123,7 +123,7 @@ class GlobalStateService extends NetServiceFactory<
     );
 
   listenRewardsByCoinbase = (
-    coinbase: Uint8Array,
+    coinbase: string,
     handler: (data: Reward__Output) => void
   ) =>
     this.activateAccountDataStream(

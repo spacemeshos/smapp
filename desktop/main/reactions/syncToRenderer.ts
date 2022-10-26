@@ -26,7 +26,6 @@ import {
   Wallet,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
-import { toHexString } from '../../utils';
 import { HOUR, MINUTE } from '../constants';
 import { withLatest } from '../rx.utils';
 import networkView from './views/networkView';
@@ -40,9 +39,9 @@ import walletView from './views/walletView';
 // 1. Send incremental updates as it changes on the main process.
 // 2. [NOT IMPLEMENTED] Send the entire state to the renderer when window reloaded / activated / etc
 
-const sync = <T extends any>(
+const sync = (
   $mainWindow: Subject<BrowserWindow>,
-  ...observables: Observable<Record<string, T>>[]
+  ...observables: Observable<Record<string, any>>[]
 ) => {
   // Merge interested data streams and transform them into required view
   const $updates = merge(
@@ -168,7 +167,7 @@ export default (
   $currentLayer: Observable<number>,
   $rootHash: Observable<string>,
   $nodeVersion: Observable<NodeVersionAndBuild>,
-  $smesherId: Observable<Uint8Array>,
+  $smesherId: Observable<string>,
   $activations: Observable<Activation[]>,
   $rewards: Observable<SmesherReward[]>
 ) =>
@@ -190,7 +189,7 @@ export default (
     ]).pipe(
       map(([smesherId, rewards, activations, cfg, curLayer]) => ({
         smesher: {
-          smesherId: toHexString(smesherId),
+          smesherId,
           activations,
           rewards,
           rewardsInfo: getRewardsInfo(cfg, curLayer, rewards),

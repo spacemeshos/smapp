@@ -1,4 +1,7 @@
-import { HexString } from '../../shared/types';
+import { TX_STATE_LABELS } from '../../shared/constants';
+import HRP from '../../shared/hrp';
+import { HexString, TxState } from '../../shared/types';
+import { deriveHRP } from '../../shared/utils';
 
 export const addErrorPrefix = (prefix: string, error: Error) => {
   error.message = `${prefix}${error.message}`;
@@ -21,7 +24,15 @@ export const getAbbreviatedText = (
   return addPrefix ? ensure0x(abbr) : abbr;
 };
 
-export const getFormattedTimestamp = (timestamp: number | null): string => {
+export const getAbbreviatedAddress = (address: string) => {
+  const hrp = deriveHRP(address) || '';
+  return `${hrp}1...${address.slice(-8)}`;
+};
+
+export const getFormattedTimestamp = (
+  timestamp: number | null,
+  status: TxState | null
+): string => {
   if (timestamp) {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -29,25 +40,21 @@ export const getFormattedTimestamp = (timestamp: number | null): string => {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
     };
     const dateObj = new Date(timestamp);
     return dateObj.toLocaleDateString('en-US', options).replace(',', '');
   }
-  return 'Pending';
+  return status ? TX_STATE_LABELS[status] : 'Calculating date';
 };
 
 export const getAddress = (key: string) =>
   key.length <= 44 ? key : key.substring(24);
 
-// Address can start with `0x` or without
-// By default it checks the account address, length = 40
-// To validate tx / smesher address, set length to 64
-export const validateAddress = (
-  address: string,
-  length = 40
-): address is HexString => {
-  const r = new RegExp(`^(0x)?[a-f0-9]{${length}}$`, 'i').test(address);
+export const validateAddress = (address: string): address is HexString => {
+  const addressRegex = new RegExp(
+    `^(${Object.values(HRP).join('|')})1[a-zA-Z0-9]{45}$`
+  );
+  const r = addressRegex.test(address);
   return r;
 };
 
@@ -108,3 +115,5 @@ export const formatSmidge = (amount: number): string => {
 
 export const constrain = (min: number, max: number, value: number) =>
   Math.min(Math.max(value, min), max);
+
+export const safeReactKey = (str: string) => str.replace(/\s|\W/g, '');

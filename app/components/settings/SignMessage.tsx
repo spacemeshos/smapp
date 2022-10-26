@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { eventsService } from '../../infra/eventsService';
 import { Modal } from '../common';
 import { Input, Button } from '../../basicComponents';
-import { getAbbreviatedText, getAddress } from '../../infra/utils';
+import { getAbbreviatedAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 
@@ -50,7 +50,7 @@ const SignMessage = ({ index, close }: Props) => {
     });
     copiedTimeout && clearTimeout(copiedTimeout);
     await navigator.clipboard.writeText(
-      `{ "text": "${message}", "signature": "0x${signedMessage}", "publicKey": "0x${accounts[index].publicKey}" }`
+      `{ "text": "${message}", "signature": "0x${signedMessage}", "address": "${accounts[index].address}" }`
     );
     copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
     setIsCopied(true);
@@ -59,8 +59,8 @@ const SignMessage = ({ index, close }: Props) => {
   return (
     <Modal
       header="SIGN TEXT"
-      subHeader={`sign text with account ${getAbbreviatedText(
-        getAddress(accounts[index].publicKey)
+      subHeader={`sign text with account ${getAbbreviatedAddress(
+        accounts[index].address
       )}`}
     >
       <Input

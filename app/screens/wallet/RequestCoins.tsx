@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
 import { Link, Button, BoldText } from '../../basicComponents';
-import { getAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Account } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
+import { Account } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -101,7 +100,7 @@ const RequestCoins = ({ history, location }: Props) => {
 
   let copiedTimeout = 0;
   const copyPublicAddress = async () => {
-    await navigator.clipboard.writeText(`0x${getAddress(account.publicKey)}`);
+    await navigator.clipboard.writeText(account.address);
     clearTimeout(copiedTimeout);
     copiedTimeout = window.setTimeout(() => setIsCopied(false), 3000);
     setIsCopied(true);
@@ -129,7 +128,7 @@ const RequestCoins = ({ history, location }: Props) => {
       <SubHeader>
         <Text>Request SMH by sharing your wallet&apos;s address:</Text>
         <AddressWrapper onClick={copyPublicAddress}>
-          <AddressText>{`0x${getAddress(account.publicKey)}`}</AddressText>
+          <AddressText>{account.address}</AddressText>
           <CopyIcon />
           {isCopied && <CopiedText>Copied!</CopiedText>}
         </AddressWrapper>

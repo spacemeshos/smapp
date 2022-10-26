@@ -9,6 +9,7 @@ import { RootState } from '../../types';
 import { MainPath, WalletPath } from '../../routerPaths';
 import { PostSetupState } from '../../../shared/types';
 import { ExternalLinks } from '../../../shared/constants';
+import { _spacemesh_v1_TransactionState_TransactionState as TransactionState } from '../../../proto/spacemesh/v1/TransactionState';
 
 const Wrapper = styled.div`
   display: flex;
@@ -41,10 +42,20 @@ const MiddleSectionText = styled.div`
 `;
 
 const Overview = ({ history }: RouteComponentProps) => {
-  const account = useSelector(
-    (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex]
+  const accountIndex = useSelector(
+    (state: RootState) => state.wallet.currentAccountIndex || 0
   );
+
+  const account = useSelector(
+    (state: RootState) => state.wallet.accounts[accountIndex]
+  );
+  const txs = useSelector(
+    (state: RootState) =>
+      (account?.address &&
+        Object.values(state?.wallet?.transactions?.[account.address] || {})) ||
+      []
+  );
+
   const isSmeshing = useSelector(
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_COMPLETE
@@ -53,6 +64,10 @@ const Overview = ({ history }: RouteComponentProps) => {
     (state: RootState) =>
       state.smesher.postSetupState === PostSetupState.STATE_IN_PROGRESS
   );
+
+  const navigateToSpawnAccount = async () => {
+    history.push(WalletPath.SpawnAccount);
+  };
 
   const navigateToSendCoins = () => {
     history.push(WalletPath.SendCoins);
@@ -71,6 +86,27 @@ const Overview = ({ history }: RouteComponentProps) => {
 
   const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
+  const isAccountSpawned = !!txs.find(
+    (tx) =>
+      tx.meta?.templateName === 'SingleSig' &&
+      tx.method === 0 &&
+      tx.status === TransactionState.TRANSACTION_STATE_PROCESSED
+  );
+
+  const renderMiddleSection = () =>
+    isAccountSpawned ? (
+      <MiddleSectionText>
+        Send SMH to anyone, or request to receive SMH.
+      </MiddleSectionText>
+    ) : (
+      <MiddleSectionText>
+        <strong>The account is not spawned yet.</strong>
+        <br />
+        It means you can receive SMH on this address, but to send SMH to someone
+        else you will need to spawn account first.
+      </MiddleSectionText>
+    );
+
   return (
     <Wrapper>
       <MiddleSection>
@@ -79,18 +115,28 @@ const Overview = ({ history }: RouteComponentProps) => {
           <br />
           --
         </MiddleSectionHeader>
-        <MiddleSectionText>
-          Send SMH to anyone, or request to receive SMH.
-        </MiddleSectionText>
-        <Button
-          onClick={navigateToSendCoins}
-          text="SEND"
-          isPrimary={false}
-          width={225}
-          img={sendIcon}
-          imgPosition="after"
-          style={{ marginBottom: 20 }}
-        />
+        {renderMiddleSection()}
+        {!isAccountSpawned ? (
+          <Button
+            onClick={navigateToSpawnAccount}
+            text="SPAWN"
+            isPrimary
+            width={225}
+            img={sendIcon}
+            imgPosition="after"
+            style={{ marginBottom: 20 }}
+          />
+        ) : (
+          <Button
+            onClick={navigateToSendCoins}
+            text="SEND"
+            isPrimary={false}
+            width={225}
+            img={sendIcon}
+            imgPosition="after"
+            style={{ marginBottom: 20 }}
+          />
+        )}
         <Button
           onClick={navigateToRequestCoins}
           text="REQUEST"

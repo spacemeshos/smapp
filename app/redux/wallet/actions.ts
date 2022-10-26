@@ -1,5 +1,4 @@
 import {
-  Account,
   Contact,
   HexString,
   SocketAddress,
@@ -7,15 +6,17 @@ import {
   TxSendRequest,
   WalletMeta,
   WalletType,
+  Account,
 } from '../../../shared/types';
 import {
+  delay,
   isLocalNodeApi,
   isRemoteNodeApi,
   isWalletOnlyType,
   stringifySocketAddress,
 } from '../../../shared/utils';
 import { eventsService } from '../../infra/eventsService';
-import { addErrorPrefix, getAddress } from '../../infra/utils';
+import { addErrorPrefix } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
 import { getNetworkId } from '../network/selectors';
 import { setUiError } from '../ui/actions';
@@ -35,6 +36,13 @@ export const UPDATE_ACCOUNT_DATA = 'UPDATE_ACCOUNT_DATA';
 export const SAVE_WALLET_FILES = 'SAVE_WALLET_FILES';
 
 export const SET_BACKUP_TIME = 'SET_BACKUP_TIME';
+
+const waitForWalletData = async (getState: GetState) => {
+  return (
+    getState().wallet.accounts.length > 0 ||
+    delay(100).then(() => waitForWalletData(getState))
+  );
+};
 
 export const setWalletMeta = (wallet: WalletMeta) => ({
   type: SET_WALLET_META,
@@ -105,13 +113,14 @@ export const createNewWallet = ({
   type: WalletType;
   apiUrl: SocketAddress | null;
   netId: number;
-}) => (dispatch: AppThDispatch) =>
+}) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
     .createWallet({ password, existingMnemonic, type, apiUrl, netId })
-    .then(({ error, payload }) => {
+    .then(async ({ error, payload }) => {
       if (error) {
         throw error;
       }
+      await waitForWalletData(getState);
       return payload;
     })
     .catch((err) => {
@@ -120,7 +129,8 @@ export const createNewWallet = ({
     });
 
 export const unlockWallet = (path: string, password: string) => async (
-  dispatch: AppThDispatch
+  dispatch: AppThDispatch,
+  getState: GetState
 ) => {
   const resp = await eventsService.unlockWallet({
     path,
@@ -140,6 +150,7 @@ export const unlockWallet = (path: string, password: string) => async (
   // Success
   dispatch(setCurrentAccount(0));
   const isWalletOnly = isWalletOnlyType(payload.meta.type);
+  await waitForWalletData(getState);
   return {
     success: true,
     forceNetworkSelection: payload.forceNetworkSelection,
@@ -317,7 +328,7 @@ export const sendTransaction = ({
 }) => async (dispatch: AppThDispatch, getState: GetState) => {
   const { accounts, currentAccountIndex } = getState().wallet;
   const fullTx: TxSendRequest = {
-    sender: getAddress(accounts[currentAccountIndex].publicKey),
+    sender: accounts[currentAccountIndex].address,
     receiver,
     amount,
     fee,

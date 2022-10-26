@@ -37,6 +37,7 @@ import {
   ConnectToApi,
   SwitchNetwork,
 } from './screens';
+import SpawnAccount from './screens/wallet/SpawnAccount';
 
 //
 // Types
@@ -90,6 +91,7 @@ const main = formatRoutes([
 const wallet = formatRoutes([
   [WalletPath.Overview, Overview],
   [WalletPath.Vault, Vault],
+  [WalletPath.SpawnAccount, SpawnAccount],
   [WalletPath.SendCoins, SendCoins],
   [WalletPath.RequestCoins, RequestCoins],
 ]);

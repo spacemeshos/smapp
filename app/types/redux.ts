@@ -15,8 +15,9 @@ import {
   SmesherReward,
   Activation,
   AccountBalance,
-  Account,
+  KeyPair,
   RewardsInfo,
+  Account,
 } from '../../shared/types';
 import { UpdaterState } from '../redux/updater/slice';
 
@@ -37,6 +38,7 @@ export interface WalletState {
   meta: WalletMeta;
   mnemonic: string;
   accounts: Array<Account>;
+  keychain: Array<KeyPair>;
   currentAccountIndex: number;
   transactions: { [publicKey: HexString]: { [txId: Tx['id']]: Tx } };
   rewards: { [publicKey: HexString]: Reward[] };
@@ -60,7 +62,7 @@ export interface SmesherState {
   postSetupState: PostSetupState;
   postProgressError: string;
   rewards: SmesherReward[];
-  rewardsInfo: RewardsInfo;
+  rewardsInfo?: RewardsInfo;
   activations: Activation[];
   config: SmesherConfig;
 }

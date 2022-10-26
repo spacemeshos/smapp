@@ -10,6 +10,7 @@ import {
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
+import { configCodecByPath } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
@@ -39,11 +40,14 @@ class SmesherManager {
     const fileContent = await readFileAsync(this.configFilePath, {
       encoding: 'utf-8',
     });
-    return JSON.parse(fileContent) as NodeConfig;
+    return configCodecByPath(this.configFilePath).parse(
+      fileContent
+    ) as NodeConfig;
   };
 
   private writeConfig = async (config) => {
-    await writeFileAsync(this.configFilePath, JSON.stringify(config));
+    const data = configCodecByPath(this.configFilePath).stringify(config);
+    await writeFileAsync(this.configFilePath, data);
     return true;
   };
 
@@ -109,7 +113,7 @@ class SmesherManager {
       0;
     const data: IPCSmesherStartupData = {
       config,
-      smesherId,
+      smesherId: smesherId || '',
       postSetupState,
       numLabelsWritten,
       numUnits,
@@ -190,7 +194,10 @@ class SmesherManager {
         });
         const config = await this.loadConfig();
         if (deleteFiles) {
-          delete config.smeshing;
+          config.smeshing['smeshing-start'] = false;
+          config.smeshing['smeshing-coinbase'] = '';
+          config.smeshing['smeshing-opts']['smeshing-opts-datadir'] =
+            '~/.spacemesh';
         } else {
           config.smeshing['smeshing-start'] = false;
         }

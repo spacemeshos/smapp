@@ -15,16 +15,14 @@ export interface ProtoGrpcType {
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
-      CoinTransferTransaction: MessageTypeDefinition
-      GasOffered: MessageTypeDefinition
       Layer: MessageTypeDefinition
+      LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
+      Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
-      Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
-      SmartContractTransaction: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition

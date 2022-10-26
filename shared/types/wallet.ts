@@ -1,9 +1,16 @@
-export interface Account {
+export interface KeyPair {
   displayName: string;
   created: string;
   path: string;
   publicKey: string;
   secretKey: string;
+}
+
+export interface Account {
+  displayName: string;
+  created: string;
+  address: string;
+  spawnArgs?: any;
 }
 
 export interface AccountBalance {
@@ -36,7 +43,7 @@ export interface WalletMeta {
 
 export interface WalletSecrets {
   mnemonic: string;
-  accounts: Account[];
+  accounts: KeyPair[];
   contacts: Contact[];
 }
 

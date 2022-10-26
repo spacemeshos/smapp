@@ -3,14 +3,14 @@ import fs from 'fs';
 import { F_OK } from 'constants';
 import cs from 'checksum';
 import fetch from 'electron-fetch';
-import { HexString } from '../shared/types';
+import { configCodecByFirstChar } from '../shared/utils';
 
 // --------------------------------------------------------
 // ENV modes
 // --------------------------------------------------------
 export const isProd = () => process.env.NODE_ENV === 'production';
 export const isDev = () => process.env.NODE_ENV === 'development';
-export const isDebug = () => isDev() || process.env.DEBUG_PROD;
+export const isDebug = () => isDev() || !!process.env.DEBUG_PROD;
 
 export const isDevNet = (
   proc = process
@@ -19,29 +19,16 @@ export const isDevNet = (
 } => proc.env.NODE_ENV === 'development' && !!proc.env.DEV_NET_URL;
 
 // --------------------------------------------------------
-// HexString conversion
-// --------------------------------------------------------
-export const fromHexString = (hexString: HexString) => {
-  const bytes: number[] = [];
-  for (let i = 0; i < hexString.length; i += 2) {
-    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
-  }
-  return Uint8Array.from(bytes);
-};
-export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
-  bytes instanceof Buffer
-    ? bytes.toString('hex')
-    : bytes.reduce(
-        (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
-        ''
-      );
-
-// --------------------------------------------------------
 // Network
 // --------------------------------------------------------
 
 export const fetchJSON = async (url?: string) =>
   url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null;
+
+export const fetchNodeConfig = async (url: string) =>
+  fetch(`${url}?no-cache=${Date.now()}`)
+    .then((res) => res.text())
+    .then((res) => configCodecByFirstChar(res).parse(res));
 
 export const isNetError = (error: Error) => error.message.startsWith('net::');
 

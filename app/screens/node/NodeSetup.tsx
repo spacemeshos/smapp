@@ -17,7 +17,7 @@ import {
 } from '../../components/node';
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
-import { formatBytes, getAddress } from '../../infra/utils';
+import { formatBytes } from '../../infra/utils';
 import { BITS, AppThDispatch, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
@@ -117,7 +117,7 @@ const NodeSetup = ({ history, location }: Props) => {
     if (!provider) return; // TODO
     const done = await dispatch(
       startSmeshing({
-        coinbase: `0x${getAddress(accounts[0].publicKey)}`,
+        coinbase: accounts[0].address,
         dataDir,
         numUnits,
         provider: provider.id,

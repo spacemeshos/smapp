@@ -8,6 +8,8 @@
  * `./desktop/main.prod.js` using webpack. This gives us some performance wins.
  */
 import 'core-js/stable';
+import 'json-bigint-patch';
+
 import path from 'path';
 import fs from 'fs';
 // import os from 'os';
@@ -15,6 +17,8 @@ import { app } from 'electron';
 import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
 import { BrowserTracing } from '@sentry/tracing';
+import Bech32 from '@spacemesh/address-wasm';
+import HRP from '../shared/hrp';
 import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
@@ -66,6 +70,9 @@ StoreService.init();
 
 // State
 const context = getDefaultAppContext();
+
+// TODO: Set HRP Network by retrieving it from some config?
+Bech32.setHRPNetwork(HRP.TestNet);
 
 // Run
 app

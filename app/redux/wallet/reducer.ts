@@ -20,6 +20,7 @@ const initialState = {
   meta: {} as WalletMeta,
   mnemonic: '',
   accounts: [],
+  keychain: [],
   // Data comes from legacy sources
   currentAccountIndex: 0,
   transactions: {},

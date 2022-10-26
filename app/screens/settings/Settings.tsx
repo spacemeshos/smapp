@@ -19,7 +19,7 @@ import {
 } from '../../components/settings';
 import { Input, Link, Button, DropDown } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
-import { getAddress, getFormattedTimestamp } from '../../infra/utils';
+import { getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
@@ -140,9 +140,7 @@ class Settings extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const { displayName, accounts } = props;
-    const accountDisplayNames = accounts.map(
-      (account: Account) => account.displayName
-    );
+    const accountDisplayNames = accounts.map((account) => account.displayName);
     this.state = {
       walletDisplayName: displayName,
       canEditDisplayName: false,
@@ -447,7 +445,7 @@ class Settings extends Component<Props, State> {
                       />
                     )
                   }
-                  rowName={`0x${getAddress(account.publicKey)}`}
+                  rowName={account.address}
                   bottomPart={
                     <AccountCmdBtnWrapper>
                       {editedAccountIndex === index ? (
@@ -485,7 +483,7 @@ class Settings extends Component<Props, State> {
                       <AccountCmdBtnSeparator />
                     </AccountCmdBtnWrapper>
                   }
-                  key={account.publicKey}
+                  key={account.address}
                 />
               ))}
             </SettingsSection>

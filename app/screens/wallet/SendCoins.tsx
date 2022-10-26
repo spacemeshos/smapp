@@ -10,10 +10,13 @@ import {
   TxSent,
 } from '../../components/wallet';
 import { CreateNewContact } from '../../components/contacts';
-import { ensure0x, validateAddress } from '../../infra/utils';
+import { formatSmidge, validateAddress } from '../../infra/utils';
 import { AppThDispatch, RootState } from '../../types';
 import { Contact } from '../../../shared/types';
 import { MainPath } from '../../routerPaths';
+import { TxConfirmationFieldType } from '../../components/wallet/TxConfirmation';
+import { TxSentFieldType } from '../../components/wallet/TxSent';
+import { MAX_GAS } from '../../../shared/constants';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -43,13 +46,13 @@ const SendCoins = ({ history, location }: Props) => {
       state.wallet.accounts[state.wallet.currentAccountIndex]
   );
   const currentBalance = useSelector(
-    (state: RootState) => state.wallet.balances[currentAccount.publicKey]
+    (state: RootState) => state.wallet.balances[currentAccount.address]
   );
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
   const dispatch: AppThDispatch = useDispatch();
 
   const updateTxAddress = ({ value }: { value: string }) => {
-    setAddress(ensure0x(value));
+    setAddress(value);
     setHasAddressError(false);
   };
 
@@ -68,7 +71,7 @@ const SendCoins = ({ history, location }: Props) => {
 
   const validateAmount = () => {
     return (
-      !!amount && amount + fee < (currentBalance?.currentState?.balance || 0)
+      amount + fee * MAX_GAS < (currentBalance?.projectedState?.balance || 0)
     );
   };
 
@@ -86,9 +89,8 @@ const SendCoins = ({ history, location }: Props) => {
   };
 
   const handleSendTransaction = async () => {
-    const receiver = address.replace(/^0x/, '');
     const result = await dispatch(
-      sendTransaction({ receiver, amount, fee, note })
+      sendTransaction({ receiver: address, amount, fee, note })
     );
     if (result?.id) {
       setMode(3);
@@ -100,7 +102,7 @@ const SendCoins = ({ history, location }: Props) => {
     return (
       <>
         <TxParams
-          fromAddress={currentAccount.publicKey}
+          fromAddress={currentAccount.address}
           address={address}
           hasAddressError={hasAddressError}
           updateTxAddress={updateTxAddress}
@@ -128,7 +130,7 @@ const SendCoins = ({ history, location }: Props) => {
         ) : (
           <TxSummary
             address={address}
-            fromAddress={currentAccount.publicKey}
+            fromAddress={currentAccount.address}
             amount={parseInt(`${amount}`)}
             fee={fee}
             note={note}
@@ -147,12 +149,34 @@ const SendCoins = ({ history, location }: Props) => {
     case 2: {
       return (
         <TxConfirmation
-          address={address}
-          fromAddress={currentAccount.publicKey}
-          amount={parseInt(`${amount}`)}
-          fee={fee}
-          note={note}
-          canSend={!!status?.isSynced}
+          fields={[
+            {
+              label: 'From',
+              value: currentAccount.address,
+            },
+            {
+              label: 'To',
+              value: address,
+            },
+            {
+              label: 'Note',
+              value: note,
+            },
+            {
+              label: 'Amount',
+              value: formatSmidge(amount),
+            },
+            {
+              label: 'Fee',
+              value: `~${formatSmidge(fee * MAX_GAS)}`,
+            },
+            {
+              label: 'Total',
+              value: `~${formatSmidge(amount + fee * MAX_GAS)}`,
+              type: TxConfirmationFieldType.Total,
+            },
+          ]}
+          isDisabled={!status?.isSynced}
           doneAction={handleSendTransaction}
           editTx={() => setMode(1)}
           cancelTx={history.goBack}
@@ -162,9 +186,21 @@ const SendCoins = ({ history, location }: Props) => {
     case 3: {
       return (
         <TxSent
-          address={address}
-          fromAddress={currentAccount.publicKey}
-          amount={amount}
+          fields={[
+            {
+              label: 'From',
+              value: currentAccount.address,
+            },
+            {
+              label: 'To',
+              value: address,
+            },
+            {
+              label: 'Amount',
+              value: formatSmidge(amount),
+              type: TxSentFieldType.Bold,
+            },
+          ]}
           txId={txId}
           doneAction={history.goBack}
           navigateToTxList={() => history.replace(MainPath.Transactions)}

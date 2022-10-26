@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { getAbbreviatedText } from '../infra/utils';
+import { getAbbreviatedAddress } from '../infra/utils';
 import { chevronBottomBlack, chevronBottomWhite } from '../assets/images';
 import { smColors } from '../vars';
 
@@ -436,7 +436,7 @@ const AutocompleteDropdown = (props: Props) => {
 
   const renderItem = (item: any) => (
     <div role="button" tabIndex={-1}>
-      {item.nickname} - {getAbbreviatedText(item.address)}
+      {item.nickname} - {getAbbreviatedAddress(item.address)}
     </div>
   );
 

@@ -1,5 +1,7 @@
+import type { Long } from '@grpc/proto-loader';
+import TOML from '@iarna/toml';
 import { LOCAL_NODE_API_URL } from './constants';
-import { PublicService, SocketAddress, WalletType } from './types';
+import { HexString, PublicService, SocketAddress, WalletType } from './types';
 
 // eslint-disable-next-line import/prefer-default-export
 export const delay = (ms: number) =>
@@ -97,7 +99,13 @@ export const ifTruish = <V extends any, R extends Record<any, any>>(
 export const toSocketAddress = (url?: string): SocketAddress => {
   if (!url || url === 'http://localhost:9092') return LOCAL_NODE_API_URL;
 
-  const u = new URL(url.startsWith('http') ? url : `http://${url}`);
+  const p = url.match(/:(\d+)$/)?.[1];
+  const port = p ? `:${p}` : '';
+  const s = p === '443' ? 's' : '';
+  const vUrl = url.startsWith('http')
+    ? url
+    : `http${s}://${url.slice(0, url.length - port.length)}${port}`;
+  const u = new URL(vUrl);
   if (u.protocol !== 'http:' && u.protocol !== 'https:') {
     throw new Error(`Unsupported protocol in GRPC remote API URL: ${url}`);
   }
@@ -132,3 +140,37 @@ export const toPublicService = (
 
 export const isObject = (o: any): o is Record<string, any> =>
   typeof o === 'object' && !Array.isArray(o) && o !== null;
+
+//
+//
+export const configCodecByPath = (path: string) =>
+  /\.toml$/.test(path) ? TOML : JSON;
+export const configCodecByFirstChar = (data: string) =>
+  data.startsWith('{') ? JSON : TOML;
+
+// --------------------------------------------------------
+// HexString conversion
+// --------------------------------------------------------
+export const fromHexString = (hexString: HexString) => {
+  const bytes: number[] = [];
+  for (let i = 0; i < hexString.length; i += 2) {
+    bytes.push(parseInt(hexString.slice(i, i + 2), 16));
+  }
+  return Uint8Array.from(bytes);
+};
+export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
+  bytes instanceof Buffer
+    ? bytes.toString('hex')
+    : bytes.reduce(
+        (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
+        ''
+      );
+
+//
+//
+//
+
+export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
+
+export const longToNumber = (val: Long | number) =>
+  typeof val === 'number' ? val : val.toInt();

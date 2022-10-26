@@ -7,6 +7,7 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
+import { longToNumber } from '../shared/utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import Logger from './logger';
 
@@ -30,6 +31,8 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
   private errorStream: ReturnType<
     Service<ProtoGrpcType, 'NodeService'>['ErrorStream']
   > | null = null;
+
+  private isShuttingDown = false;
 
   logger = Logger({ className: 'NodeService' });
 
@@ -76,7 +79,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           verifiedLayer,
         } = response.status;
         return {
-          connectedPeers: (connectedPeers && connectedPeers.toNumber()) || 0,
+          connectedPeers: longToNumber(connectedPeers || 0),
           isSynced: !!isSynced,
           syncedLayer: syncedLayer?.number || 0,
           topLayer: topLayer?.number || 0,
@@ -90,7 +93,11 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
   shutdown = (): Promise<boolean> =>
     this.callService('Shutdown', {})
       .then(() => true)
-      .catch(() => false);
+      .catch(() => false)
+      .then((res) => {
+        this.isShuttingDown = res;
+        return res;
+      });
 
   activateStatusStream = (
     statusHandler: StatusStreamHandler,
@@ -123,6 +130,10 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       console.log('StatusStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc StatusStream ended', null);
       this.statusStream = null;
+      if (!this.isShuttingDown) {
+        this.logger.log('grpc StatusStream restarting', null);
+        this.activateStatusStream(statusHandler, errorHandler);
+      }
     });
   };
 
@@ -150,6 +161,10 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc ErrorStream ended', null);
       this.errorStream = null;
+      if (!this.isShuttingDown) {
+        this.logger.log('grpc ErrorStream restarting', null);
+        this.activateErrorStream(handler);
+      }
     });
   };
 

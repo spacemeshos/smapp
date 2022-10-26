@@ -186,7 +186,7 @@ const Network = ({ history }) => {
             <DetailsText>Connected neighbors</DetailsText>
             <Tooltip width={250} text="tooltip Connected neighbors" />
           </DetailsTextWrap>
-          <GrayText>8</GrayText>
+          <GrayText>{status?.connectedPeers || 0}</GrayText>
         </DetailsRow>
       )}
     </DetailsWrap>

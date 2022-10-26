@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
-import { getAddress, formatSmidge, parseSmidge } from '../../infra/utils';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks } from '../../../shared/constants';
+import { safeReactKey } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -88,55 +88,51 @@ const ButtonsBlock = styled.div`
   flex-direction: row;
 `;
 
+export enum TxSentFieldType {
+  Default = 0,
+  Bold = 1,
+}
+
+export type TxSentField = {
+  label: string;
+  value: string;
+  type?: TxSentFieldType;
+};
+
 type Props = {
-  fromAddress: string;
-  address: string;
-  amount: number;
+  fields: TxSentField[];
   txId: string;
   doneAction: () => void;
   navigateToTxList: () => void;
 };
 
-const TxSent = ({
-  fromAddress,
-  address,
-  amount,
-  txId,
-  doneAction,
-  navigateToTxList,
-}: Props) => {
+const TxSent = ({ fields, txId, doneAction, navigateToTxList }: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
-
-  const { unit } = parseSmidge(amount);
   return (
     <Wrapper>
       <Header>
-        <HeaderText>{unit} SENT!</HeaderText>
+        <HeaderText>TRANASCTION SENT!</HeaderText>
         <HeaderIcon src={doneIconGreen} />
       </Header>
       <>
         <DetailsRow>
-          <DetailsTextRight>Amount</DetailsTextRight>
-          <DetailsTextLeft>{formatSmidge(amount)}</DetailsTextLeft>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>From</DetailsTextRight>
-          <DetailsTextLeftBold>{`0x${getAddress(
-            fromAddress
-          )}`}</DetailsTextLeftBold>
-        </DetailsRow>
-        <DetailsRow>
-          <DetailsTextRight>To</DetailsTextRight>
-          <DetailsTextLeftBold>{address}</DetailsTextLeftBold>
-        </DetailsRow>
-        <DetailsRow>
           <DetailsTextRight>Transaction ID</DetailsTextRight>
           <ComplexText>
             <DetailsTextLeft>
-              <Address address={txId} type={AddressType.TX} />
+              <Address address={txId} isHex type={AddressType.TX} />
             </DetailsTextLeft>
           </ComplexText>
         </DetailsRow>
+        {fields.map((field, idx) => (
+          <DetailsRow key={`txSent_${idx}_${safeReactKey(field.label)}`}>
+            <DetailsTextRight>{field.label}</DetailsTextRight>
+            {field.type === TxSentFieldType.Bold ? (
+              <DetailsTextLeftBold>{field.value}</DetailsTextLeftBold>
+            ) : (
+              <DetailsTextLeft>{field.value}</DetailsTextLeft>
+            )}
+          </DetailsRow>
+        ))}
       </>
       <Footer>
         <Link onClick={navigateToGuide} text="SEND SMH GUIDE" />

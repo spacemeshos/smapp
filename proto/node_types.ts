@@ -24,25 +24,23 @@ export interface ProtoGrpcType {
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
       BuildResponse: MessageTypeDefinition
-      CoinTransferTransaction: MessageTypeDefinition
       EchoRequest: MessageTypeDefinition
       EchoResponse: MessageTypeDefinition
       ErrorStreamRequest: MessageTypeDefinition
       ErrorStreamResponse: MessageTypeDefinition
-      GasOffered: MessageTypeDefinition
       Layer: MessageTypeDefinition
+      LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       LogLevel: EnumTypeDefinition
       MeshTransaction: MessageTypeDefinition
       NodeError: MessageTypeDefinition
       NodeStatus: MessageTypeDefinition
+      Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
       ShutdownRequest: MessageTypeDefinition
       ShutdownResponse: MessageTypeDefinition
-      Signature: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
-      SmartContractTransaction: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
       StatusRequest: MessageTypeDefinition
       StatusResponse: MessageTypeDefinition

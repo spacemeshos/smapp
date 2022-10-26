@@ -46,6 +46,7 @@ const promptBeforeClose = (
 
   const quit = async () => {
     try {
+      managers.wallet?.unsubscribeAllStreams();
       await managers.node?.stopNode();
     } finally {
       $isAppClosing.next(true);
@@ -77,6 +78,7 @@ const promptBeforeClose = (
     } else if (promptResult === CloseAppPromptResult.CLOSE) {
       $isAppClosing.next(true);
       mainWindow.webContents.send(ipcConsts.CLOSING_APP);
+      managers.wallet?.unsubscribeAllStreams();
       await managers?.node?.stopNode();
       quit();
     }

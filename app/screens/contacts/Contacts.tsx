@@ -10,7 +10,7 @@ import {
   BoldText,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { getAbbreviatedText } from '../../infra/utils';
+import { getAbbreviatedAddress } from '../../infra/utils';
 import { searchIcon, addContact, clock } from '../../assets/images';
 import { RootState } from '../../types';
 import { EnterPasswordModal } from '../../components/settings';
@@ -357,7 +357,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
               {contact.nickname || 'UNKNOWN ADDRESS'}
             </LastUsedNickname>
             <LastUsedAddress>
-              {getAbbreviatedText(contact.address)}
+              {getAbbreviatedAddress(contact.address)}
             </LastUsedAddress>
             {!contact.nickname && (
               <LastUsedAddContact

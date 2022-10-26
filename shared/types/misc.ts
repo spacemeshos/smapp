@@ -1,5 +1,7 @@
 export type HexString = string;
 
+export type Bech32Address = string;
+
 export type PublicService = { name: string } & SocketAddress;
 
 export type SocketAddress = {

@@ -9,11 +9,11 @@ import {
   AutocompleteDropdown,
   BoldText,
 } from '../../basicComponents';
-import { CoinUnits, getAbbreviatedText, getAddress } from '../../infra/utils';
+import { CoinUnits, getAbbreviatedAddress } from '../../infra/utils';
 import { smColors } from '../../vars';
-import { Contact } from '../../types';
 import AmountInput from '../../basicComponents/AmountInput';
 import { ExternalLinks } from '../../../shared/constants';
+import { Contact } from '../../../shared/types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -78,19 +78,20 @@ const DropDownContainer = styled.div`
   width: 240px;
 `;
 
-// TODO add auto update for fee ranges
+// TODO add auto update for fee ranges & maxGas
+const maxGas = 500;
 const fees = [
   {
     fee: 1,
-    label: '~ 10 min (FEE 1 Smidge)',
+    label: `~10 min (~${1 * maxGas} Smidge)`,
   },
   {
     fee: 2,
-    label: '~ 5 min (FEE 2 Smidge)',
+    label: `~5 min (~${2 * maxGas} Smidge)`,
   },
   {
     fee: 3,
-    label: '~ 1 min (FEE 3 Smidge)',
+    label: `~1 min (~${3 * maxGas} Smidge)`,
   },
 ];
 
@@ -184,9 +185,7 @@ const TxParams = ({
       <DetailsRow>
         <DetailsText>From</DetailsText>
         <Dots>....................................</Dots>
-        <DetailsText>
-          {getAbbreviatedText(getAddress(fromAddress), true, 10)}
-        </DetailsText>
+        <DetailsText>{getAbbreviatedAddress(fromAddress)}</DetailsText>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Amount</DetailsText>

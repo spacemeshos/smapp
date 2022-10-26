@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RewardView } from '../../redux/wallet/selectors';
-import { HexString } from '../../../shared/types';
+import { Bech32Address } from '../../../shared/types';
 import Address from '../common/Address';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
@@ -126,11 +126,11 @@ const TextRow = styled.div<{ isLast?: boolean }>`
 `;
 
 type Props = {
-  publicKey: HexString;
+  address: Bech32Address;
   tx: RewardView;
 };
 
-const RewardRow = ({ tx, publicKey }: Props) => {
+const RewardRow = ({ tx, address }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
 
   const { layer, layerReward, amount, timestamp } = tx;
@@ -150,7 +150,7 @@ const RewardRow = ({ tx, publicKey }: Props) => {
       <TextRow>
         <BlackText>TO</BlackText>
         <BoldText>
-          <Address address={publicKey} suffix="(Me)" />
+          <Address address={address} suffix="(Me)" />
         </BoldText>
       </TextRow>
       <TextRow>

@@ -2,9 +2,9 @@
 
 
 export interface AccountId {
-  'address'?: (Buffer | Uint8Array | string);
+  'address'?: (string);
 }
 
 export interface AccountId__Output {
-  'address': (Buffer);
+  'address': (string);
 }

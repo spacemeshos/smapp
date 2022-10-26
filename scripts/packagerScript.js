@@ -99,8 +99,12 @@ const getBuildOptions = ({ target }) => {
         'desktop/ed25519.wasm',
         'desktop/config.json',
         'package.json',
-        'node_modules/',
-        'proto/'
+        'proto/',
+        '!node_modules/',
+        '!node_modules/**/*.ts',
+        '!node_modules/**/*.md',
+        '!node_modules/**/*.map',
+        '!node_modules/**/*.flow',
       ],
       extraResources: [
         'resources/icons/*',

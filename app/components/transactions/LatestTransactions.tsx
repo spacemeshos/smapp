@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { BoldText, Button } from '../../basicComponents';
 import {
-  getAbbreviatedText,
+  getAbbreviatedAddress,
   getFormattedTimestamp,
-  getAddress,
   formatSmidge,
+  getAbbreviatedText,
 } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
@@ -17,6 +17,7 @@ import {
   TxView,
 } from '../../redux/wallet/selectors';
 import { isReward } from '../../../shared/types/guards';
+import { SingleSigMethods } from '../../../shared/templateConsts';
 
 const Wrapper = styled.div`
   display: flex;
@@ -86,11 +87,11 @@ type Props = {
 };
 
 const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
-  const publicKey = useSelector(
+  const address = useSelector(
     (state: RootState) =>
-      state.wallet.accounts[state.wallet.currentAccountIndex]?.publicKey
+      state.wallet.accounts[state.wallet.currentAccountIndex]?.address
   );
-  const latestTransactions = useSelector(getLatestTransactions(publicKey));
+  const latestTransactions = useSelector(getLatestTransactions(address));
 
   const getColor = ({
     status,
@@ -115,22 +116,31 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, amount, sender, timestamp, senderNickname } = tx;
-    const isSent = sender === getAddress(publicKey);
+    const { id, status, timestamp, contacts, meta } = tx;
+    // TODO: Temporary solution until we don't support other account types
+    const isSent =
+      tx.method === SingleSigMethods.Spend &&
+      !!tx.payload?.Arguments?.Destination;
     const color = getColor({ status, isSent });
-
     return (
       <TxWrapper key={`tx_${id}`}>
         <Icon chevronRight={isSent} />
         <MainWrapper>
           <Section>
-            <NickName>{senderNickname || getAbbreviatedText(sender)}</NickName>
-            {id === 'reward' ? null : <Text>{getAbbreviatedText(id)}</Text>}
+            <Text>{meta && `${meta.templateName}.${meta.methodName}`}</Text>
+            <Text>{getAbbreviatedText(id)}</Text>
+            {isSent && (
+              <NickName>
+                {'-> '}
+                {contacts[tx.payload.Arguments.Destination] ||
+                  getAbbreviatedAddress(tx.payload.Arguments.Destination)}
+              </NickName>
+            )}
           </Section>
           <Section>
-            <Text>{getFormattedTimestamp(timestamp)}</Text>
+            <Text>{getFormattedTimestamp(timestamp, status)}</Text>
             <Amount color={color}>{`${isSent ? '-' : '+'}${formatSmidge(
-              amount
+              parseInt(tx.payload.Arguments.Amount, 10)
             )}`}</Amount>
           </Section>
         </MainWrapper>
@@ -139,16 +149,16 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   };
 
   const renderReward = (tx: RewardView) => {
-    const { amount, timestamp, layer } = tx;
+    const { amount, timestamp, layer, coinbase } = tx;
     return (
-      <TxWrapper key={`${publicKey}_reward_${layer}`}>
+      <TxWrapper key={`${coinbase}_reward_${layer}`}>
         <Icon chevronRight={false} />
         <MainWrapper>
           <Section>
             <NickName>Smeshing reward</NickName>
           </Section>
           <Section>
-            <Text>{getFormattedTimestamp(timestamp)}</Text>
+            <Text>{getFormattedTimestamp(timestamp, null)}</Text>
             <Amount color={smColors.darkerGreen}>{`+${formatSmidge(
               amount
             )}`}</Amount>
