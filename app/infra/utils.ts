@@ -115,3 +115,5 @@ export const formatSmidge = (amount: number): string => {
 
 export const constrain = (min: number, max: number, value: number) =>
   Math.min(Math.max(value, min), max);
+
+export const safeReactKey = (str: string) => str.replace(/\s|\W/g, '');

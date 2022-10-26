@@ -5,6 +5,7 @@ import { fireworksImg, doneIconGreen } from '../../assets/images';
 import { smColors } from '../../vars';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks } from '../../../shared/constants';
+import { safeReactKey } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -123,9 +124,7 @@ const TxSent = ({ fields, txId, doneAction, navigateToTxList }: Props) => {
           </ComplexText>
         </DetailsRow>
         {fields.map((field, idx) => (
-          <DetailsRow
-            key={`txSent_${idx}_${field.label.replace(/\s|\W/g, '')}`}
-          >
+          <DetailsRow key={`txSent_${idx}_${safeReactKey(field.label)}`}>
             <DetailsTextRight>{field.label}</DetailsTextRight>
             {field.type === TxSentFieldType.Bold ? (
               <DetailsTextLeftBold>{field.value}</DetailsTextLeftBold>

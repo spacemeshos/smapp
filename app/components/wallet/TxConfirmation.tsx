@@ -4,6 +4,7 @@ import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
 import { chevronLeftWhite } from '../../assets/images';
 import { smColors } from '../../vars';
 import { ExternalLinks } from '../../../shared/constants';
+import { safeReactKey } from '../../infra/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -151,7 +152,7 @@ const TxConfirmation = ({
       <>
         {fields.map((field, idx) => (
           <DetailsRow
-            key={`txConfirmation_${idx}_${field.label.replace(/\s|\W/g, '')}`}
+            key={`txConfirmation_${idx}_${safeReactKey(field.label)}`}
           >
             <DetailsTextRight>{field.label}</DetailsTextRight>
             {renderFieldValue(field)}
