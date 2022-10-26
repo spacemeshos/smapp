@@ -1,6 +1,5 @@
 import { _spacemesh_v1_TransactionState_TransactionState as TxState } from '../../proto/spacemesh/v1/TransactionState';
 import { _spacemesh_v1_TransactionReceipt_TransactionResult as TxResult } from '../../proto/spacemesh/v1/TransactionReceipt';
-// import { _spacemesh_v1_SmartContractTransaction_TransactionType as TxSmartContractType } from '../../proto/spacemesh/v1/SmartContractTransaction';
 import { Bech32Address, HexString } from './misc';
 
 export { _spacemesh_v1_TransactionState_TransactionState as TxState } from '../../proto/spacemesh/v1/TransactionState';
