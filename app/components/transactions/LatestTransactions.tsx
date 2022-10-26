@@ -17,6 +17,7 @@ import {
   TxView,
 } from '../../redux/wallet/selectors';
 import { isReward } from '../../../shared/types/guards';
+import { SingleSigMethods } from '../../../shared/templateConsts';
 
 const Wrapper = styled.div`
   display: flex;
@@ -116,7 +117,10 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
 
   const renderTransaction = (tx: TxView) => {
     const { id, status, timestamp, contacts, meta } = tx;
-    const isSent = tx.method === 1 && !!tx.payload?.Arguments?.Destination;
+    // TODO: Temporary solution until we don't support other account types
+    const isSent =
+      tx.method === SingleSigMethods.Spend &&
+      !!tx.payload?.Arguments?.Destination;
     const color = getColor({ status, isSent });
     return (
       <TxWrapper key={`tx_${id}`}>
