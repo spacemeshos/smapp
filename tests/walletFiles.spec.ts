@@ -26,6 +26,9 @@ const VALID_WALLET_PATH = path.resolve(
   './my_wallet_valid.json'
 );
 
+// For update wallet test
+jest.setTimeout(30000);
+
 describe('Encryption/Decryption wallet file', () => {
   const secrets: WalletSecrets = {
     mnemonic: 'this is just a test so it does not matter what mnemonics here',
