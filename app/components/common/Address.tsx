@@ -151,7 +151,12 @@ const Address = (props: Props) => {
         <span>{textToShow}</span>
       </PublicKey>
       {!hideCopy && <CopyIcon onClick={handleCopy} />}
-      {!hideExplorer && (
+      {/* TODO:
+        Until we don't have an explorer that supports new tx&accounts structure
+        we have to hide the explorer button from the UI.
+        To avoid linter errors I've just added `false` into the condition.
+      */}
+      {!hideExplorer && false && (
         <ExplorerIcon src={explorer} onClick={handleExplorer} />
       )}
       {addToContacts && isAccount && (

@@ -192,7 +192,11 @@ class Main extends Component<Props, State> {
                   'MANAGE CONTACTS',
                   MainPath.Contacts
                 )}
+                {/*
+                TODO: Do not render dashboard link since it is not supports new
+                tx&accounts structure. Should be returned back when it will work.
                 {this.renderNavBarLink('DASH', 'DASHBOARD', MainPath.Dashboard)}
+                */}
               </NavLinksWrapper>
             </NavBarPart>
             <NavBarPart>
