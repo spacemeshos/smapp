@@ -173,4 +173,4 @@ export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
 export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
 
 export const longToNumber = (val: Long | number) =>
-  typeof val === 'number' ? val : val.toInt();
+  typeof val === 'number' ? val : val.toNumber();
