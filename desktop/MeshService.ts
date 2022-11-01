@@ -6,6 +6,7 @@ import { AccountMeshData__Output } from '../proto/spacemesh/v1/AccountMeshData';
 import { PublicService, SocketAddress } from '../shared/types';
 import { delay } from '../shared/utils';
 import { CurrentLayer } from '../app/types/events';
+import { GenesisIDResponse } from '../proto/spacemesh/v1/GenesisIDResponse';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
@@ -28,6 +29,16 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
         this.logger.error('getCurrentLayer', err);
         // eslint-disable-next-line promise/no-nesting
         return delay(1000).then(() => this.getCurrentLayer());
+      });
+
+  getGenesisID = (): Promise<GenesisIDResponse> =>
+    this.callService('GenesisID', {})
+      .then(({ genesisId }) => genesisId as GenesisIDResponse)
+      .catch((err) => {
+        this.logger.error('GenesisID', err);
+
+        // eslint-disable-next-line promise/no-nesting
+        return delay(1000).then(() => this.getGenesisID());
       });
 
   private sendAccountMeshDataQuery = (
