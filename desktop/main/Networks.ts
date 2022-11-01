@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron';
+import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
 import { Network, PublicService } from '../../shared/types';
 import { toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
@@ -70,4 +71,14 @@ export const spawnManagers = async (
   const wallet = new WalletManager(mainWindow, node);
 
   return { smesher, node, wallet };
+};
+
+export const generateGenesisID = async (
+  genesisTime: string,
+  extraData: string
+) => {
+  sha256(genesisTime + extraData)
+    // @ts-ignore
+    .toString('hex')
+    .substring(0, 40);
 };
