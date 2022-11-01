@@ -22,10 +22,10 @@ message CurrentEpochResponse {
     SimpleInt epochnum = 1;
 }
 
-message NetIDRequest {}
+message GenesisIDRequest {}
 
-message NetIDResponse {
-    SimpleInt netid = 1;
+message GenesisIDResponse {
+    bytes genesis_id = 1;
 }
 
 message EpochNumLayersRequest {}

@@ -34,10 +34,12 @@
     "release",
     "desktop/main.prod.js",
     "desktop/renderer.prod.js",
-    "dist",
+    "dist/",
     "dll",
     "configs",
     "node",
-    "scripts"
+    "scripts",
+    "proto",
+    "storybook-static",
   ]
 }

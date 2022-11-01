@@ -10,6 +10,7 @@ export enum _spacemesh_v1_Layer_LayerStatus {
   LAYER_STATUS_UNSPECIFIED = 0,
   LAYER_STATUS_APPROVED = 1,
   LAYER_STATUS_CONFIRMED = 2,
+  LAYER_STATUS_APPLIED = 3,
 }
 
 export interface Layer {
