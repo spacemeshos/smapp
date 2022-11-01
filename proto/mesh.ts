@@ -1,5 +1,5 @@
 import type * as grpc from '@grpc/grpc-js';
-import type { ServiceDefinition, EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
+import type { EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
 
 import type { MeshServiceClient as _spacemesh_v1_MeshServiceClient, MeshServiceDefinition as _spacemesh_v1_MeshServiceDefinition } from './spacemesh/v1/MeshService';
 
@@ -29,6 +29,8 @@ export interface ProtoGrpcType {
       CurrentLayerResponse: MessageTypeDefinition
       EpochNumLayersRequest: MessageTypeDefinition
       EpochNumLayersResponse: MessageTypeDefinition
+      GenesisIDRequest: MessageTypeDefinition
+      GenesisIDResponse: MessageTypeDefinition
       GenesisTimeRequest: MessageTypeDefinition
       GenesisTimeResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
@@ -44,8 +46,6 @@ export interface ProtoGrpcType {
       MaxTransactionsPerSecondResponse: MessageTypeDefinition
       MeshService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_MeshServiceClient> & { service: _spacemesh_v1_MeshServiceDefinition }
       MeshTransaction: MessageTypeDefinition
-      NetIDRequest: MessageTypeDefinition
-      NetIDResponse: MessageTypeDefinition
       Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition

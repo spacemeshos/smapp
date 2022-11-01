@@ -37,11 +37,18 @@ export interface NodeError {
 }
 
 export interface NodeConfig {
+  api: {
+    grpc: string;
+  };
   p2p: {
     'network-id': number;
+    bootnodes: string[];
     [k: string]: unknown;
   };
   main: {
+    'genesis-active-size': number;
+    'optimistic-filtering-threshold': number;
+    'poet-server': string;
     'genesis-time': string;
     'layer-duration-sec': number;
     'layers-per-epoch': number;
@@ -58,5 +65,6 @@ export interface NodeConfig {
     };
     'smeshing-start': boolean;
   };
+  preset: string;
   [k: string]: unknown;
 }

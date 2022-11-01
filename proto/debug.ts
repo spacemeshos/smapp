@@ -1,13 +1,18 @@
 import type * as grpc from '@grpc/grpc-js';
 import type { EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
 
-import type { GlobalStateServiceClient as _spacemesh_v1_GlobalStateServiceClient, GlobalStateServiceDefinition as _spacemesh_v1_GlobalStateServiceDefinition } from './spacemesh/v1/GlobalStateService';
+import type { DebugServiceClient as _spacemesh_v1_DebugServiceClient, DebugServiceDefinition as _spacemesh_v1_DebugServiceDefinition } from './spacemesh/v1/DebugService';
 
 type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> = {
   new(...args: ConstructorParameters<Constructor>): Subtype;
 };
 
 export interface ProtoGrpcType {
+  google: {
+    protobuf: {
+      Empty: MessageTypeDefinition
+    }
+  }
   spacemesh: {
     v1: {
       Account: MessageTypeDefinition
@@ -22,6 +27,7 @@ export interface ProtoGrpcType {
       AccountRequest: MessageTypeDefinition
       AccountResponse: MessageTypeDefinition
       AccountState: MessageTypeDefinition
+      AccountsResponse: MessageTypeDefinition
       Activation: MessageTypeDefinition
       ActivationId: MessageTypeDefinition
       Amount: MessageTypeDefinition
@@ -29,19 +35,23 @@ export interface ProtoGrpcType {
       AppEventStreamRequest: MessageTypeDefinition
       AppEventStreamResponse: MessageTypeDefinition
       Block: MessageTypeDefinition
+      DebugService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_DebugServiceClient> & { service: _spacemesh_v1_DebugServiceDefinition }
+      Eligibility: MessageTypeDefinition
+      EpochData: MessageTypeDefinition
       GlobalStateData: MessageTypeDefinition
       GlobalStateDataFlag: EnumTypeDefinition
       GlobalStateHash: MessageTypeDefinition
       GlobalStateHashRequest: MessageTypeDefinition
       GlobalStateHashResponse: MessageTypeDefinition
-      GlobalStateService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_GlobalStateServiceClient> & { service: _spacemesh_v1_GlobalStateServiceDefinition }
       GlobalStateStreamRequest: MessageTypeDefinition
       GlobalStateStreamResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
+      NetworkInfoResponse: MessageTypeDefinition
       Nonce: MessageTypeDefinition
+      Proposal: MessageTypeDefinition
       Reward: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
