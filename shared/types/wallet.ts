@@ -1,3 +1,5 @@
+import { HexString } from './misc';
+
 export interface KeyPair {
   displayName: string;
   created: string;
@@ -47,10 +49,29 @@ export interface WalletSecrets {
   contacts: Contact[];
 }
 
-export interface WalletSecretsEncrypted {
-  cipher: string;
+export interface WalletSecretsEncryptedLegacy {
+  cipher: 'AES-128-CTR';
   cipherText: string;
 }
+
+export interface WalletSecretsEncryptedGCM {
+  cipher: 'AES-GCM';
+  cipherParams: {
+    iv: HexString;
+  };
+  kdf: 'PBKDF2';
+  kdfparams: {
+    dklen: number;
+    hash: 'SHA-512';
+    iterations: number;
+    salt: HexString;
+  };
+  cipherText: string;
+}
+
+export type WalletSecretsEncrypted =
+  | WalletSecretsEncryptedLegacy
+  | WalletSecretsEncryptedGCM;
 
 export interface Wallet {
   meta: WalletMeta;

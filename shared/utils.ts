@@ -158,10 +158,12 @@ export const fromHexString = (hexString: HexString) => {
   }
   return Uint8Array.from(bytes);
 };
-export const toHexString = (bytes: Uint8Array | Buffer): HexString =>
+export const toHexString = (
+  bytes: Uint8Array | Buffer | ArrayBuffer
+): HexString =>
   bytes instanceof Buffer
     ? bytes.toString('hex')
-    : bytes.reduce(
+    : new Uint8Array(bytes).reduce(
         (str: string, byte: number) => str + byte.toString(16).padStart(2, '0'),
         ''
       );
