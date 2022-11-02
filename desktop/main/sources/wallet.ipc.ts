@@ -51,6 +51,7 @@ import {
 } from '../rx.utils';
 import { createNewAccount, createWallet, isNetIdMissing } from '../Wallet';
 import {
+  loadAndMigrateWallet,
   loadWallet,
   saveWallet,
   updateWalletMeta,
@@ -90,6 +91,17 @@ const loadWallet$ = (path: string, password: string) => {
   return from(
     wrapResult(
       loadWallet(path, password).then((wallet) => <WalletData>{ path, wallet })
+    )
+  );
+};
+
+// TODO: Replace it with `loadWallet$` in next release
+const loadAndMigrateWallet$ = (path: string, password: string) => {
+  return from(
+    wrapResult(
+      loadAndMigrateWallet(path, password).then(
+        (wallet) => <WalletData>{ path, wallet }
+      )
     )
   );
 };
@@ -138,7 +150,7 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.W_M_UNLOCK_WALLET,
       ({ path, password }: UnlockWalletRequest) =>
-        loadWallet$(path, password).pipe(
+        loadAndMigrateWallet$(path, password).pipe(
           withLatestFrom($networks),
           map(([hr, nets]) =>
             mapResult(
