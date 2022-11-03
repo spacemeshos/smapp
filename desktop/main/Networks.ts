@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
 import { Network, PublicService } from '../../shared/types';
-import { toPublicService } from '../../shared/utils';
+import { toHexString, toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
 import NodeManager from '../NodeManager';
@@ -28,6 +28,7 @@ const getDiscoveryUrl = () =>
 
 export const fetchNetworksFromDiscovery = async () => {
   const networks = await fetchJSON(getDiscoveryUrl());
+  console.log({ networks });
   const result: Network[] = isDevNet()
     ? [await getDevNet(), ...networks]
     : networks || [];
@@ -73,12 +74,6 @@ export const spawnManagers = async (
   return { smesher, node, wallet };
 };
 
-export const generateGenesisID = async (
-  genesisTime: string,
-  extraData: string
-) => {
-  sha256(genesisTime + extraData)
-    // @ts-ignore
-    .toString('hex')
-    .substring(0, 40);
+export const generateGenesisID = (genesisTime: string, extraData: string) => {
+  return `0x${toHexString(sha256(genesisTime + extraData)).substring(0, 40)}`;
 };
