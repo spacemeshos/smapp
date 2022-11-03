@@ -28,7 +28,7 @@ const getDiscoveryUrl = () =>
 
 export const fetchNetworksFromDiscovery = async () => {
   const networks = await fetchJSON(getDiscoveryUrl());
-  console.log({ networks });
+
   const result: Network[] = isDevNet()
     ? [await getDevNet(), ...networks]
     : networks || [];
