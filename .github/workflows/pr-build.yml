@@ -72,7 +72,7 @@ jobs:
           yarn config set network-timeout 300000
           yarn install --prefer-offline
 
-      - name: yarn lint and build
+      - name: yarn lint
         if: ${{ steps.result.outputs.status != 'success' }}
         run: |
           yarn lint

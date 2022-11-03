@@ -52,7 +52,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      # Install & Build
+      # Install & Lint
       - name: yarn install
         run: |
           yarn config set network-timeout 300000
@@ -60,17 +60,6 @@ jobs:
 
       - name: Lint
         run: yarn lint
-
-      - name: Test
-        if: matrix.os != 'ubuntu-latest'
-        run: yarn test --forceExit
-
-      - name: Build
-        run: yarn build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
@@ -129,7 +118,19 @@ jobs:
         run: |
           7z l ./node/release.zip
           ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
-        
+
+      # Run tests and build
+
+      - name: Test
+        if: matrix.os != 'ubuntu-latest'
+        run: yarn test --forceExit
+
+      - name: Build
+        run: yarn build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       # Create binaries
       - if: matrix.os == 'ubuntu-latest'
