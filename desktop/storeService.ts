@@ -82,6 +82,7 @@ class StoreService {
     key: Function.AutoPath<O, P>,
     cb: (newValue?: V, prevValue?: V) => void
   ) => {
+    // @ts-ignore
     StoreService.store.onDidChange(key, cb); // TODO!
   };
 
