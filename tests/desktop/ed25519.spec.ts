@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
-import * as ed from '../desktop/ed25519';
+import * as ed from '../../desktop/ed25519';
 
 describe('ed25519', () => {
   const publicKey =
