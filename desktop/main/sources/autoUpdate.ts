@@ -56,7 +56,8 @@ const observeAutoUpdates = (
   );
   const $trigger = merge($first, $byIpcRequest, $daily).pipe(
     distinctUntilChanged(
-      (prev, next) => prev[1].netID === next[1].netID && prev[2] === next[2]
+      (prev, next) =>
+        prev[1].genesisID === next[1].genesisID && prev[2] === next[2]
     )
   );
 

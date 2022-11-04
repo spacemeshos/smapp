@@ -21,8 +21,8 @@ export const showNotification = (
   }
 };
 
-export const getNodeLogsPath = (netId?: number) =>
-  path.resolve(USERDATA_DIR, `spacemesh-log-${netId || 0}.txt`);
+export const getNodeLogsPath = (genesisID?: string) =>
+  path.resolve(USERDATA_DIR, `spacemesh-log-${genesisID || ''}.txt`);
 
 //
 

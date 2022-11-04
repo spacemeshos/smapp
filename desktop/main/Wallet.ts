@@ -135,7 +135,7 @@ const create = (index: number, mnemonicSeed?: string): Wallet => {
     displayName: index === 0 ? 'Main Wallet' : `Wallet ${index + 1}`,
     created: timestamp,
     type: WalletType.LocalNode,
-    netId: -1,
+    genesisID: '',
     remoteApi: '',
     meta: { salt: encryptionConst.DEFAULT_SALT },
   };
@@ -164,7 +164,8 @@ export const createNewAccount = (wallet: Wallet): Wallet => {
 };
 
 // Pure utils
-export const isNetIdMissing = (wallet: Wallet) => !wallet.meta.netId;
+export const isGenesisIDMissing = (wallet: Wallet) =>
+  wallet.meta.genesisID.length === 0;
 export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
 
 //
@@ -174,14 +175,14 @@ export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
 export const createWallet = async ({
   existingMnemonic,
   type,
-  netId,
+  genesisID,
   apiUrl,
   password,
 }: CreateWalletRequest) => {
   const { files } = await list();
   const wallet = create(files?.length || 0, existingMnemonic);
 
-  wallet.meta.netId = netId;
+  wallet.meta.genesisID = genesisID;
   wallet.meta.remoteApi =
     apiUrl && apiUrl !== LOCAL_NODE_API_URL
       ? stringifySocketAddress(apiUrl)

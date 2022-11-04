@@ -41,7 +41,7 @@ export interface NodeConfig {
     grpc: string;
   };
   p2p: {
-    'network-id': number;
+    genesisID: string;
     bootnodes: string[];
     [k: string]: unknown;
   };

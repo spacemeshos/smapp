@@ -49,7 +49,7 @@ import {
   mapResult,
   wrapResult,
 } from '../rx.utils';
-import { createNewAccount, createWallet, isNetIdMissing } from '../Wallet';
+import { createNewAccount, createWallet, isGenesisIDMissing } from '../Wallet';
 import {
   loadAndMigrateWallet,
   loadWallet,
@@ -159,7 +159,7 @@ const handleWalletIpcRequests = (
                   ...pair,
                   meta: {
                     forceNetworkSelection:
-                      isNetIdMissing(pair.wallet) ||
+                      isGenesisIDMissing(pair.wallet) ||
                       !hasNetwork(pair.wallet.meta.genesisID, nets),
                   },
                 },

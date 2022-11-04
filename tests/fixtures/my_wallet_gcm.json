@@ -3,7 +3,7 @@
         "displayName": "Wallet GCM",
         "created": "2022-11-02T16-14-40.308Z",
         "type": "local-node",
-        "netId": 300,
+        "genesisID": "0x91d338938929ec38e320ba558b6bd8538eae9753",
         "remoteApi": "",
         "meta": {
             "salt": "Spacemesh blockmesh"

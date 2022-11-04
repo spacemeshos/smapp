@@ -6,7 +6,7 @@ import { isWalletOnlyType } from '../../../shared/utils';
 import Logger from '../../logger';
 import { hasNetwork } from '../Networks';
 import { makeSubscription } from '../rx.utils';
-import { isApiMissing, isNetIdMissing } from '../Wallet';
+import { isApiMissing, isGenesisIDMissing } from '../Wallet';
 
 const logger = Logger({ className: 'ensureNetwork' });
 
@@ -31,7 +31,10 @@ export default (
     ([wallet, nets, mw]) => {
       const isWalletOnly = isWalletOnlyType(wallet.meta.type);
 
-      if (isNetIdMissing(wallet) || !hasNetwork(wallet.meta.netId, nets)) {
+      if (
+        isGenesisIDMissing(wallet) ||
+        !hasNetwork(wallet.meta.genesisID, nets)
+      ) {
         logger.debug('REQUEST_SWITCH_NETWORK', wallet.meta);
         mw.webContents.send(ipcConsts.REQUEST_SWITCH_NETWORK, {
           isWalletOnly,

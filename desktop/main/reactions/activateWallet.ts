@@ -26,7 +26,7 @@ export default (
     async ([wallet, managers, mw, shallRestart]) => {
       if (
         !wallet ||
-        !wallet.meta.netId ||
+        !wallet.meta.genesisID ||
         (isWalletOnlyType(wallet.meta.type) && !wallet.meta.remoteApi)
       ) {
         return;

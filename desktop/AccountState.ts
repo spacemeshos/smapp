@@ -1,39 +1,43 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { AccountBalance } from '../shared/types';
-import { Tx, Reward } from '../shared/types/tx';
+import { AccountBalance, Tx, Reward } from '../shared/types';
 import { debounce } from '../shared/utils';
 import Logger from './logger';
 
 const logger = Logger({ className: 'AccountState' });
 
-// Types
-export interface AccountState {
-  address: string;
-  [k: number]: {
-    state: Required<AccountBalance>;
-    txs: { [txId: Tx['id']]: Tx };
-    rewards: { [layer: number]: Reward };
-  };
+interface GenesisIDState<T> {
+  [genesisID: string]: T;
 }
 
-// Utils
+interface GenesisIDStateType {
+  state: Required<AccountBalance>;
+  txs: { [txId: Tx['id']]: Tx };
+  rewards: { [layer: number]: Reward };
+}
 
+// Types
+export type AccountState = GenesisIDState<GenesisIDStateType> & {
+  address: string;
+};
+
+// Utils
 const getDefaultAccountState = (
   address: string,
-  netId: number
-): AccountState => ({
-  address,
-  [netId]: {
-    state: {
-      currentState: { balance: 0, counter: 0 },
-      projectedState: { balance: 0, counter: 0 },
+  genesisID: string
+): AccountState =>
+  ({
+    address,
+    [genesisID]: {
+      state: {
+        currentState: { balance: 0, counter: 0 },
+        projectedState: { balance: 0, counter: 0 },
+      },
+      txs: {},
+      rewards: {},
     },
-    txs: {},
-    rewards: {},
-  },
-});
+  } as AccountState);
 
 const getFilePath = (publicKey: string, baseDir: string) =>
   path.resolve(baseDir, `${publicKey}.json`);
@@ -43,7 +47,7 @@ const DEFAULT_BASE_DIR = path.resolve(app.getPath('userData'), 'accounts');
 
 const load = (
   publicKey: string,
-  netId: number,
+  genesisID: string,
   baseDir = DEFAULT_BASE_DIR,
   retry = 0
 ): AccountState => {
@@ -54,16 +58,16 @@ const load = (
     });
     const parsed = JSON.parse(raw);
     return {
-      ...getDefaultAccountState(publicKey, netId),
+      ...getDefaultAccountState(publicKey, genesisID),
       ...parsed,
     };
   } catch (err) {
     if ((err as { code: string }).code !== 'ENOENT' && retry !== 1) {
       logger.log('AccountState.load', err, publicKey);
       fs.unlinkSync(filePath);
-      return load(publicKey, netId, baseDir, 1);
+      return load(publicKey, genesisID, baseDir, 1);
     }
-    return getDefaultAccountState(publicKey, netId);
+    return getDefaultAccountState(publicKey, genesisID);
   }
 };
 
@@ -93,12 +97,12 @@ export class AccountStateManager {
 
   private baseDir: string;
 
-  private netId: number;
+  private genesisID: string;
 
-  constructor(address: string, netId: number, opts = DEFAULT_OPTS) {
-    this.state = load(address, netId, opts.accountStateDir);
+  constructor(address: string, genesisID: string, opts = DEFAULT_OPTS) {
+    this.state = load(address, genesisID, opts.accountStateDir);
     this.baseDir = opts.accountStateDir;
-    this.netId = netId;
+    this.genesisID = genesisID;
     if (opts.autosave) {
       this.autosave = debounce(opts.debounce, this.save);
     }
@@ -113,29 +117,29 @@ export class AccountStateManager {
   // Getters (pure)
   getAddress = () => this.state.address;
 
-  getState = () => this.state[this.netId].state;
+  getState = () => this.state[this.genesisID].state;
 
-  getTxs = () => this.state[this.netId].txs;
+  getTxs = () => this.state[this.genesisID].txs;
 
   getTxById = (id: keyof AccountState[number]['txs']) =>
-    this.state[this.netId].txs[id] || null;
+    this.state[this.genesisID].txs[id] || null;
 
-  getRewards = () => Object.values(this.state[this.netId].rewards);
+  getRewards = () => Object.values(this.state[this.genesisID].rewards);
 
   // Setters. Might be impure if autosave is turned on.
   storeState = (state: Required<AccountBalance>) => {
-    this.state[this.netId].state = state;
+    this.state[this.genesisID].state = state;
     return this.autosave();
   };
 
   storeTransaction = <T>(tx: Tx<T>) => {
-    const prevTxData = this.state[this.netId].txs[tx.id] || {};
-    this.state[this.netId].txs[tx.id] = { ...prevTxData, ...tx };
+    const prevTxData = this.state[this.genesisID].txs[tx.id] || {};
+    this.state[this.genesisID].txs[tx.id] = { ...prevTxData, ...tx };
     return this.autosave();
   };
 
   storeReward = (reward: Reward) => {
-    this.state[this.netId].rewards[reward.layer] = reward;
+    this.state[this.genesisID].rewards[reward.layer] = reward;
     return this.autosave();
   };
 }
