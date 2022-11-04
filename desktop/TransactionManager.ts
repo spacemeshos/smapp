@@ -482,7 +482,8 @@ class TransactionManager {
         Arguments: spawnArgs,
       };
       const txEncoded = tpl.encode(principal, payload);
-      const hashed = sha256(txEncoded);
+      const genesisID = await this.meshService.getGenesisID();
+      const hashed = sha256(new Uint8Array([...genesisID, ...txEncoded]));
       const sig = sign(hashed, secretKey);
       const signed = tpl.sign(txEncoded, sig);
       const response = await this.txService.submitTransaction({
@@ -568,7 +569,8 @@ class TransactionManager {
         GasPrice: BigInt(fee),
       };
       const txEncoded = tpl.encode(principal, payload);
-      const hashed = sha256(txEncoded);
+      const genesisID = await this.meshService.getGenesisID();
+      const hashed = sha256(new Uint8Array([...genesisID, ...txEncoded]));
       const sig = sign(hashed, secretKey);
       const signed = tpl.sign(txEncoded, sig);
       const response = await this.txService.submitTransaction({
