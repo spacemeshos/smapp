@@ -160,7 +160,7 @@ const handleWalletIpcRequests = (
                   meta: {
                     forceNetworkSelection:
                       isNetIdMissing(pair.wallet) ||
-                      !hasNetwork(pair.wallet.meta.netId, nets),
+                      !hasNetwork(pair.wallet.meta.genesisID, nets),
                   },
                 },
               hr
@@ -187,19 +187,19 @@ const handleWalletIpcRequests = (
       ({ path }): CreateWalletResponse['payload'] => ({ path })
     ),
     //
-    fromIPC<number>(ipcConsts.SWITCH_NETWORK).pipe(
+    fromIPC<string>(ipcConsts.SWITCH_NETWORK).pipe(
       withLatestFrom($wallet, $walletPath, $networks),
-      switchMap(([netId, wallet, path, nets]) => {
+      switchMap(([genesisID, wallet, path, nets]) => {
         if (nets.length === 0)
           return throwError(() => Error('No networks to switch on'));
         if (!wallet) return throwError(() => Error('No opened wallet'));
 
-        const selectedNet = nets.find((net) => net.netID === netId);
+        const selectedNet = nets.find((net) => net.genesisID === genesisID);
         if (!selectedNet) return throwError(() => Error('No network found'));
 
         return of(<WalletData>{
           path,
-          wallet: R.assocPath(['meta', 'netId'], netId, wallet),
+          wallet: R.assocPath(['meta', 'genesisID'], genesisID, wallet),
           save: true,
         });
       }),
@@ -209,7 +209,7 @@ const handleWalletIpcRequests = (
     //
     handleIPC(
       ipcConsts.SWITCH_API_PROVIDER,
-      ({ apiUrl, netId }: SwitchApiRequest) =>
+      ({ apiUrl, genesisID }: SwitchApiRequest) =>
         combineLatest([$wallet, $walletPath] as const).pipe(
           first(),
           map(([wallet, path]) => {
@@ -219,13 +219,13 @@ const handleWalletIpcRequests = (
                   'Can not switch API provider: open the wallet file before'
                 )
               );
-            if (!netId)
+            if (!genesisID)
               return handlerError(
                 Error('Switch API Provider failed: missing net id in request')
               );
 
             const changes = {
-              netId,
+              genesisID,
               remoteApi:
                 apiUrl && isRemoteNodeApi(apiUrl)
                   ? stringifySocketAddress(apiUrl)

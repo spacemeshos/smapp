@@ -81,11 +81,13 @@ const Network = ({ history }) => {
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
   const nodeError = useSelector((state: RootState) => state.node.error);
-  const netId = useSelector((state: RootState) => state.network.netId || -1);
+  const genesisID = useSelector(
+    (state: RootState) => state.network.genesisID || ''
+  );
   const netName = useSelector(
     (state: RootState) =>
       state.network.netName ||
-      (netId === -1 ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
+      (genesisID === '' ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
   );
 
   const genesisTime = useSelector(
@@ -218,7 +220,7 @@ const Network = ({ history }) => {
         )}
       </SubHeader>
       <Container>
-        {netId > -1 ? renderNetworkDetails() : renderNoNetwork()}
+        {genesisID.length ? renderNetworkDetails() : renderNoNetwork()}
         <FooterWrap>
           {!isWalletMode && (
             <Link onClick={openLogFile} text="BROWSE LOG FILE" />

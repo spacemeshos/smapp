@@ -1,13 +1,14 @@
 import { NetworkState } from '../../types';
 
 const networkInitialState: NetworkState = {
-  netId: -1,
+  genesisID: '',
   netName: '',
   genesisTime: '',
   layerDurationSec: 0,
   currentLayer: -1,
   rootHash: '',
   explorerUrl: '',
+  layersPerEpoch: 0,
 };
 
 export default networkInitialState;

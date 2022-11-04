@@ -27,7 +27,7 @@ import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
-import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
+import { getGenesisID, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
 import { setClientSettingsTheme } from '../../theme';
 
@@ -816,7 +816,7 @@ const mapStateToProps = (state: RootState) => ({
   skinId: state.ui.skinId,
   isWalletOnly: isWalletOnly(state),
   netName: getNetworkName(state),
-  netId: getNetworkId(state),
+  netId: getGenesisID(state),
 });
 
 const mapDispatchToProps = {

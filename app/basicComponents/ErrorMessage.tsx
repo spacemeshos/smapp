@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import { smColors } from '../vars';
 
 interface ErrorMessageProps {
-  align: 'left' | 'right';
-  oneLine: boolean;
+  align?: 'left' | 'right';
+  oneLine?: boolean;
 }
 
 const ErrorMessage = styled.span<ErrorMessageProps>`
@@ -14,7 +14,7 @@ const ErrorMessage = styled.span<ErrorMessageProps>`
   color: ${smColors.red};
   display: -webkit-box;
   overflow: hidden;
-  text-align: ${({ align }) => align};
+  text-align: ${({ align }) => align || 'left'};
   ${({ oneLine }) =>
     oneLine && '-webkit-line-clamp: 1; -webkit-box-orient: vertical;'}
 `;

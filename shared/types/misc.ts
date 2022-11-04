@@ -11,7 +11,7 @@ export type SocketAddress = {
 };
 
 export type Network = {
-  netID: number;
+  genesisID: string;
   netName: string;
   conf: string;
   explorer: string;

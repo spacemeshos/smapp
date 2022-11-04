@@ -58,7 +58,7 @@ export type CreateWalletRequest = {
   existingMnemonic: string;
   type: WalletType;
   apiUrl: SocketAddress | null;
-  netId: number;
+  genesisID: string;
 };
 export type CreateWalletResponse = IpcResponse<{ path: string }>;
 
@@ -87,7 +87,7 @@ export type AddContactRequest = {
 };
 
 export type SwitchApiRequest = {
-  netId: number;
+  genesisID: string;
   apiUrl: SocketAddress | null;
 };
 
