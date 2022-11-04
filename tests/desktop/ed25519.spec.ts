@@ -8,7 +8,7 @@ describe('ed25519', () => {
     'd3a11c7b10ea55551210952219314b3ab3eae3c571e1274736cda24bb2bd0f7f';
   const secretKey =
     '78cf687d957abba7d555c2e0974e1c83c34e8c4bc491b3d034216fdf9a78c94dd3a11c7b10ea55551210952219314b3ab3eae3c571e1274736cda24bb2bd0f7f';
-
+  const genesisID = new Uint8Array([]);
   it('sign', () => {
     const tx = Uint8Array.from([
       0, 0, 0, 0, 0, 136, 115, 101, 220, 126, 211, 50, 161, 69, 251, 61, 50, 57,
@@ -17,7 +17,7 @@ describe('ed25519', () => {
       18, 16, 149, 34, 25, 49, 75, 58, 179, 234, 227, 197, 113, 225, 39, 71, 54,
       205, 162, 75, 178, 189, 15, 127,
     ]);
-    const hash = sha256(tx);
+    const hash = sha256(new Uint8Array([...genesisID, ...tx]));
 
     const sig = ed.sign(hash, secretKey);
     expect(sig).toEqual(
@@ -37,7 +37,8 @@ describe('ed25519', () => {
       18, 16, 149, 34, 25, 49, 75, 58, 179, 234, 227, 197, 113, 225, 39, 71, 54,
       205, 162, 75, 178, 189, 15, 127,
     ]);
-    const hash = sha256(tx);
+    const hash = sha256(new Uint8Array([...genesisID, ...tx]));
+
     const sig = Uint8Array.from([
       64, 117, 17, 84, 147, 199, 207, 50, 159, 145, 86, 214, 223, 241, 152, 30,
       194, 56, 113, 32, 223, 111, 60, 145, 154, 245, 84, 218, 46, 154, 168, 187,
