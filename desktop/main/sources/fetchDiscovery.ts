@@ -49,13 +49,15 @@ export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_PUBLIC_SERVICES,
-      (selectedNetId: number | undefined) =>
+      (selectedGenesisID: string) =>
         fromDiscovery().pipe(
           withLatestFrom($wallet),
           first(),
           map(([nets, wallet]) => {
             const net = nets.find(
-              (n) => n.netID === wallet?.meta.netId || n.netID === selectedNetId
+              (n) =>
+                n.genesisID === wallet?.meta.genesisID ||
+                n.genesisID === selectedGenesisID
             );
             return handlerResult(listPublicApis(net || null));
           })

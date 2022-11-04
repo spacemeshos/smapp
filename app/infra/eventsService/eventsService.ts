@@ -82,9 +82,9 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
   static listPublicServices = (
-    netId: string
+    genesisID: string
   ): Promise<ListPublicApisResponse> =>
-    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, netId);
+    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, genesisID);
 
   static unlockWallet = (
     payload: UnlockWalletRequest

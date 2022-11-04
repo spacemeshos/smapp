@@ -1,7 +1,7 @@
 import * as R from 'ramda';
-import { ipcMain, BrowserWindow } from 'electron';
+import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { KeyPair, Activation, Wallet } from '../shared/types';
+import { Activation, KeyPair, Wallet } from '../shared/types';
 import {
   delay,
   isLocalNodeType,
@@ -54,7 +54,7 @@ class WalletManager {
       this.glStateService,
       this.txService,
       mainWindow,
-      this.nodeManager.getNetId()
+      this.nodeManager.getGenesisID()
     );
   }
 
@@ -83,15 +83,10 @@ class WalletManager {
     );
 
     ipcMain.handle(ipcConsts.W_M_SPAWN_TX, async (_event, request) => {
-      const res = await this.txManager.publishSelfSpawn(
-        request.fee,
-        request.accountIndex
-      );
-      return res;
+      return this.txManager.publishSelfSpawn(request.fee, request.accountIndex);
     });
     ipcMain.handle(ipcConsts.W_M_SEND_TX, async (_event, request) => {
-      const res = await this.txManager.publishSpendTx({ ...request });
-      return res;
+      return this.txManager.publishSpendTx({ ...request });
     });
     ipcMain.handle(ipcConsts.W_M_UPDATE_TX_NOTE, async (_event, request) => {
       await this.txManager.updateTxNote(request);
@@ -100,11 +95,10 @@ class WalletManager {
     ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
       const { message, accountIndex } = request;
 
-      const res = await cryptoService.signMessage({
+      return cryptoService.signMessage({
         message,
         secretKey: this.txManager.keychain[accountIndex].secretKey,
       });
-      return res;
     });
 
     return () => {

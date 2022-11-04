@@ -103,7 +103,7 @@ describe('Load wallet file', () => {
           type: expect.stringMatching(
             new RegExp(`^${WalletType.LocalNode}|${WalletType.RemoteApi}$`)
           ),
-          netId: expect.any(Number),
+          genesisID: expect.any(String),
           remoteApi: expect.any(String),
           meta: {
             salt: expect.any(String),
@@ -156,13 +156,13 @@ describe('Save/update wallet file', () => {
     await fs.copyFile(LEGACY_WALLET_PATH, walletPath);
     const result = await updateWalletMeta(walletPath, {
       displayName: 'It works!',
-      netId: 5,
+      genesisID: '0x91d338938929ec38e320ba558b6bd8538eae9753',
     });
     // Meta updated
     expect(result).toMatchObject({
       meta: {
         displayName: 'It works!',
-        netId: 5,
+        genesisID: '0x91d338938929ec38e320ba558b6bd8538eae9753',
       },
     });
     // And secrets untouched

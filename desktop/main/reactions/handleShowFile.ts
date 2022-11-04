@@ -20,7 +20,7 @@ export default ($currentNetwork: Observable<Network | null>) =>
         if (filePath) {
           shell.showItemInFolder(filePath);
         } else if (isLogFile && network) {
-          const logFilePath = getNodeLogsPath(network.netID);
+          const logFilePath = getNodeLogsPath(network.genesisID);
           shell.showItemInFolder(logFilePath);
         } else {
           shell.openPath(DEFAULT_WALLETS_DIRECTORY);

@@ -40,8 +40,8 @@ const spawnManagers$ = (
     $uniqNodeCondig
       .pipe(delay(1), withLatest($mainWindow))
       .subscribe(([mw, nodeConfig]) => {
-        const netId: number = nodeConfig.p2p['network-id'];
-        spawnManagers(mw, netId)
+        const { genesisID } = nodeConfig.p2p;
+        spawnManagers(mw, genesisID)
           .then((nextManagers) => {
             $managers.next(nextManagers);
             return nextManagers;
@@ -50,7 +50,7 @@ const spawnManagers$ = (
             logger.error(
               'spawnManagers$ > Can not spawn new managers',
               err,
-              netId
+              genesisID
             )
           );
       }),

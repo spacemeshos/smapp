@@ -14,7 +14,7 @@ import { Managers } from './app.types';
 //
 const getDevNet = async () => ({
   netName: 'Dev Net',
-  netID: (await fetchJSON(process.env.DEV_NET_URL))?.p2p['network-id'] || 0,
+  genesisID: (await fetchJSON(process.env.DEV_NET_URL))?.p2p.genesisID || 0,
   conf: process.env.DEV_NET_URL,
   explorer: '',
   dash: '',
@@ -62,13 +62,13 @@ export const hasNetwork = (genesisID: string, networks: Network[]): boolean =>
 
 export const spawnManagers = async (
   mainWindow: BrowserWindow,
-  netId: number
+  genesisID: string
 ): Promise<Managers> => {
   if (!mainWindow)
     throw new Error('Cannot spawn managers: MainWindow not found');
 
   const smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
-  const node = new NodeManager(mainWindow, netId, smesher);
+  const node = new NodeManager(mainWindow, genesisID, smesher);
   const wallet = new WalletManager(mainWindow, node);
 
   return { smesher, node, wallet };

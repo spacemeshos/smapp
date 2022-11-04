@@ -25,16 +25,16 @@ export default (
         () => runNodeOnStart && !wallet,
         $networks.pipe(
           combineLatestWith(
-            from(NodeConfig.load()).pipe(map((c) => c?.p2p['network-id']))
+            from(NodeConfig.load()).pipe(map((c) => c?.p2p.genesisID))
           )
         ),
         $networks.pipe(
-          combineLatestWith($wallet.pipe(map((w) => w?.meta.netId)))
+          combineLatestWith($wallet.pipe(map((w) => w?.meta.genesisID)))
         )
       );
     }),
     map(
-      ([networks, networkId]) =>
-        find((net) => net.netID === networkId, networks) || null
+      ([networks, genesisID]) =>
+        find((net) => net.genesisID === genesisID, networks) || null
     )
   );

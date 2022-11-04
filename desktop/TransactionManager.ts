@@ -1,25 +1,25 @@
 import * as R from 'ramda';
 import { BrowserWindow } from 'electron';
-import { TemplateRegistry, SingleSigTemplate } from '@spacemesh/sm-codec';
+import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
 import Bech32 from '@spacemesh/address-wasm';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
 import {
-  KeyPair,
   AccountWithBalance,
+  asTx,
+  Bech32Address,
   HexString,
+  KeyPair,
   Reward,
   Tx,
   TxSendRequest,
   TxState,
-  Bech32Address,
-  asTx,
 } from '../shared/types';
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
 import {
-  TransactionState__Output,
   _spacemesh_v1_TransactionState_TransactionState as TransactionState,
+  TransactionState__Output,
 } from '../proto/spacemesh/v1/TransactionState';
 import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
@@ -76,20 +76,20 @@ class TransactionManager {
 
   private unsubs: Record<Bech32Address, (() => void)[]> = {};
 
-  private netId: number;
+  private genesisID: string;
 
   constructor(
     meshService: MeshService,
     glStateService: GlobalStateService,
     txService: TransactionService,
     mainWindow: BrowserWindow,
-    netId: number
+    genesisID: string
   ) {
     this.meshService = meshService;
     this.glStateService = glStateService;
     this.txService = txService;
     this.mainWindow = mainWindow;
-    this.netId = netId;
+    this.genesisID = genesisID;
   }
 
   unsubscribeAllStreams = () =>
@@ -275,8 +275,10 @@ class TransactionManager {
         : this.keychain),
       keypair,
     ];
-    const accManager = new AccountStateManager(address, this.netId);
-    this.accountStates[address] = accManager;
+    this.accountStates[address] = new AccountStateManager(
+      address,
+      this.genesisID
+    );
     // Resubscribe
     this.subscribeAccount(address);
   };
@@ -440,11 +442,10 @@ class TransactionManager {
     };
     const { totalResults, data } = await getAccountDataQuery(0);
     if (totalResults <= BATCH_SIZE) {
-      const r: Reward__Output[] = data.filter(
+      return data.filter(
         (item): item is Reward__Output =>
           !!item && hasRequiredRewardFields(item)
-      );
-      return r;
+      ) as Reward__Output[];
     } else {
       const nextRewards = await Promise.all(
         R.compose(
