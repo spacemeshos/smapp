@@ -70,33 +70,33 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     networks.loading
       ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }]
       : hasAvailableNetworks
-      ? networks.networks.map(({ netId, netName }) => ({
+      ? networks.networks.map(({ genesisID, netName }) => ({
           label: netName,
-          description: netId > 1 ? `(ID ${netId}` : '',
+          description: genesisID.length ? `(ID ${genesisID}` : '',
         }))
       : [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
 
-  const goNext = (netId: number) => {
+  const goNext = (genesisID: string) => {
     const { creatingWallet, isWalletOnly, mnemonic } = location.state;
     if (creatingWallet) {
-      if (isWalletOnly && netId !== -1)
+      if (isWalletOnly && genesisID.length)
         return history.push(AuthPath.ConnectToAPI, {
           redirect: AuthPath.CreateWallet,
-          netId,
+          genesisID,
           isWalletOnly,
           creatingWallet,
           mnemonic,
         });
       return history.push(AuthPath.CreateWallet, {
-        netId,
+        genesisID,
         isWalletOnly,
         mnemonic,
       });
     }
-    if (netId > -1 && isWalletOnly) {
+    if (genesisID.length && isWalletOnly) {
       return history.push(AuthPath.ConnectToAPI, {
         redirect: location?.state?.redirect,
-        netId,
+        genesisID,
         isWalletOnly,
         creatingWallet,
         mnemonic,
@@ -106,14 +106,14 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   };
 
   const handleNext = async () => {
-    const netId =
+    const genesisID =
       networks.networks.length > selectedItemIndex
-        ? networks.networks[selectedItemIndex].netID
-        : -1;
+        ? networks.networks[selectedItemIndex].genesisID
+        : '';
     setLoader(true);
-    if (netId > -1) {
+    if (genesisID.length) {
       try {
-        await eventsService.switchNetwork(netId);
+        await eventsService.switchNetwork(genesisID);
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
         if (err instanceof Error) {
@@ -121,7 +121,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         }
       }
     }
-    return goNext(netId);
+    return goNext(genesisID);
   };
 
   return showLoader ? (

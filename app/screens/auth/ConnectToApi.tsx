@@ -9,7 +9,7 @@ import { setUiError } from '../../redux/ui/actions';
 import { SocketAddress } from '../../../shared/types';
 import { stringifySocketAddress } from '../../../shared/utils';
 import { switchApiProvider } from '../../redux/wallet/actions';
-import { getNetworkId } from '../../redux/network/selectors';
+import { getGenesisID } from '../../redux/network/selectors';
 import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -44,8 +44,10 @@ type PublicServicesView = {
 
 const ConnectToApi = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
-  const curNetId = useSelector(getNetworkId);
-  const networkId = curNetId > 0 ? curNetId : location?.state?.netId;
+  const selectedGenesisID = useSelector(getGenesisID);
+  const genesisID = selectedGenesisID.length
+    ? selectedGenesisID
+    : location?.state?.genesisID;
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
 
@@ -56,7 +58,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
 
   const updatePublicServices = () => {
     eventsService
-      .listPublicServices(networkId)
+      .listPublicServices(genesisID)
       .then(({ error, payload }) => {
         if (error) throw error;
         const state = {
@@ -82,7 +84,7 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       });
   };
 
-  useEffect(updatePublicServices, [networkId]);
+  useEffect(updatePublicServices, [genesisID]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
@@ -101,14 +103,13 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO REMOTE API AVAILABLE', isDisabled: true }];
 
   const handleNext = () => {
-    const netId = networkId;
     const value =
       publicServices.services.length > selectedItemIndex
         ? publicServices.services[selectedItemIndex].value
         : undefined;
 
     value &&
-      dispatch(switchApiProvider(value, netId)).catch((err) => {
+      dispatch(switchApiProvider(value, genesisID)).catch((err) => {
         console.error(err); // eslint-disable-line no-console
         dispatch(setUiError(err));
       });

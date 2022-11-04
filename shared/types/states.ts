@@ -1,5 +1,5 @@
 export interface NetworkState {
-  netId: number;
+  genesisID: string;
   netName: string;
   genesisTime: string;
   currentLayer: number;

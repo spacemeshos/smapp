@@ -12,7 +12,7 @@ export default (
     map(
       ([curNet, nodeConfig, currentLayer, rootHash]) =>
         <NetworkState>{
-          netId: curNet?.netID || -1,
+          genesisID: curNet?.genesisID || '',
           netName: curNet?.netName || 'Not connected',
           genesisTime: nodeConfig.main['genesis-time'],
           layerDurationSec: nodeConfig.main['layer-duration-sec'],

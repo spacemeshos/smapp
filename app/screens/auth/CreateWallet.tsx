@@ -143,7 +143,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
           type: location?.state?.isWalletOnly
             ? WalletType.RemoteApi
             : WalletType.LocalNode,
-          netId: location?.state?.netId || -1,
+          genesisID: location?.state?.genesisID || '',
           apiUrl: location?.state?.apiUrl || null,
         })
       );
@@ -173,7 +173,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       createWallet();
     } else if (subMode === 2) {
       if (
-        location?.state?.netId &&
+        location?.state?.genesisID &&
         typeof location?.state?.apiUrl === 'string' &&
         isLocalNodeApi(location.state.apiUrl)
       ) {

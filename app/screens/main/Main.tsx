@@ -119,7 +119,7 @@ interface Props extends RouteComponentProps {
   };
   nodeError: NodeError | null;
   isDarkMode: boolean;
-  netId: number;
+  genesisID: string;
   theme: DefaultTheme;
 }
 
@@ -148,14 +148,14 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isWalletOnly, nodeError, status, netId, theme } = this.props;
+    const { isWalletOnly, nodeError, status, genesisID, theme } = this.props;
 
     const { settings, getCoins, help, signOut } = theme.icons;
     const bgColor = theme.color.primary;
     const bntStyle = { marginRight: 15, marginTop: 10 };
     /* eslint-disable no-nested-ternary */
     const indicatorColor =
-      nodeError || netId === -1
+      nodeError || genesisID.length
         ? smColors.red
         : isWalletOnly || status?.isSynced
         ? smColors.green
@@ -341,7 +341,7 @@ const mapStateToProps = (state: RootState) => ({
   isWalletOnly: isWalletOnly(state),
   status: state.node.status,
   nodeError: state.node.error,
-  netId: state.network.netId,
+  genesisID: state.network.genesisID,
   isDarkMode: state.ui.isDarkMode,
 });
 
@@ -349,4 +349,5 @@ const mapDispatchToProps = {
   logout,
 };
 
+// @ts-ignore
 export default connect(mapStateToProps, mapDispatchToProps)(withTheme(Main));

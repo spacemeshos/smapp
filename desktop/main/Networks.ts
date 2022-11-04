@@ -51,12 +51,12 @@ export const listPublicApis = (currentNetwork: Network | null) => {
 
 // Pure utils
 export const getNetworkById = (
-  netId: number,
+  genesisID: string,
   networks: Network[]
-): Network | undefined => networks.find((net) => net.netID === netId);
+): Network | undefined => networks.find((net) => net.genesisID === genesisID);
 
-export const hasNetwork = (netId: number, networks: Network[]): boolean =>
-  !!getNetworkById(netId, networks);
+export const hasNetwork = (genesisID: string, networks: Network[]): boolean =>
+  !!getNetworkById(genesisID, networks);
 
 //
 

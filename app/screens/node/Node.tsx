@@ -21,6 +21,7 @@ import {
   HexString,
   NodeStatus,
   PostSetupState,
+  RewardsInfo,
   SmesherReward,
 } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
@@ -32,7 +33,7 @@ import { eventsService } from '../../infra/eventsService';
 import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
 import { AuthPath, MainPath } from '../../routerPaths';
-import { getNetworkId } from '../../redux/network/selectors';
+import { getGenesisID } from '../../redux/network/selectors';
 import {
   timestampByLayer,
   epochByLayer,
@@ -239,7 +240,7 @@ const SmesherStatus = ({
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
 
-  const curNet = useSelector(getNetworkId);
+  const curNet = useSelector(getGenesisID);
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
   const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
@@ -524,7 +525,7 @@ const Node = ({ history, location }: Props) => {
       </WrapperWith2SideBars>
       <SmesherLog
         rewards={rewards}
-        rewardsInfo={rewardsInfo}
+        rewardsInfo={rewardsInfo as RewardsInfo}
         initTimestamp={smesherInitTimestamp}
         smeshingTimestamp={smesherSmeshingTimestamp}
         epochByLayer={getEpochByLayer}
