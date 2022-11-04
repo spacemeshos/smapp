@@ -3,6 +3,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import * as R from 'ramda';
 
 import {
@@ -11,8 +12,23 @@ import {
   WalletMeta,
   WalletSecrets,
   WalletSecretsEncrypted,
+  WalletSecretsEncryptedGCM,
+  WalletSecretsEncryptedLegacy,
 } from '../../shared/types';
-import FileEncryptionService from '../fileEncryptionService';
+import {
+  isWalletGCMEncrypted,
+  isWalletLegacyEncrypted,
+} from '../../shared/types/guards';
+import { fromHexString, toHexString } from '../../shared/utils';
+import {
+  constructAesGcmIv,
+  decrypt,
+  encrypt,
+  pbkdf2Key,
+  KDF_DKLEN,
+  KDF_ITERATIONS,
+} from '../aes-gcm';
+import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
 import { DEFAULT_WALLETS_DIRECTORY } from './constants';
 
@@ -22,8 +38,30 @@ export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 // Encryption
 //
 
-export const decryptWallet = (
-  crypto: WalletSecretsEncrypted,
+const decryptGcm = async (
+  crypto: WalletSecretsEncryptedGCM,
+  password: string
+): Promise<WalletSecrets> => {
+  const dc = new TextDecoder();
+  const key = await pbkdf2Key(password, fromHexString(crypto.kdfparams.salt));
+  try {
+    const decryptedRaw = dc.decode(
+      await decrypt(
+        key,
+        fromHexString(crypto.cipherParams.iv),
+        fromHexString(crypto.cipherText)
+      )
+    );
+    const decrypted = JSON.parse(decryptedRaw) as WalletSecrets;
+    return decrypted;
+  } catch (err) {
+    throw new Error(WRONG_PASSWORD_MESSAGE);
+  }
+};
+
+// TODO: Remove it next release
+const decryptLegacy = (
+  crypto: WalletSecretsEncryptedLegacy,
   password: string
 ): WalletSecrets => {
   const key = FileEncryptionService.createEncryptionKey({ password });
@@ -32,23 +70,48 @@ export const decryptWallet = (
     key,
   });
   try {
-    const decrypted = JSON.parse(decryptedRaw) as WalletSecrets; // TODO: Add validation
+    const decrypted = JSON.parse(decryptedRaw) as WalletSecrets;
     return decrypted;
   } catch (err) {
     throw new Error(WRONG_PASSWORD_MESSAGE);
   }
 };
 
-export const encryptWallet = (
-  cryptoDecrypted: WalletSecrets,
+export const decryptWallet = async (
+  crypto: WalletSecretsEncrypted,
   password: string
-): WalletSecretsEncrypted => {
-  const key = FileEncryptionService.createEncryptionKey({ password });
-  const encrypted = FileEncryptionService.encryptData({
-    data: JSON.stringify(cryptoDecrypted),
-    key,
-  });
-  return { cipher: 'AES-128-CTR', cipherText: encrypted };
+) => {
+  if (isWalletGCMEncrypted(crypto)) {
+    return decryptGcm(crypto, password);
+  } else {
+    return decryptLegacy(crypto, password);
+  }
+};
+
+export const encryptWallet = async (
+  secrets: WalletSecrets,
+  password: string
+): Promise<WalletSecretsEncryptedGCM> => {
+  const ec = new TextEncoder();
+  const salt = crypto.randomBytes(16);
+  const key = await pbkdf2Key(password, salt);
+  const plaintext = ec.encode(JSON.stringify(secrets));
+  const iv = await constructAesGcmIv(key, plaintext);
+  const cipherText = await encrypt(key, iv, plaintext);
+  return {
+    cipher: 'AES-GCM',
+    cipherText: toHexString(cipherText),
+    cipherParams: {
+      iv: toHexString(iv),
+    },
+    kdf: 'PBKDF2',
+    kdfparams: {
+      dklen: KDF_DKLEN,
+      hash: 'SHA-512',
+      salt: toHexString(salt),
+      iterations: KDF_ITERATIONS,
+    },
+  };
 };
 
 //
@@ -65,7 +128,7 @@ export const loadWallet = async (
   password: string
 ): Promise<Wallet> => {
   const { crypto, meta } = await loadRawWallet(path);
-  const cryptoDecoded = decryptWallet(crypto, password);
+  const cryptoDecoded = await decryptWallet(crypto, password);
   return { meta, crypto: cryptoDecoded };
 };
 
@@ -79,18 +142,31 @@ export const saveRaw = async (walletPath: string, wallet: WalletFile) => {
   return { filename, filepath };
 };
 
-export const saveWallet = (
+export const saveWallet = async (
   walletPath: string,
   password: string,
   wallet: Wallet
 ): Promise<{ filename: string; filepath: string }> => {
   const { meta, crypto } = wallet;
-  const encrypted = encryptWallet(crypto, password);
+  const encrypted = await encryptWallet(crypto, password);
   const fileContent: WalletFile = {
     meta,
     crypto: encrypted,
   };
   return saveRaw(walletPath, fileContent);
+};
+
+// TODO: Remove it in next release
+export const loadAndMigrateWallet = async (
+  path: string,
+  password: string
+): Promise<Wallet> => {
+  const { crypto } = await loadRawWallet(path);
+  const wallet = await loadWallet(path, password);
+  if (isWalletLegacyEncrypted(crypto)) {
+    await saveWallet(path, password, wallet);
+  }
+  return wallet;
 };
 
 export const updateWalletMeta = async (

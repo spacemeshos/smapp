@@ -1,0 +1,26 @@
+{
+    "meta": {
+        "displayName": "Wallet GCM",
+        "created": "2022-11-02T16-14-40.308Z",
+        "type": "local-node",
+        "netId": 300,
+        "remoteApi": "",
+        "meta": {
+            "salt": "Spacemesh blockmesh"
+        }
+    },
+    "crypto": {
+        "cipher": "AES-GCM",
+        "cipherText": "0669fb71788e4b5a0b626206d2ad2bd21c610d695748dc52dda4a55edafe29b31e8ad2dc54e0cba1a990441eaf18beceb20029a3b84aee7cc4eecbeb961069d7da077874c24e2a88b623778957a84dc82edaecbfa3da5f17d6f3cd8ec2d4d759f50d95ac485161152bc5a2d346443c7e20969c374027866b75e1fc9b770f31c8b02b10f8c63ec6f749937bf3e3e30c8696eb1574937d95e2e0322df8e662af36d7dcf8a344c3bfe3d8082795a438f6b5a5152d35819d57f8c12d13929b3abf8471805a2fd2a5db3506ee9fd24e4a2d6eba4478def1b27fb07de08d13b7ef8bc1d625c072a04c60e56977ec81ee2a7bff9cafe2c99e363414eb53b43c2faac05642ac3766f0b96e5cffcd597161c09627ddc33b2148f1e9aac677b6a3293139aa6a6f892794c598f4cc1ab9f70f5a8c80a7bb2915e525c68a92282086a478c34da9dc131cb099de98e0b24aa48c8e5f7750ee46f7da51b56f44def2790002dfc6e5fc0019f9dd037eda0f95799f95142c1e6fad4d775a34c258fb21c2723b4f1be494f610c214b1c0e1b6f8fa7b31490fa5bb8eb225397111644853d7a93eb43c566823648444df43d67df1e89202bc4b1d28748cf406ecc1a672bdce53",
+        "cipherParams": {
+            "iv": "fbab632fdf6cf909cc46c4c7"
+        },
+        "kdf": "PBKDF2",
+        "kdfparams": {
+            "dklen": 256,
+            "hash": "SHA-512",
+            "salt": "ec756095c06f695c7cf261660f1cf597",
+            "iterations": 120000
+        }
+    }
+}

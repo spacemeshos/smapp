@@ -4,7 +4,12 @@ import { Transaction__Output } from '../../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../../proto/spacemesh/v1/TransactionState';
 import { NodeError } from './node';
 import { Tx, Reward, Activation } from './tx';
-import { WalletSecrets, WalletSecretsEncrypted } from './wallet';
+import {
+  WalletSecrets,
+  WalletSecretsEncrypted,
+  WalletSecretsEncryptedGCM,
+  WalletSecretsEncryptedLegacy,
+} from './wallet';
 
 // GRPC Type guards
 export const hasRequiredTxFields = (
@@ -46,6 +51,14 @@ export const isNodeError = (a: any): a is NodeError =>
 
 export const isWalletSecretsEncrypted = (a: any): a is WalletSecretsEncrypted =>
   a && a.cipher && a.cipherText;
+
+export const isWalletGCMEncrypted = (a: any): a is WalletSecretsEncryptedGCM =>
+  isWalletSecretsEncrypted(a) && a.cipher === 'AES-GCM';
+
+export const isWalletLegacyEncrypted = (
+  a: any
+): a is WalletSecretsEncryptedLegacy =>
+  isWalletSecretsEncrypted(a) && a.cipher === 'AES-128-CTR';
 
 export const isWalletSecrets = (a: any): a is WalletSecrets =>
   a && a.mnemonic && a.accounts && a.contacts;
