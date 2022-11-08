@@ -7,7 +7,7 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
-import { longToNumber } from '../shared/utils';
+import { delay, longToNumber } from '../shared/utils';
 import NetServiceFactory, { Service } from './NetServiceFactory';
 import Logger from './logger';
 
@@ -21,6 +21,22 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   stackTrace: error.stack || '',
   module: 'NodeService',
   level: NodeErrorLevel.LOG_LEVEL_ERROR,
+});
+
+const asNodeError = (nodeError: NodeError): NodeError => nodeError;
+
+const LOST_CONNECTION_ERROR = asNodeError({
+  msg: 'Lost connection with the Node. Reconnecting...',
+  level: NodeErrorLevel.LOG_LEVEL_DPANIC,
+  module: 'NodeService',
+  stackTrace: '',
+});
+
+const CAN_NOT_CONNECT_ERROR = asNodeError({
+  msg: 'Node Service does not respond. Probably Node is down',
+  level: NodeErrorLevel.LOG_LEVEL_FATAL,
+  module: 'NodeService',
+  stackTrace: '',
 });
 
 class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
@@ -101,7 +117,8 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
 
   activateStatusStream = (
     statusHandler: StatusStreamHandler,
-    errorHandler: ErrorStreamHandler
+    errorHandler: ErrorStreamHandler,
+    retries = 5
   ) => {
     if (!this.service) return;
 
@@ -126,13 +143,25 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       this.logger.error('grpc StatusStream', error);
       errorHandler(normalizeGrpcErrorToNodeError(error));
     });
-    this.statusStream.on('end', () => {
+    this.statusStream.on('end', async () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc StatusStream ended', null);
       this.statusStream = null;
-      if (!this.isShuttingDown) {
-        this.logger.log('grpc StatusStream restarting', null);
-        this.activateStatusStream(statusHandler, errorHandler);
+      if (this.isShuttingDown) {
+        this.logger.log('grpc StatusStream shutted down', null);
+        return;
+      }
+      if (retries > 0) {
+        errorHandler(LOST_CONNECTION_ERROR);
+        this.logger.log(
+          'grpc StatusStream restarting',
+          `Retries left: ${retries}`
+        );
+        await delay(5000);
+        this.activateStatusStream(statusHandler, errorHandler, retries - 1);
+      } else {
+        errorHandler(CAN_NOT_CONNECT_ERROR);
+        this.logger.error('grpc StatusStream can not restart', null);
       }
     });
   };
@@ -144,7 +173,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     return true;
   };
 
-  activateErrorStream = (handler: ErrorStreamHandler) => {
+  activateErrorStream = (handler: ErrorStreamHandler, retries = 5) => {
     if (!this.service) return;
 
     this.errorStream = this.service.ErrorStream({});
@@ -157,13 +186,23 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       this.logger.error('grpc ErrorStream', error);
       handler(normalizeGrpcErrorToNodeError(error));
     });
-    this.errorStream.on('end', () => {
+    this.errorStream.on('end', async () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc ErrorStream ended', null);
       this.errorStream = null;
-      if (!this.isShuttingDown) {
-        this.logger.log('grpc ErrorStream restarting', null);
-        this.activateErrorStream(handler);
+      if (this.isShuttingDown) {
+        this.logger.log('grpc ErrorStream shutted down', null);
+        return;
+      }
+      if (retries > 0) {
+        this.logger.log(
+          'grpc ErrorStream restarting',
+          `Retries left: ${retries}`
+        );
+        await delay(5000);
+        this.activateErrorStream(handler, retries - 1);
+      } else {
+        this.logger.error('grpc ErrorStream can not restart', null);
       }
     });
   };
