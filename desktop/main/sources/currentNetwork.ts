@@ -34,7 +34,8 @@ export default (
         )
       );
     }),
-    map(([networks, genesisID]) => {
-      return find((net) => net.genesisID === genesisID, networks) || null;
-    })
+    map(
+      ([networks, genesisID]) =>
+        find((net) => net.genesisID === genesisID, networks) || null
+    )
   );
