@@ -228,7 +228,10 @@ class TransactionManager {
             : TransactionState.TRANSACTION_STATE_REJECTED;
         const tx = toTx(txRes.tx, { id: { id: txRes.tx.id }, state });
         if (!tx) return;
-        this.upsertTransaction(address)(tx);
+        this.upsertTransaction(address)({
+          ...tx,
+          layer: txRes.layer,
+        });
         // TODO: https://github.com/spacemeshos/go-spacemesh/issues/3687
         queryAccountData();
       })
