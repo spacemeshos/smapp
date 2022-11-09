@@ -517,6 +517,18 @@ class TransactionManager {
             })
           : null;
       tx && this.upsertTransaction(address)(tx);
+
+      // TODO: Get rid of this call when we migrate to go-spacemesh
+      //       with this fix of the issue https://github.com/spacemeshos/go-spacemesh/issues/3687
+      this.retrieveAccountData({
+        filter: {
+          accountId: { address },
+          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        },
+        handler: this.updateAccountData(address),
+        retries: 0,
+      });
+
       return { error, tx };
     } catch (err) {
       this.logger.error('publishSelfSpawn', err);
@@ -600,6 +612,18 @@ class TransactionManager {
           : null;
 
       tx && this.upsertTransaction(address)(tx);
+
+      // TODO: Get rid of this call when we migrate to go-spacemesh
+      //       with this fix of the issue https://github.com/spacemeshos/go-spacemesh/issues/3687
+      this.retrieveAccountData({
+        filter: {
+          accountId: { address },
+          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+        },
+        handler: this.updateAccountData(address),
+        retries: 0,
+      });
+
       return { error, tx };
     } catch (err) {
       this.logger.error('publishSpendTx', err);
