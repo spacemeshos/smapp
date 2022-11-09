@@ -1,5 +1,4 @@
 export interface NetworkState {
-  genesisID: string;
   netName: string;
   genesisTime: string;
   currentLayer: number;
@@ -7,4 +6,5 @@ export interface NetworkState {
   layersPerEpoch: number;
   rootHash: string;
   explorerUrl: string;
+  genesisID: string;
 }

@@ -11,6 +11,7 @@ import {
 } from 'rxjs';
 import { Network, Wallet } from '../../../shared/types';
 import NodeConfig from '../NodeConfig';
+import { generateGenesisIDFromConfig } from '../Networks';
 
 export default (
   $runNodeBeforeLogin: Observable<boolean>,
@@ -25,7 +26,7 @@ export default (
         () => runNodeOnStart && !wallet,
         $networks.pipe(
           combineLatestWith(
-            from(NodeConfig.load()).pipe(map((c) => c?.p2p.genesisID))
+            from(NodeConfig.load()).pipe(map(generateGenesisIDFromConfig))
           )
         ),
         $networks.pipe(
@@ -33,8 +34,7 @@ export default (
         )
       );
     }),
-    map(
-      ([networks, genesisID]) =>
-        find((net) => net.genesisID === genesisID, networks) || null
-    )
+    map(([networks, genesisID]) => {
+      return find((net) => net.genesisID === genesisID, networks) || null;
+    })
   );
