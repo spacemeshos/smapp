@@ -1,6 +1,7 @@
 import { objOf } from 'ramda';
 import { combineLatest, map, Observable } from 'rxjs';
 import { Network, NetworkState, NodeConfig } from '../../../../shared/types';
+import { generateGenesisIDFromConfig } from '../../Networks';
 
 export default (
   $currentNetwork: Observable<Network | null>,
@@ -12,7 +13,7 @@ export default (
     map(
       ([curNet, nodeConfig, currentLayer, rootHash]) =>
         <NetworkState>{
-          genesisID: curNet?.genesisID || '',
+          genesisID: generateGenesisIDFromConfig(nodeConfig) || '',
           netName: curNet?.netName || 'Not connected',
           genesisTime: nodeConfig.main['genesis-time'],
           layerDurationSec: nodeConfig.main['layer-duration-sec'],

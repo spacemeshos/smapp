@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
-import { Network, PublicService } from '../../shared/types';
+import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString, toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
 import SmesherManager from '../SmesherManager';
@@ -12,14 +12,36 @@ import { Managers } from './app.types';
 //
 // Assertions
 //
-const getDevNet = async () => ({
-  netName: 'Dev Net',
-  genesisID: (await fetchJSON(process.env.DEV_NET_URL))?.p2p.genesisID || 0,
-  conf: process.env.DEV_NET_URL,
-  explorer: '',
-  dash: '',
-  grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
-});
+
+export const generateGenesisID = (genesisTime: string, extraData: string) => {
+  return `0x${toHexString(sha256(genesisTime + extraData)).substring(0, 40)}`;
+};
+
+export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
+  if (
+    nodeConfig?.main?.['genesis-time'] ||
+    nodeConfig?.main?.['genesis-extra-data']
+  ) {
+    return generateGenesisID(
+      nodeConfig?.main?.['genesis-time'] || '',
+      nodeConfig?.main?.['genesis-extra-data'] || ''
+    );
+  }
+
+  return '';
+};
+
+const getDevNet = async () =>
+  ({
+    netName: 'Dev Net',
+    genesisID: generateGenesisIDFromConfig(
+      await fetchJSON(process.env.DEV_NET_URL)
+    ),
+    conf: process.env.DEV_NET_URL as string,
+    explorer: '',
+    dash: '',
+    grpcAPI: process.env.DEV_NET_REMOTE_API?.split(',')[0] || '',
+  } as Partial<Network>);
 
 const getDiscoveryUrl = () =>
   app.commandLine.getSwitchValue('discovery') ||
@@ -27,10 +49,10 @@ const getDiscoveryUrl = () =>
   'https://discover.spacemesh.io/networks.json';
 
 export const fetchNetworksFromDiscovery = async () => {
-  const networks = await fetchJSON(getDiscoveryUrl());
+  const networks: Network[] = await fetchJSON(getDiscoveryUrl());
 
   const result: Network[] = isDevNet()
-    ? [await getDevNet(), ...networks]
+    ? [(await getDevNet()) as Network, ...networks]
     : networks || [];
   return result;
 };
@@ -58,8 +80,6 @@ export const getNetworkById = (
 export const hasNetwork = (genesisID: string, networks: Network[]): boolean =>
   !!getNetworkById(genesisID, networks);
 
-//
-
 export const spawnManagers = async (
   mainWindow: BrowserWindow,
   genesisID: string
@@ -72,8 +92,4 @@ export const spawnManagers = async (
   const wallet = new WalletManager(mainWindow, node);
 
   return { smesher, node, wallet };
-};
-
-export const generateGenesisID = (genesisTime: string, extraData: string) => {
-  return `0x${toHexString(sha256(genesisTime + extraData)).substring(0, 40)}`;
 };

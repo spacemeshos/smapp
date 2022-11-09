@@ -49,7 +49,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       networks: [],
     });
     eventsService
-      .listNetworks()
+      .listNetworksWithGenesisID()
       .then(({ payload }) =>
         setNetworks({ loading: false, networks: payload || [] })
       )
@@ -72,14 +72,14 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       : hasAvailableNetworks
       ? networks.networks.map(({ genesisID, netName }) => ({
           label: netName,
-          description: genesisID.length ? `(ID ${genesisID}` : '',
+          description: genesisID?.length ? `(ID ${genesisID})` : '',
         }))
       : [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
 
-  const goNext = (genesisID: string) => {
+  const goNext = (genesisID: string | undefined) => {
     const { creatingWallet, isWalletOnly, mnemonic } = location.state;
     if (creatingWallet) {
-      if (isWalletOnly && genesisID.length)
+      if (isWalletOnly && genesisID?.length)
         return history.push(AuthPath.ConnectToAPI, {
           redirect: AuthPath.CreateWallet,
           genesisID,
@@ -93,7 +93,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         mnemonic,
       });
     }
-    if (genesisID.length && isWalletOnly) {
+    if (genesisID?.length && isWalletOnly) {
       return history.push(AuthPath.ConnectToAPI, {
         redirect: location?.state?.redirect,
         genesisID,
@@ -111,7 +111,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         ? networks.networks[selectedItemIndex].genesisID
         : '';
     setLoader(true);
-    if (genesisID.length) {
+    if (genesisID?.length) {
       try {
         await eventsService.switchNetwork(genesisID);
       } catch (err) {
@@ -121,6 +121,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         }
       }
     }
+
     return goNext(genesisID);
   };
 

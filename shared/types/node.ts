@@ -41,7 +41,6 @@ export interface NodeConfig {
     grpc: string;
   };
   p2p: {
-    genesisID: string;
     bootnodes: string[];
     [k: string]: unknown;
   };
@@ -50,6 +49,7 @@ export interface NodeConfig {
     'optimistic-filtering-threshold': number;
     'poet-server': string;
     'genesis-time': string;
+    'genesis-extra-data': string;
     'layer-duration-sec': number;
     'layers-per-epoch': number;
     [k: string]: unknown;

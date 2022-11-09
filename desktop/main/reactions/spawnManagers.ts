@@ -10,7 +10,7 @@ import {
 import { NodeConfig } from '../../../shared/types';
 import Logger from '../../logger';
 import { Managers } from '../app.types';
-import { spawnManagers } from '../Networks';
+import { generateGenesisIDFromConfig, spawnManagers } from '../Networks';
 import { withLatest } from '../rx.utils';
 
 const logger = Logger({ className: 'rx' });
@@ -39,9 +39,8 @@ const spawnManagers$ = (
     // And then spawn new managers
     $uniqNodeCondig
       .pipe(delay(1), withLatest($mainWindow))
-      .subscribe(([mw, nodeConfig]) => {
-        const { genesisID } = nodeConfig.p2p;
-        spawnManagers(mw, genesisID)
+      .subscribe(([mw, nodeConfig]) =>
+        spawnManagers(mw, generateGenesisIDFromConfig(nodeConfig))
           .then((nextManagers) => {
             $managers.next(nextManagers);
             return nextManagers;
@@ -50,10 +49,10 @@ const spawnManagers$ = (
             logger.error(
               'spawnManagers$ > Can not spawn new managers',
               err,
-              genesisID
+              generateGenesisIDFromConfig(nodeConfig)
             )
-          );
-      }),
+          )
+      ),
   ];
   return () => subs.forEach((unsub) => unsub.unsubscribe());
 };
