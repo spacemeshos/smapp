@@ -119,8 +119,8 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
     const { id, status, timestamp, contacts, meta } = tx;
     // TODO: Temporary solution until we don't support other account types
     const isSent =
-      tx.method === SingleSigMethods.Spend &&
-      !!tx.payload?.Arguments?.Destination;
+      tx.method === SingleSigMethods.Spend && tx.principal === address;
+    const isSpawn = tx.method === SingleSigMethods.Spawn;
     const color = getColor({ status, isSent });
     return (
       <TxWrapper key={`tx_${id}`}>
@@ -139,11 +139,13 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
           </Section>
           <Section>
             <Text>{getFormattedTimestamp(timestamp, status)}</Text>
-            <Amount color={color}>
-              {`${isSent ? '-' : '+'}${formatSmidge(
-                parseInt(tx.payload.Arguments.Amount, 10)
-              )}`}
-            </Amount>
+            {!isSpawn && (
+              <Amount color={color}>
+                {`${isSent ? '-' : '+'}${formatSmidge(
+                  parseInt(tx.payload.Arguments.Amount, 10)
+                )}`}
+              </Amount>
+            )}
           </Section>
         </MainWrapper>
       </TxWrapper>
