@@ -10,7 +10,7 @@ import {
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
-import { configCodecByPath } from '../shared/utils';
+import { configCodecByPath, delay } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
@@ -87,17 +87,20 @@ class SmesherManager {
   serviceStartupFlow = async () => {
     const cfg = await this.sendSmesherConfig();
     if (cfg?.start) {
+      const { postSetupState } = await this.smesherService.getPostSetupStatus();
       // Unsubscribe first
       this.smesherService.deactivateProgressStream();
-      // Subscribe on PoST cration progress stream ASAP
-      this.smesherService.activateProgressStream(
-        this.handlePostDataCreationStatusStream
-      );
+      if (postSetupState !== PostSetupState.STATE_COMPLETE) {
+        // Subscribe on PoST cration progress stream ASAP
+        this.smesherService.activateProgressStream(
+          this.handlePostDataCreationStatusStream
+        );
+      }
     }
     await this.updateSmesherState();
   };
 
-  sendSmesherSettingsAndStartupState = async () => {
+  sendSmesherSettingsAndStartupState = async (retries = 5) => {
     const { config } = await this.smesherService.getPostConfig();
     const { smesherId } = await this.smesherService.getSmesherID();
     const {
@@ -123,6 +126,10 @@ class SmesherManager {
       ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS,
       data
     );
+    if (errorMessage && retries > 0) {
+      await delay(5000);
+      await this.sendSmesherSettingsAndStartupState(retries - 1);
+    }
   };
 
   sendSmesherConfig = async () => {
