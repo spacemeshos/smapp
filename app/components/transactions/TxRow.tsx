@@ -352,8 +352,9 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
     if (!isSpendTransaction) return null;
     return (
       <HeaderSection>
-        <Amount color={smColors.blue}>
-          -{formatSmidge(parseInt(tx.payload.Arguments.Amount, 10))}
+        <Amount color={color}>
+          {isSent ? '-' : '+'}
+          {formatSmidge(parseInt(tx.payload.Arguments.Amount, 10))}
         </Amount>
         <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
       </HeaderSection>

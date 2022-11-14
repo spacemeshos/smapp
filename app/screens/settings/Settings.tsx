@@ -417,8 +417,8 @@ class Settings extends Component<Props, State> {
             <SettingsSection title={categories[2]} name={categories[2]}>
               <SettingRow
                 upperPartLeft={[
-                  <Text key={1}>New account will be added to&nbsp;</Text>,
-                  <GreenText key={2}>{displayName}</GreenText>,
+                  <GreenText key={2}>{`Account ${accounts.length}`}</GreenText>,
+                  <Text key={1}>&nbsp;will be added</Text>,
                 ]}
                 upperPartRight={
                   <Button
@@ -769,12 +769,14 @@ class Settings extends Component<Props, State> {
 
   createNewAccountWrapper = () => {
     const { createNewAccount } = this.props;
+
     this.setState({
       showPasswordModal: true,
       passwordModalSubmitAction: ({ password }: { password: string }) => {
         this.setState({ showPasswordModal: false });
         // @ts-ignore
         createNewAccount({ password });
+        this.goTo(MainPath.Wallet);
       },
     });
   };

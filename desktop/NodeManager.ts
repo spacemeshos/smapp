@@ -214,19 +214,18 @@ class NodeManager {
     };
   };
 
-  waitForNodeServiceResponsiveness = async (resolve, attempts: number) => {
+  isNodeAlive = async (retries: number): Promise<boolean> => {
     if (!this.isNodeRunning()) {
-      resolve(false);
+      return false;
     }
     const isReady = await this.nodeService.echo();
     if (isReady) {
-      resolve(true);
-    } else if (attempts > 0) {
-      setTimeout(async () => {
-        await this.waitForNodeServiceResponsiveness(resolve, attempts - 1);
-      }, 500);
+      return true;
+    } else if (retries > 0) {
+      await delay(500);
+      return this.isNodeAlive(retries - 1);
     } else {
-      resolve(false);
+      return false;
     }
   };
 
@@ -243,9 +242,7 @@ class NodeManager {
     if (this.isNodeRunning()) return true;
     await this.spawnNode();
     this.nodeService.createService();
-    const success = await new Promise<boolean>((resolve) => {
-      this.waitForNodeServiceResponsiveness(resolve, 30); // 15 sec timeout
-    });
+    const success = await this.isNodeAlive(30); // 15 sec timeout
     if (success) {
       // update node status once by query request
       await this.updateNodeStatus();
@@ -553,14 +550,6 @@ class NodeManager {
       this.sendNodeStatus,
       this.pushNodeError
     );
-
-  isNodeAlive = async (attemptNumber = 0): Promise<boolean> => {
-    const res = await this.nodeService.echo();
-    if (!res && attemptNumber < 3) {
-      return delay(200).then(() => this.isNodeAlive(attemptNumber + 1));
-    }
-    return res;
-  };
 }
 
 export default NodeManager;

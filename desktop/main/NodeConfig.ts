@@ -4,6 +4,7 @@ import { NodeConfig } from '../../shared/types';
 import { configCodecByPath } from '../../shared/utils';
 import { fetchNodeConfig } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
+import { safeSmeshingOpts } from './smeshingOpts';
 
 export const loadNodeConfig = async () =>
   existsSync(NODE_CONFIG_FILE)
@@ -14,7 +15,10 @@ export const loadNodeConfig = async () =>
         )
     : {};
 
-const loadSmeshingOpts = async () => (await loadNodeConfig()).smeshing;
+const loadSmeshingOpts = async () => {
+  const opts = (await loadNodeConfig()).smeshing;
+  return safeSmeshingOpts(opts);
+};
 
 export const downloadNodeConfig = async (networkConfigUrl: string) => {
   const nodeConfig = await fetchNodeConfig(networkConfigUrl);
