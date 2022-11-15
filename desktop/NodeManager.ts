@@ -360,13 +360,7 @@ class NodeManager {
       flags: 'a',
       encoding: 'utf-8',
     });
-    const args = [
-      '--config',
-      NODE_CONFIG_FILE,
-      '-d',
-      nodeDataFilesPath,
-      '--pprof-server',
-    ];
+    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
 
