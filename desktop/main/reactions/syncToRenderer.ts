@@ -179,7 +179,7 @@ export default (
     storeView($storeService),
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
-    $nodeVersion.pipe(map(R.objOf('node'))),
+    $nodeVersion.pipe(map(R.objOf('node'))), // here
     combineLatest([
       $smesherId,
       $rewards.pipe(startWith([])),

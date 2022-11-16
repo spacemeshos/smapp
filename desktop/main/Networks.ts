@@ -1,13 +1,8 @@
-import { app, BrowserWindow } from 'electron';
+import { app } from 'electron';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString, toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
-import SmesherManager from '../SmesherManager';
-import NodeManager from '../NodeManager';
-import WalletManager from '../WalletManager';
-import { NODE_CONFIG_FILE } from './constants';
-import { Managers } from './app.types';
 
 //
 // Assertions
@@ -19,12 +14,12 @@ export const generateGenesisID = (genesisTime: string, extraData: string) => {
 
 export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
   if (
-    nodeConfig?.main?.['genesis-time'] ||
-    nodeConfig?.main?.['genesis-extra-data']
+    nodeConfig?.genesis?.['genesis-time'] ||
+    nodeConfig?.genesis?.['genesis-extra-data']
   ) {
     return generateGenesisID(
-      nodeConfig?.main?.['genesis-time'] || '',
-      nodeConfig?.main?.['genesis-extra-data'] || ''
+      nodeConfig?.genesis?.['genesis-time'] || '',
+      nodeConfig?.genesis?.['genesis-extra-data'] || ''
     );
   }
 
@@ -49,11 +44,13 @@ const getDiscoveryUrl = () =>
   'https://discover.spacemesh.io/networks.json';
 
 export const fetchNetworksFromDiscovery = async () => {
+  console.log({ url: getDiscoveryUrl() });
   const networks: Network[] = await fetchJSON(getDiscoveryUrl());
-
+  console.log({ networks });
   const result: Network[] = isDevNet()
     ? [(await getDevNet()) as Network, ...networks]
     : networks || [];
+  console.log({ result });
   return result;
 };
 
@@ -79,17 +76,3 @@ export const getNetworkById = (
 
 export const hasNetwork = (genesisID: string, networks: Network[]): boolean =>
   !!getNetworkById(genesisID, networks);
-
-export const spawnManagers = async (
-  mainWindow: BrowserWindow,
-  genesisID: string
-): Promise<Managers> => {
-  if (!mainWindow)
-    throw new Error('Cannot spawn managers: MainWindow not found');
-
-  const smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
-  const node = new NodeManager(mainWindow, genesisID, smesher);
-  const wallet = new WalletManager(mainWindow, node);
-
-  return { smesher, node, wallet };
-};

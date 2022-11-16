@@ -64,6 +64,7 @@ const loadNetworkData = () => {
       ] as const)
     )
     .subscribe(([currentLayer, rootHash, nodeVersion]) => {
+      console.log({ nodeVersion });
       $currentLayer.next(currentLayer.currentLayer);
       $rootHash.next(rootHash.rootHash);
       $nodeVersion.next(nodeVersion);

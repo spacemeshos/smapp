@@ -155,7 +155,7 @@ class Main extends Component<Props, State> {
     const bntStyle = { marginRight: 15, marginTop: 10 };
     /* eslint-disable no-nested-ternary */
     const indicatorColor =
-      nodeError || genesisID.length
+      nodeError || !genesisID.length
         ? smColors.red
         : isWalletOnly || status?.isSynced
         ? smColors.green

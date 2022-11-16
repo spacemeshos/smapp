@@ -80,6 +80,7 @@ const DetailsTextWrap = styled.div`
 const Network = ({ history }) => {
   const isWalletMode = useSelector(isWalletOnly);
   const status = useSelector((state: RootState) => state.node.status);
+  console.log({ status });
   const nodeError = useSelector((state: RootState) => state.node.error);
   const genesisID = useSelector(
     (state: RootState) => state.network.genesisID || ''
