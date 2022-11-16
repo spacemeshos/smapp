@@ -40,22 +40,13 @@ export interface NodeConfig {
   api: {
     grpc: string;
   };
+  preset: string;
   p2p: {
-    bootnodes: string[];
-    [k: string]: unknown;
-  };
-  main: {
-    'genesis-active-size': number;
-    'optimistic-filtering-threshold': number;
-    'poet-server': string;
-    'genesis-time': string;
-    'genesis-extra-data': string;
-    'layer-duration-sec': number;
-    'layers-per-epoch': number;
-    [k: string]: unknown;
+    bootnodes: Array<string>;
   };
   smeshing: {
     'smeshing-coinbase': HexString;
+    'smeshing-start': boolean;
     'smeshing-opts': {
       'smeshing-opts-datadir': string;
       'smeshing-opts-numfiles': number;
@@ -63,8 +54,21 @@ export interface NodeConfig {
       'smeshing-opts-provider': number;
       'smeshing-opts-throttle': boolean;
     };
-    'smeshing-start': boolean;
   };
-  preset: string;
-  [k: string]: unknown;
+  main: {
+    'layer-duration-sec': number;
+    'layers-per-epoch': number;
+    'poet-server': Array<string>;
+    'genesis-active-size': number;
+    'optimistic-filtering-threshold': number;
+  };
+  genesis: {
+    'genesis-time': string;
+    'genesis-extra-data': string;
+  };
+  poet: {
+    'phase-shift': string;
+    'cycle-gap': string;
+    'grace-period': string;
+  };
 }

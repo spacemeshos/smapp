@@ -36,6 +36,7 @@ import {
 import { NODE_CONFIG_FILE } from './main/constants';
 import NodeConfig from './main/NodeConfig';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
+import { generateGenesisIDFromConfig } from './main/Networks';
 
 rotator.on('error', captureException);
 
@@ -349,7 +350,9 @@ class NodeManager {
     );
     const nodeDataFilesPath = StoreService.get('node.dataPath');
     const nodeConfig = await NodeConfig.load();
-    const logFilePath = getNodeLogsPath(nodeConfig.p2p.genesisID);
+    const logFilePath = getNodeLogsPath(
+      generateGenesisIDFromConfig(nodeConfig)
+    );
 
     rotator.register(logFilePath, {
       schedule: '30m',

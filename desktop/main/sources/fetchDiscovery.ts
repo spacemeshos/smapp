@@ -45,6 +45,7 @@ export const fromNetworkWithGenesisIDMapping = () =>
       ),
     ]).pipe(
       map((configs) => {
+        console.log({ networks, configs });
         return networks.map(
           (net, i): Network => ({
             ...net,
