@@ -8,7 +8,28 @@ describe('ed25519', () => {
     'd3a11c7b10ea55551210952219314b3ab3eae3c571e1274736cda24bb2bd0f7f';
   const secretKey =
     '78cf687d957abba7d555c2e0974e1c83c34e8c4bc491b3d034216fdf9a78c94dd3a11c7b10ea55551210952219314b3ab3eae3c571e1274736cda24bb2bd0f7f';
-  const genesisID = new Uint8Array([]);
+  const genesisID = new Uint8Array([
+      51,
+    13,
+    17,
+    59,
+    152,
+    12,
+    243,
+    163,
+    29,
+    125,
+    73,
+    182,
+    3,
+    150,
+    80,
+    133,
+    46,
+    74,
+    42,
+    216
+  ]);
   it('sign', () => {
     const tx = Uint8Array.from([
       0, 0, 0, 0, 0, 136, 115, 101, 220, 126, 211, 50, 161, 69, 251, 61, 50, 57,
