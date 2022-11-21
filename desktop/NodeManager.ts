@@ -510,7 +510,7 @@ class NodeManager {
       // we have to check Node for liveness.
       // In case that Node does not responds
       // raise the error level to FATAL
-      const isAlive = await this.isNodeAlive();
+      const isAlive = await this.isNodeAlive(30);
       if (!isAlive) {
         // Raise error level and call this method again, to ensure
         // that this error is not a consequence of real critical error

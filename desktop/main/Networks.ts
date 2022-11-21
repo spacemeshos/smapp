@@ -9,7 +9,7 @@ import { fetchJSON, isDevNet } from '../utils';
 //
 
 export const generateGenesisID = (genesisTime: string, extraData: string) => {
-  return `0x${toHexString(sha256(genesisTime + extraData)).substring(0, 40)}`;
+  return `${toHexString(sha256(genesisTime + extraData)).substring(0, 40)}`;
 };
 
 export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
