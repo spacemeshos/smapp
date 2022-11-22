@@ -1,5 +1,5 @@
-import { app } from 'electron';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
+import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString, toPublicService } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
@@ -44,13 +44,10 @@ const getDiscoveryUrl = () =>
   'https://discover.spacemesh.io/networks.json';
 
 export const fetchNetworksFromDiscovery = async () => {
-  console.log({ url: getDiscoveryUrl() });
   const networks: Network[] = await fetchJSON(getDiscoveryUrl());
-  console.log({ networks });
   const result: Network[] = isDevNet()
     ? [(await getDevNet()) as Network, ...networks]
     : networks || [];
-  console.log({ result });
   return result;
 };
 

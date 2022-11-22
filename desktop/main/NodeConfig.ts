@@ -1,7 +1,6 @@
 import { existsSync, promises as fs } from 'fs';
 import * as TOML from '@iarna/toml';
 import { NodeConfig } from '../../shared/types';
-import { configCodecByPath } from '../../shared/utils';
 import { fetchNodeConfig } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
 import { safeSmeshingOpts } from './smeshingOpts';
@@ -20,19 +19,21 @@ const loadSmeshingOpts = async () => {
   return safeSmeshingOpts(opts);
 };
 
-export const downloadNodeConfig = async (networkConfigUrl: string) => {
+export const downloadNodeConfig = async (
+  networkConfigUrl: string,
+  updateNodeConfig = false
+) => {
   const nodeConfig = await fetchNodeConfig(networkConfigUrl);
-
   // Copy smeshing opts from previous node config or replace it with empty one
   const smeshing = await loadSmeshingOpts();
   nodeConfig.smeshing = smeshing;
-  await fs.writeFile(
-    NODE_CONFIG_FILE,
-    configCodecByPath(NODE_CONFIG_FILE).stringify(nodeConfig),
-    {
+
+  if (updateNodeConfig) {
+    await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), {
       encoding: 'utf8',
-    }
-  );
+    });
+  }
+
   return nodeConfig as NodeConfig;
 };
 

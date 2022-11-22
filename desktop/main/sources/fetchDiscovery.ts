@@ -45,7 +45,6 @@ export const fromNetworkWithGenesisIDMapping = () =>
       ),
     ]).pipe(
       map((configs) => {
-        console.log({ networks, configs });
         return networks.map(
           (net, i): Network => ({
             ...net,
@@ -95,18 +94,20 @@ export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
     handleIPC(
       ipcConsts.LIST_PUBLIC_SERVICES,
       (selectedGenesisID: string) =>
-        fromDiscovery().pipe(
-          withLatestFrom($wallet),
-          first(),
-          map(([nets, wallet]) => {
-            const net = nets.find(
-              (n) =>
-                n.genesisID === wallet?.meta.genesisID ||
-                n.genesisID === selectedGenesisID
-            );
-            return handlerResult(listPublicApis(net || null));
-          })
-        ),
+        fromDiscovery()
+          .pipe(fromNetworkWithGenesisIDMapping())
+          .pipe(
+            withLatestFrom($wallet),
+            first(),
+            map(([nets, wallet]) => {
+              const net = nets.find(
+                (n) =>
+                  n.genesisID === wallet?.meta.genesisID ||
+                  n.genesisID === selectedGenesisID
+              );
+              return handlerResult(listPublicApis(net || null));
+            })
+          ),
       (apis) => apis
     ),
     (_) => {}

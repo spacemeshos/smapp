@@ -42,8 +42,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   });
   const [showLoader, setLoader] = useState(false);
 
-  console.log({ networks, networksList });
-
   const updateNetworks = () => {
     if (networks.loading) return;
     setNetworks({
@@ -52,10 +50,9 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     });
     eventsService
       .listNetworksWithGenesisID()
-      .then(({ payload }) => {
-        console.log({ payload });
-        setNetworks({ loading: false, networks: payload || [] });
-      })
+      .then(({ payload }) =>
+        setNetworks({ loading: false, networks: payload || [] })
+      )
       .catch((err) => console.error(err)); // eslint-disable-line no-console
   };
 

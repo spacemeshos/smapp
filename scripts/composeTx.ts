@@ -5,6 +5,7 @@ import prompts from 'prompts';
 import { sign } from '../desktop/ed25519';
 import { fromHexString } from '../shared/utils';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
+import { generateGenesisID } from "../desktop/main/Networks";
 
 (async () => {
   // Inputs
@@ -18,6 +19,18 @@ import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
         { title: 'TestNet', value: 'stest' },
         { title: 'MainNet', value: 'sm' },
       ],
+    },
+    {
+      type: 'text',
+      name: 'genesisTime',
+      message: 'Genesis Time',
+      validate: (val) => Boolean(new Date(val)),
+    },
+    {
+      type: 'text',
+      name: 'genesisExtraData',
+      message: 'Genesis Extra Data',
+      validate: (val) => Boolean(new Date(val)),
     },
     {
       type: 'text',
@@ -131,7 +144,9 @@ import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
   logBytes('encodedTx', encodedTx);
 
   if (inputs.doSign) {
-    const hash = sha256(encodedTx);
+    const { genesisTime, genesisExtraData } = inputs
+    const genesisID = generateGenesisID((new Date(genesisTime)).toString(), genesisExtraData)
+    const hash = sha256(new Uint8Array([...genesisID, ...encodedTx]));
     const sig = sign(hash, inputs.secretKey);
     logBytes('signature', sig);
     const signed = tpl.sign(encodedTx, sig);
