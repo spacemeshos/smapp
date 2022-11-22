@@ -66,6 +66,12 @@ type PoolExitCode = {
 };
 type ErrorPoolObject = PoolNodeError | PoolExitCode;
 
+export enum SmeshingSetupState {
+  Failed = 0,
+  ViaAPI = 1,
+  ViaRestart = 2,
+}
+
 class NodeManager {
   private readonly mainWindow: BrowserWindow;
 
@@ -301,8 +307,9 @@ class NodeManager {
       // It can be moved back to SmesherManager when issue
       // https://github.com/spacemeshos/go-spacemesh/issues/2858
       // will be solved, and all these kludges can be removed.
+      await this.smesherManager.updateSmeshingConfig(opts);
       await this.smesherManager.startSmeshing(opts);
-      return this.smesherManager.updateSmeshingConfig(opts);
+      return SmeshingSetupState.ViaAPI;
     };
 
     // If post data-dir does not changed and it contains key.bin file
@@ -331,7 +338,8 @@ class NodeManager {
     // In other cases — update config first and then restart the node
     // it will start Smeshing automatically based on the config
     await this.smesherManager.updateSmeshingConfig(postSetupOpts);
-    return this.restartNode();
+    await this.restartNode();
+    return SmeshingSetupState.ViaRestart;
   };
 
   private spawnNode = async () => {

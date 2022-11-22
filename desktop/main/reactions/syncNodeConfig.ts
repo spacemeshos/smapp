@@ -10,18 +10,20 @@ import {
   switchMap,
 } from 'rxjs';
 import { Network, NodeConfig } from '../../../shared/types';
+import { SmeshingSetupState } from '../../NodeManager';
 import { downloadNodeConfig } from '../NodeConfig';
 import { makeSubscription } from '../rx.utils';
 
 export default (
   $currentNetwork: Observable<Network | null>,
   $nodeConfig: Subject<NodeConfig>,
-  $smeshingStarted: Subject<void>
+  $smeshingStarted: Subject<SmeshingSetupState>
 ) =>
   makeSubscription(
     merge(
       $currentNetwork.pipe(filter(Boolean), distinctUntilChanged()),
       $smeshingStarted.pipe(
+        filter((value) => value !== SmeshingSetupState.ViaAPI),
         switchMap(() => $currentNetwork),
         filter(Boolean)
       )
