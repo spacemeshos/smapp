@@ -210,8 +210,7 @@ const handleWalletIpcRequests = (
     handleIPC(
       ipcConsts.SWITCH_API_PROVIDER,
       ({ apiUrl, genesisID }: SwitchApiRequest) =>
-        combineLatest([$wallet, $walletPath] as const).pipe(
-          first(),
+        combineLatest([$wallet, $walletPath]).pipe(
           map(([wallet, path]) => {
             if (!wallet)
               return handlerError(

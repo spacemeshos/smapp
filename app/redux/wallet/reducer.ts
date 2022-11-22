@@ -51,6 +51,7 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     case SET_REMOTE_API: {
       return {
         ...state,
+        genesisID: action.payload.genesisID,
         meta: {
           ...state.meta,
           remoteApi: action.payload.api,
