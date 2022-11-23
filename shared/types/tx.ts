@@ -33,7 +33,6 @@ export interface Tx<T = any> {
   note?: string;
   // Old one, TODO: Remove
   receipt?: TxReceipt;
-  amount?: number;
 }
 
 export const asTx = <T>(tx: Tx<T>): Tx<T> => tx;

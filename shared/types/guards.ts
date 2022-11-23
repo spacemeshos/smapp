@@ -38,7 +38,7 @@ export const hasRequiredRewardFields = (
 
 // Own Type guards
 export const isTx = (a: any): a is Tx =>
-  a && a.id && a.sender && a.receiver && a.amount;
+  a && a.id && a.principal && a.template && a.method && a.payload;
 
 export const isReward = (a: any): a is Reward =>
   a && a.layer && a.coinbase && a.amount;
