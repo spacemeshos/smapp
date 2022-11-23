@@ -157,12 +157,12 @@ const CreateNewContact = ({
           />
           <Input
             value={address}
-            placeholder="Account address 0x24f7..."
+            placeholder="Account address"
             onChange={({ value }) => {
               setAddress(value);
               setHasError(false);
             }}
-            maxLength="64"
+            maxLength="90"
             style={isStandalone ? inputStyle3 : inputStyle1}
             onFocus={handleFocus}
           />
