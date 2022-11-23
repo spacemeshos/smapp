@@ -89,7 +89,7 @@ const packValueAndUnit = (value: number, unit: string) => ({
 });
 
 export const toSMH = (smidge: number) => smidge / 10 ** 12;
-export const toSmidge = (smh: number) => Math.ceil(smh * 10 ** 12);
+export const toSmidge = (smh: number) => Math.round(smh * 10 ** 12);
 
 // Parses number into { value, unit } format.
 // Used to format smidge strings
