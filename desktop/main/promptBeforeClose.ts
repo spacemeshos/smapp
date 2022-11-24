@@ -46,6 +46,7 @@ const promptBeforeClose = (
 
   const quit = async () => {
     try {
+      mainWindow.hide();
       managers.wallet?.unsubscribeAllStreams();
       await managers.node?.stopNode();
     } finally {
@@ -60,7 +61,7 @@ const promptBeforeClose = (
     if (cachedPromptResult !== null) return;
     event.preventDefault();
     if (!mainWindow) {
-      quit();
+      await quit();
       return;
     }
     const promptResult =
@@ -76,11 +77,8 @@ const promptBeforeClose = (
       $showWindowOnLoad.next(false);
       mainWindow.reload();
     } else if (promptResult === CloseAppPromptResult.CLOSE) {
-      $isAppClosing.next(true);
       mainWindow.webContents.send(ipcConsts.CLOSING_APP);
-      managers.wallet?.unsubscribeAllStreams();
-      await managers?.node?.stopNode();
-      quit();
+      await quit();
     }
   };
 
