@@ -15,7 +15,7 @@ export default (
         <NetworkState>{
           genesisID: generateGenesisIDFromConfig(nodeConfig) || '',
           netName: curNet?.netName || 'Not connected',
-          genesisTime: nodeConfig.main['genesis-time'],
+          genesisTime: nodeConfig.genesis['genesis-time'],
           layerDurationSec: nodeConfig.main['layer-duration-sec'],
           layersPerEpoch: nodeConfig.main['layers-per-epoch'],
           explorerUrl: curNet?.explorer || '',
