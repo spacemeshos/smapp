@@ -18,8 +18,8 @@ export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
     nodeConfig?.genesis?.['genesis-extra-data']
   ) {
     return generateGenesisID(
-      nodeConfig?.genesis?.['genesis-time'] || '',
-      nodeConfig?.genesis?.['genesis-extra-data'] || ''
+      nodeConfig.genesis['genesis-time'] || '',
+      nodeConfig.genesis['genesis-extra-data'] || ''
     );
   }
 

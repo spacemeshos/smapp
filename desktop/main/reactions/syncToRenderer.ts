@@ -115,7 +115,7 @@ const getRewardsInfo = (
   rewards: SmesherReward[]
 ): RewardsInfo => {
   const getLayerTime = timestampByLayer(
-    cfg.main['genesis-time'],
+    cfg.genesis['genesis-time'],
     cfg.main['layer-duration-sec']
   );
   const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
