@@ -232,8 +232,6 @@ class TransactionManager {
           ...tx,
           layer: txRes.layer,
         });
-        // TODO: https://github.com/spacemeshos/go-spacemesh/issues/3687
-        queryAccountData();
       })
     );
 
