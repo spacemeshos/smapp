@@ -86,6 +86,13 @@ const Overview = ({ history }: RouteComponentProps) => {
 
   const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
+  const isAccountPendingSpawnTx = !!txs.find(
+    (tx) =>
+      tx.meta?.templateName === 'SingleSig' &&
+      tx.method === 0 &&
+      (tx.status === TransactionState.TRANSACTION_STATE_MEMPOOL ||
+        tx.status === TransactionState.TRANSACTION_STATE_MESH)
+  );
   const isAccountSpawned = !!txs.find(
     (tx) =>
       tx.meta?.templateName === 'SingleSig' &&
@@ -125,6 +132,7 @@ const Overview = ({ history }: RouteComponentProps) => {
             img={sendIcon}
             imgPosition="after"
             style={{ marginBottom: 20 }}
+            isDisabled={isAccountPendingSpawnTx}
           />
         ) : (
           <Button
