@@ -26,7 +26,7 @@ export const startSmeshing = ({
   numUnits,
   provider,
   throttle,
-}: SmeshingOpts) => async (dispatch: AppThDispatch) => {
+}: SmeshingOpts) => async (dispatch: AppThDispatch): Promise<boolean> => {
   try {
     await eventsService.startSmeshing({
       coinbase,
