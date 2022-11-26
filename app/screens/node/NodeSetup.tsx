@@ -112,9 +112,9 @@ const NodeSetup = ({ history, location }: Props) => {
   const subHeader = mode !== 1 ? subHeaders[mode] : getPosDirectorySubheader();
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
-  const setupAndInitMining = () => {
+  const setupAndInitMining = async () => {
     if (!provider) return; // TODO
-    dispatch(
+    const done = await dispatch(
       startSmeshing({
         coinbase: accounts[0].address,
         dataDir,
@@ -124,7 +124,9 @@ const NodeSetup = ({ history, location }: Props) => {
       })
     );
 
-    history.push(MainPath.Smeshing, { showIntro: true });
+    if (done) {
+      history.push(MainPath.Smeshing, { showIntro: true });
+    }
   };
 
   const handleNextAction = () => {
@@ -135,13 +137,13 @@ const NodeSetup = ({ history, location }: Props) => {
     }
   };
 
-  const handleModifyPosData = () => {
-    dispatch(pauseSmeshing());
+  const handleModifyPosData = async () => {
+    await dispatch(pauseSmeshing());
     handleNextAction();
   };
 
-  const handleDeletePosData = () => {
-    dispatch(deletePosData());
+  const handleDeletePosData = async () => {
+    await dispatch(deletePosData());
     history.push('/main/wallet/');
   };
 
