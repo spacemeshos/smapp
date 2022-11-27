@@ -29,9 +29,7 @@ export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
 const getDevNet = async () =>
   ({
     netName: 'Dev Net',
-    genesisID: generateGenesisIDFromConfig(
-      await fetchJSON(process.env.DEV_NET_URL)
-    ),
+    genesisID: '',
     conf: process.env.DEV_NET_URL as string,
     explorer: '',
     dash: '',

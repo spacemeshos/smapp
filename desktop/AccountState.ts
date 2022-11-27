@@ -1,43 +1,37 @@
 import path from 'path';
 import fs from 'fs';
 import { app } from 'electron';
-import { AccountBalance, Tx, Reward } from '../shared/types';
+import { AccountBalance, Tx, Reward, HexString } from '../shared/types';
 import { debounce } from '../shared/utils';
 import Logger from './logger';
 
 const logger = Logger({ className: 'AccountState' });
 
-interface GenesisIDState<T> {
-  [genesisID: string]: T;
-}
-
-interface GenesisIDStateType {
+type GenesisID = HexString;
+interface StateType {
   state: Required<AccountBalance>;
   txs: { [txId: Tx['id']]: Tx };
   rewards: { [layer: number]: Reward };
 }
 
 // Types
-export type AccountState = GenesisIDState<GenesisIDStateType> & {
-  address: string;
-};
+export type AccountState = Record<GenesisID, StateType | string>;
 
 // Utils
 const getDefaultAccountState = (
   address: string,
   genesisID: string
-): AccountState =>
-  ({
-    address,
-    [genesisID]: {
-      state: {
-        currentState: { balance: 0, counter: 0 },
-        projectedState: { balance: 0, counter: 0 },
-      },
-      txs: {},
-      rewards: {},
+): AccountState => ({
+  address,
+  [genesisID]: {
+    state: {
+      currentState: { balance: 0, counter: 0 },
+      projectedState: { balance: 0, counter: 0 },
     },
-  } as AccountState);
+    txs: {},
+    rewards: {},
+  },
+});
 
 const getFilePath = (publicKey: string, baseDir: string) =>
   path.resolve(baseDir, `${publicKey}.json`);
@@ -73,7 +67,7 @@ const load = (
 
 const save = async (state: AccountState, baseDir = DEFAULT_BASE_DIR) => {
   !fs.existsSync(baseDir) && fs.mkdirSync(baseDir, { recursive: true });
-  const filePath = getFilePath(state.address, baseDir);
+  const filePath = getFilePath(state.address as string, baseDir);
   const data = JSON.stringify(state);
   return fs.promises.writeFile(filePath, data, { encoding: 'utf8' });
 };
@@ -117,29 +111,34 @@ export class AccountStateManager {
   // Getters (pure)
   getAddress = () => this.state.address;
 
-  getState = () => this.state[this.genesisID].state;
+  getState = () => (this.state[this.genesisID] as StateType).state;
 
-  getTxs = () => this.state[this.genesisID].txs;
+  getTxs = () => (this.state[this.genesisID] as StateType).txs;
 
-  getTxById = (id: keyof AccountState[number]['txs']) =>
-    this.state[this.genesisID].txs[id] || null;
+  getTxById = (id: keyof StateType['txs']) =>
+    (this.state[this.genesisID] as StateType).txs[id] || null;
 
-  getRewards = () => Object.values(this.state[this.genesisID].rewards);
+  getRewards = () =>
+    Object.values((this.state[this.genesisID] as StateType).rewards);
 
   // Setters. Might be impure if autosave is turned on.
   storeState = (state: Required<AccountBalance>) => {
-    this.state[this.genesisID].state = state;
+    (this.state[this.genesisID] as StateType).state = state;
     return this.autosave();
   };
 
   storeTransaction = <T>(tx: Tx<T>) => {
-    const prevTxData = this.state[this.genesisID].txs[tx.id] || {};
-    this.state[this.genesisID].txs[tx.id] = { ...prevTxData, ...tx };
+    const prevTxData =
+      (this.state[this.genesisID] as StateType).txs[tx.id] || {};
+    (this.state[this.genesisID] as StateType).txs[tx.id] = {
+      ...prevTxData,
+      ...tx,
+    };
     return this.autosave();
   };
 
   storeReward = (reward: Reward) => {
-    this.state[this.genesisID].rewards[reward.layer] = reward;
+    (this.state[this.genesisID] as StateType).rewards[reward.layer] = reward;
     return this.autosave();
   };
 }

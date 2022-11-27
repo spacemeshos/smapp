@@ -23,6 +23,6 @@ export type Network = {
   latestSmappRelease: string;
   smappBaseDownloadUrl: string;
   nodeBaseDownloadUrl: string;
-  genesisID?: string;
+  genesisID: string;
   [key: string]: any;
 };

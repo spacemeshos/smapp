@@ -49,7 +49,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       networks: [],
     });
     eventsService
-      .listNetworksWithGenesisID()
+      .listNetworks()
       .then(({ payload }) =>
         setNetworks({ loading: false, networks: payload || [] })
       )
