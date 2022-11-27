@@ -23,13 +23,6 @@ import {
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { downloadNodeConfig } from '../NodeConfig';
 
-const fromDiscovery = () =>
-  from(fetchNetworksFromDiscovery()).pipe(
-    retry(3),
-    delay(200),
-    catchError(() => of([]))
-  );
-
 export const fromNetworkConfig = (v) =>
   from(downloadNodeConfig(v.conf)).pipe(
     retry(3),
@@ -37,7 +30,7 @@ export const fromNetworkConfig = (v) =>
     catchError(() => of([]))
   );
 
-export const fromNetworkWithGenesisIDMapping = () =>
+export const withGenesisID = () =>
   switchMap((networks: Network[]) =>
     forkJoin([
       ...networks.map(
@@ -55,35 +48,32 @@ export const fromNetworkWithGenesisIDMapping = () =>
     )
   );
 
+const fromDiscovery = () =>
+  from(fetchNetworksFromDiscovery())
+    .pipe(
+      retry(3),
+      delay(200),
+      catchError(() => of([]))
+    )
+    .pipe(withGenesisID());
+
 export const fetchDiscovery = ($networks: Subject<Network[]>) =>
-  makeSubscription(
-    fromDiscovery().pipe(fromNetworkWithGenesisIDMapping()),
-    (nets) => {
-      $networks.next(nets);
-    }
-  );
+  makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
 
 export const fetchDiscoveryEach = (
   period: number,
   $networks: Subject<Network[]>
 ) =>
   makeSubscription(
-    interval(period)
-      .pipe(switchMap(fromDiscovery))
-      .pipe(fromNetworkWithGenesisIDMapping()),
-    (nets) => {
-      nets.length > 0 && $networks.next(nets);
-    }
+    interval(period).pipe(switchMap(fromDiscovery)),
+    (nets) => nets.length > 0 && $networks.next(nets)
   );
 
 export const listNetworksByRequest = () =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_NETWORKS,
-      () =>
-        fromDiscovery()
-          .pipe(fromNetworkWithGenesisIDMapping())
-          .pipe(map((nets) => handlerResult(nets))),
+      () => fromDiscovery().pipe(map((nets) => handlerResult(nets))),
       (nets) => nets
     ),
     (_) => {}
@@ -95,7 +85,7 @@ export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
       ipcConsts.LIST_PUBLIC_SERVICES,
       (selectedGenesisID: string) =>
         fromDiscovery()
-          .pipe(fromNetworkWithGenesisIDMapping())
+          .pipe(withGenesisID())
           .pipe(
             withLatestFrom($wallet),
             first(),

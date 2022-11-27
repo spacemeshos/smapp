@@ -78,7 +78,7 @@ class EventsService {
   static destroyBrowserView = () =>
     ipcRenderer.send(ipcConsts.DESTROY_BROWSER_VIEW);
 
-  static listNetworksWithGenesisID = (): Promise<ListNetworksResponse> =>
+  static listNetworks = (): Promise<ListNetworksResponse> =>
     ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
   static listPublicServices = (
