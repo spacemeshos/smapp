@@ -143,8 +143,8 @@ jobs:
 
       # Run tests
       - name: yarn test
-        # TODO: Get rid of skipping tests on Ubuntu due to OS-specific issue: Jest hangs
-        if: steps.result.outputs.status != 'success' && matrix.os != 'ubuntu-latest'
+        # TODO: Get rid of skipping tests on Ubuntu and Windows due to OS-specific issue: Jest hangs
+        if: steps.result.outputs.status != 'success' && matrix.os != 'ubuntu-latest' && matrix.os != 'windows-latest'
         run: yarn test --forceExit
 
       # Build
