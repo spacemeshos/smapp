@@ -7,9 +7,8 @@ import { BoldText, Button, Link } from '../../basicComponents';
 import { sendIcon, requestIcon } from '../../assets/images';
 import { RootState } from '../../types';
 import { MainPath, WalletPath } from '../../routerPaths';
-import { PostSetupState } from '../../../shared/types';
+import { PostSetupState, TxState } from '../../../shared/types';
 import { ExternalLinks } from '../../../shared/constants';
-import { _spacemesh_v1_TransactionState_TransactionState as TransactionState } from '../../../proto/spacemesh/v1/TransactionState';
 
 const Wrapper = styled.div`
   display: flex;
@@ -90,14 +89,13 @@ const Overview = ({ history }: RouteComponentProps) => {
     (tx) =>
       tx.meta?.templateName === 'SingleSig' &&
       tx.method === 0 &&
-      (tx.status === TransactionState.TRANSACTION_STATE_MEMPOOL ||
-        tx.status === TransactionState.TRANSACTION_STATE_MESH)
+      (tx.status === TxState.MEMPOOL || tx.status === TxState.MESH)
   );
   const isAccountSpawned = !!txs.find(
     (tx) =>
       tx.meta?.templateName === 'SingleSig' &&
       tx.method === 0 &&
-      tx.status === TransactionState.TRANSACTION_STATE_PROCESSED
+      tx.status === TxState.SUCCESS
   );
 
   const renderMiddleSection = () =>

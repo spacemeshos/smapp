@@ -1,5 +1,6 @@
 import * as R from 'ramda';
 import { BrowserWindow } from 'electron';
+import { debounce } from 'throttle-debounce';
 import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
 import Bech32 from '@spacemesh/address-wasm';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
@@ -10,6 +11,7 @@ import {
   HexString,
   KeyPair,
   Reward,
+  toTxState,
   Tx,
   TxSendRequest,
   TxState,
@@ -17,10 +19,7 @@ import {
 import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
-import {
-  _spacemesh_v1_TransactionState_TransactionState as TransactionState,
-  TransactionState__Output,
-} from '../proto/spacemesh/v1/TransactionState';
+import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
 import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
@@ -148,12 +147,12 @@ class TransactionManager {
   }) => {
     if (!tx.transaction || !tx.transactionState || !tx.transactionState.state)
       return;
-    const newTx = toTx(tx.transaction, tx.transactionState);
+    const newTx = toTx(tx.transaction, toTxState(tx.transactionState.state));
     if (!newTx) return;
-    await this.storeTx(publicKey, newTx);
+    await this.upsertTransaction(publicKey)(newTx);
   };
 
-  private subscribeTransactions = (publicKey: string) => {
+  private subscribeTransactions = debounce(100, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
@@ -166,20 +165,21 @@ class TransactionManager {
       txIds
     );
 
-    this.txService
-      .getTxsState(txIds)
-      .then((resp) =>
-        // two lists -> list of tuples
-        resp.transactions.map((tx, idx) => ({
-          transaction: tx,
-          transactionState: resp.transactionsState[idx],
-        }))
-      )
-      .then((txs) => txs.map(this.handleNewTx(publicKey)))
-      .catch((err) => {
-        this.logger.error('grpc TransactionState', err);
-      });
-  };
+    // Do not request for query endpoint ?
+    // this.txService
+    //   .getTxsState(txIds)
+    //   .then((resp) =>
+    //     // two lists -> list of tuples
+    //     resp.transactions.map((tx, idx) => ({
+    //       transaction: tx,
+    //       transactionState: resp.transactionsState[idx],
+    //     }))
+    //   )
+    //   .then((txs) => txs.map(this.handleNewTx(publicKey)))
+    //   .catch((err) => {
+    //     this.logger.error('grpc TransactionState', err);
+    //   });
+  });
 
   private subscribeAccount = (address: Bech32Address): void => {
     // Cancel account Txs subscription
@@ -222,11 +222,8 @@ class TransactionManager {
     this.unsubs[address].push(
       this.txService.watchTransactionsByAddress(address, (txRes) => {
         if (!txRes.tx) return;
-        const state =
-          txRes.status === 0
-            ? TransactionState.TRANSACTION_STATE_PROCESSED
-            : TransactionState.TRANSACTION_STATE_REJECTED;
-        const tx = toTx(txRes.tx, { id: { id: txRes.tx.id }, state });
+        const state = toTxState(TxState.PROCESSED, txRes.status || 0);
+        const tx = toTx(txRes.tx, state);
         if (!tx) return;
         this.upsertTransaction(address)({
           ...tx,
@@ -295,7 +292,12 @@ class TransactionManager {
     const receipt = tx.receipt
       ? { ...originalTx?.receipt, ...tx.receipt }
       : originalTx?.receipt;
-    const updatedTx: Tx = { ...originalTx, ...tx, receipt };
+    // Do not downgrade status from SUCCESS/FAILURE/INVALID
+    const status =
+      originalTx.status > TxState.PROCESSED && originalTx.status > tx.status
+        ? originalTx.status
+        : tx.status;
+    const updatedTx: Tx = { ...originalTx, ...tx, status, receipt };
     await this.storeTx(accountAddress, updatedTx);
     this.subscribeTransactions(accountAddress);
   };
@@ -404,7 +406,7 @@ class TransactionManager {
     const existingTx = this.accountStates[accountId].getTxById(txId) || {};
     // TODO: Handle properly case when we got an receipt, but no tx data?
     const updatedTx = addReceiptToTx(existingTx, receipt);
-    this.storeTx(accountId, updatedTx);
+    this.upsertTransaction(accountId)(updatedTx);
   };
 
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
@@ -509,9 +511,7 @@ class TransactionManager {
                 maxGas: MAX_GAS,
                 fee: fee * MAX_GAS,
               },
-              status:
-                response.txstate?.state ||
-                TxState.TRANSACTION_STATE_UNSPECIFIED,
+              status: toTxState(response.txstate.state),
               payload,
               layer: currentLayer,
             })
@@ -596,9 +596,7 @@ class TransactionManager {
                 maxGas: MAX_GAS,
                 fee: fee * MAX_GAS,
               },
-              status:
-                response.txstate?.state ||
-                TxState.TRANSACTION_STATE_UNSPECIFIED,
+              status: toTxState(response.txstate.state),
               payload: {
                 ...payload,
                 Arguments: {
@@ -646,7 +644,7 @@ class TransactionManager {
   }) => {
     const address = this.accountStates[accountIndex].getAddress();
     const tx = this.accountStates[address].getTxById(txId);
-    this.storeTx(address, { ...tx, note });
+    return this.upsertTransaction(address)({ ...tx, note });
   };
 }
 

@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { Modal } from '../common';
-import { Button, Link, Input } from '../../basicComponents';
+import { Button, Link, Input, NetworkIndicator } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
-import { TxState } from '../../../shared/types';
-import { TxView } from '../../redux/wallet/selectors';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
 import {
@@ -15,6 +13,7 @@ import {
   getAbbreviatedAddress,
   getFormattedTimestamp,
 } from '../../infra/utils';
+import getStatusColor from '../../vars/getStatusColor';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -247,6 +246,10 @@ const renderTxPayload = (tx: TxView) => {
   return <>{rows}</>;
 };
 
+const TxStatusBulb = styled(NetworkIndicator)`
+  margin-left: auto;
+`;
+
 const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
   const [note, setNote] = useState(tx.note || '');
@@ -256,27 +259,8 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
     (state: RootState) => state.wallet.currentAccountIndex
   );
 
-  const getColor = (isSent: boolean) => {
-    const { status } = tx;
-    if (
-      status === TxState.TRANSACTION_STATE_MEMPOOL ||
-      status === TxState.TRANSACTION_STATE_MESH
-    ) {
-      return smColors.orange;
-    } else if (
-      status === TxState.TRANSACTION_STATE_REJECTED ||
-      status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS ||
-      status === TxState.TRANSACTION_STATE_CONFLICTING
-    ) {
-      return smColors.red;
-    } else if (status === TxState.TRANSACTION_STATE_UNSPECIFIED) {
-      return smColors.mediumGray;
-    }
-    return isSent ? smColors.blue : smColors.darkerGreen;
-  };
-
   const isSent = tx.principal === address;
-  const color = getColor(isSent);
+  const color = getStatusColor(tx.status, isSent);
 
   const save = async () => {
     await eventsService.updateTransactionNote(currentAccountIndex, tx.id, note);
@@ -291,7 +275,7 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
   const txFrom = isSent ? address : tx.principal;
   const txFromSuffix = (isSent && '(Me)') || undefined;
 
-  const isSpendTransaction = !!tx.payload?.Arguments?.Amount;
+  const isSpendTransaction = !!tx.payload?.Arguments?.Destination;
 
   const renderDetails = () => (
     <DetailsSection>
@@ -349,13 +333,16 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
     );
   };
   const renderSpendHeaderDetails = () => {
-    if (!isSpendTransaction) return null;
     return (
       <HeaderSection>
-        <Amount color={color}>
-          {isSent ? '-' : '+'}
-          {formatSmidge(parseInt(tx.payload.Arguments.Amount, 10))}
-        </Amount>
+        {isSpendTransaction ? (
+          <Amount color={color}>
+            {isSent ? '-' : '+'}
+            {formatSmidge(parseInt(tx.payload.Arguments.Amount, 10))}
+          </Amount>
+        ) : (
+          <TxStatusBulb color={color} />
+        )}
         <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
       </HeaderSection>
     );

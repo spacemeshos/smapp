@@ -2,7 +2,6 @@ import Bech32 from '@spacemesh/address-wasm';
 import { TemplateRegistry } from '@spacemesh/sm-codec';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
-import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { hasRequiredTxFields } from '../shared/types/guards';
 import { Tx, TxState } from '../shared/types/tx';
@@ -26,10 +25,7 @@ const prettifyPayload = (payload: Record<string, any>) =>
     })
   );
 
-export const toTx = (
-  tx: Transaction__Output,
-  txState: TransactionState__Output | null
-) => {
+export const toTx = (tx: Transaction__Output, txState: TxState | null) => {
   if (!hasRequiredTxFields(tx)) return null;
   // const hrp = deriveHRP(tx.template.address);
   // if (!hrp) {
@@ -50,7 +46,7 @@ export const toTx = (
     principal: tx.principal.address,
     template: tx.template.address,
     method,
-    status: txState?.state || TxState.TRANSACTION_STATE_UNSPECIFIED,
+    status: txState || TxState.UNSPECIFIED,
     payload: prettifyPayload(decoded.Payload),
     gas: {
       gasPrice,

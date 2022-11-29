@@ -74,9 +74,10 @@ const getNumOfCoinsFromTransactions = (
           ? parseInt(payload?.Arguments?.Amount || 0, 10)
           : 0;
       if (
-        status !== TxState.TRANSACTION_STATE_REJECTED &&
-        status !== TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS &&
-        status !== TxState.TRANSACTION_STATE_CONFLICTING
+        status !== TxState.REJECTED &&
+        status !== TxState.INSUFFICIENT_FUNDS &&
+        status !== TxState.CONFLICTING &&
+        status !== TxState.FAILURE
       ) {
         return sender === address
           ? { ...coins, sent: coins.sent + amount }
