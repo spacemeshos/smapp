@@ -1,11 +1,6 @@
-import { report } from 'process';
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { showReportDialog } from '@sentry/browser';
-import { v4 as uuidv4 } from 'uuid';
-import { captureMessage } from '@sentry/minimal';
 import { Button, Loader } from '../../basicComponents';
-import { upload } from '../../assets/images';
 import Modal from './Modal';
 import BackButton from './BackButton';
 
@@ -172,17 +167,6 @@ const UploadIcon = styled.img.attrs((props) => ({
 const UploadField = styled((props) => {
   const onFilesAddedHandler = (e: any) => {
     e.preventDefault();
-
-    // eslint-disable-next-line no-console
-    console.log('File added!');
-    // eslint-disable-next-line no-console
-    console.log(e.dataTransfer?.files);
-    if (e.dataTransfer?.files) {
-      // eslint-disable-next-line no-console
-      console.log('', e.dataTransfer.files[0].name);
-      // eslint-disable-next-line no-console
-      console.log('path', e.dataTransfer.files[0].path);
-    }
   };
 
   return (
@@ -267,13 +251,8 @@ const FeedbackButton = () => {
   const handleReport = () => {
     if (validate()) {
       // eslint-disable-next-line no-console
-      console.log('Validated!', fieldErrors);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log('Not validated!', fieldErrors);
+      console.log('userData!', userData);
     }
-    // eslint-disable-next-line no-console
-    console.log('userData!', userData);
   };
 
   return (
