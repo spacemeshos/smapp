@@ -356,7 +356,10 @@ class NodeManager {
       nodeDir,
       `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
     );
-    const nodeDataFilesPath = StoreService.get('node.dataPath');
+    const nodeDataFilesPath = path.join(
+      StoreService.get('node.dataPath'),
+      this.genesisID.substring(0, 8)
+    );
     const nodeConfig = await NodeConfig.load();
     const logFilePath = getNodeLogsPath(
       generateGenesisIDFromConfig(nodeConfig)
