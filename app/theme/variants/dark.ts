@@ -32,6 +32,7 @@ import {
   getCoinsIconBlack,
   helpIconBlack,
   signOutIconBlack,
+  upload,
 } from '../../assets/images';
 
 export default {
@@ -110,6 +111,9 @@ export default {
         focus: {
           backgroundColor: colors.light110,
           color: colors.dark45,
+        },
+        error: {
+          borderColor: colors.error,
         },
       },
       boxRadius: 0,
@@ -223,6 +227,7 @@ export default {
     sidePanelLeftMed: sidePanelLeftMedWhite,
     sidePanelRightMed: sidePanelRightMedWhite,
     uploading: uploadWhite,
+    uploadingContrast: upload,
     posSmesher: posSmesherWhite,
     walletSecond: walletSecondWhite,
     corners: {
