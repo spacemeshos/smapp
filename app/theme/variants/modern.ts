@@ -19,6 +19,7 @@ import {
   sidePanelLeftMedWhite,
   sidePanelRightMedWhite,
   uploadWhite,
+  upload,
   posSmesherWhite,
   walletSecondWhite,
   topLeftCornerWhite,
@@ -114,6 +115,9 @@ export default {
         focus: {
           backgroundColor: colors.light110,
           color: colors.dark45,
+        },
+        error: {
+          borderColor: colors.error,
         },
       },
       boxRadius: 8,
@@ -229,6 +233,7 @@ export default {
     sidePanelLeftMed: sidePanelLeftMedWhite,
     sidePanelRightMed: sidePanelRightMedWhite,
     uploading: uploadWhite,
+    uploadingContrast: upload,
     posSmesher: posSmesherWhite,
     walletSecond: walletSecondWhite,
     corners: {
