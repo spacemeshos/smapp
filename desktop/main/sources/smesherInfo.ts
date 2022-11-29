@@ -27,6 +27,7 @@ import {
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
 import { longToNumber } from '../../../shared/utils';
 import Logger from '../../logger';
+import { SmeshingSetupState } from '../../NodeManager';
 import { Managers } from '../app.types';
 import { MINUTE } from '../constants';
 
@@ -63,7 +64,10 @@ const syncSmesherInfo = (
   $isWalletActivated: Subject<void>,
   $wallet: BehaviorSubject<Wallet | null>
 ) => {
-  const $smeshingStarted = new Subject<void>();
+  const $smeshingSetupState = new Subject<SmeshingSetupState>();
+  const $smeshingStarted = $smeshingSetupState.pipe(
+    filter((s) => s !== SmeshingSetupState.Failed)
+  );
 
   const $isLocalNode = $wallet.pipe(
     filter(Boolean),
@@ -167,6 +171,7 @@ const syncSmesherInfo = (
     $rewards,
     $coinbase,
     $smeshingStarted,
+    $smeshingSetupState,
   };
 };
 

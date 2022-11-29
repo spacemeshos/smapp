@@ -17,12 +17,12 @@ import { makeSubscription } from '../rx.utils';
 export default (
   $currentNetwork: Observable<Network | null>,
   $nodeConfig: Subject<NodeConfig>,
-  $smeshingStarted: Subject<SmeshingSetupState>
+  $smeshingSetupState: Subject<SmeshingSetupState>
 ) =>
   makeSubscription(
     merge(
       $currentNetwork.pipe(filter(Boolean), distinctUntilChanged()),
-      $smeshingStarted.pipe(
+      $smeshingSetupState.pipe(
         filter((value) => value !== SmeshingSetupState.ViaAPI),
         switchMap(() => $currentNetwork),
         filter(Boolean)

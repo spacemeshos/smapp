@@ -7,6 +7,7 @@ import {
   from,
   map,
   merge,
+  Observable,
   of,
   OperatorFunction,
   pipe,
@@ -38,6 +39,7 @@ import {
   stringifySocketAddress,
 } from '../../../shared/utils';
 import Logger from '../../logger';
+import { SmeshingSetupState } from '../../NodeManager';
 import { hasNetwork } from '../Networks';
 import {
   explodeResult,
@@ -142,7 +144,7 @@ const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
   $networks: Subject<Network[]>,
-  $smeshingStarted: Subject<void>
+  $smeshingStarted: Observable<SmeshingSetupState>
 ) => {
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
