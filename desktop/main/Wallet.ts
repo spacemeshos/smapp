@@ -165,7 +165,7 @@ export const createNewAccount = (wallet: Wallet): Wallet => {
 
 // Pure utils
 export const isGenesisIDMissing = (wallet: Wallet) =>
-  wallet.meta.genesisID.length === 0;
+  !wallet?.meta?.genesisID?.length;
 export const isApiMissing = (wallet: Wallet) => !wallet.meta.remoteApi;
 
 //
