@@ -19,6 +19,7 @@ import {
 import { smColors } from '../../vars';
 import { TxSentFieldType } from '../../components/wallet/TxSent';
 import { MAX_GAS } from '../../../shared/constants';
+import Address from '../../components/common/Address';
 
 interface Props extends RouteComponentProps {
   location: {
@@ -176,7 +177,9 @@ const SpawnAccount = ({ history }: Props) => {
       <DetailsRow>
         <DetailsText>Self-Spawn</DetailsText>
         <Dots>....................................</Dots>
-        <DetailsText>{currentAccount.address}</DetailsText>
+        <DetailsText>
+          <Address address={currentAccount.address} suffix="(Me)" />
+        </DetailsText>
       </DetailsRow>
       <DetailsRow>
         <DetailsText>Fee</DetailsText>

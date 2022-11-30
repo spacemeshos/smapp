@@ -10,7 +10,6 @@ import {
 } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
-import { TxState } from '../../../shared/types';
 import {
   getLatestTransactions,
   RewardView,
@@ -18,6 +17,7 @@ import {
 } from '../../redux/wallet/selectors';
 import { isReward } from '../../../shared/types/guards';
 import { SingleSigMethods } from '../../../shared/templateConsts';
+import getStatusColor from '../../vars/getStatusColor';
 
 const Wrapper = styled.div`
   display: flex;
@@ -93,35 +93,13 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
   );
   const latestTransactions = useSelector(getLatestTransactions(address));
 
-  const getColor = ({
-    status,
-    isSent,
-  }: {
-    status: number;
-    isSent: boolean;
-  }) => {
-    if (
-      status === TxState.TRANSACTION_STATE_MEMPOOL ||
-      status === TxState.TRANSACTION_STATE_MESH
-    ) {
-      return smColors.orange;
-    } else if (
-      status === TxState.TRANSACTION_STATE_REJECTED ||
-      status === TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS ||
-      status === TxState.TRANSACTION_STATE_CONFLICTING
-    ) {
-      return smColors.red;
-    }
-    return isSent ? smColors.blue : smColors.darkerGreen;
-  };
-
   const renderTransaction = (tx: TxView) => {
     const { id, status, timestamp, contacts, meta } = tx;
     // TODO: Temporary solution until we don't support other account types
     const isSent =
       tx.method === SingleSigMethods.Spend && tx.principal === address;
     const isSpawn = tx.method === SingleSigMethods.Spawn;
-    const color = getColor({ status, isSent });
+    const color = getStatusColor(status, isSent);
     return (
       <TxWrapper key={`tx_${id}`}>
         <Icon chevronRight={isSent} />

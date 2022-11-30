@@ -115,6 +115,7 @@ const startApp = (): AppStore => {
     $activations,
     $rewards,
     $smeshingStarted,
+    $smeshingSetupState,
   } = getSmesherInfo($managers, $isWalletActivated, $wallet);
 
   const { $nodeRestartRequest } = nodeIPCStreams();
@@ -131,7 +132,7 @@ const startApp = (): AppStore => {
     // Spawn managers (and handle unsubscribing)
     spawnManagers($nodeConfig, $managers, $mainWindow),
     // On changing network -> update node config
-    syncNodeConfig($currentNetwork, $nodeConfig, $smeshingStarted),
+    syncNodeConfig($currentNetwork, $nodeConfig, $smeshingSetupState),
     // Activate wallet and accounts
     activateWallet(
       $wallet,

@@ -15,7 +15,7 @@ interface StateType {
 }
 
 // Types
-export type AccountState = Record<GenesisID, StateType | string>;
+export type AccountState = Record<GenesisID, StateType | HexString>;
 
 // Utils
 const getDefaultAccountState = (
@@ -109,7 +109,7 @@ export class AccountStateManager {
   private autosave = () => Promise.resolve();
 
   // Getters (pure)
-  getAddress = () => this.state.address;
+  getAddress = () => this.state.address as HexString;
 
   getState = () => (this.state[this.genesisID] as StateType).state;
 

@@ -1,4 +1,4 @@
-import { from, Subject, switchMap, withLatestFrom } from 'rxjs';
+import { from, Observable, Subject, switchMap, withLatestFrom } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { PostSetupOpts } from '../../../shared/types';
 import { SmeshingSetupState } from '../../NodeManager';
@@ -13,7 +13,7 @@ const startSmeshing = (managers: Managers, opts: PostSetupOpts) =>
 
 export default (
   $managers: Subject<Managers>,
-  $smeshingStarted: Subject<SmeshingSetupState>
+  $smeshingStarted: Observable<SmeshingSetupState>
 ) => {
   const startSmeshingRequest = fromIPC<PostSetupOpts>(
     ipcConsts.SMESHER_START_SMESHING

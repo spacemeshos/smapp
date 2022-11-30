@@ -334,14 +334,12 @@ export const sendTransaction = ({
     fee,
     note,
   };
-  // @TODO (remove ts-ignore) and check why state is error of return type in sendTx
-  // @ts-ignore
-  const { error, tx, state } = await eventsService.sendTx({
+  const { error, tx } = await eventsService.sendTx({
     fullTx,
     accountIndex: currentAccountIndex,
   });
   if (tx) {
-    return { id: tx.id, state };
+    return { id: tx.id };
   } else {
     const errorToLog = error
       ? addErrorPrefix('Send transaction error\n', error as Error)
