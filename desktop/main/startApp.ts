@@ -88,7 +88,6 @@ const startApp = (): AppStore => {
     $quit,
     $isAppClosing,
     $showWindowOnLoad,
-    $isSmappActivated,
   } = createMainWindow();
   // Store
   const $storeService = observeStoreService();
