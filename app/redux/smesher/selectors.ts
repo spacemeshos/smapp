@@ -30,5 +30,9 @@ export const isSmeshingPaused = (state: RootState) => {
   return isNotStarted && isValidSmeshingOpts(opts);
 };
 
-export const getPostProgressError = (state: RootState) =>
-  state.smesher.postProgressError;
+export const getPostProgressError = (state: RootState) => {
+  const status = getPostSetupState(state);
+  return status !== PostSetupState.STATE_COMPLETE
+    ? state.smesher.postProgressError
+    : '';
+};

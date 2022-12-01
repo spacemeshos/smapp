@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -39,6 +39,7 @@ import {
   epochByLayer,
   nextEpochTime,
 } from '../../../shared/layerUtils';
+import StateIndicator from '../../basicComponents/StateIndicator';
 
 const Wrapper = styled.div`
   display: flex;
@@ -196,8 +197,16 @@ const getStatus = (
   isPaused: boolean,
   rewards: SmesherReward[],
   epoch: number,
-  isNodeSynced: boolean
+  isNodeSynced: boolean,
+  isResumeButtonLocked: boolean
 ) => {
+  if (isResumeButtonLocked) {
+    return (
+      <Text>
+        <StateIndicator color={smColors.orange} /> Resuming...
+      </Text>
+    );
+  }
   switch (state) {
     case PostSetupState.STATE_IN_PROGRESS:
       return 'Creating PoS data';
@@ -213,7 +222,15 @@ const getStatus = (
     default:
     case PostSetupState.STATE_UNSPECIFIED:
     case PostSetupState.STATE_NOT_STARTED:
-      return isPaused ? 'Paused creation PoS Data' : 'Not started';
+      return isPaused ? (
+        <Text>
+          <StateIndicator color={smColors.orange} /> Paused creation PoS Data
+        </Text>
+      ) : (
+        <Text>
+          <StateIndicator color={smColors.red} /> Not started
+        </Text>
+      );
   }
 };
 
@@ -240,13 +257,14 @@ const SmesherStatus = ({
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
 
-  const curNet = useSelector(getGenesisID);
+  const currentGenesisId = useSelector(getGenesisID);
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
   const smesherId = useSelector((state: RootState) => state.smesher.smesherId);
   const coinbase = useSelector((state: RootState) => state.smesher.coinbase);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
+  const [isResumeButtonLocked, setIsResumeButtonLocked] = useState(false);
 
   const rewards = useSelector((state: RootState) =>
     state.smesher.rewards.slice(0).reverse()
@@ -287,11 +305,18 @@ const Node = ({ history, location }: Props) => {
   const numLabelsWritten = useSelector(
     (state: RootState) => state.smesher.numLabelsWritten
   );
-  // const rewards = useSelector((state: RootState) => state.smesher.rewards);
-  // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const isWalletMode = useSelector(isWalletOnly);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (
+      postSetupState === PostSetupState.STATE_NOT_STARTED &&
+      isResumeButtonLocked
+    ) {
+      setIsResumeButtonLocked(false);
+    }
+  }, [postSetupState, isResumeButtonLocked]);
 
   let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
   smesherInitTimestamp = smesherInitTimestamp
@@ -322,23 +347,24 @@ const Node = ({ history, location }: Props) => {
       ((numLabelsWritten * smesherConfig.bitsPerLabel) /
         (BITS * commitmentSize)) *
       100;
-    const progressRow: RowData[] = !isSmeshing
-      ? [
-          [
-            'Progress',
-            postProgressError ? (
-              <ProgressError>STOPPED</ProgressError>
-            ) : (
-              <Text className="progress">
-                {formatBytes(
-                  (numLabelsWritten * smesherConfig.bitsPerLabel) / BITS
-                )}{' '}
-                / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
-              </Text>
-            ),
-          ],
-        ]
-      : [];
+    const progressRow: RowData[] =
+      postSetupState === PostSetupState.STATE_IN_PROGRESS
+        ? [
+            [
+              'Progress',
+              postProgressError ? (
+                <ProgressError>STOPPED</ProgressError>
+              ) : (
+                <Text className="progress">
+                  {formatBytes(
+                    (numLabelsWritten * smesherConfig.bitsPerLabel) / BITS
+                  )}{' '}
+                  / {formatBytes(commitmentSize)}, {progress.toFixed(2)}%
+                </Text>
+              ),
+            ],
+          ]
+        : [];
 
     return [
       [
@@ -356,7 +382,8 @@ const Node = ({ history, location }: Props) => {
           isPausedSmeshing,
           rewards,
           getEpochByLayer(status?.topLayer || 0),
-          status?.isSynced || false
+          status?.isSynced || false,
+          isResumeButtonLocked
         ),
       ],
       ['Current epoch', <>{currentEpoch}</>],
@@ -386,16 +413,25 @@ const Node = ({ history, location }: Props) => {
       ],
     ];
   };
-
   const handlePauseSmeshing = () => dispatch(pauseSmeshing());
-  const handleResumeSmeshing = () => dispatch(resumeSmeshing());
+  const handleResumeSmeshing = () => {
+    if (isResumeButtonLocked) {
+      return;
+    }
+
+    setIsResumeButtonLocked(true);
+    dispatch(resumeSmeshing());
+    setTimeout(() => {
+      setIsResumeButtonLocked(false);
+    }, 1.2 * 60 * 1000);
+  };
   const renderNodeDashboard = () => {
     // TODO: Refactor screen and Node Dashboard
     //       to avoid excessive re-rendering of the whole screen
     //       on each progrss update, which causes blinking
     return (
       <>
-        {postProgressError && (
+        {postProgressError && postSetupState !== PostSetupState.STATE_COMPLETE && (
           <ErrorMessage oneLine={false} align="right">
             {postProgressError}
           </ErrorMessage>
@@ -412,27 +448,35 @@ const Node = ({ history, location }: Props) => {
             style={{ marginRight: 15 }}
             imgPosition="before"
             width={180}
+            isDisabled={postSetupState === PostSetupState.STATE_NOT_STARTED}
           />
-          {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
-            <Button
-              onClick={handlePauseSmeshing}
-              text="PAUSE POST DATA GENERATION"
-              img={pauseIcon}
-              isPrimary={false}
-              width={280}
-              imgPosition="before"
-            />
-          )}
-          {isPausedSmeshing && (
-            <Button
-              onClick={handleResumeSmeshing}
-              text="RESUME POST DATA GENERATION"
-              img={playIcon}
-              isPrimary
-              width={280}
-              imgPosition="before"
-            />
-          )}
+          {!isPausedSmeshing &&
+            [PostSetupState.STATE_IN_PROGRESS].includes(postSetupState) && (
+              <Button
+                onClick={handlePauseSmeshing}
+                text="PAUSE POST DATA GENERATION"
+                img={pauseIcon}
+                isPrimary={false}
+                width={280}
+                imgPosition="before"
+              />
+            )}
+          {isPausedSmeshing &&
+            [
+              PostSetupState.STATE_IN_PROGRESS,
+              PostSetupState.STATE_NOT_STARTED,
+            ].includes(postSetupState) && (
+              <Button
+                onClick={handleResumeSmeshing}
+                text="RESUME POST DATA GENERATION"
+                img={playIcon}
+                isPrimary
+                width={280}
+                imgPosition="before"
+                isProgress={isResumeButtonLocked}
+                progressText="Resuming..."
+              />
+            )}
         </Footer>
       </>
     );
@@ -475,7 +519,7 @@ const Node = ({ history, location }: Props) => {
 
   const handleSetupSmesher = () => {
     return eventsService
-      .switchApiProvider(LOCAL_NODE_API_URL, curNet)
+      .switchApiProvider(LOCAL_NODE_API_URL, currentGenesisId)
       .then(() =>
         history.push(AuthPath.Unlock, { redirect: MainPath.SmeshingSetup })
       )
@@ -526,8 +570,16 @@ const Node = ({ history, location }: Props) => {
       <SmesherLog
         rewards={rewards}
         rewardsInfo={rewardsInfo as RewardsInfo}
-        initTimestamp={smesherInitTimestamp}
-        smeshingTimestamp={smesherSmeshingTimestamp}
+        initTimestamp={
+          postSetupState === PostSetupState.STATE_IN_PROGRESS
+            ? smesherInitTimestamp
+            : null
+        }
+        smeshingTimestamp={
+          postSetupState === PostSetupState.STATE_COMPLETE
+            ? smesherSmeshingTimestamp
+            : null
+        }
         epochByLayer={getEpochByLayer}
         timestampByLayer={getTimestampByLayer}
       />
