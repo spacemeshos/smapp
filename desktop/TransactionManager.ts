@@ -293,10 +293,13 @@ class TransactionManager {
       ? { ...originalTx?.receipt, ...tx.receipt }
       : originalTx?.receipt;
     // Do not downgrade status from SUCCESS/FAILURE/INVALID
-    const status =
-      originalTx.status > TxState.PROCESSED && originalTx.status > tx.status
-        ? originalTx.status
-        : tx.status;
+    let { status } = tx;
+    if (
+      originalTx?.status > TxState.PROCESSED &&
+      originalTx?.status > tx.status
+    ) {
+      status = originalTx.status;
+    }
     const updatedTx: Tx = { ...originalTx, ...tx, status, receipt };
     await this.storeTx(accountAddress, updatedTx);
     this.subscribeTransactions(accountAddress);
