@@ -279,7 +279,7 @@ class SmesherManager {
     if (!isEmpty) {
       await dialog.showMessageBox(mainWindow, {
         message:
-          "Important information! The folder should be empty only for the new Genesis ID and for the new account. Otherwise the Smehcing process won't start",
+          "Important information! \n The folder should be empty only for the new Genesis ID and for the new account. \n Otherwise the Smehcing process won't start",
         type: 'warning',
       });
     }
