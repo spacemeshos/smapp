@@ -226,6 +226,7 @@ const Wrapper = styled.div<{
   isDisabled: boolean;
   style: any;
   isPrimary: boolean;
+  isProgress: boolean;
 }>`
   position: relative;
   width: ${({ width }) => width + GAP}px;
@@ -269,13 +270,17 @@ const Wrapper = styled.div<{
       };
       }
     `}
-  cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'pointer')};
+  cursor: ${({ isDisabled, isProgress }) =>
+    // eslint-disable-next-line no-nested-ternary
+    isDisabled ? 'not-allowed' : isProgress ? 'wait' : 'pointer'};
 `;
 
 type Props = {
   onClick: (e?: React.MouseEvent) => void;
   isPrimary?: boolean;
   isDisabled?: boolean;
+  isProgress?: boolean;
+  progressText?: string;
   isContainerFullWidth?: boolean;
   width?: number;
   height?: number;
@@ -289,6 +294,8 @@ const Button = ({
   onClick,
   isPrimary = true,
   isDisabled = false,
+  isProgress = false,
+  progressText = 'Processing...',
   width = 100,
   height = 40,
   text,
@@ -298,13 +305,14 @@ const Button = ({
   isContainerFullWidth = false,
 }: Props) => (
   <Wrapper
-    onClick={isDisabled ? () => {} : onClick}
+    onClick={isDisabled || isProgress ? () => {} : onClick}
     width={width}
     height={height}
     isDisabled={isDisabled}
     isContainerFullWidth={isContainerFullWidth}
     style={style}
     isPrimary={isPrimary}
+    isProgress={isProgress}
   >
     <UpperPart
       width={width}
@@ -324,7 +332,7 @@ const Button = ({
         height={height}
         isSmallSize={text.length <= 7}
       >
-        {text}
+        {isProgress ? progressText : text}
       </Text>
       {img && imgPosition === 'after' && (
         <ImageWrapper>
