@@ -310,13 +310,11 @@ const Node = ({ history, location }: Props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (
-      postSetupState === PostSetupState.STATE_NOT_STARTED &&
-      isResumeButtonLocked
-    ) {
+    if (isResumeButtonLocked) {
       setIsResumeButtonLocked(false);
     }
-  }, [postSetupState, isResumeButtonLocked]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postSetupState === PostSetupState.STATE_NOT_STARTED]);
 
   let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
   smesherInitTimestamp = smesherInitTimestamp

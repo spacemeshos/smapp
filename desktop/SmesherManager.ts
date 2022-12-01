@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { promises as fs, constants as fsConstants } from 'fs';
 import path from 'path';
 import * as R from 'ramda';
 import { app, ipcMain, dialog, BrowserWindow } from 'electron';
@@ -122,10 +122,12 @@ class SmesherManager {
       numUnits,
       errorMessage,
     };
+
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_SET_SETTINGS_AND_STARTUP_STATUS,
       data
     );
+
     if (errorMessage && retries > 0) {
       await delay(5000);
       await this.sendSmesherSettingsAndStartupState(retries - 1);
@@ -271,6 +273,17 @@ class SmesherManager {
     if (res.error) {
       return { error: res.error };
     }
+
+    const isEmpty = await this.isEmptyDir(filePaths[0]);
+
+    if (!isEmpty) {
+      await dialog.showMessageBox(mainWindow, {
+        message:
+          "Important information! The folder should be empty only for the new Genesis ID and for the new account. Otherwise the Smehcing process won't start",
+        type: 'warning',
+      });
+    }
+
     return {
       dataDir: filePaths[0],
       calculatedFreeSpace: res.calculatedFreeSpace,
@@ -279,13 +292,26 @@ class SmesherManager {
 
   checkDiskSpace = async ({ dataDir }: { dataDir: string }) => {
     try {
-      fs.accessSync(dataDir, fs.constants.W_OK);
+      await fs.access(dataDir, fsConstants.W_OK);
       const diskSpace = await checkDiskSpace(dataDir);
       logger.log('checkDiskSpace', diskSpace.free, { dataDir });
       return { calculatedFreeSpace: diskSpace.free };
     } catch (error) {
       logger.error('checkDiskSpace', error, { dataDir });
       return { error };
+    }
+  };
+
+  isEmptyDir = async (path: string) => {
+    try {
+      const directory = await fs.opendir(path);
+      const entry = await directory.read();
+      await directory.close();
+
+      return entry === null;
+    } catch (error) {
+      logger.error('isEmptyDir', error, { dataDir: path });
+      return false;
     }
   };
 
