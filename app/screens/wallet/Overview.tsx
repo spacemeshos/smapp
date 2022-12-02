@@ -89,7 +89,9 @@ const Overview = ({ history }: RouteComponentProps) => {
     (tx) =>
       tx.meta?.templateName === 'SingleSig' &&
       tx.method === 0 &&
-      (tx.status === TxState.MEMPOOL || tx.status === TxState.MESH)
+      (tx.status === TxState.MEMPOOL ||
+        tx.status === TxState.MESH ||
+        tx.status === TxState.PROCESSED)
   );
   const isAccountSpawned = !!txs.find(
     (tx) =>
