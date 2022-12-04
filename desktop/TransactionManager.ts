@@ -32,6 +32,7 @@ import {
   toHexString,
 } from '../shared/utils';
 import { MAX_GAS } from '../shared/constants';
+import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { addReceiptToTx, toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -43,7 +44,6 @@ import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
-import { getMethodName, getTemplateName } from '../shared/templateMeta';
 
 const DATA_BATCH = 50;
 
