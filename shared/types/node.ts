@@ -37,18 +37,16 @@ export interface NodeError {
 }
 
 export interface NodeConfig {
-  p2p: {
-    'network-id': number;
-    [k: string]: unknown;
+  api: {
+    grpc: string;
   };
-  main: {
-    'genesis-time': string;
-    'layer-duration-sec': number;
-    'layers-per-epoch': number;
-    [k: string]: unknown;
+  preset: string;
+  p2p: {
+    bootnodes: Array<string>;
   };
   smeshing: {
     'smeshing-coinbase': HexString;
+    'smeshing-start': boolean;
     'smeshing-opts': {
       'smeshing-opts-datadir': string;
       'smeshing-opts-numfiles': number;
@@ -56,7 +54,21 @@ export interface NodeConfig {
       'smeshing-opts-provider': number;
       'smeshing-opts-throttle': boolean;
     };
-    'smeshing-start': boolean;
   };
-  [k: string]: unknown;
+  main: {
+    'layer-duration-sec': number;
+    'layers-per-epoch': number;
+    'poet-server': Array<string>;
+    'genesis-active-size': number;
+    'optimistic-filtering-threshold': number;
+  };
+  genesis: {
+    'genesis-time': string;
+    'genesis-extra-data': string;
+  };
+  poet: {
+    'phase-shift': string;
+    'cycle-gap': string;
+    'grace-period': string;
+  };
 }

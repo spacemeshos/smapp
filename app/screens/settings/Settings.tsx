@@ -27,7 +27,7 @@ import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
-import { getNetworkId, getNetworkName } from '../../redux/network/selectors';
+import { getGenesisID, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
 import { setClientSettingsTheme } from '../../theme';
 
@@ -116,7 +116,7 @@ interface Props extends RouteComponentProps {
   };
   isWalletOnly: boolean;
   netName: string;
-  netId: number;
+  genesisID: string;
   skinId: number;
 }
 
@@ -161,7 +161,7 @@ class Settings extends Component<Props, State> {
       displayName,
       accounts,
       netName,
-      netId,
+      genesisID,
       genesisTime,
       rootHash,
       build,
@@ -278,7 +278,7 @@ class Settings extends Component<Props, State> {
               )}
               <SettingRow
                 rowName="Current network"
-                upperPartLeft={`${netName} (${netId})`}
+                upperPartLeft={`${netName} (${genesisID})`}
                 upperPartRight={
                   <Button
                     onClick={() => goToSwitchNetwork(history, isWalletOnly)}
@@ -792,8 +792,8 @@ class Settings extends Component<Props, State> {
   };
 
   switchToRemoteApi = () => {
-    const { netId } = this.props;
-    this.goTo(AuthPath.ConnectToAPI, { netId });
+    const { genesisID } = this.props;
+    this.goTo(AuthPath.ConnectToAPI, { genesisID });
   };
 
   goTo = (redirect: RouterPath, state?: unknown) => {
@@ -818,7 +818,7 @@ const mapStateToProps = (state: RootState) => ({
   skinId: state.ui.skinId,
   isWalletOnly: isWalletOnly(state),
   netName: getNetworkName(state),
-  netId: getNetworkId(state),
+  genesisID: getGenesisID(state),
 });
 
 const mapDispatchToProps = {

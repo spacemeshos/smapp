@@ -115,7 +115,7 @@ const getRewardsInfo = (
   rewards: SmesherReward[]
 ): RewardsInfo => {
   const getLayerTime = timestampByLayer(
-    cfg.main['genesis-time'],
+    cfg.genesis['genesis-time'],
     cfg.main['layer-duration-sec']
   );
   const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
@@ -179,7 +179,7 @@ export default (
     storeView($storeService),
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
-    $nodeVersion.pipe(map(R.objOf('node'))),
+    $nodeVersion.pipe(map(R.objOf('node'))), // here
     combineLatest([
       $smesherId,
       $rewards.pipe(startWith([])),

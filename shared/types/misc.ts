@@ -11,7 +11,6 @@ export type SocketAddress = {
 };
 
 export type Network = {
-  netID: number;
   netName: string;
   conf: string;
   explorer: string;
@@ -24,5 +23,6 @@ export type Network = {
   latestSmappRelease: string;
   smappBaseDownloadUrl: string;
   nodeBaseDownloadUrl: string;
+  genesisID: string;
   [key: string]: any;
 };

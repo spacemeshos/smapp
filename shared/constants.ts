@@ -7,13 +7,16 @@ export const LOCAL_NODE_API_URL: SocketAddress = {
 };
 
 export const TX_STATE_LABELS: Record<TxState, string> = {
-  [TxState.TRANSACTION_STATE_UNSPECIFIED]: 'Unknown state',
-  [TxState.TRANSACTION_STATE_REJECTED]: 'Rejected',
-  [TxState.TRANSACTION_STATE_CONFLICTING]: 'Conflicting',
-  [TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS]: 'Insufficient funds',
-  [TxState.TRANSACTION_STATE_MEMPOOL]: 'Pending',
-  [TxState.TRANSACTION_STATE_MESH]: 'Accepted',
-  [TxState.TRANSACTION_STATE_PROCESSED]: 'Confirmed',
+  [TxState.UNSPECIFIED]: 'Unknown state',
+  [TxState.REJECTED]: 'Rejected',
+  [TxState.CONFLICTING]: 'Conflicting',
+  [TxState.INSUFFICIENT_FUNDS]: 'Insufficient funds',
+  [TxState.MEMPOOL]: 'Pending',
+  [TxState.MESH]: 'Accepted',
+  [TxState.PROCESSED]: 'Confirmed',
+  [TxState.SUCCESS]: 'Applied',
+  [TxState.FAILURE]: 'Failed to apply',
+  [TxState.INVALID]: 'Invalid transaction',
 };
 
 export enum ExternalLinks {

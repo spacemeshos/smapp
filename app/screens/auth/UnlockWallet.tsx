@@ -126,7 +126,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       : walletFiles.map(({ meta }) => ({
           label: meta.displayName,
           description: `CREATED: ${formatISOAsUS(meta.created)}, NET ID: ${
-            meta.netId
+            meta.genesisID
           }`,
         }));
 

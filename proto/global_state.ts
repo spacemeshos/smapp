@@ -1,5 +1,5 @@
 import type * as grpc from '@grpc/grpc-js';
-import type { ServiceDefinition, EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
+import type { EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
 
 import type { GlobalStateServiceClient as _spacemesh_v1_GlobalStateServiceClient, GlobalStateServiceDefinition as _spacemesh_v1_GlobalStateServiceDefinition } from './spacemesh/v1/GlobalStateService';
 

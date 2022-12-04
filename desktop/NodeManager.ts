@@ -36,6 +36,7 @@ import {
 import { NODE_CONFIG_FILE } from './main/constants';
 import NodeConfig from './main/NodeConfig';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
+import { generateGenesisIDFromConfig } from './main/Networks';
 
 rotator.on('error', captureException);
 
@@ -81,7 +82,7 @@ class NodeManager {
 
   private nodeProcess: ChildProcess | null;
 
-  private netId: number;
+  private genesisID: string;
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -111,7 +112,7 @@ class NodeManager {
       // Otherwise if Node exited, but there are no critical errors
       // in the pool — search for fatal error in the logs
       const lastLines = await readLinesFromBottom(
-        getNodeLogsPath(this.netId),
+        getNodeLogsPath(this.genesisID),
         100
       );
       const fatalErrorLine = lastLines.find((line) =>
@@ -143,7 +144,7 @@ class NodeManager {
 
   constructor(
     mainWindow: BrowserWindow,
-    netId: number,
+    genesisID: string,
     smesherManager: SmesherManager
   ) {
     this.mainWindow = mainWindow;
@@ -151,7 +152,7 @@ class NodeManager {
     this.unsub = this.subscribeToEvents();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
-    this.netId = netId;
+    this.genesisID = genesisID;
   }
 
   // Before deleting
@@ -160,7 +161,7 @@ class NodeManager {
     this.unsub();
   };
 
-  getNetId = () => this.netId;
+  getGenesisID = () => this.genesisID;
 
   subscribeToEvents = () => {
     // Handlers
@@ -317,14 +318,15 @@ class NodeManager {
     if (isSameDataDir && isDataDirKeyFileExist)
       return startSmeshingAsUsual(postSetupOpts);
 
-    // In other cases:
-    // NextDataDir    CurrentDataDir     Action
-    // Not exist      Exist              Copy key.bin & start
-    // Not exist      Not exist          Update config & restart node
-    // Exist          Not exist          Update config & restart node
-    // Exist          Exist              Compare checksum
-    //                                   - if equal: start as usual
-    //                                   - if not: update config & restart node
+    /**
+     * In other cases:
+     * NextDataDir        CurrentDataDir        Action
+     * Not exist          Copy                  key.bin & start
+     * Not exist          Update                config & restart node
+     * Exist              Not exist             Update config & restart node
+     * Exist              Compare checksum
+                                      - if equal: start as usual
+                                      - if not: update config & restart node */
     if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
       await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
       return startSmeshingAsUsual(postSetupOpts);
@@ -354,9 +356,14 @@ class NodeManager {
       nodeDir,
       `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
     );
-    const nodeDataFilesPath = StoreService.get('node.dataPath');
+    const nodeDataFilesPath = path.join(
+      StoreService.get('node.dataPath'),
+      this.genesisID.substring(0, 8)
+    );
     const nodeConfig = await NodeConfig.load();
-    const logFilePath = getNodeLogsPath(nodeConfig.p2p['network-id']);
+    const logFilePath = getNodeLogsPath(
+      generateGenesisIDFromConfig(nodeConfig)
+    );
 
     rotator.register(logFilePath, {
       schedule: '30m',
@@ -506,7 +513,7 @@ class NodeManager {
       // we have to check Node for liveness.
       // In case that Node does not responds
       // raise the error level to FATAL
-      const isAlive = await this.isNodeAlive();
+      const isAlive = await this.isNodeAlive(30);
       if (!isAlive) {
         // Raise error level and call this method again, to ensure
         // that this error is not a consequence of real critical error

@@ -30,6 +30,16 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
         return delay(1000).then(() => this.getCurrentLayer());
       });
 
+  getGenesisID = (): Promise<Uint8Array> =>
+    this.callService('GenesisID', {})
+      .then(({ genesisId }) => genesisId as Uint8Array)
+      .catch((err) => {
+        this.logger.error('GenesisID', err);
+
+        // eslint-disable-next-line promise/no-nesting
+        return delay(1000).then(() => this.getGenesisID());
+      });
+
   private sendAccountMeshDataQuery = (
     accountId: string,
     accountMeshDataFlags: AccountMeshDataFlag,

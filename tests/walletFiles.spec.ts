@@ -15,6 +15,7 @@ import {
 } from '../desktop/main/walletFile';
 import {
   Wallet,
+  WalletMeta,
   WalletSecrets,
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
@@ -96,7 +97,11 @@ describe('Load wallet file', () => {
     const wallet = await loadWallet(LEGACY_WALLET_PATH, '1');
 
     expect(wallet).toEqual(
-      expect.objectContaining<Wallet>({
+      expect.objectContaining<
+        Omit<Wallet, 'meta'> & {
+          meta: Omit<WalletMeta, 'genesisID'> & { netId: number };
+        }
+      >({
         meta: {
           displayName: expect.any(String),
           created: expect.any(String),
@@ -156,13 +161,13 @@ describe('Save/update wallet file', () => {
     await fs.copyFile(LEGACY_WALLET_PATH, walletPath);
     const result = await updateWalletMeta(walletPath, {
       displayName: 'It works!',
-      netId: 5,
+      genesisID: '0x91d338938929ec38e320ba558b6bd8538eae9753',
     });
     // Meta updated
     expect(result).toMatchObject({
       meta: {
         displayName: 'It works!',
-        netId: 5,
+        genesisID: '0x91d338938929ec38e320ba558b6bd8538eae9753',
       },
     });
     // And secrets untouched

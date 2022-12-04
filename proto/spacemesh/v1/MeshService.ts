@@ -12,6 +12,8 @@ import type { CurrentLayerRequest as _spacemesh_v1_CurrentLayerRequest, CurrentL
 import type { CurrentLayerResponse as _spacemesh_v1_CurrentLayerResponse, CurrentLayerResponse__Output as _spacemesh_v1_CurrentLayerResponse__Output } from '../../spacemesh/v1/CurrentLayerResponse';
 import type { EpochNumLayersRequest as _spacemesh_v1_EpochNumLayersRequest, EpochNumLayersRequest__Output as _spacemesh_v1_EpochNumLayersRequest__Output } from '../../spacemesh/v1/EpochNumLayersRequest';
 import type { EpochNumLayersResponse as _spacemesh_v1_EpochNumLayersResponse, EpochNumLayersResponse__Output as _spacemesh_v1_EpochNumLayersResponse__Output } from '../../spacemesh/v1/EpochNumLayersResponse';
+import type { GenesisIDRequest as _spacemesh_v1_GenesisIDRequest, GenesisIDRequest__Output as _spacemesh_v1_GenesisIDRequest__Output } from '../../spacemesh/v1/GenesisIDRequest';
+import type { GenesisIDResponse as _spacemesh_v1_GenesisIDResponse, GenesisIDResponse__Output as _spacemesh_v1_GenesisIDResponse__Output } from '../../spacemesh/v1/GenesisIDResponse';
 import type { GenesisTimeRequest as _spacemesh_v1_GenesisTimeRequest, GenesisTimeRequest__Output as _spacemesh_v1_GenesisTimeRequest__Output } from '../../spacemesh/v1/GenesisTimeRequest';
 import type { GenesisTimeResponse as _spacemesh_v1_GenesisTimeResponse, GenesisTimeResponse__Output as _spacemesh_v1_GenesisTimeResponse__Output } from '../../spacemesh/v1/GenesisTimeResponse';
 import type { LayerDurationRequest as _spacemesh_v1_LayerDurationRequest, LayerDurationRequest__Output as _spacemesh_v1_LayerDurationRequest__Output } from '../../spacemesh/v1/LayerDurationRequest';
@@ -22,8 +24,6 @@ import type { LayersQueryRequest as _spacemesh_v1_LayersQueryRequest, LayersQuer
 import type { LayersQueryResponse as _spacemesh_v1_LayersQueryResponse, LayersQueryResponse__Output as _spacemesh_v1_LayersQueryResponse__Output } from '../../spacemesh/v1/LayersQueryResponse';
 import type { MaxTransactionsPerSecondRequest as _spacemesh_v1_MaxTransactionsPerSecondRequest, MaxTransactionsPerSecondRequest__Output as _spacemesh_v1_MaxTransactionsPerSecondRequest__Output } from '../../spacemesh/v1/MaxTransactionsPerSecondRequest';
 import type { MaxTransactionsPerSecondResponse as _spacemesh_v1_MaxTransactionsPerSecondResponse, MaxTransactionsPerSecondResponse__Output as _spacemesh_v1_MaxTransactionsPerSecondResponse__Output } from '../../spacemesh/v1/MaxTransactionsPerSecondResponse';
-import type { NetIDRequest as _spacemesh_v1_NetIDRequest, NetIDRequest__Output as _spacemesh_v1_NetIDRequest__Output } from '../../spacemesh/v1/NetIDRequest';
-import type { NetIDResponse as _spacemesh_v1_NetIDResponse, NetIDResponse__Output as _spacemesh_v1_NetIDResponse__Output } from '../../spacemesh/v1/NetIDResponse';
 
 export interface MeshServiceClient extends grpc.Client {
   AccountMeshDataQuery(argument: _spacemesh_v1_AccountMeshDataQueryRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_AccountMeshDataQueryResponse__Output) => void): grpc.ClientUnaryCall;
@@ -67,6 +67,15 @@ export interface MeshServiceClient extends grpc.Client {
   epochNumLayers(argument: _spacemesh_v1_EpochNumLayersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EpochNumLayersResponse__Output) => void): grpc.ClientUnaryCall;
   epochNumLayers(argument: _spacemesh_v1_EpochNumLayersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EpochNumLayersResponse__Output) => void): grpc.ClientUnaryCall;
   
+  GenesisID(argument: _spacemesh_v1_GenesisIDRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  GenesisID(argument: _spacemesh_v1_GenesisIDRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  GenesisID(argument: _spacemesh_v1_GenesisIDRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  GenesisID(argument: _spacemesh_v1_GenesisIDRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  genesisId(argument: _spacemesh_v1_GenesisIDRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  genesisId(argument: _spacemesh_v1_GenesisIDRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  genesisId(argument: _spacemesh_v1_GenesisIDRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  genesisId(argument: _spacemesh_v1_GenesisIDRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
+  
   GenesisTime(argument: _spacemesh_v1_GenesisTimeRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisTimeResponse__Output) => void): grpc.ClientUnaryCall;
   GenesisTime(argument: _spacemesh_v1_GenesisTimeRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisTimeResponse__Output) => void): grpc.ClientUnaryCall;
   GenesisTime(argument: _spacemesh_v1_GenesisTimeRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisTimeResponse__Output) => void): grpc.ClientUnaryCall;
@@ -108,15 +117,6 @@ export interface MeshServiceClient extends grpc.Client {
   maxTransactionsPerSecond(argument: _spacemesh_v1_MaxTransactionsPerSecondRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MaxTransactionsPerSecondResponse__Output) => void): grpc.ClientUnaryCall;
   maxTransactionsPerSecond(argument: _spacemesh_v1_MaxTransactionsPerSecondRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_MaxTransactionsPerSecondResponse__Output) => void): grpc.ClientUnaryCall;
   
-  NetID(argument: _spacemesh_v1_NetIDRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  NetID(argument: _spacemesh_v1_NetIDRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  NetID(argument: _spacemesh_v1_NetIDRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  NetID(argument: _spacemesh_v1_NetIDRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  netId(argument: _spacemesh_v1_NetIDRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  netId(argument: _spacemesh_v1_NetIDRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  netId(argument: _spacemesh_v1_NetIDRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  netId(argument: _spacemesh_v1_NetIDRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_NetIDResponse__Output) => void): grpc.ClientUnaryCall;
-  
 }
 
 export interface MeshServiceHandlers extends grpc.UntypedServiceImplementation {
@@ -130,6 +130,8 @@ export interface MeshServiceHandlers extends grpc.UntypedServiceImplementation {
   
   EpochNumLayers: grpc.handleUnaryCall<_spacemesh_v1_EpochNumLayersRequest__Output, _spacemesh_v1_EpochNumLayersResponse>;
   
+  GenesisID: grpc.handleUnaryCall<_spacemesh_v1_GenesisIDRequest__Output, _spacemesh_v1_GenesisIDResponse>;
+  
   GenesisTime: grpc.handleUnaryCall<_spacemesh_v1_GenesisTimeRequest__Output, _spacemesh_v1_GenesisTimeResponse>;
   
   LayerDuration: grpc.handleUnaryCall<_spacemesh_v1_LayerDurationRequest__Output, _spacemesh_v1_LayerDurationResponse>;
@@ -140,8 +142,6 @@ export interface MeshServiceHandlers extends grpc.UntypedServiceImplementation {
   
   MaxTransactionsPerSecond: grpc.handleUnaryCall<_spacemesh_v1_MaxTransactionsPerSecondRequest__Output, _spacemesh_v1_MaxTransactionsPerSecondResponse>;
   
-  NetID: grpc.handleUnaryCall<_spacemesh_v1_NetIDRequest__Output, _spacemesh_v1_NetIDResponse>;
-  
 }
 
 export interface MeshServiceDefinition extends grpc.ServiceDefinition {
@@ -150,10 +150,10 @@ export interface MeshServiceDefinition extends grpc.ServiceDefinition {
   CurrentEpoch: MethodDefinition<_spacemesh_v1_CurrentEpochRequest, _spacemesh_v1_CurrentEpochResponse, _spacemesh_v1_CurrentEpochRequest__Output, _spacemesh_v1_CurrentEpochResponse__Output>
   CurrentLayer: MethodDefinition<_spacemesh_v1_CurrentLayerRequest, _spacemesh_v1_CurrentLayerResponse, _spacemesh_v1_CurrentLayerRequest__Output, _spacemesh_v1_CurrentLayerResponse__Output>
   EpochNumLayers: MethodDefinition<_spacemesh_v1_EpochNumLayersRequest, _spacemesh_v1_EpochNumLayersResponse, _spacemesh_v1_EpochNumLayersRequest__Output, _spacemesh_v1_EpochNumLayersResponse__Output>
+  GenesisID: MethodDefinition<_spacemesh_v1_GenesisIDRequest, _spacemesh_v1_GenesisIDResponse, _spacemesh_v1_GenesisIDRequest__Output, _spacemesh_v1_GenesisIDResponse__Output>
   GenesisTime: MethodDefinition<_spacemesh_v1_GenesisTimeRequest, _spacemesh_v1_GenesisTimeResponse, _spacemesh_v1_GenesisTimeRequest__Output, _spacemesh_v1_GenesisTimeResponse__Output>
   LayerDuration: MethodDefinition<_spacemesh_v1_LayerDurationRequest, _spacemesh_v1_LayerDurationResponse, _spacemesh_v1_LayerDurationRequest__Output, _spacemesh_v1_LayerDurationResponse__Output>
   LayerStream: MethodDefinition<_spacemesh_v1_LayerStreamRequest, _spacemesh_v1_LayerStreamResponse, _spacemesh_v1_LayerStreamRequest__Output, _spacemesh_v1_LayerStreamResponse__Output>
   LayersQuery: MethodDefinition<_spacemesh_v1_LayersQueryRequest, _spacemesh_v1_LayersQueryResponse, _spacemesh_v1_LayersQueryRequest__Output, _spacemesh_v1_LayersQueryResponse__Output>
   MaxTransactionsPerSecond: MethodDefinition<_spacemesh_v1_MaxTransactionsPerSecondRequest, _spacemesh_v1_MaxTransactionsPerSecondResponse, _spacemesh_v1_MaxTransactionsPerSecondRequest__Output, _spacemesh_v1_MaxTransactionsPerSecondResponse__Output>
-  NetID: MethodDefinition<_spacemesh_v1_NetIDRequest, _spacemesh_v1_NetIDResponse, _spacemesh_v1_NetIDRequest__Output, _spacemesh_v1_NetIDResponse__Output>
 }

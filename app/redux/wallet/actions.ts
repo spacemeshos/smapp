@@ -18,7 +18,7 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
-import { getNetworkId } from '../network/selectors';
+import { getGenesisID } from '../network/selectors';
 import { setUiError } from '../ui/actions';
 
 export const SET_WALLET_META = 'SET_WALLET_META';
@@ -105,17 +105,17 @@ export const createNewWallet = ({
   existingMnemonic = '',
   password,
   apiUrl,
-  netId,
+  genesisID,
   type,
 }: {
   existingMnemonic?: string | undefined;
   password: string;
   type: WalletType;
   apiUrl: SocketAddress | null;
-  netId: number;
+  genesisID: string;
 }) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
-    .createWallet({ password, existingMnemonic, type, apiUrl, netId })
+    .createWallet({ password, existingMnemonic, type, apiUrl, genesisID })
     .then(async ({ error, payload }) => {
       if (error) {
         throw error;
@@ -175,15 +175,15 @@ export const unlockCurrentWallet = (password: string) => async (
 
 export const switchApiProvider = (
   api: SocketAddress | null,
-  netId?: number
+  genesisID?: string
 ) => async (dispatch: AppThDispatch, getState: GetState) => {
-  const nextNetId = netId || getNetworkId(getState());
-  await eventsService.switchApiProvider(api, nextNetId);
+  const nextGenesisID = genesisID || getGenesisID(getState());
+  await eventsService.switchApiProvider(api, nextGenesisID);
   dispatch({
     type: SET_REMOTE_API,
     payload: {
       api: api && isRemoteNodeApi(api) ? stringifySocketAddress(api) : '',
-      netId,
+      genesisID,
       type:
         api && isLocalNodeApi(api)
           ? WalletType.LocalNode
@@ -228,7 +228,7 @@ export const createNewAccount = ({ password }: { password: string }) => async (
     dispatch(setUiError(addErrorPrefix('Can not create new account\n', error)));
   }
   if (payload) {
-    dispatch(setAccounts([...accounts, payload]));
+    dispatch(setAccounts([...accounts, payload] as Account[]));
   }
 };
 
@@ -334,15 +334,15 @@ export const sendTransaction = ({
     fee,
     note,
   };
-  const { error, tx, state } = await eventsService.sendTx({
+  const { error, tx } = await eventsService.sendTx({
     fullTx,
     accountIndex: currentAccountIndex,
   });
   if (tx) {
-    return { id: tx.id, state };
+    return { id: tx.id };
   } else {
     const errorToLog = error
-      ? addErrorPrefix('Send transaction error\n', error)
+      ? addErrorPrefix('Send transaction error\n', error as Error)
       : new Error(
           'Send transaction error: unexpectedly got no Tx and no Error'
         );

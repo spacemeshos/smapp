@@ -21,9 +21,10 @@ import {
   RewardView,
   TxView,
 } from '../../redux/wallet/selectors';
-import { TxState, HexString } from '../../../shared/types';
+import { TxState, Bech32Address } from '../../../shared/types';
 import { isReward, isTx } from '../../../shared/types/guards';
 import { ExternalLinks } from '../../../shared/constants';
+import { SingleSigMethods } from '../../../shared/templateConsts';
 
 const Wrapper = styled.div`
   display: flex;
@@ -61,18 +62,22 @@ const DropDownWrapper = styled.div`
 `;
 
 const getNumOfCoinsFromTransactions = (
-  address: HexString,
+  address: Bech32Address,
   transactions: (TxView | RewardView)[]
 ) => {
   const coins = { mined: 0, sent: 0, received: 0 };
   return transactions.reduce((coins, txOrReward: TxView | RewardView) => {
     if (isTx(txOrReward)) {
-      const { status, principal: sender, amount: am } = txOrReward;
-      const amount = am || 0;
+      const { status, principal: sender, method, payload } = txOrReward;
+      const amount =
+        method === SingleSigMethods.Spend
+          ? parseInt(payload?.Arguments?.Amount || 0, 10)
+          : 0;
       if (
-        status !== TxState.TRANSACTION_STATE_REJECTED &&
-        status !== TxState.TRANSACTION_STATE_INSUFFICIENT_FUNDS &&
-        status !== TxState.TRANSACTION_STATE_CONFLICTING
+        status !== TxState.REJECTED &&
+        status !== TxState.INSUFFICIENT_FUNDS &&
+        status !== TxState.CONFLICTING &&
+        status !== TxState.FAILURE
       ) {
         return sender === address
           ? { ...coins, sent: coins.sent + amount }

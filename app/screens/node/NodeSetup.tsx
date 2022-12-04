@@ -18,7 +18,7 @@ import {
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
-import { BITS, AppThDispatch, RootState } from '../../types';
+import { BITS, RootState } from '../../types';
 import { PostSetupComputeProvider } from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
@@ -67,6 +67,7 @@ interface Props extends RouteComponentProps {
 }
 
 const NodeSetup = ({ history, location }: Props) => {
+  const dispatch = useDispatch();
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const status = useSelector((state: RootState) => state.node.status);
   const postSetupComputeProviders = useSelector(
@@ -85,8 +86,6 @@ const NodeSetup = ({ history, location }: Props) => {
   const [numUnits, setNumUnits] = useState(0);
   const [provider, setProvider] = useState<PostSetupComputeProvider>();
   const [throttle, setThrottle] = useState(false);
-
-  const dispatch: AppThDispatch = useDispatch();
 
   const commitmentSize =
     (smesherConfig.labelsPerUnit *
@@ -124,6 +123,7 @@ const NodeSetup = ({ history, location }: Props) => {
         throttle,
       })
     );
+
     if (done) {
       history.push(MainPath.Smeshing, { showIntro: true });
     }
@@ -181,6 +181,7 @@ const NodeSetup = ({ history, location }: Props) => {
         const commitments: Commitment[] = [];
         const singleCommitmentSize =
           (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
+
         for (
           let i = smesherConfig.minNumUnits;
           i <= smesherConfig.maxNumUnits;

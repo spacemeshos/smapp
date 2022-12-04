@@ -27,9 +27,21 @@ type DropdownArgs = {
 const DROPDOWN_ARGUMENTS: DropdownArgs = [
   {
     data: [
-      { label: 'devnet224', netId: -1, isDisabled: false },
-      { label: 'devnet225', netId: -1, isDisabled: false },
-      { label: 'devnet226', netId: -1, isDisabled: true },
+      {
+        label: 'devnet224',
+        netId: '0x91d338938929ec38e320ba558b6bd8538eae972d',
+        isDisabled: false,
+      },
+      {
+        label: 'devnet225',
+        netId: '0x91d338938929ec38e320ba558b6bd8538eae9732',
+        isDisabled: false,
+      },
+      {
+        label: 'devnet226',
+        netId: '0x91d338938929ec38e320ba558b6bd8538eae9753',
+        isDisabled: true,
+      },
     ],
     rowHeight: 40,
     isDisabled: false,

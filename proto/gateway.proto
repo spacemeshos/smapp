@@ -1,0 +1,11 @@
+syntax = "proto3";
+package spacemesh.v1;
+option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
+
+import "gateway_types.proto";
+
+// Exposes poet gateway services that can be used by a poet server to broadcast data to the network
+service GatewayService {
+    // Submit a poet data packet to the network to broadcast
+    rpc BroadcastPoet(BroadcastPoetRequest) returns (BroadcastPoetResponse);
+}

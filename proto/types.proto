@@ -95,6 +95,7 @@ message Layer {
         LAYER_STATUS_UNSPECIFIED = 0; // not yet approved or confirmed
         LAYER_STATUS_APPROVED = 1; // approved by hare
         LAYER_STATUS_CONFIRMED = 2; // confirmed by tortoise
+        LAYER_STATUS_APPLIED = 3; // applied in state
     }
     LayerStatus status = 2;
     bytes hash = 3; // computer layer hash - do we need this?

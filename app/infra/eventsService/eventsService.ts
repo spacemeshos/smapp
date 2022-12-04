@@ -54,14 +54,14 @@ class EventsService {
     existingMnemonic,
     type,
     apiUrl,
-    netId,
+    genesisID,
   }: CreateWalletRequest): Promise<CreateWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
       existingMnemonic,
       type,
       apiUrl,
-      netId,
+      genesisID,
     });
 
   static readWalletFiles = () =>
@@ -82,9 +82,9 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.LIST_NETWORKS);
 
   static listPublicServices = (
-    netId: number
+    genesisID: string
   ): Promise<ListPublicApisResponse> =>
-    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, netId);
+    ipcRenderer.invoke(ipcConsts.LIST_PUBLIC_SERVICES, genesisID);
 
   static unlockWallet = (
     payload: UnlockWalletRequest
@@ -214,12 +214,14 @@ class EventsService {
   }) =>
     ipcRenderer.invoke(ipcConsts.W_M_SIGN_MESSAGE, { message, accountIndex });
 
-  static switchNetwork = (netId: number) => {
-    ipcRenderer.send(ipcConsts.SWITCH_NETWORK, netId);
+  static switchNetwork = (genesisID: string) => {
+    ipcRenderer.send(ipcConsts.SWITCH_NETWORK, genesisID);
   };
 
-  static switchApiProvider = (apiUrl: SocketAddress | null, netId: number) =>
-    ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, netId });
+  static switchApiProvider = (
+    apiUrl: SocketAddress | null,
+    genesisID: string
+  ) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
   /** **************************************  WALLET MANAGER  **************************************** */
 

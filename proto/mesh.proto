@@ -14,8 +14,8 @@ service MeshService {
     // Current epoch number
     rpc CurrentEpoch(CurrentEpochRequest) returns (CurrentEpochResponse);
 
-    // Network ID
-    rpc NetID(NetIDRequest) returns (NetIDResponse);
+    // Genesis ID
+    rpc GenesisID(GenesisIDRequest) returns (GenesisIDResponse);
 
     // Number of layers per epoch (a network parameter)
     rpc EpochNumLayers(EpochNumLayersRequest) returns (EpochNumLayersResponse);

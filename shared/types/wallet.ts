@@ -36,7 +36,7 @@ export interface WalletMeta {
   displayName: string;
   created: string;
   type: WalletType;
-  netId: number;
+  genesisID: string;
   remoteApi: string;
   meta: {
     salt: string;
