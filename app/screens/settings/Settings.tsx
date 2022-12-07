@@ -716,10 +716,14 @@ class Settings extends Component<Props, State> {
     this.setState({ accountDisplayNames: updatedAccountDisplayNames });
   };
 
-  toggleAutoStart = () => {
-    const { isAutoStartEnabled } = this.state;
-    eventsService.toggleAutoStart();
-    this.setState({ isAutoStartEnabled: !isAutoStartEnabled });
+  toggleAutoStart = async () => {
+    const res = await eventsService.toggleAutoStart();
+    this.setState({ isAutoStartEnabled: res.status });
+    if (res.error) {
+      const { setUiError } = this.props;
+      // @ts-ignore
+      setUiError(new Error(res.error));
+    }
   };
 
   externalNavigation = (to: ExternalLinks) => window.open(to);
