@@ -74,8 +74,10 @@ class NetServiceFactory<
     }
 
     if (this.service) {
+      this.cancelStreams();
       this.service.close();
     }
+
     this.protoPath = protoPath;
     this.apiUrl = apiUrl;
 
@@ -107,8 +109,7 @@ class NetServiceFactory<
       this.protoPath,
       this.apiUrl
     );
-    await this.cancelStreams();
-    this.createNetService(this.protoPath, this.apiUrl, this.serviceName);
+    await this.createNetService(this.protoPath, this.apiUrl, this.serviceName);
     await this.restartStreams();
     return true;
   };
