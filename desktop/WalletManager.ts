@@ -112,6 +112,9 @@ class WalletManager {
 
   unsubscribe = () => {
     this.txManager.unsubscribeAllStreams();
+    this.txService.cancelStreams();
+    this.meshService.cancelStreams();
+    this.glStateService.cancelStreams();
     this.unsub();
   };
 

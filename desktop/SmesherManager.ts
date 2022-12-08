@@ -51,7 +51,10 @@ class SmesherManager {
     return true;
   };
 
-  unsubscribe = () => this.unsub();
+  unsubscribe = () => {
+    this.smesherService.cancelStreams();
+    this.unsub();
+  };
 
   getSmeshingConfig = async () => {
     const config = await this.loadConfig();
