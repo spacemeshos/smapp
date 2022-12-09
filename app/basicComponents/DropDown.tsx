@@ -348,6 +348,9 @@ type Props<T extends ADataItem> = {
   maxHeight?: number;
 };
 
+const ddItemKey = (index: number, key?: string) =>
+  `ddItem_${key || String(index)}`;
+
 const DropDown = <T extends ADataItem>({
   data,
   onClick,
@@ -396,7 +399,7 @@ const DropDown = <T extends ADataItem>({
     >
       <DropDownItem
         isDarkMode={isLightTheme}
-        key={(item.key as string) || String(index)}
+        key={ddItemKey(index, item?.key)}
         isMain={item?.isMain}
         isDisabled={item?.isDisabled}
         label={item?.label as string}
@@ -428,9 +431,7 @@ const DropDown = <T extends ADataItem>({
       >
         <DropDownItem
           isDarkMode={isLightTheme}
-          key={
-            (data[selectedItemIndex].key as string) || String(selectedItemIndex)
-          }
+          key={ddItemKey(selectedItemIndex, data[selectedItemIndex]?.key)}
           isMain={data[selectedItemIndex]?.isMain}
           isDisabled={data[selectedItemIndex]?.isDisabled}
           label={data[selectedItemIndex]?.label as string}
