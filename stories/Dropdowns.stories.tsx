@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Story, ComponentMeta } from '@storybook/react';
 import styled from 'styled-components';
-import { AutocompleteDropdownProps } from 'app/basicComponents/AutocompleteDropdown';
-import { formatISOAsUS } from '../shared/datetime';
-import { DropDown, AutocompleteDropdown } from '../app/basicComponents';
+import { AutocompleteDropdownProps } from '../src/renderer/basicComponents/AutocompleteDropdown';
+import { formatISOAsUS } from '../src/shared/datetime';
+import { DropDown, AutocompleteDropdown } from '../src/renderer/basicComponents';
 
 const Container = styled.div`
   display: flex;

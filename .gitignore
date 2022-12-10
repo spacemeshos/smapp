@@ -1,12 +1,20 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
 # dependencies
-/node_modules
-/.pnp
-.pnp.js
+node_modules
 
 # testing
 /coverage
+.eslintcache
 
 # production
 /build
@@ -14,32 +22,29 @@
 #storybook
 storybook-static
 
-# misc
+
+# OSX
 .DS_Store
+
+release/app/dist
+release/build
+.erb/dll
+node
+
+
+.idea
+npm-debug.log.*
+*.css.d.ts
+*.sass.d.ts
+*.scss.d.ts
+
+# misc
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.eslintcache
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-.idea/
-
-ct-libc/
-/dll/
-/node_modules/
-/release-builds
-/release-installers
-/desktop/dist/
-/desktop/main.prod.js
-/desktop/main.prod.js.map
-/desktop/config.json
-/node/*/
-/release
-.env
-.vscode
-/desktop/dist
-key.bin

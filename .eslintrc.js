@@ -1,118 +1,11 @@
 module.exports = {
-  extends: ['erb', 'plugin:prettier/recommended'],
+  extends: 'erb',
   rules: {
-    'comma-dangle': 'off', // prettier conflict
-    '@typescript-eslint/comma-dangle': 'off', // prettier conflict
-    '@typescript-eslint/indent': 'off', // prettier conflict
-    'react/jsx-wrap-multilines': 'off', // prettier conflict
-    'react/jsx-one-expression-per-line': 'off', // prettier conflict
-    'react/jsx-curly-newline': 'off', // prettier conflict
-    'class-methods-use-this': 0,
-    'prettier/prettier': [
-      'error',
-      {
-        printWidth: 80,
-        tabWidth: 2,
-        useTabs: false,
-        singleQuote: true,
-        arrowParens: 'always',
-        trailingComma: 'es5',
-        bracketSpacing: true,
-        endOfLine: 'auto',
-      },
-    ],
-    'no-unneeded-ternary': ['error'],
-    'no-debugger': 2,
-    'no-console': 2,
-    radix: 0,
-    'func-names': ['error', 'never'],
-    'react/jsx-filename-extension': [
-      1,
-      {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    ],
-    'react/state-in-constructor': 0,
-    'react/static-property-placement': 0,
-    'react/jsx-props-no-spreading': 0,
-    'no-class-assign': 0,
-    'no-else-return': 0,
-    'no-underscore-dangle': 0,
-    'no-unused-expressions': [
-      2,
-      {
-        allowShortCircuit: true,
-        allowTernary: true,
-      },
-    ],
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'import/no-absolute-path': 0,
-    'import/extensions': 0,
-    'import/no-unresolved': 0,
-    'import/prefer-default-export': 1,
     // A temporary hack related to IDE not resolving correct package.json
-    'import/no-extraneous-dependencies': 0,
-    'import/order': [
-      'error',
-      {
-        groups: [
-          'builtin',
-          'external',
-          'internal',
-          'parent',
-          'sibling',
-          'index',
-        ],
-      },
-    ],
-    'react/sort-comp': [
-      2,
-      {
-        order: [
-          'type-annotations',
-          'defaultProps',
-          'static-variables',
-          'static-methods',
-          'state',
-          'constructor',
-          'render',
-          'lifecycle',
-          '/^render.+$/',
-          '/^get.+$/',
-          '/^set.+$/',
-          '/^on.+$/',
-          '/^handle.+$/',
-          'everything-else',
-        ],
-      },
-    ],
-    'react/forbid-prop-types': [
-      2,
-      {
-        forbid: ['any'],
-      },
-    ],
-    'arrow-parens': 0,
-    'react/jsx-curly-brace-presence': 0,
-    'prefer-destructuring': 1,
-    'jsx-a11y/anchor-is-valid': 0,
-    'jsx-a11y/click-events-have-key-events': 0,
-    'jsx-a11y/no-static-element-interactions': 0,
-    'react/require-default-props': 0,
-    'no-use-before-define': 'off',
-    'react/no-array-index-key': 0,
-    'no-loop-func': 0,
-    '@typescript-eslint/no-loop-func': 0,
-    'no-redeclare': 0,
-    '@typescript-eslint/no-redeclare': 0,
-    'no-shadow': 0,
-    '@typescript-eslint/no-shadow': 0,
-    '@typescript-eslint/no-throw-literal': 0,
-    '@typescript-eslint/no-explicit-any': 0,
-    '@typescript-eslint/ban-ts-comment': 0,
-    '@typescript-eslint/no-unused-expressions': 0,
-    'react/prop-types': 0,
-    'jest/expect-expect': ['error', { assertFunctionNames: ['expect*'] }],
+    'import/no-extraneous-dependencies': 'off',
+    'import/no-unresolved': 'error',
+    // Since React 17 and typescript 4.1 you can safely disable the rule
+    'react/react-in-jsx-scope': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,
@@ -126,12 +19,12 @@ module.exports = {
       // See https://github.com/benmosher/eslint-plugin-import/issues/1396#issuecomment-575727774 for line below
       node: {},
       webpack: {
-        config: require.resolve('./configs/webpack.config.eslint.js'),
+        config: require.resolve('./.erb/configs/webpack.config.eslint.ts'),
       },
+      typescript: {},
     },
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
     },
   },
-  plugins: ['prettier'],
 };
