@@ -97,4 +97,11 @@ export type ListNetworksResponse = IpcResponse<Network[]>;
 
 export type ListPublicApisResponse = IpcResponse<PublicService[]>;
 
+export type AppLogs = {
+  nodeLogs: string;
+  appLogs: string;
+  genesisID: string;
+  appLogsFileName: string;
+}
+
 export type ShowFileRequest = { filePath?: string; isLogFile?: boolean };

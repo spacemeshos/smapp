@@ -12,11 +12,8 @@ import 'json-bigint-patch';
 
 import path from 'path';
 import fs from 'fs';
-// import os from 'os';
 import { app } from 'electron';
-import { init, captureException } from '@sentry/electron';
 import 'regenerator-runtime/runtime';
-import { BrowserTracing } from '@sentry/tracing';
 import Bech32 from '@spacemesh/address-wasm';
 import HRP from '../shared/hrp';
 import AutoStartManager from './AutoStartManager';
@@ -28,6 +25,7 @@ import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
 import Wallet from './main/Wallet';
 import startApp from './main/startApp';
+import { init, captureMainException } from './sentry';
 
 // Ensure that we run only single instance of Smapp
 !app.requestSingleInstanceLock() && app.quit();
@@ -37,19 +35,6 @@ require('dotenv').config();
 isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
 
-// Ubuntu/Debian builds working only with this arg ( u can add it in terminal too )
-// isProd() && app.commandLine.appendSwitch('--no-sandbox');
-
-init({
-  dsn: process.env.SENTRY_DSN,
-  integrations: [new BrowserTracing()],
-  tracesSampleRate: 1.0,
-  debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-  environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
-  enabled: process.env.NODE_ENV !== 'development',
-  maxValueLength: 20000,
-  attachStacktrace: true,
-});
 
 (async function () {
   const filePath = path.resolve(
@@ -74,6 +59,9 @@ const context = getDefaultAppContext();
 // TODO: Set HRP Network by retrieving it from some config?
 Bech32.setHRPNetwork(HRP.TestNet);
 
+init();
+console.log({ mainErrorEventId: captureMainException(new Error('node error')) })
+
 // Run
 app
   .whenReady()
@@ -85,4 +73,4 @@ app
     context.state = startApp();
     return context.state;
   })
-  .catch(captureException);
+  .catch(captureMainException);

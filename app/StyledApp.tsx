@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
-import { Router, Route, Switch, Redirect, matchPath } from 'react-router-dom';
+import { Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
-import { init, reactRouterV5Instrumentation } from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
 import { createBrowserHistory } from 'history';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
@@ -15,27 +13,13 @@ import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
 import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
+import { captureReactException, init } from './sentry';
 
 const history = createBrowserHistory();
 
-init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
-  enabled: process.env.NODE_ENV !== 'development',
-  integrations: [
-    new BrowserTracing({
-      routingInstrumentation: reactRouterV5Instrumentation(
-        history,
-        Object.values(routes).reduce((prev, next) => [...prev, ...next], []),
-        matchPath
-      ),
-    }),
-  ],
-  tracesSampleRate: 1.0,
-  debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-  maxValueLength: 20000,
-  attachStacktrace: true,
-});
+init();
+
+console.log({ sentryID: captureReactException(new Error('react Error')) });
 
 const EventRouter = () => {
   const onSwitchNet = (_, { isWalletOnly }) =>
