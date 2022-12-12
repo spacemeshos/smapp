@@ -4,4 +4,4 @@ export { default as CorneredContainer } from './CorneredContainer';
 export { default as BackButton } from './BackButton';
 // eslint-disable-next-line import/no-cycle
 export { default as Modal } from './Modal';
-export { default as Feedback } from './Feedback';
+// export { default as Feedback } from './Feedback';
