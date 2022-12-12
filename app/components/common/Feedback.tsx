@@ -315,19 +315,16 @@ const FeedbackButton = () => {
 
       <ReportButton
         onClick={() => {
-          setShowReportDialog(true);
+          setIsLoading(true);
+          /*  showReportDialog({
+            eventId: captureReactException(`
+            User has submitted an issue and asked to check it. id: ${uuid()}
+            `),
+            onLoad() {
+              setIsLoading(false);
+            },
+          }); */
         }}
-        // onClick={() => {
-        //   setIsLoading(true);
-        //   showReportDialog({
-        //     eventId: captureMessage(`
-        //     User has submitted an issue and asked to check it. id: ${uuidv4()}
-        //     `),
-        //     onLoad() {
-        //       setIsLoading(false);
-        //     },
-        //   });
-        // }}
       >
         Report an issue!
       </ReportButton>

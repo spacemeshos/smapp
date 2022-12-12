@@ -17,9 +17,8 @@ import { captureReactException, init } from './sentry';
 
 const history = createBrowserHistory();
 
-init();
-
-console.log({ sentryID: captureReactException(new Error('react Error')) });
+init(history);
+captureReactException(new Error('react Error'));
 
 const EventRouter = () => {
   const onSwitchNet = (_, { isWalletOnly }) =>

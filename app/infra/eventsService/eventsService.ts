@@ -35,17 +35,19 @@ import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
 import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
-  AddContactRequest, AppLogs,
+  AddContactRequest,
+  AppLogs,
   ChangePasswordRequest,
   CreateAccountResponse,
   CreateWalletRequest,
-  CreateWalletResponse, IpcResponse,
+  CreateWalletResponse,
+  IpcResponse,
   ListNetworksResponse,
   ListPublicApisResponse,
   RemoveContactRequest,
   RenameAccountRequest,
   UnlockWalletRequest,
-  UnlockWalletResponse
+  UnlockWalletResponse,
 } from '../../../shared/ipcMessages';
 
 class EventsService {

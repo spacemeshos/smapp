@@ -1,13 +1,9 @@
 import util from 'util';
 import fs from 'fs';
-import logger from 'electron-log';
 import { F_OK } from 'constants';
 import cs from 'checksum';
 import fetch from 'electron-fetch';
 import { configCodecByFirstChar } from '../shared/utils';
-import { generateGenesisIDFromConfig } from './main/Networks';
-import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
-import NodeConfig from './main/NodeConfig';
 
 // --------------------------------------------------------
 // ENV modes
@@ -126,28 +122,3 @@ export const getSpawnErrorReason = (err: any) => {
       return '';
   }
 };
-
-export const addNodeLogFile = async () => {
-  const nodeConfig = await NodeConfig.load();
-  const genesisID = generateGenesisIDFromConfig(nodeConfig);
-  const logFilePath = getNodeLogsPath(generateGenesisIDFromConfig(nodeConfig));
-  // Otherwise if Node exited, but there are no critical errors
-  // in the pool — search for fatal error in the logs
-  const lastLines = await readLinesFromBottom(logFilePath, 4000);
-  return {
-    genesisID,
-    content: lastLines.reverse().join('\n\t'),
-  };
-};
-
-export const addAppLogFile = async () => {
-  const logFilePath = logger.transports.file.getFile().path;
-
-  const lastLines = await readLinesFromBottom(logFilePath, 1000);
-  const appStartFrom = logFilePath.indexOf('app-log');
-  const fileName = logFilePath.slice(appStartFrom > 0 ? appStartFrom : 0, logFilePath.length - 4)
-  return {
-    fileName,
-    content: lastLines.reverse().join('\n\t'),
-};
-}
