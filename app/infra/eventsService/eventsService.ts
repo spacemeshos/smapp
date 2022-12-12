@@ -35,17 +35,17 @@ import TransactionManager from '../../../desktop/TransactionManager';
 import updaterSlice from '../../redux/updater/slice';
 import { CurrentLayer, GlobalStateHash } from '../../types/events';
 import {
-  AddContactRequest,
+  AddContactRequest, AppLogs,
   ChangePasswordRequest,
   CreateAccountResponse,
   CreateWalletRequest,
-  CreateWalletResponse,
+  CreateWalletResponse, IpcResponse,
   ListNetworksResponse,
   ListPublicApisResponse,
   RemoveContactRequest,
   RenameAccountRequest,
   UnlockWalletRequest,
-  UnlockWalletResponse,
+  UnlockWalletResponse
 } from '../../../shared/ipcMessages';
 
 class EventsService {
@@ -145,6 +145,11 @@ class EventsService {
     ipcRenderer.send(ipcConsts.W_M_SHOW_DELETE_FILE, filepath);
 
   static wipeOut = () => ipcRenderer.send(ipcConsts.W_M_WIPE_OUT);
+
+  /** ************************************   SENTRY   ****************************************** */
+
+  static getNodeAndAppLogs = (): Promise<IpcResponse<AppLogs>> =>
+    ipcRenderer.invoke(ipcConsts.GET_NODE_AND_APP_LOGS);
 
   /** ************************************   SMESHER   ****************************************** */
   static selectPostFolder = () =>

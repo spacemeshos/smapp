@@ -32,7 +32,7 @@ import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
 import { makeSubscription } from './rx.utils';
-import nodeIPCStreams from './sources/node.ipc';
+import nodeIPCStreams, { nodeAndAppLogsListener } from './sources/node.ipc';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -166,6 +166,8 @@ const startApp = (): AppStore => {
     fetchDiscoveryEach(60 * MINUTE, $networks),
     // And update them by users request
     listNetworksByRequest(),
+    // Get actual logs to client app
+    nodeAndAppLogsListener(),
     // List Public APIs for current network
     // Do not update anything
     listPublicApisByRequest($wallet),

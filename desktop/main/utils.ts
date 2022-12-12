@@ -43,5 +43,10 @@ export const readLinesFromBottom = async (filepath: string, amount: number) => {
       result.push(line);
       count += 1;
     });
+
+    str.on('end', () => {
+      resolve(result)
+    })
+
   });
 };
