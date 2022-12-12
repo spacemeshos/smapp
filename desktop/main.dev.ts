@@ -35,7 +35,6 @@ require('dotenv').config();
 isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
 
-
 (async function () {
   const filePath = path.resolve(
     app.getAppPath(),
@@ -60,7 +59,7 @@ const context = getDefaultAppContext();
 Bech32.setHRPNetwork(HRP.TestNet);
 
 init();
-console.log({ mainErrorEventId: captureMainException(new Error('node error')) })
+captureMainException(new Error('node error'));
 
 // Run
 app

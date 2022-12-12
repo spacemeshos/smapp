@@ -102,6 +102,6 @@ export type AppLogs = {
   appLogs: string;
   genesisID: string;
   appLogsFileName: string;
-}
+};
 
 export type ShowFileRequest = { filePath?: string; isLogFile?: boolean };
