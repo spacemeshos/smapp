@@ -163,6 +163,13 @@ const sendReport = (name: string, email: string, comments: string) =>
       body: JSON.stringify({
         event_id: captureReactMessage(`
            User has submitted an issue and asked to check it. id: ${uuidv4()}
+           ------------------------------------------------------------------
+           ${name}
+           ------------------------------------------------------------------
+           ${email}
+           ------------------------------------------------------------------
+           ${comments}
+           ------------------------------------------------------------------
            `),
         name,
         email,
