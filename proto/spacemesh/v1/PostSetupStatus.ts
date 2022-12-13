@@ -7,10 +7,11 @@ import type { Long } from '@grpc/proto-loader';
 
 export enum _spacemesh_v1_PostSetupStatus_State {
   STATE_UNSPECIFIED = 0,
-  STATE_NOT_STARTED = 1,
+  STATE_NOT_STARTED = 1, // resume . (I stooped I can resume  |> there is no PoS data, u have to wait) or node is not init PoST
   STATE_IN_PROGRESS = 2,
-  STATE_COMPLETE = 3,
-  STATE_ERROR = 4,
+  STATE_STOPPED = 3, //( I started -> stopped or stopped the node, )I pause initing
+  STATE_COMPLETE = 4,
+  STATE_ERROR = 5, // show report an issue dialog
 }
 
 export interface PostSetupStatus {
