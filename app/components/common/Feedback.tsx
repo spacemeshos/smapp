@@ -69,6 +69,13 @@ const ModalContainer = styled.div`
   margin-top: 8px;
 `;
 
+const ErrorMessage = styled.span`
+  color: ${({ theme }) => theme.colors.error};
+  margin-top: -16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+`;
+
 const ActualInput = styled((props) => <input {...props} />)<{
   value?: string;
   onKeyPress?: (event: any) => void;
@@ -77,23 +84,12 @@ const ActualInput = styled((props) => <input {...props} />)<{
   onBlur?: (event: any) => void;
   isDisabled?: any;
   iconRight?: string;
-  isError?: boolean;
 }>`
   flex: 1;
   width: 100%;
   height: 38px;
   padding: 8px 10px;
   transition: background-color 100ms linear, border-color 100ms linear;
-  ${({ theme, isError }) =>
-    isError
-      ? css`
-          border: 2px solid ${theme.form.input.states.error.borderColor};
-          margin: 0;
-        `
-      : css`
-          border: none;
-          margin: 2px 0;
-        `}
 
   color: ${({
     theme: {
@@ -147,17 +143,6 @@ const StyledTextArea = styled((props) => <textarea {...props} rows={10} />)`
   cursor: ${({ isDisabled }) => (isDisabled ? 'not-allowed' : 'text')};
   ${({ theme: { form } }) => `
   border-radius: ${form.input.boxRadius}px;`};
-
-  ${({ theme, isError }) =>
-    isError
-      ? css`
-          border: 2px solid ${theme.form.input.states.error.borderColor};
-          margin: 0;
-        `
-      : css`
-          border: none;
-          margin: 2px 0;
-        `}
 `;
 
 interface FormFields {
@@ -206,6 +191,8 @@ const FORM_ERRORS: Partial<FormFields> = {
   description: 'Steps to reproduce should not be empty',
 };
 
+const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
+
 const FeedbackButton = () => {
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -221,32 +208,30 @@ const FeedbackButton = () => {
   });
 
   const validate = () => {
+    const errors = {};
     Object.keys(fieldErrors).forEach((key) => {
-      setFieldErrors((errors) => {
-        if (key === 'email' && userData[key]) {
-          const isValidEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(
-            userData[key] || ''
-          );
-          return {
-            ...errors,
-            [key]: !isValidEmail ? 'Email is not valid' : '',
-          };
-        }
+      if (key === 'email' && userData[key]) {
+        const isValidEmail = REGULAR_EXP_FOR_EMAIL_CHECK.test(
+          userData[key] || ''
+        );
+        errors[key] = !isValidEmail ? 'Email is not valid' : '';
+        return;
+      }
 
-        return {
-          ...errors,
-          [key]: !userData[key] ? FORM_ERRORS[key] : '',
-        };
-      });
+      errors[key] = userData[key] === '' ? FORM_ERRORS[key] : '';
     });
-    return !Object.values(fieldErrors).some((error) => error);
+    setFieldErrors(errors as FormFields);
+    return !Object.values(errors).some((error) => error);
   };
 
   const handleReport = () => {
     if (validate()) {
       setIsLoading(true);
       sendReport(userData.name, userData.email, userData.description)
-        .then(() => setIsLoading(false))
+        .then(() => {
+          setIsLoading(false);
+          return setShowReportDialog(false);
+        })
         .catch(captureReactException);
     }
   };
@@ -267,7 +252,6 @@ const FeedbackButton = () => {
           <ModalContainer>
             <InputWrapper label="Name" required>
               <ActualInput
-                isError={Boolean(fieldErrors.name)}
                 value={userData.name}
                 type="text"
                 required
@@ -280,10 +264,11 @@ const FeedbackButton = () => {
                 }
               />
             </InputWrapper>
-            {Boolean(fieldErrors.name) && <p>{fieldErrors.name}</p>}
+            {Boolean(fieldErrors.name) && (
+              <ErrorMessage>{fieldErrors.name}</ErrorMessage>
+            )}
             <InputWrapper label="E-mail" required>
               <ActualInput
-                isError={Boolean(fieldErrors.email)}
                 value={userData.email}
                 type="email"
                 required
@@ -296,13 +281,14 @@ const FeedbackButton = () => {
                 }
               />
             </InputWrapper>
-            {Boolean(fieldErrors.email) && <p>{fieldErrors.email}</p>}
+            {Boolean(fieldErrors.email) && (
+              <ErrorMessage>{fieldErrors.email}</ErrorMessage>
+            )}
             <InputWrapper label="Step to reproduce" required>
               <StyledTextArea
                 value={userData.description}
                 required
                 placeholder={DESCRIPTION_PLACEHOLDER}
-                isError={Boolean(fieldErrors.description)}
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
@@ -311,7 +297,9 @@ const FeedbackButton = () => {
                 }
               />
             </InputWrapper>
-            {Boolean(fieldErrors.email) && <p>{fieldErrors.email}</p>}
+            {Boolean(fieldErrors.description) && (
+              <ErrorMessage>{fieldErrors.description}</ErrorMessage>
+            )}
           </ModalContainer>
           <BackButton action={() => setShowReportDialog(false)} />
           <Row>
