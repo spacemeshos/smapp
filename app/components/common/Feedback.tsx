@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { Button, Loader } from '../../basicComponents';
+import { v4 as uuidv4 } from 'uuid';
+import { Button } from '../../basicComponents';
+import { captureReactException, captureReactMessage } from '../../sentry';
+import Loader from '../../basicComponents/Loader';
 import Modal from './Modal';
 import BackButton from './BackButton';
 
@@ -130,12 +133,11 @@ const ActualInput = styled((props) => <input {...props} />)<{
   `}
 `;
 
-const StyledTextArea = styled((props) => <textarea {...props} rows={4} />)`
+const StyledTextArea = styled((props) => <textarea {...props} rows={10} />)`
   display: flex;
   flex-direction: column;
   resize: none;
   flex: 1;
-  height: 38px;
   padding: 8px 10px;
   border-radius: 0;
   transition: background-color 100ms linear, border-color 100ms linear;
@@ -158,102 +160,105 @@ const StyledTextArea = styled((props) => <textarea {...props} rows={4} />)`
         `}
 `;
 
-const UploadIcon = styled.img.attrs((props) => ({
-  src: props.theme.icons.uploadingContrast,
-}))`
-  margin-left: auto;
-`;
+interface FormFields {
+  name: string;
+  email: string;
+  description: string;
+}
 
-const UploadField = styled((props) => {
-  const onFilesAddedHandler = (e: any) => {
-    e.preventDefault();
-  };
-
-  return (
-    <div {...props}>
-      <div>
-        <UploadIcon />
-      </div>
-      <input type="file" onChange={onFilesAddedHandler} />
-    </div>
+const sendReport = (name: string, email: string, comments: string) =>
+  fetch(
+    `https://sentry.io/api/0/projects/${process.env.SENTRY_SLUG}/${process.env.SENTRY_PROJECT_SLUG}/user-feedback/`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `DSN ${process.env.SENTRY_DSN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        event_id: captureReactMessage(`
+           User has submitted an issue and asked to check it. id: ${uuidv4()}
+           `),
+        name,
+        email,
+        comments,
+      }),
+    }
   );
-})`
-  position: relative;
-  display: flex;
 
-  height: 38px;
-  font-size: 14px;
-  line-height: 16px;
+const DESCRIPTION_PLACEHOLDER = `
+### Describe the bug
 
-  && {
-    > div {
-      display: flex;
-      padding: 8px 10px;
+A clear and concise description of what the bug is.
 
-      flex: 1;
-      width: 100%;
-      outline: none;
-      ${({ theme: { form } }) => css`
-        border-radius: ${form.input.boxRadius}px;
-      `}
-      color: ${({
-        theme: {
-          form: {
-            input: { states },
-          },
-        },
-      }) => states.normal.color};
-      background-color: ${({
-        theme: {
-          form: {
-            input: { states },
-          },
-        },
-      }) => states.normal.backgroundColor};
-    }
-    input {
-      position: absolute;
-      display: flex;
-      width: 100%;
-      height: 38px;
-      opacity: 0;
-      cursor: pointer;
-    }
-  }
+### Steps to reproduce
+
+Try to narrow down your scenario to a minimal working/failing example. That is, if you have a big program causing a problem, start with deleting parts not relevant to the issue and observing the result: is the problem still there? Repeat until you get the most straightforward sequence of steps to reproduce the problem without any noise surrounding it.
+
+1.  Open this
+2.  Press that
+3.  Click here and there
 `;
+
+const FORM_ERRORS: Partial<FormFields> = {
+  name: 'Your name should not be empty',
+  email: 'Email should be valid',
+  description: 'Steps to reproduce should not be empty',
+};
 
 const FeedbackButton = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
-
-  const [userData, setUserData] = useState<{
-    name?: string;
-    email?: string;
-    description?: string;
-  }>({});
-  const [fieldErrors, setFieldErrors] = useState({
-    name: false,
-    email: false,
-    description: false,
+  const [isLoading, setIsLoading] = useState(false);
+  const [userData, setUserData] = useState<FormFields>({
+    name: '',
+    email: '',
+    description: DESCRIPTION_PLACEHOLDER,
   });
-
-  if (isLoading) {
-    return <Loader size={Loader.sizes.SMALL} note="Report dialog is loading" />;
-  }
+  const [fieldErrors, setFieldErrors] = useState({
+    name: '',
+    email: '',
+    description: '',
+  });
 
   const validate = () => {
     Object.keys(fieldErrors).forEach((key) => {
-      setFieldErrors((errors) => ({ ...errors, [key]: !userData[key] }));
+      setFieldErrors((errors) => {
+        if (key === 'email' && userData[key]) {
+          const isValidEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(
+            userData[key] || ''
+          );
+          return {
+            ...errors,
+            [key]: !isValidEmail ? 'Email is not valid' : '',
+          };
+        }
+
+        return {
+          ...errors,
+          [key]: !userData[key] ? FORM_ERRORS[key] : '',
+        };
+      });
     });
     return !Object.values(fieldErrors).some((error) => error);
   };
 
   const handleReport = () => {
     if (validate()) {
-      // eslint-disable-next-line no-console
-      console.log('userData!', userData);
+      setIsLoading(true);
+      sendReport(userData.name, userData.email, userData.description)
+        .then(() => setIsLoading(false))
+        .catch(captureReactException);
     }
   };
+
+  if (isLoading) {
+    return (
+      <Loader
+        size={Loader.sizes.SMALL}
+        note="We are sending the report. Please wait."
+      />
+    );
+  }
 
   return (
     <Container>
@@ -262,8 +267,11 @@ const FeedbackButton = () => {
           <ModalContainer>
             <InputWrapper label="Name" required>
               <ActualInput
-                isError={fieldErrors.name}
+                isError={Boolean(fieldErrors.name)}
                 value={userData.name}
+                type="text"
+                required
+                placeholder="John Doe"
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
@@ -272,10 +280,14 @@ const FeedbackButton = () => {
                 }
               />
             </InputWrapper>
+            {Boolean(fieldErrors.name) && <p>{fieldErrors.name}</p>}
             <InputWrapper label="E-mail" required>
               <ActualInput
-                isError={fieldErrors.email}
+                isError={Boolean(fieldErrors.email)}
                 value={userData.email}
+                type="email"
+                required
+                placeholder="john.doe@gmail.com"
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
@@ -284,10 +296,13 @@ const FeedbackButton = () => {
                 }
               />
             </InputWrapper>
+            {Boolean(fieldErrors.email) && <p>{fieldErrors.email}</p>}
             <InputWrapper label="Step to reproduce" required>
               <StyledTextArea
                 value={userData.description}
-                isError={fieldErrors.description}
+                required
+                placeholder={DESCRIPTION_PLACEHOLDER}
+                isError={Boolean(fieldErrors.description)}
                 onChange={(e: any) =>
                   setUserData((userData) => ({
                     ...userData,
@@ -296,13 +311,9 @@ const FeedbackButton = () => {
                 }
               />
             </InputWrapper>
-            <InputWrapper label="File loader">
-              <UploadField />
-            </InputWrapper>
+            {Boolean(fieldErrors.email) && <p>{fieldErrors.email}</p>}
           </ModalContainer>
-
           <BackButton action={() => setShowReportDialog(false)} />
-
           <Row>
             <Button
               style={{ marginLeft: 'auto' }}
@@ -315,15 +326,7 @@ const FeedbackButton = () => {
 
       <ReportButton
         onClick={() => {
-          setIsLoading(true);
-          /*  showReportDialog({
-            eventId: captureReactException(`
-            User has submitted an issue and asked to check it. id: ${uuid()}
-            `),
-            onLoad() {
-              setIsLoading(false);
-            },
-          }); */
+          setShowReportDialog(true);
         }}
       >
         Report an issue!
