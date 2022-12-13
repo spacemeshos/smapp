@@ -52,6 +52,10 @@ export const captureReactException = (e: Error) => {
   return Sentry.captureException(e);
 };
 
+export const captureReactMessage = (message: string) => {
+  return Sentry.captureMessage(message);
+};
+
 export const captureReactBreadcrumb = (o: any) => {
   return Sentry.addBreadcrumb(o);
 };

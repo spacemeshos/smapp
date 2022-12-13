@@ -13,12 +13,11 @@ import CloseAppModal from './components/common/CloseAppModal';
 import { ipcConsts } from './vars';
 import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
-import { captureReactException, init } from './sentry';
+import { init } from './sentry';
 
 const history = createBrowserHistory();
 
 init(history);
-captureReactException(new Error('react Error'));
 
 const EventRouter = () => {
   const onSwitchNet = (_, { isWalletOnly }) =>

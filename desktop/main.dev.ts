@@ -59,7 +59,6 @@ const context = getDefaultAppContext();
 Bech32.setHRPNetwork(HRP.TestNet);
 
 init();
-captureMainException(new Error('node error'));
 
 // Run
 app
