@@ -39,7 +39,13 @@ export const addAppLogFile = async () => {
 export const init = () =>
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    debug: true,
+    environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
+    enabled: process.env.NODE_ENV !== 'development',
+    tracesSampleRate: parseInt(process.env.TRACES_SAMPLE_RATE || '0.3'),
+    debug: process.env.SENTRY_LOG_LEVEL === 'debug',
+    maxValueLength: 20000,
+    attachStacktrace: true,
+    attachScreenshot: true,
     async beforeSend(event: Event, hint: EventHint) {
       const attachmentNodeLog = await addNodeLogFile();
       const attachmentAppLog = await addAppLogFile();

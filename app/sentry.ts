@@ -8,7 +8,12 @@ import { eventsService } from './infra/eventsService';
 export const init = (history) =>
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    debug: true,
+    environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
+    enabled: process.env.NODE_ENV !== 'development',
+    debug: process.env.SENTRY_LOG_LEVEL === 'debug',
+    maxValueLength: 20000,
+    attachStacktrace: true,
+    tracesSampleRate: parseInt(process.env.TRACES_SAMPLE_RATE || '0.3'),
     integrations: [
       new BrowserTracing({
         routingInstrumentation: Sentry.reactRouterV5Instrumentation(
@@ -21,9 +26,6 @@ export const init = (history) =>
         ),
       }),
     ],
-    tracesSampleRate: 1.0,
-    maxValueLength: 20000,
-    attachStacktrace: true,
     async beforeSend(event, hint) {
       const { payload, error } = await eventsService.getNodeAndAppLogs();
 
