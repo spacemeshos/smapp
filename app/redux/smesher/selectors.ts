@@ -25,7 +25,7 @@ export const isValidSmeshingOpts = (
 
 export const isSmeshingPaused = (state: RootState) => {
   const isNotStarted =
-    getPostSetupState(state) === PostSetupState.STATE_NOT_STARTED;
+    getPostSetupState(state) === PostSetupState.STATE_STOPPED;
   const opts = getSmeshingOpts(state);
   return isNotStarted && isValidSmeshingOpts(opts);
 };

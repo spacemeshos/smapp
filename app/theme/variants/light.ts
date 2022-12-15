@@ -181,7 +181,7 @@ export default {
         base: colors.primary100,
         hover: colors.primary90,
         focus: colors.dark,
-        inactive: colors.light100,
+        inactive: colors.light140,
       },
     },
     secondary: {
@@ -196,7 +196,7 @@ export default {
         base: colors.secondary100,
         hover: colors.secondary90,
         focus: colors.dark,
-        inactive: colors.light100,
+        inactive: colors.light140,
       },
     },
   },

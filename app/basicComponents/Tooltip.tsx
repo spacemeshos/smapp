@@ -2,8 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../vars';
 
-const InnerWrapper = styled.div<{ top: number; left: number; width: number }>`
-  display: none;
+const InnerWrapper = styled.div<{
+  top: number;
+  left: number;
+  width: number;
+  hide: boolean;
+}>`
+  display: ${({ hide }) => (hide ? 'none' : 'block')};
   position: absolute;
   top: ${({ top }) => top}px;
   left: ${({ left }) => left}px;
@@ -62,9 +67,9 @@ const OuterIcon = styled.img.attrs((props) => ({
   }) => infoTooltip.color};
 `;
 
-const Wrapper = styled.div<{ marginTop: number }>`
+const Wrapper = styled.div<{ marginTop: number; marginLeft: number }>`
   position: relative;
-  margin-left: 5px;
+  margin-left: ${({ marginLeft }) => marginLeft}px;
   display: inline-block;
   margin-top: ${({ marginTop }) => marginTop}px;
   &:hover ${InnerWrapper} {
@@ -77,7 +82,9 @@ type Props = {
   left?: number;
   width: number;
   marginTop?: number;
+  marginLeft?: number;
   text: string;
+  hide?: boolean;
 };
 
 const Tooltip = ({
@@ -86,10 +93,12 @@ const Tooltip = ({
   width,
   text,
   marginTop = 2,
+  marginLeft = 5,
+  hide = true,
 }: Props) => (
-  <Wrapper marginTop={marginTop}>
+  <Wrapper marginTop={marginTop} marginLeft={marginLeft}>
     <OuterIcon />
-    <InnerWrapper top={top} left={left} width={width}>
+    <InnerWrapper top={top} left={left} width={width} hide={hide}>
       <InnerIcon />
       <Text>{text}</Text>
     </InnerWrapper>
