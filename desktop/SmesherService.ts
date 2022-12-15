@@ -198,9 +198,9 @@ class SmesherService extends NetServiceFactory<
       .then(this.normalizeServiceResponse)
       .catch(
         this.normalizeServiceError({
-          postSetupState: PostSetupState.STATE_UNSPECIFIED,
+          postSetupState: PostSetupState.STATE_ERROR,
           numLabelsWritten: 0,
-          errorMessage: '',
+          errorMessage: 'Unexpected error. Please send the issue report.',
         })
       );
 

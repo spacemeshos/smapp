@@ -110,7 +110,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     case PAUSED_SMESHING: {
       return {
         ...state,
-        postSetupState: PostSetupState.STATE_NOT_STARTED,
+        postSetupState: PostSetupState.STATE_STOPPED,
       };
     }
     case RESUMED_SMESHING: {
