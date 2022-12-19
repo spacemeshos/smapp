@@ -205,6 +205,7 @@
     "react-redux": "7.2.3",
     "react-router": "5.2.0",
     "react-router-dom": "5.2.0",
+    "react-router-dom-v5-compat": "^6.4.5",
     "react-scroll": "^1.8.7",
     "react-timeago": "^6.2.1",
     "redux": "4.0.5",

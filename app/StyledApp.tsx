@@ -6,6 +6,7 @@ import { ipcRenderer } from 'electron';
 import { init, reactRouterV5Instrumentation } from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
 import { createBrowserHistory } from 'history';
+import { CompatRouter } from 'react-router-dom-v5-compat';
 import routes from './routes';
 import GlobalStyle from './globalStyle';
 import { RootState } from './types';
@@ -73,17 +74,19 @@ const StyledApp = () => {
       <ErrorBoundary>
         {isClosingApp && <CloseAppModal />}
         <Router history={history}>
-          <EventRouter />
-          <Switch>
-            {routes.app.map((route) => (
-              <Route
-                key={route.path}
-                path={route.path}
-                component={route.component}
-              />
-            ))}
-            <Redirect to="/auth" />
-          </Switch>
+          <CompatRouter>
+            <EventRouter />
+            <Switch>
+              {routes.app.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  component={route.component}
+                />
+              ))}
+              <Redirect to="/auth" />
+            </Switch>
+          </CompatRouter>
         </Router>
       </ErrorBoundary>
     </ThemeProvider>
