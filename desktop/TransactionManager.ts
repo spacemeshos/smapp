@@ -32,6 +32,7 @@ import {
   toHexString,
 } from '../shared/utils';
 import { MAX_GAS } from '../shared/constants';
+import { getMethodName, getTemplateName } from '../shared/templateMeta';
 import { addReceiptToTx, toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
@@ -293,10 +294,13 @@ class TransactionManager {
       ? { ...originalTx?.receipt, ...tx.receipt }
       : originalTx?.receipt;
     // Do not downgrade status from SUCCESS/FAILURE/INVALID
-    const status =
-      originalTx.status > TxState.PROCESSED && originalTx.status > tx.status
-        ? originalTx.status
-        : tx.status;
+    let { status } = tx;
+    if (
+      originalTx?.status > TxState.PROCESSED &&
+      originalTx?.status > tx.status
+    ) {
+      status = originalTx.status;
+    }
     const updatedTx: Tx = { ...originalTx, ...tx, status, receipt };
     await this.storeTx(accountAddress, updatedTx);
     this.subscribeTransactions(accountAddress);
@@ -499,12 +503,13 @@ class TransactionManager {
           : null;
       const { currentLayer } = await this.meshService.getCurrentLayer();
       // Compose "initial" transaction record
+      const method = 0;
       const tx =
         response.error === null && response.txstate?.id?.id
           ? asTx({
               id: toHexString(response.txstate.id.id),
               template: Bech32.generateAddress(SingleSigTemplate.publicKey),
-              method: 0,
+              method,
               principal: address,
               gas: {
                 gasPrice: fee,
@@ -513,6 +518,10 @@ class TransactionManager {
               },
               status: toTxState(response.txstate.state),
               payload,
+              meta: {
+                templateName: getTemplateName(SingleSigTemplate.publicKey),
+                methodName: getMethodName(SingleSigTemplate.publicKey, method),
+              },
               layer: currentLayer,
             })
           : null;
@@ -584,12 +593,13 @@ class TransactionManager {
           : null;
       // Compose "initial" transaction record
       const { currentLayer } = await this.meshService.getCurrentLayer();
+      const method = 1;
       const tx =
         response.error === null && response.txstate?.id?.id
           ? asTx({
               id: toHexString(response.txstate.id.id),
               template: Bech32.generateAddress(SingleSigTemplate.publicKey),
-              method: 0,
+              method,
               principal: address,
               gas: {
                 gasPrice: fee,
@@ -605,6 +615,10 @@ class TransactionManager {
                     payload.Arguments.Destination
                   ),
                 },
+              },
+              meta: {
+                templateName: getTemplateName(SingleSigTemplate.publicKey),
+                methodName: getMethodName(SingleSigTemplate.publicKey, method),
               },
               layer: currentLayer,
             })

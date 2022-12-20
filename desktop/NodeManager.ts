@@ -158,6 +158,7 @@ class NodeManager {
   // Before deleting
   unsubscribe = () => {
     this.stopNode();
+    this.nodeService.cancelStreams();
     this.unsub();
   };
 

@@ -148,7 +148,7 @@ class Main extends Component<Props, State> {
   }
 
   render() {
-    const { isWalletOnly, nodeError, status, genesisID, theme } = this.props;
+    const { nodeError, status, genesisID, theme } = this.props;
 
     const { settings, getCoins, help, signOut } = theme.icons;
     const bgColor = theme.color.primary;
@@ -157,7 +157,7 @@ class Main extends Component<Props, State> {
     const indicatorColor =
       nodeError || !genesisID.length
         ? smColors.red
-        : isWalletOnly || status?.isSynced
+        : status?.isSynced
         ? smColors.green
         : smColors.orange;
     /* eslint-enable no-nested-ternary */

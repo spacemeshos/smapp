@@ -88,7 +88,6 @@ const startApp = (): AppStore => {
     $quit,
     $isAppClosing,
     $showWindowOnLoad,
-    $isSmappActivated,
   } = createMainWindow();
   // Store
   const $storeService = observeStoreService();
@@ -156,13 +155,10 @@ const startApp = (): AppStore => {
       }
     ),
     // Each time when Smapp is activated (window reloaded and shown)...
-    makeSubscription(
-      $isSmappActivated.pipe($.withLatestFrom($managers)),
-      ([_, managers]) => {
-        managers.node.updateNodeStatus();
-        managers.smesher.updateSmesherState();
-      }
-    ),
+    makeSubscription($managers, (managers) => {
+      managers.node.updateNodeStatus();
+      managers.smesher.updateSmesherState();
+    }),
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),

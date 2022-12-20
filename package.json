@@ -213,6 +213,7 @@
     "rxjs": "^7.5.5",
     "semver": "^7.3.5",
     "source-map-support": "0.5.19",
+    "stream": "^0.0.2",
     "styled-components": "^5.3.6",
     "throttle-debounce": "^4.0.1",
     "ts-toolbelt": "^9.6.0",
