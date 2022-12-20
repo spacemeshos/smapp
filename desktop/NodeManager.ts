@@ -460,7 +460,8 @@ class NodeManager {
     if (!this.nodeProcess) return;
     try {
       // Request Node shutdown
-      await this.nodeService.shutdown();
+      this.nodeProcess.kill('SIGKILL');
+
       // Wait until the process finish in a proper way
       !(await this.waitProcessFinish(
         PROCESS_EXIT_TIMEOUT,
@@ -479,6 +480,7 @@ class NodeManager {
         )) &&
         // Send a SIGKILL to force kill the process
         this.nodeProcess.kill('SIGKILL');
+
       // Finally, drop the reference
       this.nodeProcess = null;
     } catch (err) {
