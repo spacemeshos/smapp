@@ -447,6 +447,10 @@ class NodeManager {
   ): Promise<boolean> => {
     if (!this.nodeProcess) return true;
     const isFinished = !this.nodeProcess.kill(0);
+    logger.log(
+      'Spawn process',
+      `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
+    );
     if (timeout <= 0) return isFinished;
     if (isFinished) return true;
     return isFinished
@@ -460,8 +464,8 @@ class NodeManager {
     if (!this.nodeProcess) return;
     try {
       // Request Node shutdown
-      this.nodeProcess.kill('SIGKILL');
-
+      this.nodeProcess.kill('SIGTERM');
+      logger.log('stop node', 'kill SIGTERM');
       // Wait until the process finish in a proper way
       !(await this.waitProcessFinish(
         PROCESS_EXIT_TIMEOUT,
@@ -481,6 +485,7 @@ class NodeManager {
         // Send a SIGKILL to force kill the process
         this.nodeProcess.kill('SIGKILL');
 
+      logger.log('stop node', 'node process is null');
       // Finally, drop the reference
       this.nodeProcess = null;
     } catch (err) {
