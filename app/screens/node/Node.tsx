@@ -78,8 +78,14 @@ const Footer = styled.div`
   display: flex;
   flex-direction: row;
   flex: 1;
+  align-items: flex-end;
+`;
+
+const FooterSection = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex: 1;
   align-items: flex-start;
-  margin-top: 60px;
 `;
 
 const SmesherId = styled.span`
@@ -203,7 +209,7 @@ const BottomActionSection = styled.div`
 `;
 
 const POS_DATA_NOT_READY_TO_START =
-  'Smeshing screen is waiting when the Node will be synced';
+  'Please wait for the node to finish syncing before setting up your proof of space. You can check these details on the Network screen.';
 const POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE = `The Node is not syncing. Please check the Network tab. ${POS_DATA_NOT_READY_TO_START}`;
 const getStatus = (
   state: PostSetupState,
@@ -421,52 +427,54 @@ const Node = ({ history, location }: Props) => {
         )}
         {renderTable(getTableData())}
         <Footer>
-          <Button
-            onClick={() =>
-              history.push(MainPath.SmeshingSetup, { modifyPostData: true })
-            }
-            img={posDirectoryWhite}
-            text="EDIT"
-            isPrimary={false}
-            style={{ marginRight: 15 }}
-            imgPosition="before"
-            isDisabled={!nodeStatus}
-            width={180}
-          />
-          {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
+          <FooterSection>
             <Button
-              onClick={handlePauseSmeshing}
-              text="PAUSE POST DATA GENERATION"
-              img={pauseIcon}
-              isPrimary={false}
-              width={280}
-              isDisabled={!nodeStatus}
-              imgPosition="before"
-            />
-          )}
-          {isPausedSmeshing && (
-            <Button
-              onClick={handleResumeSmeshing}
-              text="RESUME POST DATA GENERATION"
-              img={playIcon}
-              isPrimary
-              width={280}
-              isDisabled={!nodeStatus}
-              imgPosition="before"
-            />
-          )}
-          {!nodeStatus && (
-            <Tooltip
-              width={200}
-              marginLeft={-10}
-              hide={false}
-              text={
-                nodeStatusError
-                  ? POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE
-                  : POS_DATA_NOT_READY_TO_START
+              onClick={() =>
+                history.push(MainPath.SmeshingSetup, { modifyPostData: true })
               }
+              img={posDirectoryWhite}
+              text="EDIT"
+              isPrimary={false}
+              style={{ marginRight: 15 }}
+              imgPosition="before"
+              isDisabled={!nodeStatus}
+              width={180}
             />
-          )}
+            {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
+              <Button
+                onClick={handlePauseSmeshing}
+                text="PAUSE POST DATA GENERATION"
+                img={pauseIcon}
+                isPrimary={false}
+                width={280}
+                isDisabled={!nodeStatus}
+                imgPosition="before"
+              />
+            )}
+            {isPausedSmeshing && (
+              <Button
+                onClick={handleResumeSmeshing}
+                text="RESUME POST DATA GENERATION"
+                img={playIcon}
+                isPrimary
+                width={280}
+                isDisabled={!nodeStatus}
+                imgPosition="before"
+              />
+            )}
+            {!nodeStatus && (
+              <Tooltip
+                width={200}
+                marginLeft={-10}
+                hide={false}
+                text={
+                  nodeStatusError
+                    ? POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE
+                    : POS_DATA_NOT_READY_TO_START
+                }
+              />
+            )}
+          </FooterSection>
         </Footer>
       </>
     );
