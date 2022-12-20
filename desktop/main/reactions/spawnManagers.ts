@@ -49,9 +49,9 @@ const spawnManagers$ = (
       .pipe(skip(1), withLatestFrom($managers))
       .subscribe(([_, managers]) => {
         if (managers) {
-          managers.wallet?.unsubscribe();
-          managers.smesher?.unsubscribe();
-          managers.node?.unsubscribe();
+          managers.wallet.unsubscribe();
+          managers.smesher.unsubscribe();
+          managers.node.unsubscribe();
         }
       }),
     // And then spawn new managers
