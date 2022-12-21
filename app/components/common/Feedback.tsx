@@ -186,8 +186,7 @@ const sendReport = (name: string, email: string, comments: string) =>
     }
   );
 
-const DESCRIPTION_PLACEHOLDER = `
-### Describe the bug
+const DESCRIPTION_PLACEHOLDER = `### Describe the bug
 
 A clear and concise description of what the bug is.
 
@@ -195,9 +194,13 @@ A clear and concise description of what the bug is.
 
 Try to narrow down your scenario to a minimal working/failing example. That is, if you have a big program causing a problem, start with deleting parts not relevant to the issue and observing the result: is the problem still there? Repeat until you get the most straightforward sequence of steps to reproduce the problem without any noise surrounding it.
 
-1.  Open this
-2.  Press that
-3.  Click here and there
+### Expected behavior
+
+What should happen?
+
+### Actual behavior
+
+What’s happening now?
 `;
 
 const FORM_ERRORS: Partial<FormFields> = {
@@ -284,9 +287,9 @@ const FeedbackButton = () => {
       {showReportDialogSuccessMessage && (
         <Modal header="The report was sent" indicatorColor={smColors.green}>
           <SuccemssMessage>
-            The report was sent. We will check the details of the node and app.
-            In rare cases, we can reach you by given email. You can join our
-            community.
+            Thanks for the report! Spacemesh team will investigate it and open
+            an issue on Github. They may ask you to provide some details via
+            email you have specified. You can join our community.
             <br />
             <br />
             <Link
