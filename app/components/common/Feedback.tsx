@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Button } from '../../basicComponents';
+import { Button, Link } from '../../basicComponents';
 import { captureReactException, captureReactMessage } from '../../sentry';
 import Loader from '../../basicComponents/Loader';
+import { smColors } from '../../vars';
+import { ExternalLinks } from '../../../shared/constants';
 import Modal from './Modal';
 import BackButton from './BackButton';
 
@@ -72,6 +74,12 @@ const ModalContainer = styled.div`
 const ErrorMessage = styled.span`
   color: ${({ theme }) => theme.colors.error};
   margin-top: -16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+`;
+
+const SuccemssMessage = styled.span`
+  color: ${({ theme }) => theme.color.contrast};
   margin-bottom: 20px;
   font-size: 14px;
 `;
@@ -202,6 +210,10 @@ const REGULAR_EXP_FOR_EMAIL_CHECK = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]
 
 const FeedbackButton = () => {
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [
+    showReportDialogSuccessMessage,
+    setShowReportDialogSuccessMessage,
+  ] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState<FormFields>({
     name: '',
@@ -237,11 +249,18 @@ const FeedbackButton = () => {
       sendReport(userData.name, userData.email, userData.description)
         .then(() => {
           setIsLoading(false);
-          return setShowReportDialog(false);
+          setShowReportDialog(false);
+          return setShowReportDialogSuccessMessage(true);
         })
         .catch(captureReactException);
     }
   };
+
+  const handleCloseSuccessMessageModal = () => {
+    setShowReportDialogSuccessMessage(false);
+  };
+
+  const openDiscord = () => window.open(ExternalLinks.DiscordTapAccount);
 
   if (isLoading) {
     return (
@@ -254,8 +273,29 @@ const FeedbackButton = () => {
 
   return (
     <Container>
+      {showReportDialogSuccessMessage && (
+        <Modal header="The report was sent" indicatorColor={smColors.green}>
+          <SuccemssMessage>
+            The report was sent. We will check the details of the node and app.
+            In rare cases, we can reach you by given email. You can join our
+            community.
+            <br />
+            <br />
+            <Link
+              onClick={openDiscord}
+              text="join discord channel"
+              style={{ fontSize: 16, lineHeight: '22px' }}
+            />
+          </SuccemssMessage>
+          <Button onClick={handleCloseSuccessMessageModal} text="CLOSE" />
+        </Modal>
+      )}
       {showReportDialog && (
-        <Modal header="Report an issue" height={580}>
+        <Modal
+          header="Report an issue"
+          height={580}
+          indicatorColor={smColors.red}
+        >
           <ModalContainer>
             <InputWrapper label="Name" required>
               <ActualInput
