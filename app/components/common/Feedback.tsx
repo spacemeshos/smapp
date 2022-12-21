@@ -226,6 +226,13 @@ const FeedbackButton = () => {
     description: '',
   });
 
+  const resetForm = () =>
+    setUserData({
+      name: '',
+      email: '',
+      description: DESCRIPTION_PLACEHOLDER,
+    });
+
   const validate = () => {
     const errors = {};
     Object.keys(fieldErrors).forEach((key) => {
@@ -248,6 +255,7 @@ const FeedbackButton = () => {
       setIsLoading(true);
       sendReport(userData.name, userData.email, userData.description)
         .then(() => {
+          resetForm();
           setIsLoading(false);
           setShowReportDialog(false);
           return setShowReportDialogSuccessMessage(true);
@@ -361,6 +369,7 @@ const FeedbackButton = () => {
 
       <ReportButton
         onClick={() => {
+          resetForm();
           setShowReportDialog(true);
         }}
       >
