@@ -150,16 +150,15 @@ const WordWrapper = styled.div`
 
 const NotificationBoxOuter = styled(CorneredWrapper)`
   position: absolute;
-  bottom: -40px;
-  right: 0px;
+  bottom: 30px;
+  right: 160px;
 `;
 
 const NotificationBox = styled.div`
-  width: 315px;
-  padding: 4px 9px;
-  background-color: ${smColors.lightGray};
-  font-size: 10px;
-  line-height: 13px;
+  min-width: 300px;
+  padding: 2px 7px;
+  font-size: 14px;
+  line-height: 14px;
   color: ${({ color }) => color};
 `;
 
