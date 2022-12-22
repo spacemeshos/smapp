@@ -17,6 +17,7 @@ import {
 } from '../../redux/smesher/actions';
 import store from '../../redux/store';
 import {
+  Bech32Address,
   HexString,
   IPCSmesherStartupData,
   NodeError,
@@ -188,12 +189,12 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.W_M_SPAWN_TX, { fee, accountIndex });
 
   static updateTransactionNote = (
-    accountIndex: number,
+    address: Bech32Address,
     txId: HexString,
     note: string
   ) =>
     ipcRenderer.invoke(ipcConsts.W_M_UPDATE_TX_NOTE, {
-      accountIndex,
+      address,
       txId,
       note,
     });
