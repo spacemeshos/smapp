@@ -1,6 +1,8 @@
 import path from 'path';
 import Store from 'electron-store';
-import { Function, Object, String } from 'ts-toolbelt';
+import { Object } from 'ts-toolbelt';
+import { AutoPath } from 'ts-toolbelt/out/Function/AutoPath';
+import { Split } from 'ts-toolbelt/out/String/Split';
 import { AccountBalance } from '../shared/types';
 import { Transaction } from '../proto/spacemesh/v1/Transaction';
 import { _spacemesh_v1_TransactionState_TransactionState } from '../proto/spacemesh/v1/TransactionState';
@@ -50,20 +52,20 @@ class StoreService {
   }
 
   static set = <O extends ConfigStore, P extends string>(
-    key: Function.AutoPath<O, P>,
-    property: Object.Path<O, String.Split<P, '.'>>
+    key: AutoPath<O, P>,
+    property: Object.Path<O, Split<P, '.'>>
   ) => {
     StoreService.store.set(key, property);
   };
 
   static get = <O extends ConfigStore, P extends string>(
-    key: Function.AutoPath<O, P>
-  ): Object.Path<O, String.Split<P, '.'>> => {
+    key: AutoPath<O, P>
+  ): Object.Path<O, Split<P, '.'>> => {
     return StoreService.store.get(key);
   };
 
   static remove = <O extends ConfigStore, P extends string>(
-    key: Function.AutoPath<O, P>
+    key: AutoPath<O, P>
   ) => {
     StoreService.store.delete(key as keyof ConfigStore); // kludge to workaround StoreService types
   };
@@ -77,9 +79,9 @@ class StoreService {
   static onChange = <
     O extends ConfigStore,
     P extends string,
-    V extends Object.Path<O, String.Split<P, '.'>>
+    V extends Object.Path<O, Split<P, '.'>>
   >(
-    key: Function.AutoPath<O, P>,
+    key: AutoPath<O, P>,
     cb: (newValue?: V, prevValue?: V) => void
   ) => {
     // @ts-ignore
