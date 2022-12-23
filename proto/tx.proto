@@ -27,6 +27,6 @@ service TransactionService {
     // one of these txs
     rpc TransactionsStateStream(TransactionsStateStreamRequest) returns (stream TransactionsStateStreamResponse);
 
-    // StreamResults streams historical data and watch live events with transaction results.
+    // StreamResults streams historical data and watch live events with transaction results. 
     rpc StreamResults(TransactionResultsRequest) returns (stream TransactionResult);
 }

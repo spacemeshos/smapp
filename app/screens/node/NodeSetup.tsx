@@ -124,7 +124,7 @@ const NodeSetup = ({ history, location }: Props) => {
       })
     );
 
-    if (done) {
+    if ((done as unknown) as boolean) {
       history.push(MainPath.Smeshing, { showIntro: true });
     }
   };

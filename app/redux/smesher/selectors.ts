@@ -9,6 +9,9 @@ export const isSmeshing = (state: RootState) =>
 export const isCreatingPostData = (state: RootState) =>
   getPostSetupState(state) === PostSetupState.STATE_IN_PROGRESS;
 
+export const isErrorState = (state: RootState) =>
+  getPostSetupState(state) === PostSetupState.STATE_ERROR;
+
 export const getSmeshingOpts = (state: RootState) => {
   const {
     smesher: { coinbase, dataDir, numUnits, throttle, provider },
@@ -24,11 +27,7 @@ export const isValidSmeshingOpts = (
 };
 
 export const isSmeshingPaused = (state: RootState) => {
-  const isNotStarted =
-    getPostSetupState(state) === PostSetupState.STATE_STOPPED;
+  const isNotStarted = getPostSetupState(state) === PostSetupState.STATE_PAUSED;
   const opts = getSmeshingOpts(state);
   return isNotStarted && isValidSmeshingOpts(opts);
 };
-
-export const getPostProgressError = (state: RootState) =>
-  state.smesher.postProgressError;

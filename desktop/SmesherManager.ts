@@ -1,7 +1,7 @@
-import { promises as fs, constants as fsConstants } from 'fs';
+import { constants as fsConstants, promises as fs } from 'fs';
 import path from 'path';
 import * as R from 'ramda';
-import { app, ipcMain, dialog, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import {
   IPCSmesherStartupData,
@@ -109,7 +109,6 @@ class SmesherManager {
     const {
       postSetupState,
       numLabelsWritten,
-      errorMessage,
     } = await this.smesherService.getPostSetupStatus();
     const nodeConfig = await this.loadConfig();
     const numUnits =
@@ -123,7 +122,6 @@ class SmesherManager {
       postSetupState,
       numLabelsWritten,
       numUnits,
-      errorMessage,
     };
 
     this.mainWindow.webContents.send(
@@ -131,7 +129,7 @@ class SmesherManager {
       data
     );
 
-    if (errorMessage && retries > 0) {
+    if (PostSetupState.STATE_ERROR === postSetupState && retries > 0) {
       await delay(5000);
       await this.sendSmesherSettingsAndStartupState(retries - 1);
     }
@@ -177,12 +175,10 @@ class SmesherManager {
   subscribeToEvents = (mainWindow: BrowserWindow) => {
     // handlers
     const selectPostFolder = async () => {
-      const res = await this.selectPostFolder({ mainWindow });
-      return res;
+      return this.selectPostFolder({ mainWindow });
     };
     const smesherCheckFreeSpace = async (_event, request) => {
-      const res = await this.selectPostFolder({ ...request });
-      return res;
+      return this.selectPostFolder({ ...request });
     };
     const getCoinbase = () => this.smesherService.getCoinbase();
     const setCoinbase = async (_event, { coinbase }) => {
@@ -214,8 +210,7 @@ class SmesherManager {
           config.smeshing['smeshing-start'] = false;
         }
         await this.writeConfig(config);
-        const error = res?.error;
-        return error;
+        return res?.error;
       }
     );
     ipcMain.handle(ipcConsts.SMESHER_GET_COINBASE, getCoinbase);

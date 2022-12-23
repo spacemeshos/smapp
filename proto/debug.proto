@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 // They should not be used in production.
 service DebugService {
 
-    // NetworkInfo returns p2p network information. Mostly required for integration with deployment
+    // NetworkInfo returns p2p network information. Mostly required for integration with deployment 
     // and testing tooling.
     rpc NetworkInfo(google.protobuf.Empty) returns (NetworkInfoResponse);
 

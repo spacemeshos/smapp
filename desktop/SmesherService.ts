@@ -186,13 +186,12 @@ class SmesherService extends NetServiceFactory<
         if (status === null) {
           throw new Error('PostSetupStatus is null');
         }
-        const { state, numLabelsWritten, errorMessage } = status;
+        const { state, numLabelsWritten } = status;
         return {
           postSetupState: state,
           numLabelsWritten: numLabelsWritten
             ? parseInt(numLabelsWritten.toString())
             : 0,
-          errorMessage,
         };
       })
       .then(this.normalizeServiceResponse)
@@ -200,7 +199,6 @@ class SmesherService extends NetServiceFactory<
         this.normalizeServiceError({
           postSetupState: PostSetupState.STATE_ERROR,
           numLabelsWritten: 0,
-          errorMessage: 'Unexpected error. Please send the issue report.',
         })
       );
 
@@ -218,18 +216,16 @@ class SmesherService extends NetServiceFactory<
         (response: PostSetupStatusStreamResponse__Output) => {
           const { status } = response;
           if (status === null) return; // TODO
-          const { state, numLabelsWritten, errorMessage, opts } = status;
+          const { state, numLabelsWritten, opts } = status;
           this.logger.log('grpc PostDataCreationProgressStream', {
             state,
             numLabelsWritten,
-            errorMessage,
           });
           handler(null, {
             postSetupState: state,
             numLabelsWritten: numLabelsWritten
               ? parseInt(numLabelsWritten.toString())
               : 0,
-            errorMessage,
             opts: opts as PostSetupOpts | null,
           });
           streamError = null;

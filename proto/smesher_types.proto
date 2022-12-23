@@ -91,40 +91,42 @@ message PostConfigResponse {
     uint64 labels_per_unit = 2;
     uint32 min_num_units = 3;
     uint32 max_num_units = 4;
+    uint32 k1 = 5;
+    uint32 k2 = 6;
 }
 
 message PostSetupComputeProvider {
-    uint32 id = 1; // 0, 1, 2...
-    string model = 2; // e.g. Nvidia GTX 2700
+    uint32 id = 1;     // 0, 1, 2...
+    string model = 2;  // e.g. Nvidia GTX 2700
     enum ComputeApiClass {
         COMPUTE_API_CLASS_UNSPECIFIED = 0;
-        COMPUTE_API_CLASS_CPU = 1; // useful for testing on systems without a cuda or vulkan GPU
+        COMPUTE_API_CLASS_CPU = 1;  // useful for testing on systems without a cuda or vulkan GPU
         COMPUTE_API_CLASS_CUDA = 2;
         COMPUTE_API_CLASS_VULKAN = 3;
     }
-    ComputeApiClass compute_api = 3; // A provided compute api
-    uint64 performance = 4; // Estimated performance in hashes per second
+    ComputeApiClass compute_api = 3;  // A provided compute api
+    uint64 performance = 4;           // Estimated performance in hashes per second
 }
 
 // Post setup options, used to define the setup requirements.
 message PostSetupOpts {
-    string data_dir = 1; // User provided path to create the setup data files at
-    uint32 num_units = 2; // Number of Post data units to generate
-    uint32 num_files = 3; // Number of files to equally distribute the data among
-    uint32 compute_provider_id = 4; // A `PostSetupComputeProvider` id
-    bool throttle = 5; // Throttle down setup phase computations while user is interactive on system
+    string data_dir = 1;             // User provided path to create the setup data files at
+    uint32 num_units = 2;            // Number of Post data units to generate
+    uint32 num_files = 3;            // Number of files to equally distribute the data among
+    uint32 compute_provider_id = 4;  // A `PostSetupComputeProvider` id
+    bool throttle = 5;               // Throttle down setup phase computations while user is interactive on system
 }
 
 message PostSetupStatus {
     enum State {
-        STATE_UNSPECIFIED = 0; // Lane's favorite impossible value
-        STATE_NOT_STARTED = 1; // Setup not started
-        STATE_IN_PROGRESS = 2; // Setup in progress
-        STATE_COMPLETE = 3; // Setup is complete
-        STATE_ERROR = 4; // Setup last session ended with an error
+        STATE_UNSPECIFIED = 0;  // Lane's favorite impossible value
+        STATE_NOT_STARTED = 1;  // Setup not started
+        STATE_IN_PROGRESS = 2;  // Setup in progress
+        STATE_PAUSED = 3;       // Setup paused
+        STATE_COMPLETE = 4;     // Setup is complete
+        STATE_ERROR = 5;        // Setup last session ended with an error
     }
     State state = 1;
-    uint64 num_labels_written = 2; // Number of labels (hashes) written to the data files
-    PostSetupOpts opts = 3; // setup options previously set by the user
-    string error_message = 4; // The error message, if the state is STATE_ERROR
+    uint64 num_labels_written = 2;  // Number of labels (hashes) written to the data files
+    PostSetupOpts opts = 3;         // setup options previously set by the user
 }

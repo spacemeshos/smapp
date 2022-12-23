@@ -8,4 +8,5 @@ import "gateway_types.proto";
 service GatewayService {
     // Submit a poet data packet to the network to broadcast
     rpc BroadcastPoet(BroadcastPoetRequest) returns (BroadcastPoetResponse);
+    rpc VerifyChallenge(VerifyChallengeRequest) returns (VerifyChallengeResponse);
 }
