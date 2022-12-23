@@ -115,7 +115,7 @@ const Network = ({ history }) => {
     return isWalletMode ? (
       <Button
         text="SWITCH API PROVIDER"
-        width={150}
+        width={200}
         isPrimary
         onClick={requestSwitchApiProvider}
         style={{ marginLeft: 'auto' }}
