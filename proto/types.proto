@@ -39,6 +39,7 @@ message Activation {
     AccountId coinbase = 4; // coinbase account id
     ActivationId prev_atx = 5; // previous ATX pointed to
     uint32 num_units = 6; // number of PoST data commitment units
+    uint64 sequence = 7;
 }
 
 // An immutable Spacemesh transaction.

@@ -46,7 +46,6 @@ export interface PostSetupStatus {
   postSetupState: PostSetupState;
   numLabelsWritten: number;
   opts: PostSetupOpts | null;
-  errorMessage: string;
 }
 
 // IPC
@@ -57,7 +56,6 @@ export interface IPCSmesherStartupData {
   postSetupState: PostSetupState;
   numLabelsWritten: number;
   numUnits: number;
-  errorMessage: string;
 }
 
 export interface RewardsInfo {

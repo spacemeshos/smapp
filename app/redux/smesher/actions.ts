@@ -55,20 +55,12 @@ export const startSmeshing = ({
 };
 
 export const deletePosData = () => async (dispatch: AppThDispatch) => {
-  const res = await eventsService.stopSmeshing({ deleteFiles: true });
-  if (res?.error) {
-    console.error(res.error); // eslint-disable-line no-console
-    return;
-  }
+  await eventsService.stopSmeshing({ deleteFiles: true });
   dispatch({ type: DELETED_POS_DATA });
 };
 
 export const pauseSmeshing = () => async (dispatch: AppThDispatch) => {
-  const res = await eventsService.stopSmeshing({ deleteFiles: false });
-  if (res?.error) {
-    console.error(res.error); // eslint-disable-line no-console
-    return;
-  }
+  await eventsService.stopSmeshing({ deleteFiles: false });
   dispatch({ type: PAUSED_SMESHING });
 };
 

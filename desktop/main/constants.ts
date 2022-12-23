@@ -6,7 +6,7 @@ export const HOUR = 60 * MINUTE;
 
 // Linux: ~/.config/<App Name>
 // Mac OS: ~/Library/Application Support/<App Name>
-// Windows: C:\Users\<user>\AppData\Local\<App Name>
+// Windows: C:\Users\<user>\AppData\Roaming\<App Name>
 export const USERDATA_DIR = app.getPath('userData');
 
 export const DOCUMENTS_DIR = app.getPath('documents');

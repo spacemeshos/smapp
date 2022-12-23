@@ -325,8 +325,7 @@ ipcRenderer.on(
   ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS,
   (_event, request) => {
     const {
-      error,
-      status: { postSetupState, numLabelsWritten, errorMessage },
+      status: { postSetupState, numLabelsWritten },
     } = request;
     if (postSetupState === PostSetupState.STATE_COMPLETE) {
       localStorage.setItem(
@@ -334,9 +333,10 @@ ipcRenderer.on(
         `${new Date().getTime()}`
       );
     }
+
     store.dispatch({
       type: SET_POST_DATA_CREATION_STATUS,
-      payload: { error, postSetupState, numLabelsWritten, errorMessage },
+      payload: { postSetupState, numLabelsWritten },
     });
   }
 );

@@ -231,7 +231,7 @@ const getStatus = (
     case PostSetupState.STATE_ERROR:
       return 'Error';
     default:
-    case PostSetupState.STATE_STOPPED:
+    case PostSetupState.STATE_PAUSED:
       return isPaused ? 'Paused creation PoS Data' : 'Not started';
   }
 };
@@ -298,7 +298,7 @@ const Node = ({ history, location }: Props) => {
   const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
   const isPausedSmeshing = useSelector(SmesherSelectors.isSmeshingPaused);
-  const postProgressError = useSelector(SmesherSelectors.getPostProgressError);
+  const isErrorState = useSelector(SmesherSelectors.isErrorState);
   const nodeStatus = useSelector(
     (state: RootState) => state.node.status?.isSynced || false
   );
@@ -351,7 +351,7 @@ const Node = ({ history, location }: Props) => {
       ? [
           [
             'Progress',
-            postProgressError ? (
+            isErrorState ? (
               <ProgressError>STOPPED</ProgressError>
             ) : (
               <Text className="progress">
@@ -417,12 +417,13 @@ const Node = ({ history, location }: Props) => {
   const renderNodeDashboard = () => {
     // TODO: Refactor screen and Node Dashboard
     //       to avoid excessive re-rendering of the whole screen
-    //       on each progrss update, which causes blinking
+    //       on each progress update, which causes blinking
     return (
       <>
-        {postProgressError && (
+        {isErrorState && (
           <ErrorMessage oneLine={false} align="right">
-            {postProgressError}
+            PoS DATA CREATION IS PAUSED. CHECK NETWORK SCREEN, SEEMS NODE IS
+            DOWN.
           </ErrorMessage>
         )}
         {renderTable(getTableData())}
@@ -490,7 +491,7 @@ const Node = ({ history, location }: Props) => {
       return <SmesherIntro hideIntro={() => setShowIntro(false)} />;
     }
 
-    if (!isSmesherActive && !postProgressError) {
+    if (!isSmesherActive && !isErrorState) {
       return (
         <>
           <SmesherStatus

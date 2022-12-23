@@ -11,3 +11,12 @@ message BroadcastPoetResponse {
     google.rpc.Status status = 1;
 }
 
+message VerifyChallengeRequest {
+    bytes challenge = 1;
+    bytes signature = 2;
+}
+
+message VerifyChallengeResponse {
+    bytes hash = 1;
+    bytes node_id = 2;
+}

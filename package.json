@@ -20,6 +20,7 @@
     "package-mac": "yarn build && node ./scripts/packagerScript.js --target mac",
     "package-win": "yarn build && node ./scripts/packagerScript.js --target windows",
     "package-linux": "yarn build && node ./scripts/packagerScript.js --target linux",
+    "start:windows:custom-build": "cross-env NODE_ENV=development node -r @babel/register ./configs/checkPortInUse.js && yarn start:renderer",
     "postinstall": "node -r @babel/register ./configs/checkNativeDep.js && electron-builder install-app-deps && yarn cross-env NODE_ENV=development webpack --config ./configs/webpack.config.renderer.dev.dll.babel.js && yarn-deduplicate yarn.lock",
     "start": "cross-env NODE_ENV=development yarn verify:node-version && node -r @babel/register ./configs/checkPortInUse.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./configs/babelRegister ./desktop/main.dev.ts",

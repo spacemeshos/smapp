@@ -1,29 +1,24 @@
 import type * as grpc from '@grpc/grpc-js';
 import type { ServiceDefinition, EnumTypeDefinition, MessageTypeDefinition } from '@grpc/proto-loader';
 
-import type { TransactionServiceClient as _spacemesh_v1_TransactionServiceClient, TransactionServiceDefinition as _spacemesh_v1_TransactionServiceDefinition } from './spacemesh/v1/TransactionService';
+import type { ActivationServiceClient as _spacemesh_v1_ActivationServiceClient, ActivationServiceDefinition as _spacemesh_v1_ActivationServiceDefinition } from './spacemesh/v1/ActivationService';
 
 type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> = {
   new(...args: ConstructorParameters<Constructor>): Subtype;
 };
 
 export interface ProtoGrpcType {
-  google: {
-    protobuf: {
-      Any: MessageTypeDefinition
-    }
-    rpc: {
-      Status: MessageTypeDefinition
-    }
-  }
   spacemesh: {
     v1: {
       AccountId: MessageTypeDefinition
       Activation: MessageTypeDefinition
       ActivationId: MessageTypeDefinition
+      ActivationService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_ActivationServiceClient> & { service: _spacemesh_v1_ActivationServiceDefinition }
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
+      GetRequest: MessageTypeDefinition
+      GetResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
@@ -33,19 +28,8 @@ export interface ProtoGrpcType {
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
-      SubmitTransactionRequest: MessageTypeDefinition
-      SubmitTransactionResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
-      TransactionResult: MessageTypeDefinition
-      TransactionResultsRequest: MessageTypeDefinition
-      TransactionService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_TransactionServiceClient> & { service: _spacemesh_v1_TransactionServiceDefinition }
-      TransactionState: MessageTypeDefinition
-      TransactionsIds: MessageTypeDefinition
-      TransactionsStateRequest: MessageTypeDefinition
-      TransactionsStateResponse: MessageTypeDefinition
-      TransactionsStateStreamRequest: MessageTypeDefinition
-      TransactionsStateStreamResponse: MessageTypeDefinition
     }
   }
 }

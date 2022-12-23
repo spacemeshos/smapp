@@ -60,7 +60,6 @@ export interface SmesherState {
   commitmentSize: number;
   numLabelsWritten: any;
   postSetupState: PostSetupState;
-  postProgressError: string;
   rewards: SmesherReward[];
   rewardsInfo?: RewardsInfo;
   activations: Activation[];

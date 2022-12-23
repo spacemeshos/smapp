@@ -45,7 +45,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
           smesherId,
           postSetupState,
           numLabelsWritten,
-          errorMessage,
           numUnits,
         },
       } = action;
@@ -61,8 +60,6 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         numUnits,
         numLabelsWritten,
         postSetupState,
-        postProgressError:
-          postSetupState === PostSetupState.STATE_ERROR ? errorMessage : '',
         commitmentSize,
       };
     }
@@ -104,13 +101,12 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         commitmentSize: 0,
         numLabelsWritten: 0,
         postSetupState: PostSetupState.STATE_NOT_STARTED,
-        postProgressError: '',
       };
     }
     case PAUSED_SMESHING: {
       return {
         ...state,
-        postSetupState: PostSetupState.STATE_STOPPED,
+        postSetupState: PostSetupState.STATE_PAUSED,
       };
     }
     case RESUMED_SMESHING: {
@@ -121,16 +117,13 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case SET_POST_DATA_CREATION_STATUS: {
       const {
-        payload: { error, postSetupState, numLabelsWritten, errorMessage },
+        payload: { postSetupState, numLabelsWritten },
       } = action;
-      if (error || postSetupState === PostSetupState.STATE_ERROR) {
-        return { ...state, postProgressError: errorMessage || error.message };
-      }
+
       return {
         ...state,
         numLabelsWritten: numLabelsWritten || state.numLabelsWritten,
         postSetupState,
-        postProgressError: '',
       };
     }
     case LOGOUT:
