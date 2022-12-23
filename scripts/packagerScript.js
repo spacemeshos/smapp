@@ -159,7 +159,7 @@ const getBuildOptions = ({ target }) => {
         allowElevation: true,
         allowToChangeInstallationDirectory: true,
         runAfterFinish: true,
-        deleteAppDataOnUninstall: true,
+        deleteAppDataOnUninstall: false,
         createDesktopShortcut: true,
         createStartMenuShortcut: true,
         shortcutName: 'Spacemesh',
