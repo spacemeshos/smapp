@@ -242,8 +242,26 @@ class NodeManager {
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
+    this.nodeService.cancelStatusStream();
+    this.nodeService.cancelErrorStream();
+    await this.stopNode();
+
     this.nodeService.createService(apiUrl);
-    return this.updateNodeStatus();
+    const success = await this.updateNodeStatus();
+    if (success) {
+      // and activate streams
+      this.activateNodeStatusStream();
+      this.activateNodeErrorStream();
+      return true;
+    } else {
+      this.pushNodeError({
+        msg: 'Remote API is not responding',
+        stackTrace: '',
+        module: 'NodeManager',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+      });
+      return false;
+    }
   };
 
   startNode = async () => {
