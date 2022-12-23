@@ -66,7 +66,7 @@ app
   .then(installDevTools)
   .then(() => new AutoStartManager())
   .then(() => subscribeIPC(context))
-  .then(() => Wallet.subscribe(context))
+  .then(() => Wallet.subscribe())
   .then(() => {
     context.state = startApp();
     return context.state;

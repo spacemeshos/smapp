@@ -738,9 +738,9 @@ class Settings extends Component<Props, State> {
   };
 
   deleteWallet = async () => {
-    const { walletFiles } = this.props;
+    const { currentWalletPath } = this.props;
     localStorage.clear();
-    await eventsService.deleteWalletFile(walletFiles[0]);
+    await eventsService.deleteWalletFile(currentWalletPath);
   };
 
   cancelEditingWalletDisplayName = () => {
