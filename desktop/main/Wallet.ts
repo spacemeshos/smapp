@@ -1,10 +1,6 @@
-import os from 'os';
 import path from 'path';
-import { promises as fs } from 'fs';
-import { exec } from 'child_process';
 import * as R from 'ramda';
-import { app, dialog, ipcMain } from 'electron';
-import Logger from '../logger';
+import { ipcMain } from 'electron';
 import { ipcConsts } from '../../app/vars';
 import {
   KeyPair,
@@ -21,10 +17,7 @@ import { CreateWalletRequest } from '../../shared/ipcMessages';
 import { LOCAL_NODE_API_URL } from '../../shared/constants';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
-import { AppContext } from './context';
 import { copyWalletFile, listWallets } from './walletFile';
-
-const logger = Logger({ className: 'WalletFiles' });
 
 const list = async () => {
   try {
@@ -54,40 +47,10 @@ const deleteWalletFile = async (context: AppContext, filepath: string) => {
     try {
       StoreService.clear();
       await fs.unlink(filepath);
-      // delete context.wallet;
-      // delete context.walletPath;
       context.mainWindow.reload();
     } catch (error) {
       logger.error('deleteWalletFile', error);
     }
-  }
-};
-
-const wipeOut = async (context: AppContext) => {
-  if (!context.mainWindow) return;
-  const options = {
-    type: 'warning',
-    title: 'Reinstall App',
-    message:
-      'WARNING: All wallets, addresses and settings will be lost. Are you sure you want to do this?',
-    buttons: ['Delete All', 'Cancel'],
-  };
-  const { response } = await dialog.showMessageBox(context.mainWindow, options);
-  if (response === 0) {
-    StoreService.clear();
-    const command =
-      os.type() === 'Windows_NT'
-        ? `rmdir /q/s '${DEFAULT_WALLETS_DIRECTORY}'`
-        : `rm -rf '${DEFAULT_WALLETS_DIRECTORY}'`;
-    exec(command, (error: any) => {
-      if (error) {
-        logger.error('ipcMain wipeOut', error);
-      }
-      console.log('deleted'); // eslint-disable-line no-console
-    });
-    context.isAppClosing = true;
-    context.mainWindow.destroy();
-    app.quit();
   }
 };
 
@@ -215,8 +178,6 @@ const subscribe = (context: AppContext) => {
   ipcMain.on(ipcConsts.W_M_SHOW_DELETE_FILE, (_event, filepath) =>
     deleteWalletFile(context, filepath)
   );
-
-  ipcMain.on(ipcConsts.W_M_WIPE_OUT, () => wipeOut(context));
 };
 
 export default { subscribe };
