@@ -100,6 +100,8 @@ class NetServiceFactory<
       `${serviceName} started`,
       `${this.apiUrl.host}:${this.apiUrl.port}`
     );
+
+    this.restartStreams();
   };
 
   restartNetService = async () => {
