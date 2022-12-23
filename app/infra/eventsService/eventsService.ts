@@ -209,8 +209,6 @@ class EventsService {
 
   /** **************************************   MISC   ***************************************** */
 
-  static reloadApp = () => ipcRenderer.send(ipcConsts.RELOAD_APP);
-
   static print = ({ content }: { content: string }) =>
     ipcRenderer.send(ipcConsts.PRINT, { content });
 
