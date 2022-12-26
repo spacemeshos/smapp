@@ -146,7 +146,7 @@ export const isObject = (o: any): o is Record<string, any> =>
 export const configCodecByPath = (path: string) =>
   /\.toml$/.test(path) ? TOML : JSON;
 export const configCodecByFirstChar = (data: string) =>
-  data.startsWith('{') ? JSON : TOML;
+  data.trim().startsWith('{') ? JSON : TOML;
 
 // --------------------------------------------------------
 // HexString conversion
