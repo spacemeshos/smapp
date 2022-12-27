@@ -283,6 +283,9 @@ class TransactionManager {
   };
 
   setAccounts = (accounts: KeyPair[]) => {
+    this.unsubscribeAllStreams();
+    this.keychain = [];
+    this.accountStates = {};
     accounts.forEach(this.addAccount);
   };
 
