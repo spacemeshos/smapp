@@ -14,12 +14,13 @@ import {
 import getStatusColor from '../../vars/getStatusColor';
 import { TxView } from '../../redux/wallet/selectors';
 
-const Wrapper = styled.div<{ isDetailed: boolean }>`
+const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean; }>`
   display: flex;
   flex-direction: column;
   ${({ isDetailed }) =>
     isDetailed && `background-color: ${smColors.lighterGray};`}
   cursor: pointer;
+  ${({ isHidden }) => isHidden && 'display: none;'}
 `;
 
 const Header = styled.div`
@@ -181,6 +182,7 @@ type Props = {
   tx: TxView;
   address: string;
   addAddressToContacts: ({ address }: { address: string }) => void;
+  isHidden?: boolean;
 };
 
 type RowProps = React.PropsWithChildren<{
@@ -249,7 +251,12 @@ const TxStatusBulb = styled(NetworkIndicator)`
   margin-left: auto;
 `;
 
-const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
+const TxRow = ({
+  tx,
+  address,
+  addAddressToContacts,
+  isHidden = false,
+}: Props) => {
   const note = tx.note || '';
 
   const [isDetailed, setIsDetailed] = useState(false);
@@ -350,7 +357,7 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
   };
 
   return (
-    <Wrapper isDetailed={isDetailed}>
+    <Wrapper isDetailed={isDetailed} isHidden={isHidden}>
       <Header onClick={toggleTxDetails}>
         <Icon chevronRight={isSent} />
         <HeaderInner>

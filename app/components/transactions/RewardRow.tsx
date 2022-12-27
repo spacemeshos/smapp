@@ -6,12 +6,13 @@ import { RewardView } from '../../redux/wallet/selectors';
 import { Bech32Address } from '../../../shared/types';
 import Address from '../common/Address';
 
-const Wrapper = styled.div<{ isDetailed: boolean }>`
+const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean }>`
   display: flex;
   flex-direction: column;
   ${({ isDetailed }) =>
     isDetailed && `background-color: ${smColors.lighterGray};`}
   cursor: pointer;
+  ${({ isHidden }) => isHidden && 'display: none'}
 `;
 
 const Header = styled.div`
@@ -128,9 +129,10 @@ const TextRow = styled.div<{ isLast?: boolean }>`
 type Props = {
   address: Bech32Address;
   tx: RewardView;
+  isHidden?: boolean;
 };
 
-const RewardRow = ({ tx, address }: Props) => {
+const RewardRow = ({ tx, address, isHidden = false }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
 
   const { layer, layerReward, amount, timestamp } = tx;
@@ -166,7 +168,7 @@ const RewardRow = ({ tx, address }: Props) => {
   );
 
   return (
-    <Wrapper isDetailed={isDetailed}>
+    <Wrapper isDetailed={isDetailed} isHidden={isHidden}>
       <Header onClick={toggleTxDetails}>
         <Icon />
         <HeaderInner>
