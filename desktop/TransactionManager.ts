@@ -42,7 +42,7 @@ import GlobalStateService, {
 } from './GlobalStateService';
 import { AccountStateManager } from './AccountState';
 import Logger from './logger';
-import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
+import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
 
 const DATA_BATCH = 50;
@@ -433,7 +433,7 @@ class TransactionManager {
         accountId: { address: coinbase },
         accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD as AccountDataValidFlags,
       },
-      offset: batchNumber * BATCH_SIZE,
+      offset: batchNumber * GRPC_QUERY_BATCH_SIZE,
     });
     const getAccountDataQuery = async (batch: number, retries = 5) => {
       const res = await this.glStateService.sendAccountDataQuery(
@@ -451,7 +451,7 @@ class TransactionManager {
       return res;
     };
     const { totalResults, data } = await getAccountDataQuery(0);
-    if (totalResults <= BATCH_SIZE) {
+    if (totalResults <= GRPC_QUERY_BATCH_SIZE) {
       return data.filter(
         (item): item is Reward__Output =>
           !!item && hasRequiredRewardFields(item)
@@ -465,7 +465,7 @@ class TransactionManager {
               .then((resp) => resp.data)
           ),
           R.range(1)
-        )(Math.ceil(totalResults / BATCH_SIZE))
+        )(Math.ceil(totalResults / GRPC_QUERY_BATCH_SIZE))
       ).then(R.unnest);
       return data ? [...data, ...nextRewards] : nextRewards;
     }
