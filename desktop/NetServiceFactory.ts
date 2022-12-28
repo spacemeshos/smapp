@@ -69,10 +69,15 @@ class NetServiceFactory<
     apiUrl: SocketAddress | PublicService = LOCAL_NODE_API_URL,
     serviceName: string
   ) => {
-    if (this.apiUrl === apiUrl) {
+    this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
+    if (this.apiUrl == apiUrl) {
+      this.logger?.debug(
+        `createNetService(${serviceName}) cancelled: no change in apiUrl. Keep old one`
+      );
       return;
     }
 
+    this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
     if (this.service) {
       this.cancelStreams();
       this.service.close();
@@ -127,6 +132,7 @@ class NetServiceFactory<
     method: K,
     opts: ServiceOpts<T, ServiceName, K>
   ) => {
+    this.logger?.debug(`${this.serviceName}.${String(method)} called`, opts);
     type ResultArg = ServiceCallbackResult<T, ServiceName, K>;
     type Result = NonNullable<ResultArg>;
     return this.ensureService().then(
@@ -181,13 +187,17 @@ class NetServiceFactory<
   ) => {
     if (!this.service) {
       this.logger?.debug(
-        `runStream ${String(method)} > Service ${
+        `${this.serviceName}.${String(method)} > Service ${
           this.serviceName
         } is not running`,
         opts
       );
       return () => {};
     }
+    this.logger?.debug(
+      `Stream ${this.serviceName}.${String(method)} with`,
+      opts
+    );
 
     let stream: ReturnType<typeof this.service[typeof method]>;
 
@@ -207,6 +217,11 @@ class NetServiceFactory<
         );
         return;
       }
+      this.logger?.debug(
+        `${this.serviceName}.${String(method)} started. Attempt #${
+          _retries - retries
+        }`
+      );
       stream = this.service[method](opts);
       stream.on('data', onData);
       stream.on('error', async (error: Error & { code: number }) => {
