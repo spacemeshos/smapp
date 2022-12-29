@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { unlockWallet } from '../../redux/wallet/actions';
@@ -120,6 +120,26 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
     getIndexOfLastSelectedWalletPath(walletFiles)
   );
 
+  useEffect(() => {
+    const goNext = () => {
+      setShowLoader(false);
+      history.push(
+        (location.state?.redirect !== AuthPath.Unlock &&
+          location.state?.redirect) ||
+          MainPath.Wallet
+      );
+    };
+    ipcRenderer.on(ipcConsts.WALLET_ACTIVATED, goNext);
+    return () => {
+      ipcRenderer.off(ipcConsts.WALLET_ACTIVATED, goNext);
+    };
+  }, [history, location]);
+
+  const nextPage =
+    (location.state?.redirect !== AuthPath.Unlock &&
+      location.state?.redirect) ||
+    MainPath.Wallet;
+
   const getDropDownData = () =>
     walletFiles.length === 0
       ? [{ label: 'NO WALLET FILES FOUND', isDisabled: true }]
@@ -152,29 +172,12 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
       );
 
       if (status.success) {
-        const nextPage =
-          (location.state?.redirect !== AuthPath.Unlock &&
-            location.state?.redirect) ||
-          MainPath.Wallet;
-
         if (status.forceNetworkSelection) {
           history.push(AuthPath.SwitchNetwork, {
             redirect: nextPage,
             isWalletOnly: status.isWalletOnly,
           });
-          return;
         }
-        // TODO: We can get rid of this waiting in case
-        //       if we introduce loading state to screen(s)
-        let timeout;
-        const proceed = () => {
-          clearTimeout(timeout);
-          setShowLoader(false);
-          history.push(nextPage);
-        };
-
-        timeout = setTimeout(proceed, 60 * 1000);
-        ipcRenderer.once(ipcConsts.WALLET_ACTIVATED, proceed);
       } else {
         setShowLoader(false);
         setWrongPassword(true);
