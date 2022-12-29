@@ -1,7 +1,7 @@
 import * as R from 'ramda';
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { Activation, KeyPair, Wallet } from '../shared/types';
+import { Activation, KeyPair, Reward, Wallet } from '../shared/types';
 import {
   delay,
   isLocalNodeType,
@@ -179,9 +179,8 @@ class WalletManager {
     }
   };
 
-  requestRewardsByCoinbase = async (
-    coinbase: string
-  ): Promise<Reward__Output[]> => this.txManager.retrieveRewards(coinbase);
+  requestRewardsByCoinbase = async (coinbase: string): Promise<Reward[]> =>
+    this.txManager.retrieveNewRewards(coinbase);
 
   listenRewardsByCoinbase = (
     coinbase: string,

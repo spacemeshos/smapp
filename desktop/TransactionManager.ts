@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import { BrowserWindow } from 'electron';
 import { debounce } from 'throttle-debounce';
 import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
@@ -45,8 +44,6 @@ import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
 
-const DATA_BATCH = 50;
-
 type TxHandlerArg = MeshTransaction__Output | null | undefined;
 type TxHandler = (tx: TxHandlerArg) => void;
 
@@ -92,10 +89,12 @@ class TransactionManager {
     this.genesisID = genesisID;
   }
 
-  unsubscribeAllStreams = () =>
+  unsubscribeAllStreams = () => {
     Object.values(this.unsubs).forEach((list) =>
       list.forEach((unsub) => unsub())
     );
+    this.unsubs = {};
+  };
 
   //
   appStateUpdater = (channel: ipcConsts, payload: any) => {
@@ -120,7 +119,7 @@ class TransactionManager {
   };
 
   updateAppStateRewards = (publicKey: string) => {
-    const rewards = this.accountStates[publicKey].getRewards() || {};
+    const rewards = this.accountStates[publicKey].getRewards() || [];
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
   };
 
@@ -165,34 +164,18 @@ class TransactionManager {
       this.handleNewTx(publicKey),
       txIds
     );
-
-    // Do not request for query endpoint ?
-    // this.txService
-    //   .getTxsState(txIds)
-    //   .then((resp) =>
-    //     // two lists -> list of tuples
-    //     resp.transactions.map((tx, idx) => ({
-    //       transaction: tx,
-    //       transactionState: resp.transactionsState[idx],
-    //     }))
-    //   )
-    //   .then((txs) => txs.map(this.handleNewTx(publicKey)))
-    //   .catch((err) => {
-    //     this.logger.error('grpc TransactionState', err);
-    //   });
   });
 
   private subscribeAccount = (address: Bech32Address): void => {
     // Cancel account Txs subscription
     this.txStateStream[address]?.();
-    // Cancel account data, txs, rewards subscriptions to streams
-    this.unsubs[address] && this.unsubs[address].forEach((unsub) => unsub());
-    this.unsubs[address] = [];
 
+    const lastTxLayer = this.accountStates[address]?.lastSyncedTxLayer();
+    const lastRwLayer = this.accountStates[address]?.lastSyncedRewardsLayer();
     const addTransaction = this.upsertTransactionFromMesh(address);
     this.retrieveHistoricTxData({
       accountId: address,
-      offset: 0,
+      offset: lastTxLayer,
       handler: addTransaction,
       retries: 0,
     });
@@ -201,16 +184,14 @@ class TransactionManager {
     );
 
     const updateAccountData = this.updateAccountData(address);
-    const queryAccountData = () =>
-      this.retrieveAccountData({
-        filter: {
-          accountId: { address },
-          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
-        },
-        handler: updateAccountData,
-        retries: 0,
-      });
-    queryAccountData();
+    this.retrieveAccountData({
+      filter: {
+        accountId: { address },
+        accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_ACCOUNT,
+      },
+      handler: updateAccountData,
+      retries: 0,
+    });
 
     this.unsubs[address].push(
       this.glStateService.activateAccountDataStream(
@@ -244,7 +225,7 @@ class TransactionManager {
     // this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT, addReceiptToTx);
 
     const addReward = this.addReward(address);
-    this.retrieveRewards(address)
+    this.retrieveRewards(address, lastRwLayer)
       .then((value) => value.forEach(addReward))
       .catch((err) => {
         this.logger.error('Can not retrieve and store rewards', err);
@@ -253,9 +234,6 @@ class TransactionManager {
     this.unsubs[address].push(
       this.glStateService.listenRewardsByCoinbase(address, addReward)
     );
-
-    this.updateAppStateTxs(address);
-    this.updateAppStateRewards(address);
   };
 
   addAccount = (keypair: KeyPair) => {
@@ -278,6 +256,11 @@ class TransactionManager {
       address,
       this.genesisID
     );
+    // Send stored Tx & Rewards
+    this.updateAppStateTxs(address);
+    this.updateAppStateRewards(address);
+
+    this.unsubs[address] = [];
     // Resubscribe
     this.subscribeAccount(address);
   };
@@ -285,13 +268,15 @@ class TransactionManager {
   setAccounts = (accounts: KeyPair[]) => {
     this.unsubscribeAllStreams();
     this.keychain = [];
-    this.accountStates = {};
     accounts.forEach(this.addAccount);
   };
 
   private upsertTransaction = (accountAddress: Bech32Address) => async <T>(
     tx: Tx<T>
   ) => {
+    if (!this.accountStates[accountAddress]) {
+      return;
+    }
     const originalTx = this.accountStates[accountAddress].getTxById(tx.id);
     const receipt = tx.receipt
       ? { ...originalTx?.receipt, ...tx.receipt }
@@ -346,10 +331,10 @@ class TransactionManager {
       });
     } else {
       data && data.length && data.forEach((tx) => handler(tx.meshTransaction));
-      if (offset + DATA_BATCH < totalResults) {
+      if (offset + GRPC_QUERY_BATCH_SIZE < totalResults) {
         await this.retrieveHistoricTxData({
           accountId,
-          offset: offset + DATA_BATCH,
+          offset: offset + GRPC_QUERY_BATCH_SIZE,
           handler,
           retries: 0,
         });
@@ -366,10 +351,11 @@ class TransactionManager {
       counter: longToNumber(data.stateProjected?.counter || 0),
       balance: longToNumber(data.stateProjected?.balance?.value || 0),
     };
-    this.accountStates[address].storeState({
-      currentState,
-      projectedState,
-    });
+    this.accountStates[address] &&
+      this.accountStates[address].storeState({
+        currentState,
+        projectedState,
+      });
 
     this.updateAppStateAccount(address);
   };
@@ -427,13 +413,16 @@ class TransactionManager {
     this.storeReward(accountId, parsedReward);
   };
 
-  retrieveRewards = async (coinbase: string): Promise<Reward__Output[]> => {
+  retrieveRewards = async (
+    coinbase: string,
+    offset = 0
+  ): Promise<Reward__Output[]> => {
     const composeArg = (batchNumber: number) => ({
       filter: {
         accountId: { address: coinbase },
         accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD as AccountDataValidFlags,
       },
-      offset: batchNumber * GRPC_QUERY_BATCH_SIZE,
+      offset: offset + batchNumber * GRPC_QUERY_BATCH_SIZE,
     });
     const getAccountDataQuery = async (batch: number, retries = 5) => {
       const res = await this.glStateService.sendAccountDataQuery(
@@ -457,18 +446,32 @@ class TransactionManager {
           !!item && hasRequiredRewardFields(item)
       ) as Reward__Output[];
     } else {
-      const nextRewards = await Promise.all(
-        R.compose(
-          R.map((idx) =>
-            this.glStateService
-              .sendAccountDataQuery(composeArg(idx))
-              .then((resp) => resp.data)
-          ),
-          R.range(1)
-        )(Math.ceil(totalResults / GRPC_QUERY_BATCH_SIZE))
-      ).then(R.unnest);
+      const nextRewards = await this.retrieveRewards(
+        coinbase,
+        offset + GRPC_QUERY_BATCH_SIZE
+      );
       return data ? [...data, ...nextRewards] : nextRewards;
     }
+  };
+
+  retrieveNewRewards = async (coinbase: string) => {
+    const oldRewards = this.accountStates[coinbase]?.getRewards() || [];
+    const newRewards = (
+      await this.retrieveRewards(
+        coinbase,
+        this.accountStates[coinbase]?.lastSyncedRewardsLayer() || 0
+      )
+    ).reduce((acc, reward) => {
+      if (!reward || !hasRequiredRewardFields(reward)) return acc;
+      const parsedReward: Reward = {
+        layer: reward.layer.number,
+        amount: longToNumber(reward.total.value),
+        layerReward: longToNumber(reward.layerReward.value),
+        coinbase: reward.coinbase.address,
+      };
+      return [...acc, parsedReward];
+    }, <Reward[]>[]);
+    return [...oldRewards, ...newRewards];
   };
 
   // TODO: Replace with generic `publishTx`

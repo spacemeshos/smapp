@@ -20,6 +20,7 @@ import {
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
 import {
   Activation,
+  Reward,
   SmesherReward,
   Wallet,
   WalletType,
@@ -36,10 +37,10 @@ const logger = Logger({ className: 'smesherInfo' });
 const getRewards$ = (
   managers: Managers,
   coinbase: string
-): Observable<Reward__Output[]> =>
+): Observable<Reward[]> =>
   from(managers.wallet.requestRewardsByCoinbase(coinbase));
 
-const toSmesherReward = (input: Reward__Output): SmesherReward => {
+const toSmesherReward = (input: Reward__Output | Reward): SmesherReward => {
   if (!hasRequiredRewardFields(input)) {
     throw new Error(
       `Can not convert input ${JSON.stringify(input)} to SmesherReward`

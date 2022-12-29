@@ -142,13 +142,13 @@ class SmesherService extends NetServiceFactory<
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ smesherId: '' }));
 
-  getCoinbase = () =>
+  getCoinbase = (): Promise<{ error: Error | null; coinbase: string }> =>
     this.callService('Coinbase', {})
-      .then((response) => ({
+      .then((response): { coinbase: string } => ({
         coinbase: response.accountId ? response.accountId.address : '',
       }))
       .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ coinbase: '0x00' }));
+      .catch(this.normalizeServiceError({ coinbase: '' }));
 
   setCoinbase = ({ coinbase }: { coinbase: string }) =>
     this.callService('SetCoinbase', {
