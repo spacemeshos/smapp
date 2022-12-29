@@ -23,15 +23,33 @@ const wipeOut = async (mainWindow: BrowserWindow) => {
 
   if (response === 0) {
     StoreService.clear();
-    const command =
-      os.type() === 'Windows_NT'
-        ? `rmdir /q/s '${DEFAULT_WALLETS_DIRECTORY}'`
-        : `rm -rf '${DEFAULT_WALLETS_DIRECTORY}'`;
-    exec(command, (error: any) => {
-      if (error) {
-        logger.error('ipcMain wipeOut', error);
+    if (os.type() === 'Windows_NT') {
+      // Wait for command execution,
+      // otherwise the Smapp will turn of the rmdir process
+      // and we'll get none / partial deletion of files
+      return new Promise<boolean>((resolve) => {
+        exec(
+          `rmdir /q/s "${DEFAULT_WALLETS_DIRECTORY}"`,
+          (err, stdout, stderr) => {
+            if (err) {
+              logger.error('ipcMain wipeOut', err, [stdout, stderr]);
+              resolve(false);
+            }
+            resolve(true);
+          }
+        );
+      });
+    }
+    // Just run the clean up process and quit asap to
+    // have less chances to get new electron files
+    exec(
+      `rm -rf '${DEFAULT_WALLETS_DIRECTORY}'`,
+      (error: any, stdout, stderr) => {
+        if (error) {
+          logger.error('ipcMain wipeOut', error, [stdout, stderr]);
+        }
       }
-    });
+    );
     return true;
   }
   return false;
