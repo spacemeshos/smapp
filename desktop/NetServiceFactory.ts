@@ -3,7 +3,7 @@ import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
 import { PublicService, SocketAddress } from '../shared/types';
 import { LOCAL_NODE_API_URL } from '../shared/constants';
-import { delay } from '../shared/utils';
+import { delay, isNodeApiEq } from '../shared/utils';
 import Logger from './logger';
 
 // Types
@@ -70,7 +70,7 @@ class NetServiceFactory<
     serviceName: string
   ) => {
     this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
-    if (this.apiUrl == apiUrl) {
+    if (this.apiUrl && isNodeApiEq(this.apiUrl, apiUrl)) {
       this.logger?.debug(
         `createNetService(${serviceName}) cancelled: no change in apiUrl. Keep old one`
       );
@@ -105,8 +105,6 @@ class NetServiceFactory<
       `${serviceName} started`,
       `${this.apiUrl.host}:${this.apiUrl.port}`
     );
-
-    this.restartStreams();
   };
 
   restartNetService = async () => {

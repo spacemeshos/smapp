@@ -122,6 +122,9 @@ export const stringifySocketAddress = (sa: SocketAddress): string =>
 export const isLocalNodeApi = (sa: SocketAddress) =>
   shallowEq(sa, LOCAL_NODE_API_URL);
 
+export const isNodeApiEq = (a: SocketAddress, b: SocketAddress) =>
+  shallowEq(a, b);
+
 export const isRemoteNodeApi = (sa: SocketAddress) => !isLocalNodeApi(sa);
 
 export const isWalletOnlyType = (walletType: WalletType) =>
