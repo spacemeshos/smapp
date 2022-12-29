@@ -92,7 +92,7 @@ const reducer = (state: WalletState = initialState, action: CustomAction) => {
     }
     case SET_ACCOUNT_REWARDS: {
       const { rewards, publicKey } = action.payload;
-      return { ...state, rewards: { [publicKey]: rewards } };
+      return { ...state, rewards: { ...state.rewards, [publicKey]: rewards } };
     }
     case SET_BACKUP_TIME: {
       const { backupTime } = action.payload;
