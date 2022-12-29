@@ -18,13 +18,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
-import {
-  Activation,
-  Reward,
-  SmesherReward,
-  Wallet,
-  WalletType,
-} from '../../../shared/types';
+import { Activation, Reward, Wallet, WalletType } from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
 import { longToNumber } from '../../../shared/utils';
 import Logger from '../../logger';
@@ -40,7 +34,7 @@ const getRewards$ = (
 ): Observable<Reward[]> =>
   from(managers.wallet.requestRewardsByCoinbase(coinbase));
 
-const toSmesherReward = (input: Reward__Output | Reward): SmesherReward => {
+const toReward = (input: Reward__Output): Reward => {
   if (!hasRequiredRewardFields(input)) {
     throw new Error(
       `Can not convert input ${JSON.stringify(input)} to SmesherReward`
@@ -49,7 +43,7 @@ const toSmesherReward = (input: Reward__Output | Reward): SmesherReward => {
   return {
     layer: input.layer.number,
     layerReward: longToNumber(input.layerReward.value),
-    total: longToNumber(input.total.value),
+    amount: longToNumber(input.total.value),
     coinbase: input.coinbase.address,
   };
 };
@@ -118,8 +112,7 @@ const syncSmesherInfo = (
   );
 
   const $rewardsHistory = combineLatest([$coinbase, $managers]).pipe(
-    switchMap(([coinbase, managers]) => getRewards$(managers, coinbase)),
-    map((rewards) => rewards.map(toSmesherReward))
+    switchMap(([coinbase, managers]) => getRewards$(managers, coinbase))
   );
   const $rewardsStream = $isLocalNode.pipe(
     switchMap(() => combineLatest([$coinbase, $managers])),
@@ -138,10 +131,10 @@ const syncSmesherInfo = (
     $rewardsStream.pipe(
       scan((acc, next) => {
         if (hasRequiredRewardFields(next)) {
-          acc.push(toSmesherReward(next));
+          acc.push(toReward(next));
         }
         return acc;
-      }, <SmesherReward[]>[])
+      }, <Reward[]>[])
     )
   );
 

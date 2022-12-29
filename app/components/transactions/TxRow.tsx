@@ -14,7 +14,7 @@ import {
 import getStatusColor from '../../vars/getStatusColor';
 import { TxView } from '../../redux/wallet/selectors';
 
-const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean; }>`
+const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean }>`
   display: flex;
   flex-direction: column;
   ${({ isDetailed }) =>

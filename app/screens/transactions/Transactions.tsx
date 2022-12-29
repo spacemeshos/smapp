@@ -17,8 +17,6 @@ import {
 } from '../../basicComponents';
 import { RootState } from '../../types';
 import {
-  getRewards,
-  getTransactions,
   getTxAndRewards,
   RewardView,
   TxView,

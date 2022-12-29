@@ -41,7 +41,13 @@ export const isTx = (a: any): a is Tx =>
   a && a.id && a.principal && a.template && a.method && a.payload;
 
 export const isReward = (a: any): a is Reward =>
-  a && a.layer && a.coinbase && a.amount;
+  a &&
+  a.layer &&
+  a.coinbase &&
+  a.amount &&
+  typeof a.coinbase === 'string' &&
+  typeof a.layer === 'number' &&
+  typeof a.amount === 'number';
 
 export const isActivation = (a: any): a is Activation =>
   a && a.id && a.layer && a.smesherId && a.coinbase && a.numUnits;

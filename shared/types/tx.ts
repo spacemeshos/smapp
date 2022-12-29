@@ -73,13 +73,6 @@ export interface Reward {
   layerComputed?: number; // TODO ?
 }
 
-export interface SmesherReward {
-  coinbase: string;
-  total: number;
-  layer: number;
-  layerReward: number;
-}
-
 export interface Activation {
   id: Uint8Array;
   smesherId: Uint8Array;

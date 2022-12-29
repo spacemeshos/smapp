@@ -12,7 +12,7 @@ import {
   Reward,
   Network,
   NetworkState,
-  SmesherReward,
+  Reward,
   Activation,
   AccountBalance,
   KeyPair,
@@ -60,7 +60,7 @@ export interface SmesherState {
   commitmentSize: number;
   numLabelsWritten: any;
   postSetupState: PostSetupState;
-  rewards: SmesherReward[];
+  rewards: Reward[];
   rewardsInfo?: RewardsInfo;
   activations: Activation[];
   config: SmesherConfig;

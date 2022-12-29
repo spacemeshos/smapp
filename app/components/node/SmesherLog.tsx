@@ -5,7 +5,7 @@ import { formatSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import { horizontalPanelBlack } from '../../assets/images';
-import { RewardsInfo, SmesherReward } from '../../../shared/types';
+import { RewardsInfo, Reward } from '../../../shared/types';
 import { CorneredContainer } from '../common';
 
 const Wrapper = styled.div`
@@ -157,7 +157,7 @@ const Total = styled.div<{ epoch?: boolean }>`
 type Props = {
   initTimestamp: string | null;
   smeshingTimestamp: string | null;
-  rewards: SmesherReward[];
+  rewards: Reward[];
   rewardsInfo: RewardsInfo;
   epochByLayer: (number) => number;
   timestampByLayer: (number) => number;
@@ -214,7 +214,7 @@ const SmesherLog = ({
                         <DateText>
                           <ReactTimeago date={timestampByLayer(reward.layer)} />
                         </DateText>
-                        <AwardText>+{formatSmidge(reward.total)}</AwardText>
+                        <AwardText>+{formatSmidge(reward.amount)}</AwardText>
                       </LayerReward>
                     </LogEntry>
                   </div>

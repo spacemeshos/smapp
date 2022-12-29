@@ -22,7 +22,7 @@ import {
   NodeConfig,
   NodeVersionAndBuild,
   RewardsInfo,
-  SmesherReward,
+  Reward,
   Wallet,
 } from '../../../shared/types';
 import { ConfigStore } from '../../storeService';
@@ -112,7 +112,7 @@ const sync = (
 const getRewardsInfo = (
   cfg: NodeConfig,
   curLayer: number,
-  rewards: SmesherReward[]
+  rewards: Reward[]
 ): RewardsInfo => {
   const getLayerTime = timestampByLayer(
     cfg.genesis['genesis-time'],
@@ -123,7 +123,7 @@ const getRewardsInfo = (
 
   const sums = rewards.reduce(
     (acc, next) => ({
-      total: acc.total + next.total,
+      total: acc.total + next.amount,
       layers: new Set(acc.layers).add(next.layer),
       epochs: new Set(acc.epochs).add(getEpoch(next.layer)),
     }),
@@ -135,8 +135,8 @@ const getRewardsInfo = (
   );
 
   const lastEpoch = R.compose(
-    R.reduce((acc, next: SmesherReward) => acc + next.total, 0),
-    R.filter((reward: SmesherReward) => getEpoch(reward.layer) === curEpoch)
+    R.reduce((acc, next: Reward) => acc + next.amount, 0),
+    R.filter((reward: Reward) => getEpoch(reward.layer) === curEpoch)
   )(rewards);
 
   const dailyAverage =
@@ -169,7 +169,7 @@ export default (
   $nodeVersion: Observable<NodeVersionAndBuild>,
   $smesherId: Observable<string>,
   $activations: Observable<Activation[]>,
-  $rewards: Observable<SmesherReward[]>
+  $rewards: Observable<Reward[]>
 ) =>
   sync(
     // Sync to
