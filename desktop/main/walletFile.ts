@@ -20,6 +20,10 @@ import {
   isWalletLegacyEncrypted,
 } from '../../shared/types/guards';
 import { fromHexString, toHexString } from '../../shared/utils';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../shared/warning';
 import {
   constructAesGcmIv,
   decrypt,
@@ -138,7 +142,18 @@ export const saveRaw = async (walletPath: string, wallet: WalletFile) => {
     ? path.basename(walletPath)
     : `my_wallet_${wallet.meta.created}.json`;
   const filepath = isFilePath ? walletPath : path.resolve(walletPath, filename);
-  await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
+  try {
+    await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
+  } catch (err: any) {
+    throw Warning.fromError(
+      WarningType.WriteFilePermission,
+      {
+        kind: WriteFilePermissionWarningKind.WalletFile,
+        filePath: filepath,
+      },
+      err
+    );
+  }
   return { filename, filepath };
 };
 

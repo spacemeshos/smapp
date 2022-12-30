@@ -7,6 +7,7 @@ import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
+import { Subject } from 'rxjs';
 import { ipcConsts } from '../app/vars';
 import { debounceShared, delay } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
@@ -19,6 +20,10 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../shared/warning';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, {
@@ -83,6 +88,8 @@ class NodeManager extends AbstractManager {
   private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS); // new Subject<NodeStatus>();
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
+
+  public $warnings = new Subject<Warning>();
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -394,6 +401,19 @@ class NodeManager extends AbstractManager {
       keep: 5,
       compress: true,
     });
+
+    logFileStream.on('error', (err) =>
+      this.$warnings.next(
+        Warning.fromError(
+          WarningType.WriteFilePermission,
+          {
+            kind: WriteFilePermissionWarningKind.Logger,
+            filePath: logFilePath,
+          },
+          err
+        )
+      )
+    );
 
     const args = [
       '--config',

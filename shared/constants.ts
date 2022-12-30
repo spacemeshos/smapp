@@ -32,6 +32,7 @@ export enum ExternalLinks {
   UserGuide = 'https://testnet.spacemesh.io',
   Terms = 'https://testnet.spacemesh.io/#/terms',
   Disclaimer = 'https://testnet.spacemesh.io/#/disclaimer',
+  Discord = 'https://discord.com/invite/yVhQ7rC',
   Privacy = 'https://testnet.spacemesh.io/#/privacy',
   SetupGuide = 'https://testnet.spacemesh.io/#/guide/setup',
   NoSleepGuide = 'https://testnet.spacemesh.io/#/no_sleep',
