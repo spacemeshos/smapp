@@ -41,8 +41,27 @@ const NetworkStatus = ({
     return 0;
   };
 
-  const renderSyncingStatus = () => {
+  const getSyncProgress = () => {
+    if (!status || status.topLayer === 0) {
+      return <ProgressLabel>Connecting...</ProgressLabel>;
+    }
+
     const progress = getSyncLabelPercentage();
+    return (
+      <>
+        <ProgressLabel>syncing</ProgressLabel>
+        <ProgressLabel>{progress}%</ProgressLabel>
+        <ProgressLabel>
+          {`${status.syncedLayer || 0} / ${status.topLayer || 0}`}
+        </ProgressLabel>
+        <Progress>
+          <ProgressBar progress={progress} />
+        </Progress>
+      </>
+    );
+  }
+
+  const renderSyncingStatus = () => {
     return (
       <>
         {status?.isSynced ? (
@@ -55,14 +74,7 @@ const NetworkStatus = ({
             <NetworkIndicator
               color={status?.isSynced ? smColors.green : smColors.orange}
             />
-            <ProgressLabel>syncing</ProgressLabel>
-            <ProgressLabel>{progress}%</ProgressLabel>
-            <ProgressLabel>
-              {`${status?.syncedLayer || 0} / ${status?.topLayer || 0}`}
-            </ProgressLabel>
-            <Progress>
-              <ProgressBar progress={progress} />
-            </Progress>
+            {getSyncProgress()}
           </>
         )}
       </>
