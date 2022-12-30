@@ -244,6 +244,7 @@ class NodeManager {
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
     this.nodeService.cancelStatusStream();
     this.nodeService.cancelErrorStream();
+    this.smesherManager.unsubscribe();
     await this.stopNode();
 
     this.nodeService.createService(apiUrl);
@@ -481,6 +482,7 @@ class NodeManager {
   stopNode = async () => {
     if (!this.nodeProcess) return;
     try {
+      this.smesherManager.unsubscribe();
       // Request Node shutdown
       this.nodeProcess.kill('SIGTERM');
       logger.log('stop node', 'kill SIGTERM');

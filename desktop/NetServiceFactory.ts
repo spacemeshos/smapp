@@ -70,7 +70,7 @@ class NetServiceFactory<
     serviceName: string
   ) => {
     this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
-    if (this.apiUrl && isNodeApiEq(this.apiUrl, apiUrl)) {
+    if (this.service && this.apiUrl && isNodeApiEq(this.apiUrl, apiUrl)) {
       this.logger?.debug(
         `createNetService(${serviceName}) cancelled: no change in apiUrl. Keep old one`
       );
@@ -105,6 +105,11 @@ class NetServiceFactory<
       `${serviceName} started`,
       `${this.apiUrl.host}:${this.apiUrl.port}`
     );
+  };
+
+  dropNetService = () => {
+    this.service && this.service.close();
+    this.service = null;
   };
 
   restartNetService = async () => {
