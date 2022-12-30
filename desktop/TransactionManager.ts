@@ -219,11 +219,6 @@ class TransactionManager {
       this.subscribeTransactions(address);
     }
 
-    // TODO: https://github.com/spacemeshos/go-spacemesh/issues/2072
-    // const addReceiptToTx = this.addReceiptToTx({ accountId: publicKey });
-    // this.retrieveHistoricTxReceipt({ filter: { accountId: { address: binaryAccountId }, accountDataFlags: 1 }, offset: 0, handler: addReceiptToTx, retries: 0 });
-    // this.glStateService.activateAccountDataStream(binaryAccountId, AccountDataFlag.ACCOUNT_DATA_FLAG_TRANSACTION_RECEIPT, addReceiptToTx);
-
     const addReward = this.addReward(address);
     this.retrieveRewards(address, lastRwLayer)
       .then((value) => value.forEach(addReward))
@@ -268,15 +263,14 @@ class TransactionManager {
   setAccounts = (accounts: KeyPair[]) => {
     this.unsubscribeAllStreams();
     this.keychain = [];
+    this.accountStates = {};
     accounts.forEach(this.addAccount);
   };
 
   private upsertTransaction = (accountAddress: Bech32Address) => async <T>(
     tx: Tx<T>
   ) => {
-    if (!this.accountStates[accountAddress]) {
-      return;
-    }
+    if (!this.accountStates[accountAddress]) return;
     const originalTx = this.accountStates[accountAddress].getTxById(tx.id);
     const receipt = tx.receipt
       ? { ...originalTx?.receipt, ...tx.receipt }
@@ -343,6 +337,7 @@ class TransactionManager {
   };
 
   updateAccountData = (address: string) => (data: Account__Output) => {
+    if (!this.accountStates[address]) return;
     const currentState = {
       counter: longToNumber(data.stateCurrent?.counter || 0),
       balance: longToNumber(data.stateCurrent?.balance?.value || 0),
@@ -385,21 +380,6 @@ class TransactionManager {
     } else {
       data?.length > 0 && handler(data[0]);
     }
-  };
-
-  addReceiptToTx = ({ accountId }: { accountId: string }) => ({
-    datum,
-  }: {
-    datum: AccountData__Output;
-  }) => {
-    const { receipt } = datum;
-    if (!receipt || !receipt.id?.id) return;
-
-    const txId = toHexString(receipt.id.id);
-    const existingTx = this.accountStates[accountId].getTxById(txId) || {};
-    // TODO: Handle properly case when we got an receipt, but no tx data?
-    const updatedTx = addReceiptToTx(existingTx, receipt);
-    this.upsertTransaction(accountId)(updatedTx);
   };
 
   addReward = (accountId: HexString) => (reward: RewardHandlerArg) => {
