@@ -73,6 +73,7 @@ export interface UiState {
   hideSmesherLeftPanel: boolean;
   error: Error | null;
   skinId: string | null;
+  filePermissionError: string | null;
 }
 
 export interface RootState {

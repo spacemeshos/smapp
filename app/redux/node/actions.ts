@@ -12,7 +12,6 @@ export const setNodeStatus = (status: NodeStatus) => ({
   type: SET_NODE_STATUS,
   payload: status,
 });
-
 export const setNodeError = (error: NodeError) => ({
   type: SET_NODE_ERROR,
   payload: error,

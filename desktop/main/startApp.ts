@@ -31,11 +31,15 @@ import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
-import nodeIPCStreams, { nodeAndAppLogsListener } from './sources/node.ipc';
+import nodeIPCStreams, { sentryLogsListener } from './sources/node.ipc';
 import handleWipeOut from './reactions/wipeOut.ipc';
 import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
 import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
+import {
+  handleManagersNotifications,
+  handleNotifications,
+} from './notifications';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -117,6 +121,7 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
+  const $notifications = new $.Subject<string | Error>();
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
     StoreService.get(IS_AUTO_START_ENABLED)
   );
@@ -151,7 +156,12 @@ const startApp = (): AppStore => {
     // Spawn managers (and handle unsubscribing)
     spawnManagers($nodeConfig, $managers, $mainWindow),
     // On changing network -> update node config
-    syncNodeConfig($currentNetwork, $nodeConfig, $smeshingSetupState),
+    syncNodeConfig(
+      $currentNetwork,
+      $nodeConfig,
+      $smeshingSetupState,
+      $notifications
+    ),
     // Activate wallet and accounts
     activateWallet(
       $wallet,
@@ -172,7 +182,7 @@ const startApp = (): AppStore => {
     // And update them by users request
     listNetworksByRequest(),
     // Get actual logs to client app
-    nodeAndAppLogsListener(),
+    sentryLogsListener(),
     // List Public APIs for current network
     // Do not update anything
     listPublicApisByRequest($wallet),
@@ -191,7 +201,13 @@ const startApp = (): AppStore => {
     // Switch network
     // Add account, manage contacts
     // Close wallet
-    handleWalletIpcRequests($wallet, $walletPath, $networks, $smeshingStarted),
+    handleWalletIpcRequests(
+      $wallet,
+      $walletPath,
+      $networks,
+      $smeshingStarted,
+      $notifications
+    ),
     // Handle Start Smeshing request
     handleSmesherIpc($managers, $smeshingStarted),
     // Handle show file
@@ -219,6 +235,8 @@ const startApp = (): AppStore => {
     // and handle IPC communications with it
     observeAutoUpdates($mainWindow, $currentNetwork),
     handleOpenDashboard($mainWindow, $currentNetwork),
+    handleManagersNotifications($managers, $notifications),
+    handleNotifications($notifications, $mainWindow),
   ];
 
   return {

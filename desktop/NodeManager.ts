@@ -7,6 +7,7 @@ import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
+import { Subject } from 'rxjs';
 import { ipcConsts } from '../app/vars';
 import { debounceShared, delay } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
@@ -37,6 +38,7 @@ import { NODE_CONFIG_FILE } from './main/constants';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
+import { FilePermissionLoggerError } from './errors';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -83,6 +85,8 @@ class NodeManager extends AbstractManager {
   private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS); // new Subject<NodeStatus>();
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
+
+  public $notifications = new Subject<Error>();
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -394,6 +398,12 @@ class NodeManager extends AbstractManager {
       keep: 5,
       compress: true,
     });
+
+    logFileStream.on('error', (err) =>
+      this.$notifications.next(
+        new FilePermissionLoggerError(err.message, err.stack)
+      )
+    );
 
     const args = [
       '--config',

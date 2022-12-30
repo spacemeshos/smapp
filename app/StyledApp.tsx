@@ -14,6 +14,8 @@ import { ipcConsts } from './vars';
 import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
 import { init } from './sentry';
+import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
+import NoInternetConnection from './screens/modal/NoInternetConnection';
 
 const history = createBrowserHistory();
 
@@ -45,6 +47,7 @@ const StyledApp = () => {
   const isClosingApp = useSelector((state: RootState) => state.ui.isClosingApp);
   const dispatch = useDispatch();
   const theme = getThemeById(skinId, isDarkMode);
+
   useEffect(() => {
     dispatch(setOsTheme());
   }, [dispatch]);
@@ -68,6 +71,8 @@ const StyledApp = () => {
             <Redirect to="/auth" />
           </Switch>
         </Router>
+        <WriteFilePermissionError />
+        <NoInternetConnection />
       </ErrorBoundary>
     </ThemeProvider>
   );

@@ -59,6 +59,7 @@ import {
   updateWalletMeta,
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
+import { FilePermissionWalletError } from '../../errors';
 
 type WalletData = {
   // path to wallet file
@@ -92,9 +93,9 @@ const updateWalletFile = async (next: WalletData) => {
       logger.error('updateWalletFile/saveWallet', err, next.path);
     });
   } else {
-    await updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
-      logger.error('updateWalletFile', err, next.path)
-    );
+    await updateWalletMeta(next.path, next.wallet.meta).catch((err) => {
+      logger.error('updateWalletFile', err, next.path);
+    });
   }
 };
 
@@ -153,7 +154,8 @@ const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
   $networks: Subject<Network[]>,
-  $smeshingStarted: Observable<SmeshingSetupState>
+  $smeshingStarted: Observable<SmeshingSetupState>,
+  $notifications: Subject<string | Error>
 ) => {
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
@@ -379,14 +381,16 @@ const handleWalletIpcRequests = (
           $walletPath.next(next.path);
         }
         if (isWalletData(next) && next.save) {
-          updateWalletFile(next).catch((err) => {
-            logger.error('updateWalletFile', err);
+          updateWalletFile(next).catch((err: any) => {
+            $notifications.next(
+              new FilePermissionWalletError(err.message, err.stack)
+            );
           });
         }
       },
       error: (error: Error) => {
-        // TODO: Show error to User
         logger.debug('$nextWallet', error);
+        throw error;
       },
       complete: () => {
         logger.error('$nextWallet', 'Observable is completed');
