@@ -19,6 +19,7 @@ import SubHeader from '../../basicComponents/SubHeader';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { AuthPath } from '../../routerPaths';
 import { delay } from '../../../shared/utils';
+import Address from '../../components/common/Address';
 
 const Container = styled.div`
   display: flex;
@@ -141,6 +142,18 @@ const Network = ({ history }) => {
         </DetailsTextWrap>
         <GrayText>
           <CustomTimeAgo time={genesisTime} />
+        </GrayText>
+      </DetailsRow>
+      <DetailsRow>
+        <DetailsTextWrap>
+          <DetailsText>Genesis ID</DetailsText>
+          <Tooltip
+            width={250}
+            text="Unique hash per network, generated from genesis time and unique identifier."
+          />
+        </DetailsTextWrap>
+        <GrayText>
+          <Address isHex address={genesisID} />
         </GrayText>
       </DetailsRow>
       <DetailsRow>
