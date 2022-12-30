@@ -555,16 +555,16 @@ class Settings extends Component<Props, State> {
                 rowName="Local node TCP and UDP port number"
               />
               <SettingRow
-                upperPartLeft="Delete all wallets and app data"
+                upperPartLeft="Delete all wallets, app data and logs"
                 isUpperPartLeftText
                 upperPartRight={
                   <Button
                     onClick={this.cleanAllAppDataAndSettings}
-                    text="REINSTALL"
+                    text="WIPE OUT"
                     width={180}
                   />
                 }
-                rowName="Reinstall App"
+                rowName="Clean up the data"
               />
             </SettingsSection>
           </AllSettingsInnerWrapper>
@@ -738,9 +738,9 @@ class Settings extends Component<Props, State> {
   };
 
   deleteWallet = async () => {
-    const { walletFiles } = this.props;
+    const { currentWalletPath } = this.props;
     localStorage.clear();
-    await eventsService.deleteWalletFile(walletFiles[0]);
+    await eventsService.deleteWalletFile(currentWalletPath);
   };
 
   cancelEditingWalletDisplayName = () => {

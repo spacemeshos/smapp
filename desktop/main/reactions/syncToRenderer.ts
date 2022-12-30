@@ -74,7 +74,7 @@ const sync = (
       .subscribe(() => $syncPoint.next(true)),
     // Send updates on changes
     $batch.pipe(withLatest($mainWindow)).subscribe(([mw, batch]) => {
-      if (!mw) return;
+      if (!mw || mw.isDestroyed()) return;
       mw.webContents.send('IPC_BATCH_SYNC', batch);
     }),
     // When window is ready or want update — update the Subject

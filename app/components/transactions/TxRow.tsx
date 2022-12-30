@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 import { Modal } from '../common';
 import { Button, Link, Input, NetworkIndicator } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
 import { eventsService } from '../../infra/eventsService';
 import Address, { AddressType } from '../common/Address';
 import { ExternalLinks, TX_STATE_LABELS } from '../../../shared/constants';
@@ -14,6 +12,7 @@ import {
   getFormattedTimestamp,
 } from '../../infra/utils';
 import getStatusColor from '../../vars/getStatusColor';
+import { TxView } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div<{ isDetailed: boolean }>`
   display: flex;
@@ -251,20 +250,22 @@ const TxStatusBulb = styled(NetworkIndicator)`
 `;
 
 const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
-  const [isDetailed, setIsDetailed] = useState(false);
-  const [note, setNote] = useState(tx.note || '');
-  const [showNoteModal, setShowNoteModal] = useState(false);
+  const note = tx.note || '';
 
-  const currentAccountIndex = useSelector(
-    (state: RootState) => state.wallet.currentAccountIndex
-  );
+  const [isDetailed, setIsDetailed] = useState(false);
+  const [noteInput, setNoteInput] = useState(note);
+  const [showNoteModal, setShowNoteModal] = useState(false);
 
   const isSent = tx.principal === address;
   const color = getStatusColor(tx.status, isSent);
 
   const save = async () => {
-    await eventsService.updateTransactionNote(currentAccountIndex, tx.id, note);
+    await eventsService.updateTransactionNote(address, tx.id, noteInput);
     setIsDetailed(false);
+    setShowNoteModal(false);
+  };
+  const cancel = () => {
+    setNoteInput(note);
     setShowNoteModal(false);
   };
 
@@ -368,10 +369,10 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
             <Input
               type="text"
               placeholder="NOTE"
-              value={note}
+              value={noteInput}
               onEnterPress={save}
               onChange={({ value }: { value: string }) => {
-                setNote(value);
+                setNoteInput(value);
               }}
               autofocus
             />
@@ -384,12 +385,12 @@ const TxRow = ({ tx, address, addAddressToContacts }: Props) => {
             <RightButton>
               <Link
                 style={{ color: smColors.orange, marginRight: '10px' }}
-                onClick={() => setShowNoteModal(false)}
+                onClick={cancel}
                 text="CANCEL"
               />
               <Button
                 text="NEXT"
-                isDisabled={note === tx.note}
+                isDisabled={noteInput === tx.note}
                 onClick={save}
               />
             </RightButton>

@@ -3,9 +3,6 @@ import { ipcConsts } from '../../app/vars';
 import { AppContext } from './context';
 
 export default (context: AppContext) => {
-  // Basic
-  ipcMain.on(ipcConsts.RELOAD_APP, () => context.mainWindow?.reload());
-
   // Theme
   ipcMain.handle(
     ipcConsts.GET_OS_THEME_COLOR,

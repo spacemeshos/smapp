@@ -33,6 +33,8 @@ import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
 import { makeSubscription } from './rx.utils';
 import nodeIPCStreams, { nodeAndAppLogsListener } from './sources/node.ipc';
+import handleWipeOut from './reactions/wipeOut.ipc';
+import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -191,6 +193,9 @@ const startApp = (): AppStore => {
     handleSmesherIpc($managers, $smeshingStarted),
     // Handle show file
     handleShowFile($currentNetwork),
+    // IPC Reactions
+    handleWipeOut($mainWindow, $isAppClosing),
+    handleDeleteWalletFile($mainWindow),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
       $mainWindow,

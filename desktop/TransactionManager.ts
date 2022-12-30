@@ -621,6 +621,7 @@ class TransactionManager {
                 methodName: getMethodName(SingleSigTemplate.publicKey, method),
               },
               layer: currentLayer,
+              ...((fullTx.note && { note: fullTx.note }) || {}),
             })
           : null;
 
@@ -648,15 +649,14 @@ class TransactionManager {
   };
 
   updateTxNote = ({
-    accountIndex,
+    address,
     txId,
     note,
   }: {
-    accountIndex: number;
+    address: Bech32Address;
     txId: HexString;
     note: string;
   }) => {
-    const address = this.accountStates[accountIndex].getAddress();
     const tx = this.accountStates[address].getTxById(txId);
     return this.upsertTransaction(address)({ ...tx, note });
   };
