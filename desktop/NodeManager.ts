@@ -471,12 +471,12 @@ class NodeManager {
       `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
     );
     if (timeout <= 0) return isFinished;
-    if (isFinished) return true;
-    return isFinished
-      ? true
-      : delay(interval).then(() =>
-          this.waitProcessFinish(timeout - interval, interval)
-        );
+    return (
+      isFinished ||
+      delay(interval).then(() =>
+        this.waitProcessFinish(timeout - interval, interval)
+      )
+    );
   };
 
   stopNode = async () => {
@@ -521,9 +521,14 @@ class NodeManager {
 
   getVersionAndBuild = async () => {
     try {
-      const version = await this.nodeService.getNodeVersion();
-      const build = await this.nodeService.getNodeBuild();
-      return { version, build };
+      const alive = await this.isNodeAlive(30);
+      if (alive) {
+        const version = await this.nodeService.getNodeVersion();
+        const build = await this.nodeService.getNodeBuild();
+        return { version, build };
+      } else {
+        return { version: '', build: 'node-not-started' };
+      }
     } catch (err) {
       logger.error('getVersionAndBuild', err);
       return { version: '', build: '' };
