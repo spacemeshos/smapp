@@ -3,6 +3,7 @@ import {
   delay,
   distinctUntilChanged,
   ReplaySubject,
+  share,
   skip,
   Subject,
   withLatestFrom,
@@ -41,7 +42,8 @@ const spawnManagers$ = (
   const $uniqNodeCondig = $nodeConfig.pipe(
     distinctUntilChanged(
       (prev, next) => JSON.stringify(prev) === JSON.stringify(next)
-    )
+    ),
+    share()
   );
   const subs = [
     // If node config changed, then unsubscribe managers

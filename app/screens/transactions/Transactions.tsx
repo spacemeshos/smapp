@@ -57,8 +57,12 @@ const RightPaneWrapper = styled(CorneredWrapper)`
 const DropDownWrapper = styled.div`
   position: absolute;
   width: 150px;
-  right: 0;
+  right: 6px;
   top: 7px;
+`;
+
+const FilterDropDownWrapper = styled(DropDownWrapper)`
+  right: 30px;
 `;
 
 const getNumOfCoinsFromTransactions = (
@@ -97,9 +101,22 @@ const TIME_SPANS = [
   { label: 'yearly', days: 365 },
 ];
 
+enum TxFilter {
+  All = 0,
+  Transactions = 1,
+  Rewards = 2,
+}
+
+const TX_FILTERS = [
+  { label: 'all', filter: TxFilter.All },
+  { label: 'transactions', filter: TxFilter.Transactions },
+  { label: 'rewards', filter: TxFilter.Rewards },
+];
+
 const Transactions = ({ history }: RouteComponentProps) => {
   const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
+  const [txFilter, setTxFilter] = useState(TxFilter.All);
 
   const address = useSelector(
     (state: RootState) =>
@@ -154,6 +171,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
     totalSent,
     totalReceived,
   } = coinStats;
+
   return (
     <Wrapper>
       <BackButton action={history.goBack} width={7} height={10} />
@@ -162,6 +180,16 @@ const Transactions = ({ history }: RouteComponentProps) => {
         header="TRANSACTION LOG"
         style={{ marginRight: 10 }}
       >
+        <FilterDropDownWrapper>
+          <DropDown
+            data={TX_FILTERS}
+            onClick={({ index }) => setTxFilter(index)}
+            selectedItemIndex={txFilter}
+            rowHeight={40}
+            bold
+            dark
+          />
+        </FilterDropDownWrapper>
         <TransactionsListWrapper>
           {transactions && transactions.length ? (
             transactions.map((tx: TxView | RewardView) =>
@@ -170,6 +198,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
                   key={`${address}_reward_${tx.layer}`}
                   address={address}
                   tx={tx}
+                  isHidden={txFilter === TxFilter.Transactions}
                 />
               ) : (
                 <TxRow
@@ -177,6 +206,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
                   tx={tx}
                   address={address}
                   addAddressToContacts={({ address }) => address}
+                  isHidden={txFilter === TxFilter.Rewards}
                 />
               )
             )

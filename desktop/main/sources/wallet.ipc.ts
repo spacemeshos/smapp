@@ -60,15 +60,24 @@ import {
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
 
+type WalletData = {
+  // path to wallet file
+  path: string;
+  // wallet file contents
+  wallet: Wallet;
+  // some meta data for responses
+  // e.g. to request network selection
+  meta?: Record<string, any>;
+  // password to save the wallet file
+  password?: string;
+  // true to save the wallet file
+  save?: boolean;
+  // true to reset $wallet state (e.g. on closing wallet)
+  reset?: boolean;
+};
+
 type ResetWallet = { path: ''; wallet: null };
 const RESET_WALLET: ResetWallet = { path: '', wallet: null };
-type WalletData = {
-  path: string;
-  wallet: Wallet;
-  password?: string;
-  meta?: Record<string, any>;
-  save?: boolean;
-};
 
 const isWalletData = (a: any): a is WalletData =>
   Boolean(a.path) && Boolean(a.wallet);
@@ -246,6 +255,7 @@ const handleWalletIpcRequests = (
               path,
               wallet: nextWallet,
               save: true,
+              reset: true,
             });
           })
         ),
@@ -361,8 +371,13 @@ const handleWalletIpcRequests = (
     // Update wallet and wallet path subjects
     $nextWallet.subscribe({
       next: (next) => {
-        $wallet.next(next.wallet);
-        $walletPath.next(next.path);
+        if (next.wallet && next.reset) {
+          $wallet.next(null);
+          $walletPath.next('');
+        } else {
+          $wallet.next(next.wallet);
+          $walletPath.next(next.path);
+        }
         if (isWalletData(next) && next.save) {
           updateWalletFile(next).catch((err) => {
             logger.error('updateWalletFile', err);

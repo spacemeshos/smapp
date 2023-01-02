@@ -18,6 +18,7 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { addErrorPrefix } from '../../infra/utils';
 import { AppThDispatch, GetState } from '../../types';
+import { logout } from '../auth/actions';
 import { getGenesisID } from '../network/selectors';
 import { setUiError } from '../ui/actions';
 
@@ -190,6 +191,7 @@ export const switchApiProvider = (
           : WalletType.RemoteApi,
     },
   });
+  dispatch(logout());
   return true;
 };
 

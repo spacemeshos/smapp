@@ -121,6 +121,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     retries = 5
   ) => {
     if (!this.service) return;
+    if (this.statusStream) return;
 
     this.statusStream = this.service.StatusStream({});
     this.statusStream.on('data', (response: any) => {
@@ -146,18 +147,19 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     this.statusStream.on('end', async () => {
       console.log('StatusStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc StatusStream ended', null);
-      this.statusStream = null;
       if (this.isShuttingDown) {
         this.logger.log('grpc StatusStream shutted down', null);
         return;
       }
       if (retries > 0) {
-        errorHandler(LOST_CONNECTION_ERROR);
+        if (retries < 2) {
+          errorHandler(LOST_CONNECTION_ERROR);
+        }
         this.logger.log(
           'grpc StatusStream restarting',
           `Retries left: ${retries}`
         );
-        await delay(5000);
+        await delay(500);
         this.activateStatusStream(statusHandler, errorHandler, retries - 1);
       } else {
         errorHandler(CAN_NOT_CONNECT_ERROR);
@@ -175,6 +177,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
 
   activateErrorStream = (handler: ErrorStreamHandler, retries = 5) => {
     if (!this.service) return;
+    if (this.errorStream) return;
 
     this.errorStream = this.service.ErrorStream({});
     this.errorStream.on('data', (response: any) => {
@@ -189,7 +192,6 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     this.errorStream.on('end', async () => {
       console.log('ErrorStream ended'); // eslint-disable-line no-console
       this.logger.log('grpc ErrorStream ended', null);
-      this.errorStream = null;
       if (this.isShuttingDown) {
         this.logger.log('grpc ErrorStream shutted down', null);
         return;
@@ -199,7 +201,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
           'grpc ErrorStream restarting',
           `Retries left: ${retries}`
         );
-        await delay(5000);
+        await delay(500);
         this.activateErrorStream(handler, retries - 1);
       } else {
         this.logger.error('grpc ErrorStream can not restart', null);

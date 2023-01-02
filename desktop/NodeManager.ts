@@ -242,8 +242,27 @@ class NodeManager {
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
+    this.nodeService.cancelStatusStream();
+    this.nodeService.cancelErrorStream();
+    this.smesherManager.unsubscribe();
+    await this.stopNode();
+
     this.nodeService.createService(apiUrl);
-    return this.updateNodeStatus();
+    const success = await this.updateNodeStatus();
+    if (success) {
+      // and activate streams
+      this.activateNodeStatusStream();
+      this.activateNodeErrorStream();
+      return true;
+    } else {
+      this.pushNodeError({
+        msg: 'Remote API is not responding',
+        stackTrace: '',
+        module: 'NodeManager',
+        level: NodeErrorLevel.LOG_LEVEL_FATAL,
+      });
+      return false;
+    }
   };
 
   startNode = async () => {
@@ -452,17 +471,18 @@ class NodeManager {
       `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
     );
     if (timeout <= 0) return isFinished;
-    if (isFinished) return true;
-    return isFinished
-      ? true
-      : delay(interval).then(() =>
-          this.waitProcessFinish(timeout - interval, interval)
-        );
+    return (
+      isFinished ||
+      delay(interval).then(() =>
+        this.waitProcessFinish(timeout - interval, interval)
+      )
+    );
   };
 
   stopNode = async () => {
     if (!this.nodeProcess) return;
     try {
+      this.smesherManager.unsubscribe();
       // Request Node shutdown
       this.nodeProcess.kill('SIGTERM');
       logger.log('stop node', 'kill SIGTERM');
@@ -501,9 +521,14 @@ class NodeManager {
 
   getVersionAndBuild = async () => {
     try {
-      const version = await this.nodeService.getNodeVersion();
-      const build = await this.nodeService.getNodeBuild();
-      return { version, build };
+      const alive = await this.isNodeAlive(30);
+      if (alive) {
+        const version = await this.nodeService.getNodeVersion();
+        const build = await this.nodeService.getNodeBuild();
+        return { version, build };
+      } else {
+        return { version: '', build: 'node-not-started' };
+      }
     } catch (err) {
       logger.error('getVersionAndBuild', err);
       return { version: '', build: '' };

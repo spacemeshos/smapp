@@ -27,7 +27,7 @@ import {
   NodeStatus,
   PostSetupState,
   RewardsInfo,
-  SmesherReward,
+  Reward,
 } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
 import * as SmesherSelectors from '../../redux/smesher/selectors';
@@ -214,7 +214,7 @@ const POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE = `The Node is not syncing. Pl
 const getStatus = (
   state: PostSetupState,
   isPaused: boolean,
-  rewards: SmesherReward[],
+  rewards: Reward[],
   epoch: number,
   isNodeSynced: boolean
 ) => {

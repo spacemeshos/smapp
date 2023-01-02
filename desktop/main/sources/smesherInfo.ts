@@ -2,7 +2,6 @@ import {
   BehaviorSubject,
   combineLatest,
   concat,
-  distinctUntilChanged,
   filter,
   first,
   from,
@@ -18,12 +17,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
-import {
-  Activation,
-  SmesherReward,
-  Wallet,
-  WalletType,
-} from '../../../shared/types';
+import { Activation, Reward, Wallet, WalletType } from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
 import { longToNumber } from '../../../shared/utils';
 import Logger from '../../logger';
@@ -36,10 +30,10 @@ const logger = Logger({ className: 'smesherInfo' });
 const getRewards$ = (
   managers: Managers,
   coinbase: string
-): Observable<Reward__Output[]> =>
+): Observable<Reward[]> =>
   from(managers.wallet.requestRewardsByCoinbase(coinbase));
 
-const toSmesherReward = (input: Reward__Output): SmesherReward => {
+const toReward = (input: Reward__Output): Reward => {
   if (!hasRequiredRewardFields(input)) {
     throw new Error(
       `Can not convert input ${JSON.stringify(input)} to SmesherReward`
@@ -48,7 +42,7 @@ const toSmesherReward = (input: Reward__Output): SmesherReward => {
   return {
     layer: input.layer.number,
     layerReward: longToNumber(input.layerReward.value),
-    total: longToNumber(input.total.value),
+    amount: longToNumber(input.total.value),
     coinbase: input.coinbase.address,
   };
 };
@@ -71,76 +65,92 @@ const syncSmesherInfo = (
 
   const $isLocalNode = $wallet.pipe(
     filter(Boolean),
-    map((wallet) => wallet.meta.type === WalletType.LocalNode),
-    distinctUntilChanged(),
-    filter(Boolean)
+    map((wallet) => wallet.meta.type === WalletType.LocalNode)
   );
 
-  const $isSmeshing = $isLocalNode.pipe(
-    switchMap(() =>
-      merge($isWalletActivated, $smeshingStarted, interval(5 * MINUTE))
-    ),
-    withLatestFrom($managers),
-    switchMap(([_, managers]) => from(managers.smesher.isSmeshing()))
+  const $isSmeshing = merge(
+    $isWalletActivated,
+    $smeshingStarted,
+    interval(5 * MINUTE)
+  ).pipe(
+    withLatestFrom($managers, $isLocalNode),
+    switchMap(([_, managers, isLocalNode]) => {
+      if (isLocalNode) {
+        return from(managers.smesher.isSmeshing().catch(() => false));
+      }
+      return of(false);
+    }),
+    share()
   );
 
-  const $smesherId = $isLocalNode.pipe(
-    switchMap(() => combineLatest([$managers, $isWalletActivated])),
-    switchMap(([managers]) =>
+  const $smesherId = combineLatest([
+    $isLocalNode,
+    $managers,
+    $isWalletActivated,
+  ]).pipe(
+    switchMap(([isLocalNode, managers]) =>
       from(
         (async () => {
+          if (!isLocalNode) return '';
           if (await managers.node.getNodeStatus(60)) {
-            const smesherId = await managers.smesher.getSmesherId();
+            const smesherId = await managers.smesher
+              .getSmesherId()
+              .catch(() => '');
             return smesherId || '';
           }
           throw new Error('getSmesherId(): Can not reach the Node');
         })()
       )
-    )
+    ),
+    share()
   );
   const $coinbase = $isSmeshing.pipe(
     filter(Boolean),
-    withLatestFrom($managers),
-    switchMap(([_, managers]) =>
-      from(
-        managers.smesher.getCoinbase().then((res) => {
-          if (!res) return null;
-          if (res.error) {
-            logger.error('getCoinbase() return', res);
-            return null;
-          }
-          return res.coinbase;
-        })
-      )
+    withLatestFrom($managers, $isLocalNode),
+    switchMap(([_, managers, isLocalNode]) =>
+      isLocalNode
+        ? from(
+            managers.smesher.getCoinbase().then((res) => {
+              if (!res) return null;
+              if (res.error) {
+                logger.error('getCoinbase() return', res);
+                return null;
+              }
+              return res.coinbase;
+            })
+          )
+        : of(null)
     ),
-    filter(Boolean)
+    filter(Boolean),
+    share()
   );
 
-  const $rewardsHistory = combineLatest([$coinbase, $managers]).pipe(
-    switchMap(([coinbase, managers]) => getRewards$(managers, coinbase)),
-    map((rewards) => rewards.map(toSmesherReward))
+  const $rewardsHistory = $coinbase.pipe(
+    withLatestFrom($managers),
+    switchMap(([coinbase, managers]) => getRewards$(managers, coinbase))
   );
-  const $rewardsStream = $isLocalNode.pipe(
-    switchMap(() => combineLatest([$coinbase, $managers])),
-    switchMap(([coinbase, managers]) =>
-      new Observable<Reward__Output>((subscriber) =>
-        managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
-          subscriber.next(x)
+  const $rewardsStream = $coinbase.pipe(
+    withLatestFrom($managers),
+    switchMap(
+      ([coinbase, managers]) =>
+        new Observable<Reward__Output>((subscriber) =>
+          managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
+            subscriber.next(x)
+          )
         )
-      ).pipe(share())
-    )
+    ),
+    share()
   );
 
   const $rewards = concat(
-    of([]),
     $rewardsHistory,
     $rewardsStream.pipe(
       scan((acc, next) => {
         if (hasRequiredRewardFields(next)) {
-          acc.push(toSmesherReward(next));
+          acc.push(toReward(next));
         }
         return acc;
-      }, <SmesherReward[]>[])
+      }, <Reward[]>[])
     )
   );
 

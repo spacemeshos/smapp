@@ -141,4 +141,20 @@ export class AccountStateManager {
     (this.state[this.genesisID] as StateType).rewards[reward.layer] = reward;
     return this.autosave();
   };
+
+  lastSyncedTxLayer = () =>
+    Math.max.apply(null, [
+      ...Object.values((this.state[this.genesisID] as StateType).txs)
+        .slice(-10)
+        .map((tx) => tx.layer || 0),
+      0,
+    ]);
+
+  lastSyncedRewardsLayer = () =>
+    Math.max.apply(null, [
+      ...Object.keys((this.state[this.genesisID] as StateType).rewards).map(
+        (k) => parseInt(k, 10) || 0
+      ),
+      0,
+    ]);
 }
