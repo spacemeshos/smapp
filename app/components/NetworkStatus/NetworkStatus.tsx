@@ -59,7 +59,7 @@ const NetworkStatus = ({
         </Progress>
       </>
     );
-  }
+  };
 
   const renderSyncingStatus = () => {
     return (

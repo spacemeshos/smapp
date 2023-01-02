@@ -19,7 +19,6 @@ import { ipcConsts } from '../app/vars';
 import { AccountDataFlag } from '../proto/spacemesh/v1/AccountDataFlag';
 import { Transaction__Output } from '../proto/spacemesh/v1/Transaction';
 import { TransactionState__Output } from '../proto/spacemesh/v1/TransactionState';
-import { AccountData__Output } from '../proto/spacemesh/v1/AccountData';
 import { MeshTransaction__Output } from '../proto/spacemesh/v1/MeshTransaction';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
@@ -32,7 +31,7 @@ import {
 } from '../shared/utils';
 import { MAX_GAS } from '../shared/constants';
 import { getMethodName, getTemplateName } from '../shared/templateMeta';
-import { addReceiptToTx, toTx } from './transformers';
+import { toTx } from './transformers';
 import TransactionService from './TransactionService';
 import MeshService from './MeshService';
 import GlobalStateService, {
