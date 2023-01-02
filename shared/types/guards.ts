@@ -42,9 +42,6 @@ export const isTx = (a: any): a is Tx =>
 
 export const isReward = (a: any): a is Reward =>
   a &&
-  a.layer &&
-  a.coinbase &&
-  a.amount &&
   typeof a.coinbase === 'string' &&
   typeof a.layer === 'number' &&
   typeof a.amount === 'number';
