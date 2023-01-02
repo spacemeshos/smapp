@@ -80,7 +80,7 @@ class NetServiceFactory<
     this.logger?.debug(`createNetService(${serviceName})`, apiUrl);
     if (this.service) {
       this.cancelStreams();
-      this.service.close();
+      this.dropNetService();
     }
 
     this.protoPath = protoPath;
