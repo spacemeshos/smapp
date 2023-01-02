@@ -2,7 +2,6 @@ import {
   BehaviorSubject,
   combineLatest,
   concat,
-  distinctUntilChanged,
   filter,
   first,
   from,
@@ -80,7 +79,8 @@ const syncSmesherInfo = (
         return from(managers.smesher.isSmeshing().catch(() => false));
       }
       return of(false);
-    })
+    }),
+    share()
   );
 
   const $smesherId = combineLatest([
@@ -101,7 +101,8 @@ const syncSmesherInfo = (
           throw new Error('getSmesherId(): Can not reach the Node');
         })()
       )
-    )
+    ),
+    share()
   );
   const $coinbase = $isSmeshing.pipe(
     filter(Boolean),
@@ -120,7 +121,8 @@ const syncSmesherInfo = (
           )
         : of(null)
     ),
-    filter(Boolean)
+    filter(Boolean),
+    share()
   );
 
   const $rewardsHistory = $coinbase.pipe(
@@ -129,13 +131,15 @@ const syncSmesherInfo = (
   );
   const $rewardsStream = $coinbase.pipe(
     withLatestFrom($managers),
-    switchMap(([coinbase, managers]) =>
-      new Observable<Reward__Output>((subscriber) =>
-        managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
-          subscriber.next(x)
+    switchMap(
+      ([coinbase, managers]) =>
+        new Observable<Reward__Output>((subscriber) =>
+          managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
+            subscriber.next(x)
+          )
         )
-      ).pipe(share())
-    )
+    ),
+    share()
   );
 
   const $rewards = concat(
