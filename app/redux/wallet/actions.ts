@@ -141,6 +141,7 @@ export const unlockWallet = (path: string, password: string) => async (
   if (error) {
     // Incorrecrt password
     if (error.message && error.message.indexOf('Wrong password') === 0) {
+      dispatch(setUiError(addErrorPrefix('', error)));
       return { success: false };
     }
     // Some unhandled error
