@@ -5,7 +5,6 @@ import {
   NodeVersionAndBuild,
   Wallet,
 } from '../../shared/types';
-import { isLocalNodeType } from '../../shared/utils';
 import StoreService from '../storeService';
 import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
 import { MINUTE } from './constants';
@@ -31,10 +30,11 @@ import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
-import { makeSubscription } from './rx.utils';
 import nodeIPCStreams, { nodeAndAppLogsListener } from './sources/node.ipc';
 import handleWipeOut from './reactions/wipeOut.ipc';
 import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
+import handleAppWalletChange from './reactions/handleAppWalletChange';
+import handleNodeAutoStart from './reactions/handleNodeAutoStart';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -143,24 +143,9 @@ const startApp = (): AppStore => {
       $nodeRestartRequest
     ),
     // When silent mode enabled, and smeshing-start: true in node-config
-    makeSubscription(
-      $.combineLatest($runNodeBeforeLogin, $managers, $wallet),
-      ([runNode, managers, wallet]) => {
-        if (!runNode) {
-          return;
-        }
-
-        const type = wallet?.meta?.type;
-        if (!type || isLocalNodeType(type)) {
-          managers.node.startNode();
-        }
-      }
-    ),
+    handleNodeAutoStart($runNodeBeforeLogin, $wallet, $managers),
     // Each time when Smapp is activated (window reloaded and shown)...
-    makeSubscription($managers, (managers) => {
-      managers.node.updateNodeStatus();
-      managers.smesher.updateSmesherState();
-    }),
+    handleAppWalletChange($isWalletActivated, $wallet, $managers),
     // Update currentLayer & rootHash
     // Update networks on init
     fetchDiscovery($networks),
@@ -230,7 +215,7 @@ const startApp = (): AppStore => {
           managers: $managers,
         })
       ),
-    unsubscribe: () => unsubs.forEach((unsub) => unsub()),
+    unsubscribe: () => unsubs.forEach((unsub) => (unsub as () => void)()),
     subjects: {
       $networks,
     },
