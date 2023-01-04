@@ -251,7 +251,6 @@ const sortOptions = [{ label: 'Sort by A-Z' }, { label: 'Sort by Z-A' }];
 
 const Contacts = ({ history }: RouteComponentProps) => {
   let newContactCreatedTimeOut: ReturnType<typeof setInterval>;
-
   const [addressToAdd, setAddressToAdd] = useState('');
   const [tmpSearchTerm, setTmpSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -475,7 +474,7 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   return (
-    <WrapperWith2SideBars width={1000} height={500} header="CONTACTS">
+    <WrapperWith2SideBars width={1000} height={520} header="CONTACTS">
       <SearchWrapper>
         {/* <SearchIcon src={searchIcon} /> */}
         <Input

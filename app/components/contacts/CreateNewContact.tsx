@@ -6,7 +6,6 @@ import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { AppThDispatch, RootState } from '../../types';
-import { Contact } from '../../../shared/types';
 import { validateAddress } from '../../infra/utils';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
@@ -75,6 +74,10 @@ type Props = {
   onCancel: () => void;
 };
 
+type ValidateError = {
+  type: 'address' | 'name';
+  message: string;
+};
 const CreateNewContact = ({
   isStandalone = false,
   initialAddress = '',
@@ -84,8 +87,7 @@ const CreateNewContact = ({
   const [address, setAddress] = useState(initialAddress || '');
   // const [initialAddress, setIn] = useState(initialAddress || '');
   const [nickname, setNickname] = useState('');
-  const [hasError, setHasError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [error, setError] = useState<ValidateError | null>();
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
@@ -103,28 +105,30 @@ const CreateNewContact = ({
     target?.select();
   };
 
-  const validate = () => {
+  const validate = (): ValidateError | null => {
     const nicknameRegex = /^([a-zA-Z0-9_-])$/;
     if (nicknameRegex.test(nickname)) {
-      return 'Nickname is missing or invalid';
+      return { type: 'name', message: 'Nickname is missing or invalid' };
+    }
+    if (contacts.some((contact) => contact.nickname === nickname)) {
+      return { type: 'name', message: 'Nickname should be unique' };
     }
     if (!validateAddress(address)) {
-      return 'Address is invalid';
+      return { type: 'address', message: 'Address is invalid' };
     }
-    let retVal = '';
-    contacts.forEach((contact: Contact) => {
-      if (contact.nickname === nickname) {
-        retVal = 'Nickname should be unique';
-      }
-    });
-    return retVal;
+    if (contacts.some((contact) => contact.address === address)) {
+      return {
+        type: 'address',
+        message: 'Contact with the same Account Address already exists',
+      };
+    }
+    return null;
   };
 
   const preCreateContact = () => {
-    const errorMsg = validate();
-    if (errorMsg) {
-      setHasError(true);
-      setErrorMsg(errorMsg);
+    const error = validate();
+    if (error) {
+      setError(error);
     } else {
       setShouldShowPasswordModal(true);
     }
@@ -142,6 +146,7 @@ const CreateNewContact = ({
         <br />
         --
       </Header>
+
       <InputsWrapper isStandalone={isStandalone}>
         <InputWrapperUpperPart isStandalone={isStandalone}>
           <Input
@@ -149,7 +154,7 @@ const CreateNewContact = ({
             placeholder="Nickname"
             onChange={({ value }) => {
               setNickname(value);
-              setHasError(false);
+              setError(null);
             }}
             maxLength="50"
             style={isStandalone ? inputStyle2 : inputStyle1}
@@ -160,17 +165,23 @@ const CreateNewContact = ({
             placeholder="Account address"
             onChange={({ value }) => {
               setAddress(value);
-              setHasError(false);
+              setError(null);
             }}
             maxLength="90"
             style={isStandalone ? inputStyle3 : inputStyle1}
             onFocus={handleFocus}
           />
-          {hasError && (
+          {error && (
             <ErrorPopup
-              onClick={() => setHasError(false)}
-              text={errorMsg}
-              style={{ bottom: 60, left: 'calc(50% - 90px)' }}
+              onClick={() => setError(null)}
+              text={error.message}
+              style={{
+                bottom: -33,
+                left:
+                  error.type === 'name'
+                    ? 'calc(0% + 10px)'
+                    : 'calc(50% + 10px)',
+              }}
             />
           )}
         </InputWrapperUpperPart>
