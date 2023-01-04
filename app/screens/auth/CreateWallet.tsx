@@ -129,7 +129,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       ? "These passwords don't match, please try again."
       : '';
     setPasswordError(passwordError);
-    setVerifiedPassword(verifyPasswordError);
+    setVerifyPasswordError(verifyPasswordError);
     return !passwordError && !verifyPasswordError;
   };
 
