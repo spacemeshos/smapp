@@ -7,6 +7,11 @@ import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import EnterPasswordModal from './EnterPasswordModal';
 
+type ValidateError = {
+  type: 'passwordError' | 'verifiedPasswordError';
+  description: string;
+} | null;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -28,6 +33,16 @@ const RightPart = styled.div`
   align-items: center;
 `;
 
+const FieldsColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const FieldRow = styled.div`
+  display: flex;
+  position: relative;
+`;
+
 const ChangePassword = () => {
   let timeOut: any = null;
   const displayName = useSelector(
@@ -37,9 +52,10 @@ const ChangePassword = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
+
+  const [newPasswordError, setNewPasswordError] = useState<ValidateError>();
+
   useEffect(() => {
     return () => {
       clearTimeout(timeOut);
@@ -52,80 +68,124 @@ const ChangePassword = () => {
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
-    setPasswordError('');
   };
 
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
     setVerifiedPassword(value);
-    setVerifyPasswordError('');
   };
 
   const startUpdatingPassword = () => setIsEditMode(true);
 
-  const clearFields = () => {
+  const clear = () => {
     setPassword('');
     setVerifiedPassword('');
+    setNewPasswordError(null);
+  };
+
+  const cancel = () => {
+    clear();
     setIsEditMode(false);
-    setPasswordError('');
-    setVerifyPasswordError('');
-    setIsLoaderVisible(false);
+    setNewPasswordError(null);
     setOldPasswordRequested(false);
   };
 
-  const validate = () => {
-    const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPasswordError =
-      !password || (!!password && password.length < pasMinLength);
-    const hasVerifyPasswordError =
-      !verifiedPassword || password !== verifiedPassword;
-    const passwordError = hasPasswordError
-      ? `Password has to be ${pasMinLength} characters or more.`
-      : '';
-    const verifyPasswordError = hasVerifyPasswordError
-      ? "these passwords don't match, please try again "
-      : '';
-    setPasswordError(password);
-    setVerifyPasswordError(verifiedPassword);
-    return !passwordError && !verifyPasswordError;
-  };
-
   const updatePassword = async (prevPassword: string) => {
-    if (validate() && !isLoaderVisible && currentWalletPath) {
+    if (!isLoaderVisible && currentWalletPath) {
       setIsLoaderVisible(false);
       eventsService.changePassword({
         path: currentWalletPath,
         prevPassword,
         nextPassword: password,
       });
-      timeOut = setTimeout(() => clearFields(), 500);
+      timeOut = setTimeout(() => cancel(), 500);
     }
   };
 
   if (isLoaderVisible) {
     return <Loader size={Loader.sizes.BIG} />;
   }
+
+  const validatePassword = (): ValidateError => {
+    const pasMinLength = 1;
+    if (!password || (!!password && password.length < pasMinLength)) {
+      return {
+        type: 'passwordError',
+        description: `Password has to be ${pasMinLength} characters or more.`,
+      };
+    }
+
+    if (!verifiedPassword || password !== verifiedPassword) {
+      return {
+        type: 'verifiedPasswordError',
+        description: "These passwords don't match, please try again.",
+      };
+    }
+
+    return null;
+  };
+
+  const savePassword = () => {
+    const validateResult = validatePassword();
+    if (!validateResult) {
+      setOldPasswordRequested(true);
+    }
+    setNewPasswordError(validateResult);
+  };
+
   return (
     <Wrapper>
       <LeftPart>
         {isEditMode ? (
-          [
-            <Input
-              value={password}
-              type="password"
-              placeholder="Type new password"
-              onChange={handlePasswordTyping}
-              style={{ marginBottom: 15 }}
-              key="pass"
-              autofocus
-            />,
-            <Input
-              value={verifiedPassword}
-              type="password"
-              placeholder="Verify password"
-              onChange={handlePasswordVerifyTyping}
-              key="passRetype"
-            />,
-          ]
+          <FieldsColumn>
+            <FieldRow>
+              <Input
+                value={password}
+                type="password"
+                placeholder="Type new password"
+                onChange={handlePasswordTyping}
+                style={{ marginBottom: 15 }}
+                key="pass"
+                autofocus
+              />
+              {newPasswordError?.type === 'passwordError' && (
+                <ErrorPopup
+                  onClick={() => {
+                    clear();
+                    setNewPasswordError(null);
+                  }}
+                  text={newPasswordError.description}
+                  style={{
+                    top: 3,
+                    left: 'calc(100% + 4px)',
+                    width: 150,
+                  }}
+                />
+              )}
+            </FieldRow>
+            <FieldRow>
+              <Input
+                value={verifiedPassword}
+                type="password"
+                placeholder="Verify password"
+                onChange={handlePasswordVerifyTyping}
+                key="passRetype"
+              />
+              {newPasswordError?.type === 'verifiedPasswordError' && (
+                <ErrorPopup
+                  onClick={() => {
+                    clear();
+                    setNewPasswordError(null);
+                  }}
+                  text={newPasswordError.description}
+                  style={{
+                    top: 3,
+                    left: 'calc(100% + 4px)',
+                    width: 150,
+                  }}
+                />
+              )}
+            </FieldRow>
+          </FieldsColumn>
         ) : (
           <Input value="***********" type="password" isDisabled />
         )}
@@ -133,17 +193,7 @@ const ChangePassword = () => {
           <EnterPasswordModal
             walletName={displayName}
             submitAction={({ password }) => updatePassword(password)}
-            closeModal={clearFields}
-          />
-        )}
-        {(!!passwordError || !!verifyPasswordError) && (
-          <ErrorPopup
-            onClick={() => {
-              setPasswordError('');
-              setVerifyPasswordError('');
-            }}
-            text={passwordError || verifyPasswordError}
-            style={{ top: '95px', right: '-30px' }}
+            closeModal={cancel}
           />
         )}
       </LeftPart>
@@ -151,13 +201,13 @@ const ChangePassword = () => {
         {isEditMode ? (
           [
             <Link
-              onClick={() => setOldPasswordRequested(true)}
+              onClick={() => savePassword()}
               text="SAVE"
               style={{ marginRight: 15 }}
               key="change"
             />,
             <Link
-              onClick={clearFields}
+              onClick={cancel}
               text="CANCEL"
               style={{ color: smColors.darkGray }}
               key="cancel"
