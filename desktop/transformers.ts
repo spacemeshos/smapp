@@ -10,14 +10,17 @@ import { isObject, longToNumber, toHexString } from '../shared/utils';
 const prettifyPayload = (payload: Record<string, any>) =>
   Object.fromEntries(
     Object.entries(payload).map(([key, val]) => {
-      if (val instanceof Uint8Array || val instanceof Buffer) {
+      if (
+        val instanceof Uint8Array ||
+        val instanceof Buffer ||
+        val instanceof Array
+      ) {
         switch (key) {
           case 'Destination':
-            return [key, Bech32.generateAddress(val)];
+            return [key, Bech32.generateAddress(Uint8Array.from(val))];
           case 'PublicKey':
-            return [key, `0x${toHexString(val)}`];
           default:
-            return [key, `0x${toHexString(val)}`];
+            return [key, `0x${toHexString(Uint8Array.from(val))}`];
         }
       }
       if (isObject(val)) return [key, prettifyPayload(val)];
