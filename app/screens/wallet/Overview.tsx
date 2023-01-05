@@ -44,6 +44,9 @@ const Overview = ({ history }: RouteComponentProps) => {
   const accountIndex = useSelector(
     (state: RootState) => state.wallet.currentAccountIndex || 0
   );
+  const currentLayer = useSelector(
+    (state: RootState) => state.node.status?.topLayer || 0
+  );
 
   const account = useSelector(
     (state: RootState) => state.wallet.accounts[accountIndex]
@@ -85,14 +88,18 @@ const Overview = ({ history }: RouteComponentProps) => {
 
   const navigateToWalletGuide = () => window.open(ExternalLinks.WalletGuide);
 
-  const isAccountPendingSpawnTx = !!txs.find(
+  const pendingSpawnTx = txs.find(
     (tx) =>
       tx.meta?.templateName === 'SingleSig' &&
       tx.method === 0 &&
       (tx.status === TxState.MEMPOOL ||
         tx.status === TxState.MESH ||
-        tx.status === TxState.PROCESSED)
+        tx.status === TxState.PROCESSED) &&
+      tx.layer &&
+      currentLayer > 0 &&
+      currentLayer - 5 < tx.layer
   );
+  const isAccountPendingSpawnTx = !!pendingSpawnTx;
   const isAccountSpawned = !!txs.find(
     (tx) =>
       tx.meta?.templateName === 'SingleSig' &&
