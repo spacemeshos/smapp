@@ -169,12 +169,10 @@ class TransactionManager {
     // Cancel account Txs subscription
     this.txStateStream[address]?.();
 
-    const lastTxLayer = this.accountStates[address]?.lastSyncedTxLayer();
-    const lastRwLayer = this.accountStates[address]?.lastSyncedRewardsLayer();
     const addTransaction = this.upsertTransactionFromMesh(address);
     this.retrieveHistoricTxData({
       accountId: address,
-      offset: lastTxLayer,
+      offset: 0,
       handler: addTransaction,
       retries: 0,
     });
@@ -219,7 +217,7 @@ class TransactionManager {
     }
 
     const addReward = this.addReward(address);
-    this.retrieveRewards(address, lastRwLayer)
+    this.retrieveRewards(address, 0)
       .then((value) => value.forEach(addReward))
       .catch((err) => {
         this.logger.error('Can not retrieve and store rewards', err);
