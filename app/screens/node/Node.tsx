@@ -3,12 +3,7 @@ import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { SmesherIntro, SmesherLog } from '../../components/node';
-import {
-  WrapperWith2SideBars,
-  Button,
-  Link,
-  Tooltip,
-} from '../../basicComponents';
+import { WrapperWith2SideBars, Button, Link } from '../../basicComponents';
 import { hideSmesherLeftPanel, setUiError } from '../../redux/ui/actions';
 import { formatBytes, getFormattedTimestamp } from '../../infra/utils';
 import {
@@ -208,9 +203,10 @@ const BottomActionSection = styled.div`
   display: flex;
 `;
 
-const POS_DATA_NOT_READY_TO_START =
-  'Please wait for the node to finish syncing before setting up your proof of space. You can check these details on the Network screen.';
-const POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE = `The Node is not syncing. Please check the Network tab. ${POS_DATA_NOT_READY_TO_START}`;
+const ERR_MESSAGE_ERR_STATE =
+  'PoS initialization failed. Try to delete it and re-initialize.';
+const ERR_MESSAGE_NODE_ERROR =
+  'The Node is not syncing. Please check the Network tab';
 const getStatus = (
   state: PostSetupState,
   isPaused: boolean,
@@ -223,16 +219,18 @@ const getStatus = (
       return 'Creating PoS data';
     case PostSetupState.STATE_COMPLETE:
       // eslint-disable-next-line no-nested-ternary
-      return rewards.length > 0 && epoch
+      return rewards.length > 0 && epoch && isNodeSynced
         ? `Smeshing: epoch ${epoch}`
         : isNodeSynced
         ? 'Waiting for next epoch'
         : 'Syncing the Node';
     case PostSetupState.STATE_ERROR:
       return 'Error';
-    default:
     case PostSetupState.STATE_PAUSED:
       return isPaused ? 'Paused creation PoS Data' : 'Not started';
+    default:
+    case PostSetupState.STATE_NOT_STARTED:
+      return 'Waiting Node to sync';
   }
 };
 
@@ -299,9 +297,6 @@ const Node = ({ history, location }: Props) => {
   const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
   const isPausedSmeshing = useSelector(SmesherSelectors.isSmeshingPaused);
   const isErrorState = useSelector(SmesherSelectors.isErrorState);
-  const nodeStatus = useSelector(
-    (state: RootState) => state.node.status?.isSynced || false
-  );
   const nodeStatusError = useSelector(
     (state: RootState) => state.node.error?.msg || null
   );
@@ -422,8 +417,12 @@ const Node = ({ history, location }: Props) => {
       <>
         {isErrorState && (
           <ErrorMessage oneLine={false} align="right">
-            PoS DATA CREATION IS PAUSED. CHECK NETWORK SCREEN, SEEMS NODE IS
-            DOWN.
+            {ERR_MESSAGE_ERR_STATE}
+          </ErrorMessage>
+        )}
+        {nodeStatusError && (
+          <ErrorMessage oneLine={false} align="right">
+            {ERR_MESSAGE_NODE_ERROR}
           </ErrorMessage>
         )}
         {renderTable(getTableData())}
@@ -438,7 +437,6 @@ const Node = ({ history, location }: Props) => {
               isPrimary={false}
               style={{ marginRight: 15 }}
               imgPosition="before"
-              isDisabled={!nodeStatus}
               width={180}
             />
             {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
@@ -448,7 +446,6 @@ const Node = ({ history, location }: Props) => {
                 img={pauseIcon}
                 isPrimary={false}
                 width={280}
-                isDisabled={!nodeStatus}
                 imgPosition="before"
               />
             )}
@@ -459,20 +456,7 @@ const Node = ({ history, location }: Props) => {
                 img={playIcon}
                 isPrimary
                 width={280}
-                isDisabled={!nodeStatus}
                 imgPosition="before"
-              />
-            )}
-            {!nodeStatus && (
-              <Tooltip
-                width={200}
-                marginLeft={-10}
-                hide={false}
-                text={
-                  nodeStatusError
-                    ? POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE
-                    : POS_DATA_NOT_READY_TO_START
-                }
               />
             )}
           </FooterSection>
@@ -490,7 +474,6 @@ const Node = ({ history, location }: Props) => {
     if (showIntro) {
       return <SmesherIntro hideIntro={() => setShowIntro(false)} />;
     }
-
     if (!isSmesherActive && !isErrorState) {
       return (
         <>
@@ -510,19 +493,7 @@ const Node = ({ history, location }: Props) => {
               onClick={buttonHandler}
               text="SETUP PROOF OF SPACE"
               width={250}
-              isDisabled={!nodeStatus}
             />
-            {!nodeStatus && (
-              <Tooltip
-                width={200}
-                hide={false}
-                text={
-                  nodeStatusError
-                    ? POS_DATA_NOT_READY_TO_START_NODE_ERROR_CASE
-                    : POS_DATA_NOT_READY_TO_START
-                }
-              />
-            )}
           </BottomActionSection>
         </>
       );

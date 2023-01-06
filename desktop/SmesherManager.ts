@@ -54,7 +54,6 @@ class SmesherManager {
   unsubscribe = () => {
     this.smesherService.deactivateProgressStream();
     this.smesherService.cancelStreams();
-    this.smesherService.dropNetService();
     this.unsub();
   };
 
@@ -108,7 +107,14 @@ class SmesherManager {
   };
 
   sendSmesherSettingsAndStartupState = async (retries = 5) => {
-    const { config } = await this.smesherService.getPostConfig();
+    const { config, error } = await this.smesherService.getPostConfig();
+    if (error) {
+      if (retries > 5) {
+        await delay(5000);
+        return this.sendSmesherSettingsAndStartupState(retries - 1);
+      }
+    }
+
     const { smesherId } = await this.smesherService.getSmesherID();
     const {
       postSetupState,
@@ -135,8 +141,10 @@ class SmesherManager {
 
     if (PostSetupState.STATE_ERROR === postSetupState && retries > 0) {
       await delay(5000);
-      await this.sendSmesherSettingsAndStartupState(retries - 1);
+      return this.sendSmesherSettingsAndStartupState(retries - 1);
     }
+
+    return data;
   };
 
   sendSmesherConfig = async () => {

@@ -57,14 +57,6 @@ class SmesherService extends NetServiceFactory<
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ config: {} }));
 
-  getSmesherId = () =>
-    this.callService('SmesherID', {})
-      .then(({ accountId }) => ({
-        smesherId: accountId || '',
-      }))
-      .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ smesherId: '' }));
-
   getSetupComputeProviders = () =>
     this.callService('PostSetupComputeProviders', { benchmark: true })
       .then((response) => ({

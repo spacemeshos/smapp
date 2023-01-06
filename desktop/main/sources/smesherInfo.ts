@@ -138,8 +138,7 @@ const syncSmesherInfo = (
             subscriber.next(x)
           )
         )
-    ),
-    share()
+    )
   );
 
   const $rewards = concat(
@@ -147,7 +146,7 @@ const syncSmesherInfo = (
     $rewardsStream.pipe(
       scan((acc, next) => {
         if (hasRequiredRewardFields(next)) {
-          acc.push(toReward(next));
+          return [...acc, toReward(next)];
         }
         return acc;
       }, <Reward[]>[])

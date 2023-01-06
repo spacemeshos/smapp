@@ -4,8 +4,6 @@ import { RootState } from '../../types';
 export const getPostSetupState = (state: RootState) =>
   state.smesher.postSetupState;
 
-export const isSmeshing = (state: RootState) =>
-  getPostSetupState(state) === PostSetupState.STATE_COMPLETE;
 export const isCreatingPostData = (state: RootState) =>
   getPostSetupState(state) === PostSetupState.STATE_IN_PROGRESS;
 
@@ -31,3 +29,10 @@ export const isSmeshingPaused = (state: RootState) => {
   const opts = getSmeshingOpts(state);
   return isNotStarted && isValidSmeshingOpts(opts);
 };
+
+export const isSmeshing = (state: RootState) =>
+  getPostSetupState(state) === PostSetupState.STATE_COMPLETE ||
+  // Until Node will sync enough GRPC API returns NOT STARTED state
+  // even if we already started smeshing (so PoS will be created soon)
+  (getPostSetupState(state) === PostSetupState.STATE_NOT_STARTED &&
+    isValidSmeshingOpts(getSmeshingOpts(state)));
