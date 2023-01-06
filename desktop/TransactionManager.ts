@@ -435,22 +435,24 @@ class TransactionManager {
 
   retrieveNewRewards = async (coinbase: string) => {
     const oldRewards = this.accountStates[coinbase]?.getRewards() || [];
-    const newRewards = (
-      await this.retrieveRewards(
-        coinbase,
-        this.accountStates[coinbase]?.lastSyncedRewardsLayer() || 0
-      )
-    ).reduce((acc, reward) => {
-      if (!reward || !hasRequiredRewardFields(reward)) return acc;
-      const parsedReward: Reward = {
-        layer: reward.layer.number,
-        amount: longToNumber(reward.total.value),
-        layerReward: longToNumber(reward.layerReward.value),
-        coinbase: reward.coinbase.address,
-      };
-      return [...acc, parsedReward];
-    }, <Reward[]>[]);
-    return [...oldRewards, ...newRewards];
+    const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
+      (acc, reward) => {
+        if (!reward || !hasRequiredRewardFields(reward)) return acc;
+        const parsedReward: Reward = {
+          layer: reward.layer.number,
+          amount: longToNumber(reward.total.value),
+          layerReward: longToNumber(reward.layerReward.value),
+          coinbase: reward.coinbase.address,
+        };
+        return [...acc, parsedReward];
+      },
+      <Reward[]>[]
+    );
+    const uniq = [...oldRewards, ...newRewards].reduce(
+      (acc, next) => ({ ...acc, [`${next.layer}$${next.amount}`]: next }),
+      <Record<string, Reward>>{}
+    );
+    return Object.values(uniq);
   };
 
   // TODO: Replace with generic `publishTx`
