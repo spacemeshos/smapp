@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { eventsService } from '../../infra/eventsService';
@@ -44,30 +44,23 @@ const FieldRow = styled.div`
 `;
 
 const ChangePassword = () => {
-  let timeOut: any = null;
   const displayName = useSelector(
     (state: RootState) => state.wallet.meta.displayName
   );
   const [isOldPasswordRequested, setOldPasswordRequested] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
   const [newPasswordError, setNewPasswordError] = useState<ValidateError>();
-
-  useEffect(() => {
-    return () => {
-      clearTimeout(timeOut);
-    };
-  });
 
   const currentWalletPath = useSelector(
     (state: RootState) => state.wallet.currentWalletPath
   );
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
-    setPassword(value);
+    setNewPassword(value);
   };
 
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
@@ -77,7 +70,7 @@ const ChangePassword = () => {
   const startUpdatingPassword = () => setIsEditMode(true);
 
   const clear = () => {
-    setPassword('');
+    setNewPassword('');
     setVerifiedPassword('');
     setNewPasswordError(null);
   };
@@ -87,17 +80,20 @@ const ChangePassword = () => {
     setIsEditMode(false);
     setNewPasswordError(null);
     setOldPasswordRequested(false);
+    setIsLoaderVisible(false);
   };
 
-  const updatePassword = async (prevPassword: string) => {
+  const updatePassword = (prevPassword: string) => {
     if (!isLoaderVisible && currentWalletPath) {
-      setIsLoaderVisible(false);
+      setIsLoaderVisible(true);
+
       eventsService.changePassword({
         path: currentWalletPath,
         prevPassword,
-        nextPassword: password,
+        nextPassword: newPassword,
       });
-      timeOut = setTimeout(() => cancel(), 500);
+
+      setTimeout(cancel, 500);
     }
   };
 
@@ -107,14 +103,14 @@ const ChangePassword = () => {
 
   const validatePassword = (): ValidateError => {
     const pasMinLength = 1;
-    if (!password || (!!password && password.length < pasMinLength)) {
+    if (!newPassword || (!!newPassword && newPassword.length < pasMinLength)) {
       return {
         type: 'passwordError',
         description: `Password has to be ${pasMinLength} characters or more.`,
       };
     }
 
-    if (!verifiedPassword || password !== verifiedPassword) {
+    if (!verifiedPassword || newPassword !== verifiedPassword) {
       return {
         type: 'verifiedPasswordError',
         description: "These passwords don't match, please try again.",
@@ -139,7 +135,7 @@ const ChangePassword = () => {
           <FieldsColumn>
             <FieldRow>
               <Input
-                value={password}
+                value={newPassword}
                 type="password"
                 placeholder="Type new password"
                 onChange={handlePasswordTyping}
