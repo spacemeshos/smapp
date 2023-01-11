@@ -42,13 +42,14 @@ import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
+import AbstractManager from './AbstractManager';
 
 type TxHandlerArg = MeshTransaction__Output | null | undefined;
 type TxHandler = (tx: TxHandlerArg) => void;
 
 type RewardHandlerArg = Reward__Output | null | undefined;
 
-class TransactionManager {
+class TransactionManager extends AbstractManager {
   logger = Logger({ className: 'TransactionManager' });
 
   private readonly meshService: MeshService;
@@ -60,8 +61,6 @@ class TransactionManager {
   keychain: KeyPair[] = [];
 
   accounts: AccountWithBalance[] = [];
-
-  private readonly mainWindow: BrowserWindow;
 
   private txStateStream: Record<
     string,
@@ -81,11 +80,15 @@ class TransactionManager {
     mainWindow: BrowserWindow,
     genesisID: string
   ) {
+    super(mainWindow);
     this.meshService = meshService;
     this.glStateService = glStateService;
     this.txService = txService;
-    this.mainWindow = mainWindow;
     this.genesisID = genesisID;
+  }
+
+  setGenesisID(id: HexString) {
+    this.genesisID = id;
   }
 
   unsubscribeAllStreams = () => {

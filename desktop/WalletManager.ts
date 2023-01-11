@@ -1,7 +1,13 @@
 import * as R from 'ramda';
 import { BrowserWindow, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
-import { Activation, KeyPair, Reward, Wallet } from '../shared/types';
+import {
+  Activation,
+  HexString,
+  KeyPair,
+  Reward,
+  Wallet,
+} from '../shared/types';
 import {
   delay,
   isLocalNodeType,
@@ -19,6 +25,7 @@ import NodeManager from './NodeManager';
 import TransactionService from './TransactionService';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
+import AbstractManager from './AbstractManager';
 
 const logger = Logger({ className: 'WalletManager' });
 
@@ -30,7 +37,7 @@ const pluckActivations = (list: any[]): Activation[] =>
     return acc;
   }, <Activation[]>[]);
 
-class WalletManager {
+class WalletManager extends AbstractManager {
   private readonly meshService: MeshService;
 
   private readonly glStateService: GlobalStateService;
@@ -41,10 +48,8 @@ class WalletManager {
 
   private txManager: TransactionManager;
 
-  private unsub = () => {};
-
   constructor(mainWindow: BrowserWindow, nodeManager: NodeManager) {
-    this.unsub = this.subscribeToEvents();
+    super(mainWindow);
     this.nodeManager = nodeManager;
     this.meshService = new MeshService();
     this.glStateService = new GlobalStateService();
@@ -57,6 +62,12 @@ class WalletManager {
       this.nodeManager.getGenesisID()
     );
   }
+
+  setBrowserWindow = (mainWindow: BrowserWindow, force = false) => {
+    // Propagate `setBrowserWindow` to TxManager
+    super.setBrowserWindow(mainWindow, force);
+    this.txManager.setBrowserWindow(mainWindow, force);
+  };
 
   unsubscribeAllStreams = () => this.txManager.unsubscribeAllStreams();
 
@@ -74,7 +85,7 @@ class WalletManager {
       return delay(1000).then(() => this.getRootHash());
     });
 
-  subscribeToEvents = () => {
+  subscribeIPCEvents() {
     ipcMain.handle(ipcConsts.W_M_GET_CURRENT_LAYER, () =>
       this.getCurrentLayer()
     );
@@ -108,22 +119,43 @@ class WalletManager {
       ipcMain.removeHandler(ipcConsts.W_M_UPDATE_TX_NOTE);
       ipcMain.removeHandler(ipcConsts.W_M_SIGN_MESSAGE);
     };
-  };
+  }
 
   unsubscribe = () => {
     this.txManager.unsubscribeAllStreams();
     this.txService.cancelStreams();
     this.meshService.cancelStreams();
     this.glStateService.cancelStreams();
-    this.unsub();
+    this.unsubscribeIPC();
   };
+
+  private stopServices() {
+    this.meshService.cancelStreams();
+    this.meshService.dropNetService();
+    this.glStateService.cancelStreams();
+    this.glStateService.dropNetService();
+    this.txService.cancelStreams();
+    this.txService.dropNetService();
+  }
 
   activate = async (wallet: Wallet) => {
     const apiUrl = toSocketAddress(wallet.meta.remoteApi);
     let res = false;
     try {
+      this.stopServices();
+
+      const prevGenesisId = this.nodeManager.getGenesisID();
+      const actualGenesisId = wallet.meta.genesisID;
+      const isNewGenesisId = prevGenesisId !== actualGenesisId;
+      if (isNewGenesisId) {
+        this.nodeManager.setGenesisID(actualGenesisId);
+        this.txManager.setGenesisID(actualGenesisId);
+      }
       if (isLocalNodeType(wallet.meta.type)) {
-        res = await this.nodeManager.startNode();
+        res =
+          isNewGenesisId && this.nodeManager.isNodeRunning()
+            ? await this.nodeManager.restartNode()
+            : await this.nodeManager.startNode();
         if (!res) return false;
       } else {
         await this.nodeManager.stopNode();
@@ -178,6 +210,9 @@ class WalletManager {
       return [...firstActivations, ...nextData];
     }
   };
+
+  getOldRewardsByCoinbase = (coinbase: HexString) =>
+    this.txManager.getOldRewards(coinbase);
 
   requestRewardsByCoinbase = async (coinbase: string): Promise<Reward[]> =>
     this.txManager.retrieveNewRewards(coinbase);

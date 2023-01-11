@@ -12,6 +12,7 @@ import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
 import {
+  HexString,
   NodeError,
   NodeErrorLevel,
   NodeStatus,
@@ -34,9 +35,8 @@ import {
   isFileExists,
 } from './utils';
 import { NODE_CONFIG_FILE } from './main/constants';
-import NodeConfig from './main/NodeConfig';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
-import { generateGenesisIDFromConfig } from './main/Networks';
+import AbstractManager from './AbstractManager';
 
 rotator.on('error', captureException);
 
@@ -73,9 +73,7 @@ export enum SmeshingSetupState {
   ViaRestart = 2,
 }
 
-class NodeManager {
-  private readonly mainWindow: BrowserWindow;
-
+class NodeManager extends AbstractManager {
   private nodeService: NodeService;
 
   private smesherManager: SmesherManager;
@@ -140,16 +138,13 @@ class NodeManager {
     }
   );
 
-  private unsub = () => {};
-
   constructor(
     mainWindow: BrowserWindow,
     genesisID: string,
     smesherManager: SmesherManager
   ) {
-    this.mainWindow = mainWindow;
+    super(mainWindow);
     this.nodeService = new NodeService();
-    this.unsub = this.subscribeToEvents();
     this.nodeProcess = null;
     this.smesherManager = smesherManager;
     this.genesisID = genesisID;
@@ -159,12 +154,16 @@ class NodeManager {
   unsubscribe = () => {
     this.stopNode();
     this.nodeService.cancelStreams();
-    this.unsub();
+    this.unsubscribeIPC();
   };
 
   getGenesisID = () => this.genesisID;
 
-  subscribeToEvents = () => {
+  setGenesisID = (id: HexString) => {
+    this.genesisID = id;
+  };
+
+  subscribeIPCEvents() {
     // Handlers
     const getVersionAndBuild = () =>
       this.getVersionAndBuild()
@@ -220,7 +219,7 @@ class NodeManager {
       ipcMain.removeHandler(ipcConsts.N_M_RESTART_NODE);
       ipcMain.removeHandler(ipcConsts.PROMPT_CHANGE_DATADIR);
     };
-  };
+  }
 
   isNodeAlive = async (retries: number): Promise<boolean> => {
     if (!this.isNodeRunning()) {
@@ -238,7 +237,7 @@ class NodeManager {
   };
 
   isNodeRunning = () => {
-    return this.nodeProcess && this.nodeProcess.exitCode === null;
+    return !!this.nodeProcess && this.nodeProcess.exitCode === null;
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
@@ -278,6 +277,8 @@ class NodeManager {
       // and activate streams
       this.activateNodeStatusStream();
       this.activateNodeErrorStream();
+      // resubscribe smesherManager IPC Events if needed
+      this.smesherManager.subscribeIPC();
       // and then call method to update renderer data
       // TODO: move into `sources/smesherInfo` module
       await this.smesherManager.serviceStartupFlow();
@@ -379,10 +380,7 @@ class NodeManager {
       StoreService.get('node.dataPath'),
       this.genesisID.substring(0, 8)
     );
-    const nodeConfig = await NodeConfig.load();
-    const logFilePath = getNodeLogsPath(
-      generateGenesisIDFromConfig(nodeConfig)
-    );
+    const logFilePath = getNodeLogsPath(this.genesisID);
 
     rotator.register(logFilePath, {
       schedule: '30m',
@@ -449,11 +447,11 @@ class NodeManager {
     this.nodeProcess.stdout?.pipe(logFileStream);
     this.nodeProcess.stderr?.pipe(logFileStream);
     this.nodeProcess.on('error', (err) => {
-      logger.error('Node Process error', err);
       const error = transformNodeError(err);
       this.pushNodeError(error);
     });
     this.nodeProcess.on('close', (code, signal) => {
+      logger.error('Node Process close', code, signal);
       this.pushToErrorPool({ type: 'Exit', code, signal });
     });
   };
@@ -464,7 +462,7 @@ class NodeManager {
     interval: number
   ): Promise<boolean> => {
     if (!this.nodeProcess) return true;
-    const isFinished = !this.nodeProcess.kill(0);
+    const isFinished = this.nodeProcess.killed;
     logger.log(
       'Spawn process',
       `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
