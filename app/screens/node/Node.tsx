@@ -132,6 +132,16 @@ const PosSmesherIcon = styled.img`
   margin-right: 5px;
 `;
 
+const PosDirLink = styled.span`
+  display: flex;
+  cursor: pointer;
+
+  &:hover span,
+  &:focus span {
+    text-decoration: none;
+  }
+`;
+
 const PosFolderIcon = styled.img.attrs(
   ({
     theme: {
@@ -144,11 +154,13 @@ const PosFolderIcon = styled.img.attrs(
   width: 20px;
   height: 20px;
   margin-right: 5px;
+  cursor: pointer;
 `;
 
 const PathDir = styled.span`
   color: ${smColors.blue};
   text-decoration: underline;
+  cursor: pointer;
 `;
 
 interface Props extends RouteComponentProps {
@@ -390,10 +402,14 @@ const Node = ({ history, location }: Props) => {
       ...progressRow,
       [
         'Data Directory',
-        <React.Fragment key="pos-data-dir">
+        <PosDirLink
+          onClick={() =>
+            eventsService.showFileInFolder({ filePath: posDataPath })
+          }
+        >
           <PosFolderIcon />
           <PathDir>{posDataPath}</PathDir>
-        </React.Fragment>,
+        </PosDirLink>,
       ],
       ['Data Size', formatBytes(commitmentSize)],
       [
