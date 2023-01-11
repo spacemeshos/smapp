@@ -434,8 +434,11 @@ class TransactionManager extends AbstractManager {
     }
   };
 
+  getOldRewards = (coinbase: HexString) =>
+    this.accountStates[coinbase]?.getRewards() || [];
+
   retrieveNewRewards = async (coinbase: string) => {
-    const oldRewards = this.accountStates[coinbase]?.getRewards() || [];
+    const oldRewards = this.getOldRewards(coinbase);
     const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
       (acc, reward) => {
         if (!reward || !hasRequiredRewardFields(reward)) return acc;

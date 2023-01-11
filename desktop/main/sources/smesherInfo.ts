@@ -2,6 +2,7 @@ import {
   BehaviorSubject,
   combineLatest,
   concat,
+  distinctUntilChanged,
   filter,
   first,
   from,
@@ -12,12 +13,19 @@ import {
   of,
   scan,
   share,
+  shareReplay,
   Subject,
   switchMap,
   withLatestFrom,
 } from 'rxjs';
 import { Reward__Output } from '../../../proto/spacemesh/v1/Reward';
-import { Activation, Reward, Wallet, WalletType } from '../../../shared/types';
+import {
+  Activation,
+  HexString,
+  Reward,
+  Wallet,
+  WalletType,
+} from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
 import { longToNumber } from '../../../shared/utils';
 import Logger from '../../logger';
@@ -29,9 +37,9 @@ const logger = Logger({ className: 'smesherInfo' });
 
 const getRewards$ = (
   managers: Managers,
-  coinbase: string
-): Observable<Reward[]> =>
-  from(managers.wallet.requestRewardsByCoinbase(coinbase));
+  coinbase: HexString
+): Observable<Reward> =>
+  from(managers.wallet.getOldRewardsByCoinbase(coinbase));
 
 const toReward = (input: Reward__Output): Reward => {
   if (!hasRequiredRewardFields(input)) {
@@ -46,6 +54,16 @@ const toReward = (input: Reward__Output): Reward => {
     coinbase: input.coinbase.address,
   };
 };
+
+const getRewardsStream$ = (
+  managers: Managers,
+  coinbase: HexString
+): Observable<Reward> =>
+  new Observable<Reward>((subscriber) =>
+    managers.wallet.listenRewardsByCoinbase(coinbase, (x) => {
+      subscriber.next(toReward(x));
+    })
+  );
 
 const getActivations$ = (
   managers: Managers,
@@ -125,32 +143,27 @@ const syncSmesherInfo = (
     share()
   );
 
-  const $rewardsHistory = $coinbase.pipe(
-    withLatestFrom($managers),
-    switchMap(([coinbase, managers]) => getRewards$(managers, coinbase))
-  );
-  const $rewardsStream = $coinbase.pipe(
-    withLatestFrom($managers),
-    switchMap(
-      ([coinbase, managers]) =>
-        new Observable<Reward__Output>((subscriber) =>
-          managers.wallet.listenRewardsByCoinbase(coinbase, (x) =>
-            subscriber.next(x)
-          )
-        )
-    )
+  const $genesisId = $wallet.pipe(
+    filter(Boolean),
+    map((wallet) => wallet.meta.genesisID),
+    distinctUntilChanged(),
+    share()
   );
 
-  const $rewards = concat(
-    $rewardsHistory,
-    $rewardsStream.pipe(
-      scan((acc, next) => {
-        if (hasRequiredRewardFields(next)) {
-          return [...acc, toReward(next)];
-        }
-        return acc;
-      }, <Reward[]>[])
-    )
+  const $rewards = combineLatest([$coinbase, $genesisId]).pipe(
+    withLatestFrom($managers),
+    switchMap(([[coinbase, _], managers]) =>
+      concat(
+        getRewards$(managers, coinbase),
+        getRewardsStream$(managers, coinbase)
+      )
+    ),
+    scan((acc, next) => {
+      const key = `${next.layer}$${next.amount}`;
+      return acc.set(key, next);
+    }, new Map<string, Reward>()),
+    map((uniqRewards) => Array.from(uniqRewards.values())),
+    shareReplay(1)
   );
 
   const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
