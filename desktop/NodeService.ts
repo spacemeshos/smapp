@@ -121,7 +121,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
     retries = 5
   ) => {
     if (!this.service) return;
-    if (this.statusStream) return;
+    this.cancelStatusStream();
 
     this.statusStream = this.service.StatusStream({});
     this.statusStream.on('data', (response: any) => {
@@ -177,7 +177,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
 
   activateErrorStream = (handler: ErrorStreamHandler, retries = 5) => {
     if (!this.service) return;
-    if (this.errorStream) return;
+    this.cancelErrorStream();
 
     this.errorStream = this.service.ErrorStream({});
     this.errorStream.on('data', (response: any) => {
