@@ -31,7 +31,13 @@ const initialState = {
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
-  rewairdsInfo: {},
+  rewardsInfo: {
+    total: 0,
+    dailyAverage: 0,
+    epochs: 0,
+    lastEpoch: 0,
+    layers: 0,
+  },
   activations: [],
   config: {} as SmesherConfig,
 };
