@@ -27,7 +27,7 @@ import {
   WalletType,
 } from '../../../shared/types';
 import { hasRequiredRewardFields } from '../../../shared/types/guards';
-import { longToNumber } from '../../../shared/utils';
+import { longToNumber, shallowEq } from '../../../shared/utils';
 import Logger from '../../logger';
 import { SmeshingSetupState } from '../../NodeManager';
 import { Managers } from '../app.types';
@@ -160,7 +160,7 @@ const syncSmesherInfo = (
     ),
     scan((acc, next) => {
       const key = `${next.layer}$${next.amount}`;
-      return acc.set(key, next);
+      return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
     }, new Map<string, Reward>()),
     map((uniqRewards) => Array.from(uniqRewards.values())),
     shareReplay(1)

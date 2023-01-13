@@ -60,7 +60,7 @@ const sync = (
   // Pack data into a batch
   const $batch = $updates.pipe(
     buffer($syncPoint.pipe(filter(Boolean))),
-    map((a) => a.reduce(R.mergeRight, {}))
+    map((a) => a.reduce(R.mergeDeepRight, {}))
   );
 
   // Whole state sync
@@ -94,13 +94,8 @@ const sync = (
     }),
     // Send the entire actual state
     $isWindowEager
-      .pipe(
-        withLatestFrom(
-          $updates.pipe(scan((acc, next) => ({ ...acc, ...next })))
-        ),
-        withLatestFrom($mainWindow)
-      )
-      .subscribe(([[_, state], mw]) => {
+      .pipe(withLatestFrom($updates.pipe(scan(R.mergeDeepRight)), $mainWindow))
+      .subscribe(([_, state, mw]) => {
         $syncPoint.next(false);
         mw.webContents.send('IPC_BATCH_SYNC', state);
       }),
@@ -180,20 +175,19 @@ export default (
     networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
     $networks.pipe(map(R.objOf('networks'))),
     $nodeVersion.pipe(map(R.objOf('node'))), // here
+    $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
+    $rewards.pipe(map((rewards) => ({ smesher: { rewards } }))),
+    $activations.pipe(map((activations) => ({ smesher: { activations } }))),
     combineLatest([
-      $smesherId,
       $rewards.pipe(startWith([])),
-      $activations.pipe(startWith([])),
       $nodeConfig,
       $currentLayer,
     ]).pipe(
-      map(([smesherId, rewards, activations, cfg, curLayer]) => ({
+      map(([rewards, cfg, curLayer]) => ({
         smesher: {
-          smesherId,
-          activations,
-          rewards,
           rewardsInfo: getRewardsInfo(cfg, curLayer, rewards),
         },
       }))
-    )
+    ),
+    $currentLayer.pipe(map((currentLayer) => ({ node: { currentLayer } })))
   );
