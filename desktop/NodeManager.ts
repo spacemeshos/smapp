@@ -11,6 +11,7 @@ import { rotator } from 'logrotator';
 import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
 import { delay } from '../shared/utils';
+import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
   NodeError,
@@ -37,6 +38,7 @@ import {
 import { NODE_CONFIG_FILE } from './main/constants';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
 import AbstractManager from './AbstractManager';
+import { ResettableSubject } from './main/rx.utils';
 
 rotator.on('error', captureException);
 
@@ -81,6 +83,10 @@ class NodeManager extends AbstractManager {
   private nodeProcess: ChildProcess | null;
 
   private genesisID: string;
+
+  private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS); // new Subject<NodeStatus>();
+
+  public $nodeStatus = this.$_nodeStatus.asObservable();
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -244,6 +250,7 @@ class NodeManager extends AbstractManager {
     this.nodeService.cancelStatusStream();
     this.nodeService.cancelErrorStream();
     await this.stopNode();
+    this.$_nodeStatus.reset();
 
     this.nodeService.createService(apiUrl);
     const success = await this.updateNodeStatus();
@@ -265,6 +272,7 @@ class NodeManager extends AbstractManager {
 
   startNode = async () => {
     if (this.isNodeRunning()) return true;
+    this.$_nodeStatus.reset();
     await this.spawnNode();
     this.nodeService.createService();
     const success = await this.isNodeAlive(30); // 15 sec timeout
@@ -532,11 +540,12 @@ class NodeManager extends AbstractManager {
     }
   };
 
-  sendNodeStatus: StatusStreamHandler = debounce(200, true, (status) => {
+  sendNodeStatus: StatusStreamHandler = debounce(200, (status: NodeStatus) => {
+    this.$_nodeStatus.next(status);
     this.mainWindow.webContents.send(ipcConsts.N_M_SET_NODE_STATUS, status);
   });
 
-  sendNodeError: ErrorStreamHandler = debounce(200, true, async (error) => {
+  sendNodeError: ErrorStreamHandler = debounce(200, async (error) => {
     if (error.level < NodeErrorLevel.LOG_LEVEL_DPANIC) {
       // If there was no critical error
       // and we got some with level less than DPANIC

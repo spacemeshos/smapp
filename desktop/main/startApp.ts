@@ -5,6 +5,7 @@ import {
   NodeVersionAndBuild,
   Wallet,
 } from '../../shared/types';
+import { shallowEq } from '../../shared/utils';
 import StoreService from '../storeService';
 import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
 import { MINUTE } from './constants';
@@ -47,6 +48,12 @@ const loadNetworkData = () => {
 
   const $isWalletActivated = new $.Subject<void>();
 
+  const $nodeStatus = $isWalletActivated.pipe(
+    $.withLatestFrom($managers),
+    $.switchMap(([_, managers]) => managers.node.$nodeStatus),
+    $.distinctUntilChanged(shallowEq)
+  );
+
   const updateInfo = $isWalletActivated
     .pipe(
       $.withLatestFrom($managers),
@@ -71,13 +78,24 @@ const loadNetworkData = () => {
       $nodeVersion.next(nodeVersion);
     });
 
-  const unsubscribe = () => updateInfo.unsubscribe();
+  const currentLayerSub = $nodeStatus
+    .pipe(
+      $.map((status) => status.syncedLayer),
+      $.distinctUntilChanged()
+    )
+    .subscribe((currentLayer) => $currentLayer.next(currentLayer));
+
+  const unsubscribe = () => {
+    updateInfo.unsubscribe();
+    currentLayerSub.unsubscribe();
+  };
 
   return {
     $managers,
     $currentLayer,
     $rootHash,
     $nodeVersion,
+    $nodeStatus,
     $isWalletActivated,
     unsubscribe,
   };
