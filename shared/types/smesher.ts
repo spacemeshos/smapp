@@ -54,6 +54,7 @@ export interface IPCSmesherStartupData {
   config: SmesherConfig | Record<string, never>;
   smesherId: string;
   postSetupState: PostSetupState;
+  isSmeshingStarted: boolean;
   numLabelsWritten: number;
   numUnits: number;
 }

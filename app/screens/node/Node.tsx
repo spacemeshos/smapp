@@ -468,7 +468,7 @@ const Node = ({ history, location }: Props) => {
             {isPausedSmeshing && (
               <Button
                 onClick={handleResumeSmeshing}
-                text="RESUME POST DATA GENERATION"
+                text="RESUME SMESHING"
                 img={playIcon}
                 isPrimary
                 width={280}

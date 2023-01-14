@@ -20,6 +20,7 @@ import {
 
 const initialState = {
   smesherId: '',
+  isSmeshingStarted: false,
   postSetupComputeProviders: [] as PostSetupComputeProvider[],
   coinbase: '',
   dataDir: '',
@@ -49,6 +50,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         payload: {
           config,
           smesherId,
+          isSmeshingStarted,
           postSetupState,
           numLabelsWritten,
           numUnits,
@@ -67,6 +69,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         numLabelsWritten,
         postSetupState,
         commitmentSize,
+        isSmeshingStarted,
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {

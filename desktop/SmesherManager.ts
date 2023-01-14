@@ -122,9 +122,12 @@ class SmesherManager extends AbstractManager {
         nodeConfig.smeshing['smeshing-opts'] &&
         nodeConfig.smeshing['smeshing-opts']['smeshing-opts-numunits']) ||
       0;
+    const isSmeshingStarted = nodeConfig.smeshing?.['smeshing-start'] || false;
+
     const data: IPCSmesherStartupData = {
       config,
       smesherId: smesherId || '',
+      isSmeshingStarted,
       postSetupState,
       numLabelsWritten,
       numUnits,
