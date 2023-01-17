@@ -139,17 +139,8 @@ export const unlockWallet = (path: string, password: string) => async (
   });
   const { error, payload } = resp;
   if (error) {
-    // Incorrecrt password
-    if (error.message && error.message.indexOf('Wrong password') === 0) {
-      dispatch(setUiError(addErrorPrefix('', error)));
-      return { success: false };
-    }
-    // Some unhandled error
-    console.error(error); // eslint-disable-line no-console
-    dispatch(setUiError(addErrorPrefix('Can not unlock wallet\n', error)));
     return { success: false };
   }
-  // Success
   dispatch(setCurrentAccount(0));
   const isWalletOnly = isWalletOnlyType(payload.meta.type);
   await waitForWalletData(getState);
@@ -167,9 +158,6 @@ export const unlockCurrentWallet = (password: string) => async (
     wallet: { currentWalletPath },
   } = getState();
   if (!currentWalletPath) {
-    dispatch(
-      setUiError(new Error(`Can not find wallet in ${currentWalletPath}`))
-    );
     return { success: false };
   }
   return dispatch(unlockWallet(currentWalletPath, password));
