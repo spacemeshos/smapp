@@ -128,7 +128,7 @@ class TransactionManager extends AbstractManager {
   private storeTx = (publicKey: string, tx: Tx): Promise<void> =>
     this.accountStates[publicKey]
       .storeTransaction(tx)
-      .then(() => this.updateAppStateTxs(publicKey))
+      .then((isNew) => isNew && this.updateAppStateTxs(publicKey))
       .catch((err) => {
         console.log('TransactionManager.storeTx', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeTx', err);
@@ -137,7 +137,7 @@ class TransactionManager extends AbstractManager {
   private storeReward = (publicKey: string, reward: Reward) =>
     this.accountStates[publicKey]
       .storeReward(reward)
-      .then(() => this.updateAppStateRewards(publicKey))
+      .then((isNew) => isNew && this.updateAppStateRewards(publicKey))
       .catch((err) => {
         console.log('TransactionManager.storeReward', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeReward', err);

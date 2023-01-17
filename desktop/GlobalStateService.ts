@@ -6,7 +6,7 @@ import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/Account
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
-import { toHexString } from '../shared/utils';
+import { delay, toHexString } from '../shared/utils';
 import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
@@ -143,13 +143,14 @@ class GlobalStateService extends NetServiceFactory<
         },
         offset: counter,
       })
-        .then((res) => {
+        .then(async (res) => {
           res.data.forEach((reward) => {
             counter += 1;
             handler(reward);
           });
           if (res.totalResults > counter) {
-            doQuery();
+            await delay(100);
+            return doQuery();
           }
           return res;
         })

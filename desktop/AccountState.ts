@@ -1,8 +1,9 @@
 import path from 'path';
 import fs from 'fs';
+import { equals } from 'ramda';
 import { app } from 'electron';
 import { AccountBalance, Tx, Reward, HexString } from '../shared/types';
-import { debounce } from '../shared/utils';
+import { debounce, shallowEq } from '../shared/utils';
 import Logger from './logger';
 
 const logger = Logger({ className: 'AccountState' });
@@ -127,19 +128,35 @@ export class AccountStateManager {
     return this.autosave();
   };
 
-  storeTransaction = <T>(tx: Tx<T>) => {
+  storeTransaction = async <T>(tx: Tx<T>) => {
     const prevTxData =
       (this.state[this.genesisID] as StateType).txs[tx.id] || {};
+
+    if (equals(prevTxData, tx)) return false;
+
     (this.state[this.genesisID] as StateType).txs[tx.id] = {
       ...prevTxData,
       ...tx,
     };
-    return this.autosave();
+    await this.autosave();
+    return true;
   };
 
-  storeReward = (reward: Reward) => {
+  // Returns `true` if it is a new reward
+  // otherwise returns `false`
+  storeReward = async (reward: Reward) => {
+    if (
+      shallowEq(
+        (this.state[this.genesisID] as StateType).rewards[reward.layer],
+        reward
+      )
+    ) {
+      return false;
+    }
+
     (this.state[this.genesisID] as StateType).rewards[reward.layer] = reward;
-    return this.autosave();
+    await this.autosave();
+    return true;
   };
 
   lastSyncedTxLayer = () =>

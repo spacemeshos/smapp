@@ -35,12 +35,6 @@ import { MINUTE } from '../constants';
 
 const logger = Logger({ className: 'smesherInfo' });
 
-const getRewards$ = (
-  managers: Managers,
-  coinbase: HexString
-): Observable<Reward> =>
-  from(managers.wallet.getOldRewardsByCoinbase(coinbase));
-
 const toReward = (input: Reward__Output): Reward => {
   if (!hasRequiredRewardFields(input)) {
     throw new Error(
@@ -152,18 +146,23 @@ const syncSmesherInfo = (
 
   const $rewards = combineLatest([$coinbase, $genesisId]).pipe(
     withLatestFrom($managers),
-    switchMap(([[coinbase, _], managers]) =>
-      concat(
-        getRewards$(managers, coinbase),
-        getRewardsStream$(managers, coinbase)
-      )
-    ),
-    scan((acc, next) => {
-      const key = `${next.layer}$${next.amount}`;
-      return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
-    }, new Map<string, Reward>()),
-    map((uniqRewards) => Array.from(uniqRewards.values())),
-    shareReplay(1)
+    switchMap(([[coinbase, _], managers]) => {
+      const oldRewards = managers.wallet.getOldRewardsByCoinbase(coinbase);
+      const oldRewardsMap = oldRewards.reduce((acc, next) => {
+        const key = `${next.layer}$${next.amount}`;
+        return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
+      }, new Map<string, Reward>());
+
+      return getRewardsStream$(managers, coinbase).pipe(
+        scan((acc, next) => {
+          const key = `${next.layer}$${next.amount}`;
+          return shallowEq(acc.get(key) || {}, next) ? acc : acc.set(key, next);
+        }, oldRewardsMap),
+        map((uniqRewards) => Array.from(uniqRewards.values()))
+      );
+    }),
+    shareReplay(1),
+    distinctUntilChanged((prev, next) => prev.length === next.length)
   );
 
   const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
