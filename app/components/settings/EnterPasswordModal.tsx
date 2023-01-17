@@ -9,6 +9,8 @@ const InputSection = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin-top: 0.5em;
+  margin-bottom: 1em;
 `;
 
 const Chevron = styled.img.attrs(
@@ -53,7 +55,6 @@ const EnterPasswordModal = ({
 }: Props) => {
   const [password, setPassword] = useState('');
   const [hasError, setHasError] = useState(false);
-  const [isActive, setIsActive] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -68,13 +69,13 @@ const EnterPasswordModal = ({
   };
 
   const submitActionWrapper = async () => {
-    try {
-      setIsActive(false);
-      await dispatch(unlockCurrentWallet(password));
+    // @ts-ignore
+    const { success } = await dispatch(unlockCurrentWallet(password));
+
+    if (success) {
       submitAction({ password });
-    } catch {
+    } else {
       setHasError(true);
-      setIsActive(true);
     }
   };
 
@@ -93,14 +94,14 @@ const EnterPasswordModal = ({
           value={password}
           onEnterPress={submitActionWrapper}
           onChange={handlePasswordTyping}
+          style={{ flex: 1 }}
           autofocus
-          isDisabled={!isActive}
         />
         <ErrorSection>
           {hasError && (
             <ErrorPopup
               onClick={reset}
-              text="sorry, this password doesn't ring a bell, please try again"
+              text="Sorry, this password doesn't ring a bell, please try again"
             />
           )}
         </ErrorSection>
@@ -108,7 +109,7 @@ const EnterPasswordModal = ({
       <ButtonsWrapper>
         <Button
           text="UNLOCK"
-          isDisabled={!password.trim() || !!hasError || !isActive}
+          isDisabled={!password.trim() || hasError}
           onClick={submitActionWrapper}
         />
         <Button text="CANCEL" isPrimary={false} onClick={closeModal} />

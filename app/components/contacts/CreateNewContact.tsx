@@ -108,18 +108,27 @@ const CreateNewContact = ({
   const validate = (): ValidateError | null => {
     const nicknameRegex = /^([a-zA-Z0-9_-])$/;
     if (nicknameRegex.test(nickname)) {
-      return { type: 'name', message: 'Nickname is missing or invalid' };
+      return {
+        type: 'name',
+        message: `Nickname: ${nickname} is missing or invalid`,
+      };
     }
     if (contacts.some((contact) => contact.nickname === nickname)) {
-      return { type: 'name', message: 'Nickname should be unique' };
+      return {
+        type: 'name',
+        message: `Nickname should be unique, ${nickname} already in contacts`,
+      };
     }
     if (!validateAddress(address)) {
-      return { type: 'address', message: 'Address is invalid' };
+      return { type: 'address', message: `Address: ${address} is invalid` };
     }
-    if (contacts.some((contact) => contact.address === address)) {
+    const repeatedAddress = contacts.find(
+      (contact) => contact.address === address
+    );
+    if (repeatedAddress) {
       return {
         type: 'address',
-        message: 'Contact with the same Account Address already exists',
+        message: `Contact ${repeatedAddress.nickname} has the same address`,
       };
     }
     return null;
@@ -174,7 +183,7 @@ const CreateNewContact = ({
           {error && (
             <ErrorPopup
               onClick={() => setError(null)}
-              text={error.message}
+              text={error.message.toUpperCase()}
               style={{
                 bottom: -33,
                 left:
