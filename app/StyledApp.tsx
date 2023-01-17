@@ -5,7 +5,7 @@ import { Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
 import { createBrowserHistory } from 'history';
 import routes from './routes';
-import GlobalStyle from './globalStyle';
+import GlobalStyle, { fontsCss } from './globalStyle';
 import { RootState } from './types';
 import { setOsTheme } from './redux/ui/actions';
 import ErrorBoundary from './ErrorBoundary';
@@ -51,6 +51,7 @@ const StyledApp = () => {
 
   return (
     <ThemeProvider theme={theme}>
+      <style>{fontsCss}</style>
       <GlobalStyle />
       <ErrorBoundary>
         {isClosingApp && <CloseAppModal />}

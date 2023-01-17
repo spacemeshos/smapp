@@ -6,11 +6,11 @@ import { AccountDataStreamResponse__Output } from '../proto/spacemesh/v1/Account
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { TransactionReceipt__Output } from '../proto/spacemesh/v1/TransactionReceipt';
 import { PublicService, SocketAddress } from '../shared/types';
-import { toHexString } from '../shared/utils';
+import { delay, toHexString } from '../shared/utils';
 import { GlobalStateHash } from '../app/types/events';
 import Logger from './logger';
 import NetServiceFactory from './NetServiceFactory';
-import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
+import { GRPC_QUERY_BATCH_SIZE, MINUTE } from './main/constants';
 
 const PROTO_PATH = 'proto/global_state.proto';
 
@@ -125,12 +125,42 @@ class GlobalStateService extends NetServiceFactory<
   listenRewardsByCoinbase = (
     coinbase: string,
     handler: (data: Reward__Output) => void
-  ) =>
-    this.activateAccountDataStream(
-      coinbase,
-      AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
-      handler
-    );
+  ) => {
+    // TODO: https://github.com/spacemeshos/go-spacemesh/issues/3935
+    // this.activateAccountDataStream(
+    //   coinbase,
+    //   AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
+    //   handler
+    // );
+    // Temporary workaround:
+    let counter = 0;
+
+    const doQuery = () => {
+      return this.sendAccountDataQuery({
+        filter: {
+          accountId: { address: coinbase },
+          accountDataFlags: AccountDataFlag.ACCOUNT_DATA_FLAG_REWARD,
+        },
+        offset: counter,
+      })
+        .then(async (res) => {
+          res.data.forEach((reward) => {
+            counter += 1;
+            handler(reward);
+          });
+          if (res.totalResults > counter) {
+            await delay(100);
+            return doQuery();
+          }
+          return res;
+        })
+        .catch(() => {});
+    };
+
+    doQuery();
+    const ival = setInterval(doQuery, 1 * MINUTE);
+    return () => clearInterval(ival);
+  };
 }
 
 export default GlobalStateService;

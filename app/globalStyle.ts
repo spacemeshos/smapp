@@ -3,20 +3,22 @@ import SourceCodeProRegular from './assets/fonts/SourceCodePro-Regular.ttf';
 import SourceCodeProBold from './assets/fonts/SourceCodePro-Bold.ttf';
 import { smColors } from './vars';
 
-const GlobalStyle = createGlobalStyle`
+export const fontsCss = `
     @font-face {
       font-family: SourceCodePro;
       src: url(${SourceCodeProRegular});
       font-style: normal;
       font-weight: 400;
     }
-    
+
     @font-face {
       font-family: SourceCodePro;
       src: url(${SourceCodeProBold});
       font-weight: 800;
     }
+`;
 
+const GlobalStyle = createGlobalStyle`
     html, body {
         width: 100%;
         height: 100%;

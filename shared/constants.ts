@@ -1,4 +1,4 @@
-import { SocketAddress, TxState } from './types';
+import { NodeStatus, SocketAddress, TxState } from './types';
 
 export const LOCAL_NODE_API_URL: SocketAddress = {
   host: 'localhost',
@@ -17,6 +17,14 @@ export const TX_STATE_LABELS: Record<TxState, string> = {
   [TxState.SUCCESS]: 'Applied',
   [TxState.FAILURE]: 'Failed to apply',
   [TxState.INVALID]: 'Invalid transaction',
+};
+
+export const DEFAULT_NODE_STATUS: NodeStatus = {
+  connectedPeers: 0,
+  isSynced: false,
+  syncedLayer: 0,
+  topLayer: 0,
+  verifiedLayer: 0,
 };
 
 export enum ExternalLinks {

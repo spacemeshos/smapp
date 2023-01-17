@@ -56,12 +56,12 @@ class NetServiceFactory<
 
   private startStreamList: Record<
     keyof Service<T, ServiceName>,
-    () => void
+    () => Promise<void>
   > = {} as typeof this.startStreamList;
 
   private cancelStreamList: Record<
     keyof Service<T, ServiceName>,
-    () => void
+    () => Promise<void>
   > = {} as typeof this.cancelStreamList;
 
   createNetService = (
@@ -242,16 +242,14 @@ class NetServiceFactory<
             null
           );
           await startStream(retries - 1, afterRestart);
+        } else if (afterRestart) {
+          this.logger?.error(
+            `grpc ${this.serviceName}.${String(
+              method
+            )} can not restart after restarting NetService`,
+            error
+          );
         } else {
-          if (afterRestart) {
-            this.logger?.error(
-              `grpc ${this.serviceName}.${String(
-                method
-              )} can not restart after restarting NetService`,
-              error
-            );
-            return;
-          }
           this.logger?.debug(
             `grpc ${this.serviceName}.${String(
               method

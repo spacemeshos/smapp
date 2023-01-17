@@ -14,25 +14,21 @@ import { configCodecByPath, delay } from '../shared/utils';
 import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
+import AbstractManager from './AbstractManager';
 
 const checkDiskSpace = require('check-disk-space');
 
 const logger = Logger({ className: 'SmesherService' });
 
-class SmesherManager {
+class SmesherManager extends AbstractManager {
   private smesherService: SmesherService;
-
-  private readonly mainWindow: BrowserWindow;
 
   private readonly configFilePath: string;
 
-  private unsub = () => {};
-
   constructor(mainWindow: BrowserWindow, configFilePath: string) {
-    this.unsub = this.subscribeToEvents(mainWindow);
+    super(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
-    this.mainWindow = mainWindow;
     this.configFilePath = configFilePath;
   }
 
@@ -54,8 +50,7 @@ class SmesherManager {
   unsubscribe = () => {
     this.smesherService.deactivateProgressStream();
     this.smesherService.cancelStreams();
-    this.smesherService.dropNetService();
-    this.unsub();
+    this.unsubscribeIPC();
   };
 
   getSmeshingConfig = async () => {
@@ -108,7 +103,14 @@ class SmesherManager {
   };
 
   sendSmesherSettingsAndStartupState = async (retries = 5) => {
-    const { config } = await this.smesherService.getPostConfig();
+    const { config, error } = await this.smesherService.getPostConfig();
+    if (error) {
+      if (retries > 5) {
+        await delay(5000);
+        return this.sendSmesherSettingsAndStartupState(retries - 1);
+      }
+    }
+
     const { smesherId } = await this.smesherService.getSmesherID();
     const {
       postSetupState,
@@ -120,9 +122,12 @@ class SmesherManager {
         nodeConfig.smeshing['smeshing-opts'] &&
         nodeConfig.smeshing['smeshing-opts']['smeshing-opts-numunits']) ||
       0;
+    const isSmeshingStarted = nodeConfig.smeshing?.['smeshing-start'] || false;
+
     const data: IPCSmesherStartupData = {
       config,
       smesherId: smesherId || '',
+      isSmeshingStarted,
       postSetupState,
       numLabelsWritten,
       numUnits,
@@ -135,8 +140,10 @@ class SmesherManager {
 
     if (PostSetupState.STATE_ERROR === postSetupState && retries > 0) {
       await delay(5000);
-      await this.sendSmesherSettingsAndStartupState(retries - 1);
+      return this.sendSmesherSettingsAndStartupState(retries - 1);
     }
+
+    return data;
   };
 
   sendSmesherConfig = async () => {
@@ -176,10 +183,10 @@ class SmesherManager {
 
   getCoinbase = () => this.smesherService.getCoinbase();
 
-  subscribeToEvents = (mainWindow: BrowserWindow) => {
+  subscribeIPCEvents() {
     // handlers
     const selectPostFolder = async () => {
-      return this.selectPostFolder({ mainWindow });
+      return this.selectPostFolder({ mainWindow: this.mainWindow });
     };
     const smesherCheckFreeSpace = async (_event, request) => {
       return this.selectPostFolder({ ...request });
@@ -234,7 +241,7 @@ class SmesherManager {
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_MIN_GAS);
       ipcMain.removeHandler(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
     };
-  };
+  }
 
   startSmeshing = async (postSetupOpts: PostSetupOpts) =>
     this.smesherService.startSmeshing({

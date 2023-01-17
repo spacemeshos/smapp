@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import { debounce } from 'throttle-debounce';
 import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
 import Bech32 from '@spacemesh/address-wasm';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
@@ -24,6 +23,7 @@ import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { hasRequiredRewardFields } from '../shared/types/guards';
 import {
+  debounceWithArgs,
   delay,
   fromHexString,
   longToNumber,
@@ -42,13 +42,14 @@ import { AccountStateManager } from './AccountState';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE } from './main/constants';
 import { sign } from './ed25519';
+import AbstractManager from './AbstractManager';
 
 type TxHandlerArg = MeshTransaction__Output | null | undefined;
 type TxHandler = (tx: TxHandlerArg) => void;
 
 type RewardHandlerArg = Reward__Output | null | undefined;
 
-class TransactionManager {
+class TransactionManager extends AbstractManager {
   logger = Logger({ className: 'TransactionManager' });
 
   private readonly meshService: MeshService;
@@ -60,8 +61,6 @@ class TransactionManager {
   keychain: KeyPair[] = [];
 
   accounts: AccountWithBalance[] = [];
-
-  private readonly mainWindow: BrowserWindow;
 
   private txStateStream: Record<
     string,
@@ -81,11 +80,15 @@ class TransactionManager {
     mainWindow: BrowserWindow,
     genesisID: string
   ) {
+    super(mainWindow);
     this.meshService = meshService;
     this.glStateService = glStateService;
     this.txService = txService;
-    this.mainWindow = mainWindow;
     this.genesisID = genesisID;
+  }
+
+  setGenesisID(id: HexString) {
+    this.genesisID = id;
   }
 
   unsubscribeAllStreams = () => {
@@ -101,7 +104,7 @@ class TransactionManager {
   };
 
   // Debounce update functions to avoid excessive IPC calls
-  updateAppStateAccount = (address: string) => {
+  updateAppStateAccount = debounceWithArgs(100, (address: string) => {
     const account = this.accountStates[address].getState();
     if (!account) {
       return;
@@ -110,22 +113,22 @@ class TransactionManager {
       account,
       accountId: address,
     });
-  };
+  });
 
-  updateAppStateTxs = (publicKey: string) => {
+  updateAppStateTxs = debounceWithArgs(100, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs() || {};
     this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
-  };
+  });
 
-  updateAppStateRewards = (publicKey: string) => {
+  updateAppStateRewards = debounceWithArgs(100, (publicKey: string) => {
     const rewards = this.accountStates[publicKey].getRewards() || [];
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
-  };
+  });
 
   private storeTx = (publicKey: string, tx: Tx): Promise<void> =>
     this.accountStates[publicKey]
       .storeTransaction(tx)
-      .then(() => this.updateAppStateTxs(publicKey))
+      .then((isNew) => isNew && this.updateAppStateTxs(publicKey))
       .catch((err) => {
         console.log('TransactionManager.storeTx', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeTx', err);
@@ -134,7 +137,7 @@ class TransactionManager {
   private storeReward = (publicKey: string, reward: Reward) =>
     this.accountStates[publicKey]
       .storeReward(reward)
-      .then(() => this.updateAppStateRewards(publicKey))
+      .then((isNew) => isNew && this.updateAppStateRewards(publicKey))
       .catch((err) => {
         console.log('TransactionManager.storeReward', err); // eslint-disable-line no-console
         this.logger.error('TransactionManager.storeReward', err);
@@ -151,7 +154,7 @@ class TransactionManager {
     await this.upsertTransaction(publicKey)(newTx);
   };
 
-  private subscribeTransactions = debounce(100, (publicKey: string) => {
+  private subscribeTransactions = debounceWithArgs(100, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 
@@ -169,12 +172,10 @@ class TransactionManager {
     // Cancel account Txs subscription
     this.txStateStream[address]?.();
 
-    const lastTxLayer = this.accountStates[address]?.lastSyncedTxLayer();
-    const lastRwLayer = this.accountStates[address]?.lastSyncedRewardsLayer();
     const addTransaction = this.upsertTransactionFromMesh(address);
     this.retrieveHistoricTxData({
       accountId: address,
-      offset: lastTxLayer,
+      offset: 0,
       handler: addTransaction,
       retries: 0,
     });
@@ -219,7 +220,7 @@ class TransactionManager {
     }
 
     const addReward = this.addReward(address);
-    this.retrieveRewards(address, lastRwLayer)
+    this.retrieveRewards(address, 0)
       .then((value) => value.forEach(addReward))
       .catch((err) => {
         this.logger.error('Can not retrieve and store rewards', err);
@@ -316,6 +317,7 @@ class TransactionManager {
       error,
     } = await this.meshService.requestMeshTransactions(accountId, offset);
     if (error && retries < 5) {
+      await delay(1000);
       await this.retrieveHistoricTxData({
         accountId,
         offset,
@@ -325,6 +327,7 @@ class TransactionManager {
     } else {
       data && data.length && data.forEach((tx) => handler(tx.meshTransaction));
       if (offset + GRPC_QUERY_BATCH_SIZE < totalResults) {
+        delay(100);
         await this.retrieveHistoricTxData({
           accountId,
           offset: offset + GRPC_QUERY_BATCH_SIZE,
@@ -425,6 +428,7 @@ class TransactionManager {
           !!item && hasRequiredRewardFields(item)
       ) as Reward__Output[];
     } else {
+      await delay(100);
       const nextRewards = await this.retrieveRewards(
         coinbase,
         offset + GRPC_QUERY_BATCH_SIZE
@@ -433,24 +437,29 @@ class TransactionManager {
     }
   };
 
+  getOldRewards = (coinbase: HexString) =>
+    this.accountStates[coinbase]?.getRewards() || [];
+
   retrieveNewRewards = async (coinbase: string) => {
-    const oldRewards = this.accountStates[coinbase]?.getRewards() || [];
-    const newRewards = (
-      await this.retrieveRewards(
-        coinbase,
-        this.accountStates[coinbase]?.lastSyncedRewardsLayer() || 0
-      )
-    ).reduce((acc, reward) => {
-      if (!reward || !hasRequiredRewardFields(reward)) return acc;
-      const parsedReward: Reward = {
-        layer: reward.layer.number,
-        amount: longToNumber(reward.total.value),
-        layerReward: longToNumber(reward.layerReward.value),
-        coinbase: reward.coinbase.address,
-      };
-      return [...acc, parsedReward];
-    }, <Reward[]>[]);
-    return [...oldRewards, ...newRewards];
+    const oldRewards = this.getOldRewards(coinbase);
+    const newRewards = (await this.retrieveRewards(coinbase, 0)).reduce(
+      (acc, reward) => {
+        if (!reward || !hasRequiredRewardFields(reward)) return acc;
+        const parsedReward: Reward = {
+          layer: reward.layer.number,
+          amount: longToNumber(reward.total.value),
+          layerReward: longToNumber(reward.layerReward.value),
+          coinbase: reward.coinbase.address,
+        };
+        return [...acc, parsedReward];
+      },
+      <Reward[]>[]
+    );
+    const uniq = [...oldRewards, ...newRewards].reduce(
+      (acc, next) => ({ ...acc, [`${next.layer}$${next.amount}`]: next }),
+      <Record<string, Reward>>{}
+    );
+    return Object.values(uniq);
   };
 
   // TODO: Replace with generic `publishTx`

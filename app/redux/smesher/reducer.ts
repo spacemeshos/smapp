@@ -20,6 +20,7 @@ import {
 
 const initialState = {
   smesherId: '',
+  isSmeshingStarted: false,
   postSetupComputeProviders: [] as PostSetupComputeProvider[],
   coinbase: '',
   dataDir: '',
@@ -31,7 +32,13 @@ const initialState = {
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
-  rewairdsInfo: {},
+  rewardsInfo: {
+    total: 0,
+    dailyAverage: 0,
+    epochs: 0,
+    lastEpoch: 0,
+    layers: 0,
+  },
   activations: [],
   config: {} as SmesherConfig,
 };
@@ -43,6 +50,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         payload: {
           config,
           smesherId,
+          isSmeshingStarted,
           postSetupState,
           numLabelsWritten,
           numUnits,
@@ -61,6 +69,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         numLabelsWritten,
         postSetupState,
         commitmentSize,
+        isSmeshingStarted,
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {

@@ -13,6 +13,8 @@ import {
   fromEvent,
   firstValueFrom,
   filter,
+  Subscription,
+  ReplaySubject,
 } from 'rxjs';
 import { createIpcResponse, IpcResponse } from '../../shared/ipcMessages';
 import Logger from '../logger';
@@ -114,3 +116,48 @@ export const makeSubscription = <T>(
   const sub = source.subscribe(cb);
   return sub.unsubscribe;
 };
+
+export class ResettableSubject<T> extends Subject<T> {
+  private modifierSubj = new Subject<T>();
+
+  private subscription: Subscription;
+
+  private factoryResultSubj: Subject<T>;
+
+  private factoryFn: () => Subject<T>;
+
+  private value$: Observable<T>;
+
+  private defaultValue: T;
+
+  constructor(
+    defaultValue: T,
+    factoryFn: () => Subject<T> = () => new ReplaySubject<T>(1)
+  ) {
+    super();
+
+    this.defaultValue = defaultValue;
+    this.factoryFn = factoryFn;
+    this.factoryResultSubj = this.factoryFn();
+    this.subscription = this.modifierSubj.subscribe(this.factoryResultSubj);
+    this.value$ = this.pipe(
+      startWith(defaultValue),
+      switchMap(() => this.factoryResultSubj)
+    );
+  }
+
+  asObservable(): Observable<T> {
+    return this.value$;
+  }
+
+  reset(): void {
+    this.subscription.unsubscribe();
+    this.next(this.defaultValue);
+    this.factoryResultSubj = this.factoryFn();
+    this.subscription = this.modifierSubj.subscribe(this.factoryResultSubj);
+  }
+
+  next(value: T): void {
+    this.modifierSubj.next(value);
+  }
+}

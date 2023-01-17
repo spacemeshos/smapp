@@ -1,15 +1,17 @@
 import { ProtoGrpcType } from '../proto/smesher';
+import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
+import { SmesherIDResponse__Output } from '../proto/spacemesh/v1/SmesherIDResponse';
+
 import {
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
-
-import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/PostSetupStatusStreamResponse';
-import { SmesherIDResponse__Output } from '../proto/spacemesh/v1/SmesherIDResponse';
+import memoDebounce from '../shared/memoDebounce';
 
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
+import { MINUTE } from './main/constants';
 
 const PROTO_PATH = 'proto/smesher.proto';
 
@@ -56,14 +58,6 @@ class SmesherService extends NetServiceFactory<
       }))
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ config: {} }));
-
-  getSmesherId = () =>
-    this.callService('SmesherID', {})
-      .then(({ accountId }) => ({
-        smesherId: accountId || '',
-      }))
-      .then(this.normalizeServiceResponse)
-      .catch(this.normalizeServiceError({ smesherId: '' }));
 
   getSetupComputeProviders = () =>
     this.callService('PostSetupComputeProviders', { benchmark: true })
@@ -211,8 +205,9 @@ class SmesherService extends NetServiceFactory<
     if (!this.stream) {
       let streamError = null;
       this.stream = this.service.PostSetupStatusStream({});
-      this.stream.on(
-        'data',
+
+      const onDataHandler = memoDebounce(
+        0.5 * MINUTE,
         (response: PostSetupStatusStreamResponse__Output) => {
           const { status } = response;
           if (status === null) return; // TODO
@@ -231,6 +226,7 @@ class SmesherService extends NetServiceFactory<
           streamError = null;
         }
       );
+      this.stream.on('data', onDataHandler);
       this.stream.on('error', (error: any) => {
         this.logger.error('grpc PostDataCreationProgressStream', error);
         // @ts-ignore

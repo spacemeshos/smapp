@@ -179,3 +179,18 @@ export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
 
 export const longToNumber = (val: Long | number) =>
   typeof val === 'number' ? val : val.toNumber();
+
+//
+export const debounceWithArgs = <T extends (...args: any[]) => any>(
+  ms: number,
+  callback: T
+) => {
+  const t = {};
+  return (...args) => {
+    const k = JSON.stringify(args);
+    if (!t[k]) {
+      t[k] = debounce(ms, callback);
+    }
+    return t[k](...args);
+  };
+};
