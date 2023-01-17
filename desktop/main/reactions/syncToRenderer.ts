@@ -172,9 +172,9 @@ export default (
     // Views
     walletView($wallet, $walletPath),
     storeView($storeService),
-    networkView($currentNetwork, $nodeConfig, $currentLayer, $rootHash),
+    networkView($currentNetwork, $nodeConfig),
     $networks.pipe(map(R.objOf('networks'))),
-    $nodeVersion.pipe(map(R.objOf('node'))), // here
+    $nodeVersion.pipe(map(R.objOf('node'))),
     $smesherId.pipe(map((smesherId) => ({ smesher: { smesherId } }))),
     $rewards.pipe(map((rewards) => ({ smesher: { rewards } }))),
     $activations.pipe(map((activations) => ({ smesher: { activations } }))),
@@ -189,5 +189,6 @@ export default (
         },
       }))
     ),
-    $currentLayer.pipe(map((currentLayer) => ({ node: { currentLayer } })))
+    $rootHash.pipe(map((rootHash) => ({ network: { rootHash } }))),
+    $currentLayer.pipe(map((currentLayer) => ({ network: { currentLayer } })))
   );

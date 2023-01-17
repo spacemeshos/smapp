@@ -5,13 +5,11 @@ import { generateGenesisIDFromConfig } from '../../Networks';
 
 export default (
   $currentNetwork: Observable<Network | null>,
-  $nodeConfig: Observable<NodeConfig>,
-  $currentLayer: Observable<number>,
-  $rootHash: Observable<string>
+  $nodeConfig: Observable<NodeConfig>
 ) =>
-  combineLatest([$currentNetwork, $nodeConfig, $currentLayer, $rootHash]).pipe(
+  combineLatest([$currentNetwork, $nodeConfig]).pipe(
     map(
-      ([curNet, nodeConfig, currentLayer, rootHash]) =>
+      ([curNet, nodeConfig]) =>
         <NetworkState>{
           genesisID: generateGenesisIDFromConfig(nodeConfig) || '',
           netName: curNet?.netName || 'Not connected',
@@ -19,8 +17,6 @@ export default (
           layerDurationSec: nodeConfig.main['layer-duration-sec'],
           layersPerEpoch: nodeConfig.main['layers-per-epoch'],
           explorerUrl: curNet?.explorer || '',
-          currentLayer,
-          rootHash,
         }
     ),
     map(objOf('network'))
