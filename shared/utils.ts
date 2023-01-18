@@ -1,4 +1,3 @@
-import type { Long } from '@grpc/proto-loader';
 import TOML from '@iarna/toml';
 import { LOCAL_NODE_API_URL } from './constants';
 import { HexString, PublicService, SocketAddress, WalletType } from './types';
@@ -194,3 +193,8 @@ export const debounceWithArgs = <T extends (...args: any[]) => any>(
     return t[k](...args);
   };
 };
+
+export const convertBytesToGB = (maxFileSize: number) =>
+  maxFileSize / 1024 / 1024 / 1024;
+export const convertGBToBytes = (maxFileSize: number) =>
+  maxFileSize * 1024 * 1024 * 1024;

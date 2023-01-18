@@ -26,14 +26,14 @@ export const startSmeshing = ({
   numUnits,
   provider,
   throttle,
+  maxFileSize,
 }: SmeshingOpts) => async (dispatch: AppThDispatch): Promise<boolean> => {
   try {
     await eventsService.startSmeshing({
       coinbase,
       dataDir,
       numUnits,
-      // TODO: Replace hardcoded `numFiles: 1` with something reasonable?
-      numFiles: 1,
+      maxFileSize,
       computeProviderId: provider,
       throttle,
     });
@@ -43,7 +43,7 @@ export const startSmeshing = ({
 
     dispatch({
       type: STARTED_SMESHING,
-      payload: { coinbase, dataDir, numUnits, provider, throttle },
+      payload: { coinbase, dataDir, numUnits, provider, throttle, maxFileSize },
     });
     return true;
   } catch (error) {

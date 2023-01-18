@@ -5,8 +5,8 @@ config_version: 3
 http:
   rules:
     # GatewayService
-    - selector: spacemesh.v1.GatewayService.BroadcastPoet
-      post: "/v1/gateway/broadcastpoet"
+    - selector: spacemesh.v1.GatewayService.VerifyChallenge
+      post: "/v1/gateway/verifychallenge"
       body: "*"
 
     # DebugService
@@ -115,4 +115,3 @@ http:
     - selector: spacemesh.v1.TransactionService.TransactionsState
       post: "/v1/transaction/transactionsstate"
       body: "*"
-

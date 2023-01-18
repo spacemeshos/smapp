@@ -1,6 +1,7 @@
 import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
 import {
+  DEFAULT_POS_MAX_FILE_SIZE,
   PostSetupComputeProvider,
   PostSetupState,
   SmesherConfig,
@@ -27,6 +28,7 @@ const initialState = {
   numUnits: 0,
   throttle: false,
   provider: null,
+  maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
   commitmentSize: 0,
   numLabelsWritten: 0,
   postSetupState: PostSetupState.STATE_NOT_STARTED,
@@ -54,6 +56,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
           postSetupState,
           numLabelsWritten,
           numUnits,
+          maxFileSize,
         },
       } = action;
 
@@ -66,6 +69,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         config,
         smesherId,
         numUnits,
+        maxFileSize,
         numLabelsWritten,
         postSetupState,
         commitmentSize,
@@ -83,7 +87,14 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case STARTED_SMESHING: {
       const {
-        payload: { coinbase, dataDir, numUnits, provider, throttle },
+        payload: {
+          coinbase,
+          dataDir,
+          numUnits,
+          provider,
+          throttle,
+          maxFileSize,
+        },
       } = action;
       const commitmentSize = state.config
         ? (state.config.labelsPerUnit * state.config.bitsPerLabel * numUnits) /
@@ -94,6 +105,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         coinbase,
         dataDir,
         numUnits,
+        maxFileSize,
         throttle,
         provider,
         commitmentSize,
@@ -105,6 +117,7 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
         coinbase: '',
         dataDir: '',
         numUnits: 0,
+        maxFileSize: DEFAULT_POS_MAX_FILE_SIZE,
         throttle: false,
         provider: null,
         commitmentSize: 0,

@@ -7,6 +7,7 @@ import {
   NodeStatus,
   PostSetupComputeProvider,
 } from '../../../shared/types';
+import { formatBytes } from '../../infra/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -72,6 +73,7 @@ type Props = {
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
   status: NodeStatus | null;
+  maxFileSize: number;
 };
 
 const PoSSummary = ({
@@ -82,6 +84,7 @@ const PoSSummary = ({
   nextAction,
   switchMode,
   status,
+  maxFileSize,
 }: Props) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -117,6 +120,12 @@ const PoSSummary = ({
         <Text>data size</Text>
         <Link onClick={() => switchMode({ mode: 2 })} isDisabled={isProcessing}>
           {commitmentSize}
+        </Link>
+      </Row>
+      <Row>
+        <Text>max file size</Text>
+        <Link onClick={() => switchMode({ mode: 2 })} isDisabled={isProcessing}>
+          {formatBytes(maxFileSize)}
         </Link>
       </Row>
       <Row>

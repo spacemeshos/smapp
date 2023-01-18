@@ -5,7 +5,7 @@ export type SmeshingOpts = {
   'smeshing-coinbase': string;
   'smeshing-opts': {
     'smeshing-opts-datadir': string;
-    'smeshing-opts-numfiles': number;
+    'smeshing-opts-maxfilesize': number;
     'smeshing-opts-numunits': number;
     'smeshing-opts-provider': number;
     'smeshing-opts-throttle': boolean;
@@ -19,12 +19,12 @@ export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
   typeof a['smeshing-start'] === 'boolean' &&
   typeof a['smeshing-opts'] === 'object' &&
   typeof a['smeshing-opts']['smeshing-opts-datadir'] === 'string' &&
-  typeof a['smeshing-opts']['smeshing-opts-numfiles'] === 'number' &&
+  typeof a['smeshing-opts']['smeshing-opts-maxfilesize'] === 'number' &&
   typeof a['smeshing-opts']['smeshing-opts-numunits'] === 'number' &&
   typeof a['smeshing-opts']['smeshing-opts-provider'] === 'number' &&
   typeof a['smeshing-opts']['smeshing-opts-throttle'] === 'boolean' &&
   a['smeshing-coinbase'].length > 0 &&
-  a['smeshing-opts']['smeshing-opts-numfiles'] >= 1 &&
+  a['smeshing-opts']['smeshing-opts-maxfilesize'] >= 1 &&
   a['smeshing-opts']['smeshing-opts-numunits'] >= 1 &&
   a['smeshing-opts']['smeshing-opts-provider'] >= 0;
 

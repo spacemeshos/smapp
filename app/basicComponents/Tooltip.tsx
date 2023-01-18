@@ -44,6 +44,7 @@ const Text = styled.div`
   font-size: 10px;
   line-height: 13px;
   text-transform: uppercase;
+  white-space: pre-wrap;
   color: ${({
     theme: {
       popups: {

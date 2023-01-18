@@ -8,18 +8,8 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 };
 
 export interface ProtoGrpcType {
-  google: {
-    protobuf: {
-      Any: MessageTypeDefinition
-    }
-    rpc: {
-      Status: MessageTypeDefinition
-    }
-  }
   spacemesh: {
     v1: {
-      BroadcastPoetRequest: MessageTypeDefinition
-      BroadcastPoetResponse: MessageTypeDefinition
       GatewayService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_GatewayServiceClient> & { service: _spacemesh_v1_GatewayServiceDefinition }
       VerifyChallengeRequest: MessageTypeDefinition
       VerifyChallengeResponse: MessageTypeDefinition

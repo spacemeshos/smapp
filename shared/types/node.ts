@@ -49,7 +49,7 @@ export interface NodeConfig {
     'smeshing-start': boolean;
     'smeshing-opts': {
       'smeshing-opts-datadir': string;
-      'smeshing-opts-numfiles': number;
+      'smeshing-opts-maxfilesize': number;
       'smeshing-opts-numunits': number;
       'smeshing-opts-provider': number;
       'smeshing-opts-throttle': boolean;

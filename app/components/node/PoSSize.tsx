@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown } from '../../basicComponents';
+import { Tooltip, DropDown, Input } from '../../basicComponents';
 import { posSpace, posRewardEst } from '../../assets/images';
 import { smColors } from '../../vars';
-import { NodeStatus } from '../../../shared/types';
+import {
+  DEFAULT_POS_MAX_FILE_SIZE,
+  DEFAULT_POS_MAX_FILE_SIZE_LIMIT,
+  NodeStatus,
+} from '../../../shared/types';
+import { convertBytesToGB, convertGBToBytes } from '../../../shared/utils';
+import { constrain } from '../../infra/utils';
 import PoSFooter from './PoSFooter';
 
 const Row = styled.div`
@@ -47,6 +53,10 @@ const Text = styled.div`
   font-size: 15px;
   line-height: 17px;
   color: ${({ theme: { color } }) => color.primary};
+`;
+
+const InputWrapper = styled.div`
+  width: 250px;
 `;
 
 const Dots = styled.div`
@@ -107,6 +117,8 @@ type Props = {
   freeSpace: string;
   nextAction: () => void;
   status: NodeStatus | null;
+  setMaxFileSize: (maxFileSize: number) => void;
+  maxFileSize: number;
 };
 
 const PoSSize = ({
@@ -117,11 +129,14 @@ const PoSSize = ({
   freeSpace,
   nextAction,
   status,
+  setMaxFileSize,
+  maxFileSize,
 }: Props) => {
   const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
     numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
   );
   const [hasErrorFetchingEstimatedRewards] = useState(false);
+
   // const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
 
   // useEffect(() => { // TODO: uncomment when api endpoint implemented in node
@@ -142,6 +157,28 @@ const PoSSize = ({
     setNumUnit(commitments[index].numUnits);
   };
 
+  const constrainPosMaxFileSize = (value: number) =>
+    constrain(
+      DEFAULT_POS_MAX_FILE_SIZE,
+      DEFAULT_POS_MAX_FILE_SIZE_LIMIT,
+      Number.isNaN(value) ? 0 : value
+    );
+
+  const handleOnChange = ({ value }) => {
+    const valueInBytes = convertGBToBytes(parseInt(value, 10));
+    if (valueInBytes > DEFAULT_POS_MAX_FILE_SIZE * 50) {
+      setMaxFileSize(DEFAULT_POS_MAX_FILE_SIZE_LIMIT);
+      return;
+    }
+    setMaxFileSize(valueInBytes);
+  };
+
+  const handleMaxFileSize = ({ value }) => {
+    setMaxFileSize(
+      constrainPosMaxFileSize(convertGBToBytes(parseInt(value, 10)))
+    );
+  };
+
   return (
     <>
       <Row>
@@ -156,6 +193,28 @@ const PoSSize = ({
           rowHeight={40}
           bold
         />
+      </Row>
+      <Row>
+        <Icon1 src={posSpace} />
+        <Text>Max file size, GB: </Text>
+        <Tooltip
+          width={200}
+          text={
+            'PoS data will be stored into a bunch of files with the specified max file size.\n\nPossible range 2 - 100 GB.'
+          }
+        />
+        <Dots>.....................................................</Dots>
+        <InputWrapper>
+          <Input
+            value={convertBytesToGB(maxFileSize)}
+            type="number"
+            debounceTime={100}
+            onChangeDebounced={handleOnChange}
+            onBlur={(value) => {
+              handleMaxFileSize({ value });
+            }}
+          />
+        </InputWrapper>
       </Row>
       <Row>
         <Icon2 src={posRewardEst} />
