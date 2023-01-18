@@ -9,7 +9,6 @@ import {
   SmesherConfig,
   HexString,
   Tx,
-  Reward,
   Network,
   NetworkState,
   Reward,
@@ -56,6 +55,7 @@ export interface SmesherState {
   coinbase: string;
   dataDir: string;
   numUnits: number;
+  maxFileSize: number;
   throttle: boolean;
   provider: number | null;
   commitmentSize: number;

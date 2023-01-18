@@ -14,7 +14,7 @@ export const addNodeLogFile = async () => {
   const logFilePath = getNodeLogsPath(generateGenesisIDFromConfig(nodeConfig));
   // Otherwise if Node exited, but there are no critical errors
   // in the pool — search for fatal error in the logs
-  const lastLines = await readLinesFromBottom(logFilePath, 4000);
+  const lastLines = await readLinesFromBottom(logFilePath, 20000);
   return {
     genesisID,
     content: lastLines.reverse().join('\n\t'),
@@ -24,7 +24,7 @@ export const addNodeLogFile = async () => {
 export const addAppLogFile = async () => {
   const logFilePath = logger.transports.file.getFile().path;
 
-  const lastLines = await readLinesFromBottom(logFilePath, 1000);
+  const lastLines = await readLinesFromBottom(logFilePath, 5000);
   const appStartFrom = logFilePath.indexOf('app-log');
   const fileName = logFilePath.slice(
     appStartFrom > 0 ? appStartFrom : 0,

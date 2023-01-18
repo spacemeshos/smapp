@@ -19,7 +19,10 @@ import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
 import { BITS, RootState } from '../../types';
-import { PostSetupComputeProvider } from '../../../shared/types';
+import {
+  DEFAULT_POS_MAX_FILE_SIZE,
+  PostSetupComputeProvider,
+} from '../../../shared/types';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
@@ -86,6 +89,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const [numUnits, setNumUnits] = useState(0);
   const [provider, setProvider] = useState<PostSetupComputeProvider>();
   const [throttle, setThrottle] = useState(false);
+  const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
 
   const commitmentSize =
     (smesherConfig.labelsPerUnit *
@@ -121,6 +125,7 @@ const NodeSetup = ({ history, location }: Props) => {
         numUnits,
         provider: provider.id,
         throttle,
+        maxFileSize,
       })
     );
 
@@ -205,6 +210,8 @@ const NodeSetup = ({ history, location }: Props) => {
             numUnits={numUnits}
             setNumUnit={setNumUnits}
             status={status}
+            setMaxFileSize={setMaxFileSize}
+            maxFileSize={maxFileSize}
           />
         );
       }
@@ -224,6 +231,7 @@ const NodeSetup = ({ history, location }: Props) => {
         return (
           <PoSSummary
             dataDir={dataDir}
+            maxFileSize={maxFileSize}
             commitmentSize={
               smesherConfig
                 ? formatBytes(

@@ -112,7 +112,7 @@ message PostSetupComputeProvider {
 message PostSetupOpts {
     string data_dir = 1;             // User provided path to create the setup data files at
     uint32 num_units = 2;            // Number of Post data units to generate
-    uint32 num_files = 3;            // Number of files to equally distribute the data among
+    uint64 max_file_size = 3;        // Max size in bytes of a single file within the data files
     uint32 compute_provider_id = 4;  // A `PostSetupComputeProvider` id
     bool throttle = 5;               // Throttle down setup phase computations while user is interactive on system
 }

@@ -12,9 +12,9 @@ export const isErrorState = (state: RootState) =>
 
 export const getSmeshingOpts = (state: RootState) => {
   const {
-    smesher: { coinbase, dataDir, numUnits, throttle, provider },
+    smesher: { coinbase, dataDir, numUnits, throttle, provider, maxFileSize },
   } = state;
-  return { coinbase, dataDir, numUnits, throttle, provider };
+  return { coinbase, dataDir, numUnits, throttle, provider, maxFileSize };
 };
 
 export const isValidSmeshingOpts = (

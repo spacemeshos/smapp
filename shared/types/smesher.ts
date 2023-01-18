@@ -17,6 +17,7 @@ export interface SmeshingOpts {
   numUnits: number;
   provider: number;
   throttle: boolean;
+  maxFileSize: number;
 }
 
 export enum ComputeApiClass {
@@ -37,7 +38,7 @@ export interface PostSetupOpts {
   coinbase: string;
   dataDir: string;
   numUnits: number;
-  numFiles: number;
+  maxFileSize: number;
   computeProviderId: number;
   throttle: boolean;
 }
@@ -57,6 +58,7 @@ export interface IPCSmesherStartupData {
   isSmeshingStarted: boolean;
   numLabelsWritten: number;
   numUnits: number;
+  maxFileSize: number;
 }
 
 export interface RewardsInfo {
@@ -66,3 +68,6 @@ export interface RewardsInfo {
   layers: number;
   epochs: number;
 }
+
+export const DEFAULT_POS_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2GB
+export const DEFAULT_POS_MAX_FILE_SIZE_LIMIT = 1024 * 1024 * 1024 * 100; // 100GB

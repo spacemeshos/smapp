@@ -276,6 +276,9 @@ const Node = ({ history, location }: Props) => {
   const coinbase = useSelector((state: RootState) => state.smesher.coinbase);
   const posDataPath = useSelector((state: RootState) => state.smesher.dataDir);
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
+  const maxFileSize = useSelector(
+    (state: RootState) => state.smesher.maxFileSize
+  );
 
   const rewards = useSelector((state: RootState) =>
     state.smesher.rewards.slice(0).reverse()
@@ -412,6 +415,7 @@ const Node = ({ history, location }: Props) => {
         </PosDirLink>,
       ],
       ['Data Size', formatBytes(commitmentSize)],
+      ['Max File Size', formatBytes(maxFileSize)],
       [
         'Rewards Address',
         <Address

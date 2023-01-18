@@ -118,9 +118,9 @@ class SmesherManager extends AbstractManager {
     } = await this.smesherService.getPostSetupStatus();
     const nodeConfig = await this.loadConfig();
     const numUnits =
-      (nodeConfig.smeshing &&
-        nodeConfig.smeshing['smeshing-opts'] &&
-        nodeConfig.smeshing['smeshing-opts']['smeshing-opts-numunits']) ||
+      nodeConfig.smeshing?.['smeshing-opts']?.['smeshing-opts-numunits'] || 0;
+    const maxFileSize =
+      nodeConfig.smeshing?.['smeshing-opts']?.['smeshing-opts-maxfilesize'] ||
       0;
     const isSmeshingStarted = nodeConfig.smeshing?.['smeshing-start'] || false;
 
@@ -131,6 +131,7 @@ class SmesherManager extends AbstractManager {
       postSetupState,
       numLabelsWritten,
       numUnits,
+      maxFileSize,
     };
 
     this.mainWindow.webContents.send(
@@ -154,7 +155,7 @@ class SmesherManager extends AbstractManager {
       const smeshingConfig = {
         coinbase: nodeConfig.smeshing['smeshing-coinbase'],
         dataDir: opts['smeshing-opts-datadir'],
-        numFiles: opts['smeshing-opts-numfiles'],
+        maxFileSize: opts['smeshing-opts-maxfilesize'],
         numUnits: opts['smeshing-opts-numunits'],
         provider: opts['smeshing-opts-provider'],
         throttle: opts['smeshing-opts-throttle'],
@@ -256,13 +257,15 @@ class SmesherManager extends AbstractManager {
       numUnits,
       computeProviderId,
       throttle,
+      maxFileSize,
     } = postSetupOpts;
+
     const config = await this.loadConfig();
     config.smeshing = {
       'smeshing-coinbase': coinbase,
       'smeshing-opts': {
         'smeshing-opts-datadir': dataDir,
-        'smeshing-opts-numfiles': 1,
+        'smeshing-opts-maxfilesize': maxFileSize,
         'smeshing-opts-numunits': numUnits,
         'smeshing-opts-provider': computeProviderId,
         'smeshing-opts-throttle': throttle,

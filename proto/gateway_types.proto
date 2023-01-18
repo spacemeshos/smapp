@@ -1,15 +1,6 @@
 syntax = "proto3";
 package spacemesh.v1;
 option go_package = "github.com/spacemeshos/api/release/go/spacemesh/v1";
-import "google/rpc/status.proto";
-
-message BroadcastPoetRequest {
-    bytes data = 1;  // encoded poet proof
-}
-
-message BroadcastPoetResponse {
-    google.rpc.Status status = 1;
-}
 
 message VerifyChallengeRequest {
     bytes challenge = 1;

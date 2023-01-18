@@ -87,7 +87,7 @@ class SmesherService extends NetServiceFactory<
     coinbase,
     dataDir,
     numUnits,
-    numFiles,
+    maxFileSize,
     computeProviderId,
     throttle,
     handler,
@@ -99,7 +99,7 @@ class SmesherService extends NetServiceFactory<
       opts: {
         dataDir,
         numUnits,
-        numFiles,
+        maxFileSize,
         computeProviderId,
         throttle,
       },

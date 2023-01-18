@@ -104,6 +104,7 @@ const ExtraTxt = styled.div`
 type Props = {
   onKeyDown?: (event: React.KeyboardEvent) => void;
   onChange?: ({ value }: { value: string }) => void;
+  onBlur?: ({ value }: { value: string }) => void;
   onChangeDebounced?: ({ value }: { value: string | number }) => void;
   onEnterPress?: () => void | Promise<any>;
   onFocus?: ({ target }: { target: EventTarget | null }) => void;
@@ -122,6 +123,7 @@ type Props = {
 };
 
 const Input = ({
+  onBlur = () => {},
   onKeyDown = () => {},
   onChange = () => {},
   onChangeDebounced = () => {},
@@ -153,6 +155,13 @@ const Input = ({
       onEnterPress();
       onPaste();
     }
+  };
+
+  const handleOnBlur = ({ target }: { target: any }) => {
+    setIsFocused(false);
+    const { value } = target;
+
+    onBlur && onBlur(value);
   };
 
   const handleChange = ({ target }: { target: any }) => {
@@ -188,7 +197,7 @@ const Input = ({
         onKeyPress={handleEnterPress}
         onChange={handleChange}
         onFocus={handleFocus}
-        onBlur={() => setIsFocused(false)}
+        onBlur={handleOnBlur}
         onKeyDown={onKeyDown}
         type={type}
         maxLength={maxLength}
