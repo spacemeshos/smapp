@@ -47,13 +47,19 @@ const PoSModifyPostData = ({ modify, deleteData }: Props) => (
     <Wrapper>
       <Row>
         <Text>Change your PoS data</Text>
-        <Tooltip width={200} text="Some text" />
+        <Tooltip
+          width={200}
+          text="Modify the parameters, such as POS directory, allocated memory, or processor."
+        />
         <Dots>.....................................................</Dots>
         <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
       </Row>
       <Row>
         <Text>Stop smeshing and delete PoS data</Text>
-        <Tooltip width={200} text="Some text" />
+        <Tooltip
+          width={200}
+          text="Stop Smeshing and delete the POS data files."
+        />
         <Dots>.....................................................</Dots>
         <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
       </Row>

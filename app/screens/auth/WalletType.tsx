@@ -126,7 +126,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <Icon src={walletSecondWhite} />
               <RowTitle>STANDARD WALLET</RowTitle>
-              <Tooltip width={100} text="STANDARD WALLET" />
+              <Tooltip width={140} text="Stored locally on your computer" />
             </Row>
             <PurpleText>(STANDARD SECURITY)</PurpleText>
           </RowColumn>
@@ -142,7 +142,7 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <IconWallet src={walletSecondWhite} />
               <RowTitle>HARDWARE WALLET</RowTitle>
-              <Tooltip width={100} text="HARDWARE WALLET" />
+              <Tooltip width={140} text="Stored offline on a physical device" />
             </Row>
             <RowText>Using a Ledger device</RowText>
             <GreenText>(ENHANCED SECURITY)</GreenText>
@@ -161,7 +161,10 @@ const WalletType = ({ history, location }: AuthRouterParams) => {
               onClick={() => history.push(AuthPath.Recover)}
               text="RESTORE  WALLET"
             />{' '}
-            <Tooltip width={100} text="RESTORE EXISTING WALLET" />
+            <Tooltip
+              width={120}
+              text="Locate a file or restore from 12 words"
+            />
           </Row>
         </BottomPart>
       </CorneredContainer>
