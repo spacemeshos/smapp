@@ -247,8 +247,7 @@ class NodeManager extends AbstractManager {
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
-    this.nodeService.cancelStatusStream();
-    this.nodeService.cancelErrorStream();
+    this.nodeService.cancelStreams();
     await this.stopNode();
     this.$_nodeStatus.reset();
 
@@ -279,9 +278,6 @@ class NodeManager extends AbstractManager {
     if (success) {
       // update node status once by query request
       await this.updateNodeStatus();
-      // ensure there are no active streams left
-      this.nodeService.cancelStatusStream();
-      this.nodeService.cancelErrorStream();
       // and activate streams
       this.activateNodeStatusStream();
       this.activateNodeErrorStream();
@@ -470,7 +466,7 @@ class NodeManager extends AbstractManager {
     interval: number
   ): Promise<boolean> => {
     if (!this.nodeProcess) return true;
-    const isFinished = this.nodeProcess.killed;
+    const isFinished = this.nodeProcess.exitCode !== null;
     logger.log(
       'Spawn process',
       `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
