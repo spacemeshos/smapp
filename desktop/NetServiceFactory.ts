@@ -3,7 +3,7 @@ import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
 import { PublicService, SocketAddress } from '../shared/types';
 import { LOCAL_NODE_API_URL } from '../shared/constants';
-import { delay, isNodeApiEq } from '../shared/utils';
+import { debounceShared, delay, isNodeApiEq } from '../shared/utils';
 import Logger from './logger';
 import { MINUTE } from './main/constants';
 
@@ -45,13 +45,6 @@ export type ServiceStreamResponse<
 > = ServiceStream<P, ServiceName, K> extends grpc.ClientReadableStream<infer T>
   ? T
   : never;
-
-const ERROR_CODE_TO_RESTART_STREAM = [
-  2, // UNKNOWN
-  13, // INTERNAL, including nginx TIMEOUT
-  14, // UNAVAILABLE
-  15, // DATA_LOSS
-];
 
 const MAX_RETRIES = 5; // In a row
 
@@ -129,7 +122,7 @@ class NetServiceFactory<
     this.service = null;
   };
 
-  restartNetService = async () => {
+  restartNetService = debounceShared(5000, async () => {
     if (!this.protoPath || !this.apiUrl || !this.serviceName) return false;
     this.logger?.debug(
       `Restarting ${this.serviceName}`,
@@ -137,9 +130,8 @@ class NetServiceFactory<
       this.apiUrl
     );
     await this.createNetService(this.protoPath, this.apiUrl, this.serviceName);
-    await this.restartStreams();
     return true;
-  };
+  });
 
   ensureService = (): Promise<Service<T, ServiceName>> =>
     this.service
@@ -220,19 +212,24 @@ class NetServiceFactory<
     );
 
     let retries = MAX_RETRIES;
-    let stream: ReturnType<typeof this.service[typeof method]>;
+    let stream: grpc.ClientReadableStream<
+      ServiceStreamResponse<T, ServiceName, K>
+    >;
 
     const cancel = () =>
       new Promise<void>((resolve) =>
         setImmediate(() => {
-          stream && stream.cancel && stream.cancel();
+          if (stream && stream.cancel) {
+            stream.cancel();
+            stream.destroy();
+          }
           resolve();
         })
       );
 
     const startStream = async (afterRestart) => {
       if (!this.service) {
-        this.logger?.debug(
+        this.logger?.error(
           `startStream > Service ${this.serviceName} is not running`,
           opts
         );
@@ -259,8 +256,9 @@ class NetServiceFactory<
           `Retries left: ${retries}`
         );
         onError(error);
-        if (retries > 0 && ERROR_CODE_TO_RESTART_STREAM.includes(error.code)) {
-          await cancel();
+      });
+      stream.on('end', async () => {
+        if (retries > 0) {
           await delay(5000);
           this.logger?.debug(
             `grpc ${this.serviceName}.${String(method)} restarting...`,
@@ -273,18 +271,20 @@ class NetServiceFactory<
             `grpc ${this.serviceName}.${String(
               method
             )} can not restart after restarting NetService. Will retry in a minute`,
-            error
+            {}
           );
           await delay(MINUTE);
           retries = MAX_RETRIES;
           await startStream(false);
         } else {
-          this.logger?.debug(
+          this.logger?.error(
             `grpc ${this.serviceName}.${String(
               method
-            )} failed to connect. Restarting NetService...`
+            )} failed to connect. Restarting NetService...`,
+            {}
           );
           await this.restartNetService();
+          await startStream(true);
         }
       });
     };
