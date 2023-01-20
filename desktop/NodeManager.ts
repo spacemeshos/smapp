@@ -10,7 +10,7 @@ import { debounce } from 'throttle-debounce';
 import { rotator } from 'logrotator';
 import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
-import { delay } from '../shared/utils';
+import { debounceShared, delay } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
@@ -227,20 +227,23 @@ class NodeManager extends AbstractManager {
     };
   }
 
-  isNodeAlive = async (retries: number): Promise<boolean> => {
-    if (!this.isNodeRunning()) {
-      return false;
+  isNodeAlive = debounceShared(
+    200,
+    async (retries = 30): Promise<boolean> => {
+      if (!this.isNodeRunning()) {
+        return false;
+      }
+      const isReady = await this.nodeService.echo();
+      if (isReady) {
+        return true;
+      } else if (retries > 0) {
+        await delay(500);
+        return this.isNodeAlive(retries - 1);
+      } else {
+        return false;
+      }
     }
-    const isReady = await this.nodeService.echo();
-    if (isReady) {
-      return true;
-    } else if (retries > 0) {
-      await delay(500);
-      return this.isNodeAlive(retries - 1);
-    } else {
-      return false;
-    }
-  };
+  );
 
   isNodeRunning = () => {
     return !!this.nodeProcess && this.nodeProcess.exitCode === null;
