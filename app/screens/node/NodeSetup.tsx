@@ -26,6 +26,7 @@ import {
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
+import { distribute } from '../../../shared/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -183,22 +184,24 @@ const NodeSetup = ({ history, location }: Props) => {
           />
         );
       case 2: {
-        const commitments: Commitment[] = [];
         const singleCommitmentSize =
           (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
-
-        for (
-          let i = smesherConfig.minNumUnits;
-          i <= smesherConfig.maxNumUnits;
-          i += 1
-        ) {
+        const commitments = distribute(
+          smesherConfig.minNumUnits,
+          smesherConfig.maxNumUnits,
+          10
+        ).reduce((acc, next) => {
+          const i = Math.ceil(next);
           const calculationResult = i * singleCommitmentSize;
-          commitments.push({
-            label: formatBytes(calculationResult),
-            size: calculationResult,
-            numUnits: i,
-          });
-        }
+          return [
+            ...acc,
+            {
+              label: formatBytes(calculationResult),
+              size: calculationResult,
+              numUnits: i,
+            },
+          ];
+        }, [] as Commitment[]);
         // TODO: Make a well default instead of logic inside view and rerendering comp:
         numUnits === 0 && setNumUnits(commitments[0].numUnits);
         return (
