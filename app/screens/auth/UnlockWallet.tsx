@@ -163,6 +163,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
   const decryptWallet = async () => {
     const passwordMinimumLength = 1; // TODO: For testing purposes, set to 1 minimum length. Should be changed back to 8 when ready.
     if (!!password && password.trim().length >= passwordMinimumLength) {
+      setShowLoader(true);
       if (walletFiles.length === 0) {
         throw new Error('No wallets found to unlock');
       }
@@ -172,6 +173,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
 
       if (status.success) {
         if (status.forceNetworkSelection) {
+          setShowLoader(false);
           history.push(AuthPath.SwitchNetwork, {
             redirect: nextPage,
             isWalletOnly: status.isWalletOnly,
