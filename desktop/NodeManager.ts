@@ -335,7 +335,7 @@ class NodeManager extends AbstractManager {
       // It can be moved back to SmesherManager when issue
       // https://github.com/spacemeshos/go-spacemesh/issues/2858
       // will be solved, and all these kludges can be removed.
-      await this.smesherManager.updateSmeshingConfig(opts);
+      await this.smesherManager.updateSmeshingConfig(opts, this.genesisID);
       await this.smesherManager.startSmeshing(opts);
       return SmeshingSetupState.ViaAPI;
     };
@@ -366,7 +366,10 @@ class NodeManager extends AbstractManager {
     }
     // In other cases — update config first and then restart the node
     // it will start Smeshing automatically based on the config
-    await this.smesherManager.updateSmeshingConfig(postSetupOpts);
+    await this.smesherManager.updateSmeshingConfig(
+      postSetupOpts,
+      this.genesisID
+    );
     await this.restartNode();
     return SmeshingSetupState.ViaRestart;
   };

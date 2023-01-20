@@ -1,11 +1,13 @@
 import { existsSync, promises as fs } from 'fs';
 import * as TOML from '@iarna/toml';
 import { NodeConfig } from '../../shared/types';
+import StoreService from '../storeService';
 import { fetchNodeConfig } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
 import { safeSmeshingOpts } from './smeshingOpts';
+import { generateGenesisIDFromConfig } from './Networks';
 
-export const loadNodeConfig = async () =>
+export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
     ? fs
         .readFile(NODE_CONFIG_FILE, { encoding: 'utf8' })
@@ -14,8 +16,10 @@ export const loadNodeConfig = async () =>
         )
     : {};
 
-const loadSmeshingOpts = async () => {
-  const opts = (await loadNodeConfig()).smeshing;
+const loadSmeshingOpts = async (nodeConfig) => {
+  const id = generateGenesisIDFromConfig(nodeConfig);
+  const opts = StoreService.get(`smeshing.${id}`);
+  // const opts = (await loadNodeConfig()).smeshing;
   return safeSmeshingOpts(opts);
 };
 
@@ -25,7 +29,7 @@ export const downloadNodeConfig = async (
 ) => {
   const nodeConfig = await fetchNodeConfig(networkConfigUrl);
   // Copy smeshing opts from previous node config or replace it with empty one
-  const smeshing = await loadSmeshingOpts();
+  const smeshing = await loadSmeshingOpts(nodeConfig);
   nodeConfig.smeshing = smeshing;
 
   if (updateNodeConfig) {

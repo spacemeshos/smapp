@@ -4,6 +4,7 @@ import { F_OK } from 'constants';
 import cs from 'checksum';
 import fetch from 'electron-fetch';
 import { configCodecByFirstChar } from '../shared/utils';
+import { NodeConfig } from '../shared/types';
 
 // --------------------------------------------------------
 // ENV modes
@@ -25,7 +26,7 @@ export const isDevNet = (
 export const fetchJSON = async (url?: string) =>
   url ? fetch(`${url}?no-cache=${Date.now()}`).then((res) => res.json()) : null;
 
-export const fetchNodeConfig = async (url: string) =>
+export const fetchNodeConfig = async (url: string): Promise<NodeConfig> =>
   fetch(`${url}?no-cache=${Date.now()}`)
     .then((res) => res.text())
     .then((res) => configCodecByFirstChar(res).parse(res));

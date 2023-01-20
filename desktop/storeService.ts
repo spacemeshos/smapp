@@ -3,24 +3,9 @@ import Store from 'electron-store';
 import { Object } from 'ts-toolbelt';
 import { AutoPath } from 'ts-toolbelt/out/Function/AutoPath';
 import { Split } from 'ts-toolbelt/out/String/Split';
-import { AccountBalance } from '../shared/types';
-import { Transaction } from '../proto/spacemesh/v1/Transaction';
-import { _spacemesh_v1_TransactionState_TransactionState } from '../proto/spacemesh/v1/TransactionState';
+import { HexString } from '../shared/types';
 import { USERDATA_DIR } from './main/constants';
-
-export type TxStored = Required<Transaction> & {
-  id: string;
-  state: _spacemesh_v1_TransactionState_TransactionState;
-};
-
-export interface AccountStore {
-  publicKey: string;
-  account: AccountBalance;
-  txs: { [txId: TxStored['id']]: TxStored };
-  rewards: { [rewardId: TxStored['id']]: TxStored }; // TODO: Implement within #766
-}
-
-// TODO: Rewards?
+import { SmeshingOpts } from './main/smeshingOpts';
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
@@ -28,6 +13,7 @@ export interface ConfigStore {
     dataPath: string;
     port: string;
   };
+  smeshing: Record<HexString, SmeshingOpts>;
   walletFiles: string[];
 }
 
@@ -37,6 +23,7 @@ const CONFIG_STORE_DEFAULTS = {
     dataPath: path.resolve(USERDATA_DIR, 'node-data'),
     port: '9092',
   },
+  smeshing: {},
   walletFiles: [],
 };
 
