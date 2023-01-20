@@ -16,7 +16,7 @@ export const sign = (dataBytes: Uint8Array, privateKey: HexString) => {
 
 export const verify = (
   dataBytes: Uint8Array,
-  signatureBytes: Uint8Array,
+  signatureBytes: HexString | Uint8Array,
   publicKey: HexString
 ) => {
   const key = Buffer.concat([
@@ -28,6 +28,10 @@ export const verify = (
     type: 'spki',
     key,
   });
+  const sig =
+    typeof signatureBytes === 'string'
+      ? Buffer.from(signatureBytes, 'hex')
+      : signatureBytes;
 
-  return crypto.verify(null, dataBytes, vk, signatureBytes);
+  return crypto.verify(null, dataBytes, vk, sig);
 };

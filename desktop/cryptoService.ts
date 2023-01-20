@@ -1,5 +1,5 @@
 import * as bip39 from 'bip39';
-import { fromHexString, toHexString } from '../shared/utils';
+import { toHexString } from '../shared/utils';
 import Bip32KeyDerivation from './main/bip32-key-derivation';
 
 class CryptoService {
@@ -56,29 +56,6 @@ class CryptoService {
     index: number;
   }) => {
     return CryptoService.createWallet(mnemonic, index);
-  };
-
-  /**
-   * Signs message to be sent to node.
-   * @param secretKey - string
-   * @param message - utf8 string representation of message
-   * @return {Promise} when resolved returns signature as Uint8Array(64)
-   */
-  static signMessage = ({
-    message,
-    secretKey,
-  }: {
-    message: string;
-    secretKey: string;
-  }): Promise<string> => {
-    const sk = fromHexString(secretKey);
-    return new Promise((resolve) => {
-      const messageAsUint8Array = new TextEncoder().encode(message);
-      // @ts-ignore
-      global.__signTransaction(sk, messageAsUint8Array, (sig) => {
-        resolve(toHexString(sig));
-      });
-    });
   };
 
   /**
