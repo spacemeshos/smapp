@@ -449,9 +449,7 @@ const Node = ({ history, location }: Props) => {
         <Footer>
           <FooterSection>
             <Button
-              onClick={() =>
-                history.push(MainPath.SmeshingSetup, { modifyPostData: true })
-              }
+              onClick={() => history.push(MainPath.SmeshingSetup)}
               img={posDirectoryWhite}
               text="EDIT"
               isPrimary={false}
@@ -487,7 +485,7 @@ const Node = ({ history, location }: Props) => {
 
   const buttonHandler = () => {
     dispatch(hideSmesherLeftPanel());
-    history.push(MainPath.SmeshingSetup);
+    history.push(MainPath.SmeshingSetup, { modifyPostData: true });
   };
 
   const renderMainSection = () => {

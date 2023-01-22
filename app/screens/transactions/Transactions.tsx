@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import { MainPath } from '../../routerPaths';
 import { BackButton } from '../../components/common';
 import {
   TxRow,
@@ -174,7 +175,11 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   return (
     <Wrapper>
-      <BackButton action={history.goBack} width={7} height={10} />
+      <BackButton
+        action={() => history.push(MainPath.Wallet)}
+        width={7}
+        height={10}
+      />
       <WrapperWith2SideBars
         width={680}
         header="TRANSACTION LOG"

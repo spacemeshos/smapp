@@ -38,24 +38,37 @@ const Dots = styled.div`
 `;
 
 type Props = {
-  modify: () => void;
-  deleteData: () => void;
+  modify?: () => void;
+  deleteData?: () => void;
+  editPos?: () => void;
 };
 
-const PoSModifyPostData = ({ modify, deleteData }: Props) => (
+const PoSModifyPostData = ({ modify, editPos, deleteData }: Props) => (
   <>
     <Wrapper>
       <Row>
-        <Text>Change your PoS data</Text>
+        <Text>Change your PoS directory & Settings</Text>
         <Tooltip width={200} text="Some text" />
         <Dots>.....................................................</Dots>
-        <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
+        {modify && (
+          <Button onClick={modify} text="REPLACE POS" isPrimary={false} />
+        )}
+      </Row>
+      <Row>
+        <Text>Editing PoS settings</Text>
+        <Tooltip width={200} text="Editing PoS settings" />
+        <Dots>.....................................................</Dots>
+        {editPos && (
+          <Button onClick={editPos} text="EDIT POS" isPrimary={false} />
+        )}
       </Row>
       <Row>
         <Text>Stop smeshing and delete PoS data</Text>
         <Tooltip width={200} text="Some text" />
         <Dots>.....................................................</Dots>
-        <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
+        {deleteData && (
+          <Button onClick={deleteData} text="DELETE DATA" isPrimary={false} />
+        )}
       </Row>
     </Wrapper>
   </>

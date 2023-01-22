@@ -15,7 +15,6 @@ import {
   PoSProvider,
   PoSSummary,
 } from '../../components/node';
-import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
 import { formatBytes } from '../../infra/utils';
 import { BITS, RootState } from '../../types';
@@ -26,6 +25,7 @@ import {
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
+import { hideSmesherLeftPanel } from '../../redux/ui/actions';
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,9 +65,24 @@ interface Props extends RouteComponentProps {
     hash: string;
     pathname: string;
     search: string;
-    state: { modifyPostData: boolean };
+    state: {
+      modifyPostData?: boolean;
+      modifyPoSSettings?: boolean;
+    };
   };
 }
+
+const selectModeByLocationState = (state: Props['location']['state']) => {
+  if (state?.modifyPoSSettings) {
+    return 2;
+  }
+
+  if (state?.modifyPostData) {
+    return 1;
+  }
+
+  return 0;
+};
 
 const NodeSetup = ({ history, location }: Props) => {
   const dispatch = useDispatch();
@@ -80,17 +95,16 @@ const NodeSetup = ({ history, location }: Props) => {
     (state: RootState) => state.smesher.dataDir
   );
   const smesherConfig = useSelector((state: RootState) => state.smesher.config);
-  const hideSmesherLeftPanel = useSelector(
+  const isHideSmesherLeftPanel = useSelector(
     (state: RootState) => state.ui.hideSmesherLeftPanel
   );
-  const [mode, setMode] = useState(location?.state?.modifyPostData ? 0 : 1);
+  const [mode, setMode] = useState(selectModeByLocationState(location?.state));
   const [dataDir, setDataDir] = useState(existingDataDir || '');
   const [freeSpace, setFreeSpace] = useState('');
   const [numUnits, setNumUnits] = useState(0);
   const [provider, setProvider] = useState<PostSetupComputeProvider>();
   const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
-
   const commitmentSize =
     (smesherConfig.labelsPerUnit *
       smesherConfig.bitsPerLabel *
@@ -114,7 +128,6 @@ const NodeSetup = ({ history, location }: Props) => {
     </>
   );
   const subHeader = mode !== 1 ? subHeaders[mode] : getPosDirectorySubheader();
-  const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
     if (!provider) return; // TODO
@@ -143,6 +156,7 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handleModifyPosData = async () => {
+    dispatch(hideSmesherLeftPanel());
     await dispatch(pauseSmeshing());
     handleNextAction();
   };
@@ -153,11 +167,17 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handlePrevAction = () => {
-    if (mode === 0) {
-      history.goBack();
-    } else {
-      setMode(mode - 1);
+    if (location?.state?.modifyPoSSettings && mode !== 0) {
+      mode > 2 ? setMode(mode - 1) : setMode(0);
+      return;
     }
+
+    if (mode === 0 || mode === 1) {
+      history.push(MainPath.Smeshing);
+      return;
+    }
+
+    setMode(mode - 1);
   };
 
   const renderRightSection = () => {
@@ -167,6 +187,13 @@ const NodeSetup = ({ history, location }: Props) => {
           <PoSModifyPostData
             modify={handleModifyPosData}
             deleteData={handleDeletePosData}
+            editPos={() => {
+              dispatch(hideSmesherLeftPanel());
+              history.replace(MainPath.SmeshingSetup, {
+                modifyPoSSettings: true,
+              });
+              setMode(2);
+            }}
           />
         );
       case 1:
@@ -256,20 +283,14 @@ const NodeSetup = ({ history, location }: Props) => {
 
   return (
     <Wrapper>
-      {!hideSmesherLeftPanel && (
-        <StepsContainer
-          steps={['SETUP WALLET', 'SETUP PROOF OF SPACE']}
-          currentStep={1}
-        />
-      )}
       <CorneredContainer
-        width={!hideSmesherLeftPanel ? 650 : 760}
+        width={!isHideSmesherLeftPanel ? 650 : 760}
         height={450}
         header={headers[mode]}
         headerIcon={posIcon}
         subHeader={subHeader}
       >
-        {hasBackButton && <BackButton action={handlePrevAction} />}
+        <BackButton action={handlePrevAction} />
         {renderRightSection()}
       </CorneredContainer>
     </Wrapper>

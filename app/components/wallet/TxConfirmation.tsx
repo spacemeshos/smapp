@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { SecondaryButton, Link, Button, BoldText } from '../../basicComponents';
 import { chevronLeftWhite } from '../../assets/images';
@@ -117,7 +118,7 @@ type Props = {
   isDisabled: boolean;
   doneAction: () => void;
   editTx: () => void;
-  cancelTx: () => void;
+  backButtonRoute: string;
 };
 
 const TxConfirmation = ({
@@ -125,8 +126,10 @@ const TxConfirmation = ({
   isDisabled,
   doneAction,
   editTx,
-  cancelTx,
+  backButtonRoute,
 }: Props) => {
+  const history = useHistory();
+
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
   const renderFieldValue = (field: TxConfirmationField) => {
     switch (field.type) {
@@ -137,12 +140,15 @@ const TxConfirmation = ({
         return <DetailsTextLeft>{field.value}</DetailsTextLeft>;
     }
   };
+  const cancelButton = () => {
+    history.replace(backButtonRoute);
+  };
   return (
     <Wrapper>
       <Header>
         <HeaderText>Send SMH</HeaderText>
         <Link
-          onClick={cancelTx}
+          onClick={cancelButton}
           text="CANCEL TRANSACTION"
           style={{ color: smColors.orange }}
         />
