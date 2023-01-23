@@ -1,3 +1,4 @@
+import { curry } from 'ramda';
 import filterAddresses from '../../../shared/filterAddresses';
 import { HexString, Tx, Reward } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
@@ -35,7 +36,7 @@ export const getContacts = (state: RootState): Record<HexString, string> =>
   state.wallet.contacts.reduce(
     (acc, contact) => ({
       ...acc,
-      [contact.address.slice(2).toLowerCase()]: contact.nickname,
+      [contact.address.toLowerCase()]: contact.nickname,
     }),
     {}
   );
@@ -96,7 +97,7 @@ const patchWithContacts = <T extends Tx | (Tx & WithTimestamp)>(
     contacts: filterAddresses(tx).reduce((acc, next) => {
       const c = contacts[next.toLowerCase()];
       if (!c) return acc;
-      return { [next]: c };
+      return { ...acc, [next]: c };
     }, <Record<string, string>>{}),
   }));
 };
@@ -108,13 +109,13 @@ const getTransactionsRaw = (publicKey: HexString, state: RootState) =>
     Object.values(state.wallet.transactions[publicKey])) ||
   [];
 
-export const getTransactions = (publicKey: HexString) => (
-  state: RootState
-): TxView[] => {
-  const txs = getTransactionsRaw(publicKey, state);
-  const txsWithTime = patchWithTimestamp(txs, state);
-  return patchWithContacts(txsWithTime, state);
-};
+export const getTransactions = curry(
+  (publicKey: HexString) => (state: RootState): TxView[] => {
+    const txs = getTransactionsRaw(publicKey, state);
+    const txsWithTime = patchWithTimestamp(txs, state);
+    return patchWithContacts(txsWithTime, state);
+  }
+);
 
 const getRewardsRaw = (publicKey: HexString, state: RootState) =>
   (state.wallet.rewards[publicKey] &&

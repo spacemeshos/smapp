@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { MutableRefObject, RefObject, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
+import useVirtual from 'react-cool-virtual';
 import { MainPath } from '../../routerPaths';
 import { BackButton } from '../../components/common';
 import {
@@ -18,6 +19,8 @@ import {
 } from '../../basicComponents';
 import { RootState } from '../../types';
 import {
+  getRewards,
+  getTransactions,
   getTxAndRewards,
   RewardView,
   TxView,
@@ -123,7 +126,17 @@ const Transactions = ({ history }: RouteComponentProps) => {
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
-  const transactions = useSelector(getTxAndRewards(address));
+  const transactions = useSelector((state: RootState) => {
+    switch (txFilter) {
+      case TxFilter.Transactions:
+        return getTransactions(address)(state);
+      case TxFilter.Rewards:
+        return getRewards(address)(state);
+      default:
+      case TxFilter.All:
+        return getTxAndRewards(address)(state);
+    }
+  });
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
     const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
@@ -147,11 +160,10 @@ const Transactions = ({ history }: RouteComponentProps) => {
     setSelectedTimeSpan(index);
   };
 
-  const filterTransactions = () => {
-    const oneDayInMs = 86400000;
-    const spanInDays = TIME_SPANS[selectedTimeSpan].days || 1;
-    const startDate = Date.now() - spanInDays * oneDayInMs;
-    return transactions.filter(
+  const filterLastDays = (txs: (TxView | RewardView)[], days = 1) => {
+    const oneDayInMs = 1000 * 60 * 60 * 24;
+    const startDate = Date.now() - days * oneDayInMs;
+    return txs.filter(
       (tx) => (tx.timestamp && tx.timestamp >= startDate) || !tx.timestamp
     );
   };
@@ -162,8 +174,22 @@ const Transactions = ({ history }: RouteComponentProps) => {
 
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
 
-  const filteredTransactions = filterTransactions();
+  const filteredTransactions = filterLastDays(
+    transactions,
+    TIME_SPANS[selectedTimeSpan].days
+  );
   const coinStats = getCoinStatistics(filteredTransactions);
+
+  const { outerRef, innerRef, items } = useVirtual({
+    itemCount: transactions.length,
+    itemSize: 60,
+  });
+  const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
+    el: HTMLElement | null
+  ) => {
+    ref.current = el;
+  };
+
   const {
     mined,
     sent,
@@ -195,28 +221,41 @@ const Transactions = ({ history }: RouteComponentProps) => {
             dark
           />
         </FilterDropDownWrapper>
-        <TransactionsListWrapper>
-          {transactions && transactions.length ? (
-            transactions.map((tx: TxView | RewardView) =>
-              isReward(tx) ? (
-                <RewardRow
-                  key={`${address}_reward_${tx.layer}`}
-                  address={address}
-                  tx={tx}
-                  isHidden={txFilter === TxFilter.Transactions}
-                />
-              ) : (
-                <TxRow
-                  key={`tx_${tx.id}`}
-                  tx={tx}
-                  address={address}
-                  addAddressToContacts={({ address }) => address}
-                  isHidden={txFilter === TxFilter.Rewards}
-                />
-              )
-            )
-          ) : (
+        <TransactionsListWrapper ref={setRef(outerRef)}>
+          {!(transactions && transactions.length) ? (
             <Text>No transactions yet.</Text>
+          ) : (
+            <div ref={setRef(innerRef)}>
+              {items.map(({ index, measureRef }) => {
+                const tx = transactions[index];
+                if (!tx) return null;
+                const isRew = isReward(tx);
+                const key = [
+                  address,
+                  tx.layer,
+                  isRew ? 'reward' : 'tx',
+                  isRew ? tx.amount : tx.id,
+                ].join('_');
+                return (
+                  <div key={key} ref={measureRef}>
+                    {isReward(tx) ? (
+                      <RewardRow
+                        key={`${address}_reward_${tx.layer}`}
+                        address={address}
+                        tx={tx}
+                      />
+                    ) : (
+                      <TxRow
+                        key={`tx_${tx.id}`}
+                        tx={tx}
+                        address={address}
+                        addToContacts={(addr) => setAddressToAdd(addr)}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </TransactionsListWrapper>
         <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDE" />

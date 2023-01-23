@@ -13,6 +13,7 @@ import {
 } from '../../infra/utils';
 import getStatusColor from '../../vars/getStatusColor';
 import { TxView } from '../../redux/wallet/selectors';
+import { Bech32Address } from '../../../shared/types';
 
 const Wrapper = styled.div<{ isDetailed: boolean; isHidden: boolean }>`
   display: flex;
@@ -181,8 +182,8 @@ const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 type Props = {
   tx: TxView;
   address: string;
-  addAddressToContacts: ({ address }: { address: string }) => void;
   isHidden?: boolean;
+  addToContacts?: (address: Bech32Address) => void;
 };
 
 type RowProps = React.PropsWithChildren<{
@@ -213,7 +214,12 @@ const flatten = (
     return [...acc, ...nextVal];
   }, [] as any[]);
 
-const renderPayloadRow = (k: string, v: any, tx: TxView) => {
+const renderPayloadRow = (
+  k: string,
+  v: any,
+  tx: TxView,
+  opts: Record<string, any>
+) => {
   switch (k) {
     case 'Destination':
     case 'PublicKey': {
@@ -223,6 +229,9 @@ const renderPayloadRow = (k: string, v: any, tx: TxView) => {
             address={v}
             overlapText={tx.contacts[v]}
             isHex={v.startsWith('0x')}
+            addToContacts={
+              (!tx.contacts[v.toLowerCase()] && opts.addToContacts) || undefined
+            }
           />
         );
       }
@@ -236,12 +245,12 @@ const renderPayloadRow = (k: string, v: any, tx: TxView) => {
       return v;
   }
 };
-const renderTxPayload = (tx: TxView) => {
+const renderTxPayload = (tx: TxView, opts: Record<string, any>) => {
   const { payload } = tx;
   const data = flatten(payload);
   const rows = data.map(([k, v]) => (
     <Row title={k} key={`TxPayloadRow_${k}`}>
-      {renderPayloadRow(k, v, tx)}
+      {renderPayloadRow(k, v, tx, opts)}
     </Row>
   ));
   return <>{rows}</>;
@@ -251,12 +260,7 @@ const TxStatusBulb = styled(NetworkIndicator)`
   margin-left: auto;
 `;
 
-const TxRow = ({
-  tx,
-  address,
-  addAddressToContacts,
-  isHidden = false,
-}: Props) => {
+const TxRow = ({ tx, address, isHidden = false, addToContacts }: Props) => {
   const note = tx.note || '';
 
   const [isDetailed, setIsDetailed] = useState(false);
@@ -296,9 +300,7 @@ const TxRow = ({
           suffix={txFromSuffix}
           overlapText={tx.contacts[txFrom]}
           addToContacts={
-            isSent && !txFromSuffix
-              ? ({ address }) => addAddressToContacts({ address })
-              : undefined
+            !isSent && !tx.contacts[txFrom] ? addToContacts : undefined
           }
         />
       </Row>
@@ -317,7 +319,7 @@ const TxRow = ({
         {TX_STATE_LABELS[tx.status]}
       </Row>
       {tx.layer && <Row title="LAYER ID">{tx.layer}</Row>}
-      {renderTxPayload(tx)}
+      {renderTxPayload(tx, { addToContacts })}
       <Row title="FEE">{formatSmidge(tx.gas.fee)}</Row>
       <Row title="NOTE">
         {note ? `${note}` : 'NO NOTE'}

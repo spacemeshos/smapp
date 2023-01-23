@@ -202,6 +202,7 @@
     "ramda": "^0.28.0",
     "react": "17.0.2",
     "react-beautiful-dnd": "^13.1.1",
+    "react-cool-virtual": "^0.7.0",
     "react-dom": "17.0.2",
     "react-redux": "7.2.3",
     "react-router": "5.2.0",
