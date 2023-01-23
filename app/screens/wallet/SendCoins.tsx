@@ -1,4 +1,3 @@
-// @flow
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -114,7 +113,7 @@ const SendCoins = ({ history, location }: Props) => {
           updateFee={updateFee}
           note={note}
           updateTxNote={updateTxNote}
-          cancelTx={history.goBack}
+          backButtonRoute={MainPath.Wallet}
           nextAction={proceedToMode2}
           contacts={contacts}
           key="params"
@@ -179,7 +178,7 @@ const SendCoins = ({ history, location }: Props) => {
           isDisabled={!status?.isSynced}
           doneAction={handleSendTransaction}
           editTx={() => setMode(1)}
-          cancelTx={history.goBack}
+          backButtonRoute={MainPath.Wallet}
         />
       );
     }
@@ -202,7 +201,7 @@ const SendCoins = ({ history, location }: Props) => {
             },
           ]}
           txId={txId}
-          doneAction={history.goBack}
+          doneButtonRoute={MainPath.Wallet}
           navigateToTxList={() => history.replace(MainPath.Transactions)}
         />
       );

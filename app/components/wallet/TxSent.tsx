@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link, Button } from '../../basicComponents';
 import { fireworksImg, doneIconGreen } from '../../assets/images';
@@ -102,12 +103,16 @@ export type TxSentField = {
 type Props = {
   fields: TxSentField[];
   txId: string;
-  doneAction: () => void;
   navigateToTxList: () => void;
+  doneButtonRoute: string;
 };
 
-const TxSent = ({ fields, txId, doneAction, navigateToTxList }: Props) => {
+const TxSent = ({ fields, txId, navigateToTxList, doneButtonRoute }: Props) => {
   const navigateToGuide = () => window.open(ExternalLinks.SendCoinGuide);
+  const history = useHistory();
+  const doneButton = () => {
+    history.replace(doneButtonRoute);
+  };
   return (
     <Wrapper>
       <Header>
@@ -144,7 +149,7 @@ const TxSent = ({ fields, txId, doneAction, navigateToTxList }: Props) => {
             width={170}
             style={{ marginRight: 20 }}
           />
-          <Button onClick={doneAction} text="DONE" />
+          <Button onClick={doneButton} text="DONE" />
         </ButtonsBlock>
       </Footer>
     </Wrapper>

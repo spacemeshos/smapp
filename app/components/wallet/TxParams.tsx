@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   Link,
@@ -113,8 +114,8 @@ type Props = {
   note: string;
   updateTxNote: ({ value }: { value: any }) => void;
   nextAction: () => void;
-  cancelTx: () => void;
   contacts: Contact[];
+  backButtonRoute: string;
 };
 
 const TxParams = ({
@@ -131,8 +132,8 @@ const TxParams = ({
   updateTxNote,
   updateFee,
   nextAction,
-  cancelTx,
   contacts,
+  backButtonRoute,
 }: Props) => {
   const [selectedFeeIndex, setSelectedFeeIndex] = useState(0);
 
@@ -147,13 +148,17 @@ const TxParams = ({
     (value) => updateTxAmount(parseFloat(value)),
     [updateTxAmount]
   );
+  const history = useHistory();
+  const cancelButton = () => {
+    history.replace(backButtonRoute);
+  };
 
   return (
     <Wrapper>
       <Header>
         <HeaderText>Send SMH</HeaderText>
         <Link
-          onClick={cancelTx}
+          onClick={cancelButton}
           text="CANCEL TRANSACTION"
           style={{ color: smColors.orange }}
         />

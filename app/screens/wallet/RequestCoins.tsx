@@ -158,7 +158,7 @@ const RequestCoins = ({ history, location }: Props) => {
       )}
       <Footer>
         <Link onClick={navigateToGuide} text="REQUEST SMH GUIDE" />
-        <Button onClick={history.goBack} text="DONE" />
+        <Button onClick={() => history.push(MainPath.Wallet)} text="DONE" />
       </Footer>
     </Wrapper>
   );

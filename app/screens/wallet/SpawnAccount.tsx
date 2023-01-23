@@ -1,4 +1,3 @@
-// @flow
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
@@ -228,7 +227,7 @@ const SpawnAccount = ({ history }: Props) => {
           isDisabled={!status?.isSynced}
           doneAction={handleSendTransaction}
           editTx={() => setMode(1)}
-          cancelTx={history.goBack}
+          backButtonRoute={MainPath.Wallet}
         />
       );
     }
@@ -247,7 +246,7 @@ const SpawnAccount = ({ history }: Props) => {
             },
           ]}
           txId={txId}
-          doneAction={history.goBack}
+          doneButtonRoute={MainPath.Wallet}
           navigateToTxList={() => history.replace(MainPath.Transactions)}
         />
       );
