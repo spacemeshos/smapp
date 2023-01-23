@@ -154,7 +154,7 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const handlePrevAction = () => {
     if (mode === 0) {
-      history.push(MainPath.Smeshing);
+      history.replace(MainPath.Smeshing);
     } else {
       setMode(mode - 1);
     }

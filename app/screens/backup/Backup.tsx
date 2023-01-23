@@ -14,7 +14,7 @@ const Wrapper = styled.div`
 const Backup = ({ history }: RouteComponentProps) => (
   <Wrapper>
     <BackButton
-      action={() => history.push(MainPath.Wallet)}
+      action={() => history.replace(MainPath.Wallet)}
       width={7}
       height={10}
     />

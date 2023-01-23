@@ -176,7 +176,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   return (
     <Wrapper>
       <BackButton
-        action={() => history.push(MainPath.Wallet)}
+        action={() => history.replace(MainPath.Wallet)}
         width={7}
         height={10}
       />
