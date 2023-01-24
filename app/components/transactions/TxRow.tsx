@@ -182,6 +182,7 @@ const formatTxId = (id: string | undefined) => id && `0x${id.substring(0, 6)}`;
 type Props = {
   tx: TxView;
   address: string;
+  contacts: Record<string, string>;
   isHidden?: boolean;
   addToContacts?: (address: Bech32Address) => void;
 };
@@ -214,23 +215,19 @@ const flatten = (
     return [...acc, ...nextVal];
   }, [] as any[]);
 
-const renderPayloadRow = (
-  k: string,
-  v: any,
-  tx: TxView,
-  opts: Record<string, any>
-) => {
+const renderPayloadRow = (k: string, v: any, opts: Record<string, any>) => {
   switch (k) {
     case 'Destination':
     case 'PublicKey': {
       if (typeof v === 'string') {
+        const isHex = v.startsWith('0x');
         return (
           <Address
             address={v}
-            overlapText={tx.contacts[v]}
-            isHex={v.startsWith('0x')}
+            suffix={opts.contacts[v] && `(${opts.contacts[v]})`}
+            isHex={isHex}
             addToContacts={
-              (!tx.contacts[v.toLowerCase()] && opts.addToContacts) || undefined
+              (!isHex && !opts.contacts[v] && opts.addToContacts) || undefined
             }
           />
         );
@@ -250,7 +247,7 @@ const renderTxPayload = (tx: TxView, opts: Record<string, any>) => {
   const data = flatten(payload);
   const rows = data.map(([k, v]) => (
     <Row title={k} key={`TxPayloadRow_${k}`}>
-      {renderPayloadRow(k, v, tx, opts)}
+      {renderPayloadRow(k, v, { tx, ...opts })}
     </Row>
   ));
   return <>{rows}</>;
@@ -260,7 +257,13 @@ const TxStatusBulb = styled(NetworkIndicator)`
   margin-left: auto;
 `;
 
-const TxRow = ({ tx, address, isHidden = false, addToContacts }: Props) => {
+const TxRow = ({
+  tx,
+  address,
+  contacts,
+  isHidden = false,
+  addToContacts,
+}: Props) => {
   const note = tx.note || '';
 
   const [isDetailed, setIsDetailed] = useState(false);
@@ -285,7 +288,10 @@ const TxRow = ({ tx, address, isHidden = false, addToContacts }: Props) => {
   };
 
   const txFrom = isSent ? address : tx.principal;
-  const txFromSuffix = (isSent && '(Me)') || undefined;
+  const txFromSuffix =
+    (isSent && '(Me)') ||
+    (contacts[txFrom] && `(${contacts[txFrom]})`) ||
+    undefined;
 
   const isSpendTransaction = !!tx.payload?.Arguments?.Destination;
 
@@ -298,9 +304,8 @@ const TxRow = ({ tx, address, isHidden = false, addToContacts }: Props) => {
         <Address
           address={txFrom}
           suffix={txFromSuffix}
-          overlapText={tx.contacts[txFrom]}
           addToContacts={
-            !isSent && !tx.contacts[txFrom] ? addToContacts : undefined
+            !isSent && !contacts[txFrom] ? addToContacts : undefined
           }
         />
       </Row>
@@ -319,7 +324,7 @@ const TxRow = ({ tx, address, isHidden = false, addToContacts }: Props) => {
         {TX_STATE_LABELS[tx.status]}
       </Row>
       {tx.layer && <Row title="LAYER ID">{tx.layer}</Row>}
-      {renderTxPayload(tx, { addToContacts })}
+      {renderTxPayload(tx, { addToContacts, contacts })}
       <Row title="FEE">{formatSmidge(tx.gas.fee)}</Row>
       <Row title="NOTE">
         {note ? `${note}` : 'NO NOTE'}

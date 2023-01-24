@@ -134,8 +134,7 @@ type Props = {
 
 const RewardRow = ({ tx, address, isHidden = false }: Props) => {
   const [isDetailed, setIsDetailed] = useState(false);
-
-  const { layer, layerReward, amount, timestamp } = tx;
+  const { layer, layerReward, amount } = tx;
 
   const toggleTxDetails = () => {
     setIsDetailed(!isDetailed);
@@ -179,7 +178,7 @@ const RewardRow = ({ tx, address, isHidden = false }: Props) => {
             <Amount color={smColors.darkerGreen}>
               +{formatSmidge(amount)}
             </Amount>
-            <DarkGrayText>{getFormattedTimestamp(timestamp)}</DarkGrayText>
+            <DarkGrayText>{getFormattedTimestamp(tx.timestamp)}</DarkGrayText>
           </HeaderSection>
         </HeaderInner>
       </Header>

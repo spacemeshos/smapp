@@ -1,4 +1,4 @@
-import React, { MutableRefObject, RefObject, useState } from 'react';
+import React, { MutableRefObject, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -19,6 +19,7 @@ import {
 } from '../../basicComponents';
 import { RootState } from '../../types';
 import {
+  getContacts,
   getRewards,
   getTransactions,
   getTxAndRewards,
@@ -117,6 +118,66 @@ const TX_FILTERS = [
   { label: 'rewards', filter: TxFilter.Rewards },
 ];
 
+const TransactionList = ({
+  address,
+  transactions,
+  contacts,
+  setAddressToAdd,
+}: {
+  address: Bech32Address;
+  transactions: (TxView | RewardView)[];
+  contacts: Record<Bech32Address, string>;
+  setAddressToAdd: (a: Bech32Address) => void;
+}) => {
+  const { outerRef, innerRef, items } = useVirtual({
+    itemCount: transactions.length,
+    itemSize: 60,
+  });
+  const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
+    el: HTMLElement | null
+  ) => {
+    ref.current = el;
+  };
+
+  return (
+    <TransactionsListWrapper ref={setRef(outerRef)}>
+      {!(transactions && transactions.length) ? (
+        <Text>No transactions yet.</Text>
+      ) : (
+        <div ref={setRef(innerRef)}>
+          {items.map(({ index, measureRef }) => {
+            const tx = transactions[index];
+            if (!tx) return null;
+            const isRew = isReward(tx);
+            const key = [address, tx.layer, isRew ? tx.amount : tx.id].join(
+              '_'
+            );
+            return (
+              <div key={key} ref={measureRef}>
+                {isReward(tx) ? (
+                  <RewardRow
+                    key={`${address}_reward_${tx.layer}`}
+                    address={address}
+                    tx={tx}
+                  />
+                ) : (
+                  <TxRow
+                    key={`tx_${tx.id}`}
+                    tx={tx}
+                    address={address}
+                    contacts={contacts}
+                    addToContacts={(addr) => setAddressToAdd(addr)}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </TransactionsListWrapper>
+  );
+};
+
 const Transactions = ({ history }: RouteComponentProps) => {
   const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
@@ -129,14 +190,15 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const transactions = useSelector((state: RootState) => {
     switch (txFilter) {
       case TxFilter.Transactions:
-        return getTransactions(address)(state);
+        return getTransactions(address, state);
       case TxFilter.Rewards:
-        return getRewards(address)(state);
+        return getRewards(address, state);
       default:
       case TxFilter.All:
-        return getTxAndRewards(address)(state);
+        return getTxAndRewards(address, state);
     }
   });
+  const contacts = useSelector(getContacts);
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
     const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
@@ -180,16 +242,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
   );
   const coinStats = getCoinStatistics(filteredTransactions);
 
-  const { outerRef, innerRef, items } = useVirtual({
-    itemCount: transactions.length,
-    itemSize: 60,
-  });
-  const setRef = (ref: MutableRefObject<HTMLElement | null>) => (
-    el: HTMLElement | null
-  ) => {
-    ref.current = el;
-  };
-
   const {
     mined,
     sent,
@@ -221,43 +273,12 @@ const Transactions = ({ history }: RouteComponentProps) => {
             dark
           />
         </FilterDropDownWrapper>
-        <TransactionsListWrapper ref={setRef(outerRef)}>
-          {!(transactions && transactions.length) ? (
-            <Text>No transactions yet.</Text>
-          ) : (
-            <div ref={setRef(innerRef)}>
-              {items.map(({ index, measureRef }) => {
-                const tx = transactions[index];
-                if (!tx) return null;
-                const isRew = isReward(tx);
-                const key = [
-                  address,
-                  tx.layer,
-                  isRew ? 'reward' : 'tx',
-                  isRew ? tx.amount : tx.id,
-                ].join('_');
-                return (
-                  <div key={key} ref={measureRef}>
-                    {isReward(tx) ? (
-                      <RewardRow
-                        key={`${address}_reward_${tx.layer}`}
-                        address={address}
-                        tx={tx}
-                      />
-                    ) : (
-                      <TxRow
-                        key={`tx_${tx.id}`}
-                        tx={tx}
-                        address={address}
-                        addToContacts={(addr) => setAddressToAdd(addr)}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </TransactionsListWrapper>
+        <TransactionList
+          address={address}
+          transactions={transactions}
+          contacts={contacts}
+          setAddressToAdd={setAddressToAdd}
+        />
         <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDE" />
       </WrapperWith2SideBars>
       {addressToAdd ? (
