@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect, Route, Switch, RouteComponentProps } from 'react-router-dom';
 import styled from 'styled-components';
+import { MainPath } from '../../routerPaths';
 import routes from '../../routes';
 import { BackButton } from '../../components/common';
 
@@ -12,7 +13,11 @@ const Wrapper = styled.div`
 
 const Backup = ({ history }: RouteComponentProps) => (
   <Wrapper>
-    <BackButton action={history.goBack} width={7} height={10} />
+    <BackButton
+      action={() => history.replace(MainPath.Wallet)}
+      width={7}
+      height={10}
+    />
     <Switch>
       {routes.backup.map((route) => (
         <Route
