@@ -12,6 +12,7 @@ import {
   delay,
   isLocalNodeType,
   isRemoteNodeApi,
+  toHexString,
   toSocketAddress,
 } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
@@ -20,12 +21,12 @@ import { CurrentLayer, GlobalStateHash } from '../app/types/events';
 import MeshService from './MeshService';
 import GlobalStateService from './GlobalStateService';
 import TransactionManager from './TransactionManager';
-import cryptoService from './cryptoService';
 import NodeManager from './NodeManager';
 import TransactionService from './TransactionService';
 import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 import AbstractManager from './AbstractManager';
+import { sign } from './ed25519';
 
 const logger = Logger({ className: 'WalletManager' });
 
@@ -103,14 +104,21 @@ class WalletManager extends AbstractManager {
       await this.txManager.updateTxNote(request);
       return true;
     });
-    ipcMain.handle(ipcConsts.W_M_SIGN_MESSAGE, async (_event, request) => {
-      const { message, accountIndex } = request;
 
-      return cryptoService.signMessage({
-        message,
-        secretKey: this.txManager.keychain[accountIndex].secretKey,
-      });
-    });
+    const enc = new TextEncoder();
+    ipcMain.handle(
+      ipcConsts.W_M_SIGN_MESSAGE,
+      async (
+        _event,
+        { message, accountIndex }: { message: string; accountIndex: number }
+      ) =>
+        toHexString(
+          sign(
+            enc.encode(message),
+            this.txManager.keychain[accountIndex].secretKey
+          )
+        )
+    );
 
     return () => {
       ipcMain.removeHandler(ipcConsts.W_M_GET_CURRENT_LAYER);

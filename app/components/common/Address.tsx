@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled, { keyframes, useTheme } from 'styled-components';
 
-import { HexString } from '../../../shared/types';
+import { Bech32Address, HexString } from '../../../shared/types';
 import {
   ensure0x,
   getAbbreviatedAddress,
@@ -91,7 +91,7 @@ type Props = {
   full?: boolean; // Full length address or abbreviated. Default: false (abbreviated).
   hideCopy?: boolean; // Hide copy icon. Default: false
   hideExplorer?: boolean; // Hide explorer icon. Default: false
-  addToContacts?: ({ address }: { address: string }) => void; // If function exists — it shows up add contact icon. Default: undefined
+  addToContacts?: (address: Bech32Address) => void; // If function exists — it shows up add contact icon. Default: undefined
 };
 
 const Address = (props: Props) => {
@@ -138,7 +138,7 @@ const Address = (props: Props) => {
 
   const handleAddToContacts = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToContacts && addToContacts({ address: addr });
+    addToContacts && addToContacts(addr);
   };
 
   const textToShow =

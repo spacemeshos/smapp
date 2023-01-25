@@ -1,4 +1,4 @@
-import filterAddresses from '../../../shared/filterAddresses';
+import { curry } from 'ramda';
 import { HexString, Tx, Reward } from '../../../shared/types';
 import { isWalletOnlyType } from '../../../shared/utils';
 import { RootState } from '../../types';
@@ -11,12 +11,11 @@ export const isWalletOnly = (state: RootState) =>
 // ======================
 // Types
 // ======================
-type WithTimestamp = { timestamp: number | null };
-type WithContacts = {
-  contacts: Record<string, string>;
+type WithTimestamp = {
+  timestamp: number | null;
 };
 
-export type TxView = Tx & WithTimestamp & WithContacts;
+export type TxView = Tx & WithTimestamp;
 export type RewardView = Reward & WithTimestamp;
 
 // ======================
@@ -35,7 +34,7 @@ export const getContacts = (state: RootState): Record<HexString, string> =>
   state.wallet.contacts.reduce(
     (acc, contact) => ({
       ...acc,
-      [contact.address.slice(2).toLowerCase()]: contact.nickname,
+      [contact.address.toLowerCase()]: contact.nickname,
     }),
     {}
   );
@@ -66,39 +65,24 @@ export const sortTransactions = <T extends Tx | Reward | TxView | RewardView>(
   });
 
 // Get timestamp from layer number
-const getTxTimestamp = (
-  genesisTime: string,
+const getLayerTimestamp = (
+  genesisMs: number,
   layerDurationSec: number,
-  tx: Tx | Reward
-) =>
-  (tx.layer &&
-    new Date(genesisTime).getTime() + tx.layer * layerDurationSec * 1000) ||
-  null;
+  layer: number
+) => genesisMs + layer * layerDurationSec * 1000;
 
 const patchWithTimestamp = <T extends Tx | Reward>(
   txs: T[],
   state: RootState
 ): (T & WithTimestamp)[] => {
   const { genesisTime, layerDurationSec } = getNetworkInfo(state);
-  return txs.map((tx) => ({
-    ...tx,
-    timestamp: getTxTimestamp(genesisTime, layerDurationSec, tx),
-  }));
-};
-
-const patchWithContacts = <T extends Tx | (Tx & WithTimestamp)>(
-  txs: T[],
-  state: RootState
-): (T & WithContacts)[] => {
-  const contacts = getContacts(state);
-  return txs.map((tx) => ({
-    ...tx,
-    contacts: filterAddresses(tx).reduce((acc, next) => {
-      const c = contacts[next.toLowerCase()];
-      if (!c) return acc;
-      return { [next]: c };
-    }, <Record<string, string>>{}),
-  }));
+  const genesisMs = new Date(genesisTime).getTime();
+  return txs.map((tx) => {
+    const timestamp =
+      (tx.layer && getLayerTimestamp(genesisMs, layerDurationSec, tx.layer)) ||
+      null;
+    return { ...tx, timestamp };
+  });
 };
 
 // Getters
@@ -108,33 +92,33 @@ const getTransactionsRaw = (publicKey: HexString, state: RootState) =>
     Object.values(state.wallet.transactions[publicKey])) ||
   [];
 
-export const getTransactions = (publicKey: HexString) => (
-  state: RootState
-): TxView[] => {
-  const txs = getTransactionsRaw(publicKey, state);
-  const txsWithTime = patchWithTimestamp(txs, state);
-  return patchWithContacts(txsWithTime, state);
-};
+export const getTransactions = curry(
+  (publicKey: HexString, state: RootState): TxView[] => {
+    const txs = getTransactionsRaw(publicKey, state);
+    return patchWithTimestamp(txs, state);
+  }
+);
 
 const getRewardsRaw = (publicKey: HexString, state: RootState) =>
   (state.wallet.rewards[publicKey] &&
     Object.values(state.wallet.rewards[publicKey])) ||
   [];
 
-export const getRewards = (publicKey: HexString) => (
-  state: RootState
-): RewardView[] => {
-  const rewards = getRewardsRaw(publicKey, state);
-  return patchWithTimestamp(rewards, state);
-};
+export const getRewards = curry(
+  (publicKey: HexString, state: RootState): RewardView[] => {
+    const rewards = getRewardsRaw(publicKey, state);
+    return patchWithTimestamp(rewards, state);
+  }
+);
 
-export const getTxAndRewards = (publicKey: HexString) => (
-  state: RootState
-): (TxView | RewardView)[] => {
+export const getTxAndRewards = curry((publicKey: HexString, state: RootState): (
+  | TxView
+  | RewardView
+)[] => {
   const txs = getTransactions(publicKey)(state);
   const rewards = getRewards(publicKey)(state);
   return sortTransactions([...txs, ...rewards]);
-};
+});
 
 export const getLatestTransactions = (publicKey: HexString) => (
   state: RootState

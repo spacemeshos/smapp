@@ -11,6 +11,7 @@ import {
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import {
+  getContacts,
   getLatestTransactions,
   RewardView,
   TxView,
@@ -92,9 +93,10 @@ const LatestTransactions = ({ navigateToAllTransactions }: Props) => {
       state.wallet.accounts[state.wallet.currentAccountIndex]?.address
   );
   const latestTransactions = useSelector(getLatestTransactions(address));
+  const contacts = useSelector(getContacts);
 
   const renderTransaction = (tx: TxView) => {
-    const { id, status, timestamp, contacts, meta } = tx;
+    const { id, status, timestamp, meta } = tx;
     // TODO: Temporary solution until we don't support other account types
     const isSent =
       tx.method === SingleSigMethods.Spend && tx.principal === address;
