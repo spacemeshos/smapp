@@ -1,14 +1,15 @@
 import { ServiceError } from '@grpc/grpc-js';
 import { ProtoGrpcType } from '../proto/node';
 import {
+  asNodeError,
   NodeError,
   NodeErrorLevel,
   NodeStatus,
   PublicService,
   SocketAddress,
 } from '../shared/types';
-import { delay, longToNumber } from '../shared/utils';
-import NetServiceFactory, { Service } from './NetServiceFactory';
+import { longToNumber } from '../shared/utils';
+import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
 
 const PROTO_PATH = 'proto/node.proto';
@@ -20,36 +21,24 @@ const normalizeGrpcErrorToNodeError = (error: ServiceError): NodeError => ({
   msg: error.details,
   stackTrace: error.stack || '',
   module: 'NodeService',
-  level: NodeErrorLevel.LOG_LEVEL_ERROR,
+  level: NodeErrorLevel.LOG_LEVEL_WARN,
 });
-
-const asNodeError = (nodeError: NodeError): NodeError => nodeError;
 
 const LOST_CONNECTION_ERROR = asNodeError({
   msg: 'Lost connection with the Node. Reconnecting...',
-  level: NodeErrorLevel.LOG_LEVEL_DPANIC,
+  level: NodeErrorLevel.LOG_LEVEL_ERROR,
   module: 'NodeService',
-  stackTrace: '',
+  stackTrace: new Error().stack || '',
 });
 
-const CAN_NOT_CONNECT_ERROR = asNodeError({
-  msg: 'Node Service does not respond. Probably Node is down',
+const NODE_NOT_RESPONDING_ERROR = asNodeError({
+  msg: 'Can not connect to Node. Probably Node is down',
   level: NodeErrorLevel.LOG_LEVEL_FATAL,
   module: 'NodeService',
-  stackTrace: '',
+  stackTrace: new Error().stack || '',
 });
 
 class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
-  private statusStream: ReturnType<
-    Service<ProtoGrpcType, 'NodeService'>['StatusStream']
-  > | null = null;
-
-  private errorStream: ReturnType<
-    Service<ProtoGrpcType, 'NodeService'>['ErrorStream']
-  > | null = null;
-
-  private isShuttingDown = false;
-
   logger = Logger({ className: 'NodeService' });
 
   createService = (apiUrl?: SocketAddress | PublicService) => {
@@ -106,115 +95,56 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
         throw normalizeGrpcErrorToNodeError(error);
       });
 
-  shutdown = (): Promise<boolean> =>
-    this.callService('Shutdown', {})
-      .then(() => true)
-      .catch(() => false)
-      .then((res) => {
-        this.isShuttingDown = res;
-        return res;
-      });
-
   activateStatusStream = (
     statusHandler: StatusStreamHandler,
-    errorHandler: ErrorStreamHandler,
-    retries = 5
+    errorHandler: ErrorStreamHandler
   ) => {
-    if (!this.service) return;
-    this.cancelStatusStream();
-
-    this.statusStream = this.service.StatusStream({});
-    this.statusStream.on('data', (response: any) => {
-      const {
-        connectedPeers,
-        isSynced,
-        syncedLayer,
-        topLayer,
-        verifiedLayer,
-      } = response.status;
-      statusHandler({
-        connectedPeers: parseInt(connectedPeers),
-        isSynced: !!isSynced,
-        syncedLayer: syncedLayer.number,
-        topLayer: topLayer.number,
-        verifiedLayer: verifiedLayer.number,
-      });
-    });
-    this.statusStream.on('error', (error: ServiceError) => {
-      this.logger.error('grpc StatusStream', error);
-      errorHandler(normalizeGrpcErrorToNodeError(error));
-    });
-    this.statusStream.on('end', async () => {
-      console.log('StatusStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc StatusStream ended', null);
-      if (this.isShuttingDown) {
-        this.logger.log('grpc StatusStream shutted down', null);
-        return;
-      }
-      if (retries > 0) {
-        if (retries < 2) {
+    let errCount = 0;
+    return this.runStream(
+      'StatusStream',
+      {},
+      (response) => {
+        if (!response.status) return;
+        const {
+          connectedPeers,
+          isSynced,
+          syncedLayer,
+          topLayer,
+          verifiedLayer,
+        } = response.status;
+        statusHandler({
+          connectedPeers: longToNumber(connectedPeers || 0),
+          isSynced: !!isSynced,
+          syncedLayer: syncedLayer?.number || 0,
+          topLayer: topLayer?.number || 0,
+          verifiedLayer: verifiedLayer?.number || 0,
+        });
+        errCount = 0;
+      },
+      () => {
+        if (errCount === 5) {
+          errorHandler(NODE_NOT_RESPONDING_ERROR);
+        } else if (errCount === 3) {
           errorHandler(LOST_CONNECTION_ERROR);
         }
-        this.logger.log(
-          'grpc StatusStream restarting',
-          `Retries left: ${retries}`
-        );
-        await delay(500);
-        this.activateStatusStream(statusHandler, errorHandler, retries - 1);
-      } else {
-        errorHandler(CAN_NOT_CONNECT_ERROR);
-        this.logger.error('grpc StatusStream can not restart', null);
+        errCount += 1;
       }
-    });
+    );
   };
 
-  cancelStatusStream = () => {
-    if (!this.statusStream) return false;
-    this.statusStream.cancel();
-    this.statusStream = null;
-    return true;
-  };
-
-  activateErrorStream = (handler: ErrorStreamHandler, retries = 5) => {
-    if (!this.service) return;
-    this.cancelErrorStream();
-
-    this.errorStream = this.service.ErrorStream({});
-    this.errorStream.on('data', (response: any) => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { error } = response;
-      handler(error);
-    });
-    this.errorStream.on('error', (error: any) => {
-      this.logger.error('grpc ErrorStream', error);
-      handler(normalizeGrpcErrorToNodeError(error));
-    });
-    this.errorStream.on('end', async () => {
-      console.log('ErrorStream ended'); // eslint-disable-line no-console
-      this.logger.log('grpc ErrorStream ended', null);
-      if (this.isShuttingDown) {
-        this.logger.log('grpc ErrorStream shutted down', null);
-        return;
-      }
-      if (retries > 0) {
-        this.logger.log(
-          'grpc ErrorStream restarting',
-          `Retries left: ${retries}`
-        );
-        await delay(500);
-        this.activateErrorStream(handler, retries - 1);
-      } else {
-        this.logger.error('grpc ErrorStream can not restart', null);
-      }
-    });
-  };
-
-  cancelErrorStream = () => {
-    if (!this.errorStream) return false;
-    this.errorStream.cancel();
-    this.errorStream = null;
-    return true;
-  };
+  activateErrorStream = (handler: ErrorStreamHandler) =>
+    this.runStream(
+      'ErrorStream',
+      {},
+      (err) =>
+        err.error &&
+        handler(
+          asNodeError({
+            ...err.error,
+            level: (err.error.level as unknown) as NodeErrorLevel,
+          })
+        )
+    );
 }
 
 export default NodeService;

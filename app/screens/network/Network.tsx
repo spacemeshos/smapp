@@ -225,7 +225,12 @@ const Network = ({ history }) => {
   };
 
   return (
-    <WrapperWith2SideBars width={1000} header="NETWORK" headerIcon={network}>
+    <WrapperWith2SideBars
+      width={1000}
+      header="NETWORK"
+      headerIcon={network}
+      style={{ minHeight: 485 }}
+    >
       <SubHeader>
         {netName}
         {nodeError && (

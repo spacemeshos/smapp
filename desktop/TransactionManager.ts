@@ -23,7 +23,7 @@ import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { Account__Output } from '../proto/spacemesh/v1/Account';
 import { hasRequiredRewardFields } from '../shared/types/guards';
 import {
-  debounceWithArgs,
+  debounceByArgs,
   delay,
   fromHexString,
   longToNumber,
@@ -104,7 +104,7 @@ class TransactionManager extends AbstractManager {
   };
 
   // Debounce update functions to avoid excessive IPC calls
-  updateAppStateAccount = debounceWithArgs(100, (address: string) => {
+  updateAppStateAccount = debounceByArgs(100, (address: string) => {
     const account = this.accountStates[address].getState();
     if (!account) {
       return;
@@ -115,12 +115,12 @@ class TransactionManager extends AbstractManager {
     });
   });
 
-  updateAppStateTxs = debounceWithArgs(100, (publicKey: string) => {
+  updateAppStateTxs = debounceByArgs(100, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs() || {};
     this.appStateUpdater(ipcConsts.T_M_UPDATE_TXS, { txs, publicKey });
   });
 
-  updateAppStateRewards = debounceWithArgs(100, (publicKey: string) => {
+  updateAppStateRewards = debounceByArgs(100, (publicKey: string) => {
     const rewards = this.accountStates[publicKey].getRewards() || [];
     this.appStateUpdater(ipcConsts.T_M_UPDATE_REWARDS, { rewards, publicKey });
   });
@@ -154,7 +154,7 @@ class TransactionManager extends AbstractManager {
     await this.upsertTransaction(publicKey)(newTx);
   };
 
-  private subscribeTransactions = debounceWithArgs(100, (publicKey: string) => {
+  private subscribeTransactions = debounceByArgs(100, (publicKey: string) => {
     const txs = this.accountStates[publicKey].getTxs();
     const txIds = Object.keys(txs).map(fromHexString);
 

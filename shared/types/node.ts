@@ -36,6 +36,15 @@ export interface NodeError {
   stackTrace: string;
 }
 
+export const asNodeError = (nodeError: NodeError): NodeError => nodeError;
+
+export const isNodeError = (e: any): e is NodeError =>
+  e &&
+  typeof e.level === 'number' &&
+  typeof e.module === 'string' &&
+  typeof e.msg === 'string' &&
+  typeof e.stackTrace === 'string';
+
 export interface NodeConfig {
   api: {
     grpc: string;

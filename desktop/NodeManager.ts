@@ -10,7 +10,7 @@ import { debounce } from 'throttle-debounce';
 import { rotator } from 'logrotator';
 import { captureException } from '@sentry/electron';
 import { ipcConsts } from '../app/vars';
-import { delay } from '../shared/utils';
+import { debounceShared, delay } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
 import {
   HexString,
@@ -227,28 +227,30 @@ class NodeManager extends AbstractManager {
     };
   }
 
-  isNodeAlive = async (retries: number): Promise<boolean> => {
-    if (!this.isNodeRunning()) {
-      return false;
+  isNodeAlive = debounceShared(
+    200,
+    async (retries = 30): Promise<boolean> => {
+      if (!this.isNodeRunning()) {
+        return false;
+      }
+      const isReady = await this.nodeService.echo();
+      if (isReady) {
+        return true;
+      } else if (retries > 0) {
+        await delay(500);
+        return this.isNodeAlive(retries - 1);
+      } else {
+        return false;
+      }
     }
-    const isReady = await this.nodeService.echo();
-    if (isReady) {
-      return true;
-    } else if (retries > 0) {
-      await delay(500);
-      return this.isNodeAlive(retries - 1);
-    } else {
-      return false;
-    }
-  };
+  );
 
   isNodeRunning = () => {
     return !!this.nodeProcess && this.nodeProcess.exitCode === null;
   };
 
   connectToRemoteNode = async (apiUrl?: SocketAddress | PublicService) => {
-    this.nodeService.cancelStatusStream();
-    this.nodeService.cancelErrorStream();
+    this.nodeService.cancelStreams();
     await this.stopNode();
     this.$_nodeStatus.reset();
 
@@ -279,9 +281,6 @@ class NodeManager extends AbstractManager {
     if (success) {
       // update node status once by query request
       await this.updateNodeStatus();
-      // ensure there are no active streams left
-      this.nodeService.cancelStatusStream();
-      this.nodeService.cancelErrorStream();
       // and activate streams
       this.activateNodeStatusStream();
       this.activateNodeErrorStream();
@@ -470,7 +469,7 @@ class NodeManager extends AbstractManager {
     interval: number
   ): Promise<boolean> => {
     if (!this.nodeProcess) return true;
-    const isFinished = this.nodeProcess.killed;
+    const isFinished = this.nodeProcess.exitCode !== null;
     logger.log(
       'Spawn process',
       `Wait process to finish isFinished: ${isFinished}, timeout: ${timeout}, interval: ${interval}`
