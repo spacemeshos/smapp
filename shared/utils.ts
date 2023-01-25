@@ -268,3 +268,14 @@ export const convertBytesToGB = (maxFileSize: number) =>
   maxFileSize / 1024 / 1024 / 1024;
 export const convertGBToBytes = (maxFileSize: number) =>
   maxFileSize * 1024 * 1024 * 1024;
+
+export const distribute = (min: number, max: number, steps: number) => {
+  const delta = max - min;
+  const stepsSafe = delta > steps ? steps : delta + 1;
+  const step = delta / (stepsSafe - 1);
+  const res = <number[]>[];
+  for (let i = 0; i < stepsSafe; i += 1) {
+    res.push(min + i * step);
+  }
+  return res;
+};

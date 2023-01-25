@@ -4,6 +4,7 @@ import * as R from 'ramda';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { ipcConsts } from '../app/vars';
 import {
+  HexString,
   IPCSmesherStartupData,
   NodeConfig,
   PostSetupOpts,
@@ -15,6 +16,7 @@ import SmesherService from './SmesherService';
 import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
 import AbstractManager from './AbstractManager';
+import StoreService from './storeService';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -250,7 +252,10 @@ class SmesherManager extends AbstractManager {
       handler: this.handlePostDataCreationStatusStream,
     });
 
-  updateSmeshingConfig = async (postSetupOpts: PostSetupOpts) => {
+  updateSmeshingConfig = async (
+    postSetupOpts: PostSetupOpts,
+    genesisID: HexString
+  ) => {
     const {
       coinbase,
       dataDir,
@@ -259,9 +264,7 @@ class SmesherManager extends AbstractManager {
       throttle,
       maxFileSize,
     } = postSetupOpts;
-
-    const config = await this.loadConfig();
-    config.smeshing = {
+    const opts = {
       'smeshing-coinbase': coinbase,
       'smeshing-opts': {
         'smeshing-opts-datadir': dataDir,
@@ -272,6 +275,10 @@ class SmesherManager extends AbstractManager {
       },
       'smeshing-start': true,
     };
+    StoreService.set(`smeshing.${genesisID}`, opts);
+
+    const config = await this.loadConfig();
+    config.smeshing = opts;
     return this.writeConfig(config);
   };
 

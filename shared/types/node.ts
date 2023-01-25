@@ -53,10 +53,10 @@ export interface NodeConfig {
   p2p: {
     bootnodes: Array<string>;
   };
-  smeshing: {
-    'smeshing-coinbase': HexString;
-    'smeshing-start': boolean;
-    'smeshing-opts': {
+  smeshing?: {
+    'smeshing-coinbase'?: HexString;
+    'smeshing-start'?: boolean;
+    'smeshing-opts'?: {
       'smeshing-opts-datadir': string;
       'smeshing-opts-maxfilesize': number;
       'smeshing-opts-numunits': number;
