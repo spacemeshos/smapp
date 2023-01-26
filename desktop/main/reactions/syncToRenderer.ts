@@ -111,7 +111,7 @@ const getRewardsInfo = (
 ): RewardsInfo => {
   const getLayerTime = timestampByLayer(
     cfg.genesis['genesis-time'],
-    cfg.main['layer-duration-sec']
+    cfg.main['layer-duration']
   );
   const getEpoch = epochByLayer(cfg.main['layers-per-epoch']);
   const curEpoch = getEpoch(curLayer);

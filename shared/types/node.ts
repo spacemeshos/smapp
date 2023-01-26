@@ -65,7 +65,7 @@ export interface NodeConfig {
     };
   };
   main: {
-    'layer-duration-sec': number;
+    'layer-duration': string; // "120s"
     'layers-per-epoch': number;
     'poet-server': Array<string>;
     'genesis-active-size': number;

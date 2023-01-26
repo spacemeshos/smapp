@@ -1,5 +1,6 @@
 import { objOf } from 'ramda';
 import { combineLatest, map, Observable } from 'rxjs';
+import parse from 'parse-duration';
 import { Network, NetworkState, NodeConfig } from '../../../../shared/types';
 import { generateGenesisIDFromConfig } from '../../Networks';
 
@@ -14,7 +15,7 @@ export default (
           genesisID: generateGenesisIDFromConfig(nodeConfig) || '',
           netName: curNet?.netName || 'Not connected',
           genesisTime: nodeConfig.genesis['genesis-time'],
-          layerDurationSec: nodeConfig.main['layer-duration-sec'],
+          layerDurationSec: parse(nodeConfig.main['layer-duration'], 's'),
           layersPerEpoch: nodeConfig.main['layers-per-epoch'],
           explorerUrl: curNet?.explorer || '',
         }
