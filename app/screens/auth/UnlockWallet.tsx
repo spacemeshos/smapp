@@ -180,6 +180,7 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           });
         }
       } else {
+        setShowLoader(false);
         setWrongPassword(true);
       }
     }
