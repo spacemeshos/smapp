@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, DropDown, Input } from '../../basicComponents';
-import { posSpace, posRewardEst } from '../../assets/images';
+import { posSpace } from '../../assets/images';
 import { smColors } from '../../vars';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
@@ -35,12 +35,6 @@ const Icon1 = styled.img`
   margin-right: 5px;
 `;
 
-const Icon2 = styled.img`
-  width: 15px;
-  height: 20px;
-  margin-right: 10px;
-`;
-
 const Icon3 = styled.img.attrs(({ theme: { icons: { posDirectory } } }) => ({
   src: posDirectory,
 }))`
@@ -67,21 +61,6 @@ const Dots = styled.div`
   font-size: 15px;
   line-height: 17px;
   color: ${({ theme: { color } }) => color.primary};
-`;
-
-const RewardText = styled(Text)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? smColors.orange : smColors.orange)};
-`;
-
-const ErrorText = styled.div`
-  height: 20px;
-  font-size: 15px;
-  line-height: 17px;
-  color: ${smColors.orange};
-  position: absolute;
-  left: 15px;
-  bottom: -15px;
-  width: 100%;
 `;
 
 const Link = styled.div`
@@ -135,22 +114,6 @@ const PoSSize = ({
   const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
     numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
   );
-  const [hasErrorFetchingEstimatedRewards] = useState(false);
-
-  // const [loadedEstimatedRewards, setLoadedEstimatedRewards] = useState({ amount: 0 });
-
-  // useEffect(() => { // TODO: uncomment when api endpoint implemented in node
-  //   const loadEstimatedRewards = async () => {
-  //     const { error, estimatedRewards } = await eventsService.getEstimatedRewards();
-  //     if (error) {
-  //       setHasErrorFetchingEstimatedRewards(true);
-  //     } else {
-  //       setLoadedEstimatedRewards(estimatedRewards);
-  //       setHasErrorFetchingEstimatedRewards(false);
-  //     }
-  //   };
-  //   loadEstimatedRewards();
-  // }, [setHasErrorFetchingEstimatedRewards, setLoadedEstimatedRewards]);
 
   const selectCommitment = ({ index }: { index: number }) => {
     setSelectedCommitmentIndex(index);
@@ -215,23 +178,6 @@ const PoSSize = ({
             }}
           />
         </InputWrapper>
-      </Row>
-      <Row>
-        <Icon2 src={posRewardEst} />
-        <Text>Estimated coin reward</Text>
-        <Tooltip width={200} text="Some text" />
-        <Dots>.....................................................</Dots>
-        {hasErrorFetchingEstimatedRewards ? (
-          <ErrorText>
-            Failed to load estimated rewards. Please return to previous step
-          </ErrorText>
-        ) : (
-          <RewardText selected={selectedCommitmentIndex !== -1}>
-            {selectedCommitmentIndex !== -1
-              ? '10 SMESH / EPOCH'
-              : '0 SMESH / EPOCH'}
-          </RewardText>
-        )}
       </Row>
       <BottomRow>
         <Icon3 />
