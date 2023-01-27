@@ -1,27 +1,34 @@
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+import os from 'os';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 
-const { Platform, build } = require('electron-builder');
-const { notarize } = require('electron-notarize');
+import { CliOptions, build } from 'electron-builder';
+import { notarize } from 'electron-notarize';
+
 
 async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== 'darwin' || process.env.DONT_SIGN_APP) return;
+  if (!process.env.APPLEID || !process.env.APPLEIDPASS) {
+    console.error("\nError: No env variables `APPLEID` and `APPLEIDPASS` are set.\nTo skip signing set `DONT_SIGN_APP=1` explicitly.");
+    process.exit(1);
+  }
 
   const appName = context.packager.appInfo.productFilename;
 
   return await notarize({
     appBundleId: 'com.spacemesh.wallet',
     appPath: `${appOutDir}/${appName}.app`,
-    appleId: process.env.APPLEID,
-    appleIdPassword: process.env.APPLEIDPASS,
+    appleId: process.env.APPLEID || '',
+    appleIdPassword: process.env.APPLEIDPASS || '',
   });
 }
 
 const args = process.argv.slice(2);
 if (args.length < 2 || args[0] !== '--target' || !['mac', 'windows', 'linux', 'mwl'].includes(args[1])) {
-  throw new Error("No valid flags provided. Usage example: 'node ./scripts/packagerScript.js --target {mac|linux|windows|mwl}'");
+  console.error("\nError: No valid flags provided. \nUsage example: 'node ./scripts/packagerScript.js --target {mac|linux|windows|mwl}'");
+  process.exit(1);
 }
 const targets = args[1] === 'mwl' ? ['mac', 'windows', 'linux'] : [args[1]];
 
@@ -85,8 +92,7 @@ const compileHashListFile = ({ artifactsToPublishFile, artifactPaths }) => {
 };
 
 const getBuildOptions = ({ target }) => {
-  const buildOptions = {
-    targets: Platform[target.toUpperCase()].createTarget(),
+  const buildOptions: Partial<CliOptions> = {
     publish: 'never',
     config: {
       appId: 'com.spacemesh.wallet',
@@ -118,7 +124,10 @@ const getBuildOptions = ({ target }) => {
         gatekeeperAssess: false,
         entitlements: path.join(__dirname, 'entitlements.mac.plist'),
         entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
-        target: ['zip', 'dmg'],
+        target: {
+          target: 'default',
+          arch: ['arm64', 'x64'],
+        },
         icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
         binaries: [
           path.join(__dirname, '../node/mac/go-spacemesh'),
@@ -130,8 +139,8 @@ const getBuildOptions = ({ target }) => {
       dmg: {
         sign: false,
         window: {
-          width: '400',
-          height: '380'
+          width: 400,
+          height: 380
         },
         background: path.join(__dirname, '..', 'resources', 'background.png'),
         icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
@@ -166,7 +175,10 @@ const getBuildOptions = ({ target }) => {
         uninstallDisplayName: 'Spacemesh (${version})'
       },
       linux: {
-        target: ['deb'],
+        target: {
+          target: 'deb',
+          arch: [os.arch() === 'arm64' ? 'arm64' : 'x64'],
+        },
         category: 'Utility',
         icon: path.join(__dirname, '..', 'resources', 'icons', '512x512.png')
       },
@@ -174,12 +186,13 @@ const getBuildOptions = ({ target }) => {
         buildResources: path.join(__dirname, '..', 'resources'),
         output: path.join(__dirname, '..', 'release')
       },
+      afterSign: target === 'mac' ? notarizing : null,
       afterAllArtifactBuild: (buildResult) => {
         try {
           compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
           return [artifactsToPublishFile];
         } catch (error) {
-          console.error(error.message);
+          console.error(error);
           process.exit(1);
         }
       },
@@ -191,11 +204,6 @@ const getBuildOptions = ({ target }) => {
       },
     }
   };
-
-  if (target === 'mac') {
-    buildOptions.config.afterSign = notarizing;
-  }
-
   return buildOptions;
 };
 
