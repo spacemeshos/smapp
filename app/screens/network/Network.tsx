@@ -160,7 +160,7 @@ const Network = ({ history }) => {
           />
         </DetailsTextWrap>
         <GrayText>
-          <Address isHex address={genesisID} />
+          <Address isHex address={genesisID} hideExplorer />
         </GrayText>
       </DetailsRow>
       <DetailsRow>
