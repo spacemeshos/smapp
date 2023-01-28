@@ -20,6 +20,10 @@ import { goToSwitchNetwork } from '../../routeUtils';
 import { AuthPath } from '../../routerPaths';
 import { delay } from '../../../shared/utils';
 import Address from '../../components/common/Address';
+import {
+  getFirstLayerInEpochFn,
+  getTimestampByLayerFn,
+} from '../../redux/network/selectors';
 
 const Container = styled.div`
   display: flex;
@@ -90,6 +94,9 @@ const Network = ({ history }) => {
       state.network.netName ||
       (genesisID === '' ? 'NOT CONNECTED' : 'UNKNOWN NETWORK NAME')
   );
+
+  const getFirstLayerInEpoch = useSelector(getFirstLayerInEpochFn);
+  const getTimestampByLayer = useSelector(getTimestampByLayerFn);
 
   const genesisTime = useSelector(
     (state: RootState) => state.network.genesisTime
@@ -170,20 +177,39 @@ const Network = ({ history }) => {
           />
         </GrayText>
       </DetailsRow>
-      <DetailsRow>
-        <DetailsTextWrap>
-          <DetailsText>Current Layer</DetailsText>
-          <Tooltip width={250} text="tooltip Current Layer" />
-        </DetailsTextWrap>
-        <GrayText>{status?.topLayer || 0}</GrayText>
-      </DetailsRow>
-      <DetailsRow>
-        <DetailsTextWrap>
-          <DetailsText>Verified Layer</DetailsText>
-          <Tooltip width={250} text="tooltip Verified Layer" />
-        </DetailsTextWrap>
-        <GrayText>{status?.verifiedLayer || 0}</GrayText>
-      </DetailsRow>
+      {status && status.topLayer < status.syncedLayer ? (
+        <DetailsRow>
+          <DetailsTextWrap>
+            <DetailsText>Genesis will end in</DetailsText>
+            <Tooltip
+              width={250}
+              text="The genesis phase lasts for the first two epochs"
+            />
+          </DetailsTextWrap>
+          <GrayText>
+            <CustomTimeAgo
+              time={getTimestampByLayer(getFirstLayerInEpoch(2))}
+            />
+          </GrayText>
+        </DetailsRow>
+      ) : (
+        <>
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Current Layer</DetailsText>
+              <Tooltip width={250} text="tooltip Current Layer" />
+            </DetailsTextWrap>
+            <GrayText>{status?.topLayer || 0}</GrayText>
+          </DetailsRow>
+          <DetailsRow>
+            <DetailsTextWrap>
+              <DetailsText>Verified Layer</DetailsText>
+              <Tooltip width={250} text="tooltip Verified Layer" />
+            </DetailsTextWrap>
+            <GrayText>{status?.verifiedLayer || 0}</GrayText>
+          </DetailsRow>
+        </>
+      )}
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Connection Type</DetailsText>

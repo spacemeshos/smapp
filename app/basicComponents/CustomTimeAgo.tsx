@@ -3,7 +3,26 @@ import TimeAgo from 'react-timeago';
 
 import buildFormatter from 'react-timeago/lib/formatters/buildFormatter';
 
-const enString = {
+export type FormatterKeys =
+  | 'prefixAgo'
+  | 'prefixFromNow'
+  | 'suffixAgo'
+  | 'suffixFromNow'
+  | 'seconds'
+  | 'minute'
+  | 'minutes'
+  | 'hour'
+  | 'hours'
+  | 'day'
+  | 'days'
+  | 'month'
+  | 'months'
+  | 'year'
+  | 'years'
+  | 'wordSeparator';
+export type FormatterDict = Record<FormatterKeys, string | null>;
+
+const enString: FormatterDict = {
   prefixAgo: null,
   prefixFromNow: null,
   suffixAgo: 'ago',
@@ -22,10 +41,15 @@ const enString = {
   wordSeparator: ' ',
 };
 
-const CustomTimeAgo = ({ time }: { time: string }) => {
-  const jsDate = new Date(time).getTime();
-
-  const formatter = buildFormatter(enString);
+const CustomTimeAgo = ({
+  time,
+  dict = {},
+}: {
+  time: number | string;
+  dict?: Partial<FormatterDict>;
+}) => {
+  const jsDate = typeof time === 'number' ? time : new Date(time).getTime();
+  const formatter = buildFormatter({ ...enString, ...dict });
   return <TimeAgo date={jsDate} formatter={formatter} />;
 };
 

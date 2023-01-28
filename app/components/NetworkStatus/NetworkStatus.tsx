@@ -79,7 +79,7 @@ const NetworkStatus = ({
   const renderSyncingStatus = () => {
     return (
       <>
-        {status?.isSynced ? (
+        {status?.isSynced && status.topLayer === status.syncedLayer ? (
           <>
             <NetworkIndicator color={smColors.green} />
             <ProgressLabel>synced</ProgressLabel>
