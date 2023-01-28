@@ -3714,6 +3714,13 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.186.tgz#862e5514dd7bd66ada6c70ee5fce844b06c8ee97"
   integrity sha512-eHcVlLXP0c2FlMPm56ITode2AgLMSa6aJ05JTTbYbI+7EMkCEE5qk2E41d5g2lCVTqRe0GnnRFurmlCsDODrPw==
 
+"@types/logrotate-stream@^0.2.31":
+  version "0.2.31"
+  resolved "https://registry.yarnpkg.com/@types/logrotate-stream/-/logrotate-stream-0.2.31.tgz#4a60c719e28f9a9bc34fea52570e655118747289"
+  integrity sha512-z56U0CluI/4a1BUL0O9REy0V4OrfWGZVVyC4WV/AuRhzgK9Yn04YAKB0yz2wy4uDRhFPDaZ3Jj/V9jKotHzDCA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/long@^4.0.1":
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.2.tgz#b74129719fc8d11c01868010082d483b7545591a"
@@ -6005,6 +6012,11 @@ builtin-status-codes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha512-HpGFw18DgFWlncDfjTa2rcQ4W88O1mC8e8yZ2AvQY5KDaktSTwo+KRf6nHK6FRI5FyRyb/5T6+TSxfP7QyGsmQ==
+
+byt@~0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/byt/-/byt-0.1.0.tgz#b72553977b8c4dc890d262fd5e20f330039d154b"
+  integrity sha512-eXMv9r36G004LqFLGoyugY82RqVs0/KR+W+CB6LyMM0+RbTMqua1T/uHYykXQsS/XR+4tX+e1EVKJgGP48pRXA==
 
 bytes@3.0.0:
   version "3.0.0"
@@ -12025,6 +12037,11 @@ lodash@4.x, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, 
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
+log-rotate@~0.2.8:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/log-rotate/-/log-rotate-0.2.8.tgz#1003c89ece53b5fe8a28dbc4d70bcada9d61b8c5"
+  integrity sha512-r9I3eKh2EH+jjbg+tqvACtBjmCdyyyKQsElVF+a/tYCQDOmHQxTvlDEB6GFn2UAZcsF13LTV814bhXspWMu96g==
+
 log-symbols@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/log-symbols/-/log-symbols-4.1.0.tgz#3fbdbb95b4683ac9fc785111e792e558d4abd503"
@@ -12038,10 +12055,14 @@ loglevel@^1.6.8:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.8.0.tgz#e7ec73a57e1e7b419cb6c6ac06bf050b67356114"
   integrity sha512-G6A/nJLRgWOuuwdNuA6koovfEV1YpqqAG4pRUlFaz3jj2QNZ8M4vBqnVA+HBTmU/AMNUtlOsMmSpF6NyOjztbA==
 
-logrotator@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/logrotator/-/logrotator-1.1.0.tgz#b0fe5aa44485848572569429cfd0d47f772b4e25"
-  integrity sha512-uzwrAFK7KBzcwBO48wqK7q+Q/bd4fEUZEvAkdRHjGpO3eFoUpVWHgGGcoE8O3WVunCj575mfxesMkyuLOWDTEw==
+logrotate-stream@^0.2.8:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/logrotate-stream/-/logrotate-stream-0.2.8.tgz#e82fcb3d7881776d4237e28f18e4dc68ad45efc1"
+  integrity sha512-j/knZUc7joTr6c5vbZ5t1dO3FdydVPdsqOqltzG9IIT26Jea9IU5x7OFOs9jCaZjrzT6feXL6OIJgeZ3ynXSPQ==
+  dependencies:
+    byt "~0.1.0"
+    log-rotate "~0.2.8"
+    yargs "~15.4.1"
 
 lolex@^5.0.0:
   version "5.1.2"
@@ -17448,7 +17469,7 @@ yargs@^13.3.2:
     y18n "^4.0.0"
     yargs-parser "^13.1.2"
 
-yargs@^15.3.1, yargs@^15.4.1:
+yargs@^15.3.1, yargs@^15.4.1, yargs@~15.4.1:
   version "15.4.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-15.4.1.tgz#0d87a16de01aee9d8bec2bfbf74f67851730f4f8"
   integrity sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==
