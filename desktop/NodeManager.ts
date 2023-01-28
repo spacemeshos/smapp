@@ -6,9 +6,7 @@ import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
-
-import { rotator } from 'logrotator';
-import { captureException } from '@sentry/electron';
+import rotator from 'logrotate-stream';
 import { ipcConsts } from '../app/vars';
 import { debounceShared, delay } from '../shared/utils';
 import { DEFAULT_NODE_STATUS } from '../shared/constants';
@@ -39,8 +37,6 @@ import { NODE_CONFIG_FILE } from './main/constants';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
-
-rotator.on('error', captureException);
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -392,16 +388,13 @@ class NodeManager extends AbstractManager {
     );
     const logFilePath = getNodeLogsPath(this.genesisID);
 
-    rotator.register(logFilePath, {
-      schedule: '30m',
-      size: '500m',
-      count: 1, // number of old logs files that ll be saved and compressed
+    const logFileStream = rotator({
+      file: logFilePath,
+      size: '100m',
+      keep: 5,
+      compress: true,
     });
 
-    const logFileStream = fs.createWriteStream(logFilePath, {
-      flags: 'a',
-      encoding: 'utf-8',
-    });
     const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
