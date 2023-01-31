@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import ReactTimeago from 'react-timeago';
-import { formatSmidge } from '../../infra/utils';
+import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import { horizontalPanelBlack } from '../../assets/images';
@@ -212,7 +212,11 @@ const SmesherLog = ({
                       <LayerReward>
                         <LayerNumber>{reward.layer}</LayerNumber>
                         <DateText>
-                          <ReactTimeago date={timestampByLayer(reward.layer)} />
+                          <ReactTimeago
+                            date={getFormattedTimestamp(
+                              timestampByLayer(reward.layer)
+                            )}
+                          />
                         </DateText>
                         <AwardText>+{formatSmidge(reward.amount)}</AwardText>
                       </LayerReward>
