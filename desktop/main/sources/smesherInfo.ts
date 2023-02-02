@@ -162,7 +162,8 @@ const syncSmesherInfo = (
       );
     }),
     shareReplay(1),
-    distinctUntilChanged((prev, next) => prev.length === next.length)
+    distinctUntilChanged((prev, next) => prev.length === next.length),
+    map((rewards) => rewards.sort((a, b) => a.layer - b.layer))
   );
 
   const $activationsStream = combineLatest([$coinbase, $managers]).pipe(
