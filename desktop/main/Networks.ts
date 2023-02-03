@@ -1,4 +1,4 @@
-import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
+import { hash } from '@spacemesh/sm-codec';
 import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
 import { toHexString, toPublicService } from '../../shared/utils';
@@ -9,7 +9,7 @@ import { fetchJSON, isDevNet } from '../utils';
 //
 
 export const generateGenesisID = (genesisTime: string, extraData: string) => {
-  return `${toHexString(sha256(genesisTime + extraData)).substring(0, 40)}`;
+  return `${toHexString(hash(genesisTime + extraData)).substring(0, 40)}`;
 };
 
 export const generateGenesisIDFromConfig = (nodeConfig: NodeConfig) => {
