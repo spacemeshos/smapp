@@ -5,7 +5,8 @@ import prompts from 'prompts';
 import { sign } from '../desktop/ed25519';
 import { fromHexString } from '../shared/utils';
 import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
-import { generateGenesisID } from "../desktop/main/Networks";
+import { generateGenesisID } from '../desktop/main/Networks';
+import { SingleSigMethods } from '../shared/templateConsts';
 
 (async () => {
   // Inputs
@@ -51,8 +52,8 @@ import { generateGenesisID } from "../desktop/main/Networks";
       name: 'method',
       message: 'Choose the method',
       choices: [
-        { title: 'SelfSpawn', value: 0 },
-        { title: 'Spend', value: 1 },
+        { title: 'SelfSpawn', value: SingleSigMethods.Spawn },
+        { title: 'Spend', value: SingleSigMethods.Spend },
       ],
     },
     {
@@ -112,24 +113,18 @@ import { generateGenesisID } from "../desktop/main/Networks";
     if (inputs.templateAddress !== sm.SingleSigTemplate.key) {
       throw new Error('Script supports only composing TXs for SingleSig Account');
     }
-    if (inputs.method === 0) {
+    if (inputs.method === SingleSigMethods.Spawn) {
       // SELF-SPAWN TRANSACTION
       return tpl.encode(principal, {
-        Nonce: {
-          Counter: BigInt(inputs.nonce),
-          Bitfield: BigInt(0),
-        },
+        Nonce: BigInt(inputs.nonce),
         GasPrice: BigInt(inputs.gas),
         Arguments: spawnArg,
       });
     }
-    else if (inputs.method === 1) {
+    else if (inputs.method === SingleSigMethods.Spend) {
       // SPEND TRANSACTION
       return tpl.encode(principal, {
-        Nonce: {
-          Counter: BigInt(inputs.nonce),
-          Bitfield: BigInt(0),
-        },
+        Nonce: BigInt(inputs.nonce),
         GasPrice: BigInt(inputs.gas),
         Arguments: {
           Destination: Bech32.parse(inputs.spendDestination),

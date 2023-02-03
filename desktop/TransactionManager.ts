@@ -472,10 +472,7 @@ class TransactionManager extends AbstractManager {
       const address = Bech32.generateAddress(principal);
       const { projectedState } = this.accountStates[address].getState();
       const payload = {
-        Nonce: {
-          Counter: BigInt(projectedState?.counter || 0),
-          Bitfield: BigInt(0),
-        },
+        Nonce: BigInt(projectedState?.counter || 0),
         GasPrice: BigInt(fee),
         Arguments: spawnArgs,
       };
@@ -551,7 +548,8 @@ class TransactionManager extends AbstractManager {
   }) => {
     try {
       const { publicKey, secretKey } = this.keychain[accountIndex];
-      const tpl = TemplateRegistry.get(SingleSigTemplate.key, 1);
+      const method = 16;
+      const tpl = TemplateRegistry.get(SingleSigTemplate.key, method);
       const principal = tpl.principal({
         PublicKey: fromHexString(publicKey),
       });
@@ -563,10 +561,7 @@ class TransactionManager extends AbstractManager {
           Destination: Bech32.parse(receiver),
           Amount: BigInt(amount),
         },
-        Nonce: {
-          Counter: BigInt(projectedState?.counter || 1),
-          Bitfield: BigInt(0),
-        },
+        Nonce: BigInt(projectedState?.counter || 1),
         GasPrice: BigInt(fee),
       };
       const txEncoded = tpl.encode(principal, payload);
@@ -587,7 +582,6 @@ class TransactionManager extends AbstractManager {
           : null;
       // Compose "initial" transaction record
       const { currentLayer } = await this.meshService.getCurrentLayer();
-      const method = 1;
       const tx =
         response.error === null && response.txstate?.id?.id
           ? asTx({

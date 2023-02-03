@@ -2475,19 +2475,19 @@
   resolved "https://registry.yarnpkg.com/@spacemesh/address-wasm/-/address-wasm-0.2.0.tgz#7773efb5013292bd787f02f0b47fa4b4fa128145"
   integrity sha512-Q1ZQq0swhLPrz3WqOF09Umgq6L99k5aNVsa103Ne+doEMmpiSR8puLUBY9yReeqM/70AE8SAGBbvsg9YSCVnAg==
 
+"@spacemesh/sm-codec@0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.4.tgz#987f03dcf04d1f8fd2839b346b009d320b4ca9d2"
+  integrity sha512-Q5JpgV6ZXjkbv/Hibf1DIrG/9Fh35rRtMVUjtGyQpWhdCkADUuiY0z2KQVhl4FBV+/p9K8MhiSDx8xoLhextnQ==
+  dependencies:
+    "@spacemesh/sm-codec" "^0.2.1"
+    scale-ts "^0.2.11"
+
 "@spacemesh/sm-codec@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.2.1.tgz#99a8ee0cfed126d67325929c372554ba0bb19713"
   integrity sha512-XIbUeaK9XYQhOmox/fEPvwQyvzxTPWEsBpj4+t7aDj9E2IYFoA9Aou8kqmtBmOj+QKbs+qZlNJOJxeNtFrD7Zg==
   dependencies:
-    scale-ts "^0.2.11"
-
-"@spacemesh/sm-codec@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.3.tgz#9455ed7b0a7a2c3cfb0782e79fb02fa232c5d180"
-  integrity sha512-M3ipzgbKEWS2EaJn0UzqJ3GqfSY3bzshhrNbQBu5rvmdkWb1kM0hiOVshC+VdBRQ527ORfHPpdtarlluFcYCkA==
-  dependencies:
-    "@spacemesh/sm-codec" "^0.2.1"
     scale-ts "^0.2.11"
 
 "@storybook/addon-actions@6.5.12", "@storybook/addon-actions@^6.5.6":
