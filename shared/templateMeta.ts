@@ -1,12 +1,13 @@
 import { StdPublicKeys } from '@spacemesh/sm-codec';
+import { SingleSigMethods } from './templateConsts';
 import { toHexString } from './utils';
 
 const TEMPLATE_METAS = {
   [StdPublicKeys.SingleSig]: {
     name: 'SingleSig',
     methods: {
-      0: 'Spawn',
-      1: 'Spend',
+      [SingleSigMethods.Spawn]: 'Spawn',
+      [SingleSigMethods.Spend]: 'Spend',
     },
   },
 };
