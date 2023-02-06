@@ -22,11 +22,9 @@ jobs:
       - name: Restore the previous run result
         uses: actions/cache@v2
         with:
-          path: |
-            run_result
+          path: run_result
           key: ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-
+          restore-keys: ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-
 
       - id: result
         run: echo "::set-output name=status::$(test -f run_result && cat run_result || echo 'first-time')"
@@ -93,8 +91,8 @@ jobs:
           path: |
             ./node/*
             !./node/use-version
-          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
-          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-4
+          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-cache
+          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-cache
 
       - name: Prepare link to go-spacemesh release archive
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
@@ -125,7 +123,7 @@ jobs:
       - name: Unzip archive & get rid of redundant files
         if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r -y
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: steps.result.outputs.status != 'success' && matrix.os != 'windows-latest'
