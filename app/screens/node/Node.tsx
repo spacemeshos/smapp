@@ -525,15 +525,12 @@ const Node = ({ history, location }: Props) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const handleSetupSmesher = () => {
-    return eventsService
-      .switchApiProvider(LOCAL_NODE_API_URL, curNet)
-      .then(() =>
-        history.push(AuthPath.Unlock, { redirect: MainPath.SmeshingSetup })
-      )
-      .catch((err) => {
-        console.error(err); // eslint-disable-line no-console
-        dispatch(setUiError(err));
-      });
+    eventsService.switchApiProvider(LOCAL_NODE_API_URL, curNet).catch((err) => {
+      console.error(err); // eslint-disable-line no-console
+      dispatch(setUiError(err));
+    });
+
+    history.push(AuthPath.Unlock, { redirect: MainPath.Smeshing });
   };
 
   const renderWalletOnlyMode = () => {
