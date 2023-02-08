@@ -42,6 +42,7 @@ const SignMessage = ({ index, close }: Props) => {
   });
 
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
+  const keychain = useSelector((state: RootState) => state.wallet.keychain);
 
   const signText = async () => {
     const signedMessage = await eventsService.signMessage({
@@ -50,7 +51,15 @@ const SignMessage = ({ index, close }: Props) => {
     });
     copiedTimeout && clearTimeout(copiedTimeout);
     await navigator.clipboard.writeText(
-      `{ "text": "${message}", "signature": "0x${signedMessage}", "address": "${accounts[index].address}" }`
+      JSON.stringify(
+        {
+          text: message,
+          signature: `0x${signedMessage}`,
+          publicKey: `0x${keychain[index].publicKey}`,
+        },
+        null,
+        2
+      )
     );
     copiedTimeout = setTimeout(() => setIsCopied(false), 10000);
     setIsCopied(true);
@@ -80,7 +89,7 @@ const SignMessage = ({ index, close }: Props) => {
         />
         <Button onClick={close} isPrimary={false} text="Cancel" />
       </ButtonsWrapper>
-      <CopiedText>{isCopied ? 'Address copied' : ' '}</CopiedText>
+      <CopiedText>{isCopied ? 'Signed message copied' : ' '}</CopiedText>
     </Modal>
   );
 };
