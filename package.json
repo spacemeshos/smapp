@@ -1,7 +1,7 @@
 {
   "name": "spacemesh_app",
   "productName": "Spacemesh",
-  "version": "0.2.11",
+  "version": "0.2.11-test.arm64",
   "author": {
     "name": "Spacemesh",
     "email": "info@spacemesh.io",
