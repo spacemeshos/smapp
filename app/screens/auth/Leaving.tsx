@@ -88,14 +88,14 @@ const Leaving = ({ history }: AuthRouterParams) => {
           <ComplexLink>
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
             <Row>
-              <Text>DON`T HAVE A DESKTOP? &nbsp;</Text>
+              <Text>ALREADY HAVE A WALLET? &nbsp;</Text>
               <Link
-                onClick={() => history.push(AuthPath.Recover)} // Shouldn't it trigger set up instead of recover?
-                text="SETUP WALLET ONLY"
+                onClick={() => history.push(AuthPath.Recover)}
+                text="RECOVER IT"
               />
               <Tooltip
                 width={140}
-                text="You will be able to send and receive SMH."
+                text="You can recover your wallet from file or mnemonics"
               />
             </Row>
           </ComplexLink>

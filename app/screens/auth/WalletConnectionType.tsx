@@ -114,7 +114,7 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <Icon />
               <RowTitle>WALLET + NODE</RowTitle>
-              <Tooltip width={120} text="To send, receive and mine SMH" />
+              <Tooltip width={120} text="To send, receive and smesh coins" />
             </Row>
             <RowText>A wallet that uses a local full Spacemesh</RowText>
             <RowText>p2p node and optionally setup smeshing</RowText>
