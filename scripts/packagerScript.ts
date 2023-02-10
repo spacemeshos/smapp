@@ -1,7 +1,5 @@
 import os from 'os';
-import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 
 import { CliOptions, build } from 'electron-builder';
 import { notarize } from 'electron-notarize';
@@ -32,63 +30,10 @@ if (args.length < 2 || args[0] !== '--target' || !['mac', 'windows', 'linux', 'm
 }
 const targets = args[1] === 'mwl' ? ['mac', 'windows', 'linux'] : [args[1]];
 
-const fileHashList = {
-  dmg: {
-    file: 'dmg_installer',
-    hash: 'dmg_sha512'
-  },
-  exe: {
-    file: 'exe_installer',
-    hash: 'exe_sha512'
-  },
-  deb: {
-    file: 'deb_installer',
-    hash: 'deb_sha512'
-  }
-};
-
 const nodeFiles = {
   mac: { from: path.resolve('node/mac/'), to: 'node/' },
   windows: { from: path.resolve('node/windows/'), to: 'node' },
   linux: { from: path.resolve('node/linux/'), to: 'node/' }
-};
-
-const artifactsToPublishFile = path.join(__dirname, '..', 'release', 'publishFilesList.json');
-try {
-  const dirname = path.dirname(artifactsToPublishFile);
-  if (!fs.existsSync(dirname)) {
-    fs.mkdirSync(dirname);
-  }
-  if (!fs.existsSync(artifactsToPublishFile)) {
-    fs.writeFileSync(artifactsToPublishFile, JSON.stringify(fileHashList));
-  }
-} catch (error) {
-  console.error(error);
-  process.exit(1);
-}
-
-const getFileHash = ({ filename }) => {
-  const shaSum = crypto.createHash('sha512');
-  const fileContent = fs.readFileSync(filename);
-  const hashSum = shaSum.update(fileContent);
-  return hashSum.digest('hex');
-};
-
-const compileHashListFile = ({ artifactsToPublishFile, artifactPaths }) => {
-  const acceptedSuffixes = ['dmg', 'exe', 'deb', 'snap', 'AppImage'];
-  let hashList = fs.readFileSync(artifactsToPublishFile, 'utf8');
-  for (const fullPath of artifactPaths) {
-    const artifactSuffix = fullPath.split('.').pop();
-    const artifactName = fullPath.split('/').pop();
-    // installers only
-    if (acceptedSuffixes.indexOf(artifactSuffix) >= 0) {
-      const hash = getFileHash({ filename: fullPath });
-      const artifactNameSpacesReplaced = artifactName.replace(/ /g, '+');
-      hashList = hashList.replace(`${artifactSuffix}_installer`, artifactNameSpacesReplaced);
-      hashList = hashList.replace(`${artifactSuffix}_sha512`, hash);
-    }
-  }
-  fs.writeFileSync(artifactsToPublishFile, hashList);
 };
 
 const getBuildOptions = ({ target }) => {
@@ -191,15 +136,6 @@ const getBuildOptions = ({ target }) => {
         output: path.join(__dirname, '..', 'release')
       },
       afterSign: target === 'mac' ? notarizing : null,
-      afterAllArtifactBuild: (buildResult) => {
-        try {
-          compileHashListFile({ artifactsToPublishFile, artifactPaths: buildResult.artifactPaths });
-          return [artifactsToPublishFile];
-        } catch (error) {
-          console.error(error);
-          process.exit(1);
-        }
-      },
       npmRebuild: false,
       publish: {
         provider: 'generic',
