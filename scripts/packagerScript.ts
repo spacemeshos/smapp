@@ -124,10 +124,16 @@ const getBuildOptions = ({ target }) => {
         uninstallDisplayName: 'Spacemesh (${version})'
       },
       linux: {
-        target: {
-          target: 'deb',
-          arch: [os.arch() === 'arm64' ? 'arm64' : 'x64'],
-        },
+        target: [
+          {
+            target: 'deb',
+            arch: [os.arch() === 'arm64' ? 'arm64' : 'x64'],
+          },
+          {
+            target: 'AppImage',
+            arch: [os.arch() === 'arm64' ? 'arm64' : 'x64'],
+          }
+        ],
         category: 'Utility',
         icon: path.join(__dirname, '..', 'resources', 'icon.icns')
       },
