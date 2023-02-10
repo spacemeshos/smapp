@@ -114,6 +114,7 @@ const getBuildOptions = ({ target }) => {
       ],
       extraResources: [
         'resources/icons/*',
+        'resources/icon.icns'
       ],
       extraFiles: [
         nodeFiles[target],
@@ -183,7 +184,7 @@ const getBuildOptions = ({ target }) => {
           arch: [os.arch() === 'arm64' ? 'arm64' : 'x64'],
         },
         category: 'Utility',
-        icon: path.join(__dirname, '..', 'resources', 'icons', '512x512.png')
+        icon: path.join(__dirname, '..', 'resources', 'icon.icns')
       },
       directories: {
         buildResources: path.join(__dirname, '..', 'resources'),
