@@ -98,7 +98,7 @@ jobs:
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          [[ $( curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}} ) == "200" ]] &&
           echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
           echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
         shell: bash
