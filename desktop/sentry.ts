@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/electron/main';
-import { captureException, setTags, addBreadcrumb } from '@sentry/electron';
 import { Event, EventHint } from '@sentry/types/types/event';
 import logger from 'electron-log';
 import { generateGenesisIDFromConfig } from './main/Networks';
@@ -42,7 +41,8 @@ export const init = () =>
     environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
     tracesSampleRate: parseInt(process.env.TRACES_SAMPLE_RATE || '0.3'),
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-    maxValueLength: 20000,
+    enabled: true,
+    maxValueLength: 25000,
     attachStacktrace: true,
     attachScreenshot: true,
     async beforeSend(event: Event, hint: EventHint) {
@@ -67,13 +67,13 @@ export const init = () =>
   });
 
 export const captureMainException = (e: Error) => {
-  return captureException(e);
+  return Sentry.captureException(e);
 };
 
 export const captureMainBreadcrumb = (o: any) => {
-  return addBreadcrumb(o);
+  return Sentry.addBreadcrumb(o);
 };
 
 export const setMainTags = (tags: any) => {
-  return setTags(tags);
+  return Sentry.setTags(tags);
 };
