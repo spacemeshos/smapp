@@ -72,7 +72,7 @@ const getBuildOptions = ({ target }) => {
         entitlementsInherit: path.join(__dirname, 'entitlements.mac.plist'),
         target: {
           target: 'default',
-          arch: ['arm64', 'x64'],
+          arch: [os.arch() === 'arm64' ? 'arm64' : 'x64'],
         },
         icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
         binaries: [
