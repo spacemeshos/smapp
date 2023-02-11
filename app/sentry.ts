@@ -9,9 +9,10 @@ export const init = (history) =>
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
+    enabled: true,
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-    maxValueLength: 20000,
     attachStacktrace: true,
+    maxValueLength: 25000,
     tracesSampleRate: parseInt(process.env.TRACES_SAMPLE_RATE || '0.3'),
     integrations: [
       new BrowserTracing({
