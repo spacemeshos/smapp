@@ -21,6 +21,7 @@ const AccountDetails = styled.div`
 
 const AccountWrapper = styled.div`
   display: flex;
+  font-size: 14px;
   flex-direction: column;
   align-items: flex-start;
   margin: 5px 0;
@@ -58,8 +59,7 @@ const SwitchAccountButton = styled(AccountActionButton)`
 
 const AccountName = styled(BoldText)`
   font-size: 16px;
-  line-height: 22px;
-  cursor: inherit;
+  line-height: 18px;
 `;
 
 const Footer = styled.div`
@@ -191,7 +191,12 @@ const AccountsOverview = () => {
         <BalanceHeader>BALANCE</BalanceHeader>
         <BalanceWrapper
           isSynced={isSynced}
-          title={isSynced ? 'Your current balance' : 'Last synced balance'}
+          title={[
+            isSynced ? 'Your current balance' : 'Last synced balance',
+            ': ',
+            balance?.currentState?.balance || 0,
+            ' Smidge',
+          ].join('')}
         >
           <BalanceAmount>{value}</BalanceAmount>
           &nbsp;
