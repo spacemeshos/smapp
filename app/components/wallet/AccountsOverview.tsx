@@ -11,6 +11,7 @@ import { getAbbreviatedAddress, parseSmidge } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import Address from '../common/Address';
+import { SignMessage } from '../settings';
 
 const AccountDetails = styled.div`
   display: flex;
@@ -114,6 +115,7 @@ const AccountsOverview = () => {
   );
   const dispatch = useDispatch();
   const [isSwitching, setIsSwitching] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
 
   const handleSetCurrentAccount = ({ index }: { index: number }) => {
     dispatch(setCurrentAccount(index));
@@ -175,6 +177,13 @@ const AccountsOverview = () => {
             </SwitchAccountButton>
           </div>
         )}
+        <AccountActionButton onClick={() => setIsSigning(true)}>
+          sign message
+        </AccountActionButton>
+        {isSigning && (
+          <SignMessage
+            index={currentAccountIndex}
+            close={() => setIsSigning(false)}
           />
         )}
       </AccountDetails>
