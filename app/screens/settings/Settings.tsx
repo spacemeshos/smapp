@@ -73,13 +73,13 @@ const GreenText = styled(Text)`
 const AccountCmdBtnWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  margin-top: 30px;
+  margin: 1em 0;
 `;
 
 const AccountCmdBtnSeparator = styled.div`
   width: 2px;
   height: 20px;
-  background-color: ${smColors.blue};
+  background-color: ${smColors.mediumGray};
   margin: auto 15px;
 `;
 
@@ -472,6 +472,7 @@ class Settings extends Component<Props, State> {
                           onClick={() =>
                             this.startEditingAccountDisplayName({ index })
                           }
+                          style={{ color: smColors.orange }}
                           text="RENAME"
                         />
                       )}
@@ -480,7 +481,6 @@ class Settings extends Component<Props, State> {
                         onClick={() => this.toggleSignMessageModal({ index })}
                         text="SIGN TEXT"
                       />
-                      <AccountCmdBtnSeparator />
                     </AccountCmdBtnWrapper>
                   }
                   key={account.address}
