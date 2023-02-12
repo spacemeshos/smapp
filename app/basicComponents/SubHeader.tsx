@@ -5,4 +5,5 @@ export default styled.div`
   line-height: 20px;
   color: ${({ theme: { color } }) => color.primary};
   flex: 0.2;
+  margin-bottom: 1em;
 `;
