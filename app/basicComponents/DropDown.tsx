@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { smColors } from '../vars';
 
@@ -338,9 +338,11 @@ const DropDownItem: React.FC<DropDownItemProps> = ({
 
 type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
+  onClose?: () => void;
   data: Partial<T>[];
   selectedItemIndex: number;
   rowHeight?: number | string;
+  isOpened?: boolean;
   isDisabled?: boolean;
   bold?: boolean;
   hideSelectedItem?: boolean;
@@ -354,8 +356,10 @@ const ddItemKey = (index: number, key?: string) =>
 const DropDown = <T extends ADataItem>({
   data,
   onClick,
+  onClose = () => {},
   selectedItemIndex,
   rowHeight = 44,
+  isOpened: _isOpened = false,
   isDisabled = false,
   bold = false,
   hideSelectedItem = false,
@@ -363,12 +367,17 @@ const DropDown = <T extends ADataItem>({
   maxHeight = undefined,
 }: Props<T>) => {
   const theme = useTheme();
-  const [isOpened, setIsOpened] = useState(false);
-  const closeDropdown = () => setIsOpened(false);
+  const [isOpened, setIsOpened] = useState(_isOpened);
+  const closeDropdown = useCallback(() => {
+    setIsOpened(false);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     window.addEventListener('click', closeDropdown);
     return () => window.removeEventListener('click', closeDropdown);
-  }, []);
+  }, [closeDropdown]);
+
   const isDisabledComputed = isDisabled || !data || !data.length;
   const isLightTheme = dark === undefined ? !theme.isDarkMode : dark;
 
@@ -392,7 +401,7 @@ const DropDown = <T extends ADataItem>({
               e.preventDefault();
               e.stopPropagation();
               onClick({ index });
-              setIsOpened(false);
+              closeDropdown();
             }
       }
       height={rowHeight}
@@ -410,7 +419,11 @@ const DropDown = <T extends ADataItem>({
   );
 
   const handleToggle = () => {
-    setIsOpened(!isOpened);
+    if (isOpened) {
+      closeDropdown();
+    } else {
+      setIsOpened(true);
+    }
   };
 
   return (
