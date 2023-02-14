@@ -158,6 +158,7 @@ const AccountsOverview = () => {
               onClick={handleSetCurrentAccount}
               onClose={() => setIsSwitching(false)}
               isOpened
+              hideHeader
               selectedItemIndex={currentAccountIndex}
               rowHeight={55}
               maxHeight={400}
