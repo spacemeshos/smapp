@@ -88,12 +88,15 @@ const Leaving = ({ history }: AuthRouterParams) => {
           <ComplexLink>
             <Link onClick={navigateToSetupGuide} text="SETUP GUIDE" />
             <Row>
-              <Text>DON`T HAVE A DESKTOP?</Text>
+              <Text>ALREADY HAVE A WALLET? &nbsp;</Text>
               <Link
                 onClick={() => history.push(AuthPath.Recover)}
-                text="SETUP WALLET ONLY"
+                text="RECOVER IT"
               />
-              <Tooltip width={100} text="SETUP WALLET ONLY" />
+              <Tooltip
+                width={140}
+                text="You can recover your wallet from file or mnemonics"
+              />
             </Row>
           </ComplexLink>
           <Button

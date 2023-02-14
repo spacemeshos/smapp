@@ -127,8 +127,8 @@ const ConnectToApi = ({ history, location }: AuthRouterParams) => {
         width={650}
         height={400}
         header="CONNECT TO SPACEMESH"
-        subHeader="Select a Spacemesh API public service to connect you wallet to."
-        tooltipMessage="test"
+        subHeader="Select a Spacemesh public API service to connect your wallet to."
+        tooltipMessage="Currently there's only one Spacemesh public API available per network. You can use your own / custom API service."
       >
         <RowColumn>
           <DropDown

@@ -114,7 +114,7 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <Icon />
               <RowTitle>WALLET + NODE</RowTitle>
-              <Tooltip width={100} text="WALLET + NODE" />
+              <Tooltip width={120} text="To send, receive and smesh coins" />
             </Row>
             <RowText>A wallet that uses a local full Spacemesh</RowText>
             <RowText>p2p node and optionally setup smeshing</RowText>
@@ -131,7 +131,7 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
             <Row>
               <IconWallet />
               <RowTitle>WALLET ONLY</RowTitle>
-              <Tooltip width={100} text="Wallet only" />
+              <Tooltip width={120} text="To send and receive SMH" />
             </Row>
             <RowText>Setup a wallet that uses a public</RowText>
             <RowText>Spacemesh web service</RowText>
@@ -152,7 +152,10 @@ const WalletConnectionType = ({ history, location }: AuthRouterParams) => {
               onClick={() => history.push(AuthPath.Recover)}
               text="RESTORE EXISTING WALLET"
             />
-            <Tooltip width={100} text="RESTORE EXISTING WALLET" />
+            <Tooltip
+              width={120}
+              text="Locate a file or restore from 12 words"
+            />
           </Row>
         </BottomPart>
       </CorneredContainer>

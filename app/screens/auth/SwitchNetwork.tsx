@@ -138,7 +138,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         height={400}
         header="SPACEMESH NETWORK"
         subHeader="Select a public Spacemesh network for your wallet."
-        tooltipMessage="test"
+        tooltipMessage="Check explorer.spacemesh.io for the stats"
       >
         <RowColumn>
           <DropDown

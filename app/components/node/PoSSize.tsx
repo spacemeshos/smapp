@@ -147,7 +147,10 @@ const PoSSize = ({
       <Row>
         <Icon1 src={posSpace} />
         <Text>Proof of space size</Text>
-        <Tooltip width={200} text="Some text" />
+        <Tooltip
+          width={250}
+          text="Generating this unique data takes time and the processor’s work. Choose thoughtfully."
+        />
         <Dots>.....................................................</Dots>
         <DropDown
           data={commitments}

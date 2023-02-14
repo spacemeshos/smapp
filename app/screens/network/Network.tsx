@@ -145,7 +145,10 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Age</DetailsText>
-          <Tooltip width={250} text="tooltip age" />
+          <Tooltip
+            width={250}
+            text="​​Elapsed time since the current Network genesis"
+          />
         </DetailsTextWrap>
         <GrayText>
           <CustomTimeAgo time={genesisTime} />
@@ -156,7 +159,7 @@ const Network = ({ history }) => {
           <DetailsText>Genesis ID</DetailsText>
           <Tooltip
             width={250}
-            text="Unique hash per network, generated from genesis time and unique identifier."
+            text="Unique hash per network, generated from genesis time and a unique identifier"
           />
         </DetailsTextWrap>
         <GrayText>
@@ -166,7 +169,7 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Status</DetailsText>
-          <Tooltip width={250} text="tooltip Status" />
+          <Tooltip width={250} text="Network Synchronization Status" />
         </DetailsTextWrap>
         <GrayText>
           <NetworkStatus
@@ -197,14 +200,20 @@ const Network = ({ history }) => {
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Current Layer</DetailsText>
-              <Tooltip width={250} text="tooltip Current Layer" />
+              <Tooltip
+                width={250}
+                text="Most recent Layer number in this Network"
+              />
             </DetailsTextWrap>
             <GrayText>{status?.topLayer || 0}</GrayText>
           </DetailsRow>
           <DetailsRow>
             <DetailsTextWrap>
               <DetailsText>Verified Layer</DetailsText>
-              <Tooltip width={250} text="tooltip Verified Layer" />
+              <Tooltip
+                width={250}
+                text="The last processed and synced Layer number. Usually lags behind Current Layer by a layer or two."
+              />
             </DetailsTextWrap>
             <GrayText>{status?.verifiedLayer || 0}</GrayText>
           </DetailsRow>
@@ -213,7 +222,10 @@ const Network = ({ history }) => {
       <DetailsRow>
         <DetailsTextWrap>
           <DetailsText>Connection Type</DetailsText>
-          <Tooltip width={250} text="tooltip Connection Type" />
+          <Tooltip
+            width={250}
+            text="Managed p2p if running a local node. Otherwise Remote API provider details"
+          />
         </DetailsTextWrap>
         <GrayText>
           {isWalletMode
@@ -225,7 +237,10 @@ const Network = ({ history }) => {
         <DetailsRow>
           <DetailsTextWrap>
             <DetailsText>Connected neighbors</DetailsText>
-            <Tooltip width={250} text="tooltip Connected neighbors" />
+            <Tooltip
+              width={250}
+              text="Spacemesh syncs database and participates in the network by communicating with other connected peers"
+            />
           </DetailsTextWrap>
           <GrayText>{status?.connectedPeers || 0}</GrayText>
         </DetailsRow>
@@ -269,7 +284,10 @@ const Network = ({ history }) => {
           {!isWalletMode && (
             <Link onClick={openLogFile} text="BROWSE LOG FILE" />
           )}
-          <Tooltip width={250} text="tooltip BROWSE LOG FILE" />
+          <Tooltip
+            width={250}
+            text="Locate the go-spacemesh and app log files on your computer"
+          />
           {renderActionButton()}
         </FooterWrap>
       </Container>
