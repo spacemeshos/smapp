@@ -167,6 +167,7 @@ jobs:
         name: Build windows app
         run: yarn package-win
         env:
+          DONT_SIGN_APP: true # Do not sign the development artifacts
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ENV: pr-builds
