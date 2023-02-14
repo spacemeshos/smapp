@@ -157,6 +157,11 @@ jobs:
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
           # TODO: Move notarizing MacOS application to another job, like `sign-win-app`
 
+      # Copy checksum util to release dir
+      - name: Copy checksum tool
+        shell: bash
+        run: cp ./scripts/checksum.js ./release/checksum.js
+
       # Store artifacts for further jobs
       - name: Store artifacts
         uses: actions/upload-artifact@v2
@@ -224,14 +229,15 @@ jobs:
       - name: Copy latest.yml
         run: cp "./release/latest.yml" "./signed/latest.yml"
 
-      - name: Install hex64
-        run: yarn global add hex64
+      - name: Install Node.js, NPM
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '16'
 
       - name: Get new sha512
         id: sha512
         run: |
-          sha=($(shasum -a512 "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe"))
-          echo "::set-output name=value::$($(yarn global bin)/hex64 $sha | cut -c6-)"
+          echo "::set-output name=value::$(node ./release/checksum.js "./signed/Spacemesh Setup ${{ needs.build.outputs.version }}.exe")"
 
       - name: Update latest.yml (sha512)
         uses: endaft/action-yamler@v1.0.9
