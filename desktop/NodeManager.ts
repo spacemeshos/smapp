@@ -395,7 +395,14 @@ class NodeManager extends AbstractManager {
       compress: true,
     });
 
-    const args = ['--config', NODE_CONFIG_FILE, '-d', nodeDataFilesPath];
+    const args = [
+      '--config',
+      NODE_CONFIG_FILE,
+      '-d',
+      nodeDataFilesPath,
+      (process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server')) &&
+        '--pprof-server',
+    ];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
 
