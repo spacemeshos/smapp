@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled, { css, useTheme } from 'styled-components';
 import { smColors } from '../vars';
 
@@ -59,28 +59,16 @@ const HeaderWrapper = styled.div<{
     Number(rowHeight) ? `${rowHeight}px` : rowHeight};
   cursor: default;
   padding: 4px 10px;
-  border-top-left-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
-  border-top-right-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
-  border-bottom-left-radius: ${({
-    isOpened,
-    theme: {
-      form: { dropdown },
-    },
-  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
-  border-bottom-right-radius: ${({
-    isOpened,
-    theme: {
-      form: { dropdown },
-    },
-  }) => (isOpened ? 0 : dropdown.boxRadius)}px;
+  ${({ isOpened, theme }) => `
+    border-top-left-radius: ${theme.form.dropdown.boxRadius}px;
+    border-top-right-radius: ${theme.form.dropdown.boxRadius}px;
+    border-bottom-left-radius: ${
+      isOpened ? 0 : theme.form.dropdown.boxRadius
+    }px;
+    border-bottom-right-radius: ${
+      isOpened ? 0 : theme.form.dropdown.boxRadius
+    }px;
+  `}
   background-color: ${({
     isDarkMode,
     theme: {
@@ -164,6 +152,7 @@ const DropdownRow = styled.div<{
 `;
 
 const ItemsWrapper = styled.div<{
+  hideHeader: boolean;
   rowHeight: number | string;
   isDarkMode: boolean;
   isOpened: boolean;
@@ -179,33 +168,31 @@ const ItemsWrapper = styled.div<{
   overflow-y: auto;
   box-sizing: content-box;
   box-shadow: 0 3px 6px ${smColors.black02Alpha};
-  border-bottom-left-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
-  border-bottom-right-radius: ${({
-    theme: {
-      form: { dropdown },
-    },
-  }) => dropdown.boxRadius}px;
+  ${({ hideHeader, theme }) =>
+    hideHeader &&
+    `
+    border-top-left-radius: ${theme.form.dropdown.boxRadius}px;
+    border-top-right-radius: ${theme.form.dropdown.boxRadius}px;
+    border-bottom-left-radius: ${theme.form.dropdown.boxRadius}px;
+    border-bottom-right-radius: ${theme.form.dropdown.boxRadius}px;
+  `}
   border: ${({
-      theme: {
-        form: {
-          dropdown: { dark, light },
-        },
+    theme: {
+      form: {
+        dropdown: { dark, light },
       },
-      isDarkMode,
-    }) => (isDarkMode ? Number(dark.isOutBorder) : Number(light.isOutBorder))}px
+    },
+    isDarkMode,
+  }) => (isDarkMode ? Number(dark.isOutBorder) : Number(light.isOutBorder))}px
     solid
-    ${({
-      theme: {
-        form: {
-          dropdown: { dark, light },
-        },
+  ${({
+    theme: {
+      form: {
+        dropdown: { dark, light },
       },
-      isDarkMode,
-    }) => (isDarkMode ? dark.borderColor : light.borderColor)};
+    },
+    isDarkMode,
+  }) => (isDarkMode ? dark.borderColor : light.borderColor)};
   margin-left: ${({
     theme: {
       form: {
@@ -338,12 +325,15 @@ const DropDownItem: React.FC<DropDownItemProps> = ({
 
 type Props<T extends ADataItem> = {
   onClick: ({ index }: { index: number }) => void | Promise<number>;
+  onClose?: () => void;
   data: Partial<T>[];
   selectedItemIndex: number;
   rowHeight?: number | string;
+  isOpened?: boolean;
   isDisabled?: boolean;
   bold?: boolean;
   hideSelectedItem?: boolean;
+  hideHeader?: boolean;
   dark?: boolean;
   maxHeight?: number;
 };
@@ -354,21 +344,29 @@ const ddItemKey = (index: number, key?: string) =>
 const DropDown = <T extends ADataItem>({
   data,
   onClick,
+  onClose = () => {},
   selectedItemIndex,
   rowHeight = 44,
+  isOpened: _isOpened = false,
   isDisabled = false,
   bold = false,
   hideSelectedItem = false,
+  hideHeader = false,
   dark = undefined,
   maxHeight = undefined,
 }: Props<T>) => {
   const theme = useTheme();
-  const [isOpened, setIsOpened] = useState(false);
-  const closeDropdown = () => setIsOpened(false);
+  const [isOpened, setIsOpened] = useState(_isOpened);
+  const closeDropdown = useCallback(() => {
+    setIsOpened(false);
+    onClose();
+  }, [onClose]);
+
   useEffect(() => {
     window.addEventListener('click', closeDropdown);
     return () => window.removeEventListener('click', closeDropdown);
-  }, []);
+  }, [closeDropdown]);
+
   const isDisabledComputed = isDisabled || !data || !data.length;
   const isLightTheme = dark === undefined ? !theme.isDarkMode : dark;
 
@@ -376,10 +374,12 @@ const DropDown = <T extends ADataItem>({
     item,
     index,
     rowHeight = 44,
+    isSelected = false,
   }: {
     item: Partial<T>;
     index: number;
     rowHeight?: number | string;
+    isSelected: boolean;
   }) => (
     <DropdownRow
       isDisabled={item.isDisabled || false}
@@ -392,7 +392,7 @@ const DropDown = <T extends ADataItem>({
               e.preventDefault();
               e.stopPropagation();
               onClick({ index });
-              setIsOpened(false);
+              closeDropdown();
             }
       }
       height={rowHeight}
@@ -404,13 +404,17 @@ const DropDown = <T extends ADataItem>({
         isDisabled={item?.isDisabled}
         label={item?.label as string}
         description={item?.description as string}
-        isBold={bold}
+        isBold={isSelected || bold}
       />
     </DropdownRow>
   );
 
   const handleToggle = () => {
-    setIsOpened(!isOpened);
+    if (isOpened) {
+      closeDropdown();
+    } else {
+      setIsOpened(true);
+    }
   };
 
   return (
@@ -423,35 +427,39 @@ const DropDown = <T extends ADataItem>({
         e.stopPropagation();
       }}
     >
-      <HeaderWrapper
-        isOpened={isOpened}
-        isDarkMode={isLightTheme}
-        onClick={isDisabledComputed ? () => {} : handleToggle}
-        rowHeight={rowHeight}
-      >
-        <DropDownItem
+      {!hideHeader && (
+        <HeaderWrapper
+          isOpened={isOpened}
           isDarkMode={isLightTheme}
-          key={ddItemKey(selectedItemIndex, data[selectedItemIndex]?.key)}
-          isMain={data[selectedItemIndex]?.isMain}
-          isDisabled={data[selectedItemIndex]?.isDisabled}
-          label={data[selectedItemIndex]?.label as string}
-          description={data[selectedItemIndex]?.description as string}
-          isBold={bold}
-        />
-        <Icon isOpened={isOpened} isDark={dark} />
-      </HeaderWrapper>
+          onClick={isDisabledComputed ? () => {} : handleToggle}
+          rowHeight={rowHeight}
+        >
+          <DropDownItem
+            isDarkMode={isLightTheme}
+            key={ddItemKey(selectedItemIndex, data[selectedItemIndex]?.key)}
+            isMain={data[selectedItemIndex]?.isMain}
+            isDisabled={data[selectedItemIndex]?.isDisabled}
+            label={data[selectedItemIndex]?.label as string}
+            description={data[selectedItemIndex]?.description as string}
+            isBold={bold}
+          />
+          <Icon isOpened={isOpened} isDark={dark} />
+        </HeaderWrapper>
+      )}
       {isOpened && data && (
         <ItemsWrapper
+          hideHeader={hideHeader}
           isDarkMode={isLightTheme}
           rowHeight={rowHeight}
           isOpened={isOpened}
           maxHeight={maxHeight}
         >
-          {data.map((item, index: number) =>
-            hideSelectedItem && Number(index) === Number(selectedItemIndex)
+          {data.map((item, index: number) => {
+            const isSelected = Number(index) === Number(selectedItemIndex);
+            return hideSelectedItem && isSelected
               ? null
-              : renderRow({ item, index, rowHeight })
-          )}
+              : renderRow({ item, index, rowHeight, isSelected });
+          })}
         </ItemsWrapper>
       )}
     </Wrapper>
