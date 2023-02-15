@@ -43,22 +43,58 @@ To build and pack application:
      set env variable `DONT_SIGN_APP=1` to skip notarizing the app,
    - `yarn package-linux`
 
-To run the application against DevNet you have to set URL to config file to env variable `DEV_NET_URL`:
+### Arguments
+Smapp can be started with additional arguments:
+- `--discovery` (string)
+  _e.g._ `./Spacemesh --discovery http://localhost:8000/networks.json`
+  Specifies custom url to a custom networks list. It makes it possible for Smesher to connect to custom networks.
+  Env variable alias: `DISCOVERY_URL`
+- `--pprof-server` (boolean)
+  _e.g._ `./Spacemesh --pprof-server`
+  It makes Smapp runs go-spacemesh with the `--pprof-server` flag.
+  Env variable alias: `PPROF_SERVER`
+
+To run application in dev mode with same behavior set env variables instead:
 ```
-DEV_NET_URL=https://.../config.json yarn start
+PPROF_SERVER=1 DISCOVERY_URL=http://localhost:8000/networks.json yarn start
 ```
 
-To run the application against DevNet in the Wallet Only mode you have to also set URL (or list of URLs separated by commas) to GRPC API provider to env variable `DEV_NET_REMOTE_API`:
-```
-DEV_NET_REMOTE_API=https://192.168.0.1:31030 DEV_NET_URL=https://.../config.json yarn start
-DEV_NET_REMOTE_API=https://192.168.0.1:31030,http://192.168.0.2:31035 DEV_NET_URL=https://.../config.json yarn start
-```
+### Environment Variables
 
-To run Smapp on dev with turned on Sentry specify required env variables:
+#### Connect to custom networks:
+```
+DISCOVERY_URL=http://localhost:8000/networks.json yarn start
+```
+Alias for `--discovery` argument.
+
+<details>
+    <summary>Deprecated</summary>
+
+  > To run the application against DevNet you have to set URL to config file to env variable `DEV_NET_URL`:
+  > ```
+  > DEV_NET_URL=https://.../config.json yarn start
+  > ```
+  >
+  > To run the application against DevNet in the Wallet Only mode you have to also set URL (or list of URLs separated by commas) to GRPC API provider to env variable `DEV_NET_REMOTE_API`:
+  > ```
+  > export DEV_NET_REMOTE_API=https://192.168.0.1:31030
+  > export DEV_NET_URL=https://.../config.json
+  > yarn start
+  > ```
+
+</details>
+
+#### Profiling Node
+```
+PPROF_SERVER=1 yarn start
+```
+Alias for `--pprof-server` argument.
+
+#### Sentry
 ```
 SENTRY_DSN='collection errors/logs url taken from sentry'
-SENTRY_AUTH_TOKEN='special auth token for sentry cli integration'
 SENTRY_LOG_LEVEL=boolean # enables debug information
+SENTRY_AUTH_TOKEN='special auth token for sentry cli integration'
 ```
 
 ### Building Artifacts in CI
