@@ -30,6 +30,7 @@ import {
 } from '../aes-gcm';
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
+import { FilePermissionWalletError } from '../errors';
 import { DEFAULT_WALLETS_DIRECTORY } from './constants';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
@@ -138,7 +139,11 @@ export const saveRaw = async (walletPath: string, wallet: WalletFile) => {
     ? path.basename(walletPath)
     : `my_wallet_${wallet.meta.created}.json`;
   const filepath = isFilePath ? walletPath : path.resolve(walletPath, filename);
-  await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
+  try {
+    await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
+  } catch (err: any) {
+    throw new FilePermissionWalletError(err.message, err.stack);
+  }
   return { filename, filepath };
 };
 

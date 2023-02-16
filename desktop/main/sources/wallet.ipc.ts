@@ -91,10 +91,12 @@ const updateWalletFile = async (next: WalletData) => {
     await saveWallet(next.path, next.password, next.wallet).catch((err) => {
       if (err?.message === WRONG_PASSWORD_MESSAGE) return;
       logger.error('updateWalletFile/saveWallet', err, next.path);
+      throw err;
     });
   } else {
     await updateWalletMeta(next.path, next.wallet.meta).catch((err) => {
       logger.error('updateWalletFile', err, next.path);
+      throw err;
     });
   }
 };
@@ -390,6 +392,9 @@ const handleWalletIpcRequests = (
       },
       error: (error: Error) => {
         logger.debug('$nextWallet', error);
+        $notifications.next(
+          new FilePermissionWalletError(error.message, error.stack)
+        );
         throw error;
       },
       complete: () => {
