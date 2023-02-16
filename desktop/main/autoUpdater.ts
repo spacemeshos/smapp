@@ -73,7 +73,9 @@ export const checkUpdates = async (
   return null;
 };
 
-export const installUpdate = () => autoUpdater.quitAndInstall();
+export const installUpdate = () => {
+  autoUpdater.quitAndInstall(true, true);
+};
 export const subscribe = (
   mainWindow: BrowserWindow,
   $downloaded: Subject<UpdateInfo>

@@ -26,7 +26,7 @@ import handleWalletIpcRequests from './sources/wallet.ipc';
 import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
 import { AppStore, Managers } from './app.types';
-import observeAutoUpdates from './sources/autoUpdate';
+import handleAutoUpdates from './sources/autoUpdate';
 import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
@@ -217,7 +217,7 @@ const startApp = (): AppStore => {
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
-    observeAutoUpdates($mainWindow, $currentNetwork),
+    handleAutoUpdates($mainWindow, $currentNetwork),
     handleOpenDashboard($mainWindow, $currentNetwork),
   ];
 
