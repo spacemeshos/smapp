@@ -7,6 +7,7 @@ import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
 import { setUiError } from '../../redux/ui/actions';
 import { ExternalLinks } from '../../../shared/constants';
+import { getGenesisID } from '../../redux/network/selectors';
 import { AuthPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
@@ -34,13 +35,21 @@ const BottomPart = styled.div`
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
 
-  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const networksList = useSelector((state: RootState) => state.networks);
   const [networks, setNetworks] = useState({
     loading: false,
     networks: networksList,
   });
   const [showLoader, setLoader] = useState(false);
+  const curGenesisId = useSelector(getGenesisID);
+  const curIndex = networks.networks.findIndex(
+    (n) => n.genesisID === curGenesisId
+  );
+  const [selectedItemIndex, setSelectedItemIndex] = useState(
+    curIndex > -1 ? curIndex : 0
+  );
+
+  const { creatingWallet, isWalletOnly, mnemonic } = location?.state || {};
 
   const updateNetworks = () => {
     if (networks.loading) return;
@@ -77,7 +86,6 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
       : [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
 
   const goNext = (genesisID: string | undefined) => {
-    const { creatingWallet, isWalletOnly, mnemonic } = location.state;
     if (creatingWallet) {
       if (isWalletOnly && genesisID?.length)
         return history.push(AuthPath.ConnectToAPI, {
@@ -95,14 +103,14 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     }
     if (genesisID?.length && isWalletOnly) {
       return history.push(AuthPath.ConnectToAPI, {
-        redirect: location?.state?.redirect,
+        redirect: location.state?.redirect,
         genesisID,
         isWalletOnly,
         creatingWallet,
         mnemonic,
       });
     }
-    return history.push(location?.state?.redirect || AuthPath.Unlock);
+    return history.push(location.state?.redirect || AuthPath.Unlock);
   };
 
   const handleNext = async () => {
@@ -132,7 +140,9 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     />
   ) : (
     <Wrapper>
-      {!!location.state.creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
+      {Boolean(location.state?.creatingWallet) && (
+        <Steps step={Step.SELECT_NETWORK} />
+      )}
       <CorneredContainer
         width={650}
         height={400}
