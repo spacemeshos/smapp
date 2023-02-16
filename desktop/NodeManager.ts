@@ -400,8 +400,9 @@ class NodeManager extends AbstractManager {
       NODE_CONFIG_FILE,
       '-d',
       nodeDataFilesPath,
-      (process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server')) &&
-        '--pprof-server',
+      ...(process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server')
+        ? ['--pprof-server']
+        : []),
     ];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);
