@@ -72,6 +72,7 @@ const NoInternetConnection = () => {
         </ErrorMessage>
         <ButtonsWrapper>
           <Button
+            isPrimary={false}
             onClick={navigateToDiscord}
             text="OPEN DISCORD CHANNEL"
             width={180}

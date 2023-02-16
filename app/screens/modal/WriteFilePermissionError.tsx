@@ -38,13 +38,12 @@ const WriteFilePermissionError = () => {
     (state: RootState) => state.ui.filePermissionError
   );
   const [showModal, setShowModal] = React.useState<boolean>(false);
-  const [isIgnore, setIsIgnore] = React.useState<boolean>(false);
 
   useEffect(() => {
     setShowModal(Boolean(filePermissionError));
   }, [filePermissionError]);
 
-  if (!showModal || isIgnore) {
+  if (!showModal) {
     return null;
   }
   const openLogFile = () => {
@@ -54,7 +53,6 @@ const WriteFilePermissionError = () => {
   const handleIgnore = () => {
     dispatch(setUiFilePermissionError(null));
     setShowModal(false);
-    setIsIgnore(true);
   };
 
   return (
@@ -72,8 +70,8 @@ const WriteFilePermissionError = () => {
           and in case of critical issue help to you.
         </ErrorMessage>
         <ButtonsWrapper>
+          <Button isPrimary={false} onClick={handleIgnore} text="BACK" />
           <Button onClick={openLogFile} text="GIVE ACCESS" />
-          <Button onClick={handleIgnore} text="IGNORE" />
         </ButtonsWrapper>
       </Modal>
     </ReactPortal>
