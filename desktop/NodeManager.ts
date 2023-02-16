@@ -20,6 +20,10 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../shared/warning';
 import StoreService from './storeService';
 import Logger from './logger';
 import NodeService, {
@@ -38,7 +42,6 @@ import { NODE_CONFIG_FILE } from './main/constants';
 import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
-import { FilePermissionLoggerError } from './errors';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -86,7 +89,7 @@ class NodeManager extends AbstractManager {
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
 
-  public $notifications = new Subject<Error>();
+  public $warnings = new Subject<Error>();
 
   private pushToErrorPool = createDebouncePool<ErrorPoolObject>(
     100,
@@ -400,8 +403,15 @@ class NodeManager extends AbstractManager {
     });
 
     logFileStream.on('error', (err) =>
-      this.$notifications.next(
-        new FilePermissionLoggerError(err.message, err.stack)
+      this.$warnings.next(
+        Warning.fromError(
+          WarningType.WriteFilePermission,
+          {
+            kind: WriteFilePermissionWarningKind.Logger,
+            filePath: logFilePath,
+          },
+          err
+        )
       )
     );
 

@@ -70,9 +70,9 @@ const StyledApp = () => {
             ))}
             <Redirect to="/auth" />
           </Switch>
+          <WriteFilePermissionError />
+          <NoInternetConnection />
         </Router>
-        <WriteFilePermissionError />
-        <NoInternetConnection />
       </ErrorBoundary>
     </ThemeProvider>
   );

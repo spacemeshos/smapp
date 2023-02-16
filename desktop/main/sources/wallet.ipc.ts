@@ -38,6 +38,10 @@ import {
   isRemoteNodeApi,
   stringifySocketAddress,
 } from '../../../shared/utils';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../../shared/warning';
 import Logger from '../../logger';
 import { SmeshingSetupState } from '../../NodeManager';
 import { hasNetwork } from '../Networks';
@@ -59,7 +63,6 @@ import {
   updateWalletMeta,
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
-import { FilePermissionWalletError } from '../../errors';
 
 type WalletData = {
   // path to wallet file
@@ -157,7 +160,7 @@ const handleWalletIpcRequests = (
   $walletPath: Subject<string>,
   $networks: Subject<Network[]>,
   $smeshingStarted: Observable<SmeshingSetupState>,
-  $notifications: Subject<string | Error>
+  $warnings: Subject<string | Error>
 ) => {
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
@@ -384,18 +387,22 @@ const handleWalletIpcRequests = (
         }
         if (isWalletData(next) && next.save) {
           updateWalletFile(next).catch((err: any) => {
-            $notifications.next(
-              new FilePermissionWalletError(err.message, err.stack)
+            $warnings.next(
+              Warning.fromError(
+                WarningType.WriteFilePermission,
+                {
+                  kind: WriteFilePermissionWarningKind.WalletFile,
+                  filePath: next.path,
+                },
+                err
+              )
             );
           });
         }
       },
       error: (error: Error) => {
         logger.debug('$nextWallet', error);
-        $notifications.next(
-          new FilePermissionWalletError(error.message, error.stack)
-        );
-        throw error;
+        $warnings.next(Warning.fromError(WarningType.Unknown, {}, error));
       },
       complete: () => {
         logger.error('$nextWallet', 'Observable is completed');

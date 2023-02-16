@@ -1,9 +1,12 @@
 import { existsSync, promises as fs } from 'fs';
 import * as TOML from '@iarna/toml';
 import { NodeConfig } from '../../shared/types';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../shared/warning';
 import StoreService from '../storeService';
 import { fetchNodeConfig } from '../utils';
-import { FilePermissionConfigError } from '../errors';
 import { NODE_CONFIG_FILE } from './constants';
 import { safeSmeshingOpts } from './smeshingOpts';
 import { generateGenesisIDFromConfig } from './Networks';
@@ -34,7 +37,14 @@ export const downloadNodeConfig = async (networkConfigUrl: string) => {
       encoding: 'utf8',
     });
   } catch (error: any) {
-    throw new FilePermissionConfigError(error?.message, error.stack);
+    throw Warning.fromError(
+      WarningType.WriteFilePermission,
+      {
+        kind: WriteFilePermissionWarningKind.ConfigFile,
+        filePath: NODE_CONFIG_FILE,
+      },
+      error
+    );
   }
 
   return nodeConfig as NodeConfig;

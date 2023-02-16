@@ -20,6 +20,10 @@ import {
   isWalletLegacyEncrypted,
 } from '../../shared/types/guards';
 import { fromHexString, toHexString } from '../../shared/utils';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../shared/warning';
 import {
   constructAesGcmIv,
   decrypt,
@@ -30,7 +34,6 @@ import {
 } from '../aes-gcm';
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
-import { FilePermissionWalletError } from '../errors';
 import { DEFAULT_WALLETS_DIRECTORY } from './constants';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
@@ -142,7 +145,14 @@ export const saveRaw = async (walletPath: string, wallet: WalletFile) => {
   try {
     await fs.writeFile(filepath, JSON.stringify(wallet), { encoding: 'utf8' });
   } catch (err: any) {
-    throw new FilePermissionWalletError(err.message, err.stack);
+    throw Warning.fromError(
+      WarningType.WriteFilePermission,
+      {
+        kind: WriteFilePermissionWarningKind.WalletFile,
+        filePath: filepath,
+      },
+      err
+    );
   }
   return { filename, filepath };
 };

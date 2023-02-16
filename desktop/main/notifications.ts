@@ -7,31 +7,26 @@ import {
 } from 'rxjs';
 import { BrowserWindow } from 'electron';
 import { ipcConsts } from '../../app/vars';
-import { FilePermissionError } from '../errors';
+import Warning from '../../shared/warning';
 import { makeSubscription } from './rx.utils';
 import { Managers } from './app.types';
 
 export const handleNotifications = (
-  $notifications: Subject<string | Error>,
+  $warnings: Subject<Warning>,
   $mainWindow: ReplaySubject<BrowserWindow>
 ) =>
   makeSubscription(
-    $notifications.pipe(withLatestFrom($mainWindow)),
-    ([message, mainWindow]) => {
-      if (message instanceof FilePermissionError) {
-        mainWindow.webContents.send(
-          ipcConsts.FILE_PERMISSION_ERROR,
-          message.message
-        );
-      }
+    $warnings.pipe(withLatestFrom($mainWindow)),
+    ([warning, mainWindow]) => {
+      mainWindow.webContents.send(ipcConsts.NEW_WARNING, warning.toObject());
     }
   );
 
 export const handleManagersNotifications = (
   $managers: Observable<Managers>,
-  $notifications: Subject<string | Error>
+  $warnings: Subject<string | Error>
 ) =>
   makeSubscription(
-    $managers.pipe(switchMap((managers) => managers.node.$notifications)),
-    (notification) => $notifications.next(notification)
+    $managers.pipe(switchMap((managers) => managers.node.$warnings)),
+    (notification) => $warnings.next(notification)
   );

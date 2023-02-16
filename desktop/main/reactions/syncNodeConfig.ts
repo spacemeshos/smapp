@@ -12,6 +12,7 @@ import {
   throwError,
 } from 'rxjs';
 import { Network, NodeConfig } from '../../../shared/types';
+import Warning from '../../../shared/warning';
 import { SmeshingSetupState } from '../../NodeManager';
 import { downloadNodeConfig } from '../NodeConfig';
 import { makeSubscription } from '../rx.utils';
@@ -20,7 +21,7 @@ export default (
   $currentNetwork: Observable<Network | null>,
   $nodeConfig: Subject<NodeConfig>,
   $smeshingSetupState: Subject<SmeshingSetupState>,
-  $notifications: Subject<string | Error>
+  $warnings: Subject<string | Error>
 ) =>
   makeSubscription(
     merge(
@@ -34,9 +35,9 @@ export default (
       switchMap((net) => from(downloadNodeConfig(net.conf))),
       retry(5),
       delay(500),
-      catchError((err) => {
-        $notifications.next(err);
-        return throwError(err);
+      catchError((err: Warning) => {
+        $warnings.next(err);
+        return throwError(() => err);
       })
     ),
     (conf) => $nodeConfig.next(conf as NodeConfig)

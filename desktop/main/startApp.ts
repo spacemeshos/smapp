@@ -6,6 +6,7 @@ import {
   Wallet,
 } from '../../shared/types';
 import { shallowEq } from '../../shared/utils';
+import Warning from '../../shared/warning';
 import StoreService from '../storeService';
 import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
 import { MINUTE } from './constants';
@@ -121,7 +122,7 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
-  const $notifications = new $.Subject<string | Error>();
+  const $warnings = new $.Subject<Warning>();
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
     StoreService.get(IS_AUTO_START_ENABLED)
   );
@@ -160,7 +161,7 @@ const startApp = (): AppStore => {
       $currentNetwork,
       $nodeConfig,
       $smeshingSetupState,
-      $notifications
+      $warnings
     ),
     // Activate wallet and accounts
     activateWallet(
@@ -206,7 +207,7 @@ const startApp = (): AppStore => {
       $walletPath,
       $networks,
       $smeshingStarted,
-      $notifications
+      $warnings
     ),
     // Handle Start Smeshing request
     handleSmesherIpc($managers, $smeshingStarted),
@@ -235,8 +236,8 @@ const startApp = (): AppStore => {
     // and handle IPC communications with it
     observeAutoUpdates($mainWindow, $currentNetwork),
     handleOpenDashboard($mainWindow, $currentNetwork),
-    handleManagersNotifications($managers, $notifications),
-    handleNotifications($notifications, $mainWindow),
+    handleManagersNotifications($managers, $warnings),
+    handleNotifications($warnings, $mainWindow),
   ];
 
   return {

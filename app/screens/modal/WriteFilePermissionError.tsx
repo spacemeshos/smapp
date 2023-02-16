@@ -1,12 +1,18 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../../shared/warning';
 import { Button } from '../../basicComponents';
 import Modal from '../../components/common/Modal';
 import { eventsService } from '../../infra/eventsService';
-import { RootState } from '../../types';
+import { getWarningByType } from '../../redux/ui/selectors';
 import { smColors } from '../../vars';
-import { setUiFilePermissionError } from '../../redux/ui/actions';
+import { omitWarning } from '../../redux/ui/actions';
+import { AuthPath } from '../../routerPaths';
 import ReactPortal from './ReactPortal';
 
 const ButtonsWrapper = styled.div<{ hasSingleButton?: boolean }>`
@@ -32,46 +38,61 @@ const RedText = styled.span`
   color: ${smColors.red};
 `;
 
+const getSubheader = (kind: WriteFilePermissionWarningKind) => {
+  switch (kind) {
+    case WriteFilePermissionWarningKind.ConfigFile:
+      return 'Not enough permissions to write a config file';
+    case WriteFilePermissionWarningKind.Logger:
+      return 'Not enough permissions to write a log file';
+    case WriteFilePermissionWarningKind.WalletFile:
+      return 'Not enough permissions to write a wallet file';
+    default:
+      return 'Not enough permissions to write a file...';
+  }
+};
+
 const WriteFilePermissionError = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const filePermissionError = useSelector(
-    (state: RootState) => state.ui.filePermissionError
+    getWarningByType(WarningType.WriteFilePermission)
   );
-  const [showModal, setShowModal] = React.useState<boolean>(false);
 
-  useEffect(() => {
-    setShowModal(Boolean(filePermissionError));
-  }, [filePermissionError]);
-
-  if (!showModal) {
+  if (!filePermissionError) {
     return null;
   }
-  const openLogFile = () => {
-    eventsService.showFileInFolder({ isLogFile: true });
+  const showFile = () => {
+    eventsService.showFileInFolder({
+      filePath: filePermissionError.payload.filePath,
+    });
   };
 
-  const handleIgnore = () => {
-    dispatch(setUiFilePermissionError(null));
-    setShowModal(false);
+  const handleDismiss = () => {
+    dispatch(omitWarning(filePermissionError));
   };
+
+  const subheader = getSubheader(filePermissionError.payload.kind);
 
   return (
     <ReactPortal modalId="spacemesh-folder-permission">
-      <Modal
-        header="Error :)"
-        subHeader="Check permission on writing..."
-        width={600}
-        height={450}
-      >
+      <Modal header="Error" subHeader={subheader} width={600} height={450}>
         <ErrorMessage>
-          {filePermissionError}
-          {'\n'}
-          It is very <RedText>important</RedText> to keep the state of the node
-          and in case of critical issue help to you.
+          {filePermissionError.message}
+          {'\n\n'}
+          {filePermissionError.payload.kind ===
+            WriteFilePermissionWarningKind.WalletFile && (
+            <>
+              <RedText>Do not close application:</RedText>
+              <br />
+              Recent changes in wallet file will be lost.
+              {'\n\n'}
+            </>
+          )}
+          Please, check file system permissions and try again.
         </ErrorMessage>
         <ButtonsWrapper>
-          <Button isPrimary={false} onClick={handleIgnore} text="BACK" />
-          <Button onClick={openLogFile} text="GIVE ACCESS" />
+          <Button isPrimary={false} onClick={handleDismiss} text="DISMISS" />
+          <Button onClick={showFile} text="SHOW FILE" />
         </ButtonsWrapper>
       </Modal>
     </ReactPortal>

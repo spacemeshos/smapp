@@ -18,6 +18,7 @@ import {
   RewardsInfo,
   Account,
 } from '../../shared/types';
+import { AnyWarningObject } from '../../shared/warning';
 import { UpdaterState } from '../redux/updater/slice';
 
 export { NetworkState } from '../../shared/types';
@@ -73,7 +74,7 @@ export interface UiState {
   hideSmesherLeftPanel: boolean;
   error: Error | null;
   skinId: string | null;
-  filePermissionError: string | null;
+  warnings: AnyWarningObject[];
 }
 
 export interface RootState {
