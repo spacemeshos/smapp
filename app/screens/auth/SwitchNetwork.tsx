@@ -8,7 +8,7 @@ import { AppThDispatch, RootState } from '../../types';
 import { setUiError } from '../../redux/ui/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { getGenesisID } from '../../redux/network/selectors';
-import { AuthPath } from '../../routerPaths';
+import { AuthPath, MainPath } from '../../routerPaths';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -30,6 +30,11 @@ const BottomPart = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
+`;
+
+const RightSide = styled.div`
+  display: flex;
+  gap: 16px;
 `;
 
 const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
@@ -174,11 +179,20 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
               style={{ marginLeft: 'auto', marginRight: '1em' }}
             />
           )}
-          <Button
-            onClick={handleNext}
-            text="NEXT"
-            isDisabled={!hasAvailableNetworks}
-          />
+          <RightSide>
+            {location.state.showBackButton && (
+              <Button
+                onClick={() => history.push(MainPath.Settings)}
+                isPrimary={false}
+                text="CANCEL"
+              />
+            )}
+            <Button
+              onClick={handleNext}
+              text="NEXT"
+              isDisabled={!hasAvailableNetworks}
+            />
+          </RightSide>
         </BottomPart>
       </CorneredContainer>
     </Wrapper>
