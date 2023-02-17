@@ -49,7 +49,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     curIndex > -1 ? curIndex : 0
   );
 
-  const { creatingWallet, isWalletOnly, mnemonic } = location?.state || {};
+  const { creatingWallet, isWalletOnly, mnemonic, redirect } =
+    location?.state || {};
 
   const updateNetworks = () => {
     if (networks.loading) return;
@@ -103,14 +104,14 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     }
     if (genesisID?.length && isWalletOnly) {
       return history.push(AuthPath.ConnectToAPI, {
-        redirect: location.state?.redirect,
+        redirect,
         genesisID,
         isWalletOnly,
         creatingWallet,
         mnemonic,
       });
     }
-    return history.push(location.state?.redirect || AuthPath.Unlock);
+    return history.push(redirect || AuthPath.Unlock);
   };
 
   const handleNext = async () => {
@@ -140,9 +141,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
     />
   ) : (
     <Wrapper>
-      {Boolean(location.state?.creatingWallet) && (
-        <Steps step={Step.SELECT_NETWORK} />
-      )}
+      {creatingWallet && <Steps step={Step.SELECT_NETWORK} />}
       <CorneredContainer
         width={650}
         height={400}
