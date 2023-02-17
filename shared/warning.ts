@@ -19,6 +19,8 @@ interface WarningTypeOptions {
   }>;
 }
 
+export type AnyWarningType = keyof WarningTypeOptions;
+
 export type WarningPayload<
   T extends WarningType
 > = WarningTypeOptions[T]['payload'];
@@ -36,7 +38,10 @@ export type WarningObject<T extends keyof WarningTypeOptions> = {
   payload: WarningPayload<T>;
 };
 
-export type AnyWarningObject = WarningObject<WarningType>;
+type WarningType2ObjectMapping = {
+  [Property in AnyWarningType]: WarningObject<Property>;
+};
+export type AnyWarningObject = WarningType2ObjectMapping[AnyWarningType];
 
 export default class Warning extends Error {
   private type: keyof WarningTypeOptions;
