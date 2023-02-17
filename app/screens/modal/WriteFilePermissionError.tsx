@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import {
   WarningType,
   WriteFilePermissionWarningKind,
@@ -12,7 +11,6 @@ import { eventsService } from '../../infra/eventsService';
 import { getWarningByType } from '../../redux/ui/selectors';
 import { smColors } from '../../vars';
 import { omitWarning } from '../../redux/ui/actions';
-import { AuthPath } from '../../routerPaths';
 import ReactPortal from './ReactPortal';
 
 const ButtonsWrapper = styled.div<{ hasSingleButton?: boolean }>`
@@ -26,7 +24,7 @@ const ButtonsWrapper = styled.div<{ hasSingleButton?: boolean }>`
 
 const ErrorMessage = styled.pre`
   font-size: 14px;
-  line-height: 16px;
+  line-height: 1.33em;
   word-wrap: break-word;
   white-space: pre-wrap;
   flex: 1;
@@ -53,7 +51,6 @@ const getSubheader = (kind: WriteFilePermissionWarningKind) => {
 
 const WriteFilePermissionError = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
   const filePermissionError = useSelector(
     getWarningByType(WarningType.WriteFilePermission)
   );
@@ -66,6 +63,12 @@ const WriteFilePermissionError = () => {
       filePath: filePermissionError.payload.filePath,
     });
   };
+
+  const isCriticalError =
+    filePermissionError.payload.kind ===
+      WriteFilePermissionWarningKind.Logger ||
+    filePermissionError.payload.kind ===
+      WriteFilePermissionWarningKind.ConfigFile;
 
   const handleDismiss = () => {
     dispatch(omitWarning(filePermissionError));
@@ -88,10 +91,16 @@ const WriteFilePermissionError = () => {
               {'\n\n'}
             </>
           )}
-          Please, check file system permissions and try again.
+          <RedText>
+            {isCriticalError
+              ? 'Please, check file system permissions and restart Smapp.'
+              : 'Please, check file system permissions and try again.'}
+          </RedText>
         </ErrorMessage>
         <ButtonsWrapper>
-          <Button isPrimary={false} onClick={handleDismiss} text="DISMISS" />
+          {!isCriticalError && (
+            <Button isPrimary={false} onClick={handleDismiss} text="DISMISS" />
+          )}
           <Button onClick={showFile} text="SHOW FILE" />
         </ButtonsWrapper>
       </Modal>
