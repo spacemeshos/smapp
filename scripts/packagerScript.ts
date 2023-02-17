@@ -8,18 +8,23 @@ import { notarize } from 'electron-notarize';
 async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== 'darwin' || process.env.DONT_SIGN_APP) return;
-  if (!process.env.APPLEID || !process.env.APPLEIDPASS) {
-    console.error("\nError: No env variables `APPLEID` and `APPLEIDPASS` are set.\nTo skip signing set `DONT_SIGN_APP=1` explicitly.");
+  if (!process.env.APPLEID || !process.env.APPLEIDPASS || !process.env.APPLETEAMID) {
+    console.error([
+      'Error: No env variables `APPLEID`, `APPLEIDPASS`, `APPLETEAMID` are set.',
+      'To skip signing set `DONT_SIGN_APP=1` explicitly.',
+    ].join('\n'));
     process.exit(1);
   }
 
   const appName = context.packager.appInfo.productFilename;
 
   return await notarize({
+    tool: 'notarytool',
     appBundleId: 'com.spacemesh.wallet',
     appPath: `${appOutDir}/${appName}.app`,
-    appleId: process.env.APPLEID || '',
-    appleIdPassword: process.env.APPLEIDPASS || '',
+    appleId: process.env.APPLEID,
+    appleIdPassword: process.env.APPLEIDPASS,
+    teamId: process.env.APPLETEAMID,
   });
 }
 
