@@ -33,6 +33,7 @@ import {
   helpIcon,
   signOutIcon,
   uploadWhite,
+  copyWhite,
 } from '../../assets/images';
 
 export default {
@@ -241,6 +242,7 @@ export default {
     fireworks,
     leftSideTIcon,
     copy: copyBlack,
+    copySecondary: copyWhite,
     settings: settingsIcon,
     getCoins: getCoinsIcon,
     help: helpIcon,

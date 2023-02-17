@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
+import ExplorerButton from '../../basicComponents/ExplorerButton';
+import CopyButton from '../../basicComponents/CopyButton';
 import { setCurrentAccount } from '../../redux/wallet/actions';
 import {
   BoldText,
@@ -103,6 +105,23 @@ const UnitsText = styled.div`
   font-size: 17px;
 `;
 
+const StyledPostfix = styled.div`
+  display: flex;
+`;
+
+const fadeInOut = keyframes`
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+`;
+
+const CopiedBanner = styled.div`
+  z-index: 10;
+  color: ${smColors.darkerGreen};
+  animation: 3s ${fadeInOut} ease-out;
+`;
+
 const AccountsOverview = () => {
   const isSynced = useSelector(
     (state: RootState) => !!state.node.status?.isSynced
@@ -114,8 +133,10 @@ const AccountsOverview = () => {
     (state: RootState) => state.wallet.currentAccountIndex
   );
   const dispatch = useDispatch();
+
   const [isSwitching, setIsSwitching] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   const handleSetCurrentAccount = ({ index }: { index: number }) => {
     dispatch(setCurrentAccount(index));
@@ -137,9 +158,30 @@ const AccountsOverview = () => {
   if (!accounts || !accounts.length) {
     return null;
   }
+
   const { displayName, address } = accounts[currentAccountIndex];
   const balance = balances[address];
   const { value, unit } = parseSmidge(balance?.currentState?.balance || 0);
+
+  const AccountPostfix = ({ address }: { address: string }) => {
+    return (
+      <StyledPostfix>
+        <CopyButton secondary value={address} onClick={setCopiedAddress} />
+        <ExplorerButton address={address} />
+      </StyledPostfix>
+    );
+  };
+
+  const showedData = accounts.map((item) => ({
+    label: item.displayName,
+    description:
+      item.address === copiedAddress ? (
+        <CopiedBanner>Copied</CopiedBanner>
+      ) : (
+        getAbbreviatedAddress(item.address)
+      ),
+    endAdorment: <AccountPostfix address={item.address} />,
+  }));
 
   return (
     <WrapperWith2SideBars
@@ -151,10 +193,7 @@ const AccountsOverview = () => {
         {isSwitching && (
           <>
             <DropDown
-              data={accounts.map((item) => ({
-                label: item.displayName,
-                description: getAbbreviatedAddress(item.address),
-              }))}
+              data={showedData}
               onClick={handleSetCurrentAccount}
               onClose={() => setIsSwitching(false)}
               isOpened
