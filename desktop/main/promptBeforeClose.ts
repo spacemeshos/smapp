@@ -13,6 +13,7 @@ enum CloseAppPromptResult {
 const promptBeforeClose = (
   mainWindow: BrowserWindow,
   managers: Partial<Managers>,
+  isAppClosing: boolean,
   $isAppClosing: Subject<boolean>,
   $showWindowOnLoad: Subject<boolean>
 ) => {
@@ -47,8 +48,9 @@ const promptBeforeClose = (
   const quit = async () => {
     try {
       mainWindow.hide();
-      managers.wallet?.unsubscribeAllStreams();
-      await managers.node?.stopNode();
+      managers.smesher?.unsubscribe();
+      managers.wallet?.unsubscribe();
+      await managers.node?.stopNode().then(() => managers.node?.unsubscribe());
     } finally {
       $isAppClosing.next(true);
       app.quit();
@@ -62,6 +64,12 @@ const promptBeforeClose = (
     event.preventDefault();
     if (!mainWindow) {
       await quit();
+      return;
+    }
+    if (isAppClosing) {
+      mainWindow.hide();
+      $showWindowOnLoad.next(false);
+      mainWindow.reload();
       return;
     }
     const promptResult =
