@@ -15,14 +15,14 @@ export default (
   $showWindowOnLoad: Subject<boolean>
 ) =>
   makeSubscription(
-    $quit.pipe(withLatestFrom($mainWindow), withLatestFrom($managers)),
-    ([[event, mw], managers]) => {
+    $quit.pipe(withLatestFrom($mainWindow, $managers, $isAppClosing)),
+    ([event, mw, managers, isAppClosing]) =>
       mw &&
-        promptBeforeClose(
-          mw,
-          managers || {},
-          $isAppClosing,
-          $showWindowOnLoad
-        )(event).catch((err) => logger.error('promptBeforeClose', err));
-    }
+      promptBeforeClose(
+        mw,
+        managers || {},
+        isAppClosing,
+        $isAppClosing,
+        $showWindowOnLoad
+      )(event).catch((err) => logger.error('promptBeforeClose', err))
   );
