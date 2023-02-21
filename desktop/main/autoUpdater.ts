@@ -111,7 +111,13 @@ export const subscribe = (
   autoUpdater.on('error', (err: Error) => {
     if (!isNetError(err)) {
       logger.error('update-error', err);
-      notifyError(mainWindow, err);
+      if (err.message !== 'The command is disabled and cannot be executed') {
+        // Since we're showing prompt on close and blocking exiting Smapp
+        // without User's confirmation — it makes autoUpdater fails with
+        // such error, despite the choosen option: Cancel / Close / Keep.
+        // However, if User chooses Close — it does not break the autoupdate.
+        notifyError(mainWindow, err);
+      }
     } else {
       logger.debug('update-error NetError:', err);
     }
