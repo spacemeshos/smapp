@@ -4,9 +4,7 @@ import prompts from 'prompts';
 
 import { sign } from '../desktop/ed25519';
 import { fromHexString } from '../shared/utils';
-import { sha256 } from '@spacemesh/sm-codec/lib/utils/crypto';
-import { generateGenesisID } from '../desktop/main/Networks';
-import { SingleSigMethods } from '../shared/templateConsts';
+import { generateGenesisID } from "../desktop/main/Networks";
 
 (async () => {
   // Inputs
@@ -141,7 +139,7 @@ import { SingleSigMethods } from '../shared/templateConsts';
   if (inputs.doSign) {
     const { genesisTime, genesisExtraData } = inputs
     const genesisID = generateGenesisID((new Date(genesisTime)).toString(), genesisExtraData)
-    const hash = sha256(new Uint8Array([...genesisID, ...encodedTx]));
+    const hash = sm.hash(new Uint8Array([...genesisID, ...encodedTx]));
     const sig = sign(hash, inputs.secretKey);
     logBytes('signature', sig);
     const signed = tpl.sign(encodedTx, sig);

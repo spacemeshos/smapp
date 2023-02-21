@@ -2128,6 +2128,11 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
+"@noble/hashes@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.2.0.tgz#a3150eeb09cc7ab207ebf6d7b9ad311a9bdbed12"
+  integrity sha512-FZfhjEDbT5GRswV3C6uvLPHMiVD6lQBmpoX5+eSiPaMTXte/IKqI5dykDxzZB/WBeK/CDuQRBWarPdi3FNY2zQ==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -2447,19 +2452,12 @@
   resolved "https://registry.yarnpkg.com/@spacemesh/address-wasm/-/address-wasm-0.2.0.tgz#7773efb5013292bd787f02f0b47fa4b4fa128145"
   integrity sha512-Q1ZQq0swhLPrz3WqOF09Umgq6L99k5aNVsa103Ne+doEMmpiSR8puLUBY9yReeqM/70AE8SAGBbvsg9YSCVnAg==
 
-"@spacemesh/sm-codec@0.3.4":
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.3.4.tgz#987f03dcf04d1f8fd2839b346b009d320b4ca9d2"
-  integrity sha512-Q5JpgV6ZXjkbv/Hibf1DIrG/9Fh35rRtMVUjtGyQpWhdCkADUuiY0z2KQVhl4FBV+/p9K8MhiSDx8xoLhextnQ==
+"@spacemesh/sm-codec@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.4.1.tgz#a7c6b5cfbab9a2494749f68a458dc39811076197"
+  integrity sha512-J0sWR75bjQ/Ax3TBmJpSCYFU+GKdOXbZmEPyhndcM+YxPwyb6e0uyqhVVckJa+IEKoRLWmaaWh62WCwIqmE9xw==
   dependencies:
-    "@spacemesh/sm-codec" "^0.2.1"
-    scale-ts "^0.2.11"
-
-"@spacemesh/sm-codec@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.2.1.tgz#99a8ee0cfed126d67325929c372554ba0bb19713"
-  integrity sha512-XIbUeaK9XYQhOmox/fEPvwQyvzxTPWEsBpj4+t7aDj9E2IYFoA9Aou8kqmtBmOj+QKbs+qZlNJOJxeNtFrD7Zg==
-  dependencies:
+    "@noble/hashes" "^1.2.0"
     scale-ts "^0.2.11"
 
 "@storybook/addon-actions@6.5.12":
