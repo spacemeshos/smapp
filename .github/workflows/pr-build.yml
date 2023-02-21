@@ -15,27 +15,27 @@ jobs:
             id: macos
             platform: macos
             node: macOS
-            suffix: ''
+            arch: '' # x64
           - image: windows-latest
             id: windows
             platform: windows
             node: Windows
-            suffix: ''
+            arch: '' # x64
           - image: ubuntu-latest
             id: linux
             platform: linux
             node: Linux
-            suffix: _amd64
+            arch: amd64
           - image: [self-hosted, macos, arm64]
             id: macos-arm64
             platform: macos
             node: macOS_ARM64
-            suffix: -arm64
+            arch: arm64
           - image: [self-hosted, linux, arm64]
             id: linux-arm64
             platform: linux
             node: Linux_ARM64
-            suffix: _arm64
+            arch: arm64
 
     outputs:
       version: ${{ steps.package-version.outputs.version }}
@@ -98,7 +98,7 @@ jobs:
       - name: Check for go-spacemesh release archive existence
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          [[ $( curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}} ) == "200" ]] &&
           echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
           echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
         shell: bash
@@ -187,6 +187,10 @@ jobs:
       - name: get-smapp-version
         id: package-version
         uses: tyankatsu0105/read-package-version-actions@v1
+      
+      - name: Smapp version
+        run: |
+          echo "Version: ${{ steps.package-version.outputs.version }}"
 
       - name: Set up GCloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -198,22 +202,35 @@ jobs:
       - if: matrix.platform == 'macos'
         name: upload macos build
         uses: google-github-actions/upload-cloud-storage@v0
+        env:
+          preSuffix: ${{ matrix.arch != '' && '-' || '' }}
         with:
-          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ matrix.suffix }}.dmg
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
       - if: matrix.platform == 'windows'
         name: upload windows build
         uses: google-github-actions/upload-cloud-storage@v0
         with:
-          path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}${{ matrix.suffix }}.exe
+          path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
       - if: matrix.platform == 'linux'
         name: upload linux build
         uses: google-github-actions/upload-cloud-storage@v0
+        env:
+          preSuffix: ${{ matrix.arch != '' && '_' || '' }}
         with:
-          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ matrix.suffix }}.deb
+          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb
+          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
+
+      - if: matrix.platform == 'linux'
+        name: upload linux build
+        uses: google-github-actions/upload-cloud-storage@v0
+        env:
+          arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+        with:
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
   post-links:
@@ -222,11 +239,13 @@ jobs:
     steps:
       - name: Links to artifacts
         run: |
-          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
-          echo "macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
-          echo "macOS ARM64: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg"
-          echo "Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
-          echo "Linux ARM64: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb"
+          echo "Windows (x64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
+          echo "macOS (x64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
+          echo "macOS (arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg"
+          echo "Linux (deb, amd64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "Linux (AppImage, amd64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage"
+          echo "Linux (deb, arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb"
+          echo "Linux (AppImage, arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage"
       - name: Post links to PR
         if: github.event_name == 'pull_request'
         uses: mshick/add-pr-comment@v1
@@ -235,8 +254,8 @@ jobs:
         with:
           message: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
-            - macOS ARM64: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg
-            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb
-            - Linux ARM64: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb
+            - Windows: [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe)
+            - macOS: [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg)
+            - Linux
+              - AppImage [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage)
+              - deb [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb)
