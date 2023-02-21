@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { Subject, withLatestFrom } from 'rxjs';
+import { BehaviorSubject, Subject, withLatestFrom } from 'rxjs';
 import promptBeforeClose from '../promptBeforeClose';
 import Logger from '../../logger';
 import { makeSubscription } from '../rx.utils';
@@ -11,17 +11,16 @@ export default (
   $quit: Subject<Electron.IpcMainEvent>,
   $managers: Subject<Managers>,
   $mainWindow: Subject<BrowserWindow>,
-  $isAppClosing: Subject<boolean>,
+  $isAppClosing: BehaviorSubject<boolean>,
   $showWindowOnLoad: Subject<boolean>
 ) =>
   makeSubscription(
-    $quit.pipe(withLatestFrom($mainWindow, $managers, $isAppClosing)),
-    ([event, mw, managers, isAppClosing]) =>
+    $quit.pipe(withLatestFrom($mainWindow, $managers)),
+    ([event, mw, managers]) =>
       mw &&
       promptBeforeClose(
         mw,
         managers || {},
-        isAppClosing,
         $isAppClosing,
         $showWindowOnLoad
       )(event).catch((err) => logger.error('promptBeforeClose', err))

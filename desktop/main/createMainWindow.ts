@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import {
   BehaviorSubject,
   combineLatest,
@@ -41,13 +42,13 @@ export default () => {
 
   // Push to $quit event stream
   const handleQuit = async (event) => {
-    const isClosing = await firstValueFrom($isAppClosing);
-    if (!isClosing) {
+    if (!$isAppClosing.value) {
       $quit.next(event);
     }
   };
 
   app.on('before-quit', handleQuit);
+  autoUpdater.on('before-quit-for-update', handleQuit);
 
   // Add handlers to mainWindow
   $mainWindow.subscribe((mw) => {

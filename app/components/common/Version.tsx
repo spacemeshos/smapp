@@ -1,6 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import styled, { css } from 'styled-components';
+import { UpdateInfo as UpdateInfoT } from 'electron-updater';
+import { SemVer } from 'semver';
 
 import {
   getError,
@@ -12,6 +15,7 @@ import {
 import { eventsService } from '../../infra/eventsService';
 import { smColors } from '../../vars';
 import packageInfo from '../../../package.json';
+import { AuthPath } from '../../routerPaths';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
@@ -57,6 +61,10 @@ const SecondaryAction = styled.a`
   ${Action}
   ${hoverColor(smColors.purple, smColors.darkerPurple)}
 `;
+const SwitchNetwork = styled.a`
+  ${Action}
+  ${hoverColor(smColors.blue, smColors.darkerBlue)}
+`;
 
 const Attractor = styled.div`
   ${ChunkStyles};
@@ -79,11 +87,18 @@ const Error = styled(Chunk)`
   max-width: 300px;
 `;
 
-const UpdateInfo = ({ info }) => {
+const UpdateInfo = ({ info }: { info: UpdateInfoT }) => {
+  const history = useHistory();
+  const curVersion = new SemVer(packageInfo.version);
+  const isDowngrade = curVersion.compare(info.version) === 1;
   return (
     <>
       <Attractor />
-      <Chunk>Update available: v{info.version}</Chunk>
+      <Chunk>
+        {isDowngrade
+          ? `This network supports only v${info.version}`
+          : `Update available: v${info.version}`}
+      </Chunk>
       <PrimaryAction onClick={() => eventsService.downloadUpdate()}>
         Download
       </PrimaryAction>
@@ -93,6 +108,11 @@ const UpdateInfo = ({ info }) => {
       >
         Release notes
       </SecondaryAction>
+      {isDowngrade && (
+        <SwitchNetwork onClick={() => history.push(AuthPath.SwitchNetwork)}>
+          Switch network
+        </SwitchNetwork>
+      )}
     </>
   );
 };

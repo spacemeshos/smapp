@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog } from 'electron';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { ipcConsts } from '../../app/vars';
+import Logger from '../logger';
 import { Managers } from './app.types';
 import { showNotification } from './utils';
 
@@ -10,11 +11,14 @@ enum CloseAppPromptResult {
   CLOSE = 3,
 }
 
+const logger = Logger({ className: 'promptBeforeClose' });
+
+let isCloseTriggered = false;
+
 const promptBeforeClose = (
   mainWindow: BrowserWindow,
   managers: Partial<Managers>,
-  isAppClosing: boolean,
-  $isAppClosing: Subject<boolean>,
+  $isAppClosing: BehaviorSubject<boolean>,
   $showWindowOnLoad: Subject<boolean>
 ) => {
   const showPrompt = async () => {
@@ -51,40 +55,36 @@ const promptBeforeClose = (
       managers.smesher?.unsubscribe();
       managers.wallet?.unsubscribe();
       await managers.node?.stopNode().then(() => managers.node?.unsubscribe());
-    } finally {
       $isAppClosing.next(true);
+    } catch (err) {
+      logger.error('quit', err);
+    } finally {
       app.quit();
     }
   };
 
-  let cachedPromptResult: number | null = null;
-
   const handleClosingApp = async (event: Electron.Event) => {
-    if (cachedPromptResult !== null) return;
     event.preventDefault();
     if (!mainWindow) {
       await quit();
       return;
     }
-    if (isAppClosing) {
+    if (isCloseTriggered) {
       mainWindow.hide();
-      $showWindowOnLoad.next(false);
-      mainWindow.reload();
       return;
     }
+
     const promptResult =
       ((await isNodeRunning()) && (await showPrompt())) ||
       CloseAppPromptResult.CLOSE;
-    cachedPromptResult = promptResult;
-    // clear cache
-    // eslint-disable-next-line no-return-assign
-    setTimeout(() => (cachedPromptResult = null), 5000);
+
     if (promptResult === CloseAppPromptResult.KEEP_SMESHING) {
       setTimeout(notify, 1000);
       mainWindow.hide();
       $showWindowOnLoad.next(false);
       mainWindow.reload();
     } else if (promptResult === CloseAppPromptResult.CLOSE) {
+      isCloseTriggered = true;
       mainWindow.webContents.send(ipcConsts.CLOSING_APP);
       await quit();
     }

@@ -179,6 +179,7 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
           APPLEID: ${{ secrets.APPLE_ID }}
           APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLETEAMID: ${{ secrets.APPLE_TEAM_ID }}
           # TODO: Move notarizing MacOS application to another job, like `sign-win-app`
 
       # Copy checksum util to release dir

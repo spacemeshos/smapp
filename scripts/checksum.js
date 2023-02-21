@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 const path = require('path');
 const fs = require('fs');
-const  crypto = require('crypto');
+const crypto = require('crypto');
 
 (async () => {
   if (!process.argv[2]) {
@@ -51,12 +51,7 @@ function hashFile(file, algorithm = 'sha512', encoding = 'base64', options) {
         hash.end();
         resolve(hash.read());
       })
-      .pipe(
-        hash,
-        {
-          end: false,
-        }
-      );
+      .pipe(hash, { end: false });
   });
 }
 

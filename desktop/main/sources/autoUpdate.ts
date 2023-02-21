@@ -10,7 +10,6 @@ import {
   Observable,
   sample,
   Subject,
-  switchMap,
   withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
@@ -25,7 +24,7 @@ import {
 import { HOUR } from '../constants';
 import { fromIPC } from '../rx.utils';
 
-const observeAutoUpdates = (
+const handleAutoUpdates = (
   $mainWindow: Observable<BrowserWindow>,
   $currentNetwork: Observable<Network | null>
 ) => {
@@ -34,10 +33,6 @@ const observeAutoUpdates = (
   const $request = new Subject<boolean>();
   const $downloaded = new Subject<UpdateInfo>();
 
-  // const $data = combineLatest([$mainWindow, $currentNetwork, of(false)]).pipe(
-  //   filter((data): data is Data => Boolean(data[1])),
-  //   debounceTime(10)
-  // );
   const $data = $currentNetwork.pipe(
     filter(Boolean),
     withLatestFrom($mainWindow),
@@ -84,13 +79,12 @@ const observeAutoUpdates = (
       $request.next(true);
     }),
     // Trigger installation
-    fromIPC<void>(ipcConsts.AU_REQUEST_INSTALL)
-      // wait (ensure) that update is downloaded
-      .pipe(switchMap(() => $downloaded))
-      .subscribe(() => installUpdate()),
+    fromIPC<void>(ipcConsts.AU_REQUEST_INSTALL).subscribe(() =>
+      installUpdate()
+    ),
   ];
 
   return () => subs.forEach((sub) => sub.unsubscribe());
 };
 
-export default observeAutoUpdates;
+export default handleAutoUpdates;
