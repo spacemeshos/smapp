@@ -11,7 +11,7 @@ import { RootState } from '../../types';
 import Version from '../../components/common/Version';
 import { AuthRouterParams } from './routerParams';
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;

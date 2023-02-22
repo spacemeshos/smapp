@@ -113,7 +113,12 @@ export const makeSubscription = <T>(
   source: Observable<T>,
   cb: (a: T) => void
 ) => {
-  const sub = source.subscribe(cb);
+  const sub = source.subscribe({
+    next: cb,
+    error: (err) => {
+      logger.error('makeSubscription', err, { source, cb });
+    },
+  });
   return sub.unsubscribe;
 };
 

@@ -6,6 +6,7 @@ import node from './node/reducer';
 import ui from './ui/reducer';
 import smesher from './smesher/reducer';
 import updater from './updater/slice';
+
 import { ipcReducer } from './ipcBatchSync';
 import networkInitialState from './network/initialState';
 

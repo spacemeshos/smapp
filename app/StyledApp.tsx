@@ -14,6 +14,8 @@ import { ipcConsts } from './vars';
 import { goToSwitchAPI, goToSwitchNetwork } from './routeUtils';
 import { getThemeById } from './theme';
 import { init } from './sentry';
+import WriteFilePermissionError from './screens/modal/WriteFilePermissionError';
+import NoInternetConnection from './screens/modal/NoInternetConnection';
 
 const history = createBrowserHistory();
 
@@ -42,9 +44,9 @@ const EventRouter = () => {
 const StyledApp = () => {
   const skinId = useSelector((state: RootState) => state.ui.skinId);
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
-  const isClosingApp = useSelector((state: RootState) => state.ui.isClosingApp);
   const dispatch = useDispatch();
   const theme = getThemeById(skinId, isDarkMode);
+
   useEffect(() => {
     dispatch(setOsTheme());
   }, [dispatch]);
@@ -54,7 +56,6 @@ const StyledApp = () => {
       <style>{fontsCss}</style>
       <GlobalStyle />
       <ErrorBoundary>
-        {isClosingApp && <CloseAppModal />}
         <Router history={history}>
           <EventRouter />
           <Switch>
@@ -67,6 +68,9 @@ const StyledApp = () => {
             ))}
             <Redirect to="/auth" />
           </Switch>
+          <WriteFilePermissionError />
+          <NoInternetConnection />
+          <CloseAppModal />
         </Router>
       </ErrorBoundary>
     </ThemeProvider>

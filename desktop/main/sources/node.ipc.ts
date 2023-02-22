@@ -12,7 +12,7 @@ const nodeIPCStreams = () => ({
   $nodeRestartRequest: fromIPC<void>(ipcConsts.N_M_RESTART_NODE),
 });
 
-export const nodeAndAppLogsListener = () =>
+export const sentryLogsListener = () =>
   makeSubscription(
     handleIPC(
       ipcConsts.GET_NODE_AND_APP_LOGS,

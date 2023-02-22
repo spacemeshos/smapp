@@ -1,6 +1,10 @@
 import { existsSync, promises as fs } from 'fs';
 import * as TOML from '@iarna/toml';
 import { NodeConfig } from '../../shared/types';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../shared/warning';
 import StoreService from '../storeService';
 import { fetchNodeConfig } from '../utils';
 import { NODE_CONFIG_FILE } from './constants';
@@ -23,19 +27,24 @@ const loadSmeshingOpts = async (nodeConfig) => {
   return safeSmeshingOpts(opts);
 };
 
-export const downloadNodeConfig = async (
-  networkConfigUrl: string,
-  updateNodeConfig = false
-) => {
+export const downloadNodeConfig = async (networkConfigUrl: string) => {
   const nodeConfig = await fetchNodeConfig(networkConfigUrl);
   // Copy smeshing opts from previous node config or replace it with empty one
-  const smeshing = await loadSmeshingOpts(nodeConfig);
-  nodeConfig.smeshing = smeshing;
+  nodeConfig.smeshing = await loadSmeshingOpts(nodeConfig);
 
-  if (updateNodeConfig) {
+  try {
     await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(nodeConfig), {
       encoding: 'utf8',
     });
+  } catch (error: any) {
+    throw Warning.fromError(
+      WarningType.WriteFilePermission,
+      {
+        kind: WriteFilePermissionWarningKind.ConfigFile,
+        filePath: NODE_CONFIG_FILE,
+      },
+      error
+    );
   }
 
   return nodeConfig as NodeConfig;
