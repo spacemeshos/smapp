@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
+import CopyButton from '../../basicComponents/CopyButton';
 import { Link, Button, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { MainPath } from '../../routerPaths';
@@ -55,16 +56,8 @@ const AddressText = styled(Text)`
   text-decoration: underline;
 `;
 
-const CopyIcon = styled.img.attrs(({ theme: { icons: { copy } } }) => ({
-  src: copy,
-}))`
-  width: 16px;
-  height: 15px;
-  margin: 0 10px;
-  cursor: inherit;
-`;
-
 const CopiedText = styled(Text)`
+  margin-left: 8px;
   font-weight: 800;
   color: ${smColors.green};
 `;
@@ -95,20 +88,7 @@ const RequestCoins = ({ history, location }: Props) => {
   const {
     state: { account, isSmesherActive },
   } = location;
-
-  const [isCopied, setIsCopied] = useState(false);
-
-  let copiedTimeout = 0;
-  const copyPublicAddress = async () => {
-    await navigator.clipboard.writeText(account.address);
-    clearTimeout(copiedTimeout);
-    copiedTimeout = window.setTimeout(() => setIsCopied(false), 3000);
-    setIsCopied(true);
-  };
-
-  useEffect(() => {
-    window.document.hasFocus() && copyPublicAddress();
-  });
+  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const navigateToNodeSetup = () => {
     history.push(MainPath.SmeshingSetup);
@@ -127,11 +107,16 @@ const RequestCoins = ({ history, location }: Props) => {
       </Header>
       <SubHeader>
         <Text>Request SMH by sharing your wallet&apos;s address:</Text>
-        <AddressWrapper onClick={copyPublicAddress}>
-          <AddressText>{account.address}</AddressText>
-          <CopyIcon />
-          {isCopied && <CopiedText>Copied!</CopiedText>}
-        </AddressWrapper>
+        <CopyButton
+          value={account.address}
+          hideCopyIcon={isCopied}
+          onClick={(val) => setIsCopied(Boolean(val))}
+        >
+          <AddressWrapper>
+            <AddressText>{account.address}</AddressText>
+            {isCopied && <CopiedText>Copied!</CopiedText>}
+          </AddressWrapper>
+        </CopyButton>
       </SubHeader>
       <Text>* This address is public and safe to share with anyone.</Text>
       <Text>* Send this address to anyone you want to receive Smesh from.</Text>
