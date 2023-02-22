@@ -27,8 +27,12 @@ export const startSmeshing = ({
   provider,
   throttle,
   maxFileSize,
-}: SmeshingOpts) => async (dispatch: AppThDispatch): Promise<boolean> => {
+}: SmeshingOpts) => async (
+  dispatch: AppThDispatch,
+  getState: GetState
+): Promise<boolean> => {
   try {
+    const prevDataDir = getState().smesher.dataDir;
     await eventsService.startSmeshing({
       coinbase,
       dataDir,
@@ -38,8 +42,12 @@ export const startSmeshing = ({
       throttle,
     });
 
-    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
-    localStorage.removeItem('smesherSmeshingTimestamp');
+    if (prevDataDir !== dataDir) {
+      // Do not drop "start creating PoS data" & "start smeshing" timestamps
+      // in case User changes some settings but keeps the directory.
+      localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
+      localStorage.removeItem('smesherSmeshingTimestamp');
+    }
 
     dispatch({
       type: STARTED_SMESHING,

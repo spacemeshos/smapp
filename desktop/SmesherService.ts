@@ -7,6 +7,7 @@ import {
   PostSetupState,
   PostSetupStatus,
 } from '../shared/types';
+import { longToNumber } from '../shared/utils';
 import memoDebounce from '../shared/memoDebounce';
 
 import Logger from './logger';
@@ -93,8 +94,9 @@ class SmesherService extends NetServiceFactory<
     handler,
   }: PostSetupOpts & {
     handler: (error: Error, status: Partial<PostSetupStatus>) => void;
-  }) =>
-    this.callService('StartSmeshing', {
+  }) => {
+    this.postDataCreationProgressStream(handler);
+    return this.callService('StartSmeshing', {
       coinbase: { address: coinbase },
       opts: {
         dataDir,
@@ -103,10 +105,8 @@ class SmesherService extends NetServiceFactory<
         computeProviderId,
         throttle,
       },
-    }).then((response) => {
-      this.postDataCreationProgressStream(handler);
-      return response.status;
-    });
+    }).then((response) => response.status);
+  };
 
   activateProgressStream = (
     handler: (error: Error, status: Partial<PostSetupStatus>) => void
@@ -218,9 +218,7 @@ class SmesherService extends NetServiceFactory<
           });
           handler(null, {
             postSetupState: state,
-            numLabelsWritten: numLabelsWritten
-              ? parseInt(numLabelsWritten.toString())
-              : 0,
+            numLabelsWritten: longToNumber(numLabelsWritten),
             opts: opts as PostSetupOpts | null,
           });
           streamError = null;

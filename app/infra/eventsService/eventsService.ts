@@ -326,11 +326,18 @@ ipcRenderer.on(
     const {
       status: { postSetupState, numLabelsWritten },
     } = request;
-    if (postSetupState === PostSetupState.STATE_COMPLETE) {
+    if (
+      store.getState().smesher.postSetupState !==
+        PostSetupState.STATE_COMPLETE &&
+      postSetupState === PostSetupState.STATE_COMPLETE
+    ) {
       localStorage.setItem(
         'smesherSmeshingTimestamp',
         `${new Date().getTime()}`
       );
+    }
+    if (postSetupState === PostSetupState.STATE_IN_PROGRESS) {
+      localStorage.removeItem('smesherSmeshingTimestamp');
     }
 
     store.dispatch({
