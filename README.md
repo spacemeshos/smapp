@@ -46,7 +46,7 @@ To build and pack application:
 ### Arguments
 Smapp can be started with additional arguments:
 - `--discovery` (string)
-  _e.g._ `./Spacemesh --discovery http://localhost:8000/networks.json`
+  _e.g._ `./Spacemesh --discovery=http://localhost:8000/networks.json`
   Specifies custom url to a custom networks list. It makes it possible for Smesher to connect to custom networks.
   Env variable alias: `DISCOVERY_URL`
 - `--pprof-server` (boolean)
