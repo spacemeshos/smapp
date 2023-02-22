@@ -346,18 +346,6 @@ class Settings extends Component<Props, State> {
                 rowName="Backup wallet"
               />
               <SettingRow
-                upperPartLeft="Restore wallet from backup file or 12 words"
-                isUpperPartLeftText
-                upperPartRight={
-                  <Button
-                    onClick={this.navigateToWalletRestore}
-                    text="RESTORE"
-                    width={180}
-                  />
-                }
-                rowName="Restore wallet"
-              />
-              <SettingRow
                 upperPartLeft="Use at your own risk!"
                 isUpperPartLeftText
                 upperPartRight={
