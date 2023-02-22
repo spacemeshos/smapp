@@ -60,6 +60,17 @@ Bech32.setHRPNetwork(HRP.TestNet);
 
 init();
 
+// Check arguments
+if (
+  app.commandLine.hasSwitch('discovery') &&
+  app.commandLine.getSwitchValue('discovery') === ''
+) {
+  process.stderr.write(
+    'Wrong discovery flag. Use: `spacemesh --discovery=http...`'
+  );
+  process.exit(1);
+}
+
 // Run
 app
   .whenReady()

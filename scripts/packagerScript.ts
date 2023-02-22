@@ -85,7 +85,8 @@ const getBuildOptions = ({ target }) => {
           path.join(__dirname, '../node/mac/libgpu-setup.dylib'),
           path.join(__dirname, '../node/mac/libMoltenVK.dylib'),
           path.join(__dirname, '../node/mac/libvulkan.1.dylib')
-        ]
+        ],
+        ...(process.env.DONT_SIGN_APP ? { identity: null } : {}),
       },
       dmg: {
         sign: false,
