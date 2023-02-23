@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
@@ -129,9 +128,9 @@ const UnlockWallet = ({ history, location }: AuthRouterParams) => {
           MainPath.Wallet
       );
     };
-    ipcRenderer.on(ipcConsts.WALLET_ACTIVATED, goNext);
+    window.electron.ipcRenderer.on(ipcConsts.WALLET_ACTIVATED, goNext);
     return () => {
-      ipcRenderer.off(ipcConsts.WALLET_ACTIVATED, goNext);
+      window.electron.ipcRenderer.off(ipcConsts.WALLET_ACTIVATED, goNext);
     };
   }, [history, location]);
 

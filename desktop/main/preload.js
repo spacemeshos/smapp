@@ -90,6 +90,16 @@ const electronHandler = {
         window.electron.ipcRenderer.removeListener(channel, subscription);
       };
     },
+    off(channel, func) {
+      if (!ALLOWED_CHANNELS.includes(channel)) {
+        throw new Error(`[ALLOWED CHANNELS] channel not allowed${channel}`);
+      }
+      const subscription = (_event, ...args) => func(...args);
+      window.electron.ipcRenderer.off(channel, subscription);
+      return () => {
+        window.electron.ipcRenderer.removeListener(channel, subscription);
+      };
+    },
     once(channel, func) {
       if (!ALLOWED_CHANNELS.includes(channel)) {
         throw new Error(`[ALLOWED CHANNELS] channel not allowed${channel}`);

@@ -62,6 +62,8 @@ export type Channels =
   | 'PROMPT_CHANGE_DATADIR'
   | 'AU_REQUEST_DOWNLOAD'
   | 'W_M_CLOSE_WALLET'
+  | 'NEW_WARNING'
+  | 'GET_NODE_AND_APP_LOGS'
   | 'REQUEST_SWITCH_NETWORK';
 
 declare global {
@@ -70,6 +72,10 @@ declare global {
       ipcRenderer: {
         send(channel: Channels, ...args: any[]): void;
         on(
+          channel: Channels,
+          func: (...args: any[]) => void
+        ): (() => void) | undefined;
+        off(
           channel: Channels,
           func: (...args: any[]) => void
         ): (() => void) | undefined;

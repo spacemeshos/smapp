@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ThemeProvider } from 'styled-components';
 import { Router, Route, Switch, Redirect } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
 import { createBrowserHistory } from 'history';
 import routes from './routes';
 import GlobalStyle, { fontsCss } from './globalStyle';
@@ -28,13 +27,22 @@ const EventRouter = () => {
     goToSwitchAPI(history, isWalletOnly);
 
   useEffect(() => {
-    ipcRenderer.send('BROWSER_READY');
+    window.electron.ipcRenderer.send('BROWSER_READY');
 
-    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_NETWORK, onSwitchNet);
-    ipcRenderer.on(ipcConsts.REQUEST_SWITCH_API, onSwitchApi);
+    window.electron.ipcRenderer.on(
+      ipcConsts.REQUEST_SWITCH_NETWORK,
+      onSwitchNet
+    );
+    window.electron.ipcRenderer.on(ipcConsts.REQUEST_SWITCH_API, onSwitchApi);
     return () => {
-      ipcRenderer.off(ipcConsts.REQUEST_SWITCH_NETWORK, onSwitchNet);
-      ipcRenderer.off(ipcConsts.REQUEST_SWITCH_API, onSwitchApi);
+      window.electron.ipcRenderer.off(
+        ipcConsts.REQUEST_SWITCH_NETWORK,
+        onSwitchNet
+      );
+      window.electron.ipcRenderer.off(
+        ipcConsts.REQUEST_SWITCH_API,
+        onSwitchApi
+      );
     };
   });
 

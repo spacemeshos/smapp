@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import { Store } from 'redux';
 import { isObject } from '../../shared/utils';
 import { CustomAction } from '../types';
@@ -12,8 +11,8 @@ const ipcBatchSync = (payload) => ({
 const IpcBatchSyncRenderer = (store: Store) => {
   const dispatchAction = (_, chunksMap) =>
     store.dispatch(ipcBatchSync(chunksMap));
-  ipcRenderer.on('IPC_BATCH_SYNC', dispatchAction);
-  return () => ipcRenderer.off(IPC_BATCH_SYNC, dispatchAction);
+  window.electron.ipcRenderer.on('IPC_BATCH_SYNC', dispatchAction);
+  return () => window.electron.ipcRenderer.off(IPC_BATCH_SYNC, dispatchAction);
 };
 
 export const getMyChunk = <K extends string, C extends PossibleState>(
