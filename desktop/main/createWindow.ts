@@ -8,6 +8,7 @@ export default async () => {
     __dirname,
     isDev() ? '..' : ''
   )}/index.html`;
+
   const mainWindow = new BrowserWindow({
     show: false,
     width: 1280,
@@ -20,7 +21,7 @@ export default async () => {
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content
       // nodeIntegration: true,
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#3-enable-context-isolation-for-remote-content
-      // contextIsolation: false,
+      // contextIsolation: true,
     },
   });
 
