@@ -9,7 +9,7 @@ export const init = (history) =>
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
     environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
-    enabled: true,
+    enabled: false,
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
     attachStacktrace: true,
     maxValueLength: 25000,

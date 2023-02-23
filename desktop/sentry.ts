@@ -41,7 +41,7 @@ export const init = () =>
     environment: process.env.SENTRY_ENV || process.env.NODE_ENV,
     tracesSampleRate: parseInt(process.env.TRACES_SAMPLE_RATE || '0.3'),
     debug: process.env.SENTRY_LOG_LEVEL === 'debug',
-    enabled: true,
+    enabled: false,
     maxValueLength: 25000,
     attachStacktrace: true,
     attachScreenshot: true,
