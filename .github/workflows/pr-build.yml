@@ -138,8 +138,7 @@ jobs:
 
       # Run tests
       - name: yarn test
-        if: matrix.platform != 'linux'
-        # For some reasons test hanging on linux platform, so we're just skipping it for now
+        if: matrix.os == 'macos-latest'
         run: yarn test --forceExit
 
       # Build
