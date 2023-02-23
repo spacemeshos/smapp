@@ -20,22 +20,22 @@ const Wrapper = styled.div<{
     `
       border-bottom: none;
   `};
-  border: ${({
-      theme: {
-        form: {
-          dropdown: { isOutBorder },
-        },
+  ${({
+    theme: {
+      form: {
+        dropdown: { dark, light, isOutBorder },
       },
-    }) => Number(isOutBorder)}px
-    solid
-    ${({
-      theme: {
-        form: {
-          dropdown: { dark, light },
-        },
-      },
-      isDarkMode,
-    }) => (isDarkMode ? dark.borderColor : light.borderColor)};
+    },
+    isDarkMode,
+    isOpened,
+  }) => {
+    const color = isDarkMode ? dark.borderColor : light.borderColor;
+    return `
+      border: ${Number(isOutBorder)}px solid ${color};
+      ${isOpened && 'border-bottom: none;\n'}
+    `;
+  }}
+
   ${({ isDisabled }) =>
     isDisabled &&
     `
@@ -48,9 +48,11 @@ const Wrapper = styled.div<{
 const HeaderWrapper = styled.div<{
   onClick: (e?: React.MouseEvent) => void;
   rowHeight: number | string;
+  isDisabled: boolean;
   isOpened: boolean;
   isDarkMode: boolean;
 }>`
+  z-index: 11;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -87,19 +89,29 @@ const HeaderWrapper = styled.div<{
     box-shadow: 0 3px 6px ${smColors.black02Alpha};
   `}
   ${({
+    isOpened,
+    isDisabled,
     isDarkMode,
     theme: {
+      colors,
       form: {
         dropdown: { light, dark },
       },
     },
   }) =>
     `
+    border: 1px solid transparent;
+    ${
+      !isDisabled &&
+      !isOpened &&
+      `&:hover { border: 1px solid ${colors.secondary100};`
+    }
+
     color: ${isDarkMode ? dark.states.normal.color : light.states.normal.color};
     
     &:hover {
         color: ${
-          isDarkMode ? dark.states.normal.color : light.states.normal.color
+          isDarkMode ? dark.states.hover.color : light.states.hover.color
         };
      }; `}
 `;
@@ -173,6 +185,8 @@ const ItemsWrapper = styled.div<{
     `
     border-top-left-radius: ${theme.form.dropdown.boxRadius}px;
     border-top-right-radius: ${theme.form.dropdown.boxRadius}px;
+  `}
+  ${({ theme }) => `
     border-bottom-left-radius: ${theme.form.dropdown.boxRadius}px;
     border-bottom-right-radius: ${theme.form.dropdown.boxRadius}px;
   `}
@@ -246,10 +260,23 @@ const ItemsWrapper = styled.div<{
     }
   }`};
 
-  ${({ isOpened }) =>
-    isOpened &&
-    `
-      border-top: none;
+  ${({
+    hideHeader,
+    isOpened,
+    isDarkMode,
+    theme: {
+      form: {
+        dropdown: { dark, light },
+      },
+    },
+  }) => `
+      ${isOpened && 'border-top: none;\n'}
+      ${
+        !hideHeader &&
+        `box-shadow: inset 0 10px 10px -10px ${
+          isDarkMode ? dark.borderColor : light.borderColor
+        };`
+      }
   `};
   top: 100%;
 `;
@@ -432,6 +459,7 @@ const DropDown = <T extends ADataItem>({
       {!hideHeader && (
         <HeaderWrapper
           isOpened={isOpened}
+          isDisabled={isDisabledComputed}
           isDarkMode={isLightTheme}
           onClick={isDisabledComputed ? () => {} : handleToggle}
           rowHeight={rowHeight}
