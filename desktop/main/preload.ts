@@ -132,7 +132,7 @@ export type Channels =
   | 'W_M_CLOSE_WALLET'
   | 'REQUEST_SWITCH_NETWORK';
 
-contextBridge.exposeInMainWorld('electron', {
+const electronHandler = {
   ipcRenderer: {
     send(channel: Channels, ...args: any[]) {
       if (!ALLOWED_CHANNELS.includes(channel)) {
@@ -168,4 +168,8 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },
-});
+};
+
+contextBridge.exposeInMainWorld('electron', electronHandler);
+
+export type ElectronHandler = typeof electronHandler;
