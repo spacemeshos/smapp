@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React from 'react';
 import styled, { keyframes, useTheme } from 'styled-components';
 
+import ExplorerButton from '../../basicComponents/ExplorerButton';
+import CopyButton from '../../basicComponents/CopyButton';
 import { Bech32Address, HexString } from '../../../shared/types';
 import {
   ensure0x,
@@ -9,9 +10,8 @@ import {
   getAbbreviatedText,
   getAddress,
 } from '../../infra/utils';
-import { RootState } from '../../types';
 import { smColors } from '../../vars';
-import { addContact, explorer } from '../../assets/images';
+import { addContact } from '../../assets/images';
 
 const Wrapper = styled.div`
   position: relative;
@@ -30,21 +30,6 @@ const PublicKey = styled.div<{ isCopied: boolean }>`
   }
 `;
 
-const CopyIcon = styled.img.attrs(({ theme: { icons } }) => ({
-  src: icons.copy,
-}))`
-  align-self: center;
-  width: 16px;
-  height: 15px;
-  margin: 0 3px;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.5;
-  }
-  &:active {
-    transform: translate3d(2px, 2px, 0);
-  }
-`;
 const fadeInOut = keyframes`
   0% { opacity: 0; }
   10% { opacity: 1; }
@@ -57,13 +42,6 @@ const CopiedBanner = styled.div`
   line-height: 1.466;
   color: ${smColors.darkerGreen};
   animation: 3s ${fadeInOut} ease-out;
-`;
-
-const ExplorerIcon = styled.img`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  margin-top: 2px;
 `;
 
 const AddToContactsImg = styled.img`
@@ -106,7 +84,7 @@ const Address = (props: Props) => {
     hideExplorer,
     addToContacts,
   } = props;
-
+  const [isCopied, setIsCopied] = React.useState<boolean>(false);
   const isAccount = type === AddressType.ACCOUNT;
   const addr = isHex
     ? ensure0x(isAccount ? getAddress(address) : address)
@@ -114,27 +92,8 @@ const Address = (props: Props) => {
   const abbr = isHex ? getAbbreviatedText : getAbbreviatedAddress;
 
   const { isDarkMode } = useTheme();
-  const explorerUrl = useSelector(
-    (state: RootState) => state.network.explorerUrl
-  );
-  const [isCopied, setIsCopied] = useState(false);
 
   const addressToShow = full ? addr : abbr(addr);
-
-  let copyTimeout: NodeJS.Timeout;
-  const handleCopy = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    await navigator.clipboard.writeText(addr);
-    setIsCopied(true);
-    clearTimeout(copyTimeout);
-    copyTimeout = setTimeout(() => setIsCopied(false), 3000);
-  };
-  const handleExplorer = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    window.open(
-      explorerUrl.concat(`${type}/${addr}${isDarkMode ? '?dark' : ''}`)
-    );
-  };
 
   const handleAddToContacts = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -150,9 +109,14 @@ const Address = (props: Props) => {
         {isCopied && <CopiedBanner>Copied</CopiedBanner>}
         <span>{textToShow}</span>
       </PublicKey>
-      {!hideCopy && <CopyIcon onClick={handleCopy} />}
+      {!hideCopy && (
+        <CopyButton
+          onClick={(val) => setIsCopied(Boolean(val))}
+          value={address}
+        />
+      )}
       {!hideExplorer && (
-        <ExplorerIcon src={explorer} onClick={handleExplorer} />
+        <ExplorerButton isDarkMode={isDarkMode} address={addr} type={type} />
       )}
       {addToContacts && isAccount && (
         <AddToContactsImg src={addContact} onClick={handleAddToContacts} />

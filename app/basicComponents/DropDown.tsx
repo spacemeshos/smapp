@@ -297,6 +297,7 @@ type ADataItem = {
   [k: string]: any;
   isDisabled?: boolean;
   isMain?: boolean;
+  endAdorment?: React.ReactNode;
 };
 
 interface DropDownItemProps extends ADataItem {
@@ -406,6 +407,7 @@ const DropDown = <T extends ADataItem>({
         description={item?.description as string}
         isBold={isSelected || bold}
       />
+      {item.endAdorment}
     </DropdownRow>
   );
 

@@ -7,6 +7,8 @@ import {
   SET_UI_ERROR,
   SHOW_CLOSING_APP_MODAL,
   SKIN_SWITCHER,
+  ADD_WARNING,
+  OMIT_WARNING,
 } from './actions';
 
 const initialState: UiState = {
@@ -15,6 +17,7 @@ const initialState: UiState = {
   hideSmesherLeftPanel: false,
   skinId: null,
   error: null,
+  warnings: [],
 };
 
 const reducer = (state: UiState = initialState, action: CustomAction) => {
@@ -37,6 +40,16 @@ const reducer = (state: UiState = initialState, action: CustomAction) => {
     }
     case SET_UI_ERROR:
       return { ...state, error: action.payload };
+    case ADD_WARNING:
+      return {
+        ...state,
+        warnings: [...state.warnings, action.payload],
+      };
+    case OMIT_WARNING:
+      return {
+        ...state,
+        warnings: state.warnings.filter((w) => w !== action.payload),
+      };
     case SHOW_CLOSING_APP_MODAL:
       return { ...state, isClosingApp: true };
     default:

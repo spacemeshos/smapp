@@ -6,6 +6,7 @@ import {
   Wallet,
 } from '../../shared/types';
 import { shallowEq } from '../../shared/utils';
+import Warning from '../../shared/warning';
 import StoreService from '../storeService';
 import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
 import { MINUTE } from './constants';
@@ -26,16 +27,17 @@ import handleWalletIpcRequests from './sources/wallet.ipc';
 import syncToRenderer from './reactions/syncToRenderer';
 import currentNetwork from './sources/currentNetwork';
 import { AppStore, Managers } from './app.types';
-import observeAutoUpdates from './sources/autoUpdate';
+import handleAutoUpdates from './sources/autoUpdate';
 import getSmesherInfo from './sources/smesherInfo';
 import handleSmesherIpc from './reactions/handleSmesherIpc';
 import handleShowFile from './reactions/handleShowFile';
 import handleOpenDashboard from './reactions/handleOpenDashboard';
-import nodeIPCStreams, { nodeAndAppLogsListener } from './sources/node.ipc';
+import nodeIPCStreams, { sentryLogsListener } from './sources/node.ipc';
 import handleWipeOut from './reactions/wipeOut.ipc';
 import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
 import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
+import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -117,6 +119,7 @@ const startApp = (): AppStore => {
   const $walletPath = new $.BehaviorSubject<string>('');
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
+  const $warnings = new $.Subject<Warning>();
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
     StoreService.get(IS_AUTO_START_ENABLED)
   );
@@ -151,7 +154,12 @@ const startApp = (): AppStore => {
     // Spawn managers (and handle unsubscribing)
     spawnManagers($nodeConfig, $managers, $mainWindow),
     // On changing network -> update node config
-    syncNodeConfig($currentNetwork, $nodeConfig, $smeshingSetupState),
+    syncNodeConfig(
+      $currentNetwork,
+      $nodeConfig,
+      $smeshingSetupState,
+      $warnings
+    ),
     // Activate wallet and accounts
     activateWallet(
       $wallet,
@@ -172,7 +180,7 @@ const startApp = (): AppStore => {
     // And update them by users request
     listNetworksByRequest(),
     // Get actual logs to client app
-    nodeAndAppLogsListener(),
+    sentryLogsListener(),
     // List Public APIs for current network
     // Do not update anything
     listPublicApisByRequest($wallet),
@@ -191,7 +199,13 @@ const startApp = (): AppStore => {
     // Switch network
     // Add account, manage contacts
     // Close wallet
-    handleWalletIpcRequests($wallet, $walletPath, $networks, $smeshingStarted),
+    handleWalletIpcRequests(
+      $wallet,
+      $walletPath,
+      $networks,
+      $smeshingStarted,
+      $warnings
+    ),
     // Handle Start Smeshing request
     handleSmesherIpc($managers, $smeshingStarted),
     // Handle show file
@@ -217,8 +231,10 @@ const startApp = (): AppStore => {
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
-    observeAutoUpdates($mainWindow, $currentNetwork),
+    handleAutoUpdates($mainWindow, $currentNetwork),
     handleOpenDashboard($mainWindow, $currentNetwork),
+    collectWarnings($managers, $warnings),
+    sendWarningsToRenderer($warnings, $mainWindow),
   ];
 
   return {

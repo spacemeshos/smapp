@@ -1,4 +1,3 @@
-import { of } from 'ramda';
 import {
   catchError,
   delay,
@@ -13,6 +12,7 @@ import {
   switchMap,
   withLatestFrom,
 } from 'rxjs';
+import { of } from 'ramda';
 import { ipcConsts } from '../../../app/vars';
 import { Network, NodeConfig, Wallet } from '../../../shared/types';
 import {
@@ -21,13 +21,15 @@ import {
   listPublicApis,
 } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
-import { downloadNodeConfig } from '../NodeConfig';
+import { fetchNodeConfig } from '../../utils';
 
-export const fromNetworkConfig = (v) =>
-  from(downloadNodeConfig(v.conf)).pipe(
+export const fromNetworkConfig = (net: Network) =>
+  from(fetchNodeConfig(net.conf)).pipe(
     retry(3),
     delay(200),
-    catchError(() => of([]))
+    catchError(() => {
+      return of([]);
+    })
   );
 
 export const withGenesisID = () =>
@@ -56,7 +58,6 @@ const fromDiscovery = () =>
       catchError(() => of([]))
     )
     .pipe(withGenesisID());
-
 export const fetchDiscovery = ($networks: Subject<Network[]>) =>
   makeSubscription(fromDiscovery(), (nets) => $networks.next(nets));
 
@@ -84,20 +85,18 @@ export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
     handleIPC(
       ipcConsts.LIST_PUBLIC_SERVICES,
       (selectedGenesisID: string) =>
-        fromDiscovery()
-          .pipe(withGenesisID())
-          .pipe(
-            withLatestFrom($wallet),
-            first(),
-            map(([nets, wallet]) => {
-              const net = nets.find(
-                (n) =>
-                  n.genesisID === wallet?.meta.genesisID ||
-                  n.genesisID === selectedGenesisID
-              );
-              return handlerResult(listPublicApis(net || null));
-            })
-          ),
+        fromDiscovery().pipe(
+          withLatestFrom($wallet),
+          first(),
+          map(([nets, wallet]) => {
+            const net = nets.find(
+              (n) =>
+                n.genesisID === wallet?.meta.genesisID ||
+                n.genesisID === selectedGenesisID
+            );
+            return handlerResult(listPublicApis(net || null));
+          })
+        ),
       (apis) => apis
     ),
     (_) => {}

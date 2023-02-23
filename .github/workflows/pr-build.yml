@@ -6,11 +6,36 @@ on:
 
 jobs:
   build-and-upload:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.image }}
 
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        include:
+          - image: macos-latest
+            id: macos
+            platform: macos
+            node: macOS
+            arch: '' # x64
+          - image: windows-latest
+            id: windows
+            platform: windows
+            node: Windows
+            arch: '' # x64
+          - image: ubuntu-latest
+            id: linux
+            platform: linux
+            node: Linux
+            arch: amd64
+          - image: [self-hosted, macos, arm64]
+            id: macos-arm64
+            platform: macos
+            node: macOS_ARM64
+            arch: arm64
+          - image: [self-hosted, linux, arm64]
+            id: linux-arm64
+            platform: linux
+            node: Linux_ARM64
+            arch: arm64
 
     outputs:
       version: ${{ steps.package-version.outputs.version }}
@@ -19,59 +44,31 @@ jobs:
       - id: timestamp
         run: echo "::set-output name=timestamp::$(date +'%s')"
 
-      - name: Restore the previous run result
-        uses: actions/cache@v2
-        with:
-          path: run_result
-          key: ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-${{ steps.timestamp.outputs.timestamp }}
-          restore-keys: ${{ github.run_id }}-${{ github.sha }}-${{ matrix.os }}-
-
-      - id: result
-        run: echo "::set-output name=status::$(test -f run_result && cat run_result || echo 'first-time')"
-        shell: bash
-
       - name: Check out Git repository
-        if: ${{ steps.result.outputs.status != 'success' }}
         uses: actions/checkout@v2
 
       - name: Install Node.js, NPM
-        if: ${{ steps.result.outputs.status != 'success' }}
-        uses: actions/setup-node@v2-beta
+        uses: actions/setup-node@v3
         with:
           node-version: '16'
+          cache: 'yarn'
 
       - name: Get Smapp version
-        if: steps.result.outputs.status != 'success'
         id: cur-package-version
         uses: tyankatsu0105/read-package-version-actions@v1
 
       - name: Set package.json version
-        if: steps.result.outputs.status != 'success' && github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         uses: HarmvZ/set-package-json-version-action@v0.1.2
         with:
           version: ${{ steps.cur-package-version.outputs.version }}-pr.${{ github.event.pull_request.number }}
 
-      - name: Get yarn cache directory path
-        if: ${{ steps.result.outputs.status != 'success' }}
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        if: ${{ steps.result.outputs.status != 'success' }}
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
       - name: yarn install
-        if: ${{ steps.result.outputs.status != 'success' }}
         run: |
           yarn config set network-timeout 300000
           yarn install --prefer-offline
 
       - name: yarn lint
-        if: ${{ steps.result.outputs.status != 'success' }}
         run: |
           yarn lint
           yarn postinstall
@@ -80,74 +77,73 @@ jobs:
 
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
-        if: ${{ steps.result.outputs.status != 'success' }}
         id: latestNode
         run: echo "::set-output name=version::$(cat ./node/use-version)"
 
       - id: cache-gospacemesh
-        if: ${{ steps.result.outputs.status != 'success' }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ./node/*
             !./node/use-version
-          key: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-cache
-          restore-keys: ${{ matrix.os }}-${{ hashFiles('./node/use-version') }}-cache
+          key: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-cache
+          restore-keys: ${{ matrix.node }}-${{ hashFiles('./node/use-version') }}-cache
 
       - name: Prepare link to go-spacemesh release archive
-        if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         id: node-link
         run: |
-          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.os == 'windows-latest' && 'Windows' || matrix.os == 'macos-latest' && 'macOS' || 'Linux'}}.zip"
+          echo "::set-output name=link::https://storage.googleapis.com/go-spacemesh-release-builds/${{ steps.latestNode.outputs.version }}/${{ matrix.node }}.zip"
 
       - name: Check for go-spacemesh release archive existence
-        if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          [[ $(curl -I -L -w "%{http_code}" -o ${{ matrix.os == 'windows-latest' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}}) == "200" ]] &&
+          [[ $( curl -I -L -w "%{http_code}" -o ${{ matrix.platform == 'windows' && 'NUL' || '/dev/null'}} ${{steps.node-link.outputs.link}} ) == "200" ]] &&
           echo "Atifacts found: ${{steps.node-link.outputs.link}}" && exit 0 ||
           echo "Not found: ${{steps.node-link.outputs.link}}" && exit 1
         shell: bash
 
       - id: platform
-        if: steps.result.outputs.status != 'success'
         run: |
-          echo "::set-output name=dir::${{ matrix.os == 'windows-latest' && 'windows' || matrix.os == 'macos-latest' && 'mac' || 'linux'}}"
-          echo "::set-output name=ext::${{ matrix.os == 'windows-latest' && '.exe' || ''}}"
-          echo "::set-output name=rm_flag::${{ matrix.os == 'windows-latest' && '-Recurse -Force' || '-rf' }}"
+          echo "::set-output name=dir::${{ matrix.platform == 'windows' && 'windows' || matrix.platform == 'macos' && 'mac' || 'linux'}}"
+          echo "::set-output name=ext::${{ matrix.platform == 'windows' && '.exe' || ''}}"
+          echo "::set-output name=rm_flag::${{ matrix.platform == 'windows' && '-Recurse -Force' || '-rf' }}"
 
       - name: Download go-spacemesh release archive
-        if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           curl -L --output ./node/release.zip --create-dirs ${{steps.node-link.outputs.link}}
 
       - name: Unzip archive & get rid of redundant files
-        if: steps.result.outputs.status != 'success' && steps.cache-gospacemesh.outputs.cache-hit != 'true'
+        if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
           7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r -y
 
       - name: Set CHMOD on Go-Spacemesh and libs
-        if: steps.result.outputs.status != 'success' && matrix.os != 'windows-latest'
+        if: matrix.platform != 'windows'
         run: (cd ./node/${{ steps.platform.outputs.dir }}; chmod -R +x * .)
 
-      - name: Disable quarantine for Go-Spacemesh and libs
-        if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
+      - name: Disable quarantine for Go-Spacemesh and libs (macOS x64)
+        if: matrix.id == 'macos'
         run: sudo xattr -rd com.apple.quarantine ./node/${{ steps.platform.outputs.dir }}/*
 
+      - name: Disable quarantine for Go-Spacemesh and libs (macOS ARM64)
+        if: matrix.id == 'macos-arm64'
+        run: sudo /Users/aviv/xattr.sh
+
       - name: ls ./node
-        if: steps.result.outputs.status != 'success'
         run: |
           7z l ./node/release.zip
-          ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
+          ls ${{matrix.platform != 'windows' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
 
       # Run tests
       - name: yarn test
-        # TODO: Get rid of skipping tests on Ubuntu and Windows due to OS-specific issue: Jest hangs
-        if: steps.result.outputs.status != 'success' && matrix.os != 'ubuntu-latest' && matrix.os != 'windows-latest'
+        if: matrix.platform != 'linux'
+        # For some reasons test hanging on linux platform, so we're just skipping it for now
         run: yarn test --forceExit
 
       # Build
       - name: yarn build
-        if: steps.result.outputs.status != 'success'
         run: yarn build
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -155,23 +151,27 @@ jobs:
           SENTRY_ENV: pr-builds
 
       # Create binaries
-      - if: steps.result.outputs.status != 'success' && matrix.os == 'ubuntu-latest'
+      - if: matrix.platform == 'linux'
         name: Build linux app
-        run: yarn package-linux
+        run: |
+          echo "USE_SYSTEM_FPM?$(echo $USE_SYSTEM_FPM)"
+          yarn package-linux
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ENV: pr-builds
+          USE_SYSTEM_FPM: ${{ matrix.id == 'linux-arm64' && 'true' }}
 
-      - if: steps.result.outputs.status != 'success' && matrix.os == 'windows-latest'
+      - if: matrix.platform == 'windows'
         name: Build windows app
         run: yarn package-win
         env:
+          DONT_SIGN_APP: true # Do not sign the development artifacts
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ENV: pr-builds
 
-      - if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
+      - if: matrix.platform == 'macos'
         name: Build mac app
         run: yarn package-mac
         env:
@@ -181,47 +181,57 @@ jobs:
           SENTRY_ENV: pr-builds
 
       - name: ls ./release
-        if: steps.result.outputs.status != 'success'
-        run: ls ${{matrix.os != 'windows-latest' && '-la' || ''}} ./release
+        run: ls ${{matrix.platform != 'windows' && '-la' || ''}} ./release
 
       # Upload artifacts to GCS
       - name: get-smapp-version
-        if: steps.result.outputs.status != 'success'
         id: package-version
         uses: tyankatsu0105/read-package-version-actions@v1
+      
+      - name: Smapp version
+        run: |
+          echo "Version: ${{ steps.package-version.outputs.version }}"
 
       - name: Set up GCloud SDK
-        if: steps.result.outputs.status != 'success'
         uses: google-github-actions/setup-gcloud@v0
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
-      - if: steps.result.outputs.status != 'success' && matrix.os == 'macos-latest'
+      - if: matrix.platform == 'macos'
         name: upload macos build
         uses: google-github-actions/upload-cloud-storage@v0
+        env:
+          preSuffix: ${{ matrix.arch != '' && '-' || '' }}
         with:
-          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}.dmg
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.dmg
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
-      - if: steps.result.outputs.status != 'success' && matrix.os == 'windows-latest'
+      - if: matrix.platform == 'windows'
         name: upload windows build
         uses: google-github-actions/upload-cloud-storage@v0
         with:
           path: ./release/Spacemesh Setup ${{ steps.package-version.outputs.version }}.exe
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
-      - if: steps.result.outputs.status != 'success' && matrix.os == 'ubuntu-latest'
+      - if: matrix.platform == 'linux'
         name: upload linux build
         uses: google-github-actions/upload-cloud-storage@v0
+        env:
+          preSuffix: ${{ matrix.arch != '' && '_' || '' }}
         with:
-          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}_amd64.deb
+          path: ./release/spacemesh_app_${{ steps.package-version.outputs.version }}${{ env.preSuffix }}${{ matrix.arch }}.deb
           destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
-      # Save the run result on success and it should be cached
-      - run: echo "success" > run_result
-        if: steps.result.outputs.status != 'success'
+      - if: matrix.platform == 'linux'
+        name: upload linux build
+        uses: google-github-actions/upload-cloud-storage@v0
+        env:
+          arch: ${{ matrix.arch == 'arm64' && '-arm64' || '' }}
+        with:
+          path: ./release/Spacemesh-${{ steps.package-version.outputs.version }}${{ env.arch }}.AppImage
+          destination: ${{ secrets.GCP_BUCKET }}/pr-${{ github.sha }}
 
   post-links:
     runs-on: ubuntu-latest
@@ -229,9 +239,13 @@ jobs:
     steps:
       - name: Links to artifacts
         run: |
-          echo "Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
-          echo "macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
-          echo "Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "Windows (x64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe"
+          echo "macOS (x64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg"
+          echo "macOS (arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg"
+          echo "Linux (deb, amd64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb"
+          echo "Linux (AppImage, amd64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage"
+          echo "Linux (deb, arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb"
+          echo "Linux (AppImage, arm64): https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage"
       - name: Post links to PR
         if: github.event_name == 'pull_request'
         uses: mshick/add-pr-comment@v1
@@ -240,6 +254,8 @@ jobs:
         with:
           message: |
             ## Compiled Binaries
-            - Windows: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe
-            - macOS: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg
-            - Linux: https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb
+            - Windows: [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh%20Setup%20${{ needs.build-and-upload.outputs.version }}.exe)
+            - macOS: [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.dmg) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.dmg)
+            - Linux
+              - AppImage [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}.AppImage) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/Spacemesh-${{ needs.build-and-upload.outputs.version }}-arm64.AppImage)
+              - deb [x64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_amd64.deb) [arm64](https://storage.googleapis.com/smapp/pr-${{ github.sha }}/spacemesh_app_${{ needs.build-and-upload.outputs.version }}_arm64.deb)

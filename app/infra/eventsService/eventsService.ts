@@ -29,7 +29,7 @@ import {
   TxSendRequest,
   WalletMeta,
 } from '../../../shared/types';
-import { showClosingAppModal } from '../../redux/ui/actions';
+import { addWarning, showClosingAppModal } from '../../redux/ui/actions';
 // Temporary solution to provide types
 // Could be replaced using something like `electron-ipcfy`
 import TransactionManager from '../../../desktop/TransactionManager';
@@ -264,6 +264,9 @@ ipcRenderer.on(ipcConsts.N_M_SET_NODE_ERROR, (_event, error: NodeError) => {
   store.dispatch(setNodeError(error));
 });
 
+ipcRenderer.on(ipcConsts.NEW_WARNING, (_event, error: any) => {
+  store.dispatch(addWarning(error));
+});
 ipcRenderer.on(
   ipcConsts.N_M_GET_VERSION_AND_BUILD,
   (_event, payload: NodeVersionAndBuild) => {

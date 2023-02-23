@@ -38,6 +38,10 @@ import {
   isRemoteNodeApi,
   stringifySocketAddress,
 } from '../../../shared/utils';
+import Warning, {
+  WarningType,
+  WriteFilePermissionWarningKind,
+} from '../../../shared/warning';
 import Logger from '../../logger';
 import { SmeshingSetupState } from '../../NodeManager';
 import { hasNetwork } from '../Networks';
@@ -90,11 +94,13 @@ const updateWalletFile = async (next: WalletData) => {
     await saveWallet(next.path, next.password, next.wallet).catch((err) => {
       if (err?.message === WRONG_PASSWORD_MESSAGE) return;
       logger.error('updateWalletFile/saveWallet', err, next.path);
+      throw err;
     });
   } else {
-    await updateWalletMeta(next.path, next.wallet.meta).catch((err) =>
-      logger.error('updateWalletFile', err, next.path)
-    );
+    await updateWalletMeta(next.path, next.wallet.meta).catch((err) => {
+      logger.error('updateWalletFile', err, next.path);
+      throw err;
+    });
   }
 };
 
@@ -153,7 +159,8 @@ const handleWalletIpcRequests = (
   $wallet: Subject<Wallet | null>,
   $walletPath: Subject<string>,
   $networks: Subject<Network[]>,
-  $smeshingStarted: Observable<SmeshingSetupState>
+  $smeshingStarted: Observable<SmeshingSetupState>,
+  $warnings: Subject<Warning>
 ) => {
   // Handle IPC requests and produces WalletUpdate
   const $nextWallet = merge(
@@ -379,14 +386,23 @@ const handleWalletIpcRequests = (
           $walletPath.next(next.path);
         }
         if (isWalletData(next) && next.save) {
-          updateWalletFile(next).catch((err) => {
-            logger.error('updateWalletFile', err);
+          updateWalletFile(next).catch((err: any) => {
+            $warnings.next(
+              Warning.fromError(
+                WarningType.WriteFilePermission,
+                {
+                  kind: WriteFilePermissionWarningKind.WalletFile,
+                  filePath: next.path,
+                },
+                err
+              )
+            );
           });
         }
       },
       error: (error: Error) => {
-        // TODO: Show error to User
         logger.debug('$nextWallet', error);
+        $warnings.next(Warning.fromError(WarningType.Unknown, {}, error));
       },
       complete: () => {
         logger.error('$nextWallet', 'Observable is completed');

@@ -1,4 +1,5 @@
 import {
+  catchError,
   delay,
   distinctUntilChanged,
   filter,
@@ -8,8 +9,10 @@ import {
   retry,
   Subject,
   switchMap,
+  throwError,
 } from 'rxjs';
 import { Network, NodeConfig } from '../../../shared/types';
+import Warning from '../../../shared/warning';
 import { SmeshingSetupState } from '../../NodeManager';
 import { downloadNodeConfig } from '../NodeConfig';
 import { makeSubscription } from '../rx.utils';
@@ -17,7 +20,8 @@ import { makeSubscription } from '../rx.utils';
 export default (
   $currentNetwork: Observable<Network | null>,
   $nodeConfig: Subject<NodeConfig>,
-  $smeshingSetupState: Subject<SmeshingSetupState>
+  $smeshingSetupState: Subject<SmeshingSetupState>,
+  $warnings: Subject<Warning>
 ) =>
   makeSubscription(
     merge(
@@ -28,9 +32,13 @@ export default (
         filter(Boolean)
       )
     ).pipe(
-      switchMap((net) => from(downloadNodeConfig(net.conf, true))),
+      switchMap((net) => from(downloadNodeConfig(net.conf))),
       retry(5),
-      delay(500)
+      delay(500),
+      catchError((err: Warning) => {
+        $warnings.next(err);
+        return throwError(() => err);
+      })
     ),
-    (conf) => $nodeConfig.next(conf)
+    (conf) => $nodeConfig.next(conf as NodeConfig)
   );
