@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge } = require('electron');
 
 const ALLOWED_CHANNELS = [
   'IPC_BATCH_SYNC',
@@ -72,29 +72,29 @@ const electronHandler = {
       if (!ALLOWED_CHANNELS.includes(channel)) {
         throw new Error(`[ALLOWED CHANNELS] channel not allowed${channel}`);
       }
-      ipcRenderer.send(channel, ...args);
+      window.electron.ipcRenderer.send(channel, ...args);
     },
     invoke(channel, ...args) {
       if (!ALLOWED_CHANNELS.includes(channel)) {
         throw new Error(`[ALLOWED CHANNELS] channel not allowed${channel}`);
       }
-      return ipcRenderer.invoke(channel, ...args);
+      return window.electron.ipcRenderer.invoke(channel, ...args);
     },
     on(channel, func) {
       if (!ALLOWED_CHANNELS.includes(channel)) {
         throw new Error(`[ALLOWED CHANNELS] channel not allowed${channel}`);
       }
       const subscription = (_event, ...args) => func(...args);
-      ipcRenderer.on(channel, subscription);
+      window.electron.ipcRenderer.on(channel, subscription);
       return () => {
-        ipcRenderer.removeListener(channel, subscription);
+        window.electron.ipcRenderer.removeListener(channel, subscription);
       };
     },
     once(channel, func) {
       if (!ALLOWED_CHANNELS.includes(channel)) {
         throw new Error(`[ALLOWED CHANNELS] channel not allowed${channel}`);
       }
-      ipcRenderer.once(channel, (_event, ...args) => func(...args));
+      window.electron.ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },
 };

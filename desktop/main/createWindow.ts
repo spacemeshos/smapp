@@ -17,7 +17,7 @@ export default async () => {
     minHeight: 680,
     center: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.ts'),
+      preload: path.join(__dirname, 'preload.js'),
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content
       // nodeIntegration: true,
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#3-enable-context-isolation-for-remote-content

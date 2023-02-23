@@ -18,7 +18,7 @@ export default merge(baseConfig, {
 
   target: 'electron-preload',
 
-  entry: path.join(__dirname, 'preload.ts'),
+  entry: path.join(__dirname, 'preload.js'),
 
   output: {
     path: path.join(__dirname, '../dll'),

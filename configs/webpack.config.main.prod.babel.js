@@ -21,7 +21,7 @@ export default merge(baseConfig, {
 
   entry: {
     main: './desktop/main.dev.ts',
-    preload: path.join(__dirname, 'preload.ts'),
+    preload: path.join(__dirname, 'preload.js'),
   },
 
   output: {
