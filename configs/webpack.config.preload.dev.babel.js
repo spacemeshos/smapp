@@ -18,11 +18,14 @@ export default merge(baseConfig, {
 
   target: 'electron-preload',
 
-  entry: path.join(__dirname, 'preload.js'),
+  entry: path.join(__dirname, '../desktop/preload.ts'),
 
   output: {
     path: path.join(__dirname, '../dll'),
     filename: 'preload.js',
+    library: {
+      type: 'umd',
+    },
   },
 
   plugins: [

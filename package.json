@@ -25,6 +25,7 @@
     "start": "cross-env NODE_ENV=development yarn verify:node-version && node -r @babel/register ./configs/checkPortInUse.js && yarn start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ./configs/babelRegister ./desktop/main.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development webpack serve --config ./configs/webpack.config.renderer.dev.babel.js",
+    "start:preload": "cross-env NODE_ENV=development webpack --config ./configs/webpack.config.preload.dev.babel.js",
     "verify:node-version": "node ./scripts/verifyGoSmVersion.js",
     "test": "jest",
     "storybook": "start-storybook -p 6006",
@@ -51,9 +52,6 @@
   "engines": {
     "npm": ">=8.10.0",
     "node": ">=16.15.0"
-  },
-  "resolutions": {
-    "electron": "^11.0.1"
   },
   "engineStrict": true,
   "homepage": "https://spacemesh.io/",

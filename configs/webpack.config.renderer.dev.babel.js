@@ -39,7 +39,7 @@ export default merge(baseConfig, {
 
   mode: 'development',
 
-  target: 'electron-renderer',
+  target: ['web', 'electron-renderer'],
 
   entry: [
     'core-js',
@@ -161,6 +161,16 @@ export default merge(baseConfig, {
       disableDotRule: false
     },
     before() {
+
+      console.log('Starting preload.js builder...');
+      spawn('yarn', ['start:preload'], {
+        shell: true,
+        env: process.env,
+        stdio: 'inherit',
+      })
+        .on('close', (code) => process.exit(code))
+        .on('error', (spawnError) => console.error(spawnError));
+
       console.log('Starting Main Process...');
       spawn('yarn', ['start:main'], {
         shell: true,

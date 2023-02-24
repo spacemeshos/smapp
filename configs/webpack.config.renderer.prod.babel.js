@@ -18,7 +18,7 @@ export default merge(baseConfig, {
 
   mode: 'production',
 
-  target: 'electron-renderer',
+  target: ['web', 'electron-renderer'],
 
   entry: [
     'core-js',

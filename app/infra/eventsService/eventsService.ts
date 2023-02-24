@@ -160,7 +160,7 @@ class EventsService {
 
   static getNodeAndAppLogs = (): Promise<IpcResponse<AppLogs>> =>
     window.electron.ipcRenderer.invoke(ipcConsts.GET_NODE_AND_APP_LOGS);
-§
+
   /** ************************************   SMESHER   ****************************************** */
   static selectPostFolder = () =>
     window.electron.ipcRenderer.invoke(ipcConsts.SMESHER_SELECT_POST_FOLDER);

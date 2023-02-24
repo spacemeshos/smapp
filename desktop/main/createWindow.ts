@@ -1,5 +1,5 @@
 import path from 'path';
-import { BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import MenuBuilder from '../menu';
 import { isDev } from '../utils';
 
@@ -17,11 +17,13 @@ export default async () => {
     minHeight: 680,
     center: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: app.isPackaged
+        ? path.join(__dirname, 'preload.js')
+        : path.join(__dirname, '../../dll/preload.js'),
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content
       // nodeIntegration: true,
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#3-enable-context-isolation-for-remote-content
-      // contextIsolation: true,
+      // contextIsolation: false,
     },
   });
 

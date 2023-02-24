@@ -19,10 +19,7 @@ export default merge(baseConfig, {
 
   target: 'electron-main',
 
-  entry: {
-    main: './desktop/main.dev.ts',
-    preload: path.join(__dirname, 'preload.js'),
-  },
+  entry: './desktop/main.dev.ts',
 
   output: {
     path: path.join(__dirname, '../desktop'),

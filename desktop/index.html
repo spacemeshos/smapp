@@ -7,15 +7,20 @@
   <body>
     <div id="root" style="height: 100%; width: 100%;"></div>
     <script>
+      // global = globalThis;
+
+    </script>
+    <script>
       const scripts = [];
 
-      if (process.env.NODE_ENV === 'development') {
+      if (true) {
         // Dynamically insert the DLL script in development env in the
         // renderer process
+        scripts.push('../dll/preload.js');
         scripts.push('../dll/renderer.dev.dll.js');
 
         // Dynamically insert the bundled app script in the renderer process
-        const port = process.env.PORT || 1212;
+        const port = /*process.env.PORT ||*/ 1212;
         scripts.push(`http://localhost:${port}/dist/renderer.dev.js`);
       } else {
         scripts.push('./dist/renderer.prod.js');
