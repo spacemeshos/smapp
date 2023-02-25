@@ -130,6 +130,8 @@ export type Channels =
   | 'PROMPT_CHANGE_DATADIR'
   | 'AU_REQUEST_DOWNLOAD'
   | 'W_M_CLOSE_WALLET'
+  | 'GET_NODE_AND_APP_LOGS'
+  | 'NEW_WARNING'
   | 'REQUEST_SWITCH_NETWORK';
 
 const electronHandler = {

@@ -3,7 +3,8 @@ import webpack from 'webpack';
 import { merge } from 'webpack-merge';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import baseConfig from './webpack.config.base';
-import checkNodeEnv from './checkNodeEnv';
+import webpackPaths from './webpack.paths';
+import checkNodeEnv from '../scripts/check-node-env';
 
 // When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
 // at the dev webpack config is not accidentally run in a production environment
@@ -11,17 +12,17 @@ if (process.env.NODE_ENV === 'production') {
   checkNodeEnv('development');
 }
 
-export default merge(baseConfig, {
+const configuration: webpack.Configuration = {
   devtool: 'inline-source-map',
 
   mode: 'development',
 
   target: 'electron-preload',
 
-  entry: path.join(__dirname, '../desktop/preload.ts'),
+  entry: path.join(webpackPaths.srcMainPath, 'preload.ts'),
 
   output: {
-    path: path.join(__dirname, '../dll'),
+    path: webpackPaths.dllPath,
     filename: 'preload.js',
     library: {
       type: 'umd',
@@ -30,8 +31,7 @@ export default merge(baseConfig, {
 
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',
-      openAnalyzer: process.env.OPEN_ANALYZER === 'true'
+      analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled',
     }),
 
     /**
@@ -51,7 +51,7 @@ export default merge(baseConfig, {
     }),
 
     new webpack.LoaderOptionsPlugin({
-      debug: true
+      debug: true,
     }),
   ],
 
@@ -66,4 +66,6 @@ export default merge(baseConfig, {
   },
 
   watch: true,
-});
+};
+
+export default merge(baseConfig, configuration);
