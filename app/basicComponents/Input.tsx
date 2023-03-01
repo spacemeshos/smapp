@@ -120,6 +120,8 @@ type Props = {
   maxLength?: any;
   autofocus?: boolean;
   iconLeft?: string;
+  min?: number;
+  max?: number;
 };
 
 const Input = ({
@@ -141,6 +143,8 @@ const Input = ({
   maxLength = '',
   autofocus = false,
   iconLeft,
+  min,
+  max,
 }: Props) => {
   let debounce: any = null;
   const [isFocused, setIsFocused] = useState(false);
@@ -203,6 +207,8 @@ const Input = ({
         maxLength={maxLength}
         autoFocus={autofocus}
         isDisabled={isDisabled}
+        min={min}
+        max={max}
       />
       {extraText && <ExtraTxt>{extraText}</ExtraTxt>}
     </Wrapper>
