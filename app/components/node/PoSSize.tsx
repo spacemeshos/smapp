@@ -5,7 +5,9 @@ import { posSpace } from '../../assets/images';
 import { smColors } from '../../vars';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
+  DEFAULT_POS_MAX_FILE_SIZE_GB,
   DEFAULT_POS_MAX_FILE_SIZE_LIMIT,
+  DEFAULT_POS_MAX_FILE_SIZE_LIMIT_GB,
   NodeStatus,
 } from '../../../shared/types';
 import { convertBytesToGB, convertGBToBytes } from '../../../shared/utils';
@@ -129,10 +131,7 @@ const PoSSize = ({
 
   const handleOnChange = ({ value }) => {
     const valueInBytes = convertGBToBytes(parseInt(value, 10));
-    if (valueInBytes > DEFAULT_POS_MAX_FILE_SIZE * 50) {
-      setMaxFileSize(DEFAULT_POS_MAX_FILE_SIZE_LIMIT);
-      return;
-    }
+
     setMaxFileSize(valueInBytes);
   };
 
@@ -175,7 +174,9 @@ const PoSSize = ({
             value={convertBytesToGB(maxFileSize)}
             type="number"
             debounceTime={100}
-            onChangeDebounced={handleOnChange}
+            min={DEFAULT_POS_MAX_FILE_SIZE_GB}
+            max={DEFAULT_POS_MAX_FILE_SIZE_LIMIT_GB}
+            onChange={handleOnChange}
             onBlur={(value) => {
               handleMaxFileSize({ value });
             }}
