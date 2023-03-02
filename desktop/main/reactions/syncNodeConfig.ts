@@ -12,7 +12,7 @@ import {
   throwError,
 } from 'rxjs';
 import { Network, NodeConfig } from '../../../shared/types';
-import Warning from '../../../shared/warning';
+import Warning, { WarningType } from '../../../shared/warning';
 import { SmeshingSetupState } from '../../NodeManager';
 import { downloadNodeConfig } from '../NodeConfig';
 import { makeSubscription } from '../rx.utils';
@@ -35,8 +35,12 @@ export default (
       switchMap((net) => from(downloadNodeConfig(net.conf))),
       retry(5),
       delay(500),
-      catchError((err: Warning) => {
-        $warnings.next(err);
+      catchError((err: any) => {
+        $warnings.next(
+          err instanceof Warning
+            ? err
+            : Warning.fromError(err.type || WarningType.Unknown, {}, err)
+        );
         return throwError(() => err);
       })
     ),
