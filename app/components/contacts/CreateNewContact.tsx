@@ -5,8 +5,8 @@ import { addToContacts } from '../../redux/wallet/actions';
 import { EnterPasswordModal } from '../settings';
 import { Input, Link, ErrorPopup, BoldText } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { AppThDispatch, RootState } from '../../types';
-import { validateAddress } from '../../infra/utils';
+import { RootState } from '../../types';
+import { handleInputFocus, validate } from './utils';
 
 const Wrapper = styled.div<{ isStandalone: boolean }>`
   display: flex;
@@ -85,57 +85,15 @@ const CreateNewContact = ({
   onCancel,
 }: Props) => {
   const [address, setAddress] = useState(initialAddress || '');
-  // const [initialAddress, setIn] = useState(initialAddress || '');
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState<ValidateError | null>();
   const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
-  const dispatch: AppThDispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  // static getDerivedStateFromProps(props: Props, prevState: State) {
-  //   if (props.initialAddress !== prevState.initialAddress) {
-  //     return { address: props.initialAddress, initialAddress: props.initialAddress };
-  //   }
-  //   return null;
-  // }
-
-  const handleFocus = ({ target }: { target: EventTarget | null }) => {
-    // @ts-ignore
-    target?.select();
-  };
-
-  const validate = (): ValidateError | null => {
-    const nicknameRegex = /^([a-zA-Z0-9_-])$/;
-    if (nicknameRegex.test(nickname)) {
-      return {
-        type: 'name',
-        message: `Nickname: ${nickname} is missing or invalid`,
-      };
-    }
-    if (contacts.some((contact) => contact.nickname === nickname)) {
-      return {
-        type: 'name',
-        message: `Nickname should be unique, ${nickname} already in contacts`,
-      };
-    }
-    if (!validateAddress(address)) {
-      return { type: 'address', message: `Address: ${address} is invalid` };
-    }
-    const repeatedAddress = contacts.find(
-      (contact) => contact.address === address
-    );
-    if (repeatedAddress) {
-      return {
-        type: 'address',
-        message: `Contact ${repeatedAddress.nickname} has the same address`,
-      };
-    }
-    return null;
-  };
-
-  const preCreateContact = () => {
-    const error = validate();
+  const onSave = () => {
+    const error = validate(nickname, address, contacts);
     if (error) {
       setError(error);
     } else {
@@ -143,7 +101,7 @@ const CreateNewContact = ({
     }
   };
 
-  const createContact = async ({ password }: { password: string }) => {
+  const onValidPassword = async ({ password }: { password: string }) => {
     dispatch(addToContacts({ password, contact: { address, nickname } }));
     onCompleteAction();
   };
@@ -178,7 +136,7 @@ const CreateNewContact = ({
             }}
             maxLength="90"
             style={isStandalone ? inputStyle3 : inputStyle1}
-            onFocus={handleFocus}
+            onFocus={handleInputFocus}
           />
           {error && (
             <ErrorPopup
@@ -198,7 +156,7 @@ const CreateNewContact = ({
       </InputsWrapper>
       <ButtonsWrapper>
         <Link
-          onClick={preCreateContact}
+          onClick={onSave}
           text="CREATE"
           style={{ color: smColors.green, marginRight: 15 }}
         />
@@ -210,7 +168,7 @@ const CreateNewContact = ({
       </ButtonsWrapper>
       {shouldShowPasswordModal && (
         <EnterPasswordModal
-          submitAction={createContact}
+          submitAction={onValidPassword}
           closeModal={() => setShouldShowPasswordModal(false)}
         />
       )}
