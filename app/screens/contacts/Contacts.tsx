@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { CreateNewContact, CreatedNewContact } from '../../components/contacts';
+import {
+  CreateNewContact,
+  CreatedNewContact,
+  EditContact,
+} from '../../components/contacts';
 import {
   WrapperWith2SideBars,
   Input,
@@ -197,7 +201,8 @@ const ContactText = styled.div`
     justify-content: center;
   }
   :last-child {
-    justify-content: center;
+    justify-content: flex-end;
+    gap: 16px;
   }
 `;
 
@@ -221,10 +226,18 @@ const ContactHeader = styled(ContactText)`
   }
 `;
 
+const EditText = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  font-size: 14px;
+  line-height: 20px;
+  color: ${smColors.purple};
+  text-decoration: underline;
+`;
+
 const DeleteText = styled.div`
   display: flex;
   justify-content: flex-end;
-  flex: 1;
   font-size: 14px;
   line-height: 20px;
   color: ${smColors.orange};
@@ -248,7 +261,6 @@ const ClockImg = styled.img`
 `;
 
 const sortOptions = [{ label: 'Sort by A-Z' }, { label: 'Sort by Z-A' }];
-
 const Contacts = ({ history }: RouteComponentProps) => {
   let newContactCreatedTimeOut: ReturnType<typeof setInterval>;
   const [addressToAdd, setAddressToAdd] = useState('');
@@ -259,11 +271,9 @@ const Contacts = ({ history }: RouteComponentProps) => {
   );
   const [selectedSorting, setSelectedSorting] = useState(0);
   const [isNewContactCreated, setIsNewContactCreated] = useState(false);
-  const [shouldShowPasswordModal, setShouldShowPasswordModal] = useState(false);
-  const [contactForDelete, setContactForDelete] = useState({
-    address: '',
-    nickname: '',
-  });
+  const [contactEditing, setContactEditing] = useState<Contact | null>(null);
+  const [contactToDelete, setContactToDelete] = useState<Contact | null>(null);
+
   const dispatch = useDispatch();
 
   const contacts = useSelector((state: RootState) => state.wallet.contacts);
@@ -288,16 +298,16 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   const sortContacts = (c1: Contact, c2: Contact) => {
-    if (c1.nickname > c2.nickname) {
-      return selectedSorting === 0 ? 1 : -1;
-    }
-    if (c1.nickname < c2.nickname) {
-      return selectedSorting === 0 ? -1 : 1;
-    }
     if (c1.address > c2.address) {
       return selectedSorting === 0 ? 1 : -1;
     }
     if (c1.address < c2.address) {
+      return selectedSorting === 0 ? -1 : 1;
+    }
+    if (c1.nickname > c2.nickname) {
+      return selectedSorting === 0 ? 1 : -1;
+    }
+    if (c1.nickname < c2.nickname) {
       return selectedSorting === 0 ? -1 : 1;
     }
     return 0;
@@ -328,14 +338,19 @@ const Contacts = ({ history }: RouteComponentProps) => {
     history.push(WalletPath.SendCoins, { contact });
   };
 
-  const handleDeleteButton = (contact: Contact) => {
-    setContactForDelete(contact);
-    setShouldShowPasswordModal(true);
+  const handleEditButton = (contact: Contact) => {
+    setContactEditing(contact);
   };
 
-  const deleteContact = async ({ password }: { password: string }) => {
-    await dispatch(removeFromContacts({ password, contact: contactForDelete }));
-    setShouldShowPasswordModal(false);
+  const deleteContact = async ({
+    password,
+    contact,
+  }: {
+    password: string;
+    contact: Contact;
+  }) => {
+    await dispatch(removeFromContacts({ password, contact }));
+    setContactToDelete(null);
   };
 
   const renderLastUsedContacts = () => {
@@ -445,29 +460,47 @@ const Contacts = ({ history }: RouteComponentProps) => {
           <ContactHeader>ACTION</ContactHeader>
         </ContactRow>
         <ContactsList>
-          {sortedContacts.map((contact: Contact) => (
-            <ContactRow key={`${contact.nickname}_${contact.address}`}>
-              <ContactText onClick={() => navigateToSendCoins({ contact })}>
-                <TextCursorPointer>
-                  {contact.nickname || 'UNKNOWN ADDRESS'}
-                </TextCursorPointer>
-              </ContactText>
-              <ContactText>
-                <Address full address={contact.address} />
-              </ContactText>
-              <DeleteText onClick={() => handleDeleteButton(contact)}>
-                <TextCursorPointer>DELETE</TextCursorPointer>
-              </DeleteText>
-              {!contact.nickname && (
-                <CreateNewContactImg
-                  onClick={(e: React.MouseEvent) =>
-                    openAddNewContactModal(e, contact)
-                  }
-                  src={addContact}
-                />
-              )}
-            </ContactRow>
-          ))}
+          {sortedContacts.map((contact: Contact) =>
+            contactEditing?.address === contact.address ? (
+              <EditContact
+                key={`${contact.nickname}_${contact.address}`}
+                oldAddress={contact.address}
+                oldNickname={contact.nickname}
+                onCancel={() => setContactEditing(null)}
+                onCompleteAction={() => setContactEditing(null)}
+              />
+            ) : (
+              <ContactRow key={`${contact.nickname}_${contact.address}`}>
+                <ContactText onClick={() => navigateToSendCoins({ contact })}>
+                  <TextCursorPointer>
+                    {contact.nickname || 'UNKNOWN ADDRESS'}
+                  </TextCursorPointer>
+                </ContactText>
+                <ContactText>
+                  <Address full address={contact.address} />
+                </ContactText>
+
+                <ContactText>
+                  <EditText onClick={() => handleEditButton(contact)}>
+                    <TextCursorPointer>EDIT</TextCursorPointer>
+                  </EditText>
+
+                  <DeleteText onClick={() => setContactToDelete(contact)}>
+                    <TextCursorPointer>DELETE</TextCursorPointer>
+                  </DeleteText>
+                </ContactText>
+
+                {!contact.nickname && (
+                  <CreateNewContactImg
+                    onClick={(e: React.MouseEvent) =>
+                      openAddNewContactModal(e, contact)
+                    }
+                    src={addContact}
+                  />
+                )}
+              </ContactRow>
+            )
+          )}
         </ContactsList>
       </>
     );
@@ -510,10 +543,13 @@ const Contacts = ({ history }: RouteComponentProps) => {
             : 'No contacts added yet'}
         </ContactText>
       )}
-      {shouldShowPasswordModal && (
+      {contactToDelete && (
         <EnterPasswordModal
-          submitAction={deleteContact}
-          closeModal={() => setShouldShowPasswordModal(false)}
+          submitAction={({ password }) =>
+            contactToDelete &&
+            deleteContact({ contact: contactToDelete, password })
+          }
+          closeModal={() => setContactToDelete(null)}
         />
       )}
     </WrapperWith2SideBars>
