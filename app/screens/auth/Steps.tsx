@@ -4,7 +4,7 @@ import { StepsContainer } from '../../basicComponents';
 export enum Step {
   NEW_WALLET_SETUP = 'NEW WALLET SETUP',
   NEW_WALLET_TYPE = 'NEW WALLET TYPE',
-  PROTECT_WALLET = 'PROTECT_WALLET',
+  PROTECT_WALLET = 'PROTECT WALLET',
   SELECT_NETWORK = 'SELECT NETWORK',
 }
 const STEPS_ORDERED = [
