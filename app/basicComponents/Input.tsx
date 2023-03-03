@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FocusEventHandler } from 'react';
 import styled from 'styled-components';
 
 const DEFAULT_DEBOUNCE_TIME = 500;
@@ -107,7 +107,7 @@ type Props = {
   onBlur?: ({ value }: { value: string }) => void;
   onChangeDebounced?: ({ value }: { value: string | number }) => void;
   onEnterPress?: () => void | Promise<any>;
-  onFocus?: ({ target }: { target: EventTarget | null }) => void;
+  onFocus?: FocusEventHandler<HTMLInputElement>;
   onPaste?: () => void;
   inputRef?: (element: HTMLInputElement | null) => void;
   value: any;
@@ -185,11 +185,6 @@ const Input = ({
     }
   };
 
-  const handleFocus = (event: any) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    onFocus && onFocus({ target: event.target });
-  };
-
   return (
     <Wrapper isDisabled={isDisabled} isFocused={isFocused} style={style}>
       <ActualInput
@@ -200,7 +195,7 @@ const Input = ({
         placeholder={placeholder}
         onKeyPress={handleEnterPress}
         onChange={handleChange}
-        onFocus={handleFocus}
+        onFocus={onFocus}
         onBlur={handleOnBlur}
         onKeyDown={onKeyDown}
         type={type}
