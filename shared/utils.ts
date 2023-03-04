@@ -264,10 +264,13 @@ export const deriveHRP = (addr: string) => addr.match(/^(\w+)1/)?.[1] || null;
 export const longToNumber = (val: Long | number) =>
   typeof val === 'number' ? val : val.toNumber();
 
+export const convertBytesToMb = (maxFileSize: number) =>
+  maxFileSize / 1024 / 1024;
+
 export const convertBytesToGB = (maxFileSize: number) =>
   maxFileSize / 1024 / 1024 / 1024;
-export const convertGBToBytes = (maxFileSize: number) =>
-  maxFileSize * 1024 * 1024 * 1024;
+export const convertMbToBytes = (maxFileSize: number) =>
+  maxFileSize * 1024 * 1024;
 
 export const distribute = (min: number, max: number, steps: number) => {
   const delta = max - min;
