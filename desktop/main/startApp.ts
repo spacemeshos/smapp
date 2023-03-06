@@ -212,7 +212,7 @@ const startApp = (): AppStore => {
     handleShowFile($currentNetwork),
     // IPC Reactions
     handleWipeOut($mainWindow, $isAppClosing),
-    handleDeleteWalletFile($mainWindow),
+    handleDeleteWalletFile($mainWindow, $wallet, $walletPath),
     // Push updates to Renderer process (redux via IPC)
     syncToRenderer(
       $mainWindow,
