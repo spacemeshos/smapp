@@ -1,10 +1,11 @@
 import fs from 'fs/promises';
 import { BrowserWindow, dialog } from 'electron';
-import { Subject, withLatestFrom } from 'rxjs';
+import { Subject, withLatestFrom, BehaviorSubject } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import StoreService from '../../storeService';
 import { fromIPC } from '../rx.utils';
 import Logger from '../../logger';
+import { Wallet } from '../../../shared/types';
 
 const logger = Logger({ className: 'reactions/deleteWalletFile.ipc' });
 
@@ -31,11 +32,17 @@ const deleteWalletFile = async (
   return false;
 };
 
-const handleDeleteWalletFile = ($mainWindow: Subject<BrowserWindow>) => {
+const handleDeleteWalletFile = (
+  $mainWindow: Subject<BrowserWindow>,
+  $wallet: BehaviorSubject<Wallet | null>,
+  $walletPath: BehaviorSubject<string>
+) => {
   const $req = fromIPC<string>(ipcConsts.W_M_SHOW_DELETE_FILE);
   const $s = $req.pipe(withLatestFrom($mainWindow));
   const sub = $s.subscribe(async ([path, mainWindow]) => {
     if (await deleteWalletFile(mainWindow, path)) {
+      $wallet.next(null);
+      $walletPath.next('');
       mainWindow.reload();
     }
   });
