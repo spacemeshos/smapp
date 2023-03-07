@@ -128,17 +128,20 @@ const PoSSize = ({
     setNumUnit(commitments[index].numUnits);
   };
 
-  const handleMaxFileSize = ({ value }: { value: string }) => {
-    const mb = parseInt(value, 10);
-
-    if (Number.isNaN(mb) || DEFAULT_POS_MAX_FILE_SIZE_MB >= mb) {
-      setMaxFileSize(convertMbToBytes(DEFAULT_POS_MAX_FILE_SIZE_MB));
-      return;
-    }
-
+  const handleOnChange = ({ value }) => {
+    const parsedValue = parseInt(value, 10);
+    const mb = Number.isNaN(parsedValue) ? 0 : parsedValue;
     setShowMaxFileSizeWarning(mb > POS_MAX_FILE_SIZE_WARNING_VALUE_MB);
-
     setMaxFileSize(convertMbToBytes(mb));
+  };
+
+  const handleOnBlur = (value) => {
+    const mb = parseInt(value, 10);
+    if (DEFAULT_POS_MAX_FILE_SIZE_MB >= mb) {
+      setMaxFileSize(convertMbToBytes(DEFAULT_POS_MAX_FILE_SIZE_MB));
+    } else {
+      setMaxFileSize(convertMbToBytes(parseInt(value, 10)));
+    }
   };
 
   return (
@@ -174,7 +177,8 @@ const PoSSize = ({
             value={convertBytesToMb(maxFileSize)}
             debounceTime={100}
             min={DEFAULT_POS_MAX_FILE_SIZE_MB}
-            onChange={handleMaxFileSize}
+            onChange={handleOnChange}
+            onBlur={handleOnBlur}
           />
         </InputWrapper>
         {showMaxFileSizeWarning && (
