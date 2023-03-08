@@ -176,14 +176,14 @@ const AutocompleteList = styled.div<{
   overflow: auto;
   height: ${({ isOpened }) => (isOpened ? 'unset' : '0')};
   max-height: 214px;
-  z-index: 9;
+  z-index: 11;
   -webkit-box-shadow: 0 2px 3px ${smColors.black30Alpha};
   box-shadow: 0 2px 3px ${smColors.black30Alpha};
   > div {
     padding: 10px;
     font-size: 13px;
     background: ${smColors.white};
-    color: ${smColors.black30Alpha};
+    color: ${smColors.dark75Alpha};
     border-bottom: 1px solid ${smColors.disabledGray};
     cursor: pointer;
     outline: none;

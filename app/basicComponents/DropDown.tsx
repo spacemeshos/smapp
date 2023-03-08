@@ -52,7 +52,7 @@ const HeaderWrapper = styled.div<{
   isOpened: boolean;
   isDarkMode: boolean;
 }>`
-  z-index: 11;
+  z-index: 10;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
