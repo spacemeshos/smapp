@@ -1,7 +1,7 @@
 import Bech32 from '@spacemesh/address-wasm';
 import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
 import { objOf } from 'ramda';
-import { combineLatest, map, Subject } from 'rxjs';
+import { combineLatest, filter, map, Subject } from 'rxjs';
 import { Wallet } from '../../../../shared/types';
 import { fromHexString } from '../../../../shared/utils';
 
@@ -48,5 +48,6 @@ export default (
 ) =>
   combineLatest([$wallet, $walletPath] as const).pipe(
     map(([wallet, walletPath]) => walletRendererState(wallet, walletPath)),
+    filter((state) => state.accounts.length > 0),
     map(objOf('wallet'))
   );
