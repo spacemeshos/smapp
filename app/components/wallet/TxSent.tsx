@@ -116,7 +116,7 @@ const TxSent = ({ fields, txId, navigateToTxList, doneButtonRoute }: Props) => {
   return (
     <Wrapper>
       <Header>
-        <HeaderText>TRANASCTION SENT!</HeaderText>
+        <HeaderText>TRANSACTION SENT!</HeaderText>
         <HeaderIcon src={doneIconGreen} />
       </Header>
       <>
