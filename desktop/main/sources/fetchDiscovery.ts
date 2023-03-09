@@ -70,14 +70,14 @@ export const fetchDiscoveryEach = (
     (nets) => nets.length > 0 && $networks.next(nets)
   );
 
-export const listNetworksByRequest = () =>
+export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
   makeSubscription(
     handleIPC(
       ipcConsts.LIST_NETWORKS,
       () => fromDiscovery().pipe(map((nets) => handlerResult(nets))),
       (nets) => nets
     ),
-    (_) => {}
+    (networks) => $networks.next(networks)
   );
 
 export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>

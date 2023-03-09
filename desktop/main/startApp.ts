@@ -178,7 +178,7 @@ const startApp = (): AppStore => {
     // Update networks each N seconds
     fetchDiscoveryEach(60 * MINUTE, $networks),
     // And update them by users request
-    listNetworksByRequest(),
+    listNetworksByRequest($networks),
     // Get actual logs to client app
     sentryLogsListener(),
     // List Public APIs for current network

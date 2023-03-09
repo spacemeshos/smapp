@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '../../basicComponents';
 import Modal from '../../components/common/Modal';
+import useNavigatorOnLine from '../../hooks/useNavigatorOnLine';
 import ReactPortal from './ReactPortal';
 
 const ButtonsWrapper = styled.div<{ hasSingleButton?: boolean }>`
@@ -21,33 +22,6 @@ const ErrorMessage = styled.pre`
   flex: 1;
   overflow-y: auto;
 `;
-
-const getOnLineStatus = () =>
-  typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean'
-    ? navigator.onLine
-    : true;
-
-const useNavigatorOnLine = () => {
-  const [status, setStatus] = useState(getOnLineStatus());
-
-  useEffect(() => {
-    function setOnline() {
-      setStatus(true);
-    }
-    function setOffline() {
-      setStatus(false);
-    }
-    window.addEventListener('online', setOnline);
-    window.addEventListener('offline', setOffline);
-
-    return () => {
-      window.removeEventListener('online', setOnline);
-      window.removeEventListener('offline', setOffline);
-    };
-  }, [setStatus]);
-
-  return status;
-};
 
 const NoInternetConnection = () => {
   const [isIgnore, setIgnore] = useState(false);
