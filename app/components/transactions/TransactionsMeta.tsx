@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { formatSmidge } from '../../infra/utils';
-import { smColors } from '../../vars';
+import React from "react";
+import styled from "styled-components";
+import { formatSmidge } from "../../infra/utils";
+import { smColors } from "../../vars";
 
 const Text = styled.span`
   font-size: 16px;
@@ -75,6 +75,7 @@ type Props = {
   totalMined: number;
   totalSent: number;
   totalReceived: number;
+  nonce: number;
 };
 
 const TransactionsMeta = ({
@@ -85,17 +86,18 @@ const TransactionsMeta = ({
   totalSent,
   totalReceived,
   filterName,
+  nonce,
 }: Props) => {
   const totalFilteredCoins = mined + sent + received;
   const coinsMeta = [
-    { title: 'SMESHED', coins: mined },
-    { title: 'SENT', coins: sent },
-    { title: 'RECEIVED', coins: received },
+    { title: "SMESHED", coins: mined },
+    { title: "SENT", coins: sent },
+    { title: "RECEIVED", coins: received },
   ];
   const totalCoinsMeta = [
-    { title: 'SMESHED', coins: totalMined },
-    { title: 'SENT', coins: totalSent },
-    { title: 'RECEIVED', coins: totalReceived },
+    { title: "SMESHED", coins: totalMined },
+    { title: "SENT", coins: totalSent },
+    { title: "RECEIVED", coins: totalReceived },
   ];
 
   return (
@@ -130,6 +132,7 @@ const TransactionsMeta = ({
           </TextRow>
         ))}
       </Group>
+      <Text style={{ marginTop: 27 }}>Current Nonce: {nonce}</Text>
     </>
   );
 };
