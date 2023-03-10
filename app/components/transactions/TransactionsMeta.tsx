@@ -1,7 +1,7 @@
-import React from "react";
-import styled from "styled-components";
-import { formatSmidge } from "../../infra/utils";
-import { smColors } from "../../vars";
+import React from 'react';
+import styled from 'styled-components';
+import { formatSmidge } from '../../infra/utils';
+import { smColors } from '../../vars';
 
 const Text = styled.span`
   font-size: 16px;
@@ -90,14 +90,14 @@ const TransactionsMeta = ({
 }: Props) => {
   const totalFilteredCoins = mined + sent + received;
   const coinsMeta = [
-    { title: "SMESHED", coins: mined },
-    { title: "SENT", coins: sent },
-    { title: "RECEIVED", coins: received },
+    { title: 'SMESHED', coins: mined },
+    { title: 'SENT', coins: sent },
+    { title: 'RECEIVED', coins: received },
   ];
   const totalCoinsMeta = [
-    { title: "SMESHED", coins: totalMined },
-    { title: "SENT", coins: totalSent },
-    { title: "RECEIVED", coins: totalReceived },
+    { title: 'SMESHED', coins: totalMined },
+    { title: 'SENT', coins: totalSent },
+    { title: 'RECEIVED', coins: totalReceived },
   ];
 
   return (
