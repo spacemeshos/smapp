@@ -1,8 +1,8 @@
-import { curry } from "ramda";
-import { HexString, Tx, Reward } from "../../../shared/types";
-import { isWalletOnlyType } from "../../../shared/utils";
-import { RootState } from "../../types";
-import { getNetworkInfo } from "../network/selectors";
+import { curry } from 'ramda';
+import { HexString, Tx, Reward } from '../../../shared/types';
+import { isWalletOnlyType } from '../../../shared/utils';
+import { RootState } from '../../types';
+import { getNetworkInfo } from '../network/selectors';
 
 export const getRemoteApi = (state: RootState) => state.wallet.meta.remoteApi;
 export const isWalletOnly = (state: RootState) =>
@@ -102,9 +102,7 @@ export const getTransactions = curry(
 export const getSentTransactions = curry(
   (publicKey: HexString, state: RootState): TxView[] => {
     const txs = getTransactionsRaw(publicKey, state);
-    const filteredAndReversedTxs = txs
-      .filter((obj) => obj.principal === publicKey)
-      .reverse();
+    const filteredAndReversedTxs = txs.filter(obj => obj.principal === publicKey).reverse();
     return patchWithTimestamp(filteredAndReversedTxs, state);
   }
 );
@@ -112,9 +110,7 @@ export const getSentTransactions = curry(
 export const getReceivedTransactions = curry(
   (publicKey: HexString, state: RootState): TxView[] => {
     const txs = getTransactionsRaw(publicKey, state);
-    const filteredAndReversedTxs = txs
-      .filter((obj) => obj.principal !== publicKey)
-      .reverse();
+    const filteredAndReversedTxs = txs.filter(obj => obj.principal !== publicKey).reverse();
     return patchWithTimestamp(filteredAndReversedTxs, state);
   }
 );
