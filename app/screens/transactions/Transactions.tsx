@@ -15,7 +15,7 @@ import {
   Link,
   WrapperWith2SideBars,
   CorneredWrapper,
-  DropDown
+  DropDown,
 } from '../../basicComponents';
 import { RootState } from '../../types';
 import {
