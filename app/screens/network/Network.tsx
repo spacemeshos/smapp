@@ -282,12 +282,15 @@ const Network = ({ history }) => {
         {genesisID.length ? renderNetworkDetails() : renderNoNetwork()}
         <FooterWrap>
           {!isWalletMode && (
-            <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+            <>
+              <Link onClick={openLogFile} text="BROWSE LOG FILE" />
+              <Tooltip
+                width={250}
+                text="Locate the go-spacemesh and app log files on your computer"
+              />
+            </>
           )}
-          <Tooltip
-            width={250}
-            text="Locate the go-spacemesh and app log files on your computer"
-          />
+
           {renderActionButton()}
         </FooterWrap>
       </Container>
