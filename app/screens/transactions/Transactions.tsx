@@ -301,7 +301,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
           contacts={contacts}
           setAddressToAdd={setAddressToAdd}
         />
-        <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDES" />
+        <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDE" />
       </WrapperWith2SideBars>
       {addressToAdd ? (
         <CreateNewContact
