@@ -1,35 +1,37 @@
-import React, { MutableRefObject, useState } from 'react';
-import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
-import useVirtual from 'react-cool-virtual';
-import { MainPath } from '../../routerPaths';
-import { BackButton } from '../../components/common';
+import React, { MutableRefObject, useState, useEffect } from "react";
+import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { RouteComponentProps } from "react-router-dom";
+import useVirtual from "react-cool-virtual";
+import { MainPath } from "../../routerPaths";
+import { BackButton } from "../../components/common";
 import {
   TxRow,
   RewardRow,
   TransactionsMeta,
-} from '../../components/transactions';
-import { CreateNewContact } from '../../components/contacts';
+} from "../../components/transactions";
+import { CreateNewContact } from "../../components/contacts";
 import {
   Link,
   WrapperWith2SideBars,
   CorneredWrapper,
   DropDown,
-} from '../../basicComponents';
-import { RootState } from '../../types';
+} from "../../basicComponents";
+import { RootState } from "../../types";
 import {
   getContacts,
   getRewards,
   getTransactions,
+  getSentTransactions,
+  getReceivedTransactions,
   getTxAndRewards,
   RewardView,
   TxView,
-} from '../../redux/wallet/selectors';
-import { TxState, Bech32Address } from '../../../shared/types';
-import { isReward, isTx } from '../../../shared/types/guards';
-import { ExternalLinks } from '../../../shared/constants';
-import { SingleSigMethods } from '../../../shared/templateConsts';
+} from "../../redux/wallet/selectors";
+import { TxState, Bech32Address } from "../../../shared/types";
+import { isReward, isTx } from "../../../shared/types/guards";
+import { ExternalLinks } from "../../../shared/constants";
+import { SingleSigMethods } from "../../../shared/templateConsts";
 
 const Wrapper = styled.div`
   display: flex;
@@ -101,21 +103,25 @@ const getNumOfCoinsFromTransactions = (
 };
 
 const TIME_SPANS = [
-  { label: 'daily', days: 1 },
-  { label: 'monthly', days: 30 },
-  { label: 'yearly', days: 365 },
+  { label: "daily", days: 1 },
+  { label: "monthly", days: 30 },
+  { label: "yearly", days: 365 },
 ];
 
 enum TxFilter {
   All = 0,
   Transactions = 1,
   Rewards = 2,
+  Sent = 3,
+  Received = 4,
 }
 
 const TX_FILTERS = [
-  { label: 'all', filter: TxFilter.All },
-  { label: 'transactions', filter: TxFilter.Transactions },
-  { label: 'rewards', filter: TxFilter.Rewards },
+  { label: "all", filter: TxFilter.All },
+  { label: "transactions", filter: TxFilter.Transactions },
+  { label: "rewards", filter: TxFilter.Rewards },
+  { label: "sent", filter: TxFilter.Sent },
+  { label: "received", filter: TxFilter.Received },
 ];
 
 const TransactionList = ({
@@ -150,7 +156,7 @@ const TransactionList = ({
             if (!tx) return null;
             const isRew = isReward(tx);
             const key = [address, tx.layer, isRew ? tx.amount : tx.id].join(
-              '_'
+              "_"
             );
             return (
               <div key={key} ref={measureRef}>
@@ -180,24 +186,40 @@ const TransactionList = ({
 
 const Transactions = ({ history }: RouteComponentProps) => {
   const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
-  const [addressToAdd, setAddressToAdd] = useState('');
+  const [addressToAdd, setAddressToAdd] = useState("");
   const [txFilter, setTxFilter] = useState(TxFilter.All);
 
   const address = useSelector(
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
+
+  const getNonce = useSelector(
+    (state: RootState) => state.wallet.balances[address].currentState.counter
+  );
+
+  const [actNonce, setactNonce] = useState(getNonce);
+
   const transactions = useSelector((state: RootState) => {
     switch (txFilter) {
       case TxFilter.Transactions:
         return getTransactions(address, state);
       case TxFilter.Rewards:
         return getRewards(address, state);
+      case TxFilter.Received:
+        return getReceivedTransactions(address, state);
+      case TxFilter.Sent:
+        return getSentTransactions(address, state);
       default:
       case TxFilter.All:
         return getTxAndRewards(address, state);
     }
   });
+
+  useEffect(() => {
+    setactNonce(getNonce);
+  }, [transactions]);
+
   const contacts = useSelector(getContacts);
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
@@ -215,7 +237,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   };
 
   const handleCompleteAction = () => {
-    setAddressToAdd('');
+    setAddressToAdd("");
   };
 
   const handlePress = ({ index }: { index: number }) => {
@@ -231,7 +253,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   };
 
   const cancelCreatingNewContact = () => {
-    setAddressToAdd('');
+    setAddressToAdd("");
   };
 
   const navigateToGuide = () => window.open(ExternalLinks.WalletGuide);
@@ -279,7 +301,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
           contacts={contacts}
           setAddressToAdd={setAddressToAdd}
         />
-        <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDE" />
+        <Link onClick={navigateToGuide} text="TRANSACTIONS GUIDES" />
       </WrapperWith2SideBars>
       {addressToAdd ? (
         <CreateNewContact
@@ -308,6 +330,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
             totalSent={totalSent}
             totalReceived={totalReceived}
             filterName={TIME_SPANS[selectedTimeSpan].label}
+            nonce={actNonce}
           />
         </RightPaneWrapper>
       )}
