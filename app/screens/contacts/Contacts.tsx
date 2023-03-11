@@ -441,11 +441,12 @@ const Contacts = ({ history }: RouteComponentProps) => {
     return (
       <>
         <ContactRow>
-          <ContactHeader>NAME
-          <Tooltip
-            width={250}
-            text='​Clicking on the name will open the "Send SMH" transaction form.'
-          />
+          <ContactHeader>
+            NAME
+            <Tooltip
+              width={250}
+              text='​Clicking on the name will open the "Send SMH" transaction form.'
+            />
           </ContactHeader>
           <ContactHeader>ADDRESS</ContactHeader>
           <ContactHeader>ACTION</ContactHeader>
