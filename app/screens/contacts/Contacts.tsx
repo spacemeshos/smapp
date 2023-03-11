@@ -8,6 +8,7 @@ import {
   Input,
   DropDown,
   BoldText,
+  Tooltip,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
 import { getAbbreviatedAddress } from '../../infra/utils';
@@ -288,10 +289,10 @@ const Contacts = ({ history }: RouteComponentProps) => {
   };
 
   const sortContacts = (c1: Contact, c2: Contact) => {
-    if (c1.nickname > c2.nickname) {
+    if (c1.nickname.toLowerCase() > c2.nickname.toLowerCase()) {
       return selectedSorting === 0 ? 1 : -1;
     }
-    if (c1.nickname < c2.nickname) {
+    if (c1.nickname.toLowerCase() < c2.nickname.toLowerCase()) {
       return selectedSorting === 0 ? -1 : 1;
     }
     if (c1.address > c2.address) {
@@ -440,7 +441,12 @@ const Contacts = ({ history }: RouteComponentProps) => {
     return (
       <>
         <ContactRow>
-          <ContactHeader>NAME</ContactHeader>
+          <ContactHeader>NAME
+          <Tooltip
+            width={250}
+            text='​Clicking on the name will open the "Send SMH" transaction form.'
+          />
+          </ContactHeader>
           <ContactHeader>ADDRESS</ContactHeader>
           <ContactHeader>ACTION</ContactHeader>
         </ContactRow>
