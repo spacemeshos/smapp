@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { CorneredContainer } from '../../components/common';
+import { BackButton, CorneredContainer } from '../../components/common';
 import { Button, Link, DropDown, Loader } from '../../basicComponents';
 import { eventsService } from '../../infra/eventsService';
 import { AppThDispatch, RootState } from '../../types';
@@ -166,6 +166,7 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
         subHeader="Select a public Spacemesh network for your wallet."
         tooltipMessage="Check explorer.spacemesh.io for the stats"
       >
+        <BackButton action={history.goBack} />
         <RowColumn>
           <DropDown
             data={getDropDownData()}

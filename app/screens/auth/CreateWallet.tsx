@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { createNewWallet } from '../../redux/wallet/actions';
-import { CorneredContainer, PasswordInput } from '../../components/common';
+import {
+  BackButton,
+  CorneredContainer,
+  PasswordInput,
+} from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
 import {
   getCurrentWalletFile,
@@ -193,6 +197,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
           'With this step, your Wallet will be created. Set up a password you will be using to access it later. Remember, there will be no way to recover the lost password.'
         }
       >
+        <BackButton action={history.goBack} />
         {
           <>
             <UpperPart>
