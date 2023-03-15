@@ -69,7 +69,4 @@ export interface RewardsInfo {
   epochs: number;
 }
 
-export const DEFAULT_POS_MAX_FILE_SIZE_GB = 2;
-export const DEFAULT_POS_MAX_FILE_SIZE_LIMIT_GB = 100;
 export const DEFAULT_POS_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2GB
-export const DEFAULT_POS_MAX_FILE_SIZE_LIMIT = 1024 * 1024 * 1024 * 100; // 100GB
