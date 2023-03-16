@@ -13,7 +13,6 @@ import {
   isLocalNodeType,
   isRemoteNodeApi,
   toHexString,
-  toSocketAddress,
 } from '../shared/utils';
 import { Reward__Output } from '../proto/spacemesh/v1/Reward';
 import { isActivation, isNodeError } from '../shared/types/guards';
@@ -27,6 +26,7 @@ import Logger from './logger';
 import { GRPC_QUERY_BATCH_SIZE as BATCH_SIZE } from './main/constants';
 import AbstractManager from './AbstractManager';
 import { sign } from './ed25519';
+import { toSocketAddress } from './main/utils';
 
 const logger = Logger({ className: 'WalletManager' });
 

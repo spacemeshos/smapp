@@ -1,7 +1,8 @@
 import path from 'path';
 import readFromBottom from 'fs-reverse';
-import { BrowserWindow, Notification } from 'electron';
+import { app, BrowserWindow, Notification } from 'electron';
 import { isFileExists } from '../utils';
+import { PublicService, SocketAddress } from '../../shared/types';
 import { USERDATA_DIR } from './constants';
 
 export const showMainWindow = (mainWindow: BrowserWindow) => {
@@ -52,3 +53,64 @@ export const readLinesFromBottom = async (filepath: string, amount: number) => {
     });
   });
 };
+
+export const DEFAULT_GRPC_PUBLIC_PORT = '9092';
+export const DEFAULT_GRPC_PRIVATE_PORT = '9093';
+
+export const getGrpcPublicPort = () =>
+  process.env.GRPC_PUBLIC_PORT ||
+  app.commandLine.getSwitchValue('grpc-public-listener') ||
+  DEFAULT_GRPC_PUBLIC_PORT;
+
+export const getGrpcPrivatePort = () =>
+  process.env.GRPC_PRIVATE_PORT ||
+  app.commandLine.getSwitchValue('grpc-private-listener') ||
+  DEFAULT_GRPC_PRIVATE_PORT;
+
+export const getProofOfServerClientValue = () =>
+  process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server');
+
+export const getLocalNodeConnectionConfig = (): SocketAddress => ({
+  host: 'localhost',
+  port: getGrpcPublicPort(),
+  protocol: 'http:',
+});
+
+export const getPrivateNodeConnectionConfig = (): SocketAddress => ({
+  host: 'localhost',
+  port: getGrpcPrivatePort(),
+  protocol: 'http:',
+});
+
+// GRPC APIs
+export const toSocketAddress = (url?: string): SocketAddress => {
+  if (!url || url.startsWith('http://localhost'))
+    return getLocalNodeConnectionConfig();
+
+  const p = url.match(/:(\d+)$/)?.[1];
+  const port = p ? `:${p}` : '';
+  const s = p === '443' ? 's' : '';
+  const vUrl = url.startsWith('http')
+    ? url
+    : `http${s}://${url.slice(0, url.length - port.length)}${port}`;
+  const u = new URL(vUrl);
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
+    throw new Error(`Unsupported protocol in GRPC remote API URL: ${url}`);
+  }
+  return {
+    host: u.hostname,
+    port:
+      u.port || u.protocol === 'https:'
+        ? '443'
+        : getLocalNodeConnectionConfig().port,
+    protocol: u.protocol,
+  };
+};
+
+export const toPublicService = (
+  netName: string,
+  url: string
+): PublicService => ({
+  name: netName,
+  ...toSocketAddress(url),
+});

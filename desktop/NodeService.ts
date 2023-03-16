@@ -8,10 +8,10 @@ import {
   PublicService,
   SocketAddress,
 } from '../shared/types';
-import { LOCAL_NODE_API_URL } from '../shared/constants';
 import { longToNumber } from '../shared/utils';
 import NetServiceFactory from './NetServiceFactory';
 import Logger from './logger';
+import { getLocalNodeConnectionConfig } from './main/utils';
 
 const PROTO_PATH = 'proto/node.proto';
 
@@ -45,7 +45,7 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
   createService = (apiUrl?: SocketAddress | PublicService) => {
     this.createNetService(
       PROTO_PATH,
-      apiUrl || LOCAL_NODE_API_URL,
+      apiUrl || getLocalNodeConnectionConfig(),
       'NodeService'
     );
   };
