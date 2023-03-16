@@ -18,7 +18,6 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
-import { LOCAL_NODE_API_URL } from '../../../shared/constants';
 import {
   AddContactRequest,
   ChangePasswordRequest,
@@ -63,6 +62,7 @@ import {
   updateWalletMeta,
   WRONG_PASSWORD_MESSAGE,
 } from '../walletFile';
+import { getLocalNodeConnectionConfig } from '../utils';
 
 type WalletData = {
   // path to wallet file
@@ -227,7 +227,10 @@ const handleWalletIpcRequests = (
     //
     handleIPC(
       ipcConsts.SWITCH_API_PROVIDER,
-      ({ apiUrl, genesisID }: SwitchApiRequest) =>
+      ({
+        apiUrl = getLocalNodeConnectionConfig(),
+        genesisID,
+      }: SwitchApiRequest) =>
         of(null).pipe(
           withLatestFrom($wallet, $walletPath),
           map(([_, wallet, path]) => {
@@ -364,7 +367,7 @@ const handleWalletIpcRequests = (
             ...wallet,
             meta: {
               ...wallet.meta,
-              remoteApi: stringifySocketAddress(LOCAL_NODE_API_URL),
+              remoteApi: stringifySocketAddress(getLocalNodeConnectionConfig()),
               type: WalletType.LocalNode,
             },
           },

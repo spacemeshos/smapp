@@ -25,7 +25,7 @@ import { AppThDispatch, RootState } from '../../types';
 import { Modal } from '../../components/common';
 import { Account } from '../../../shared/types';
 import { isWalletOnly } from '../../redux/wallet/selectors';
-import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
+import { ExternalLinks } from '../../../shared/constants';
 import { goToSwitchNetwork } from '../../routeUtils';
 import { getGenesisID, getNetworkName } from '../../redux/network/selectors';
 import { AuthPath, MainPath, RouterPath } from '../../routerPaths';
@@ -104,7 +104,6 @@ interface Props extends RouteComponentProps {
   rootHash: string;
   build: string;
   version: string;
-  port: string;
   dataPath: string;
   backupTime: string;
   isDarkMode: boolean;
@@ -128,8 +127,6 @@ type State = {
   accountDisplayNames: Array<string>;
   showPasswordModal: boolean;
   passwordModalSubmitAction: ({ password }: { password: string }) => void;
-  changedPort: string;
-  isPortSet: boolean;
   signMessageModalAccountIndex: number;
   showModal: boolean;
 };
@@ -149,8 +146,6 @@ class Settings extends Component<Props, State> {
       accountDisplayNames,
       showPasswordModal: false,
       passwordModalSubmitAction: () => {},
-      changedPort: props.port,
-      isPortSet: false,
       signMessageModalAccountIndex: -1,
       showModal: false,
     };
@@ -180,8 +175,6 @@ class Settings extends Component<Props, State> {
       editedAccountIndex,
       showPasswordModal,
       passwordModalSubmitAction,
-      changedPort,
-      isPortSet,
       signMessageModalAccountIndex,
       showModal,
     } = this.state;
@@ -526,25 +519,6 @@ class Settings extends Component<Props, State> {
                 rowName="Move node data directory (restarts node)"
               />
               <SettingRow
-                upperPartLeft={
-                  isPortSet ? (
-                    <Text>Please restart application to apply changes</Text>
-                  ) : (
-                    <Input
-                      value={changedPort}
-                      onChange={({ value }) =>
-                        this.setState({ changedPort: value })
-                      }
-                      maxLength="10"
-                    />
-                  )
-                }
-                upperPartRight={
-                  <Button onClick={this.setPort} text="SET PORT" width={180} />
-                }
-                rowName="Local node TCP and UDP port number"
-              />
-              <SettingRow
                 upperPartLeft="Delete all wallets, app data and logs"
                 isUpperPartLeftText
                 upperPartRight={
@@ -623,17 +597,6 @@ class Settings extends Component<Props, State> {
     setClientSettingsTheme(index.toString());
     // @ts-ignore
     switchSkin(index.toString());
-  };
-
-  setPort = async () => {
-    const { changedPort } = this.state;
-    const parsedPort = parseInt(changedPort);
-    if (parsedPort && parsedPort > 1024) {
-      await eventsService.setPort({ port: changedPort });
-      this.setState({ isPortSet: true });
-    } else {
-      this.setState({ showModal: true });
-    }
   };
 
   restoreFromMnemonics = () => this.goTo(AuthPath.RecoverFromMnemonics);
@@ -778,7 +741,7 @@ class Settings extends Component<Props, State> {
   switchToLocalNode = () => {
     const { setUiError, switchApiProvider } = this.props;
     // @ts-ignore
-    switchApiProvider(LOCAL_NODE_API_URL).catch((err) => {
+    switchApiProvider().catch((err) => {
       console.error(err); // eslint-disable-line no-console
       setUiError(err);
     });
@@ -805,7 +768,6 @@ const mapStateToProps = (state: RootState) => ({
   rootHash: state.network.rootHash,
   build: state.node.build,
   version: state.node.version,
-  port: state.node.port,
   dataPath: state.node.dataPath,
   backupTime: state.wallet.backupTime,
   isDarkMode: state.ui.isDarkMode,

@@ -39,7 +39,15 @@ import {
   isFileExists,
 } from './utils';
 import { NODE_CONFIG_FILE } from './main/constants';
-import { getNodeLogsPath, readLinesFromBottom } from './main/utils';
+import {
+  DEFAULT_GRPC_PRIVATE_PORT,
+  DEFAULT_GRPC_PUBLIC_PORT,
+  getGrpcPrivatePort,
+  getGrpcPublicPort,
+  getNodeLogsPath,
+  getProofOfServerClientValue,
+  readLinesFromBottom,
+} from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
 
@@ -388,14 +396,33 @@ class NodeManager extends AbstractManager {
       )
     );
 
+    const nodeArgumentsMap = {
+      'pprof-server': getProofOfServerClientValue(),
+    };
+
+    const nodeUserArguments = {
+      'grpc-private-listener':
+        getGrpcPublicPort() === DEFAULT_GRPC_PRIVATE_PORT
+          ? undefined
+          : `127.0.0.1:${getGrpcPrivatePort()}`,
+      'grpc-public-listener':
+        getGrpcPublicPort() === DEFAULT_GRPC_PUBLIC_PORT
+          ? undefined
+          : `127.0.0.1:${getGrpcPublicPort()}`,
+    };
+
     const args = [
       '--config',
       NODE_CONFIG_FILE,
       '-d',
       nodeDataFilesPath,
-      ...(process.env.PPROF_SERVER || app.commandLine.hasSwitch('pprof-server')
-        ? ['--pprof-server']
-        : []),
+      ...Object.values(nodeArgumentsMap)
+        .filter((value) => value)
+        .map((value) => `--${value}`), // ['--key']
+      ...Object.keys(nodeUserArguments)
+        .filter((key) => nodeUserArguments[key])
+        .map((key) => [`--${key}`, nodeUserArguments[key]])
+        .reduce((prev, curr) => prev.concat(curr), []), // ['--key', 'value']
     ];
 
     logger.log('startNode', 'spawning node', [nodePath, ...args]);

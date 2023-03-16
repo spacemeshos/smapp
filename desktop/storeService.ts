@@ -6,6 +6,7 @@ import { Split } from 'ts-toolbelt/out/String/Split';
 import { HexString } from '../shared/types';
 import { USERDATA_DIR } from './main/constants';
 import { ValidSmeshingOpts } from './main/smeshingOpts';
+import { getGrpcPublicPort } from './main/utils';
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
@@ -23,7 +24,7 @@ const CONFIG_STORE_DEFAULTS = {
   startNodeOnNextLaunch: false,
   node: {
     dataPath: path.resolve(USERDATA_DIR, 'node-data'),
-    port: '9092',
+    port: getGrpcPublicPort(),
   },
   smeshing: {},
   walletFiles: [],

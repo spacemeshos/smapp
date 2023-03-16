@@ -1,15 +1,4 @@
-import { NodeStatus, SocketAddress, TxState } from './types';
-
-export const LOCAL_NODE_API_URL: SocketAddress = {
-  host: 'localhost',
-  port: '9092',
-  protocol: 'http:',
-};
-
-export const PRIVATE_NODE_API_URL: SocketAddress = {
-  ...LOCAL_NODE_API_URL,
-  port: '9093',
-};
+import { NodeStatus, TxState } from './types';
 
 export const TX_STATE_LABELS: Record<TxState, string> = {
   [TxState.UNSPECIFIED]: 'Unknown state',

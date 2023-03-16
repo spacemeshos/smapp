@@ -1,8 +1,9 @@
 import { combineLatest, Observable, Subject } from 'rxjs';
 import { Wallet } from '../../../shared/types';
-import { isRemoteNodeApi, toSocketAddress } from '../../../shared/utils';
+import { isRemoteNodeApi } from '../../../shared/utils';
 import { Managers } from '../app.types';
 import { makeSubscription } from '../rx.utils';
+import { toSocketAddress } from '../utils';
 
 export default ($wallet: Subject<Wallet>, $managers: Observable<Managers>) =>
   makeSubscription(
