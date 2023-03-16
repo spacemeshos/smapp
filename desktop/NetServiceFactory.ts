@@ -2,10 +2,10 @@ import path from 'path';
 import * as grpc from '@grpc/grpc-js';
 import { loadSync } from '@grpc/proto-loader';
 import { PublicService, SocketAddress } from '../shared/types';
-import { LOCAL_NODE_API_URL } from '../shared/constants';
 import { debounceShared, delay, isNodeApiEq } from '../shared/utils';
 import Logger from './logger';
 import { MINUTE } from './main/constants';
+import { getLocalNodeConnectionConfig } from './main/utils';
 
 // Types
 type Proto = { spacemesh: { v1: any; [k: string]: any }; [k: string]: any };
@@ -76,7 +76,7 @@ class NetServiceFactory<
 
   createNetService = (
     protoPath: string,
-    apiUrl: SocketAddress | PublicService = LOCAL_NODE_API_URL,
+    apiUrl: SocketAddress | PublicService = getLocalNodeConnectionConfig(),
     serviceName: string
   ) => {
     this.logger?.debug(`createNetService(${serviceName})`, apiUrl);

@@ -226,8 +226,8 @@ class EventsService {
   };
 
   static switchApiProvider = (
-    apiUrl: SocketAddress | null,
-    genesisID: string
+    genesisID: string,
+    apiUrl: SocketAddress | null = null
   ) => ipcRenderer.invoke(ipcConsts.SWITCH_API_PROVIDER, { apiUrl, genesisID });
 
   /** **************************************  WALLET MANAGER  **************************************** */

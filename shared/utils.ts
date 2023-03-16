@@ -1,6 +1,5 @@
 import TOML from '@iarna/toml';
-import { LOCAL_NODE_API_URL } from './constants';
-import { HexString, PublicService, SocketAddress, WalletType } from './types';
+import { HexString, SocketAddress, WalletType } from './types';
 
 export const delay = (ms: number) =>
   new Promise<void>((resolve) => {
@@ -179,32 +178,14 @@ export const ifTruish = <V extends any, R extends Record<any, any>>(
   def: R
 ) => (v ? then(v) : def);
 
-// GRPC APIs
-export const toSocketAddress = (url?: string): SocketAddress => {
-  if (!url || url === 'http://localhost:9092') return LOCAL_NODE_API_URL;
-
-  const p = url.match(/:(\d+)$/)?.[1];
-  const port = p ? `:${p}` : '';
-  const s = p === '443' ? 's' : '';
-  const vUrl = url.startsWith('http')
-    ? url
-    : `http${s}://${url.slice(0, url.length - port.length)}${port}`;
-  const u = new URL(vUrl);
-  if (u.protocol !== 'http:' && u.protocol !== 'https:') {
-    throw new Error(`Unsupported protocol in GRPC remote API URL: ${url}`);
-  }
-  return {
-    host: u.hostname,
-    port: u.port || u.protocol === 'https:' ? '443' : '9092',
-    protocol: u.protocol,
-  };
-};
-
 export const stringifySocketAddress = (sa: SocketAddress): string =>
   sa ? `${sa.protocol}//${sa.host}${sa.port && `:${sa.port}`}` : '';
 
 export const isLocalNodeApi = (sa: SocketAddress) =>
-  shallowEq(sa, LOCAL_NODE_API_URL);
+  shallowEq(
+    { host: 'localhost', protocol: 'http:' },
+    { host: sa.host, protocol: sa.protocol }
+  ) && parseInt(sa.port, 10);
 
 export const isNodeApiEq = (a: SocketAddress, b: SocketAddress) =>
   shallowEq(a, b);
@@ -216,14 +197,6 @@ export const isWalletOnlyType = (walletType: WalletType) =>
 
 export const isLocalNodeType = (walletType: WalletType) =>
   walletType === WalletType.LocalNode;
-
-export const toPublicService = (
-  netName: string,
-  url: string
-): PublicService => ({
-  name: netName,
-  ...toSocketAddress(url),
-});
 
 export const isObject = (o: any): o is Record<string, any> =>
   typeof o === 'object' && !Array.isArray(o) && o !== null;

@@ -30,7 +30,7 @@ import { pauseSmeshing, resumeSmeshing } from '../../redux/smesher/actions';
 import SubHeader from '../../basicComponents/SubHeader';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { eventsService } from '../../infra/eventsService';
-import { ExternalLinks, LOCAL_NODE_API_URL } from '../../../shared/constants';
+import { ExternalLinks } from '../../../shared/constants';
 import Address, { AddressType } from '../../components/common/Address';
 import { AuthPath, MainPath } from '../../routerPaths';
 import { getGenesisID } from '../../redux/network/selectors';
@@ -526,7 +526,7 @@ const Node = ({ history, location }: Props) => {
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const handleSetupSmesher = () => {
-    eventsService.switchApiProvider(LOCAL_NODE_API_URL, curNet).catch((err) => {
+    eventsService.switchApiProvider(curNet).catch((err) => {
       console.error(err); // eslint-disable-line no-console
       dispatch(setUiError(err));
     });

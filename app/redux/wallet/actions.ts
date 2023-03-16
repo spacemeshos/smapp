@@ -168,7 +168,7 @@ export const switchApiProvider = (
   genesisID?: string
 ) => async (dispatch: AppThDispatch, getState: GetState) => {
   const nextGenesisID = genesisID || getGenesisID(getState());
-  await eventsService.switchApiProvider(api, nextGenesisID);
+  await eventsService.switchApiProvider(nextGenesisID, api);
   dispatch({
     type: SET_REMOTE_API,
     payload: {

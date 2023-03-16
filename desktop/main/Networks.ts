@@ -1,8 +1,9 @@
 import { hash } from '@spacemesh/sm-codec';
 import { app } from 'electron';
 import { Network, NodeConfig, PublicService } from '../../shared/types';
-import { toHexString, toPublicService } from '../../shared/utils';
+import { toHexString } from '../../shared/utils';
 import { fetchJSON, isDevNet } from '../utils';
+import { toPublicService } from './utils';
 
 //
 // Assertions

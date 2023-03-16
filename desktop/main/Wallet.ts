@@ -13,10 +13,10 @@ import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
 import { getISODate } from '../../shared/datetime';
 import { CreateWalletRequest } from '../../shared/ipcMessages';
-import { LOCAL_NODE_API_URL } from '../../shared/constants';
 import StoreService from '../storeService';
 import { DOCUMENTS_DIR, DEFAULT_WALLETS_DIRECTORY } from './constants';
 import { copyWalletFile, listWallets } from './walletFile';
+import { getLocalNodeConnectionConfig } from './utils';
 
 const list = async () => {
   try {
@@ -122,7 +122,7 @@ export const createWallet = async ({
 
   wallet.meta.genesisID = genesisID;
   wallet.meta.remoteApi =
-    apiUrl && apiUrl !== LOCAL_NODE_API_URL
+    apiUrl && apiUrl !== getLocalNodeConnectionConfig()
       ? stringifySocketAddress(apiUrl)
       : '';
   wallet.meta.type = type;
