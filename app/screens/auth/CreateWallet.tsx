@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
-import { isLocalNodeApi } from '../../../shared/utils';
 import { createNewWallet } from '../../redux/wallet/actions';
-import { CorneredContainer } from '../../components/common';
+import { CorneredContainer, PasswordInput } from '../../components/common';
 import { Input, Button, Link, Loader, ErrorPopup } from '../../basicComponents';
-import { eventsService } from '../../infra/eventsService';
 import {
   getCurrentWalletFile,
   isWalletOnly,
 } from '../../redux/wallet/selectors';
 import { WalletType } from '../../../shared/types';
-import { MainPath } from '../../routerPaths';
+import { AuthPath } from '../../routerPaths';
 import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
@@ -21,10 +19,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-`;
-
-const SubHeader = styled.div`
-  color: ${({ theme }) => theme.color.contrast};
 `;
 
 const UpperPart = styled.div`
@@ -55,6 +49,10 @@ const Chevron = styled.img.attrs(({ theme: { icons: { chevronRight } } }) => ({
   align-self: center;
 `;
 
+const ChevronPassword = styled(Chevron)`
+  margin-bottom: 28px;
+`;
+
 const ErrorSection = styled.div`
   position: relative;
   display: flex;
@@ -79,10 +77,8 @@ const BottomPart = styled.div`
 `;
 
 const CreateWallet = ({ history, location }: AuthRouterParams) => {
-  const [subMode, setSubMode] = useState(1);
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [verifyPasswordError, setVerifyPasswordError] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
@@ -97,40 +93,14 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     setLastSelectedWalletPath(currentWalletPath);
   }, [currentWalletPath]);
 
-  const renderSubHeader = (subMode: number) => {
-    return subMode === 1 ? (
-      <SubHeader>
-        Protect your wallet with a password. You will need it to access latter
-      </SubHeader>
-    ) : (
-      <SubHeader>
-        Your wallet was created and saved in a password-protected file
-        <br />
-        <br />
-        <Link
-          onClick={() => eventsService.showFileInFolder({})}
-          text="Browse file location"
-        />
-      </SubHeader>
-    );
-  };
-
   const validate = () => {
-    const pasMinLength = 1; // TODO: Changed to 8 before testnet.
-    const hasPasswordError =
-      !password || (!!password && password.length < pasMinLength);
     const hasVerifyPasswordError =
       !verifiedPassword || password !== verifiedPassword;
-    // eslint-disable-next-line no-template-curly-in-string
-    const passwordError = hasPasswordError
-      ? `Password has to be ${pasMinLength} characters or more.`
-      : '';
     const verifyPasswordError = hasVerifyPasswordError
-      ? "These passwords don't match, please try again."
+      ? "These passwords don't match"
       : '';
-    setPasswordError(passwordError);
     setVerifyPasswordError(verifyPasswordError);
-    return !passwordError && !verifyPasswordError;
+    return !verifyPasswordError;
   };
 
   const createWallet = async () => {
@@ -147,7 +117,6 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
           apiUrl: location?.state?.apiUrl || null,
         })
       );
-      setSubMode(2);
       setIsLoaderVisible(false);
     }
   };
@@ -160,7 +129,6 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
-    setPasswordError('');
   };
 
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
@@ -169,18 +137,9 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   };
 
   const nextAction = () => {
-    if (subMode === 1 && validate()) {
+    if (validate()) {
       createWallet();
-    } else if (subMode === 2) {
-      if (
-        location?.state?.genesisID &&
-        typeof location?.state?.apiUrl === 'string' &&
-        isLocalNodeApi(location.state.apiUrl)
-      ) {
-        history.push(MainPath.SmeshingSetup);
-        return;
-      }
-      history.push(MainPath.Wallet);
+      history.push(AuthPath.ProtectWallet);
     }
   };
 
@@ -200,30 +159,28 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
       </LoaderWrapper>
     );
   }
-  const header =
-    subMode === 1 ? 'PROTECT YOUR WALLET' : 'WALLET PASSWORD PROTECTED';
   return (
     <Wrapper>
-      <Steps step={Step.PROTECT_WALLET} />
+      <Steps step={Step.CREATE_WALLET} />
       <CorneredContainer
         width={650}
         height={400}
-        header={header}
-        subHeader={renderSubHeader(subMode)}
+        header={'CREATE YOUR WALLET'}
+        subHeader={
+          'Create your wallet with a password. You will need it to access latter'
+        }
       >
-        {subMode === 1 && (
+        {
           <>
             <UpperPart>
               <Inputs>
                 <InputSection>
-                  <Chevron />
-                  <Input
-                    value={password}
-                    type="password"
-                    placeholder="ENTER PASSWORD"
-                    onEnterPress={handleEnterPress}
+                  <ChevronPassword />
+                  <PasswordInput
+                    password={password}
                     onChange={handlePasswordTyping}
-                    autofocus
+                    onEnterPress={handleEnterPress}
+                    passwordIndicator
                   />
                 </InputSection>
                 <InputSection>
@@ -238,19 +195,16 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                 </InputSection>
               </Inputs>
               <ErrorSection>
-                {(!!passwordError || !!verifyPasswordError) && (
+                {Boolean(verifyPasswordError) && (
                   <ErrorPopup
-                    onClick={() => {
-                      setPasswordError('');
-                      setVerifyPasswordError('');
-                    }}
-                    text={passwordError || verifyPasswordError}
+                    onClick={() => setVerifyPasswordError('')}
+                    text={verifyPasswordError}
                   />
                 )}
               </ErrorSection>
             </UpperPart>
           </>
-        )}
+        }
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET GUIDE" />
           <Button onClick={nextAction} text="NEXT" />

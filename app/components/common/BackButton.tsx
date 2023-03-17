@@ -4,18 +4,16 @@ import { chevronLeftWhite } from '../../assets/images';
 
 type Props = {
   action: (e?: React.MouseEvent) => void;
-  width?: number;
-  height?: number;
 };
 
 const style = { position: 'absolute', bottom: 0, left: -45 };
 
-const BackButton = ({ action, width = 10, height = 15 }: Props) => (
+const BackButton = ({ action }: Props) => (
   <SecondaryButton
     onClick={action}
     img={chevronLeftWhite}
-    imgWidth={width}
-    imgHeight={height}
+    imgWidth={10}
+    imgHeight={15}
     style={style}
   />
 );

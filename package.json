@@ -54,7 +54,7 @@
     "node": ">=16.15.0"
   },
   "resolutions": {
-    "electron": "^11.0.1"
+    "@sentry/types": "^7.36.0"
   },
   "engineStrict": true,
   "homepage": "https://spacemesh.io/",
@@ -226,9 +226,7 @@
     "styled-components": "^5.3.6",
     "throttle-debounce": "^4.0.1",
     "ts-toolbelt": "^9.6.0",
-    "uuid": "^8.3.2"
-  },
-  "resolutions": {
-    "@sentry/types": "^7.36.0"
+    "uuid": "^8.3.2",
+    "zxcvbn": "^4.4.2"
   }
 }
