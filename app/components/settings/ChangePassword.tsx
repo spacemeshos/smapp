@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { eventsService } from '../../infra/eventsService';
 import { ErrorPopup, Input, Link, Loader, Button } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { RootState } from '../../types';
-import EnterPasswordModal from './EnterPasswordModal';
+import { AppThDispatch, RootState } from '../../types';
+import { PasswordInput } from '../common';
+import { unlockCurrentWallet } from '../../redux/wallet/actions';
 
 type ValidateError = {
-  type: 'passwordError' | 'verifiedPasswordError';
+  type: 'passwordError' | 'verifiedPasswordError' | 'currentPasswordError';
   description: string;
 } | null;
 
@@ -42,22 +43,23 @@ const FieldRow = styled.div`
   display: flex;
   position: relative;
 `;
+const FieldRowCurPass = styled.div`
+  display: flex;
+  position: relative;
+  margin-bottom: 15px;
+`;
 
 const ChangePassword = () => {
-  const displayName = useSelector(
-    (state: RootState) => state.wallet.meta.displayName
-  );
-  const [isOldPasswordRequested, setOldPasswordRequested] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
-
   const [newPasswordError, setNewPasswordError] = useState<ValidateError>();
-
   const currentWalletPath = useSelector(
     (state: RootState) => state.wallet.currentWalletPath
   );
+  const dispatch: AppThDispatch = useDispatch();
 
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setNewPassword(value);
@@ -67,19 +69,23 @@ const ChangePassword = () => {
     setVerifiedPassword(value);
   };
 
+  const handleCurrentPassword = ({ value }: { value: string }) => {
+    setCurrentPassword(value);
+  };
+
   const startUpdatingPassword = () => setIsEditMode(true);
 
-  const clear = () => {
-    setNewPassword('');
-    setVerifiedPassword('');
-    setNewPasswordError(null);
+  const isCurrentPasswordValid = async () => {
+    const { success } = await dispatch(unlockCurrentWallet(currentPassword));
+    return success;
   };
 
   const cancel = () => {
-    clear();
+    setCurrentPassword('');
+    setNewPassword('');
+    setVerifiedPassword('');
     setIsEditMode(false);
     setNewPasswordError(null);
-    setOldPasswordRequested(false);
     setIsLoaderVisible(false);
   };
 
@@ -102,14 +108,13 @@ const ChangePassword = () => {
   }
 
   const validatePassword = (): ValidateError => {
-    const pasMinLength = 1;
-    if (!newPassword || (!!newPassword && newPassword.length < pasMinLength)) {
+    if (!currentPassword || newPassword === currentPassword) {
       return {
         type: 'passwordError',
-        description: `Password has to be ${pasMinLength} characters or more.`,
+        description:
+          'The new password must not to be the same as the current password',
       };
     }
-
     if (!verifiedPassword || newPassword !== verifiedPassword) {
       return {
         type: 'verifiedPasswordError',
@@ -120,12 +125,23 @@ const ChangePassword = () => {
     return null;
   };
 
-  const savePassword = () => {
-    const validateResult = validatePassword();
-    if (!validateResult) {
-      setOldPasswordRequested(true);
+  const savePassword = async () => {
+    const isCurrentPasswordValidStatus = await isCurrentPasswordValid();
+
+    if (!isCurrentPasswordValidStatus) {
+      setNewPasswordError({
+        type: 'currentPasswordError',
+        description: 'Please enter your current password correctly!',
+      });
+      return;
     }
-    setNewPasswordError(validateResult);
+
+    const validateStatus = validatePassword();
+    if (!validateStatus) {
+      updatePassword(currentPassword);
+    }
+
+    setNewPasswordError(validateStatus);
   };
 
   return (
@@ -133,20 +149,42 @@ const ChangePassword = () => {
       <LeftPart>
         {isEditMode ? (
           <FieldsColumn>
-            <FieldRow>
+            <FieldRowCurPass>
               <Input
-                value={newPassword}
+                key="currentPass"
+                value={currentPassword}
+                onChange={handleCurrentPassword}
+                placeholder="Current password"
                 type="password"
+                autofocus
+              />
+              {newPasswordError?.type === 'currentPasswordError' && (
+                <ErrorPopup
+                  onClick={() => {
+                    setCurrentPassword('');
+                    setNewPasswordError(null);
+                  }}
+                  text={newPasswordError.description}
+                  style={{
+                    top: 3,
+                    left: 'calc(100% + 4px)',
+                    width: 250,
+                  }}
+                />
+              )}
+            </FieldRowCurPass>
+            <FieldRow>
+              <PasswordInput
+                key="pass"
+                password={newPassword}
                 placeholder="Type new password"
                 onChange={handlePasswordTyping}
-                style={{ marginBottom: 15 }}
-                key="pass"
-                autofocus
+                passwordIndicator
               />
               {newPasswordError?.type === 'passwordError' && (
                 <ErrorPopup
                   onClick={() => {
-                    clear();
+                    setNewPassword('');
                     setNewPasswordError(null);
                   }}
                   text={newPasswordError.description}
@@ -169,7 +207,7 @@ const ChangePassword = () => {
               {newPasswordError?.type === 'verifiedPasswordError' && (
                 <ErrorPopup
                   onClick={() => {
-                    clear();
+                    setVerifiedPassword('');
                     setNewPasswordError(null);
                   }}
                   text={newPasswordError.description}
@@ -184,13 +222,6 @@ const ChangePassword = () => {
           </FieldsColumn>
         ) : (
           <Input value="***********" type="password" isDisabled />
-        )}
-        {isOldPasswordRequested && (
-          <EnterPasswordModal
-            walletName={displayName}
-            submitAction={({ password }) => updatePassword(password)}
-            closeModal={cancel}
-          />
         )}
       </LeftPart>
       <RightPart>
