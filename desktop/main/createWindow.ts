@@ -10,10 +10,10 @@ export default async () => {
   )}/index.html`;
   const mainWindow = new BrowserWindow({
     show: false,
-    width: 1280,
-    height: 700,
-    minWidth: 1100,
-    minHeight: 680,
+    width: 1330,
+    height: 770,
+    minWidth: 1330,
+    minHeight: 770,
     center: true,
     webPreferences: {
       // TODO: https://www.electronjs.org/docs/latest/tutorial/security#2-do-not-enable-nodejs-integration-for-remote-content

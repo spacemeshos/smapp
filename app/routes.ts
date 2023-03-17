@@ -38,6 +38,9 @@ import {
   SwitchNetwork,
 } from './screens';
 import SpawnAccount from './screens/wallet/SpawnAccount';
+import ProtectWallet from './screens/auth/ProtectWallet';
+import ProtectWalletTestMnemonic from './screens/auth/ProtectWalletTestMnemonic';
+import WalletCreated from './screens/auth/WalletCreated';
 
 //
 // Types
@@ -70,6 +73,9 @@ const auth = formatRoutes([
   [AuthPath.Leaving, Leaving],
   [AuthPath.WalletType, WalletType],
   [AuthPath.CreateWallet, CreateWallet],
+  [AuthPath.ProtectWallet, ProtectWallet],
+  [AuthPath.ProtectWalletTestMnemonic, ProtectWalletTestMnemonic],
+  [AuthPath.WalletCreated, WalletCreated],
   [AuthPath.Unlock, UnlockWallet],
   [AuthPath.Recover, RestoreWallet],
   [AuthPath.RecoverFromFile, FileRestore],

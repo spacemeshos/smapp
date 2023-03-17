@@ -6,7 +6,8 @@ import {
   Draggable,
   DropResult,
 } from 'react-beautiful-dnd';
-import { RouteComponentProps } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import {
   WrapperWith2SideBars,
   Button,
@@ -14,7 +15,7 @@ import {
   CorneredWrapper,
 } from '../../basicComponents';
 import { smColors } from '../../vars';
-import { WalletPath } from '../../routerPaths';
+import { AuthPath } from '../../routerPaths';
 import { ExternalLinks } from '../../../shared/constants';
 
 const SubHeader = styled.div`
@@ -205,24 +206,17 @@ const getTestWords = (mnemonic: string): TestWords => {
 const getIndexFromId = (droppableId: string): number =>
   parseInt(droppableId.match(/^slot_(\d{1,2})$/)?.[1] || '0', 10);
 
-interface Props extends RouteComponentProps {
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: { mnemonic: string };
-  };
-}
-
-const TestMe = ({ history, location }: Props) => {
-  const { mnemonic } = location.state;
+const TestMe = (props: { mnemonic?: string }) => {
+  const location = useLocation<{ mnemonic: string }>();
+  const history = useHistory();
+  const { mnemonic } = location.state || props;
   const [testWords, setTestWords] = useState<TestWords>(getTestWords(mnemonic));
 
   const resetTest = () => setTestWords(getTestWords(mnemonic));
 
   const openBackupGuide = () => window.open(ExternalLinks.BackupGuide);
 
-  const navigateToWallet = () => history.push(WalletPath.Overview);
+  const navigateToWallet = () => history.push(AuthPath.WalletCreated);
 
   const getWordByIndex = (i: number) =>
     Object.entries(testWords).find(([_, { index }]) => index === i)?.[0];
@@ -326,38 +320,40 @@ const TestMe = ({ history, location }: Props) => {
     Object.values(testWords).every(
       ({ index, validIndex }) => index - 4 === validIndex
     );
-  return [
-    <WrapperWith2SideBars
-      width={920}
-      header="CONFIRM YOUR 12 WORDS BACKUP"
-      key="1"
-    >
-      <SubHeader>
-        Drag each of the four words below to its matching number in your paper
-        backup word list
-      </SubHeader>
-      {renderDragAndDropArea()}
-      <BottomRow>
-        <Link onClick={openBackupGuide} text="BACKUP GUIDE" />
-        <Button
-          onClick={isTestSuccess ? navigateToWallet : resetTest}
-          text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
-          isPrimary={isTestSuccess}
-        />
-      </BottomRow>
-    </WrapperWith2SideBars>,
-    showResults && (
-      <NotificationBoxOuter key="2">
-        <NotificationBox
-          color={isTestSuccess ? smColors.green : smColors.orange}
-        >
-          {isTestSuccess
-            ? 'All right! Your 12 word backup is confirmed.'
-            : 'That confirmation isn’t correct, please try again'}
-        </NotificationBox>
-      </NotificationBoxOuter>
-    ),
-  ];
+  return (
+    <>
+      <WrapperWith2SideBars
+        width={920}
+        header="CONFIRM YOUR 12 WORDS BACKUP"
+        key="1"
+      >
+        <SubHeader>
+          Drag each of the four words below to its matching number in your paper
+          backup word list
+        </SubHeader>
+        {renderDragAndDropArea()}
+        <BottomRow>
+          <Link onClick={openBackupGuide} text="BACKUP GUIDE" />
+          <Button
+            onClick={isTestSuccess ? navigateToWallet : resetTest}
+            text={`${isTestSuccess ? 'DONE' : 'TRY AGAIN'}`}
+            isPrimary={isTestSuccess}
+          />
+        </BottomRow>
+      </WrapperWith2SideBars>
+      {showResults && (
+        <NotificationBoxOuter key="2">
+          <NotificationBox
+            color={isTestSuccess ? smColors.green : smColors.orange}
+          >
+            {isTestSuccess
+              ? 'All right! Your 12 word backup is confirmed.'
+              : 'That confirmation isn’t correct, please try again'}
+          </NotificationBox>
+        </NotificationBoxOuter>
+      )}
+    </>
+  );
 };
 
 export default TestMe;
