@@ -113,7 +113,7 @@ enum TxFilter {
   Transactions = 1,
   Rewards = 2,
   Sent = 3,
-  Received = 4
+  Received = 4,
 }
 
 const TX_FILTERS = [
@@ -189,15 +189,13 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const [addressToAdd, setAddressToAdd] = useState('');
   const [txFilter, setTxFilter] = useState(TxFilter.All);
   
-
   const address = useSelector(
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
 
   const getNonce = useSelector(
-    (state: RootState) =>
-    state.wallet.balances[address].currentState.counter
+    (state: RootState) => state.wallet.balances[address].currentState.counter
   );
 
   const [actNonce, setactNonce] = useState(getNonce);
@@ -209,9 +207,9 @@ const Transactions = ({ history }: RouteComponentProps) => {
       case TxFilter.Rewards:
         return getRewards(address, state);
       case TxFilter.Received:
-        return getReceivedTransactions(address, state)
+        return getReceivedTransactions(address, state);
       case TxFilter.Sent:
-          return getSentTransactions(address, state)
+        return getSentTransactions(address, state);
       default:
       case TxFilter.All:
         return getTxAndRewards(address, state);
@@ -219,11 +217,11 @@ const Transactions = ({ history }: RouteComponentProps) => {
   });
 
   useEffect(() => {
-    setactNonce(getNonce)
-}, [transactions]);
-
+    setactNonce(getNonce);
+  }, [transactions, getNonce]);
+  
   const contacts = useSelector(getContacts);
-
+  
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
     const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
     const totalCoins = getNumOfCoinsFromTransactions(
