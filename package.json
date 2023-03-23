@@ -29,7 +29,8 @@
     "test": "jest",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "debug:tx": "ts-node ./scripts/composeTx.ts"
+    "debug:tx": "ts-node ./scripts/composeTx.ts",
+    "debug:wallet": "ts-node ./scripts/readSecrets.ts"
   },
   "repository": {
     "type": "git",
