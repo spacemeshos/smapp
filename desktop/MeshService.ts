@@ -20,7 +20,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
   };
 
   getCurrentLayer = (): Promise<CurrentLayer> =>
-    this.callService('CurrentLayer', {})
+    this.callServiceWithRetries('CurrentLayer', {})
       .then(({ layernum }) => ({
         currentLayer: layernum?.number || 0,
       }))
@@ -31,7 +31,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
       });
 
   getGenesisID = (): Promise<Uint8Array> =>
-    this.callService('GenesisID', {})
+    this.callServiceWithRetries('GenesisID', {})
       .then(({ genesisId }) => genesisId as Uint8Array)
       .catch((err) => {
         this.logger.error('GenesisID', err);
@@ -45,7 +45,7 @@ class MeshService extends NetServiceFactory<ProtoGrpcType, 'MeshService'> {
     accountMeshDataFlags: AccountMeshDataFlag,
     offset: number
   ) => {
-    return this.callService('AccountMeshDataQuery', {
+    return this.callServiceWithRetries('AccountMeshDataQuery', {
       filter: {
         accountId: { address: accountId },
         accountMeshDataFlags,
