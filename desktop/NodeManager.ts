@@ -85,7 +85,7 @@ class NodeManager extends AbstractManager {
 
   private genesisID: string;
 
-  private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS); // new Subject<NodeStatus>();
+  private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS);
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
 
