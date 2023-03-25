@@ -54,7 +54,7 @@ class GlobalStateService extends NetServiceFactory<
   };
 
   getGlobalStateHash = (): Promise<GlobalStateHash> =>
-    this.callService('GlobalStateHash', {})
+    this.callServiceWithRetries('GlobalStateHash', {})
       .then((response) => ({
         layer: response.response?.layer?.number || 0,
         rootHash: response.response?.rootHash
@@ -80,7 +80,7 @@ class GlobalStateService extends NetServiceFactory<
     data: AccountDataStreamHandlerArg[F][];
     error: null | Error;
   }> =>
-    this.callService('AccountDataQuery', {
+    this.callServiceWithRetries('AccountDataQuery', {
       filter,
       maxResults: GRPC_QUERY_BATCH_SIZE,
       offset,

@@ -232,7 +232,7 @@ class NodeManager extends AbstractManager {
 
   isNodeAlive = debounceShared(
     200,
-    async (retries = 30): Promise<boolean> => {
+    async (retries = 60): Promise<boolean> => {
       if (!this.isNodeRunning()) {
         return false;
       }
@@ -240,7 +240,7 @@ class NodeManager extends AbstractManager {
       if (isReady) {
         return true;
       } else if (retries > 0) {
-        await delay(500);
+        await delay(1000);
         return this.isNodeAlive(retries - 1);
       } else {
         return false;

@@ -47,7 +47,7 @@ class SmesherService extends NetServiceFactory<
   };
 
   getPostConfig = () =>
-    this.callService('PostConfig', {})
+    this.callServiceWithRetries('PostConfig', {})
       .then(({ bitsPerLabel, labelsPerUnit, minNumUnits, maxNumUnits }) => ({
         config: {
           bitsPerLabel,
@@ -60,7 +60,9 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({ config: {} }));
 
   getSetupComputeProviders = () =>
-    this.callService('PostSetupComputeProviders', { benchmark: true })
+    this.callServiceWithRetries('PostSetupComputeProviders', {
+      benchmark: true,
+    })
       .then((response) => ({
         providers: response.providers.map(
           ({ id, model, computeApi, performance = 0 }) => ({
@@ -75,7 +77,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({ providers: [] }));
 
   isSmeshing = () =>
-    this.callService('IsSmeshing', {})
+    this.callServiceWithRetries('IsSmeshing', {})
       .then((response) => ({
         ...response,
         isSmeshing: response?.isSmeshing || false,
@@ -127,7 +129,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({}));
 
   getSmesherID = () =>
-    this.callService('SmesherID', {})
+    this.callServiceWithRetries('SmesherID', {})
       .then((response: SmesherIDResponse__Output) => {
         return {
           smesherId: response.accountId?.address,
@@ -137,7 +139,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({ smesherId: '' }));
 
   getCoinbase = (): Promise<{ error: Error | null; coinbase: string }> =>
-    this.callService('Coinbase', {})
+    this.callServiceWithRetries('Coinbase', {})
       .then((response): { coinbase: string } => ({
         coinbase: response.accountId ? response.accountId.address : '',
       }))
@@ -152,7 +154,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({}));
 
   getMinGas = () =>
-    this.callService('MinGas', {})
+    this.callServiceWithRetries('MinGas', {})
       .then((response) => ({
         minGas: response.mingas
           ? parseInt(response.mingas.value.toString())
@@ -162,7 +164,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({}));
 
   getEstimatedRewards = () =>
-    this.callService('EstimatedRewards', {})
+    this.callServiceWithRetries('EstimatedRewards', {})
       .then((response) => {
         const estimatedRewards = {
           amount: parseInt(response.amount?.value?.toString() || '0'),
@@ -174,7 +176,7 @@ class SmesherService extends NetServiceFactory<
       .catch(this.normalizeServiceError({}));
 
   getPostSetupStatus = () =>
-    this.callService('PostSetupStatus', {})
+    this.callServiceWithRetries('PostSetupStatus', {})
       .then((response) => {
         const { status } = response;
         if (status === null) {
