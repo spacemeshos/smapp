@@ -69,11 +69,7 @@ jobs:
           yarn install --prefer-offline
 
       - name: yarn lint
-        run: |
-          yarn lint
-          yarn postinstall
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn lint
 
       # Download go-spacemesh
       - name: Get specified Go-spacemesh version
