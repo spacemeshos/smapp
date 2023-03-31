@@ -17,6 +17,7 @@ import { ipcConsts } from '../../../app/vars';
 import { Network } from '../../../shared/types';
 import { delay } from '../../../shared/utils';
 import Logger from '../../logger';
+import StoreService from '../../storeService';
 import { Managers } from '../app.types';
 import {
   checkUpdates,
@@ -93,17 +94,24 @@ const handleAutoUpdates = (
             if (!isOutdatedVersion) return null;
 
             return async () => {
+              const isNodeRunning = managers.node.isNodeRunning();
               try {
                 logger.log('forceUpdate', updateInfo);
-                await managers.node.stopNode();
+                if (isNodeRunning) {
+                  // If Smapp is running Node — turn it off first
+                  StoreService.set('startNodeOnNextLaunch', true);
+                  await managers.node.stopNode();
+                }
                 installUpdate();
-                // In case if something failed we need to start Node back
               } catch (err) {
                 logger.error('forceUpdate', err);
               }
-              await delay(MINUTE);
-              const res = await managers.node.startNode();
-              logger.log('forceUpdate -> recover Node', res);
+              if (isNodeRunning) {
+                // In case installation failed and Smapp was running Node before — start it again
+                await delay(MINUTE);
+                const res = await managers.node.startNode();
+                logger.log('forceUpdate -> recover Node', res);
+              }
             };
           }
           return null;
