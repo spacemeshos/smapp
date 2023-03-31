@@ -120,8 +120,9 @@ const startApp = (): AppStore => {
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
   const $warnings = new $.Subject<Warning>();
+  const startNodeAfterUpdate = StoreService.get('startNodeOnNextLaunch');
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
-    StoreService.get(IS_AUTO_START_ENABLED)
+    StoreService.get(IS_AUTO_START_ENABLED) || startNodeAfterUpdate
   );
 
   const {

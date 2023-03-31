@@ -9,6 +9,7 @@ import { SmeshingOpts } from './main/smeshingOpts';
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
+  startNodeOnNextLaunch: boolean;
   node: {
     dataPath: string;
     port: string;
@@ -19,6 +20,7 @@ export interface ConfigStore {
 
 const CONFIG_STORE_DEFAULTS = {
   isAutoStartEnabled: false,
+  startNodeOnNextLaunch: false,
   node: {
     dataPath: path.resolve(USERDATA_DIR, 'node-data'),
     port: '9092',
