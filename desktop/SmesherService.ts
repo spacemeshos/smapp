@@ -8,6 +8,7 @@ import {
   PostSetupStatus,
 } from '../shared/types';
 import memoDebounce from '../shared/memoDebounce';
+import { BITS_PER_LABEL } from '../app/types/smesher';
 
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';
@@ -50,7 +51,7 @@ class SmesherService extends NetServiceFactory<
     this.callServiceWithRetries('PostConfig', {})
       .then(({ bitsPerLabel, labelsPerUnit, minNumUnits, maxNumUnits }) => ({
         config: {
-          bitsPerLabel,
+          bitsPerLabel: bitsPerLabel > 0 ? bitsPerLabel : BITS_PER_LABEL,
           labelsPerUnit: parseInt(labelsPerUnit.toString()),
           minNumUnits,
           maxNumUnits,
