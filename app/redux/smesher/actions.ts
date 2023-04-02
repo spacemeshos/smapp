@@ -56,6 +56,7 @@ export const startSmeshing = ({
 
 export const deletePosData = () => async (dispatch: AppThDispatch) => {
   await eventsService.stopSmeshing({ deleteFiles: true });
+  localStorage.removeItem('smesherSmeshingTimestamp');
   dispatch({ type: DELETED_POS_DATA });
 };
 
