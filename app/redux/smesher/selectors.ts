@@ -7,9 +7,6 @@ export const getPostSetupState = (state: RootState) =>
 export const isCreatingPostData = (state: RootState) =>
   getPostSetupState(state) === PostSetupState.STATE_IN_PROGRESS;
 
-export const isErrorState = (state: RootState) =>
-  getPostSetupState(state) === PostSetupState.STATE_ERROR;
-
 export const getSmeshingOpts = (state: RootState) => {
   const {
     smesher: { coinbase, dataDir, numUnits, throttle, provider, maxFileSize },
@@ -23,6 +20,10 @@ export const isValidSmeshingOpts = (
   const { coinbase, dataDir, numUnits, provider } = opts;
   return !!(coinbase && dataDir && numUnits && provider !== null);
 };
+
+export const isErrorState = (state: RootState) =>
+  isValidSmeshingOpts(getSmeshingOpts(state)) &&
+  getPostSetupState(state) === PostSetupState.STATE_ERROR;
 
 export const isSmeshingPaused = (state: RootState) => {
   const isPausedState =
