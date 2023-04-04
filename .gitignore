@@ -42,4 +42,5 @@ ct-libc/
 .env
 .vscode
 /desktop/dist
+/desktop/bip32_bg.wasm
 key.bin

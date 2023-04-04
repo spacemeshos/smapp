@@ -1,4 +1,5 @@
 import os from 'os';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 import { CliOptions, build } from 'electron-builder';
@@ -52,6 +53,7 @@ const getBuildOptions = ({ target }) => {
         'desktop/main.prod.js',
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
+        'desktop/bip32_bg.wasm',
         'desktop/ed25519.wasm',
         'desktop/config.json',
         'package.json',
@@ -159,8 +161,19 @@ const getBuildOptions = ({ target }) => {
   return buildOptions;
 };
 
+const preBuild = async () => {
+  // Copy bip32_bg.wasm to /desktop/bip32_bg.wasm
+  await fs.copyFile(
+    path.join(__dirname, '../node_modules/@spacemesh/ed25519-bip32/gen/bip32_bg.wasm'),
+    path.join(__dirname, '../desktop/bip32_bg.wasm')
+  );
+
+  return true;
+};
+
 targets.forEach(async (target) => {
   try {
+    await preBuild();
     const res = await build(getBuildOptions({ target }));
     if (res && res.length) {
       console.log(`Artifacts packed for ${target}:`);
