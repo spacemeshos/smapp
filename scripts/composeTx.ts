@@ -4,6 +4,7 @@ import prompts from 'prompts';
 
 import { sign } from '../desktop/ed25519';
 import { fromHexString } from '../shared/utils';
+import { SingleSigMethods } from '../shared/templateConsts';
 import { generateGenesisID } from "../desktop/main/Networks";
 
 (async () => {
@@ -55,12 +56,12 @@ import { generateGenesisID } from "../desktop/main/Networks";
       ],
     },
     {
-      type: (_, values) => values.templateAddress === sm.SingleSigTemplate.key && values.method === 1 ? 'text' : null,
+      type: (_, values) => values.templateAddress === sm.SingleSigTemplate.key && values.method === SingleSigMethods.Spend ? 'text' : null,
       name: 'spendDestination',
       message: 'Type the destination address (Bech32)'
     },
     {
-      type: (_, values) => values.templateAddress === sm.SingleSigTemplate.key && values.method === 1 ? 'number' : null,
+      type: (_, values) => values.templateAddress === sm.SingleSigTemplate.key && values.method === SingleSigMethods.Spend ? 'number' : null,
       name: 'spendAmount',
       message: 'Type the amount to send (in Smidge)',
       validate: (val) => val > 0,

@@ -34,7 +34,6 @@ import {
 } from '../aes-gcm';
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
-import { DEFAULT_WALLETS_DIRECTORY } from './constants';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 
@@ -245,9 +244,7 @@ export const listWalletsByPaths = (files: string[]) => {
   );
 };
 
-export const listWalletsInDirectory = async (
-  walletsDir: string = DEFAULT_WALLETS_DIRECTORY
-) => {
+export const listWalletsInDirectory = async (walletsDir: string) => {
   const files = await fs.readdir(walletsDir);
   const regex = new RegExp('(my_wallet_).*.(json)', 'i');
   const walletFiles = files
