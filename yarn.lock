@@ -2443,6 +2443,11 @@
   resolved "https://registry.yarnpkg.com/@spacemesh/address-wasm/-/address-wasm-0.2.0.tgz#7773efb5013292bd787f02f0b47fa4b4fa128145"
   integrity sha512-Q1ZQq0swhLPrz3WqOF09Umgq6L99k5aNVsa103Ne+doEMmpiSR8puLUBY9yReeqM/70AE8SAGBbvsg9YSCVnAg==
 
+"@spacemesh/ed25519-bip32@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@spacemesh/ed25519-bip32/-/ed25519-bip32-0.1.0.tgz#cbdaaa4c8606ff834a95d0434d49b57a5689ce82"
+  integrity sha512-paXkpc5Vj/XoSPGYtUyoqmc4TOfw735udx+HtIGmxhnCQaW3ar0zFOKm9ACPqsM0BF5AbSea5th3uxRmqFpcag==
+
 "@spacemesh/sm-codec@^0.4.1":
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/@spacemesh/sm-codec/-/sm-codec-0.4.1.tgz#a7c6b5cfbab9a2494749f68a458dc39811076197"
