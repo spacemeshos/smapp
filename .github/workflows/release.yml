@@ -298,8 +298,11 @@ jobs:
       - name: Merge latest-mac.yml
         uses: mikefarah/yq@master
         with:
-          cmd: yq ea '. as $item ireduce ({}; . *+ $item)' ./release/macos/latest-mac.yml ./release/macos-arm64/latest-mac.yml > ./release/macos/latest-mac.yml
-      - run: cp -f ./release/macos/latest-mac.yml ./release/macos-arm64/latest-mac.yml
+          cmd: yq ea '. as $item ireduce ({}; . *+ $item)' ./release/macos/latest-mac.yml ./release/macos-arm64/latest-mac.yml > ./release/latest-merged.yml
+
+      - run: cat ./release/latest-merged.yml
+      - run: cp -f ./release/latest-merged.yml ./release/macos/latest-mac.yml
+      - run: cp -f ./release/latest-merged.yml ./release/macos-arm64/latest-mac.yml
 
       # Upload artifacts to GCS
       - name: Set up GCloud SDK
