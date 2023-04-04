@@ -51,21 +51,21 @@ class NodeService extends NetServiceFactory<ProtoGrpcType, 'NodeService'> {
       .catch(() => false);
 
   getNodeVersion = (): Promise<string> =>
-    this.callService('Version', {})
+    this.callServiceWithRetries('Version', {})
       .then((response) => response.versionString?.value || 'v?.?.?')
       .catch((error) => {
         throw normalizeGrpcErrorToNodeError(error);
       });
 
   getNodeBuild = (): Promise<string> =>
-    this.callService('Build', {})
+    this.callServiceWithRetries('Build', {})
       .then((response) => response.buildString?.value || '')
       .catch((error) => {
         throw normalizeGrpcErrorToNodeError(error);
       });
 
   getNodeStatus = (): Promise<NodeStatus> =>
-    this.callService('Status', {})
+    this.callServiceWithRetries('Status', {})
       .then((response) => {
         const DEFAULTS = {
           connectedPeers: 0,

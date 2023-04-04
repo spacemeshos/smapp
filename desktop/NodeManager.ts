@@ -85,7 +85,7 @@ class NodeManager extends AbstractManager {
 
   private genesisID: string;
 
-  private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS); // new Subject<NodeStatus>();
+  private $_nodeStatus = new ResettableSubject<NodeStatus>(DEFAULT_NODE_STATUS);
 
   public $nodeStatus = this.$_nodeStatus.asObservable();
 
@@ -232,7 +232,7 @@ class NodeManager extends AbstractManager {
 
   isNodeAlive = debounceShared(
     200,
-    async (retries = 30): Promise<boolean> => {
+    async (retries = 60): Promise<boolean> => {
       if (!this.isNodeRunning()) {
         return false;
       }
@@ -240,7 +240,7 @@ class NodeManager extends AbstractManager {
       if (isReady) {
         return true;
       } else if (retries > 0) {
-        await delay(500);
+        await delay(1000);
         return this.isNodeAlive(retries - 1);
       } else {
         return false;
@@ -275,12 +275,9 @@ class NodeManager extends AbstractManager {
     }
   };
 
-  startNode = async () => {
-    if (this.isNodeRunning()) return true;
-    this.$_nodeStatus.reset();
-    await this.spawnNode();
+  startGRPCClient = async () => {
     this.nodeService.createService();
-    const success = await this.isNodeAlive(30); // 15 sec timeout
+    const success = await this.isNodeAlive();
     if (success) {
       // update node status once by query request
       await this.updateNodeStatus();
@@ -294,14 +291,16 @@ class NodeManager extends AbstractManager {
       await this.smesherManager.serviceStartupFlow();
       return true;
     } else {
-      this.pushNodeError({
-        msg: 'Node Service does not respond. Probably Node is down',
-        stackTrace: '',
-        module: 'NodeManager',
-        level: NodeErrorLevel.LOG_LEVEL_FATAL,
-      });
-      return false;
+      return this.startGRPCClient();
     }
+  };
+
+  startNode = async () => {
+    if (this.isNodeRunning()) return true;
+    this.$_nodeStatus.reset();
+    await this.spawnNode();
+    this.startGRPCClient();
+    return true;
   };
 
   updateNodeStatus = async () => {
@@ -549,7 +548,7 @@ class NodeManager extends AbstractManager {
 
   getVersionAndBuild = async () => {
     try {
-      const alive = await this.isNodeAlive(30);
+      const alive = await this.isNodeAlive();
       if (alive) {
         const version = await this.nodeService.getNodeVersion();
         const build = await this.nodeService.getNodeBuild();
@@ -575,7 +574,7 @@ class NodeManager extends AbstractManager {
       // we have to check Node for liveness.
       // In case that Node does not responds
       // raise the error level to FATAL
-      const isAlive = await this.isNodeAlive(30);
+      const isAlive = await this.isNodeAlive();
       if (!isAlive) {
         // Raise error level and call this method again, to ensure
         // that this error is not a consequence of real critical error

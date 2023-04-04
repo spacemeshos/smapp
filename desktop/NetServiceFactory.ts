@@ -167,13 +167,27 @@ class NetServiceFactory<
                 );
                 reject(err);
               } else if (result) {
-                resolve(result as Result); // TODO ?
+                resolve(result);
               }
             }
           );
         })
     );
   };
+
+  callServiceWithRetries = <K extends keyof Service<T, ServiceName>>(
+    method: K,
+    opts: ServiceOpts<T, ServiceName, K>,
+    retriesLeft = 300
+  ) =>
+    this.callService(method, opts).catch(async (err) => {
+      if (err.code === 14 && retriesLeft > 0) {
+        await delay(1000);
+        return this.callServiceWithRetries(method, opts, retriesLeft - 1);
+      } else {
+        throw err;
+      }
+    });
 
   // TODO: Get rid of mixing with `error`
   normalizeServiceResponse = <ResponseData extends Record<string, any>>(

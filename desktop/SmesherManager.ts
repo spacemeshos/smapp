@@ -17,6 +17,7 @@ import Logger from './logger';
 import { readFileAsync, writeFileAsync } from './utils';
 import AbstractManager from './AbstractManager';
 import StoreService from './storeService';
+import { generateGenesisIDFromConfig } from './main/Networks';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -199,6 +200,7 @@ class SmesherManager extends AbstractManager {
       // TODO: Unused handler
       const res = await this.smesherService.setCoinbase({ coinbase });
       const config = await this.loadConfig();
+      config.smeshing = config.smeshing || {};
       config.smeshing['smeshing-coinbase'] = coinbase;
       await this.writeConfig(config);
       return res;
@@ -216,14 +218,14 @@ class SmesherManager extends AbstractManager {
         });
         const config = await this.loadConfig();
         if (deleteFiles) {
-          config.smeshing['smeshing-start'] = false;
-          config.smeshing['smeshing-coinbase'] = '';
-          config.smeshing['smeshing-opts']['smeshing-opts-datadir'] =
-            '~/.spacemesh';
+          config.smeshing = {};
         } else {
+          config.smeshing = config.smeshing || {};
           config.smeshing['smeshing-start'] = false;
         }
         await this.writeConfig(config);
+        const genesisId = generateGenesisIDFromConfig(config);
+        StoreService.remove(`smeshing.${genesisId}`);
         return res?.error;
       }
     );

@@ -120,7 +120,7 @@ const getBuildOptions = ({ target }) => {
       nsis: {
         oneClick: false,
         perMachine: false,
-        allowElevation: true,
+        allowElevation: false,
         allowToChangeInstallationDirectory: true,
         runAfterFinish: true,
         deleteAppDataOnUninstall: false,

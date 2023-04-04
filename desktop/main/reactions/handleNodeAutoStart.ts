@@ -4,6 +4,7 @@ import { makeSubscription } from '../rx.utils';
 import { isLocalNodeType } from '../../../shared/utils';
 import { Wallet } from '../../../shared/types';
 import { Managers } from '../app.types';
+import StoreService from '../../storeService';
 
 export default (
   $runNodeBeforeLogin: Subject<boolean>,
@@ -11,7 +12,7 @@ export default (
   $managers: Subject<Managers>
 ) =>
   makeSubscription(
-    $.combineLatest($runNodeBeforeLogin, $managers, $wallet),
+    $.combineLatest([$runNodeBeforeLogin, $managers, $wallet]),
     ([runNode, managers, wallet]) => {
       if (!runNode) {
         return;
@@ -20,6 +21,7 @@ export default (
       const type = wallet?.meta?.type;
       if (!type || isLocalNodeType(type)) {
         managers.node.startNode();
+        StoreService.set('startNodeOnNextLaunch', false);
       }
     }
   );

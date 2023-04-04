@@ -120,8 +120,9 @@ const startApp = (): AppStore => {
   const $networks = new $.BehaviorSubject<Network[]>([]);
   const $nodeConfig = new $.Subject<NodeConfig>();
   const $warnings = new $.Subject<Warning>();
+  const startNodeAfterUpdate = StoreService.get('startNodeOnNextLaunch');
   const $runNodeBeforeLogin = new $.BehaviorSubject<boolean>(
-    StoreService.get(IS_AUTO_START_ENABLED)
+    StoreService.get(IS_AUTO_START_ENABLED) || startNodeAfterUpdate
   );
 
   const {
@@ -178,7 +179,7 @@ const startApp = (): AppStore => {
     // Update networks each N seconds
     fetchDiscoveryEach(60 * MINUTE, $networks),
     // And update them by users request
-    listNetworksByRequest(),
+    listNetworksByRequest($networks),
     // Get actual logs to client app
     sentryLogsListener(),
     // List Public APIs for current network
@@ -231,7 +232,7 @@ const startApp = (): AppStore => {
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
-    handleAutoUpdates($mainWindow, $currentNetwork),
+    handleAutoUpdates($mainWindow, $managers, $currentNetwork),
     handleOpenDashboard($mainWindow, $currentNetwork),
     collectWarnings($managers, $warnings),
     sendWarningsToRenderer($warnings, $mainWindow),

@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 import {
+  combineLatest,
   distinctUntilChanged,
   filter,
   first,
@@ -14,18 +15,26 @@ import {
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
 import { Network } from '../../../shared/types';
+import { delay } from '../../../shared/utils';
+import Logger from '../../logger';
+import StoreService from '../../storeService';
+import { Managers } from '../app.types';
 import {
   checkUpdates,
+  getCurrentVersion,
   installUpdate,
   notifyDownloadStarted,
   subscribe,
   unsubscribe,
 } from '../autoUpdater';
-import { HOUR } from '../constants';
+import { HOUR, MINUTE } from '../constants';
 import { fromIPC } from '../rx.utils';
+
+const logger = Logger({ className: 'autoUpdate' });
 
 const handleAutoUpdates = (
   $mainWindow: Observable<BrowserWindow>,
+  $managers: Observable<Managers>,
   $currentNetwork: Observable<Network | null>
 ) => {
   type Data = [BrowserWindow, Network, boolean];
@@ -58,10 +67,13 @@ const handleAutoUpdates = (
 
   const subs = [
     // Each time we got new mainWindow - resubscribe
-    $mainWindow.subscribe((mainWnindow) => {
-      unsubscribe();
-      subscribe(mainWnindow, $downloaded);
-    }),
+    combineLatest([$mainWindow, $currentNetwork]).subscribe(
+      ([mainWnindow, currentNetwork]) => {
+        if (!currentNetwork) return;
+        unsubscribe();
+        subscribe(mainWnindow, currentNetwork, $downloaded);
+      }
+    ),
     // Check for updates when: init, ipc request, daily
     $trigger.subscribe(async ([mainWindow, curNet, download]) => {
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
@@ -70,6 +82,43 @@ const handleAutoUpdates = (
         notifyDownloadStarted(mainWindow);
       }
     }),
+    // Force update if needed
+    combineLatest([$managers, $downloaded, $currentNetwork])
+      .pipe(
+        map(([managers, updateInfo, curNetwork]) => {
+          if (curNetwork?.minSmappRelease) {
+            const currentVersion = getCurrentVersion();
+            const isOutdatedVersion =
+              currentVersion.compare(curNetwork.minSmappRelease) === -1;
+
+            if (!isOutdatedVersion) return null;
+
+            return async () => {
+              const isNodeRunning = managers.node.isNodeRunning();
+              try {
+                logger.log('forceUpdate', updateInfo);
+                if (isNodeRunning) {
+                  // If Smapp is running Node — turn it off first
+                  StoreService.set('startNodeOnNextLaunch', true);
+                  await managers.node.stopNode();
+                }
+                installUpdate();
+              } catch (err) {
+                logger.error('forceUpdate', err);
+              }
+              if (isNodeRunning) {
+                // In case installation failed and Smapp was running Node before — start it again
+                await delay(MINUTE);
+                const res = await managers.node.startNode();
+                logger.log('forceUpdate -> recover Node', res);
+              }
+            };
+          }
+          return null;
+        }),
+        filter(Boolean)
+      )
+      .subscribe((runForceUpdate) => runForceUpdate()),
     // Trigger check of updates
     fromIPC<void>(ipcConsts.AU_CHECK_UPDATES).subscribe(() =>
       $request.next(false)

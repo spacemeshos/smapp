@@ -37,7 +37,7 @@ export const notifyDownloadStarted = notify<void>(
 export const notifyError = notify<Error>(ipcConsts.AU_ERROR);
 
 // Utils
-const getCurrentVersion = () =>
+export const getCurrentVersion = () =>
   isDev() ? new SemVer(pkg.version) : autoUpdater.currentVersion;
 
 //
@@ -48,13 +48,16 @@ export const checkUpdates = async (
   autoDownload = false
 ) => {
   const currentVersion = getCurrentVersion();
-  const { latestSmappRelease, smappBaseDownloadUrl } = currentNetwork;
+  const {
+    latestSmappRelease,
+    minSmappRelease,
+    smappBaseDownloadUrl,
+  } = currentNetwork;
   const isEqualVersion = currentVersion.compare(latestSmappRelease) === 0;
-  // TODO: isOutdatedVersion is useless until we don't have a special handling for it
-  // const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
   if (!isEqualVersion) {
+    const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
     autoUpdater.allowDowngrade = true;
-    autoUpdater.autoDownload = autoDownload;
+    autoUpdater.autoDownload = autoDownload || isOutdatedVersion;
     const feedUrl = `${smappBaseDownloadUrl}/v${latestSmappRelease}`;
     autoUpdater.setFeedURL(feedUrl);
     try {
@@ -78,9 +81,25 @@ export const installUpdate = () => {
 };
 export const subscribe = (
   mainWindow: BrowserWindow,
+  currentNetwork: Network,
   $downloaded: Subject<UpdateInfo>
 ) => {
   autoUpdater.on('update-available', (info) => {
+    const isOutdatedVersion =
+      currentNetwork.minSmappRelease &&
+      getCurrentVersion().compare(currentNetwork.minSmappRelease) === -1;
+    if (isOutdatedVersion) {
+      if (mainWindow.isMinimized()) {
+        const notification = new Notification({
+          title: `Spacemesh software requires a critical update: ${info.version}`,
+          subtitle:
+            'Do not turn of your computer — it will be updated automatically',
+        });
+        notification.show();
+      }
+      return;
+    }
+
     logger.log('update-available', info);
     notifyUpdateAvailble(mainWindow, info);
 

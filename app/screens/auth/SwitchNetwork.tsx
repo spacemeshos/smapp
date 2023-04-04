@@ -9,6 +9,7 @@ import { setUiError } from '../../redux/ui/actions';
 import { ExternalLinks } from '../../../shared/constants';
 import { getGenesisID } from '../../redux/network/selectors';
 import { AuthPath, MainPath } from '../../routerPaths';
+import useNavigatorOnLine from '../../hooks/useNavigatorOnLine';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
 
@@ -41,15 +42,12 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const dispatch: AppThDispatch = useDispatch();
 
   const networksList = useSelector((state: RootState) => state.networks);
-  const [networks, setNetworks] = useState({
-    loading: false,
-    networks: networksList,
-  });
+  const isOnline = useNavigatorOnLine();
+  const [networksLoading, setNetworksLoading] = useState(false);
+  const [networks, setNetworks] = useState(networksList);
   const [showLoader, setLoader] = useState(false);
   const curGenesisId = useSelector(getGenesisID);
-  const curIndex = networks.networks.findIndex(
-    (n) => n.genesisID === curGenesisId
-  );
+  const curIndex = networks.findIndex((n) => n.genesisID === curGenesisId);
   const [selectedItemIndex, setSelectedItemIndex] = useState(
     curIndex > -1 ? curIndex : 0
   );
@@ -57,39 +55,53 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
   const { creatingWallet, isWalletOnly, mnemonic, redirect } =
     location?.state || {};
 
-  const updateNetworks = () => {
-    if (networks.loading) return;
-    setNetworks({
-      loading: true,
-      networks: [],
-    });
-    eventsService
-      .listNetworks()
-      .then(({ payload }) =>
-        setNetworks({ loading: false, networks: payload || [] })
-      )
-      .catch((err) => console.error(err)); // eslint-disable-line no-console
+  const updateNetworks = async () => {
+    if (networksLoading) return;
+
+    try {
+      setNetworksLoading(true);
+      setNetworks([]);
+      const { payload } = await eventsService.listNetworks();
+      setNetworks(payload || []);
+      setNetworksLoading(false);
+    } catch (err) {
+      setNetworksLoading(false);
+      console.error(err); // eslint-disable-line no-console
+    }
   };
 
-  // Auto request networks list update only on mount:
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(updateNetworks, []);
+  useEffect(() => {
+    if (!isOnline) {
+      return;
+    }
+
+    updateNetworks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline]);
 
   const navigateToExplanation = () => window.open(ExternalLinks.SetupGuide);
 
   const selectItem = ({ index }) => setSelectedItemIndex(index);
 
-  const hasAvailableNetworks = networks.networks.length > 0;
-  const getDropDownData = () =>
-    // eslint-disable-next-line no-nested-ternary
-    networks.loading
-      ? [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }]
-      : hasAvailableNetworks
-      ? networks.networks.map(({ genesisID, netName }) => ({
-          label: netName,
-          description: genesisID?.length ? `(ID ${genesisID})` : '',
-        }))
-      : [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
+  const hasAvailableNetworks = networks.length > 0;
+  const getDropDownData = () => {
+    if (!isOnline) {
+      return [{ label: 'NO INTERNET CONNECTION', isDisabled: true }];
+    }
+
+    if (networksLoading) {
+      return [{ label: 'LOADING... PLEASE WAIT', isDisabled: true }];
+    }
+
+    if (hasAvailableNetworks) {
+      return networks.map(({ genesisID, netName }) => ({
+        label: netName,
+        description: genesisID?.length ? `(ID ${genesisID})` : '',
+      }));
+    }
+
+    return [{ label: 'NO NETWORKS AVAILABLE', isDisabled: true }];
+  };
 
   const goNext = (genesisID: string | undefined) => {
     if (creatingWallet) {
@@ -121,8 +133,8 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
 
   const handleNext = async () => {
     const genesisID =
-      networks.networks.length > selectedItemIndex
-        ? networks.networks[selectedItemIndex].genesisID
+      networks.length > selectedItemIndex
+        ? networks[selectedItemIndex].genesisID
         : '';
     setLoader(true);
     if (genesisID?.length) {
@@ -164,14 +176,14 @@ const SwitchNetwork = ({ history, location }: AuthRouterParams) => {
           />
         </RowColumn>
         <RowColumn>
-          {!networks.loading && (
+          {!networksLoading && isOnline && (
             <Link onClick={updateNetworks} text="REFRESH" />
           )}
         </RowColumn>
 
         <BottomPart>
           <Link onClick={navigateToExplanation} text="WALLET SETUP GUIDE" />
-          {!hasAvailableNetworks && !networks.loading && (
+          {!hasAvailableNetworks && !networksLoading && (
             <Button
               onClick={handleNext}
               text="SKIP"
