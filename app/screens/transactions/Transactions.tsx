@@ -188,7 +188,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
   const [selectedTimeSpan, setSelectedTimeSpan] = useState(0);
   const [addressToAdd, setAddressToAdd] = useState('');
   const [txFilter, setTxFilter] = useState(TxFilter.All);
-  
+
   const address = useSelector(
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex].address
@@ -219,9 +219,9 @@ const Transactions = ({ history }: RouteComponentProps) => {
   useEffect(() => {
     setactNonce(getNonce);
   }, [transactions, getNonce]);
-  
+
   const contacts = useSelector(getContacts);
-  
+
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
     const coins = getNumOfCoinsFromTransactions(address, filteredTransactions);
     const totalCoins = getNumOfCoinsFromTransactions(
