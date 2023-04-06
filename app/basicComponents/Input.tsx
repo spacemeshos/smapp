@@ -165,7 +165,7 @@ const Input = ({
     setIsFocused(false);
     const { value } = target;
 
-    onBlur && onBlur(value);
+    onBlur && onBlur({ value });
   };
 
   const handleChange = ({ target }: { target: any }) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -17,7 +17,7 @@ import {
 } from '../../components/node';
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
-import { formatBytes } from '../../infra/utils';
+import { constrain, formatBytes } from '../../infra/utils';
 import { BITS, RootState } from '../../types';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
@@ -26,7 +26,6 @@ import {
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
-import { distribute } from '../../../shared/utils';
 
 const Wrapper = styled.div`
   display: flex;
@@ -55,12 +54,6 @@ const subHeaders = [
   'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
 ];
 
-interface Commitment {
-  label: string;
-  size: number;
-  numUnits: number;
-}
-
 interface Props extends RouteComponentProps {
   location: {
     hash: string;
@@ -88,9 +81,29 @@ const NodeSetup = ({ history, location }: Props) => {
   const [dataDir, setDataDir] = useState(existingDataDir || '');
   const [freeSpace, setFreeSpace] = useState('');
   const [numUnits, setNumUnits] = useState(0);
+  const [posSize, setPoSSize] = useState(0);
   const [provider, setProvider] = useState<PostSetupComputeProvider>();
   const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
+
+  const singleCommitmentSize =
+    (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
+  useEffect(() => {
+    if (!numUnits || numUnits < smesherConfig.minNumUnits) {
+      // setNumUnits(smesherConfig.minNumUnits);
+      setPoSSize(singleCommitmentSize * smesherConfig.minNumUnits);
+    } else {
+      const nu = constrain(
+        smesherConfig.minNumUnits,
+        smesherConfig.maxNumUnits,
+        numUnits
+      );
+      if (nu !== numUnits) {
+        setNumUnits(nu);
+      }
+      setPoSSize(nu * singleCommitmentSize);
+    }
+  }, [singleCommitmentSize, smesherConfig, numUnits]);
 
   const commitmentSize =
     (smesherConfig.labelsPerUnit *
@@ -184,33 +197,20 @@ const NodeSetup = ({ history, location }: Props) => {
           />
         );
       case 2: {
-        const singleCommitmentSize =
-          (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
-        const commitments = distribute(
-          smesherConfig.minNumUnits,
-          smesherConfig.maxNumUnits,
-          10
-        ).reduce((acc, next) => {
-          const i = Math.ceil(next);
-          const calculationResult = i * singleCommitmentSize;
-          return [
-            ...acc,
-            {
-              label: formatBytes(calculationResult),
-              size: calculationResult,
-              numUnits: i,
-            },
-          ];
-        }, [] as Commitment[]);
         // TODO: Make a well default instead of logic inside view and rerendering comp:
-        numUnits === 0 && setNumUnits(commitments[0].numUnits);
+        numUnits === 0 && setNumUnits(smesherConfig.minNumUnits);
         return (
           <PoSSize
             nextAction={handleNextAction}
-            commitments={commitments}
+            calculatedSize={posSize}
             dataDir={dataDir}
             freeSpace={freeSpace}
             numUnits={numUnits}
+            numUnitsConstraint={[
+              smesherConfig.minNumUnits,
+              smesherConfig.maxNumUnits,
+            ]}
+            numUnitSize={singleCommitmentSize}
             setNumUnit={setNumUnits}
             status={status}
             setMaxFileSize={setMaxFileSize}
