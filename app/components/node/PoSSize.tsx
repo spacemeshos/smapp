@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Tooltip, DropDown, Input } from '../../basicComponents';
+import { Tooltip, Input } from '../../basicComponents';
 import { posSpace } from '../../assets/images';
 import { smColors } from '../../vars';
 import { NodeStatus } from '../../../shared/types';
+import { constrain, formatBytes } from '../../infra/utils';
 import { convertBytesToMb, convertMbToBytes } from '../../../shared/utils';
 import PoSFooter from './PoSFooter';
 
@@ -19,6 +20,15 @@ const Row = styled.div`
   :last-child {
     margin-bottom: 30px;
   }
+  font-size: 12px;
+`;
+
+const Group = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 317px;
+  margin-left: 0.5em;
 `;
 
 const BottomRow = styled(Row)`
@@ -40,8 +50,8 @@ const Icon3 = styled.img.attrs(({ theme: { icons: { posDirectory } } }) => ({
 `;
 
 const Text = styled.div`
-  font-size: 15px;
-  line-height: 17px;
+  font-size: 1.2em;
+  line-height: 1.4em;
   color: ${({ theme: { color } }) => color.primary};
 `;
 
@@ -54,8 +64,8 @@ const Dots = styled.div`
   flex-shrink: 1;
   overflow: hidden;
   margin: 0 5px;
-  font-size: 15px;
-  line-height: 17px;
+  font-size: 1.2em;
+  line-height: 1.4em;
   color: ${({ theme: { color } }) => color.primary};
 `;
 
@@ -63,8 +73,8 @@ const Link = styled.div`
   text-transform: uppercase;
   text-decoration: none;
   color: ${({ theme: { color } }) => color.primary};
-  font-size: 17px;
-  line-height: 19px;
+  font-size: 1.4em;
+  line-height: 1.6em;
   cursor: pointer;
   &:hover {
     color: ${smColors.blue};
@@ -86,16 +96,12 @@ const WarningText = styled(Text)`
   color: ${smColors.orange};
 `;
 
-interface Commitment {
-  label: string;
-  size: number;
-  numUnits: number;
-}
-
 type Props = {
-  commitments: Commitment[];
+  calculatedSize: number;
+  numUnitsConstraint: [number, number];
   dataDir: string;
   numUnits: number;
+  numUnitSize: number;
   setNumUnit: (numUnit: number) => void;
   freeSpace: string;
   nextAction: () => void;
@@ -108,9 +114,11 @@ const DEFAULT_POS_MAX_FILE_SIZE_MB = 10;
 const POS_MAX_FILE_SIZE_WARNING_VALUE_MB = 4096;
 
 const PoSSize = ({
-  commitments,
+  calculatedSize,
+  numUnitsConstraint,
   dataDir,
   numUnits,
+  numUnitSize,
   setNumUnit,
   freeSpace,
   nextAction,
@@ -118,15 +126,7 @@ const PoSSize = ({
   setMaxFileSize,
   maxFileSize,
 }: Props) => {
-  const [selectedCommitmentIndex, setSelectedCommitmentIndex] = useState(
-    numUnits ? commitments.findIndex((com) => com.numUnits === numUnits) : 0
-  );
   const [showMaxFileSizeWarning, setShowMaxFileSizeWarning] = useState(false);
-
-  const selectCommitment = ({ index }: { index: number }) => {
-    setSelectedCommitmentIndex(index);
-    setNumUnit(commitments[index].numUnits);
-  };
 
   const handleOnChange = ({ value }) => {
     const parsedValue = parseInt(value, 10);
@@ -135,7 +135,7 @@ const PoSSize = ({
     setMaxFileSize(convertMbToBytes(mb));
   };
 
-  const handleOnBlur = (value) => {
+  const handleOnBlur = ({ value }) => {
     const mb = parseInt(value, 10);
     if (DEFAULT_POS_MAX_FILE_SIZE_MB >= mb) {
       setMaxFileSize(convertMbToBytes(DEFAULT_POS_MAX_FILE_SIZE_MB));
@@ -151,16 +151,38 @@ const PoSSize = ({
         <Text>Proof of space size:</Text>
         <Tooltip
           width={250}
-          text="Generating this unique data takes time and the processor’s work. Choose thoughtfully."
+          text={[
+            `In range ${formatBytes(
+              numUnitSize * numUnitsConstraint[0]
+            )}...${formatBytes(numUnitSize * numUnitsConstraint[1])}`,
+            'Generating this unique data takes time and the processor’s work. Choose thoughtfully.',
+          ].join('\n')}
         />
         <Dots>.....................................................</Dots>
-        <DropDown
-          data={commitments}
-          onClick={selectCommitment}
-          selectedItemIndex={selectedCommitmentIndex}
-          rowHeight={40}
-          bold
-        />
+        <Group>
+          <Text>{formatBytes(numUnitSize)} &times; </Text>
+          <Input
+            type="number"
+            value={numUnits}
+            onChange={(e) => setNumUnit(parseInt(e.value, 10))}
+            onBlur={(e) =>
+              setNumUnit(
+                constrain(
+                  numUnitsConstraint[0],
+                  numUnitsConstraint[1],
+                  parseInt(e.value || '0', 10)
+                )
+              )
+            }
+            min={numUnitsConstraint[0]}
+            max={numUnitsConstraint[1]}
+            style={{
+              width: '90px',
+              margin: '0 1em',
+            }}
+          />
+          <Text>units = {formatBytes(calculatedSize)}</Text>
+        </Group>
       </Row>
       <Row>
         <Icon1 src={posSpace} />
@@ -196,10 +218,7 @@ const PoSSize = ({
       <BottomRow>
         <Text>Free space: {freeSpace}</Text>
       </BottomRow>
-      <PoSFooter
-        action={nextAction}
-        isDisabled={selectedCommitmentIndex === -1 || !status}
-      />
+      <PoSFooter action={nextAction} isDisabled={numUnits === 0 || !status} />
     </>
   );
 };
