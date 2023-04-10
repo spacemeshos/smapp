@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { hash, SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
+import { SingleSigTemplate, TemplateRegistry } from '@spacemesh/sm-codec';
 import Bech32 from '@spacemesh/address-wasm';
 import {
   AccountWithBalance,
@@ -477,8 +477,7 @@ class TransactionManager extends AbstractManager {
       };
       const txEncoded = tpl.encode(principal, payload);
       const genesisID = await this.meshService.getGenesisID();
-      const hashed = hash(new Uint8Array([...genesisID, ...txEncoded]));
-      const sig = sign(hashed, secretKey);
+      const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
       const signed = tpl.sign(txEncoded, sig);
       const response = await this.txService.submitTransaction({
         transaction: signed,
@@ -565,8 +564,7 @@ class TransactionManager extends AbstractManager {
       };
       const txEncoded = tpl.encode(principal, payload);
       const genesisID = await this.meshService.getGenesisID();
-      const hashed = hash(new Uint8Array([...genesisID, ...txEncoded]));
-      const sig = sign(hashed, secretKey);
+      const sig = sign(new Uint8Array([...genesisID, ...txEncoded]), secretKey);
       const signed = tpl.sign(txEncoded, sig);
       const response = await this.txService.submitTransaction({
         transaction: signed,
