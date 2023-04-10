@@ -1,4 +1,4 @@
-// Original file: proto/node_types.proto
+// Original file: proto/smesher_types.proto
 
 import type { Status as _google_rpc_Status, Status__Output as _google_rpc_Status__Output } from '../../google/rpc/Status';
 

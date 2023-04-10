@@ -10,11 +10,7 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 export interface ProtoGrpcType {
   google: {
     protobuf: {
-      Any: MessageTypeDefinition
       Empty: MessageTypeDefinition
-    }
-    rpc: {
-      Status: MessageTypeDefinition
     }
   }
   spacemesh: {
@@ -40,8 +36,6 @@ export interface ProtoGrpcType {
       NodeStatus: MessageTypeDefinition
       Nonce: MessageTypeDefinition
       Reward: MessageTypeDefinition
-      ShutdownRequest: MessageTypeDefinition
-      ShutdownResponse: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
       SmesherId: MessageTypeDefinition
@@ -49,12 +43,8 @@ export interface ProtoGrpcType {
       StatusResponse: MessageTypeDefinition
       StatusStreamRequest: MessageTypeDefinition
       StatusStreamResponse: MessageTypeDefinition
-      SyncStartRequest: MessageTypeDefinition
-      SyncStartResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
-      UpdatePoetServersRequest: MessageTypeDefinition
-      UpdatePoetServersResponse: MessageTypeDefinition
       VersionResponse: MessageTypeDefinition
     }
   }

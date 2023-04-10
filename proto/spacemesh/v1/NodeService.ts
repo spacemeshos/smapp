@@ -8,16 +8,10 @@ import type { EchoResponse as _spacemesh_v1_EchoResponse, EchoResponse__Output a
 import type { Empty as _google_protobuf_Empty, Empty__Output as _google_protobuf_Empty__Output } from '../../google/protobuf/Empty';
 import type { ErrorStreamRequest as _spacemesh_v1_ErrorStreamRequest, ErrorStreamRequest__Output as _spacemesh_v1_ErrorStreamRequest__Output } from '../../spacemesh/v1/ErrorStreamRequest';
 import type { ErrorStreamResponse as _spacemesh_v1_ErrorStreamResponse, ErrorStreamResponse__Output as _spacemesh_v1_ErrorStreamResponse__Output } from '../../spacemesh/v1/ErrorStreamResponse';
-import type { ShutdownRequest as _spacemesh_v1_ShutdownRequest, ShutdownRequest__Output as _spacemesh_v1_ShutdownRequest__Output } from '../../spacemesh/v1/ShutdownRequest';
-import type { ShutdownResponse as _spacemesh_v1_ShutdownResponse, ShutdownResponse__Output as _spacemesh_v1_ShutdownResponse__Output } from '../../spacemesh/v1/ShutdownResponse';
 import type { StatusRequest as _spacemesh_v1_StatusRequest, StatusRequest__Output as _spacemesh_v1_StatusRequest__Output } from '../../spacemesh/v1/StatusRequest';
 import type { StatusResponse as _spacemesh_v1_StatusResponse, StatusResponse__Output as _spacemesh_v1_StatusResponse__Output } from '../../spacemesh/v1/StatusResponse';
 import type { StatusStreamRequest as _spacemesh_v1_StatusStreamRequest, StatusStreamRequest__Output as _spacemesh_v1_StatusStreamRequest__Output } from '../../spacemesh/v1/StatusStreamRequest';
 import type { StatusStreamResponse as _spacemesh_v1_StatusStreamResponse, StatusStreamResponse__Output as _spacemesh_v1_StatusStreamResponse__Output } from '../../spacemesh/v1/StatusStreamResponse';
-import type { SyncStartRequest as _spacemesh_v1_SyncStartRequest, SyncStartRequest__Output as _spacemesh_v1_SyncStartRequest__Output } from '../../spacemesh/v1/SyncStartRequest';
-import type { SyncStartResponse as _spacemesh_v1_SyncStartResponse, SyncStartResponse__Output as _spacemesh_v1_SyncStartResponse__Output } from '../../spacemesh/v1/SyncStartResponse';
-import type { UpdatePoetServersRequest as _spacemesh_v1_UpdatePoetServersRequest, UpdatePoetServersRequest__Output as _spacemesh_v1_UpdatePoetServersRequest__Output } from '../../spacemesh/v1/UpdatePoetServersRequest';
-import type { UpdatePoetServersResponse as _spacemesh_v1_UpdatePoetServersResponse, UpdatePoetServersResponse__Output as _spacemesh_v1_UpdatePoetServersResponse__Output } from '../../spacemesh/v1/UpdatePoetServersResponse';
 import type { VersionResponse as _spacemesh_v1_VersionResponse, VersionResponse__Output as _spacemesh_v1_VersionResponse__Output } from '../../spacemesh/v1/VersionResponse';
 
 export interface NodeServiceClient extends grpc.Client {
@@ -44,15 +38,6 @@ export interface NodeServiceClient extends grpc.Client {
   errorStream(argument: _spacemesh_v1_ErrorStreamRequest, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_ErrorStreamResponse__Output>;
   errorStream(argument: _spacemesh_v1_ErrorStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_ErrorStreamResponse__Output>;
   
-  Shutdown(argument: _spacemesh_v1_ShutdownRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  Shutdown(argument: _spacemesh_v1_ShutdownRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  Shutdown(argument: _spacemesh_v1_ShutdownRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  Shutdown(argument: _spacemesh_v1_ShutdownRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  shutdown(argument: _spacemesh_v1_ShutdownRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  shutdown(argument: _spacemesh_v1_ShutdownRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  shutdown(argument: _spacemesh_v1_ShutdownRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  shutdown(argument: _spacemesh_v1_ShutdownRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_ShutdownResponse__Output) => void): grpc.ClientUnaryCall;
-  
   Status(argument: _spacemesh_v1_StatusRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StatusResponse__Output) => void): grpc.ClientUnaryCall;
   Status(argument: _spacemesh_v1_StatusRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StatusResponse__Output) => void): grpc.ClientUnaryCall;
   Status(argument: _spacemesh_v1_StatusRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_StatusResponse__Output) => void): grpc.ClientUnaryCall;
@@ -66,24 +51,6 @@ export interface NodeServiceClient extends grpc.Client {
   StatusStream(argument: _spacemesh_v1_StatusStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_StatusStreamResponse__Output>;
   statusStream(argument: _spacemesh_v1_StatusStreamRequest, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_StatusStreamResponse__Output>;
   statusStream(argument: _spacemesh_v1_StatusStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_StatusStreamResponse__Output>;
-  
-  SyncStart(argument: _spacemesh_v1_SyncStartRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  SyncStart(argument: _spacemesh_v1_SyncStartRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  SyncStart(argument: _spacemesh_v1_SyncStartRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  SyncStart(argument: _spacemesh_v1_SyncStartRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  syncStart(argument: _spacemesh_v1_SyncStartRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  syncStart(argument: _spacemesh_v1_SyncStartRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  syncStart(argument: _spacemesh_v1_SyncStartRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  syncStart(argument: _spacemesh_v1_SyncStartRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_SyncStartResponse__Output) => void): grpc.ClientUnaryCall;
-  
-  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  UpdatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
-  updatePoetServers(argument: _spacemesh_v1_UpdatePoetServersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_UpdatePoetServersResponse__Output) => void): grpc.ClientUnaryCall;
   
   Version(argument: _google_protobuf_Empty, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_VersionResponse__Output) => void): grpc.ClientUnaryCall;
   Version(argument: _google_protobuf_Empty, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_VersionResponse__Output) => void): grpc.ClientUnaryCall;
@@ -103,15 +70,9 @@ export interface NodeServiceHandlers extends grpc.UntypedServiceImplementation {
   
   ErrorStream: grpc.handleServerStreamingCall<_spacemesh_v1_ErrorStreamRequest__Output, _spacemesh_v1_ErrorStreamResponse>;
   
-  Shutdown: grpc.handleUnaryCall<_spacemesh_v1_ShutdownRequest__Output, _spacemesh_v1_ShutdownResponse>;
-  
   Status: grpc.handleUnaryCall<_spacemesh_v1_StatusRequest__Output, _spacemesh_v1_StatusResponse>;
   
   StatusStream: grpc.handleServerStreamingCall<_spacemesh_v1_StatusStreamRequest__Output, _spacemesh_v1_StatusStreamResponse>;
-  
-  SyncStart: grpc.handleUnaryCall<_spacemesh_v1_SyncStartRequest__Output, _spacemesh_v1_SyncStartResponse>;
-  
-  UpdatePoetServers: grpc.handleUnaryCall<_spacemesh_v1_UpdatePoetServersRequest__Output, _spacemesh_v1_UpdatePoetServersResponse>;
   
   Version: grpc.handleUnaryCall<_google_protobuf_Empty__Output, _spacemesh_v1_VersionResponse>;
   
@@ -121,10 +82,7 @@ export interface NodeServiceDefinition extends grpc.ServiceDefinition {
   Build: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_BuildResponse, _google_protobuf_Empty__Output, _spacemesh_v1_BuildResponse__Output>
   Echo: MethodDefinition<_spacemesh_v1_EchoRequest, _spacemesh_v1_EchoResponse, _spacemesh_v1_EchoRequest__Output, _spacemesh_v1_EchoResponse__Output>
   ErrorStream: MethodDefinition<_spacemesh_v1_ErrorStreamRequest, _spacemesh_v1_ErrorStreamResponse, _spacemesh_v1_ErrorStreamRequest__Output, _spacemesh_v1_ErrorStreamResponse__Output>
-  Shutdown: MethodDefinition<_spacemesh_v1_ShutdownRequest, _spacemesh_v1_ShutdownResponse, _spacemesh_v1_ShutdownRequest__Output, _spacemesh_v1_ShutdownResponse__Output>
   Status: MethodDefinition<_spacemesh_v1_StatusRequest, _spacemesh_v1_StatusResponse, _spacemesh_v1_StatusRequest__Output, _spacemesh_v1_StatusResponse__Output>
   StatusStream: MethodDefinition<_spacemesh_v1_StatusStreamRequest, _spacemesh_v1_StatusStreamResponse, _spacemesh_v1_StatusStreamRequest__Output, _spacemesh_v1_StatusStreamResponse__Output>
-  SyncStart: MethodDefinition<_spacemesh_v1_SyncStartRequest, _spacemesh_v1_SyncStartResponse, _spacemesh_v1_SyncStartRequest__Output, _spacemesh_v1_SyncStartResponse__Output>
-  UpdatePoetServers: MethodDefinition<_spacemesh_v1_UpdatePoetServersRequest, _spacemesh_v1_UpdatePoetServersResponse, _spacemesh_v1_UpdatePoetServersRequest__Output, _spacemesh_v1_UpdatePoetServersResponse__Output>
   Version: MethodDefinition<_google_protobuf_Empty, _spacemesh_v1_VersionResponse, _google_protobuf_Empty__Output, _spacemesh_v1_VersionResponse__Output>
 }
