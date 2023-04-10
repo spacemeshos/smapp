@@ -46,4 +46,7 @@ service MeshService {
     // Layer with blocks, transactions and activations
     // Sent each time layer data changes. Designed for heavy-duty clients.
     rpc LayerStream(LayerStreamRequest) returns (stream LayerStreamResponse);
+
+    // Epoch activation transactions.
+    rpc EpochStream(EpochStreamRequest) returns (stream EpochStreamResponse);
 }

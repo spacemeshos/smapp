@@ -50,5 +50,7 @@ service SmesherService {
     // Returns the Post protocol config
     rpc PostConfig (google.protobuf.Empty) returns (PostConfigResponse);
 
+    // UpdatePoetServers updates poet servers
+    // All existing PoET servers will be substituted with this new list
+    rpc UpdatePoetServers(UpdatePoetServersRequest) returns (UpdatePoetServersResponse);
 }
-

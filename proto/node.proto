@@ -18,16 +18,6 @@ service NodeService {
     // Current node status (net and sync)
     rpc Status(StatusRequest) returns (StatusResponse);
 
-    // Request that the node start syncing the mesh
-    rpc SyncStart(SyncStartRequest) returns (SyncStartResponse);
-
-    // Request that the node initiate graceful shutdown
-    rpc Shutdown(ShutdownRequest) returns (ShutdownResponse);
-
-    // UpdatePoetServers updates poet servers
-    // All existing PoET servers will be substituted with this new list
-    rpc UpdatePoetServers(UpdatePoetServersRequest) returns (UpdatePoetServersResponse);
-
     ////////// Node streaming data
 
     // Node status events (sync and net)

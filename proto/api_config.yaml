@@ -4,11 +4,6 @@ config_version: 3
 
 http:
   rules:
-    # GatewayService
-    - selector: spacemesh.v1.GatewayService.VerifyChallenge
-      post: "/v1/gateway/verifychallenge"
-      body: "*"
-
     # DebugService
     - selector: spacemesh.v1.DebugService.Accounts
       post: "/v1/debug/accounts"
@@ -68,13 +63,7 @@ http:
     - selector: spacemesh.v1.NodeService.Status
       post: "/v1/node/status"
       body: "*"
-    - selector: spacemesh.v1.NodeService.SyncStart
-      post: "/v1/node/syncstart"
-      body: "*"
-    - selector: spacemesh.v1.NodeService.Shutdown
-      post: "/v1/node/shutdown"
-      body: "*"
-
+      
     # SmesherService
     - selector: spacemesh.v1.SmesherService.IsSmeshing
       post: "/v1/smesher/issmeshing"

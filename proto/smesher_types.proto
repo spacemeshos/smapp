@@ -130,3 +130,11 @@ message PostSetupStatus {
     uint64 num_labels_written = 2;  // Number of labels (hashes) written to the data files
     PostSetupOpts opts = 3;         // setup options previously set by the user
 }
+
+message UpdatePoetServersRequest {
+    repeated string urls = 1;
+}
+
+message UpdatePoetServersResponse {
+    google.rpc.Status status = 1;
+}
