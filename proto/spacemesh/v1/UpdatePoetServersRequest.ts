@@ -1,4 +1,4 @@
-// Original file: proto/node_types.proto
+// Original file: proto/smesher_types.proto
 
 
 export interface UpdatePoetServersRequest {

@@ -12,6 +12,8 @@ import type { CurrentLayerRequest as _spacemesh_v1_CurrentLayerRequest, CurrentL
 import type { CurrentLayerResponse as _spacemesh_v1_CurrentLayerResponse, CurrentLayerResponse__Output as _spacemesh_v1_CurrentLayerResponse__Output } from '../../spacemesh/v1/CurrentLayerResponse';
 import type { EpochNumLayersRequest as _spacemesh_v1_EpochNumLayersRequest, EpochNumLayersRequest__Output as _spacemesh_v1_EpochNumLayersRequest__Output } from '../../spacemesh/v1/EpochNumLayersRequest';
 import type { EpochNumLayersResponse as _spacemesh_v1_EpochNumLayersResponse, EpochNumLayersResponse__Output as _spacemesh_v1_EpochNumLayersResponse__Output } from '../../spacemesh/v1/EpochNumLayersResponse';
+import type { EpochStreamRequest as _spacemesh_v1_EpochStreamRequest, EpochStreamRequest__Output as _spacemesh_v1_EpochStreamRequest__Output } from '../../spacemesh/v1/EpochStreamRequest';
+import type { EpochStreamResponse as _spacemesh_v1_EpochStreamResponse, EpochStreamResponse__Output as _spacemesh_v1_EpochStreamResponse__Output } from '../../spacemesh/v1/EpochStreamResponse';
 import type { GenesisIDRequest as _spacemesh_v1_GenesisIDRequest, GenesisIDRequest__Output as _spacemesh_v1_GenesisIDRequest__Output } from '../../spacemesh/v1/GenesisIDRequest';
 import type { GenesisIDResponse as _spacemesh_v1_GenesisIDResponse, GenesisIDResponse__Output as _spacemesh_v1_GenesisIDResponse__Output } from '../../spacemesh/v1/GenesisIDResponse';
 import type { GenesisTimeRequest as _spacemesh_v1_GenesisTimeRequest, GenesisTimeRequest__Output as _spacemesh_v1_GenesisTimeRequest__Output } from '../../spacemesh/v1/GenesisTimeRequest';
@@ -66,6 +68,11 @@ export interface MeshServiceClient extends grpc.Client {
   epochNumLayers(argument: _spacemesh_v1_EpochNumLayersRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EpochNumLayersResponse__Output) => void): grpc.ClientUnaryCall;
   epochNumLayers(argument: _spacemesh_v1_EpochNumLayersRequest, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EpochNumLayersResponse__Output) => void): grpc.ClientUnaryCall;
   epochNumLayers(argument: _spacemesh_v1_EpochNumLayersRequest, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_EpochNumLayersResponse__Output) => void): grpc.ClientUnaryCall;
+  
+  EpochStream(argument: _spacemesh_v1_EpochStreamRequest, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_EpochStreamResponse__Output>;
+  EpochStream(argument: _spacemesh_v1_EpochStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_EpochStreamResponse__Output>;
+  epochStream(argument: _spacemesh_v1_EpochStreamRequest, metadata: grpc.Metadata, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_EpochStreamResponse__Output>;
+  epochStream(argument: _spacemesh_v1_EpochStreamRequest, options?: grpc.CallOptions): grpc.ClientReadableStream<_spacemesh_v1_EpochStreamResponse__Output>;
   
   GenesisID(argument: _spacemesh_v1_GenesisIDRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
   GenesisID(argument: _spacemesh_v1_GenesisIDRequest, metadata: grpc.Metadata, callback: (error?: grpc.ServiceError, result?: _spacemesh_v1_GenesisIDResponse__Output) => void): grpc.ClientUnaryCall;
@@ -130,6 +137,8 @@ export interface MeshServiceHandlers extends grpc.UntypedServiceImplementation {
   
   EpochNumLayers: grpc.handleUnaryCall<_spacemesh_v1_EpochNumLayersRequest__Output, _spacemesh_v1_EpochNumLayersResponse>;
   
+  EpochStream: grpc.handleServerStreamingCall<_spacemesh_v1_EpochStreamRequest__Output, _spacemesh_v1_EpochStreamResponse>;
+  
   GenesisID: grpc.handleUnaryCall<_spacemesh_v1_GenesisIDRequest__Output, _spacemesh_v1_GenesisIDResponse>;
   
   GenesisTime: grpc.handleUnaryCall<_spacemesh_v1_GenesisTimeRequest__Output, _spacemesh_v1_GenesisTimeResponse>;
@@ -150,6 +159,7 @@ export interface MeshServiceDefinition extends grpc.ServiceDefinition {
   CurrentEpoch: MethodDefinition<_spacemesh_v1_CurrentEpochRequest, _spacemesh_v1_CurrentEpochResponse, _spacemesh_v1_CurrentEpochRequest__Output, _spacemesh_v1_CurrentEpochResponse__Output>
   CurrentLayer: MethodDefinition<_spacemesh_v1_CurrentLayerRequest, _spacemesh_v1_CurrentLayerResponse, _spacemesh_v1_CurrentLayerRequest__Output, _spacemesh_v1_CurrentLayerResponse__Output>
   EpochNumLayers: MethodDefinition<_spacemesh_v1_EpochNumLayersRequest, _spacemesh_v1_EpochNumLayersResponse, _spacemesh_v1_EpochNumLayersRequest__Output, _spacemesh_v1_EpochNumLayersResponse__Output>
+  EpochStream: MethodDefinition<_spacemesh_v1_EpochStreamRequest, _spacemesh_v1_EpochStreamResponse, _spacemesh_v1_EpochStreamRequest__Output, _spacemesh_v1_EpochStreamResponse__Output>
   GenesisID: MethodDefinition<_spacemesh_v1_GenesisIDRequest, _spacemesh_v1_GenesisIDResponse, _spacemesh_v1_GenesisIDRequest__Output, _spacemesh_v1_GenesisIDResponse__Output>
   GenesisTime: MethodDefinition<_spacemesh_v1_GenesisTimeRequest, _spacemesh_v1_GenesisTimeResponse, _spacemesh_v1_GenesisTimeRequest__Output, _spacemesh_v1_GenesisTimeResponse__Output>
   LayerDuration: MethodDefinition<_spacemesh_v1_LayerDurationRequest, _spacemesh_v1_LayerDurationResponse, _spacemesh_v1_LayerDurationRequest__Output, _spacemesh_v1_LayerDurationResponse__Output>

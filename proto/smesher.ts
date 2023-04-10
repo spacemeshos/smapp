@@ -59,6 +59,8 @@ export interface ProtoGrpcType {
       StopSmeshingResponse: MessageTypeDefinition
       Transaction: MessageTypeDefinition
       TransactionId: MessageTypeDefinition
+      UpdatePoetServersRequest: MessageTypeDefinition
+      UpdatePoetServersResponse: MessageTypeDefinition
     }
   }
 }
