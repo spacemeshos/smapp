@@ -99,3 +99,11 @@ message LayerStreamRequest {}
 message LayerStreamResponse {
     Layer layer = 1;
 }
+
+message EpochStreamRequest {
+    uint32 epoch = 1;
+}
+
+message EpochStreamResponse {
+    ActivationId id = 1;
+}
