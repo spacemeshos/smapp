@@ -8,7 +8,7 @@
 
 <p align="center">
 <a href="https://gitcoin.co/profile/spacemeshos" title="Push Open Source Forward">
-    <img src="https://gitcoin.co/static/v2/images/promo_buttons/slice_02.png" width="267px" height="52px" alt="Browse Gitcoin Bounties"/>
+    <img src="https://raw.githubusercontent.com/ryukiller/images/46c3fa9d16e08db414ab4b8c72efffaa3ae9c5ea/slice_02.png" width="267px" height="52px" alt="Browse Gitcoin Bounties"/>
 </a>
 </p>
 
