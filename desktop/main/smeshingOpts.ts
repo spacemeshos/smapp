@@ -1,5 +1,14 @@
+import { homedir } from 'os';
+import { resolve } from 'path';
 import Bech32 from '@spacemesh/address-wasm';
+import { HexString } from '../../shared/types';
 import { fromHexString } from '../../shared/utils';
+
+export type NoSmeshingDefaults = {
+  'smeshing-opts': {
+    'smeshing-opts-datadir': string;
+  };
+};
 
 export type SmeshingOpts = {
   'smeshing-coinbase': string;
@@ -12,6 +21,11 @@ export type SmeshingOpts = {
   };
   'smeshing-start': boolean;
 };
+
+export type ValidSmeshingOpts =
+  | NoSmeshingDefaults
+  | SmeshingOpts
+  | Partial<SmeshingOpts>;
 
 export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
   a &&
@@ -28,8 +42,21 @@ export const isSmeshingOpts = (a: any): a is SmeshingOpts =>
   a['smeshing-opts']['smeshing-opts-numunits'] >= 1 &&
   a['smeshing-opts']['smeshing-opts-provider'] >= 0;
 
-export const safeSmeshingOpts = (opts: SmeshingOpts) => {
-  if (!isSmeshingOpts(opts)) return {};
+export const safeSmeshingOpts = (
+  opts: any,
+  genesisId: HexString
+): ValidSmeshingOpts => {
+  const defaultPosDir = resolve(
+    homedir(),
+    `./post/${genesisId.substring(0, 8)}`
+  );
+  const defaultSmeshingOpts = {
+    'smeshing-opts': {
+      'smeshing-opts-datadir': defaultPosDir,
+    },
+  };
+
+  if (!isSmeshingOpts(opts)) return defaultSmeshingOpts;
 
   const oCoinbase = opts['smeshing-coinbase'];
   const coinbase =
@@ -39,9 +66,14 @@ export const safeSmeshingOpts = (opts: SmeshingOpts) => {
   if (Bech32.verify(coinbase)) {
     return {
       ...opts,
+      'smeshing-opts': {
+        ...opts['smeshing-opts'],
+        'smeshing-opts-datadir':
+          opts['smeshing-opts']['smeshing-opts-datadir'] || defaultPosDir,
+      },
       'smeshing-coinbase': coinbase,
     };
   } else {
-    return {};
+    return defaultSmeshingOpts;
   }
 };

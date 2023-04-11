@@ -5,7 +5,7 @@ import { AutoPath } from 'ts-toolbelt/out/Function/AutoPath';
 import { Split } from 'ts-toolbelt/out/String/Split';
 import { HexString } from '../shared/types';
 import { USERDATA_DIR } from './main/constants';
-import { SmeshingOpts } from './main/smeshingOpts';
+import { ValidSmeshingOpts } from './main/smeshingOpts';
 
 export interface ConfigStore {
   isAutoStartEnabled: boolean;
@@ -14,7 +14,7 @@ export interface ConfigStore {
     dataPath: string;
     port: string;
   };
-  smeshing: Record<HexString, SmeshingOpts>;
+  smeshing: Record<HexString, ValidSmeshingOpts>;
   walletFiles: string[];
 }
 

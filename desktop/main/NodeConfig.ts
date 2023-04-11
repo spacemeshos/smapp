@@ -23,8 +23,7 @@ export const loadNodeConfig = async (): Promise<NodeConfig> =>
 const loadSmeshingOpts = async (nodeConfig) => {
   const id = generateGenesisIDFromConfig(nodeConfig);
   const opts = StoreService.get(`smeshing.${id}`);
-  // const opts = (await loadNodeConfig()).smeshing;
-  return safeSmeshingOpts(opts);
+  return safeSmeshingOpts(opts, id);
 };
 
 export const downloadNodeConfig = async (networkConfigUrl: string) => {

@@ -324,7 +324,9 @@ class NodeManager extends AbstractManager {
     }
 
     // Temporary solution of https://github.com/spacemeshos/smapp/issues/823
-    const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir();
+    const CURRENT_DATADIR_PATH = await this.smesherManager.getCurrentDataDir(
+      this.genesisID
+    );
     const CURRENT_KEYBIN_PATH = path.resolve(CURRENT_DATADIR_PATH, 'key.bin');
     const NEXT_KEYBIN_PATH = path.resolve(postSetupOpts.dataDir, 'key.bin');
 
