@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useState, useEffect } from 'react';
+import React, { MutableRefObject, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
@@ -195,10 +195,9 @@ const Transactions = ({ history }: RouteComponentProps) => {
   );
 
   const getNonce = useSelector(
-    (state: RootState) => state.wallet.balances[address].currentState.counter
+    (state: RootState) =>
+      state.wallet.balances[address]?.currentState?.counter ?? 0
   );
-
-  const [actNonce, setactNonce] = useState(getNonce);
 
   const transactions = useSelector((state: RootState) => {
     switch (txFilter) {
@@ -215,10 +214,6 @@ const Transactions = ({ history }: RouteComponentProps) => {
         return getTxAndRewards(address, state);
     }
   });
-
-  useEffect(() => {
-    setactNonce(getNonce);
-  }, [transactions, getNonce]);
 
   const contacts = useSelector(getContacts);
 
@@ -330,7 +325,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
             totalSent={totalSent}
             totalReceived={totalReceived}
             filterName={TIME_SPANS[selectedTimeSpan].label}
-            nonce={actNonce}
+            nonce={getNonce}
           />
         </RightPaneWrapper>
       )}
