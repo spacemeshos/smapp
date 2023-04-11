@@ -132,7 +132,7 @@ const TransactionsMeta = ({
           </TextRow>
         ))}
       </Group>
-      <Text style={{ marginTop: 27 }}>Current Nonce: {nonce}</Text>
+      <Text style={{ marginTop: 5 }}>Current Nonce: {nonce}</Text>
     </>
   );
 };
