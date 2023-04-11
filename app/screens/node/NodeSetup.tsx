@@ -19,9 +19,11 @@ import {
   DEFAULT_POS_MAX_FILE_SIZE,
   PostSetupComputeProvider,
 } from '../../../shared/types';
+import Link from '../../basicComponents/Link';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
+import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
   display: flex;
@@ -111,8 +113,32 @@ const NodeSetup = ({ history, location }: Props) => {
     <>
       {Number.isNaN(commitmentSize) ? (
         <ErrorMessage align="left" oneLine={false}>
-          The node is down. Please, restart the node first on the Network
-          screen.
+          {!status?.connectedPeers ? (
+            <>
+              The Node is not connected yet.
+              <br />
+              Please, check the Node status on the{' '}
+              <Link
+                onClick={() => history.push(MainPath.Network)}
+                text="Network screen"
+                style={{ display: 'inline-block' }}
+              />
+              .
+            </>
+          ) : (
+            <>
+              The Smesher Service is not responding.
+              <br />
+              Please, check the application logs:{' '}
+              <Link
+                onClick={() =>
+                  eventsService.showFileInFolder({ isLogFile: true })
+                }
+                text="Open in Finder"
+                style={{ display: 'inline-block' }}
+              />
+            </>
+          )}
         </ErrorMessage>
       ) : (
         <>
