@@ -18,6 +18,7 @@ import { readFileAsync, writeFileAsync } from './utils';
 import AbstractManager from './AbstractManager';
 import StoreService from './storeService';
 import { generateGenesisIDFromConfig } from './main/Networks';
+import { safeSmeshingOpts } from './main/smeshingOpts';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -69,11 +70,12 @@ class SmesherManager extends AbstractManager {
     return res.smesherId;
   };
 
-  getCurrentDataDir = async () => {
+  getCurrentDataDir = async (genesisID: HexString) => {
     const smeshingConfig = await this.getSmeshingConfig();
     const DEFAULT_KEYBIN_PATH = path.resolve(
       app.getPath('home'),
-      './post/data'
+      './post/',
+      genesisID.substring(0, 8)
     );
     return R.pathOr(
       DEFAULT_KEYBIN_PATH,
@@ -217,15 +219,19 @@ class SmesherManager extends AbstractManager {
           deleteFiles: deleteFiles || false,
         });
         const config = await this.loadConfig();
+        const genesisId = generateGenesisIDFromConfig(config);
         if (deleteFiles) {
           config.smeshing = {};
         } else {
-          config.smeshing = config.smeshing || {};
-          config.smeshing['smeshing-start'] = false;
+          config.smeshing = {
+            ...config.smeshing,
+            'smeshing-start': false,
+          };
         }
+        const smeshingOpts = safeSmeshingOpts(config.smeshing, genesisId);
+        config.smeshing = smeshingOpts;
         await this.writeConfig(config);
-        const genesisId = generateGenesisIDFromConfig(config);
-        StoreService.remove(`smeshing.${genesisId}`);
+        StoreService.set(`smeshing.${genesisId}`, smeshingOpts);
         return res?.error;
       }
     );
@@ -266,17 +272,20 @@ class SmesherManager extends AbstractManager {
       throttle,
       maxFileSize,
     } = postSetupOpts;
-    const opts = {
-      'smeshing-coinbase': coinbase,
-      'smeshing-opts': {
-        'smeshing-opts-datadir': dataDir,
-        'smeshing-opts-maxfilesize': maxFileSize,
-        'smeshing-opts-numunits': numUnits,
-        'smeshing-opts-provider': computeProviderId,
-        'smeshing-opts-throttle': throttle,
+    const opts = safeSmeshingOpts(
+      {
+        'smeshing-coinbase': coinbase,
+        'smeshing-opts': {
+          'smeshing-opts-datadir': dataDir,
+          'smeshing-opts-maxfilesize': maxFileSize,
+          'smeshing-opts-numunits': numUnits,
+          'smeshing-opts-provider': computeProviderId,
+          'smeshing-opts-throttle': throttle,
+        },
+        'smeshing-start': true,
       },
-      'smeshing-start': true,
-    };
+      genesisID
+    );
     StoreService.set(`smeshing.${genesisID}`, opts);
 
     const config = await this.loadConfig();

@@ -26,11 +26,11 @@ export const isErrorState = (state: RootState) =>
   getPostSetupState(state) === PostSetupState.STATE_ERROR;
 
 export const isSmeshingPaused = (state: RootState) => {
-  const isPausedState =
-    getPostSetupState(state) === PostSetupState.STATE_PAUSED;
+  const posState = getPostSetupState(state);
   const opts = getSmeshingOpts(state);
   return (
-    (isPausedState || !state.smesher.isSmeshingStarted) &&
+    (posState === PostSetupState.STATE_PAUSED ||
+      posState === PostSetupState.STATE_NOT_STARTED) &&
     isValidSmeshingOpts(opts)
   );
 };
