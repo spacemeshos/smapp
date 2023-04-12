@@ -208,7 +208,7 @@ const startApp = (): AppStore => {
       $warnings
     ),
     // Handle Start Smeshing request
-    handleSmesherIpc($managers, $smeshingStarted),
+    handleSmesherIpc($managers, $smeshingSetupState),
     // Handle show file
     handleShowFile($currentNetwork),
     // IPC Reactions
