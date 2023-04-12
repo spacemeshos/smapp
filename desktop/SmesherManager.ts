@@ -349,6 +349,10 @@ class SmesherManager extends AbstractManager {
     error: any,
     status: Partial<PostSetupStatus>
   ) => {
+    if (error) {
+      logger.error('handlePostDataCreationStatusStream', error);
+      return;
+    }
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS,
       { error, status }
