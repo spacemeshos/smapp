@@ -2,6 +2,7 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs';
 import { ChildProcess } from 'node:child_process';
+import { Writable } from 'stream';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
 import { app, ipcMain, BrowserWindow, dialog } from 'electron';
@@ -81,6 +82,8 @@ class NodeManager extends AbstractManager {
   private smesherManager: SmesherManager;
 
   private nodeProcess: ChildProcess | null;
+
+  private nodeLogStream: Writable | null = null;
 
   private genesisID: string;
 
@@ -365,14 +368,14 @@ class NodeManager extends AbstractManager {
     );
     const logFilePath = getNodeLogsPath(this.genesisID);
 
-    const logFileStream = rotator({
+    this.nodeLogStream = rotator({
       file: logFilePath,
       size: '100m',
       keep: 5,
       compress: true,
     });
 
-    logFileStream.on('error', (err) =>
+    this.nodeLogStream.on('error', (err) =>
       this.$warnings.next(
         Warning.fromError(
           WarningType.WriteFilePermission,
@@ -436,23 +439,31 @@ class NodeManager extends AbstractManager {
           msg: `Can't start the Node: ${spawnError}`,
           stackTrace: '',
         };
-
+        this.nodeLogStream?.write(JSON.stringify(error));
         this.pushToErrorPool({
           type: 'NodeError',
           error,
         });
 
         logger.error('spawnNode', error);
+
+        return;
       }
+
+      this.nodeLogStream?.write(data);
     });
-    this.nodeProcess.stdout?.pipe(logFileStream);
-    this.nodeProcess.stderr?.pipe(logFileStream);
+
+    this.nodeProcess.stdout?.pipe(this.nodeLogStream, { end: false });
+    this.nodeProcess.stderr?.pipe(this.nodeLogStream, { end: false });
+
     this.nodeProcess.on('error', (err) => {
       const error = transformNodeError(err);
       this.pushNodeError(error);
+      this.nodeLogStream?.write(JSON.stringify(error));
     });
     this.nodeProcess.on('close', (code, signal) => {
       logger.error('Node Process close', code, signal);
+      this.nodeLogStream?.end();
       this.pushToErrorPool({ type: 'Exit', code, signal });
     });
   };
