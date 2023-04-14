@@ -32,7 +32,6 @@ import NodeService, {
 } from './NodeService';
 import SmesherManager from './SmesherManager';
 import {
-  checksum,
   createDebouncePool,
   getSpawnErrorReason,
   isEmptyDir,
@@ -332,43 +331,13 @@ class NodeManager extends AbstractManager {
 
     const isDefaultKeyFileExist = await isFileExists(CURRENT_KEYBIN_PATH);
     const isDataDirKeyFileExist = await isFileExists(NEXT_KEYBIN_PATH);
-    const isSameDataDir = CURRENT_DATADIR_PATH === postSetupOpts?.dataDir;
 
-    const startSmeshingAsUsual = async (opts) => {
-      // Next two lines is a normal workflow.
-      // It can be moved back to SmesherManager when issue
-      // https://github.com/spacemeshos/go-spacemesh/issues/2858
-      // will be solved, and all these kludges can be removed.
-      await this.smesherManager.updateSmeshingConfig(opts, this.genesisID);
-      await this.smesherManager.startSmeshing(opts);
-      return SmeshingSetupState.ViaAPI;
-    };
-
-    // If post data-dir does not changed and it contains key.bin file
-    // assume that everything is fine and start smeshing as usual
-    if (isSameDataDir && isDataDirKeyFileExist)
-      return startSmeshingAsUsual(postSetupOpts);
-
-    /**
-     * In other cases:
-     * NextDataDir        CurrentDataDir        Action
-     * Not exist          Copy                  key.bin & start
-     * Not exist          Update                config & restart node
-     * Exist              Not exist             Update config & restart node
-     * Exist              Compare checksum
-                                      - if equal: start as usual
-                                      - if not: update config & restart node */
     if (isDefaultKeyFileExist && !isDataDirKeyFileExist) {
+      // Copy current `key.bin` file into newly created PoS directory
       await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
-      return startSmeshingAsUsual(postSetupOpts);
-    } else if (isDefaultKeyFileExist && isDataDirKeyFileExist) {
-      const defChecksum = await checksum(CURRENT_KEYBIN_PATH);
-      const dataChecksum = await checksum(NEXT_KEYBIN_PATH);
-      if (defChecksum === dataChecksum) {
-        return startSmeshingAsUsual(postSetupOpts);
-      }
     }
-    // In other cases — update config first and then restart the node
+
+    // In other cases — update config and restart the node
     // it will start Smeshing automatically based on the config
     await this.smesherManager.updateSmeshingConfig(
       postSetupOpts,

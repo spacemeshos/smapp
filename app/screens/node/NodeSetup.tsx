@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import {
-  deletePosData,
-  pauseSmeshing,
-  startSmeshing,
-} from '../../redux/smesher/actions';
+import { deletePosData, startSmeshing } from '../../redux/smesher/actions';
 import { CorneredContainer, BackButton } from '../../components/common';
 import {
   PoSModifyPostData,
@@ -131,7 +127,9 @@ const NodeSetup = ({ history, location }: Props) => {
   const hasBackButton = location?.state?.modifyPostData || mode !== 1;
 
   const setupAndInitMining = async () => {
-    if (!provider) return; // TODO
+    if (!provider) return;
+    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
+    localStorage.removeItem('smesherSmeshingTimestamp');
     const done = await dispatch(
       startSmeshing({
         coinbase: accounts[0].address,
@@ -156,11 +154,6 @@ const NodeSetup = ({ history, location }: Props) => {
     }
   };
 
-  const handleModifyPosData = async () => {
-    await dispatch(pauseSmeshing());
-    handleNextAction();
-  };
-
   const handleDeletePosData = async () => {
     await dispatch(deletePosData());
     history.push('/main/wallet/');
@@ -179,7 +172,7 @@ const NodeSetup = ({ history, location }: Props) => {
       case 0:
         return (
           <PoSModifyPostData
-            modify={handleModifyPosData}
+            modify={handleNextAction}
             deleteData={handleDeletePosData}
           />
         );

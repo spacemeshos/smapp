@@ -37,10 +37,6 @@ export const startSmeshing = ({
       computeProviderId: provider,
       throttle,
     });
-
-    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
-    localStorage.removeItem('smesherSmeshingTimestamp');
-
     dispatch({
       type: STARTED_SMESHING,
       payload: { coinbase, dataDir, numUnits, provider, throttle, maxFileSize },
