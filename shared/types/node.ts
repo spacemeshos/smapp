@@ -58,10 +58,10 @@ export interface NodeConfig {
     'smeshing-start'?: boolean;
     'smeshing-opts'?: {
       'smeshing-opts-datadir': string;
-      'smeshing-opts-maxfilesize': number;
-      'smeshing-opts-numunits': number;
-      'smeshing-opts-provider': number;
-      'smeshing-opts-throttle': boolean;
+      'smeshing-opts-maxfilesize'?: number;
+      'smeshing-opts-numunits'?: number;
+      'smeshing-opts-provider'?: number;
+      'smeshing-opts-throttle'?: boolean;
     };
   };
   main: {
