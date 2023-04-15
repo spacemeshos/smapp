@@ -19,6 +19,7 @@ import AbstractManager from './AbstractManager';
 import StoreService from './storeService';
 import { generateGenesisIDFromConfig } from './main/Networks';
 import { safeSmeshingOpts } from './main/smeshingOpts';
+import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -272,6 +273,7 @@ class SmesherManager extends AbstractManager {
       throttle,
       maxFileSize,
     } = postSetupOpts;
+    const prevOpts = StoreService.get(`smeshing.${genesisID}`);
     const opts = safeSmeshingOpts(
       {
         'smeshing-coinbase': coinbase,
@@ -281,6 +283,11 @@ class SmesherManager extends AbstractManager {
           'smeshing-opts-numunits': numUnits,
           'smeshing-opts-provider': computeProviderId,
           'smeshing-opts-throttle': throttle,
+          'smeshing-opts-compute-batch-size': R.pathOr(
+            DEFAULT_SMESHING_BATCH_SIZE,
+            ['smeshing-opts', 'smeshing-opts-compute-batch-size'],
+            prevOpts
+          ),
         },
         'smeshing-start': true,
       },

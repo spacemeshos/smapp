@@ -16,3 +16,9 @@ export const NODE_CONFIG_FILE = path.resolve(USERDATA_DIR, 'node-config.json');
 export const DEFAULT_WALLETS_DIRECTORY = USERDATA_DIR;
 
 export const GRPC_QUERY_BATCH_SIZE = 100;
+
+// Temporary kludge
+// TODO: Remove this contant and places were it used
+//       once https://github.com/spacemeshos/go-spacemesh/pull/4293
+//       will be merged and newer go-spacemesh version will be released
+export const DEFAULT_SMESHING_BATCH_SIZE = 1 << 20; // eslint-disable-line no-bitwise
