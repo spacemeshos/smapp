@@ -9,7 +9,7 @@ import { shallowEq } from '../../shared/utils';
 import Warning from '../../shared/warning';
 import StoreService from '../storeService';
 import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
-import { MINUTE } from './constants';
+import { HOUR } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
 import {
@@ -177,7 +177,7 @@ const startApp = (): AppStore => {
     // Update networks on init
     fetchDiscovery($networks),
     // Update networks each N seconds
-    fetchDiscoveryEach(60 * MINUTE, $networks),
+    fetchDiscoveryEach(HOUR, $networks),
     // And update them by users request
     listNetworksByRequest($networks),
     // Get actual logs to client app

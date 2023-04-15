@@ -37,7 +37,8 @@ const handleAutoUpdates = (
   $managers: Observable<Managers>,
   $currentNetwork: Observable<Network | null>
 ) => {
-  type Data = [BrowserWindow, Network, boolean];
+  type DoDownload = boolean;
+  type Data = [BrowserWindow, Network, DoDownload];
 
   const $request = new Subject<boolean>();
   const $downloaded = new Subject<UpdateInfo>();
@@ -49,7 +50,7 @@ const handleAutoUpdates = (
   );
 
   const $first = $data.pipe(first());
-  const $daily = interval(24 * HOUR).pipe(
+  const $byInterval = interval(HOUR + MINUTE).pipe(
     withLatestFrom($data),
     map(([_, data]) => data)
   );
@@ -58,7 +59,7 @@ const handleAutoUpdates = (
     withLatestFrom($request),
     map(([[mw, cn], download]) => [mw, cn, download] as Data)
   );
-  const $trigger = merge($first, $byIpcRequest, $daily).pipe(
+  const $trigger = merge($first, $byIpcRequest, $byInterval).pipe(
     distinctUntilChanged(
       (prev, next) =>
         prev[1].genesisID === next[1].genesisID && prev[2] === next[2]
@@ -74,7 +75,7 @@ const handleAutoUpdates = (
         subscribe(mainWnindow, currentNetwork, $downloaded);
       }
     ),
-    // Check for updates when: init, ipc request, daily
+    // Check for updates when: init, ipc request, byInterval
     $trigger.subscribe(async ([mainWindow, curNet, download]) => {
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
       if (!nextUpdateInfo) return;
