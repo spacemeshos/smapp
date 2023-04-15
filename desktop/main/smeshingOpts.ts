@@ -74,12 +74,7 @@ export const safeSmeshingOpts = (
         // Temporary kludge
         // TODO: Remove it once https://github.com/spacemeshos/go-spacemesh/pull/4293
         //       will be merged and newer go-spacemesh version will be released
-        /* eslint-disable no-bitwise */
-        'smeshing-opts-compute-batch-size':
-          opts['smeshing-opts']['smeshing-opts-provider'] === 1
-            ? 1 << 10 // Kludge that makes Node behave well with CPU provider
-            : 1 << 22,
-        /* eslint-enable no-bitwise */
+        'smeshing-opts-compute-batch-size': 1 << 22, // eslint-disable-line no-bitwise
       },
       'smeshing-coinbase': coinbase,
     };
