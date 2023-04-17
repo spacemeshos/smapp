@@ -182,7 +182,7 @@
     "@grpc/grpc-js": "1.2.11",
     "@grpc/proto-loader": "0.6.2",
     "@iarna/toml": "^2.2.5",
-    "@reduxjs/toolkit": "^1.7.2",
+    "@reduxjs/toolkit": "^1.9.4",
     "@sentry/electron": "^4.2.0",
     "@sentry/react": "^7.36.0",
     "@sentry/tracing": "^7.36.0",
