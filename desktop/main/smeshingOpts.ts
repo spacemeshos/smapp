@@ -3,6 +3,7 @@ import { resolve } from 'path';
 import Bech32 from '@spacemesh/address-wasm';
 import { HexString } from '../../shared/types';
 import { fromHexString } from '../../shared/utils';
+import { DEFAULT_SMESHING_BATCH_SIZE } from './constants';
 
 export type NoSmeshingDefaults = {
   'smeshing-opts': {
@@ -71,15 +72,9 @@ export const safeSmeshingOpts = (
         ...opts['smeshing-opts'],
         'smeshing-opts-datadir':
           opts['smeshing-opts']['smeshing-opts-datadir'] || defaultPosDir,
-        // Temporary kludge
-        // TODO: Remove it once https://github.com/spacemeshos/go-spacemesh/pull/4293
-        //       will be merged and newer go-spacemesh version will be released
-        /* eslint-disable no-bitwise */
         'smeshing-opts-compute-batch-size':
-          opts['smeshing-opts']['smeshing-opts-provider'] === 1
-            ? 1 << 10 // Kludge that makes Node behave well with CPU provider
-            : 1 << 22,
-        /* eslint-enable no-bitwise */
+          opts['smeshing-opts']['smeshing-opts-compute-batch-size'] ||
+          DEFAULT_SMESHING_BATCH_SIZE,
       },
       'smeshing-coinbase': coinbase,
     };
