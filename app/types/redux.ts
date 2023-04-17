@@ -66,6 +66,10 @@ export interface SmesherState {
   rewardsInfo?: RewardsInfo;
   activations: Activation[];
   config: SmesherConfig;
+  metadata: {
+    smeshingStart: number | null;
+    posInitStart: number | null;
+  };
 }
 
 export interface UiState {

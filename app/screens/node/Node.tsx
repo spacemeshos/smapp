@@ -327,17 +327,6 @@ const Node = ({ history, location }: Props) => {
 
   const dispatch = useDispatch();
 
-  let smesherInitTimestamp = localStorage.getItem('smesherInitTimestamp');
-  smesherInitTimestamp = smesherInitTimestamp
-    ? getFormattedTimestamp(JSON.parse(smesherInitTimestamp))
-    : '';
-  let smesherSmeshingTimestamp = localStorage.getItem(
-    'smesherSmeshingTimestamp'
-  );
-  smesherSmeshingTimestamp = smesherSmeshingTimestamp
-    ? getFormattedTimestamp(JSON.parse(smesherSmeshingTimestamp))
-    : '';
-
   type RowData = [string, string | JSX.Element];
   const renderTable = (data: RowData[]) =>
     data.map(([label, value], idx) => {
@@ -573,8 +562,6 @@ const Node = ({ history, location }: Props) => {
       <SmesherLog
         rewards={rewards}
         rewardsInfo={rewardsInfo as RewardsInfo}
-        initTimestamp={smesherInitTimestamp}
-        smeshingTimestamp={smesherSmeshingTimestamp}
         epochByLayer={getEpochByLayer}
         timestampByLayer={getTimestampByLayer}
       />

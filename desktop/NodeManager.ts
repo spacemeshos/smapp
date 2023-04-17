@@ -50,6 +50,7 @@ import {
 } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
+import { updateSmeshingMetadata } from './SmesherMetadataUtils';
 
 const logger = Logger({ className: 'NodeManager' });
 
@@ -321,7 +322,6 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  //
   startSmeshing = async (postSetupOpts: PostSetupOpts) => {
     if (!postSetupOpts.dataDir) {
       throw new Error(
@@ -347,6 +347,11 @@ class NodeManager extends AbstractManager {
       // Copy current `key.bin` file into newly created PoS directory
       await fs.promises.copyFile(CURRENT_KEYBIN_PATH, NEXT_KEYBIN_PATH);
     }
+
+    const metadata = await updateSmeshingMetadata(postSetupOpts.dataDir, {
+      posInitStart: Date.now(),
+    });
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, metadata);
 
     // In other cases — update config and restart the node
     // it will start Smeshing automatically based on the config

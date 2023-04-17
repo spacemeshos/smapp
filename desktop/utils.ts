@@ -46,6 +46,7 @@ export const isByteArray = (a: any): a is Uint8Array => a instanceof Uint8Array;
 export const readFileAsync = util.promisify(fs.readFile);
 
 export const writeFileAsync = util.promisify(fs.writeFile);
+export const deleteFileAsync = util.promisify(fs.unlink);
 
 export const isFileExists = (filePath: string) =>
   fs.promises

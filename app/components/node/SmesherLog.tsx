@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import ReactTimeago from 'react-timeago';
+import { useSelector } from 'react-redux';
 import { formatSmidge, getFormattedTimestamp } from '../../infra/utils';
 import { smColors } from '../../vars';
 import { SmallHorizontalPanel } from '../../basicComponents';
 import { horizontalPanelBlack } from '../../assets/images';
 import { RewardsInfo, Reward } from '../../../shared/types';
 import { CorneredContainer } from '../common';
+import { RootState } from '../../types';
 
 const Wrapper = styled.div`
   display: flex;
@@ -155,8 +157,6 @@ const Total = styled.div<{ epoch?: boolean }>`
 `;
 
 type Props = {
-  initTimestamp: string | null;
-  smeshingTimestamp: string | null;
   rewards: Reward[];
   rewardsInfo: RewardsInfo;
   epochByLayer: (number) => number;
@@ -164,13 +164,14 @@ type Props = {
 };
 
 const SmesherLog = ({
-  initTimestamp,
-  smeshingTimestamp,
   rewards,
   rewardsInfo,
   epochByLayer,
   timestampByLayer,
 }: Props) => {
+  const { smeshingStart, posInitStart } = useSelector(
+    (state: RootState) => state.smesher.metadata
+  );
   return (
     <CorneredContainer useEmptyWrap width={310} height={450} header="REWARDS">
       <FullCrossIcon className="top" />
@@ -226,23 +227,24 @@ const SmesherLog = ({
               );
             });
           })()}
-        {smeshingTimestamp ? (
+        {posInitStart ? (
           <>
             <LogEntry>
               <DateText>
-                <ReactTimeago date={smeshingTimestamp} />
+                <ReactTimeago date={getFormattedTimestamp(posInitStart)} />
               </DateText>
-              <LogText>Started smeshing</LogText>
+              <LogText>Started creating PoS data</LogText>
             </LogEntry>
           </>
         ) : null}
-        {initTimestamp ? (
+
+        {smeshingStart ? (
           <>
             <LogEntry>
               <DateText>
-                <ReactTimeago date={initTimestamp} />
+                <ReactTimeago date={getFormattedTimestamp(smeshingStart)} />
               </DateText>
-              <LogText>Started creating PoS data</LogText>
+              <LogText>Started smeshing</LogText>
             </LogEntry>
           </>
         ) : null}
