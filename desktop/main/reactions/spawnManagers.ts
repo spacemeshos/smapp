@@ -25,7 +25,7 @@ const spawnManagers = async (
     throw new Error('Cannot spawn managers: MainWindow not found');
 
   if (!managers) {
-    const smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
+    const smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE, genesisID);
     const node = new NodeManager(mainWindow, genesisID, smesher);
     const wallet = new WalletManager(mainWindow, node);
 

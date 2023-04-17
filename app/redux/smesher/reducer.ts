@@ -17,6 +17,7 @@ import {
   SET_SMESHER_CONFIG,
   PAUSED_SMESHING,
   RESUMED_SMESHING,
+  SET_METADATA,
 } from './actions';
 
 const initialState = {
@@ -34,6 +35,10 @@ const initialState = {
   postSetupState: PostSetupState.STATE_NOT_STARTED,
   postProgressError: '',
   rewards: [],
+  metadata: {
+    smeshingStart: null,
+    posInitStart: null,
+  },
   rewardsInfo: {
     total: 0,
     dailyAverage: 0,
@@ -154,6 +159,14 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
     }
     case LOGOUT:
       return initialState;
+    case SET_METADATA: {
+      const { payload } = action;
+
+      return {
+        ...state,
+        metadata: { ...payload },
+      };
+    }
     case IPC_BATCH_SYNC: {
       return reduceChunkUpdate('smesher', action.payload, state);
     }
