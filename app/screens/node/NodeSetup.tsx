@@ -157,8 +157,6 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const setupAndInitMining = async () => {
     if (!provider) return;
-    localStorage.setItem('smesherInitTimestamp', `${new Date().getTime()}`);
-    localStorage.removeItem('smesherSmeshingTimestamp');
     const done = await dispatch(
       startSmeshing({
         coinbase: rewardAddress,

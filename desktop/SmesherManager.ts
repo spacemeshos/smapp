@@ -20,6 +20,11 @@ import StoreService from './storeService';
 import { generateGenesisIDFromConfig } from './main/Networks';
 import { safeSmeshingOpts } from './main/smeshingOpts';
 import { DEFAULT_SMESHING_BATCH_SIZE } from './main/constants';
+import {
+  deleteSmeshingMetadata,
+  getSmeshingMetadata,
+  updateSmeshingMetadata,
+} from './SmesherMetadataUtils';
 
 const checkDiskSpace = require('check-disk-space');
 
@@ -30,11 +35,18 @@ class SmesherManager extends AbstractManager {
 
   private readonly configFilePath: string;
 
-  constructor(mainWindow: BrowserWindow, configFilePath: string) {
+  private genesisID: string;
+
+  constructor(
+    mainWindow: BrowserWindow,
+    configFilePath: string,
+    genesisID: string
+  ) {
     super(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
     this.configFilePath = configFilePath;
+    this.genesisID = genesisID;
   }
 
   private loadConfig = async () => {
@@ -88,6 +100,7 @@ class SmesherManager extends AbstractManager {
   updateSmesherState = async () => {
     await this.sendSmesherSettingsAndStartupState();
     await this.sendPostSetupProviders();
+    await this.sendSmesherMetadata();
   };
 
   serviceStartupFlow = async () => {
@@ -185,6 +198,18 @@ class SmesherManager extends AbstractManager {
     );
   };
 
+  sendSmesherMetadata = async () => {
+    const dataDirPath = await this.getCurrentDataDir(this.genesisID);
+    const metadata = await getSmeshingMetadata(dataDirPath);
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, metadata);
+  };
+
+  clearSmesherMetadata = async () => {
+    const dataDirPath = await this.getCurrentDataDir(this.genesisID);
+    await deleteSmeshingMetadata(dataDirPath);
+    this.mainWindow.webContents.send(ipcConsts.SMESHER_METADATA_INFO, {});
+  };
+
   getCoinbase = () => this.smesherService.getCoinbase();
 
   subscribeIPCEvents() {
@@ -216,6 +241,7 @@ class SmesherManager extends AbstractManager {
         const res = await this.smesherService.stopSmeshing({
           deleteFiles: deleteFiles || false,
         });
+        await this.clearSmesherMetadata();
         const config = await this.loadConfig();
         const genesisId = generateGenesisIDFromConfig(config);
         if (deleteFiles) {
@@ -357,6 +383,29 @@ class SmesherManager extends AbstractManager {
       logger.error('handlePostDataCreationStatusStream', error);
       return;
     }
+
+    if (status.postSetupState === PostSetupState.STATE_COMPLETE) {
+      // eslint-disable-next-line promise/no-promise-in-callback
+      this.getCurrentDataDir(this.genesisID)
+        .then((dataDirPath) =>
+          updateSmeshingMetadata(dataDirPath, {
+            smeshingStart: Date.now(),
+          })
+        )
+        .then((metadata) =>
+          this.mainWindow.webContents.send(
+            ipcConsts.SMESHER_METADATA_INFO,
+            metadata
+          )
+        )
+        .catch((error) =>
+          logger.error(
+            'handlePostDataCreationStatusStream - updateSmeshingMetadata',
+            error
+          )
+        );
+    }
+
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_POST_DATA_CREATION_PROGRESS,
       { error, status }

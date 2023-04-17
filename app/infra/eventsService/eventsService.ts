@@ -10,6 +10,7 @@ import {
 import { setTransactions, updateAccountData } from '../../redux/wallet/actions';
 import {
   SET_ACCOUNT_REWARDS,
+  SET_METADATA,
   SET_POST_DATA_CREATION_STATUS,
   SET_SETUP_COMPUTE_PROVIDERS,
   SET_SMESHER_CONFIG,
@@ -24,7 +25,6 @@ import {
   NodeStatus,
   NodeVersionAndBuild,
   PostSetupOpts,
-  PostSetupState,
   SocketAddress,
   TxSendRequest,
   WalletMeta,
@@ -333,12 +333,6 @@ ipcRenderer.on(
     const {
       status: { postSetupState, numLabelsWritten },
     } = request;
-    if (postSetupState === PostSetupState.STATE_COMPLETE) {
-      localStorage.setItem(
-        'smesherSmeshingTimestamp',
-        `${new Date().getTime()}`
-      );
-    }
 
     store.dispatch({
       type: SET_POST_DATA_CREATION_STATUS,
@@ -370,6 +364,10 @@ ipcRenderer.on(ipcConsts.AU_DOWNLOAD_PROGRESS, (_, info: ProgressInfo) => {
 
 ipcRenderer.on(ipcConsts.CLOSING_APP, () => {
   store.dispatch(showClosingAppModal());
+});
+
+ipcRenderer.on(ipcConsts.SMESHER_METADATA_INFO, (_, data) => {
+  store.dispatch({ type: SET_METADATA, payload: data });
 });
 
 export default EventsService;
