@@ -62,7 +62,10 @@ const handleAutoUpdates = (
   const $trigger = merge($first, $byIpcRequest, $byInterval).pipe(
     distinctUntilChanged(
       (prev, next) =>
-        prev[1].genesisID === next[1].genesisID && prev[2] === next[2]
+        prev[1].genesisID === next[1].genesisID &&
+        prev[1].minSmappRelease === next[1].minSmappRelease &&
+        prev[1].latestSmappRelease === next[1].latestSmappRelease &&
+        prev[2] === next[2]
     )
   );
 
