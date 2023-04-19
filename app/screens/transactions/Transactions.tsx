@@ -194,7 +194,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
       state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
 
-  const getNonce = useSelector(
+  const nonce = useSelector(
     (state: RootState) =>
       state.wallet.balances[address]?.currentState?.counter ?? 0
   );
@@ -325,7 +325,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
             totalSent={totalSent}
             totalReceived={totalReceived}
             filterName={TIME_SPANS[selectedTimeSpan].label}
-            nonce={getNonce}
+            nonce={nonce}
           />
         </RightPaneWrapper>
       )}
