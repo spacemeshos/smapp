@@ -170,12 +170,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const renderRightSection = () => {
     switch (mode) {
       case 0:
-        return (
-          <PoSModifyPostData
-            modify={handleNextAction}
-            deleteData={handleDeletePosData}
-          />
-        );
+        return <PoSModifyPostData deleteData={handleDeletePosData} />;
       case 1:
         return (
           <PoSDirectory
