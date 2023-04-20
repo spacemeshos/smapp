@@ -6,7 +6,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: space-around;
+  justify-content: start;
+  margin-top: 50px;
 `;
 const Row = styled.div`
   display: flex;
@@ -38,22 +39,12 @@ const Dots = styled.div`
 `;
 
 type Props = {
-  modify: () => void;
   deleteData: () => void;
 };
 
-const PoSModifyPostData = ({ modify, deleteData }: Props) => (
+const PoSModifyPostData = ({ deleteData }: Props) => (
   <>
     <Wrapper>
-      <Row>
-        <Text>Change your PoS data</Text>
-        <Tooltip
-          width={200}
-          text="Modify the parameters, such as POS directory, allocated memory, or processor."
-        />
-        <Dots>.....................................................</Dots>
-        <Button onClick={modify} text="MODIFY POS" isPrimary={false} />
-      </Row>
       <Row>
         <Text>Stop smeshing and delete PoS data</Text>
         <Tooltip
