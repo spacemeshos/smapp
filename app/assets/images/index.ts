@@ -94,6 +94,7 @@ export { default as posSmesher } from './pos_smesher.svg';
 export { default as posSmesherWhite } from './pos_smesher_white.svg';
 export { default as posSmesherOrange } from './pos_smesher_orange.svg';
 export { default as posSpace } from './pos_space.svg';
+export { default as checkUpdates } from './check_updates.svg';
 export { default as circle } from './circle.svg';
 export { default as wallet } from './wallet.svg';
 export { default as walletSecond } from './wallet_second.svg';

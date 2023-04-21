@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { UpdateInfo as UpdateInfoT } from 'electron-updater';
+import { ipcRenderer } from 'electron';
 import { SemVer } from 'semver';
 
 import {
@@ -13,15 +14,18 @@ import {
   isUpdateDownloading,
 } from '../../redux/updater/selectors';
 import { eventsService } from '../../infra/eventsService';
-import { smColors } from '../../vars';
+import { ipcConsts, smColors } from '../../vars';
 import packageInfo from '../../../package.json';
 import { AuthPath } from '../../routerPaths';
+import { getNetworkInfo } from '../../redux/network/selectors';
+import { checkUpdates as checkUpdatesIco } from '../../assets/images';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
   position: absolute;
   left: 32px;
   bottom: 15px;
+  right: 52px;
   font-size: 11px;
   color: ${({ theme }) => theme.color.gray};
   display: flex;
@@ -42,6 +46,22 @@ const Action = css`
   margin: 0;
   text-decoration: underline;
   cursor: pointer;
+`;
+
+const CheckUpdatesButton = styled.img`
+  position: relative;
+  bottom: -4px;
+  display: flex;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  transition: all 0.4s linear;
+  margin-right: 1em;
+
+  &:hover,
+  &:focus {
+    transform: rotate(180deg);
+  }
 `;
 
 const hoverColor = (normal: string, hover: string) => css`
@@ -187,16 +207,77 @@ const Updater = () => {
   return (
     <>
       {showUpdateStatus ? <UpdateStatus /> : <UpdateInfo info={updateInfo} />}
-      <UpdateError />
     </>
   );
 };
 
+const ForceUpdateInfo = ({ updateInfo }: { updateInfo: UpdateInfoT }) => (
+  <Attractor>Smapp is auto-updating to version {updateInfo.version}</Attractor>
+);
+
+const CheckForUpdates = () => {
+  const updateInfo = useSelector(getUpdateInfo);
+  const network = useSelector(getNetworkInfo);
+  enum CheckState {
+    Idle = 0,
+    Checking,
+    NoUpdates,
+    HasUpdate,
+  }
+  const [curState, setCurState] = useState(CheckState.Idle);
+
+  useEffect(() => {
+    const handler = () => setCurState(CheckState.NoUpdates);
+    ipcRenderer.on(ipcConsts.AU_NO_UPDATES_AVAILABLE, handler);
+    setTimeout(() => setCurState(CheckState.Idle), 10 * 1000);
+    return () => {
+      ipcRenderer.off(ipcConsts.AU_NO_UPDATES_AVAILABLE, handler);
+    };
+  });
+
+  if (updateInfo) return null;
+
+  const checkUpdates = async () => {
+    setCurState(CheckState.Checking);
+    await eventsService.listNetworks();
+    return eventsService.checkUpdates();
+  };
+
+  if (network.genesisID && curState === CheckState.Idle) {
+    return (
+      <CheckUpdatesButton
+        src={checkUpdatesIco}
+        onClick={checkUpdates}
+        title="Check updates"
+      />
+    );
+  } else if (curState === CheckState.Checking) {
+    return <ProgressChunk>Checking for updates...</ProgressChunk>;
+  } else if (curState === CheckState.NoUpdates) {
+    return <ProgressChunk>No new updates available</ProgressChunk>;
+  } else return null;
+};
+
 const Version = () => {
+  const [forceUpdateInfo, setForceUpdateInfo] = useState<UpdateInfoT | null>(
+    null
+  );
+
+  useEffect(() => {
+    const handler = (_, nextUpdateInfo) => setForceUpdateInfo(nextUpdateInfo);
+    ipcRenderer.on(ipcConsts.AU_FORCE_UPDATE_STARTED, handler);
+    return () => {
+      ipcRenderer.off(ipcConsts.AU_FORCE_UPDATE_STARTED, handler);
+    };
+  });
+
   return (
     <Container>
       <Chunk>v{packageInfo.version}</Chunk>
+      {forceUpdateInfo && <ForceUpdateInfo updateInfo={forceUpdateInfo} />}
+      {!forceUpdateInfo && <CheckForUpdates />}
       <Updater />
+      <UpdateError />
       <FeedbackButton />
     </Container>
   );

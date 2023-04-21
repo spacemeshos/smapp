@@ -11,8 +11,8 @@ import BackButton from './BackButton';
 
 const Container = styled.div`
   padding: 4px 12px;
-  bottom: 10px;
   display: flex;
+  margin-left: auto;
 `;
 
 const Row = styled.div`
