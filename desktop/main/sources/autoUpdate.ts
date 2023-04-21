@@ -29,12 +29,13 @@ import {
   subscribe,
   unsubscribe,
 } from '../autoUpdater';
-import { HOUR, MINUTE } from '../constants';
+import { MINUTE } from '../constants';
 import { fromIPC } from '../rx.utils';
 
 const logger = Logger({ className: 'autoUpdate' });
 
 const handleAutoUpdates = (
+  everyMs: number,
   $mainWindow: Observable<BrowserWindow>,
   $managers: Observable<Managers>,
   $currentNetwork: Observable<Network | null>
@@ -52,7 +53,7 @@ const handleAutoUpdates = (
   );
 
   const $first = $data.pipe(first());
-  const $byInterval = interval(HOUR + MINUTE).pipe(switchMap(() => $data));
+  const $byInterval = interval(everyMs + MINUTE).pipe(switchMap(() => $data));
   const $byIpcRequest = $request.pipe(
     withLatestFrom($data),
     map(([download, [mw, cn]]) => [mw, cn, download] as Data)
