@@ -1,4 +1,6 @@
 import * as $ from 'rxjs';
+import { app } from 'electron';
+
 import {
   Network,
   NodeConfig,
@@ -9,7 +11,6 @@ import { shallowEq } from '../../shared/utils';
 import Warning from '../../shared/warning';
 import StoreService from '../storeService';
 import { IS_AUTO_START_ENABLED } from '../AutoStartManager';
-import { MINUTE } from './constants';
 import createMainWindow from './createMainWindow';
 import observeStoreService from './sources/storeService';
 import {
@@ -38,6 +39,14 @@ import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
 import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
 import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
+
+const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
+
+const CHECK_UPDATES_INTERVAL =
+  positiveNum(
+    3600, // hour
+    parseInt(app.commandLine.getSwitchValue('checkInterval'), 10)
+  ) * 1000;
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -177,7 +186,7 @@ const startApp = (): AppStore => {
     // Update networks on init
     fetchDiscovery($networks),
     // Update networks each N seconds
-    fetchDiscoveryEach(60 * MINUTE, $networks),
+    fetchDiscoveryEach(CHECK_UPDATES_INTERVAL, $networks),
     // And update them by users request
     listNetworksByRequest($networks),
     // Get actual logs to client app
@@ -232,7 +241,12 @@ const startApp = (): AppStore => {
     ),
     // Subscribe on AutoUpdater events
     // and handle IPC communications with it
-    handleAutoUpdates($mainWindow, $managers, $currentNetwork),
+    handleAutoUpdates(
+      CHECK_UPDATES_INTERVAL,
+      $mainWindow,
+      $managers,
+      $currentNetwork
+    ),
     handleOpenDashboard($mainWindow, $currentNetwork),
     collectWarnings($managers, $warnings),
     sendWarningsToRenderer($warnings, $mainWindow),

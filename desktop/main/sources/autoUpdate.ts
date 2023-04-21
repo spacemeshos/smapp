@@ -2,15 +2,14 @@ import { BrowserWindow } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 import {
   combineLatest,
-  distinctUntilChanged,
   filter,
   first,
   interval,
   map,
   merge,
   Observable,
-  sample,
   Subject,
+  switchMap,
   withLatestFrom,
 } from 'rxjs';
 import { ipcConsts } from '../../../app/vars';
@@ -24,20 +23,25 @@ import {
   getCurrentVersion,
   installUpdate,
   notifyDownloadStarted,
+  notifyError,
+  notifyForceUpdate,
+  notifyNoUpdates,
   subscribe,
   unsubscribe,
 } from '../autoUpdater';
-import { HOUR, MINUTE } from '../constants';
+import { MINUTE } from '../constants';
 import { fromIPC } from '../rx.utils';
 
 const logger = Logger({ className: 'autoUpdate' });
 
 const handleAutoUpdates = (
+  everyMs: number,
   $mainWindow: Observable<BrowserWindow>,
   $managers: Observable<Managers>,
   $currentNetwork: Observable<Network | null>
 ) => {
-  type Data = [BrowserWindow, Network, boolean];
+  type DoDownload = boolean;
+  type Data = [BrowserWindow, Network, DoDownload];
 
   const $request = new Subject<boolean>();
   const $downloaded = new Subject<UpdateInfo>();
@@ -49,21 +53,12 @@ const handleAutoUpdates = (
   );
 
   const $first = $data.pipe(first());
-  const $daily = interval(24 * HOUR).pipe(
+  const $byInterval = interval(everyMs + MINUTE).pipe(switchMap(() => $data));
+  const $byIpcRequest = $request.pipe(
     withLatestFrom($data),
-    map(([_, data]) => data)
+    map(([download, [mw, cn]]) => [mw, cn, download] as Data)
   );
-  const $byIpcRequest = $data.pipe(
-    sample($request),
-    withLatestFrom($request),
-    map(([[mw, cn], download]) => [mw, cn, download] as Data)
-  );
-  const $trigger = merge($first, $byIpcRequest, $daily).pipe(
-    distinctUntilChanged(
-      (prev, next) =>
-        prev[1].genesisID === next[1].genesisID && prev[2] === next[2]
-    )
-  );
+  const $trigger = merge($first, $byIpcRequest, $byInterval);
 
   const subs = [
     // Each time we got new mainWindow - resubscribe
@@ -74,18 +69,20 @@ const handleAutoUpdates = (
         subscribe(mainWnindow, currentNetwork, $downloaded);
       }
     ),
-    // Check for updates when: init, ipc request, daily
+    // Check for updates when: init, ipc request, byInterval
     $trigger.subscribe(async ([mainWindow, curNet, download]) => {
       const nextUpdateInfo = await checkUpdates(mainWindow, curNet, download);
-      if (!nextUpdateInfo) return;
-      if (download) {
+      if (!nextUpdateInfo) {
+        notifyNoUpdates(mainWindow);
+      } else if (download) {
         notifyDownloadStarted(mainWindow);
       }
     }),
     // Force update if needed
     combineLatest([$managers, $downloaded, $currentNetwork])
       .pipe(
-        map(([managers, updateInfo, curNetwork]) => {
+        withLatestFrom($mainWindow),
+        map(([[managers, updateInfo, curNetwork], mainWindow]) => {
           if (curNetwork?.minSmappRelease) {
             const currentVersion = getCurrentVersion();
             const isOutdatedVersion =
@@ -94,6 +91,7 @@ const handleAutoUpdates = (
             if (!isOutdatedVersion) return null;
 
             return async () => {
+              notifyForceUpdate(mainWindow, updateInfo);
               const isNodeRunning = managers.node.isNodeRunning();
               try {
                 logger.log('forceUpdate', updateInfo);
@@ -105,6 +103,9 @@ const handleAutoUpdates = (
                 installUpdate();
               } catch (err) {
                 logger.error('forceUpdate', err);
+                if (err instanceof Error) {
+                  notifyError(mainWindow, err);
+                }
               }
               if (isNodeRunning) {
                 // In case installation failed and Smapp was running Node before — start it again
