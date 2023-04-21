@@ -75,6 +75,7 @@ type Props = {
   totalMined: number;
   totalSent: number;
   totalReceived: number;
+  nonce: number;
 };
 
 const TransactionsMeta = ({
@@ -85,6 +86,7 @@ const TransactionsMeta = ({
   totalSent,
   totalReceived,
   filterName,
+  nonce,
 }: Props) => {
   const totalFilteredCoins = mined + sent + received;
   const coinsMeta = [
@@ -130,6 +132,7 @@ const TransactionsMeta = ({
           </TextRow>
         ))}
       </Group>
+      <Text style={{ marginTop: 5 }}>Current Nonce: {nonce}</Text>
     </>
   );
 };

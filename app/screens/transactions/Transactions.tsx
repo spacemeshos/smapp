@@ -22,6 +22,8 @@ import {
   getContacts,
   getRewards,
   getTransactions,
+  getSentTransactions,
+  getReceivedTransactions,
   getTxAndRewards,
   RewardView,
   TxView,
@@ -110,12 +112,16 @@ enum TxFilter {
   All = 0,
   Transactions = 1,
   Rewards = 2,
+  Sent = 3,
+  Received = 4,
 }
 
 const TX_FILTERS = [
   { label: 'all', filter: TxFilter.All },
   { label: 'transactions', filter: TxFilter.Transactions },
   { label: 'rewards', filter: TxFilter.Rewards },
+  { label: 'sent', filter: TxFilter.Sent },
+  { label: 'received', filter: TxFilter.Received },
 ];
 
 const TransactionList = ({
@@ -187,17 +193,28 @@ const Transactions = ({ history }: RouteComponentProps) => {
     (state: RootState) =>
       state.wallet.accounts[state.wallet.currentAccountIndex].address
   );
+
+  const nonce = useSelector(
+    (state: RootState) =>
+      state.wallet.balances[address]?.currentState?.counter ?? 0
+  );
+
   const transactions = useSelector((state: RootState) => {
     switch (txFilter) {
       case TxFilter.Transactions:
         return getTransactions(address, state);
       case TxFilter.Rewards:
         return getRewards(address, state);
+      case TxFilter.Received:
+        return getReceivedTransactions(address, state);
+      case TxFilter.Sent:
+        return getSentTransactions(address, state);
       default:
       case TxFilter.All:
         return getTxAndRewards(address, state);
     }
   });
+
   const contacts = useSelector(getContacts);
 
   const getCoinStatistics = (filteredTransactions: (TxView | RewardView)[]) => {
@@ -308,6 +325,7 @@ const Transactions = ({ history }: RouteComponentProps) => {
             totalSent={totalSent}
             totalReceived={totalReceived}
             filterName={TIME_SPANS[selectedTimeSpan].label}
+            nonce={nonce}
           />
         </RightPaneWrapper>
       )}

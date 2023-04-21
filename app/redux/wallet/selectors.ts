@@ -99,6 +99,26 @@ export const getTransactions = curry(
   }
 );
 
+export const getSentTransactions = curry(
+  (publicKey: HexString, state: RootState): TxView[] => {
+    const txs = getTransactionsRaw(publicKey, state);
+    const filteredAndReversedTxs = txs
+      .filter((obj) => obj.principal === publicKey)
+      .reverse();
+    return patchWithTimestamp(filteredAndReversedTxs, state);
+  }
+);
+
+export const getReceivedTransactions = curry(
+  (publicKey: HexString, state: RootState): TxView[] => {
+    const txs = getTransactionsRaw(publicKey, state);
+    const filteredAndReversedTxs = txs
+      .filter((obj) => obj.principal !== publicKey)
+      .reverse();
+    return patchWithTimestamp(filteredAndReversedTxs, state);
+  }
+);
+
 const getRewardsRaw = (publicKey: HexString, state: RootState) =>
   (state.wallet.rewards[publicKey] &&
     Object.values(state.wallet.rewards[publicKey])) ||
