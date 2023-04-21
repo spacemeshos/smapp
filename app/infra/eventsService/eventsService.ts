@@ -252,6 +252,8 @@ class EventsService {
     ipcRenderer.invoke(ipcConsts.PROMPT_CHANGE_DATADIR);
 
   /** **************************************  AUTO UPDATER  **************************************** */
+  static checkUpdates = () => ipcRenderer.send(ipcConsts.AU_CHECK_UPDATES);
+
   static downloadUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_DOWNLOAD);
 
   static installUpdate = () => ipcRenderer.send(ipcConsts.AU_REQUEST_INSTALL);
