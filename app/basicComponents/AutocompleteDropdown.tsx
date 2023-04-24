@@ -288,12 +288,13 @@ type Props = {
   onChange: (value: string) => void;
   onEnter: (p: any) => void;
   autofocus?: boolean;
+  autocomplete?: boolean;
 };
 
 export type AutocompleteDropdownProps = Props;
 
 const AutocompleteDropdown = (props: Props) => {
-  const { value, autofocus } = props;
+  const { value, autofocus, autocomplete = true } = props;
   let inputBlurTimer: any;
   const [isOpen, setIsOpen] = useState(false);
   const [list, setList] = useState<Array<any>>([]);
@@ -316,7 +317,7 @@ const AutocompleteDropdown = (props: Props) => {
     const { value } = inputField.current || {};
     let list: any = [];
 
-    if (value && value.trim()) {
+    if (value && value.trim() && autocomplete) {
       list = data.filter(
         (d) =>
           getItemValue(d).toLowerCase().indexOf(value.trim().toLowerCase()) > -1
