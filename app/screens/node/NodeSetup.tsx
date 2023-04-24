@@ -10,6 +10,7 @@ import {
   PoSSize,
   PoSProvider,
   PoSSummary,
+  PoSRewards,
 } from '../../components/node';
 import { StepsContainer } from '../../basicComponents';
 import { posIcon } from '../../assets/images';
@@ -39,6 +40,7 @@ const headers = [
   'PROOF OF SPACE DIRECTORY',
   'PROOF OF SPACE SIZE',
   'POS PROCESSOR',
+  'REWARDS ADDRESS',
   'POS SETUP',
 ];
 const subHeaders = [
@@ -49,6 +51,7 @@ const subHeaders = [
     Select a supported processor for creating proof of space.
     <Bold>The fastest one is chosen by default.</Bold>
   </>,
+  'Select a coinbase address for your smeshing rewards.',
   'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
 ];
 
@@ -83,7 +86,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const [provider, setProvider] = useState<PostSetupComputeProvider>();
   const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
-
+  const [rewardAddress, setRewardAddress] = useState(accounts[0].address);
   const singleCommitmentSize =
     (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
   useEffect(() => {
@@ -158,7 +161,7 @@ const NodeSetup = ({ history, location }: Props) => {
     localStorage.removeItem('smesherSmeshingTimestamp');
     const done = await dispatch(
       startSmeshing({
-        coinbase: accounts[0].address,
+        coinbase: rewardAddress,
         dataDir,
         numUnits,
         provider: provider.id,
@@ -245,6 +248,18 @@ const NodeSetup = ({ history, location }: Props) => {
           />
         );
       case 4:
+        return (
+          <PoSRewards
+            coinbase={rewardAddress}
+            address={accounts.map((item) => ({
+              address: item.address,
+              nickname: item.displayName,
+            }))}
+            onChange={(address) => setRewardAddress(address)}
+            nextAction={handleNextAction}
+          />
+        );
+      case 5:
         return (
           <PoSSummary
             dataDir={dataDir}
