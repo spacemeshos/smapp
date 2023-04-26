@@ -15,8 +15,9 @@ import { AuthRouterParams } from './routerParams';
 const DdArea = styled.div`
   display: flex;
   flex: 1;
+  margin-top: 20px;
   margin-bottom: 20px;
-  background-color: ${smColors.restoreGreen};
+  background-color: ${smColors.disabledGray10Alpha};
 `;
 
 const BottomSection = styled.div`
