@@ -50,15 +50,11 @@ import {
 } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
+import { getBinaryPath, getNodePath } from './main/binaries';
 import { updateSmeshingMetadata } from './SmesherMetadataUtils';
 
-const logger = Logger({ className: 'NodeManager' });
 
-const osTargetNames = {
-  Darwin: 'mac',
-  Linux: 'linux',
-  Windows_NT: 'windows',
-};
+const logger = Logger({ className: 'NodeManager' });
 
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
 const PROCESS_EXIT_CHECK_INTERVAL = 1000; // Check does the process exited
@@ -365,16 +361,8 @@ class NodeManager extends AbstractManager {
 
   private spawnNode = async () => {
     if (this.isNodeRunning()) return;
-    const nodeDir = path.resolve(
-      app.getAppPath(),
-      process.env.NODE_ENV === 'development'
-        ? `../node/${osTargetNames[os.type()]}/`
-        : '../../node/'
-    );
-    const nodePath = path.resolve(
-      nodeDir,
-      `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
-    );
+    const nodeDir = getBinaryPath();
+    const nodePath = getNodePath();
     const nodeDataFilesPath = path.join(
       StoreService.get('node.dataPath'),
       this.genesisID.substring(0, 8)
