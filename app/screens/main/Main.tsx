@@ -1,25 +1,25 @@
-import React, { Component, ReactNode } from 'react';
-import { Route, Switch, RouteComponentProps } from 'react-router-dom';
-import styled, { DefaultTheme, withTheme } from 'styled-components';
-import { connect } from 'react-redux';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { Route, Switch, useLocation, useHistory } from 'react-router-dom';
+import styled, { DefaultTheme, useTheme } from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/auth/actions';
 import { Logo } from '../../components/common';
 import {
   SecondaryButton,
   NavTooltip,
-  NetworkIndicator,
   SmallHorizontalPanel,
   BoldText,
+  ColorStatusIndicator,
 } from '../../basicComponents';
 import { AuthPath, MainPath } from '../../routerPaths';
+import * as SmesherSelectors from '../../redux/smesher/selectors';
 import routes from '../../routes';
 import { smColors } from '../../vars';
 import { RootState } from '../../types';
 import Version from '../../components/common/Version';
-import { NodeError, NodeStatus } from '../../../shared/types';
 import { eventsService } from '../../infra/eventsService';
-import { isWalletOnly } from '../../redux/wallet/selectors';
 import { ExternalLinks } from '../../../shared/constants';
+import { isWalletOnly } from '../../redux/wallet/selectors';
 
 const Wrapper = styled.div`
   position: relative;
@@ -107,184 +107,100 @@ const TooltipWrapper = styled.div`
   }
 `;
 
-interface Props extends RouteComponentProps {
-  isWalletOnly: boolean;
-  status: NodeStatus | null;
-  logout: any;
-  location: {
-    hash: string;
-    pathname: string;
-    search: string;
-    state: unknown;
-  };
-  nodeError: NodeError | null;
-  isDarkMode: boolean;
-  genesisID: string;
-  theme: DefaultTheme;
-}
+const navRoutes = [
+  MainPath.Smeshing,
+  MainPath.Network,
+  MainPath.Wallet,
+  MainPath.Contacts,
+  MainPath.Dashboard,
+  MainPath.Settings,
+];
 
-type State = {
-  activeRouteIndex: number;
+const getSmeshingIndicatorColor = (
+  isSmeshing: boolean,
+  isCreatingPostData: boolean,
+  isSmeshingPaused: boolean,
+  isErrorState: boolean
+) => {
+  if (isCreatingPostData) {
+    return smColors.orange;
+  }
+
+  if (isSmeshingPaused || isErrorState) {
+    return smColors.red;
+  }
+
+  if (isSmeshing) {
+    return smColors.green;
+  }
+
+  return smColors.lighterGray;
 };
 
-class Main extends Component<Props, State> {
-  private static readonly navRoutes = [
-    MainPath.Smeshing,
-    MainPath.Network,
-    MainPath.Wallet,
-    MainPath.Contacts,
-    MainPath.Dashboard,
-    MainPath.Settings,
-  ];
-
-  constructor(props: Props) {
-    super(props);
-    const { location } = props;
-    const isWalletLocation = location.pathname.includes('/wallet');
-    const activeRouteIndex = isWalletLocation ? 2 : 0;
-    this.state = {
-      activeRouteIndex,
-    };
+const getNetworkIndicatorColor = (nodeError, genesisID, isSynced) => {
+  if (nodeError || !genesisID.length) {
+    return smColors.red;
   }
+  if (isSynced) {
+    return smColors.green;
+  }
+  return smColors.orange;
+};
 
-  render() {
-    const { nodeError, status, genesisID, theme } = this.props;
+const Main = () => {
+  const isWalletOnlyMode = useSelector(isWalletOnly);
+  const status = useSelector((state: RootState) => state.node.status);
+  const nodeError = useSelector((state: RootState) => state.node.error);
+  const genesisID = useSelector((state: RootState) => state.network.genesisID);
+  const isSmeshing = useSelector(SmesherSelectors.isSmeshing);
+  const isCreatingPostData = useSelector(SmesherSelectors.isCreatingPostData);
+  const isSmeshingPaused = useSelector(SmesherSelectors.isSmeshingPaused);
+  const isErrorState = useSelector(SmesherSelectors.isErrorState);
 
-    const { settings, getCoins, help, signOut } = theme.icons;
-    const bgColor = theme.color.primary;
-    const bntStyle = { marginRight: 15, marginTop: 10 };
-    /* eslint-disable no-nested-ternary */
-    const indicatorColor =
-      nodeError || !genesisID.length
-        ? smColors.red
-        : status?.isSynced
-        ? smColors.green
-        : smColors.orange;
-    /* eslint-enable no-nested-ternary */
+  const history = useHistory();
 
-    return (
-      <Wrapper>
-        <Logo />
-        <InnerWrapper>
-          <NavBar>
-            <NavBarPart>
-              <NavLinksWrapper>
-                {this.renderNavBarLink(
-                  'SMESHING',
-                  'MANAGE SMESHING',
-                  MainPath.Smeshing
-                )}
-                {this.renderNavBarLink(
-                  <>
-                    <NetworkIndicator color={indicatorColor} />
-                    NETWORK
-                  </>,
-                  'NETWORK',
-                  MainPath.Network
-                )}
-                {this.renderNavBarLink(
-                  'WALLET',
-                  'SEND / RECEIVE SMH',
-                  MainPath.Wallet
-                )}
-                {this.renderNavBarLink(
-                  'CONTACTS',
-                  'MANAGE CONTACTS',
-                  MainPath.Contacts
-                )}
-                {/*
-                TODO: Do not render dashboard link since it is not supports new
-                tx&accounts structure. Should be returned back when it will work.
-                {this.renderNavBarLink('DASH', 'DASHBOARD', MainPath.Dashboard)}
-                */}
-              </NavLinksWrapper>
-            </NavBarPart>
-            <NavBarPart>
-              <TooltipWrapper>
-                <SecondaryButton
-                  onClick={() => this.handleNavRoute(MainPath.Settings)}
-                  img={settings}
-                  imgHeight={25}
-                  imgWidth={25}
-                  isPrimary={this.isActive(MainPath.Settings)}
-                  width={35}
-                  height={35}
-                  style={bntStyle}
-                  bgColor={bgColor}
-                />
-                <CustomTooltip text="SETTINGS" closePosition />
-              </TooltipWrapper>
-              <TooltipWrapper>
-                <SecondaryButton
-                  onClick={() =>
-                    this.handleOpenLink(ExternalLinks.GetCoinGuide)
-                  }
-                  img={getCoins}
-                  imgHeight={25}
-                  imgWidth={25}
-                  isPrimary={false}
-                  width={35}
-                  height={35}
-                  style={bntStyle}
-                  bgColor={bgColor}
-                />
-                <CustomTooltip text="GET SMESH" closePosition />
-              </TooltipWrapper>
-              <TooltipWrapper>
-                <SecondaryButton
-                  onClick={() => this.handleOpenLink(ExternalLinks.Help)}
-                  img={help}
-                  imgHeight={25}
-                  imgWidth={25}
-                  isPrimary={false}
-                  width={35}
-                  height={35}
-                  style={bntStyle}
-                  bgColor={bgColor}
-                />
-                <CustomTooltip text="HELP" closePosition />
-              </TooltipWrapper>
-              <TooltipWrapper>
-                <SecondaryButton
-                  onClick={this.handleLogOut}
-                  img={signOut}
-                  imgHeight={25}
-                  imgWidth={25}
-                  isPrimary={false}
-                  width={35}
-                  height={35}
-                  style={bntStyle}
-                  bgColor={bgColor}
-                />
-                <CustomTooltip text="LOGOUT" closePosition />
-              </TooltipWrapper>
-            </NavBarPart>
-          </NavBar>
-          <RoutesWrapper>
-            <SmallHorizontalPanel />
-            <Switch>
-              {routes.main.map((route) => (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  component={route.component}
-                />
-              ))}
-            </Switch>
-          </RoutesWrapper>
-        </InnerWrapper>
-        <Version />
-        <RightDecoration />
-      </Wrapper>
+  const location = useLocation();
+
+  const theme = useTheme();
+
+  const dispatch = useDispatch();
+
+  const [activeRouteIndex, setActiveRouteIndex] = useState(
+    location.pathname.includes('/wallet') ? 2 : 0
+  );
+
+  useEffect(() => {
+    const nextActiveIndex = navRoutes.findIndex((route) =>
+      location.pathname.startsWith(route)
     );
-  }
+    setActiveRouteIndex(nextActiveIndex);
+  }, [location]);
 
-  componentDidMount() {
-    const { isWalletOnly } = this.props;
-    !isWalletOnly && eventsService.requestVersionAndBuild();
-  }
+  useEffect(() => {
+    !isWalletOnlyMode && eventsService.requestVersionAndBuild();
+  }, [isWalletOnlyMode]);
 
-  renderNavBarLink = (
+  const getRouteIndex = (route: string) =>
+    navRoutes.findIndex((navRoute) => navRoute.startsWith(route));
+
+  const handleLogOut = () => {
+    history.push(AuthPath.Unlock, { isLoggedOut: true });
+    dispatch(logout());
+  };
+
+  const isActive = (route: string) => {
+    const index = getRouteIndex(route);
+    return activeRouteIndex === index;
+  };
+
+  const handleNavRoute = (route: string) => {
+    if (isActive(route)) return;
+    history.push(navRoutes[getRouteIndex(route)]);
+  };
+
+  const handleOpenLink = (url: string) => window.open(url);
+
+  const renderNavBarLink = (
     label: string | ReactNode,
     tooltip: string,
     route: string
@@ -292,8 +208,8 @@ class Main extends Component<Props, State> {
     return (
       <TooltipWrapper>
         <NavBarLink
-          onClick={() => this.handleNavRoute(route)}
-          isActive={this.isActive(route)}
+          onClick={() => handleNavRoute(route)}
+          isActive={isActive(route)}
         >
           {label}
         </NavBarLink>
@@ -302,52 +218,140 @@ class Main extends Component<Props, State> {
     );
   };
 
-  static getDerivedStateFromProps(props: Props) {
-    const { pathname } = props.location;
-    const nextActiveIndex = Main.navRoutes.findIndex((route) =>
-      pathname.startsWith(route)
-    );
-    return { activeRouteIndex: nextActiveIndex };
-  }
+  const { settings, getCoins, help, signOut } = theme.icons;
 
-  getRouteIndex = (route: string) =>
-    Main.navRoutes.findIndex((navRoute) => navRoute.startsWith(route));
+  const bgColor = theme.color.primary;
+  const bntStyle = { marginRight: 15, marginTop: 10 };
 
-  handleNavRoute = (route: string) => {
-    if (this.isActive(route)) return;
-    const { history } = this.props;
-    const index = this.getRouteIndex(route);
-    history.push(Main.navRoutes[index]);
-  };
-
-  handleOpenLink = (url: string) => {
-    window.open(url);
-  };
-
-  handleLogOut = () => {
-    const { history, logout } = this.props;
-    history.push(AuthPath.Unlock, { isLoggedOut: true });
-    logout();
-  };
-
-  isActive = (route: string) => {
-    const { activeRouteIndex } = this.state;
-    const index = this.getRouteIndex(route);
-    return activeRouteIndex === index;
-  };
-}
-
-const mapStateToProps = (state: RootState) => ({
-  isWalletOnly: isWalletOnly(state),
-  status: state.node.status,
-  nodeError: state.node.error,
-  genesisID: state.network.genesisID,
-  isDarkMode: state.ui.isDarkMode,
-});
-
-const mapDispatchToProps = {
-  logout,
+  return (
+    <Wrapper>
+      <Logo />
+      <InnerWrapper>
+        <NavBar>
+          <NavBarPart>
+            <NavLinksWrapper>
+              {renderNavBarLink(
+                <>
+                  <ColorStatusIndicator
+                    color={getSmeshingIndicatorColor(
+                      isSmeshing,
+                      isCreatingPostData,
+                      isSmeshingPaused,
+                      isErrorState
+                    )}
+                  />
+                  SMESHING
+                </>,
+                'MANAGE SMESHING',
+                MainPath.Smeshing
+              )}
+              {renderNavBarLink(
+                <>
+                  <ColorStatusIndicator
+                    color={getNetworkIndicatorColor(
+                      nodeError,
+                      genesisID,
+                      status?.isSynced
+                    )}
+                  />
+                  NETWORK
+                </>,
+                'NETWORK',
+                MainPath.Network
+              )}
+              {renderNavBarLink(
+                'WALLET',
+                'SEND / RECEIVE SMH',
+                MainPath.Wallet
+              )}
+              {renderNavBarLink(
+                'CONTACTS',
+                'MANAGE CONTACTS',
+                MainPath.Contacts
+              )}
+              {/*
+                TODO: Do not render dashboard link since it is not supports new
+                tx&accounts structure. Should be returned back when it will work.
+                {this.renderNavBarLink('DASH', 'DASHBOARD', MainPath.Dashboard)}
+                */}
+            </NavLinksWrapper>
+          </NavBarPart>
+          <NavBarPart>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => handleNavRoute(MainPath.Settings)}
+                img={settings}
+                imgHeight={25}
+                imgWidth={25}
+                isPrimary={isActive(MainPath.Settings)}
+                width={35}
+                height={35}
+                style={bntStyle}
+                bgColor={bgColor}
+              />
+              <CustomTooltip text="SETTINGS" closePosition />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => handleOpenLink(ExternalLinks.GetCoinGuide)}
+                img={getCoins}
+                imgHeight={25}
+                imgWidth={25}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+                bgColor={bgColor}
+              />
+              <CustomTooltip text="GET SMESH" closePosition />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={() => handleOpenLink(ExternalLinks.Help)}
+                img={help}
+                imgHeight={25}
+                imgWidth={25}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+                bgColor={bgColor}
+              />
+              <CustomTooltip text="HELP" closePosition />
+            </TooltipWrapper>
+            <TooltipWrapper>
+              <SecondaryButton
+                onClick={handleLogOut}
+                img={signOut}
+                imgHeight={25}
+                imgWidth={25}
+                isPrimary={false}
+                width={35}
+                height={35}
+                style={bntStyle}
+                bgColor={bgColor}
+              />
+              <CustomTooltip text="LOGOUT" closePosition />
+            </TooltipWrapper>
+          </NavBarPart>
+        </NavBar>
+        <RoutesWrapper>
+          <SmallHorizontalPanel />
+          <Switch>
+            {routes.main.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                component={route.component}
+              />
+            ))}
+          </Switch>
+        </RoutesWrapper>
+      </InnerWrapper>
+      <Version />
+      <RightDecoration />
+    </Wrapper>
+  );
 };
 
-// @ts-ignore
-export default connect(mapStateToProps, mapDispatchToProps)(withTheme(Main));
+export default Main;
