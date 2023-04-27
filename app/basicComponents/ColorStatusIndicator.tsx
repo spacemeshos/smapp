@@ -4,7 +4,7 @@ type Props = {
   color: string;
 };
 
-const NetworkIndicator = styled.div`
+const ColorStatusIndicator = styled.div`
   width: 10px;
   height: 10px;
   margin-right: 5px;
@@ -12,4 +12,4 @@ const NetworkIndicator = styled.div`
   background-color: ${({ color }: Props) => color};
 `;
 
-export default NetworkIndicator;
+export default ColorStatusIndicator;

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Modal } from '../common';
-import { Button, Link, Input, NetworkIndicator } from '../../basicComponents';
+import {
+  Button,
+  Link,
+  Input,
+  ColorStatusIndicator,
+} from '../../basicComponents';
 import { smColors } from '../../vars';
 import { eventsService } from '../../infra/eventsService';
 import Address, { AddressType } from '../common/Address';
@@ -253,7 +258,7 @@ const renderTxPayload = (tx: TxView, opts: Record<string, any>) => {
   return <>{rows}</>;
 };
 
-const TxStatusBulb = styled(NetworkIndicator)`
+const TxStatusBulb = styled(ColorStatusIndicator)`
   margin-left: auto;
 `;
 
