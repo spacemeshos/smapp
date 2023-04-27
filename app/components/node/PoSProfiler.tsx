@@ -5,7 +5,7 @@ import {
   Tooltip,
   Input,
   Button,
-  NetworkIndicator,
+  ColorStatusIndicator,
 } from '../../basicComponents';
 import { constrain, formatBytes } from '../../infra/utils';
 import { ipcConsts, smColors } from '../../vars';
@@ -280,7 +280,7 @@ const PoSProfiler = ({ nextAction }: Props) => {
                   {r.maxSize ? formatBytes(r.maxSize) : '...'}
                 </TCol>
                 <TCol width={COL_WIDTH.STATUS}>
-                  <NetworkIndicator color={getStatusColor(r.status)} />
+                  <ColorStatusIndicator color={getStatusColor(r.status)} />
                   {r.status === BenchmarkStatus.Complete
                     ? 'Click to select'
                     : r.status}
