@@ -1,5 +1,6 @@
 import { existsSync, promises as fs } from 'fs';
 import * as TOML from '@iarna/toml';
+import 'json-bigint-patch';
 import { NodeConfig } from '../../shared/types';
 import Warning, {
   WarningType,
