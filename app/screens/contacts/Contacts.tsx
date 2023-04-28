@@ -37,18 +37,6 @@ const SubHeader = styled.div`
   margin-bottom: 45px;
 `;
 
-const SubHeaderText = styled.div`
-  font-size: 15px;
-  line-height: 20px;
-  color: ${({ theme }) => theme.color.contrast};
-`;
-
-const SubHeaderInner = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
 const SubHeaderBtnUpperPart = styled.div<{
   color?: string;
   hoverColor?: string;
@@ -414,33 +402,26 @@ const Contacts = ({ history }: RouteComponentProps) => {
     }
     return (
       <SubHeader>
-        <SubHeaderText>
-          Recent
-          <br />
-          --
-        </SubHeaderText>
-        <SubHeaderInner>
-          <SubHeaderBtnWrapper
-            onClick={() => setShowCreateNewContactModal(true)}
-            color={smColors.darkerPurple}
+        <SubHeaderBtnWrapper
+          onClick={() => setShowCreateNewContactModal(true)}
+          color={smColors.darkerPurple}
+        >
+          <SubHeaderBtnUpperPart
+            color={smColors.purple}
+            hoverColor={smColors.darkerPurple}
           >
-            <SubHeaderBtnUpperPart
-              color={smColors.purple}
-              hoverColor={smColors.darkerPurple}
-            >
-              <CreateNewContactText>
-                CREATE NEW
-                <br />
-                CONTACT
-              </CreateNewContactText>
-            </SubHeaderBtnUpperPart>
-            <SubHeaderBtnLowerPart
-              color={smColors.purple}
-              hoverColor={smColors.darkerPurple}
-            />
-          </SubHeaderBtnWrapper>
-          {renderLastUsedContacts()}
-        </SubHeaderInner>
+            <CreateNewContactText>
+              CREATE NEW
+              <br />
+              CONTACT
+            </CreateNewContactText>
+          </SubHeaderBtnUpperPart>
+          <SubHeaderBtnLowerPart
+            color={smColors.purple}
+            hoverColor={smColors.darkerPurple}
+          />
+        </SubHeaderBtnWrapper>
+        {renderLastUsedContacts()}
       </SubHeader>
     );
   };
