@@ -216,6 +216,54 @@ const BottomActionSection = styled.div`
   display: flex;
 `;
 
+const TooltipText = styled.div`
+  margin: 10px;
+  font-size: 10px;
+  line-height: 13px;
+  color: ${({
+    theme: {
+      popups: {
+        states: { error },
+      },
+    },
+  }) => error.color};
+`;
+
+const TooltipWrapper = styled.div`
+  position: absolute;
+  left: 0;
+  width: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: ${({
+    theme: {
+      popups: {
+        states: { error },
+      },
+    },
+  }) => error.backgroundColor};
+  ${({ theme }) => `border-radius: ${theme.box.radius}px;`}
+`;
+
+const CustomTooltip = styled((props: { text: string }) => (
+  <TooltipWrapper {...props}>
+    <TooltipText>{props.text}</TooltipText>
+  </TooltipWrapper>
+))<{ closePosition?: boolean }>``;
+
+const ButtonWrapper = styled.div`
+  position: relative;
+  ${CustomTooltip} {
+    display: none;
+  }
+  &:hover {
+    ${CustomTooltip} {
+      display: block;
+    }
+  }
+`;
+
 const ERR_MESSAGE_ERR_STATE =
   'PoS initialization failed. Try to delete it and re-initialize.';
 const ERR_MESSAGE_NODE_ERROR =
@@ -267,9 +315,11 @@ const SmesherStatus = ({
   </SubHeader>
 );
 
+const ERROR_MESSAGE = 'Node is not connected. Check Network tab.';
+
 const Node = ({ history, location }: Props) => {
   const [showIntro, setShowIntro] = useState(location?.state?.showIntro);
-
+  const nodeError = useSelector((state: RootState) => state.node.error);
   const curNet = useSelector(getGenesisID);
   const status = useSelector((state: RootState) => state.node.status);
   const networkName = useSelector((state: RootState) => state.network.netName);
@@ -436,37 +486,52 @@ const Node = ({ history, location }: Props) => {
         {renderTable(getTableData())}
         <Footer>
           <FooterSection>
-            <Button
-              onClick={() =>
-                history.push(MainPath.SmeshingSetup, { modifyPostData: true })
-              }
-              img={posDirectoryWhite}
-              text="EDIT"
-              isPrimary={false}
-              style={{ marginRight: 15 }}
-              imgPosition="before"
-              width={180}
-            />
-            {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
+            <ButtonWrapper>
               <Button
-                onClick={handlePauseSmeshing}
-                text="PAUSE POST DATA GENERATION"
-                img={pauseIcon}
+                isDisabled={!!nodeError}
+                onClick={() =>
+                  history.push(MainPath.SmeshingSetup, { modifyPostData: true })
+                }
+                img={posDirectoryWhite}
+                text="EDIT"
                 isPrimary={false}
-                width={280}
+                style={{ marginRight: 15 }}
                 imgPosition="before"
+                width={180}
               />
-            )}
-            {isPausedSmeshing && (
-              <Button
-                onClick={handleResumeSmeshing}
-                text="RESUME SMESHING"
-                img={playIcon}
-                isPrimary
-                width={280}
-                imgPosition="before"
-              />
-            )}
+              {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+            </ButtonWrapper>
+
+            <ButtonWrapper>
+              {postSetupState === PostSetupState.STATE_IN_PROGRESS && (
+                <>
+                  <Button
+                    isDisabled={!!nodeError}
+                    onClick={handlePauseSmeshing}
+                    text="PAUSE POST DATA GENERATION"
+                    img={pauseIcon}
+                    isPrimary={false}
+                    width={280}
+                    imgPosition="before"
+                  />
+                  {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+                </>
+              )}
+              {isPausedSmeshing && (
+                <>
+                  <Button
+                    isDisabled={!!nodeError}
+                    onClick={handleResumeSmeshing}
+                    text="RESUME SMESHING"
+                    img={playIcon}
+                    isPrimary
+                    width={280}
+                    imgPosition="before"
+                  />
+                  {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+                </>
+              )}
+            </ButtonWrapper>
           </FooterSection>
         </Footer>
       </>
@@ -497,11 +562,15 @@ const Node = ({ history, location }: Props) => {
           <Text>Proof of Space data is not setup yet</Text>
           <br />
           <BottomActionSection>
-            <Button
-              onClick={buttonHandler}
-              text="SETUP PROOF OF SPACE"
-              width={250}
-            />
+            <ButtonWrapper>
+              <Button
+                isDisabled={!!nodeError}
+                onClick={buttonHandler}
+                text="SETUP PROOF OF SPACE"
+                width={250}
+              />
+              {!!nodeError && <CustomTooltip text={ERROR_MESSAGE} />}
+            </ButtonWrapper>
           </BottomActionSection>
         </>
       );
