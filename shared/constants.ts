@@ -6,6 +6,11 @@ export const LOCAL_NODE_API_URL: SocketAddress = {
   protocol: 'http:',
 };
 
+export const PRIVATE_NODE_API_URL: SocketAddress = {
+  ...LOCAL_NODE_API_URL,
+  port: '9093',
+};
+
 export const TX_STATE_LABELS: Record<TxState, string> = {
   [TxState.UNSPECIFIED]: 'Unknown state',
   [TxState.REJECTED]: 'Rejected',

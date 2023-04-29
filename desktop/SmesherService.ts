@@ -8,6 +8,7 @@ import {
   PostSetupStatus,
 } from '../shared/types';
 import memoDebounce from '../shared/memoDebounce';
+import { PRIVATE_NODE_API_URL } from '../shared/constants';
 import { BITS_PER_LABEL } from '../app/types/smesher';
 
 import Logger from './logger';
@@ -44,7 +45,7 @@ class SmesherService extends NetServiceFactory<
   logger = Logger({ className: 'SmesherService' });
 
   createService = () => {
-    this.createNetService(PROTO_PATH, undefined, 'SmesherService');
+    this.createNetService(PROTO_PATH, PRIVATE_NODE_API_URL, 'SmesherService');
   };
 
   getPostConfig = () =>
