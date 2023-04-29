@@ -19,11 +19,13 @@ import {
 import store from '../../redux/store';
 import {
   Bech32Address,
+  BenchmarkRequest,
   HexString,
   IPCSmesherStartupData,
   NodeError,
   NodeStatus,
   NodeVersionAndBuild,
+  PostProvingOpts,
   PostSetupOpts,
   SocketAddress,
   TxSendRequest,
@@ -166,12 +168,15 @@ class EventsService {
   static getEstimatedRewards = () =>
     ipcRenderer.invoke(ipcConsts.SMESHER_GET_ESTIMATED_REWARDS);
 
-  static startSmeshing = async (postSetupOpts: PostSetupOpts) => {
-    ipcRenderer.send(ipcConsts.SMESHER_START_SMESHING, postSetupOpts);
+  static startSmeshing = async (opts: [PostSetupOpts, PostProvingOpts]) => {
+    ipcRenderer.send(ipcConsts.SMESHER_START_SMESHING, opts);
   };
 
   static stopSmeshing = ({ deleteFiles }: { deleteFiles: boolean }) =>
     ipcRenderer.invoke(ipcConsts.SMESHER_STOP_SMESHING, { deleteFiles });
+
+  static runBenchmarks = (benchmarks: BenchmarkRequest[]) =>
+    ipcRenderer.send(ipcConsts.RUN_BENCHMARKS, benchmarks);
 
   /** **********************************   TRANSACTIONS   ************************************** */
 

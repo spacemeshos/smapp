@@ -28,19 +28,33 @@ export const startSmeshing = ({
   provider,
   throttle,
   maxFileSize,
+  nonces,
+  threads,
 }: SmeshingOpts) => async (dispatch: AppThDispatch): Promise<boolean> => {
   try {
-    await eventsService.startSmeshing({
-      coinbase,
-      dataDir,
-      numUnits,
-      maxFileSize,
-      provider,
-      throttle,
-    });
+    await eventsService.startSmeshing([
+      {
+        coinbase,
+        dataDir,
+        numUnits,
+        maxFileSize,
+        provider,
+        throttle,
+      },
+      { nonces, threads },
+    ]);
     dispatch({
       type: STARTED_SMESHING,
-      payload: { coinbase, dataDir, numUnits, provider, throttle, maxFileSize },
+      payload: {
+        coinbase,
+        dataDir,
+        numUnits,
+        provider,
+        throttle,
+        maxFileSize,
+        nonces,
+        threads,
+      },
     });
     return true;
   } catch (error) {
