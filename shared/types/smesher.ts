@@ -18,6 +18,8 @@ export interface SmeshingOpts {
   provider: number;
   throttle: boolean;
   maxFileSize: number;
+  nonces: number;
+  threads: number;
 }
 
 export enum DeviceType {
@@ -39,6 +41,11 @@ export interface PostSetupOpts {
   maxFileSize: number;
   provider: number;
   throttle: boolean;
+}
+
+export interface PostProvingOpts {
+  nonces: number;
+  threads: number;
 }
 
 export interface PostSetupStatus {
@@ -68,3 +75,16 @@ export interface RewardsInfo {
 }
 
 export const DEFAULT_POS_MAX_FILE_SIZE = 1024 * 1024 * 1024 * 2; // 2GB
+
+export type BenchmarkRequest = {
+  nonces: number;
+  threads: number;
+};
+
+export type BenchmarkResponse = {
+  nonces: number;
+  threads: number;
+  speed: number;
+  maxSize: number;
+  maxUnits: number;
+};

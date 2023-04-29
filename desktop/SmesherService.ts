@@ -9,7 +9,7 @@ import {
   PostSetupStatus,
 } from '../shared/types';
 import memoDebounce from '../shared/memoDebounce';
-import { BITS_PER_LABEL, PRIVATE_NODE_API_URL } from '../shared/constants';
+import { BITS_PER_LABEL } from '../shared/constants';
 
 import Logger from './logger';
 import NetServiceFactory, { Service } from './NetServiceFactory';

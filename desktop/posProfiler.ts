@@ -1,0 +1,138 @@
+import { resolve } from 'path';
+import { promisify } from 'util';
+import { exec as execCb } from 'child_process';
+import { unlink } from 'fs/promises';
+import { app } from 'electron';
+import parse from 'parse-duration';
+import { BenchmarkRequest, NodeConfig } from '../shared/types';
+import { BITS_PER_LABEL } from '../shared/constants';
+import { constrain } from '../app/infra/utils';
+import { getProfilerPath } from './main/binaries';
+
+// Percentage of cycle-gap that are used in max data size calculation
+// to ensure that User will have enough time to create a proof
+const K_SAFE_PERIOD = 0.8;
+
+const exec = promisify(execCb);
+
+export interface PosProfilerOptions {
+  datafile: string;
+  datasize: number;
+  nonces: number;
+  threads: number;
+  k2difficulty: BigInt;
+  k3difficulty: BigInt;
+}
+
+interface PosProfilerResult {
+  time: number; // sec
+  speed: number; // GiB / sec
+}
+
+interface BenchmarkResult {
+  maxRecommendedSize: number;
+  recommendedNumUnits: number;
+}
+
+export interface BenchmarkRunResult {
+  inputs: PosProfilerOptions;
+  profiler: PosProfilerResult;
+  result: BenchmarkResult;
+}
+
+export const runProfiler = async (
+  opts: PosProfilerOptions
+): Promise<PosProfilerResult> => {
+  const { stdout, stderr } = await exec(
+    [
+      getProfilerPath(),
+      `--data-file=${opts.datafile}`,
+      `--data-size=${opts.datasize}`,
+      `--nonces=${opts.nonces}`,
+      `--threads=${opts.threads}`,
+      `--k2-pow-difficulty=${opts.k2difficulty.toString()}`,
+      `--k3-pow-difficulty=${opts.k3difficulty.toString()}`,
+    ].join(' ')
+  );
+  if (stderr) {
+    throw new Error(stderr);
+  }
+  const res = JSON.parse(stdout);
+  if (typeof res.time_s !== 'number' || typeof res.speed_gib_s !== 'number') {
+    throw new Error(`Invalid output of Pos profiler tool: ${stdout}`);
+  }
+  return {
+    time: res.time_s,
+    speed: res.speed_gib_s,
+  };
+};
+
+const gibsTobytes = (gib: number) => gib * 1024 ** 2;
+
+export const calculateMaxDatasize = (cycleGap: number, speed: number) =>
+  gibsTobytes(cycleGap * K_SAFE_PERIOD * speed);
+
+export const runSingleBenchmark = async (
+  cycleGap: number,
+  unitSize: number,
+  maxPossibleSize: number,
+  profilerOpts: PosProfilerOptions
+): Promise<BenchmarkRunResult> => {
+  const profiler = await runProfiler(profilerOpts);
+  // Let's assume that the nonce 192 has about 100% chance to generate the proof
+  // so everything is less — we'd like to have a chance to try generate it
+  // a couple of times. Therefore, we calculate how many times and divide max size
+  // with the recommended amount of retries
+  const recommendedRetries = Math.max(
+    1,
+    profilerOpts.nonces < 192 ? Math.ceil(192 / profilerOpts.nonces) : 1
+  );
+  const maxRecommendedSize = constrain(
+    0,
+    maxPossibleSize,
+    calculateMaxDatasize(cycleGap, profiler.speed) / recommendedRetries
+  );
+  const recommendedNumUnits = Math.floor(maxRecommendedSize / unitSize);
+  const roundSizeToUnits = recommendedNumUnits * unitSize;
+  return {
+    inputs: profilerOpts,
+    profiler,
+    result: {
+      maxRecommendedSize: roundSizeToUnits,
+      recommendedNumUnits,
+    },
+  };
+};
+
+export const runBenchmarks = async (
+  nodeConfig: NodeConfig,
+  progressCb: (result: BenchmarkRunResult) => void,
+  benchmarks: BenchmarkRequest[]
+): Promise<void> => {
+  const cycleGap = parse(nodeConfig.poet['cycle-gap']);
+  const unitSize =
+    (nodeConfig.post['post-labels-per-unit'] * BITS_PER_LABEL) / 8;
+  const maxPossibleSize = nodeConfig.post['post-max-numunits'] * unitSize;
+
+  const defaultProfilerOpts: PosProfilerOptions = {
+    datafile: resolve(app.getPath('temp'), 'profiler.bin'),
+    datasize: 1,
+    k2difficulty: BigInt(nodeConfig.post['post-k2pow-difficulty']),
+    k3difficulty: BigInt(nodeConfig.post['post-k3pow-difficulty']),
+    nonces: 16,
+    threads: 1,
+  };
+
+  return benchmarks
+    .map((req) => ({ ...defaultProfilerOpts, ...req }))
+    .reduce(
+      (acc, benchmark) =>
+        acc
+          .then(() =>
+            runSingleBenchmark(cycleGap, unitSize, maxPossibleSize, benchmark)
+          )
+          .then(progressCb),
+      Promise.resolve()
+    )
+    .then(() => unlink(defaultProfilerOpts.datafile));
+};

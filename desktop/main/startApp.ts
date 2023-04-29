@@ -39,6 +39,7 @@ import handleDeleteWalletFile from './reactions/deleteWalletFile.ipc';
 import handleAppWalletChange from './reactions/handleAppWalletChange';
 import handleNodeAutoStart from './reactions/handleNodeAutoStart';
 import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
+import handleBenchmarksIpc from './reactions/handlePosBenchmarks.ipc';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
@@ -250,6 +251,7 @@ const startApp = (): AppStore => {
     handleOpenDashboard($mainWindow, $currentNetwork),
     collectWarnings($managers, $warnings),
     sendWarningsToRenderer($warnings, $mainWindow),
+    handleBenchmarksIpc($mainWindow, $nodeConfig),
   ];
 
   return {

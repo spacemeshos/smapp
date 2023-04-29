@@ -24,6 +24,7 @@ import Link from '../../basicComponents/Link';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
+import PoSProfiler from '../../components/node/PoSProfiler';
 import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
@@ -38,6 +39,7 @@ const Bold = styled.div`
 enum SetupMode {
   Modify = 0,
   Directory,
+  Profiler,
   Size,
   Processor,
   RewardsAddress,
@@ -47,6 +49,7 @@ enum SetupMode {
 const headers = {
   [SetupMode.Modify]: 'PROOF OF SPACE DATA',
   [SetupMode.Directory]: 'PROOF OF SPACE DIRECTORY',
+  [SetupMode.Profiler]: 'PROOF GENERATION SETTINGS',
   [SetupMode.Size]: 'PROOF OF SPACE SIZE',
   [SetupMode.Processor]: 'POS PROCESSOR',
   [SetupMode.RewardsAddress]: 'REWARDS ADDRESS',
@@ -61,7 +64,8 @@ const subHeaders = {
       <Bold>The fastest one is chosen by default.</Bold>
     </>
   ),
-  [SetupMode.RewardsAddress]: 'Select a coinbase address for your smeshing rewards.',
+  [SetupMode.RewardsAddress]:
+    'Select a coinbase address for your smeshing rewards.',
   [SetupMode.Summary]:
     'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
 };
@@ -98,6 +102,9 @@ const NodeSetup = ({ history, location }: Props) => {
   const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
   const [rewardAddress, setRewardAddress] = useState(accounts[0].address);
+  const [nonces, setNonces] = useState(16);
+  const [threads, setThreads] = useState(1);
+
   const singleCommitmentSize =
     (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
   useEffect(() => {
@@ -180,6 +187,8 @@ const NodeSetup = ({ history, location }: Props) => {
         provider: provider.id,
         throttle,
         maxFileSize,
+        nonces,
+        threads,
       })
     );
 
@@ -226,6 +235,18 @@ const NodeSetup = ({ history, location }: Props) => {
             skipAction={() => history.push(MainPath.Wallet)}
           />
         );
+      case SetupMode.Profiler: {
+        return (
+          <PoSProfiler
+            nextAction={(nonces, threads, numUnits) => {
+              setNonces(nonces);
+              setThreads(threads);
+              numUnits && !Number.isNaN(numUnits) && setNumUnits(numUnits);
+              return handleNextAction();
+            }}
+          />
+        );
+      }
       case SetupMode.Size: {
         // TODO: Make a well default instead of logic inside view and rerendering comp:
         numUnits === 0 && setNumUnits(smesherConfig.minNumUnits);
