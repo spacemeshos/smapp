@@ -1,8 +1,7 @@
 import { resolve } from 'path';
-import { promisify } from 'util';
-import { exec as execCb } from 'child_process';
 import { unlink } from 'fs/promises';
 import { app } from 'electron';
+import spawn from 'cross-spawn';
 import parse from 'parse-duration';
 import { BenchmarkRequest, NodeConfig } from '../shared/types';
 import { BITS_PER_LABEL } from '../shared/constants';
@@ -12,8 +11,6 @@ import { getProfilerPath } from './main/binaries';
 // Percentage of cycle-gap that are used in max data size calculation
 // to ensure that User will have enough time to create a proof
 const K_SAFE_PERIOD = 0.8;
-
-const exec = promisify(execCb);
 
 export interface PosProfilerOptions {
   datafile: string;
@@ -40,32 +37,46 @@ export interface BenchmarkRunResult {
   result: BenchmarkResult;
 }
 
-export const runProfiler = async (
+export const runProfiler = (
   opts: PosProfilerOptions
-): Promise<PosProfilerResult> => {
-  const { stdout, stderr } = await exec(
-    [
-      getProfilerPath(),
+): Promise<PosProfilerResult> =>
+  new Promise((resolve, reject) => {
+    const cp = spawn(getProfilerPath(), [
       `--data-file=${opts.datafile}`,
       `--data-size=${opts.datasize}`,
       `--nonces=${opts.nonces}`,
       `--threads=${opts.threads}`,
       `--k2-pow-difficulty=${opts.k2difficulty.toString()}`,
       `--k3-pow-difficulty=${opts.k3difficulty.toString()}`,
-    ].join(' ')
-  );
-  if (stderr) {
-    throw new Error(stderr);
-  }
-  const res = JSON.parse(stdout);
-  if (typeof res.time_s !== 'number' || typeof res.speed_gib_s !== 'number') {
-    throw new Error(`Invalid output of Pos profiler tool: ${stdout}`);
-  }
-  return {
-    time: res.time_s,
-    speed: res.speed_gib_s,
-  };
-};
+    ]);
+
+    const out = {
+      stderr: '',
+      stdout: '',
+    };
+    const appendTo = (key: keyof typeof out) => (data: string) => {
+      out[key] += data;
+    };
+    cp.on('error', reject);
+    cp.on('close', (code) => {
+      if (code && code > 0) {
+        reject(new Error(out.stderr));
+      }
+      const res = JSON.parse(out.stdout);
+      if (
+        typeof res.time_s !== 'number' ||
+        typeof res.speed_gib_s !== 'number'
+      ) {
+        reject(new Error(`Invalid output of Pos profiler tool: ${out.stdout}`));
+      }
+      return resolve({
+        time: res.time_s,
+        speed: res.speed_gib_s,
+      });
+    });
+    cp.stderr?.on('data', appendTo('stderr'));
+    cp.stdout?.on('data', appendTo('stdout'));
+  });
 
 const gibsTobytes = (gib: number) => gib * 1024 ** 2;
 
