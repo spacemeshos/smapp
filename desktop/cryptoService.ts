@@ -5,36 +5,10 @@ import Bip32KeyDerivation from './main/bip32-key-derivation';
 class CryptoService {
   static generateMnemonic = () => bip39.generateMnemonic();
 
-  /**
-   * Generates new master key pair using as seed 12 words mnemonic (128 bits of entropy) as per BIP39.
-   * Inside call to function "__generateKeyPair" is made - it's exposed from compiled WASM and generates keys following ed25519 protocol
-   * @return {{secretKey: Uint8Array[64], publicKey: Uint8Array[32]}}
-   */
-  static generateKeyPair = (seed: Buffer) => {
-    // Generate 64 seed bytes (512 bits) from phrase - this is a wallet's master seed
-    let publicKey = new Uint8Array(32);
-    let secretKey = new Uint8Array(64);
-    const saveKeys = (pk: Uint8Array, sk: Uint8Array) => {
-      if (pk === null || sk === null) {
-        throw new Error('key generation failed');
-      }
-      publicKey = pk;
-      secretKey = sk;
-    };
-    // @ts-ignore
-    global.__generateKeyPair(seed, saveKeys); // eslint-disable-line no-undef
-    return {
-      publicKey,
-      secretKey,
-    };
-  };
-
   static createWallet = (mnemonic: string, walletIndex = 0) => {
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const path = Bip32KeyDerivation.createWalletPath(walletIndex);
-    const masterKeyPair = CryptoService.generateKeyPair(seed.slice(32));
-    const masterSeed = masterKeyPair.secretKey.slice(0, 32);
-    const keyPair = Bip32KeyDerivation.derivePath(path, masterSeed);
+    const keyPair = Bip32KeyDerivation.derivePath(path, seed);
 
     return {
       mnemonic,
