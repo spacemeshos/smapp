@@ -46,7 +46,12 @@ const decryptGcm = async (
   password: string
 ): Promise<WalletSecrets> => {
   const dc = new TextDecoder();
-  const key = await pbkdf2Key(password, fromHexString(crypto.kdfparams.salt));
+  const key = await pbkdf2Key(
+    password,
+    fromHexString(crypto.kdfparams.salt),
+    crypto.kdfparams.dklen,
+    crypto.kdfparams.iterations
+  );
   try {
     const decryptedRaw = dc.decode(
       await decrypt(
