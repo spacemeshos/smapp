@@ -14,8 +14,8 @@ export default class Bip32KeyDerivation {
     seed: Uint8Array
   ): { secretKey: Uint8Array; publicKey: Uint8Array } => {
     const p0 = derive_key(seed, path);
-    const secretKey = p0.slice(0, 32);
     const publicKey = p0.slice(32);
+    const secretKey = p0;
     const pair = {
       publicKey,
       secretKey,

@@ -1,21 +1,6 @@
-import '../desktop/wasm_exec';
-
-import path from 'path';
-import fs from 'fs';
 import CryptoService from '../desktop/cryptoService';
 import { sign, verify } from '../desktop/ed25519';
 import { toHexString } from '../shared/utils';
-
-beforeAll(async () => {
-  const bytes = fs.readFileSync(
-    path.resolve(__dirname, '../desktop', 'ed25519.wasm')
-  );
-  // @ts-ignore
-  const go = new Go(); // eslint-disable-line no-undef
-  const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
-
-  go.run(instance);
-});
 
 describe('create wallet', () => {
   const publicKey =
