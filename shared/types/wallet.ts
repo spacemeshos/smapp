@@ -38,9 +38,6 @@ export interface WalletMeta {
   type: WalletType;
   genesisID: string;
   remoteApi: string;
-  meta: {
-    salt: string;
-  };
 }
 
 export interface WalletSecrets {
