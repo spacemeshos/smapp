@@ -108,15 +108,17 @@ export const createNewWallet = ({
   apiUrl,
   genesisID,
   type,
+  name,
 }: {
   existingMnemonic?: string | undefined;
   password: string;
   type: WalletType;
   apiUrl: SocketAddress | null;
   genesisID: string;
+  name?: string;
 }) => (dispatch: AppThDispatch, getState: GetState) =>
   eventsService
-    .createWallet({ password, existingMnemonic, type, apiUrl, genesisID })
+    .createWallet({ password, existingMnemonic, type, apiUrl, genesisID, name })
     .then(async ({ error, payload }) => {
       if (error) {
         throw error;

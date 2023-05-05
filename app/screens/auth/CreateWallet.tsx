@@ -76,6 +76,18 @@ const BottomPart = styled.div`
   align-items: flex-end;
 `;
 
+const SetNameInputTitle = styled.div`
+  margin-bottom: auto;
+  padding-bottom: 20px;
+  font-size: 16px;
+  line-height: 20px;
+  color: ${({
+    theme: {
+      header: { color },
+    },
+  }) => color};
+`;
+
 const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
@@ -85,6 +97,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const isWalletOnlyMode = useSelector(isWalletOnly);
   const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
+  const [convenientWalletName, setConvenientWalletName] = useState<string>();
 
   useEffect(() => {
     // Store create wallet to localStorage to choose it
@@ -115,6 +128,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
             : WalletType.LocalNode,
           genesisID: location?.state?.genesisID || '',
           apiUrl: location?.state?.apiUrl || null,
+          name: convenientWalletName,
         })
       );
       setIsLoaderVisible(false);
@@ -134,6 +148,10 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const handlePasswordVerifyTyping = ({ value }: { value: string }) => {
     setVerifiedPassword(value);
     setVerifyPasswordError('');
+  };
+
+  const handleNameTyping = ({ value }: { value: string }) => {
+    setConvenientWalletName(value);
   };
 
   const nextAction = () => {
@@ -162,9 +180,10 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   return (
     <Wrapper>
       <Steps step={Step.CREATE_WALLET} />
+
       <CorneredContainer
         width={650}
-        height={400}
+        height={500}
         header={'CREATE YOUR WALLET'}
         subHeader={
           'Create your wallet with a password. You will need it to access latter'
@@ -203,6 +222,21 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                 )}
               </ErrorSection>
             </UpperPart>
+            --
+            <SetNameInputTitle>
+              Set a convenient name for your wallet (optional):
+            </SetNameInputTitle>
+            <Inputs style={{ width: '49%' }}>
+              <InputSection>
+                <Chevron />
+                <Input
+                  value={convenientWalletName}
+                  type="text"
+                  placeholder="CONVENIENT NAME"
+                  onChange={handleNameTyping}
+                />
+              </InputSection>
+            </Inputs>
           </>
         }
         <BottomPart>

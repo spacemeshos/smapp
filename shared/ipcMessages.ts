@@ -59,6 +59,7 @@ export type CreateWalletRequest = {
   type: WalletType;
   apiUrl: SocketAddress | null;
   genesisID: string;
+  name?: string;
 };
 export type CreateWalletResponse = IpcResponse<{ path: string }>;
 
