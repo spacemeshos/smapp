@@ -58,6 +58,7 @@ class EventsService {
     type,
     apiUrl,
     genesisID,
+    name,
   }: CreateWalletRequest): Promise<CreateWalletResponse> =>
     ipcRenderer.invoke(ipcConsts.W_M_CREATE_WALLET, {
       password,
@@ -65,6 +66,7 @@ class EventsService {
       type,
       apiUrl,
       genesisID,
+      name,
     });
 
   static readWalletFiles = () =>
