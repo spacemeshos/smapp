@@ -323,8 +323,6 @@ const Node = ({ history, location }: Props) => {
   const numLabelsWritten = useSelector(
     (state: RootState) => state.smesher.numLabelsWritten
   );
-  // const rewards = useSelector((state: RootState) => state.smesher.rewards);
-  // const rewardsAddress = useSelector((state: RootState) => state.node.rewardsAddress);
   const isWalletMode = useSelector(isWalletOnly);
 
   const dispatch = useDispatch();

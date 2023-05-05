@@ -56,7 +56,11 @@ const createAccount = ({
 });
 
 // Index stands for naming
-const create = (index: number, mnemonicSeed?: string): Wallet => {
+const create = (
+  index: number,
+  mnemonicSeed?: string,
+  name?: string
+): Wallet => {
   const timestamp = getISODate();
   const mnemonic = mnemonicSeed || CryptoService.generateMnemonic();
   const { publicKey, secretKey, walletPath } = CryptoService.deriveNewKeyPair({
@@ -71,7 +75,7 @@ const create = (index: number, mnemonicSeed?: string): Wallet => {
     contacts: [],
   };
   const meta: WalletMeta = {
-    displayName: index === 0 ? 'Main Wallet' : `Wallet ${index + 1}`,
+    displayName: name || (index === 0 ? 'Main Wallet' : `Wallet ${index + 1}`),
     created: timestamp,
     type: WalletType.LocalNode,
     genesisID: '',
@@ -116,9 +120,10 @@ export const createWallet = async ({
   genesisID,
   apiUrl,
   password,
+  name,
 }: CreateWalletRequest) => {
   const { files } = await list();
-  const wallet = create(files?.length || 0, existingMnemonic);
+  const wallet = create(files?.length || 0, existingMnemonic, name);
 
   wallet.meta.genesisID = genesisID;
   wallet.meta.remoteApi =
