@@ -39,6 +39,8 @@ import { getISODate } from '../../shared/datetime';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 
+const LEGACY_WALLET_META_FIELDS = ['meta, netId'];
+
 export const defaultizeWalletMeta = (
   meta: Partial<WalletMeta>
 ): WalletMeta => ({
@@ -47,7 +49,7 @@ export const defaultizeWalletMeta = (
   genesisID: '',
   remoteApi: '',
   type: WalletType.LocalNode,
-  ...meta,
+  ...R.omit(LEGACY_WALLET_META_FIELDS, meta),
 });
 
 export const defaultizeWalletSecrets = (
