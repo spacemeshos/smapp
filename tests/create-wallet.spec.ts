@@ -4,9 +4,9 @@ import { toHexString } from '../shared/utils';
 
 describe('create wallet', () => {
   const publicKey =
-    '205d8d4e458b163d5ba15ac712951d5659cc51379e7e0ad13acc97303aa85093';
+    'de30fc9b812248583da6259433626fcdd2cb5ce589b00047b81e127950b9bca6';
   const privateKey =
-    '669d091195f950e6255a2e8778eea7be4f7a66afe855957404ec1520c8a11ff1205d8d4e458b163d5ba15ac712951d5659cc51379e7e0ad13acc97303aa85093';
+    'cd85df73aa3bc31de2f0b69bb1421df7eb0cdca7cb170a457869ab337749dae1de30fc9b812248583da6259433626fcdd2cb5ce589b00047b81e127950b9bca6';
   const mnemonic =
     'film theme cheese broken kingdom destroy inch ready wear inspire shove pudding';
   it('match keys from mnemonic', () => {
@@ -22,7 +22,7 @@ describe('create wallet', () => {
     const signature: string = toHexString(sign(message, privateKey));
 
     expect(signature).toEqual(
-      '164c808da28f84bd4939a77e9584e27c111885634ea1e0a2018b7a2ab8dbe19c14f227eba1dee2532b2be78fade6167c4484511819950ab26e674cd4cf4a0c0f'
+      '2b43bd34d335ad79c8d2268d330111aa0d511b67ba0189fbf94944002fc5ec71264a925def462d2a462e3fc9e3eae53b87173d425244fe142fae06b0af65550c'
     );
     expect(verify(message, signature, publicKey)).toBe(true);
 

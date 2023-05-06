@@ -15,7 +15,6 @@ import {
 } from '../desktop/main/walletFile';
 import {
   Wallet,
-  WalletMeta,
   WalletSecrets,
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
@@ -97,22 +96,15 @@ describe('Load wallet file', () => {
     const wallet = await loadWallet(LEGACY_WALLET_PATH, '1');
 
     expect(wallet).toEqual(
-      expect.objectContaining<
-        Omit<Wallet, 'meta'> & {
-          meta: Omit<WalletMeta, 'genesisID'> & { netId: number };
-        }
-      >({
+      expect.objectContaining<Wallet>({
         meta: {
           displayName: expect.any(String),
           created: expect.any(String),
           type: expect.stringMatching(
             new RegExp(`^${WalletType.LocalNode}|${WalletType.RemoteApi}$`)
           ),
-          netId: expect.any(Number),
+          genesisID: expect.any(String),
           remoteApi: expect.any(String),
-          meta: {
-            salt: expect.any(String),
-          },
         },
         crypto: {
           accounts: expect.arrayContaining([
