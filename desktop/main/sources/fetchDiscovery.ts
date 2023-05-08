@@ -91,9 +91,7 @@ export const listenCurrentNetworkForConfig = (
     ([nodeConfig, managers]) => {
       // console.log('max.conf', nodeConfig);
       (async () => {
-        const isConfigUpdated = await managers.smesher.deepMergeConfig(
-          nodeConfig
-        );
+        const isConfigUpdated = await managers.smesher.updateConfig(nodeConfig);
 
         if (isConfigUpdated) {
           await managers.node.restartNode();

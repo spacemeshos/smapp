@@ -30,64 +30,32 @@ class SmesherManager extends AbstractManager {
 
   private readonly configFilePath: string;
 
-  private readonly mergeConfigFilePath: string;
-
-  constructor(
-    mainWindow: BrowserWindow,
-    configFilePath: string,
-    mergeConfigFilePath: string
-  ) {
+  constructor(mainWindow: BrowserWindow, configFilePath: string) {
     super(mainWindow);
     this.smesherService = new SmesherService();
     this.smesherService.createService();
     this.configFilePath = configFilePath;
-    this.mergeConfigFilePath = mergeConfigFilePath;
   }
 
-  private createMergeConfigIfNotExists = async () => {
-    try {
-      await fs.access(this.mergeConfigFilePath, fsConstants.F_OK);
-      return false;
-    } catch (e) {
-      await fs.writeFile(this.mergeConfigFilePath, '{}');
-      return true;
-    }
-  };
-
-  private loadMergeConfig = async () => {
-    const fileContent = await readFileAsync(this.mergeConfigFilePath, {
-      encoding: 'utf-8',
-    });
-    return configCodecByPath(this.mergeConfigFilePath).parse(
-      fileContent
-    ) as NodeConfig;
-  };
-
-  private writeMergeConfig = async (config) => {
-    const data = configCodecByPath(this.mergeConfigFilePath).stringify(config);
-    await writeFileAsync(this.mergeConfigFilePath, data);
-    return true;
-  };
-
-  deepMergeConfig = async (config) => {
-    await this.createMergeConfigIfNotExists();
-    logger.log('deepMergeConfig:input', JSON.stringify(config, null, 2));
-    const mergeConfig = await this.loadMergeConfig();
-    const mergedConfig = R.mergeDeepLeft(mergeConfig, config);
+  updateConfig = async (config) => {
+    // await this.createMergeConfigIfNotExists();
+    // logger.log('deepMergeConfig:input', JSON.stringify(config, null, 2));
+    const clientConfig = await this.loadConfig();
+    const result = R.mergeDeepLeft(clientConfig, config);
 
     // own old config and new config
 
-    if (R.equals(mergeConfig, mergedConfig)) {
+    if (R.equals(clientConfig, result)) {
       return false;
     }
 
-    logger.log(
+    /*  logger.log(
       'deepMergeConfig:update config',
       JSON.stringify(mergedConfig, null, 2)
-    );
-    await this.writeMergeConfig(mergedConfig);
-    await this.writeConfig(mergedConfig);
-    return true;
+    ); */
+    // await this.writeMergeConfig(mergedConfig);
+    await this.writeConfig(result);
+    return result;
   };
 
   private loadConfig = async () => {

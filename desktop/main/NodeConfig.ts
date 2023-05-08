@@ -8,7 +8,7 @@ import Warning, {
 } from '../../shared/warning';
 import StoreService from '../storeService';
 import { fetchNodeConfig } from '../utils';
-import { EMPTY_CONFIG_FILE, NODE_CONFIG_FILE } from './constants';
+import { NODE_CONFIG_FILE } from './constants';
 import { safeSmeshingOpts } from './smeshingOpts';
 import { generateGenesisIDFromConfig } from './Networks';
 
@@ -16,15 +16,6 @@ export const loadNodeConfig = async (): Promise<NodeConfig> =>
   existsSync(NODE_CONFIG_FILE)
     ? fs
         .readFile(NODE_CONFIG_FILE, { encoding: 'utf8' })
-        .then((res) =>
-          res.startsWith('{') ? JSON.parse(res) : TOML.parse(res)
-        )
-    : {};
-
-const loadMergeConfig = async (): Promise<NodeConfig> =>
-  existsSync(EMPTY_CONFIG_FILE)
-    ? fs
-        .readFile(EMPTY_CONFIG_FILE, { encoding: 'utf8' })
         .then((res) =>
           res.startsWith('{') ? JSON.parse(res) : TOML.parse(res)
         )
@@ -41,27 +32,24 @@ export const downloadNodeConfig = async (networkConfigUrl: string) => {
   // Copy smeshing opts from previous node config or replace it with empty one
   nodeConfig.smeshing = await loadSmeshingOpts(nodeConfig);
   const clientConfig = await loadNodeConfig();
-  const mergeConfig = await loadMergeConfig();
-  const mergedConfig = R.mergeDeepLeft(clientConfig, nodeConfig);
-  console.log('pre', {
+  const result = R.mergeDeepLeft(clientConfig, nodeConfig);
+
+  /* console.log('pre', {
     nodeConfig: JSON.stringify(nodeConfig, null, 2),
     clientConfig: JSON.stringify(clientConfig, null, 2),
-    mergeConfig: JSON.stringify(mergeConfig, null, 2),
-    mergedConfig: JSON.stringify(mergedConfig, null, 2),
-  });
-  if (R.equals(mergeConfig, mergedConfig)) {
-    return mergedConfig;
-  }
+    mergedConfig: JSON.stringify(result, null, 2),
+  }); */
 
+  if (R.equals(result, clientConfig)) {
+    return result;
+  }
+  /*
   console.log('downloadNodeConfig', {
-    mergedConfig: JSON.stringify(mergedConfig, null, 2),
-  });
+    mergedConfig: JSON.stringify(result, null, 2),
+  }); */
 
   try {
-    await fs.writeFile(EMPTY_CONFIG_FILE, JSON.stringify(mergedConfig), {
-      encoding: 'utf8',
-    });
-    await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(mergedConfig), {
+    await fs.writeFile(NODE_CONFIG_FILE, JSON.stringify(result), {
       encoding: 'utf8',
     });
   } catch (error: any) {
@@ -75,7 +63,7 @@ export const downloadNodeConfig = async (networkConfigUrl: string) => {
     );
   }
 
-  return mergedConfig;
+  return result;
 };
 
 export default {
