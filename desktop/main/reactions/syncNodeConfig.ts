@@ -44,5 +44,8 @@ export default (
         return throwError(() => err);
       })
     ),
-    (conf) => $nodeConfig.next(conf as NodeConfig)
+    (conf) => {
+      // console.log('max.conf', conf);
+      $nodeConfig.next(conf as NodeConfig);
+    }
   );

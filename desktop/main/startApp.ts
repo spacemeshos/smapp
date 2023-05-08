@@ -18,6 +18,7 @@ import {
   fetchDiscoveryEach,
   listPublicApisByRequest,
   listNetworksByRequest,
+  listenCurrentNetworkForConfig,
 } from './sources/fetchDiscovery';
 import spawnManagers from './reactions/spawnManagers';
 import syncNodeConfig from './reactions/syncNodeConfig';
@@ -42,11 +43,11 @@ import { collectWarnings, sendWarningsToRenderer } from './reactions/warnings';
 
 const positiveNum = (def: number, n: number) => (n > 0 ? n : def);
 
-const CHECK_UPDATES_INTERVAL =
-  positiveNum(
+const CHECK_UPDATES_INTERVAL = 15000;
+/* positiveNum(
     3600, // hour
     parseInt(app.commandLine.getSwitchValue('checkInterval'), 10)
-  ) * 1000;
+  ) * 1000; */
 
 const loadNetworkData = () => {
   const $managers = new $.Subject<Managers>();
@@ -250,6 +251,7 @@ const startApp = (): AppStore => {
     handleOpenDashboard($mainWindow, $currentNetwork),
     collectWarnings($managers, $warnings),
     sendWarningsToRenderer($warnings, $mainWindow),
+    listenCurrentNetworkForConfig($nodeConfig, $managers),
   ];
 
   return {

@@ -11,7 +11,7 @@ import { NodeConfig } from '../../../shared/types';
 import { Managers } from '../app.types';
 import { generateGenesisIDFromConfig } from '../Networks';
 import SmesherManager from '../../SmesherManager';
-import { NODE_CONFIG_FILE } from '../constants';
+import { EMPTY_CONFIG_FILE, NODE_CONFIG_FILE } from '../constants';
 import NodeManager from '../../NodeManager';
 import WalletManager from '../../WalletManager';
 
@@ -25,7 +25,11 @@ const spawnManagers = async (
     throw new Error('Cannot spawn managers: MainWindow not found');
 
   if (!managers) {
-    const smesher = new SmesherManager(mainWindow, NODE_CONFIG_FILE);
+    const smesher = new SmesherManager(
+      mainWindow,
+      NODE_CONFIG_FILE,
+      EMPTY_CONFIG_FILE
+    );
     const node = new NodeManager(mainWindow, genesisID, smesher);
     const wallet = new WalletManager(mainWindow, node);
 

@@ -10,6 +10,7 @@ import {
   retry,
   Subject,
   switchMap,
+  tap,
   withLatestFrom,
 } from 'rxjs';
 import { of } from 'ramda';
@@ -22,6 +23,7 @@ import {
 } from '../Networks';
 import { handleIPC, handlerResult, makeSubscription } from '../rx.utils';
 import { fetchNodeConfig } from '../../utils';
+import { Managers } from '../app.types';
 
 export const fromNetworkConfig = (net: Network) =>
   from(fetchNodeConfig(net.conf)).pipe(
@@ -66,7 +68,7 @@ export const fetchDiscoveryEach = (
   $networks: Subject<Network[]>
 ) =>
   makeSubscription(
-    interval(period).pipe(switchMap(fromDiscovery)),
+    interval(period).pipe(switchMap(fromDiscovery), tap(console.log)),
     (nets) => nets.length > 0 && $networks.next(nets)
   );
 
@@ -78,6 +80,26 @@ export const listNetworksByRequest = ($networks: Subject<Network[]>) =>
       (nets) => nets
     ),
     (networks) => $networks.next(networks)
+  );
+
+export const listenCurrentNetworkForConfig = (
+  $nodeConfig: Observable<NodeConfig>,
+  $managers: Subject<Managers>
+) =>
+  makeSubscription(
+    $nodeConfig.pipe(withLatestFrom($managers)),
+    ([nodeConfig, managers]) => {
+      // console.log('max.conf', nodeConfig);
+      (async () => {
+        const isConfigUpdated = await managers.smesher.deepMergeConfig(
+          nodeConfig
+        );
+
+        if (isConfigUpdated) {
+          await managers.node.restartNode();
+        }
+      })();
+    }
   );
 
 export const listPublicApisByRequest = ($wallet: Subject<Wallet | null>) =>
