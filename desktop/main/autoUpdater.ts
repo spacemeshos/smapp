@@ -97,7 +97,7 @@ export const subscribe = (
         const notification = new Notification({
           title: `Spacemesh software requires a critical update: ${info.version}`,
           subtitle:
-            'Do not turn of your computer — it will be updated automatically',
+            'Do not turn off your computer — it will be updated automatically',
         });
         notification.show();
       }
