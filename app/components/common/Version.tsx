@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { UpdateInfo as UpdateInfoT } from 'electron-updater';
@@ -19,6 +19,8 @@ import packageInfo from '../../../package.json';
 import { AuthPath } from '../../routerPaths';
 import { getNetworkInfo } from '../../redux/network/selectors';
 import { checkUpdates as checkUpdatesIco } from '../../assets/images';
+import { AppThDispatch } from '../../types';
+import updaterSlice from '../../redux/updater/slice';
 import FeedbackButton from './Feedback';
 
 const Container = styled.div`
@@ -156,11 +158,6 @@ const ProgressInfo = () => {
     <>
       <ProgressChunk>{line}</ProgressChunk>
       <ProgressChunk>{progress?.percent || 0}%</ProgressChunk>
-      {isDownloaded && (
-        <PrimaryAction onClick={() => eventsService.installUpdate()}>
-          Restart Smapp
-        </PrimaryAction>
-      )}
     </>
   );
 };
@@ -169,32 +166,41 @@ const UpdateStatus = () => {
   const progress = useSelector(getProgressInfo);
   const isDownloading = useSelector(isUpdateDownloading);
   const isDownloaded = useSelector(isUpdateDownloaded);
+  const error = useSelector(getError);
   if (!isDownloading && !isDownloaded) return null;
 
-  if (progress !== null) return <ProgressInfo />;
-  // `download-progress` event might be not triggered due to some reasons
-  // in this case we will render "downloading update..." message
-  // without progress bar
-
-  return (
-    <>
-      {isDownloading && <ProgressChunk>Downloading update...</ProgressChunk>}
-      {isDownloaded && (
-        <>
-          <ProgressChunk>Update is ready to install</ProgressChunk>
-          <PrimaryAction onClick={() => eventsService.installUpdate()}>
-            Restart Smapp
-          </PrimaryAction>
-        </>
-      )}
-    </>
-  );
+  if (progress !== null && !isDownloaded) {
+    return <ProgressInfo />;
+  } else if (isDownloading) {
+    // `download-progress` event might be not triggered due to some reasons
+    // in this case we will render "downloading update..." message
+    // without progress bar
+    return <ProgressChunk>Downloading update...</ProgressChunk>;
+  } else if (isDownloaded && !error) {
+    return (
+      <>
+        <ProgressChunk>Update is ready to install</ProgressChunk>
+        <PrimaryAction onClick={() => eventsService.installUpdate()}>
+          Restart Smapp
+        </PrimaryAction>
+      </>
+    );
+  }
+  return null;
 };
 
 const UpdateError = () => {
   const error = useSelector(getError);
+  const dispatch: AppThDispatch = useDispatch();
   if (!error) return null;
-  return <Error>{error.message}</Error>;
+  return (
+    <>
+      <PrimaryAction onClick={() => dispatch(updaterSlice.actions.reset())}>
+        Cancel
+      </PrimaryAction>
+      <Error>{error.message}</Error>
+    </>
+  );
 };
 
 const Updater = () => {

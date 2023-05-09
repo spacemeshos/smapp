@@ -95,7 +95,7 @@ type DownloadedInfo = UpdateInfo & { downloadedFile: string };
 
 const verifyAppSignature = async (updInfo: DownloadedInfo, curNet: Network) => {
   // Skip verifying GPG signature on non-linux platform
-  if (os.platform() !== 'linux') return null;
+  if (os.platform() !== 'linux') return true;
   if (!updInfo.downloadedFile) {
     throw new Error('Can not find path to downloaded file');
   }
@@ -170,16 +170,18 @@ export const subscribe = (
       }
     );
     autoUpdater.autoInstallOnAppQuit = isValid ?? true;
-    if (isValid === null) {
-      logger.log('update-downloaded: skip validating GPG signature');
-    } else if (isValid === false) {
-      logger.log('update-downloaded: signature is not valid');
+    if (isValid === false) {
+      logger.error('update-downloaded: signature is not valid');
       await unlink(info.downloadedFile);
-      logger.log('update-downloaded: cancelling');
-      return;
+      notifyError(
+        mainWindow,
+        new Error('Signature is not valid, cancelling update')
+      );
+    } else {
+      logger.log('update-downloaded: ready to install');
+      notifyUpdateDownloaded(mainWindow, info);
+      $downloaded.next(info);
     }
-    notifyUpdateDownloaded(mainWindow, info);
-    $downloaded.next(info);
   });
   autoUpdater.on('error', (err: Error) => {
     if (!isNetError(err)) {

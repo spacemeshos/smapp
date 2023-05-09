@@ -17,7 +17,7 @@ const initialState: UpdaterState = {
   error: null,
 };
 
-const slice = createSlice({
+const updaterSlice = createSlice({
   name: 'updater',
   initialState,
   reducers: {
@@ -42,7 +42,10 @@ const slice = createSlice({
       ...state,
       isDownloading: action.payload,
     }),
+    reset: () => ({
+      ...initialState,
+    }),
   },
 });
 
-export default slice;
+export default updaterSlice;
