@@ -11,7 +11,6 @@ import {
 } from '../../shared/types';
 import { stringifySocketAddress } from '../../shared/utils';
 import CryptoService from '../cryptoService';
-import encryptionConst from '../encryptionConst';
 import { getISODate } from '../../shared/datetime';
 import { CreateWalletRequest } from '../../shared/ipcMessages';
 import { LOCAL_NODE_API_URL } from '../../shared/constants';
@@ -77,7 +76,6 @@ const create = (index: number, mnemonicSeed?: string): Wallet => {
     type: WalletType.LocalNode,
     genesisID: '',
     remoteApi: '',
-    meta: { salt: encryptionConst.DEFAULT_SALT },
   };
   return { meta, crypto };
 };

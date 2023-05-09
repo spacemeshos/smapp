@@ -1,6 +1,7 @@
 import * as pbkdf2 from 'pbkdf2';
 import * as aes from 'aes-js';
-import encryptionConst from './encryptionConst';
+
+export const DEFAULT_LEGACY_SALT = 'Spacemesh blockmesh';
 
 class FileEncryptionService {
   /**
@@ -17,7 +18,7 @@ class FileEncryptionService {
     // Derive a 32 bytes (256 bits) AES sym enc/dec key from the user provided pin
     return pbkdf2.pbkdf2Sync(
       password,
-      encryptionConst.DEFAULT_SALT,
+      DEFAULT_LEGACY_SALT,
       1000000,
       32,
       'sha512'

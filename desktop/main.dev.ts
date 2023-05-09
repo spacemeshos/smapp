@@ -10,8 +10,6 @@
 import 'core-js/stable';
 import 'json-bigint-patch';
 
-import path from 'path';
-import fs from 'fs';
 import { app } from 'electron';
 import 'regenerator-runtime/runtime';
 import Bech32 from '@spacemesh/address-wasm';
@@ -19,7 +17,7 @@ import HRP from '../shared/hrp';
 import AutoStartManager from './AutoStartManager';
 import StoreService from './storeService';
 import './wasm_exec';
-import { isDebug, isDev, isProd } from './utils';
+import { isDebug, isProd } from './utils';
 import installDevTools from './main/installDevTools';
 import subscribeIPC from './main/subscribeIPC';
 import { getDefaultAppContext } from './main/context';
@@ -34,20 +32,6 @@ import { init, captureMainException } from './sentry';
 require('dotenv').config();
 isDebug() && require('electron-debug')();
 isProd() && require('source-map-support').install();
-
-(async function () {
-  const filePath = path.resolve(
-    app.getAppPath(),
-    isDev() ? './' : 'desktop/',
-    'ed25519.wasm'
-  );
-  const bytes = fs.readFileSync(filePath);
-  // const bytes = await response.arrayBuffer();
-  // @ts-ignore
-  const go = new Go(); // eslint-disable-line no-undef
-  const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
-  await go.run(instance);
-})();
 
 // Preload data
 StoreService.init();

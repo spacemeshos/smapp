@@ -14,6 +14,7 @@ import {
   WalletSecretsEncrypted,
   WalletSecretsEncryptedGCM,
   WalletSecretsEncryptedLegacy,
+  WalletType,
 } from '../../shared/types';
 import {
   isWalletGCMEncrypted,
@@ -34,8 +35,31 @@ import {
 } from '../aes-gcm';
 import FileEncryptionService from '../fileEncryptionService'; // TODO: Remove it in next release
 import { isFileExists } from '../utils';
+import { getISODate } from '../../shared/datetime';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
+
+const LEGACY_WALLET_META_FIELDS = ['meta, netId'];
+
+export const defaultizeWalletMeta = (
+  meta: Partial<WalletMeta>
+): WalletMeta => ({
+  displayName: 'Unknown wallet',
+  created: getISODate(),
+  genesisID: '',
+  remoteApi: '',
+  type: WalletType.LocalNode,
+  ...R.omit(LEGACY_WALLET_META_FIELDS, meta),
+});
+
+export const defaultizeWalletSecrets = (
+  secrets: Partial<WalletSecrets>
+): WalletSecrets => ({
+  accounts: [],
+  contacts: [],
+  mnemonic: '',
+  ...secrets,
+});
 
 //
 // Encryption
@@ -46,7 +70,12 @@ const decryptGcm = async (
   password: string
 ): Promise<WalletSecrets> => {
   const dc = new TextDecoder();
-  const key = await pbkdf2Key(password, fromHexString(crypto.kdfparams.salt));
+  const key = await pbkdf2Key(
+    password,
+    fromHexString(crypto.kdfparams.salt),
+    crypto.kdfparams.dklen,
+    crypto.kdfparams.iterations
+  );
   try {
     const decryptedRaw = dc.decode(
       await decrypt(
@@ -132,7 +161,10 @@ export const loadWallet = async (
 ): Promise<Wallet> => {
   const { crypto, meta } = await loadRawWallet(path);
   const cryptoDecoded = await decryptWallet(crypto, password);
-  return { meta, crypto: cryptoDecoded };
+  return {
+    meta: defaultizeWalletMeta(meta),
+    crypto: defaultizeWalletSecrets(cryptoDecoded),
+  };
 };
 
 export const saveRaw = async (walletPath: string, wallet: WalletFile) => {

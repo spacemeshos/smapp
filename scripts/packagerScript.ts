@@ -54,7 +54,6 @@ const getBuildOptions = ({ target }) => {
         'desktop/main.prod.js.map',
         'desktop/wasm_exec.js',
         'desktop/bip32_bg.wasm',
-        'desktop/ed25519.wasm',
         'desktop/config.json',
         'package.json',
         'proto/',

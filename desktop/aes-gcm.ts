@@ -10,7 +10,9 @@ export const KDF_ITERATIONS = 120000;
 // salt should come from `crypto.randomBytes(16)`
 export const pbkdf2Key = async (
   pass: string,
-  salt: BufferSource
+  salt: BufferSource,
+  dklen = KDF_DKLEN,
+  iterations = KDF_ITERATIONS
 ): Promise<CryptoKey> => {
   const ec = new TextEncoder();
   const keyMaterial = await subtle.importKey(
@@ -27,10 +29,10 @@ export const pbkdf2Key = async (
       name: 'PBKDF2',
       hash: 'SHA-512',
       salt,
-      iterations: KDF_ITERATIONS,
+      iterations,
     },
     keyMaterial,
-    { name: 'AES-GCM', length: KDF_DKLEN },
+    { name: 'AES-GCM', length: dklen },
     true,
     ['encrypt', 'decrypt']
   );
