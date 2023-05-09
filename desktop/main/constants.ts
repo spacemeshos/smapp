@@ -1,6 +1,8 @@
 import path from 'path';
 import { app } from 'electron';
 
+export const GPG_PUBLIC_KEY_URL = 'https://discover.spacemesh.io/public.key';
+
 export const MINUTE = 60 * 1000;
 export const HOUR = 60 * MINUTE;
 
