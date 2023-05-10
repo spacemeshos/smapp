@@ -1,5 +1,8 @@
 import fs from 'fs/promises';
 import * as openpgp from 'openpgp';
+import Logger from './logger';
+
+const logger = Logger({ className: 'verifyFileSignature' });
 
 const verify = async (filepath: string, sig: Buffer, pubKey: string) => {
   const file = await fs.readFile(filepath, null);
@@ -21,7 +24,13 @@ export const verifySignature = async (
   filepath: string,
   sig: Buffer,
   pubKey: string
-) => verify(filepath, sig, pubKey).catch(() => false);
+) =>
+  verify(filepath, sig, pubKey).catch((err) => {
+    logger.error('signature verification failed with error:', err, {
+      filepath,
+    });
+    return false;
+  });
 
 export const verifySignatureOnFs = async (
   filepath: string,
