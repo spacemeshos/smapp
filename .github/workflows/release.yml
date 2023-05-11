@@ -285,9 +285,71 @@ jobs:
           path: ./signed/*
           if-no-files-found: error
 
+  sign-app-image:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download x64 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: linux
+          path: ./release/linux
+      - name: Download arm64 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: linux-arm64
+          path: ./release/linux-arm64
+
+      - name: Set filename
+        id: filename
+        run: |
+          echo "::set-output name=x64::Spacemesh-${{ needs.build.outputs.version }}.AppImage"
+          echo "::set-output name=arm64::Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage"
+
+      - name: Import GPG keys
+        run: |
+          export GPG_TTY=$(tty)
+          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE"
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: List files
+        run: |
+          ls -la ./release
+          ls -la ./release/linux
+          ls -la ./release/linux-arm64
+      
+      - name: Files to sign
+        run: |
+          echo "X64: ./release/linux/${{ steps.filename.outputs.x64 }}\n"
+          echo "ARM64: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}\n"
+
+      - name: Sign AppImages x64
+        run: |
+          gpg --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" --output ./release/linux/${{ steps.filename.outputs.x64 }}.sig --detach-sign ./release/linux/${{ steps.filename.outputs.x64 }}
+          gpg --pinentry-mode=loopback --passphrase "$GPG_PASSPHRASE" --output ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig --detach-sign ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Store x64 signature
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux
+          path: ./release/linux/${{ steps.filename.outputs.x64 }}.sig
+          if-no-files-found: error
+
+      - name: Store arm64 signature
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-arm64
+          path: ./release/linux-arm64/${{ steps.filename.outputs.arm64 }}.sig
+          if-no-files-found: error
+
+
   release:
     runs-on: ubuntu-latest
-    needs: [build, sign-win-app]
+    needs: [build, sign-win-app, sign-app-image]
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v2
@@ -360,6 +422,7 @@ jobs:
             - macOS: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.dmg) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.dmg)
             - Linux
               - AppImage [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage)
+                GPG signatures: [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}.AppImage.sig) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/Spacemesh-${{ needs.build.outputs.version }}-arm64.AppImage.sig) [public.key](https://discover.spacemesh.io/public.key)
               - deb [x64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_amd64.deb) [arm64](https://storage.googleapis.com/smapp/${{ needs.build.outputs.tagName }}/spacemesh_app_${{ needs.build.outputs.version }}_arm64.deb)
           draft: true
           prerelease: true
