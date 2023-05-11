@@ -39,7 +39,7 @@ import { getISODate } from '../../shared/datetime';
 
 export const WRONG_PASSWORD_MESSAGE = 'Wrong password';
 
-const LEGACY_WALLET_META_FIELDS = ['meta, netId'];
+const LEGACY_WALLET_META_FIELDS = ['meta', 'netId'];
 
 export const defaultizeWalletMeta = (
   meta: Partial<WalletMeta>
