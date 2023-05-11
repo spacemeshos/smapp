@@ -29,6 +29,7 @@ export interface ProtoGrpcType {
       AppEventStreamRequest: MessageTypeDefinition
       AppEventStreamResponse: MessageTypeDefinition
       Block: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       GlobalStateData: MessageTypeDefinition
       GlobalStateDataFlag: EnumTypeDefinition
       GlobalStateHash: MessageTypeDefinition

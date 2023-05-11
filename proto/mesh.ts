@@ -29,6 +29,7 @@ export interface ProtoGrpcType {
       CurrentLayerResponse: MessageTypeDefinition
       EpochNumLayersRequest: MessageTypeDefinition
       EpochNumLayersResponse: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       EpochStreamRequest: MessageTypeDefinition
       EpochStreamResponse: MessageTypeDefinition
       GenesisIDRequest: MessageTypeDefinition
