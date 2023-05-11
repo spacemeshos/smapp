@@ -1,6 +1,6 @@
 // Original file: proto/debug_types.proto
 
-import type { SimpleInt as _spacemesh_v1_SimpleInt, SimpleInt__Output as _spacemesh_v1_SimpleInt__Output } from '../../spacemesh/v1/SimpleInt';
+import type { EpochNumber as _spacemesh_v1_EpochNumber, EpochNumber__Output as _spacemesh_v1_EpochNumber__Output } from '../../spacemesh/v1/EpochNumber';
 import type { LayerNumber as _spacemesh_v1_LayerNumber, LayerNumber__Output as _spacemesh_v1_LayerNumber__Output } from '../../spacemesh/v1/LayerNumber';
 import type { SmesherId as _spacemesh_v1_SmesherId, SmesherId__Output as _spacemesh_v1_SmesherId__Output } from '../../spacemesh/v1/SmesherId';
 import type { EpochData as _spacemesh_v1_EpochData, EpochData__Output as _spacemesh_v1_EpochData__Output } from '../../spacemesh/v1/EpochData';
@@ -15,7 +15,7 @@ export enum _spacemesh_v1_Proposal_Status {
 
 export interface Proposal {
   'id'?: (Buffer | Uint8Array | string);
-  'epoch'?: (_spacemesh_v1_SimpleInt | null);
+  'epoch'?: (_spacemesh_v1_EpochNumber | null);
   'layer'?: (_spacemesh_v1_LayerNumber | null);
   'smesher'?: (_spacemesh_v1_SmesherId | null);
   'reference'?: (Buffer | Uint8Array | string);
@@ -28,7 +28,7 @@ export interface Proposal {
 
 export interface Proposal__Output {
   'id': (Buffer);
-  'epoch': (_spacemesh_v1_SimpleInt__Output | null);
+  'epoch': (_spacemesh_v1_EpochNumber__Output | null);
   'layer': (_spacemesh_v1_LayerNumber__Output | null);
   'smesher': (_spacemesh_v1_SmesherId__Output | null);
   'reference'?: (Buffer);

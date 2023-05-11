@@ -24,6 +24,7 @@ export interface ProtoGrpcType {
       BuildResponse: MessageTypeDefinition
       EchoRequest: MessageTypeDefinition
       EchoResponse: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       ErrorStreamRequest: MessageTypeDefinition
       ErrorStreamResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition

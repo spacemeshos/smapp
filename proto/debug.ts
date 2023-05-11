@@ -30,6 +30,8 @@ export interface ProtoGrpcType {
       AccountsResponse: MessageTypeDefinition
       Activation: MessageTypeDefinition
       ActivationId: MessageTypeDefinition
+      ActiveSetRequest: MessageTypeDefinition
+      ActiveSetResponse: MessageTypeDefinition
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       AppEventStreamRequest: MessageTypeDefinition
@@ -38,6 +40,7 @@ export interface ProtoGrpcType {
       DebugService: SubtypeConstructor<typeof grpc.Client, _spacemesh_v1_DebugServiceClient> & { service: _spacemesh_v1_DebugServiceDefinition }
       Eligibility: MessageTypeDefinition
       EpochData: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       GlobalStateData: MessageTypeDefinition
       GlobalStateDataFlag: EnumTypeDefinition
       GlobalStateHash: MessageTypeDefinition
