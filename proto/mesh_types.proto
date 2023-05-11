@@ -19,7 +19,7 @@ message CurrentLayerResponse {
 message CurrentEpochRequest {}
 
 message CurrentEpochResponse {
-    SimpleInt epochnum = 1;
+    EpochNumber epochnum = 1;
 }
 
 message GenesisIDRequest {}
@@ -31,7 +31,7 @@ message GenesisIDResponse {
 message EpochNumLayersRequest {}
 
 message EpochNumLayersResponse {
-    SimpleInt numlayers = 1;
+    LayerNumber numlayers = 1;
 }
 
 message LayerDurationRequest {}

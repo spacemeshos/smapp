@@ -90,8 +90,8 @@ http:
       body: "*"
     - selector: spacemesh.v1.SmesherService.PostSetupStatus
       post: "/v1/smesher/postsetupstatus"
-    - selector: spacemesh.v1.SmesherService.PostSetupComputeProviders
-      post: "/v1/smesher/postsetupcomputeproviders"
+    - selector: spacemesh.v1.SmesherService.PostSetupProviders
+      post: "/v1/smesher/postsetupproviders"
       body: "*"
     - selector: spacemesh.v1.SmesherService.PostConfig
       post: "/v1/smesher/postconfig"
