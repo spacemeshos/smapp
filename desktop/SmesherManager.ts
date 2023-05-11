@@ -87,7 +87,7 @@ class SmesherManager extends AbstractManager {
 
   updateSmesherState = async () => {
     await this.sendSmesherSettingsAndStartupState();
-    await this.sendPostSetupComputeProviders();
+    await this.sendPostSetupProviders();
   };
 
   serviceStartupFlow = async () => {
@@ -177,11 +177,8 @@ class SmesherManager extends AbstractManager {
     return null;
   };
 
-  sendPostSetupComputeProviders = async () => {
-    const {
-      error,
-      providers,
-    } = await this.smesherService.getSetupComputeProviders();
+  sendPostSetupProviders = async () => {
+    const { error, providers } = await this.smesherService.getSetupProviders();
     this.mainWindow.webContents.send(
       ipcConsts.SMESHER_SET_SETUP_COMPUTE_PROVIDERS,
       { error, providers }
@@ -269,7 +266,7 @@ class SmesherManager extends AbstractManager {
       coinbase,
       dataDir,
       numUnits,
-      computeProviderId,
+      provider,
       throttle,
       maxFileSize,
     } = postSetupOpts;
@@ -281,7 +278,7 @@ class SmesherManager extends AbstractManager {
           'smeshing-opts-datadir': dataDir,
           'smeshing-opts-maxfilesize': maxFileSize,
           'smeshing-opts-numunits': numUnits,
-          'smeshing-opts-provider': computeProviderId,
+          'smeshing-opts-provider': provider,
           'smeshing-opts-throttle': throttle,
           'smeshing-opts-compute-batch-size': R.pathOr(
             DEFAULT_SMESHING_BATCH_SIZE,

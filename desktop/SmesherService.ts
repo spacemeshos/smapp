@@ -3,6 +3,7 @@ import { PostSetupStatusStreamResponse__Output } from '../proto/spacemesh/v1/Pos
 import { SmesherIDResponse__Output } from '../proto/spacemesh/v1/SmesherIDResponse';
 
 import {
+  DeviceType,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
@@ -61,16 +62,16 @@ class SmesherService extends NetServiceFactory<
       .then(this.normalizeServiceResponse)
       .catch(this.normalizeServiceError({ config: {} }));
 
-  getSetupComputeProviders = () =>
-    this.callServiceWithRetries('PostSetupComputeProviders', {
+  getSetupProviders = () =>
+    this.callServiceWithRetries('PostSetupProviders', {
       benchmark: true,
     })
       .then((response) => ({
         providers: response.providers.map(
-          ({ id, model, computeApi, performance = 0 }) => ({
-            id,
+          ({ id, model, deviceType, performance = 0 }) => ({
+            id: id ?? 0,
             model,
-            computeApi,
+            deviceType: deviceType ?? DeviceType.DEVICE_CLASS_CPU,
             performance: parseInt(performance.toString()),
           })
         ),
@@ -92,7 +93,7 @@ class SmesherService extends NetServiceFactory<
     dataDir,
     numUnits,
     maxFileSize,
-    computeProviderId,
+    provider: providerId,
     throttle,
     handler,
   }: PostSetupOpts & {
@@ -104,7 +105,7 @@ class SmesherService extends NetServiceFactory<
         dataDir,
         numUnits,
         maxFileSize,
-        computeProviderId,
+        providerId,
         throttle,
       },
     }).then((response) => {
