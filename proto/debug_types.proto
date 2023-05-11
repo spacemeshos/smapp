@@ -22,9 +22,17 @@ message Eligibility {
     bytes signature = 2; 
 }
 
+message ActiveSetRequest {
+    uint32 epoch = 1;
+}
+
+message ActiveSetResponse {
+    repeated ActivationId ids = 1;
+}
+
 message Proposal {
     bytes id = 1;
-    SimpleInt epoch = 2;
+    EpochNumber epoch = 2;
     LayerNumber layer = 3; 
     SmesherId smesher = 4; 
     oneof epoch_data {

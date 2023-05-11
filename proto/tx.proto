@@ -14,6 +14,12 @@ service TransactionService {
     // as whether or not it was admitted into the mempool.
     rpc SubmitTransaction(SubmitTransactionRequest) returns (SubmitTransactionResponse);
 
+    // ParseTransaction without submitting it to the mempool.
+    // It has a limitation that it will work only for an already spawned accounts,
+    // and for initial spawn transactions. Client is expected to wait until spawn transaction
+    // executes before it will submit other transactions.
+    rpc ParseTransaction(ParseTransactionRequest) returns (ParseTransactionResponse);
+
     // Returns current tx state for one or more txs which indicates if a tx is
     // on the mesh, on its way to the mesh or was rejected and will never get
     // to the mesh
