@@ -5,7 +5,7 @@ import {
   NodeStatus,
   WalletMeta,
   PostSetupState,
-  PostSetupComputeProvider,
+  PostSetupProvider,
   SmesherConfig,
   HexString,
   Tx,
@@ -52,7 +52,7 @@ export interface WalletState {
 export interface SmesherState {
   smesherId: string;
   isSmeshingStarted: boolean;
-  postSetupComputeProviders: PostSetupComputeProvider[];
+  postSetupProviders: PostSetupProvider[];
   coinbase: string;
   dataDir: string;
   numUnits: number;

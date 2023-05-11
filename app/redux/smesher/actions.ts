@@ -34,7 +34,7 @@ export const startSmeshing = ({
       dataDir,
       numUnits,
       maxFileSize,
-      computeProviderId: provider,
+      provider,
       throttle,
     });
     dispatch({

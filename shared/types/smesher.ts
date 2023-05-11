@@ -20,17 +20,15 @@ export interface SmeshingOpts {
   maxFileSize: number;
 }
 
-export enum ComputeApiClass {
-  COMPUTE_API_CLASS_UNSPECIFIED = 0,
-  COMPUTE_API_CLASS_CPU,
-  COMPUTE_API_CLASS_CUDA,
-  COMPUTE_API_CLASS_VULKAN,
+export enum DeviceType {
+  DEVICE_CLASS_CPU = 0,
+  DEVICE_CLASS_GPU = 1,
 }
 
-export interface PostSetupComputeProvider {
+export interface PostSetupProvider {
   id: number;
   model: string;
-  computeApi: ComputeApiClass;
+  deviceType: DeviceType;
   performance: number;
 }
 
@@ -39,7 +37,7 @@ export interface PostSetupOpts {
   dataDir: string;
   numUnits: number;
   maxFileSize: number;
-  computeProviderId: number;
+  provider: number;
   throttle: boolean;
 }
 
