@@ -121,12 +121,6 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     }
   };
 
-  const handleEnterPress = () => {
-    if (validate()) {
-      createWallet();
-    }
-  };
-
   const handlePasswordTyping = ({ value }: { value: string }) => {
     setPassword(value);
   };
@@ -167,7 +161,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
         height={400}
         header={'CREATE YOUR WALLET'}
         subHeader={
-          'Create your wallet with a password. You will need it to access latter'
+          'With this step, your Wallet will be created. Set up a password you will be using to access it later. Remember, there will be no way to recover the lost password.'
         }
       >
         {
@@ -179,7 +173,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                   <PasswordInput
                     password={password}
                     onChange={handlePasswordTyping}
-                    onEnterPress={handleEnterPress}
+                    onEnterPress={nextAction}
                     passwordIndicator
                   />
                 </InputSection>
@@ -189,7 +183,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                     value={verifiedPassword}
                     type="password"
                     placeholder="VERIFY PASSWORD"
-                    onEnterPress={handleEnterPress}
+                    onEnterPress={nextAction}
                     onChange={handlePasswordVerifyTyping}
                   />
                 </InputSection>
