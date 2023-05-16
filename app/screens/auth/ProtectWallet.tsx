@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router';
-import { BackButton } from '../../components/common';
 import { AuthPath } from '../../routerPaths';
 import TwelveWordsBackup from '../backup/TwelveWordsBackup';
 import Steps, { Step } from './Steps';
@@ -32,7 +31,6 @@ const ProtectWallet = () => {
     <Wrapper>
       <Steps step={Step.PROTECT_WALLET} />
       <ContentSection>
-        <BackButton action={history.goBack} />
         <TwelveWordsBackup
           nextButtonHandler={handleNext}
           skipButtonHandler={handleSkip}
