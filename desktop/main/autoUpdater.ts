@@ -1,6 +1,9 @@
+import os from 'os';
+import { unlink } from 'fs/promises';
 import { BrowserWindow, Notification } from 'electron';
 import { ProgressInfo } from 'builder-util-runtime';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
+import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import { SemVer } from 'semver';
 import { Subject } from 'rxjs';
@@ -9,6 +12,8 @@ import pkg from '../../package.json';
 import { ipcConsts } from '../../app/vars';
 import { isDev, isNetError } from '../utils';
 import { Network } from '../../shared/types';
+import { verifySignature } from '../verifyFileSignature';
+import { GPG_PUBLIC_KEY_URL } from './constants';
 
 autoUpdater.logger = logger;
 
@@ -46,6 +51,8 @@ export const getCurrentVersion = () =>
 
 //
 
+const getFeedUrl = (baseUrl: string, semver: string) => `${baseUrl}/v${semver}`;
+
 export const checkUpdates = async (
   mainWindow: BrowserWindow,
   currentNetwork: Network,
@@ -62,7 +69,7 @@ export const checkUpdates = async (
     const isOutdatedVersion = currentVersion.compare(minSmappRelease) === -1;
     autoUpdater.allowDowngrade = true;
     autoUpdater.autoDownload = autoDownload || isOutdatedVersion;
-    const feedUrl = `${smappBaseDownloadUrl}/v${latestSmappRelease}`;
+    const feedUrl = getFeedUrl(smappBaseDownloadUrl, latestSmappRelease);
     autoUpdater.setFeedURL(feedUrl);
     try {
       const result = await autoUpdater.checkForUpdates();
@@ -83,6 +90,34 @@ export const checkUpdates = async (
 export const installUpdate = () => {
   autoUpdater.quitAndInstall(true, true);
 };
+
+type DownloadedInfo = UpdateInfo & { downloadedFile: string };
+
+const verifyAppSignature = async (updInfo: DownloadedInfo, curNet: Network) => {
+  // Skip verifying GPG signature on non-linux platform
+  if (os.platform() !== 'linux') return true;
+  if (!updInfo.downloadedFile) {
+    throw new Error('Can not find path to downloaded file');
+  }
+  const appImageFilename = updInfo.files.find((val) =>
+    val.url.endsWith('.AppImage')
+  )?.url;
+  if (!appImageFilename) {
+    throw new Error('Can not find URL to AppImage binary file');
+  }
+  const feedUrl = getFeedUrl(curNet.smappBaseDownloadUrl, updInfo.version);
+  const url = `${feedUrl}/${appImageFilename}.sig`;
+  const signature = await fetch(url).then((res) => res.buffer());
+  const pubKey = await fetch(GPG_PUBLIC_KEY_URL)
+    .then((res) => res.text())
+    .catch((err) => {
+      const origMessage = err.message;
+      err.message = `Validation failed: Cannot download the GPG public key by URL: ${GPG_PUBLIC_KEY_URL}: ${origMessage}`;
+      throw err;
+    });
+  return verifySignature(updInfo.downloadedFile, signature, pubKey);
+};
+
 export const subscribe = (
   mainWindow: BrowserWindow,
   currentNetwork: Network,
@@ -97,7 +132,7 @@ export const subscribe = (
         const notification = new Notification({
           title: `Spacemesh software requires a critical update: ${info.version}`,
           subtitle:
-            'Do not turn of your computer — it will be updated automatically',
+            'Do not turn off your computer — it will be updated automatically',
         });
         notification.show();
       }
@@ -125,11 +160,28 @@ export const subscribe = (
     logger.debug('download-progress', info);
     notifyDownloadProgress(mainWindow, info);
   });
-  autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
+  autoUpdater.on('update-downloaded', async (info: DownloadedInfo) => {
     logger.log('update-downloaded', info);
-    autoUpdater.autoInstallOnAppQuit = true;
-    notifyUpdateDownloaded(mainWindow, info);
-    $downloaded.next(info);
+    const isValid = await verifyAppSignature(info, currentNetwork).catch(
+      (err) => {
+        logger.error('update-downloaded: verification failed', err);
+        notifyError(mainWindow, err);
+        return false;
+      }
+    );
+    autoUpdater.autoInstallOnAppQuit = isValid ?? true;
+    if (isValid === false) {
+      logger.error('update-downloaded: signature is not valid');
+      await unlink(info.downloadedFile);
+      notifyError(
+        mainWindow,
+        new Error('Signature is not valid, cancelling update')
+      );
+    } else {
+      logger.log('update-downloaded: ready to install');
+      notifyUpdateDownloaded(mainWindow, info);
+      $downloaded.next(info);
+    }
   });
   autoUpdater.on('error', (err: Error) => {
     if (!isNetError(err)) {

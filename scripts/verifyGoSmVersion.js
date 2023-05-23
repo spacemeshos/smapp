@@ -11,6 +11,10 @@
  * with exit code 1. It will stop build workflow.
  */
 
+if (process.env.DONT_CHECK_VERSION) {
+  return process.exit(0);
+}
+
 const { resolve } = require('path');
 const { promises } = require('fs');
 const os = require('os');
