@@ -119,10 +119,11 @@ message PostSetupStatus {
     enum State {
         STATE_UNSPECIFIED = 0;  // Lane's favorite impossible value
         STATE_NOT_STARTED = 1;  // Setup not started
-        STATE_IN_PROGRESS = 2;  // Setup in progress
-        STATE_PAUSED = 3;       // Setup paused
-        STATE_COMPLETE = 4;     // Setup is complete
-        STATE_ERROR = 5;        // Setup last session ended with an error
+        STATE_PREPARED = 2;     // Setup prepared
+        STATE_IN_PROGRESS = 3;  // Setup in progress
+        STATE_PAUSED = 4;       // Setup paused
+        STATE_COMPLETE = 5;     // Setup is complete
+        STATE_ERROR = 6;        // Setup last session ended with an error
     }
     State state = 1;
     uint64 num_labels_written = 2;  // Number of labels (hashes) written to the data files
