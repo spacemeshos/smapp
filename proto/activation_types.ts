@@ -15,6 +15,7 @@ export interface ProtoGrpcType {
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       GetRequest: MessageTypeDefinition
       GetResponse: MessageTypeDefinition
       Layer: MessageTypeDefinition

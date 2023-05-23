@@ -24,6 +24,7 @@ export interface ProtoGrpcType {
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
       CoinbaseResponse: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       EstimatedRewardsRequest: MessageTypeDefinition
       EstimatedRewardsResponse: MessageTypeDefinition
       IsSmeshingResponse: MessageTypeDefinition
@@ -34,10 +35,10 @@ export interface ProtoGrpcType {
       MinGasResponse: MessageTypeDefinition
       Nonce: MessageTypeDefinition
       PostConfigResponse: MessageTypeDefinition
-      PostSetupComputeProvider: MessageTypeDefinition
-      PostSetupComputeProvidersRequest: MessageTypeDefinition
-      PostSetupComputeProvidersResponse: MessageTypeDefinition
       PostSetupOpts: MessageTypeDefinition
+      PostSetupProvider: MessageTypeDefinition
+      PostSetupProvidersRequest: MessageTypeDefinition
+      PostSetupProvidersResponse: MessageTypeDefinition
       PostSetupStatus: MessageTypeDefinition
       PostSetupStatusResponse: MessageTypeDefinition
       PostSetupStatusStreamResponse: MessageTypeDefinition

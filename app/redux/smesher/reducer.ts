@@ -2,7 +2,7 @@ import { CustomAction, SmesherState } from '../../types/redux';
 import { LOGOUT } from '../auth/actions';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
-  PostSetupComputeProvider,
+  PostSetupProvider as PostSetupProviders,
   PostSetupState,
   SmesherConfig,
 } from '../../../shared/types';
@@ -22,7 +22,7 @@ import {
 const initialState = {
   smesherId: '',
   isSmeshingStarted: false,
-  postSetupComputeProviders: [] as PostSetupComputeProvider[],
+  postSetupProviders: [] as PostSetupProviders[],
   coinbase: '',
   dataDir: '',
   numUnits: 0,
@@ -77,7 +77,11 @@ const reducer = (state: SmesherState = initialState, action: CustomAction) => {
       };
     }
     case SET_SETUP_COMPUTE_PROVIDERS: {
-      return { ...state, postSetupComputeProviders: action.payload };
+      const newState: SmesherState = {
+        ...state,
+        postSetupProviders: action.payload,
+      };
+      return newState;
     }
     case SET_SMESHER_CONFIG: {
       return {

@@ -17,7 +17,7 @@ import { constrain, formatBytes } from '../../infra/utils';
 import { BITS, RootState } from '../../types';
 import {
   DEFAULT_POS_MAX_FILE_SIZE,
-  PostSetupComputeProvider,
+  PostSetupProvider,
 } from '../../../shared/types';
 import Link from '../../basicComponents/Link';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
@@ -65,8 +65,8 @@ const NodeSetup = ({ history, location }: Props) => {
   const dispatch = useDispatch();
   const accounts = useSelector((state: RootState) => state.wallet.accounts);
   const status = useSelector((state: RootState) => state.node.status);
-  const postSetupComputeProviders = useSelector(
-    (state: RootState) => state.smesher.postSetupComputeProviders
+  const postSetupProviders = useSelector(
+    (state: RootState) => state.smesher.postSetupProviders
   );
   const existingDataDir = useSelector(
     (state: RootState) => state.smesher.dataDir
@@ -80,7 +80,7 @@ const NodeSetup = ({ history, location }: Props) => {
   const [freeSpace, setFreeSpace] = useState('');
   const [numUnits, setNumUnits] = useState(0);
   const [posSize, setPoSSize] = useState(0);
-  const [provider, setProvider] = useState<PostSetupComputeProvider>();
+  const [provider, setProvider] = useState<PostSetupProvider>();
   const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
 
@@ -236,7 +236,7 @@ const NodeSetup = ({ history, location }: Props) => {
         return (
           <PoSProvider
             nextAction={handleNextAction}
-            providers={postSetupComputeProviders}
+            providers={postSetupProviders}
             provider={provider}
             setProvider={setProvider}
             throttle={throttle}

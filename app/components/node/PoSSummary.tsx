@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { smColors } from '../../vars';
 import { Tooltip } from '../../basicComponents';
 import {
-  ComputeApiClass,
+  DeviceType,
   NodeStatus,
-  PostSetupComputeProvider,
+  PostSetupProvider,
 } from '../../../shared/types';
 import { convertBytesToMb } from '../../../shared/utils';
 import PoSFooter from './PoSFooter';
@@ -68,7 +68,7 @@ const Link = styled.div<{ isDisabled: boolean }>`
 type Props = {
   dataDir: string;
   commitmentSize: string;
-  provider: PostSetupComputeProvider | undefined;
+  provider: PostSetupProvider | undefined;
   throttle: boolean;
   nextAction: () => void;
   switchMode: ({ mode }: { mode: number }) => void;
@@ -93,15 +93,11 @@ const PoSSummary = ({
     nextAction();
   };
 
-  let providerType = 'UNSPECIFIED';
-  if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CPU) {
+  let providerType = 'UNKNOWN';
+  if (provider?.deviceType === DeviceType.DEVICE_CLASS_CPU) {
     providerType = 'CPU';
-  } else if (provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_CUDA) {
-    providerType = 'CUDA';
-  } else if (
-    provider?.computeApi === ComputeApiClass.COMPUTE_API_CLASS_VULKAN
-  ) {
-    providerType = 'VULKAN';
+  } else if (provider?.deviceType === DeviceType.DEVICE_CLASS_GPU) {
+    providerType = 'GPU';
   }
 
   return (

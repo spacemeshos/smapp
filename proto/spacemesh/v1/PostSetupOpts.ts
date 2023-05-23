@@ -6,7 +6,7 @@ export interface PostSetupOpts {
   'dataDir'?: (string);
   'numUnits'?: (number);
   'maxFileSize'?: (number | string | Long);
-  'computeProviderId'?: (number);
+  'providerId'?: (number);
   'throttle'?: (boolean);
 }
 
@@ -14,6 +14,6 @@ export interface PostSetupOpts__Output {
   'dataDir': (string);
   'numUnits': (number);
   'maxFileSize': (Long);
-  'computeProviderId': (number);
+  'providerId': (number);
   'throttle': (boolean);
 }

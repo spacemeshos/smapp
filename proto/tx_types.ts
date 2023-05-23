@@ -23,11 +23,14 @@ export interface ProtoGrpcType {
       Amount: MessageTypeDefinition
       AppEvent: MessageTypeDefinition
       Block: MessageTypeDefinition
+      EpochNumber: MessageTypeDefinition
       Layer: MessageTypeDefinition
       LayerLimits: MessageTypeDefinition
       LayerNumber: MessageTypeDefinition
       MeshTransaction: MessageTypeDefinition
       Nonce: MessageTypeDefinition
+      ParseTransactionRequest: MessageTypeDefinition
+      ParseTransactionResponse: MessageTypeDefinition
       Reward: MessageTypeDefinition
       SimpleInt: MessageTypeDefinition
       SimpleString: MessageTypeDefinition
