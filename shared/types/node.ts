@@ -92,6 +92,5 @@ export interface NodeConfig {
     'post-k2': number;
     'post-k3': number;
     'post-k2pow-difficulty': bigint | number;
-    'post-k3pow-difficulty': bigint | number;
   };
 }

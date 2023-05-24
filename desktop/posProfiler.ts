@@ -18,7 +18,6 @@ export interface PosProfilerOptions {
   nonces: number;
   threads: number;
   k2difficulty: BigInt;
-  k3difficulty: BigInt;
 }
 
 interface PosProfilerResult {
@@ -47,7 +46,6 @@ export const runProfiler = (
       `--nonces=${opts.nonces}`,
       `--threads=${opts.threads}`,
       `--k2-pow-difficulty=${opts.k2difficulty.toString()}`,
-      `--k3-pow-difficulty=${opts.k3difficulty.toString()}`,
     ]);
 
     const out = {
@@ -129,7 +127,6 @@ export const runBenchmarks = async (
     datafile: resolve(app.getPath('temp'), 'profiler.bin'),
     datasize: 1,
     k2difficulty: BigInt(nodeConfig.post['post-k2pow-difficulty']),
-    k3difficulty: BigInt(nodeConfig.post['post-k3pow-difficulty']),
     nonces: 16,
     threads: 1,
   };
