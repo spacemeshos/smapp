@@ -142,8 +142,13 @@ jobs:
           7z l ./node/release.zip
           ls ${{matrix.platform != 'windows' && '-la' || ''}} ./node/${{ steps.platform.outputs.dir }}/
 
-      # Run tests and build
+      - name: Install libOpenCL.so
+        if: matrix.id == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install ocl-icd-opencl-dev
 
+      # Run tests and build
       - name: Test
         if: matrix.os == 'macos-latest'
         run: yarn test --forceExit
