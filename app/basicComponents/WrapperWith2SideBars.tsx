@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { smColors } from '../vars';
+import Tooltip from './Tooltip';
 
 const Wrapper = styled.div<{ width: number; height: number | string }>`
   display: flex;
@@ -58,6 +59,9 @@ const HeaderIcon = styled.img`
 const Header = styled.div`
   font-size: 32px;
   line-height: 40px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: ${({ theme }) => theme.color.contrast};
 `;
 
@@ -75,6 +79,7 @@ type Props = {
   height?: number | string;
   children: any;
   style?: any;
+  headerTooltipName?: boolean;
 };
 
 const WrapperWith2SideBars = ({
@@ -85,6 +90,7 @@ const WrapperWith2SideBars = ({
   subHeader,
   children,
   style,
+  headerTooltipName,
 }: Props) => {
   return (
     <Wrapper width={width} height={height} style={style}>
@@ -93,6 +99,14 @@ const WrapperWith2SideBars = ({
         <HeaderWrapper>
           {headerIcon && <HeaderIcon src={headerIcon} />}
           <Header>{header}</Header>
+          {headerTooltipName && (
+            <Tooltip
+              affectTextCase={false}
+              text={header}
+              width={200}
+              marginTop={-25}
+            />
+          )}
         </HeaderWrapper>
         <SubHeader>--</SubHeader>
         {subHeader && <SubHeader>{subHeader}</SubHeader>}
