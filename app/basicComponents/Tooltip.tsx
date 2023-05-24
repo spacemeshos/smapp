@@ -40,10 +40,11 @@ const InnerIcon = styled.img.attrs((props) => ({
   height: 13px;
 `;
 
-const Text = styled.div`
+const Text = styled.div<{ affectTextCase?: boolean }>`
   font-size: 10px;
   line-height: 13px;
-  text-transform: uppercase;
+  text-transform: ${({ affectTextCase }) =>
+    affectTextCase ? 'uppercase' : 'none'};
   white-space: pre-wrap;
   color: ${({
     theme: {
@@ -86,22 +87,24 @@ type Props = {
   marginLeft?: number;
   text: string;
   hide?: boolean;
+  affectTextCase?: boolean;
 };
 
 const Tooltip = ({
-  top = -2,
-  left = -3,
   width,
   text,
+  top = -2,
+  left = -3,
   marginTop = 2,
   marginLeft = 5,
   hide = true,
+  affectTextCase,
 }: Props) => (
   <Wrapper marginTop={marginTop} marginLeft={marginLeft}>
     <OuterIcon />
     <InnerWrapper top={top} left={left} width={width} hide={hide}>
       <InnerIcon />
-      <Text>{text}</Text>
+      <Text affectTextCase={affectTextCase}>{text}</Text>
     </InnerWrapper>
   </Wrapper>
 );

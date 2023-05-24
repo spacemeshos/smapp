@@ -14,6 +14,7 @@ import { setLastSelectedWalletPath } from '../../infra/lastSelectedWalletPath';
 import { ExternalLinks } from '../../../shared/constants';
 import { AuthRouterParams } from './routerParams';
 import Steps, { Step } from './Steps';
+import { validationWalletName } from './Validation';
 
 const Wrapper = styled.div`
   display: flex;
@@ -97,7 +98,8 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   const isWalletOnlyMode = useSelector(isWalletOnly);
   const currentWalletPath = useSelector(getCurrentWalletFile);
   const dispatch = useDispatch();
-  const [convenientWalletName, setConvenientWalletName] = useState<string>();
+  const [convenientWalletName, setConvenientWalletName] = useState('');
+  const [nameWalletError, setNameWalletError] = useState('');
 
   useEffect(() => {
     // Store create wallet to localStorage to choose it
@@ -105,6 +107,14 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
     if (!currentWalletPath) return;
     setLastSelectedWalletPath(currentWalletPath);
   }, [currentWalletPath]);
+
+  const handleValidateWalletName = () => {
+    const nameWalletError = validationWalletName(convenientWalletName);
+    if (nameWalletError) {
+      setNameWalletError(nameWalletError);
+    }
+    return !nameWalletError;
+  };
 
   const validate = () => {
     const hasVerifyPasswordError =
@@ -149,7 +159,7 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
   };
 
   const nextAction = () => {
-    if (validate()) {
+    if (validate() && handleValidateWalletName()) {
       createWallet();
       history.push(AuthPath.ProtectWallet);
     }
@@ -231,6 +241,14 @@ const CreateWallet = ({ history, location }: AuthRouterParams) => {
                 />
               </InputSection>
             </Inputs>
+            <ErrorSection>
+              {nameWalletError && (
+                <ErrorPopup
+                  onClick={() => setNameWalletError('')}
+                  text={nameWalletError}
+                />
+              )}
+            </ErrorSection>
           </>
         }
         <BottomPart>
