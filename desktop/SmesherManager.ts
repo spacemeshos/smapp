@@ -7,6 +7,7 @@ import {
   HexString,
   IPCSmesherStartupData,
   NodeConfig,
+  PostProvingOpts,
   PostSetupOpts,
   PostSetupState,
   PostSetupStatus,
@@ -286,6 +287,7 @@ class SmesherManager extends AbstractManager {
 
   updateSmeshingConfig = async (
     postSetupOpts: PostSetupOpts,
+    provingOpts: PostProvingOpts,
     genesisID: HexString
   ) => {
     const {
@@ -296,6 +298,7 @@ class SmesherManager extends AbstractManager {
       throttle,
       maxFileSize,
     } = postSetupOpts;
+    const { nonces, threads } = provingOpts;
     const prevOpts = StoreService.get(`smeshing.${genesisID}`);
     const opts = safeSmeshingOpts(
       {
@@ -311,6 +314,10 @@ class SmesherManager extends AbstractManager {
             ['smeshing-opts', 'smeshing-opts-compute-batch-size'],
             prevOpts
           ),
+        },
+        'smeshing-proving-opts': {
+          'smeshing-opts-proving-nonces': nonces,
+          'smeshing-opts-proving-threads': threads,
         },
         'smeshing-start': true,
       },

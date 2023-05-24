@@ -63,6 +63,10 @@ export interface NodeConfig {
       'smeshing-opts-provider'?: number;
       'smeshing-opts-throttle'?: boolean;
     };
+    'smeshing-proving-opts'?: {
+      'smeshing-opts-proving-nonces'?: number;
+      'smeshing-opts-proving-threads'?: number;
+    };
   };
   main: {
     'layer-duration': string; // "120s"
@@ -79,5 +83,14 @@ export interface NodeConfig {
     'phase-shift': string;
     'cycle-gap': string;
     'grace-period': string;
+  };
+  post: {
+    'post-labels-per-unit': number;
+    'post-max-numunits': number;
+    'post-min-numunits': number;
+    'post-k1': number;
+    'post-k2': number;
+    'post-k3': number;
+    'post-k2pow-difficulty': bigint | number;
   };
 }

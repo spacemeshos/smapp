@@ -1,11 +1,10 @@
 import path from 'path';
-import os from 'os';
 import fs from 'fs';
 import { ChildProcess } from 'node:child_process';
 import { Writable } from 'stream';
 import fse from 'fs-extra';
 import { spawn } from 'cross-spawn';
-import { app, ipcMain, BrowserWindow, dialog } from 'electron';
+import { ipcMain, BrowserWindow, dialog } from 'electron';
 import { debounce } from 'throttle-debounce';
 import rotator from 'logrotate-stream';
 import { Subject } from 'rxjs';
@@ -50,15 +49,10 @@ import {
 } from './main/utils';
 import AbstractManager from './AbstractManager';
 import { ResettableSubject } from './main/rx.utils';
+import { getBinaryPath, getNodePath } from './main/binaries';
 import { updateSmeshingMetadata } from './SmesherMetadataUtils';
 
 const logger = Logger({ className: 'NodeManager' });
-
-const osTargetNames = {
-  Darwin: 'mac',
-  Linux: 'linux',
-  Windows_NT: 'windows',
-};
 
 const PROCESS_EXIT_TIMEOUT = 20000; // 20 sec
 const PROCESS_EXIT_CHECK_INTERVAL = 1000; // Check does the process exited
@@ -322,7 +316,11 @@ class NodeManager extends AbstractManager {
     return true;
   };
 
-  startSmeshing = async (postSetupOpts: PostSetupOpts) => {
+  //
+  startSmeshing = async (
+    postSetupOpts: PostSetupOpts,
+    provingOpts: PostProvingOpts
+  ) => {
     if (!postSetupOpts.dataDir) {
       throw new Error(
         'Can not setup Smeshing without specified data directory'
@@ -357,6 +355,7 @@ class NodeManager extends AbstractManager {
     // it will start Smeshing automatically based on the config
     await this.smesherManager.updateSmeshingConfig(
       postSetupOpts,
+      provingOpts,
       this.genesisID
     );
     await this.restartNode();
@@ -365,16 +364,8 @@ class NodeManager extends AbstractManager {
 
   private spawnNode = async () => {
     if (this.isNodeRunning()) return;
-    const nodeDir = path.resolve(
-      app.getAppPath(),
-      process.env.NODE_ENV === 'development'
-        ? `../node/${osTargetNames[os.type()]}/`
-        : '../../node/'
-    );
-    const nodePath = path.resolve(
-      nodeDir,
-      `go-spacemesh${osTargetNames[os.type()] === 'windows' ? '.exe' : ''}`
-    );
+    const nodeDir = getBinaryPath();
+    const nodePath = getNodePath();
     const nodeDataFilesPath = path.join(
       StoreService.get('node.dataPath'),
       this.genesisID.substring(0, 8)

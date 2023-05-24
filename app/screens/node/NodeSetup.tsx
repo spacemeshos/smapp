@@ -24,6 +24,7 @@ import Link from '../../basicComponents/Link';
 import ErrorMessage from '../../basicComponents/ErrorMessage';
 import { MainPath } from '../../routerPaths';
 import { smColors } from '../../vars';
+import PoSProfiler from '../../components/node/PoSProfiler';
 import { eventsService } from '../../infra/eventsService';
 
 const Wrapper = styled.div`
@@ -35,25 +36,39 @@ const Bold = styled.div`
   color: ${smColors.green};
 `;
 
-const headers = [
-  'PROOF OF SPACE DATA',
-  'PROOF OF SPACE DIRECTORY',
-  'PROOF OF SPACE SIZE',
-  'POS PROCESSOR',
-  'REWARDS ADDRESS',
-  'POS SETUP',
-];
-const subHeaders = [
-  '',
-  '',
-  'Select how much free space to commit to Spacemesh.\nThe more space you commit, the higher your smeshing rewards will be.',
-  <>
-    Select a supported processor for creating proof of space.
-    <Bold>The fastest one is chosen by default.</Bold>
-  </>,
-  'Select a coinbase address for your smeshing rewards.',
-  'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
-];
+enum SetupMode {
+  Modify = 0,
+  Directory,
+  Profiler,
+  Size,
+  Processor,
+  RewardsAddress,
+  Summary,
+}
+
+const headers = {
+  [SetupMode.Modify]: 'PROOF OF SPACE DATA',
+  [SetupMode.Directory]: 'PROOF OF SPACE DIRECTORY',
+  [SetupMode.Profiler]: 'PROOF GENERATION SETTINGS',
+  [SetupMode.Size]: 'PROOF OF SPACE SIZE',
+  [SetupMode.Processor]: 'POS PROCESSOR',
+  [SetupMode.RewardsAddress]: 'REWARDS ADDRESS',
+  [SetupMode.Summary]: 'POS SETUP',
+};
+const subHeaders = {
+  [SetupMode.Size]:
+    'Select how much free space to commit to Spacemesh.\nThe more space you commit, the higher your smeshing rewards will be.',
+  [SetupMode.Processor]: (
+    <>
+      Select a supported processor for creating proof of space.
+      <Bold>The fastest one is chosen by default.</Bold>
+    </>
+  ),
+  [SetupMode.RewardsAddress]:
+    'Select a coinbase address for your smeshing rewards.',
+  [SetupMode.Summary]:
+    'Review your proof of space data creation options.\nClick a link to go back and edit that item.',
+};
 
 interface Props extends RouteComponentProps {
   location: {
@@ -87,6 +102,9 @@ const NodeSetup = ({ history, location }: Props) => {
   const [throttle, setThrottle] = useState(false);
   const [maxFileSize, setMaxFileSize] = useState(DEFAULT_POS_MAX_FILE_SIZE);
   const [rewardAddress, setRewardAddress] = useState(accounts[0].address);
+  const [nonces, setNonces] = useState(16);
+  const [threads, setThreads] = useState(1);
+
   const singleCommitmentSize =
     (smesherConfig.bitsPerLabel * smesherConfig.labelsPerUnit) / BITS;
   useEffect(() => {
@@ -152,8 +170,12 @@ const NodeSetup = ({ history, location }: Props) => {
       )}
     </>
   );
-  const subHeader = mode !== 1 ? subHeaders[mode] : getPosDirectorySubheader();
-  const hasBackButton = location?.state?.modifyPostData || mode !== 1;
+  const subHeader =
+    mode !== SetupMode.Directory
+      ? subHeaders[mode] ?? ''
+      : getPosDirectorySubheader();
+  const hasBackButton =
+    location?.state?.modifyPostData || mode !== SetupMode.Directory;
 
   const setupAndInitMining = async () => {
     if (!provider) return;
@@ -165,6 +187,8 @@ const NodeSetup = ({ history, location }: Props) => {
         provider: provider.id,
         throttle,
         maxFileSize,
+        nonces,
+        threads,
       })
     );
 
@@ -174,7 +198,7 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handleNextAction = () => {
-    if (mode !== 4) {
+    if (mode !== SetupMode.Summary) {
       setMode(mode + 1);
     } else {
       setupAndInitMining();
@@ -187,7 +211,7 @@ const NodeSetup = ({ history, location }: Props) => {
   };
 
   const handlePrevAction = () => {
-    if (mode === 0) {
+    if (mode === SetupMode.Modify) {
       history.replace(MainPath.Smeshing);
     } else {
       setMode(mode - 1);
@@ -196,9 +220,9 @@ const NodeSetup = ({ history, location }: Props) => {
 
   const renderRightSection = () => {
     switch (mode) {
-      case 0:
+      case SetupMode.Modify:
         return <PoSModifyPostData deleteData={handleDeletePosData} />;
-      case 1:
+      case SetupMode.Directory:
         return (
           <PoSDirectory
             nextAction={handleNextAction}
@@ -211,7 +235,19 @@ const NodeSetup = ({ history, location }: Props) => {
             skipAction={() => history.push(MainPath.Wallet)}
           />
         );
-      case 2: {
+      case SetupMode.Profiler: {
+        return (
+          <PoSProfiler
+            nextAction={(nonces, threads, numUnits) => {
+              setNonces(nonces);
+              setThreads(threads);
+              numUnits && !Number.isNaN(numUnits) && setNumUnits(numUnits);
+              return handleNextAction();
+            }}
+          />
+        );
+      }
+      case SetupMode.Size: {
         // TODO: Make a well default instead of logic inside view and rerendering comp:
         numUnits === 0 && setNumUnits(smesherConfig.minNumUnits);
         return (
@@ -233,7 +269,7 @@ const NodeSetup = ({ history, location }: Props) => {
           />
         );
       }
-      case 3:
+      case SetupMode.Processor:
         return (
           <PoSProvider
             nextAction={handleNextAction}
@@ -245,7 +281,7 @@ const NodeSetup = ({ history, location }: Props) => {
             status={status}
           />
         );
-      case 4:
+      case SetupMode.Summary:
         return (
           <PoSRewards
             coinbase={rewardAddress}

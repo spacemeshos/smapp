@@ -113,11 +113,11 @@ jobs:
       - name: Unzip archive & get rid of redundant files
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' -r -y
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' '*.h' 'profiler*' -r -y
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: matrix.platform != 'windows'
-        run: (cd ./node/${{ steps.platform.outputs.dir }}; chmod -R +x * .)
+        run: chmod -R +x ./node/${{ steps.platform.outputs.dir }}/*
 
       - name: Disable quarantine for Go-Spacemesh and libs (macOS x64)
         if: matrix.id == 'macos'

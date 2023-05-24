@@ -11,5 +11,3 @@ export type Reward = {
 };
 
 export const BITS = 8;
-
-export const BITS_PER_LABEL = 128;

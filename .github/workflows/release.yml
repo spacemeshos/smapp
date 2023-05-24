@@ -123,7 +123,7 @@ jobs:
       - name: Unzip archive & get rid of redundant files
         if: steps.cache-gospacemesh.outputs.cache-hit != 'true'
         run: |
-          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' '*.h' -r
+          7z e -onode/${{ steps.platform.outputs.dir }}/ ./node/release.zip 'go-spacemesh*' '*.dylib' 'Molt*' '*.so' '*.dll' '*.lib' '*.h' 'profiler*' -r
 
       - name: Set CHMOD on Go-Spacemesh and libs
         if: matrix.platform != 'windows'
