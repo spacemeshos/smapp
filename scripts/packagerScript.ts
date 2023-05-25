@@ -83,9 +83,7 @@ const getBuildOptions = ({ target }) => {
         icon: path.join(__dirname, '..', 'resources', 'icon.icns'),
         binaries: [
           path.join(__dirname, '../node/mac/go-spacemesh'),
-          path.join(__dirname, '../node/mac/libgpu-setup.dylib'),
-          path.join(__dirname, '../node/mac/libMoltenVK.dylib'),
-          path.join(__dirname, '../node/mac/libvulkan.1.dylib')
+          path.join(__dirname, '../node/mac/libpost.dylib'),
         ],
         ...(process.env.DONT_SIGN_APP ? { identity: null } : {}),
       },
